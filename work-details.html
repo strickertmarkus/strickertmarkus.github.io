@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detailed Competence Profile - Markus Strickert</title>
+    <meta name="description" content="Work Experience of Markus Strickert">
+    <meta name="author" content="Markus Strickert">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/modern_normalize.css" />
+    <link rel="stylesheet" href="css/html5bp.css">
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="theme-color" content="#fafafa">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <style>
+      .experience-container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .experience-section {
+        margin-bottom: 3rem;
+      }
+
+      .section-header {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #9d836b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f3e4c6;
+      }
+
+      .experience-card {
+        background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        border-left: 4px solid #9d836b;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .experience-card:hover {
+        box-shadow: 0 8px 16px rgba(157, 131, 107, 0.15);
+        transform: translateY(-2px);
+        border-left-color: #f3e4c6;
+      }
+
+      .experience-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .experience-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        flex: 1;
+      }
+
+      .experience-date {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #9d836b;
+        background-color: #f3e4c6;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.2rem;
+        white-space: nowrap;
+        margin-left: 1rem;
+      }
+
+      .experience-position {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #0077cc;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .experience-position::before {
+        content: '◆';
+        margin-right: 0.5rem;
+        color: #9d836b;
+        font-size: 0.7rem;
+      }
+
+      .experience-description {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #555;
+        margin: 0;
+      }
+
+      @media (max-width: 768px) {
+        .experience-header {
+          flex-direction: column;
+        }
+
+        .experience-date {
+          margin-left: 0;
+          margin-top: 0.5rem;
+          align-self: flex-start;
+        }
+
+        .experience-card {
+          padding: 1.5rem;
+        }
+
+        .experience-title {
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Timeline Navigation Styles */
+      .timeline-nav {
+        position: fixed;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1.5rem 0.75rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .timeline-nav-item {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #9d836b;
+        cursor: pointer;
+        padding: 0.7rem 1rem;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+        white-space: normal;
+        letter-spacing: 0.3px;
+        text-align: center;
+        line-height: 1.3;
+        min-width: 110px;
+      }
+
+      .timeline-nav-item:hover {
+        transform: scale(1.15);
+        background-color: #f3e4c6;
+        color: #6b5d4f;
+        padding: 0.7rem 1.2rem;
+      }
+
+      .timeline-nav-item.active {
+        background-color: #9d836b;
+        color: white;
+        transform: scale(1.1);
+      }
+
+      @media (max-width: 1024px) {
+        .timeline-nav {
+          right: 1rem;
+          gap: 0.75rem;
+          padding: 1rem 0.5rem;
+        }
+
+        .timeline-nav-item {
+          font-size: 0.7rem;
+          padding: 0.4rem 0.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .timeline-nav {
+          position: static;
+          transform: none;
+          margin: 2rem 0;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+          padding: 1.5rem;
+        }
+
+        .timeline-nav-item {
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Overlay for menu -->
+    <div id="menu-overlay" class="menu-overlay"></div>
+
+    <!-- Hamburger Menu -->
+    <div id="hamburger-menu" class="hamburger-menu">
+      <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="dropdown-menu" class="dropdown-menu">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="about.html">About me</a></li>
+          <li><a href="academic.html">Academic Experience</a></li>
+          <li><a href="work-details.html">Detailed Competence Profile</a></li>
+          <li><a href="index.html">Portfolio</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html">Contact me</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <header class="page-header">
+      <div class="container">
+        <h1>Detailed Competence Profile</h1>
+        <a href="index.html" class="back-to-portfolio">← Back to Portfolio</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="container">
+        <main>
+          
+          <!-- Timeline Navigation -->
+          <div class="timeline-nav" id="timelineNav">
+            <div class="timeline-nav-item" data-section="current">Current & Recent</div>
+            <div class="timeline-nav-item" data-section="academic">Academic & Research</div>
+            <div class="timeline-nav-item" data-section="conferences">Conferences & Workshops</div>
+            <div class="timeline-nav-item" data-section="projects">Projects & Internships</div>
+            <div class="timeline-nav-item" data-section="leadership">Leadership & Volunteer</div>
+            <div class="timeline-nav-item" data-section="education">Education</div>
+          </div>
+          
+          <div class="experience-container">
+            <!-- Current & Recent (2023-Now) -->
+            <div class="experience-section">
+              <h2 class="section-header" id="current">Current & Recent</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Consultant</h3>
+                  <span class="experience-date">2023 - Now</span>
+                </div>
+                <div class="experience-position">BerDiz AB – System Verification</div>
+                <p class="experience-description">
+                  Responsible for initiating, writing, and verifying products from early development to customer delivery. Held key leadership roles in automating tests through scripting, managing the customization of developing simulators, and coordinating lab spaces. Specialized in formal verification documentation, as well as testing across hardware, firmware, and software.
+                </p>
+              </div>
+            </div>
+
+            <!-- Academic & Research (2021-2023) -->
+            <div class="experience-section">
+              <h2 class="section-header" id="academic">Academic & Research</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">PhD Researcher</h3>
+                  <span class="experience-date">2022 - 2023</span>
+                </div>
+                <div class="experience-position">Leiden Observatory</div>
+                <p class="experience-description">
+                  Modeled stellar winds and CMEs with 3D MHD simulations to assess how quiescent wind conditions change due to episodic mass ejections. Post-processed CFD data analysis using (Py)Tecplot with results compared with real observations (Hubble, EUVE data). Utilized Python and Linux/Awk for data filtering and visualization. Resources via Snellius supercomputer.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Teaching Assistant</h3>
+                  <span class="experience-date">2023</span>
+                </div>
+                <div class="experience-position">Leiden Observatory</div>
+                <p class="experience-description">
+                  Team member of lab sessions in an exoplanet course. Responsible for co-developing course materials centered around the utilization of the MESA code for atmospheric escape modeling.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Master's Thesis</h3>
+                  <span class="experience-date">2021 - 2022</span>
+                </div>
+                <div class="experience-position">Lund Observatory</div>
+                <p class="experience-description">
+                  Investigated the production of single and binary black holes in globular cluster models simulated with MOCCA code. Utilized MC Monte Carlo methods for population synthesis (SSE+BSE codes) and N-body dynamics. Developed extensive Python codes with integrated Bash and Awk scripts for post-processed data analysis.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Bachelor's Thesis</h3>
+                  <span class="experience-date">2020 - 2021</span>
+                </div>
+                <div class="experience-position">Lund University</div>
+                <p class="experience-description">
+                  Modeled epicycle motions of stars in the Milky Way galaxy. Simulated planetary abiogenesis using MC Monte Carlo methods. Created self-consistent Python script to model the development and propagation of galactic civilizations across the galaxy.
+                </p>
+              </div>
+            </div>
+
+            <!-- Conferences & Workshops -->
+            <div class="experience-section">
+              <h2 class="section-header" id="conferences">Conferences & Workshops</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">BCool – Exospace Weather Workshop</h3>
+                  <span class="experience-date">2023</span>
+                </div>
+                <div class="experience-position">Max Planck Institute, Göttingen</div>
+                <p class="experience-description">
+                  Presented talk on the suppression of CMEs in the context of strong overlying magnetic fields on AB Doradus from applied 3D MHD models using the BATS-R-US code.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Astroflow Workshop</h3>
+                  <span class="experience-date">2021 - 2022</span>
+                </div>
+                <div class="experience-position">Leiden Observatory</div>
+                <p class="experience-description">
+                  Presented Master Thesis research. Collaborated with doctoral, post-doctoral and external speakers at Leiden University.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Direct N-body Simulations Workshop</h3>
+                  <span class="experience-date">2021</span>
+                </div>
+                <div class="experience-position">Heidelberg, Germany</div>
+                <p class="experience-description">
+                  Online school on gravitational N-body simulations of dense clusters. Introduction to Nbody6++GPU code and supercomputer usage (HPC, Kepler).
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">TRENDY3 Workshop</h3>
+                  <span class="experience-date">2021</span>
+                </div>
+                <div class="experience-position">Evanston, USA</div>
+                <p class="experience-description">
+                  Conference exploring observational and theoretical aspects of triple (multiple) evolution and dynamics, and the unique role played by hierarchical systems.
+                </p>
+              </div>
+            </div>
+
+            <!-- Projects & Internships -->
+            <div class="experience-section">
+              <h2 class="section-header" id="projects">Projects & Internships</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Summer Research Project</h3>
+                  <span class="experience-date">2021</span>
+                </div>
+                <div class="experience-position">Lund University</div>
+                <p class="experience-description">
+                  Applied Smoothed Particle Hydrodynamics to simulate 576 stellar collisions. Implemented Delaunay triangulation method for post-process analysis and visualization using matplotlib. Results published in upcoming paper. Resources via Aurora and SNIC supercomputers.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Personal Caretaker</h3>
+                  <span class="experience-date">2020 - 2021</span>
+                </div>
+                <div class="experience-position">Assistans for dig AB, Motala</div>
+                <p class="experience-description">
+                  Household caretaker responsible for medication, social activities and care attendance. Experience working with PEG, Epilepsy and Neural disorders.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Personal Caretaker</h3>
+                  <span class="experience-date">2015 - 2017</span>
+                </div>
+                <div class="experience-position">Hammarstrands Assistans AB, Motala</div>
+                <p class="experience-description">
+                  Personal caretaker for two recipients. Received internal license for medical dosing. Worked with intimacy caretaking and social development.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Personal Caretaker</h3>
+                  <span class="experience-date">2013 - 2016</span>
+                </div>
+                <div class="experience-position">Alminia Assistans, Motala</div>
+                <p class="experience-description">
+                  Personal caretaker working with paralysis diagnosis. Learned basics of tracheostoma, respiratory equipment and general caretaking.
+                </p>
+              </div>
+            </div>
+
+            <!-- Leadership & Volunteer -->
+            <div class="experience-section">
+              <h2 class="section-header" id="leadership">Leadership & Volunteer</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">ALVA - Board Member</h3>
+                  <span class="experience-date">2021 - 2022</span>
+                </div>
+                <div class="experience-position">Lund University</div>
+                <p class="experience-description">
+                  Student-run organization with focus on astronomical events and news. Participated in lectures and astronomy activities including planetarium shows and observations.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Associates - Board Member</h3>
+                  <span class="experience-date">2019 - 2020</span>
+                </div>
+                <div class="experience-position">Lund University</div>
+                <p class="experience-description">
+                  Head position of the Mentor Committee in the science department. Introduced new students to the University.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Kulturnatten</h3>
+                  <span class="experience-date">2017 - 2018</span>
+                </div>
+                <div class="experience-position">Lund University</div>
+                <p class="experience-description">
+                  Annual event for scientists in Lund to inspire and teach physics experiments to locals and city visitors.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Young Leader</h3>
+                  <span class="experience-date">2015</span>
+                </div>
+                <div class="experience-position">Östergötlands Idrottsförbund, Motala</div>
+                <p class="experience-description">
+                  Responsible for several groups of children through various activities. Received basic education in anatomy, injury treatment and leadership.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Ledarutbildning Plattformen</h3>
+                  <span class="experience-date">2015</span>
+                </div>
+                <div class="experience-position">Motala, Sweden</div>
+                <p class="experience-description">
+                  Theoretical and practical exercises with focus on leadership for children and youths.
+                </p>
+              </div>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Motala Frisksportklubb</h3>
+                  <span class="experience-date">2011 - 2017</span>
+                </div>
+                <div class="experience-position">Motala, Sweden</div>
+                <p class="experience-description">
+                  Association promoting equality, health and activity. Board member 2013-2014. Led education in various sports (trampoline, circus, freerunning, gymnastics). Helped design and develop a freerunning park established in 2014.
+                </p>
+              </div>
+            </div>
+
+            <!-- Education -->
+            <div class="experience-section">
+              <h2 class="section-header" id="education">Education</h2>
+
+              <div class="experience-card">
+                <div class="experience-header">
+                  <h3 class="experience-title">Upper Secondary Education</h3>
+                  <span class="experience-date">2015 - 2017</span>
+                </div>
+                <div class="experience-position">Platengymnasiet, Motala</div>
+                <p class="experience-description">
+                  High school education in natural sciences.
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <footer class="page-footer">
+      <div class="container">
+        <p>© 2026 Markus Strickert. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+      // Timeline Navigation Functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const timelineItems = document.querySelectorAll('.timeline-nav-item');
+        
+        timelineItems.forEach(item => {
+          item.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            const targetSection = document.getElementById(sectionId);
+            
+            if (targetSection) {
+              targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              
+              // Update active state
+              timelineItems.forEach(i => i.classList.remove('active'));
+              this.classList.add('active');
+            }
+          });
+        });
+
+        // Update active timeline item on scroll
+        window.addEventListener('scroll', function() {
+          const sections = document.querySelectorAll('[id]');
+          const scrollPosition = window.scrollY + 200;
+
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              timelineItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === section.id) {
+                  item.classList.add('active');
+                }
+              });
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

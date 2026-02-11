@@ -1,0 +1,251 @@
+{
+  "name": "Markus Strickert",
+  "label": "Consultant - Sigma Technology",
+  "image_path": "mstr.jpeg",
+  "contact": {
+    "email": "markus.strickert@gmail.com",
+    "phone": "+46761034120",
+    "location": "Motala, Sweden"
+  },
+  "summary": "I have a background as a system verification engineer, testing and validating systems across hardware, firmware, and software from early development to delivery. I design and automate tests, have hands on lab experience, and handle verification and requirements documentation. I have a background in astrophysics and scientific computing. A strong analytical mindset, problem solving and collaboration in agile teams are key assets in my everyday work.",
+  "base_url": "127.0.0.1:5500",
+  "social_links": [
+    {
+      "label": "Personal Website",
+      "url": "https://sample.com",
+      "svg_path": "img/globe.svg"
+    },
+    {
+      "label": "First Social",
+      "url": "https://sample.com",
+      "svg_path": "img/linkedin.svg"
+    },
+    {
+      "label": "Second Social",
+      "url": "https://sample.com",
+      "svg_path": "img/github.svg"
+    }
+  ],
+  "work_experience": [
+    {
+      "company": "Sigma Technology",
+      "position": "Consultant",
+      "url": "https://sample.com",
+      "start_date": "02/01/2026",
+      "end_date": "Present",
+      "summary": "TBC",
+      "highlights": [
+        "Programming & automation: NI Teststand and MAX"
+      ]
+    },
+    {
+      "company": "Saab Dynamics",
+      "position": "Test and Verification Engineer",
+      "url": "https://sample.com",
+      "start_date": "01/15/2024",
+      "end_date": "01/31/2026",
+      "summary": "Two years of experience in system verification and testing across software and hardware, gaining solid system‑level understanding through hands‑on integration, commissioning, and verification work. I have participated in customer interactions, formal system analyses, and FMV demonstrations as system test responsible, coordinating activities and managing security‑classified equipment. I have taken on team‑lead duties, run agile retrospectives, and produced technical documentation used across multiple teams. My work includes requirements and test specification management, simulator improvements, and test automation in C++ and Python, alongside quality assurance and structured handling of secure information.",
+      "highlights": [
+        "Requirements and test specifications: DOORS NG",
+        "Programming & automation: C++, Python, Bash, CLI",
+        "Data analysis & post-processing: Python",
+        "Work methodology: Agile workflows using JIRA",
+        "Document and information management: IFS",
+        "Standards: Work in accordance with military standards",
+        "Test & verification: Hardware and firmware testing in laboratory environments, software testing against hardware"
+      ]
+    },
+    {
+      "company": "PhD Researcher",
+      "position": "Leiden Observatory",
+      "url": "https://sample.com",
+      "start_date": "08/20/2022",
+      "end_date": "10/15/2023",
+      "summary": "After my Master’s degree, I was selected for one of 13 projects at Leiden Observatory from over 500 applicants, where I worked on star–planet interaction modeling using 3D MHD simulations and data analysis. The project resulted in a publication and required structured, independent work with complex systems. I improved existing simulation tools in Fortran, developed analysis and processing workflows in Python, and handled large scale datasets with version control in Git. I regularly communicated results to technical and cross disciplinary audiences at national and international events. The work strengthened my ability to deliver high quality technical output, ranging from method development and verification to clear documentation—and led to a nomination to a Caltech Think Tank on future space mission concepts",
+      "highlights": [
+        "Programming: Python, Fortran, Bash, AWK, Linux",
+        "Data Analysis & Visualization: Python, PyTecplot, Tecplot (2D/3D, animations)",
+        "Simulation & Computation: Large-scale simulations on supercomputers (HPC, Snellius)",
+        "Work Methodology: Git, method development, structured documentation, LaTeX, VS Code",
+        "Collaboration: International and cross-functional teams",
+        "Presentation: Technical presentations for expert and decision-making audiences"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "My First Project",
+      "summary": "Short summary about my first project",
+      "url": "https://sample.com",
+      "highlights": [
+        "First Highlight of Project One",
+        "Second Highlight of Project One",
+        "Third Highlight of Project One"
+      ],
+      "images": [
+        {
+          "img_path": "https://picsum.photos/600/338?random=1",
+          "caption": "Image Caption 1"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=2",
+          "caption": "Image Caption 2"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=3",
+          "caption": "Image Caption 3"
+        }
+      ]
+    },
+    {
+      "title": "My Second Project",
+      "summary": "Short summary about my second project",
+      "url": "https://sample.com",
+      "highlights": [
+        "First Highlight of Project Two",
+        "Second Highlight of Project Two",
+        "Third Highlight of Project Two"
+      ],
+      "images": [
+        {
+          "img_path": "https://picsum.photos/600/338?random=4",
+          "caption": "Image Caption 4"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=5",
+          "caption": "Image Caption 5"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=6",
+          "caption": "Image Caption 6"
+        }
+      ]
+    }
+  ],
+  "volunteer_experience": [
+    {
+      "organization": "Frisksport Association",
+      "position": "Board representative",
+      "url": "https://sample.com",
+      "start_date": "06/15/2013",
+      "end_date": "08/15/2014",
+      "summary": "Represented from the board to help in designing and realising a parkour park in Motala Sweden. The park was established in 2014. ",
+      "highlights": [
+        "First Duty of Current Organization",
+        "Second Duty of Current Organization",
+        "Third Duty of Current Organization"
+      ]
+    },
+    {
+      "organization": "Previous Organization",
+      "position": "Position Two",
+      "url": "https://www.lunduniversity.lu.se/",
+      "start_date": "23/08/2017",
+      "end_date": "06/06/2020",
+      "summary": "Short summary about previous volunteer work",
+      "highlights": [
+        "First Duty of Previous Organization",
+        "Second Duty of Previous Organization",
+        "Third Duty of Previous Organization"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Lund University",
+      "location": "Lund, Sweden",
+      "url": "https://www.lunduniversity.lu.se/",
+      "degrees": [
+        "Master of Science in Astrophysics"
+      ],
+      "honors": [
+        {
+          "title": "Black Hole Dynamics in Stellar Clusters",
+          "url": "https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=9095211&fileOId=9095212"
+        }
+      ],
+      "graduation_date": "01/06/2022"
+    },
+    {
+      "institution": "Lund University",
+      "location": "Lund, Sweden",
+      "url": "https://www.lunduniversity.lu.se/",
+      "degrees": ["Bachelor of Science in Physics"],
+      "honors": ["Scholarship Recipient"],
+      "graduation_date": "06/06/2020"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Test and requirement management (Doors NG, IFS)",
+      "proficiency": 100,
+      "proficiency_label": "Proficiency Level"
+    },
+    {
+      "name": "Python",
+      "proficiency": 80,
+      "proficiency_label": "Expert Level"
+    },
+    {
+      "name": "C++, bash, VBA, awk, fortran",
+      "proficiency": 60,
+      "proficiency_label": "Advance Level"
+    }
+  ],
+  "interests": [
+    {
+      "name": "My First Hobby",
+      "summary": "Short summary about my first Hobby",
+      "images": [
+        {
+          "img_path": "https://picsum.photos/600/338?random=7",
+          "caption": "Image Caption 7"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=8",
+          "caption": "Image Caption 8"
+        }
+      ]
+    },
+    {
+      "name": "My Second Hobby",
+      "summary": "Short summary about my second hobby",
+      "images": [
+        {
+          "img_path": "https://picsum.photos/600/338?random=9",
+          "caption": "Image Caption 9"
+        },
+        {
+          "img_path": "https://picsum.photos/600/338?random=10",
+          "caption": "Image Caption 10"
+        }
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "Swedish",
+      "fluency": "Native speaker"
+    },
+    {
+      "language": "English",
+      "fluency": "Professional Working Proficiency"
+    },
+    {
+      "language": "German",
+      "fluency": "Basic knowledge"
+    }
+  ],
+  "references": [
+    {
+      "name": "Person One",
+      "relation": "Previous Boss",
+      "reference": "Some nice things that Person One said about you, your work ethic, and how you provided value to their team."
+    },
+    {
+      "name": "Person Two",
+      "relation": "Previous Coworker",
+      "reference": "More kind things that Person Two said about you, what it was like working with you, and things you've accomplished."
+    }
+  ]
+}
