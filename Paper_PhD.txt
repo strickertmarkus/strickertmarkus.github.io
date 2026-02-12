@@ -1,0 +1,870 @@
+MNRAS  533, 1156–1165  (2024) https://doi.org/10.1093/mnras/stae1884  
+Advance  Access  publication  2024 August  07 
+High-latitude  coronal  mass  ejections  on the young  solar-like  star  AB Dor  
+K. M. Strickert  , D. Evensberget  ‹and A. A. Vidotto  
+Leiden Observatory,  Leiden University,  PO Box 9513, NL-2300  RA Leiden, the Netherlands  
+Accepted  2024 August 31. Received  2024 July 31; in original form 2024 April 17 
+A B S T R A C T 
+AB Dor is a young solar-type  star with a surface  large-scale  magnetic  ﬁeld 10 2 to 10 3 times stronger  than the that of the Sun. 
+Although  strong magnetic  ﬁelds are thought  to inhibit  coronal  mass ejections  (CMEs),  dimming  signatures  typically  associated  
+with an eruptive  CME were recently  observed  in AB Dor. The uninterrupted,  long-duration  dimming  signal suggests  that a 
+CME took place at a high latitude,  where it remained  in view as the star rotates.  A high-latitude  CME is also consistent  with 
+observations  that indicate  that AB Dor hosts polar active regions.  To investigate  magnetic  conﬁnement  in AB Dor, we conduct  
+a parametric  modelling  study of 21 CMEs  at latitudes  ∼60 ◦, varying  the location,  mass, and magnetic  ﬁeld strength  of an 
+injected  ﬂux rope. 12 models  had the ﬂux rope located  in an open magnetic  ﬁeld region,  while the remaining  nine were in a 
+closed  region.  Results  show that CMEs  in open-ﬁeld  regions  are in general  more likely to erupt. The four eruptive  CMEs  from 
+closed  regions  had high free magnetic  energies  /greaterorsimilar 3 ×10 35 erg, and 10 CMEs  predominantly  from the closed-ﬁeld  regions  (8/10) 
+were conﬁned.  CMEs  in closed-ﬁeld  regions  exhibited  lower kinetic  energies,  since part of the CME energy  was expended  to 
+o v ercome  magnetic  tension  and break open the o v erlying  ﬁeld. In conclusion  our work suggests  that eruptive  CMEs  in AB Dor 
+may occur in high-latitude  regions  of open magnetic  ﬁeld, as the magnetic  tension  in such regions  does not signiﬁcantly  inhibit  
+the eruption.  
+Key words:  MHD –s t a r s :  coronae  –s t a r s :  individual:  AB Dor (HD 36705)  – stars:  magnetic  ﬁelds. 
+1 INTRODUCTION  
+Even though the Sun is a relatively  magnetically  inactive  star, it 
+hosts a plethora  of burst and transient  events, in which free magnetic  
+energy is violently  released  and converted  into radiation  and the 
+acceleration  of particles.  The sudden  burst of radiation  in the form 
+of ﬂares can be associated  with the expelling  of material  from the 
+Sun in the form of ﬁlament/prominence  eruptions  and coronal  mass 
+ejections  (CMEs).  The ﬂare–CME  association  is in particular  more 
+evident  for large solar ﬂares (e.g. Yashiro  et al. 2006 ). Given the 
+magnetic  nature of these e xplosiv  e ev ents, and the fact that solar- 
+like stars can be substantially  more magnetically  active than the Sun 
+(particularly  at young ages; e.g. Donati et al. 1999 ; Waite et al. 2015 ; 
+Cang et al. 2020 ), solar-like  stars are expected  to not only host bursty 
+e vents, but e ven more frequent  and energetic  ones (Aarnio,  Matt & 
+Stassun  2012 ; Drake et al. 2013 ; Osten & Wolk 2015 ; Jardine  & 
+Collier Cameron  2019 ; Odert et al. 2020 ). This idea is supported  by 
+the detection  of stellar ﬂares and superﬂares  (e.g. G ¨udel et al. 2004 ; 
+Maehara  et al. 2012 ; Ha wle y et al. 2014 ; Kowalski  2024 ). 
+In spite of the numerous  detections  of stellar ﬂares observed  
+across the electromagnetic  spectrum,  unambiguous  detection  of 
+a counterpart  CME remains  challenging  (Moschou  et al. 2019 ; 
+Namekata  et al. 2022 ). The indirect  evidence  of the presence  of 
+stellar CMEs is based on a range of detection  methods,  including  
+Doppler  shifts in Balmer  lines (Vida et al. 2019 ), X-ray blueshifted  
+⋆ E-mail: e vensberget@strw.leidenuni  v.nl emission  (Argirofﬁ et  al. 2019 ; Chen et al. 2022 ), and, more recently,  
+coronal  dimming  observed  in the X-ray, extreme  ultraviolet  (EUV),  
+and far -ultra violet (Leitzinger  et al. 2020 ; Veronig  et al. 2021 ). 1 
+Eruptions  have also recently  been reported  in the young, rapidly  
+rotating  star EK Draconis  (Namekata  et al. 2021 , 2024 ) and in 
+/epsilon1Eridani  (Loyd et al. 2022 ). In the Sun, coronal  dimming  is usually  
+observ ed after eruptiv  e ev ents (Harra et al. 2016 ; Mason et al. 2016 ), 
+with more than 80 per cent of solar CME e vents sho wing succeeding  
+dimming  signatures  (Veronig  et al. 2021 ). As the CME propagates,  
+e v acuated  mass behind the CME shock front does not contribute  (or 
+contribute  less) to X-ray and EUV coronal  emission  (Mason  et al. 
+2016 ), generating  a dimming  in X-ray/EUV  light curves.  
+Moti v ated by the solar analogy,  it has been suggested  that stellar 
+CMEs could also produce  dimming  signatures.  Recently,  Veronig  
+et al. ( 2021 ) examined  stellar spectra  in EUV and X-ray from 
+observ ational archi ves for about 200 stars. These authors  detected  
+13 different  stars that showed  dimming  associated  with ﬂares –t h i s 
+association  is indicative  of stellar CMEs.  In particular,  these authors  
+found ﬁve dimming  events on AB Dor (HD 36705),  a rapidly  rotating  
+young solar-mass  star, with an age of about 120 Myr, a rotation  period 
+of 0.51 d, and kG (kilo-Gauss)  surface  magnetic  ﬁelds (Donati  et al. 
+1999 ; Hussain  et al. 2007 ; Strassmeier  2009 ; Barenfeld  et al. 2013 ). 
+1 Although  Type II radio bursts, usually associated  with solar CMEs, are 
+promising  ways to detect stellar CMEs (Crosley  et al. 2016 ), no stellar Type 
+II radio bursts have been reported  yet. 
+© 2024 The Author(s).  
+Published  by Oxford University  Press on behalf of Royal Astronomical  Society.  This is an Open Access article distributed  under the terms of the Creative  
+Commons  Attribution  License ( https:// creativecommons.org/  licenses/  by/ 4.0/ ), which permits unrestricted  reuse, distribution,  and reproduction  in any medium,  
+provided  the original work is properly  cited. Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+High-latitude  CMEs  in AB Dor 1157 
+MNRAS  533, 1156–1165  (2024) The coronal  dimming  event from 1994 recorded  by EUVE ( Ex- 
+treme Ultraviolet  Explorer  ) showed  a surprisingly  long dimming  
+lasting 13.3 h from ﬂare peak to the end of the dimming  (Veronig  
+et al. 2021 ). Because  the duration  of the event is comparable  to the 
+∼0 . 5 d rotation  period of AB Dor, Veronig  et al. ( 2021 ) suggested  
+that the associated  CME might have originated  in a region that is 
+constantly  in view of the observer,  namely  at high latitudes.  This is 
+in line with observations  that show that AB Dor’s rotation  axis has an 
+inclination  of 60 ◦(Donati  et al. 1999 ). Interestingly,  AB Dor exhibits  
+polar active regions  (Collier  Cameron  & Unruh 1994 ). Using again 
+the Sun as analogy,  given that the majority  of solar CMEs tend to 
+originate  in activ e re gions, it is very plausible  that the CME event 
+reported  by Veronig  et al. ( 2021 ) could have also originate  from 
+polar activ e re gions. In the Sun, both low- and high-latitude  CMEs 
+are observed  and their source regions  differ. While the more abundant  
+low-latitude  CMEs originate  from solar activ e re gions (concentrated  
+in a belt of ±40 ◦around the equator),  high-latitude  CMEs originate  
+from polar crown ﬁlaments  (e.g. Gopalswamy,  Yashiro  & Akiyama  
+2015 ; Lin et al. 2022 ). Understandably,  the spatial information  we 
+ha ve a vailable  for AB Dor is substantially  inferior  to that of the 
+Sun. Here, we speculate  that the source of the high-latitude  CMEs in 
+AB Dor is its polar active regions.  
+One potential  problem  for the eruption  of CMEs in AB Dor, or 
+any other magnetically  active star, is that the star itself hosts a strong 
+( ∼kG), large-scale  surface  magnetic  ﬁeld, which can prevent  the 
+eruption  of CMEs.  The numerical  study of Alvarado-G  ´omez et al. 
+( 2018 ) showed  that a stronger  o v erlying  large-scale  dipolar  magnetic  
+ﬁeld can prevent  CMEs from escaping  unless their energies  are much 
+stronger  than energies  typically  associated  with solar CMEs.  To better 
+understand  the eruption  (or conﬁnement)  of CMEs in the young, 
+active star AB Dor, in this work, we conduct  a parametric  study 
+of CME eruptions  using three-dimensional  magnetohydrodynamical  
+models.  The combination  of a dimming  time that is longer than the 
+rotation  period of AB Dor (Veronig  et al. 2021 ) and the presence  
+of polar active regions  (Collier  Cameron  & Unruh 1994 ) led us 
+to explore  the ejection  of high-latitude  CMEs only. Our paper is 
+structured  as follows.  Section  2 introduces  the numerical  model 
+we use in this work, including  the data-driven  background  wind of 
+AB Dor and the eruption  model of the CMEs.  In Section  3 , we present  
+the physical  properties  of the simulated  CMEs of our numerical  study, 
+their morphology  and their eruptive  (or conﬁned)  nature, and their 
+energetics.  Section  4 shows our discussion  and conclusions  of this 
+work. 
+2 MODELS  
+2.1 The background  stellar wind model 
+To model the wind of AB Dor, we use the Alfv ´en Wave Solar Model 
+( AWSOM  ; Sokolov  et al. 2013 ; van der Holst et al. 2014 ), which is 
+implemented  in the 3D magnetohydrodynamics  (MHD)  code BATS - 
+R-US (Powell  et al. 1999 ; T ´oth et al. 2012 ). This model solves the 
+MHD equations,  assuming  that Alfv ´en waves heat and accelerate  the 
+stellar wind. Although  initially  developed  to describe  the solar wind, 
+this model has been used also to model winds of cool dwarf stars 
+(e.g. Alvarado-G  ´omez et al. 2018 ; Evensberget  et al. 2021 , 2022 , 
+2023 ; Kavanagh  et al. 2021 ; ´O Fionnag  ´ain et al. 2021 ; Vidotto  et al. 
+2023 ). We refer the reader to these papers for more details of the 
+model. 
+In addition  to the mass (0 . 86 M ⊙), radius (0 . 96 R ⊙), and rotation  
+period (0.514 d) of AB Dor, the main input of our model is the 
+radial surface  magnetic  ﬁeld of AB Dor. Here, we use the 2002 
+Figure 1. Surface magnetic  ﬁeld structure  of AB Dor, derived from spec- 
+tropolarimetric  observations  performed  in 2002 December  (Hussain  et al. 
+2007 ). Two rectangular  patches display the two different  ﬂux rope locations  
+for the simulated  CME models:  the green patch is located at the open magnetic  
+ﬁeld region, while the magenta  patch is at the closed-ﬁeld  region. The white 
+circle and cross indicate  the maximum  and minimum  magnetic  ﬁeld strengths.  
+The average strength  of the depicted  radial ﬁeld is 105 G. 
+December  surface  magnetic  ﬁeld map, obtained  from a series of 
+spectropolarimetric  observations,  from Hussain  et al. ( 2007 ). This 
+map is reconstructed  using Zeeman–Doppler  imaging  (ZDI; Semel 
+1989 ; Donati & Landstreet  2009 ). The map we adopt in our work 
+is described  by spherical  harmonics  up to degree /lscript max = 25 and is 
+shown in Fig. 1 . We see that the radial surface  ﬁeld strengths  range 
+from −573 to 466 G. 
+The inner boundary  of our simulation  is placed in the chromo-  
+sphere,  where we adopt similar values as those used in the simulations  
+of the solar wind by e.g. Evensberget  et al. ( 2023 ). We assume  
+a density  of 2 ×10 −11 cm −3 and temperature  of 5 ×10 4 K. The 
+wave dissipation  length scale at the boundary  is assumed  to be 
+1 . 5 ×10 5 m √ 
+T , and the Poynting  ﬂux-to-ﬁeld  ratio at the inner 
+boundary  is set to 10 6 W m −2 T −1 . Finally,  the heat conduction  
+contains  a stochastic  heating  term of 0.18, a heat ﬂux parameter  
+of 1.05, and a collisionless  radius of 5 R ⋆ . We refer the reader to 
+van der Holst et al. ( 2014 ) for a detailed  description  of these model 
+parameters.  
+Our numerical  grid is spherical  with the smallest  grid size of 
+1 / 256 R ⋆ close to the stellar surface  (radial distances  ≤1 . 7 R ⋆ ) and 
+around the current  sheet. We also have a conical  region with the 
+same resolution  extending  throughout  the domain,  having its base at 
+the region where the CME is initiated  and propagates.  Elsewhere  in 
+the grid, the resolution  is kept at 1 / 64 R ⋆ . The grid extends  out to 
+24 R ⋆ . 
+Prior to the injection  of the CME ﬂux rope, we let the simulation  
+evolve until the stellar wind reaches  a steady-state  conﬁguration,  
+as shown in Fig. 2 . At this point, we compute  the wind mass-loss  
+rate as the mass ﬂux through  a spherical  surface  at a certain distance  
+abo v e the stellar surface  ˙M = /contintegraltext 
+ρu r d A . We found a mass-loss  rate of 
+10 −12 M ⊙yr −1 ∼53 ˙M ⊙, which lies within estimates  of Cohen et al. 
+( 2010 ) and below the upper limit derived  from prominence  studies 
+by Jardine  & Collier Cameron  ( 2019 ). We see that the magnetic  ﬁeld 
+embedded  in the stellar wind resembles  an inclined  dipole, and we 
+ﬁnd wind speeds reaching  a maximum  value of ∼1000 km s −1 at 
+large distances  in the polar regions.  
+The steady-state  wind solution  of AB Dor serves as the background  
+wind for the 21 CME events we simulate.  
+2.2 The eruption  model of the CME 
+To initiate the CMEs in our models,  we add a magnetic  ﬂux 
+rope whose footpoints  are anchored  at the inner boundary  of our 
+simulations.  Similar  CME eruption  models  have been adopted  in Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+1158 K. M. Strickert,  D. Evensberget  and A. A. Vidotto  
+MNRAS  533, 1156–1165  (2024) 
+Figure 2. Steady-state  wind solution  of AB Dor, where we used the ZDI 
+map based on the work of Hussain  et al. ( 2007 ) and presented  in Fig. 1 . The 
+background  is colour coded by the radial wind velocity  and the stellar surface 
+by the radial magnetic  ﬁeld ZDI map. The domain of the ﬁgure extends out 
+to roughly 8 R ⋆ , and the axis of rotation is in the vertical direction.  
+Figure 3. An example  initial conﬁguration  of the ﬂux rope created using the 
+model of Titov & D ´emoulin  ( 1999 ) with a ﬂux rope mass of 3 . 5 ×10 18 g and 
+a central magnetic  ﬁeld strength  of 1000 G. The colours at the inner boundary  
+indicate  the polarity of the radial magnetic  ﬁeld with values −900 G (blue) 
+to + 900 G (red). The underlying  line current present during the formation  of 
+the ﬂux rope (cf. Section 2.2 ) generates  the twisted magnetic  ﬁeld lines seen 
+inside the ﬂux rope in the ﬁgure. 
+numerical  studies of solar (e.g. Jin et al. 2013 , 2017a ) and stellar 
+(Alvarado-G  ´omez et al. 2018 ; ´O Fionnag  ´ain et al. 2022 ) CMEs.  
+Here, we use the ﬂux rope model based on Titov & D ´emoulin  
+( 1999 ), in which virtual magnetic  charges  and currents  along the 
+toroidal  symmetry  axis produce  a toroidal  ﬂux rope with a spiralling  
+magnetic  ﬁeld in its interior  (see Fig. 3 ). The injection  of the ﬂux 
+rope perturbs  the background  wind solution  and in many cases this 
+leads to an eruptive  CME event. 
+To elucidate  which ﬂux rope parameters  should be adopted  in 
+the simulations  of stellar CMEs,  our parametric  study comprises  21 
+CME simulations  with different  ﬂux rope characteristics.  The ﬂux 
+rope model by Titov & D ´emoulin  ( 1999 ) can be described  by eight 
+parameters.  The ﬁrst three parameters  describe  the geometrical  shape of the ﬂux rope and are held constant  in all our models:  the major 
+radius of the ﬂux rope toroid R maj = 128 Mm, the minor radius 
+R min = 20 Mm, and the depth below the inner boundary  of the toroid 
+symmetry  axis D = 1 Mm. This loop structure  mimics  a strong 
+magnetic  bipole anchored  at the surface  of the star. In the context  
+of solar CME models,  the ﬂux rope position  and size are adjusted  
+to match the solar activ e re gions from which CMEs are observed  to 
+originate  (e.g. Manchester  et al. 2008 ; Jin et al. 2017b ). In the case of 
+stars, these geometric  considerations  are not well constrained  (Lynch  
+et al. 2023 ); we cannot observationally  resolve  the size and distances  
+of magnetic  bipolar  regions  in stellar surfaces.  Therefore,  the values 
+used here are the same as those used in CME simulations  of /epsilon1Eridani  
+performed  by ´O Fionnag  ´ain et al. ( 2022 ) and on the same ballpark  as 
+to values used in solar (e.g. Roussev  et al. 2003 ; Loesch  et al. 2011 ; 
+Jin et al. 2013 ) and stellar (e.g. Alvarado-G  ´omez et al. 2020 ) CME 
+simulations.  
+The next two parameters  determine  the energy of the resulting  
+CME and are varied in our simulations:  the ﬂux rope mass and 
+magnetic  ﬁeld. In our work, M FR ranges from 3 . 5 ×10 14 to 3 . 5 ×
+10 18 G. The lower end of these values is comparable  to the ﬂux 
+rope mass of Alvarado-G  ´omez et al. ( 2020 ). Given these assumed  
+masses  and the volume  of the ﬂux rope ( ∼5 ×10 29 cm 3 , according  
+to the assumed  geometry),  the average  density  inside the ﬂux rope 
+ranges from ∼10 9 to ∼10 13 cm −3 . For comparison,  the densities  
+in X-ray coronal  plasma  can ranges from ∼10 8 to ∼10 13 cm −3 , 
+depending  on the activity  of the star (G ¨udel 2004 ). For the ﬂux rope 
+magnetic  ﬁeld strength  B FR , we use values from 100 to 1000 G. 
+Stellar ﬂare observations  estimate  the magnetic  ﬁeld in the ﬂare 
+region to range from 30 to 400 G (Namekata  et al. 2017 ), and Lynch 
+et al. ( 2019 ) argue that starspot/stellar  active regions  could have ﬁeld 
+strengths  of 250–1400  G. The values we chose for B FR span the 
+values found in these two studies.  Another  avenue that gives support  
+to a stronger-than-solar  small-scale  ﬁeld for AB Dor comes from 
+observations  of the total unsigned  ﬁeld of active stars. Typically,  
+it is found that the large-scale  ﬁeld derived  in spectropolarimetric  
+observations  (such as that presented  in Fig. 1 ) encompasses  only a 
+fraction  ( ∼10 per cent ) of the total surface  ﬁeld (i.e. including  the 
+small- and the large-scale  ﬁelds; see e.g. Vidotto  et al. 2014 ). Given 
+that the large-scale  ﬁeld alone of AB Dor is already  a couple of orders 
+of magnitude  larger than solar, we speculate  that this increase  would 
+be also found in the smaller  scale ﬁeld structure.  Of course,  there is 
+still a de generac  y between  the ﬁlling factor of active regions  and their 
+typical ﬁeld strengths  –f o r example,  we do not know whether  a higher 
+unsigned  total ﬁeld would result in large active regions  with weaker  
+ﬁeld strengths  or in smaller  activ e re gions with stronger  magnetic  
+ﬁelds. 
+The value of B FR is used to set a current  I FR = 2 cR maj B FR / 4 π( c 
+being the speed of light) that ﬂows along the arc of the ﬂux rope so that 
+the magnetic  ﬁeld strength  at the ﬂux rope symmetry  axis is B FR . In 
+the literature,  the ﬂux rope parameter  that is more commonly  referred  
+to is the free magnetic  energy instead  of the B FR . The free magnetic  
+energy is computed  as (see Titov & D ´emoulin  1999 ; Roussev  et al. 
+2003 ) 
+E B 
+free = 1 
+2 I 2 
+FR L, with L = 4 π
+c 2 α
+360 ◦R maj /parenleftbigg
+ln 8 R maj 
+R min −5 
+4 /parenrightbigg
+, (1) 
+where α= arccos /parenleftbig
+D /slashbig
+R maj /parenrightbig
+is the arch angle of the emerging  ﬂux 
+rope and L is its inductance.  Since we only vary B FR and M FR , we 
+have that L = 2 . 39 ×10 −10 s 2 cm −1 in all our models.  Likewise,  the 
+parenthesized  term in the expression  for L is a geometrical  factor 
+with value 2.69. We note that E B 
+free ∝ R 3 
+maj B 2 
+FR and that the ﬂux rope 
+mass does not affect the free energy.  Given our parameters  for the Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+High-latitude  CMEs  in AB Dor 1159 
+MNRAS  533, 1156–1165  (2024) ﬂux rope, the free magnetic  energy in the ﬂux rope ranges from 
+4 . 5 ×10 33 to 4 . 5 ×10 35 erg. These values match the range adopted  
+in previous  stellar CME studies (Alvarado-G  ´omez et al. 2018 , 2020 ; 
+´O Fionnag  ´ain et al. 2022 ), with the lower bound values found in 
+solar CME simulations  (Manchester  et al. 2008 ; Jin et al. 2013 ). The 
+higher end of our values are on the ballpark  of energies  observed  
+in stellar superﬂares  ( /greaterorsimilar 10 34 erg; e.g. Shibata  et al. 2013 ; Maehara  
+et al. 2015 ). Finally,  we also compute  the poloidal  ﬂux φFR 
+p of the 
+ﬂux rope, by integrating  the unsigned  magnetic  ﬁeld passing  through  
+a perpendicular  cross-section  at the apex of the ﬂux rope. The ﬁrst 
+column  of Table 1 shows the parameters  of the ﬂux rope for each of 
+the 21 CME simulations.  Each combination  of M FR , B FR , and ﬂux 
+rope location  leads to a different  CME evolution.  
+Three ﬁnal parameters  determine  the location  and orientation  of 
+the emerging  ﬂux rope on the stellar surface.  In this study, we either 
+place the ﬂux rope in the region of open magnetic  ﬁeld lines (a green 
+patch in Fig. 1 ) at a longitude  of −76 ◦, a latitude  of 55 ◦, and an 
+orientation  of −30 ◦with respect  to east–west  line, or at a region of 
+closed magnetic  ﬁeld (magenta  patch in Fig. 1 ) at a longitude  of 0 ◦, 
+latitude  of 65 ◦, and an east–west  orientation.  Note that we initialize  
+our ﬂux ropes at these high latitudes,  because  AB Dor shows signs 
+of polar active regions  and a recent indication  that it hosts CMEs 
+at polar regions  (see Section  1 ). The two positions  were chosen to 
+place the ﬂux rope in the open and closed magnetic  ﬁeld regions  of 
+the star, respectively.  
+Table 1 shows the initial parameters  of the ﬂux ropes alongside  
+resulting  CME characteristics  (presented  in Section  3 ). To distinguish  
+between  our various  models,  each model has a unique identiﬁer  
+symbol.  The numbers  inside each symbol  show the ﬂux rope mass 
+in grams (g) and the ﬂux rope ﬁeld strength  in Gauss (G). The 
+colour also indicates  the magnetic  ﬁeld strength  of the ﬂux rope 
+according  to the colour bar shown in Table 1 . The shape of the symbol  
+indicates  whether  the ﬂux rope is initiated  in a closed (square)  or open 
+(rounded)  magnetic  ﬁeld re gion. F or instance,  the symbol  
+means that the ﬂux rope has a mass of 3 . 5 ×10 18 g , a magnetic  ﬁeld 
+of 1000 G, and is located  at a region where the stellar magnetic  ﬁeld 
+is closed (square).  In the same way, the symbol  represents  a 
+ﬂux rope with mass 3 . 5 ×10 16 g , a magnetic  ﬁeld of 200 G, located  
+in an open-ﬁeld  region (rounded).  
+3 PHYSICAL  PROPERTIES  OF OUR 
+SIMULATED  CMES  
+3.1 Ov er view of our simulated  CMEs 
+We injected  21 different  ﬂux rope conﬁgurations  into our background  
+stellar wind model and let the eruption  evolve.  Fig. 4 shows the 3D 
+images  of 15 simulated  CMEs at a snapshot  of 1 h evolution.  The 
+isosurface,  used to track the CME e volution,  sho ws where the ratio 
+between  the wind particle  density  n at a given simulation  time and 
+the steady-state  stellar wind n ss is n/n ss = 4. The isosurface  colour 
+represents  the relative  speed of the CME compared  to the background  
+wind, u rel = u r −u r, ss , and the inner boundary  is coloured  by the 
+surface  magnetic  ﬁeld strength.  Six models  are not shown in Fig. 4 , 
+as no o v erdense  re gion remains  after 1 h. 
+Several  factors seem to inﬂuence  the resulting  CME morphology.  
+Because  the energy released  from the erupting  ﬂux rope must 
+o v ercome  the o v erlying  magnetic  tension  and open the ﬁeld lines to 
+escape,  the location  of the ﬂux rope with respect  to the background  
+stellar wind magnetic  ﬁeld changes  the amount  of magnetic  energy 
+needed  for a CME to escape (e.g. Alvarado-G  ´omez et al. 2018 ). The magnetic  tension  of the stellar magnetic  ﬁeld is larger in regions  of 
+closed ﬁeld lines, and hence a higher ﬂux rope energy is required  
+to break up the o v erlying  ﬁeld compared  to ﬂux ropes injected  in 
+open-ﬁeld  regions.  This can be seen for example  in model 
+in Fig. 4 , where we ﬁnd the most extended  CME at 1 h of evolution.  
+This case has the most energetic  ﬂux rope conﬁguration  (largest  mass 
+and largest magnetic  ﬁeld) and is located  in the region of open ﬁeld 
+lines. Model shows a ﬂux rope with identical  parameters  but 
+is now located  in the closed-ﬁeld  line region. While this CME is also 
+sufﬁciently  energetic  to break up the magnetic  tension,  it propagates  
+at a slower speed and, hence, does not reach the same distance  as 
+the case in the open-ﬁeld  line region . It should be noted that 
+it is not only the initial o v erlying  ﬁeld strength  that inﬂuences  the 
+propagation  of the CME but also the rate at which the o v erlying  ﬁeld 
+is decaying  with stellar height (Deng & Welsch  2017 ). 
+Fig. 4 also shows cases with nearly no CME evolution  like model 
+, where the ﬂux rope energy is not sufﬁcient  to o v ercome  the 
+o v erlying  magnetic  tension.  This model has a weaker  ﬂux rope ﬁeld 
+strength  of 300 G. This event is classiﬁed  as conﬁned  and has an 
+average  speed of −29 km s −1 (i.e. material  falling back to the star) 
+after 1 h of evolution  (more about CME conﬁnement  is discussed  in 
+Section  3.2 ). Next to this model, we have the event , generated  
+with the same ﬂux rope conﬁguration  but located  in the open-ﬁeld  
+region. Despite  their similar ﬂux rope characteristics,  this CME has 
+a mean average  speed of 716 km s −1 . The energy in this case is 
+sufﬁcient  for the CME to break through  the o v erlying  ﬁeld. CME 
+escapes  and acquires  a mass of around 9 . 2 ×10 17 g, while 
+the counterpart  model has a mass of about 1 . 5 ×10 17 g, 
+but remained  conﬁned.  We continue  the discussion  about the mass, 
+velocity,  and energetics  of the CMEs in Section  3.3 . 
+As the CME propagates  through  the stellar wind, it changes  the 
+local properties  of the wind. Our model , for example,  reaches  
+a radial velocity  at its apex of ∼1700 km s −1 . The local plasma  
+temperature  during the acceleration  process  of the CME can reach 
+up to tens of millions  of K (Kelvin)  close to the shock created  in front 
+of the expanding  CMEs apex, while temperatures  behind the CME 
+(typically  in regions  where plasma  is e v acuated)  can be a few orders 
+of magnitude  colder. During  this time, eruptive  and energetic  CMEs 
+are extremely  overdense  and can, in some regions,  yield plasma  
+density  ratios of a few thousand  times that of the local stellar wind. 
+CME is another  notable  case, which fragmented  o v er time 
+and generated  one main and two smaller  CME regions  (similar  effects 
+have been shown in e.g. Alvarado-G  ´omez et al. 2022 ). The local wind 
+in front of the CME is heated and accelerated  to velocities  that are 
+about a factor of 3 of the background  wind. This CME creates a region 
+with speeds exceeding  the local Alfv ´en speed and produces  a shock. 
+Compared  to the main CME fragment,  the smaller  child fragments  
+in model form regions  of slower wind speeds behind them, 
+with speeds down to about half of the background  (original)  wind 
+speed. The smaller  fragmented  pieces are not fast enough  to generate  
+a shock and are still attached  to closed magnetic  ﬁeld lines. 
+3.2 Conﬁned  versus eruptive  CMEs 
+Fig. 5 summarizes  the eruptive/conﬁned  nature of all the 21 events we 
+simulated.  We deﬁne a CME to be eruptive  by manually  inspecting  
+the CME morphology  after 1 h of evolution  and conﬁrming  that Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+1160 K. M. Strickert,  D. Evensberget  and A. A. Vidotto  
+MNRAS  533, 1156–1165  (2024) Table 1. Initial ﬂux rope properties  (columns  2 through 6) and CME properties  after 1 h of evolution  (columns  7 through 10). The ID of the simulation  is shown 
+in column 1; the quantities  inside the symbol are the ﬂux rope mass and the magnetic  ﬁeld in the centre of the ﬂux rope B FR . A rounded  (square)  shape indicates  
+that the ﬂux rope is initiated  in the open (closed)  magnetic  ﬁeld region of the star. The outline colour also gives a visual indication  of B FR . The poloidal  ﬂux of 
+the ﬂux rope is φFR 
+p and its free magnetic  energy is E B 
+free . The following  columns  are: the maximum  CME velocity  u r , the CME mass M CME , the kinetic energy 
+of the CME E k 
+CME , and whether  the ﬂux rope resulted  in an eruptive  or conﬁned  CME. The ﬁnal two columns  are the scaling relation-based  values of F ﬂ
+SXR and 
+E ﬂcomputed  directly from φFR 
+p as described  and discussed  in Section 3.3 . 
+the CME has a positive  average  velocity  at this time. The left 
+(right) panel shows the events that were initiated  in the region 
+where the stellar magnetic  ﬁeld has closed (open) conﬁgurations.  
+The events marked  in orange are the ones that erupted,  while the non- 
+erupti ve e vents are sho wn in blue. In total, we have 10/21 conﬁned  
+events. 
+Overall,  our 10 conﬁned  events tend to be located  in regions  of 
+closed ﬁeld lines (their symbols  are squares),  indicating  that the input 
+ﬂux rope energy is too weak to break the o v erlying  ﬁeld tension.  
+The only two conﬁned  events located  in open ﬁeld lines, 
+and , have a weak ﬂux rope magnetic  ﬁeld B FR = 100 G . In 
+other words, for a CME to erupt, its initial ﬂux rope requires  a higher 
+magnetic  ﬁeld if it is located  in a region of closed ﬁeld lines compared  
+to events taking place in open-ﬁeld  line regions.  In our simulations,  
+no models  with initial ﬂux rope magnetic  ﬁelds B FR /lessorsimilar 800 G were 
+eruptive  for closed-ﬁeld  CMEs.  For open-ﬁeld  CME models,  the 
+threshold  was B FR /lessorsimilar 200 G (horizontal  lines Fig. 5 ). 
+Additionally,  some eruptive  CMEs leave behind a dense region of 
+plasma.  This can be seen in models  and , where we see a blob of plasma  loitering  at the inner boundary.  In this case, a 
+fragment  of the erupting  CMEs mass is falling back to the stellar 
+surface  because  it is unable to o v ercome  the gravitational  potential  
+of the star. The plasma  trapped  close to the stellar surface  is three 
+orders of magnitudes  denser than the main front of the CME in these 
+models.  We classify  these events as eruptive  because  the bulk of the 
+CME mass has escaped.  
+3.3 CME energetics  
+To compute  the energetics  of the simulated  CMEs,  we use their radial 
+speeds and masses.  The velocities  we present  in this work are the 
+maximum  speed of the material  enclosed  in the volume  of the CME, 
+which is deﬁned  by a density  ratio n/n ss ≥4 ( ´O Fionnag  ´ain et al. 
+2022 ). The masses  in our models  are calculated  by integrating  the 
+density  within this volume.  Note that other studies apply different  
+values for the ratio when determining  the CME region (e.g. Alvarado-  
+G ´omez et al. 2020 use a factor of 3 instead).  By decreasing  this ratio, a 
+larger CME volume  is produced,  thus a higher mass. (We calculated  
+the CME masses  using either a density  ratio of 4 or 3, but found 
+results within the same order of magnitude.)  The kinetic energy of Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+High-latitude  CMEs  in AB Dor 1161 
+MNRAS  533, 1156–1165  (2024) 
+Figure 4. Snapshots  after 1 h of evolution.  The magnetic  ﬁeld of the initial ﬂux rope B FR (symbol  colour) increases  from top left to bottom right for each 
+initial ﬂux rope mass M FR (cf. symbol text). Flux ropes located in open ﬁeld lines (rounded  symbols)  of the background  wind evolve faster than those located 
+in closed (square symbols)  ﬁeld line regions,  for the same B FR and M FR . Isosurfaces  are deﬁned using a plasma density ratio n/n ss of 4 and are colour coded 
+by their relative radial velocity  compared  to the local stellar wind value. The conﬁned  events with M FR < 10 17 G are not shown in this ﬁgure as there was no 
+o v erdense n/n ss ≥4 region remaining  after 1 h of evolution.  
+Figure 5. Summary  of the eruptive  and conﬁned  events in our 21 simulated  
+CMEs. The x and y axes represent  the assumed  ﬁeld strength  and mass of the 
+ﬂux rope, before its eruption,  respectively.  Of the 21 simulated  events, 10 are 
+classiﬁed  as conﬁned.  In each panel a dashed line has been added to indicate  
+the lo west B FR v alue of an erupti ve e vent. The left panel shows the events 
+initiated  in the closed-ﬁeld  region, while the right panel shows the events 
+initiated  in the open-ﬁeld  region. The free magnetic  energy from equation  ( 1 ) 
+and Table 1 is shown in the leftmost  axis. Note that E free 
+k ∝ B 2 
+FR . each CME is then calculated  from the CME mass and velocity.  Fig. 6 
+shows the maximum  speeds,  masses,  and kinetic energies  of each 
+CME as a function  of the poloidal  magnetic  ﬂux of the ﬂux rope φFR 
+p . 
+We calculate  this by integrating  the unsigned  magnetic  ﬁeld passing  
+through  a perpendicular  cross-section  at the apex of the ﬂux rope. 
+It is interesting  to note that the poloidal  magnetic  ﬂux of the ﬂux 
+rope has been used as a proxy for X-ray ﬂare energy in stellar CMEs 
+studies (Alvarado-G  ´omez et al. 2018 ). 
+We see in Fig. 6 (a) that, after 1 h of evolution,  the maximum  speeds 
+of the eruptive  events range from 220 to 3700 km s −1 , while the lowest 
+velocity  points refer to conﬁned  events. Note that in this ﬁgure, we 
+do not include  the six conﬁned  events that did not propagate  outward  
+after 1 h ( , , , , , and ). The 
+maximum  CME speed we found is around ﬁve times higher than 
+the average  background  wind velocity  ( u r, ss /similarequal 720 km s −1 ) at the 
+1 h mark. For the eruptive  models,  CMEs occurring  in the closed 
+regions  (square  symbols)  have lower radial velocities  than the ones 
+occurring  in open-ﬁeld  regions  (circle symbols),  for the same ﬂux 
+rope conditions  (e.g. models  and ). This is due to 
+the stronger  magnetic  tension  e x erted on the CME material  by the 
+o v erlying  closed magnetic  ﬁeld lines. 
+For comparison,  we also plot in Fig. 6 (a) the relations  derived  
+from solar wind studies from Tschernitz  et al. ( 2018 , dashed–dotted  
+line) and Salas-Matamoros  & Klein ( 2015 , dotted line), which were 
+rewritten  as functions  of φFR 
+p in the work of Alvarado-G  ´omez et al. Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+1162 K. M. Strickert,  D. Evensberget  and A. A. Vidotto  
+MNRAS  533, 1156–1165  (2024) Figure 6. Maximum  speed (a), mass (b), and kinetic energies  (c) of the 
+simulated  CMEs after 1 h of evolution  as a function  of poloidal  magnetic  
+ﬂux of the ﬂux rope. Symbols  are as presented  in Table 1 . In panel (a), we 
+show the two relations  derived from solar CMEs as dotted and dash–dotted  
+lines. In panel (b), we ﬁt power laws to the cases with ﬂux rope masses 
+M FR = 3 . 5 ×10 18 g. In panel (c), the dashed line stands for the energy 
+threshold  E k = 2 E ﬂ, which is a good proxy separating  conﬁned  or eruptive  
+events. ( 2018 ). CMEs in open regions  agree better with the solar relation  
+from Tschernitz  et al. ( 2018 ), while closed-region  CMEs show lower 
+speeds than the solar trends. Solar CME speeds range from a few 
+hundred  up to a few thousand  km s −1 (Yashiro  et al. 2005 ). 
+From Fig. 6 (b), we ﬁnd that both the mass and poloidal  ﬂux 
+of the ﬂux rope go v ern the mass of the ejected  CME, agreeing  
+with the ﬁndings  of Alvarado-G  ´omez et al. ( 2018 ). For ﬂux ropes 
+of similar masses,  we ﬁnd that increasing  the poloidal  ﬂux (and 
+therefore  the hypothetically  assumed  ﬂare energy)  in general  leads 
+to larger CME masses  after 1 h of evolution.  This is in agreement  
+with observations  of solar and stellar CMEs (e.g. Aarnio et al. 2011 ; 
+Drake et al. 2013 ; Takahashi,  Mizuno  & Shibata  2016 ; Moschou  
+et al. 2019 ), where CME mass and speed are found to increase  with 
+increasing  X-ray ﬂare energy,  typically  used as a proxy for poloidal  
+ﬂux (Alvarado-G  ´omez et al. 2018 ). Fig. 6 (b) shows two power-law  
+ﬁts to the cases with ﬂux rope masses  of M FR = 3 . 5 ×10 18 g, where 
+we found that M CME [ g ] = 10 −4 . 001 ( φFR 
+p [ Mx ]) 1 . 003 and M CME [ g ] = 
+10 −10 . 85 ( φFR 
+p [ Mx ]) 1 . 276 for the open (dash–dotted  line) and closed 
+(dashed  line) ﬁeld models,  respectively.  There is a faster increase  in 
+the CME mass with poloidal  ﬂux for the events located  in closed-ﬁeld  
+line re gions, ev en though their CME masses  are smaller  than the ones 
+placed in open-ﬁeld  line regions  (see below).  As we discuss  further 
+in Section  4 , we caution  the reader that in our parametric  study, we 
+do not vary the geometry  of the ﬂux rope, which would also affect 
+the amount  of free energy available  for driving  the CME. Therefore,  
+the relations  shown in Fig. 6 are limited  to this assumption  of our 
+model. 
+Although  there is an increase  of CME mass with poloidal  ﬂux, 
+we also see that for the same poloidal  ﬂux and varying  range of ﬂux 
+rope masses,  our models  predict a range of CME masses.  In general,  
+the most massive  ﬂux ropes tend to generate  CMEs that are more 
+massive.  Models  with ﬂux rope masses  of 3 . 5 ×10 18 g evolve into 
+CMEs with masses  ranging  from 1 . 3 ×10 17 to 4 . 1 ×10 18 g after 1 h 
+of evolution.  (For reference,  the 1859 Carrington  solar CME event 
+had an estimated  mass of 8 ×10 16 g; Cliver & Dietrich  2013 .) We 
+found that CMEs with initially  smaller  ﬂux rope masses  typically  
+collect material  while propagating  through  the stellar wind. This 
+results in an increase  in the evolved  CME mass by up to two orders of 
+magnitude  (see models  and , which have CME masses  
+abo v e the initial ﬂux rope masses).  Conversely,  CMEs with initially  
+higher ﬂux rope masses  are prone to losing mass, either since parts of 
+the CME are conﬁned  and fall back onto the stellar surface,  or because  
+the CME becomes  more attenuated  as it propagates  outwards  (the 
+mass is then decreased  since less of the plasma  satisfy the condition  
+that n/n ss ≥4). The two models  deviating  from this behaviour  are 
+and , where the evolved  CME mass is larger than the 
+initial ﬂux rope mass. 
+Models  with similar initial values of M FR and B FR , but initiated  in 
+different  (open/closed)  re gions, e xhibit different  CME masses  after 
+the y hav e evolv ed. In open regions,  a larger fraction  of the initial ﬂux 
+rope mass of the CME becomes  energetic  enough  to escape,  which 
+results in higher CME masses  (compare  e.g. with , or 
+with ). This is also seen in the ﬁts provided  in panel 
+(b), where the ﬁt for the open-ﬁeld  line lies abo v e the closed-ﬁeld  
+one. 
+Fig. 6 (c) shows the kinetic energies  of our simulated  CMEs,  
+calculated  as (1 / 2) M CME u 2 
+r . In this ﬁgure, we only plot models  
+with positiv e v elocities  at 1 h. We also show the eruptive/conﬁned  
+energy threshold  (dashed  line), where a CME is deﬁned  as conﬁned  
+if E k < 2 E ﬂ, and eruptive  otherwise  (Alvarado-G  ´omez et al. 2018 ). Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+High-latitude  CMEs  in AB Dor 1163 
+MNRAS  533, 1156–1165  (2024) The four lowest points in Fig. 6 (c) correspond  to conﬁned  events, 
+while the other points correspond  to eruptive  events. Therefore,  our 
+models  agree well with the energy threshold  (dashed  line). Some 
+conﬁned  CMEs (in particular  and ) have energies  even 
+below 10 29 erg. The kinetic energies  of eruptive  CMEs range from 
+about 10 31 to 10 35 erg. 
+Alvarado-G  ´omez et al. ( 2018 ) presented  a way to connect  the 
+poloidal  ﬂux, derived  from simulation  parameters,  to the observed  
+Geostationary  Operational  Environmental  Satellites  ( GOES ) peak 
+soft X-ray ﬂuxes of solar ﬂares. Following  this approach,  we use the 
+relations  between  ﬂare energy ( E ﬂ), soft X-ray ﬂuxes ( F ﬂ
+SXR ), and 
+poloidal  ﬂuxes ( φFR 
+p ), namely  
+E ﬂ= 10 34 . 49 [ F ﬂ
+SXR ] 0 . 79 
+and 
+φFR 
+p = 10 24 . 21 [ F ﬂ
+SXR ] 0 . 580 
+(Alvarado-G  ´omez et al. 2018 ; Tschernitz  et al. 2018 ), to compute  
+the ﬂare energy as 
+E ﬂ= 10 1 . 5143 [ φFR 
+p ] 1 . 3621 . 
+Here the units of φFR 
+p , F ﬂ
+SXR , and E ﬂare Mx, W m −2 , and erg, respec-  
+tively. With these relations,  the φFR 
+p in our CME models  correspond  
+to ﬂare ﬂuxes F ﬂ
+SXR ranging  from 2 . 0 ×10 −5 to 1 . 4 ×10 −3 W m −2 
+and ﬂare energies  E ﬂfrom 6 . 0 ×10 30 to 1 . 7 ×10 32 erg (see Table 1 ). 
+The most energetic  CME, model , corresponds  to a ﬂare ﬂux 
+of F ﬂ
+SXR ≈1 . 4 ×10 −3 W m −2 , which would have been classiﬁed  
+as a GOES class X10 CME. This CME acquires  a velocity  of 
+∼3800 km s −1 with a total mass of ∼4 . 1 ×10 18 g and a kinetic 
+energy of 2 . 9 ×10 35 erg at 1 h of evolution.  For reference,  most 
+solar CMEs have observed  masses  in ranges of 10 14 –10 16 g with 
+velocities  reaching  up to around 1000 km s −1 and kinetic energies  in 
+the interval  10 28 –10 30 erg (Gopalswamy  et al. 2010 ; Webb & Howard  
+2012 ). Note that a small part of the CME mass in this model reached  
+the edge of the model domain  at 1 h of evolution  and that its energies  
+therefore  can be slightly  underestimated.  
+Finally,  the resulting  CMEs depend  on whether  the ﬂux rope is 
+injected  in regions  of open or closed ﬁeld lines. Model is 
+initiated  with the same ﬂux rope properties  as , but in a 
+closed-ﬁeld  region. The overlying  ﬁeld is able to reduce the CME 
+energy to only ∼4 per cent of the energy of the equi v alent model 
+initiated  in the open region. We can also compare  the two similar 
+models  and . These models  also have the same initial 
+ﬂux rope set-up, differing  only in terms of the o v erlying  magnetic  
+ﬁeld. The closed-ﬁeld  model has its energy reduced  by about six 
+orders of magnitude  and remains  conﬁned.  In the cases of models  
+and , both models  have enough  input energy to escape 
+the o v erlying  ﬁeld and still hav e sufﬁcient  energy left after 1 h of 
+evolution.  These results demonstrate  that not only the energetics  of 
+the ﬂux rope but also the property  of the stellar wind background  
+ﬁeld are key properties  in shaping  the energetics  and the evolution  
+of the CME. 
+4 DISCUSSION  AND CONCLUSION  
+It has been expected  that active stars, which ﬂare more frequently  
+than the Sun, would have more frequent  ejections  of CMEs (Aarnio  
+et al. 2012 ; Drake et al. 2013 ; Osten & Wolk 2015 ). Yet, it has been very challenging  to detect stellar CMEs (Namekata  et al. 2022 ). 
+Because  of this, it has been suggested  that CMEs in active stars 
+might be more frequently  conﬁned  (Alvarado-G  ´omez et al. 2018 ; 
+Sun, T ¨or ¨ok & DeRosa  2022 ). One reason for this is that the strong 
+o v erlying  surface  magnetic  ﬁelds observed  in these stars would not 
+allow the material  to break open the o v erlying  magnetic  tension,  
+thus conﬁning  the eruption  of a CME. Ho we ver, recently,  Veronig  
+et al. ( 2021 ) reported  the detection  of coronal  dimmings,  which are 
+indicative  of the presence  of eruptive  CMEs.  One of these stars, the 
+young and active solar-type  star AB Dor, presented  a high-latitude  
+CME (Veronig  et al. 2021 ). 
+In this work, we investigate  this by conducting  a parametric  
+study with 21 simulations  of CME events on AB Dor. AB Dor 
+sho ws polar acti vity in the form of polar spots, so all our modelled  
+CMEs were injected  in high-latitude  ( λ∼60 ◦) regions.  First, we 
+modelled  the steady-state  wind of AB Dor, using a reconstructed  
+magnetic  map based on spectropolarimetric  observations  made in 
+2002 December  (Hussain  et al. 2007 ). Secondly,  ﬂux ropes with 
+different  properties  were initiated  and allowed  to evolve through  the 
+steady background  wind. We used the model of Titov & D ´emoulin  
+( 1999 ) to describe  the ﬂux rope. In our parametric  study, we only 
+assumed  one particular  geometry  for the ﬂux ropes, but the central 
+magnetic  ﬁeld strength  of the ﬂux rope, the mass of the ﬂux rope, 
+and also the region where the ﬂux rope was placed varied in each 
+run. The ﬂux rope was either placed in a region with an o v erlying  
+closed magnetic  ﬁeld or in a region with an overlying  open magnetic  
+ﬁeld. We then performed  a series of analyses  to the CME events that 
+were generated.  Our ﬁndings  can be summarized  as follows.  
+About half of our modelled  events resulted  in eruptive  CMEs,  with 
+the other half leading  to conﬁned  CMEs.  CMEs initiated  in open 
+regions  were more likely to be eruptive  compared  to those initiated  
+in closed regions.  In our simulations,  no models  with initial ﬂux rope 
+magnetic  ﬁelds under ∼800 G were eruptive  for closed-ﬁeld  CMEs.  
+For open-ﬁeld  CME models,  the limit was around 200 G (Fig. 5 ). 
+The initial parameters  and the position  of the ﬂux rope go v ern the 
+evolved  morphology  and energetics  of the CME. Models  with larger 
+input poloidal  ﬂuxes (i.e. ﬂux ropes with higher magnetic  ﬁelds) 
+produce,  in general,  CMEs with higher velocities,  higher masses,  
+and thus higher kinetic energies.  We also ﬁnd that the initial mass of 
+the ﬂux rope go v erns the ﬁnal mass and therefore  kinetic energies  of 
+the produced  CMEs,  with ﬂux ropes that are more massive  tending  
+to generate  more massive  CMEs (but note also the large spread seen 
+in Fig. 6 ). 
+Closed-region  CMEs require  more initial energy in their input ﬂux 
+ropes to break open the o v erlying  magnetic  ﬁeld line and o v ercome  
+the magnetic  tension.  Therefore,  the energetics  of the CME after 1 h 
+of evolution  is strongly  dependent  on the o v erlying  ﬁeld geometry,  
+where eruptive  CMEs produced  in an open-ﬁeld  region are generally  
+faster and more massive  (i.e. higher kinetic energies)  compared  to 
+eruptive  CMEs produced  in the closed-ﬁeld  region. Our eruptive  
+closed-ﬁeld  line CMEs attain lower velocities  compared  to what we 
+ordinarily  observe  for solar CMEs after 1 h of evolution.  Conversely,  
+the majority  of eruptive  open-ﬁeld  line CMEs are faster than solar 
+CMEs after 1 h of evolution.  
+We also computed  observable  quantities,  such as ﬂare energy and 
+ﬂare ﬂuxes, from model parameters  (poloidal  magnetic  ﬂux of the 
+ﬂux rope), following  the approach  used in Alvarado-G  ´omez et al. 
+( 2018 ). In our models,  for a given poloidal  ﬂux with different  ﬂux 
+rope masses,  we have only one ﬂare ﬂux (or one ﬂare energy)  
+estimate,  but multiple  CME properties.  This implies  that we cannot 
+uniquely  characterize  the energetics  of CMEs only from observa-  
+tionally  derived  ﬂare quantities.  Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+1164 K. M. Strickert,  D. Evensberget  and A. A. Vidotto  
+MNRAS  533, 1156–1165  (2024) The free magnetic  energy in our ﬂux rope depends  on both the 
+size and the magnetic  ﬁeld of the ﬂux rope ( E B 
+free ∝ R 3 
+maj B 2 
+FR , see 
+equation  1 ). Given that in our parametric  study, we only used one 
+particular  geometry  for the ﬂux rope, all the variation  assumed  in the 
+free magnetic  energy only comes from the variation  on B FR . This is 
+a limitation  of our parametric  study, as the length scales of ﬂaring 
+loops can vary by several orders of magnitude  (Shibata  & Yok o yama 
+1999 , 2002 ; Namekata  et al. 2017 ). In the future, it would interesting  
+to expand  our parametric  study to also include  different  sizes of ﬂux 
+ropes. F or e xample,  there are combinations  of rope geometries  and 
+ﬁeld strengths  that would generate  the same free magnetic  energy 
+and it would be interesting  to investigate  how this combination  of 
+parameters  would affect the CME energetics.  
+Our work explains  how eruptive  CMEs such as those observed  
+by Veronig  et al. ( 2021 ) may occur even in stars such as AB Dor 
+whose strong o v erlying  magnetic  ﬁelds should lead to more conﬁned  
+CMEs (Alvarado-G  ´omez et al. 2018 ). We propose  that, in stars with 
+polar active regions,  where the overlying  magnetic  ﬁeld lines can 
+become  open, CMEs can more easily escape the stellar surface  and 
+propagate  into the stellar wind. It is also interesting  to note that in our 
+models,  the most energetic  CMEs expand  considerably,  including  in 
+the direction  towards  the equatorial  plane, where potential  planets  
+would be orbiting.  Therefore,  even though the CME originates  
+in stellar polar re gions, the y would still affect the space weather  
+environment  around planets  orbiting  in the equatorial  plane. As 
+the observational  epochs of the dimming  event and the surface  
+magnetic  map observations  are not contemporaneous  (1994 and 
+2002, respectively),  it is possible  that the stellar surface  magnetic  
+ﬁeld has evolved  between  the two epochs.  Therefore,  simultaneous  
+observations  probing  potential  CMEs and the stellar magnetic  ﬁeld, 
+such as those of Namekata  et al. ( 2024 ), are of great value. 
+ACKNOWLEDGEMENTS  
+We thank the anonymous  referee for their constructive  and thoughtful  
+comments,  which helped impro v e the quality of our paper. This 
+project has received  funding  from the European  Research  Coun- 
+cil (ERC) under the European  Union’s  Horizon  2020 Framework  
+Programme  (grant agreement  no. 817540,  ASTROFLOW).  This 
+work used the Dutch national  e-infrastructure  with the support  of 
+the SURF Cooperative  using grant nos EINF-2218  and EINF-5173.  
+This research  has made use of NASA’s  Astrophysics  Data System  . 
+This w ork w as carried out using the SWMF  tools developed  at The 
+University  of Michigan  Center for Space Environment  Modelling  
+(CSEM)  and made available  through  the NASA Community  Coord 
+inated Modelling  Center (CCMC)  . This work has made use of the 
+following  additional  numerical  software  and visualization  software:  
+NUMPY  (van der Walt, Colbert  & Varoquaux  2011 ), SCIPY (Virtanen  
+et al. 2020 ), and MATPLOTLIB  (Hunter  2007 ). 
+DATA  A V AILABILITY  
+The data underlying  this article will be shared on reasonable  request  
+to the corresponding  author. 
+REFERENCES  
+Aarnio A. N. , Stassun K. G., Hughes W. J., McGregor  S. L., 2011, Sol. Phys. , 
+268, 195 
+Aarnio A. N. , Matt S. P., Stassun K. G., 2012, ApJ , 760, 9 
+Alvarado-G  ´omez J. D. , Drake J. J., Cohen O., Moschou  S. P., Garraffo  C., 
+2018, ApJ , 862, 93 Alvarado-G  ´omez J. D. et al., 2020, ApJ , 895, 47 
+Alvarado-G  ´omez J. D. et al., 2022, ApJ , 928, 147 
+Argirofﬁ C. et al., 2019, Nat. Astron. , 3, 742 
+Barenfeld  S. A. , Bubar E. J., Mamajek  E. E., Young P. A., 2013, ApJ , 766, 6 
+Cang T. Q. et al., 2020, A&A , 643, A39 
+Chen H. , Tian H., Li H., Wang J., Lu H., Xu Y. , Hou Z., Wu Y. , 2022, ApJ , 
+933, 92 
+Cliver E. W. , Dietrich  W. F., 2013, J. Space Weather  Space Clim. , 3, 
+A31 
+Cohen O. , Drake J. J., Kashyap  V. L., Hussain  G. A. J., Gombosi  T. I., 2010, 
+ApJ , 721, 80 
+Collier Cameron  A. , Unruh Y. C., 1994, MNRAS  , 269, 814 
+Crosley M. K. et al., 2016, ApJ , 830, 24 
+Deng M. , Welsch B. T., 2017, Sol. Phys., 292, 1 
+Donati J. F. , Landstreet  J. D., 2009, ARA&A  , 47, 333 
+Donati J. F. , Collier Cameron  A., Hussain  G. A. J., Semel M., 1999, MNRAS  , 
+302, 437 
+Drake J. J. , Cohen O., Yashiro S., Gopalswamy  N., 2013, ApJ , 764, 170 
+Evensberget  D. , Carter B. D., Marsden  S. C., Brookshaw  L., Folsom C. P., 
+2021, MNRAS  , 506, 2309 
+Evensberget  D. , Carter B. D., Marsden  S. C., Brookshaw  L., Folsom C. P., 
+Salmeron  R., 2022, MNRAS  , 510, 5226 
+Evensberget  D. et al., 2023, MNRAS  , 524, 2042 
+Gopalswamy  N. , Akiyama  S., Yashiro S., M ¨akel ¨a P., 2010, in Hasan S. S., 
+Rutten R. J., eds, Magnetic  Coupling  between  the Interior and Atmosphere  
+of the Sun. Springer-Verlag,  Berlin, p. 289 
+Gopalswamy  N. , Yashiro S., Akiyama  S., 2015, ApJ , 809, 106 
+G ¨udel M. , 2004, A&AR , 12, 71 
+G ¨udel M. , Audard M., Reale F., Skinner S. L., Linsky J. L., 2004, A&A , 416, 
+713 
+Harra L. K. et al., 2016, Sol. Phys. , 291, 1761 
+Ha wle y S. L. , Dav enport J. R. A., Ko walski A. F., Wisnie wski J. P., Hebb L., 
+Deitrick  R., Hilton E. J., 2014, ApJ , 797, 121 
+Hunter J. D. , 2007, Comput.  Sci. Eng. , 9, 90 
+Hussain  G. A. J. et al., 2007, MNRAS  , 377, 1488 
+Jardine M. , Collier Cameron  A., 2019, MNRAS  , 482, 2853 
+Jin M. et al., 2013, ApJ , 773, 50 
+Jin M. , Manchester  W. B., van der Holst B., Sokolov  I., Toth G., V ourlidas  
+A., de Koning C. A., Gombosi  T. I., 2017a, ApJ , 834, 172 
+Jin M. et al., 2017b, ApJ , 834, 173 
+Kavanagh  R. D. , Vidotto A. A., Klein B., Jardine M. M., Donati J.-F., ´O 
+Fionnag  ´ain D., 2021, MNRAS  , 504, 1511 
+Kowalski  A. F. , 2024, Living Rev. Sol. Phys. , 21, 1 
+Leitzinger  M. et al., 2020, MNRAS  , 493, 4570 
+Lin J. , Wang F., Deng L., Deng H., Mei Y. , Xie Y. , 2022, ApJ , 932, 62 
+Loesch C. , Opher M., Alves M. V. , Evans R. M., Manchester  W. B., 2011, J. 
+Geophys.  Res.: Space Phys. , 116, A04106  
+Loyd R. O. P. et al., 2022, ApJ , 936, 170 
+Lynch B. J. , Airapetian  V. S., DeV ore C. R., Kazachenko  M. D., L ¨uftinger  T., 
+Kochukhov  O., Ros ´en L., Abbett W. P., 2019, ApJ , 880, 97 
+Lynch B. J. et al., 2023, BAAS, 55, 254 
+Maehara  H. et al., 2012, Nature , 485, 478 
+Maehara  H. , Shibayama  T., Notsu Y. , Notsu S., Honda S., Nogami  D., Shibata 
+K., 2015, Earth, Planets, Space , 67, 59 
+Manchester  W. B. , IV et al., 2008, ApJ , 684, 1448 
+Mason J. P. , Woods T. N., Webb D. F., Thompson  B. J., Colaninno  R. C., 
+V ourlidas  A., 2016, ApJ , 830, 20 
+Moschou  S.-P. , Drake J. J., Cohen O., Alvarado-G  ´omez J. D., Garraffo  C., 
+Fraschetti  F., 2019, ApJ , 877, 105 
+Namekata  K. et al., 2017, ApJ , 851, 91 
+Namekata  K. et al., 2021, Nat. Astron. , 6, 241 
+Namekata  K. , Maehara  H., Honda S., Notsu Y. , Nogami  D., Shibata K., 2022, 
+preprint  ( arXiv:2211.05506  ) 
+Namekata  K. et al., 2024, ApJ , 961, 23 
+Odert P. , Leitzinger  M., Guenther  E. W., Heinzel P., 2020, MNRAS  , 494, 
+3766 
+´O Fionnag  ´ain D. , Vidotto A. A., Petit P., Neiner C., Manchester  W. I., Folsom 
+C. P., Hallinan  G., 2021, MNRAS  , 500, 3438 Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
+High-latitude  CMEs  in AB Dor 1165 
+MNRAS  533, 1156–1165  (2024) ´O Fionnag  ´ain D. , Kavanagh  R. D., Vidotto A. A., Jeffers S. V. , Petit P., 
+Marsden  S., Morin J., Golden A., 2022, ApJ , 924, 115 
+Osten R. A. , Wolk S. J., 2015, ApJ , 809, 79 
+Powell K. G. , Roe P. L., Linde T. J., Gombosi  T. I., De Zeeuw D. L., 1999, J. 
+Comput.  Phys. , 154, 284 
+Roussev  I. I. , Forbes T. G., Gombosi  T. I., Sokolov  I. V. , DeZeeuw  D. L., 
+Birn J., 2003, ApJ , 588, L45 
+Salas-Matamoros  C. , Klein K. L., 2015, Sol. Phys. , 290, 1337 
+Semel M. , 1989, A&A, 225, 456 
+Shibata K. , Yok o yama T., 1999, ApJ , 526, L49 
+Shibata K. , Yok o yama T., 2002, ApJ , 577, 422 
+Shibata K. et al., 2013, PASJ , 65, 49 
+Sokolov  I. V. et al., 2013, ApJ , 764, 23 
+Strassmeier  K. G. , 2009, A&AR , 17, 251 
+Sun X. , T ¨or ¨ok T., DeRosa  M. L., 2022, MNRAS  , 509, 5075 
+Takahashi  T. , Mizuno Y. , Shibata K., 2016, ApJ , 833, L8 
+Titov V. S. , D ´emoulin  P., 1999, A&A, 351, 707 
+T ´oth G. et al., 2012, J. Comput.  Phys. , 231, 870 
+Tschernitz  J. , Veronig  A. M., Thalmann  J. K., Hinterreiter  J., P ¨otzi W., 2018, 
+ApJ, 853, 41 
+van der Holst B. , Sokolov  I. V. , Meng X., Jin M., Manchester  W. B. I., T ´oth 
+G., Gombosi  T. I., 2014, ApJ , 782, 81 van der Walt S. , Colbert S. C., Varoquaux  G., 2011, Comput.  Sci. Eng. , 13, 
+22 
+Veronig  A. M. , Odert P., Leitzinger  M., Dissauer  K., Fleck N. C., Hudson H. 
+S., 2021, Nat. Astron. , 5, 697 
+Vida K. , Leitzinger  M., Kriskovics  L., Seli B., Odert P., Kov ´acs O. E., 
+Korhonen  H., van Driel-Gesztelyi  L., 2019, A&A , 623, A49 
+Vidotto A. A. et al., 2014, MNRAS  , 441, 2361 
+Vidotto A. A. , Bourrier  V. , Fares R., Bellotti S., Donati J. F., Petit P., Hussain  
+G. A. J., Morin J., 2023, A&A , 678, A152 
+Virtanen  P. et al., 2020, Nat. Methods,  17, 261 https:// doi.org/ 10.1038/  s415 
+92- 019- 0686- 2 
+Waite I. A. , Marsden  S. C., Carter B. D., Petit P., Donati J. F., Jeffers S. V. , 
+Boro Saikia S., 2015, MNRAS  , 449, 8 
+Webb D. F. , Howard  T. A., 2012, Living Rev. Sol. Phys., 9, 1 
+Yashiro S. , Gopalswamy  N., Akiyama  S., Michalek  G., Howard  R. A., 2005, 
+J. Geophys.  Res.: Space Phys. , 110, A12S05  
+Yashiro S. , Akiyama  S., Gopalswamy  N., Howard  R. A., 2006, ApJ , 650, 
+L143 
+This paper has been typeset from a T E X/L A T E X ﬁle prepared  by the author. 
+© 2024 The Author(s).  
+Published  by Oxford University  Press on behalf of Royal Astronomical  Society. This is an Open Access article distributed  under the terms of the Creative Commons  Attribution  License 
+( https://cr eativecommons.or  g/licenses/by/4.0/ ), which permits unrestricted  reuse, distribution,  and reproduction  in any medium, provided the original work is properly cited. Downloaded from https://academic.oup.com/mnras/article/533/1/1156/7729277 by guest on 12 February 2026
+
