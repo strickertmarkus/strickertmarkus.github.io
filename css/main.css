@@ -439,6 +439,11 @@ blockquote {
     grid-template-columns: 2fr 1fr;
   }
 
+  /* Single column layout for pages without sidebar */
+  .page-content:not(:has(aside)) .container {
+    grid-template-columns: 1fr;
+  }
+
   .header-top {
     gap: 2rem;
   }
