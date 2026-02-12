@@ -1356,61 +1356,63 @@ a.btn-tertiary {
   display: none;
 }
 
-.publication-card:nth-child(odd) {
-  grid-column: 1;
-  text-align: left;
-  margin: 0;
-}
-
-.publication-card:nth-child(even) {
-  grid-column: 1;
-  text-align: left;
-  margin: 0;
-  border-left: none;
-  border-right: none;
-}
-
-.publication-card:nth-child(even)::after {
-  display: none;
-}
-
 .publication-card:hover {
   box-shadow: 0 12px 30px rgba(157, 131, 107, 0.15);
   transform: translateY(-6px);
 }
 
-/* Split content and plot */
-.publication-card:nth-child(odd) {
-  grid-template-columns: 1fr 1fr;
-}
-
-.publication-card:nth-child(odd) .publication-content {
+/* Position text elements (header, meta, content) in left column */
+.publication-card .publication-header {
   grid-column: 1;
-  padding: 2.5rem;
+  padding: 2.5rem 2.5rem 0 2.5rem;
 }
 
+.publication-card .publication-meta {
+  grid-column: 1;
+  padding: 0 2.5rem;
+}
+
+.publication-card .publication-content {
+  grid-column: 1;
+  padding: 0 2.5rem 2.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Plot positioning - alternate left/right */
 .publication-card:nth-child(odd) .publication-plot-placeholder {
   grid-column: 2;
+  grid-row: 1;
+  row-span: 4;
   margin: 0;
   height: 100%;
   border-radius: 0;
 }
 
-.publication-card:nth-child(even) {
-  grid-template-columns: 1fr 1fr;
-}
-
 .publication-card:nth-child(even) .publication-plot-placeholder {
   grid-column: 1;
+  grid-row: 1;
+  row-span: 4;
   order: -1;
   margin: 0;
   height: 100%;
   border-radius: 0;
 }
 
+.publication-card:nth-child(even) .publication-header {
+  grid-column: 2;
+  padding: 2.5rem 2.5rem 0 2.5rem;
+}
+
+.publication-card:nth-child(even) .publication-meta {
+  grid-column: 2;
+  padding: 0 2.5rem;
+}
+
 .publication-card:nth-child(even) .publication-content {
   grid-column: 2;
-  padding: 2.5rem;
+  padding: 0 2.5rem 2.5rem 2.5rem;
 }
 
 .publication-header {
@@ -1573,29 +1575,39 @@ a.btn-tertiary {
   }
 
   .publication-card {
-    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column;
     min-height: auto;
   }
 
-  .publication-card:nth-child(odd) .publication-content {
-    grid-column: 1 !important;
-    padding: 2rem;
+  .publication-card .publication-header {
+    grid-column: auto !important;
+    padding: 1.5rem 1.5rem 0 1.5rem;
+  }
+
+  .publication-card .publication-meta {
+    grid-column: auto !important;
+    padding: 0 1.5rem;
+  }
+
+  .publication-card .publication-content {
+    grid-column: auto !important;
+    padding: 0 1.5rem 1.5rem 1.5rem;
   }
 
   .publication-card:nth-child(odd) .publication-plot-placeholder {
-    grid-column: 1 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    row-span: auto !important;
     margin: 0 !important;
     height: 250px;
     order: -1;
   }
 
-  .publication-card:nth-child(even) .publication-content {
-    grid-column: 1 !important;
-    padding: 2rem;
-  }
-
   .publication-card:nth-child(even) .publication-plot-placeholder {
-    grid-column: 1 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    row-span: auto !important;
     margin: 0 !important;
     height: 250px;
     order: -1;
