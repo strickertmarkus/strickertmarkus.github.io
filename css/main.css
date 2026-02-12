@@ -140,6 +140,13 @@ section {
 .page-content .container {
   display: grid;
   grid-template-columns: 1fr;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-content main {
+  width: 100%;
+  margin: 0 auto;
 }
 
 .page-header,
@@ -1687,5 +1694,57 @@ a.btn-tertiary {
 
   .contact-form button {
     width: 100%;
+  }
+}
+
+/* Footer Contact CTA */
+.footer-contact-cta {
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #9d836b 0%, #8b7261 100%);
+  text-align: center;
+  color: white;
+  margin-bottom: 0;
+}
+
+.footer-contact-cta h3 {
+  color: white;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.footer-contact-cta p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+}
+
+.footer-contact-cta a {
+  color: white !important;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.footer-contact-cta a:hover {
+  background-color: white;
+  color: #9d836b !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .footer-contact-cta {
+    padding: 2rem 1.5rem;
+  }
+
+  .footer-contact-cta h3 {
+    font-size: 1rem;
+  }
+
+  .footer-contact-cta p {
+    font-size: 0.95rem;
   }
 }
