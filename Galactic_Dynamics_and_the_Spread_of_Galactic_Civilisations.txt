@@ -1,0 +1,1590 @@
+Markus Strickert
+Lund Observatory
+Lund UniversityGalactic Dynamics
+and the spread of
+Galactic Civilisations
+Degree project of 15 higher education credits
+June 2020
+Supervisors: Anders Johansen and Paul McMillan
+Lund Observatory
+Box 43SE-221 00  LundSweden2020-EXA168
+Abstract
+The idea of the spread of life through the galaxy is, in most minds, considered science
+ction. Yet, scientists argue that most galaxies have had more than enough time for
+civilisation development and space travel. In this thesis I simulate how civilisations
+can spread through the galaxy via close encountering stars, assuming they travel at
+sub-relativistic speeds. A dened region around the solar neighborhood, populated
+by Sun-like stars, is simulated over time by tracking the motion of stars using the
+epicycle approximation. The systems of stars include suitable planets for life devel-
+opment (abiogenesis) where each step of the planet's evolution process is represented
+by a certain evolution index. The indices are governed by comparing a random num-
+ber to a probability distribution, representing the probability for a planet to evolve.
+The probability distribution is in turn extended by including a steepness parameter
+N, whereN= 0 gives a Poisson distribution while N > 1 produces a distribution
+that is more tightly peeked. The model keeps track of close encountering stars,
+which allow for civilisations to colonize a passing, habitable planet. On average, a
+star's nearest neighbor is at a distance of 36, 47, and 82 pc for simulations with
+1000, 600, and 200 stars respectively. By changing the probability distribution that
+governs the chance of index increase, the rst technologically developed civilisation
+was found after 0.27, 3.65, or 4.8 Gyr, depending on the steepness parameter of
+the probability distribution. The number of colonized planets over time followed an
+exponential increase in the beginning with a fall-o close to the saturation point of
+the number of stars. For star counts of 200, 600, and 1000 stars, allowing only one
+civilisation to travel while the others remain stationary on their home planets, the
+galaxy became dominated by the single spreading civilisation only when considering
+1000 stars with a steepness parameter of N= 3. In this case, 89 per cent of the
+planets were colonized by the single civilisation. For 200, 600 and 1000 stars and
+N= 0, the stationary civilisations dominated, colonizing 99 %, 99.3 % and 99.7 %
+of the planets respectively. For N= 3, 85 % of the 200 planets and 66 % of the 600
+planets were dominated by the stationary civilisations after 12 Gyr. This implies
+that decreasing the mean distance between stars (by including more stars) in addi-
+tion to including the steepness parameter, made it possible for a single civilisation
+to colonize the galaxy faster than the rate of which stationary civilisations develop.
+Popul arvetenskaplig beskrivning
+-Ar rymden en enda stor tunnelbana?
+Finns det utomjordiskt liv i universum? Konceptet av Fermi paradoxen har f orun-
+drat forskare sedan tidigt 50-tal. Den st aller fr agan om varf or utomjordiskt liv inte
+har blivit uppt ackt  annu. I j amf orelse med andra system i universum  ar v art sol-
+system relativt ungt med sina 4,6 miljarder  ar. Detta betyder att stj arnor med
+ aldre planetsystem b or haft mer  an nog tid f or en utomjordisk civilisation att sprida
+sig genom universum. Stuart Armstrong och Anders Sandberg h avdar i ett pap-
+per (Armstrong and Sandberg 2013) att kolonisera universum  ar en \relativt enkel
+uppgift" f or en civilisation med utvecklad teknologi och energik allor rustat f or rym-
+dresor.
+Men, f or m ojligheten av utomjordiska resor beh ovs kunskap kring planetsystem och
+stj arnors faktiska r orelse samt vilka m ojligheter dessa har att utveckla beboeliga
+f orh allanden. Vi vill inte spendera en livstid s okande efter en planet f or att tillslut
+hamna p a en planet som Gliese 581c, som skulle - vilket en artikel i Bored Panda
+(Stella 2019) bildligt beskriver - "sm alta dig levande p a n arsidan och frysa dig till
+en sn ogubbe p a fj arrsidan".
+Trots att rymden  ar relativt tom nns  and a tonvis av omkringytande objekt vilket
+kan p averka stj arnors r orelse och dra dem ur deras banor. Aven strukturen av
+galaxen kan p averka s attet som stj arnorna r or sig. Dessa s a kallade \st orningar"
+g or att stj arnor b orja vobbla kring sin, i j amvikt, cirkul ara bana, vilka tillsammans
+med stj arnornas r orelse, bildar s a kallade epicykelr orelser.
+I mitt projekt  ar m alet att simulera spridningen av en civilisation genom en galax likt
+v ar egen. F or att lyckas med detta m aste en f orst aelse kring dessa epicykelr orelser
+skapas. Dessutom, att f a en uppfattning om vilka sannolikheter och m ojligheter det
+nns f or planeter att skapa beboeliga f orh allanden. Genom att skapa ett datorskript,
+inneh allande denna bakomliggande fysik, kan en simulering  over spridningen g oras.
+Det slutgiltiga resultatet ger en beskrivning  over hur ett s adant datorskript kan byg-
+gas upp, samt en illustrativ simulering  over spridningen av en eller era civilisationer
+genom galaxen.
+S a fr agan  ar tillslut:  ar rymden bara en stor tunnelbana av anslutande sp ar att resa
+med? Kan det vara s a att dessa sp ar bara inte  ar tillr ackligt utvecklade  annu och
+att v ar kapacitet inte f or tillf allet r acker till? Den h ar simuleringen kan ge insikt i
+varf or vi inte redan nu  ater v ara middagsm altider tillsammans med utomjordingar
+och d artill, ge en uppfattning om n ar och om den m ojligheten n agonsin kommer att
+nnas.
+Contents
+List of Figures 3
+List of Tables 7
+Acknowledgements 8
+Introduction 9
+1 Galactic Dynamics 11
+1.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+1.2 Theory . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+1.2.1 Epicycle approximation . . . . . . . . . . . . . . . . . . . . . . 11
+1.2.2 Close encounters . . . . . . . . . . . . . . . . . . . . . . . . . 14
+1.2.3 Simulation setup . . . . . . . . . . . . . . . . . . . . . . . . . 14
+2 Galactic Civilisations 16
+2.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.2 Theory . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.2.1 Drake's equation and evolution indices . . . . . . . . . . . . . 16
+2.2.2 Stochastic manipulation . . . . . . . . . . . . . . . . . . . . . 18
+2.2.3 Abiogenesis and evolution states . . . . . . . . . . . . . . . . . 18
+3 Algorithm and Method 20
+3.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+3.2 Galactic dynamics . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+3.3 Galactic civilisation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+4 Results 25
+4.1 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+4.2 Galactic dynamics . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+4.3 Galactic civilisations . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+5 Discussions and conclusions 38
+A Animations 42
+B Formal derivation of the epicyclic approximation 47
+1
+CONTENTS CONTENTS
+Bibliography 49
+2
+List of Figures
+4.1 A plot illustrating the radial oscillations for a star in an epicyclic orbit
+as a function of time, with an oscillating amplitude of 0:7 kpc. . . 26
+4.2 A plot illustrating the azimuthal motion of two stars relative to the
+center of the box. Note the dierence between the motion of the two
+stars. The motion in Rdepends on several stochastic parameters
+(equation 1.16) which makes the outcome of each star unique. Since
+the motion is seen relative to the center of the moving box, the ret-
+rograde motion of one star can be seen as it appears to \turn" along
+its orbit. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+4.3 A plot illustrating the vertical oscillation over time for one star. The
+mean vertical amplitude of oscillation considering 1000 stars is 0.6
+kpc, but is, due to the random amplitude b, frequency and phaze
+'zdierent for each star. . . . . . . . . . . . . . . . . . . . . . . . . 27
+4.4 A gure displaying the Cartesian motion of one star considering the
+x=Rcos () R0andy=Rsin () motions in the plane, disre-
+garding any vertical oscillations. Since the motion is relative to the
+center of the box, at a distance R0from the galactic center, the  R0
+term is included. Notice that the orbits of stars are also followed out-
+side the box, hence the range on the x-axis is extended compared to
+the values seen in Table 1.1. . . . . . . . . . . . . . . . . . . . . . . 28
+4.5 A plot showing the average number of close encounters against the
+number of iterations per Gyr. The limit distance is set to 10 pc and
+the relations are shown for 400- up to 1000 stars in steps of 200.
+The convergence for all numbers of stars tested, occurs at 10000
+iterations or equally, a time step of 0.01 Myr with the standard
+deviation shown as error bars on each of the plots. The standard
+deviation follows the regular =qP(xi xmean)2
+NwithNdenoting the
+total amount of stars considered. . . . . . . . . . . . . . . . . . . . . 29
+3
+LIST OF FIGURES LIST OF FIGURES
+4.6 A gure showing screenshots of 6 iterations for the animation of the
+epicycle motion of 100 stars. The purpose is to show how the number
+of close encounters increases over time. In this simulation, 1 time
+unit = 1 Myr with the blue dots indicating stars that under some
+iteration had a close encounter. The rst close encountering stars are
+found after150 Myr and continue to increase over time. Note that
+the same star can be close to more than one star in the time of the
+simulation, which explains why there are an uneven number of stars
+in some screenshots. This is seen in (b)where one of the three stars
+in the rst pair created, formed a new close encounter with the third
+star. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+4.7 A histogram showing times for the rst planet to reach an evolution
+indexE3. Here, dtis chosen to the optimized value of 1/10000 Gyr
+(obtained in section 4.2) and the steepness parameter Nfrom equa-
+tion (2.3) is varied. The times were determined to 270 Myr,3:65
+Gyr and4:8 Gyr forN= 0,N= 3 andN= 1000 respectively.
+The simulation was made with 200 stars. . . . . . . . . . . . . . . . 31
+4.8 A comparison between the change of evolution indices for 200 stars
+over 12 Gyr. The blue dash-dotted line shows index 1 stars, the orange
+dashed line index 2 stars and the lled green index 3 stars. In (b),
+a steepness parameter of N= 3 has been added, giving the charac-
+teristic eect of narrowing the spread of indices since the probability
+distribution becomes more narrow. . . . . . . . . . . . . . . . . . . . 32
+4.9 Two histograms showing the number of colonized planets per civilisa-
+tion on the vertical axis and the civilisation number Cin rising order
+on the horizontal axis. Here, C= 0;1;2;3;:::;n whereC= 1 denotes
+the rst developed civilisation and nstands for the last civilisation
+to develop on a planet. The left panel depicts this for a steepness
+parameterN= 0 and the right panel N= 3. Note that in the case of
+N= 3, the rst few developed civilisations dominate while for N= 0,
+there is a more uniform distribution between colonized planets. The
+simulation is performed considering 1000 stars. . . . . . . . . . . . . . 33
+4.10 The graph illustrates the fraction of planets colonized when only a
+single civilisation is able to travel between stars, while the other civil-
+isations stay stationary on their home planets. Nspreading describes
+the planets colonized by the single civilisation and Nstationary are the
+planets colonized by stationary civilisations. The left plot displays the
+fraction for 200, 600 and 1000 stars for steepness parameter N= 3 and
+the right shows this for N= 0. Note that if Nspreading=Nstationary>1,
+the single civilisation dominates. It can be seen that only for 1000
+stars withN= 3, the single civilisation has colonized more planets
+than there are planets with stationary civilisations. The convergence
+seen in the graphs is when there are no more planets to colonize,
+hence, when every star has reached evolution index 3. Note that the
+simulation in the right panel begins at time 3 Gyr. This is the time
+when the rst civilisation has developed. . . . . . . . . . . . . . . . . 35
+4
+LIST OF FIGURES LIST OF FIGURES
+4.11 An illustration over the evolution of indices for 200 stars and the
+colonization of the rst developed civilisation. Index 0 stars are seen
+as red stars, index 1 stars as light blue, index 2 stars as olive green,
+index 3 stars as navy blue and the colonized stars by one civilisation
+are seen as red circles. The steepness parameter is set to N= 0. The
+time stamps of the screenshots are chosen to illustrate the times of
+transition, thus, when most of the stars increase in index. The time
+step used is d t= 2:4 Myr and the time of the simulation is set to 12
+Gyr. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+4.12 An illustration over the evolution of indices for 200 stars and the col-
+onization of the rst developed civilisation. Index 0 stars are seen
+as red stars, index 1 stars as light blue, index 2 stars as olive green,
+index 3 stars as navy blue and the colonized stars by one civilisation
+are seen as red circles. The steepness parameter is set to N= 3. The
+time stamps of the screenshots are chosen to illustrate the times of
+transition, thus, when most of the stars increase in index. In compari-
+son to gure 4.11, there is very little mixing between the indices. This
+is a result from the included steepness parameter which narrows the
+probability distribution, making the chance of index increase small
+for times smaller than the process times Tn. The time step used is
+dt= 2:4 Myr and the time of the simulation is set to 12 Gyr. . . . . . 37
+A.1 A gure showing screenshots of 6 consecutive iterations for the ani-
+mation of the epicycle motion of 100 stars. The purpose is to show
+how stars move in epicycle motion. In this simulation, 1 time unit =
+1 Myr with the blue dots indicating stars that under some iteration
+had a close encounter. Note that the same star can be close to more
+than one star in the time of the simulation, which explains why there
+are an uneven number of stars in some screenshots. This is seen in
+(b)where one of the three stars in the rst pair created, formed a
+new close encounter with the third star. . . . . . . . . . . . . . . . . . 43
+A.2 A gure showing screenshots of 6 iterations for the animation of the
+epicycle motion of 100 stars. The purpose is to show how the number
+of close encounters increases over time. In this simulation, 1 time
+unit = 1 Myr with the blue dots indicating stars that under some
+iteration had a close encounter. The rst close encountering stars are
+found after150 Myr and continue to increase over time. Note that
+the same star can be close to more than one star in the time of the
+simulation, which explains why there are an uneven number of stars
+in some screenshots. This is seen in (b)where one of the three stars
+in the rst pair created, formed a new close encounter with the third
+star. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+5
+LIST OF FIGURES LIST OF FIGURES
+A.3 An illustration over the evolution of indices for 200 stars and the
+colonisation of the rst developed civilisation. Index 0 stars are seen
+as red stars, index 1 stars as light blue, index 2 stars as olive green,
+index 3 stars as navy blue and the colonized stars are seen as red ball
+shapes. The steepness parameter is set to N= 0. The time stamps
+of the screenshots are chosen to illustrate the times of transition,
+thus, when most of the stars increase in index. The time step used is
+dt= 2:4 Myr and the time of the simulation is set to 12 Gyr. . . . . . 45
+A.4 An illustration over the evolution of indices for 200 stars and the
+colonisation of the rst developed civilisation. Index 0 stars are seen
+as red stars, index 1 stars as light blue, index 2 stars as olive green,
+index 3 stars as navy blue and the colonized stars are seen as red ball
+shapes. The steepness parameter is set to N= 3. The time stamps
+of the screenshots are chosen to illustrate the times of transition,
+thus, when most of the stars increase in index. In comparison to
+gure 4.11, there is very little mixing between the indices. This is
+a result from the included steepness parameter which narrows the
+probability distribution, making the chance of index increase small
+for times smaller than the process times Tn. The time step used is
+dt= 2:4 Myr and the time of the simulation is set to 12 Gyr. . . . . . 46
+6
+List of Tables
+1.1 A table displaying the boundary values for the region around the
+solar neighborhood in terms of the starting positions in radius Rand
+azimuth angle . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+2.1 A table describing the dierent evolution indices used in the script.
+Since the spreading of civilisations in general occurs several times,
+theTprocess is set totfor index2, indicating the dierent times this
+happens over the simulation period. . . . . . . . . . . . . . . . . . . . 19
+4.1 A table showing the average amount of close encounters found over
+the time of 1 Gyr, depending on the number of stars given. Here, max
+denotes the maximum standard deviation found and fthe fraction
+between close encounters and all possible pairs of stars. . . . . . . . . 29
+7
+Acknowledgements
+I would like to express my deepest appreciation to my supervisors Anders Johansen
+and Paul McMillan who guided me through this project and helped me face di-
+culties throughout the work. I also wish to thank my fellow bachelor colleagues for
+discussing and helping me debugging issues regarding the code. Finally, I would
+like to extend my appreciation to the authors of the Numpy and Scipy packages
+(Oliphant 2006; Virtanen et al. 2020) whose works have helped me optimize the
+code used for the project.
+8
+Introduction
+For centuries, scientists have been trying to solve the conundrum of nding extrater-
+restrial life in the universe. In the 1950s, the Italian-American physicist Enrico
+Fermi introduced the famous paradox of why any extraterrestrial life form has not
+yet visited us, despite knowing the age of the Universe would be enough time for
+a civilisation to develop modest technology for space travel (Howell 2018). Even
+nearby galaxies, with typical ages of 10 - 13 Gyr (Nasa 2019) would have more than
+enough time to develop a civilisation and for them to travel to nearby systems. Ac-
+cording to the evolution patterns on Earth, the time it takes for the development
+of an intelligent civilisation is 4:54 Gyr. For them to be able to colonize stars in
+the galaxy, they would have to be technological enough for traveling vast distances
+in space. A \suciently technological civilisation" could be, as Kaku (2008, p.158
+- 160) describes, a type I civilisation which has the opportunity for sub-relativistic
+space travel via e.g. mammoth solar sails, which could reach up to half the light ve-
+locity driven by powerful lasers located on the moon, or via ramjet fusion, which uses
+the heavily abundant hydrogen in space to \scoop" its way through the galaxy. If the
+goal was to travel as fast as possible through the entire galaxy contrary to colonize
+planets around sun-like stars, it would \only" take an additional 0.65 Myr according
+to Carroll-Nellenback et al. (2019) when traveling in sub-relativistic speeds.
+This project will further explore how spreading to nearby systems could be a possi-
+bility by simulating the spread of civilisations through the galaxy, using numerical
+methods. A limited section (abbreviated \box" or \region") is dened around the
+solar neighborhood, including a given amount of stars. In this region, the galaxy
+is assumed to have homogeneous star density in the galactic plane with periodic
+azimuthal boundaries such that the box moves in the galactic plane, orbiting the
+galactic center at a distance called the guiding center. The stars inside this box
+will follow epicyclic motions, oscillating radially, vertically, and in the azimuth. The
+project aims to track the colonization of suitable planets by one or several space-
+traveling civilisations in the box, using the true motion of stars and the probabilities
+for close encountering stars to develop intelligent life. The project compares how
+altering the probability distribution for life development of planets around suitable
+stars could make one or several space-traveling civilisations dominant in terms of the
+number of colonized planets. It also investigates how such planets evolve, depend-
+ing on if the planets evolve in time scales according to Earth's or according to more
+randomized time scales. The fundamentals of this project are based on stochastic
+processes to simulate motions as well as probabilities. Monte Carlo methods will
+9
+LIST OF TABLES LIST OF TABLES
+be implemented to nd probability distributions of life development for the systems
+considered.
+10
+Chapter 1
+Galactic Dynamics
+1.1 Background
+This chapter reviews the extension of circular- into non-circular orbits for stars using
+the epicycle approximation. A nonperturbative motion for a star is circular around
+the guiding center with a distance R0to the galactic center. The guiding center is
+used as a reference distance and is for this project chosen in the solar neighborhood.
+Near-circular orbits of stars caused by disturbances from the galactic potential will
+be derived partly using Taylor expansions around the guiding center, meaning only a
+limited region around R0can be used. Furthermore, the star density of the galaxy is
+set to be directionally homogeneous in the plane with periodic azimuthal boundaries,
+meaning that a star moving out of the section instantaneously emerges back on the
+opposite side. The stars are allowed to move outside the section, both vertically and
+radially.
+1.2 Theory
+1.2.1 Epicycle approximation
+The epicycle approximation allows a solution for near-circular orbits of stars in three
+dimensions. The method describes how orbits projected onto the galactic plane can
+be described as ellipses around the guiding center. Near-circular orbits can be caused
+by small velocity perturbations in space that disturb orbits of stars. It can also be
+created directly from the galactic potential, where for example the gravitational
+eld from the spiral arms (called spiral potential) can cause a star to fall towards
+the centre of gravity when it is in its slowest part of its orbit (apocentre), disturbing
+its equilibrium orbit (Francis 2009). Studying these motions in a moving reference
+frame, the stars can sometimes appear to change the direction of their orbit. This
+is called retrograde motion or epicycles (Cubarsi 2013; Makarov et al. 2004).
+For a star in a circular galactic orbit in the solar neighbourhood, the radial distance
+R=R0, velocityV=V0, angular velocity !0=V0=R0and angular momentum
+L0=V0R0are assumed to be constant and hence, the central attraction balances
+11
+1.2. THEORY CHAPTER 1. GALACTIC DYNAMICS
+the centrifugal force. The central gravitiational force is given by
+Fg(R) =Vc(R)2
+R; (1.1)
+whereVcis the circular rotation in the galactic plane and Ris the radial distance to
+the center. Inside a homogeneous spherical mass, FgR, while a at rotation curve
+yieldsFgR 1. By introducing the Oort's constant , this can be approximated
+as a power law on the form
+Fg(R) =F0(R=R); (1.2)
+withF0describing the force at the sun's distance R, from the galactic centre. In
+the solar neighborhood, the Oort's constant in equation (1.2) can be found via
+= 3A+B
+A B; (1.3)
+whereAandBare coecients in km/s/kpc describing the shearing motion of the
+disk around the sun, and the vorticity in the solar neighborhood respectively. The
+circular motion in cylindrical coordinates for the star follows the motion given in
+Lindegren (2010) as8
+><
+>:R(t) =R0
+(t) =c(t)0+!0t
+z(t) =z0; (1.4)
+wherez0lies in the plane of the galaxy, 0is the starting azimuthal position of the
+star andcis the circular azimuthal motion in the galactic plane. For non-circular
+orbits, the radial distance is a function of time, and the gravitational force can be
+approximated by
+Fg(R) =L2
+0R 3
+0(R=R 0); (1.5)
+where2[ 2;1]1gives information about the local spatial variations of the stars
+(Olling and Dehnen 2003). For stars close to the solar position,  1:2 (Lindegren
+2010). Equation (1.5) is a combination of equation (1.1) and (1.2), where F0has
+been rewritten in terms of the angular momentum L0=V0R0asF0=L2
+0R 3
+0. Since
+stars in non-circular motions have varying radial distance to the galactic center, R0
+denes the average position of a star, measured in kpc. Additionally, the centrifugal
+force is described by
+Fc=L2R 3: (1.6)
+A small perturbation in space2can disturb the orbit of a star, making it oscillate
+around its guiding center. A radial push outwards begins an outward motion of the
+star (R>R 0), however, since the Oort's constant  2, the centrifugal force will
+decrease more rapidly than the gravitational attraction, making the resulting accel-
+eration, and therefore motion, pointing inwards ( R< 0)3. Note that in this project,
+1A value< 2 would give negative mass density according to the Poisson equation.
+2This can be caused by e.g. merging objects that gravitationally pull the star out of its orbit
+or instabilities in the evolution of the star.
+3Conversely, an inward push would result in an outward motion where R> 0
+12
+1.2. THEORY CHAPTER 1. GALACTIC DYNAMICS
+the orbits are followed assuming these perturbations from the galactic potential has
+already happened.
+Let a star receive a push that makes it oscillate around its guiding center. The radial
+acceleration with conservation of angular momentum, R(t)2_(t), follows
+R(t) =Fc Fg=L2
+0R(t) 3 L2
+0R 3
+0(R(t)=R0); (1.7)
+where the expanded radial motion due to the perturbation is the addition of an
+expansion termj(t)jR0, giving the total radial motion to be
+R(t) =R0+(t) =R0
+1 +(t)
+R0
+; (1.8)
+around the galactic center. From the radial acceleration in equation (1.7), inserting
+the total radial motion yields a dierential equation for the expansion term on the
+form (t) = 2(t), with=!0(3 +)1=2as the angular frequency, with solution
+(t) =asin(t+'): (1.9)
+Here,adenotes the amplitude of a harmonic oscillator and 'is the phase. The
+conservation of angular momentum now yields a solution for the motion in azimuth.
+By inserting the total radial motion from equation (1.8) in L0=R(t)2_(t), the
+motion becomes
+(t) =0+!0t+2!0
+R0acos(t+'): (1.10)
+The vertical motion is described by
+z=bcos(t+'z); (1.11)
+whereis the vertical frequency and 'zthe vertical phase. The complete epicycle
+motion assuming epicyclic approximation is (e.g. Van Den Bosch 2020)
+8
+><
+>:R(t) =R0+asin(t+')
+(t) =0+!0t+2!0
+R0acos(t+')
+z(t) =bcos(t+'z): (1.12)
+We derive this more formally in Appendix B. Intuitively, the Randzterms are
+simple oscillations around the equilibrium orbits at the distance R0from the galactic
+center. The linear term !0tin the azimuthal motion describes the linear angular
+motion of a star around the galaxy in addition to its starting position 0. The
+coordinate ( R0;0+!0t) is known as the guiding centre of the orbit.
+The orbital frequencies !0;and, in units of Gyr 1, are obtained from a linear
+relation tted to the Milky Way potential of McMillan (2017) and follows
+8
+><
+>:!0= 30 3:5(R0 Rc)
+= 42 6(R0 Rc)
+= 83 12:5(R0 Rc); (1.13)
+13
+1.2. THEORY CHAPTER 1. GALACTIC DYNAMICS
+whereRc= 8 kpc denotes the distance from the center of the box to the galactic
+center. Note that the values 30, 42 and 83 have units Gyr 1and 3.5, 6, 12.5 have
+units Gyr 1kpc 1. In the epicycle approximation, we only consider frequency terms
+up to second order and thus, these frequencies are independent on size of orbit.
+Finally, the velocity in the azimuthal plane V=R_obeys
+V(t) =R
+!0 2!0
+R0asin (t+')
+: (1.14)
+1.2.2 Close encounters
+The distance between two stars in a 3-dimensional box can be calculated using the
+Euclidean distance via
+d(p;q) =vuut3X
+i=1(qi pi)2; (1.15)
+where pandqdenote the position in ( R;R;z) of the stars in 3-dimensional
+Euclidean space. We dene the limit distance, rt, as the maximum distance a
+civilisation is willing to travel between two stars. If the distance d(p;q)< r t, the
+stars count as close encounters and the civilisation could potentially4travel there.
+It is important to note that pairs of stars can stay together over a long period of
+time. But since we do not include star clusters of the mutual gravity of stars, these
+are much more likely to be close encounters than long lived pairs.
+1.2.3 Simulation setup
+To nd the stars counting as close encounters, a section (or \box") around the solar
+neighborhood is simulated, including all of the investigated stars. The box has
+azimuthal motion according to equation (1.16) and the boundaries of the box are
+periodic in , yielding the constraint of the star's motion to always be inside the
+box. Table 1.1 states its dierent boundary values. The motion of stars, relative to
+the center of the box Rcis
+R=R 
+[(t) !0(Rc)t min] mod [max min]
++min; (1.16)
+whereminandmaxare dened in Table 1.1 and !0(Rc) = 30 Gyr 1is the constant
+angular motion of the box when orbiting the galactic center. The close encounters
+will be further used for tracking the spread of civilisations between planets, via these
+close encounters. The details of how civilisations can spread through the box are
+described in chapter 2.
+Furthermore, the amplitudes aandb, starting positions R0and0, phases'and'z
+and orbital frequencies !,and(since they depend on R0) seen in equation (1.12),
+are randomly chosen for the simulation. By dierentiating the radial and vertical
+motions seen in equation (1.12) we can extract their amplitudes aandbas typical
+values depending on the radial and vertical velocity dispersion's. Since the motions
+4If conditions in section 2.2.1 are met.
+14
+1.2. THEORY CHAPTER 1. GALACTIC DYNAMICS
+Table 1.1: A table displaying the boundary values for the region around the solar
+neighborhood in terms of the starting positions in radius Rand azimuth angle .
+MAX MIN
+R[kpc] 7.5 8.5
+[rad] -1/12 1/12
+are sinusoidal, the average velocities are1
+2dt=dR=1p
+2aand1
+2dt=dz=1p
+2b. The
+values of the velocity dispersion's5are chosen from Aumer and Binney (2009) where
+dt/dRVR20 kpc/Gyr and d z/dtVz10 kpc/Gyr.
+By solving for aandb, the typical amplitude values used for the motion of stars
+in the simulation becomes a=p
+2VR=andb=p
+2Vz=. The amplitudes
+are furthermore multiplied by a random number, s, from a right-sided Gaussian
+distribution, thus, chosen as8
+><
+>:a=jsp
+2VR
+j
+b=jsp
+2Vz
+j: (1.17)
+The starting positions R0and0are likewise randomly chosen within the boundaries
+of Table 1.1 using Python's np.random.rand() command. The phases are chosen by
+the same procedure as R0and0in the interval of ( ';' z)2[0;2]. In the vertical
+direction, we do not consider any boundaries.
+The value of the limit distance is set to rt= 10 pc in the simulation. This value
+is chosen such that civilisations can travel between stars within the span of their
+lifetimes. This is in turn based on that civilisations use fusion engines to travel up
+to 77 per cent of the speed of light (Kaku 2008). At this speed it takes at least
+42.4 years to travel this distance. A lower value would be more convenient for the
+civilisation since it reduces travel times, while a larger value would force them to live
+their entire lives on a spacecraft. However, increasing the value of the limit distance
+would indeed increase the number of possible stars that the civilisation can colonize
+since more stars fall into the category of being close encounters.
+5To simplify calculations, velocities are expressed in kpc/Gyr. Note that 1 kpc/Gyr '1 km/s.
+15
+Chapter 2
+Galactic Civilisations
+2.1 Background
+This chapter extends the theory introduced in chapter 1. It uses the dynamics
+of stars in the box to track the spreading of civilisations through the galaxy. The
+distances between the stars inside the box are mapped over the time of the simulation
+and checked for a certain limit distance, called rt. Every star has an evolution
+index representing the evolutionary states of an orbiting planet, suitable for life
+development. The indices are based on Drake's equation (2.1) and properly dened
+in section 2.2.3. A civilisation can arise on a planet that supports the necessities for
+intelligent life. It can then spread to other planets that have developed habitable
+conditions. Pseudo-random numbers are generated for every star at every time step
+which work as switches between the dierent indices. This will indicate the state of
+the star-system as well as determine which system the civilisation can travel to.
+2.2 Theory
+2.2.1 Drake's equation and evolution indices
+According to Frank Drake (SETI 2020), an estimation over the number of techno-
+logical civilisations existing in the universe is based on several probability factors.
+The number of civilisations N, able to communicate their existence in our galaxy
+can be estimated with
+N=RbT; (2.1)
+whereRbdescribes the rate of broadcasting civilisations that arise per unit time in
+the galaxy and Tthe time interval of broadcasting. Note that Tdepends on the
+survival time of the civilisation and the time that the civilisation can continuously
+broadcast. The Rbcomponent is divided into several sub-factors, describing dierent
+stages for a suitable star to form a planet with a broadcasting civilisation. The
+complete equation is commonly written as
+Rb=RppnEplpipc; (2.2)
+16
+2.2. THEORY CHAPTER 2. GALACTIC CIVILISATIONS
+stating that the rate of emergence of new broadcasting civilisations is equal to the
+suitable stars forming per unit time multiplied by the average mean number of
+civilizations communicating per star. The dierent parameters are dened as
+8
+>>>>>>>><
+>>>>>>>>:R= Rate of stars suitable for life development to form
+pp= Probability of formation of planets around a suitable star
+nE= Average number of suitable planets located in the habitable zone, per planetary system
+pl= Probability of life appearing on such a planet
+pi= Probability for intelligent life to develop on such a planet
+pc= Probability for the civilization to broadcast across space:
+Note that the formation of a suitable planet requires the host star to have sucient
+metallicity, preferably in the range [Fe/H], 2[ 1;0:5] (Zackrisson et al. 2016). The
+peak formation probability for terrestrial planets to form is [Fe/H]  1 according
+to this model. Formally, a star with too low metallicity, [Fe/H] . 2, does not
+have the heavy elements required (above He) for Earth-like planets to form. Since
+these heavier elements were not formed as a result of the Big Bang, these are in-
+stead produced via nucleosynthesis (Anand et al. 2018; Jones 2019) inside the stars.
+Lineweaver (2001) describes a "Goldilocks selection eect", where a too low metal-
+licity makes Earth-like planets unable to form, while too high metallicities increase
+the chance of the formation of giant planets, which in early stages can destroy the
+formation of smaller Earth-like planets. A comparison between three dierent mod-
+els for the probabilities of terrestrial planet formation depending on the host stars
+metallicity can be seen in Fig. 1 in Zackrisson et al. (2016). This could be used
+to extend the project in terms of making a comparison for how dierent planets
+evolve, depending on the metallicity of their host star. Note, however, that in the
+simulation used in this project, we assume all stars to be sun-like with metallicities
+[Fe/H]'0.
+The parameters in focus are plandpiwhich we represent by four evolution indices.
+Assume that all stars are solar like, with suitable planets surrounding them, hence,
+factorsppandnEequals 1. Also assume a civilisation located on a habitable planet
+(later referred to as an evolution index 3 planet) inside the galaxy. The civilisation
+is technologically developed (a Type I civilisation in the description of Kaku 2008)
+and is able to travel to nearby stars within the lifetime of an average human with
+an assumed limit distance of rt= 10 pc. Based on plandpi, four evolution indices
+are dened as Enwithn= 0;1;2;3, describing the state of evolution for the planet
+around a star. At the start of the simulation, the stars begin at evolution index
+E0. At each time step, the probability for an evolution index to increase by one is
+P(En!En+1) = dt=Tprocess , where dtis the time step, Tprocess is the mean time for
+the evolution index to increase by one and d t=Tprocess is on the form of a Poisson
+distribution. The average times and denitions of the evolution indices are presented
+in Table 2.1.
+Furthermore, random numbers are generated each time step which work as switches
+between the indices. The random numbers (written as RN), are chosen from a
+17
+2.2. THEORY CHAPTER 2. GALACTIC CIVILISATIONS
+uniform distribution using Python's Random package1. IfRN<dt=Tprocess , the index
+will increase one step and the planet evolves. The conditions n2 and the distance
+d<r tmust be fullled in the targeted star for the civilisation to be able to spread
+there, since a lower evolution index would make the planet impossible to inhabit
+and a larger distance too far away.
+2.2.2 Stochastic manipulation
+The evolution indices are based on letting the random number RNbecome smaller
+than a certain value d t=Tprocess which corresponds to a Poisson distribution on the
+form,P(t) =e (t t0). Hereis a rate parameter and t t0is the time since
+the beginning of the simulation. Generally, the probability for this is low since
+the time step d tTprocess . Regardless, using many number of iterations makes
+the indices increase and reach the nal index 3 state, even for small t t0. We
+can manipulate this to make the evolutionary processes (the increase of indices)
+of planets to match the evolutionary processes on Earth, where Earth's process
+times can be seen in Table 2.1. To match these evolution processes, we make the
+probability for RN<dt=Tprocess become larger in the limit where the time since the
+last index increase approaches Tprocess . An extension of the Poisson distribution, in
+terms of equation (2.3), increases this probability as tn 1 !Tprocess and follows
+P(En!En+1) =dt
+Tntn 1
+TnN
+; (2.3)
+whereTn=Tprocess withn= 0;1;2;3 representing the dierent evolution indices,
+tn 1is the time since arriving at previous evolution index and Nis a steepness
+parameter. Note that for N= 0, the Poisson distribution is returned. For N >
+0 andTntn 1, the probability for an evolution index increase is small, but
+increases as tn 1 !Tn. By increasing N, the \boosting" of the probabilities can
+be altered, since it steepens the probability distribution. Hence, the factor Ncan be
+manipulated such that the indices Enare reached in correspondence with the values
+in Table 2.1. For all scenarios we consider, P(En!En+1) is small.
+Note that a small value of Nrepresents the evolution of a planet that deviates in its
+evolutionary patterns compared to Earth while a large Nmakes the planet evolve
+in coherence Earth's time scales. The steepness parameter can therefore be used to
+compare how planets evolve if we assume that planets evolves similar to an Earth-
+like planet or dierently. This could also be achieved by changing the Tprocess values
+in Table 2.1 such that it matches the desired way of planetary evolution.
+2.2.3 Abiogenesis and evolution states
+Abiogenesis describes the theory that organisms can arise spontaneously from inan-
+imate matter and is the basis for the assumed Tprocess in the model. According to
+1Note that these numbers are not truly random but instead called pseudo-random numbers.
+These are generated using deterministic processes. More information about pseudo-random num-
+bers can be found in Kennedy (2020)
+18
+2.2. THEORY CHAPTER 2. GALACTIC CIVILISATIONS
+Table 2.1: A table describing the dierent evolution indices used in the script.
+Since the spreading of civilisations in general occurs several times, the Tprocess is set
+totfor index2, indicating the dierent times this happens over the simulation
+period.
+Index Description Colour ShapeTprocess [Gyr]
+0 A suitable planet in the habitable zone Red star -
+1 Life development Cyan star 0.3
+2 Habitable conditions for a civilisation* Olive green star 3.5
+3 Intelligent life Navy blue star 0.7
+2 Close encountering star with habitable conditions Red circle t
+*The habitable conditions are based on that a stable oxygen level has been maintained on the planet such that a
+civilisation can live there without any extra equipment.
+the model in Spiegel and Turner (2011), the probability per unit time for life to
+develop around a suitable star within its lifetime in the main sequence ( tmin= 0
+andtmax10 Gyr)2is given by a Poisson distribution. This means life must evolve
+within the interval t2[tmin;tmax] and that life occurs from a single process (as
+an on/o switch) despite it probably being far more complex. This model states
+that life arose at least once (and begun the process of life development) 3.8 billion
+years ago (Ga), with an uncertainty of a few hundred million years. In comparison,
+the paper of Dodd et al. (2017), claims that the rst life form might have arisen
+earlier. They have compared lament tubes found in seaoor hydrothermal vents
+with microfossils living in younger rocks. The consistency in the comparison yielded
+the promising results that biological activity in these seaoor vents could have been
+active up to almost 4.3 Ga. This means that life might have arisen without the
+need for oxygen and that organisms thrived on other energy sources, such as the
+chemical reactions close to a hydrothermal vent via chemosynthesis (Anand et al.
+2018). However, for more complex life to exist, sucient oxygen levels seem to be
+of main importance. The current level of oxygen in our atmosphere is a direct by-
+product of the photosynthesis of cyanobacteria which according to Caneld et al.
+(2000) reached its current level between 0.54 - 1.0 Ga.
+The algorithm used for the probability of evolution index increase is based on the
+on/o model from a Poisson distribution and is more rmly described in section
+3.3. The life development time follows the claims of Dodd et al. (2017) with the
+oxygen development time in the interval given by Caneld et al. (2000). The third
+evolution index is based on the \rest" time, which all added should equal the age
+of Earth (4:5 Gyr). Note that, in reality, there could be overlap between the
+processes. Although the rst life form emerged around 300 million years after the
+formation of Earth, the process of oxygen development might not have occurred
+until several hundreds of million years after. But the simulation requires xed times
+for the processes to work as switches between indices and thus, the potential overlap
+is unconsidered.
+2For Sun-like stars.
+19
+Chapter 3
+Algorithm and Method
+3.1 Background
+In this chapter, the general algorithms are described in terms of pseudo-codes. The
+algorithm will be divided into two parts:
+1. Galactic dynamics and close encounters
+2. Abiogenises using Monte Carlo methods (called \Galactic civilisation"),
+where the rst aims to describe the script setup for the epicycle motion of stars
+around the solar neighborhood inside the dened box. The second part aims towards
+simulating life-developing processes for close encountering stars regarding:
+Life development
+Oxygen development
+Technological civilisations.
+Note that the algorithm is based on generating pseudo-random numbers using Python's
+np.random.rand(). This means that each time the script is run, a new outcome of
+the result is obtained. To get equal results each time, the seed of the random num-
+ber generators can be set to some value by using the random.seed() command in
+the beginning of the simulation. This is only needed if it is desired to get the same
+output each time the code is run (Kennedy 2020).
+3.2 Galactic dynamics
+The dynamics of stars follow the equations found in section 1.2.1, with the equations
+of motion seen in equation (1.12). The code aims to introduce a certain amount
+of stars, measured in the frame of the galaxy, that move in the also moving box
+around the solar neighborhood, having periodic boundaries in the azimuth. The
+starting position of stars, R0and0, phases'and'zand amplitudes aandbare
+randomly selected in their intervals (stated in section 1.2.3) with the latter two
+20
+3.3. GALACTIC CIVILISATION CHAPTER 3. ALGORITHM AND METHOD
+taken from a right-sided Gaussian distribution. The Euclidean distances between
+the stars are calculated for each time step over the given amount of time. A limit
+distance is set to dene close encounters and the pairs of close encounters are put in a
+specic list. Note that gravity between stars is neglected throughout the simulation.
+The nal code can plot the oscillations in R,andz, nd all close encounters for
+every iteration throughout the given amount of time, animate the motion of stars in
+Cartesian coordinates and plot the convergence of the number of iterations needed
+such that no close encounters are disregarded.
+A pseudo-code for this can be described as
+1. Dene a function starmotion depending on the number of stars, time and the
+number of iterations used. This function will return desired plots and values
+in the end.
+2. Dene lists to include the motions in R,,z,xandyand set a limit distance
+called toleranceradius for close encounters (10 pc for this specic project).
+3. Dene the boundaries of the box as in Table 1.1.
+4. Optional*: To get the same result every time the script runs, include a seed
+value using the command np.random.seed(x) , for a xed integer value x.
+5. Dene the random parameters using np.random.rand() for the starting posi-
+tion of all stars and np.random.normal() for the amplitudes. Also dene the
+orbital frequencies seen in equation (1.13).
+6. Create a list of all possible pairs of stars, named pairlist, on the form:
+(1;2);(1;3);:::(2;3);(2;4);:::;(i;j) of length Ns(Ns 1)=2, for the number of
+starsNs. These pairs will be matched with the close encountering stars in
+starlist , dened in point 8.
+7. ForNsstars over all iterations, loop over the equations for R,zandR
+in equations (1.12) and (1.16) respectively and insert their positions in a list
+called totalist on the form Ai= [[Ri;zi;Rii]], whereidenotes the star
+considered.
+8. Calculate the euclidean distance between all stars over all iterations inside the
+loop using the command np.pdist and insert the stars whose distances are
+smaller than the toleranceradius ,rt, in a new list called starlist . Empty
+the list after each step to save memory and return the wished list. pairlist
+is used here to keep track of which stars that will be inserted in starlist .
+9. Run the function for some amount of stars ,time anditerations .
+3.3 Galactic civilisation
+The method is based on the Drake equation, seen in equation (2.1). The code will
+determine which stars are considered habitable or not, using indices called evolution
+indices. The meaning of each index can be seen in Table 2.1. A pseudo-random num-
+21
+3.3. GALACTIC CIVILISATION CHAPTER 3. ALGORITHM AND METHOD
+ber is generated each iteration and compared to the probabilities of index increase,
+described in section 2.2.1. If the random number is smaller than this probability, the
+index increases by one. The rst star to reach an evolution index of three represents
+the rst planet with an intelligent civilisation. This star is checked for all close en-
+countering stars with an evolution index of two. If the two close encountering stars
+follow those requirements, the civilisation can spread. Over time, as more planets
+develop intelligent civilisations, the same procedure is done on all these planets to
+track the spreading of every civilisation through the galaxy.
+The code can output the evolution indices of each star and a list over the spread of
+stars in tuples on the form ( x;y) where the civilisation travels from star xtoyat time
+t. Furthermore, the process can be animated in the 2D Cartesian plane representing
+the plane of the galaxy around its guiding center. The stars change color depending
+on their current evolution index and symbol if their planet is colonized according to
+the colors and symbols in Table 2.1. Furthermore, the code can be used to check
+to what extent the box becomes dominated by a single spreading civilisation in
+comparison to multiple stationary civilisations that stay on their home planets. It
+can also be used to investigate how this fraction depends on the number of stars
+given and how the fraction changes when varying the steepness parameter.
+1. Optional*: To get the same result every time the script runs, include a seed
+value using the command np.random.seed(x) , for a xed integer value x.
+2. Create a list, equally long as the number of stars given and generate a pseudo-
+random number for each position in the list. The command can be
+np.random.rand(N) , forNsstars.
+3. Loop this list over all iterations and give the probability after each iteration
+for a star to increase its current evolution index. The probability is given by
+dt=Tprocess where dtis the time step and Tprocess is the average time it takes for
+the planet to increase its evolution index by one. Put these in a separate list
+called indexlist . Append the stars with indices 1, 2 and 3 in three dierent
+lists.
+4. Loop over the evolution indices and use dierent probabilities between the
+dierent evolution indices from Table 2.1. If the random number RN<
+dt=Tprocess , increase the index by one.
+5. Dene a variable found=False . Append the rst star with evolution index 3
+into a list and change found=True . Also dene a new list spread_stars which
+colonized stars are to be appended in.
+6. Loop over all the close encountering pairs obtained in the starlist from
+section 3.2. If found=True and if the star checked is in spread_stars , append
+it into a list called habitablelist . Check if the 0:th position of the pair of
+stars is not in spread_stars , if so, reverse the pair of stars to get the right
+order (inhabited star in 0:th position in tuple travels to 1:st position in the
+tuple) and append into habitablelist . Also constrain this to only be valid
+for stars with Enwheren= 2 for the conditions to be met. Repeat the same
+22
+3.3. GALACTIC CIVILISATION CHAPTER 3. ALGORITHM AND METHOD
+procedure for the 1:th position in the pair of stars.
+7. For comparison, check the dierence of the spreading of civilisations if the
+planets instead use the probability distribution seen in equation (2.3), thus,
+if the planets evolve in coherence to an Earth-like planet, redo the simulation
+but change the probability d t=Tprocess to the distribution in equation (2.3) and
+vary the value of N. The larger the N, the narrower the distribution will be
+and the more the transition times between indices will happen according to
+the process times of Earth.
+To measure the fraction of colonized planets by a single spreading civilisation com-
+pared to the number of planets naturally developing a civilisation, the following
+pseudo-code can be used:
+1. Dene a list called civindex with length of the number of stars considered,
+consisting of zeros. Dene a variable called civcount and set it to zero outside
+the time loop. Also dene a list called index3list which keeps track of the
+stars that have reached an evolution index of three.
+2. Loop through index3list . If a star reaches index 3 and is not already in
+that list, append that star into the list. At the same time, increase civcount
+by one and append that into civindex . Now, if e.g. star number 53 is the
+rst star to reach an evolution index of three, this is put as the rst item in
+index3list . Since we know that it is star number 53 that was the rst star
+to reach this index, civindex will have a value one in position 53 in the list.
+The next star value appended into index3list will put a value of two in that
+star value position in civindex . In this way, every star becomes unique, with
+its value governed by the civcount.
+3. Check if the rst civilisation found already is in spread_stars . If it is not,
+it means that the civilisation on that star will spread to the 1:st position of
+its pair from starlist . Put these now colonized stars in civindex . This
+will put values of \ones" in the position of the planets colonized by the single
+spreading civilisation in civindex .
+4. Check the number of stars colonized by the rst civilisation (hence, the number
+of \ones" in civindex ) divided by the rest of the index 3 stars that the rst
+civilisation has not colonized (the values that are not \ones" in civindex )
+in every iteration and plot against time. Also, test this for varying steepness
+parameterN= 0 andN= 3 for 200, 600 and 1000 stars.
+The packages used for the code and animations are
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from array import *
+import random
+from scipy import *
+from scipy.spatial.distance import pdist
+23
+3.3. GALACTIC CIVILISATION CHAPTER 3. ALGORITHM AND METHOD
+from matplotlib import cm, colors, pyplot as plt
+from IPython.display import HTML
+import copy
+import ffmpeg
+24
+Chapter 4
+Results
+4.1 Background
+This chapter presents the results obtained from the simulations made in chapter 3
+along with brief discussions. The rst part quanties and displays the oscillation
+magnitudes from the epicycle motions for a simulation time of 1 Gyr together with
+the Cartesian motion of one star in the galactic plane. It also shows the results
+of nding the convergence parameter d twith a supplied table describing properties
+about close encountering stars. Lastly, results from the animation of close encoun-
+tering stars are shown together with six illustrative screenshots.
+The second part states the time it takes for the rst star to reach an evolution index of
+three, depending on the change of the steepness parameter Nfrom section 2.2.2. The
+realism of these times is briey discussed in comparison to the evolutionary patterns
+on Earth. The change of evolution index when allowing all civilisations to spread can
+also be seen. Finally, only the rst developed civilisation was allowed to spread and
+colonize index 2 planets in the galaxy. The rest of the civilisations developing around
+index 3 stars stay stationary at their home planets. The fraction between colonized
+planets by the single traveling civilisation and the planets colonized by the stationary
+civilisations are measured over time, depending on the steepness parameter Nand
+the number of stars considered.
+4.2 Galactic dynamics
+Figure 4.1 displays the radial oscillation for a star around the equilibrium orbit
+R0where the total radial oscillation magnitude is 0:7 kpc. Since the starting
+positionsR0, phase', and amplitude ais chosen randomly within the boundaries,
+the oscillation magnitude will be dierent for each star. The average magnitude of
+oscillation for 1000 stars is R1:1 kpc over 1 Gyr. Note that the oscillation does
+not change over time since we follow stars motion in the galactic potential, assuming
+perturbations from the potential have already happened.
+25
+4.2. GALACTIC DYNAMICS CHAPTER 4. RESULTS
+Figure 4.1: A plot illustrating the radial oscillations for a star in an epicyclic orbit
+as a function of time, with an oscillating amplitude of 0:7 kpc.
+The azimuthal motion, described by R(t) in equation (1.16), is depicted in Figure
+4.2. The motion describes the box of stars moving linearly with !0tthrough space
+with the oscillating motion of the stars relative to the center of the box. Since
+Rdepends on several stochastic parameters, the resulting motion of each star is
+dierent. Note that the motion of the box itself is for convenience since the stars
+would be moving quickly through the box otherwise. The mean value of azimuthal
+motion relative to the center of the box is 1.4 kpc.
+Figure 4.3 shows the vertical motion for one star inside the box. The star oscillates
+around the galactic plane with a mean magnitude of 0.6 kpc. Also here, the randomly
+chosen amplitude band frequency yields dierent outcomes for each star. It can
+be seen that stars on average tend to oscillate more vertically then radially, thus,
+that the frequency is larger than . Since each of the orbital frequencies !,and
+depends on R0, it is indeed in correspondence with equation (1.13) that  > for
+a star starting at position R0.
+The motion in Cartesian coordinates is shown in Figure 4.4 for one star. Each
+star moves in unique patterns inside the box which is illustrated in the animation
+screenshots in Figure A.1 in Appendix A. The motion becomes complex since it
+oscillates in each direction but is simplied in the screenshots where we disregard
+any vertical motions. The resulting motion in ( R;) follows retrograde motion in
+an ellipse with prograde motion in its guiding center. Retrograde motion1can make
+stellar objects appear to stop and move backward under some time in a moving
+reference frame. In the case of this simulation, since the motion of stars is relative
+1An example is Earth- and Mars's orbit relative to each other. Since Earth orbits approximately
+two times as fast as Mars, mapping the tangential line of sight position of Mars in orbit gives an
+illusion of Mars stopping and moving backwards relative to Earth at certain times.
+26
+4.2. GALACTIC DYNAMICS CHAPTER 4. RESULTS
+Figure 4.2: A plot illustrating the azimuthal motion of two stars relative to the
+center of the box. Note the dierence between the motion of the two stars. The
+motion inRdepends on several stochastic parameters (equation 1.16) which
+makes the outcome of each star unique. Since the motion is seen relative to the
+center of the moving box, the retrograde motion of one star can be seen as it appears
+to \turn" along its orbit.
+Figure 4.3: A plot illustrating the vertical oscillation over time for one star. The
+mean vertical amplitude of oscillation considering 1000 stars is 0.6 kpc, but is, due
+to the random amplitude b, frequency and phaze'zdierent for each star.
+27
+4.2. GALACTIC DYNAMICS CHAPTER 4. RESULTS
+Figure 4.4: A gure displaying the Cartesian motion of one star considering the
+x=Rcos () R0andy=Rsin () motions in the plane, disregarding any
+vertical oscillations. Since the motion is relative to the center of the box, at a
+distanceR0from the galactic center, the  R0term is included. Notice that the
+orbits of stars are also followed outside the box, hence the range on the x-axis is
+extended compared to the values seen in Table 1.1.
+to the center of the moving box, the stars sometimes appear to have this motion.
+If the orbital angular momentum vector of the object is in the opposite direction
+compared to the orbit, it is called prograde motion of its guiding center (Van Den
+Bosch 2020).
+It is important to note the assumption made when tracing the orbits of stars in
+this simulation. By increasing simulation time (as done in section 4.3), the motion
+of stars can change. Here we assume that the epicycle motion of stars are non-
+changing over time as they move in the galactic potential. As the galaxy evolves,
+many phenomena can aect the motion of the included stars. This could be e.g
+merging with other galaxies which can cause stripping eects, changing the orbits of
+the stars or gravitational perturbations, which could alter the oscillating motions.
+By increasing the number density of stars considered, the number of close encounters
+increases. Table 4.1 displays the maximum amount of close encounters found running
+the code four times for each star count with a limit radius of 10 pc. The convergence
+can be seen in Figure 4.5 plotting the average number of close encounters2as a
+function of the number of time steps used over the xed time of 1 Gyr. The standard
+deviations can be seen as vertical lines for the dierent curves and are calculated
+for each number of stars in Table 4.1. Moreover, the table also states the fraction
+between all close encounters found and the total amount of possible pairs of stars,
+f=Nclose=Npossible , whereNpossible =N(N 1)=2, denoting stars as N. This fraction
+2Formally, the mean value of the number of close encounters for all iterations, run four times.
+28
+4.2. GALACTIC DYNAMICS CHAPTER 4. RESULTS
+Table 4.1: A table showing the average amount of close encounters found over
+the time of 1 Gyr, depending on the number of stars given. Here, maxdenotes the
+maximum standard deviation found and fthe fraction between close encounters and
+all possible pairs of stars.
+Stars Ave. Close encounters for 50 000 iterations maxf
+400 516 8:3 % 0.6 %
+600 1148 6:2 % 0.6 %
+800 2012 4:7 % 0.6 %
+1000 3113 4:5 % 0.6 %
+Figure 4.5: A plot showing the average number of close encounters against the
+number of iterations per Gyr. The limit distance is set to 10 pc and the relations
+are shown for 400- up to 1000 stars in steps of 200. The convergence for all numbers
+of stars tested, occurs at 10000 iterations or equally, a time step of 0.01 Myr
+with the standard deviation shown as error bars on each of the plots. The standard
+deviation follows the regular =qP(xi xmean)2
+NwithNdenoting the total amount
+of stars considered.
+is the same for the dierent star counts which means that the number of iterations
+tested, is enough to nd every close encountering pair. Since close encounters of two
+pairs of stars rarely happen more than one time per Gyr3, the few pairs that do are
+neglected.
+Finally, the mean distance between the close encounters was determined to be 7.6
+pc. The average distance between the stars in general was 82, 47 and 36 pc for 200,
+600 and 1000 stars respectively. Assuming Sun-like stars, with velocities according
+toVin equation (1.14), the average velocity was V(t)237 kpc/Gyr. This yields
+a centripetal acceleration between the stars, using equation (1.1), of order 2 10 7
+kpc/Gyr2.
+3Two pairs of stars can be closer than the limit distance many times over some adjacent itera-
+tions but is then only counted once. They can also encounter each other more than one time over
+the full time and those encounters are the ones that are neglected.
+29
+4.2. GALACTIC DYNAMICS CHAPTER 4. RESULTS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+Figure 4.6: A gure showing screenshots of 6 iterations for the animation of the
+epicycle motion of 100 stars. The purpose is to show how the number of close
+encounters increases over time. In this simulation, 1 time unit = 1 Myr with the
+blue dots indicating stars that under some iteration had a close encounter. The rst
+close encountering stars are found after 150 Myr and continue to increase over
+time. Note that the same star can be close to more than one star in the time of
+the simulation, which explains why there are an uneven number of stars in some
+screenshots. This is seen in (b)where one of the three stars in the rst pair created,
+formed a new close encounter with the third star.
+Screenshots of the animation made from section 3.2 can be seen in Figure 4.6. The
+six gures indicate how the number of close encounters increases with time. The
+limit distance rtis set to 10 pc and the blue circles represent any two stars that at
+some point in time have been closer than rt. Each time frame represents 1 Myr and
+the simulation is run over 1 Gyr. After 800 Myr, 14 close encountering stars had
+been recorded, with the rst ones appearing at the 150 Myr mark. The time step
+is not set to be optimized throughout this animation due to computing limitations.
+Nevertheless, it demonstrates how the number of close encounters increases with
+time. The full animation can be found in the links in Appendix A.
+30
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+4.3 Galactic civilisations
+Figure 4.7: A histogram showing times for the rst planet to reach an evolution
+indexE3. Here, dtis chosen to the optimized value of 1/10000 Gyr (obtained in
+section 4.2) and the steepness parameter Nfrom equation (2.3) is varied. The times
+were determined to 270 Myr,3:65 Gyr and4:8 Gyr forN= 0,N= 3 and
+N= 1000 respectively. The simulation was made with 200 stars.
+For the convergence parameters d t= 10 4Gyr, the average time it takes for the
+rst planet to develop intelligent life, hence have an evolution index E3is shown in
+Figure 4.7. For N= 0, the rst intelligent civilisation developed after 270 Myr.
+The short time is due to the broadness of the Poisson distribution when neglecting
+the steepness parameter. An expected value would be 4:5 Gyr for all the necessary
+life developing processes to have occurred, if the evolutionary time scales happen
+according to the ones on Earth.
+The extended probability distribution gave results more coherent with the process
+times in Table 2.1. For N= 3, the average time to reach E3was3:65 Gyr and
+forN= 1000, 4.8 Gyr. Compared to an Earth-like planet, N= 1000 seems the
+most reasonable as it compares to the evolution times for such a planet. However, we
+want the model to vary somewhat in time scales in comparison to Earth. The N= 3
+model seems to do this, since the time scales is similar to the ones on Earth, but still
+leaves room for \unusual events4" to occur. Since the only known planet to have
+developed life is Earth, its time scales are considered most reasonable. Nonetheless,
+other planets could have dierent processes for the development of life which in term
+could alter the process times signicantly.
+Figure 4.8.a shows the development of evolution indices for 200 stars over 12 Gyr.
+Comparing the results to Table 2.1, there is clear correspondence. The process time
+4Evolution time scales that are unlike the ones on Earth
+31
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+(a)The change in evolution indices over
+12 Gyrs for 200 stars when allowing every
+civilisation to spread between stars. The
+simulation is made with time step d t=
+10 4and steepness parameter N= 0.
+(b)The change in evolution indices over
+12 Gyrs for 200 stars when allowing ev-
+ery civilisation to spread between stars.
+The simulation is made with timestep d t=
+10 4and steepness parameter N= 3.
+Figure 4.8: A comparison between the change of evolution indices for 200 stars
+over 12 Gyr. The blue dash-dotted line shows index 1 stars, the orange dashed line
+index 2 stars and the lled green index 3 stars. In (b), a steepness parameter of
+N= 3 has been added, giving the characteristic eect of narrowing the spread of
+indices since the probability distribution becomes more narrow.
+forE0!E1is small, formally, 0.3 Gyr, meaning most of the stars will reach this
+value soon after the start of the simulation. By 1 Gyr, index 1 stars reach their
+maximum with a few index 2 and 3 stars. The small peak for index 2 stars is a
+direct result of d t=Tprocess being much smaller than for the other indices. Due to the
+largeTprocess , the jump from E1!E2requires the random number, RN<2:8510 5
+compared to P(E0!E1) = 3:310 4andP(E2!E3) = 1:410 4. This implies the
+low peak of the index 2 stars identied in the graph in addition to the fast increase
+of index 3 stars as soon as the index 2 and index 1 stars starts to reduce. The few
+index 2 stars are also a result of the colonization of those planets. Since index two
+stars can either be colonized by a civilisation or jump up in index naturally over
+time, the index 2 stars start to decrease quickly as soon as index 3 stars begin to
+dominate. The results also show that disregarding the steepness parameter yields a
+larger \mix" of planets with dierent indices over time.
+When adding the steepness parameter N= 3 from equation (2.3), the indices in-
+crease in a less random sense. The narrower distribution allow the indices to stay
+in their current states longer, since the probability P(En!En+1) is small for small
+values oftn 1. This can be seen in Figure 4.8.b where every star have reached E1
+before any of them have jumped to E2. As time reaches 1:8 Gyr, the probability
+for index increase is around RN<3:510 6and increases for larger tn 1, where the
+rst index 2 stars are seen. The rst index 3 stars are found after 3:8 Gyr. The
+dierence in steepness between Figure (a)compared to (b)represents the value of
+N. ForN1, every star would jump up (or down) in index at the same time since
+tn 1would have to be extremely close to Tnfor the evolution index to increase.
+32
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+Figure 4.9: Two histograms showing the number of colonized planets per civil-
+isation on the vertical axis and the civilisation number Cin rising order on the
+horizontal axis. Here, C= 0;1;2;3;:::;n whereC= 1 denotes the rst developed
+civilisation and nstands for the last civilisation to develop on a planet. The left
+panel depicts this for a steepness parameter N= 0 and the right panel N= 3.
+Note that in the case of N= 3, the rst few developed civilisations dominate while
+forN= 0, there is a more uniform distribution between colonized planets. The
+simulation is performed considering 1000 stars.
+Since we can trace which civilization colonized which planet5, we can also examine
+the advantage of early development over late development, in terms of how many
+planets each civilisation have colonized. Note that each civilization is allowed to
+spread to planets around the index 2 stars, but once a planet has been colonized,
+another civilization cannot spread there6. Figure 4.9 shows how many planets each
+civilisation has colonized as a function of its civilization number C. The civilisation
+number increases sequentially, with C= 1 being the rst civilisation to develop
+(hence, for the planet to reach index 3) and C=nbeing the last civilisation to
+develop. The maximum number of colonized planets, nmax, is the number of stars
+considered and is set to 1000 in this case. If C= 0, it means that this star has
+neither reached index 3 nor has it been colonized. Studying both cases for the inclu-
+sion and exclusion of the steepness parameter N, the second developed civilisation
+colonized most planets with 21 planets for N= 0 and 222 planets for N= 3. For
+N= 0 it should be noted that over 400 civilisations either evolved naturally on
+their planet or also spread to other planets. Because of the broadness of the Poisson
+distribution, the time interval in which index 2 stars are available for colonization is
+considerably longer than if the steepness parameter is included. However, they count
+only a few at each time step, since the indices change their values more randomly.
+This means that index 2 stars are still available for colonization, even when the late
+civilisations develop. Note, however, that most of the late developed civilisations
+have only colonized one planet, the planet on which they evolved.
+5Since they all have a certain value dened in \civindex" in section 3.3
+6Conversely, once a civilisation has colonized a planet, it immediately jumps up to index 3.
+Therefore there cannot be two civilisations on the same planet simultaneously.
+33
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+ForN= 3 the transition times between indices are exceedingly narrower which
+means that indices stay in their current states longer (formally, they stay in their
+states for time tTn). This means that the moment the rst civilisation develops,
+almost all other stars is in the second index state. This provides high probabilities for
+the civilisation to nd close encountering stars to colonize. Since the civilisations are
+allowed to spread to unlimited amount of close encounters each time step, the spread
+increases exponentially which leave few planets for the late-developing civilisations
+to colonize. In general, since there are more planets available to colonize for the
+early civilisations, they become dominant.
+Figure 4.10 shows the degree of which the galaxy becomes dominated by only al-
+lowing a single civilisation to spread and colonize planets compared to planets only
+developing stationary civilisations. The civilisation that can spread between plan-
+ets is seen as Nspreading while the planets with a stationary civilisation is seen as
+Nstationary . IfNspreading=Nstationary>1, the single civilisation is dominant, hence,
+has colonized more planets than there exists planets with stationary civilisations.
+Studying the graph where N= 0, the single civilisation is never dominant in the
+fraction. This can be explained by studying the screenshots from the animation in
+Figure 4.11. We can see that excluding the steepness parameter makes the index
+2 stars jump very quickly up to index 3. This means that there is very little time
+for the single civilisation to meet close encountering index 2 stars. By this mean,
+the number of stars \naturally7" reaching evolution index 3 begins to dominate.
+Note that the single civilisation is not allowed to spread to stars already stationary
+colonized. Studying Figure 4.11.b, it can be seen that there are very few index 2
+stars in comparison to index 3 stars. After 12 Gyr almost all of the planets are
+inhabited by stationary civilisations where only 3 out of the 1000 planets, 4 out of
+the 600 planets, and 2 out of the 200 planets are colonized by the single civilisation.
+ForN= 3 however, the results are dierent. Indeed, for 200 and 600 stars, the
+stationary civilisations still dominate having 85 per cent of the planets colonized
+for 200 stars and 66 per cent for 600 stars at the end of the simulation. For
+1000 stars, the single civilisation becomes the dominant since there are enough close
+encountering index 2 stars for the civilisation to spread to. When studying Figure
+4.12 (despite it showing less stars with a much larger time step), the transition
+time between indices of stars is much shorter in comparison to Figure 4.11 due to
+the included steepness parameter. Since all stars have reached index 2 at the time
+when the rst civilisation develops, the chance of them nding a close encountering
+star is large, because the large number of stars considered makes the mean distance
+between the stars to be small. As the number of stars increases, also the mean
+distance between the stars decreases and the probability for the single civilisation
+to encounter a close enough star grows.
+In Figure 4.11, an animation over the spreading of a single civilisation can be seen
+where the dierent colors and symbols change according to Table 2.1. Here, Nin
+equation (2.3) is set to zero. Note that the rst index 3 stars (and also the rst
+7Naturally means the stars which have developed a stationary civilisation and not been colonized
+by another civilisation.
+34
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+Figure 4.10: The graph illustrates the fraction of planets colonized when only a
+single civilisation is able to travel between stars, while the other civilisations stay
+stationary on their home planets. Nspreading describes the planets colonized by the
+single civilisation and Nstationary are the planets colonized by stationary civilisations.
+The left plot displays the fraction for 200, 600 and 1000 stars for steepness parameter
+N= 3 and the right shows this for N= 0. Note that if Nspreading=Nstationary>1, the
+single civilisation dominates. It can be seen that only for 1000 stars with N= 3, the
+single civilisation has colonized more planets than there are planets with stationary
+civilisations. The convergence seen in the graphs is when there are no more planets
+to colonize, hence, when every star has reached evolution index 3. Note that the
+simulation in the right panel begins at time 3 Gyr. This is the time when the rst
+civilisation has developed.
+civilisations, seen as navy blue in Figure 4.11.b) evolves at roughly time = 100
+which for this animation is approximately 240 Myr (d t= 2.4 Myr). The spread
+of indices propagates until all stars have reached this level. After 9:6 Gyr, the
+rst colonization of planets by the traveling civilisation happens and continues to
+5 planets after the total time of 12 Gyr. Note the large time step of 2.4 Myr
+which makes the somewhat animation unrealistic. The optimal time step of 0.1 Myr
+would yield more spreading between stars in a shorter time since none of the close
+encountering stars would be overlooked. Due to limited computing power, this could
+not be achieved, however, it still works well for illustrating motion of stars, show
+how the planets evolve and to see how a civilisation spreads between planets.
+An inclusion of the steepness parameter N= 3 can be seen in Figure 4.12. The
+animation shows clear transition times between the indices. In comparison to Figure
+4.11, every star reaches a certain evolution index before increasing to the next. This
+is a direct result of the manipulation of the Poisson distribution where a larger N
+makes the probability of transition times increase as t t0 !Tn. The rst index 1
+stars are found after 600 Myr, where all of the stars have reached this state after
+1:8 Gyr. Index 2 stars have started to evolve on the 2.4 Gyr mark and reached
+its maximum at 3.6 Gyr. This is in close coherence with the values of Table 2.1,
+where the oxygen development process takes 3:9 Gyr. After 7.4 Gyr, all stars
+have reached index 3 and after 12 Gyr, the civilisation has spread to 7 planets.
+35
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+(g)
+ (h)
+Figure 4.11: An illustration over the evolution of indices for 200 stars and the
+colonization of the rst developed civilisation. Index 0 stars are seen as red stars,
+index 1 stars as light blue, index 2 stars as olive green, index 3 stars as navy blue
+and the colonized stars by one civilisation are seen as red circles. The steepness
+parameter is set to N= 0. The time stamps of the screenshots are chosen to
+illustrate the times of transition, thus, when most of the stars increase in index.
+The time step used is d t= 2:4 Myr and the time of the simulation is set to 12 Gyr.
+36
+4.3. GALACTIC CIVILISATIONS CHAPTER 4. RESULTS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+(g)
+ (h)
+Figure 4.12: An illustration over the evolution of indices for 200 stars and the
+colonization of the rst developed civilisation. Index 0 stars are seen as red stars,
+index 1 stars as light blue, index 2 stars as olive green, index 3 stars as navy blue
+and the colonized stars by one civilisation are seen as red circles. The steepness
+parameter is set to N= 3. The time stamps of the screenshots are chosen to
+illustrate the times of transition, thus, when most of the stars increase in index.
+In comparison to gure 4.11, there is very little mixing between the indices. This
+is a result from the included steepness parameter which narrows the probability
+distribution, making the chance of index increase small for times smaller than the
+process times Tn. The time step used is d t= 2:4 Myr and the time of the simulation
+is set to 12 Gyr.
+37
+Chapter 5
+Discussions and conclusions
+Realism, parameters and simulation results
+To begin with, a successful representation of civilisations spreading across the galaxy
+was obtained with several implied results such as the number of planets colonized, the
+number of close encounters, and indices of star states in their evolutionary process.
+The key parameters realized were the limit distance rt, and the process times Tprocess .
+These parameters must be chosen to represent \realistic" values, despite their high
+uncertainty. Space travel between stars has so far only been theoretically tackled
+and the times to reach sub-relativistic travel speeds might be further or closer into
+the future than one might think. The process times for index increase is based on
+the abiogenesis (life development) of Earth. Other celestial objects or systems might
+have completely other time scales and parameters for technological civilisations to
+evolve. Many new systems with potentially habitable conditions are for example
+found around M dwarfs, where the habitable zone lies closer to the host star than
+on Earth (see Gillon et al. 2016). A planet closer to the star can imply higher
+sources of radiation which could increase the time of organic development since it
+is, for the majority of organisms, harder to adapt to radioactive environments. At
+the same time however, since dwarf stars live signicantly longer than sun-like stars
+(Bertulani 2013), they also have longer time to develop habitable conditions.
+The uncertainties were tackled by introducing probabilities for the evolution process
+of the stars, increasing their time intervals for undergoing its evolutionary processes.
+One can here conclude that probabilities chosen without any steepness parameter
+change the planets evolutionary time scales to be unlike Earth's, while the manip-
+ulation of the steepness parameter N, described in section 2.2.2, directs the theory
+towards Earth's uniqueness and that general life development happen according to
+how life evolved here.
+The comparison by planets colonized by a single spreading civilisation and multiple
+stationary civilisations is seen in Figure 4.10. This shows that only for 1000 stars
+with steepness parameter of N= 3, a single spreading civilisation dominates the
+galaxy in comparison to several stationary civilisations. It is important to note that
+the mean distance between stars, in this case, is smaller than for 600 and 200 stars.
+38
+CHAPTER 5. DISCUSSIONS AND CONCLUSIONS
+This increases the probability for the single civilisation to nd close encountering
+index 2 stars as they develop. The steepness parameter makes the transition times
+between indices narrower. Every star has reached the state of index 2 before any
+of them increases to index 3. Since the single spreading civilisation is chosen to be
+the one on the rst developed index 3 star, it means that in the rst time step, the
+majority of other stars are index 2 stars. Due to the smaller mean distance between
+stars when considering 1000 stars, many of them become close encountering stars
+to the civilisation. This means that the civilisation can start to spread almost
+instantaneously. Once they have colonized a few planets, the number of planets
+they can colonize increases exponentially, with an increase occurring faster than the
+naturally developing stationary civilisations. This shows how dierent the outcomes
+can be by only varying the number of stars included.
+Despite that the single spreading civilisation is dominant in the galaxy for 1000
+stars, the mean distance between stars with habitable planets is still signicant.
+Examining 1000 stars, the mean separation is 36 pc which would - for a civilisation
+traveling with fusion engines - take at least 150 years to travel to. This can be one
+of the limiting factors to why civilisations choose not to spread across the galaxy,
+since they would have to rely on waiting for close encountering stars before they can
+travel.
+Limitations and assumptions
+It is important to note the assumptions made throughout the project. The epicycle
+approximation is one (discussed in Appendix B), together with assumptions regard-
+ing the civilisations and number of stars considered. The simulation was done with
+a maximum of 1000 stars to reduce the computing time, but would optimally be
+chosen from some real measurement of the average number of stars in the habitable
+zone contained in a section of volume around the solar neighborhood as large as
+in this project. Also, every civilisation is assumed to develop the same way, being
+technical enough for space travel. Realistically, the development of civilisations on
+the planets could be dierent, perhaps making only a fraction of them able to travel.
+A more involved analysis could incorporate the ability for a civilisation to colonize
+planets with lower indices than 2. Since the civilisation is assumed to be technolog-
+ically developed, they could potentially develop techniques to survive in conditions
+that is considered non-habitable as they evolve. As the civilisations develop, they
+might invent ways to survive on a planet with e.g. lower oxygen levels compared to
+Earth which in turn yields more possible planets to colonize.
+Improvements and extension of the project
+Improvements in the simulation would regard increasing the number of parameters
+considered. Optimally, the switching between indices could be changed to some
+more intricate model of how abiogenesis could develop dierently depending on the
+location, structure, and chemical composition of the system. This would also imply
+the extension of adding other types of stars than sun-like stars, perhaps consider-
+ing potentially habitable exoplanets recently found. However, since the simulation
+39
+CHAPTER 5. DISCUSSIONS AND CONCLUSIONS
+considers the Milky Way galaxy, we would still have the constraint of choosing stars
+located in the solar neighborhood in our galaxy since the Milky Way potential is
+used to derive the motion of the stars.
+Philosophical viewing points
+The Fermi's paradox may be a result of ethics; a civilisation with sucient technol-
+ogy for space travel may not need to travel between stars. If ramjet fusion engines
+are used, giving traveling speeds up to 77 % of the light speed (Kaku 2008), it
+would still take at fastest 35 years to reach an average distant close encountering
+star of 7.6 pc (without the concern of matching orbits when landing or travel fuel-
+eciently) which might be a big constraint when considering space travel. If a lower
+limit radius would be chosen for the civilisation, the times of travel would decrease
+but also the stars falling into the category of being close encounters would decrease.
+By virtue of the ethical aspect, extra-terrestrial life may not have been found by the
+reason that they do not want to be found. Dissimilar to us on Earth, perhaps they
+are not interested in the search for other life forms.
+Conclusions
+Using the epicycle approximation throughout the simulation yielded a useful model
+of the motion of stars in the introduced section around the solar neighborhood. The
+near-circular motion of stars in the galactic potential showed that stars tend to os-
+cillate around their guiding center with approximately a 2:1 ratio radially compared
+to vertically. Using the motion of stars to nd all stars counting as close encounters,
+thus, have a separation distance of less than 10 pc, 0.6 per cent of all possible pairs
+of stars where classied as close encounters. However, the motion of stars simulated
+are assumed not to be aected by the evolution of the galaxy itself, which if included
+could alter their orbits over time and change the number of stars counting as close
+encounters.
+The choice of the steepness parameter Nand the number of stars used in the sim-
+ulation were crucial to reach several results. Changing this parameter can alter
+the probability distributions governing the planetary evolution's. A large steepness
+parameter forces the evolution of planets to happen according to the time scales
+on Earth, which yields more habitable planets for the rst developed civilisation
+to colonize in comparison to planets naturally developing civilisations that stays
+stationary at their home planets, if the number of stars 1000. By excluding the
+steepness parameter, this civilisation has not enough planets available for coloniza-
+tion, making the stationary civilisations dominant after 12 Gyr of simulation time.
+By varying such - and other external - parameters, the model can be used to sim-
+ulate important properties of how galactic colonisation could occur in the galaxy.
+If one would know relevant developing parameters in other galaxies, this simulation
+could help to investigate how colonization between planets in the habitable zone
+inside such a galaxy could happen. However, constraints such as using the epicycle
+approximation for the motion of stars and considering another galactic potential
+would still be limiting factors.
+40
+CHAPTER 5. DISCUSSIONS AND CONCLUSIONS
+The motivation for this project was based on an interest in astrobiology and simu-
+lation development, produced from theoretical models. It has developed new per-
+spectives concerning future chances of galaxy spread and introduced several aspects
+of how the patterns of evolution for civilisations could vary, depending on the sys-
+tem in consideration. The project sheds light on important aspects in terms of
+discovering extraterrestrial life in the future. This provides strong motivation for
+the continuation of developing and extending the project in the future.
+41
+Appendix A
+Animations
+This Appendix include the screenshot images together with the links for the anima-
+tions made. The three rst links corresponds to the screenshots seen Figure A.1 to
+A.4. The 2 subsequent links are animations from two other runs of the script (hence
+they dier a bit due to the random parameters, but uses the exact same code) with
+the same parameters for the galactic civilisation, but with increased quality.
+The animation for close encountering stars can be seen via the following link:
+https://www.youtube.com/watch?v=5_r0ZV6Pb3Y
+The animation for the civilisation spread can be seen via the following links:
+https://youtu.be/dVRbFwqwDU8 forN= 0
+https://youtu.be/hkC3yvGfPuI forN= 3.
+I recommend slowing the last two videos down to half speed since the time step used
+in these animations is large. You can also view the videos with higher quality in the
+links below.
+The videos with higher quality can be seen via the following links:
+https://youtu.be/R4FoQmKaoGk forN= 0.
+https://www.youtube.com/watch?v=BxjkVAdAWAM forN= 3.
+42
+APPENDIX A. ANIMATIONS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+Figure A.1: A gure showing screenshots of 6 consecutive iterations for the ani-
+mation of the epicycle motion of 100 stars. The purpose is to show how stars move
+in epicycle motion. In this simulation, 1 time unit = 1 Myr with the blue dots in-
+dicating stars that under some iteration had a close encounter. Note that the same
+star can be close to more than one star in the time of the simulation, which explains
+why there are an uneven number of stars in some screenshots. This is seen in (b)
+where one of the three stars in the rst pair created, formed a new close encounter
+with the third star.
+43
+APPENDIX A. ANIMATIONS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+Figure A.2: A gure showing screenshots of 6 iterations for the animation of the
+epicycle motion of 100 stars. The purpose is to show how the number of close
+encounters increases over time. In this simulation, 1 time unit = 1 Myr with the
+blue dots indicating stars that under some iteration had a close encounter. The rst
+close encountering stars are found after 150 Myr and continue to increase over
+time. Note that the same star can be close to more than one star in the time of
+the simulation, which explains why there are an uneven number of stars in some
+screenshots. This is seen in (b)where one of the three stars in the rst pair created,
+formed a new close encounter with the third star.
+44
+APPENDIX A. ANIMATIONS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+(g)
+ (h)
+Figure A.3: An illustration over the evolution of indices for 200 stars and the
+colonisation of the rst developed civilisation. Index 0 stars are seen as red stars,
+index 1 stars as light blue, index 2 stars as olive green, index 3 stars as navy blue
+and the colonized stars are seen as red ball shapes. The steepness parameter is set
+toN= 0. The time stamps of the screenshots are chosen to illustrate the times of
+transition, thus, when most of the stars increase in index. The time step used is
+dt= 2:4 Myr and the time of the simulation is set to 12 Gyr.
+45
+APPENDIX A. ANIMATIONS
+(a)
+ (b)
+(c)
+ (d)
+(e)
+ (f)
+(g)
+ (h)
+Figure A.4: An illustration over the evolution of indices for 200 stars and the
+colonisation of the rst developed civilisation. Index 0 stars are seen as red stars,
+index 1 stars as light blue, index 2 stars as olive green, index 3 stars as navy blue
+and the colonized stars are seen as red ball shapes. The steepness parameter is set
+toN= 3. The time stamps of the screenshots are chosen to illustrate the times of
+transition, thus, when most of the stars increase in index. In comparison to gure
+4.11, there is very little mixing between the indices. This is a result from the included
+steepness parameter which narrows the probability distribution, making the chance
+of index increase small for times smaller than the process times Tn. The time step
+used is dt= 2:4 Myr and the time of the simulation is set to 12 Gyr.
+46
+Appendix B
+Formal derivation of the epicyclic
+approximation
+The basic derivation is based on the work in Van Den Bosch (2020, page. 1-6) and
+will more formally be derived here.
+Assume a disk galaxy (for example the Milky Way) in cylindrical coordinates where
+the azimuthal motion is a function of radius and vertical distance as  = ( R;z),
+following Newton's equation of motion via
+8
+><
+>:R R_2= @
+@R
+d
+dt(R2_) = 0
+z= @
+@z; (B.1)
+in cylindrical coordinates ( R;;z ). Here,Lz=R2_describes the conservation of
+angular momentum and  @=@R and @=@zdescribes the coupled oscillations in
+directionRandz. With an eective potential  e= +L2
+z=2R2, this can be further
+simplied to(R= @e
+@R
+z= @e
+@z: (B.2)
+The circular orbit of the system has a radius equal to the guiding centre R=R0.
+For a small section around the guiding centre, the eective potential can be Taylor
+expanded around ( R R0;y) = (0;0), yielding
+e=  e(R0;0)+( x)x+( y)y+( xy)xy+1
+2(xx)x2+1
+2(yy)y2+O(xz2)+:::(B.3)
+wherex=R R0. By the symmetry of R0; ( x;y;xy)j(R0;0)= 0. The epicycle
+approximation holds up the second order with an eective potential dened as
+e=  e(R0;0) +1
+22x2+1
+22y2(B.4)
+47
+APPENDIX B. FORMAL DERIVATION OF THE EPICYCLIC
+APPROXIMATION
+with the epicycle frequency and vertical frequency , dened as 2xx=
+@2e=@x2and2xx=@2e=@y2. This yields the equation of motions in the
+tangential plane symmetric around _(meridional plane)
+(
+x= 2x
+y= 2y; (B.5)
+where thex- andymotions are harmonic oscillations with the epicycle- and vertical
+frequencies. The circular frequency is given by
+!(R) =s
+1
+R@
+@R
+(Rg;0)=Lz
+R2; (B.6)
+which yields
+2=@2e
+@R2
+(Rg;0)=
+Rd!2
+dR+ 4!2
+: (B.7)
+A galactic potential with a homogeneous mass distribution, = 2!and Kepler
+potential,=!, for! <  < 2!yields the total motion as in equation (1.12),
+obeying8
+><
+>:R(t) =R0+asin(t+')
+(t) =0+!0t+2!0
+R0acos(t+')
+z(t) =bcos(t+'z): (B.8)
+Validity
+The validity and derivation of the epicycle approximation is only possible considering
+roughly constant star density, especially in the zdirection as  z=2zmust imply (z)
+to be constant. Also, by the use of a Taylor expansion around the guiding centre, the
+radial extension around R0cannot be too large. For more formal calculations, the
+star density should vary with Randz(and for exact calculations, also ), changing
+the equations of motions used.
+48
+Bibliography
+Anand, Mahesh et al. (2018). An introduction to astrobiology . 3rd ed. Cambridge
+University Press.
+Armstrong, Stuart and Anders Sandberg (Aug. 2013). \Eternity in six hours: Inter-
+galactic spreading of intelligent life and sharpening the Fermi paradox". In: Acta
+Astronautica 89, pp. 1{13. doi:10.1016/j.actaastro.2013.04.002 .
+Aumer, Michael and James J Binney (2009). \Kinematics and history of the solar
+neighbourhood revisited". In: Monthly Notices of the Royal Astronomical Society
+397.3, pp. 1286{1301.
+Bertulani, Carlos A. (2013). Nuclei in the Cosmos . World Scientic.
+Caneld et al. (2000). \The Archean sulfur cycle and the early history of atmospheric
+oxygen". In: Science 288.5466, pp. 658{661.
+Carroll-Nellenback, Jonathan et al. (Aug. 2019). \The Fermi Paradox and the Au-
+rora Eect: Exo-civilization Settlement, Expansion, and Steady States". In: The
+Astronomical Journal 158.3, p. 117. issn: 1538-3881. doi:10.3847/1538-3881/
+ab31a3 .url:http://dx.doi.org/10.3847/1538-3881/ab31a3 .
+Cubarsi, Rafael (June 2013). \The epicycle model". In: Modelling in Science Edu-
+cation and Learning 6, p. 171. doi:10.4995/msel.2013.1944 .
+Dodd, Matthew S et al. (2017). \Evidence for early life in Earth's oldest hydrother-
+mal vent precipitates". In: Nature 543.7643, pp. 60{64.
+Francis, Charles (2009). Lindblad's epicycles - valid method or bad science? arXiv:
+0911.1594 [physics.gen-ph] .
+Gillon, Micha el et al. (2016). \Temperate Earth-sized planets transiting a nearby
+ultracool dwarf star". In: Nature 533.7602, pp. 221{224.
+Howell, Elizabeth (Apr. 2018). Fermi Paradox: Where Are the Aliens? url:https:
+//www.space.com/25325-fermi-paradox.html .
+Jones, Andrew Zimmerman (May 2019). How Stars Make All of the Elements .url:
+https://www.thoughtco.com/stellar-nucleosynthesis-2699311 .
+Kaku, Michio (2008). Physics of the impossible: a scientic exploration into the world
+of phasers, force elds, teleportation, and time travel . Doubleday.
+Kennedy, Tom (Apr. 2020). Pseudo-random numbers generators .url:https://
+www.math.arizona.edu/ ~tgk/mc/book_chap3.pdf .
+Lindegren, L (2010). Dynamical Astronomy: Lecture Notes for ASTM13 . Lund Ob-
+servatory.
+Lineweaver, Charles H (2001). \An estimate of the age distribution of terrestrial
+planets in the universe: quantifying metallicity as a selection eect". In: Icarus
+151.2, pp. 307{313.
+49
+BIBLIOGRAPHY BIBLIOGRAPHY
+Makarov et al. (Aug. 2004). \Kinematics of stellar associations: The epicycle ap-
+proximation and the convergent point method". In: Monthly Notices of the Royal
+Astronomical Society 352, pp. 1199{1207. doi:10.1111/j.1365-2966.2004.
+08012.x .
+McMillan, Paul J (2017). \The mass distribution and gravitational potential of the
+Milky Way". In: Monthly Notices of the Royal Astronomical Society , stw2759.
+Nasa (Jan. 2019). How Old Are Galaxies? url:https://spaceplace.nasa.gov/
+galaxies-age/en/ .
+Oliphant, Travis E (2006). A guide to NumPy . Vol. 1. Trelgol Publishing USA.
+Olling, Rob P and Walter Dehnen (2003). \The Oort constants measured from
+proper motions". In: The Astrophysical Journal 599.1, p. 275.
+SETI (2020). url:https://www.seti.org/drake-equation-index .
+Spiegel, David S and Edwin L Turner (2011). \Life might be rare despite its early
+emergence on Earth: a Bayesian analysis of the probability of abiogenesis". In:
+ArXiv e-prints .
+Stella, Rose (2019). \Strange Planets That Are Both Interesting And Terrifying."
+In:url:https://www.boredpanda.com/strangest-weirdest-interesting-
+exoplanets-space/?utm_source=google&utm_medium=organic&utm_campaign=
+organic[Accessed%2024%20March%202020] .
+Van Den Bosch, Frank (Mar. 2020). Orbits in Axisymmetric Potentials .url:http:
+//www.astro.yale.edu/vdbosch/lecture6.pdf .
+Virtanen, Pauli et al. (2020). \SciPy 1.0: Fundamental Algorithms for Scientic
+Computing in Python". In: Nature Methods .doi:https://doi.org/10.1038/
+s41592-019-0686-2 .
+Zackrisson, Erik et al. (Dec. 2016). \TERRESTRIAL PLANETS ACROSS SPACE
+AND TIME". In: The Astrophysical Journal 833.2, p. 214. issn: 1538-4357. doi:
+10.3847/1538-4357/833/2/214 .url:http://dx.doi.org/10.3847/1538-
+4357/833/2/214 .
+50
