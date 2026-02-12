@@ -1316,6 +1316,7 @@ a.btn-tertiary {
 .academic-publications {
   padding: 4rem 0;
   background: linear-gradient(135deg, #f9f7f4 0%, #f3e4c6 100%);
+  position: relative;
 }
 
 .academic-publications h2 {
@@ -1329,6 +1330,102 @@ a.btn-tertiary {
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 2.5rem;
   margin-bottom: 4rem;
+  padding: 0 2rem;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Timeline on the right side */
+.academic-timeline {
+  position: relative;
+  width: 100%;
+  margin-top: 3rem;
+  padding: 0 2rem;
+}
+
+.timeline-line {
+  position: fixed;
+  right: 40px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #9d836b 0%, #8b7261 100%);
+  transform-origin: top;
+  transform: scaleY(0);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.timeline-markers {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: 20px;
+  gap: 8rem;
+  z-index: 51;
+  pointer-events: none;
+}
+
+.timeline-marker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0.5;
+  transition: all 0.4s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.timeline-marker:hover,
+.timeline-marker.active {
+  opacity: 1;
+}
+
+.marker-dot {
+  width: 12px;
+  height: 12px;
+  background: #9d836b;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #9d836b;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.timeline-marker:hover .marker-dot,
+.timeline-marker.active .marker-dot {
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 0 0 3px #9d836b, 0 0 8px rgba(157, 131, 107, 0.3);
+}
+
+.marker-label {
+  background: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9d836b;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  line-height: 1.3;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+}
+
+.timeline-marker:hover .marker-label,
+.timeline-marker.active .marker-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 1024px) {
+  .timeline-line,
+  .timeline-markers {
+    display: none;
+  }
 }
 
 .publication-card {

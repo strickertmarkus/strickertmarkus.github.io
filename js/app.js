@@ -67,4 +67,54 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // Academic Timeline Functionality
+  const timelineMarkers = document.querySelectorAll('.timeline-marker');
+  const timelineLine = document.getElementById('timelineLine');
+  const publicationCards = document.querySelectorAll('.publication-card');
+
+  if (timelineMarkers.length > 0 && timelineLine) {
+    // Handle marker click
+    timelineMarkers.forEach((marker, index) => {
+      marker.addEventListener('click', function() {
+        if (publicationCards[index]) {
+          publicationCards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    // Animate timeline line and markers on scroll
+    window.addEventListener('scroll', function() {
+      const marketScrollStart = document.querySelector('.academic-timeline')?.offsetTop || 0;
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+
+      // Calculate timeline line animation
+      if (scrollPosition > marketScrollStart - windowHeight) {
+        const progress = (scrollPosition - marketScrollStart + windowHeight) / (document.body.scrollHeight - marketScrollStart);
+        const clampedProgress = Math.max(0, Math.min(1, progress));
+        timelineLine.style.transform = `scaleY(${clampedProgress})`;
+      }
+
+      // Update active marker based on card position
+      publicationCards.forEach((card, index) => {
+        const cardTop = card.getBoundingClientRect().top;
+        const cardHeight = card.getBoundingClientRect().height;
+        const cardCenter = cardTop + cardHeight / 2;
+
+        if (timelineMarkers[index]) {
+          // Mark as active if card is in center of viewport
+          if (cardCenter > windowHeight * 0.3 && cardCenter < windowHeight * 0.7) {
+            timelineMarkers.forEach(m => m.classList.remove('active'));
+            timelineMarkers[index].classList.add('active');
+          }
+        }
+      });
+    });
+
+    // Set initial marker on page load
+    if (publicationCards.length > 0) {
+      timelineMarkers[0].classList.add('active');
+    }
+  }
 });
