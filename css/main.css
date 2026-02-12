@@ -140,8 +140,6 @@ section {
 .page-content .container {
   display: grid;
   grid-template-columns: 1fr;
-  max-width: 900px;
-  margin: 0 auto;
 }
 
 .page-content main {
@@ -1503,6 +1501,11 @@ a.btn-tertiary {
 }
 
 /* Contact Page Styles */
+.contact-page .page-content .container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .contact-intro {
   margin: 3rem 0 4rem;
   padding: 3rem 2rem;
