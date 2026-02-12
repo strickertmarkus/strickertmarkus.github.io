@@ -1028,6 +1028,32 @@ blockquote {
   text-decoration: none;
 }
 
+/* Button text color overrides for all button types */
+a.btn-primary {
+  color: white !important;
+}
+
+a.btn-secondary {
+  color: var(--aside-accent-color) !important;
+}
+
+a.btn-tertiary {
+  color: var(--aside-accent-color) !important;
+}
+
+/* Home CTA button color overrides */
+.home-cta a.btn-primary {
+  color: var(--aside-accent-color) !important;
+}
+
+.home-cta a.btn-secondary {
+  color: white !important;
+}
+
+.home-cta a.btn-tertiary {
+  color: white !important;
+}
+
 .home-highlights {
   padding: 5rem 2rem;
   background: white;
