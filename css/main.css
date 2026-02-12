@@ -1342,19 +1342,19 @@ a.btn-tertiary {
   width: 100%;
   margin-top: 3rem;
   padding: 0 2rem;
+  margin-right: 0;
 }
 
 .timeline-line {
   position: fixed;
   right: 40px;
-  top: 0;
-  bottom: 0;
   width: 2px;
   background: linear-gradient(180deg, #9d836b 0%, #8b7261 100%);
   transform-origin: top;
-  transform: scaleY(0);
+  height: 0;
   z-index: 50;
   pointer-events: none;
+  transition: height 0.05s linear;
 }
 
 .timeline-markers {
@@ -1365,7 +1365,7 @@ a.btn-tertiary {
   gap: 8rem;
   z-index: 51;
   pointer-events: none;
-}
+  top: 350px;
 
 .timeline-marker {
   display: flex;

@@ -72,8 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const timelineMarkers = document.querySelectorAll('.timeline-marker');
   const timelineLine = document.getElementById('timelineLine');
   const publicationCards = document.querySelectorAll('.publication-card');
+  const academicPublications = document.querySelector('.academic-publications');
 
-  if (timelineMarkers.length > 0 && timelineLine) {
+  if (timelineMarkers.length > 0 && timelineLine && academicPublications) {
     // Handle marker click
     timelineMarkers.forEach((marker, index) => {
       marker.addEventListener('click', function() {
@@ -85,18 +86,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Animate timeline line and markers on scroll
     window.addEventListener('scroll', function() {
-      const marketScrollStart = document.querySelector('.academic-timeline')?.offsetTop || 0;
       const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
+      const sectionStart = academicPublications.offsetTop;
+      const sectionEnd = sectionStart + academicPublications.offsetHeight;
+      const timelineEnd = document.querySelector('.academic-timeline').offsetTop + document.querySelector('.academic-timeline').offsetHeight;
 
-      // Calculate timeline line animation
-      if (scrollPosition > marketScrollStart - windowHeight) {
-        const progress = (scrollPosition - marketScrollStart + windowHeight) / (document.body.scrollHeight - marketScrollStart);
-        const clampedProgress = Math.max(0, Math.min(1, progress));
-        timelineLine.style.transform = `scaleY(${clampedProgress})`;
+      // Calculate timeline line height based on scroll position through publication cards
+      const maxTimelineHeight = timelineEnd - sectionStart;
+      
+      if (scrollPosition >= sectionStart && scrollPosition <= sectionEnd) {
+        // Scroll is within the publications section
+        const progressInSection = (scrollPosition - sectionStart) / (sectionEnd - sectionStart);
+        const lineHeight = maxTimelineHeight * progressInSection;
+        timelineLine.style.height = lineHeight + 'px';
+        timelineLine.style.top = sectionStart + 'px';
+      } else if (scrollPosition > sectionEnd) {
+        // Past the section - show full line
+        timelineLine.style.height = maxTimelineHeight + 'px';
+        timelineLine.style.top = sectionStart + 'px';
+      } else {
+        // Before section
+        timelineLine.style.height = '0';
+        timelineLine.style.top = sectionStart + 'px';
       }
 
       // Update active marker based on card position
+      const windowHeight = window.innerHeight;
       publicationCards.forEach((card, index) => {
         const cardTop = card.getBoundingClientRect().top;
         const cardHeight = card.getBoundingClientRect().height;
@@ -112,9 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
-    // Set initial marker on page load
-    if (publicationCards.length > 0) {
-      timelineMarkers[0].classList.add('active');
-    }
+    // Trigger initial scroll event
+    window.dispatchEvent(new Event('scroll'));
   }
 });
