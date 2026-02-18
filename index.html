@@ -83,11 +83,57 @@
       <div class="hero-content">
         <div class="hero-image-wrapper">
           <img class="hero-image" 
+               id="hero-image-trigger"
                width="200" 
                height="200" 
                src="mstr.jpeg" 
                alt="Markus Strickert Profile Image" />
+          
+          <!-- Mind Map Container -->
+          <div id="mind-map-container" class="mind-map-container">
+            <svg id="mind-map-svg" class="mind-map-svg" viewBox="0 0 1000 1000">
+              <g id="connection-lines"></g>
+            </svg>
+            
+            <div class="mind-map-blobs">
+              <div class="mind-map-blob" data-angle="0" data-link="work-details.html">
+                <div class="blob-content">Verification Techniques</div>
+                <div class="blob-tooltip">• DOORS NG expertise<br>• Test specification & requirements<br>• Hardware, firmware, software verification<br>• Early development through delivery</div>
+              </div>
+              <div class="mind-map-blob" data-angle="45" data-link="work-details.html">
+                <div class="blob-content">System Testing</div>
+                <div class="blob-tooltip">• Design & automate comprehensive tests<br>• Hands-on lab experience<br>• Formal requirements management<br>• System commissioning & validation</div>
+              </div>
+              <div class="mind-map-blob" data-angle="90" data-link="academic.html">
+                <div class="blob-content">Astrophysics</div>
+                <div class="blob-tooltip">• 3D magnetohydrodynamic simulations<br>• Star-planet interactions<br>• Coronal mass ejections<br>• Peer-reviewed publications</div>
+              </div>
+              <div class="mind-map-blob" data-angle="135" data-link="academic.html">
+                <div class="blob-content">Scientific Computing</div>
+                <div class="blob-tooltip">• Fortran optimization<br>• Large-scale HPC simulations<br>• Supercomputer implementation<br>• Python data processing & visualization</div>
+              </div>
+              <div class="mind-map-blob" data-angle="180" data-link="academic.html">
+                <div class="blob-content">Academic Research</div>
+                <div class="blob-tooltip">• Stellar dynamics expertise<br>• Black hole research<br>• Galactic civilizations study<br>• PhD Astrophysics (Lund University)</div>
+              </div>
+              <div class="mind-map-blob" data-angle="225" data-link="portfolio.html">
+                <div class="blob-content">Software Development</div>
+                <div class="blob-tooltip">• C++, Python, Bash<br>• Automation tools<br>• Data analysis workflows<br>• Scientific visualization</div>
+              </div>
+              <div class="mind-map-blob" data-angle="270" data-link="work-details.html">
+                <div class="blob-content">Problem Solving</div>
+                <div class="blob-tooltip">• Analytical mindset<br>• Complex technical challenges<br>• Agile team collaboration<br>• Solution-focused approach</div>
+              </div>
+              <div class="mind-map-blob" data-angle="315" data-link="portfolio.html">
+                <div class="blob-content">Skateboarding</div>
+                <div class="blob-tooltip">• Parkour advocacy & promotion<br>• Board member experience<br>• Established Sweden's first parkour park<br>• Community engagement & design</div>
+              </div>
+            </div>
+            
+            <button class="mind-map-close" id="mind-map-close">&times;</button>
+          </div>
         </div>
+        
         <h1 class="hero-title">Markus Strickert</h1>
         <p class="hero-subtitle">Systems Verification Engineer & Astrophysicist</p>
         <p class="hero-description">

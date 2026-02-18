@@ -49,32 +49,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update active timeline item on scroll
     window.addEventListener('scroll', function() {
-      const sections = document.querySelectorAll('[id]');
-      const scrollPosition = window.scrollY + 200;
+      const windowHeight = window.innerHeight;
 
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
+      timelineItems.forEach(item => {
+        const sectionId = item.getAttribute('data-section');
+        const section = document.getElementById(sectionId);
+        
+        if (section) {
+          const sectionTop = section.getBoundingClientRect().top;
+          const sectionBottom = sectionTop + section.getBoundingClientRect().height;
 
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-          timelineItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('data-section') === section.id) {
-              item.classList.add('active');
-            }
-          });
+          // Clear active class first
+          item.classList.remove('active');
+
+          // Check if section is visible on screen
+          const isVisible = sectionBottom > 0 && sectionTop < windowHeight;
+
+          if (isVisible) {
+            item.classList.add('active');
+          }
         }
       });
     });
+    
+    // Trigger initial scroll event
+    window.dispatchEvent(new Event('scroll'));
   }
 
   // Academic Timeline Functionality
   const timelineMarkers = document.querySelectorAll('.timeline-marker');
-  const timelineLine = document.getElementById('timelineLine');
   const publicationCards = document.querySelectorAll('.publication-card');
-  const academicPublications = document.querySelector('.academic-publications');
 
-  if (timelineMarkers.length > 0 && timelineLine && academicPublications) {
+  if (timelineMarkers.length > 0) {
     // Handle marker click
     timelineMarkers.forEach((marker, index) => {
       marker.addEventListener('click', function() {
@@ -84,44 +90,32 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
 
-    // Animate timeline line and markers on scroll
+    // Update marker visibility based on scroll position through publications
     window.addEventListener('scroll', function() {
-      const scrollPosition = window.scrollY;
-      const sectionStart = academicPublications.offsetTop;
-      const sectionEnd = sectionStart + academicPublications.offsetHeight;
-      const timelineEnd = document.querySelector('.academic-timeline').offsetTop + document.querySelector('.academic-timeline').offsetHeight;
-
-      // Calculate timeline line height based on scroll position through publication cards
-      const maxTimelineHeight = timelineEnd - sectionStart;
-      
-      if (scrollPosition >= sectionStart && scrollPosition <= sectionEnd) {
-        // Scroll is within the publications section
-        const progressInSection = (scrollPosition - sectionStart) / (sectionEnd - sectionStart);
-        const lineHeight = maxTimelineHeight * progressInSection;
-        timelineLine.style.height = lineHeight + 'px';
-        timelineLine.style.top = sectionStart + 'px';
-      } else if (scrollPosition > sectionEnd) {
-        // Past the section - show full line
-        timelineLine.style.height = maxTimelineHeight + 'px';
-        timelineLine.style.top = sectionStart + 'px';
-      } else {
-        // Before section
-        timelineLine.style.height = '0';
-        timelineLine.style.top = sectionStart + 'px';
-      }
-
-      // Update active marker based on card position
       const windowHeight = window.innerHeight;
-      publicationCards.forEach((card, index) => {
-        const cardTop = card.getBoundingClientRect().top;
-        const cardHeight = card.getBoundingClientRect().height;
-        const cardCenter = cardTop + cardHeight / 2;
+      const scrollPosition = window.scrollY;
 
+      publicationCards.forEach((card, index) => {
         if (timelineMarkers[index]) {
-          // Mark as active if card is in center of viewport
-          if (cardCenter > windowHeight * 0.3 && cardCenter < windowHeight * 0.7) {
-            timelineMarkers.forEach(m => m.classList.remove('active'));
+          const cardTop = card.getBoundingClientRect().top;
+          const cardBottom = cardTop + card.getBoundingClientRect().height;
+          const cardAbsoluteTop = card.offsetTop;
+
+          // Clear all classes first
+          timelineMarkers[index].classList.remove('active', 'reached', 'visible');
+
+          // Check if card is visible on screen
+          const isVisible = cardBottom > 0 && cardTop < windowHeight;
+
+          if (isVisible) {
+            timelineMarkers[index].classList.add('visible');
+            // Apply active class while card is visible on screen
             timelineMarkers[index].classList.add('active');
+          }
+
+          // Check if card has been passed (scrolled past top)
+          if (cardTop < 0) {
+            timelineMarkers[index].classList.add('reached');
           }
         }
       });
@@ -130,4 +124,271 @@ document.addEventListener('DOMContentLoaded', function() {
     // Trigger initial scroll event
     window.dispatchEvent(new Event('scroll'));
   }
+
+  // Publication Plot Click Functionality
+  publicationCards.forEach((card) => {
+    const plotBtn = card.querySelector('.plot-btn');
+    const plotPlaceholder = card.querySelector('.publication-plot-placeholder');
+    const closeButton = plotPlaceholder.querySelector('.publication-plot-close');
+
+    // Click button to toggle plot visibility
+    plotBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      if (!plotPlaceholder.classList.contains('visible')) {
+        // Position plot to the right of the button
+        const btnRect = plotBtn.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        
+        // Position plot relative to button, 80px to the right and 80px down
+        const plotOffsetX = btnRect.right - cardRect.left + 80;
+        const plotOffsetY = btnRect.top - cardRect.top + 80;
+        
+        plotPlaceholder.style.left = plotOffsetX + 'px';
+        plotPlaceholder.style.top = plotOffsetY + 'px';
+      }
+      
+      plotPlaceholder.classList.toggle('visible');
+    });
+
+    // Close button functionality
+    closeButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      plotPlaceholder.classList.remove('visible');
+    });
+  });
+
+  // Project Video Hover Autoplay Functionality
+  const projectVideos = document.querySelectorAll('.project-video');
+  
+  projectVideos.forEach(video => {
+    // Play on hover
+    video.addEventListener('mouseenter', function() {
+      this.play();
+    });
+    
+    // Pause on mouse leave
+    video.addEventListener('mouseleave', function() {
+      this.pause();
+      this.currentTime = 0; // Reset to beginning
+      this.load(); // Reload to show poster image
+    });
+
+    // Click to expand to modal
+    video.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openVideoModal(this);
+    });
+  });
+
+  // Video Modal Functions
+  function openVideoModal(videoElement) {
+    // Create modal overlay if it doesn't exist
+    let overlay = document.getElementById('video-modal-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'video-modal-overlay';
+      overlay.className = 'video-modal-overlay';
+      
+      const container = document.createElement('div');
+      container.className = 'video-modal-container';
+      container.id = 'video-modal-container';
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'video-modal-close';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.addEventListener('click', closeVideoModal);
+      
+      container.appendChild(closeBtn);
+      overlay.appendChild(container);
+      document.body.appendChild(overlay);
+      
+      // Close when clicking outside the container
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          closeVideoModal();
+        }
+      });
+    }
+    
+    // Replace video content
+    const container = document.getElementById('video-modal-container');
+    const existingVideo = container.querySelector('video');
+    if (existingVideo) {
+      existingVideo.remove();
+    }
+    
+    const videoClone = videoElement.cloneNode(true);
+    videoClone.autoplay = true;
+    container.insertBefore(videoClone, container.firstChild);
+    
+    overlay.classList.add('active');
+    const video = overlay.querySelector('video');
+    video.play();
+  }
+
+  function closeVideoModal() {
+    const overlay = document.getElementById('video-modal-overlay');
+    if (overlay) {
+      const video = overlay.querySelector('video');
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+      overlay.classList.remove('active');
+    }
+  }
+
+  // Mind Map Functionality
+  const heroImageTrigger = document.getElementById('hero-image-trigger');
+  const mindMapContainer = document.getElementById('mind-map-container');
+  const mindMapClose = document.getElementById('mind-map-close');
+  const mindMapBlobs = document.querySelectorAll('.mind-map-blob');
+  const svg = document.getElementById('mind-map-svg');
+  const connectionLines = document.getElementById('connection-lines');
+
+  // Initialize: ensure all blobs are hidden on page load
+  mindMapBlobs.forEach(blob => {
+    blob.classList.remove('active');
+  });
+  mindMapContainer.classList.remove('active');
+
+  // Function to check if a blob is visible in the viewport
+  function isBlobVisible(blob) {
+    const containerRect = mindMapContainer.getBoundingClientRect();
+    const blobAngle = parseInt(blob.getAttribute('data-angle'));
+    const radius = 380;
+    const rad = (blobAngle * Math.PI) / 180;
+    
+    // Calculate blob's position relative to container center
+    const x = radius * Math.cos(rad);
+    const y = radius * Math.sin(rad);
+    
+    // Calculate blob's absolute screen position (center point)
+    const blobScreenX = containerRect.left + containerRect.width / 2 + x - 50; // -50 for blob radius
+    const blobScreenY = containerRect.top + containerRect.height / 2 + y - 50;
+    
+    // Hard boundary check - entire blob must be within viewport
+    return (
+      blobScreenX - 50 >= 0 && // blob left edge is fully in bounds
+      blobScreenX + 50 <= window.innerWidth && // blob right edge is fully in bounds
+      blobScreenY - 50 >= 0 && // blob top edge is fully in bounds
+      blobScreenY + 50 <= window.innerHeight // blob bottom edge is fully in bounds
+    );
+  }
+
+  if (heroImageTrigger) {
+    heroImageTrigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      mindMapContainer.classList.add('active');
+      
+      // Trigger blob animations with staggered timing - only for visible blobs
+      mindMapBlobs.forEach((blob, index) => {
+        if (isBlobVisible(blob)) {
+          setTimeout(() => {
+            blob.classList.add('active');
+            drawConnectionLine(blob);
+          }, index * 100);
+        }
+      });
+    });
+  }
+
+  // Close mind map
+  if (mindMapClose) {
+    mindMapClose.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeMindMap();
+    });
+  }
+
+  // Close when clicking outside the mind map
+  document.addEventListener('click', function(e) {
+    if (mindMapContainer.classList.contains('active') && 
+        !mindMapContainer.contains(e.target) &&
+        !heroImageTrigger.contains(e.target)) {
+      closeMindMap();
+    }
+  });
+
+
+  function closeMindMap() {
+    mindMapContainer.classList.remove('active');
+    mindMapBlobs.forEach(blob => blob.classList.remove('active'));
+    connectionLines.innerHTML = '';
+  }
+
+  // Prevent closing when clicking on blobs
+  mindMapBlobs.forEach(blob => {
+    blob.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Navigate to the blob's linked page if it has a data-link attribute
+      const link = blob.getAttribute('data-link');
+      if (link) {
+        window.location.href = link;
+      }
+    });
+  });
+
+  function drawConnectionLine(blob) {
+    const angle = parseInt(blob.getAttribute('data-angle'));
+    const radius = 380;
+    const imageRadius = 100; // Half of 200px image width
+    
+    // Convert angle to radians
+    const rad = (angle * Math.PI) / 180;
+    
+    // Calculate blob position
+    const x2 = 500 + radius * Math.cos(rad);
+    const y2 = 500 + radius * Math.sin(rad);
+    
+    // Start from the edge of the image circle
+    const x1 = 500 + imageRadius * Math.cos(rad);
+    const y1 = 500 + imageRadius * Math.sin(rad);
+    
+    // Create SVG line
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', '#3f4556');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('opacity', '0.3');
+    line.setAttribute('stroke-dasharray', '1000');
+    line.setAttribute('stroke-dashoffset', '1000');
+    
+    connectionLines.appendChild(line);
+    
+    // Animate the line drawing
+    setTimeout(() => {
+      line.style.transition = 'stroke-dashoffset 1.2s ease-out';
+      line.setAttribute('stroke-dashoffset', '0');
+    }, 50);
+  }
+
+  // Position blobs in a circle
+  function positionBlobs() {
+    mindMapBlobs.forEach(blob => {
+      const angle = parseInt(blob.getAttribute('data-angle'));
+      const radius = 380;
+      const rad = (angle * Math.PI) / 180;
+      const x = radius * Math.cos(rad);
+      const y = radius * Math.sin(rad);
+      
+      // Set CSS custom properties for animation
+      blob.style.setProperty('--blob-x', `calc(50% + ${x}px)`);
+      blob.style.setProperty('--blob-y', `calc(50% + ${y}px)`);
+      
+      // Initial center position before animation
+      blob.style.left = '50%';
+      blob.style.top = '50%';
+    });
+  }
+
+  positionBlobs();
+
+  // Handle window resize for responsive positioning
+  window.addEventListener('resize', positionBlobs);
 });
+

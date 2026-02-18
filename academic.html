@@ -60,157 +60,175 @@
             <div class="publications-grid">
               <!-- PhD Publication -->
               <article class="publication-card">
-                <div class="publication-header">
-                  <h3 class="publication-title">High-latitude coronal mass ejections on the young solar-like star AB Dor</h3>
-                  <p class="publication-authors">K. M. Strickert, D. Evensberget, A. A. Vidotto</p>
-                </div>
-                
-                <div class="publication-meta">
-                  <span class="publication-journal">Monthly Notices of the Royal Astronomical Society</span>
-                  <span class="publication-date">2024</span>
-                  <span class="publication-volume">Vol. 533, pp. 1156–1165</span>
-                </div>
-                
-                <div class="publication-content">
-                  <p class="publication-summary">
-                    This work investigates coronal mass ejections (CMEs) on AB Dor, a young solar-like star with a surface magnetic field 100-1000 times stronger than the Sun's. Using 3D magnetohydrodynamic simulations, I modeled 21 CME scenarios at high latitudes to understand how strong magnetic fields constrain eruptions.
-                  </p>
+                <div class="publication-body">
+                  <div class="publication-header">
+                    <h3 class="publication-title">High-latitude coronal mass ejections on the young solar-like star AB Dor</h3>
+                    <p class="publication-authors">K. M. Strickert, D. Evensberget, A. A. Vidotto</p>
+                  </div>
+                  
+                  <div class="publication-meta">
+                    <div class="publication-meta-info">
+                      <span class="publication-journal">Monthly Notices of the Royal Astronomical Society</span>
+                      <span class="publication-date">2024</span>
+                      <span class="publication-volume">Vol. 533, pp. 1156–1165</span>
+                    </div>
+                    <button class="btn btn-tertiary plot-btn">View a paper plot</button>
+                  </div>
+                  
+                  <div class="publication-content">
+                    <p class="publication-summary">
+                      This work investigates coronal mass ejections (CMEs) on AB Dor, a young solar-like star with a surface magnetic field 100-1000 times stronger than the Sun's. Using 3D magnetohydrodynamic simulations, I modeled 21 CME scenarios at high latitudes to understand how strong magnetic fields constrain eruptions.
+                    </p>
 
-                  <div class="publication-details">
-                    <h4>Technical approach:</h4>
-                    <ul>
-                      <li>Implemented Alfvén Wave Solar Model (AWSOM) in 3D MHD code BATS-R-US to model AB Dor's stellar wind</li>
-                      <li>Used spectropolarimetric observations and Zeeman-Doppler imaging to derive surface magnetic field map</li>
-                      <li>Injected magnetic flux ropes at high latitudes (~60°) in both open and closed magnetic field regions</li>
-                      <li>Parametrically varied flux rope properties: mass (3.5×10¹⁴ - 3.5×10¹⁸ g) and magnetic field strength (100-1000 G)</li>
-                      <li>Simulated 21 different CME configurations with varying combinations of location, mass, and field strength</li>
-                      <li>Analyzed CME morphology, eruption vs. confinement, velocity, mass, and kinetic energies at 1 hour post-injection</li>
-                    </ul>
-                  </div>
-                  
-                  <div class="publication-details">
-                    <h4>Key findings:</h4>
-                    <ul>
-                      <li>CMEs in open magnetic field regions are significantly more likely to erupt</li>
-                      <li>CMEs in closed magnetic field regions require high free magnetic energies (≥ 3×10³⁵ erg) to escape</li>
-                      <li>Magnetic tension limits kinetic energy in confined regions, causing slower propagation</li>
-                      <li>High-latitude eruptive CMEs likely occur in regions of open magnetic field, consistent with AB Dor's observed polar active regions</li>
-                      <li>Maximum eruptive CME speeds reached ~3700 km/s, five times higher than background wind velocity</li>
-                    </ul>
-                  </div>
-                  
-                  <div class="publication-links">
-                    <a href="https://academic.oup.com/mnras/article/533/1/1156/7729277" class="btn btn-secondary" target="_blank">Read on MNRAS</a>
-                    <a href="Paper_PhD.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    <div class="publication-details">
+                      <h4>Technical approach:</h4>
+                      <ul>
+                        <li>Implemented Alfvén Wave Solar Model (AWSOM) in 3D MHD code BATS-R-US to model AB Dor's stellar wind</li>
+                        <li>Used spectropolarimetric observations and Zeeman-Doppler imaging to derive surface magnetic field map</li>
+                        <li>Injected magnetic flux ropes at high latitudes (~60°) in both open and closed magnetic field regions</li>
+                        <li>Parametrically varied flux rope properties: mass (3.5×10¹⁴ - 3.5×10¹⁸ g) and magnetic field strength (100-1000 G)</li>
+                        <li>Simulated 21 different CME configurations with varying combinations of location, mass, and field strength</li>
+                        <li>Analyzed CME morphology, eruption vs. confinement, velocity, mass, and kinetic energies at 1 hour post-injection</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="publication-details">
+                      <h4>Key findings:</h4>
+                      <ul>
+                        <li>CMEs in open magnetic field regions are significantly more likely to erupt</li>
+                        <li>CMEs in closed magnetic field regions require high free magnetic energies (≥ 3×10³⁵ erg) to escape</li>
+                        <li>Magnetic tension limits kinetic energy in confined regions, causing slower propagation</li>
+                        <li>High-latitude eruptive CMEs likely occur in regions of open magnetic field, consistent with AB Dor's observed polar active regions</li>
+                        <li>Maximum eruptive CME speeds reached ~3700 km/s, five times higher than background wind velocity</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="publication-links">
+                      <a href="https://academic.oup.com/mnras/article/533/1/1156/7729277" class="btn btn-secondary" target="_blank">Read on MNRAS</a>
+                      <a href="Paper_PhD.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    </div>
                   </div>
                 </div>
                 
                 <div class="publication-plot-placeholder">
+                  <button class="publication-plot-close" aria-label="Close plot">&times;</button>
                   <p>Plot from paper</p>
                 </div>
               </article>
 
               <!-- Master Thesis -->
               <article class="publication-card">
-                <div class="publication-header">
-                  <h3 class="publication-title">Black Hole Dynamics in Stellar Clusters</h3>
-                  <p class="publication-authors">Markus Strickert</p>
-                </div>
-                
-                <div class="publication-meta">
-                  <span class="publication-journal">Lund Observatory, Lund University</span>
-                  <span class="publication-date">June 2022</span>
-                  <span class="publication-volume">60 higher education credits (Master degree)</span>
-                </div>
-                
-                <div class="publication-content">
-                  <p class="publication-summary">
-                    This Master's thesis investigates how the presence of stellar-mass black hole subsystems and intermediate-mass black holes influence the dynamical evolution and observable properties of globular clusters. Using Monte Carlo simulations of over 1500 cluster models, the work correlates cluster dynamics with stellar population distributions and derives observable signatures for detecting black holes in real globular clusters.
-                  </p>
-                  
-                  <div class="publication-details">
-                    <h4>Technical approach:</h4>
-                    <ul>
-                      <li>Ran 1500+ globular cluster models using the MOCCA code for Monte Carlo N-body simulations</li>
-                      <li>Utilized MOCCA-Survey Database II (MSD II) to expand parameter space and explore diverse initial conditions</li>
-                      <li>Employed COCOA code for automated cluster projection analysis and property extraction</li>
-                      <li>Quantified mass segregation using two complementary metrics: r₅₀ (relative distributions) and A⁺ (population separation)</li>
-                      <li>Analyzed distributions of main-sequence stars, blue stragglers, giants, binaries, and compact objects at different radii</li>
-                      <li>Cross-matched simulated clusters with observed Milky Way globular cluster data from Harris catalogue and recent surveys</li>
-                    </ul>
+                <div class="publication-body">
+                  <div class="publication-header">
+                    <h3 class="publication-title">Black Hole Dynamics in Stellar Clusters</h3>
+                    <p class="publication-authors">Markus Strickert</p>
                   </div>
+                  
+                  <div class="publication-meta">
+                    <div class="publication-meta-info">
+                      <span class="publication-journal">Lund Observatory, Lund University</span>
+                      <span class="publication-date">June 2022</span>
+                      <span class="publication-volume">60 higher education credits (Master degree)</span>
+                    </div>
+                    <button class="btn btn-tertiary plot-btn">View a paper plot</button>
+                  </div>
+                  
+                  <div class="publication-content">
+                    <p class="publication-summary">
+                      This Master's thesis investigates how the presence of stellar-mass black hole subsystems and intermediate-mass black holes influence the dynamical evolution and observable properties of globular clusters. Using Monte Carlo simulations of over 1500 cluster models, the work correlates cluster dynamics with stellar population distributions and derives observable signatures for detecting black holes in real globular clusters.
+                    </p>
+                    
+                    <div class="publication-details">
+                      <h4>Technical approach:</h4>
+                      <ul>
+                        <li>Ran 1500+ globular cluster models using the MOCCA code for Monte Carlo N-body simulations</li>
+                        <li>Utilized MOCCA-Survey Database II (MSD II) to expand parameter space and explore diverse initial conditions</li>
+                        <li>Employed COCOA code for automated cluster projection analysis and property extraction</li>
+                        <li>Quantified mass segregation using two complementary metrics: r₅₀ (relative distributions) and A⁺ (population separation)</li>
+                        <li>Analyzed distributions of main-sequence stars, blue stragglers, giants, binaries, and compact objects at different radii</li>
+                        <li>Cross-matched simulated clusters with observed Milky Way globular cluster data from Harris catalogue and recent surveys</li>
+                      </ul>
+                    </div>
 
-                  <div class="publication-details">
-                    <h4>Key findings:</h4>
-                    <ul>
-                      <li>Mass segregation is strongly enhanced in clusters with short relaxation times that host intermediate-mass black holes</li>
-                      <li>Blue straggler formation rates directly correlate with cluster relaxation time and central surface brightness</li>
-                      <li>Clusters hosting IMBHs retain binary fractions of ~12% in cores with power-law depletion (r/rhl)⁻⁰·¹³², while BHS clusters show shallower depletion</li>
-                      <li>Predicted 64⁺¹⁵⁸₋₄₅ stellar-mass black holes retained in NGC 3201 based on segregation analysis</li>
-                      <li>47 Tucanae is best explained in the model parameter space by hosting an intermediate-mass black hole (~1000 M☉)</li>
-                      <li>Low binary fractions and large central surface brightness combined with strong segregation can reliably identify IMBH hosting clusters</li>
-                    </ul>
-                  </div>
-                  
-                  <div class="publication-links">
-                    <a href="https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=9095211&fileOId=9095212" class="btn btn-secondary" target="_blank">View on Lund University</a>
-                    <a href="2022-EXA196_Strickert-Markus.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    <div class="publication-details">
+                      <h4>Key findings:</h4>
+                      <ul>
+                        <li>Mass segregation is strongly enhanced in clusters with short relaxation times that host intermediate-mass black holes</li>
+                        <li>Blue straggler formation rates directly correlate with cluster relaxation time and central surface brightness</li>
+                        <li>Clusters hosting IMBHs retain binary fractions of ~12% in cores with power-law depletion (r/rhl)⁻⁰·¹³², while BHS clusters show shallower depletion</li>
+                        <li>Predicted 64⁺¹⁵⁸₋₄₅ stellar-mass black holes retained in NGC 3201 based on segregation analysis</li>
+                        <li>47 Tucanae is best explained in the model parameter space by hosting an intermediate-mass black hole (~1000 M☉)</li>
+                        <li>Low binary fractions and large central surface brightness combined with strong segregation can reliably identify IMBH hosting clusters</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="publication-links">
+                      <a href="https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=9095211&fileOId=9095212" class="btn btn-secondary" target="_blank">View on Lund University</a>
+                      <a href="2022-EXA196_Strickert-Markus.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    </div>
                   </div>
                 </div>
                 
                 <div class="publication-plot-placeholder">
+                  <button class="publication-plot-close" aria-label="Close plot">&times;</button>
                   <p>Plot from paper</p>
                 </div>
               </article>
 
               <!-- Bachelor Thesis -->
               <article class="publication-card">
-                <div class="publication-header">
-                  <h3 class="publication-title">Galactic Dynamics and the spread of Galactic Civilisations</h3>
-                  <p class="publication-authors">Markus Strickert</p>
-                </div>
-                
-                <div class="publication-meta">
-                  <span class="publication-journal">Lund Observatory, Lund University</span>
-                  <span class="publication-date">June 2020</span>
-                  <span class="publication-volume">15 higher education credits</span>
-                </div>
-                
-                <div class="publication-content">
-                  <p class="publication-summary">
-                    This bachelor's thesis addresses a fascinating question: can a single interstellar civilisation colonise the galaxy faster than new civilisations can develop? The work simulates how technologically advanced civilisations might spread through a region of the galaxy by colonising nearby planets during close encounters with other star systems.
-                  </p>
-                  
-                  <div class="publication-details">
-                    <h4>Technical approach:</h4>
-                    <ul>
-                      <li>Modeled epicyclic motion of 200-1000 stars in the solar neighbourhood using galactic dynamics</li>
-                      <li>Tracked close encounters between stars using stochastic simulations</li>
-                      <li>Simulated planetary evolution with probability distributions governing abiogenesis and civilisation development</li>
-                      <li>Varied steepness parameter N to control the probability distribution for life development</li>
-                      <li>Compared scenarios with single spreading civilisations versus multiple stationary civilisations</li>
-                    </ul>
+                <div class="publication-body">
+                  <div class="publication-header">
+                    <h3 class="publication-title">Galactic Dynamics and the spread of Galactic Civilisations</h3>
+                    <p class="publication-authors">Markus Strickert</p>
                   </div>
+                  
+                  <div class="publication-meta">
+                    <div class="publication-meta-info">
+                      <span class="publication-journal">Lund Observatory, Lund University</span>
+                      <span class="publication-date">June 2020</span>
+                      <span class="publication-volume">15 higher education credits</span>
+                    </div>
+                    <button class="btn btn-tertiary plot-btn">View a paper plot</button>
+                  </div>
+                  
+                  <div class="publication-content">
+                    <p class="publication-summary">
+                      This bachelor's thesis addresses a fascinating question: can a single interstellar civilisation colonise the galaxy faster than new civilisations can develop? The work simulates how technologically advanced civilisations might spread through a region of the galaxy by colonising nearby planets during close encounters with other star systems.
+                    </p>
+                    
+                    <div class="publication-details">
+                      <h4>Technical approach:</h4>
+                      <ul>
+                        <li>Modeled epicyclic motion of 200-1000 stars in the solar neighbourhood using galactic dynamics</li>
+                        <li>Tracked close encounters between stars using stochastic simulations</li>
+                        <li>Simulated planetary evolution with probability distributions governing abiogenesis and civilisation development</li>
+                        <li>Varied steepness parameter N to control the probability distribution for life development</li>
+                        <li>Compared scenarios with single spreading civilisations versus multiple stationary civilisations</li>
+                      </ul>
+                    </div>
 
-                  <div class="publication-details">
-                    <h4>Key findings:</h4>
-                    <ul>
-                      <li>First technologically developed civilisation emerged between 270 million and 4.8 billion years, depending on the steepness parameter N</li>
-                      <li>Colonization by spreading civilisations followed exponential growth initially, then leveled off as available planets saturated</li>
-                      <li>With 1000 stars and N=3, a single spreading civilisation colonised 89% of all planets within 12 gigayears</li>
-                      <li>With lower steepness parameters (N=0), stationary civilisations dominated, colonising 99-99.7% of planets</li>
-                      <li>Star density significantly affects the competition: higher density favours spreading civilisations</li>
-                      <li>The model suggests that rapid galactic colonisation is possible only under specific conditions combining high star density and favourable evolution parameters</li>
-                    </ul>
-                  </div>
-                  
-                  <div class="publication-links">
-                    <a href="https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=8975819&fileOId=8975820" class="btn btn-secondary" target="_blank">View on Lund University</a>
-                    <a href="Galactic_Dynamics_and_the_Spread_of_Galactic_Civilisations.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    <div class="publication-details">
+                      <h4>Key findings:</h4>
+                      <ul>
+                        <li>First technologically developed civilisation emerged between 270 million and 4.8 billion years, depending on the steepness parameter N</li>
+                        <li>Colonization by spreading civilisations followed exponential growth initially, then leveled off as available planets saturated</li>
+                        <li>With 1000 stars and N=3, a single spreading civilisation colonised 89% of all planets within 12 gigayears</li>
+                        <li>With lower steepness parameters (N=0), stationary civilisations dominated, colonising 99-99.7% of planets</li>
+                        <li>Star density significantly affects the competition: higher density favours spreading civilisations</li>
+                        <li>The model suggests that rapid galactic colonisation is possible only under specific conditions combining high star density and favourable evolution parameters</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="publication-links">
+                      <a href="https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=8975819&fileOId=8975820" class="btn btn-secondary" target="_blank">View on Lund University</a>
+                      <a href="Galactic_Dynamics_and_the_Spread_of_Galactic_Civilisations.pdf" class="btn btn-tertiary" download>Download PDF</a>
+                    </div>
                   </div>
                 </div>
                 
                 <div class="publication-plot-placeholder">
+                  <button class="publication-plot-close" aria-label="Close plot">&times;</button>
                   <p>Plot from paper</p>
                 </div>
               </article>
