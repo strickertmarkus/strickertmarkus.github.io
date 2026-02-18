@@ -390,5 +390,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle window resize for responsive positioning
   window.addEventListener('resize', positionBlobs);
+
+  // ============================================
+  // PROJECT CARDS INTERACTIVE FUNCTIONALITY
+  // ============================================
+  
+  function toggleProject(cardElement) {
+    // Get the details and close button
+    const details = cardElement.querySelector('.card-details');
+    const closeBtn = cardElement.querySelector('.close-btn');
+    const isVisible = details.classList.contains('visible');
+
+    // If already open, close it
+    if (isVisible) {
+      details.classList.remove('visible');
+      return;
+    }
+
+    // Close all other open cards
+    document.querySelectorAll('.project-card').forEach(card => {
+      const otherDetails = card.querySelector('.card-details');
+      if (otherDetails && otherDetails !== details) {
+        otherDetails.classList.remove('visible');
+      }
+    });
+
+    // Open this card
+    details.classList.add('visible');
+
+    // Add close button event listener
+    if (closeBtn && !closeBtn.hasListener) {
+      closeBtn.hasListener = true;
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        details.classList.remove('visible');
+      });
+    }
+  }
+
+  // Prevent close when clicking inside details
+  document.querySelectorAll('.card-details').forEach(details => {
+    details.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+
+  // Make toggleProject available globally for onclick attributes
+  window.toggleProject = toggleProject;
 });
 

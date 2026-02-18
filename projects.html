@@ -50,9 +50,210 @@
       </div>
     </header>
 
-    <div class="page-content">
+    <div class="page-content projects-page">
+      <div class="projects-hero">
+        <div class="stars-background"></div>
+        <div class="hero-content">
+          <h2 class="hero-title">Explore My Projects</h2>
+          <p class="hero-subtitle">Interactive simulations, research, and explorations</p>
+        </div>
+      </div>
+
       <div class="container">
-        <main>
+        <main class="projects-grid">
+          <!-- Project 1: CME Research -->
+          <article class="project-card card-cme" onclick="toggleProject(this)">
+            <div class="card-header">
+              <div class="project-icon">☄️</div>
+              <h3>Coronal Mass Ejections on AB Dor</h3>
+            </div>
+            <div class="card-preview">
+              <p class="card-label">PhD Research • Astrophysics</p>
+              <p class="card-excerpt">Parametric modeling of 21 CMEs on a young solar-like star with extreme magnetic fields</p>
+              <span class="card-hint">Click to explore →</span>
+            </div>
+            <div class="card-details hidden-details">
+              <div class="details-content">
+                <h4>Research Overview</h4>
+                <p>AB Dor is a young solar-type star with surface magnetic fields 100-1000 times stronger than our Sun. Despite strong magnetic fields inhibiting CMEs, we observed dimming signatures suggesting high-latitude eruptions.</p>
+                
+                <h4>Methodology</h4>
+                <ul>
+                  <li>3D Magnetohydrodynamic (MHD) simulations</li>
+                  <li>Parametric study of 21 CMEs at ~60° latitude</li>
+                  <li>Variable flux rope location, mass, and field strength</li>
+                  <li>Supercomputer simulations on HPC systems</li>
+                </ul>
+
+                <h4>Key Findings</h4>
+                <ul>
+                  <li>CMEs in open-field regions are more likely to erupt</li>
+                  <li>Confined CMEs show lower kinetic energies</li>
+                  <li>High-latitude open-field regions enable eruptions</li>
+                  <li>Magnetic tension plays critical role in confinement</li>
+                </ul>
+
+                <h4>Publications</h4>
+                <p><strong>High-latitude coronal mass ejections on the young solar-like star AB Dor</strong><br>
+                MNRAS 533, 1156–1165 (2024) | DOI: 10.1093/mnras/stae1884</p>
+              </div>
+              <button class="close-btn">×</button>
+            </div>
+          </article>
+
+          <!-- Project 2: Galactic Dynamics -->
+          <article class="project-card card-galactic" onclick="toggleProject(this)">
+            <div class="card-header">
+              <div class="project-icon">🌌</div>
+              <h3>Galactic Civilizations Spread</h3>
+            </div>
+            <div class="card-preview">
+              <p class="card-label">Degree Project • Computational Modeling</p>
+              <p class="card-excerpt">Simulating how civilizations could spread through the galaxy via stellar encounters</p>
+              <span class="card-hint">Click to explore →</span>
+            </div>
+            <div class="card-details hidden-details">
+              <div class="details-content">
+                <h4>Project Overview</h4>
+                <p>This degree project explores the Fermi Paradox by simulating civilization spread through the galaxy. Using the epicycle approximation to track star motion, the model investigates colonization patterns under various parameters.</p>
+
+                <h4>Simulation Parameters</h4>
+                <ul>
+                  <li>Examined 200-1000 Sun-like stars with suitable planets</li>
+                  <li>Modeled civilization development via probability distributions</li>
+                  <li>Tracked stellar dynamics over 12+ billion years</li>
+                  <li>Analyzed colonization exponential growth patterns</li>
+                </ul>
+
+                <h4>Results</h4>
+                <ul>
+                  <li>First advanced civilization after 0.27-4.8 Gyr depending on parameters</li>
+                  <li>Single spreading civilization dominated with 89% colonization (1000 stars, N=3)</li>
+                  <li>Stationary civilizations dominated with 99-99.7% colonization when isolated</li>
+                  <li>Mean nearest neighbor distance: 36-82 pc depending on star count</li>
+                </ul>
+
+                <h4>Implications</h4>
+                <p>Results suggest that increasing stellar density combined with favorable evolution parameters could enable rapid galactic colonization by a single civilization, potentially addressing aspects of the Fermi Paradox.</p>
+              </div>
+              <button class="close-btn">×</button>
+            </div>
+          </article>
+
+          <!-- Project 3: Black Hole Dynamics -->
+          <article class="project-card card-bh" onclick="toggleProject(this)">
+            <div class="card-header">
+              <div class="project-icon">⚫</div>
+              <h3>Black Hole Dynamics in Stellar Clusters</h3>
+            </div>
+            <div class="card-preview">
+              <p class="card-label">Master's Research • Computational Astrophysics</p>
+              <p class="card-excerpt">Studying orbital dynamics and evolution of black holes within dense stellar systems</p>
+              <span class="card-hint">Click to explore →</span>
+            </div>
+            <div class="card-details hidden-details">
+              <div class="details-content">
+                <h4>Research Objectives</h4>
+                <p>Investigation of black hole dynamics within stellar clusters using N-body simulations and analytical methods to understand orbital evolution and dynamical interactions.</p>
+
+                <h4>Methodology</h4>
+                <ul>
+                  <li>N-body simulations of black holes in clusters</li>
+                  <li>Analytical orbital mechanics calculations</li>
+                  <li>Long-term dynamical evolution studies</li>
+                  <li>Gravitational scattering analysis</li>
+                </ul>
+
+                <h4>Key Topics</h4>
+                <ul>
+                  <li>Orbital resonances and stability</li>
+                  <li>Binary black hole dynamics</li>
+                  <li>Tidal disruption events</li>
+                  <li>Gravitational wave emission predictions</li>
+                </ul>
+              </div>
+              <button class="close-btn">×</button>
+            </div>
+          </article>
+
+          <!-- Project 4: Star-Planet Interactions -->
+          <article class="project-card card-star-planet" onclick="toggleProject(this)">
+            <div class="card-header">
+              <div class="project-icon">🌟</div>
+              <h3>Star-Planet Magnetic Interactions</h3>
+            </div>
+            <div class="card-preview">
+              <p class="card-label">Research • MHD Simulations</p>
+              <p class="card-excerpt">3D modeling of magnetic field coupling between young stars and their planetary systems</p>
+              <span class="card-hint">Click to explore →</span>
+            </div>
+            <div class="card-details hidden-details">
+              <div class="details-content">
+                <h4>Project Focus</h4>
+                <p>Advanced 3D magnetohydrodynamic simulations exploring the magnetic coupling between young host stars and their orbiting exoplanets, crucial for understanding habitability and atmospheric evolution.</p>
+
+                <h4>Simulation Techniques</h4>
+                <ul>
+                  <li>3D MHD code implementation (PLUTO/Athena)</li>
+                  <li>Adaptive mesh refinement (AMR) techniques</li>
+                  <li>High-performance computing on supercomputers</li>
+                  <li>Data analysis with Python and Tecplot</li>
+                </ul>
+
+                <h4>Scientific Insights</h4>
+                <ul>
+                  <li>Magnetic disconnection structures</li>
+                  <li>Energy transfer mechanisms</li>
+                  <li>Atmospheric escape rates</li>
+                  <li>Exoplanet habitability assessment</li>
+                </ul>
+
+                <h4>Computational Performance</h4>
+                <p>Utilized large-scale HPC resources with Fortran optimization achieving significant speedups in simulation execution.</p>
+              </div>
+              <button class="close-btn">×</button>
+            </div>
+          </article>
+
+          <!-- Project 5: Scientific Visualization -->
+          <article class="project-card card-viz" onclick="toggleProject(this)">
+            <div class="card-header">
+              <div class="project-icon">📊</div>
+              <h3>Scientific Visualization & Analysis</h3>
+            </div>
+            <div class="card-preview">
+              <p class="card-label">Tools & Methods • Data Processing</p>
+              <p class="card-excerpt">Development of visualization pipelines for complex astrophysical datasets</p>
+              <span class="card-hint">Click to explore →</span>
+            </div>
+            <div class="card-details hidden-details">
+              <div class="details-content">
+                <h4>Visualization Framework</h4>
+                <p>Comprehensive data processing and visualization pipeline for handling multi-dimensional astrophysical simulation output and observational data.</p>
+
+                <h4>Tools & Technologies</h4>
+                <ul>
+                  <li>Python visualization suite (Matplotlib, Numpy, SciPy)</li>
+                  <li>Tecplot for 3D rendering and animations</li>
+                  <li>PyTecplot scripting interface</li>
+                  <li>Custom animation engines using Python/Bash</li>
+                </ul>
+
+                <h4>Capabilities</h4>
+                <ul>
+                  <li>2D/3D scientific plots and heatmaps</li>
+                  <li>Particle trajectory animations</li>
+                  <li>Magnetic field topology visualization</li>
+                  <li>Time-series data analysis and rendering</li>
+                  <li>Multi-panel figure composition</li>
+                </ul>
+
+                <h4>Output Formats</h4>
+                <p>High-resolution video production, publication-quality figures, and interactive visualization tools for presentation and dissemination.</p>
+              </div>
+              <button class="close-btn">×</button>
+            </div>
+          </article>
         </main>
       </div>
     </div>
