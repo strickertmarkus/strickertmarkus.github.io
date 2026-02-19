@@ -437,5 +437,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Make toggleProject available globally for onclick attributes
   window.toggleProject = toggleProject;
+
+  // ============================================
+  // FALLING STAR LINES ANIMATION
+  // ============================================
+  
+  function createFallingStar() {
+    const svg = document.querySelector('.falling-star-lines');
+    if (!svg) return;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('stroke', 'url(#starGradient)');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('filter', 'url(#starGlow)');
+    
+    const animationType = Math.random();
+    let animation;
+    let duration = 2.5 + Math.random() * 1.5;
+    
+    if (animationType < 0.33) {
+      // Diagonal left to right
+      line.setAttribute('x1', '10%');
+      line.setAttribute('y1', '-10');
+      line.setAttribute('x2', '45%');
+      line.setAttribute('y2', '510');
+      animation = 'starFallDiagonal1';
+    } else if (animationType < 0.66) {
+      // Diagonal right to left
+      line.setAttribute('x1', '90%');
+      line.setAttribute('y1', '-10');
+      line.setAttribute('x2', '55%');
+      line.setAttribute('y2', '510');
+      animation = 'starFallDiagonal2';
+    } else {
+      // Straight down from random x position
+      const xPos = 20 + Math.random() * 60;
+      line.setAttribute('x1', xPos + '%');
+      line.setAttribute('y1', '-10');
+      line.setAttribute('x2', xPos + '%');
+      line.setAttribute('y2', '510');
+      animation = 'starFallStraight';
+    }
+    
+    line.style.animation = `${animation} ${duration}s ease-in forwards`;
+    svg.appendChild(line);
+    
+    // Remove line after animation completes
+    setTimeout(() => line.remove(), duration * 1000);
+  }
+  
+  // Check if we're on projects page
+  const fallingStarSvg = document.querySelector('.falling-star-lines');
+  if (fallingStarSvg) {
+    // Initial animation on page load
+    setTimeout(createFallingStar, 500);
+    
+    // Random falling stars every 3-6 seconds
+    setInterval(() => {
+      if (Math.random() > 0.6) {
+        createFallingStar();
+      }
+    }, 2000);
+  }
 });
 

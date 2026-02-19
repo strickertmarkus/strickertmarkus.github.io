@@ -2603,6 +2603,16 @@ a.btn-tertiary {
   animation: twinkleLights 15s ease-in-out infinite;
 }
 
+.falling-star-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 @keyframes twinkleLights {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
@@ -2654,6 +2664,67 @@ a.btn-tertiary {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes starFallDiagonal1 {
+  0% {
+    x: 10%;
+    y: -100;
+    opacity: 0;
+    stroke-width: 3;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    x: 45%;
+    y: 600;
+    opacity: 0;
+    stroke-width: 1;
+  }
+}
+
+@keyframes starFallDiagonal2 {
+  0% {
+    x: 90%;
+    y: -100;
+    opacity: 0;
+    stroke-width: 3;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    x: 55%;
+    y: 600;
+    opacity: 0;
+    stroke-width: 1;
+  }
+}
+
+@keyframes starFallStraight {
+  0% {
+    y: -100;
+    opacity: 0;
+    stroke-width: 3;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    y: 600;
+    opacity: 0;
+    stroke-width: 1;
   }
 }
 
