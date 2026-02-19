@@ -449,6 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('stroke', 'url(#starGradient)');
     line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke-width', '2');
     line.setAttribute('filter', 'url(#starGlow)');
     
     const animationType = Math.random();

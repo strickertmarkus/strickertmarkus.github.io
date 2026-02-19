@@ -2510,10 +2510,11 @@ a.btn-tertiary {
 
 .projects-page .page-header {
   background: linear-gradient(180deg, 
-    rgba(10, 14, 39, 0.9) 0%,
-    rgba(26, 31, 58, 0.85) 50%,
-    transparent 100%);
-  border-bottom: 2px solid rgba(79, 195, 247, 0.3);
+    rgba(10, 14, 39, 0.95) 0%,
+    rgba(10, 14, 39, 0.9) 40%,
+    rgba(26, 31, 58, 0.85) 100%);
+  border-bottom: 3px solid;
+  border-image: linear-gradient(90deg, #4fc3f7 0%, #81c784 50%, #ff7043 100%) 1;
   position: relative;
   z-index: 10;
   width: 100%;
@@ -2521,6 +2522,7 @@ a.btn-tertiary {
   margin: 0;
   display: flex;
   align-items: center;
+  box-shadow: 0 8px 32px rgba(79, 195, 247, 0.15);
 }
 
 .projects-page .page-header::before,
@@ -2540,33 +2542,45 @@ a.btn-tertiary {
 
 .projects-page .page-header h1 {
   font-size: 2.5rem;
-  color: transparent;
   background: linear-gradient(135deg, #4fc3f7 0%, #81c784 50%, #ff7043 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: none;
-  filter: drop-shadow(0 0 20px rgba(79, 195, 247, 0.3));
   margin: 0;
   letter-spacing: -0.5px;
   font-weight: 900;
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3)); }
+  50% { filter: drop-shadow(0 0 16px rgba(79, 195, 247, 0.6)); }
 }
 
 .projects-page .back-to-portfolio {
-  color: rgba(79, 195, 247, 0.8);
+  color: white;
   text-decoration: none;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: 1px solid rgba(79, 195, 247, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 2px solid rgba(79, 195, 247, 0.6);
+  background: rgba(79, 195, 247, 0.1);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
 }
 
 .projects-page .back-to-portfolio:hover {
-  color: rgba(79, 195, 247, 1);
-  border-color: rgba(79, 195, 247, 1);
-  background: rgba(79, 195, 247, 0.1);
-  transform: translateX(-5px);
+  color: #ffffff;
+  border-color: rgba(81, 199, 247, 1);
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.2) 0%, rgba(129, 199, 132, 0.15) 100%);
+  box-shadow: 0 0 30px rgba(79, 195, 247, 0.3), inset 0 0 20px rgba(79, 195, 247, 0.1);
+  transform: translateY(-2px);
 }
 
 .projects-hero {
@@ -2610,7 +2624,13 @@ a.btn-tertiary {
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 10;
+}
+
+.falling-star-lines line {
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.6));
 }
 
 @keyframes twinkleLights {
@@ -2672,7 +2692,6 @@ a.btn-tertiary {
     x: 10%;
     y: -100;
     opacity: 0;
-    stroke-width: 3;
   }
   5% {
     opacity: 1;
@@ -2684,7 +2703,6 @@ a.btn-tertiary {
     x: 45%;
     y: 600;
     opacity: 0;
-    stroke-width: 1;
   }
 }
 
@@ -2693,7 +2711,6 @@ a.btn-tertiary {
     x: 90%;
     y: -100;
     opacity: 0;
-    stroke-width: 3;
   }
   5% {
     opacity: 1;
@@ -2705,7 +2722,6 @@ a.btn-tertiary {
     x: 55%;
     y: 600;
     opacity: 0;
-    stroke-width: 1;
   }
 }
 
@@ -2713,7 +2729,6 @@ a.btn-tertiary {
   0% {
     y: -100;
     opacity: 0;
-    stroke-width: 3;
   }
   5% {
     opacity: 1;
@@ -2724,7 +2739,6 @@ a.btn-tertiary {
   100% {
     y: 600;
     opacity: 0;
-    stroke-width: 1;
   }
 }
 
@@ -3071,16 +3085,27 @@ a.btn-tertiary {
 @media (max-width: 768px) {
   .projects-page .page-header {
     padding: 1.5rem 1rem;
+    flex-wrap: wrap;
   }
 
   .projects-page .page-header .container {
     flex-direction: column;
     gap: 1rem;
     padding: 0 1rem;
+    width: 100%;
   }
 
   .projects-page .page-header h1 {
     font-size: 1.8rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .projects-page .back-to-portfolio {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
   }
 
   .projects-page .back-to-portfolio {
