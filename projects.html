@@ -19,7 +19,7 @@
     <link rel="manifest" href="/site.webmanifest">
   </head>
 
-  <body>
+  <body class="projects-page">
     <!-- Overlay for menu -->
     <div id="menu-overlay" class="menu-overlay"></div>
 
@@ -43,7 +43,7 @@
       </nav>
     </div>
 
-    <header class="page-header">
+    <header class="page-header projects-header">
       <div class="container">
         <h1>Projects</h1>
         <a href="index.html" class="back-to-portfolio">← Back to Home</a>
@@ -78,7 +78,7 @@
       <div class="container">
         <main class="projects-grid">
           <!-- Project 1: CME Research -->
-          <article class="project-card card-cme" onclick="toggleProject(this)">
+          <a href="cme-research.html" class="project-card card-cme project-card-link">
             <div class="card-header">
               <div class="project-icon">☄️</div>
               <h3>Coronal Mass Ejections on AB Dor</h3>
@@ -88,34 +88,7 @@
               <p class="card-excerpt">Parametric modeling of 21 CMEs on a young solar-like star with extreme magnetic fields</p>
               <span class="card-hint">Click to explore →</span>
             </div>
-            <div class="card-details hidden-details">
-              <div class="details-content">
-                <h4>Research Overview</h4>
-                <p>AB Dor is a young solar-type star with surface magnetic fields 100-1000 times stronger than our Sun. Despite strong magnetic fields inhibiting CMEs, we observed dimming signatures suggesting high-latitude eruptions.</p>
-                
-                <h4>Methodology</h4>
-                <ul>
-                  <li>3D Magnetohydrodynamic (MHD) simulations</li>
-                  <li>Parametric study of 21 CMEs at ~60° latitude</li>
-                  <li>Variable flux rope location, mass, and field strength</li>
-                  <li>Supercomputer simulations on HPC systems</li>
-                </ul>
-
-                <h4>Key Findings</h4>
-                <ul>
-                  <li>CMEs in open-field regions are more likely to erupt</li>
-                  <li>Confined CMEs show lower kinetic energies</li>
-                  <li>High-latitude open-field regions enable eruptions</li>
-                  <li>Magnetic tension plays critical role in confinement</li>
-                </ul>
-
-                <h4>Publications</h4>
-                <p><strong>High-latitude coronal mass ejections on the young solar-like star AB Dor</strong><br>
-                MNRAS 533, 1156–1165 (2024) | DOI: 10.1093/mnras/stae1884</p>
-              </div>
-              <button class="close-btn">×</button>
-            </div>
-          </article>
+          </a>
 
           <!-- Project 2: Galactic Dynamics -->
           <article class="project-card card-galactic" onclick="toggleProject(this)">
@@ -271,6 +244,31 @@
             </div>
           </article>
         </main>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="page-content projects-page">
+      <div class="container">
+        <section class="contact-intro">
+          <h2>Connect With Me</h2>
+          <p class="contact-description">Interested in collaborating or discussing research opportunities? Feel free to reach out!</p>
+        </section>
+
+        <section class="contact-info-section">
+          <div class="contact-info-grid">
+            <div class="contact-card">
+              <div class="contact-icon">✉️</div>
+              <h3>Email</h3>
+              <p><a href="mailto:strickertmarkus@gmail.com">strickertmarkus@gmail.com</a></p>
+            </div>
+            <div class="contact-card">
+              <div class="contact-icon">💼</div>
+              <h3>LinkedIn</h3>
+              <p><a href="https://www.linkedin.com/in/markus-strickert-33524b19a/" target="_blank">Visit my LinkedIn</a></p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 

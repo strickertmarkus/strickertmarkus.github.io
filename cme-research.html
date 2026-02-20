@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CME Research on AB Dor - Markus Strickert</title>
+    <meta name="description" content="High-latitude coronal mass ejections on AB Dor - Research by Markus Strickert">
+    <meta name="author" content="Markus Strickert">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/modern_normalize.css" />
+    <link rel="stylesheet" href="css/html5bp.css">
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="theme-color" content="#fafafa">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+  </head>
+
+  <body class="cme-research-page">
+    <!-- Overlay for menu -->
+    <div id="menu-overlay" class="menu-overlay"></div>
+
+    <!-- Hamburger Menu -->
+    <div id="hamburger-menu" class="hamburger-menu">
+      <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="dropdown-menu" class="dropdown-menu">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About me</a></li>
+          <li><a href="academic.html">Academic Experience</a></li>
+          <li><a href="work-details.html">Detailed Competence Profile</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html">Contact me</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <header class="page-header cme-research-header">
+      <div class="container">
+        <h1>☄️ Magnetic Confinement of CMEs</h1>
+        <a href="projects.html" class="back-to-portfolio">← Back to Projects</a>
+      </div>
+    </header>
+
+    <div class="page-content cme-research-page">
+      <div class="stars-background"></div>
+      <div class="container">
+        <main class="cme-research-main">
+          
+          <!-- Research Context -->
+          <section class="research-section intro-section">
+            <div class="section-content">
+              <h2>Motivation and Context</h2>
+              <p>
+                AB Dor (HD 36705) is a young solar-mass star with an age of ~120 Myr and surface magnetic fields of kG strength—
+                approximately 100–1000 times stronger than the Sun. Despite theoretical predictions that strong overlying magnetic 
+                fields prevent CME eruptions, Veronig et al. (2021) recently detected coronal dimming signatures in EUV/X-ray, 
+                suggesting eruptive CMEs at high latitudes on AB Dor. A particularly notable 1994 EUVE observation showed dimming 
+                lasting 13.3 hours, a duration comparable to AB Dor's rotation period of 0.51 days, implying the CME originated 
+                from a high-latitude region that remained in view as the star rotated.
+              </p>
+              <p>
+                To investigate the eruption and confinement of CMEs in this magnetically extreme environment, we conducted a 
+                parametric magnetohydrodynamic (MHD) study, varying flux rope properties and injection location to determine 
+                the conditions necessary for eruption.
+              </p>
+
+              <table class="stellar-properties-table">
+                <caption>Table 1: Stellar Properties of AB Dor</caption>
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Spectral Type</td>
+                    <td>K0V</td>
+                  </tr>
+                  <tr>
+                    <td>Age</td>
+                    <td>~120 Myr</td>
+                  </tr>
+                  <tr>
+                    <td>Mass</td>
+                    <td>0.86 M☉</td>
+                  </tr>
+                  <tr>
+                    <td>Radius</td>
+                    <td>0.96 R☉</td>
+                  </tr>
+                  <tr>
+                    <td>Rotation Period</td>
+                    <td>0.514 days</td>
+                  </tr>
+                  <tr>
+                    <td>Surface Magnetic Field</td>
+                    <td>kG strength (100–1000× Sun)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Methodology -->
+          <section class="research-section methodology-section">
+            <div class="section-content">
+              <h2>Methodology</h2>
+              <h3>Stellar Wind Model</h3>
+              <p>
+                We employed the Alfvén Wave Solar Model (AWSOM) within the 3D MHD code BATS-R-US to simulate the 
+                steady-state stellar wind of AB Dor. The model solves the MHD equations assuming Alfvén wave heating. 
+                Input parameters include the surface magnetic field derived from Zeeman-Doppler Imaging (ZDI) observations 
+                from December 2002 (Hussain et al., 2007), AB Dor's mass (0.86 M☉), radius (0.96 R☉), and rotation period (0.514 d).
+              </p>
+            </div>
+
+            <div class="section-plots">
+              <figure class="plot-inline" data-plot-id="1">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 1</div>
+                  <p>Surface magnetic field structure of AB Dor derived from Zeeman-Doppler Imaging (Hussain et al., 2007). Green patch: open-field injection region. Magenta patch: closed-field injection region.</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 1:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+            </div>
+
+            <div class="section-content">
+              <h3>CME Flux Rope Model</h3>
+              <p>
+                CMEs were introduced using the parametric flux rope model of Titov & Démoulin (1999) with a toroidal geometry. 
+                The flux rope was initialized at the inner boundary with footpoints anchored to the stellar surface. 
+                We varied three parameters across 21 simulations:
+              </p>
+              
+              <table class="flux-rope-parameters-table">
+                <caption>Table 2: Flux Rope Parameter Space</caption>
+                <thead>
+                  <tr>
+                    <th>Parameter</th>
+                    <th>Range</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Flux rope mass</td>
+                    <td>3.5×10¹⁴ to 3.5×10¹⁸ g</td>
+                  </tr>
+                  <tr>
+                    <td>Central magnetic field strength</td>
+                    <td>100 to 1000 G</td>
+                  </tr>
+                  <tr>
+                    <td>Location</td>
+                    <td>Open or closed field regions at ~60° latitude</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <aside class="discovery-box discovery-geometric">
+                <strong>Constant Geometric Parameters:</strong> Major radius 128 Mm, minor radius 20 Mm, depth 1 Mm, consistent with previous stellar CME simulations.
+              </aside>
+            </div>
+
+            <div class="section-plots">
+              <figure class="plot-inline" data-plot-id="2">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 2</div>
+                  <p>Steady-state wind solution of AB Dor colorized by radial velocity. Domain extends to ~8 R☉. Maximum wind speeds reach ~1000 km/s in polar regions.</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 2:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+            </div>
+          </section>
+
+          <!-- Results -->
+          <section class="research-section results-section">
+            <div class="section-content">
+              <h2>Results</h2>
+              <h3>Eruption Statistics</h3>
+              <p>
+                Of the 21 simulated CMEs, 11 resulted in eruptive events while 10 remained confined. CMEs initiated in 
+                open-field regions showed a higher propensity to erupt. We identified critical thresholds for eruption:
+              </p>
+              
+              <table class="eruption-thresholds-table">
+                <caption>Table 3: Eruption Thresholds by Magnetic Geometry</caption>
+                <thead>
+                  <tr>
+                    <th>Injection Region</th>
+                    <th>Eruptive / Confined</th>
+                    <th>Minimum Field Strength</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Open-field</td>
+                    <td>Higher propensity</td>
+                    <td>~200 G</td>
+                  </tr>
+                  <tr>
+                    <td>Closed-field</td>
+                    <td>Lower propensity</td>
+                    <td>~800 G</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <aside class="discovery-box discovery-threshold">
+                <strong>Critical Discovery:</strong> The 4× threshold difference (200 G vs. 800 G) between open and closed field regions reflects additional magnetic tension that must be overcome in closed geometries. Field geometry is the dominant control on eruption probability.
+              </aside>
+            </div>
+
+            <div class="section-plots">
+              <figure class="plot-inline" data-plot-id="3">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 3</div>
+                  <p>3D isosurfaces of 15 simulated CMEs at 1 hour evolution (plasma density ratio n/n_ss ≥ 4). Rounded symbols: open-field injection. Square symbols: closed-field injection. Color indicates relative velocity.</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 3:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+
+              <figure class="plot-inline" data-plot-id="4">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 4</div>
+                  <p>Summary of eruption thresholds. Left: closed-field region CMEs show eruption threshold ~800 G. Right: open-field region CMEs show eruption threshold ~200 G. Orange: eruptive. Blue: confined.</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 4:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+            </div>
+
+            <div class="section-content">
+              <h3>Energetics and Dynamics</h3>
+              <p>
+                After one hour of evolution, eruptive CME velocities ranged from 220 to 3700 km/s. The most energetic model 
+                (maximum flux rope mass and field strength in an open region) reached velocities of ~3800 km/s with a total 
+                CME mass of 4.1×10¹⁸ g and kinetic energy of 2.9×10³⁵ erg. 
+              </p>
+              <p>
+                Confined CMEs exhibited significantly lower velocities and kinetic energies. CMEs in closed-field regions 
+                showed systematically lower velocities than those in open regions for identical flux rope parameters, 
+                reflecting increased magnetic tension from the overlying field.
+              </p>
+
+              <table class="energetics-table">
+                <caption>Table 4: Eruptive CME Energetics Summary (1 hour evolution)</caption>
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Open-Field CMEs</th>
+                    <th>Closed-Field CMEs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Velocity Range</td>
+                    <td>220–3700 km/s</td>
+                    <td>Lower (tension-limited)</td>
+                  </tr>
+                  <tr>
+                    <td>Max Velocity (Most Energetic)</td>
+                    <td>~3800 km/s</td>
+                    <td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Max CME Mass</td>
+                    <td>4.1×10¹⁸ g</td>
+                    <td>Lower</td>
+                  </tr>
+                  <tr>
+                    <td>Max Kinetic Energy</td>
+                    <td>2.9×10³⁵ erg</td>
+                    <td>Significantly lower</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <aside class="discovery-box discovery-energetics">
+                <strong>Key Finding:</strong> Eruptive open-field CMEs reach velocities 5–10× higher than their closed-field counterparts for equivalent flux rope parameters. Energy differences exceed six orders of magnitude.
+              </aside>
+            </div>
+
+            <div class="section-plots">
+              <figure class="plot-inline" data-plot-id="5">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 5</div>
+                  <p>CME energetics after 1 hour of evolution as a function of poloidal magnetic flux. (a) Maximum velocity. (b) CME mass. (c) Kinetic energy. Dashed line: energy threshold E_k = 2 E_fl for eruption/confinement classification.</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 5:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+            </div>
+
+            <div class="section-content">
+              <h3>Magnetic Field Dependence</h3>
+              <p>
+                CME energetics correlated strongly with poloidal magnetic flux. For a given flux rope mass, increasing 
+                the poloidal flux led to higher CME masses, velocities, and kinetic energies. Power-law fits were derived 
+                for open and closed field regions separately, revealing different scaling behavior. The field geometry 
+                proved critical: identical flux rope parameters injected in open versus closed field regions produced 
+                energetic differences up to six orders of magnitude.
+              </p>
+            </div>
+          </section>
+
+          <!-- Physical Interpretation -->
+          <section class="research-section interpretation-section">
+            <div class="section-content">
+              <h2>Interpretation</h2>
+              <p>
+                Our simulations demonstrate that CMEs can successfully erupt on AB Dor despite its strong surface magnetic field, 
+                but with critical dependence on field geometry. The threshold difference between open and closed regions (200 G vs. 800 G) 
+                reflects the additional magnetic tension that must be overcome in closed regions. CMEs in closed-field regions that do 
+                achieve eruption exhibit significantly lower velocities and kinetic energies, with a substantial fraction of energy 
+                expended to break open the overlying field.
+              </p>
+              <p>
+                The observation that the most energetic eruptions occurred in open-field regions suggests that high-latitude polar 
+                active regions on AB Dor, combined with the local open-field geometry, are favorable sites for CME eruptions. 
+                This is consistent with the 1994 EUVE dimming detection and the known presence of polar spots on AB Dor.
+              </p>
+
+              <aside class="discovery-box discovery-context">
+                <strong>Physical Insight:</strong> High-latitude polar active regions in open-field geometry provide the optimal conditions for energetic CME eruptions on AB Dor. This explains the 1994 EUVE observation as a naturally expected phenomenon in magnetically extreme young stars.
+              </aside>
+            </div>
+
+            <div class="section-plots">
+              <figure class="plot-inline" data-plot-id="6">
+                <div class="plot-placeholder" onclick="expandPlot(this)">
+                  <div class="plot-label">Figure 6</div>
+                  <p>Auxiliary figure (space reserved for additional analysis, scaling relations, or comparative data from this study).</p>
+                </div>
+                <div class="plot-caption">
+                  <strong>Figure 6:</strong> Add high-resolution plot here
+                </div>
+              </figure>
+            </div>
+          </section>
+
+          <!-- Publication -->
+          <section class="research-section publication-section">
+            <p>
+              <strong>High-latitude coronal mass ejections on the young solar-like star AB Dor</strong><br>
+              K. M. Strickert, D. Evensberget, A. A. Vidotto
+            </p>
+            <p>
+              <em>Monthly Notices of the Royal Astronomical Society</em>, Vol. 533, Issue 1, pp. 1156–1165 (2024)<br>
+              DOI: <a href="https://doi.org/10.1093/mnras/stae1884" target="_blank">10.1093/mnras/stae1884</a>
+            </p>
+            <p>
+              <a href="https://academic.oup.com/mnras/article/533/1/1156/7729277" target="_blank" class="open-access-link">
+                Read on Oxford Academic
+              </a>
+              &nbsp; | &nbsp;
+              <a href="https://arxiv.org/abs/2408.00637" target="_blank" class="open-access-link">
+                arXiv:2408.00637
+              </a>
+            </p>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <footer class="page-footer">
+      <div class="container">
+        <p>&copy; 2024 Markus Strickert. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+      // Modal for expanded plots
+      const plotModal = document.createElement('div');
+      plotModal.className = 'plot-modal';
+      plotModal.innerHTML = '<div class="plot-modal-overlay"></div><div class="plot-modal-content"><button class="plot-modal-close" onclick="closePlotModal()">×</button><figure id="plot-modal-figure"></figure></div>';
+      document.body.appendChild(plotModal);
+
+      function expandPlot(element) {
+        const plotItem = element.closest('.plot-inline');
+        const figureId = plotItem.getAttribute('data-plot-id');
+        const plotLabel = plotItem.querySelector('.plot-label').textContent;
+        const plotDescription = plotItem.querySelector('p').textContent;
+        
+        // Populate modal with figure data
+        const modalFigure = document.getElementById('plot-modal-figure');
+        modalFigure.innerHTML = `
+          <div class="plot-modal-placeholder">
+            <div class="plot-label">${plotLabel}</div>
+            <p>${plotDescription}</p>
+          </div>
+        `;
+        
+        // Show modal
+        plotModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Close on overlay click
+        plotModal.querySelector('.plot-modal-overlay').onclick = closePlotModal;
+      }
+
+      function closePlotModal() {
+        plotModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePlotModal();
+      });
+    </script>
+  </body>
+</html>

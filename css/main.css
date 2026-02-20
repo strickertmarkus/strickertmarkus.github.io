@@ -1998,6 +1998,85 @@ a.btn-tertiary {
   color: var(--aside-accent-color) !important;
   text-decoration: none;
   font-weight: 600;
+}
+
+/* Projects Page Contact Section Theme */
+.projects-page .contact-intro {
+  margin: 3rem 0 4rem;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(129, 199, 132, 0.08) 100%);
+  border-radius: 1rem;
+  border-left: 5px solid #4fc3f7;
+  text-align: center;
+}
+
+.projects-page .contact-intro h2 {
+  color: #4fc3f7;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.projects-page .contact-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.projects-page .contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.projects-page .contact-card {
+  padding: 2.5rem;
+  background: rgba(26, 31, 58, 0.7);
+  border-radius: 1rem;
+  box-shadow: 0 2px 15px rgba(79, 195, 247, 0.1);
+  transition: all 0.3s ease;
+  text-align: center;
+  border-top: 4px solid #4fc3f7;
+  border: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.projects-page .contact-card:hover {
+  box-shadow: 0 8px 25px rgba(79, 195, 247, 0.25);
+  transform: translateY(-4px);
+  background: rgba(26, 31, 58, 0.9);
+}
+
+.projects-page .contact-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.projects-page .contact-card h3 {
+  color: #4fc3f7;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.projects-page .contact-card p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.projects-page .contact-card a {
+  color: #4fc3f7 !important;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.projects-page .contact-card a:hover {
+  color: #81c784 !important;
+}
   transition: all 0.3s ease;
 }
 
@@ -2508,13 +2587,12 @@ a.btn-tertiary {
   display: block;
 }
 
-.projects-page .page-header {
+.projects-header {
   background: linear-gradient(180deg, 
     rgba(10, 14, 39, 0.95) 0%,
     rgba(10, 14, 39, 0.9) 40%,
     rgba(26, 31, 58, 0.85) 100%);
-  border-bottom: 3px solid;
-  border-image: linear-gradient(90deg, #4fc3f7 0%, #81c784 50%, #ff7043 100%) 1;
+  border-bottom: 2px solid #4fc3f7;
   position: relative;
   z-index: 10;
   width: 100%;
@@ -2525,12 +2603,12 @@ a.btn-tertiary {
   box-shadow: 0 8px 32px rgba(79, 195, 247, 0.15);
 }
 
-.projects-page .page-header::before,
-.projects-page .page-header::after {
+.projects-header::before,
+.projects-header::after {
   display: none;
 }
 
-.projects-page .page-header .container {
+.projects-header .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2540,25 +2618,21 @@ a.btn-tertiary {
   margin: 0;
 }
 
-.projects-page .page-header h1 {
+.projects-header h1 {
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #4fc3f7 0%, #81c784 50%, #ff7043 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #4fc3f7;
   margin: 0;
   letter-spacing: -0.5px;
   font-weight: 900;
-  animation: glow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(79, 195, 247, 0.4));
 }
 
-@keyframes glow {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3)); }
-  50% { filter: drop-shadow(0 0 16px rgba(79, 195, 247, 0.6)); }
+.projects-page .menu-toggle span {
+  background-color: #ffffff;
 }
 
-.projects-page .back-to-portfolio {
-  color: white;
+.projects-header .back-to-portfolio {
+  color: #ffffff;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
@@ -2575,12 +2649,17 @@ a.btn-tertiary {
   box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
 }
 
-.projects-page .back-to-portfolio:hover {
-  color: #ffffff;
+.projects-header .back-to-portfolio:hover {
+  color: #4fc3f7;
   border-color: rgba(81, 199, 247, 1);
-  background: linear-gradient(135deg, rgba(79, 195, 247, 0.2) 0%, rgba(129, 199, 132, 0.15) 100%);
+  background: rgba(79, 195, 247, 0.2);
   box-shadow: 0 0 30px rgba(79, 195, 247, 0.3), inset 0 0 20px rgba(79, 195, 247, 0.1);
   transform: translateY(-2px);
+}
+
+/* Override generic button styling on projects page */
+.projects-page .back-to-portfolio {
+  color: #ffffff !important;
 }
 
 .projects-hero {
@@ -2590,7 +2669,7 @@ a.btn-tertiary {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(180deg, 
     rgba(10, 14, 39, 0.95) 0%,
     rgba(26, 31, 58, 0.9) 50%,
@@ -2625,6 +2704,8 @@ a.btn-tertiary {
   left: 0;
   pointer-events: none;
   z-index: 10;
+  display: block;
+  overflow: visible;
 }
 
 .falling-star-lines line {
@@ -2689,8 +2770,7 @@ a.btn-tertiary {
 
 @keyframes starFallDiagonal1 {
   0% {
-    x: 10%;
-    y: -100;
+    transform: translate(0, 0);
     opacity: 0;
   }
   5% {
@@ -2700,16 +2780,14 @@ a.btn-tertiary {
     opacity: 1;
   }
   100% {
-    x: 45%;
-    y: 600;
+    transform: translate(350, 600);
     opacity: 0;
   }
 }
 
 @keyframes starFallDiagonal2 {
   0% {
-    x: 90%;
-    y: -100;
+    transform: translate(0, 0);
     opacity: 0;
   }
   5% {
@@ -2719,15 +2797,14 @@ a.btn-tertiary {
     opacity: 1;
   }
   100% {
-    x: 55%;
-    y: 600;
+    transform: translate(-350, 600);
     opacity: 0;
   }
 }
 
 @keyframes starFallStraight {
   0% {
-    y: -100;
+    transform: translate(0, 0);
     opacity: 0;
   }
   5% {
@@ -2737,7 +2814,7 @@ a.btn-tertiary {
     opacity: 1;
   }
   100% {
-    y: 600;
+    transform: translate(0, 600);
     opacity: 0;
   }
 }
@@ -2803,7 +2880,7 @@ a.btn-tertiary {
 }
 
 .card-cme .project-icon {
-  animation: rotateIcon 3s linear infinite;
+  animation: swayIcon 2s ease-in-out infinite;
 }
 
 .card-galactic {
@@ -2875,9 +2952,19 @@ a.btn-tertiary {
   to { transform: rotate(360deg); }
 }
 
+@keyframes swayIcon {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
 @keyframes expandContract {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
+}
+
+@keyframes pulseHover {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 @keyframes orbitIcon {
@@ -2893,6 +2980,11 @@ a.btn-tertiary {
 @keyframes flipIcon {
   0%, 100% { transform: rotateY(0deg); }
   50% { transform: rotateY(180deg); }
+}
+
+@keyframes flipIconHover {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(90deg); }
 }
 
 /* ============================================
@@ -3077,38 +3169,38 @@ a.btn-tertiary {
     font-size: 2.5rem;
   }
 
-  .projects-page .page-header h1 {
+  .projects-header h1 {
     font-size: 2.2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .projects-page .page-header {
+  .projects-header {
     padding: 1.5rem 1rem;
     flex-wrap: wrap;
   }
 
-  .projects-page .page-header .container {
+  .projects-header .container {
     flex-direction: column;
     gap: 1rem;
     padding: 0 1rem;
     width: 100%;
   }
 
-  .projects-page .page-header h1 {
+  .projects-header h1 {
     font-size: 1.8rem;
     width: 100%;
     text-align: center;
   }
 
-  .projects-page .back-to-portfolio {
+  .projects-header .back-to-portfolio {
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
     width: 100%;
     justify-content: center;
   }
 
-  .projects-page .back-to-portfolio {
+  .projects-header .back-to-portfolio {
     align-self: flex-start;
   }
 
@@ -3168,11 +3260,11 @@ a.btn-tertiary {
 }
 
 @media (max-width: 480px) {
-  .projects-page .page-header {
+  .projects-header {
     padding: 1rem 0.75rem;
   }
 
-  .projects-page .page-header h1 {
+  .projects-header h1 {
     font-size: 1.5rem;
   }
 
@@ -3191,5 +3283,634 @@ a.btn-tertiary {
 
   .card-details {
     padding: 0.75rem;
+  }
+}
+
+/* ============================================
+   CME RESEARCH PAGE STYLES
+   ============================================ */
+
+.cme-research-page {
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1629 100%);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+}
+
+.cme-research-page .stars-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 60% 70%, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 50% 50%, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 80% 10%, #f0f, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90% 60%, #4fc3f7, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 30% 80%, #f0f, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 10% 90%, #4fc3f7, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40% 10%, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 350px 350px;
+  animation: twinkleLights 15s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cme-research-page .container {
+  position: relative;
+  z-index: 1;
+}
+
+.cme-research-header {
+  background: linear-gradient(180deg, 
+    rgba(10, 14, 39, 0.95) 0%,
+    rgba(10, 14, 39, 0.9) 40%,
+    rgba(26, 31, 58, 0.85) 100%);
+  border-bottom: 2px solid #4fc3f7;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 2rem 3%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(79, 195, 247, 0.15);
+}
+
+.cme-research-page .container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.cme-research-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 3%;
+  margin: 0;
+}
+
+.cme-research-header h1 {
+  font-size: 2.5rem;
+  color: #4fc3f7;
+  margin: 0;
+  letter-spacing: -0.5px;
+  font-weight: 900;
+  filter: drop-shadow(0 0 12px rgba(79, 195, 247, 0.4));
+}
+
+.cme-research-page .menu-toggle span {
+  background-color: #ffffff;
+}
+
+.cme-research-header .back-to-portfolio {
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 2px solid rgba(79, 195, 247, 0.6);
+  background: rgba(79, 195, 247, 0.1);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
+}
+
+.cme-research-header .back-to-portfolio:hover {
+  color: #4fc3f7;
+  border-color: rgba(81, 199, 247, 1);
+  background: rgba(79, 195, 247, 0.2);
+  box-shadow: 0 0 30px rgba(79, 195, 247, 0.3), inset 0 0 20px rgba(79, 195, 247, 0.1);
+  transform: translateY(-2px);
+}
+
+.cme-research-page .back-to-portfolio {
+  color: #ffffff !important;
+}
+
+.cme-research-main {
+  padding: 3rem 3%;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.research-section {
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Two-Column Layout - Content 75%, Plots 25% */
+@media (min-width: 1025px) {
+  .research-section {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* Override for single-column sections */
+  .research-section.intro-section,
+  .research-section.publication-section {
+    display: block;
+  }
+
+  .section-content {
+    grid-column: 1;
+    overflow: visible;
+  }
+
+  .section-plots {
+    grid-column: 2;
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+/* Tablet/Mobile: Single Column */
+@media (max-width: 1024px) {
+  .section-content,
+  .section-plots {
+    display: block !important;
+  }
+
+  .section-plots {
+    margin-top: 1rem;
+  }
+}
+
+/* Section content flows naturally with floated figures */
+.section-content {
+  overflow: auto;
+}
+
+.research-section h2 {
+  font-size: 1.75rem;
+  color: #4fc3f7;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.research-section h3 {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0.5rem 0 0.75rem 0;
+  font-weight: 600;
+  border-left: 3px solid #4fc3f7;
+  padding-left: 1rem;
+  transition: border-left-color 0.3s ease, padding-left 0.3s ease;
+}
+
+.research-section h3:hover {
+  border-left-color: #81c784;
+  padding-left: 1.2rem;
+}
+
+.research-section p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.research-section strong {
+  color: rgba(255, 255, 255, 1);
+  font-weight: 600;
+}
+
+/* Discovery Boxes - Strong Visual Impact */
+.discovery-box {
+  border-left: 6px solid #ffc107;
+  background: rgba(255, 193, 7, 0.15);
+  padding: 1.75rem 2rem;
+  margin: 2.5rem 0;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.97);
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.8;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+  position: relative;
+}
+
+.discovery-box::before {
+  content: '▸ ';
+  color: #ffc107;
+  font-weight: 700;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.discovery-box:hover {
+  background: rgba(255, 193, 7, 0.22);
+  border-left-color: #4fc3f7;
+  padding-left: 2.25rem;
+  box-shadow: 0 6px 18px rgba(255, 193, 7, 0.25);
+}
+
+
+
+.discovery-box strong {
+  color: rgba(255, 255, 255, 1);
+  display: inline;
+}
+
+/* Tables */
+.stellar-properties-table,
+.flux-rope-parameters-table,
+.eruption-thresholds-table,
+.energetics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  background: rgba(79, 195, 247, 0.04);
+  font-size: 0.95rem;
+}
+
+.stellar-properties-table caption,
+.flux-rope-parameters-table caption,
+.eruption-thresholds-table caption,
+.energetics-table caption {
+  text-align: left;
+  padding: 1rem;
+  color: #4fc3f7;
+  font-weight: 600;
+  background: rgba(79, 195, 247, 0.08);
+  border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.stellar-properties-table thead,
+.flux-rope-parameters-table thead,
+.eruption-thresholds-table thead,
+.energetics-table thead {
+  background: rgba(79, 195, 247, 0.12);
+  border-bottom: 2px solid rgba(79, 195, 247, 0.4);
+}
+
+.stellar-properties-table th,
+.flux-rope-parameters-table th,
+.eruption-thresholds-table th,
+.energetics-table th {
+  padding: 0.9rem;
+  text-align: left;
+  color: #4fc3f7;
+  font-weight: 600;
+}
+
+.stellar-properties-table td,
+.flux-rope-parameters-table td,
+.eruption-thresholds-table td,
+.energetics-table td {
+  padding: 0.85rem 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(79, 195, 247, 0.15);
+}
+
+.stellar-properties-table tbody tr:hover,
+.flux-rope-parameters-table tbody tr:hover,
+.eruption-thresholds-table tbody tr:hover,
+.energetics-table tbody tr:hover {
+  background: rgba(79, 195, 247, 0.08);
+}
+
+/* Inline Figures */
+.plot-inline {
+  margin: 0.75rem 0;
+  width: 100%;
+  position: relative;
+}
+
+.plot-placeholder {
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(129, 199, 132, 0.05) 100%);
+  border: 2px solid rgba(79, 195, 247, 0.4);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: opacity 0.4s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.plot-placeholder:hover {
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.15) 0%, rgba(129, 199, 132, 0.1) 100%);
+  border-color: rgba(79, 195, 247, 0.7);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(79, 195, 247, 0.15);
+}
+
+.plot-inline.expanded .plot-placeholder {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.plot-label {
+  font-size: 1.3rem;
+  color: #4fc3f7;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.plot-placeholder p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.plot-caption {
+  background: rgba(79, 195, 247, 0.12);
+  border: 2px solid rgba(79, 195, 247, 0.4);
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-height: 280px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  outline: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.plot-inline.expanded .plot-caption {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.plot-caption strong {
+  color: #4fc3f7;
+}
+
+/* Modal Overlay */
+.plot-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+}
+
+.plot-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plot-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}
+
+.plot-modal-content {
+  position: relative;
+  z-index: 10;
+  background: rgba(10, 14, 39, 0.95);
+  border: 2px solid #4fc3f7;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 80vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 0 50px rgba(79, 195, 247, 0.4);
+  animation: modalFadeIn 0.4s ease;
+}
+
+.plot-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: #4fc3f7;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  line-height: 1;
+}
+
+.plot-modal-close:hover {
+  color: #81c784;
+}
+
+.plot-modal-placeholder {
+  text-align: center;
+  padding: 2rem;
+}
+
+.plot-modal-placeholder .plot-label {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #4fc3f7;
+}
+
+.plot-modal-placeholder p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Publication Section */
+.publication-section p {
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+}
+
+.publication-section a {
+  color: #4fc3f7 !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.publication-section a:hover {
+  color: #81c784 !important;
+  text-decoration: underline;
+}
+
+.open-access-link {
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .cme-research-main {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cme-research-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .cme-research-header .back-to-portfolio {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .research-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .research-section h3 {
+    font-size: 1rem;
+  }
+
+  .research-section p {
+    font-size: 0.95rem;
+  }
+
+  .plot-placeholder {
+    min-height: 260px;
+    padding: 1.5rem;
+  }
+
+  .plot-caption {
+    min-height: 260px;
+    padding: 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .stellar-properties-table,
+  .flux-rope-parameters-table,
+  .eruption-thresholds-table,
+  .energetics-table {
+    font-size: 0.9rem;
+  }
+
+  .stellar-properties-table th,
+  .flux-rope-parameters-table th,
+  .eruption-thresholds-table th,
+  .energetics-table th,
+  .stellar-properties-table td,
+  .flux-rope-parameters-table td,
+  .eruption-thresholds-table td,
+  .energetics-table td {
+    padding: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cme-research-main {
+    padding: 2rem 1rem;
+  }
+
+  .research-section {
+    margin-bottom: 2rem;
+  }
+
+  .research-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .research-section h3 {
+    font-size: 1rem;
+    padding-left: 0.75rem;
+  }
+
+  .research-section p {
+    font-size: 0.9rem;
+  }
+
+  .plot-inline {
+    margin: 1rem 0;
+  }
+
+  .plot-placeholder,
+  .plot-caption {
+    min-height: 220px;
+    padding: 1rem;
+  }
+
+  .plot-label {
+    font-size: 1.1rem;
+  }
+
+  .discovery-box {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stellar-properties-table,
+  .flux-rope-parameters-table,
+  .eruption-thresholds-table,
+  .energetics-table {
+    font-size: 0.85rem;
+  }
+
+  .stellar-properties-table th,
+  .flux-rope-parameters-table th,
+  .eruption-thresholds-table th,
+  .energetics-table th,
+  .stellar-properties-table td,
+  .flux-rope-parameters-table td,
+  .eruption-thresholds-table td,
+  .energetics-table td {
+    padding: 0.6rem 0.5rem;
   }
 }

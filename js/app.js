@@ -456,27 +456,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let animation;
     let duration = 2.5 + Math.random() * 1.5;
     
+    // SVG viewBox is "0 0 1000 500", so coordinates are 0-1000 for x, 0-500 for y
     if (animationType < 0.33) {
       // Diagonal left to right
-      line.setAttribute('x1', '10%');
-      line.setAttribute('y1', '-10');
-      line.setAttribute('x2', '45%');
-      line.setAttribute('y2', '510');
+      line.setAttribute('x1', '100');
+      line.setAttribute('y1', '-50');
+      line.setAttribute('x2', '100');
+      line.setAttribute('y2', '-40');
       animation = 'starFallDiagonal1';
     } else if (animationType < 0.66) {
       // Diagonal right to left
-      line.setAttribute('x1', '90%');
-      line.setAttribute('y1', '-10');
-      line.setAttribute('x2', '55%');
-      line.setAttribute('y2', '510');
+      line.setAttribute('x1', '900');
+      line.setAttribute('y1', '-50');
+      line.setAttribute('x2', '900');
+      line.setAttribute('y2', '-40');
       animation = 'starFallDiagonal2';
     } else {
       // Straight down from random x position
-      const xPos = 20 + Math.random() * 60;
-      line.setAttribute('x1', xPos + '%');
-      line.setAttribute('y1', '-10');
-      line.setAttribute('x2', xPos + '%');
-      line.setAttribute('y2', '510');
+      const xPos = 200 + Math.random() * 600;
+      line.setAttribute('x1', xPos);
+      line.setAttribute('y1', '-50');
+      line.setAttribute('x2', xPos);
+      line.setAttribute('y2', '-40');
       animation = 'starFallStraight';
     }
     
