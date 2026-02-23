@@ -143,7 +143,7 @@ section {
   grid-template-columns: 1fr;
   max-width: 100%;
   width: 100%;
-  padding: 0 1.5rem;
+  padding: 0 3rem;
   margin: 0;
 }
 
@@ -179,6 +179,7 @@ section {
 /* Use block layout for about page centering */
 .about-page .page-content .container {
   display: block;
+  max-width: 850px;
 }
 
 /* Override container constraints - ensure proper centering */
@@ -1674,7 +1675,7 @@ a.btn-tertiary {
 
 /* Academic Publications Section */
 .academic-publications {
-  padding: 4rem 2rem;
+  padding: 2rem 2rem;
   background: linear-gradient(135deg, #f9f7f4 0%, #f3e4c6 100%);
   position: relative;
 }
@@ -2009,11 +2010,11 @@ a.btn-tertiary {
 
 .publication-plot-placeholder {
   position: absolute;
-  right: -360px;
+  right: -520px;
   top: 50%;
   transform: translateY(-50%);
-  width: 320px;
-  height: 300px;
+  width: 420px;
+  height: 380px;
   background: white;
   border: 2px solid #9d836b;
   border-radius: 6px;
@@ -2085,10 +2086,10 @@ a.btn-tertiary {
 @media (max-width: 1200px) {
   .publication-plot-placeholder {
     position: absolute;
-    right: -360px;
+    right: -520px;
     top: 50%;
     transform: translateY(-50%);
-    width: 320px;
+    width: 420px;
   }
 }
 
