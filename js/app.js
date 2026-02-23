@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Home Page: Toggle between horizontal nav and hamburger menu on scroll
+  // Home Page: Toggle between horizontal nav and hamburger menu on scroll (desktop only)
   const isHomePage = document.body.classList.contains('home-page');
   if (isHomePage) {
     const horizontalNav = document.querySelector('.horizontal-nav');
@@ -37,7 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const heroSection = document.querySelector('.hero');
     
     if (horizontalNav && hamburgerMenu && heroSection) {
-      window.addEventListener('scroll', function() {
+      // Only apply scroll listener on desktop (> 768px)
+      const isDesktop = () => window.innerWidth > 768;
+      
+      const handleScroll = () => {
+        if (!isDesktop()) return; // Don't apply on mobile
+        
         const heroBottom = heroSection.getBoundingClientRect().bottom;
         
         if (heroBottom <= 0) {
@@ -52,6 +57,23 @@ document.addEventListener('DOMContentLoaded', function() {
           if (menuOverlay) {
             menuOverlay.classList.remove('active');
           }
+        }
+      };
+      
+      // Only attach scroll listener on desktop
+      if (isDesktop()) {
+        window.addEventListener('scroll', handleScroll);
+      }
+      
+      // Handle window resize to toggle listener
+      window.addEventListener('resize', function() {
+        if (isDesktop()) {
+          window.addEventListener('scroll', handleScroll);
+        } else {
+          window.removeEventListener('scroll', handleScroll);
+          // Reset classes on mobile
+          horizontalNav.classList.remove('collapsed');
+          hamburgerMenu.classList.remove('expanded');
         }
       });
     }
