@@ -28,6 +28,35 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Home Page: Toggle between horizontal nav and hamburger menu on scroll
+  const isHomePage = document.body.classList.contains('home-page');
+  if (isHomePage) {
+    const horizontalNav = document.querySelector('.horizontal-nav');
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const heroSection = document.querySelector('.hero');
+    
+    if (horizontalNav && hamburgerMenu && heroSection) {
+      window.addEventListener('scroll', function() {
+        const heroBottom = heroSection.getBoundingClientRect().bottom;
+        
+        if (heroBottom <= 0) {
+          // Scrolled past hero - show hamburger, hide horizontal nav
+          horizontalNav.classList.add('collapsed');
+          hamburgerMenu.classList.add('expanded');
+        } else {
+          // At hero or above - show horizontal nav, hide hamburger
+          horizontalNav.classList.remove('collapsed');
+          hamburgerMenu.classList.remove('expanded');
+          // Also close the menu if it was open
+          if (menuOverlay) {
+            menuOverlay.classList.remove('active');
+          }
+        }
+      });
+    }
+  }
+
   // Timeline Navigation Functionality
   const timelineItems = document.querySelectorAll('.timeline-nav-item');
   

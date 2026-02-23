@@ -154,6 +154,31 @@
 3. Add JavaScript in `js/app.js` (within the DOMContentLoaded listener)
 4. Use `document.querySelector` checks before attaching events — the same JS file runs on ALL pages
 
+### Proper Page Centering and Full-Width Layouts - CRITICAL FIX
+**Problem:** `.page-content .container` was using `display: grid; grid-template-columns: 1fr;` which created a narrow column effect, preventing proper page centering.
+
+**Solution - MUST USE FOR CENTERED CONTENT:**
+```css
+.page-content .container {
+  display: block;              /* ← NOT grid! Allows proper centering */
+  max-width: 1400px;           /* ← Match header width constraint */
+  width: 100%;
+  padding: 0 2rem;
+  margin: 0 auto;              /* ← Centers the container on page */
+}
+```
+
+**Why this works:**
+- `display: block` allows `margin: 0 auto` to actually center the container
+- `display: grid; grid-template-columns: 1fr` creates a grid that appears narrow/constrained
+- Header uses `display: flex; align-items: center` (different approach but also works)
+- Both `.page-header .container` and `.page-content .container` MUST have matching `max-width: 1400px` to align properly
+
+**When adding new centered pages:**
+- Always use `display: block` (not grid) in `.your-page .container` rules
+- Always set `max-width: 1400px; margin: 0 auto;` for proper centering
+- If using flexbox for alignment, ensure parent has `max-width` constraint
+
 ### Modifying the Mind Map (Home Page)
 - Blobs: look for `.mind-map-blob` in `main.css` and `app.js`
 - Positions: calculated with `Math.cos(angle)` and `Math.sin(angle)` at 380px radius
@@ -188,3 +213,4 @@
 8. Never create separate JS files — all logic goes in `app.js`
 9. Never skip media query updates when changing layout properties
 10. Never use rainbow/multi-color gradients for the projects page — keep it minimal with cyan accent
+11. **Never use `display: grid; grid-template-columns: 1fr;` for `.page-content .container`** — use `display: block;` instead for proper centering with `margin: 0 auto;`

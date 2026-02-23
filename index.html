@@ -54,11 +54,26 @@
     <!-- <meta http-equiv="Content-Security-Policy" content=" default-src 'self'; script-src 'self' code.jquery.com; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' images.examplecdn.com; "> -->
   </head>
 
-  <body>
+  <body class="home-page">
+    <!-- Horizontal Navigation Bar (Home Page Only) -->
+    <nav class="horizontal-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link active">Home</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="academic.html" class="nav-link">Academic</a></li>
+          <li><a href="work-details.html" class="nav-link">Competence</a></li>
+          <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
+          <li><a href="projects.html" class="nav-link">Projects</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <!-- Overlay for menu -->
     <div id="menu-overlay" class="menu-overlay"></div>
 
-    <!-- Hamburger Menu -->
+    <!-- Hamburger Menu (Hidden on Home Page) -->
     <div id="hamburger-menu" class="hamburger-menu">
       <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
         <span></span>
