@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Competence Wheels - Markus Strickert</title>
+    <meta name="description" content="Interactive competence wheels showcasing programming languages, technical skills, and soft skills">
+    <meta name="author" content="Markus Strickert">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/modern_normalize.css" />
+    <link rel="stylesheet" href="css/html5bp.css">
+    <link rel="stylesheet" href="css/main.css">
+    <meta name="theme-color" content="#fafafa">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+      body.competence-page {
+        background: linear-gradient(135deg, #f5f3f0 0%, #fafafa 100%);
+      }
+
+      .competence-page .page-header {
+        background: #f0f0f0;
+      }
+
+      .competence-page .page-content {
+        padding: 3rem 1rem;
+      }
+
+      .competence-page .page-content .container {
+        display: block;
+        max-width: 1400px;
+        width: 100%;
+        padding: 0 2rem;
+        margin: 0 auto;
+      }
+
+      .wheels-intro {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .wheels-intro h2 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .wheels-intro p {
+        font-size: 1.05rem;
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      .wheels-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 3rem;
+        margin: 3rem 0;
+        justify-items: center;
+      }
+
+      .wheel-wrapper {
+        width: 100%;
+        max-width: 380px;
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(157, 131, 107, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .wheel-wrapper:hover {
+        box-shadow: 0 8px 24px rgba(157, 131, 107, 0.2);
+        transform: translateY(-4px);
+      }
+
+      .wheel-title {
+        text-align: center;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #9d836b;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .wheel-svg-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .wheel-svg-container svg {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .wheel-legend {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e8e8e8;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+      }
+
+      .legend-label {
+        color: #333;
+        flex-grow: 1;
+      }
+
+      .legend-value {
+        color: #999;
+        font-weight: 600;
+        margin-left: 0.5rem;
+      }
+
+      @media (max-width: 1024px) {
+        .wheels-container {
+          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+          gap: 2rem;
+        }
+
+        .wheel-wrapper {
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .competence-page .page-content {
+          padding: 2rem 1rem;
+        }
+
+        .wheels-intro h2 {
+          font-size: 1.6rem;
+        }
+
+        .wheels-container {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .wheel-wrapper {
+          max-width: 100%;
+        }
+
+        .wheel-svg-container svg {
+          width: 100%;
+          height: auto;
+          max-width: 280px;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="competence-page">
+
+    <!-- Overlay for menu -->
+    <div id="menu-overlay" class="menu-overlay"></div>
+
+    <!-- Hamburger Menu -->
+    <div id="hamburger-menu" class="hamburger-menu">
+      <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="dropdown-menu" class="dropdown-menu">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About me</a></li>
+          <li><a href="academic.html">Academic Experience</a></li>
+          <li><a href="work-details.html">Detailed Competence Profile</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html">Contact me</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <header class="page-header">
+      <div class="container">
+        <h1>Competence Wheels</h1>
+        <a href="index.html" class="back-to-portfolio">← Back to Home</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="container">
+        <section class="wheels-intro">
+          <h2>Skills at a Glance</h2>
+          <p>
+            Visual representation of expertise across three key areas. The colored segments represent 
+            different skills, with the fill level indicating proficiency level from 0-100%.
+          </p>
+        </section>
+
+        <div class="wheels-container">
+          <!-- Programming Languages Wheel -->
+          <div class="wheel-wrapper">
+            <h3 class="wheel-title">Programming Languages</h3>
+            <div class="wheel-svg-container" id="wheel1-container"></div>
+            <div class="wheel-legend" id="wheel1-legend"></div>
+          </div>
+
+          <!-- Technical Skills Wheel -->
+          <div class="wheel-wrapper">
+            <h3 class="wheel-title">Technical Skills</h3>
+            <div class="wheel-svg-container" id="wheel2-container"></div>
+            <div class="wheel-legend" id="wheel2-legend"></div>
+          </div>
+
+          <!-- Social Skills Wheel -->
+          <div class="wheel-wrapper">
+            <h3 class="wheel-title">Social & Soft Skills</h3>
+            <div class="wheel-svg-container" id="wheel3-container"></div>
+            <div class="wheel-legend" id="wheel3-legend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="page-footer">
+      <div class="container">
+        <p>&copy; 2026 Markus Strickert. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+      // Wheel data definition
+      const wheelsData = [
+        {
+          container: 'wheel1-container',
+          legend: 'wheel1-legend',
+          title: 'Programming Languages',
+          skills: [
+            { name: 'Python', value: 85, color: '#3776ab' },
+            { name: 'C++', value: 70, color: '#00599c' },
+            { name: 'Bash', value: 70, color: '#4eaa25' },
+            { name: 'Fortran', value: 70, color: '#ec7063' },
+            { name: 'AWK', value: 65, color: '#8b4513' },
+            { name: 'VBA', value: 50, color: '#e74c3c' }
+          ]
+        },
+        {
+          container: 'wheel2-container',
+          legend: 'wheel2-legend',
+          title: 'Technical Skills',
+          skills: [
+            { name: 'DOORS NG / IFS', value: 100, color: '#9d4edd' },
+            { name: 'Data Analysis', value: 85, color: '#5a189a' },
+            { name: 'Supercomputing/HPC', value: 80, color: '#3c096c' },
+            { name: 'TestStand', value: 75, color: '#7209b7' },
+            { name: 'LLM Tools', value: 80, color: '#b5179e' },
+            { name: 'LaTeX/VS Code', value: 90, color: '#c77dff' }
+          ]
+        },
+        {
+          container: 'wheel3-container',
+          legend: 'wheel3-legend',
+          title: 'Social & Soft Skills',
+          skills: [
+            { name: 'Communication', value: 100, color: '#fb5607' },
+            { name: 'Int\'l Presentation', value: 90, color: '#ff006e' },
+            { name: 'Team Leadership', value: 80, color: '#ffbe0b' },
+            { name: 'Documentation', value: 85, color: '#8338ec' },
+            { name: 'Collaboration', value: 90, color: '#06ffa5' },
+            { name: 'Web Design', value: 60, color: '#3a86ff' }
+          ]
+        }
+      ];
+
+      // Helper function to create SVG arc
+      function describeArc(x, y, radius, startAngle, endAngle) {
+        const start = polarToCartesian(x, y, radius, endAngle);
+        const end = polarToCartesian(x, y, radius, startAngle);
+        const largeArc = endAngle - startAngle <= 180 ? '0' : '1';
+
+        return [
+          'M', start.x, start.y,
+          'A', radius, radius, 0, largeArc, 0, end.x, end.y,
+          'L', x, y,
+          'Z'
+        ].join(' ');
+      }
+
+      function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+        };
+      }
+
+      // Create competence wheel
+      function createWheel(wheelData) {
+        const svgSize = 280;
+        const center = svgSize / 2;
+        const outerRadius = 110;
+        const innerRadius = 65;
+        const skills = wheelData.skills;
+        const totalSkills = skills.length;
+
+        let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg">`;
+
+        // Background circle (light gray)
+        svg += `<circle cx="${center}" cy="${center}" r="${outerRadius}" fill="#f0f0f0" opacity="0.5"/>`;
+
+        let currentAngle = 0;
+        const anglePerSkill = 360 / totalSkills;
+
+        // Draw segments
+        skills.forEach((skill, index) => {
+          const startAngle = currentAngle;
+          const skillAngle = anglePerSkill;
+          const endAngle = startAngle + skillAngle;
+
+          // Calculate proficiency fill amount (segment height from inner to outer radius)
+          const proficiencyRatio = skill.value / 100;
+          const filledOuterRadius = innerRadius + (outerRadius - innerRadius) * proficiencyRatio;
+
+          // Create gradient for depth effect
+          const gradientId = `grad-${index}`;
+          svg += `<defs>
+            <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:${skill.color};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.7" />
+            </linearGradient>
+          </defs>`;
+
+          // Draw filled segment
+          const path = describeArc(center, center, filledOuterRadius, startAngle, endAngle);
+          svg += `<path d="${path}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.9"/>`;
+
+          // Draw outer ring (unfilled portion)
+          const outerPath = describeArc(center, center, outerRadius, startAngle, endAngle);
+          svg += `<path d="${outerPath}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`;
+
+          // Add skill label (positioned around the wheel)
+          const labelAngle = (startAngle + endAngle) / 2;
+          const labelRadius = (outerRadius + innerRadius) / 2 + 15;
+          const labelPos = polarToCartesian(center, center, labelRadius, labelAngle);
+          
+          const fontSizeAdjusted = skill.name.length > 10 ? '10' : '11';
+          svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSizeAdjusted}" font-weight="600" fill="#333" class="wheel-label">${skill.name}</text>`;
+
+          currentAngle = endAngle;
+        });
+
+        svg += `</svg>`;
+        return svg;
+      }
+
+      // Render wheels
+      wheelsData.forEach(wheelData => {
+        const container = document.getElementById(wheelData.container);
+        const legend = document.getElementById(wheelData.legend);
+
+        // Create wheel SVG
+        container.innerHTML = createWheel(wheelData);
+
+        // Create legend
+        let legendHTML = '';
+        wheelData.skills.forEach(skill => {
+          legendHTML += `
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: ${skill.color};"></div>
+              <span class="legend-label">${skill.name}</span>
+              <span class="legend-value">${skill.value}%</span>
+            </div>
+          `;
+        });
+        legend.innerHTML = legendHTML;
+      });
+    </script>
+  </body>
+</html>
