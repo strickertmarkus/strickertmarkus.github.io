@@ -1165,11 +1165,11 @@ blockquote {
 }
 
 .about-values {
-  margin: 4rem auto 4rem calc(50% - 35vw);
+  margin: 4rem auto 4rem calc(50% - 30vw);
   padding: 3rem 2rem;
   background: #f9f7f4;
   border-radius: 1rem;
-  width: 70vw;
+  width: 60vw;
 }
 
 .about-values h2 {
