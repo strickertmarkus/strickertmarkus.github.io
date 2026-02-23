@@ -857,6 +857,21 @@ blockquote {
   pointer-events: auto;
 }
 
+/* Mobile: Show hamburger menu, hide horizontal nav */
+@media (max-width: 768px) {
+  .home-page .horizontal-nav {
+    display: none !important;
+  }
+
+  .home-page .hamburger-menu {
+    display: flex !important;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+}
+
 .menu-toggle {
   background: none;
   border: none;
