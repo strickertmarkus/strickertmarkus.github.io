@@ -1165,10 +1165,12 @@ blockquote {
 }
 
 .about-values {
-  margin: 4rem 0;
+  margin: 4rem auto;
   padding: 3rem 2rem;
   background: #f9f7f4;
   border-radius: 1rem;
+  max-width: 1400px;
+  width: 100%;
 }
 
 .about-values h2 {
