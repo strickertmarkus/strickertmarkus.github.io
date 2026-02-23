@@ -179,7 +179,7 @@ section {
 /* Use block layout for about page centering */
 .about-page .page-content .container {
   display: block;
-  max-width: 850px;
+  max-width: 1100px;
 }
 
 /* Override container constraints - ensure proper centering */
