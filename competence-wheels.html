@@ -757,7 +757,7 @@
         overlay.classList.add('active');
 
         // Create enlarged segment SVG
-        const enlargedSvg = createEnlargedSegmentSVG(index, data, data.degrees * 3.0); // Increase angle by 200% for testing
+        const enlargedSvg = createEnlargedSegmentSVG(index, data, data.degrees * 1.3); // Increase angle by 30%
         let enlargedContainer = document.getElementById('enlarged-segment-container');
         if (!enlargedContainer) {
           enlargedContainer = document.createElement('div');
