@@ -258,8 +258,9 @@
         <section class="competence-intro">
           <h2>Professional Skills Map</h2>
           <p>
-            A comprehensive view of core competency areas built through academic research, 
-            system verification engineering, and continuous professional development.
+            A visual breakdown of how different competency areas compose my professional profile. 
+            Each segment's size represents the proportion of that competency area to my overall expertise. 
+            The donut ring shows the distribution — larger segments represent core focus areas.
           </p>
         </section>
 
@@ -271,23 +272,24 @@
 
           <!-- Legend -->
           <div class="wheel-display">
-            <h3 style="text-align: center; color: #9d836b; margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;">Competency Areas</h3>
+            <h3 style="text-align: center; color: #9d836b; margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;">Profile Composition</h3>
             <div class="legend-container" id="legend-container"></div>
           </div>
         </div>
 
         <!-- Summary Section -->
         <div class="skills-summary">
-          <h3>What These Competencies Represent</h3>
+          <h3>Understanding the Profile</h3>
+          <p style="color: #666; margin-bottom: 1rem;">The wheel above represents how my professional expertise is distributed across different areas. The larger the segment, the more that competency defines my professional profile:</p>
           <ul>
-            <li><strong>System Verification & Testing:</strong> DOORS NG, test automation, hardware/firmware/software verification across development lifecycle</li>
-            <li><strong>Technical Programming:</strong> Python, C++, Bash, Fortran, AWK, VBA — from scripts to large-scale systems</li>
-            <li><strong>Research & Scientific Computing:</strong> HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications</li>
-            <li><strong>Communication & Documentation:</strong> Technical presentations, academic writing, agile documentation, cross-functional collaboration</li>
-            <li><strong>Leadership & Teamwork:</strong> Team leadership, agile retrospectives, mentoring, customer interactions, security-classified work</li>
-            <li><strong>Problem Solving & Innovation:</strong> Complex system analysis, method development, automation frameworks, requirements engineering</li>
-            <li><strong>Tools & Platforms:</strong> VS Code, LaTeX, Git, LLM integration, Tecplot, simulation frameworks, CI/CD</li>
-            <li><strong>Continuous Learning:</strong> Staying current with AI/LLM tools, adopting new methodologies, cross-disciplinary knowledge acquisition</li>
+            <li><strong>System Verification & Testing (110°):</strong> Core competency built over years in test automation, hardware/firmware/software verification across full development lifecycle</li>
+            <li><strong>Technical Programming (110°):</strong> Equal core strength spanning Python, C++, Bash, Fortran, AWK, VBA — from small scripts to large-scale systems</li>
+            <li><strong>Research & Scientific Computing (70°):</strong> Significant background in HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications</li>
+            <li><strong>Communication & Documentation (60°):</strong> Strong emphasis on technical presentations, academic writing, agile documentation, cross-functional teams</li>
+            <li><strong>Leadership & Teamwork (55°):</strong> Team leadership, agile retrospectives, mentoring, customer interactions, security-classified work</li>
+            <li><strong>Problem Solving & Innovation (50°):</strong> Complex system analysis, method development, automation frameworks, requirements engineering</li>
+            <li><strong>Continuous Learning (30°):</strong> Actively staying current with AI/LLM tools, adopting new methodologies</li>
+            <li><strong>Tools & Platforms (25°):</strong> VS Code, LaTeX, Git, LLM integration, Tecplot, simulation frameworks</li>
           </ul>
         </div>
       </div>
@@ -301,16 +303,16 @@
 
     <script src="js/app.js"></script>
     <script>
-      // Competency data
+      // Competency data - degrees represent proportion of profile (total = 360)
       const competencies = [
-        { name: 'System Verification & Testing', value: 95, color: '#6366f1' },
-        { name: 'Technical Programming', value: 88, color: '#3b82f6' },
-        { name: 'Research & Scientific Computing', value: 90, color: '#ec4899' },
-        { name: 'Communication & Documentation', value: 92, color: '#f59e0b' },
-        { name: 'Leadership & Teamwork', value: 85, color: '#8b5cf6' },
-        { name: 'Problem Solving & Innovation', value: 90, color: '#10b981' },
-        { name: 'Tools & Platforms', value: 87, color: '#06b6d4' },
-        { name: 'Continuous Learning', value: 92, color: '#f97316' }
+        { name: 'System Verification & Testing', degrees: 110, color: '#6366f1' },
+        { name: 'Technical Programming', degrees: 110, color: '#3b82f6' },
+        { name: 'Research & Scientific Computing', degrees: 70, color: '#ec4899' },
+        { name: 'Communication & Documentation', degrees: 60, color: '#f59e0b' },
+        { name: 'Leadership & Teamwork', degrees: 55, color: '#8b5cf6' },
+        { name: 'Problem Solving & Innovation', degrees: 50, color: '#10b981' },
+        { name: 'Tools & Platforms', degrees: 25, color: '#06b6d4' },
+        { name: 'Continuous Learning', degrees: 30, color: '#f97316' }
       ];
 
       // Helper functions for SVG arc creation
@@ -335,67 +337,72 @@
         };
       }
 
-      // Create main competence wheel
+      // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
         const svgSize = 400;
         const center = svgSize / 2;
         const outerRadius = 160;
         const innerRadius = 100;
+        const ringWidth = outerRadius - innerRadius;
         const skills = competencies;
-        const totalSkills = skills.length;
 
         let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg">`;
 
-        // Background circle (light gray)
-        svg += `<circle cx="${center}" cy="${center}" r="${outerRadius}" fill="#f0f0f0" opacity="0.6"/>`;
-
-        // Center circle (hollow center)
+        // White background circle (inner hollow area)
         svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
-        svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`;
 
         let currentAngle = 0;
-        const anglePerSkill = 360 / totalSkills;
 
-        // Draw segments
+        // Draw segments based on degrees
         skills.forEach((skill, index) => {
           const startAngle = currentAngle;
-          const skillAngle = anglePerSkill;
-          const endAngle = startAngle + skillAngle;
-
-          // Calculate proficiency fill amount
-          const proficiencyRatio = skill.value / 100;
-          const filledOuterRadius = innerRadius + (outerRadius - innerRadius) * proficiencyRatio;
+          const endAngle = startAngle + skill.degrees;
 
           // Create gradient for depth effect
-          const gradientId = `grad-main-${index}`;
+          const gradientId = `grad-segment-${index}`;
           svg += `<defs>
             <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:${skill.color};stop-opacity:1" />
-              <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.75" />
+              <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.85" />
             </linearGradient>
           </defs>`;
 
-          // Draw filled segment
-          const path = describeArc(center, center, filledOuterRadius, startAngle, endAngle);
-          svg += `<path d="${path}" fill="url(#${gradientId})" stroke="white" stroke-width="3" opacity="0.95"/>`;
-
-          // Draw outer ring (unfilled portion - light background)
-          const outerPath = describeArc(center, center, outerRadius, startAngle, endAngle);
-          svg += `<path d="${outerPath}" fill="none" stroke="#e8e8e8" stroke-width="2" opacity="0.4"/>`;
-
-          // Add skill label (positioned around the wheel)
-          const labelAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + innerRadius) / 2 + 20;
-          const labelPos = polarToCartesian(center, center, labelRadius, labelAngle);
+          // Draw outer colored ring segment
+          const largeArc = skill.degrees > 180 ? '1' : '0';
           
-          const fontSize = skill.name.length > 20 ? '11' : '12';
-          const fontWeight = skill.value >= 90 ? '700' : '600';
+          // Outer arc points
+          const outerStart = polarToCartesian(center, center, outerRadius, startAngle);
+          const outerEnd = polarToCartesian(center, center, outerRadius, endAngle);
+          
+          // Inner arc points
+          const innerStart = polarToCartesian(center, center, innerRadius, startAngle);
+          const innerEnd = polarToCartesian(center, center, innerRadius, endAngle);
+
+          // Create path for the ring segment
+          const pathData = [
+            'M', outerStart.x, outerStart.y,
+            'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+            'L', innerEnd.x, innerEnd.y,
+            'A', innerRadius, innerRadius, 0, largeArc, 0, innerStart.x, innerStart.y,
+            'Z'
+          ].join(' ');
+
+          svg += `<path d="${pathData}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.95"/>`;
+
+          // Add label positioned around the outer ring
+          const midAngle = (startAngle + endAngle) / 2;
+          const labelRadius = (outerRadius + 40);
+          const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
+          
+          const fontSize = skill.name.length > 20 ? '10' : '11';
+          const fontWeight = skill.degrees > 80 ? '700' : '600';
+          
           svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
 
-          // Add percentage value in the ring
-          const valueRadius = (outerRadius + innerRadius) / 2 - 15;
-          const valuePos = polarToCartesian(center, center, valueRadius, labelAngle);
-          svg += `<text x="${valuePos.x}" y="${valuePos.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="600" fill="${skill.color}" opacity="0.8">${skill.value}%</text>`;
+          // Add degree value in the center of each segment
+          const valueRadius = (outerRadius + innerRadius) / 2;
+          const valuePos = polarToCartesian(center, center, valueRadius, midAngle);
+          svg += `<text x="${valuePos.x}" y="${valuePos.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="600" fill="white" opacity="0.9">${skill.degrees}°</text>`;
 
           currentAngle = endAngle;
         });
@@ -416,7 +423,7 @@
           <div class="legend-item">
             <div class="legend-color" style="background-color: ${competency.color};"></div>
             <span class="legend-label">${competency.name}</span>
-            <span class="legend-value">${competency.value}%</span>
+            <span class="legend-value">${competency.degrees}°</span>
           </div>
         `;
       });
