@@ -279,12 +279,12 @@
           <h3>Understanding the Profile</h3>
           <p style="color: #666; margin-bottom: 1rem;">The wheel above represents how my professional expertise is distributed across different areas. The larger the segment, the more that competency defines my professional profile:</p>
           <ul>
-            <li><strong>Technical Programming & Tools (25%):</strong> Core strength spanning Python, C++, Bash, Fortran, AWK, VBA — from small scripts to large-scale systems. Daily proficiency with VS Code, Git, LaTeX, Jupyter notebooks, Linux command line — foundational to my workflow</li>
-            <li><strong>Communication & Documentation (15%):</strong> Strong emphasis on technical presentations, academic writing, agile documentation, cross-functional teams. Multi-language capability (German, English, French)</li>
-            <li><strong>Problem Solving & Innovation (17%):</strong> Central to my work — complex system analysis, method development, automation frameworks, requirements engineering, debugging, optimization</li>
-            <li><strong>System Verification & Testing (17%):</strong> Significant expertise in test automation, hardware/firmware/software verification across development lifecycle, quality assurance methodologies</li>
-            <li><strong>Research & Scientific Computing (14%):</strong> Solid background in HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications, numerical methods</li>
-            <li><strong>Leadership & Teamwork (12%):</strong> Team leadership experience, agile retrospectives, mentoring, customer interactions, security-classified work, collaborative research</li>
+            <li><b>Technical Skills (25%):</b> Core strength spanning Python, C++, Bash, Fortran, AWK, VBA — from small scripts to large-scale systems. Daily proficiency with VS Code, Git, LaTeX, Jupyter notebooks, Linux command line — foundational to my workflow</li>
+            <li><b>Communication & Documentation (15%):</b> Strong emphasis on technical presentations, academic writing, agile documentation, cross-functional teams. Multi-language capability (German, English, French)</li>
+            <li><b>Problem Solving & Innovation (17%):</b> Central to my work — complex system analysis, method development, automation frameworks, requirements engineering, debugging, optimization</li>
+            <li><b>System Verification & Testing (17%):</b> Significant expertise in test automation, hardware/firmware/software verification across development lifecycle, quality assurance methodologies</li>
+            <li><b>Research & Scientific Computing (14%):</b> Solid background in HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications, numerical methods</li>
+            <li><b>Leadership (12%):</b> Team leadership experience, agile retrospectives, mentoring, customer interactions, security-classified work, collaborative research</li>
           </ul>
         </div>
       </div>
@@ -300,12 +300,12 @@
     <script>
       // Competency data - degrees represent proportion of profile (total = 360)
       const competencies = [
-        { name: 'System Verification & Testing', degrees: 60, color: '#475569' },
-        { name: 'Technical Programming & Tools', degrees: 90, color: '#1e3a8a' },
-        { name: 'Research & Scientific Computing', degrees: 50, color: '#166534' },
-        { name: 'Communication & Documentation', degrees: 55, color: '#0d7377' },
-        { name: 'Problem Solving & Innovation', degrees: 60, color: '#6b2e3d' },
-        { name: 'Leadership & Teamwork', degrees: 45, color: '#8b8680' }
+        { name: 'System Verification & Testing', degrees: 60, color: '#a89987' },
+        { name: 'Technical Skills', degrees: 90, color: '#8ac4d9' },
+        { name: 'Research & Scientific Computing', degrees: 50, color: '#98b88f' },
+        { name: 'Communication & Documentation', degrees: 55, color: '#8ab9ba' },
+        { name: 'Problem Solving & Innovation', degrees: 60, color: '#b89aab' },
+        { name: 'Leadership', degrees: 45, color: '#a8938a' }
       ];
 
       // Helper functions for SVG arc creation
@@ -332,7 +332,7 @@
 
       // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
-        const svgSize = 700;
+        const svgSize = 800;
         const center = svgSize / 2;
         const outerRadius = 210;
         const innerRadius = 130;
@@ -384,11 +384,11 @@
 
           // Add label positioned around the outer ring
           const midAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + 85);
+          const labelRadius = (outerRadius + 105);
           const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
           
-          const fontSize = skill.name.length > 22 ? '11' : '12';
-          const fontWeight = skill.degrees > 80 ? '700' : '600';
+          const fontSize = skill.name.length > 22 ? '13' : '14';
+          const fontWeight = '700';
           
           svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
 
