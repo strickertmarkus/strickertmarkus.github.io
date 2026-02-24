@@ -185,11 +185,11 @@
       @keyframes headingFade {
         from {
           opacity: 0;
-          transform: translateY(-10px);
+          transform: translateX(-50%) translateY(-10px);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateX(-50%) translateY(0);
         }
       }
 
@@ -574,7 +574,8 @@
         // Dark colors get a lighter version for contrast
         const colorMap = {
           '#1e5a96': '#5fa8d3', // Navy Blue -> Light Blue
-          '#2d7a3e': '#5db373'  // Forest Green -> Light Green
+          '#2d7a3e': '#5db373', // Forest Green -> Light Green
+          '#7b3ff2': '#b88eff'  // Dark Purple -> Light Purple
         };
         
         const lowerColor = colorHex.toLowerCase();
@@ -799,21 +800,13 @@
         heading.style.position = 'fixed';
         heading.style.left = (window.innerWidth * 0.38) + 'px';
         heading.style.transform = 'translateX(-50%)';
-        heading.classList.add('active');
         
-        // Position heading AFTER animation completes using bounding rect
-        setTimeout(() => {
-          const enlargedContainer = document.getElementById('enlarged-segment-container');
-          if (enlargedContainer && enlargedContainer.classList.contains('active')) {
-            const containerRect = enlargedContainer.getBoundingClientRect();
-            const containerTop = containerRect.top;
-            const headingHeight = heading.offsetHeight;
-            const gapAboveSegment = 20; // Gap between heading and segment
-            
-            // Position heading directly above segment
-            heading.style.top = (containerTop - headingHeight - gapAboveSegment) + 'px';
-          }
-        }, 700); // Wait for animation to complete
+        // Calculate and set top position before animation starts
+        const estimatedSegmentTop = (window.innerHeight * 0.5) - 210; // 50% - half of 420px container
+        const estimatedHeadingHeight = 30; // Estimated heading height
+        heading.style.top = (estimatedSegmentTop - estimatedHeadingHeight - 20) + 'px';
+        
+        heading.classList.add('active');
 
         // Create detail popout
         let detailPopout = document.getElementById('detail-popout');
