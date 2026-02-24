@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Competence Wheels - Markus Strickert</title>
-    <meta name="description" content="Interactive competence wheels showcasing programming languages, technical skills, and soft skills">
+    <title>Core Competencies - Markus Strickert</title>
+    <meta name="description" content="Interactive competence wheel showcasing core professional competencies">
     <meta name="author" content="Markus Strickert">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,109 +39,154 @@
         margin: 0 auto;
       }
 
-      .wheels-intro {
+      .competence-intro {
         text-align: center;
         margin-bottom: 3rem;
       }
 
-      .wheels-intro h2 {
-        font-size: 2rem;
+      .competence-intro h2 {
+        font-size: 2.2rem;
         color: #333;
         margin-bottom: 1rem;
       }
 
-      .wheels-intro p {
+      .competence-intro p {
         font-size: 1.05rem;
         color: #666;
-        max-width: 700px;
+        max-width: 800px;
         margin: 0 auto;
-        line-height: 1.6;
+        line-height: 1.8;
       }
 
-      .wheels-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-        gap: 3rem;
+      .wheel-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin: 3rem 0;
-        justify-items: center;
+        flex-wrap: wrap;
+        gap: 3rem;
       }
 
-      .wheel-wrapper {
-        width: 100%;
-        max-width: 380px;
+      .wheel-display {
         background: white;
         border-radius: 16px;
-        padding: 2rem;
+        padding: 3rem;
         box-shadow: 0 4px 12px rgba(157, 131, 107, 0.1);
+        flex: 1;
+        min-width: 320px;
+        max-width: 550px;
         transition: all 0.3s ease;
       }
 
-      .wheel-wrapper:hover {
+      .wheel-display:hover {
         box-shadow: 0 8px 24px rgba(157, 131, 107, 0.2);
         transform: translateY(-4px);
-      }
-
-      .wheel-title {
-        text-align: center;
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #9d836b;
-        margin-bottom: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
 
       .wheel-svg-container {
         width: 100%;
         display: flex;
         justify-content: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
       }
 
       .wheel-svg-container svg {
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
       }
 
-      .wheel-legend {
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e8e8e8;
+      .legend-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .legend-section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #9d836b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f3e4c6;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
-        margin-bottom: 0.75rem;
         font-size: 0.9rem;
+        margin-bottom: 0.6rem;
       }
 
       .legend-color {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         border-radius: 50%;
         margin-right: 0.75rem;
         flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
 
       .legend-label {
         color: #333;
         flex-grow: 1;
+        font-weight: 500;
       }
 
       .legend-value {
         color: #999;
         font-weight: 600;
         margin-left: 0.5rem;
+        min-width: 30px;
+        text-align: right;
+      }
+
+      .skills-summary {
+        margin-top: 3rem;
+        padding: 2rem;
+        background: #f9f8f6;
+        border-radius: 12px;
+        border-left: 4px solid #9d836b;
+      }
+
+      .skills-summary h3 {
+        color: #9d836b;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+
+      .skills-summary ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        list-style: none;
+      }
+
+      .skills-summary li {
+        margin-bottom: 0.6rem;
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 1rem;
+      }
+
+      .skills-summary li::before {
+        content: '▸';
+        color: #9d836b;
+        position: absolute;
+        left: 0;
       }
 
       @media (max-width: 1024px) {
-        .wheels-container {
-          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        .wheel-container {
+          flex-direction: column;
           gap: 2rem;
         }
 
-        .wheel-wrapper {
-          padding: 1.5rem;
+        .wheel-display {
+          max-width: 100%;
         }
       }
 
@@ -150,23 +195,26 @@
           padding: 2rem 1rem;
         }
 
-        .wheels-intro h2 {
+        .competence-intro h2 {
           font-size: 1.6rem;
         }
 
-        .wheels-container {
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-
-        .wheel-wrapper {
-          max-width: 100%;
+        .wheel-display {
+          padding: 2rem;
         }
 
         .wheel-svg-container svg {
           width: 100%;
           height: auto;
           max-width: 280px;
+        }
+
+        .skills-summary {
+          padding: 1.5rem;
+        }
+
+        .skills-summary h3 {
+          font-size: 1rem;
         }
       }
     </style>
@@ -191,6 +239,7 @@
           <li><a href="academic.html">Academic Experience</a></li>
           <li><a href="work-details.html">Detailed Competence Profile</a></li>
           <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="competence-wheels.html">Competence Wheels</a></li>
           <li><a href="projects.html">Projects</a></li>
           <li><a href="contact.html">Contact me</a></li>
         </ul>
@@ -199,42 +248,47 @@
 
     <header class="page-header">
       <div class="container">
-        <h1>Competence Wheels</h1>
+        <h1>Core Competencies</h1>
         <a href="index.html" class="back-to-portfolio">← Back to Home</a>
       </div>
     </header>
 
     <div class="page-content">
       <div class="container">
-        <section class="wheels-intro">
-          <h2>Skills at a Glance</h2>
+        <section class="competence-intro">
+          <h2>Professional Skills Map</h2>
           <p>
-            Visual representation of expertise across three key areas. The colored segments represent 
-            different skills, with the fill level indicating proficiency level from 0-100%.
+            A comprehensive view of core competency areas built through academic research, 
+            system verification engineering, and continuous professional development.
           </p>
         </section>
 
-        <div class="wheels-container">
-          <!-- Programming Languages Wheel -->
-          <div class="wheel-wrapper">
-            <h3 class="wheel-title">Programming Languages</h3>
-            <div class="wheel-svg-container" id="wheel1-container"></div>
-            <div class="wheel-legend" id="wheel1-legend"></div>
+        <div class="wheel-container">
+          <!-- Main Competence Wheel -->
+          <div class="wheel-display">
+            <div class="wheel-svg-container" id="main-wheel-container"></div>
           </div>
 
-          <!-- Technical Skills Wheel -->
-          <div class="wheel-wrapper">
-            <h3 class="wheel-title">Technical Skills</h3>
-            <div class="wheel-svg-container" id="wheel2-container"></div>
-            <div class="wheel-legend" id="wheel2-legend"></div>
+          <!-- Legend -->
+          <div class="wheel-display">
+            <h3 style="text-align: center; color: #9d836b; margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;">Competency Areas</h3>
+            <div class="legend-container" id="legend-container"></div>
           </div>
+        </div>
 
-          <!-- Social Skills Wheel -->
-          <div class="wheel-wrapper">
-            <h3 class="wheel-title">Social & Soft Skills</h3>
-            <div class="wheel-svg-container" id="wheel3-container"></div>
-            <div class="wheel-legend" id="wheel3-legend"></div>
-          </div>
+        <!-- Summary Section -->
+        <div class="skills-summary">
+          <h3>What These Competencies Represent</h3>
+          <ul>
+            <li><strong>System Verification & Testing:</strong> DOORS NG, test automation, hardware/firmware/software verification across development lifecycle</li>
+            <li><strong>Technical Programming:</strong> Python, C++, Bash, Fortran, AWK, VBA — from scripts to large-scale systems</li>
+            <li><strong>Research & Scientific Computing:</strong> HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications</li>
+            <li><strong>Communication & Documentation:</strong> Technical presentations, academic writing, agile documentation, cross-functional collaboration</li>
+            <li><strong>Leadership & Teamwork:</strong> Team leadership, agile retrospectives, mentoring, customer interactions, security-classified work</li>
+            <li><strong>Problem Solving & Innovation:</strong> Complex system analysis, method development, automation frameworks, requirements engineering</li>
+            <li><strong>Tools & Platforms:</strong> VS Code, LaTeX, Git, LLM integration, Tecplot, simulation frameworks, CI/CD</li>
+            <li><strong>Continuous Learning:</strong> Staying current with AI/LLM tools, adopting new methodologies, cross-disciplinary knowledge acquisition</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -247,50 +301,19 @@
 
     <script src="js/app.js"></script>
     <script>
-      // Wheel data definition
-      const wheelsData = [
-        {
-          container: 'wheel1-container',
-          legend: 'wheel1-legend',
-          title: 'Programming Languages',
-          skills: [
-            { name: 'Python', value: 85, color: '#3776ab' },
-            { name: 'C++', value: 70, color: '#00599c' },
-            { name: 'Bash', value: 70, color: '#4eaa25' },
-            { name: 'Fortran', value: 70, color: '#ec7063' },
-            { name: 'AWK', value: 65, color: '#8b4513' },
-            { name: 'VBA', value: 50, color: '#e74c3c' }
-          ]
-        },
-        {
-          container: 'wheel2-container',
-          legend: 'wheel2-legend',
-          title: 'Technical Skills',
-          skills: [
-            { name: 'DOORS NG / IFS', value: 100, color: '#9d4edd' },
-            { name: 'Data Analysis', value: 85, color: '#5a189a' },
-            { name: 'Supercomputing/HPC', value: 80, color: '#3c096c' },
-            { name: 'TestStand', value: 75, color: '#7209b7' },
-            { name: 'LLM Tools', value: 80, color: '#b5179e' },
-            { name: 'LaTeX/VS Code', value: 90, color: '#c77dff' }
-          ]
-        },
-        {
-          container: 'wheel3-container',
-          legend: 'wheel3-legend',
-          title: 'Social & Soft Skills',
-          skills: [
-            { name: 'Communication', value: 100, color: '#fb5607' },
-            { name: 'Int\'l Presentation', value: 90, color: '#ff006e' },
-            { name: 'Team Leadership', value: 80, color: '#ffbe0b' },
-            { name: 'Documentation', value: 85, color: '#8338ec' },
-            { name: 'Collaboration', value: 90, color: '#06ffa5' },
-            { name: 'Web Design', value: 60, color: '#3a86ff' }
-          ]
-        }
+      // Competency data
+      const competencies = [
+        { name: 'System Verification & Testing', value: 95, color: '#6366f1' },
+        { name: 'Technical Programming', value: 88, color: '#3b82f6' },
+        { name: 'Research & Scientific Computing', value: 90, color: '#ec4899' },
+        { name: 'Communication & Documentation', value: 92, color: '#f59e0b' },
+        { name: 'Leadership & Teamwork', value: 85, color: '#8b5cf6' },
+        { name: 'Problem Solving & Innovation', value: 90, color: '#10b981' },
+        { name: 'Tools & Platforms', value: 87, color: '#06b6d4' },
+        { name: 'Continuous Learning', value: 92, color: '#f97316' }
       ];
 
-      // Helper function to create SVG arc
+      // Helper functions for SVG arc creation
       function describeArc(x, y, radius, startAngle, endAngle) {
         const start = polarToCartesian(x, y, radius, endAngle);
         const end = polarToCartesian(x, y, radius, startAngle);
@@ -312,19 +335,23 @@
         };
       }
 
-      // Create competence wheel
-      function createWheel(wheelData) {
-        const svgSize = 280;
+      // Create main competence wheel
+      function createMainWheel() {
+        const svgSize = 400;
         const center = svgSize / 2;
-        const outerRadius = 110;
-        const innerRadius = 65;
-        const skills = wheelData.skills;
+        const outerRadius = 160;
+        const innerRadius = 100;
+        const skills = competencies;
         const totalSkills = skills.length;
 
         let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg">`;
 
         // Background circle (light gray)
-        svg += `<circle cx="${center}" cy="${center}" r="${outerRadius}" fill="#f0f0f0" opacity="0.5"/>`;
+        svg += `<circle cx="${center}" cy="${center}" r="${outerRadius}" fill="#f0f0f0" opacity="0.6"/>`;
+
+        // Center circle (hollow center)
+        svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
+        svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`;
 
         let currentAngle = 0;
         const anglePerSkill = 360 / totalSkills;
@@ -335,34 +362,40 @@
           const skillAngle = anglePerSkill;
           const endAngle = startAngle + skillAngle;
 
-          // Calculate proficiency fill amount (segment height from inner to outer radius)
+          // Calculate proficiency fill amount
           const proficiencyRatio = skill.value / 100;
           const filledOuterRadius = innerRadius + (outerRadius - innerRadius) * proficiencyRatio;
 
           // Create gradient for depth effect
-          const gradientId = `grad-${index}`;
+          const gradientId = `grad-main-${index}`;
           svg += `<defs>
             <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:${skill.color};stop-opacity:1" />
-              <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.7" />
+              <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.75" />
             </linearGradient>
           </defs>`;
 
           // Draw filled segment
           const path = describeArc(center, center, filledOuterRadius, startAngle, endAngle);
-          svg += `<path d="${path}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.9"/>`;
+          svg += `<path d="${path}" fill="url(#${gradientId})" stroke="white" stroke-width="3" opacity="0.95"/>`;
 
-          // Draw outer ring (unfilled portion)
+          // Draw outer ring (unfilled portion - light background)
           const outerPath = describeArc(center, center, outerRadius, startAngle, endAngle);
-          svg += `<path d="${outerPath}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`;
+          svg += `<path d="${outerPath}" fill="none" stroke="#e8e8e8" stroke-width="2" opacity="0.4"/>`;
 
           // Add skill label (positioned around the wheel)
           const labelAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + innerRadius) / 2 + 15;
+          const labelRadius = (outerRadius + innerRadius) / 2 + 20;
           const labelPos = polarToCartesian(center, center, labelRadius, labelAngle);
           
-          const fontSizeAdjusted = skill.name.length > 10 ? '10' : '11';
-          svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSizeAdjusted}" font-weight="600" fill="#333" class="wheel-label">${skill.name}</text>`;
+          const fontSize = skill.name.length > 20 ? '11' : '12';
+          const fontWeight = skill.value >= 90 ? '700' : '600';
+          svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
+
+          // Add percentage value in the ring
+          const valueRadius = (outerRadius + innerRadius) / 2 - 15;
+          const valuePos = polarToCartesian(center, center, valueRadius, labelAngle);
+          svg += `<text x="${valuePos.x}" y="${valuePos.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="600" fill="${skill.color}" opacity="0.8">${skill.value}%</text>`;
 
           currentAngle = endAngle;
         });
@@ -371,27 +404,23 @@
         return svg;
       }
 
-      // Render wheels
-      wheelsData.forEach(wheelData => {
-        const container = document.getElementById(wheelData.container);
-        const legend = document.getElementById(wheelData.legend);
+      // Render wheel
+      const wheelContainer = document.getElementById('main-wheel-container');
+      wheelContainer.innerHTML = createMainWheel();
 
-        // Create wheel SVG
-        container.innerHTML = createWheel(wheelData);
-
-        // Create legend
-        let legendHTML = '';
-        wheelData.skills.forEach(skill => {
-          legendHTML += `
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: ${skill.color};"></div>
-              <span class="legend-label">${skill.name}</span>
-              <span class="legend-value">${skill.value}%</span>
-            </div>
-          `;
-        });
-        legend.innerHTML = legendHTML;
+      // Create legend
+      const legendContainer = document.getElementById('legend-container');
+      let legendHTML = '';
+      competencies.forEach(competency => {
+        legendHTML += `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: ${competency.color};"></div>
+            <span class="legend-label">${competency.name}</span>
+            <span class="legend-value">${competency.value}%</span>
+          </div>
+        `;
       });
+      legendContainer.innerHTML = legendHTML;
     </script>
   </body>
 </html>
