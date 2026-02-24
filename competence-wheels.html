@@ -97,67 +97,131 @@
         height: auto;
       }
 
-      .wheel-svg-container svg path {
-        cursor: pointer;
-        transition: opacity 0.2s ease;
-      }
-
-      .wheel-svg-container svg path:hover {
-        opacity: 0.9;
-        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
-      }
-
-      /* Detail panel styles */
-      #detail-panel {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        max-width: 500px;
+      /* Dimming overlay */
+      #dim-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
       }
 
-      #detail-panel.active {
+      #dim-overlay.active {
         opacity: 1;
         pointer-events: auto;
       }
 
-      #detail-panel h3 {
-        color: #333;
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
+      .wheel-svg-container svg path {
+        cursor: pointer;
+        transition: all 0.3s ease;
       }
 
-      #detail-panel ul {
+      .wheel-svg-container svg path:hover {
+        opacity: 0.9;
+      }
+
+      /* Enlarged segment container */
+      #enlarged-segment-container {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        height: 400px;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      #enlarged-segment-container.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      #enlarged-segment-container svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+      }
+
+      /* Detail popout container */
+      #detail-popout {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 550px;
+        max-height: 90vh;
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        z-index: 1001;
+        opacity: 0;
+        pointer-events: none;
+        overflow-y: auto;
+        transition: opacity 0.5s ease 0.2s;
+      }
+
+      #detail-popout.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      #detail-popout h3 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+      }
+
+      #detail-popout ul {
         list-style: none;
         padding: 0;
         margin: 0;
       }
 
-      #detail-panel li {
-        padding: 0.7rem 0;
+      .detail-item {
+        padding: 1rem 0;
         color: #555;
         border-bottom: 1px solid #eee;
         position: relative;
         padding-left: 1.5rem;
+        animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        opacity: 0;
       }
 
-      #detail-panel li:last-child {
+      .detail-item:nth-child(1) { animation-delay: 0.35s; }
+      .detail-item:nth-child(2) { animation-delay: 0.4s; }
+      .detail-item:nth-child(3) { animation-delay: 0.45s; }
+      .detail-item:nth-child(4) { animation-delay: 0.5s; }
+      .detail-item:nth-child(5) { animation-delay: 0.55s; }
+      .detail-item:nth-child(6) { animation-delay: 0.6s; }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8) translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .detail-item:last-child {
         border-bottom: none;
       }
 
-      #detail-panel li:before {
+      .detail-item:before {
         content: "▸";
         position: absolute;
         left: 0;
-        color: inherit;
       }
 
       .legend-container {
@@ -361,12 +425,12 @@
 
     <script src="js/app.js"></script>
     <script>
-      // Competency data with pastel colors and details
+      // Competency data with warm website color palette and details
       const competencies = [
         { 
           name: 'System Verification & Testing', 
           degrees: 60, 
-          color: '#B4A7D6',
+          color: '#a89987',
           details: [
             'Requirement documentation using Doors NG',
             'Reviewing design documents',
@@ -379,7 +443,7 @@
         { 
           name: 'Technical Skills', 
           degrees: 90, 
-          color: '#FFD6A5',
+          color: '#8ac4d9',
           details: [
             'Python (scientific computing, automation)',
             'C++ (systems programming)',
@@ -393,7 +457,7 @@
         { 
           name: 'Research & Scientific Computing', 
           degrees: 50, 
-          color: '#FFB4D6',
+          color: '#98b88f',
           details: [
             'HPC simulations & computational modeling',
             '3D MHD (magnetohydrodynamics) simulations',
@@ -406,7 +470,7 @@
         { 
           name: 'Communication & Documentation', 
           degrees: 55, 
-          color: '#A5E6FF',
+          color: '#8ab9ba',
           details: [
             'Technical presentations & conferences',
             'Academic writing & research papers',
@@ -419,7 +483,7 @@
         { 
           name: 'Problem Solving & Innovation', 
           degrees: 60, 
-          color: '#FFB4A5',
+          color: '#b89aab',
           details: [
             'Complex system analysis & decomposition',
             'Method development & prototyping',
@@ -432,7 +496,7 @@
         { 
           name: 'Leadership', 
           degrees: 45, 
-          color: '#D6FFB4',
+          color: '#a8938a',
           details: [
             'Team leadership & coordination',
             'Agile retrospectives & process improvement',
@@ -561,7 +625,9 @@
       segments.forEach(segment => {
         segment.addEventListener('mouseenter', function() {
           if (!activeSegment) {
-            this.style.filter = 'drop-shadow(0 0 12px rgba(0, 0, 0, 0.4))';
+            const index = parseInt(this.getAttribute('data-index'));
+            const compColor = competencies[index].color;
+            this.style.filter = `drop-shadow(0 0 12px ${compColor}88)`;
             this.style.opacity = '1';
           }
         });
@@ -576,80 +642,146 @@
         segment.addEventListener('click', function(e) {
           e.stopPropagation();
           const index = parseInt(this.getAttribute('data-index'));
-          showDetailPanel(index);
+          showEnlargedSegment(index);
         });
       });
 
-      // Show detail panel for a competency
-      function showDetailPanel(index) {
+      // Show enlarged segment with detail pop-out
+      function showEnlargedSegment(index) {
         if (activeSegment === index) {
-          closeDetailPanel();
+          closeEnlargedSegment();
           return;
         }
 
         activeSegment = index;
-        const segment = document.querySelector(`.segment[data-index="${index}"]`);
-        const label = document.querySelector(`.segment-label[data-index="${index}"]`);
         const data = competencies[index];
+        const segment = document.querySelector(`.segment[data-index="${index}"]`);
 
-        // Highlight segment
-        segment.style.opacity = '1';
-        segment.style.filter = 'drop-shadow(0 0 16px rgba(0, 0, 0, 0.5))';
-        label.style.fontWeight = '900';
+        // Create dimming overlay
+        let overlay = document.getElementById('dim-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.id = 'dim-overlay';
+          document.body.appendChild(overlay);
+          overlay.addEventListener('click', closeEnlargedSegment);
+        }
+        overlay.classList.add('active');
 
-        // Create or update detail panel
-        let detailPanel = document.getElementById('detail-panel');
-        if (!detailPanel) {
-          detailPanel = document.createElement('div');
-          detailPanel.id = 'detail-panel';
-          wheelContainer.appendChild(detailPanel);
+        // Create enlarged segment SVG
+        const enlargedSvg = createEnlargedSegmentSVG(index, data);
+        let enlargedContainer = document.getElementById('enlarged-segment-container');
+        if (!enlargedContainer) {
+          enlargedContainer = document.createElement('div');
+          enlargedContainer.id = 'enlarged-segment-container';
+          document.body.appendChild(enlargedContainer);
+        }
+        enlargedContainer.innerHTML = enlargedSvg;
+        enlargedContainer.classList.add('active');
+
+        // Create detail popout
+        let detailPopout = document.getElementById('detail-popout');
+        if (!detailPopout) {
+          detailPopout = document.createElement('div');
+          detailPopout.id = 'detail-popout';
+          document.body.appendChild(detailPopout);
         }
 
-        detailPanel.innerHTML = `
+        detailPopout.innerHTML = `
           <h3 style="color: ${data.color}; margin-top: 0;">${data.name}</h3>
           <ul>
-            ${data.details.map(detail => `<li>${detail}</li>`).join('')}
+            ${data.details.map(detail => `<li class="detail-item">${detail}</li>`).join('')}
           </ul>
         `;
+        detailPopout.classList.add('active');
 
-        detailPanel.classList.add('active');
+        // Hide original wheel
+        const wheelSvg = document.querySelector('.competence-wheel');
+        if (wheelSvg) {
+          wheelSvg.style.opacity = '0';
+          wheelSvg.style.pointerEvents = 'none';
+        }
       }
 
-      // Close detail panel
-      function closeDetailPanel() {
-        if (activeSegment !== null) {
-          const segment = document.querySelector(`.segment[data-index="${activeSegment}"]`);
-          const label = document.querySelector(`.segment-label[data-index="${activeSegment}"]`);
-          
-          segment.style.opacity = '0.95';
-          segment.style.filter = '';
-          label.style.fontWeight = '700';
+      // Create enlarged segment visualization
+      function createEnlargedSegmentSVG(index, data) {
+        const size = 400;
+        const center = size / 2;
+        const outerRadius = 150;
+        const innerRadius = 80;
+        
+        let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+        
+        svg += `<defs>
+          <linearGradient id="enlarged-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:${data.color};stop-opacity:1" />
+            <stop offset="100%" style="stop-color:${data.color};stop-opacity:0.85" />
+          </linearGradient>
+          <filter id="segment-glow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>`;
+        
+        svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
+        
+        const startAngle = 0;
+        const endAngle = 360;
+        const largeArc = '1';
+        
+        const outerStart = polarToCartesian(center, center, outerRadius, startAngle);
+        const outerEnd = polarToCartesian(center, center, outerRadius, endAngle - 0.1);
+        const innerStart = polarToCartesian(center, center, innerRadius, startAngle);
+        const innerEnd = polarToCartesian(center, center, innerRadius, endAngle - 0.1);
+        
+        const pathData = [
+          'M', outerStart.x, outerStart.y,
+          'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+          'L', innerEnd.x, innerEnd.y,
+          'A', innerRadius, innerRadius, 0, largeArc, 0, innerStart.x, innerStart.y,
+          'Z'
+        ].join(' ');
+        
+        svg += `<path d="${pathData}" fill="url(#enlarged-grad)" stroke="white" stroke-width="3" opacity="0.95" filter="url(#segment-glow)"/>`;
+        svg += `</svg>`;
+        return svg;
+      }
 
-          const detailPanel = document.getElementById('detail-panel');
-          if (detailPanel) {
-            detailPanel.classList.remove('active');
+      // Close enlarged segment
+      function closeEnlargedSegment() {
+        if (activeSegment !== null) {
+          const overlay = document.getElementById('dim-overlay');
+          if (overlay) {
+            overlay.classList.remove('active');
+          }
+
+          const enlargedContainer = document.getElementById('enlarged-segment-container');
+          if (enlargedContainer) {
+            enlargedContainer.classList.remove('active');
+          }
+
+          const detailPopout = document.getElementById('detail-popout');
+          if (detailPopout) {
+            detailPopout.classList.remove('active');
+          }
+
+          // Show original wheel
+          const wheelSvg = document.querySelector('.competence-wheel');
+          if (wheelSvg) {
+            wheelSvg.style.opacity = '1';
+            wheelSvg.style.pointerEvents = 'auto';
           }
 
           activeSegment = null;
         }
       }
 
-      // Close detail panel on escape key or outside click
+      // Close on escape key
       document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          closeDetailPanel();
-        }
-      });
-
-      wheelContainer.addEventListener('click', function(e) {
-        if (e.target.id === 'detail-panel' || e.target.closest('#detail-panel')) {
-          return;
-        }
-      });
-
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('.segment') && !e.target.closest('#detail-panel')) {
-          closeDetailPanel();
+        if (e.key === 'Escape' && activeSegment !== null) {
+          closeEnlargedSegment();
         }
       });
     </script>
