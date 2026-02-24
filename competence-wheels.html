@@ -241,8 +241,8 @@
         position: fixed;
         left: 0;
         top: 0;
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
         pointer-events: none;
         z-index: 1000;
       }
@@ -863,34 +863,44 @@
         const segmentRect = enlargedContainer.getBoundingClientRect();
         const segmentCenterX = segmentRect.left + segmentRect.width / 2;
         const segmentCenterY = segmentRect.top + segmentRect.height / 2;
-        const segmentOuterRadius = 160; // Standard outer radius of segment
 
-        // Get detail items and draw lines
+        // Add a glow filter
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        filter.setAttribute('id', 'line-glow');
+        const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        feGaussianBlur.setAttribute('stdDeviation', '1.5');
+        feGaussianBlur.setAttribute('result', 'coloredBlur');
+        filter.appendChild(feGaussianBlur);
+        const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+        const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode1.setAttribute('in', 'coloredBlur');
+        const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode2.setAttribute('in', 'SourceGraphic');
+        feMerge.appendChild(feMergeNode1);
+        feMerge.appendChild(feMergeNode2);
+        filter.appendChild(feMerge);
+        defs.appendChild(filter);
+        svg.appendChild(defs);
+
+        // Get detail items and draw lines from segment center
         const detailItems = document.querySelectorAll('.detail-item');
-        detailItems.forEach((item, index) => {
+        detailItems.forEach((item) => {
           const itemRect = item.getBoundingClientRect();
-          const itemLeftX = itemRect.left - 10; // Start connection before bullet
+          const itemLeftX = itemRect.left - 15;
           const itemCenterY = itemRect.top + itemRect.height / 2;
 
-          // Distribute connection points around segment edge
-          const angle = (index / detailItems.length) * 180 + 270; // Distribute around right side of segment
-          const angleRad = angle * Math.PI / 180;
-          
-          // Calculate point on segment's outer edge
-          const x1 = segmentCenterX + Math.cos(angleRad) * segmentOuterRadius;
-          const y1 = segmentCenterY + Math.sin(angleRad) * segmentOuterRadius;
-
-          // Create line from segment edge to item
+          // Create thin line from segment center to item
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', x1);
-          line.setAttribute('y1', y1);
+          line.setAttribute('x1', segmentCenterX);
+          line.setAttribute('y1', segmentCenterY);
           line.setAttribute('x2', itemLeftX);
           line.setAttribute('y2', itemCenterY);
           line.setAttribute('stroke', segmentColor);
-          line.setAttribute('stroke-width', '3');
-          line.setAttribute('opacity', '0.85');
+          line.setAttribute('stroke-width', '1.5');
+          line.setAttribute('opacity', '0.45');
           line.setAttribute('stroke-linecap', 'round');
-          line.setAttribute('stroke-linejoin', 'round');
+          line.setAttribute('filter', 'url(#line-glow)');
           
           svg.appendChild(line);
         });
