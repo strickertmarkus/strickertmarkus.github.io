@@ -832,7 +832,7 @@
 
         // Draw connecting lines from segment to detail items
         setTimeout(() => {
-          drawConnectionLines(data.color);
+          drawConnectionLines(data.color, index);
         }, 100);
 
         // Hide original wheel
@@ -843,7 +843,7 @@
       }
 
       // Draw SVG lines connecting segment edges to detail items
-      function drawConnectionLines(segmentColor) {
+      function drawConnectionLines(segmentColor, competencyIndex) {
         let connectedLinesContainer = document.getElementById('connection-lines');
         if (connectedLinesContainer) {
           connectedLinesContainer.remove();
@@ -861,8 +861,45 @@
         if (!enlargedContainer) return;
 
         const segmentRect = enlargedContainer.getBoundingClientRect();
-        const segmentCenterX = segmentRect.left + segmentRect.width / 2;
-        const segmentCenterY = segmentRect.top + segmentRect.height / 2;
+        
+        // Calculate segment's angular position in the main wheel to find the edge point
+        let startAngleDeg = 270; // Starting angle (top)
+        for (let i = 0; i < competencyIndex; i++) {
+          startAngleDeg += competencies[i].degrees;
+        }
+        const endAngleDeg = startAngleDeg + competencies[competencyIndex].degrees;
+
+        // Find the rightmost point of the segment (closest to 0° / 3 o'clock)
+        const normalizeAngle = (angle) => ((angle % 360) + 360) % 360;
+        const normStart = normalizeAngle(startAngleDeg);
+        const normEnd = normalizeAngle(endAngleDeg);
+
+        let rightmostAngleDeg;
+        if (normStart <= normEnd) {
+          // No wrapping
+          if (normStart <= 0 && normEnd >= 0) {
+            rightmostAngleDeg = 0;
+          } else {
+            // Find the closer edge
+            const distStart = Math.min(normStart, 360 - normStart);
+            const distEnd = Math.min(normEnd, 360 - normEnd);
+            rightmostAngleDeg = distStart < distEnd ? normStart : normEnd;
+          }
+        } else {
+          // Wraps around 0°, so 0° is in the range
+          rightmostAngleDeg = 0;
+        }
+
+        // Calculate edge point in local segment coordinates (420x420)
+        const outerRadius = 160;
+        const segmentCenterLocal = 210;
+        const angleRad = (rightmostAngleDeg * Math.PI) / 180;
+        const edgeXLocal = segmentCenterLocal + outerRadius * Math.cos(angleRad);
+        const edgeYLocal = segmentCenterLocal + outerRadius * Math.sin(angleRad);
+
+        // Convert to screen coordinates
+        const segmentEdgeXScreen = segmentRect.left + edgeXLocal;
+        const segmentEdgeYScreen = segmentRect.top + edgeYLocal;
 
         // Add a glow filter
         const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
@@ -883,20 +920,23 @@
         defs.appendChild(filter);
         svg.appendChild(defs);
 
-        // Get detail items and draw lines from segment center
+        // Use contrast color for lines (like we do for text)
+        const lineColor = determineHeadingTextColor(segmentColor);
+
+        // Get detail items and draw lines from segment edge
         const detailItems = document.querySelectorAll('.detail-item');
         detailItems.forEach((item) => {
           const itemRect = item.getBoundingClientRect();
           const itemLeftX = itemRect.left - 15;
           const itemCenterY = itemRect.top + itemRect.height / 2;
 
-          // Create thin line from segment center to item
+          // Create thin line from segment edge to item
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', segmentCenterX);
-          line.setAttribute('y1', segmentCenterY);
+          line.setAttribute('x1', segmentEdgeXScreen);
+          line.setAttribute('y1', segmentEdgeYScreen);
           line.setAttribute('x2', itemLeftX);
           line.setAttribute('y2', itemCenterY);
-          line.setAttribute('stroke', segmentColor);
+          line.setAttribute('stroke', lineColor);
           line.setAttribute('stroke-width', '1.5');
           line.setAttribute('opacity', '0.45');
           line.setAttribute('stroke-linecap', 'round');
