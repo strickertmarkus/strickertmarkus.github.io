@@ -68,19 +68,19 @@
       }
 
       .wheel-display {
-        background: white;
+        background: transparent;
         border-radius: 16px;
         padding: 3rem;
-        box-shadow: 0 4px 12px rgba(157, 131, 107, 0.1);
+        box-shadow: none;
         flex: 1;
         min-width: 320px;
-        max-width: 550px;
+        max-width: 100%;
         transition: all 0.3s ease;
       }
 
       .wheel-display:hover {
-        box-shadow: 0 8px 24px rgba(157, 131, 107, 0.2);
-        transform: translateY(-4px);
+        box-shadow: none;
+        transform: none;
       }
 
       .wheel-svg-container {
@@ -301,13 +301,13 @@
     <script>
       // Competency data - degrees represent proportion of profile (total = 360)
       const competencies = [
-        { name: 'System Verification & Testing', degrees: 82, color: '#6366f1' },
-        { name: 'Technical Programming', degrees: 83, color: '#3b82f6' },
-        { name: 'Research & Scientific Computing', degrees: 52, color: '#ec4899' },
-        { name: 'Communication & Documentation', degrees: 45, color: '#f59e0b' },
-        { name: 'Leadership & Teamwork', degrees: 41, color: '#8b5cf6' },
-        { name: 'Problem Solving & Innovation', degrees: 38, color: '#10b981' },
-        { name: 'Tools & Platforms', degrees: 19, color: '#06b6d4' }
+        { name: 'System Verification & Testing', degrees: 82, color: '#d4532f' },
+        { name: 'Technical Programming', degrees: 83, color: '#f8a825' },
+        { name: 'Research & Scientific Computing', degrees: 52, color: '#ff6b6b' },
+        { name: 'Communication & Documentation', degrees: 45, color: '#4ecdc4' },
+        { name: 'Leadership & Teamwork', degrees: 41, color: '#45b7d1' },
+        { name: 'Problem Solving & Innovation', degrees: 38, color: '#96ceb4' },
+        { name: 'Tools & Platforms', degrees: 19, color: '#ffeaa7' }
       ];
 
       // Helper functions for SVG arc creation
@@ -334,10 +334,10 @@
 
       // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
-        const svgSize = 480;
+        const svgSize = 600;
         const center = svgSize / 2;
-        const outerRadius = 160;
-        const innerRadius = 100;
+        const outerRadius = 210;
+        const innerRadius = 130;
         const ringWidth = outerRadius - innerRadius;
         const skills = competencies;
 
@@ -386,10 +386,10 @@
 
           // Add label positioned around the outer ring
           const midAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + 55);
+          const labelRadius = (outerRadius + 70);
           const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
           
-          const fontSize = skill.name.length > 22 ? '9' : '10';
+          const fontSize = skill.name.length > 22 ? '12' : '13';
           const fontWeight = skill.degrees > 80 ? '700' : '600';
           
           svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
