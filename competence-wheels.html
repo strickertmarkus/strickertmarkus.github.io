@@ -97,6 +97,69 @@
         height: auto;
       }
 
+      .wheel-svg-container svg path {
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+      }
+
+      .wheel-svg-container svg path:hover {
+        opacity: 0.9;
+        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
+      }
+
+      /* Detail panel styles */
+      #detail-panel {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        max-width: 500px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      #detail-panel.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      #detail-panel h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      #detail-panel ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      #detail-panel li {
+        padding: 0.7rem 0;
+        color: #555;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 1.5rem;
+      }
+
+      #detail-panel li:last-child {
+        border-bottom: none;
+      }
+
+      #detail-panel li:before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: inherit;
+      }
+
       .legend-container {
         display: flex;
         flex-direction: column;
@@ -298,30 +361,90 @@
 
     <script src="js/app.js"></script>
     <script>
-      // Competency data - degrees represent proportion of profile (total = 360)
+      // Competency data with pastel colors and details
       const competencies = [
-        { name: 'System Verification & Testing', degrees: 60, color: '#a89987' },
-        { name: 'Technical Skills', degrees: 90, color: '#8ac4d9' },
-        { name: 'Research & Scientific Computing', degrees: 50, color: '#98b88f' },
-        { name: 'Communication & Documentation', degrees: 55, color: '#8ab9ba' },
-        { name: 'Problem Solving & Innovation', degrees: 60, color: '#b89aab' },
-        { name: 'Leadership', degrees: 45, color: '#a8938a' }
+        { 
+          name: 'System Verification & Testing', 
+          degrees: 60, 
+          color: '#B4A7D6',
+          details: [
+            'Requirement documentation using Doors NG',
+            'Reviewing design documents',
+            'Automating tests from requirement & design specifications',
+            'Test automation for product software',
+            'Basic electrical testing',
+            'TestStand automation tool'
+          ]
+        },
+        { 
+          name: 'Technical Skills', 
+          degrees: 90, 
+          color: '#FFD6A5',
+          details: [
+            'Python (scientific computing, automation)',
+            'C++ (systems programming)',
+            'MATLAB & Bash scripting',
+            'Git version control',
+            'VS Code development environment',
+            'Jupyter notebooks & LaTeX',
+            'Linux command line proficiency'
+          ]
+        },
+        { 
+          name: 'Research & Scientific Computing', 
+          degrees: 50, 
+          color: '#FFB4D6',
+          details: [
+            'HPC simulations & computational modeling',
+            '3D MHD (magnetohydrodynamics) simulations',
+            'Statistical analysis & visualization',
+            'Peer-reviewed scientific publications',
+            'Numerical methods & algorithms',
+            'Data-driven research methodology'
+          ]
+        },
+        { 
+          name: 'Communication & Documentation', 
+          degrees: 55, 
+          color: '#A5E6FF',
+          details: [
+            'Technical presentations & conferences',
+            'Academic writing & research papers',
+            'Agile documentation practices',
+            'Cross-functional team collaboration',
+            'Multi-language capability (German, English, French)',
+            'Clear explanation of complex concepts'
+          ]
+        },
+        { 
+          name: 'Problem Solving & Innovation', 
+          degrees: 60, 
+          color: '#FFB4A5',
+          details: [
+            'Complex system analysis & decomposition',
+            'Method development & prototyping',
+            'Automation framework design',
+            'Requirements engineering',
+            'Debugging & optimization',
+            'Creative solution development'
+          ]
+        },
+        { 
+          name: 'Leadership', 
+          degrees: 45, 
+          color: '#D6FFB4',
+          details: [
+            'Team leadership & coordination',
+            'Agile retrospectives & process improvement',
+            'Mentoring & knowledge transfer',
+            'Customer & stakeholder interactions',
+            'Security-classified project work',
+            'Collaborative research environment'
+          ]
+        }
       ];
 
-      // Helper functions for SVG arc creation
-      function describeArc(x, y, radius, startAngle, endAngle) {
-        const start = polarToCartesian(x, y, radius, endAngle);
-        const end = polarToCartesian(x, y, radius, startAngle);
-        const largeArc = endAngle - startAngle <= 180 ? '0' : '1';
-
-        return [
-          'M', start.x, start.y,
-          'A', radius, radius, 0, largeArc, 0, end.x, end.y,
-          'L', x, y,
-          'Z'
-        ].join(' ');
-      }
-
+      // Helper function for polar to cartesian conversion
       function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
         const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
         return {
@@ -329,6 +452,10 @@
           y: centerY + (radius * Math.sin(angleInRadians))
         };
       }
+
+      // Store segment data for animations
+      let segmentData = [];
+      let activeSegment = null;
 
       // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
@@ -339,7 +466,18 @@
         const ringWidth = outerRadius - innerRadius;
         const skills = competencies;
 
-        let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg">`;
+        let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel">`;
+        
+        // Add glow filter definition
+        svg += `<defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>`;
 
         // White background circle (inner hollow area)
         svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
@@ -380,17 +518,30 @@
             'Z'
           ].join(' ');
 
-          svg += `<path d="${pathData}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.95"/>`;
+          // Store segment geometry for animation
+          const midAngle = (startAngle + endAngle) / 2;
+          const midRadius = (outerRadius + innerRadius) / 2;
+          const midPoint = polarToCartesian(center, center, midRadius, midAngle);
+          
+          segmentData.push({
+            index: index,
+            name: skill.name,
+            color: skill.color,
+            startAngle: startAngle,
+            endAngle: endAngle,
+            midPoint: midPoint,
+            center: { x: center, y: center }
+          });
+
+          svg += `<path class="segment" data-index="${index}" d="${pathData}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.95" style="transition: all 0.3s ease;"/>`;
 
           // Add label positioned around the outer ring
-          const midAngle = (startAngle + endAngle) / 2;
           const labelRadius = (outerRadius + 105);
           const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
           
           const fontSize = skill.name.length > 22 ? '13' : '14';
-          const fontWeight = '700';
           
-          svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
+          svg += `<text class="segment-label" data-index="${index}" x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="#333" style="pointer-events: none;">${skill.name}</text>`;
 
           currentAngle = endAngle;
         });
@@ -402,6 +553,105 @@
       // Render wheel
       const wheelContainer = document.getElementById('main-wheel-container');
       wheelContainer.innerHTML = createMainWheel();
+      wheelContainer.style.position = 'relative';
+
+      // Add interactive event listeners
+      const segments = document.querySelectorAll('.segment');
+      
+      segments.forEach(segment => {
+        segment.addEventListener('mouseenter', function() {
+          if (!activeSegment) {
+            this.style.filter = 'drop-shadow(0 0 12px rgba(0, 0, 0, 0.4))';
+            this.style.opacity = '1';
+          }
+        });
+
+        segment.addEventListener('mouseleave', function() {
+          if (!activeSegment) {
+            this.style.filter = '';
+            this.style.opacity = '0.95';
+          }
+        });
+
+        segment.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const index = parseInt(this.getAttribute('data-index'));
+          showDetailPanel(index);
+        });
+      });
+
+      // Show detail panel for a competency
+      function showDetailPanel(index) {
+        if (activeSegment === index) {
+          closeDetailPanel();
+          return;
+        }
+
+        activeSegment = index;
+        const segment = document.querySelector(`.segment[data-index="${index}"]`);
+        const label = document.querySelector(`.segment-label[data-index="${index}"]`);
+        const data = competencies[index];
+
+        // Highlight segment
+        segment.style.opacity = '1';
+        segment.style.filter = 'drop-shadow(0 0 16px rgba(0, 0, 0, 0.5))';
+        label.style.fontWeight = '900';
+
+        // Create or update detail panel
+        let detailPanel = document.getElementById('detail-panel');
+        if (!detailPanel) {
+          detailPanel = document.createElement('div');
+          detailPanel.id = 'detail-panel';
+          wheelContainer.appendChild(detailPanel);
+        }
+
+        detailPanel.innerHTML = `
+          <h3 style="color: ${data.color}; margin-top: 0;">${data.name}</h3>
+          <ul>
+            ${data.details.map(detail => `<li>${detail}</li>`).join('')}
+          </ul>
+        `;
+
+        detailPanel.classList.add('active');
+      }
+
+      // Close detail panel
+      function closeDetailPanel() {
+        if (activeSegment !== null) {
+          const segment = document.querySelector(`.segment[data-index="${activeSegment}"]`);
+          const label = document.querySelector(`.segment-label[data-index="${activeSegment}"]`);
+          
+          segment.style.opacity = '0.95';
+          segment.style.filter = '';
+          label.style.fontWeight = '700';
+
+          const detailPanel = document.getElementById('detail-panel');
+          if (detailPanel) {
+            detailPanel.classList.remove('active');
+          }
+
+          activeSegment = null;
+        }
+      }
+
+      // Close detail panel on escape key or outside click
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeDetailPanel();
+        }
+      });
+
+      wheelContainer.addEventListener('click', function(e) {
+        if (e.target.id === 'detail-panel' || e.target.closest('#detail-panel')) {
+          return;
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.segment') && !e.target.closest('#detail-panel')) {
+          closeDetailPanel();
+        }
+      });
     </script>
   </body>
 </html>
