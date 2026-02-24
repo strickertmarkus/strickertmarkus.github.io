@@ -554,3 +554,578 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// ======================================================
+// Competence Wheels Page
+// ======================================================
+
+(function() {
+  // Only run on competence-wheels page
+  const wheelContainer = document.getElementById('main-wheel-container');
+  if (!wheelContainer) return;
+
+  // Competency data with distinct vibrant color palette and details
+  const competencies = [
+    { 
+      name: 'System Verification & Testing', 
+      degrees: 75, 
+      color: '#1e5a96',
+      details: [
+        'Requirement documentation using Doors NG',
+        'Reviewing design documents',
+        'Automating tests from requirement & design specifications',
+        'Test automation for product software',
+        'Basic electrical testing',
+        'TestStand automation tool'
+      ]
+    },
+    { 
+      name: 'Technical Skills', 
+      degrees: 75, 
+      color: '#ff9a3d',
+      details: [
+        'Python (scientific computing, automation)',
+        'C++ (systems programming)',
+        'MATLAB & Bash scripting',
+        'Git version control',
+        'VS Code development environment',
+        'Jupyter notebooks & LaTeX',
+        'Linux command line proficiency'
+      ]
+    },
+    { 
+      name: 'Research & Scientific Computing', 
+      degrees: 50, 
+      color: '#2d7a3e',
+      details: [
+        'HPC simulations & computational modeling',
+        '3D MHD (magnetohydrodynamics) simulations',
+        'Statistical analysis & visualization',
+        'Peer-reviewed scientific publications',
+        'Numerical methods & algorithms',
+        'Data-driven research methodology'
+      ]
+    },
+    { 
+      name: 'Communication & Documentation', 
+      degrees: 55, 
+      color: '#e8594f',
+      details: [
+        'Technical presentations & conferences',
+        'Academic writing & research papers',
+        'Agile documentation practices',
+        'Cross-functional team collaboration',
+        'Multi-language capability (German, English, French)',
+        'Clear explanation of complex concepts'
+      ]
+    },
+    { 
+      name: 'Problem Solving & Innovation', 
+      degrees: 60, 
+      color: '#7b3ff2',
+      details: [
+        'Complex system analysis & decomposition',
+        'Method development & prototyping',
+        'Automation framework design',
+        'Requirements engineering',
+        'Debugging & optimization',
+        'Creative solution development'
+      ]
+    },
+    { 
+      name: 'Leadership', 
+      degrees: 45, 
+      color: '#0fa3a3',
+      details: [
+        'Team leadership & coordination',
+        'Agile retrospectives & process improvement',
+        'Mentoring & knowledge transfer',
+        'Customer & stakeholder interactions',
+        'Security-classified project work',
+        'Collaborative research environment'
+      ]
+    }
+  ];
+
+  // Helper function to determine heading text color with better contrast for dark colors
+  function determineHeadingTextColor(colorHex) {
+    const colorMap = {
+      '#1e5a96': '#5fa8d3',
+      '#2d7a3e': '#5db373',
+      '#7b3ff2': '#b88eff'
+    };
+    const lowerColor = colorHex.toLowerCase();
+    return colorMap[lowerColor] || colorHex;
+  }
+
+  // Helper function for polar to cartesian conversion
+  function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  }
+
+  // Store segment data for animations
+  let segmentData = [];
+  let activeSegment = null;
+
+  // Create main competence wheel (donut chart)
+  function createMainWheel() {
+    const svgSize = 800;
+    const center = svgSize / 2;
+    const outerRadius = 210;
+    const innerRadius = 130;
+
+    let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel">`;
+    
+    svg += `<defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>`;
+
+    svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
+
+    let currentAngle = 0;
+
+    competencies.forEach((skill, index) => {
+      const startAngle = currentAngle;
+      const endAngle = startAngle + skill.degrees;
+
+      const gradientId = `grad-segment-${index}`;
+      svg += `<defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${skill.color};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${skill.color};stop-opacity:0.85" />
+        </linearGradient>
+      </defs>`;
+
+      const largeArc = skill.degrees > 180 ? '1' : '0';
+      const outerStart = polarToCartesian(center, center, outerRadius, startAngle);
+      const outerEnd = polarToCartesian(center, center, outerRadius, endAngle);
+      const innerStart = polarToCartesian(center, center, innerRadius, startAngle);
+      const innerEnd = polarToCartesian(center, center, innerRadius, endAngle);
+
+      const pathData = [
+        'M', outerStart.x, outerStart.y,
+        'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+        'L', innerEnd.x, innerEnd.y,
+        'A', innerRadius, innerRadius, 0, largeArc, 0, innerStart.x, innerStart.y,
+        'Z'
+      ].join(' ');
+
+      const midAngle = (startAngle + endAngle) / 2;
+      const midRadius = (outerRadius + innerRadius) / 2;
+      const midPoint = polarToCartesian(center, center, midRadius, midAngle);
+      
+      segmentData.push({
+        index: index,
+        name: skill.name,
+        color: skill.color,
+        startAngle: startAngle,
+        endAngle: endAngle,
+        midPoint: midPoint,
+        center: { x: center, y: center }
+      });
+
+      svg += `<path class="segment" data-index="${index}" d="${pathData}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.95" style="transition: all 0.3s ease;"/>`;
+
+      let fontSize = '12';
+      if (skill.degrees >= 80) {
+        fontSize = '14';
+      } else if (skill.degrees >= 60) {
+        fontSize = '13';
+      }
+
+      let labelRadius = 270;
+      if (skill.name === 'Leadership') {
+        labelRadius = 250;
+      } else if (skill.name === 'Problem Solving & Innovation') {
+        labelRadius = 305;
+      } else if (skill.name === 'Communication & Documentation') {
+        labelRadius = 285;
+      } else if (skill.name === 'Research & Scientific Computing') {
+        labelRadius = 260;
+      }
+      const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
+      
+      svg += `<text class="segment-label" data-index="${index}" x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="#333" style="pointer-events: none;">${skill.name}</text>`;
+
+      currentAngle = endAngle;
+    });
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // Render wheel
+  wheelContainer.innerHTML = createMainWheel();
+  wheelContainer.style.position = 'relative';
+
+  // Add interactive event listeners
+  const segments = document.querySelectorAll('.segment');
+  
+  segments.forEach(segment => {
+    segment.addEventListener('mouseenter', function() {
+      if (!activeSegment) {
+        const index = parseInt(this.getAttribute('data-index'));
+        const compColor = competencies[index].color;
+        this.style.filter = `drop-shadow(0 0 12px ${compColor}88)`;
+        this.style.opacity = '1';
+      }
+    });
+
+    segment.addEventListener('mouseleave', function() {
+      if (!activeSegment) {
+        this.style.filter = '';
+        this.style.opacity = '0.95';
+      }
+    });
+
+    segment.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const index = parseInt(this.getAttribute('data-index'));
+      showEnlargedSegment(index);
+    });
+  });
+
+  // Handler for when segment animation completes
+  function handleSegmentAnimationEnd(e) {
+    // Animation complete
+  }
+
+  // Show enlarged segment with detail pop-out
+  function showEnlargedSegment(index) {
+    if (activeSegment === index) {
+      closeEnlargedSegment();
+      return;
+    }
+
+    activeSegment = index;
+    const data = competencies[index];
+
+    // Calculate segment's midpoint angle for animation starting position
+    let currentAngle = 0;
+    for (let i = 0; i < index; i++) {
+      currentAngle += competencies[i].degrees;
+    }
+    const midAngle = currentAngle + (data.degrees / 2);
+    const wheelCenter = 400;
+    const segmentRadius = 170;
+    
+    const angleRad = (midAngle - 90) * Math.PI / 180;
+    const segmentSvgX = wheelCenter + (segmentRadius * Math.cos(angleRad));
+    const segmentSvgY = wheelCenter + (segmentRadius * Math.sin(angleRad));
+    
+    const wheelSvg = document.querySelector('.competence-wheel');
+    const svgRect = wheelSvg.getBoundingClientRect();
+    
+    const segmentViewportX = svgRect.left + (segmentSvgX / 800) * svgRect.width;
+    const segmentViewportY = svgRect.top + (segmentSvgY / 800) * svgRect.height;
+    
+    const finalX = window.innerWidth * 0.38;
+    const finalY = window.innerHeight * 0.5;
+    
+    const offsetX = segmentViewportX - finalX;
+    const offsetY = segmentViewportY - finalY;
+
+    // Create dimming overlay
+    let overlay = document.getElementById('dim-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'dim-overlay';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', closeEnlargedSegment);
+    }
+    overlay.classList.add('active');
+
+    // Create enlarged segment SVG
+    const enlargedSvg = createEnlargedSegmentSVG(index, data, data.degrees * 1.3);
+    let enlargedContainer = document.getElementById('enlarged-segment-container');
+    if (!enlargedContainer) {
+      enlargedContainer = document.createElement('div');
+      enlargedContainer.id = 'enlarged-segment-container';
+      document.body.appendChild(enlargedContainer);
+    }
+    
+    enlargedContainer.style.setProperty('--segment-start-pos', 
+      `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`);
+    
+    enlargedContainer.innerHTML = enlargedSvg;
+    enlargedContainer.dataset.competencyIndex = index;
+    enlargedContainer.dataset.competencyColor = data.color;
+    
+    enlargedContainer.removeEventListener('animationend', handleSegmentAnimationEnd);
+    enlargedContainer.addEventListener('animationend', handleSegmentAnimationEnd, { once: true });
+    
+    enlargedContainer.classList.add('active');
+
+    // Create and show heading
+    let heading = document.getElementById('segment-heading');
+    if (!heading) {
+      heading = document.createElement('div');
+      heading.id = 'segment-heading';
+      document.body.appendChild(heading);
+    }
+    heading.textContent = data.name;
+    heading.style.color = determineHeadingTextColor(data.color);
+    
+    heading.style.position = 'fixed';
+    heading.style.left = (window.innerWidth * 0.38) + 'px';
+    heading.style.transform = 'translateX(-50%) translateY(0)';
+    
+    const estimatedSegmentTop = (window.innerHeight * 0.5) - 210;
+    const estimatedHeadingHeight = 30;
+    heading.style.top = (estimatedSegmentTop - estimatedHeadingHeight - 20) + 'px';
+    
+    heading.classList.add('active');
+
+    // Create detail popout
+    let detailPopout = document.getElementById('detail-popout');
+    if (!detailPopout) {
+      detailPopout = document.createElement('div');
+      detailPopout.id = 'detail-popout';
+      document.body.appendChild(detailPopout);
+    }
+
+    const animationAngle = midAngle - 90;
+    const itemTransformRotation = animationAngle;
+
+    detailPopout.innerHTML = `
+      <ul style="transform-origin: left center;">
+        ${data.details.map((detail, idx) => {
+          const textColor = determineHeadingTextColor(data.color);
+          const bgColor = data.color + '08';
+          return `<li class="detail-item" data-detail-index="${idx}" style="--segment-angle: ${itemTransformRotation}deg; color: ${textColor}; background-color: ${bgColor};">${detail}</li>`;
+        }).join('')}
+      </ul>
+    `;
+    detailPopout.classList.add('active');
+
+    // Hide original wheel
+    if (wheelSvg) {
+      wheelSvg.style.opacity = '0';
+      wheelSvg.style.pointerEvents = 'none';
+    }
+  }
+
+  // Create enlarged segment visualization
+  function createEnlargedSegmentSVG(index, data, enlargedDegrees) {
+    const size = 420;
+    const center = size / 2;
+    const outerRadius = 160;
+    const innerRadius = 90;
+    const displayDegrees = enlargedDegrees || data.degrees;
+    
+    let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">`;
+    
+    svg += `<defs>
+      <linearGradient id="enlarged-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${data.color};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${data.color};stop-opacity:0.8" />
+      </linearGradient>
+      <filter id="segment-glow">
+        <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>`;
+    
+    let currentAngle = 0;
+    for (let i = 0; i < index; i++) {
+      currentAngle += competencies[i].degrees;
+    }
+    
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + displayDegrees;
+    const largeArc = displayDegrees > 180 ? '1' : '0';
+    
+    const outerStart = polarToCartesian(center, center, outerRadius, startAngle);
+    const outerEnd = polarToCartesian(center, center, outerRadius, endAngle);
+    const innerStart = polarToCartesian(center, center, innerRadius, startAngle);
+    const innerEnd = polarToCartesian(center, center, innerRadius, endAngle);
+    
+    const pathData = [
+      'M', outerStart.x, outerStart.y,
+      'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+      'L', innerEnd.x, innerEnd.y,
+      'A', innerRadius, innerRadius, 0, largeArc, 0, innerStart.x, innerStart.y,
+      'Z'
+    ].join(' ');
+    
+    svg += `<path d="${pathData}" fill="url(#enlarged-grad)" stroke="white" stroke-width="2" opacity="0.95" filter="url(#segment-glow)"/>`;
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // Close enlarged segment
+  function closeEnlargedSegment() {
+    if (activeSegment !== null) {
+      const overlay = document.getElementById('dim-overlay');
+      if (overlay) overlay.classList.remove('active');
+
+      const heading = document.getElementById('segment-heading');
+      if (heading) heading.classList.remove('active');
+
+      const enlargedContainer = document.getElementById('enlarged-segment-container');
+      if (enlargedContainer) enlargedContainer.classList.remove('active');
+
+      const detailPopout = document.getElementById('detail-popout');
+      if (detailPopout) detailPopout.classList.remove('active');
+
+      const connectionLines = document.getElementById('connection-lines');
+      if (connectionLines) connectionLines.remove();
+
+      const originalWheel = document.querySelector('.competence-wheel');
+      if (originalWheel) {
+        originalWheel.style.opacity = '1';
+        originalWheel.style.pointerEvents = 'auto';
+      }
+
+      activeSegment = null;
+    }
+  }
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && activeSegment !== null) {
+      closeEnlargedSegment();
+    }
+  });
+})();
+
+// ======================================================
+// Portfolio Page - Static Competence Wheel
+// ======================================================
+
+(function() {
+  const portfolioWheelContainer = document.getElementById('portfolio-wheel-container');
+  if (!portfolioWheelContainer) return;
+
+  const portfolioCompetencies = [
+    { name: 'System Verification & Testing', degrees: 75, color: '#1e5a96' },
+    { name: 'Technical Skills', degrees: 75, color: '#ff9a3d' },
+    { name: 'Research & Scientific Computing', degrees: 50, color: '#2d7a3e' },
+    { name: 'Communication & Documentation', degrees: 55, color: '#e8594f' },
+    { name: 'Problem Solving & Innovation', degrees: 60, color: '#7b3ff2' },
+    { name: 'Leadership', degrees: 45, color: '#0fa3a3' }
+  ];
+
+  function portfolioPolarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  }
+
+  function createPortfolioWheel() {
+    const svgSize = 500;
+    const center = svgSize / 2;
+    const outerRadius = 130;
+    const innerRadius = 80;
+
+    let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; display: block;">`;
+    svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
+
+    let currentAngle = 0;
+
+    portfolioCompetencies.forEach((skill) => {
+      const startAngle = currentAngle;
+      const endAngle = startAngle + skill.degrees;
+      const largeArc = skill.degrees > 180 ? '1' : '0';
+      
+      const outerStart = portfolioPolarToCartesian(center, center, outerRadius, startAngle);
+      const outerEnd = portfolioPolarToCartesian(center, center, outerRadius, endAngle);
+      const innerStart = portfolioPolarToCartesian(center, center, innerRadius, startAngle);
+      const innerEnd = portfolioPolarToCartesian(center, center, innerRadius, endAngle);
+
+      const pathData = [
+        'M', outerStart.x, outerStart.y,
+        'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+        'L', innerEnd.x, innerEnd.y,
+        'A', innerRadius, innerRadius, 0, largeArc, 0, innerStart.x, innerStart.y,
+        'Z'
+      ].join(' ');
+
+      svg += `<path d="${pathData}" fill="${skill.color}" stroke="white" stroke-width="1.5" opacity="0.9"/>`;
+
+      const midAngle = (startAngle + endAngle) / 2;
+      let labelRadius = 170;
+      if (skill.name === 'Leadership') {
+        labelRadius = 160;
+      } else if (skill.name === 'Problem Solving & Innovation') {
+        labelRadius = 185;
+      } else if (skill.name === 'Communication & Documentation') {
+        labelRadius = 180;
+      } else if (skill.name === 'Research & Scientific Computing') {
+        labelRadius = 165;
+      }
+
+      let fontSize = '10';
+      if (skill.degrees >= 80) {
+        fontSize = '11';
+      }
+
+      const labelPos = portfolioPolarToCartesian(center, center, labelRadius, midAngle);
+      svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="600" fill="#333">${skill.name}</text>`;
+
+      currentAngle = endAngle;
+    });
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  portfolioWheelContainer.innerHTML = createPortfolioWheel();
+})();
+
+// ======================================================
+// Work Details Page - Timeline Navigation
+// ======================================================
+
+(function() {
+  const timelineItems = document.querySelectorAll('.work-timeline-nav .timeline-nav-item');
+  if (!timelineItems.length) return;
+
+  timelineItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const sectionId = this.getAttribute('data-section');
+      const targetSection = document.getElementById(sectionId);
+      
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        timelineItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      }
+    });
+  });
+
+  // Update active timeline item on scroll
+  window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('[id]');
+    const scrollPosition = window.scrollY + 200;
+
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        timelineItems.forEach(item => {
+          item.classList.remove('active');
+          if (item.getAttribute('data-section') === section.id) {
+            item.classList.add('active');
+          }
+        });
+      }
+    });
+  });
+})();
