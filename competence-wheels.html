@@ -301,13 +301,13 @@
     <script>
       // Competency data - degrees represent proportion of profile (total = 360)
       const competencies = [
-        { name: 'System Verification & Testing', degrees: 82, color: '#d4532f' },
-        { name: 'Technical Programming', degrees: 83, color: '#f8a825' },
-        { name: 'Research & Scientific Computing', degrees: 52, color: '#ff6b6b' },
-        { name: 'Communication & Documentation', degrees: 45, color: '#4ecdc4' },
-        { name: 'Leadership & Teamwork', degrees: 41, color: '#45b7d1' },
-        { name: 'Problem Solving & Innovation', degrees: 38, color: '#96ceb4' },
-        { name: 'Tools & Platforms', degrees: 19, color: '#ffeaa7' }
+        { name: 'System Verification & Testing', degrees: 82, color: '#7a8fa1' },
+        { name: 'Technical Programming', degrees: 83, color: '#9d8b78' },
+        { name: 'Research & Scientific Computing', degrees: 52, color: '#8fa09a' },
+        { name: 'Communication & Documentation', degrees: 45, color: '#a89a80' },
+        { name: 'Leadership & Teamwork', degrees: 41, color: '#8b9a92' },
+        { name: 'Problem Solving & Innovation', degrees: 38, color: '#9a9284' },
+        { name: 'Tools & Platforms', degrees: 19, color: '#a0a896' }
       ];
 
       // Helper functions for SVG arc creation
@@ -334,7 +334,7 @@
 
       // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
-        const svgSize = 600;
+        const svgSize = 700;
         const center = svgSize / 2;
         const outerRadius = 210;
         const innerRadius = 130;
@@ -386,10 +386,10 @@
 
           // Add label positioned around the outer ring
           const midAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + 70);
+          const labelRadius = (outerRadius + 85);
           const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
           
-          const fontSize = skill.name.length > 22 ? '12' : '13';
+          const fontSize = skill.name.length > 22 ? '11' : '12';
           const fontWeight = skill.degrees > 80 ? '700' : '600';
           
           svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
