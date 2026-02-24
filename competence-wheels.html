@@ -125,14 +125,14 @@
         opacity: 0.9;
       }
 
-      /* Enlarged segment container */
+      /* Enlarged segment container - LEFT side */
       #enlarged-segment-container {
         position: fixed;
-        left: 50%;
+        left: 25%;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: 400px;
-        height: 400px;
+        width: 350px;
+        height: 350px;
         z-index: 1000;
         opacity: 0;
         pointer-events: none;
@@ -150,17 +150,17 @@
         filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
       }
 
-      /* Detail popout container */
+      /* Detail popout container - RIGHT side */
       #detail-popout {
         position: fixed;
-        left: 50%;
+        left: 70%;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: 550px;
-        max-height: 90vh;
+        width: 480px;
+        max-height: 80vh;
         background: white;
         border-radius: 16px;
-        padding: 2rem;
+        padding: 2.5rem;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         z-index: 1001;
         opacity: 0;
@@ -425,12 +425,12 @@
 
     <script src="js/app.js"></script>
     <script>
-      // Competency data with warm website color palette and details
+      // Competency data with distinct vibrant color palette and details
       const competencies = [
         { 
           name: 'System Verification & Testing', 
           degrees: 60, 
-          color: '#a89987',
+          color: '#1e5a96',
           details: [
             'Requirement documentation using Doors NG',
             'Reviewing design documents',
@@ -443,7 +443,7 @@
         { 
           name: 'Technical Skills', 
           degrees: 90, 
-          color: '#8ac4d9',
+          color: '#ff9a3d',
           details: [
             'Python (scientific computing, automation)',
             'C++ (systems programming)',
@@ -457,7 +457,7 @@
         { 
           name: 'Research & Scientific Computing', 
           degrees: 50, 
-          color: '#98b88f',
+          color: '#2d7a3e',
           details: [
             'HPC simulations & computational modeling',
             '3D MHD (magnetohydrodynamics) simulations',
@@ -470,7 +470,7 @@
         { 
           name: 'Communication & Documentation', 
           degrees: 55, 
-          color: '#8ab9ba',
+          color: '#e8594f',
           details: [
             'Technical presentations & conferences',
             'Academic writing & research papers',
@@ -483,7 +483,7 @@
         { 
           name: 'Problem Solving & Innovation', 
           degrees: 60, 
-          color: '#b89aab',
+          color: '#7b3ff2',
           details: [
             'Complex system analysis & decomposition',
             'Method development & prototyping',
@@ -496,7 +496,7 @@
         { 
           name: 'Leadership', 
           degrees: 45, 
-          color: '#a8938a',
+          color: '#0fa3a3',
           details: [
             'Team leadership & coordination',
             'Agile retrospectives & process improvement',
@@ -702,22 +702,22 @@
         }
       }
 
-      // Create enlarged segment visualization
+      // Create enlarged segment visualization - only the specific segment piece
       function createEnlargedSegmentSVG(index, data) {
-        const size = 400;
+        const size = 350;
         const center = size / 2;
-        const outerRadius = 150;
-        const innerRadius = 80;
+        const outerRadius = 130;
+        const innerRadius = 70;
         
         let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
         
         svg += `<defs>
           <linearGradient id="enlarged-grad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:${data.color};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${data.color};stop-opacity:0.85" />
+            <stop offset="100%" style="stop-color:${data.color};stop-opacity:0.8" />
           </linearGradient>
           <filter id="segment-glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -725,17 +725,23 @@
           </filter>
         </defs>`;
         
-        svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
+        // Calculate segment angles
+        let currentAngle = 0;
+        for (let i = 0; i < index; i++) {
+          currentAngle += competencies[i].degrees;
+        }
         
-        const startAngle = 0;
-        const endAngle = 360;
-        const largeArc = '1';
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + data.degrees;
+        const largeArc = data.degrees > 180 ? '1' : '0';
         
+        // Calculate points for the segment
         const outerStart = polarToCartesian(center, center, outerRadius, startAngle);
-        const outerEnd = polarToCartesian(center, center, outerRadius, endAngle - 0.1);
+        const outerEnd = polarToCartesian(center, center, outerRadius, endAngle);
         const innerStart = polarToCartesian(center, center, innerRadius, startAngle);
-        const innerEnd = polarToCartesian(center, center, innerRadius, endAngle - 0.1);
+        const innerEnd = polarToCartesian(center, center, innerRadius, endAngle);
         
+        // Create the segment path
         const pathData = [
           'M', outerStart.x, outerStart.y,
           'A', outerRadius, outerRadius, 0, largeArc, 1, outerEnd.x, outerEnd.y,
@@ -744,7 +750,7 @@
           'Z'
         ].join(' ');
         
-        svg += `<path d="${pathData}" fill="url(#enlarged-grad)" stroke="white" stroke-width="3" opacity="0.95" filter="url(#segment-glow)"/>`;
+        svg += `<path d="${pathData}" fill="url(#enlarged-grad)" stroke="white" stroke-width="2" opacity="0.95" filter="url(#segment-glow)"/>`;
         svg += `</svg>`;
         return svg;
       }
