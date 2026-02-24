@@ -112,6 +112,16 @@ section {
   margin-bottom: 1.5rem;
 }
 
+/* Competence wheel section - remove excess padding */
+#competence-wheel-section {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#competence-wheel-section .section-heading {
+  margin-bottom: 0.25rem !important;
+}
+
 /* Utility */
 .block {
   display: block;
