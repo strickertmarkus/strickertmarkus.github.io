@@ -569,16 +569,16 @@
         }
       ];
 
-      // Helper function to determine if heading text should be white or use segment color
+      // Helper function to determine heading text color with better contrast for dark colors
       function determineHeadingTextColor(colorHex) {
-        // Dark colors that need white text for contrast
-        const darkColors = ['#1e5a96', '#2d7a3e'];
+        // Dark colors get a lighter version for contrast
+        const colorMap = {
+          '#1e5a96': '#5fa8d3', // Navy Blue -> Light Blue
+          '#2d7a3e': '#5db373'  // Forest Green -> Light Green
+        };
         
-        if (darkColors.includes(colorHex.toLowerCase())) {
-          return '#ffffff'; // White text for dark segment colors
-        }
-        
-        return colorHex; // Keep segment color for light/medium colors
+        const lowerColor = colorHex.toLowerCase();
+        return colorMap[lowerColor] || colorHex; // Return lighter version or original
       }
 
       // Helper function for polar to cartesian conversion
@@ -795,16 +795,13 @@
         }
         heading.textContent = data.name;
         heading.style.color = determineHeadingTextColor(data.color);
-        heading.style.textShadow = data.color === '#1e5a96' || data.color === '#2d7a3e' 
-          ? '0 2px 8px rgba(0, 0, 0, 0.3)' 
-          : 'none';
         
         heading.style.position = 'fixed';
         heading.style.left = (window.innerWidth * 0.38) + 'px';
         heading.style.transform = 'translateX(-50%)';
         heading.classList.add('active');
         
-        // Position heading after animation starts using bounding rect
+        // Position heading AFTER animation completes using bounding rect
         setTimeout(() => {
           const enlargedContainer = document.getElementById('enlarged-segment-container');
           if (enlargedContainer && enlargedContainer.classList.contains('active')) {
@@ -816,7 +813,7 @@
             // Position heading directly above segment
             heading.style.top = (containerTop - headingHeight - gapAboveSegment) + 'px';
           }
-        }, 350); // Half of 0.7s animation duration for smooth effect
+        }, 700); // Wait for animation to complete
 
         // Create detail popout
         let detailPopout = document.getElementById('detail-popout');
@@ -832,7 +829,10 @@
 
         detailPopout.innerHTML = `
           <ul style="transform-origin: left center;">
-            ${data.details.map((detail, idx) => `<li class="detail-item" data-detail-index="${idx}" style="--segment-angle: ${itemTransformRotation}deg; color: ${data.color};">${detail}</li>`).join('')}
+            ${data.details.map((detail, idx) => {
+              const textColor = determineHeadingTextColor(data.color);
+              return `<li class="detail-item" data-detail-index="${idx}" style="--segment-angle: ${itemTransformRotation}deg; color: ${textColor};">${detail}</li>`;
+            }).join('')}
           </ul>
         `;
         detailPopout.classList.add('active');
