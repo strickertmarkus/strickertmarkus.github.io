@@ -149,8 +149,8 @@
           transform: var(--segment-start-pos, translate(-50%, -50%)) scale(0.4);
           opacity: 0;
         }
-        60% {
-          transform: translate(-50%, -50%) scale(1.1);
+        65% {
+          transform: translate(-50%, -50%) scale(1.02);
           opacity: 1;
         }
         100% {
@@ -163,12 +163,9 @@
         animation: gentleFloat 3s ease-in-out infinite;
       }
 
-      /* Segment heading - positioned just above segment */
+      /* Segment heading - positioned above segment with consistent distance */
       #segment-heading {
         position: fixed;
-        left: 38%;
-        top: 50%;
-        transform: translateX(-50%) translateY(calc(-100% - 20px));
         color: #333;
         font-size: 1.4rem;
         font-weight: 700;
@@ -186,11 +183,11 @@
       @keyframes headingFade {
         from {
           opacity: 0;
-          transform: translateX(-50%) translateY(calc(-100% - 30px));
+          transform: translateY(-10px);
         }
         to {
           opacity: 1;
-          transform: translateX(-50%) translateY(calc(-100% - 20px));
+          transform: translateY(0);
         }
       }
 
@@ -784,6 +781,18 @@
         }
         heading.textContent = data.name;
         heading.style.color = data.color;
+        
+        // Position heading above segment with consistent distance
+        setTimeout(() => {
+          const headingHeight = heading.offsetHeight;
+          const segmentCenterY = window.innerHeight * 0.5;
+          const segmentTopY = segmentCenterY - 175; // segment is 350px tall
+          const headingTopY = segmentTopY - headingHeight - 20; // 20px gap above segment
+          heading.style.top = headingTopY + 'px';
+          heading.style.left = window.innerWidth * 0.38 + 'px';
+          heading.style.transform = 'translateX(-50%)';
+        }, 0);
+        
         heading.classList.add('active');
 
         // Create detail popout
@@ -817,7 +826,7 @@
         }
       }
 
-      // Draw SVG lines connecting segment to detail items
+      // Draw SVG lines connecting segment edges to detail items
       function drawConnectionLines(segmentColor) {
         let connectedLinesContainer = document.getElementById('connection-lines');
         if (connectedLinesContainer) {
@@ -831,32 +840,40 @@
         connectedLinesContainer.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
         connectedLinesContainer.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
-        // Get segment position and edge
+        // Get segment position
         const enlargedContainer = document.getElementById('enlarged-segment-container');
         if (!enlargedContainer) return;
 
         const segmentRect = enlargedContainer.getBoundingClientRect();
         const segmentCenterX = segmentRect.left + segmentRect.width / 2;
         const segmentCenterY = segmentRect.top + segmentRect.height / 2;
-        const segmentRightEdgeX = segmentRect.right; // Right edge of segment
+        const segmentOuterRadius = 145; // outer radius of segment in pixels (360px / 2.5 for perspective)
 
         // Get detail items and draw lines
         const detailItems = document.querySelectorAll('.detail-item');
         detailItems.forEach((item, index) => {
           const itemRect = item.getBoundingClientRect();
-          const itemLeftX = itemRect.left;
+          const itemLeftX = itemRect.left - 10; // Start connection before bullet
           const itemCenterY = itemRect.top + itemRect.height / 2;
 
-          // Create line from segment right edge to item left edge
+          // Distribute connection points around segment edge
+          const angle = (index / detailItems.length) * 180 + 270; // Distribute around right side of segment
+          const angleRad = angle * Math.PI / 180;
+          
+          // Calculate point on segment's outer edge
+          const x1 = segmentCenterX + Math.cos(angleRad) * segmentOuterRadius;
+          const y1 = segmentCenterY + Math.sin(angleRad) * segmentOuterRadius;
+
+          // Create line from segment edge to item
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', segmentRightEdgeX);
-          line.setAttribute('y1', segmentCenterY);
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
           line.setAttribute('x2', itemLeftX);
           line.setAttribute('y2', itemCenterY);
           line.setAttribute('stroke', segmentColor);
-          line.setAttribute('stroke-width', '1.5');
-          line.setAttribute('opacity', '0.6');
-          line.setAttribute('stroke-dasharray', '5,5');
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('opacity', '0.7');
+          line.setAttribute('stroke-linecap', 'round');
           
           connectedLinesContainer.appendChild(line);
         });
@@ -872,7 +889,7 @@
         const outerRadius = 160;
         const innerRadius = 90;
         
-        let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+        let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`;
         
         svg += `<defs>
           <linearGradient id="enlarged-grad" x1="0%" y1="0%" x2="100%" y2="100%">
