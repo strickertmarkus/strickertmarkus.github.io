@@ -253,7 +253,7 @@
         position: relative;
         animation: floatInFromSegment 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         opacity: 0;
-        font-size: 0.95rem;
+        font-size: 1.1rem;
         line-height: 1.5;
       }
 
@@ -799,7 +799,7 @@
         
         heading.style.position = 'fixed';
         heading.style.left = (window.innerWidth * 0.38) + 'px';
-        heading.style.transform = 'translateX(-50%)';
+        heading.style.transform = 'translateX(-50%) translateY(0)'; // Match animation end state to prevent jump
         
         // Calculate and set top position before animation starts
         const estimatedSegmentTop = (window.innerHeight * 0.5) - 210; // 50% - half of 420px container
@@ -887,9 +887,10 @@
           line.setAttribute('x2', itemLeftX);
           line.setAttribute('y2', itemCenterY);
           line.setAttribute('stroke', segmentColor);
-          line.setAttribute('stroke-width', '2');
-          line.setAttribute('opacity', '0.7');
+          line.setAttribute('stroke-width', '2.5');
+          line.setAttribute('opacity', '0.8');
           line.setAttribute('stroke-linecap', 'round');
+          line.setAttribute('stroke-linejoin', 'round');
           
           connectedLinesContainer.appendChild(line);
         });
