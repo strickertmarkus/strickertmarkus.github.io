@@ -720,6 +720,16 @@
         });
       });
 
+      // Handler for when segment animation completes
+      function handleSegmentAnimationEnd(e) {
+        const enlargedContainer = e.target;
+        const competencyIndex = parseInt(enlargedContainer.dataset.competencyIndex);
+        const competencyColor = enlargedContainer.dataset.competencyColor;
+        
+        // Draw lines after segment has finished animating to its final position
+        drawConnectionLines(competencyColor, competencyIndex);
+      }
+
       // Show enlarged segment with detail pop-out
       function showEnlargedSegment(index) {
         if (activeSegment === index) {
@@ -785,6 +795,17 @@
           `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`);
         
         enlargedContainer.innerHTML = enlargedSvg;
+        
+        // Store the competency index and color for later use in animationend handler
+        enlargedContainer.dataset.competencyIndex = index;
+        enlargedContainer.dataset.competencyColor = data.color;
+        
+        // Remove old animationend listener if any
+        enlargedContainer.removeEventListener('animationend', handleSegmentAnimationEnd);
+        
+        // Add new animationend listener to draw lines after animation completes
+        enlargedContainer.addEventListener('animationend', handleSegmentAnimationEnd, { once: true });
+        
         enlargedContainer.classList.add('active');
 
         // Create and show heading
@@ -829,11 +850,6 @@
           </ul>
         `;
         detailPopout.classList.add('active');
-
-        // Draw connecting lines from segment to detail items
-        setTimeout(() => {
-          drawConnectionLines(data.color, index);
-        }, 100);
 
         // Hide original wheel
         if (wheelSvg) {
