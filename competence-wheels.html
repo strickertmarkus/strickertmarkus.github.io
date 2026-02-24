@@ -88,10 +88,13 @@
         display: flex;
         justify-content: center;
         margin-bottom: 2rem;
+        overflow: visible;
       }
 
       .wheel-svg-container svg {
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        max-width: 100%;
+        height: auto;
       }
 
       .legend-container {
@@ -269,12 +272,6 @@
           <div class="wheel-display">
             <div class="wheel-svg-container" id="main-wheel-container"></div>
           </div>
-
-          <!-- Legend -->
-          <div class="wheel-display">
-            <h3 style="text-align: center; color: #9d836b; margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;">Profile Composition</h3>
-            <div class="legend-container" id="legend-container"></div>
-          </div>
         </div>
 
         <!-- Summary Section -->
@@ -282,14 +279,13 @@
           <h3>Understanding the Profile</h3>
           <p style="color: #666; margin-bottom: 1rem;">The wheel above represents how my professional expertise is distributed across different areas. The larger the segment, the more that competency defines my professional profile:</p>
           <ul>
-            <li><strong>System Verification & Testing (110°):</strong> Core competency built over years in test automation, hardware/firmware/software verification across full development lifecycle</li>
-            <li><strong>Technical Programming (110°):</strong> Equal core strength spanning Python, C++, Bash, Fortran, AWK, VBA — from small scripts to large-scale systems</li>
-            <li><strong>Research & Scientific Computing (70°):</strong> Significant background in HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications</li>
-            <li><strong>Communication & Documentation (60°):</strong> Strong emphasis on technical presentations, academic writing, agile documentation, cross-functional teams</li>
-            <li><strong>Leadership & Teamwork (55°):</strong> Team leadership, agile retrospectives, mentoring, customer interactions, security-classified work</li>
-            <li><strong>Problem Solving & Innovation (50°):</strong> Complex system analysis, method development, automation frameworks, requirements engineering</li>
-            <li><strong>Continuous Learning (30°):</strong> Actively staying current with AI/LLM tools, adopting new methodologies</li>
-            <li><strong>Tools & Platforms (25°):</strong> VS Code, LaTeX, Git, LLM integration, Tecplot, simulation frameworks</li>
+            <li><strong>System Verification & Testing:</strong> Core competency built over years in test automation, hardware/firmware/software verification across full development lifecycle</li>
+            <li><strong>Technical Programming:</strong> Equal core strength spanning Python, C++, Bash, Fortran, AWK, VBA — from small scripts to large-scale systems</li>
+            <li><strong>Research & Scientific Computing:</strong> Significant background in HPC simulations, 3D MHD modeling, data analysis, peer-reviewed publications</li>
+            <li><strong>Communication & Documentation:</strong> Strong emphasis on technical presentations, academic writing, agile documentation, cross-functional teams</li>
+            <li><strong>Leadership & Teamwork:</strong> Team leadership, agile retrospectives, mentoring, customer interactions, security-classified work</li>
+            <li><strong>Problem Solving & Innovation:</strong> Complex system analysis, method development, automation frameworks, requirements engineering</li>
+            <li><strong>Tools & Platforms:</strong> VS Code, LaTeX, Git, LLM integration, Tecplot, simulation frameworks</li>
           </ul>
         </div>
       </div>
@@ -305,14 +301,13 @@
     <script>
       // Competency data - degrees represent proportion of profile (total = 360)
       const competencies = [
-        { name: 'System Verification & Testing', degrees: 110, color: '#6366f1' },
-        { name: 'Technical Programming', degrees: 110, color: '#3b82f6' },
-        { name: 'Research & Scientific Computing', degrees: 70, color: '#ec4899' },
-        { name: 'Communication & Documentation', degrees: 60, color: '#f59e0b' },
-        { name: 'Leadership & Teamwork', degrees: 55, color: '#8b5cf6' },
-        { name: 'Problem Solving & Innovation', degrees: 50, color: '#10b981' },
-        { name: 'Tools & Platforms', degrees: 25, color: '#06b6d4' },
-        { name: 'Continuous Learning', degrees: 30, color: '#f97316' }
+        { name: 'System Verification & Testing', degrees: 82, color: '#6366f1' },
+        { name: 'Technical Programming', degrees: 83, color: '#3b82f6' },
+        { name: 'Research & Scientific Computing', degrees: 52, color: '#ec4899' },
+        { name: 'Communication & Documentation', degrees: 45, color: '#f59e0b' },
+        { name: 'Leadership & Teamwork', degrees: 41, color: '#8b5cf6' },
+        { name: 'Problem Solving & Innovation', degrees: 38, color: '#10b981' },
+        { name: 'Tools & Platforms', degrees: 19, color: '#06b6d4' }
       ];
 
       // Helper functions for SVG arc creation
@@ -339,7 +334,7 @@
 
       // Create main competence wheel (donut chart with outer colored ring)
       function createMainWheel() {
-        const svgSize = 400;
+        const svgSize = 480;
         const center = svgSize / 2;
         const outerRadius = 160;
         const innerRadius = 100;
@@ -391,18 +386,13 @@
 
           // Add label positioned around the outer ring
           const midAngle = (startAngle + endAngle) / 2;
-          const labelRadius = (outerRadius + 40);
+          const labelRadius = (outerRadius + 55);
           const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
           
-          const fontSize = skill.name.length > 20 ? '10' : '11';
+          const fontSize = skill.name.length > 22 ? '9' : '10';
           const fontWeight = skill.degrees > 80 ? '700' : '600';
           
           svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="#333" class="wheel-label">${skill.name}</text>`;
-
-          // Add degree value in the center of each segment
-          const valueRadius = (outerRadius + innerRadius) / 2;
-          const valuePos = polarToCartesian(center, center, valueRadius, midAngle);
-          svg += `<text x="${valuePos.x}" y="${valuePos.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="600" fill="white" opacity="0.9">${skill.degrees}°</text>`;
 
           currentAngle = endAngle;
         });
@@ -414,20 +404,6 @@
       // Render wheel
       const wheelContainer = document.getElementById('main-wheel-container');
       wheelContainer.innerHTML = createMainWheel();
-
-      // Create legend
-      const legendContainer = document.getElementById('legend-container');
-      let legendHTML = '';
-      competencies.forEach(competency => {
-        legendHTML += `
-          <div class="legend-item">
-            <div class="legend-color" style="background-color: ${competency.color};"></div>
-            <span class="legend-label">${competency.name}</span>
-            <span class="legend-value">${competency.degrees}°</span>
-          </div>
-        `;
-      });
-      legendContainer.innerHTML = legendHTML;
     </script>
   </body>
 </html>
