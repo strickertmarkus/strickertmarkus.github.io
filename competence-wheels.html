@@ -193,7 +193,6 @@
           transform: translateX(-50%) translateY(0);
         }
       }
-      }
 
       @keyframes gentleFloat {
         0%, 100% {
@@ -729,7 +728,6 @@
         const segmentSvgY = wheelCenter + (segmentRadius * Math.sin(angleRad));
         
         // Get wheel container position and size
-        const wheelContainerRect = wheelContainer.getBoundingClientRect();
         const wheelSvg = document.querySelector('.competence-wheel');
         const svgRect = wheelSvg.getBoundingClientRect();
         
@@ -802,7 +800,6 @@
         detailPopout.classList.add('active');
 
         // Hide original wheel
-        const wheelSvg = document.querySelector('.competence-wheel');
         if (wheelSvg) {
           wheelSvg.style.opacity = '0';
           wheelSvg.style.pointerEvents = 'none';
@@ -886,10 +883,10 @@
           }
 
           // Show original wheel
-          const wheelSvg = document.querySelector('.competence-wheel');
-          if (wheelSvg) {
-            wheelSvg.style.opacity = '1';
-            wheelSvg.style.pointerEvents = 'auto';
+          const originalWheel = document.querySelector('.competence-wheel');
+          if (originalWheel) {
+            originalWheel.style.opacity = '1';
+            originalWheel.style.pointerEvents = 'auto';
           }
 
           activeSegment = null;
