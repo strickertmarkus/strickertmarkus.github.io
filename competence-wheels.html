@@ -173,6 +173,8 @@
         opacity: 0;
         pointer-events: none;
         white-space: nowrap;
+        text-align: center;
+        letter-spacing: 0.5px;
       }
 
       #segment-heading.active {
@@ -567,6 +569,18 @@
         }
       ];
 
+      // Helper function to determine if heading text should be white or use segment color
+      function determineHeadingTextColor(colorHex) {
+        // Dark colors that need white text for contrast
+        const darkColors = ['#1e5a96', '#2d7a3e'];
+        
+        if (darkColors.includes(colorHex.toLowerCase())) {
+          return '#ffffff'; // White text for dark segment colors
+        }
+        
+        return colorHex; // Keep segment color for light/medium colors
+      }
+
       // Helper function for polar to cartesian conversion
       function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
         const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
@@ -780,24 +794,29 @@
           document.body.appendChild(heading);
         }
         heading.textContent = data.name;
-        heading.style.color = data.color;
-        
-        // Position heading above segment using fixed container position
-        // Segments always land at: left: 38%, top: 50%, container size: 420x420
-        // Top of segment = 50% - 210px (half container height)
-        // Heading position = top of segment - headingHeight - 20px gap
-        const estimatedHeadingHeight = 28; // Approximate height for the heading
-        const segmentTopPercent = 50; // Top position of container
-        const containerHalfHeight = 210; // Half of 420px
-        
-        const headingTopPx = (window.innerHeight * (segmentTopPercent / 100)) - containerHalfHeight - estimatedHeadingHeight - 20;
-        const headingLeftPx = window.innerWidth * 0.38; // Same as segment center
+        heading.style.color = determineHeadingTextColor(data.color);
+        heading.style.textShadow = data.color === '#1e5a96' || data.color === '#2d7a3e' 
+          ? '0 2px 8px rgba(0, 0, 0, 0.3)' 
+          : 'none';
         
         heading.style.position = 'fixed';
-        heading.style.top = headingTopPx + 'px';
-        heading.style.left = headingLeftPx + 'px';
+        heading.style.left = (window.innerWidth * 0.38) + 'px';
         heading.style.transform = 'translateX(-50%)';
         heading.classList.add('active');
+        
+        // Position heading after animation starts using bounding rect
+        setTimeout(() => {
+          const enlargedContainer = document.getElementById('enlarged-segment-container');
+          if (enlargedContainer && enlargedContainer.classList.contains('active')) {
+            const containerRect = enlargedContainer.getBoundingClientRect();
+            const containerTop = containerRect.top;
+            const headingHeight = heading.offsetHeight;
+            const gapAboveSegment = 20; // Gap between heading and segment
+            
+            // Position heading directly above segment
+            heading.style.top = (containerTop - headingHeight - gapAboveSegment) + 'px';
+          }
+        }, 350); // Half of 0.7s animation duration for smooth effect
 
         // Create detail popout
         let detailPopout = document.getElementById('detail-popout');
