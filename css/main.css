@@ -4189,7 +4189,7 @@ body.competence-page {
 }
 
 .competence-page .page-content {
-  padding: 3rem 1rem;
+  padding: 1rem 1rem;
 }
 
 .competence-page .page-content .container {
@@ -4202,13 +4202,13 @@ body.competence-page {
 
 .competence-intro {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .competence-intro h2 {
   font-size: 2.2rem;
   color: #333;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .competence-intro p {
@@ -4216,22 +4216,22 @@ body.competence-page {
   color: #666;
   max-width: 800px;
   margin: 0 auto;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
 .wheel-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 3rem 0;
+  margin: 0.5rem 0;
   flex-wrap: wrap;
-  gap: 3rem;
+  gap: 1rem;
 }
 
 .wheel-display {
   background: transparent;
   border-radius: 16px;
-  padding: 3rem;
+  padding: 0.5rem;
   box-shadow: none;
   flex: 1;
   min-width: 320px;
@@ -4248,7 +4248,7 @@ body.competence-page {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   overflow: visible;
 }
 
@@ -4627,7 +4627,7 @@ body.competence-page {
 @media (max-width: 1024px) {
   .wheel-container {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .wheel-display {
@@ -4637,7 +4637,7 @@ body.competence-page {
 
 @media (max-width: 768px) {
   .competence-page .page-content {
-    padding: 2rem 1rem;
+    padding: 0.5rem 0.5rem;
   }
 
   .competence-intro h2 {
@@ -4645,7 +4645,7 @@ body.competence-page {
   }
 
   .wheel-display {
-    padding: 2rem;
+    padding: 0.25rem;
   }
 
   .wheel-svg-container svg {
