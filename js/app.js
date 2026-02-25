@@ -799,6 +799,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Animation complete
   }
 
+  // Get responsive layout parameters for enlarged segment view
+  function getEnlargedLayout() {
+    const vw = window.innerWidth;
+    if (vw <= 480) {
+      return { leftPct: 0.5, topPct: 0.28, size: 150 };
+    } else if (vw <= 768) {
+      return { leftPct: 0.5, topPct: 0.28, size: 180 };
+    } else if (vw <= 1024) {
+      return { leftPct: 0.5, topPct: 0.28, size: 220 };
+    } else if (vw <= 1440) {
+      return { leftPct: 0.25, topPct: 0.5, size: 320 };
+    }
+    return { leftPct: 0.30, topPct: 0.5, size: 420 };
+  }
+
   // Show enlarged segment with detail pop-out
   function showEnlargedSegment(index) {
     if (activeSegment === index) {
@@ -828,8 +843,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const segmentViewportX = svgRect.left + (segmentSvgX / 800) * svgRect.width;
     const segmentViewportY = svgRect.top + (segmentSvgY / 800) * svgRect.height;
     
-    const finalX = window.innerWidth * 0.38;
-    const finalY = window.innerHeight * 0.5;
+    const layout = getEnlargedLayout();
+    const finalX = window.innerWidth * layout.leftPct;
+    const finalY = window.innerHeight * layout.topPct;
     
     const offsetX = segmentViewportX - finalX;
     const offsetY = segmentViewportY - finalY;
@@ -876,12 +892,12 @@ document.addEventListener('DOMContentLoaded', function() {
     heading.style.color = determineHeadingTextColor(data.color);
     
     heading.style.position = 'fixed';
-    heading.style.left = (window.innerWidth * 0.38) + 'px';
+    heading.style.left = finalX + 'px';
     heading.style.transform = 'translateX(-50%) translateY(0)';
     
-    const estimatedSegmentTop = (window.innerHeight * 0.5) - 210;
+    const estimatedSegmentTop = finalY - (layout.size / 2);
     const estimatedHeadingHeight = 30;
-    heading.style.top = (estimatedSegmentTop - estimatedHeadingHeight - 20) + 'px';
+    heading.style.top = (estimatedSegmentTop - estimatedHeadingHeight - 15) + 'px';
     
     heading.classList.add('active');
 

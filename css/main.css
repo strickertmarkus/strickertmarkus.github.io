@@ -4289,7 +4289,7 @@ body.competence-page {
 /* Enlarged segment container - LEFT side */
 #enlarged-segment-container {
   position: fixed;
-  left: 38%;
+  left: 30%;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 420px;
@@ -4372,7 +4372,7 @@ body.competence-page {
 /* Detail popout container - RIGHT side */
 #detail-popout {
   position: fixed;
-  left: 60%;
+  left: 65%;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 500px;
@@ -4444,6 +4444,99 @@ body.competence-page {
 .detail-item:before {
   content: "";
   display: none;
+}
+
+/* Responsive enlarged segment view */
+@media (max-width: 1440px) {
+  #enlarged-segment-container {
+    left: 25%;
+    width: 320px;
+    height: 320px;
+  }
+
+  #detail-popout {
+    left: 62%;
+    width: 400px;
+  }
+
+  .detail-item {
+    font-size: 1.1rem;
+  }
+
+  #segment-heading {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  #enlarged-segment-container {
+    left: 50%;
+    top: 28%;
+    width: 220px;
+    height: 220px;
+  }
+
+  #segment-heading {
+    font-size: 1.3rem;
+    white-space: normal;
+    max-width: 85vw;
+  }
+
+  #detail-popout {
+    left: 50%;
+    top: auto;
+    bottom: 5%;
+    transform: translate(-50%, 0);
+    width: min(500px, 90vw);
+    max-height: 45vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .detail-item {
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #enlarged-segment-container {
+    width: 180px;
+    height: 180px;
+  }
+
+  #segment-heading {
+    font-size: 1.1rem;
+  }
+
+  #detail-popout {
+    max-height: 48vh;
+    bottom: 4%;
+  }
+
+  .detail-item {
+    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #enlarged-segment-container {
+    width: 150px;
+    height: 150px;
+  }
+
+  #segment-heading {
+    font-size: 1rem;
+  }
+
+  .detail-item {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+    margin-bottom: 0.35rem;
+  }
 }
 
 .legend-container {
