@@ -676,8 +676,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const center = svgSize / 2;
     const outerRadius = 210;
     const innerRadius = 130;
+    // Crop viewBox to remove empty space (labels extend to ~305px from center)
+    const vbMargin = 75;
+    const vbStart = vbMargin;
+    const vbSize = svgSize - vbMargin * 2;
 
-    let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel">`;
+    let svg = `<svg viewBox="${vbStart} ${vbStart} ${vbSize} ${vbSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel" style="width:100%;height:auto;display:block;">`;
     
     svg += `<defs>
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -840,8 +844,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const wheelSvg = document.querySelector('.competence-wheel');
     const svgRect = wheelSvg.getBoundingClientRect();
     
-    const segmentViewportX = svgRect.left + (segmentSvgX / 800) * svgRect.width;
-    const segmentViewportY = svgRect.top + (segmentSvgY / 800) * svgRect.height;
+    // Map SVG coordinates to viewport (viewBox starts at 75, size 650)
+    const vbStart = 75;
+    const vbSize = 650;
+    const segmentViewportX = svgRect.left + ((segmentSvgX - vbStart) / vbSize) * svgRect.width;
+    const segmentViewportY = svgRect.top + ((segmentSvgY - vbStart) / vbSize) * svgRect.height;
     
     const layout = getEnlargedLayout();
     const finalX = window.innerWidth * layout.leftPct;

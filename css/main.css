@@ -4189,66 +4189,40 @@ body.competence-page {
 }
 
 .competence-page .page-content {
-  padding: 1rem 1rem;
+  padding: 0.5rem 1rem;
 }
 
 .competence-page .page-content .container {
   display: block;
-  max-width: 1400px;
+  max-width: 900px;
   width: 100%;
-  padding: 0 2rem;
+  padding: 0 1rem;
   margin: 0 auto;
 }
 
 .competence-intro {
   text-align: center;
-  margin-bottom: 1rem;
-}
-
-.competence-intro h2 {
-  font-size: 2.2rem;
-  color: #333;
   margin-bottom: 0.5rem;
 }
 
+.competence-intro h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
 .competence-intro p {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: #666;
   max-width: 800px;
   margin: 0 auto;
-  line-height: 1.6;
-}
-
-.wheel-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0.5rem 0;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.wheel-display {
-  background: transparent;
-  border-radius: 16px;
-  padding: 0.5rem;
-  box-shadow: none;
-  flex: 1;
-  min-width: 320px;
-  max-width: 100%;
-  transition: all 0.3s ease;
-}
-
-.wheel-display:hover {
-  box-shadow: none;
-  transform: none;
+  line-height: 1.5;
 }
 
 .wheel-svg-container {
   width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 0.5rem;
+  max-width: 600px;
+  margin: 0 auto;
   overflow: visible;
 }
 
@@ -4624,34 +4598,17 @@ body.competence-page {
   left: 0;
 }
 
-@media (max-width: 1024px) {
-  .wheel-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .wheel-display {
-    max-width: 100%;
-  }
-}
-
 @media (max-width: 768px) {
   .competence-page .page-content {
-    padding: 0.5rem 0.5rem;
+    padding: 0.25rem 0.5rem;
   }
 
   .competence-intro h2 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
-  .wheel-display {
-    padding: 0.25rem;
-  }
-
-  .wheel-svg-container svg {
-    width: 100%;
-    height: auto;
-    max-width: 280px;
+  .wheel-svg-container {
+    max-width: 100%;
   }
 
   .skills-summary {
