@@ -290,157 +290,180 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Mind Map Functionality
-  const heroImageTrigger = document.getElementById('hero-image-trigger');
-  const mindMapContainer = document.getElementById('mind-map-container');
-  const mindMapClose = document.getElementById('mind-map-close');
-  const mindMapBlobs = document.querySelectorAll('.mind-map-blob');
-  const svg = document.getElementById('mind-map-svg');
-  const connectionLines = document.getElementById('connection-lines');
+  // ==========================================
+  // Skill Circle Interactions (Home Page)
+  // ==========================================
 
-  // Initialize: ensure all blobs are hidden on page load
-  mindMapBlobs.forEach(blob => {
-    blob.classList.remove('active');
-  });
-  mindMapContainer.classList.remove('active');
+  const circleOverlay = document.getElementById('circle-overlay');
 
-  // Function to check if a blob is visible in the viewport
-  function isBlobVisible(blob) {
-    const containerRect = mindMapContainer.getBoundingClientRect();
-    const blobAngle = parseInt(blob.getAttribute('data-angle'));
-    const radius = 380;
-    const rad = (blobAngle * Math.PI) / 180;
-    
-    // Calculate blob's position relative to container center
-    const x = radius * Math.cos(rad);
-    const y = radius * Math.sin(rad);
-    
-    // Calculate blob's absolute screen position (center point)
-    const blobScreenX = containerRect.left + containerRect.width / 2 + x - 50; // -50 for blob radius
-    const blobScreenY = containerRect.top + containerRect.height / 2 + y - 50;
-    
-    // Hard boundary check - entire blob must be within viewport
-    return (
-      blobScreenX - 50 >= 0 && // blob left edge is fully in bounds
-      blobScreenX + 50 <= window.innerWidth && // blob right edge is fully in bounds
-      blobScreenY - 50 >= 0 && // blob top edge is fully in bounds
-      blobScreenY + 50 <= window.innerHeight // blob bottom edge is fully in bounds
-    );
-  }
+  if (circleOverlay) {
+    const circleData = {
+      'verification': {
+        heading: 'Verification Techniques',
+        link: 'work-details.html',
+        points: [
+          'DOORS NG expertise & requirements management',
+          'Test specification & structured analysis',
+          'Hardware, firmware, software verification',
+          'Full lifecycle — early development through delivery'
+        ]
+      },
+      'testing': {
+        heading: 'System Testing',
+        link: 'work-details.html',
+        points: [
+          'Design & automate comprehensive test suites',
+          'Hands-on lab experience with real hardware',
+          'Formal requirements management & traceability',
+          'System commissioning & validation'
+        ]
+      },
+      'astrophysics': {
+        heading: 'Astrophysics',
+        link: 'academic.html',
+        points: [
+          '3D magnetohydrodynamic simulations',
+          'Star-planet magnetic interactions',
+          'Coronal mass ejection modeling',
+          'Peer-reviewed publications in stellar physics'
+        ]
+      },
+      'computing': {
+        heading: 'Scientific Computing',
+        link: 'academic.html',
+        points: [
+          'Fortran code optimization & parallelization',
+          'Large-scale HPC simulations',
+          'Supercomputer implementation & resource management',
+          'Python data processing & scientific visualization'
+        ]
+      },
+      'research': {
+        heading: 'Academic Research',
+        link: 'academic.html',
+        points: [
+          'Stellar dynamics & galactic evolution',
+          'Black hole interaction research',
+          'Galactic civilizations spreading study',
+          'PhD Astrophysics — Lund University'
+        ]
+      },
+      'software': {
+        heading: 'Software Development',
+        link: 'portfolio.html',
+        points: [
+          'C++, Python, Bash, Fortran',
+          'Automation tools & scripting',
+          'Data analysis workflows & pipelines',
+          'Scientific visualization & plotting'
+        ]
+      },
+      'problem-solving': {
+        heading: 'Problem Solving',
+        link: 'work-details.html',
+        points: [
+          'Analytical mindset with physics-trained intuition',
+          'Complex multi-domain technical challenges',
+          'Agile team collaboration & communication',
+          'Solution-focused, iterative approach'
+        ]
+      },
+      'simulations': {
+        heading: 'Simulations',
+        link: 'projects.html',
+        points: [
+          '3D magnetohydrodynamic stellar simulations',
+          'Coronal mass ejection propagation modeling',
+          'Star-planet interaction dynamics',
+          'High-performance computing on supercomputers'
+        ]
+      }
+    };
 
-  if (heroImageTrigger) {
-    heroImageTrigger.addEventListener('click', function(e) {
-      e.stopPropagation();
-      mindMapContainer.classList.add('active');
-      
-      // Trigger blob animations with staggered timing - only for visible blobs
-      mindMapBlobs.forEach((blob, index) => {
-        if (isBlobVisible(blob)) {
-          setTimeout(() => {
-            blob.classList.add('active');
-            drawConnectionLine(blob);
-          }, index * 100);
-        }
+    const heroCircles = document.querySelectorAll('.hero-circle');
+    const circleExpandRing = document.getElementById('circle-expand-ring');
+    const circleDetail = document.getElementById('circle-detail');
+    const circleDetailClose = document.getElementById('circle-detail-close');
+    const circleDetailHeading = document.getElementById('circle-detail-heading');
+    const circleDetailLink = document.getElementById('circle-detail-link');
+    const circleDetailPoints = document.getElementById('circle-detail-points');
+
+    // Click handler for each circle
+    heroCircles.forEach(function(circle) {
+      circle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openCircleDetail(this);
       });
     });
-  }
 
-  // Close mind map
-  if (mindMapClose) {
-    mindMapClose.addEventListener('click', function(e) {
-      e.stopPropagation();
-      closeMindMap();
-    });
-  }
+    function openCircleDetail(circleEl) {
+      var topic = circleEl.dataset.topic;
+      var data = circleData[topic];
+      if (!data) return;
 
-  // Close when clicking outside the mind map
-  document.addEventListener('click', function(e) {
-    if (mindMapContainer.classList.contains('active') && 
-        !mindMapContainer.contains(e.target) &&
-        !heroImageTrigger.contains(e.target)) {
-      closeMindMap();
+      // Get circle position for expand origin
+      var rect = circleEl.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+
+      // Position the expanding ring at the clicked circle
+      circleExpandRing.style.left = cx + 'px';
+      circleExpandRing.style.top = cy + 'px';
+      circleExpandRing.style.width = rect.width + 'px';
+      circleExpandRing.style.height = rect.height + 'px';
+
+      // Reset ring animation state
+      circleExpandRing.classList.remove('expanding');
+      void circleExpandRing.offsetWidth; // force reflow
+
+      // Populate detail content
+      circleDetailHeading.textContent = data.heading;
+      circleDetailLink.href = data.link;
+
+      // Reset and populate bullet points (re-trigger staggered animations)
+      circleDetailPoints.innerHTML = '';
+      data.points.forEach(function(point) {
+        var li = document.createElement('li');
+        li.textContent = point;
+        circleDetailPoints.appendChild(li);
+      });
+
+      // Trigger animations
+      circleOverlay.classList.add('active');
+      circleExpandRing.classList.add('expanding');
+      document.body.style.overflow = 'hidden';
+
+
     }
-  });
 
+    function closeCircleDetail() {
+      circleOverlay.classList.remove('active');
+      circleExpandRing.classList.remove('expanding');
+      document.body.style.overflow = '';
+    }
 
-  function closeMindMap() {
-    mindMapContainer.classList.remove('active');
-    mindMapBlobs.forEach(blob => blob.classList.remove('active'));
-    connectionLines.innerHTML = '';
-  }
+    // Close button
+    if (circleDetailClose) {
+      circleDetailClose.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeCircleDetail();
+      });
+    }
 
-  // Prevent closing when clicking on blobs
-  mindMapBlobs.forEach(blob => {
-    blob.addEventListener('click', function(e) {
-      e.stopPropagation();
-      // Navigate to the blob's linked page if it has a data-link attribute
-      const link = blob.getAttribute('data-link');
-      if (link) {
-        window.location.href = link;
+    // Click outside detail panel to close
+    circleOverlay.addEventListener('click', function(e) {
+      if (circleDetail && !circleDetail.contains(e.target)) {
+        closeCircleDetail();
       }
     });
-  });
 
-  function drawConnectionLine(blob) {
-    const angle = parseInt(blob.getAttribute('data-angle'));
-    const radius = 380;
-    const imageRadius = 100; // Half of 200px image width
-    
-    // Convert angle to radians
-    const rad = (angle * Math.PI) / 180;
-    
-    // Calculate blob position
-    const x2 = 500 + radius * Math.cos(rad);
-    const y2 = 500 + radius * Math.sin(rad);
-    
-    // Start from the edge of the image circle
-    const x1 = 500 + imageRadius * Math.cos(rad);
-    const y1 = 500 + imageRadius * Math.sin(rad);
-    
-    // Create SVG line
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('stroke', '#3f4556');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('opacity', '0.3');
-    line.setAttribute('stroke-dasharray', '1000');
-    line.setAttribute('stroke-dashoffset', '1000');
-    
-    connectionLines.appendChild(line);
-    
-    // Animate the line drawing
-    setTimeout(() => {
-      line.style.transition = 'stroke-dashoffset 1.2s ease-out';
-      line.setAttribute('stroke-dashoffset', '0');
-    }, 50);
-  }
-
-  // Position blobs in a circle
-  function positionBlobs() {
-    mindMapBlobs.forEach(blob => {
-      const angle = parseInt(blob.getAttribute('data-angle'));
-      const radius = 380;
-      const rad = (angle * Math.PI) / 180;
-      const x = radius * Math.cos(rad);
-      const y = radius * Math.sin(rad);
-      
-      // Set CSS custom properties for animation
-      blob.style.setProperty('--blob-x', `calc(50% + ${x}px)`);
-      blob.style.setProperty('--blob-y', `calc(50% + ${y}px)`);
-      
-      // Initial center position before animation
-      blob.style.left = '50%';
-      blob.style.top = '50%';
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && circleOverlay.classList.contains('active')) {
+        closeCircleDetail();
+      }
     });
   }
-
-  positionBlobs();
-
-  // Handle window resize for responsive positioning
-  window.addEventListener('resize', positionBlobs);
 
   // ============================================
   // PROJECT CARDS INTERACTIVE FUNCTIONALITY
@@ -1052,10 +1075,18 @@ document.addEventListener('DOMContentLoaded', function() {
   function createPortfolioWheel() {
     const svgSize = 500;
     const center = svgSize / 2;
-    const outerRadius = 130;
-    const innerRadius = 80;
+    // Reduced by 30% to fit labels within viewBox
+    const outerRadius = 91;
+    const innerRadius = 56;
+    // Tighter viewBox cropped to fit wheel and wrapped labels (asymmetric)
+    const viewBoxLeft = 85;   // Expanded left for "Problem Solving"
+    const viewBoxRight = 100;
+    const viewBoxTop = 130;   // Tighter top/bottom
+    const viewBoxBottom = 125; // Slightly more space for descenders like 'g'
+    const viewBoxWidth = svgSize - viewBoxLeft - viewBoxRight;
+    const viewBoxHeight = svgSize - viewBoxTop - viewBoxBottom;
 
-    let svg = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; display: block;">`;
+    let svg = `<svg width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${viewBoxLeft} ${viewBoxTop} ${viewBoxWidth} ${viewBoxHeight}" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; display: block;">`;
     svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
 
     let currentAngle = 0;
@@ -1081,24 +1112,42 @@ document.addEventListener('DOMContentLoaded', function() {
       svg += `<path d="${pathData}" fill="${skill.color}" stroke="white" stroke-width="1.5" opacity="0.9"/>`;
 
       const midAngle = (startAngle + endAngle) / 2;
-      let labelRadius = 170;
+      // Label radii - positioned to avoid overlap with wheel
+      let labelRadius = 115;
       if (skill.name === 'Leadership') {
-        labelRadius = 160;
+        labelRadius = 108;
+      } else if (skill.name === 'Technical Skills') {
+        labelRadius = 122;
       } else if (skill.name === 'Problem Solving & Innovation') {
-        labelRadius = 185;
+        labelRadius = 128;
       } else if (skill.name === 'Communication & Documentation') {
-        labelRadius = 180;
+        labelRadius = 118;
       } else if (skill.name === 'Research & Scientific Computing') {
-        labelRadius = 165;
+        labelRadius = 112;
       }
 
-      let fontSize = '10';
+      let fontSize = '9';
       if (skill.degrees >= 80) {
-        fontSize = '11';
+        fontSize = '10';
       }
 
       const labelPos = portfolioPolarToCartesian(center, center, labelRadius, midAngle);
-      svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="600" fill="#333">${skill.name}</text>`;
+      
+      // Wrap long labels onto two lines
+      let labelContent;
+      if (skill.name === 'Problem Solving & Innovation') {
+        labelContent = `<tspan x="${labelPos.x}" dy="-0.4em">Problem Solving</tspan><tspan x="${labelPos.x}" dy="1.1em">&amp; Innovation</tspan>`;
+      } else if (skill.name === 'Communication & Documentation') {
+        labelContent = `<tspan x="${labelPos.x}" dy="-0.4em">Communication</tspan><tspan x="${labelPos.x}" dy="1.1em">&amp; Documentation</tspan>`;
+      } else if (skill.name === 'Research & Scientific Computing') {
+        labelContent = `<tspan x="${labelPos.x}" dy="-0.4em">Research &amp; Scientific</tspan><tspan x="${labelPos.x}" dy="1.1em">Computing</tspan>`;
+      } else if (skill.name === 'System Verification & Testing') {
+        labelContent = `<tspan x="${labelPos.x}" dy="-0.4em">System Verification</tspan><tspan x="${labelPos.x}" dy="1.1em">&amp; Testing</tspan>`;
+      } else {
+        labelContent = skill.name;
+      }
+      
+      svg += `<text x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="#333">${labelContent}</text>`;
 
       currentAngle = endAngle;
     });
@@ -1150,5 +1199,112 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
     });
+  });
+})();
+
+// Experience Card Competence Wheels
+// ======================================================
+
+(function() {
+  const experienceCards = document.querySelectorAll('.experience-card');
+  if (!experienceCards.length) return;
+
+  // Helper function for polar to cartesian conversion
+  function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  }
+
+  // Create competence wheel for each card
+  // Architecture: 3 separate layers inside .card-wheel-container
+  //   1. .card-wheel-svg  — SVG with ONLY donut segments (no text)
+  //   2. .wheel-label     — individual HTML spans, absolutely positioned
+  //   3. Container itself — sets the overall bounding box
+  function createCardWheel(container, competencies) {
+    const colors = ['#1e5a96', '#ff9a3d', '#2d7a3e', '#e8594f', '#7b3ff2', '#0fa3a3', '#d4524f', '#6b9d4f', '#00a8cc'];
+
+    // --- SVG: only the donut ring, tight viewBox ---
+    const svgOuter = 65;
+    const svgInner = 40;
+    const svgPad = 2; // padding for stroke
+    const svgSize = (svgOuter + svgPad) * 2;
+    const svgCenter = svgSize / 2;
+
+    let svgStr = `<svg viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" class="card-wheel-svg">`;
+
+    let currentAngle = 0;
+    const segmentAngles = []; // store midAngles for label positioning
+
+    competencies.forEach((comp, index) => {
+      const startAngle = currentAngle;
+      const endAngle = startAngle + (comp.percentage / 100 * 360);
+      const largeArc = (comp.percentage > 50) ? '1' : '0';
+
+      const outerStart = polarToCartesian(svgCenter, svgCenter, svgOuter, startAngle);
+      const outerEnd = polarToCartesian(svgCenter, svgCenter, svgOuter, endAngle);
+      const innerStart = polarToCartesian(svgCenter, svgCenter, svgInner, startAngle);
+      const innerEnd = polarToCartesian(svgCenter, svgCenter, svgInner, endAngle);
+
+      const pathData = [
+        'M', outerStart.x, outerStart.y,
+        'A', svgOuter, svgOuter, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+        'L', innerEnd.x, innerEnd.y,
+        'A', svgInner, svgInner, 0, largeArc, 0, innerStart.x, innerStart.y,
+        'Z'
+      ].join(' ');
+
+      const color = colors[index % colors.length];
+      svgStr += `<path d="${pathData}" fill="${color}" stroke="white" stroke-width="1.5" opacity="0.9"/>`;
+
+      segmentAngles.push((startAngle + endAngle) / 2);
+      currentAngle = endAngle;
+    });
+
+    svgStr += `<circle cx="${svgCenter}" cy="${svgCenter}" r="${svgInner}" fill="white" stroke="white" stroke-width="1.5"/>`;
+    svgStr += `</svg>`;
+
+    // --- Build the DOM ---
+    container.innerHTML = '';
+    container.insertAdjacentHTML('beforeend', svgStr);
+
+    // --- HTML labels: absolutely positioned spans ---
+    // Elliptical radius: wider horizontally, shorter vertically
+    // This keeps top/bottom labels within the container
+    const labelRadiusX = 110; // horizontal spread
+    const labelRadiusY = 84;  // vertical spread (compressed to stay in bounds)
+
+    competencies.forEach((comp, index) => {
+      const angle = segmentAngles[index];
+      const angleRad = (angle - 90) * Math.PI / 180;
+      const xPct = Math.cos(angleRad) * labelRadiusX;
+      const yPct = Math.sin(angleRad) * labelRadiusY;
+
+      const label = document.createElement('span');
+      label.className = 'wheel-label';
+      label.textContent = comp.name;
+      label.style.left = `calc(50% + ${xPct}px)`;
+      label.style.top = `calc(50% + ${yPct}px)`;
+      container.appendChild(label);
+    });
+
+    container.dataset.competencies = JSON.stringify(competencies);
+  }
+
+  // Initialize wheels for each card
+  experienceCards.forEach(card => {
+    const wheelContainer = card.querySelector('.card-wheel-container');
+    const competenciesJSON = card.getAttribute('data-competencies');
+    
+    if (wheelContainer && competenciesJSON) {
+      try {
+        const competencies = JSON.parse(competenciesJSON);
+        createCardWheel(wheelContainer, competencies);
+      } catch (e) {
+        console.error('Error parsing competencies:', e);
+      }
+    }
   });
 })();

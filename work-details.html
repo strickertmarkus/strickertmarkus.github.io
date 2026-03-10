@@ -34,11 +34,9 @@
       <nav id="dropdown-menu" class="dropdown-menu">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About me</a></li>
           <li><a href="academic.html">Academic Experience</a></li>
           <li><a href="work-details.html">Detailed Competence Profile</a></li>
           <li><a href="portfolio.html">Portfolio</a></li>
-          <li><a href="competence-wheels.html">Competence Wheels</a></li>
           <li><a href="projects.html">Projects</a></li>
           <li><a href="contact.html">Contact me</a></li>
         </ul>
@@ -71,15 +69,32 @@
             <div class="experience-section">
               <h2 class="section-header" id="current">Current & Recent</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Consultant</h3>
-                  <span class="experience-date">2023 - Now</span>
+              <div class="experience-card" data-competencies='[{"name":"Test Automation & Teststand","percentage":35},{"name":"Electrical Measurements","percentage":25},{"name":"National Instruments","percentage":25},{"name":"Ethernet & Protocol Testing","percentage":15}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Test Automation Engineer</h3>
+                    <span class="experience-date">2026 - Now</span>
+                  </div>
+                  <div class="experience-position">Sigma Technology – Test Automation</div>
+                  <p class="experience-description">
+                    Design and execute automated PATS tests for SAAB using Teststand and National Instruments tools. Manage MUX switch routing, analyze circuit specifications, and develop comprehensive test suites covering electrical measurements, filtering, ethernet connectivity, and protocol validation on complex component boards. Technical stack includes LabVIEW, NI MAX, and NI debugging tools.
+                  </p>
                 </div>
-                <div class="experience-position">BerDiz AB – System Verification</div>
-                <p class="experience-description">
-                  Responsible for initiating, writing, and verifying products from early development to customer delivery. Held key leadership roles in automating tests through scripting, managing the customization of developing simulators, and coordinating lab spaces. Specialized in formal verification documentation, as well as testing across hardware, firmware, and software.
-                </p>
+                <div class="card-wheel-container"></div>
+              </div>
+
+              <div class="experience-card" data-competencies='[{"name":"Test Writing & Execution","percentage":30},{"name":"Requirement Management","percentage":20},{"name":"Simulator Development","percentage":20},{"name":"Test Automation","percentage":20},{"name":"Firmware & Software Processing","percentage":10}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Consultant</h3>
+                    <span class="experience-date">2023 - 2026</span>
+                  </div>
+                  <div class="experience-position">BerDiz AB – System Verification</div>
+                  <p class="experience-description">
+                    Responsible for initiating, writing, and verifying products from early development to customer delivery. Held key leadership roles in automating tests through scripting, managing the customization of developing simulators, and coordinating lab spaces. Specialized in formal verification documentation, as well as testing across hardware, firmware, and software.
+                  </p>
+                </div>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
 
@@ -87,48 +102,60 @@
             <div class="experience-section">
               <h2 class="section-header" id="academic">Academic & Research</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">PhD Researcher</h3>
-                  <span class="experience-date">2022 - 2023</span>
+              <div class="experience-card" data-competencies='[{"name":"3D MHD Simulations","percentage":35},{"name":"Data Analysis & Visualization","percentage":35},{"name":"Scientific Computing","percentage":20},{"name":"Documentation & Publications","percentage":10}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">PhD Researcher</h3>
+                    <span class="experience-date">2022 - 2023</span>
+                  </div>
+                  <div class="experience-position">Leiden Observatory</div>
+                  <p class="experience-description">
+                    Modeled stellar winds and CMEs with 3D MHD simulations to assess how quiescent wind conditions change due to episodic mass ejections. Post-processed CFD data analysis using (Py)Tecplot with results compared with real observations (Hubble, EUVE data). Utilized Python and Linux/Awk for data filtering and visualization. Resources via Snellius supercomputer.
+                  </p>
                 </div>
-                <div class="experience-position">Leiden Observatory</div>
-                <p class="experience-description">
-                  Modeled stellar winds and CMEs with 3D MHD simulations to assess how quiescent wind conditions change due to episodic mass ejections. Post-processed CFD data analysis using (Py)Tecplot with results compared with real observations (Hubble, EUVE data). Utilized Python and Linux/Awk for data filtering and visualization. Resources via Snellius supercomputer.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Teaching Assistant</h3>
-                  <span class="experience-date">2023</span>
+              <div class="experience-card" data-competencies='[{"name":"MESA Code Development","percentage":40},{"name":"Course Material Development","percentage":35},{"name":"Student Mentoring","percentage":25}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Teaching Assistant</h3>
+                    <span class="experience-date">2023</span>
+                  </div>
+                  <div class="experience-position">Leiden Observatory</div>
+                  <p class="experience-description">
+                    Team member of lab sessions in an exoplanet course. Responsible for co-developing course materials centered around the utilization of the MESA code for atmospheric escape modeling.
+                  </p>
                 </div>
-                <div class="experience-position">Leiden Observatory</div>
-                <p class="experience-description">
-                  Team member of lab sessions in an exoplanet course. Responsible for co-developing course materials centered around the utilization of the MESA code for atmospheric escape modeling.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Master's Thesis</h3>
-                  <span class="experience-date">2021 - 2022</span>
+              <div class="experience-card" data-competencies='[{"name":"N-body Simulations","percentage":35},{"name":"Monte Carlo Methods","percentage":30},{"name":"Data Analysis","percentage":20},{"name":"Python Development","percentage":15}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Master\'s Thesis</h3>
+                    <span class="experience-date">2021 - 2022</span>
+                  </div>
+                  <div class="experience-position">Lund Observatory</div>
+                  <p class="experience-description">
+                    Investigated the production of single and binary black holes in globular cluster models simulated with MOCCA code. Utilized MC Monte Carlo methods for population synthesis (SSE+BSE codes) and N-body dynamics. Developed extensive Python codes with integrated Bash and Awk scripts for post-processed data analysis.
+                  </p>
                 </div>
-                <div class="experience-position">Lund Observatory</div>
-                <p class="experience-description">
-                  Investigated the production of single and binary black holes in globular cluster models simulated with MOCCA code. Utilized MC Monte Carlo methods for population synthesis (SSE+BSE codes) and N-body dynamics. Developed extensive Python codes with integrated Bash and Awk scripts for post-processed data analysis.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Bachelor's Thesis</h3>
-                  <span class="experience-date">2020 - 2021</span>
+              <div class="experience-card" data-competencies='[{"name":"Python Development","percentage":40},{"name":"Astrophysical Modeling","percentage":35},{"name":"Simulation & Analysis","percentage":25}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Bachelor\'s Thesis</h3>
+                    <span class="experience-date">2020 - 2021</span>
+                  </div>
+                  <div class="experience-position">Lund University</div>
+                  <p class="experience-description">
+                    Modeled epicycle motions of stars in the Milky Way galaxy. Simulated planetary abiogenesis using MC Monte Carlo methods. Created self-consistent Python script to model the development and propagation of galactic civilizations across the galaxy.
+                  </p>
                 </div>
-                <div class="experience-position">Lund University</div>
-                <p class="experience-description">
-                  Modeled epicycle motions of stars in the Milky Way galaxy. Simulated planetary abiogenesis using MC Monte Carlo methods. Created self-consistent Python script to model the development and propagation of galactic civilizations across the galaxy.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
 
@@ -136,48 +163,60 @@
             <div class="experience-section">
               <h2 class="section-header" id="conferences">Conferences & Workshops</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">BCool – Exospace Weather Workshop</h3>
-                  <span class="experience-date">2023</span>
+              <div class="experience-card" data-competencies='[{"name":"3D MHD Modeling","percentage":50},{"name":"Technical Presentation","percentage":50}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">BCool – Exospace Weather Workshop</h3>
+                    <span class="experience-date">2023</span>
+                  </div>
+                  <div class="experience-position">Max Planck Institute, Göttingen</div>
+                  <p class="experience-description">
+                    Presented talk on the suppression of CMEs in the context of strong overlying magnetic fields on AB Doradus from applied 3D MHD models using the BATS-R-US code.
+                  </p>
                 </div>
-                <div class="experience-position">Max Planck Institute, Göttingen</div>
-                <p class="experience-description">
-                  Presented talk on the suppression of CMEs in the context of strong overlying magnetic fields on AB Doradus from applied 3D MHD models using the BATS-R-US code.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Astroflow Workshop</h3>
-                  <span class="experience-date">2021 - 2022</span>
+              <div class="experience-card" data-competencies='[{"name":"Research Presentation","percentage":50},{"name":"Academic Collaboration","percentage":50}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Astroflow Workshop</h3>
+                    <span class="experience-date">2021 - 2022</span>
+                  </div>
+                  <div class="experience-position">Leiden Observatory</div>
+                  <p class="experience-description">
+                    Presented Master Thesis research. Collaborated with doctoral, post-doctoral and external speakers at Leiden University.
+                  </p>
                 </div>
-                <div class="experience-position">Leiden Observatory</div>
-                <p class="experience-description">
-                  Presented Master Thesis research. Collaborated with doctoral, post-doctoral and external speakers at Leiden University.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Direct N-body Simulations Workshop</h3>
-                  <span class="experience-date">2021</span>
+              <div class="experience-card" data-competencies='[{"name":"N-body Simulations","percentage":60},{"name":"HPC Training","percentage":40}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Direct N-body Simulations Workshop</h3>
+                    <span class="experience-date">2021</span>
+                  </div>
+                  <div class="experience-position">Heidelberg, Germany</div>
+                  <p class="experience-description">
+                    Online school on gravitational N-body simulations of dense clusters. Introduction to Nbody6++GPU code and supercomputer usage (HPC, Kepler).
+                  </p>
                 </div>
-                <div class="experience-position">Heidelberg, Germany</div>
-                <p class="experience-description">
-                  Online school on gravitational N-body simulations of dense clusters. Introduction to Nbody6++GPU code and supercomputer usage (HPC, Kepler).
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">TRENDY3 Workshop</h3>
-                  <span class="experience-date">2021</span>
+              <div class="experience-card" data-competencies='[{"name":"Multiple Star Systems","percentage":60},{"name":"Conference Attendance","percentage":40}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">TRENDY3 Workshop</h3>
+                    <span class="experience-date">2021</span>
+                  </div>
+                  <div class="experience-position">Evanston, USA</div>
+                  <p class="experience-description">
+                    Conference exploring observational and theoretical aspects of triple (multiple) evolution and dynamics, and the unique role played by hierarchical systems.
+                  </p>
                 </div>
-                <div class="experience-position">Evanston, USA</div>
-                <p class="experience-description">
-                  Conference exploring observational and theoretical aspects of triple (multiple) evolution and dynamics, and the unique role played by hierarchical systems.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
 
@@ -185,48 +224,60 @@
             <div class="experience-section">
               <h2 class="section-header" id="projects">Projects & Internships</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Summer Research Project</h3>
-                  <span class="experience-date">2021</span>
+              <div class="experience-card" data-competencies='[{"name":"SPH Simulations","percentage":40},{"name":"Data Analysis & Visualization","percentage":35},{"name":"Supercomputer Resources","percentage":25}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Summer Research Project</h3>
+                    <span class="experience-date">2021</span>
+                  </div>
+                  <div class="experience-position">Lund University</div>
+                  <p class="experience-description">
+                    Applied Smoothed Particle Hydrodynamics to simulate 576 stellar collisions. Implemented Delaunay triangulation method for post-process analysis and visualization using matplotlib. Results published in upcoming paper. Resources via Aurora and SNIC supercomputers.
+                  </p>
                 </div>
-                <div class="experience-position">Lund University</div>
-                <p class="experience-description">
-                  Applied Smoothed Particle Hydrodynamics to simulate 576 stellar collisions. Implemented Delaunay triangulation method for post-process analysis and visualization using matplotlib. Results published in upcoming paper. Resources via Aurora and SNIC supercomputers.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Personal Caretaker</h3>
-                  <span class="experience-date">2020 - 2021</span>
+              <div class="experience-card" data-competencies='[{"name":"Caregiving & Support","percentage":50},{"name":"Medical & Health Management","percentage":30},{"name":"Social & Emotional Support","percentage":20}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Personal Caretaker</h3>
+                    <span class="experience-date">2020 - 2021</span>
+                  </div>
+                  <div class="experience-position">Assistans for dig AB, Motala</div>
+                  <p class="experience-description">
+                    Household caretaker responsible for medication, social activities and care attendance. Experience working with PEG, Epilepsy and Neural disorders.
+                  </p>
                 </div>
-                <div class="experience-position">Assistans for dig AB, Motala</div>
-                <p class="experience-description">
-                  Household caretaker responsible for medication, social activities and care attendance. Experience working with PEG, Epilepsy and Neural disorders.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Personal Caretaker</h3>
-                  <span class="experience-date">2015 - 2017</span>
+              <div class="experience-card" data-competencies='[{"name":"Caregiving & Support","percentage":50},{"name":"Medical Procedures","percentage":30},{"name":"Social Development","percentage":20}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Personal Caretaker</h3>
+                    <span class="experience-date">2015 - 2017</span>
+                  </div>
+                  <div class="experience-position">Hammarstrands Assistans AB, Motala</div>
+                  <p class="experience-description">
+                    Personal caretaker for two recipients. Received internal license for medical dosing. Worked with intimacy caretaking and social development.
+                  </p>
                 </div>
-                <div class="experience-position">Hammarstrands Assistans AB, Motala</div>
-                <p class="experience-description">
-                  Personal caretaker for two recipients. Received internal license for medical dosing. Worked with intimacy caretaking and social development.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Personal Caretaker</h3>
-                  <span class="experience-date">2013 - 2016</span>
+              <div class="experience-card" data-competencies='[{"name":"Caregiving","percentage":60},{"name":"Medical Assistance","percentage":25},{"name":"Equipment Training","percentage":15}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Personal Caretaker</h3>
+                    <span class="experience-date">2013 - 2016</span>
+                  </div>
+                  <div class="experience-position">Alminia Assistans, Motala</div>
+                  <p class="experience-description">
+                    Personal caretaker working with paralysis diagnosis. Learned basics of tracheostoma, respiratory equipment and general caretaking.
+                  </p>
                 </div>
-                <div class="experience-position">Alminia Assistans, Motala</div>
-                <p class="experience-description">
-                  Personal caretaker working with paralysis diagnosis. Learned basics of tracheostoma, respiratory equipment and general caretaking.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
 
@@ -234,70 +285,88 @@
             <div class="experience-section">
               <h2 class="section-header" id="leadership">Leadership & Volunteer</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">ALVA - Board Member</h3>
-                  <span class="experience-date">2021 - 2022</span>
+              <div class="experience-card" data-competencies='[{"name":"Event Organization","percentage":45},{"name":"Student Engagement","percentage":35},{"name":"Astronomy Outreach","percentage":20}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">ALVA - Board Member</h3>
+                    <span class="experience-date">2021 - 2022</span>
+                  </div>
+                  <div class="experience-position">Lund University</div>
+                  <p class="experience-description">
+                    Student-run organization with focus on astronomical events and news. Participated in lectures and astronomy activities including planetarium shows and observations.
+                  </p>
                 </div>
-                <div class="experience-position">Lund University</div>
-                <p class="experience-description">
-                  Student-run organization with focus on astronomical events and news. Participated in lectures and astronomy activities including planetarium shows and observations.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Associates - Board Member</h3>
-                  <span class="experience-date">2019 - 2020</span>
+              <div class="experience-card" data-competencies='[{"name":"Mentoring & Guidance","percentage":60},{"name":"Student Integration","percentage":30},{"name":"Organization","percentage":10}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Associates - Board Member</h3>
+                    <span class="experience-date">2019 - 2020</span>
+                  </div>
+                  <div class="experience-position">Lund University</div>
+                  <p class="experience-description">
+                    Head position of the Mentor Committee in the science department. Introduced new students to the University.
+                  </p>
                 </div>
-                <div class="experience-position">Lund University</div>
-                <p class="experience-description">
-                  Head position of the Mentor Committee in the science department. Introduced new students to the University.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Kulturnatten</h3>
-                  <span class="experience-date">2017 - 2018</span>
+              <div class="experience-card" data-competencies='[{"name":"Public Engagement","percentage":50},{"name":"Physics Demonstration","percentage":35},{"name":"Community Outreach","percentage":15}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Kulturnatten</h3>
+                    <span class="experience-date">2017 - 2018</span>
+                  </div>
+                  <div class="experience-position">Lund University</div>
+                  <p class="experience-description">
+                    Annual event for scientists in Lund to inspire and teach physics experiments to locals and city visitors.
+                  </p>
                 </div>
-                <div class="experience-position">Lund University</div>
-                <p class="experience-description">
-                  Annual event for scientists in Lund to inspire and teach physics experiments to locals and city visitors.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Young Leader</h3>
-                  <span class="experience-date">2015</span>
+              <div class="experience-card" data-competencies='[{"name":"Leadership","percentage":45},{"name":"Activity Coaching","percentage":35},{"name":"Anatomy & Safety","percentage":20}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Young Leader</h3>
+                    <span class="experience-date">2015</span>
+                  </div>
+                  <div class="experience-position">Östergötlands Idrottsförbund, Motala</div>
+                  <p class="experience-description">
+                    Responsible for several groups of children through various activities. Received basic education in anatomy, injury treatment and leadership.
+                  </p>
                 </div>
-                <div class="experience-position">Östergötlands Idrottsförbund, Motala</div>
-                <p class="experience-description">
-                  Responsible for several groups of children through various activities. Received basic education in anatomy, injury treatment and leadership.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Ledarutbildning Plattformen</h3>
-                  <span class="experience-date">2015</span>
+              <div class="experience-card" data-competencies='[{"name":"Leadership Training","percentage":60},{"name":"Practical Skills","percentage":40}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Ledarutbildning Plattformen</h3>
+                    <span class="experience-date">2015</span>
+                  </div>
+                  <div class="experience-position">Motala, Sweden</div>
+                  <p class="experience-description">
+                    Theoretical and practical exercises with focus on leadership for children and youths.
+                  </p>
                 </div>
-                <div class="experience-position">Motala, Sweden</div>
-                <p class="experience-description">
-                  Theoretical and practical exercises with focus on leadership for children and youths.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Motala Frisksportklubb</h3>
-                  <span class="experience-date">2011 - 2017</span>
+              <div class="experience-card" data-competencies='[{"name":"Sports Leadership","percentage":35},{"name":"Equipment Development","percentage":25},{"name":"Community Building","percentage":25},{"name":"Health Promotion","percentage":15}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Motala Frisksportklubb</h3>
+                    <span class="experience-date">2011 - 2017</span>
+                  </div>
+                  <div class="experience-position">Motala, Sweden</div>
+                  <p class="experience-description">
+                    Association promoting equality, health and activity. Board member 2013-2014. Led education in various sports (trampoline, circus, freerunning, gymnastics). Helped design and develop a freerunning park established in 2014.
+                  </p>
                 </div>
-                <div class="experience-position">Motala, Sweden</div>
-                <p class="experience-description">
-                  Association promoting equality, health and activity. Board member 2013-2014. Led education in various sports (trampoline, circus, freerunning, gymnastics). Helped design and develop a freerunning park established in 2014.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
 
@@ -305,15 +374,18 @@
             <div class="experience-section">
               <h2 class="section-header" id="education">Education</h2>
 
-              <div class="experience-card">
-                <div class="experience-header">
-                  <h3 class="experience-title">Upper Secondary Education</h3>
-                  <span class="experience-date">2015 - 2017</span>
+              <div class="experience-card" data-competencies='[{"name":"Natural Sciences","percentage":50},{"name":"Academic Foundation","percentage":50}]'>
+                <div class="experience-content">
+                  <div class="experience-header">
+                    <h3 class="experience-title">Upper Secondary Education</h3>
+                    <span class="experience-date">2015 - 2017</span>
+                  </div>
+                  <div class="experience-position">Platengymnasiet, Motala</div>
+                  <p class="experience-description">
+                    High school education in natural sciences.
+                  </p>
                 </div>
-                <div class="experience-position">Platengymnasiet, Motala</div>
-                <p class="experience-description">
-                  High school education in natural sciences.
-                </p>
+                <div class="card-wheel-container"></div>
               </div>
             </div>
           </div>

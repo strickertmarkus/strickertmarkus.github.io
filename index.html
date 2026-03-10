@@ -58,11 +58,9 @@
       <div class="nav-container">
         <ul class="nav-links">
           <li><a href="index.html" class="nav-link active">Home</a></li>
-          <li><a href="about.html" class="nav-link">About me</a></li>
           <li><a href="academic.html" class="nav-link">Academic Experience</a></li>
           <li><a href="work-details.html" class="nav-link">Detailed Competence Profile</a></li>
           <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
-          <li><a href="competence-wheels.html" class="nav-link">Competence Wheels</a></li>
           <li><a href="projects.html" class="nav-link">Projects</a></li>
           <li><a href="contact.html" class="nav-link">Contact me</a></li>
         </ul>
@@ -82,11 +80,9 @@
       <nav id="dropdown-menu" class="dropdown-menu">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About me</a></li>
           <li><a href="academic.html">Academic Experience</a></li>
           <li><a href="work-details.html">Detailed Competence Profile</a></li>
           <li><a href="portfolio.html">Portfolio</a></li>
-          <li><a href="competence-wheels.html">Competence Wheels</a></li>
           <li><a href="projects.html">Projects</a></li>
           <li><a href="contact.html">Contact me</a></li>
         </ul>
@@ -95,58 +91,41 @@
 
     <!-- Hero Section -->
     <section class="hero">
+      <!-- Interactive Skill Circles -->
+      <div class="hero-circles" id="hero-circles">
+        <div class="hero-circle hero-circle--xl" data-topic="astrophysics" style="left: 74%; top: 22%;">
+          <span class="circle-label">Astrophysics</span>
+        </div>
+        <div class="hero-circle hero-circle--lg" data-topic="verification" style="left: 14%; top: 18%;">
+          <span class="circle-label">Verification Techniques</span>
+        </div>
+        <div class="hero-circle hero-circle--lg" data-topic="research" style="left: 84%; top: 58%;">
+          <span class="circle-label">Academic Research</span>
+        </div>
+        <div class="hero-circle hero-circle--md" data-topic="testing" style="left: 34%; top: 10%;">
+          <span class="circle-label">System Testing</span>
+        </div>
+        <div class="hero-circle hero-circle--md" data-topic="software" style="left: 18%; top: 72%;">
+          <span class="circle-label">Software Development</span>
+        </div>
+        <div class="hero-circle hero-circle--sm" data-topic="computing" style="left: 8%; top: 48%;">
+          <span class="circle-label">Scientific Computing</span>
+        </div>
+        <div class="hero-circle hero-circle--sm" data-topic="problem-solving" style="left: 78%; top: 78%;">
+          <span class="circle-label">Problem Solving</span>
+        </div>
+        <div class="hero-circle hero-circle--simulations" data-topic="simulations" style="left: 82%; top: 12%;">
+          <span class="circle-label">Simulations</span>
+        </div>
+      </div>
+
       <div class="hero-content">
         <div class="hero-image-wrapper">
           <img class="hero-image" 
-               id="hero-image-trigger"
                width="200" 
                height="200" 
                src="mstr.jpeg" 
                alt="Markus Strickert Profile Image" />
-          
-          <!-- Mind Map Container -->
-          <div id="mind-map-container" class="mind-map-container">
-            <svg id="mind-map-svg" class="mind-map-svg" viewBox="0 0 1000 1000">
-              <g id="connection-lines"></g>
-            </svg>
-            
-            <div class="mind-map-blobs">
-              <div class="mind-map-blob" data-angle="0" data-link="work-details.html">
-                <div class="blob-content">Verification Techniques</div>
-                <div class="blob-tooltip">• DOORS NG expertise<br>• Test specification & requirements<br>• Hardware, firmware, software verification<br>• Early development through delivery</div>
-              </div>
-              <div class="mind-map-blob" data-angle="45" data-link="work-details.html">
-                <div class="blob-content">System Testing</div>
-                <div class="blob-tooltip">• Design & automate comprehensive tests<br>• Hands-on lab experience<br>• Formal requirements management<br>• System commissioning & validation</div>
-              </div>
-              <div class="mind-map-blob" data-angle="90" data-link="academic.html">
-                <div class="blob-content">Astrophysics</div>
-                <div class="blob-tooltip">• 3D magnetohydrodynamic simulations<br>• Star-planet interactions<br>• Coronal mass ejections<br>• Peer-reviewed publications</div>
-              </div>
-              <div class="mind-map-blob" data-angle="135" data-link="academic.html">
-                <div class="blob-content">Scientific Computing</div>
-                <div class="blob-tooltip">• Fortran optimization<br>• Large-scale HPC simulations<br>• Supercomputer implementation<br>• Python data processing & visualization</div>
-              </div>
-              <div class="mind-map-blob" data-angle="180" data-link="academic.html">
-                <div class="blob-content">Academic Research</div>
-                <div class="blob-tooltip">• Stellar dynamics expertise<br>• Black hole research<br>• Galactic civilizations study<br>• PhD Astrophysics (Lund University)</div>
-              </div>
-              <div class="mind-map-blob" data-angle="225" data-link="portfolio.html">
-                <div class="blob-content">Software Development</div>
-                <div class="blob-tooltip">• C++, Python, Bash<br>• Automation tools<br>• Data analysis workflows<br>• Scientific visualization</div>
-              </div>
-              <div class="mind-map-blob" data-angle="270" data-link="work-details.html">
-                <div class="blob-content">Problem Solving</div>
-                <div class="blob-tooltip">• Analytical mindset<br>• Complex technical challenges<br>• Agile team collaboration<br>• Solution-focused approach</div>
-              </div>
-              <div class="mind-map-blob" data-angle="315" data-link="portfolio.html">
-                <div class="blob-content">Skateboarding</div>
-                <div class="blob-tooltip">• Parkour advocacy & promotion<br>• Board member experience<br>• Established Sweden's first parkour park<br>• Community engagement & design</div>
-              </div>
-            </div>
-            
-            <button class="mind-map-close" id="mind-map-close">&times;</button>
-          </div>
         </div>
         
         <h1 class="hero-title">Markus Strickert</h1>
@@ -155,8 +134,20 @@
           Transforming complex challenges into elegant solutions through precision, collaboration, and continuous innovation. With expertise spanning from stellar dynamics to cutting-edge system verification.
         </p>
         <div class="hero-cta">
-          <a href="about.html" class="btn btn-primary">Learn More About Me</a>
-          <a href="portfolio.html" class="btn btn-secondary">View My Portfolio</a>
+          <a href="portfolio.html" class="btn btn-primary">View My Portfolio</a>
+          <a href="contact.html" class="btn btn-secondary">Get In Touch</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Me - Featured Statement -->
+    <section class="home-about-featured">
+      <div class="container">
+        <h2>About Me</h2>
+        <div class="about-featured-content">
+          <p class="about-featured-text">
+            I'm an engineer and astrophysicist who enjoys solving complex problems and building things that work reliably. I have a background in both academic research and industrial system verification. I work well independently and in teams, and I genuinely enjoy leading others. Beyond work, I'm married with two kids and committed to being present for my family while pursuing my interests in technology and problem-solving.
+          </p>
         </div>
       </div>
     </section>
@@ -164,7 +155,6 @@
     <!-- Highlights Section -->
     <section class="home-highlights">
       <div class="container">
-        <h2>What I Do</h2>
         <div class="highlights-grid">
           <div class="highlight-card">
             <div class="highlight-number">01</div>
@@ -258,8 +248,8 @@
         <h2>Ready to Explore?</h2>
         <p>Discover more about my experience, projects, and how I can contribute to your team.</p>
         <div class="cta-buttons">
-          <a href="about.html" class="btn btn-primary">About My Journey</a>
-          <a href="portfolio.html" class="btn btn-secondary">My Portfolio</a>
+          <a href="portfolio.html" class="btn btn-primary">My Portfolio</a>
+          <a href="academic.html" class="btn btn-secondary">Academic Work</a>
           <a href="contact.html" class="btn btn-tertiary">Get In Touch</a>
         </div>
       </div>
@@ -271,6 +261,32 @@
       </div>
     </footer>
 
+    <!-- SVG clip path for parenthesis ) curve -->
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <clipPath id="panel-curve" clipPathUnits="objectBoundingBox">
+          <path d="M 0 0 L 0.88 0 C 1 0.25, 1 0.75, 0.88 1 L 0 1 Z" />
+        </clipPath>
+      </defs>
+    </svg>
+
+    <!-- Circle Detail Overlay -->
+    <div class="circle-overlay" id="circle-overlay">
+      <div class="circle-expand-ring" id="circle-expand-ring"></div>
+      <div class="circle-overlay-bg"></div>
+      <div class="circle-detail" id="circle-detail">
+        <button class="circle-detail-close" id="circle-detail-close">&times;</button>
+        <div class="circle-detail-left">
+          <h2 class="circle-detail-heading" id="circle-detail-heading"></h2>
+          <a class="circle-detail-link" id="circle-detail-link" href="">Explore Page &rarr;</a>
+        </div>
+        <div class="circle-detail-right">
+          <ul class="circle-detail-points" id="circle-detail-points"></ul>
+        </div>
+      </div>
+    </div>
+
     <script src="js/app.js"></script>
   </body>
 </html>
+ 
