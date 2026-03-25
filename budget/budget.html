@@ -2346,7 +2346,8 @@ function onDragPointerUp(e) {
     
     // Actually reorder the data if position changed
     if (rowIndex !== currentIndex) {
-        const section = SECTIONS[sectionIdx];
+        const sections = getCurrentMonthSections();
+        const section = sections[sectionIdx];
         if (section && section.items) {
             const item = section.items.splice(rowIndex, 1)[0];
             section.items.splice(currentIndex, 0, item);
