@@ -699,19 +699,34 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 .btn-json-import:hover { background: #F5F3FF; border-color: #C4B5FD; }
 
 .draggable-row {
-    cursor: move;
-    transition: opacity 0.2s, background-color 0.2s;
+    cursor: grab;
+    position: relative;
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
 }
-.draggable-row:hover {
-    opacity: 0.8;
-    background-color: rgba(0, 0, 0, 0.05);
+.draggable-row:active {
+    cursor: grabbing;
 }
 .draggable-row.dragging {
-    opacity: 0.5;
-    background-color: rgba(0, 0, 0, 0.1);
+    opacity: 0.4;
+    background-color: rgba(100, 149, 237, 0.15);
+    cursor: grabbing;
 }
-.draggable-row.drag-over {
-    border-top: 2px solid #2563EB;
+.draggable-row.shift-down {
+    transform: translateY(var(--row-height, 44px));
+}
+.draggable-row.shift-up {
+    transform: translateY(calc(-1 * var(--row-height, 44px)));
+}
+.drag-placeholder {
+    background: rgba(37, 99, 235, 0.1);
+    border: 2px dashed #2563EB;
+    height: 44px;
+}
+.drag-placeholder td {
+    padding: 0 !important;
+    border: none !important;
 }
 
 /* ── TABLE SCROLL WRAPPER ───────────────────────── */
@@ -1461,7 +1476,7 @@ function renderSections() {
             }
 
             tableHTML += `
-                <tr draggable="true" class="draggable-row" data-section="${sIdx}" data-item="${iIdx}">
+                <tr class="draggable-row" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
@@ -2201,88 +2216,153 @@ function exportXLSX() {
 }
 
 // ── DRAG & DROP REORDERING ──────────────────────
-let draggedElement = null;
-let draggedFromIndex = null;
-let draggedFromSection = null;
+let dragState = null;
 
 function initDragAndDrop() {
-    // Use event delegation on document to handle all draggable rows
-    document.addEventListener('dragstart', (e) => {
-        if (!e.target.closest('.draggable-row')) return;
-        const row = e.target.closest('.draggable-row');
-        draggedElement = row;
-        draggedFromIndex = parseInt(row.dataset.item);
-        draggedFromSection = parseInt(row.dataset.section);
-        row.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-    });
-
-    document.addEventListener('dragover', (e) => {
-        if (!e.target.closest('.draggable-row')) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    });
-
-    document.addEventListener('dragenter', (e) => {
-        if (!e.target.closest('.draggable-row')) return;
-        const row = e.target.closest('.draggable-row');
-        if (row !== draggedElement && row.closest('tbody')) {
-            row.classList.add('drag-over');
+    document.addEventListener('pointerdown', onDragPointerDown);
+    document.addEventListener('touchstart', (e) => {
+        // Prevent long-press context menu on mobile
+        if (e.target.closest('.draggable-row') && !e.target.closest('input') && !e.target.closest('button') && !e.target.closest('.editable-field')) {
+            // Allow a small delay so taps still work
         }
-    });
-
-    document.addEventListener('dragleave', (e) => {
-        if (!e.target.closest('.draggable-row')) return;
-        const row = e.target.closest('.draggable-row');
-        row.classList.remove('drag-over');
-    });
-
-    document.addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const targetRow = e.target.closest('.draggable-row');
-        if (!targetRow || !draggedElement || targetRow === draggedElement) {
-            return;
-        }
-        
-        const targetIndex = parseInt(targetRow.dataset.item);
-        const targetSection = parseInt(targetRow.dataset.section);
-        
-        // Only reorder if dropping in the same section
-        if (draggedFromSection === targetSection) {
-            reorderItem(draggedFromSection, draggedFromIndex, targetIndex);
-        }
-    });
-
-    document.addEventListener('dragend', (e) => {
-        if (draggedElement) {
-            draggedElement.classList.remove('dragging');
-        }
-        
-        // Remove drag-over class from all rows
-        document.querySelectorAll('.draggable-row').forEach(row => {
-            row.classList.remove('drag-over');
-        });
-        
-        draggedElement = null;
-        draggedFromIndex = null;
-        draggedFromSection = null;
-    });
+    }, { passive: true });
 }
 
-function reorderItem(sectionIdx, fromIdx, toIdx) {
-    const section = SECTIONS[sectionIdx];
-    if (!section || !section.items) return;
+function onDragPointerDown(e) {
+    // Don't interfere with inputs, buttons, or editable fields
+    if (e.target.closest('input') || e.target.closest('button') || e.target.closest('.editable-field')) return;
     
-    // Reorder in the items array
-    const item = section.items[fromIdx];
-    section.items.splice(fromIdx, 1);
-    section.items.splice(toIdx, 0, item);
+    const row = e.target.closest('.draggable-row');
+    if (!row) return;
     
-    // Save and re-render
-    saveLocal();
-    renderSections();
+    e.preventDefault();
+    
+    const tbody = row.closest('tbody');
+    if (!tbody) return;
+    
+    const sectionIdx = parseInt(row.dataset.section);
+    const itemIdx = parseInt(row.dataset.item);
+    const rows = Array.from(tbody.querySelectorAll('.draggable-row'));
+    const rowIndex = rows.indexOf(row);
+    
+    const rect = row.getBoundingClientRect();
+    const rowHeight = rect.height;
+    const startY = e.clientY;
+    
+    // Store initial positions of all rows
+    const rowRects = rows.map(r => r.getBoundingClientRect());
+    
+    dragState = {
+        row,
+        tbody,
+        sectionIdx,
+        itemIdx,
+        rowIndex,
+        currentIndex: rowIndex,
+        rows,
+        rowHeight,
+        rowRects,
+        startY,
+        offsetY: 0
+    };
+    
+    // Visually mark as dragging
+    row.classList.add('dragging');
+    row.setPointerCapture(e.pointerId);
+    
+    document.addEventListener('pointermove', onDragPointerMove);
+    document.addEventListener('pointerup', onDragPointerUp);
+    document.addEventListener('pointercancel', onDragPointerUp);
+}
+
+function onDragPointerMove(e) {
+    if (!dragState) return;
+    e.preventDefault();
+    
+    const { row, rows, rowIndex, rowHeight, startY, rowRects } = dragState;
+    const deltaY = e.clientY - startY;
+    
+    // Move the dragged row visually
+    row.style.transform = `translateY(${deltaY}px)`;
+    row.style.zIndex = '10';
+    row.style.position = 'relative';
+    
+    // Calculate which position the dragged row is now at
+    const draggedCenter = rowRects[rowIndex].top + rowRects[rowIndex].height / 2 + deltaY;
+    
+    // Find the new index based on where the dragged item center is
+    let newIndex = rowIndex;
+    for (let i = 0; i < rows.length; i++) {
+        if (i === rowIndex) continue;
+        const midPoint = rowRects[i].top + rowRects[i].height / 2;
+        if (rowIndex < i && draggedCenter > midPoint) {
+            newIndex = i;
+        } else if (rowIndex > i && draggedCenter < midPoint) {
+            newIndex = i;
+            break;
+        }
+    }
+    
+    // Shift other rows to make space
+    rows.forEach((r, i) => {
+        if (i === rowIndex) return;
+        r.classList.remove('shift-down', 'shift-up');
+        r.style.setProperty('--row-height', rowHeight + 'px');
+        
+        if (rowIndex < newIndex) {
+            // Dragging down: rows between old and new position shift up
+            if (i > rowIndex && i <= newIndex) {
+                r.classList.add('shift-up');
+            }
+        } else if (rowIndex > newIndex) {
+            // Dragging up: rows between new and old position shift down
+            if (i >= newIndex && i < rowIndex) {
+                r.classList.add('shift-down');
+            }
+        }
+    });
+    
+    dragState.currentIndex = newIndex;
+}
+
+function onDragPointerUp(e) {
+    if (!dragState) return;
+    
+    const { row, rows, sectionIdx, itemIdx, rowIndex, currentIndex } = dragState;
+    
+    // Clean up visual states
+    row.classList.remove('dragging');
+    row.style.transform = '';
+    row.style.zIndex = '';
+    row.style.position = '';
+    
+    rows.forEach(r => {
+        r.classList.remove('shift-down', 'shift-up');
+    });
+    
+    document.removeEventListener('pointermove', onDragPointerMove);
+    document.removeEventListener('pointerup', onDragPointerUp);
+    document.removeEventListener('pointercancel', onDragPointerUp);
+    
+    // Actually reorder the data if position changed
+    if (rowIndex !== currentIndex) {
+        const section = SECTIONS[sectionIdx];
+        if (section && section.items) {
+            const item = section.items.splice(itemIdx, 1)[0];
+            // Calculate target index in the items array
+            const targetItemIdx = parseInt(rows[currentIndex].dataset.item);
+            // After removing the dragged item, adjust target index
+            const adjustedTarget = targetItemIdx > itemIdx ? targetItemIdx - 1 : targetItemIdx;
+            // If dragging down, insert after the target; if up, insert before
+            const insertIdx = rowIndex < currentIndex ? adjustedTarget + 1 : adjustedTarget;
+            section.items.splice(insertIdx, 0, item);
+            
+            saveLocal();
+            renderSections();
+        }
+    }
+    
+    dragState = null;
 }
 
 // ── JSON EXPORT/IMPORT ──────────────────────────
