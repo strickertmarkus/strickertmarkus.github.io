@@ -2231,13 +2231,6 @@ const DRAG_HOLD_DELAY = 600; // milliseconds to trigger drag mode
 
 function initDragAndDrop() {
     document.addEventListener('pointerdown', onDragPointerDown);
-    
-    // Prevent page scrolling while dragging on mobile/touch
-    document.addEventListener('touchmove', (e) => {
-        if (dragState) {
-            e.preventDefault();
-        }
-    }, { passive: false });
 }
 
 function onDragPointerDown(e) {
@@ -2258,58 +2251,31 @@ function onDragPointerDown(e) {
     const rect = row.getBoundingClientRect();
     const rowHeight = rect.height;
     const startY = e.clientY;
-    const startX = e.clientX;
     
     // Store initial positions of all rows
     const rowRects = rows.map(r => r.getBoundingClientRect());
     
-    let isDragging = false;
-    
-    // Set up timer for long-press detection
-    dragHoldTimer = setTimeout(() => {
-        isDragging = true;
-        
-        dragState = {
-            row,
-            tbody,
-            sectionIdx,
-            itemIdx,
-            rowIndex,
-            currentIndex: rowIndex,
-            rows,
-            rowHeight,
-            rowRects,
-            startY,
-            offsetY: 0
-        };
-        
-        // Visually mark as dragging
-        row.classList.add('dragging');
-        row.setPointerCapture(e.pointerId);
-        
-        document.addEventListener('pointermove', onDragPointerMove);
-        document.addEventListener('pointerup', onDragPointerUp);
-        document.addEventListener('pointercancel', onDragPointerUp);
-    }, DRAG_HOLD_DELAY);
-    
-    // If user moves too much before timer fires, cancel drag attempt (it's a scroll)
-    const onPointerMove = (moveEvent) => {
-        const moveDistance = Math.abs(moveEvent.clientY - startY) + Math.abs(moveEvent.clientX - startX);
-        if (moveDistance > 20 && !isDragging) {
-            clearTimeout(dragHoldTimer);
-            document.removeEventListener('pointermove', onPointerMove);
-            document.removeEventListener('pointerup', onPointerUp);
-        }
+    dragState = {
+        row,
+        tbody,
+        sectionIdx,
+        itemIdx,
+        rowIndex,
+        currentIndex: rowIndex,
+        rows,
+        rowHeight,
+        rowRects,
+        startY,
+        offsetY: 0
     };
     
-    const onPointerUp = () => {
-        clearTimeout(dragHoldTimer);
-        document.removeEventListener('pointermove', onPointerMove);
-        document.removeEventListener('pointerup', onPointerUp);
-    };
+    // Visually mark as dragging
+    row.classList.add('dragging');
+    row.setPointerCapture(e.pointerId);
     
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointermove', onDragPointerMove);
+    document.addEventListener('pointerup', onDragPointerUp);
+    document.addEventListener('pointercancel', onDragPointerUp);
 }
 
 function onDragPointerMove(e) {
