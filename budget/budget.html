@@ -1461,8 +1461,7 @@ function renderSections() {
             }
 
             tableHTML += `
-                <tr draggable="true" class="draggable-row" data-section="${sIdx}" data-item="${iIdx}" 
-                    ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                <tr draggable="true" class="draggable-row" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
@@ -2206,63 +2205,70 @@ let draggedElement = null;
 let draggedFromIndex = null;
 let draggedFromSection = null;
 
-function handleDragStart(event) {
-    draggedElement = event.currentTarget;
-    draggedFromIndex = parseInt(draggedElement.dataset.item);
-    draggedFromSection = parseInt(draggedElement.dataset.section);
-    draggedElement.classList.add('dragging');
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/html', event.currentTarget.innerHTML);
-}
+function initDragAndDrop() {
+    // Use event delegation on document to handle all draggable rows
+    document.addEventListener('dragstart', (e) => {
+        if (!e.target.closest('.draggable-row')) return;
+        const row = e.target.closest('.draggable-row');
+        draggedElement = row;
+        draggedFromIndex = parseInt(row.dataset.item);
+        draggedFromSection = parseInt(row.dataset.section);
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
 
-function handleDragOver(event) {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    return false;
-}
+    document.addEventListener('dragover', (e) => {
+        if (!e.target.closest('.draggable-row')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
 
-function handleDragEnter(event) {
-    if (event.currentTarget !== draggedElement) {
-        event.currentTarget.classList.add('drag-over');
-    }
-}
+    document.addEventListener('dragenter', (e) => {
+        if (!e.target.closest('.draggable-row')) return;
+        const row = e.target.closest('.draggable-row');
+        if (row !== draggedElement && row.closest('tbody')) {
+            row.classList.add('drag-over');
+        }
+    });
 
-function handleDragLeave(event) {
-    event.currentTarget.classList.remove('drag-over');
-}
-
-function handleDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const targetRow = event.currentTarget;
-    if (targetRow === draggedElement) {
-        return false;
-    }
-    
-    const targetIndex = parseInt(targetRow.dataset.item);
-    const targetSection = parseInt(targetRow.dataset.section);
-    
-    // Only reorder if dropping in the same section
-    if (draggedFromSection === targetSection) {
-        reorderItem(draggedFromSection, draggedFromIndex, targetIndex);
-    }
-    
-    targetRow.classList.remove('drag-over');
-    return false;
-}
-
-function handleDragEnd(event) {
-    draggedElement.classList.remove('dragging');
-    
-    // Remove drag-over class from all rows
-    document.querySelectorAll('.draggable-row').forEach(row => {
+    document.addEventListener('dragleave', (e) => {
+        if (!e.target.closest('.draggable-row')) return;
+        const row = e.target.closest('.draggable-row');
         row.classList.remove('drag-over');
     });
-    
-    draggedElement = null;
-    draggedFromIndex = null;
-    draggedFromSection = null;
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const targetRow = e.target.closest('.draggable-row');
+        if (!targetRow || !draggedElement || targetRow === draggedElement) {
+            return;
+        }
+        
+        const targetIndex = parseInt(targetRow.dataset.item);
+        const targetSection = parseInt(targetRow.dataset.section);
+        
+        // Only reorder if dropping in the same section
+        if (draggedFromSection === targetSection) {
+            reorderItem(draggedFromSection, draggedFromIndex, targetIndex);
+        }
+    });
+
+    document.addEventListener('dragend', (e) => {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+        }
+        
+        // Remove drag-over class from all rows
+        document.querySelectorAll('.draggable-row').forEach(row => {
+            row.classList.remove('drag-over');
+        });
+        
+        draggedElement = null;
+        draggedFromIndex = null;
+        draggedFromSection = null;
+    });
 }
 
 function reorderItem(sectionIdx, fromIdx, toIdx) {
@@ -2392,6 +2398,7 @@ if (!monthlyData[currentMonthKey]) {
 updateMonthDisplay();
 renderKPIs();
 renderSections();
+initDragAndDrop();
 
 // Delay chart initialization to ensure DOM is fully laid out
 setTimeout(() => {
