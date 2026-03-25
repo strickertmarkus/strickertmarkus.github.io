@@ -332,6 +332,23 @@ section {
   line-height: 1.2;
 }
 
+.competence-page .page-header h1 {
+  color: #9d836b;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.competence-page .page-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #9d836b 0%, #b39278 100%);
+  border-radius: 2px;
+}
+
 .back-to-portfolio {
   color: #9d836b;
   text-decoration: none;
@@ -2700,11 +2717,11 @@ a.btn-tertiary {
   user-select: none;
 }
 
-.hero-circle--xl .circle-label { font-size: 0.95rem; }
-.hero-circle--lg .circle-label { font-size: 0.88rem; }
-.hero-circle--md .circle-label { font-size: 0.82rem; }
-.hero-circle--sm .circle-label { font-size: 0.72rem; }
-.hero-circle--simulations .circle-label { font-size: 0.78rem; }
+.hero-circle--xl .circle-label { font-size: 0.85rem; }
+.hero-circle--lg .circle-label { font-size: 0.85rem; }
+.hero-circle--md .circle-label { font-size: 0.85rem; }
+.hero-circle--sm .circle-label { font-size: 0.85rem; }
+.hero-circle--simulations .circle-label { font-size: 0.85rem; }
 
 .hero-circle:hover {
   border-color: #9d836b;
@@ -2988,11 +3005,11 @@ a.btn-tertiary {
   .hero-circle--sm { width: 80px; height: 80px; }
   .hero-circle--simulations { width: 90px; height: 90px; }
 
-  .hero-circle--xl .circle-label { font-size: 0.80rem; }
-  .hero-circle--lg .circle-label { font-size: 0.73rem; }
-  .hero-circle--md .circle-label { font-size: 0.65rem; }
-  .hero-circle--sm .circle-label { font-size: 0.58rem; }
-  .hero-circle--simulations .circle-label { font-size: 0.62rem; }
+  .hero-circle--xl .circle-label { font-size: 0.70rem; }
+  .hero-circle--lg .circle-label { font-size: 0.70rem; }
+  .hero-circle--md .circle-label { font-size: 0.70rem; }
+  .hero-circle--sm .circle-label { font-size: 0.70rem; }
+  .hero-circle--simulations .circle-label { font-size: 0.70rem; }
 
   .circle-detail-left { padding: 3.5rem 2.5rem; }
   .circle-detail-right { padding: 3.5rem 2.5rem; }
@@ -3051,11 +3068,11 @@ a.btn-tertiary {
   .hero-circle--sm { width: 135px; height: 135px; }
   .hero-circle--simulations { width: 150px; height: 150px; }
 
-  .hero-circle--xl .circle-label { font-size: 1.05rem; }
-  .hero-circle--lg .circle-label { font-size: 0.98rem; }
-  .hero-circle--md .circle-label { font-size: 0.9rem; }
-  .hero-circle--sm .circle-label { font-size: 0.8rem; }
-  .hero-circle--simulations .circle-label { font-size: 0.88rem; }
+  .hero-circle--xl .circle-label { font-size: 1.0rem; }
+  .hero-circle--lg .circle-label { font-size: 1.0rem; }
+  .hero-circle--md .circle-label { font-size: 1.0rem; }
+  .hero-circle--sm .circle-label { font-size: 1.0rem; }
+  .hero-circle--simulations .circle-label { font-size: 1.0rem; }
 }
 
 @media (max-width: 768px) {
@@ -4435,15 +4452,17 @@ body.competence-page {
 }
 
 .competence-page .page-content {
-  padding: 0.5rem 1rem 0.5rem 3rem;
+  padding: 2rem 1rem 2rem 1rem;
 }
 
-.competence-page .page-content .container {
+.competence-page .page-header .container,
+.competence-page .page-content .container,
+.competence-page .page-footer .container {
   display: block;
   max-width: 1300px;
-  width: calc(100% - 8rem);
-  padding: 0;
-  margin: 0 0 0 4rem;
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
 }
 
 .competence-intro {
@@ -4649,6 +4668,10 @@ body.competence-page {
 .detail-item:nth-child(4) { animation-delay: 0.70s; }
 .detail-item:nth-child(5) { animation-delay: 0.80s; }
 .detail-item:nth-child(6) { animation-delay: 0.90s; }
+.detail-item:nth-child(7) { animation-delay: 1.00s; }
+.detail-item:nth-child(8) { animation-delay: 1.10s; }
+.detail-item:nth-child(9) { animation-delay: 1.20s; }
+.detail-item:nth-child(10) { animation-delay: 1.30s; }
 
 @keyframes floatInFromSegment {
   from {

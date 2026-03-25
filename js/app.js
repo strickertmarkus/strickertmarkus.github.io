@@ -381,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const heroCircles = document.querySelectorAll('.hero-circle');
+    const heroCirclesContainer = document.getElementById('hero-circles');
     const circleExpandRing = document.getElementById('circle-expand-ring');
     const circleDetail = document.getElementById('circle-detail');
     const circleDetailClose = document.getElementById('circle-detail-close');
@@ -428,11 +429,13 @@ document.addEventListener('DOMContentLoaded', function() {
         circleDetailPoints.appendChild(li);
       });
 
-      // Trigger animations
+      // Trigger animations and hide hero circles
       circleOverlay.classList.add('active');
       circleExpandRing.classList.add('expanding');
       document.body.style.overflow = 'hidden';
-
+      if (heroCirclesContainer) {
+        heroCirclesContainer.style.display = 'none';
+      }
 
     }
 
@@ -440,6 +443,9 @@ document.addEventListener('DOMContentLoaded', function() {
       circleOverlay.classList.remove('active');
       circleExpandRing.classList.remove('expanding');
       document.body.style.overflow = '';
+      if (heroCirclesContainer) {
+        heroCirclesContainer.style.display = '';
+      }
     }
 
     // Close button
@@ -694,17 +700,18 @@ document.addEventListener('DOMContentLoaded', function() {
   let activeSegment = null;
 
   // Create main competence wheel (donut chart)
+  // 3-layer architecture:
+  //   1. SVG with only segments (no text)
+  //   2. HTML label divs with absolute positioning
+  //   3. Container holds both
   function createMainWheel() {
     const svgSize = 800;
     const center = svgSize / 2;
     const outerRadius = 210;
     const innerRadius = 130;
-    // Crop viewBox to remove empty space (labels extend to ~305px from center)
-    const vbMargin = 75;
-    const vbStart = vbMargin;
-    const vbSize = svgSize - vbMargin * 2;
 
-    let svg = `<svg viewBox="${vbStart} ${vbStart} ${vbSize} ${vbSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel" style="width:100%;height:auto;display:block;">`;
+    // SVG only contains the ring itself, with full space for segments
+    let svg = `<svg viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg" class="competence-wheel" style="width:100%;height:auto;display:block;">`;
     
     svg += `<defs>
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -719,6 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
     svg += `<circle cx="${center}" cy="${center}" r="${innerRadius}" fill="white"/>`;
 
     let currentAngle = 0;
+    const labelAngles = [];
 
     competencies.forEach((skill, index) => {
       const startAngle = currentAngle;
@@ -762,32 +770,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
       svg += `<path class="segment" data-index="${index}" d="${pathData}" fill="url(#${gradientId})" stroke="white" stroke-width="2" opacity="0.95" style="transition: all 0.3s ease;"/>`;
 
-      let fontSize = '12';
-      if (skill.degrees >= 80) {
-        fontSize = '14';
-      } else if (skill.degrees >= 60) {
-        fontSize = '13';
-      }
-
-      let labelRadius = 270;
-      if (skill.name === 'Leadership') {
-        labelRadius = 250;
-      } else if (skill.name === 'Problem Solving & Innovation') {
-        labelRadius = 305;
-      } else if (skill.name === 'Communication & Documentation') {
-        labelRadius = 285;
-      } else if (skill.name === 'Research & Scientific Computing') {
-        labelRadius = 260;
-      }
-      const labelPos = polarToCartesian(center, center, labelRadius, midAngle);
-      
-      svg += `<text class="segment-label" data-index="${index}" x="${labelPos.x}" y="${labelPos.y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="#333" style="pointer-events: none;">${skill.name}</text>`;
+      labelAngles.push({
+        index: index,
+        midAngle: midAngle,
+        skill: skill
+      });
 
       currentAngle = endAngle;
     });
 
     svg += `</svg>`;
-    return svg;
+    
+    // Create HTML structure: SVG + labels container
+    let html = `<div style="position: relative; width: 100%; padding-bottom: 100%; height: 0;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        ${svg}
+      </div>
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">`;
+
+    // Add HTML labels
+    labelAngles.forEach(({ index, midAngle, skill }) => {
+      let fontSize = '18px';
+      if (skill.degrees >= 80) {
+        fontSize = '22px';
+      } else if (skill.degrees >= 60) {
+        fontSize = '20px';
+      }
+
+      // Radius for label positioning
+      let labelRadius = 250;
+      if (skill.name === 'Leadership') {
+        labelRadius = 220;
+      } else if (skill.name === 'Technical Skills') {
+        labelRadius = 235;
+      } else if (skill.name === 'Problem Solving & Innovation') {
+        labelRadius = 280;
+      } else if (skill.name === 'Communication & Documentation') {
+        labelRadius = 245;
+      } else if (skill.name === 'Research & Scientific Computing') {
+        labelRadius = 225;
+      } else if (skill.name === 'System Verification & Testing') {
+        labelRadius = 210;
+      }
+
+      const angleRad = (midAngle - 90) * Math.PI / 180;
+      const xOffset = Math.cos(angleRad) * labelRadius;
+      const yOffset = Math.sin(angleRad) * labelRadius;
+
+      // Determine label content (single or two lines)
+      let labelContent = skill.name;
+      if (skill.name === 'System Verification & Testing') {
+        labelContent = `<div>System Verification</div><div>&amp; Testing</div>`;
+      } else if (skill.name === 'Problem Solving & Innovation') {
+        labelContent = `<div>Problem Solving</div><div>&amp; Innovation</div>`;
+      } else if (skill.name === 'Communication & Documentation') {
+        labelContent = `<div>Communication</div><div>&amp; Documentation</div>`;
+      } else if (skill.name === 'Research & Scientific Computing') {
+        labelContent = `<div>Research &amp; Scientific</div><div>Computing</div>`;
+      }
+
+      const halfFontSize = parseInt(fontSize) / 2;
+      html += `<div class="wheel-label" data-index="${index}" style="
+        position: absolute;
+        left: calc(50% + ${xOffset}px);
+        top: calc(50% + ${yOffset}px);
+        transform: translate(-50%, -50%);
+        font-size: ${fontSize};
+        font-weight: 700;
+        color: #333;
+        text-align: center;
+        white-space: nowrap;
+        z-index: 10;
+        pointer-events: none;
+      ">${labelContent}</div>`;
+    });
+
+    html += `</div></div>`;
+    return html;
   }
 
   // Render wheel
@@ -953,10 +1012,13 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     detailPopout.classList.add('active');
 
-    // Hide original wheel
-    if (wheelSvg) {
-      wheelSvg.style.opacity = '0';
-      wheelSvg.style.pointerEvents = 'none';
+    // Hide wheel and wheel labels when segment is clicked
+    const wheelLabels = wheelContainer.querySelectorAll('.wheel-label');
+    wheelLabels.forEach(label => label.style.display = 'none');
+    const wheelSvgElement = wheelContainer.querySelector('.competence-wheel');
+    if (wheelSvgElement) {
+      wheelSvgElement.style.opacity = '0';
+      wheelSvgElement.style.pointerEvents = 'none';
     }
   }
 
@@ -1029,11 +1091,15 @@ document.addEventListener('DOMContentLoaded', function() {
       const connectionLines = document.getElementById('connection-lines');
       if (connectionLines) connectionLines.remove();
 
-      const originalWheel = document.querySelector('.competence-wheel');
+      const originalWheel = wheelContainer.querySelector('.competence-wheel');
       if (originalWheel) {
         originalWheel.style.opacity = '1';
         originalWheel.style.pointerEvents = 'auto';
       }
+
+      // Show wheel labels again
+      const wheelLabels = wheelContainer.querySelectorAll('.wheel-label');
+      wheelLabels.forEach(label => label.style.display = '');
 
       activeSegment = null;
     }

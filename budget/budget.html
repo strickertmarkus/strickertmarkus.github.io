@@ -698,6 +698,22 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 }
 .btn-json-import:hover { background: #F5F3FF; border-color: #C4B5FD; }
 
+.draggable-row {
+    cursor: move;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+.draggable-row:hover {
+    opacity: 0.8;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.draggable-row.dragging {
+    opacity: 0.5;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.draggable-row.drag-over {
+    border-top: 2px solid #2563EB;
+}
+
 /* ── TABLE SCROLL WRAPPER ───────────────────────── */
 .table-scroll-wrapper {
     overflow-x: auto;
@@ -1388,7 +1404,7 @@ function renderSections() {
             }
 
             const overBudget = totalActual > totalBudget;
-            const warningIcon = overBudget ? ' ⚠️' : '';
+            const warningIcon = (overBudget && section.key !== 'savings') ? ' ⚠️' : '';
 
             progressDiv.innerHTML = `
                 <div class="progress-info">
@@ -1445,7 +1461,8 @@ function renderSections() {
             }
 
             tableHTML += `
-                <tr>
+                <tr draggable="true" class="draggable-row" data-section="${sIdx}" data-item="${iIdx}" 
+                    ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragend="handleDragEnd(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
@@ -2182,6 +2199,84 @@ function exportXLSX() {
     ws["!cols"] = [{ wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, ws, "Budget Summary");
     XLSX.writeFile(wb, "budget_tracker.xlsx");
+}
+
+// ── DRAG & DROP REORDERING ──────────────────────
+let draggedElement = null;
+let draggedFromIndex = null;
+let draggedFromSection = null;
+
+function handleDragStart(event) {
+    draggedElement = event.currentTarget;
+    draggedFromIndex = parseInt(draggedElement.dataset.item);
+    draggedFromSection = parseInt(draggedElement.dataset.section);
+    draggedElement.classList.add('dragging');
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', event.currentTarget.innerHTML);
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDragEnter(event) {
+    if (event.currentTarget !== draggedElement) {
+        event.currentTarget.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(event) {
+    event.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const targetRow = event.currentTarget;
+    if (targetRow === draggedElement) {
+        return false;
+    }
+    
+    const targetIndex = parseInt(targetRow.dataset.item);
+    const targetSection = parseInt(targetRow.dataset.section);
+    
+    // Only reorder if dropping in the same section
+    if (draggedFromSection === targetSection) {
+        reorderItem(draggedFromSection, draggedFromIndex, targetIndex);
+    }
+    
+    targetRow.classList.remove('drag-over');
+    return false;
+}
+
+function handleDragEnd(event) {
+    draggedElement.classList.remove('dragging');
+    
+    // Remove drag-over class from all rows
+    document.querySelectorAll('.draggable-row').forEach(row => {
+        row.classList.remove('drag-over');
+    });
+    
+    draggedElement = null;
+    draggedFromIndex = null;
+    draggedFromSection = null;
+}
+
+function reorderItem(sectionIdx, fromIdx, toIdx) {
+    const section = SECTIONS[sectionIdx];
+    if (!section || !section.items) return;
+    
+    // Reorder in the items array
+    const item = section.items[fromIdx];
+    section.items.splice(fromIdx, 1);
+    section.items.splice(toIdx, 0, item);
+    
+    // Save and re-render
+    saveLocal();
+    renderSections();
 }
 
 // ── JSON EXPORT/IMPORT ──────────────────────────
