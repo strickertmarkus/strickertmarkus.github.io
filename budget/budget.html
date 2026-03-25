@@ -931,6 +931,9 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 
     <div class="footer-actions">
         <button class="btn btn-primary" onclick="exportXLSX()">Exportera till .xlsx</button>
+        <button class="btn btn-primary" onclick="exportJSON()" style="background: linear-gradient(135deg, #059669, #047857);">Exportera JSON</button>
+        <button class="btn btn-primary" onclick="document.getElementById('import-json-input').click()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">Importera JSON</button>
+        <input type="file" id="import-json-input" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
         <button class="btn btn-secondary" onclick="saveLocalWithFeedback()">Spara i webbläsare</button>
         <button class="btn btn-danger" onclick="resetAll()">Återställ allt</button>
     </div>
@@ -2130,6 +2133,59 @@ function exportXLSX() {
     ws["!cols"] = [{ wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, ws, "Budget Summary");
     XLSX.writeFile(wb, "budget_tracker.xlsx");
+}
+
+// ── JSON EXPORT/IMPORT ──────────────────────────
+function exportJSON() {
+    const data = {
+        monthlyData: monthlyData,
+        sections: SECTIONS,
+        exportDate: new Date().toISOString()
+    };
+    
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `budget_data_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert(`✅ Budget exporterad som JSON!\n\nFil: ${link.download}\n\nKopiera denna fil till din telefon för att importera data där.`);
+}
+
+function handleJSONImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // Validate structure
+            if (!data.monthlyData || !data.sections) {
+                throw new Error("Ogiltig fil-format. Saknar monthlyData eller sections.");
+            }
+            
+            // Import data
+            monthlyData = data.monthlyData;
+            SECTIONS = data.sections;
+            saveLocal();
+            
+            alert(`✅ Budget importerad framgångsrikt!\n\nDatum för export: ${data.exportDate}`);
+            location.reload();
+        } catch (error) {
+            alert(`❌ Fel vid import: ${error.message}\n\nKontrollera att filen är en giltig budget-export.`);
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset input so same file can be imported again
+    event.target.value = '';
 }
 
 // ── DARK MODE TOGGLE ─────────────────────────────
