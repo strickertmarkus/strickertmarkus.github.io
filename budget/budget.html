@@ -181,6 +181,36 @@ html.dark-mode .btn-danger:hover {
     background: rgba(248,113,113,0.07);
 }
 
+html.dark-mode .btn-export {
+    background: var(--card);
+    color: #60A5FA;
+    border-color: rgba(96, 165, 250, 0.2);
+}
+html.dark-mode .btn-export:hover {
+    background: rgba(96, 165, 250, 0.07);
+    border-color: rgba(96, 165, 250, 0.4);
+}
+
+html.dark-mode .btn-json-export {
+    background: var(--card);
+    color: #34D399;
+    border-color: rgba(52, 211, 153, 0.2);
+}
+html.dark-mode .btn-json-export:hover {
+    background: rgba(52, 211, 153, 0.07);
+    border-color: rgba(52, 211, 153, 0.4);
+}
+
+html.dark-mode .btn-json-import {
+    background: var(--card);
+    color: #A78BFA;
+    border-color: rgba(167, 139, 250, 0.2);
+}
+html.dark-mode .btn-json-import:hover {
+    background: rgba(167, 139, 250, 0.07);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+
 html.dark-mode .delete-btn {
     color: #F87171;
 }
@@ -649,6 +679,24 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     border: 1.5px solid #FECACA;
 }
 .btn-danger:hover { background: #FEF2F2; }
+.btn-export {
+    background: white;
+    color: #2563EB;
+    border: 1.5px solid #BFDBFE;
+}
+.btn-export:hover { background: #EFF6FF; border-color: #93C5FD; }
+.btn-json-export {
+    background: white;
+    color: #059669;
+    border: 1.5px solid #D1FAE5;
+}
+.btn-json-export:hover { background: #ECFDF5; border-color: #6EE7B7; }
+.btn-json-import {
+    background: white;
+    color: #7c3aed;
+    border: 1.5px solid #EDE9FE;
+}
+.btn-json-import:hover { background: #F5F3FF; border-color: #C4B5FD; }
 
 /* ── TABLE SCROLL WRAPPER ───────────────────────── */
 .table-scroll-wrapper {
@@ -931,9 +979,9 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     <div id="sections-container"></div>
 
     <div class="footer-actions">
-        <button class="btn btn-primary" onclick="exportXLSX()">Exportera till .xlsx</button>
-        <button class="btn btn-primary" onclick="exportJSON()" style="background: transparent; color: #059669; border: none; text-decoration: underline; padding: 0; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Exportera JSON</button>
-        <button class="btn btn-primary" onclick="document.getElementById('import-json-input').click()" style="background: transparent; color: #7c3aed; border: none; text-decoration: underline; padding: 0; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Importera JSON</button>
+        <button class="btn btn-export" onclick="exportXLSX()">Exportera till .xlsx</button>
+        <button class="btn btn-json-export" onclick="exportJSON()">Exportera JSON</button>
+        <button class="btn btn-json-import" onclick="document.getElementById('import-json-input').click()">Importera JSON</button>
         <input type="file" id="import-json-input" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
         <button class="btn btn-secondary" onclick="saveLocalWithFeedback()">Spara i webbläsare</button>
         <button class="btn btn-danger" onclick="resetAll()">Återställ allt</button>
