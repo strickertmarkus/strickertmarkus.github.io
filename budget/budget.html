@@ -758,6 +758,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     #dark-mode-btn { top: 8px !important; right: 8px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
     #analytics-btn { top: 8px !important; right: 44px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
     #month-nav { gap: 6px !important; flex-wrap: wrap; align-items: center; justify-content: center; }
+    .custom-dropdown-wrapper { flex-basis: 100%; }
     #month-nav > button,
     #set-start-month-btn { font-size: 12px !important; padding: 7px 12px !important; }
     #month-dropdown { min-width: 140px; font-size: 12px; }
@@ -931,8 +932,8 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 
     <div class="footer-actions">
         <button class="btn btn-primary" onclick="exportXLSX()">Exportera till .xlsx</button>
-        <button class="btn btn-primary" onclick="exportJSON()" style="background: linear-gradient(135deg, #6ee7b7, #34d399); color: white;">Exportera JSON</button>
-        <button class="btn btn-primary" onclick="document.getElementById('import-json-input').click()" style="background: linear-gradient(135deg, #c4b5fd, #a78bfa); color: white;">Importera JSON</button>
+        <button class="btn btn-primary" onclick="exportJSON()" style="background: transparent; color: #059669; border: none; text-decoration: underline; padding: 0; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Exportera JSON</button>
+        <button class="btn btn-primary" onclick="document.getElementById('import-json-input').click()" style="background: transparent; color: #7c3aed; border: none; text-decoration: underline; padding: 0; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Importera JSON</button>
         <input type="file" id="import-json-input" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
         <button class="btn btn-secondary" onclick="saveLocalWithFeedback()">Spara i webbläsare</button>
         <button class="btn btn-danger" onclick="resetAll()">Återställ allt</button>
