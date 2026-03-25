@@ -649,6 +649,19 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 }
 .btn-danger:hover { background: #FEF2F2; }
 
+/* ── TABLE SCROLL WRAPPER ───────────────────────── */
+.table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ── SECTIONS GRID (moved from inline style) ───── */
+#sections-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
 /* ── RESPONSIVE ─────────────────────────────────── */
 @media (min-width: 1600px) {
     .item-input { width: 140px; padding: 6px 8px; font-size: 13px; }
@@ -686,11 +699,15 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     }
     .header h1 { font-size: 22px; }
     .header p { font-size: 12px; }
-    #month-nav { flex-wrap: wrap; gap: 8px; }
+    #month-nav { flex-wrap: wrap; gap: 8px; justify-content: center; }
     #month-dropdown { min-width: 160px; font-size: 13px; padding: 8px 36px 8px 12px; }
     .footer-actions { flex-wrap: wrap; gap: 8px; }
     .btn { padding: 10px 18px; font-size: 13px; }
     .section-card { min-height: auto; }
+    /* Header buttons reflow */
+    .header { padding: 20px 0 16px; }
+    #dark-mode-btn { top: 10px !important; right: 10px !important; width: 36px !important; height: 36px !important; font-size: 16px !important; }
+    #analytics-btn { top: 10px !important; right: 52px !important; width: 36px !important; height: 36px !important; font-size: 15px !important; }
 }
 
 @media (max-width: 480px) {
@@ -704,7 +721,13 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .section-header { padding: 12px 10px 12px 36px; gap: 6px; }
     .section-title { font-size: 13px; min-width: auto; }
     .section-body { padding: 0 10px 14px; }
-    .items-table { font-size: 11px; }
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+    .items-table { font-size: 11px; min-width: 320px; }
     .items-table thead th {
         font-size: 8px;
         padding: 5px 3px;
@@ -728,9 +751,14 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .chart-wrap { height: 200px; }
     .chart-card { padding: 12px 10px; }
     .charts-row { gap: 10px; }
-    .header { padding: 20px 0 18px; }
-    .header h1 { font-size: 20px; }
-    #month-nav { gap: 6px; }
+    .header { padding: 16px 0 14px; }
+    .header h1 { font-size: 18px; }
+    .header p { font-size: 11px; }
+    #dark-mode-btn { top: 8px !important; right: 8px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
+    #analytics-btn { top: 8px !important; right: 44px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
+    #month-nav { gap: 6px !important; flex-direction: column; align-items: center; }
+    #month-nav > button,
+    #set-start-month-btn { font-size: 12px !important; padding: 7px 12px !important; }
     #month-dropdown { min-width: 140px; font-size: 12px; }
     .footer-actions { flex-direction: column; align-items: stretch; }
     .btn { width: 100%; text-align: center; }
@@ -896,7 +924,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     <div style="display: flex; justify-content: flex-end; margin-top: 20px; margin-bottom: 12px;">
         <button onclick="addNewSection()" style="background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.4); color: #4CAF50; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s;">+ Nytt avsnitt</button>
     </div>
-    <div id="sections-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;"></div>
+    <div id="sections-container"></div>
 
     <div class="footer-actions">
         <button class="btn btn-primary" onclick="exportXLSX()">Exportera till .xlsx</button>
@@ -1385,7 +1413,7 @@ function renderSections() {
         });
 
         tableHTML += `</tbody></table>`;
-        body.innerHTML += tableHTML;
+        body.innerHTML += `<div class="table-scroll-wrapper">${tableHTML}</div>`;
 
         // Add item button
         body.innerHTML += `
