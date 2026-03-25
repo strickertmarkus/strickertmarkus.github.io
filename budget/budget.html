@@ -1339,7 +1339,7 @@ function computeTotals() {
     sections.forEach(s => {
         if (s.isIncome) {
             totalIncome = s.items.reduce((sum, it) => sum + (it.actual || it.budget), 0);
-        } else {
+        } else if (s.key !== 'savings') {
             totalBudget += s.items.reduce((sum, it) => sum + it.budget, 0);
             totalSpent += s.items.reduce((sum, it) => sum + it.actual, 0);
         }
