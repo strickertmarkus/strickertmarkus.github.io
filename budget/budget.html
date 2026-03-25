@@ -239,6 +239,7 @@ body {
     max-width: 1800px;
     margin: 0 auto;
     padding: 28px 12px 80px;
+    display: block;
 }
 
 /* ── KPI CARDS ──────────────────────────────────── */
@@ -325,7 +326,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-height: 400px;
+    min-height: auto;
 }
 .section-header {
     padding: 18px 24px 18px 50px;
@@ -711,7 +712,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 }
 
 @media (max-width: 480px) {
-    .container { padding: 12px 6px 50px; }
+    .container { padding: 12px 6px 50px; margin: 0 auto; max-width: 100%; }
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .kpi-card { padding: 14px 10px; }
     .kpi-value { font-size: 17px; }
@@ -767,6 +768,8 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .progress-bar { height: 20px; }
     .pie-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
     .pie-grid .chart-wrap { height: 180px; }
+    #sections-container { margin: 0 auto; }
+    .section-card { display: flex; flex-direction: column; }
 }
 
 /* ── MONTH DROPDOWN STYLING ────────────────────── */
