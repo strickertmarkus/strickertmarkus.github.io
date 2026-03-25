@@ -704,8 +704,6 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.15s ease;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none;
-    -webkit-touch-callout: none;
 }
 .draggable-row:active {
     cursor: grabbing;
@@ -2511,7 +2509,10 @@ if (!monthlyData[currentMonthKey]) {
 updateMonthDisplay();
 renderKPIs();
 renderSections();
-initDragAndDrop();
+// Only enable drag-and-drop on desktop (not on mobile)
+if (window.innerWidth > 800) {
+    initDragAndDrop();
+}
 
 // Delay chart initialization to ensure DOM is fully laid out
 setTimeout(() => {
