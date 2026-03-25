@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Familjebudget — Huskalkyl</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg: #F0F2F5;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-sec: #6B7280;
+    --border: #E5E7EB;
+    --accent: #3B6DE0;
+    --accent-light: #DBEAFE;
+    --accent-bg: #EFF6FF;
+    --income: #10B981;
+    --income-light: #D1FAE5;
+    --income-bg: #ECFDF5;
+    --house: #3B6DE0;
+    --house-light: #DBEAFE;
+    --house-bg: #EFF6FF;
+    --danger: #DC2626;
+    --warning: #F59E0B;
+    --savings: #0EA5E9;
+    --savings-light: #BAE6FD;
+    --savings-bg: #F0F9FF;
+    --expense: #A855F7;
+    --expense-light: #EDE9FE;
+    --expense-bg: #F5F3FF;
+    --transfer: #E8590C;
+    --transfer-light: #FED7AA;
+    --transfer-bg: #FFF7ED;
+}
+
+html.dark-mode {
+    --bg: #0F1219;
+    --card: #1A1F2E;
+    --text: #E2E8F0;
+    --text-sec: #94A3B8;
+    --border: #2A3041;
+    --accent: #60A5FA;
+    --accent-light: #1E3A5F;
+    --accent-bg: #0F1A2E;
+    --income: #34D399;
+    --income-light: #065F46;
+    --income-bg: #0D2818;
+    --house: #60A5FA;
+    --house-light: #1E3A5F;
+    --house-bg: #0F1A2E;
+    --danger: #F87171;
+    --warning: #FBBF24;
+    --savings: #38BDF8;
+    --savings-light: #155E75;
+    --savings-bg: #0A1A20;
+    --expense: #A78BFA;
+    --expense-light: #4C1D95;
+    --expense-bg: #1A0F2E;
+    --transfer: #FB923C;
+    --transfer-light: #7C2D12;
+    --transfer-bg: #1F1008;
+}
+
+body, .kpi-card, .section-card, .chart-card {
+    transition: background-color 0.35s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+html.dark-mode .header {
+    background: linear-gradient(135deg, #0B0F1A 0%, #151C2C 100%);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+html.dark-mode .kpi-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+html.dark-mode .kpi-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.45); }
+html.dark-mode .section-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+html.dark-mode .chart-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+html.dark-mode .data-table th { background: rgba(255,255,255,0.05); }
+html.dark-mode .data-table td { border-color: var(--border); }
+html.dark-mode .checklist-item { background: rgba(255,255,255,0.04); border-color: var(--border); }
+html.dark-mode .checklist-item:hover { background: rgba(255,255,255,0.08); }
+html.dark-mode .checklist-item.checked { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.2); }
+html.dark-mode .transfer-card { background: rgba(255,255,255,0.04); border-color: var(--border); }
+
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
+    color: white;
+    padding: 28px 24px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.header h1 {
+    font-size: clamp(18px, 4vw, 28px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+.header p {
+    font-size: 13px;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+/* ── CONTAINER ──────────────────────────────────── */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+/* ── KPI CARDS ──────────────────────────────────── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.kpi-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+.kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-sec);
+    margin-bottom: 4px;
+}
+.kpi-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+.kpi-sub {
+    font-size: 11px;
+    color: var(--text-sec);
+    margin-top: 2px;
+}
+
+/* ── SECTION CARD ─────────────────────────────── */
+.section-card {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.section-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+.section-header:hover { background: rgba(0,0,0,0.02); }
+html.dark-mode .section-header:hover { background: rgba(255,255,255,0.03); }
+.section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+}
+.section-subtitle {
+    font-size: 12px;
+    color: var(--text-sec);
+}
+.section-chevron {
+    font-size: 14px;
+    color: var(--text-sec);
+    transition: transform 0.3s ease;
+}
+.section-chevron.open { transform: rotate(180deg); }
+.section-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+.section-body.open {
+    max-height: 5000px;
+}
+.section-inner {
+    padding: 0 20px 20px;
+}
+
+/* ── DATA TABLE ─────────────────────────────────── */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -4px;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.data-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-sec);
+    background: rgba(0,0,0,0.02);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .total-row { font-weight: 700; background: rgba(0,0,0,0.02); }
+html.dark-mode .data-table .total-row { background: rgba(255,255,255,0.04); }
+.data-table .positive { color: var(--income); }
+.data-table .negative { color: var(--danger); }
+
+/* ── CHART CARD ─────────────────────────────────── */
+.chart-card {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.chart-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* ── CHECKLIST ──────────────────────────────────── */
+.checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 8px;
+}
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+.checklist-item:hover {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+}
+.checklist-item.checked {
+    background: var(--income-bg);
+    border-color: var(--income);
+}
+.checklist-item.checked .checklist-text {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+.checklist-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.checklist-item.checked .checklist-check {
+    background: var(--income);
+    border-color: var(--income);
+    color: white;
+}
+.checklist-text {
+    font-size: 14px;
+    flex: 1;
+}
+.checklist-link {
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+}
+.checklist-link:hover { text-decoration: underline; }
+.checklist-progress {
+    margin-bottom: 16px;
+    text-align: center;
+}
+.checklist-progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+.checklist-progress-fill {
+    height: 100%;
+    background: var(--income);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+/* ── TRANSFER CARDS ─────────────────────────────── */
+.transfer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+.transfer-card {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    transition: all 0.2s;
+}
+.transfer-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.transfer-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-sec);
+    margin-bottom: 4px;
+}
+.transfer-value {
+    font-size: 20px;
+    font-weight: 700;
+}
+.transfer-sub {
+    font-size: 12px;
+    color: var(--text-sec);
+    margin-top: 2px;
+}
+
+/* ── PARAM GRID ─────────────────────────────────── */
+.param-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.param-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+}
+.param-label {
+    font-size: 13px;
+    color: var(--text-sec);
+}
+.param-value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ── EXPENSE COMPARE ────────────────────────────── */
+.expense-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 12px;
+}
+.expense-col h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.expense-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+.expense-item:last-child { border-bottom: none; }
+.expense-item .name { color: var(--text); }
+.expense-item .amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── MONTH SELECTOR ─────────────────────────────── */
+.month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.month-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.month-btn:hover { opacity: 0.85; transform: scale(1.05); }
+.month-display {
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* ── BUTTONS ────────────────────────────────────── */
+.btn-icon {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+}
+.btn-icon:hover { background: rgba(255,255,255,0.25); }
+
+/* ── NAV DROPDOWN ───────────────────────────────── */
+.nav-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: dropIn 0.2s ease;
+}
+.nav-dropdown-menu.show { display: block; }
+@keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.nav-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+.nav-dropdown-menu a:hover {
+    background: var(--accent-bg);
+}
+html.dark-mode .nav-dropdown-menu a:hover {
+    background: rgba(96,165,250,0.1);
+}
+.nav-dropdown-menu a .nav-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+.nav-dropdown-menu a.active {
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+}
+html.dark-mode .nav-dropdown-menu a.active {
+    background: rgba(96,165,250,0.1);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 800px) {
+    .header h1 { font-size: 18px; letter-spacing: 1px; }
+    .container { padding: 12px 10px 30px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .kpi-value { font-size: 18px; }
+    .chart-container { height: 220px; }
+    .expense-compare { grid-template-columns: 1fr; }
+    .param-grid { grid-template-columns: 1fr 1fr; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .transfer-grid { grid-template-columns: 1fr; }
+    .section-inner { padding: 0 12px 16px; }
+    .section-header { padding: 12px 14px; }
+    .btn-icon { width: 36px; height: 36px; font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+    .header { padding: 20px 12px 14px; }
+    .kpi-card { padding: 12px 10px; }
+    .kpi-value { font-size: 16px; }
+    .kpi-label { font-size: 10px; }
+    .param-grid { grid-template-columns: 1fr; }
+    .data-table { font-size: 12px; }
+    .data-table th, .data-table td { padding: 8px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>FAMILJEBUDGET</h1>
+    <p>Huskalkyl &middot; Överföringar &middot; Utgifter</p>
+    <button onclick="toggleDarkMode()" id="dark-mode-btn" class="btn-icon" style="position: absolute; top: 16px; right: 16px;">🌙</button>
+    <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 66px;">
+        <button onclick="toggleNavMenu()" class="btn-icon" title="Navigation">☰</button>
+        <div class="nav-dropdown-menu" id="nav-menu">
+            <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+            <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+            <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+            <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+            <a href="familjebudget.html" class="active"><span class="nav-icon">🏠</span> Familjebudget</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- KPI Summary -->
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <!-- Loan Overview Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('loan')">
+            <div class="section-icon" style="background: var(--house-bg); color: var(--house);">🏠</div>
+            <div>
+                <div class="section-title">Lån Översikt</div>
+                <div class="section-subtitle">Parametrar, amortering & kostnader</div>
+            </div>
+            <span class="section-chevron" id="chevron-loan">▼</span>
+        </div>
+        <div class="section-body open" id="section-loan">
+            <div class="section-inner">
+                <h3 style="font-size: 14px; font-weight: 600; color: var(--text-sec); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Parametrar</h3>
+                <div class="param-grid" id="param-grid"></div>
+                <h3 style="font-size: 14px; font-weight: 600; color: var(--text-sec); margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;">Amorteringstabell</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="amort-table">
+                        <thead>
+                            <tr>
+                                <th>År</th>
+                                <th class="num">Huslån</th>
+                                <th class="num">Ränta/mån</th>
+                                <th class="num">Drift/mån</th>
+                                <th class="num">Amortering</th>
+                                <th class="num">Renovering</th>
+                                <th class="num">Totalt hus</th>
+                                <th class="num">Kvar/mån</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('charts')">
+            <div class="section-icon" style="background: var(--accent-bg); color: var(--accent);">📊</div>
+            <div>
+                <div class="section-title">Grafer</div>
+                <div class="section-subtitle">Låneutveckling & kostnader över tid</div>
+            </div>
+            <span class="section-chevron" id="chevron-charts">▼</span>
+        </div>
+        <div class="section-body" id="section-charts">
+            <div class="section-inner">
+                <div class="chart-card" style="border: none; box-shadow: none; padding: 0; margin-bottom: 16px;">
+                    <div class="chart-title">Huslån over tid</div>
+                    <div class="chart-container"><canvas id="loanChart"></canvas></div>
+                </div>
+                <div class="chart-card" style="border: none; box-shadow: none; padding: 0; margin-bottom: 16px;">
+                    <div class="chart-title">Månadskostnader</div>
+                    <div class="chart-container"><canvas id="costChart"></canvas></div>
+                </div>
+                <div class="chart-card" style="border: none; box-shadow: none; padding: 0;">
+                    <div class="chart-title">Kvar efter utgifter</div>
+                    <div class="chart-container"><canvas id="leftChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income & Expenses Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('income')">
+            <div class="section-icon" style="background: var(--income-bg); color: var(--income);">💵</div>
+            <div>
+                <div class="section-title">Inkomster & Utgifter</div>
+                <div class="section-subtitle">Gemensamma hushållskostnader</div>
+            </div>
+            <span class="section-chevron" id="chevron-income">▼</span>
+        </div>
+        <div class="section-body" id="section-income">
+            <div class="section-inner">
+                <div class="param-grid" id="income-grid"></div>
+                <h3 style="font-size: 14px; font-weight: 600; color: var(--text-sec); margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;">Utgifter exkl. hyra</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="expenses-table">
+                        <thead>
+                            <tr>
+                                <th>Utgift</th>
+                                <th class="num">Belopp (kr/mån)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <h3 style="font-size: 14px; font-weight: 600; color: var(--text-sec); margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;">Huskonto</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="huskonto-table">
+                        <thead>
+                            <tr>
+                                <th>Post</th>
+                                <th class="num">Belopp (kr/mån)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Överföringar Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('transfers')">
+            <div class="section-icon" style="background: var(--transfer-bg); color: var(--transfer);">🔄</div>
+            <div>
+                <div class="section-title">Överföringar</div>
+                <div class="section-subtitle">Månatliga överföringar till huskonto & ICA-kort</div>
+            </div>
+            <span class="section-chevron" id="chevron-transfers">▼</span>
+        </div>
+        <div class="section-body" id="section-transfers">
+            <div class="section-inner">
+                <div class="month-selector">
+                    <button class="month-btn" onclick="changeTransferMonth(-1)">‹</button>
+                    <div class="month-display" id="transfer-month-display"></div>
+                    <button class="month-btn" onclick="changeTransferMonth(1)">›</button>
+                </div>
+                <div class="transfer-grid" id="transfer-detail"></div>
+                <h3 style="font-size: 14px; font-weight: 600; color: var(--text-sec); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;">Alla månader</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="transfer-table">
+                        <thead>
+                            <tr>
+                                <th>Månad</th>
+                                <th class="num">Husutgifter</th>
+                                <th class="num">ICA-kort</th>
+                                <th class="num">Maja %</th>
+                                <th class="num">Huskonto Maja</th>
+                                <th class="num">ICA Maja</th>
+                                <th class="num">Huskonto Markus</th>
+                                <th class="num">ICA Markus</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Expenses Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('personal')">
+            <div class="section-icon" style="background: var(--expense-bg); color: var(--expense);">👥</div>
+            <div>
+                <div class="section-title">Personliga utgifter</div>
+                <div class="section-subtitle">Majas & Markus individuella kostnader</div>
+            </div>
+            <span class="section-chevron" id="chevron-personal">▼</span>
+        </div>
+        <div class="section-body" id="section-personal">
+            <div class="section-inner">
+                <div class="expense-compare" id="expense-compare"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inför flytt Section -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('checklist')">
+            <div class="section-icon" style="background: var(--savings-bg); color: var(--savings);">📦</div>
+            <div>
+                <div class="section-title">Inför flytt</div>
+                <div class="section-subtitle" id="checklist-subtitle">Att köpa-lista</div>
+            </div>
+            <span class="section-chevron" id="chevron-checklist">▼</span>
+        </div>
+        <div class="section-body" id="section-checklist">
+            <div class="section-inner">
+                <div class="checklist-progress" id="checklist-progress"></div>
+                <div class="checklist-grid" id="checklist-grid"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA FROM EXCEL
+// ═══════════════════════════════════════════════════════
+
+const LOAN_PARAMS = {
+    huspris: 5000000,
+    huslan: 3750000,
+    kontantinsats: 1250000,
+    listranta: 3.067,
+    driftkostnad: 47025,
+    fastighetsavgift: 9525,
+    skattereduktion: 100,
+    bolan: 75,
+    lagfart: 75000,
+    renovering: 1.0,
+    ammortering: 2,
+    pantbrev: -9160,
+    lantmateriavgift: 825
+};
+
+const INCOME = {
+    markus: { inkomst: 36800, foraldraledig: false },
+    maja: { inkomst: 13000, foraldraledig: true },
+    total: 49800
+};
+
+const EXPENSES = [
+    { name: "Mat/hushåll.", amount: 6000 },
+    { name: "Internet", amount: 399 },
+    { name: "Bilförsäkring", amount: 882 },
+    { name: "Milas försäkring", amount: 231 },
+    { name: "Villaförsäkring", amount: 622 },
+    { name: "Guccis försäkring", amount: 127 },
+    { name: "Kortavgift", amount: 70 },
+    { name: "CSN", amount: 1100 },
+    { name: "Spotify", amount: 100 },
+    { name: "Youtube", amount: 119 },
+    { name: "Gym", amount: 279 },
+    { name: "Sparande Mila", amount: 1000 },
+    { name: "Sparande Bröllop", amount: 7000 },
+    { name: "Billån Maja", amount: 2775 },
+    { name: "Abonnemang", amount: 229 },
+    { name: "Mobil", amount: 250 },
+    { name: "Glasögon", amount: 331 },
+    { name: "Bankkort", amount: 80 },
+    { name: "Försäkring Maja", amount: 229 },
+    { name: "Försäkring Markus", amount: 126 }
+];
+
+const HUSKONTO = [
+    { name: "Dagisavgift", amount: 1847 },
+    { name: "Bredband/Telefon", amount: 852 }
+];
+
+const AMORT_TABLE = [
+    { month: 1, loan: 3750000, interest: 9584, drift: 4712, amort: 6250, reno: 4166, totalHouse: 24712, left: 3139 },
+    { month: 24, loan: 3606250, interest: 9216, drift: 4712, amort: 6250, reno: 4166, totalHouse: 24344, left: 3507 },
+    { month: 48, loan: 3456250, interest: 8833, drift: 4712, amort: 6250, reno: 4166, totalHouse: 23961, left: 3890 },
+    { month: 72, loan: 3306250, interest: 8450, drift: 4712, amort: 6250, reno: 4166, totalHouse: 23578, left: 4273 },
+    { month: 96, loan: 3156250, interest: 8066, drift: 4712, amort: 6250, reno: 4166, totalHouse: 23194, left: 4657 },
+    { month: 120, loan: 3006250, interest: 7683, drift: 4712, amort: 6250, reno: 4166, totalHouse: 22811, left: 5040 },
+    { month: 144, loan: 2856250, interest: 7300, drift: 4712, amort: 6250, reno: 4166, totalHouse: 22428, left: 5423 },
+    { month: 168, loan: 2706250, interest: 6916, drift: 4712, amort: 6250, reno: 4166, totalHouse: 22044, left: 5807 },
+    { month: 192, loan: 2587500, interest: 6613, drift: 4712, amort: 3125, reno: 4166, totalHouse: 18616, left: 9235 },
+    { month: 216, loan: 2512500, interest: 6421, drift: 4712, amort: 3125, reno: 4166, totalHouse: 18424, left: 9427 },
+    { month: 240, loan: 2437500, interest: 6229, drift: 4712, amort: 3125, reno: 4166, totalHouse: 18232, left: 9619 },
+    { month: 264, loan: 2362500, interest: 6038, drift: 4712, amort: 3125, reno: 4166, totalHouse: 18041, left: 9810 }
+];
+
+// Monthly time series for charts (sampled every 12 months)
+const CHART_DATA = [
+    { month: 1, loan: 3750000, interest: 9584, totalHouse: 24712, left: 3139 },
+    { month: 13, loan: 3675000, interest: 9392, totalHouse: 24520, left: 3331 },
+    { month: 25, loan: 3600000, interest: 9201, totalHouse: 24329, left: 3522 },
+    { month: 37, loan: 3525000, interest: 9009, totalHouse: 24137, left: 3714 },
+    { month: 49, loan: 3450000, interest: 8817, totalHouse: 23945, left: 3906 },
+    { month: 61, loan: 3375000, interest: 8625, totalHouse: 23753, left: 4098 },
+    { month: 73, loan: 3300000, interest: 8434, totalHouse: 23562, left: 4289 },
+    { month: 85, loan: 3225000, interest: 8242, totalHouse: 23370, left: 4481 },
+    { month: 97, loan: 3150000, interest: 8050, totalHouse: 23178, left: 4673 },
+    { month: 109, loan: 3075000, interest: 7859, totalHouse: 22987, left: 4864 },
+    { month: 121, loan: 3000000, interest: 7667, totalHouse: 22795, left: 5056 },
+    { month: 133, loan: 2925000, interest: 7475, totalHouse: 22603, left: 5248 },
+    { month: 145, loan: 2850000, interest: 7284, totalHouse: 22412, left: 5439 },
+    { month: 157, loan: 2775000, interest: 7092, totalHouse: 22220, left: 5631 },
+    { month: 169, loan: 2700000, interest: 6900, totalHouse: 22028, left: 5823 },
+    { month: 181, loan: 2625000, interest: 6709, totalHouse: 21837, left: 6014 },
+    { month: 193, loan: 2584375, interest: 6605, totalHouse: 18608, left: 9243 },
+    { month: 205, loan: 2546875, interest: 6509, totalHouse: 18512, left: 9339 },
+    { month: 217, loan: 2509375, interest: 6413, totalHouse: 18416, left: 9435 },
+    { month: 229, loan: 2471875, interest: 6317, totalHouse: 18320, left: 9531 },
+    { month: 241, loan: 2434375, interest: 6221, totalHouse: 18224, left: 9627 },
+    { month: 253, loan: 2396875, interest: 6126, totalHouse: 18129, left: 9722 },
+    { month: 265, loan: 2359375, interest: 6030, totalHouse: 18033, left: 9818 }
+];
+
+const TRANSFERS = [
+    { year: 2025, month: "April", husutgifter: 24696, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16042, icaMaja: 5415, huskontoMarkus: 8638, icaMarkus: 2915 },
+    { year: 2025, month: "Maj", husutgifter: 24680, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16031, icaMaja: 5415, huskontoMarkus: 8632, icaMarkus: 2915 },
+    { year: 2025, month: "Juni", husutgifter: 24664, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16021, icaMaja: 5415, huskontoMarkus: 8626, icaMarkus: 2915 },
+    { year: 2025, month: "Juli", husutgifter: 24648, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16010, icaMaja: 5415, huskontoMarkus: 8621, icaMarkus: 2915 },
+    { year: 2025, month: "Augusti", husutgifter: 24632, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16000, icaMaja: 5415, huskontoMarkus: 8615, icaMarkus: 2915 },
+    { year: 2025, month: "September", husutgifter: 24616, ica: 8331, majaAndel: 0.65, markusAndel: 0.35, huskontoMaja: 16000, icaMaja: 5415, huskontoMarkus: 8610, icaMarkus: 2915 },
+    { year: 2025, month: "Oktober", husutgifter: 24600, ica: 8331, majaAndel: 0.416, markusAndel: 0.584, huskontoMaja: 10233, icaMaja: 3465, huskontoMarkus: 14366, icaMarkus: 4865 },
+    { year: 2025, month: "November", husutgifter: 24584, ica: 8331, majaAndel: 0.454, markusAndel: 0.546, huskontoMaja: 11150, icaMaja: 3778, huskontoMarkus: 13432, icaMarkus: 4552 },
+    { year: 2025, month: "December", husutgifter: 24568, ica: 8331, majaAndel: 0.435, markusAndel: 0.565, huskontoMaja: 10687, icaMaja: 3623, huskontoMarkus: 13880, icaMarkus: 4707 },
+    { year: 2026, month: "Januari", husutgifter: 24552, ica: 8331, majaAndel: 0.460, markusAndel: 0.540, huskontoMaja: 11284, icaMaja: 3828, huskontoMarkus: 13267, icaMarkus: 4502 },
+    { year: 2026, month: "Februari", husutgifter: 27235, ica: 8331, majaAndel: 0.246, markusAndel: 0.754, huskontoMaja: 6707, icaMaja: 2051, huskontoMarkus: 20527, icaMarkus: 6279 },
+    { year: 2026, month: "Mars", husutgifter: 27219, ica: 8331, majaAndel: 0.253, markusAndel: 0.747, huskontoMaja: 6890, icaMaja: 2109, huskontoMarkus: 20328, icaMarkus: 6221 },
+    { year: 2026, month: "April", husutgifter: 27203, ica: 8331, majaAndel: 0.256, markusAndel: 0.744, huskontoMaja: 6953, icaMaja: 2129, huskontoMarkus: 20249, icaMarkus: 6201 },
+    { year: 2026, month: "Maj", husutgifter: 27187, ica: 8331, majaAndel: 0.265, markusAndel: 0.735, huskontoMaja: 7192, icaMaja: 2204, huskontoMarkus: 19994, icaMarkus: 6126 },
+    { year: 2026, month: "Juni", husutgifter: 27171, ica: 8331, majaAndel: 0.265, markusAndel: 0.735, huskontoMaja: 7188, icaMaja: 2204, huskontoMarkus: 19982, icaMarkus: 6126 },
+    { year: 2026, month: "Juli", husutgifter: 27155, ica: 8331, majaAndel: 0.256, markusAndel: 0.744, huskontoMaja: 6941, icaMaja: 2129, huskontoMarkus: 20213, icaMarkus: 6201 },
+    { year: 2026, month: "Augusti", husutgifter: 27139, ica: 8331, majaAndel: 0.273, markusAndel: 0.727, huskontoMaja: 7417, icaMaja: 2276, huskontoMarkus: 19721, icaMarkus: 6054 },
+    { year: 2026, month: "September", husutgifter: 27123, ica: 8331, majaAndel: 0.256, markusAndel: 0.744, huskontoMaja: 6932, icaMaja: 2129, huskontoMarkus: 20190, icaMarkus: 6201 },
+    { year: 2026, month: "Oktober", husutgifter: 27107, ica: 8331, majaAndel: 0.235, markusAndel: 0.765, huskontoMaja: 6380, icaMaja: 1960, huskontoMarkus: 20726, icaMarkus: 6370 },
+    { year: 2026, month: "November", husutgifter: 27091, ica: 8331, majaAndel: 0.237, markusAndel: 0.763, huskontoMaja: 6430, icaMaja: 1977, huskontoMarkus: 20660, icaMarkus: 6353 },
+    { year: 2026, month: "December", husutgifter: 27075, ica: 8331, majaAndel: 0.216, markusAndel: 0.784, huskontoMaja: 5842, icaMaja: 1797, huskontoMarkus: 21232, icaMarkus: 6533 }
+];
+
+const MAJA_EXPENSES = [
+    { name: "Glasögon", amount: 331 },
+    { name: "Mobilabonnemang", amount: 259 },
+    { name: "Kund hos Nordea", amount: 29 },
+    { name: "ICA-kortet", amount: 5414 },
+    { name: "Huskontot", amount: 16000 },
+    { name: "Olycksfallsförsäkring", amount: 247 },
+    { name: "Sparande Lysa", amount: 1000 },
+    { name: "Sparande Avanza", amount: 1000 },
+    { name: "Sparande Bröllop", amount: 3000 },
+    { name: "Sparande Mila", amount: 500 },
+    { name: "Sparande Pension", amount: 500 }
+];
+
+const MAJA_INCOME = [
+    { name: "Meltwater", amount: 25425 },
+    { name: "Aktiv Ungdom", amount: 4288 },
+    { name: "Förskolan", amount: 1847 }
+];
+
+const CHECKLIST_ITEMS = [
+    { name: "Ved", link: "https://www.jula.se/catalog/bygg-och-farg/varme-och-ventilation/kaminer-och-oppna-spisar/fasta-branslen/ved-023627/" },
+    { name: "Grindar" },
+    { name: "Lampor" },
+    { name: "Stege" },
+    { name: "Säkringar" },
+    { name: "Mattor" },
+    { name: "Förvaringslådor inne" },
+    { name: "Förvaring garage" },
+    { name: "Krokar" },
+    { name: "Robotdammsugare" },
+    { name: "Robotgräsklippare" },
+    { name: "Snöskyffel" },
+    { name: "Skruvar/muttrar" },
+    { name: "Förvaring kök" },
+    { name: "Såg" },
+    { name: "Sladdlister" },
+    { name: "Grill" },
+    { name: "Gasolvärmare altan" },
+    { name: "Lampknappar" },
+    { name: "Dörr till sovrum uppe" },
+    { name: "Vägguttag" },
+    { name: "Blandare badrum" },
+    { name: "Tvåsitssoffa hall uppe" },
+    { name: "Nya köksredskap (slevar etc.)" },
+    { name: "Bra skärbräda i trä" },
+    { name: "Minst en bra kniv" },
+    { name: "Knivslip" },
+    { name: "Nya saxar" },
+    { name: "Dörrar övervåning" },
+    { name: "Garderobsdörrar" },
+    { name: "Matbord kök (runt)" },
+    { name: "Matbord matsal" },
+    { name: "Puffar ovanvåning" },
+    { name: "TV" },
+    { name: "Stekpanna rostfritt stål" },
+    { name: "Elvisp" },
+    { name: "TV-bänk" }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let currentTransferIdx = TRANSFERS.length - 1; // Start at latest month
+let checkedItems = {};
+
+// Load checklist state from localStorage
+function loadChecklist() {
+    const raw = localStorage.getItem("familjebudget_checklist");
+    if (raw) {
+        try { checkedItems = JSON.parse(raw); } catch(e) { checkedItems = {}; }
+    }
+}
+function saveChecklist() {
+    localStorage.setItem("familjebudget_checklist", JSON.stringify(checkedItems));
+}
+
+// ═══════════════════════════════════════════════════════
+// FORMATTING
+// ═══════════════════════════════════════════════════════
+function fmt(n) {
+    if (n == null) return "—";
+    return Math.round(n).toLocaleString("sv-SE");
+}
+function fmtPct(n) {
+    if (n == null) return "—";
+    return (n * 100).toFixed(1) + "%";
+}
+
+// ═══════════════════════════════════════════════════════
+// SECTION TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleSection(id) {
+    const body = document.getElementById("section-" + id);
+    const chevron = document.getElementById("chevron-" + id);
+    body.classList.toggle("open");
+    chevron.classList.toggle("open");
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER KPI
+// ═══════════════════════════════════════════════════════
+function renderKPI() {
+    const totalExpenses = EXPENSES.reduce((s, e) => s + e.amount, 0);
+    const huskontoTotal = HUSKONTO.reduce((s, e) => s + e.amount, 0);
+    const t = TRANSFERS[currentTransferIdx];
+    const grid = document.getElementById("kpi-grid");
+    grid.innerHTML = `
+        <div class="kpi-card">
+            <div class="kpi-label">Huslån</div>
+            <div class="kpi-value" style="color: var(--house);">${fmt(LOAN_PARAMS.huslan)} kr</div>
+            <div class="kpi-sub">av ${fmt(LOAN_PARAMS.huspris)} kr</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Ränta/mån</div>
+            <div class="kpi-value" style="color: var(--danger);">${fmt(AMORT_TABLE[0].interest)} kr</div>
+            <div class="kpi-sub">Listränta ${LOAN_PARAMS.listranta}%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Totalt hus/mån</div>
+            <div class="kpi-value" style="color: var(--house);">${fmt(AMORT_TABLE[0].totalHouse)} kr</div>
+            <div class="kpi-sub">Ränta + drift + amort.</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Nettoinkomst</div>
+            <div class="kpi-value" style="color: var(--income);">${fmt(INCOME.total)} kr</div>
+            <div class="kpi-sub">Markus + Maja</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Utgifter/mån</div>
+            <div class="kpi-value" style="color: var(--expense);">${fmt(totalExpenses)} kr</div>
+            <div class="kpi-sub">Exkl. boende</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Kvar/mån</div>
+            <div class="kpi-value" style="color: ${AMORT_TABLE[0].left > 0 ? 'var(--income)' : 'var(--danger)'};">${fmt(AMORT_TABLE[0].left)} kr</div>
+            <div class="kpi-sub">Efter alla utgifter</div>
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PARAMS
+// ═══════════════════════════════════════════════════════
+function renderParams() {
+    const grid = document.getElementById("param-grid");
+    const params = [
+        { label: "Huspris", value: fmt(LOAN_PARAMS.huspris) + " kr" },
+        { label: "Kontantinsats", value: fmt(LOAN_PARAMS.kontantinsats) + " kr" },
+        { label: "Huslån", value: fmt(LOAN_PARAMS.huslan) + " kr" },
+        { label: "Listränta", value: LOAN_PARAMS.listranta + "%" },
+        { label: "Bolåneandel", value: LOAN_PARAMS.bolan + "%" },
+        { label: "Amortering", value: LOAN_PARAMS.ammortering + "%" },
+        { label: "Driftkostnad/år", value: fmt(LOAN_PARAMS.driftkostnad) + " kr" },
+        { label: "Fastighetsavgift/år", value: fmt(LOAN_PARAMS.fastighetsavgift) + " kr" },
+        { label: "Renovering", value: LOAN_PARAMS.renovering + "%" },
+        { label: "Lagfart", value: fmt(LOAN_PARAMS.lagfart) + " kr" },
+        { label: "Lantmäteriavgift", value: fmt(LOAN_PARAMS.lantmateriavgift) + " kr" },
+        { label: "Skattereduktion", value: LOAN_PARAMS.skattereduktion + "%" }
+    ];
+    grid.innerHTML = params.map(p => `
+        <div class="param-item">
+            <span class="param-label">${p.label}</span>
+            <span class="param-value">${p.value}</span>
+        </div>
+    `).join("");
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER AMORT TABLE
+// ═══════════════════════════════════════════════════════
+function renderAmortTable() {
+    const tbody = document.querySelector("#amort-table tbody");
+    tbody.innerHTML = AMORT_TABLE.map(r => `
+        <tr>
+            <td>År ${Math.ceil(r.month / 12)}</td>
+            <td class="num">${fmt(r.loan)}</td>
+            <td class="num">${fmt(r.interest)}</td>
+            <td class="num">${fmt(r.drift)}</td>
+            <td class="num">${fmt(r.amort)}</td>
+            <td class="num">${fmt(r.reno)}</td>
+            <td class="num">${fmt(r.totalHouse)}</td>
+            <td class="num positive">${fmt(r.left)}</td>
+        </tr>
+    `).join("");
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER INCOME & EXPENSES
+// ═══════════════════════════════════════════════════════
+function renderIncomeExpenses() {
+    // Income grid
+    const ig = document.getElementById("income-grid");
+    ig.innerHTML = `
+        <div class="param-item">
+            <span class="param-label">Markus nettolön</span>
+            <span class="param-value" style="color: var(--income);">${fmt(INCOME.markus.inkomst)} kr</span>
+        </div>
+        <div class="param-item">
+            <span class="param-label">Majas nettolön</span>
+            <span class="param-value" style="color: var(--income);">${fmt(INCOME.maja.inkomst)} kr${INCOME.maja.foraldraledig ? ' (FL)' : ''}</span>
+        </div>
+        <div class="param-item">
+            <span class="param-label">Totalt</span>
+            <span class="param-value" style="color: var(--income); font-weight: 800;">${fmt(INCOME.total)} kr</span>
+        </div>
+    `;
+
+    // Expenses table
+    const etb = document.querySelector("#expenses-table tbody");
+    const totalExp = EXPENSES.reduce((s, e) => s + e.amount, 0);
+    etb.innerHTML = EXPENSES.map(e => `
+        <tr>
+            <td>${e.name}</td>
+            <td class="num">${fmt(e.amount)}</td>
+        </tr>
+    `).join("") + `
+        <tr class="total-row">
+            <td>Totalt</td>
+            <td class="num">${fmt(totalExp)}</td>
+        </tr>
+    `;
+
+    // Huskonto table
+    const htb = document.querySelector("#huskonto-table tbody");
+    const totalHus = HUSKONTO.reduce((s, e) => s + e.amount, 0);
+    htb.innerHTML = HUSKONTO.map(e => `
+        <tr>
+            <td>${e.name}</td>
+            <td class="num">${fmt(e.amount)}</td>
+        </tr>
+    `).join("") + `
+        <tr class="total-row">
+            <td>Totalt</td>
+            <td class="num">${fmt(totalHus)}</td>
+        </tr>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER TRANSFERS
+// ═══════════════════════════════════════════════════════
+function changeTransferMonth(delta) {
+    currentTransferIdx = Math.max(0, Math.min(TRANSFERS.length - 1, currentTransferIdx + delta));
+    renderTransferDetail();
+}
+
+function renderTransferDetail() {
+    const t = TRANSFERS[currentTransferIdx];
+    document.getElementById("transfer-month-display").textContent = `${t.month} ${t.year}`;
+
+    const detail = document.getElementById("transfer-detail");
+    detail.innerHTML = `
+        <div class="transfer-card">
+            <div class="transfer-label">Husutgifter</div>
+            <div class="transfer-value" style="color: var(--house);">${fmt(t.husutgifter)} kr</div>
+        </div>
+        <div class="transfer-card">
+            <div class="transfer-label">ICA-kort</div>
+            <div class="transfer-value" style="color: var(--transfer);">${fmt(t.ica)} kr</div>
+        </div>
+        <div class="transfer-card">
+            <div class="transfer-label">Maja → Huskonto</div>
+            <div class="transfer-value">${fmt(t.huskontoMaja)} kr</div>
+            <div class="transfer-sub">${fmtPct(t.majaAndel)} andel</div>
+        </div>
+        <div class="transfer-card">
+            <div class="transfer-label">Maja → ICA</div>
+            <div class="transfer-value">${fmt(t.icaMaja)} kr</div>
+        </div>
+        <div class="transfer-card">
+            <div class="transfer-label">Markus → Huskonto</div>
+            <div class="transfer-value">${fmt(t.huskontoMarkus)} kr</div>
+            <div class="transfer-sub">${fmtPct(t.markusAndel)} andel</div>
+        </div>
+        <div class="transfer-card">
+            <div class="transfer-label">Markus → ICA</div>
+            <div class="transfer-value">${fmt(t.icaMarkus)} kr</div>
+        </div>
+    `;
+}
+
+function renderTransferTable() {
+    const tbody = document.querySelector("#transfer-table tbody");
+    tbody.innerHTML = TRANSFERS.map(t => `
+        <tr>
+            <td>${t.month} ${t.year}</td>
+            <td class="num">${fmt(t.husutgifter)}</td>
+            <td class="num">${fmt(t.ica)}</td>
+            <td class="num">${fmtPct(t.majaAndel)}</td>
+            <td class="num">${fmt(t.huskontoMaja)}</td>
+            <td class="num">${fmt(t.icaMaja)}</td>
+            <td class="num">${fmt(t.huskontoMarkus)}</td>
+            <td class="num">${fmt(t.icaMarkus)}</td>
+        </tr>
+    `).join("");
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PERSONAL EXPENSES
+// ═══════════════════════════════════════════════════════
+function renderPersonalExpenses() {
+    const container = document.getElementById("expense-compare");
+    const majaTotal = MAJA_EXPENSES.reduce((s, e) => s + e.amount, 0);
+    const majaIncomeTotal = MAJA_INCOME.reduce((s, e) => s + e.amount, 0);
+
+    container.innerHTML = `
+        <div class="expense-col">
+            <h3><span style="font-size: 20px;">👩</span> Majas utgifter</h3>
+            ${MAJA_EXPENSES.map(e => `
+                <div class="expense-item">
+                    <span class="name">${e.name}</span>
+                    <span class="amount">${fmt(e.amount)} kr</span>
+                </div>
+            `).join("")}
+            <div class="expense-item" style="font-weight: 700; border-top: 2px solid var(--border); padding-top: 10px; margin-top: 4px;">
+                <span class="name">Totalt utgifter</span>
+                <span class="amount" style="color: var(--danger);">${fmt(majaTotal)} kr</span>
+            </div>
+            <h3 style="margin-top: 16px;"><span style="font-size: 20px;">💰</span> Majas inkomster</h3>
+            ${MAJA_INCOME.map(e => `
+                <div class="expense-item">
+                    <span class="name">${e.name}</span>
+                    <span class="amount positive">${fmt(e.amount)} kr</span>
+                </div>
+            `).join("")}
+            <div class="expense-item" style="font-weight: 700; border-top: 2px solid var(--border); padding-top: 10px; margin-top: 4px;">
+                <span class="name">Totalt inkomst</span>
+                <span class="amount positive">${fmt(majaIncomeTotal)} kr</span>
+            </div>
+            <div class="expense-item" style="font-weight: 700; margin-top: 4px;">
+                <span class="name">Kvar</span>
+                <span class="amount" style="color: ${majaIncomeTotal - majaTotal > 0 ? 'var(--income)' : 'var(--danger)'};">${fmt(majaIncomeTotal - majaTotal)} kr</span>
+            </div>
+        </div>
+        <div class="expense-col">
+            <h3><span style="font-size: 20px;">👨</span> Markus budget</h3>
+            <p style="font-size: 13px; color: var(--text-sec); margin-bottom: 8px;">Se <a href="budget.html" style="color: var(--accent);">Markus Budgetplanerare</a> för detaljerad uppföljning.</p>
+            <div class="expense-item">
+                <span class="name">Nettolön</span>
+                <span class="amount positive">${fmt(INCOME.markus.inkomst)} kr</span>
+            </div>
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER CHECKLIST
+// ═══════════════════════════════════════════════════════
+function renderChecklist() {
+    const grid = document.getElementById("checklist-grid");
+    const total = CHECKLIST_ITEMS.length;
+    const checked = Object.keys(checkedItems).filter(k => checkedItems[k]).length;
+
+    document.getElementById("checklist-progress").innerHTML = `
+        <span style="font-size: 14px; font-weight: 600;">${checked} av ${total} klart</span>
+        <div class="checklist-progress-bar">
+            <div class="checklist-progress-fill" style="width: ${total > 0 ? (checked / total * 100) : 0}%"></div>
+        </div>
+    `;
+    document.getElementById("checklist-subtitle").textContent = `${checked}/${total} klart`;
+
+    grid.innerHTML = CHECKLIST_ITEMS.map((item, i) => {
+        const isChecked = checkedItems[i];
+        return `
+            <div class="checklist-item ${isChecked ? 'checked' : ''}" onclick="toggleCheckItem(${i})">
+                <div class="checklist-check">${isChecked ? '✓' : ''}</div>
+                <span class="checklist-text">${item.name}</span>
+                ${item.link ? `<a class="checklist-link" href="${item.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>` : ''}
+            </div>
+        `;
+    }).join("");
+}
+
+function toggleCheckItem(idx) {
+    checkedItems[idx] = !checkedItems[idx];
+    saveChecklist();
+    renderChecklist();
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════
+let loanChart, costChart, leftChart;
+
+function isDark() {
+    return document.documentElement.classList.contains("dark-mode");
+}
+
+function chartColors() {
+    const dark = isDark();
+    return {
+        grid: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        text: dark ? "#94A3B8" : "#6B7280",
+        loan: dark ? "#60A5FA" : "#3B6DE0",
+        interest: dark ? "#F87171" : "#DC2626",
+        house: dark ? "#A78BFA" : "#7C3AED",
+        left: dark ? "#34D399" : "#10B981"
+    };
+}
+
+function createCharts() {
+    const c = chartColors();
+    const labels = CHART_DATA.map(d => `År ${Math.ceil(d.month / 12)}`);
+
+    const baseOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+            legend: { labels: { color: c.text, font: { family: "'Inter', sans-serif", size: 12 } } },
+            tooltip: { backgroundColor: isDark() ? "#1A1F2E" : "#fff", titleColor: isDark() ? "#E2E8F0" : "#1A1A2E", bodyColor: isDark() ? "#94A3B8" : "#6B7280", borderColor: isDark() ? "#2A3041" : "#E5E7EB", borderWidth: 1, padding: 12, cornerRadius: 8 }
+        },
+        scales: {
+            x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 11 } } },
+            y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 11 }, callback: v => fmt(v) } }
+        }
+    };
+
+    // Loan chart
+    loanChart = new Chart(document.getElementById("loanChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "Kvarvarande lån",
+                data: CHART_DATA.map(d => d.loan),
+                borderColor: c.loan,
+                backgroundColor: c.loan + "20",
+                fill: true,
+                tension: 0.3,
+                pointRadius: 2,
+                pointHoverRadius: 5
+            }]
+        },
+        options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, callback: v => (v / 1000000).toFixed(1) + " Mkr" } } } }
+    });
+
+    // Cost chart
+    costChart = new Chart(document.getElementById("costChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                { label: "Ränta/mån", data: CHART_DATA.map(d => d.interest), borderColor: c.interest, backgroundColor: c.interest + "15", tension: 0.3, pointRadius: 2 },
+                { label: "Totalt hus/mån", data: CHART_DATA.map(d => d.totalHouse), borderColor: c.house, backgroundColor: c.house + "15", tension: 0.3, pointRadius: 2 }
+            ]
+        },
+        options: baseOpts
+    });
+
+    // Left over chart
+    leftChart = new Chart(document.getElementById("leftChart"), {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Kvar efter utgifter",
+                data: CHART_DATA.map(d => d.left),
+                backgroundColor: CHART_DATA.map(d => d.left > 0 ? (c.left + "80") : (c.interest + "80")),
+                borderColor: CHART_DATA.map(d => d.left > 0 ? c.left : c.interest),
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: baseOpts
+    });
+}
+
+function updateChartColors() {
+    if (!loanChart) return;
+    const c = chartColors();
+
+    [loanChart, costChart, leftChart].forEach(chart => {
+        chart.options.scales.x.grid.color = c.grid;
+        chart.options.scales.x.ticks.color = c.text;
+        chart.options.scales.y.grid.color = c.grid;
+        chart.options.scales.y.ticks.color = c.text;
+        chart.options.plugins.legend.labels.color = c.text;
+        const dark = isDark();
+        chart.options.plugins.tooltip.backgroundColor = dark ? "#1A1F2E" : "#fff";
+        chart.options.plugins.tooltip.titleColor = dark ? "#E2E8F0" : "#1A1A2E";
+        chart.options.plugins.tooltip.bodyColor = dark ? "#94A3B8" : "#6B7280";
+        chart.options.plugins.tooltip.borderColor = dark ? "#2A3041" : "#E5E7EB";
+    });
+
+    // Update dataset colors
+    loanChart.data.datasets[0].borderColor = c.loan;
+    loanChart.data.datasets[0].backgroundColor = c.loan + "20";
+
+    costChart.data.datasets[0].borderColor = c.interest;
+    costChart.data.datasets[0].backgroundColor = c.interest + "15";
+    costChart.data.datasets[1].borderColor = c.house;
+    costChart.data.datasets[1].backgroundColor = c.house + "15";
+
+    leftChart.data.datasets[0].backgroundColor = CHART_DATA.map(d => d.left > 0 ? (c.left + "80") : (c.interest + "80"));
+    leftChart.data.datasets[0].borderColor = CHART_DATA.map(d => d.left > 0 ? c.left : c.interest);
+
+    [loanChart, costChart, leftChart].forEach(ch => ch.update("none"));
+}
+
+// ═══════════════════════════════════════════════════════
+// DARK MODE
+// ═══════════════════════════════════════════════════════
+function toggleDarkMode() {
+    const html = document.documentElement;
+    html.classList.toggle("dark-mode");
+    const btn = document.getElementById("dark-mode-btn");
+    if (html.classList.contains("dark-mode")) {
+        btn.textContent = "☀️";
+        localStorage.setItem("darkMode", "enabled");
+    } else {
+        btn.textContent = "🌙";
+        localStorage.setItem("darkMode", "disabled");
+    }
+    updateChartColors();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAV MENU
+// ═══════════════════════════════════════════════════════
+function toggleNavMenu() {
+    document.getElementById("nav-menu").classList.toggle("show");
+}
+document.addEventListener("click", function(e) {
+    const wrapper = document.querySelector(".nav-dropdown-wrapper");
+    if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById("nav-menu").classList.remove("show");
+    }
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", function() {
+    // Dark mode default
+    const darkPref = localStorage.getItem("darkMode");
+    if (darkPref === null || darkPref === "enabled") {
+        document.documentElement.classList.add("dark-mode");
+        document.getElementById("dark-mode-btn").textContent = "☀️";
+        if (darkPref === null) localStorage.setItem("darkMode", "enabled");
+    }
+
+    loadChecklist();
+    renderKPI();
+    renderParams();
+    renderAmortTable();
+    renderIncomeExpenses();
+    renderTransferDetail();
+    renderTransferTable();
+    renderPersonalExpenses();
+    renderChecklist();
+    createCharts();
+});
+</script>
+</body>
+</html>

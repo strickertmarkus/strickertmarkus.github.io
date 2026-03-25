@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markus Budgetplanerare</title>
+<title>Majas Budgetplanerare</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -965,16 +965,16 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <body>
 
 <div class="header">
-    <h1>MARKUS BUDGETPLANERARE</h1>
+    <h1>MAJAS BUDGETPLANERARE</h1>
     <p>Månatlig översikt &middot; Alla belopp i SEK</p>
     <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 20px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">🌙</button>
-    <a href="analytics.html" id="analytics-btn" style="position: absolute; top: 16px; right: 66px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none;" title="Analys & Statistik">📈</a>
+    <a href="analytics_maja.html" id="analytics-btn" style="position: absolute; top: 16px; right: 66px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none;" title="Analys & Statistik">📈</a>
     <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 116px;">
         <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;" title="Navigation">☰</button>
         <div class="nav-dropdown-menu" id="nav-menu">
-            <a href="budget.html" class="active"><span class="nav-icon">💰</span> Markus Budget</a>
+            <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
             <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
-            <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+            <a href="budget_maja.html" class="active"><span class="nav-icon">💰</span> Majas Budget</a>
             <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
             <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
         </div>
@@ -2132,11 +2132,11 @@ function saveLocal() {
             return acc;
         }, {})
     };
-    localStorage.setItem("budgetTracker", JSON.stringify(data));
+    localStorage.setItem("budgetTracker_maja", JSON.stringify(data));
 }
 
 function loadLocal() {
-    const raw = localStorage.getItem("budgetTracker");
+    const raw = localStorage.getItem("budgetTracker_maja");
     if (!raw) return;
     try {
         const data = JSON.parse(raw);
