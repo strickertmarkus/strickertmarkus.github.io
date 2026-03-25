@@ -2348,14 +2348,8 @@ function onDragPointerUp(e) {
     if (rowIndex !== currentIndex) {
         const section = SECTIONS[sectionIdx];
         if (section && section.items) {
-            const item = section.items.splice(itemIdx, 1)[0];
-            // Calculate target index in the items array
-            const targetItemIdx = parseInt(rows[currentIndex].dataset.item);
-            // After removing the dragged item, adjust target index
-            const adjustedTarget = targetItemIdx > itemIdx ? targetItemIdx - 1 : targetItemIdx;
-            // If dragging down, insert after the target; if up, insert before
-            const insertIdx = rowIndex < currentIndex ? adjustedTarget + 1 : adjustedTarget;
-            section.items.splice(insertIdx, 0, item);
+            const item = section.items.splice(rowIndex, 1)[0];
+            section.items.splice(currentIndex, 0, item);
             
             saveLocal();
             renderSections();
