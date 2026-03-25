@@ -704,6 +704,8 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.15s ease;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none;
+    -webkit-touch-callout: none;
 }
 .draggable-row:active {
     cursor: grabbing;
@@ -2229,11 +2231,17 @@ let dragState = null;
 function initDragAndDrop() {
     document.addEventListener('pointerdown', onDragPointerDown);
     document.addEventListener('touchstart', (e) => {
-        // Prevent long-press context menu on mobile
+        // Prevent text selection and default touch handling on draggable rows
         if (e.target.closest('.draggable-row') && !e.target.closest('input') && !e.target.closest('button') && !e.target.closest('.editable-field')) {
-            // Allow a small delay so taps still work
+            e.preventDefault();
         }
-    }, { passive: true });
+    }, { passive: false });
+    document.addEventListener('touchmove', (e) => {
+        // Prevent scrolling while dragging
+        if (dragState && e.target.closest('.draggable-row')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 }
 
 function onDragPointerDown(e) {
