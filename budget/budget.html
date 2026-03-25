@@ -236,7 +236,7 @@ body {
 
 /* ── LAYOUT ─────────────────────────────────────── */
 .container {
-    max-width: 1800px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 28px 12px 80px;
     display: block;
@@ -920,7 +920,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
         <div class="chart-card">
             <h3>Budget kontra utgifter</h3>
             <div class="chart-wrap">
-                <canvas id="barChart" width="500" height="294" style="display: block;"></canvas>
+                <canvas id="barChart" style="display: block; width: 100%; height: 100%;"></canvas>
             </div>
         </div>
     </div>
@@ -2157,9 +2157,11 @@ function toggleDarkMode() {
 // Initialize dark mode from localStorage
 function initDarkMode() {
     const darkMode = localStorage.getItem('darkMode');
-    if (darkMode === 'enabled') {
+    // Default to dark mode enabled
+    if (darkMode === null || darkMode === 'enabled') {
         document.documentElement.classList.add('dark-mode');
         document.getElementById('dark-mode-btn').textContent = '☀️';
+        localStorage.setItem('darkMode', 'enabled');
     } else {
         document.getElementById('dark-mode-btn').textContent = '🌙';
     }
