@@ -2515,6 +2515,14 @@ if (window.innerWidth > 800) {
     initDragAndDrop();
 }
 
+// Handle window resize to enable/disable drag-and-drop
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 800 && !dragState) {
+        // If resized to desktop and drag-and-drop not initialized, initialize it
+        initDragAndDrop();
+    }
+});
+
 // Delay chart initialization to ensure DOM is fully laid out
 setTimeout(() => {
     console.log("Initializing charts...");
