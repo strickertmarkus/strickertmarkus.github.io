@@ -93,7 +93,6 @@ html.dark-mode .checklist-item { background: rgba(255,255,255,0.04); border-colo
 html.dark-mode .checklist-item:hover { background: rgba(255,255,255,0.08); }
 html.dark-mode .checklist-item.checked { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.2); }
 html.dark-mode .transfer-card { background: rgba(255,255,255,0.04); border-color: var(--border); }
-html.dark-mode .editable-input { background: rgba(255,255,255,0.05); border-color: var(--accent); color: var(--text); }
 
 .header {
     background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
@@ -146,10 +145,10 @@ html.dark-mode .data-table .total-row td { color: var(--accent); }
 .editable-input {
     background: transparent; border: none; font: inherit; color: inherit;
     width: 80px; text-align: right; font-variant-numeric: tabular-nums;
-    padding: 4px 6px; border-radius: 6px; transition: all 0.2s;
+    padding: 0; border-radius: 6px; transition: all 0.2s; cursor: text;
 }
-.editable-input:hover { background: rgba(0,0,0,0.04); }
-.editable-input:focus { background: var(--accent-bg); border: 1.5px solid var(--accent); outline: none; }
+.editable-input:hover { background: transparent; }
+.editable-input:focus { padding: 4px 6px; background: var(--accent-bg); border: 1.5px solid var(--accent); outline: none; }
 html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .editable-input-wide { width: 140px; text-align: left; }
 
