@@ -458,8 +458,7 @@ body {
 /* ── ITEMS TABLE ────────────────────────────────── */
 .items-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     margin-top: 12px;
 }
 .items-table {
@@ -480,14 +479,14 @@ body {
     width: auto;
 }
 .items-table thead th:nth-child(2) {
-    width: 55px;
+    width: 45px;
     padding-left: 4px;
 }
 .items-table thead th:nth-child(3) {
-    width: 65px;
+    width: 55px;
 }
 .items-table thead th:nth-child(4) {
-    width: 40px;
+    width: 35px;
 }
 .items-table thead th:nth-child(2),
 .items-table thead th:nth-child(3),
@@ -812,8 +811,8 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .table-scroll-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        padding: 0 8px;
-        margin: 0 -8px;
+        padding: 0;
+        margin: 0;
     }
     .add-row { padding: 0 8px; }
     .items-table { font-size: 11px; min-width: 320px; }
@@ -828,9 +827,9 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
         border-bottom: 1px solid #F3F4F6;
     }
     .items-table tbody td:first-child {
-        max-width: 100px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        max-width: none;
+        overflow: visible;
+        text-overflow: unset;
     }
     .items-table thead th:nth-child(4),
     .items-table tbody td:nth-child(4) { 
