@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analys & Statistik — Markus Budgetplanerare</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"></script>
+<script src="firebase-sync.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1052,6 +1055,21 @@ loadGoals();
 renderKPIs();
 renderGoals();
 setTimeout(renderCharts, 200);
+
+// ═══════════════════════════════════════════════════════
+// FIREBASE REAL-TIME SYNC
+// ═══════════════════════════════════════════════════════
+window.addEventListener('firebase-sync', (event) => {
+  const { key } = event.detail;
+  if (key === 'budgetTracker' || key === 'savingsGoals') {
+    console.log(`📡 Firebase sync received for ${key} — reloading...`);
+    if (key === 'budgetTracker') loadData();
+    if (key === 'savingsGoals') loadGoals();
+    renderKPIs();
+    renderGoals();
+    renderCharts();
+  }
+});
 </script>
 </body>
 </html>

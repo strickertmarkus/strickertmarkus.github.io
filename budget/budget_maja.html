@@ -6,6 +6,9 @@
 <title>Majas Budgetplanerare</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"></script>
+<script src="firebase-sync.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2534,6 +2537,18 @@ setTimeout(() => {
     }
 }, 500);
 renderPieLegend();
+
+// ═══════════════════════════════════════════════════════
+// FIREBASE REAL-TIME SYNC
+// ═══════════════════════════════════════════════════════
+window.addEventListener('firebase-sync', (event) => {
+  const { key } = event.detail;
+  if (key === 'budgetTracker_maja') {
+    console.log('📡 Firebase sync received for budgetTracker_maja — reloading...');
+    loadLocal();
+    renderTable();
+  }
+});
 </script>
 </body>
 </html>
