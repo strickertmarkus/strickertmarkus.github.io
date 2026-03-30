@@ -1,18 +1,23 @@
 /**
- * Firebase Realtime Sync Module v8
+ * Firebase Realtime Sync Module v9
  * 
  * Syncs localStorage keys to Firebase Realtime Database for multi-device updates.
  * Self-contained: does NOT depend on indexeddb-fallback.js.
- * Uses polling as fallback if WebSocket listeners fail (iOS Safari).
+ * Uses polling for BOTH directions:
+ *   - Reads from Firebase every 3s (remote → local)
+ *   - Checks localStorage every 1s for changes to push (local → remote)
+ * This avoids depending on monkey-patching localStorage.setItem,
+ * which fails silently on iOS Safari with tracking prevention.
  */
 
 let firebaseInitialized = false;
 let db = null;
 let syncEnabled = true;
 const syncQueue = {};
-let pollInterval = null;
-const lastKnownValues = {}; // Track values to detect remote changes
-console.log('[Firebase] firebase-sync.js v8 loaded');
+let remotePollInterval = null;
+let localPollInterval = null;
+const lastKnownValues = {}; // Track values to detect changes in both directions
+console.log('[Firebase] firebase-sync.js v9 loaded');
 
 // Save REAL localStorage methods before any monkey-patching
 const _realSetItem = localStorage.setItem.bind(localStorage);
@@ -63,7 +68,8 @@ async function initFirebaseSync() {
 
     await loadAllFromFirebase();
     setupRealtimeListeners();
-    startPolling();
+    startRemotePolling();
+    startLocalPolling();
   } catch (error) {
     console.warn('[Firebase] ✗ Failed to initialize:', error.message);
     syncEnabled = false;
@@ -109,12 +115,11 @@ function setupRealtimeListeners() {
 }
 
 /**
- * Poll Firebase every 3s as fallback for broken WebSocket on iOS.
- * Uses REST-like get() which works even when WebSocket is blocked.
+ * Poll Firebase every 3s for remote changes (fallback for broken WebSocket on iOS).
  */
-function startPolling() {
-  if (pollInterval) return;
-  pollInterval = setInterval(async () => {
+function startRemotePolling() {
+  if (remotePollInterval) return;
+  remotePollInterval = setInterval(async () => {
     if (!db) return;
     try {
       for (const key of SYNC_KEYS) {
@@ -125,7 +130,30 @@ function startPolling() {
       }
     } catch (e) { /* retry next interval */ }
   }, 3000);
-  console.log('[Firebase] Polling fallback active (3s)');
+  console.log('[Firebase] Remote polling active (3s)');
+}
+
+/**
+ * Poll localStorage every 1s for local changes to push to Firebase.
+ * This is the PRIMARY mechanism for detecting user edits, because
+ * monkey-patching localStorage.setItem fails silently on iOS Safari.
+ */
+function startLocalPolling() {
+  if (localPollInterval) return;
+  localPollInterval = setInterval(() => {
+    if (!db || !syncEnabled) return;
+    for (const key of SYNC_KEYS) {
+      try {
+        const currentValue = _realGetItem(key);
+        if (currentValue !== null && currentValue !== lastKnownValues[key]) {
+          console.log(`[Firebase] Local change detected: '${key}'`);
+          lastKnownValues[key] = currentValue;
+          syncToFirebase(key, currentValue);
+        }
+      } catch (e) { /* localStorage read failed, skip */ }
+    }
+  }, 1000);
+  console.log('[Firebase] Local polling active (1s)');
 }
 
 /**
