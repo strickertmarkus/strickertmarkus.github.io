@@ -81,7 +81,9 @@ async function initFirebaseSync() {
 }
 
 /**
- * Load all synced keys from Firebase on first load
+ * Load all synced keys from Firebase on first load.
+ * Uses originalSetItem directly to avoid triggering syncToFirebase
+ * (data came FROM Firebase, must not be echoed BACK to Firebase).
  */
 async function loadAllFromFirebase() {
   if (!db) return;
@@ -91,7 +93,15 @@ async function loadAllFromFirebase() {
       const snapshot = await db.ref(key).get();
       if (snapshot.exists()) {
         const value = snapshot.val();
-        localStorage.setItem(key, value);
+        // Write directly, bypassing monkey-patch - no Firebase re-write
+        try {
+          originalSetItem.call(localStorage, key, value);
+        } catch (e) {
+          // iOS Safari: fall back to IndexedDB
+          if (typeof fallbackSetItem !== 'undefined') {
+            await fallbackSetItem(key, value);
+          }
+        }
         console.log(`[Firebase] Loaded '${key}' from database`);
       }
     }
@@ -101,8 +111,10 @@ async function loadAllFromFirebase() {
 }
 
 /**
- * Set up real-time listeners for all keys
- * When data changes on another device, update here automatically
+ * Set up real-time listeners for all keys.
+ * When data changes on another device, update local storage and notify page.
+ * Uses originalSetItem directly to avoid triggering syncToFirebase
+ * (data came FROM Firebase, must not be echoed BACK to Firebase).
  */
 function setupRealtimeListeners() {
   if (!db) return;
@@ -112,12 +124,21 @@ function setupRealtimeListeners() {
       if (!snapshot.exists()) return;
 
       const value = snapshot.val();
+      // Read current value directly (getItem is never monkey-patched)
       const currentValue = localStorage.getItem(key);
 
       // Only update if value actually changed (avoid redundant updates)
       if (currentValue !== value) {
         console.log(`[Firebase] Received update for '${key}' from Firebase`);
-        localStorage.setItem(key, value);
+        // Write directly, bypassing monkey-patch - no Firebase re-write
+        try {
+          originalSetItem.call(localStorage, key, value);
+        } catch (e) {
+          // iOS Safari: fall back to IndexedDB
+          if (typeof fallbackSetItem !== 'undefined') {
+            fallbackSetItem(key, value).catch(() => {});
+          }
+        }
 
         // Dispatch custom event so pages can react to Firebase changes
         window.dispatchEvent(new CustomEvent('firebase-sync', {
@@ -150,8 +171,7 @@ function syncToFirebase(key, value) {
       console.log(`[Firebase] Synced '${key}'`);
     } catch (error) {
       console.warn(`[Firebase] Failed to sync '${key}':`, error.message);
-      // Fall back to localStorage only on write error
-      syncEnabled = false;
+      // Don't permanently disable sync - a single write error shouldn't kill all future syncs
     }
     delete syncQueue[key];
   }, 500);
