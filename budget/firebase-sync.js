@@ -178,10 +178,11 @@ function syncToFirebase(key, value) {
 }
 
 /**
- * Monkey-patch localStorage.setItem to auto-sync to Firebase
- * Also saves to IndexedDB as fallback for iOS Safari
+ * Monkey-patch localStorage.setItem to auto-sync to Firebase.
+ * Uses originalSetItem from indexeddb-fallback.js (loaded before this file)
+ * to avoid re-declaring const and to bypass the patch when writing FROM Firebase.
  */
-const originalSetItem = localStorage.setItem;
+// Note: originalSetItem is declared in indexeddb-fallback.js (loaded first)
 localStorage.setItem = function(key, value) {
   // Always write to localStorage first (local cache)
   try {
