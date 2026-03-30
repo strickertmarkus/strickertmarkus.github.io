@@ -1363,24 +1363,29 @@ document.addEventListener("click", function(e) {
 // RENDER ALL
 // ═══════════════════════════════════════════════════════
 function renderAll() {
-    // Restore headings
-    Object.keys(sectionHeadings).forEach(id => {
-        const el = document.getElementById("heading-" + id);
-        if (el) el.textContent = sectionHeadings[id];
-    });
-    renderLoanMonthDisplay();
-    renderKPI();
-    renderStaticParamsTable();
-    renderParams();
-    renderAmortTable();
-    renderIncomeExpenses();
-    renderTransferDetail();
-    renderTransferTable();
-    try { renderPersonalExpenses(); } catch(e) { console.error('renderPersonalExpenses:', e); }
-    try { renderGoals(); } catch(e) { console.error('renderGoals:', e); }
-    try { renderChecklist(); } catch(e) { console.error('renderChecklist:', e); }
-    destroyCharts();
-    createCharts();
+    try {
+        // Restore headings
+        Object.keys(sectionHeadings).forEach(id => {
+            const el = document.getElementById("heading-" + id);
+            if (el) el.textContent = sectionHeadings[id];
+        });
+        renderLoanMonthDisplay();
+        renderKPI();
+        renderStaticParamsTable();
+        renderParams();
+        renderAmortTable();
+        renderIncomeExpenses();
+        renderTransferDetail();
+        renderTransferTable();
+        try { renderPersonalExpenses(); } catch(e) { console.error('renderPersonalExpenses:', e); }
+        try { renderGoals(); } catch(e) { console.error('renderGoals:', e); }
+        try { renderChecklist(); } catch(e) { console.error('renderChecklist:', e); }
+    } catch(e) {
+        console.error('renderAll error:', e);
+    } finally {
+        destroyCharts();
+        createCharts();
+    }
 }
 
 // ═══════════════════════════════════════════════════════
