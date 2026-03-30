@@ -91,7 +91,12 @@ async function loadAllFromFirebase() {
       const snapshot = await db.ref(key).get();
       if (snapshot.exists()) {
         const value = snapshot.val();
-        localStorage.setItem(key, value);
+        // Use fallback for mobile compatibility
+        if (typeof fallbackSetItem !== 'undefined') {
+          await fallbackSetItem(key, value);
+        } else {
+          localStorage.setItem(key, value);
+        }
         console.log(`[Firebase] Loaded '${key}' from database`);
       }
     }
@@ -112,17 +117,36 @@ function setupRealtimeListeners() {
       if (!snapshot.exists()) return;
 
       const value = snapshot.val();
-      const currentValue = localStorage.getItem(key);
-
-      // Only update if value actually changed (avoid redundant updates)
-      if (currentValue !== value) {
-        console.log(`[Firebase] Received update for '${key}' from Firebase`);
-        localStorage.setItem(key, value);
-
-        // Dispatch custom event so pages can react to Firebase changes
-        window.dispatchEvent(new CustomEvent('firebase-sync', {
-          detail: { key, value }
-        }));
+      
+      // Use fallback getItem for mobile compatibility
+      let currentValue;
+      if (typeof fallbackGetItem !== 'undefined') {
+        // This is async, but we'll check after
+        fallbackGetItem(key).then(val => {
+          currentValue = val;
+          // Only update if value actually changed
+          if (currentValue !== value) {
+            console.log(`[Firebase] Received update for '${key}' from Firebase`);
+            if (typeof fallbackSetItem !== 'undefined') {
+              fallbackSetItem(key, value);
+            } else {
+              localStorage.setItem(key, value);
+            }
+            // Dispatch event for pages to react
+            window.dispatchEvent(new CustomEvent('firebase-sync', {
+              detail: { key, value }
+            }));
+          }
+        });
+      } else {
+        currentValue = localStorage.getItem(key);
+        if (currentValue !== value) {
+          console.log(`[Firebase] Received update for '${key}' from Firebase`);
+          localStorage.setItem(key, value);
+          window.dispatchEvent(new CustomEvent('firebase-sync', {
+            detail: { key, value }
+          }));
+        }
       }
     }, (error) => {
       console.warn(`[Firebase] Failed to listen to '${key}':`, error.message);
@@ -159,15 +183,34 @@ function syncToFirebase(key, value) {
 
 /**
  * Monkey-patch localStorage.setItem to auto-sync to Firebase
+ * Uses fallbackSetItem for mobile compatibility (iOS Safari blocks localStorage)
  */
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
-  // Always write to localStorage first (local cache)
-  originalSetItem.call(this, key, value);
+  // Use fallback for mobile compatibility
+  const doSync = () => {
+    // Then sync to Firebase if this is a tracked key
+    if (SYNC_KEYS.includes(key)) {
+      syncToFirebase(key, value);
+    }
+  };
 
-  // Then sync to Firebase if this is a tracked key
-  if (SYNC_KEYS.includes(key)) {
-    syncToFirebase(key, value);
+  if (typeof fallbackSetItem !== 'undefined') {
+    // Use IndexedDB fallback (can be async)
+    const result = fallbackSetItem(key, value);
+    if (result instanceof Promise) {
+      result
+        .then(doSync)
+        .catch(err => {
+          console.error('[Firebase] fallbackSetItem failed:', err);
+        });
+    } else {
+      doSync();
+    }
+  } else {
+    // Fallback not loaded, use original localStorage
+    originalSetItem.call(this, key, value);
+    doSync();
   }
 };
 
