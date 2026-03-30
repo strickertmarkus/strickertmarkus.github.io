@@ -2547,7 +2547,9 @@ window.addEventListener('firebase-sync', (event) => {
   if (key === 'budgetTracker_maja') {
     console.log('📡 Firebase sync received for budgetTracker_maja — reloading...');
     loadLocal();
-    renderTable();
+    renderSections();
+    renderKPIs();
+    updateCharts();
   }
 });
 </script>

@@ -134,23 +134,40 @@ function startRemotePolling() {
 }
 
 /**
- * Poll localStorage every 1s for local changes to push to Firebase.
- * This is the PRIMARY mechanism for detecting user edits, because
- * monkey-patching localStorage.setItem fails silently on iOS Safari.
+ * Poll localStorage (and IndexedDB on mobile) every 1s for local changes
+ * to push to Firebase. This is the PRIMARY mechanism for detecting user edits,
+ * because monkey-patching localStorage.setItem fails silently on iOS Safari.
+ *
+ * On Safari, localStorage writes may be blocked entirely, so user edits
+ * go to IndexedDB instead (via indexeddb-fallback.js). We check both.
  */
 function startLocalPolling() {
   if (localPollInterval) return;
-  localPollInterval = setInterval(() => {
+  localPollInterval = setInterval(async () => {
     if (!db || !syncEnabled) return;
     for (const key of SYNC_KEYS) {
+      let currentValue = null;
+      // Try localStorage first
       try {
-        const currentValue = _realGetItem(key);
-        if (currentValue !== null && currentValue !== lastKnownValues[key]) {
-          console.log(`[Firebase] Local change detected: '${key}'`);
-          lastKnownValues[key] = currentValue;
-          syncToFirebase(key, currentValue);
-        }
-      } catch (e) { /* localStorage read failed, skip */ }
+        currentValue = _realGetItem(key);
+      } catch (e) { /* blocked */ }
+
+      // If localStorage didn't have a new value, check IndexedDB
+      if ((currentValue === null || currentValue === lastKnownValues[key])
+           && typeof fallbackGetItem !== 'undefined') {
+        try {
+          const idbValue = await fallbackGetItem(key);
+          if (idbValue !== null && idbValue !== lastKnownValues[key]) {
+            currentValue = idbValue;
+          }
+        } catch (e) { /* IndexedDB read failed */ }
+      }
+
+      if (currentValue !== null && currentValue !== lastKnownValues[key]) {
+        console.log(`[Firebase] Local change detected: '${key}'`);
+        lastKnownValues[key] = currentValue;
+        syncToFirebase(key, currentValue);
+      }
     }
   }, 1000);
   console.log('[Firebase] Local polling active (1s)');
