@@ -937,18 +937,26 @@ function renderTransferTable() {
 // ═══════════════════════════════════════════════════════
 // PERSONAL EXPENSES (from budgetTracker localStorage)
 // ═══════════════════════════════════════════════════════
-function readBudgetData(storageKey) {
+function readBudgetData(storageKey, monthKey = null) {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return null;
     try {
         const data = JSON.parse(raw);
         if (!data.monthlyData) return null;
-        // Find latest month
         const months = Object.keys(data.monthlyData).sort();
         if (months.length === 0) return null;
-        const latest = months[months.length - 1];
-        const sections = data.monthlyData[latest].sections;
-        return { sections, monthKey: latest };
+        
+        // Use specified monthKey, or selected month from localStorage, or latest month
+        let selectedMonth = monthKey;
+        if (!selectedMonth) {
+            selectedMonth = localStorage.getItem("selectedBudgetMonth");
+        }
+        if (!selectedMonth || !data.monthlyData[selectedMonth]) {
+            selectedMonth = months[months.length - 1]; // fallback to latest
+        }
+        
+        const sections = data.monthlyData[selectedMonth].sections;
+        return { sections, monthKey: selectedMonth };
     } catch(e) { return null; }
 }
 
@@ -980,28 +988,37 @@ function renderPersonalExpenses() {
         if (!data || (data.income.length === 0 && data.expenses.length === 0)) {
             return `<div class="expense-col"><h3><span style="font-size:20px">${icon}</span> ${label}</h3><p style="font-size:13px;color:var(--text-sec)">Ingen data — öppna budgetplaneraren och lägg till poster.</p></div>`;
         }
-        const totalIncome = data.income.reduce((s, e) => s + (e.actual || e.budget), 0);
-        const totalExpenses = data.expenses.reduce((s, e) => s + (e.actual || e.budget), 0);
-        const totalSavings = data.savings.reduce((s, e) => s + (e.actual || e.budget), 0);
+        // Show only actual income/expenses/savings (not budgeted values)
+        const actualIncome = data.income.filter(e => e.actual && e.actual > 0);
+        const actualExpenses = data.expenses.filter(e => e.actual && e.actual > 0);
+        const actualSavings = data.savings.filter(e => e.actual && e.actual > 0);
+        
+        const totalIncome = actualIncome.reduce((s, e) => s + e.actual, 0);
+        const totalExpenses = actualExpenses.reduce((s, e) => s + e.actual, 0);
+        const totalSavings = actualSavings.reduce((s, e) => s + e.actual, 0);
         const left = totalIncome - totalExpenses - totalSavings;
 
         let html = `<div class="expense-col"><h3><span style="font-size:20px">${icon}</span> ${label}</h3>`;
-        if (data.income.length) {
+        if (actualIncome.length) {
             html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Inkomster</div>`;
-            data.income.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount positive">${fmt(e.actual || e.budget)} kr</span></div>`; });
+            actualIncome.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount positive">${fmt(e.actual)} kr</span></div>`; });
             html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt inkomst</span><span class="amount positive">${fmt(totalIncome)} kr</span></div>`;
         }
-        if (data.expenses.length) {
+        if (actualExpenses.length) {
             html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Utgifter</div>`;
-            data.expenses.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount">${fmt(e.actual || e.budget)} kr</span></div>`; });
+            actualExpenses.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount">${fmt(e.actual)} kr</span></div>`; });
             html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt utgifter</span><span class="amount" style="color:var(--danger)">${fmt(totalExpenses)} kr</span></div>`;
         }
-        if (data.savings.length) {
+        if (actualSavings.length) {
             html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Sparande</div>`;
-            data.savings.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount" style="color:var(--savings)">${fmt(e.actual || e.budget)} kr</span></div>`; });
+            actualSavings.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount" style="color:var(--savings)">${fmt(e.actual)} kr</span></div>`; });
             html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt sparande</span><span class="amount" style="color:var(--savings)">${fmt(totalSavings)} kr</span></div>`;
         }
-        html += `<div class="expense-item" style="font-weight:800;margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)"><span class="name">Kvar</span><span class="amount" style="color:${left>=0?'var(--income)':'var(--danger)'}">${fmt(left)} kr</span></div>`;
+        if (actualIncome.length === 0 && actualExpenses.length === 0 && actualSavings.length === 0) {
+            html += `<div style="font-size:12px;color:var(--text-sec);margin-top:12px">Ingen utgifter registrerade</div>`;
+        } else {
+            html += `<div class="expense-item" style="font-weight:800;margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)"><span class="name">Kvar</span><span class="amount" style="color:${left>=0?'var(--income)':'var(--danger)'}">${fmt(left)} kr</span></div>`;
+        }
         html += `</div>`;
         return html;
     }
@@ -1263,7 +1280,7 @@ function createCharts() {
 }
 
 function createSavingsChart(labels, c) {
-    // Simulate accumulated savings from goals
+    // Simulate accumulated savings from goals - limit to months with actual budget data
     if (savingsGoals.length === 0) {
         savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
             type: "bar", data: { labels: ["Inga sparmål"], datasets: [{ label: "Sparande", data: [0], backgroundColor: c.savings + "40" }] },
@@ -1271,16 +1288,24 @@ function createSavingsChart(labels, c) {
         });
         return;
     }
+    
+    // Count how many months have data in the budget trackers
+    const markusBudget = localStorage.getItem("budgetTracker");
+    const majaBudget = localStorage.getItem("budgetTracker_maja");
+    const markusMonths = markusBudget ? Object.keys(JSON.parse(markusBudget).monthlyData || {}).length : 0;
+    const majaMonths = majaBudget ? Object.keys(JSON.parse(majaBudget).monthlyData || {}).length : 0;
+    const maxMonths = Math.max(markusMonths, majaMonths, 2); // Show at least 2 months
+    
     const datasets = savingsGoals.map(g => {
         const monthly = g.monthly || 0;
         const data = [];
         let acc = g.current || 0;
-        for (let i = 0; i < 12; i++) { data.push(acc); acc += monthly; }
+        for (let i = 0; i < maxMonths; i++) { data.push(acc); acc += monthly; }
         return { label: g.name, data, backgroundColor: (g.color || "#10B981") + "60", borderColor: g.color || "#10B981", borderWidth: 2, borderRadius: 4 };
     });
     const monthLabels = [];
     const now = new Date();
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < maxMonths; i++) {
         const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
         monthLabels.push(d.toLocaleDateString("sv-SE", { month: "short", year: "2-digit" }));
     }

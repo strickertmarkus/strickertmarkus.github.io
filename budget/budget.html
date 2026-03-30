@@ -1228,9 +1228,15 @@ function getCurrentMonthSections() {
     return monthlyData[key].sections;
 }
 
+function saveSelectedMonth() {
+    // Save the selected month to localStorage so other pages can sync
+    localStorage.setItem("selectedBudgetMonth", getMonthKey(currentMonth));
+}
+
 function onMonthSelect() {
     // Month is already set by the dropdown click handler
     updateMonthDisplay();
+    saveSelectedMonth();
     renderKPIs();
     renderSections();
     initCharts();
@@ -1269,6 +1275,7 @@ function openSetStartMonth() {
     }
     
     updateMonthDisplay();
+    saveSelectedMonth();
     renderKPIs();
     renderSections();
     initCharts();
@@ -1291,6 +1298,7 @@ function addNewMonth() {
             monthlyData[nextKey] = { sections: JSON.parse(JSON.stringify(SECTIONS)) };
             currentMonth = nextDate;
             updateMonthDisplay();
+            saveSelectedMonth();
             refresh();
             saveLocal();
             return;
@@ -2488,6 +2496,7 @@ function initDarkMode() {
 // ── INIT ───────────────────────────────────────────────────
 initDarkMode();
 loadLocal();
+saveSelectedMonth();
 
 // Setup custom dropdown toggle
 const dropdownBtn = document.getElementById("month-dropdown");
