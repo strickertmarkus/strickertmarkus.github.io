@@ -14,6 +14,7 @@ let firebaseInitialized = false;
 let db = null;
 let syncEnabled = true;
 const syncQueue = {}; // { key: timeoutId } for debouncing
+console.log('[Firebase] firebase-sync.js v7 loaded');
 
 // Firebase config from console.firebase.google.com
 const firebaseConfig = {
@@ -157,6 +158,7 @@ function setupRealtimeListeners() {
  * @param {string} value - JSON string or scalar value
  */
 function syncToFirebase(key, value) {
+  console.log(`[Firebase] syncToFirebase('${key}') called — syncEnabled: ${syncEnabled}, db: ${!!db}`);
   if (!syncEnabled || !db) return;
 
   // Clear any pending write for this key
@@ -183,10 +185,12 @@ function syncToFirebase(key, value) {
  * to avoid re-declaring const and to bypass the patch when writing FROM Firebase.
  */
 // Note: originalSetItem is declared in indexeddb-fallback.js (loaded first)
+const _origSetItem = localStorage.setItem.bind(localStorage);
 localStorage.setItem = function(key, value) {
+  console.log(`[Firebase PATCH] setItem called for '${key}' (tracked: ${SYNC_KEYS.includes(key)}, db ready: ${!!db}, syncEnabled: ${syncEnabled})`);
   // Always write to localStorage first (local cache)
   try {
-    originalSetItem.call(this, key, value);
+    _origSetItem(key, value);
   } catch (error) {
     // localStorage is blocked (iOS Safari), but we continue
     // fallbackSetItem will handle IndexedDB write asynchronously
