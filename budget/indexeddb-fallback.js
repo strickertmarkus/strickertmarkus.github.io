@@ -11,6 +11,10 @@ const DB_NAME = 'budgetDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'keyValueStore';
 
+// Save the ORIGINAL localStorage.setItem before firebase-sync.js monkey-patches it
+const originalSetItem = localStorage.setItem;
+const originalGetItem = localStorage.getItem;
+
 let dbPromise = null;
 
 /**
@@ -50,9 +54,9 @@ function isMobileDevice() {
  * @param {string} value - The value to store
  */
 async function fallbackSetItem(key, value) {
-  // Try localStorage first (desktop is faster with localStorage)
+  // Try localStorage first (desktop is faster with localStorage) using ORIGINAL function
   try {
-    localStorage.setItem(key, value);
+    originalSetItem.call(localStorage, key, value);
     // Success - also sync to IndexedDB as backup
     if (isMobileDevice()) {
       // Mobile: IndexedDB is primary, localStorage is secondary
@@ -82,7 +86,7 @@ async function fallbackSetItem(key, value) {
           // After IndexedDB write, also try to update localStorage
           // (this triggers firebase-sync.js monkey-patch if localStorage is partially working)
           try {
-            localStorage.setItem(key, value);
+            originalSetItem.call(localStorage, key, value);
           } catch (ignored) {
             // localStorage is still blocked, that's ok
           }
@@ -103,9 +107,9 @@ async function fallbackSetItem(key, value) {
  * @returns {string|null} - The stored value or null if not found
  */
 async function fallbackGetItem(key) {
-  // Try localStorage first
+  // Try localStorage first using ORIGINAL function
   try {
-    const value = localStorage.getItem(key);
+    const value = originalGetItem.call(localStorage, key);
     if (value !== null) {
       return value;
     }
@@ -145,14 +149,14 @@ async function syncIndexedDBToLocalStorage(keys) {
 
     for (const key of keys) {
       try {
-        const value = localStorage.getItem(key);
+        const value = originalGetItem.call(localStorage, key);
         if (value === null) {
           // localStorage is missing this key, try to restore from IndexedDB
           const request = store.get(key);
           request.onsuccess = () => {
             if (request.result !== undefined) {
               try {
-                localStorage.setItem(key, request.result);
+                originalSetItem.call(localStorage, key, request.result);
               } catch (e) {
                 // localStorage still blocked, that's ok
               }
