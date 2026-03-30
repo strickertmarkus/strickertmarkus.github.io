@@ -794,7 +794,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .section-body { overflow: visible; }\n    /* Header buttons reflow */
     .header { padding: 20px 0 16px; }
     #dark-mode-btn { top: 10px !important; right: 10px !important; width: 36px !important; height: 36px !important; font-size: 16px !important; }
-    #analytics-btn { top: 10px !important; right: 52px !important; width: 36px !important; height: 36px !important; font-size: 15px !important; }
+    #analytics-btn { display: none !important; }
 }
 
 @media (max-width: 480px) {
@@ -848,7 +848,7 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
     .header h1 { font-size: 18px; }
     .header p { font-size: 11px; }
     #dark-mode-btn { top: 8px !important; right: 8px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
-    #analytics-btn { top: 8px !important; right: 44px !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
+    .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; left: 8px !important; right: auto !important; }
     #month-nav { gap: 6px !important; flex-wrap: wrap; align-items: center; justify-content: center; }
     .custom-dropdown-wrapper { flex-basis: 100%; }
     #month-nav > button,
@@ -972,7 +972,6 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
     <h1>MARKUS BUDGETPLANERARE</h1>
     <p>Månatlig översikt &middot; Alla belopp i SEK</p>
     <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 20px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">🌙</button>
-    <a href="analytics.html" id="analytics-btn" style="position: absolute; top: 16px; right: 66px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none;" title="Analys & Statistik">📈</a>
     <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 116px;">
         <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;" title="Navigation">☰</button>
         <div class="nav-dropdown-menu" id="nav-menu">

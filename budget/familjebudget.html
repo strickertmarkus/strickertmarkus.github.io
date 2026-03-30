@@ -184,10 +184,10 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .transfer-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
 .transfer-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 16px; transition: all 0.2s; }
 .transfer-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.transfer-card.maja-hus { border-left: 4px solid var(--maja-color); }
-.transfer-card.maja-ica { border-left: 4px solid var(--maja-color); border-left-style: dashed; }
-.transfer-card.markus-hus { border-left: 4px solid var(--markus-color); }
-.transfer-card.markus-ica { border-left: 4px solid var(--markus-color); border-left-style: dashed; }
+.transfer-card.maja-hus { border: 1px solid var(--border); }
+.transfer-card.maja-ica { border: 1px solid var(--border); }
+.transfer-card.markus-hus { border: 1px solid var(--border); }
+.transfer-card.markus-ica { border: 1px solid var(--border); }
 .transfer-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sec); margin-bottom: 4px; }
 .transfer-value { font-size: 20px; font-weight: 700; }
 .transfer-sub { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
@@ -327,7 +327,14 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         </div>
         <div class="section-body open" id="section-loan">
             <div class="section-inner">
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Parametrar</h3>
+                <div class="month-selector">
+                    <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
+                    <div class="month-display" id="loan-month-display">Denna månad</div>
+                    <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
+                </div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Låneöversikt</h3>
+                <div class="table-wrapper"><table class="data-table" id="static-params-table"><thead><tr><th>Parameter</th><th class="num">Värde</th></tr></thead><tbody></tbody></table></div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Redigerbara parametrar</h3>
                 <div class="param-grid" id="param-grid"></div>
                 <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Amorteringstabell</h3>
                 <div class="table-wrapper"><table class="data-table" id="amort-table"><thead><tr><th>År</th><th class="num">Huslån</th><th class="num">Ränta/mån</th><th class="num">Drift/mån</th><th class="num">Amortering</th><th class="num">Renovering</th><th class="num">Totalt hus</th><th class="num">Kvar/mån</th></tr></thead><tbody></tbody></table></div>
@@ -459,6 +466,9 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <input type="number" id="goal-current" placeholder="0">
         <label>Månatligt sparande (kr)</label>
         <input type="number" id="goal-monthly" placeholder="0">
+        <label>Länkade budgetposter (valfritt)</label>
+        <input type="text" id="goal-items" placeholder="t.ex. 'Familjespar' eller 'Sparande Bröllop'">
+        <div style="font-size:11px;color:var(--text-sec);margin-top:4px">Ange namn på utgiftsposter som bidrar till detta sparmål</div>
         <label>Färg</label>
         <select id="goal-color">
             <option value="#10B981">Grön</option>
@@ -653,6 +663,18 @@ function getKvar(loan) {
     return getTotalIncome() - getTotalOut(loan);
 }
 
+// Get remaining loan at a specific month index
+function getLoanAtMonth(monthIdx) {
+    let simLoan = loanParams.huslan;
+    // Calculate number of months from the start (April 2025 = month 0)
+    const monthNumber = monthIdx + 1;
+    for (let m = 1; m < monthNumber; m++) {
+        simLoan -= calcAmort(simLoan);
+        if (simLoan < 0) simLoan = 0;
+    }
+    return simLoan;
+}
+
 // Generate amortization table dynamically
 function generateAmortTable() {
     const rows = [];
@@ -733,13 +755,21 @@ function saveHeading(id, input) {
 }
 
 // ═══════════════════════════════════════════════════════
+// RENDER LOAN MONTH DISPLAY
+// ═══════════════════════════════════════════════════════
+function renderLoanMonthDisplay() {
+    const t = transfers[currentLoanMonthIdx];
+    document.getElementById("loan-month-display").textContent = `${t.month} ${t.year}`;
+}
+
+// ═══════════════════════════════════════════════════════
 // RENDER KPI
 // ═══════════════════════════════════════════════════════
 function renderKPI() {
-    const loan = loanParams.huslan;
+    const loan = getLoanAtMonth(currentLoanMonthIdx);
     const grid = document.getElementById("kpi-grid");
     grid.innerHTML = `
-        <div class="kpi-card"><div class="kpi-label">Huslån</div><div class="kpi-value" style="color:var(--house)">${fmt(loan)} kr</div><div class="kpi-sub">av ${fmt(loanParams.huspris)} kr</div></div>
+        <div class="kpi-card"><div class="kpi-label">Huslån</div><div class="kpi-value" style="color:var(--house)">${fmt(loan)} kr</div><div class="kpi-sub">av ${fmt(loanParams.huslan)} kr</div></div>
         <div class="kpi-card"><div class="kpi-label">Ränta/mån</div><div class="kpi-value" style="color:var(--danger)">${fmt(calcMonthlyInterest(loan))} kr</div><div class="kpi-sub">Listränta ${loanParams.listranta}%</div></div>
         <div class="kpi-card"><div class="kpi-label">Totalt hus/mån</div><div class="kpi-value" style="color:var(--house)">${fmt(calcTotalHouse(loan))} kr</div><div class="kpi-sub">Ränta + drift + amort.</div></div>
         <div class="kpi-card"><div class="kpi-label">Nettoinkomst</div><div class="kpi-value" style="color:var(--income)">${fmt(getTotalIncome())} kr</div><div class="kpi-sub">Markus + Maja</div></div>
@@ -751,22 +781,33 @@ function renderKPI() {
 // ═══════════════════════════════════════════════════════
 // RENDER PARAMS (editable)
 // ═══════════════════════════════════════════════════════
+
+function renderStaticParamsTable() {
+    const staticParams = [
+        { key:"huspris", label:"Huspris", suffix:" kr" },
+        { key:"kontantinsats", label:"Kontantinsats", suffix:" kr" },
+        { key:"huslan", label:"Huslån", suffix:" kr" },
+        { key:"fastighetsavgift", label:"Fastighetsavgift/år", suffix:" kr" },
+        { key:"lagfart", label:"Lagfart", suffix:" kr" },
+        { key:"lantmateriavgift", label:"Lantmäteriavgift", suffix:" kr" },
+        { key:"skattereduktion", label:"Skattereduktion", suffix:"%" },
+        { key:"bolan", label:"Bolåneandel", suffix:"%" }
+    ];
+    const p = loanParams;
+    const tbody = document.querySelector("#static-params-table tbody");
+    tbody.innerHTML = staticParams.map(it => `
+        <tr><td>${it.label}</td><td class="num">${fmt(p[it.key])}${it.suffix}</td></tr>
+    `).join("");
+}
+
 function renderParams() {
     const grid = document.getElementById("param-grid");
     const p = loanParams;
     const items = [
-        { key:"huspris", label:"Huspris", suffix:" kr" },
-        { key:"kontantinsats", label:"Kontantinsats", suffix:" kr" },
-        { key:"huslan", label:"Huslån", suffix:" kr" },
         { key:"listranta", label:"Listränta", suffix:"%" },
-        { key:"bolan", label:"Bolåneandel", suffix:"%" },
         { key:"ammortering", label:"Amortering", suffix:"%" },
         { key:"driftkostnad", label:"Driftkostnad/år", suffix:" kr" },
-        { key:"fastighetsavgift", label:"Fastighetsavgift/år", suffix:" kr" },
-        { key:"renovering", label:"Renovering", suffix:"%" },
-        { key:"lagfart", label:"Lagfart", suffix:" kr" },
-        { key:"lantmateriavgift", label:"Lantmäteriavgift", suffix:" kr" },
-        { key:"skattereduktion", label:"Skattereduktion", suffix:"%" }
+        { key:"renovering", label:"Renovering", suffix:"%" }
     ];
     grid.innerHTML = items.map(it => `
         <div class="param-item">
@@ -798,8 +839,8 @@ function renderAmortTable() {
 function renderIncomeExpenses() {
     const ig = document.getElementById("income-grid");
     ig.innerHTML = `
-        <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--income)"><input class="editable-input" type="number" value="${income.markus.inkomst}" onchange="updateIncome('markus',this.value)"> kr</span></div>
-        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--income)"><input class="editable-input" type="number" value="${income.maja.inkomst}" onchange="updateIncome('maja',this.value)"> kr${income.maja.foraldraledig?' (FL)':''}</span></div>
+        <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--markus-color)"><input class="editable-input" type="number" value="${income.markus.inkomst}" onchange="updateIncome('markus',this.value)"> kr</span></div>
+        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)"><input class="editable-input" type="number" value="${income.maja.inkomst}" onchange="updateIncome('maja',this.value)"> kr${income.maja.foraldraledig?' (FL)':''}</span></div>
         <div class="param-item"><span class="param-label">Totalt</span><span class="param-value" style="color:var(--income);font-weight:800">${fmt(getTotalIncome())} kr</span></div>
     `;
 
@@ -837,12 +878,17 @@ function changeTransferMonth(delta) {
     renderTransferTable();
 }
 
+function changeLoanMonth(delta) {
+    currentLoanMonthIdx = Math.max(0, Math.min(transfers.length - 1, currentLoanMonthIdx + delta));
+    renderAll();
+}
+
 function renderTransferDetail() {
     const t = transfers[currentTransferIdx];
     document.getElementById("transfer-month-display").textContent = `${t.month} ${t.year}`;
     document.getElementById("transfer-detail").innerHTML = `
         <div class="transfer-grid-2">
-            <div class="transfer-card"><div class="transfer-label">Husutgifter</div><div class="transfer-value" style="color:var(--house)">${fmt(t.husutgifter)} kr</div></div>
+            <div class="transfer-card"><div class="transfer-label">Husutgifter</div><div class="transfer-value" style="color:var(--expense)">${fmt(t.husutgifter)} kr</div></div>
             <div class="transfer-card"><div class="transfer-label">ICA-kort</div><div class="transfer-value" style="color:var(--transfer)">${fmt(t.ica)} kr</div></div>
         </div>
         <div class="transfer-grid-4">
@@ -962,6 +1008,7 @@ function renderGoals() {
             <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
             <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
             ${monthly > 0 ? `<div class="goal-monthly">Sparar ${fmt(monthly)} kr/månad</div>` : ''}
+            ${g.linkedItems ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">Länkade poster: <strong>${g.linkedItems}</strong></div>` : ''}
             <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%;background:${g.color||'#10B981'}"></div></div>
             <div class="goal-stats">
                 <div><span>Sparat:</span><div class="value">${fmt(g.current)} kr</div></div>
@@ -986,12 +1033,14 @@ function openGoalModal(idx) {
         document.getElementById("goal-target").value = g.target;
         document.getElementById("goal-current").value = g.current;
         document.getElementById("goal-monthly").value = g.monthly || 0;
+        document.getElementById("goal-items").value = g.linkedItems || "";
         document.getElementById("goal-color").value = g.color || "#10B981";
     } else {
         document.getElementById("goal-name").value = "";
         document.getElementById("goal-target").value = "";
         document.getElementById("goal-current").value = 0;
         document.getElementById("goal-monthly").value = 0;
+        document.getElementById("goal-items").value = "";
         document.getElementById("goal-color").value = "#10B981";
     }
     document.getElementById("goal-modal").classList.add("active");
@@ -1002,9 +1051,10 @@ function saveGoal() {
     const target = parseFloat(document.getElementById("goal-target").value) || 0;
     const current = parseFloat(document.getElementById("goal-current").value) || 0;
     const monthly = parseFloat(document.getElementById("goal-monthly").value) || 0;
+    const linkedItems = document.getElementById("goal-items").value.trim();
     const color = document.getElementById("goal-color").value;
     if (!name || target <= 0) { alert("Fyll i namn och ett målbelopp större än 0."); return; }
-    const goal = { name, target, current, monthly, color };
+    const goal = { name, target, current, monthly, color, linkedItems };
     if (editingGoalIdx >= 0) savingsGoals[editingGoalIdx] = goal; else savingsGoals.push(goal);
     saveData(); renderGoals(); closeGoalModal();
 }
@@ -1232,7 +1282,9 @@ function renderAll() {
         const el = document.getElementById("heading-" + id);
         if (el) el.textContent = sectionHeadings[id];
     });
+    renderLoanMonthDisplay();
     renderKPI();
+    renderStaticParamsTable();
     renderParams();
     renderAmortTable();
     renderIncomeExpenses();
@@ -1257,6 +1309,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     loadData();
     currentTransferIdx = transfers.length - 1;
+    currentLoanMonthIdx = transfers.length - 1; // Default to latest month
     renderAll();
 });
 
