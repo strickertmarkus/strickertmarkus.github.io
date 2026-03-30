@@ -895,13 +895,26 @@ function addHuskonto() { huskonto.push({ name: "Ny post", amount: 0 }); saveData
 // ═══════════════════════════════════════════════════════
 function changeTransferMonth(delta) {
     currentTransferIdx = Math.max(0, Math.min(transfers.length - 1, currentTransferIdx + delta));
+    updateFamilyBudgetMonth();
     renderTransferDetail();
     renderTransferTable();
 }
 
 function changeLoanMonth(delta) {
     currentLoanMonthIdx = Math.max(0, Math.min(transfers.length - 1, currentLoanMonthIdx + delta));
+    updateFamilyBudgetMonth();
     renderAll();
+}
+
+function updateFamilyBudgetMonth() {
+    // Convert current transfer month to month key and save it
+    if (currentTransferIdx < transfers.length) {
+        const t = transfers[currentTransferIdx];
+        const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+        const monthNum = monthNames.indexOf(t.month) + 1;
+        const monthKey = `${t.year}-${String(monthNum).padStart(2, '0')}`;
+        localStorage.setItem("selectedBudgetMonth", monthKey);
+    }
 }
 
 function renderTransferDetail() {
@@ -1424,10 +1437,44 @@ document.addEventListener("DOMContentLoaded", function() {
         if (darkPref === null) localStorage.setItem("darkMode", "enabled");
     }
     loadData();
+    
+    // Load month selection from other budget pages if available
+    initializeMonthFromSelection();
+    
     currentTransferIdx = transfers.length - 1;
     currentLoanMonthIdx = transfers.length - 1; // Default to latest month
+    
+    // Save the initial month selection so other pages can sync
+    updateFamilyBudgetMonth();
+    
     renderAll();
+    
+    // Listen for month changes from other tabs (budget.html, budget_maja.html)
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'selectedBudgetMonth') {
+            console.log("Month changed in another tab:", event.newValue);
+            initializeMonthFromSelection();
+            renderPersonalExpenses();
+        }
+    });
 });
+
+function initializeMonthFromSelection() {
+    const selectedMonth = localStorage.getItem('selectedBudgetMonth');
+    if (!selectedMonth) return;
+    
+    // Parse the selected month (format: "2026-03")
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const monthName = monthNames[month - 1];
+    
+    // Find this month in the transfers array
+    const idx = transfers.findIndex(t => t.year === year && t.month === monthName);
+    if (idx !== -1) {
+        currentTransferIdx = idx;
+        currentLoanMonthIdx = idx;
+    }
+}
 
 // ═══════════════════════════════════════════════════════
 // FIREBASE REAL-TIME SYNC
