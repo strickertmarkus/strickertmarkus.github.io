@@ -2547,6 +2547,23 @@ setTimeout(() => {
 }, 500);
 renderPieLegend();
 
+// Listen for month changes from familjebudget.html
+window.addEventListener('storage', (event) => {
+    if (event.key === 'selectedBudgetMonth' && event.newValue) {
+        // Month was changed in another page - sync it here
+        const [year, month] = event.newValue.split('-').map(Number);
+        const date = new Date(year, month - 1, 1);
+        const newKey = getMonthKey(date);
+        if (monthlyData[newKey]) {
+            currentMonth = date;
+            updateMonthDisplay();
+            renderKPIs();
+            renderSections();
+            updateCharts();
+        }
+    }
+});
+
 // ═══════════════════════════════════════════════════════
 // FIREBASE REAL-TIME SYNC
 // ═══════════════════════════════════════════════════════

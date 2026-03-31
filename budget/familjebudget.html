@@ -895,13 +895,26 @@ function addHuskonto() { huskonto.push({ name: "Ny post", amount: 0 }); saveData
 // ═══════════════════════════════════════════════════════
 function changeTransferMonth(delta) {
     currentTransferIdx = Math.max(0, Math.min(transfers.length - 1, currentTransferIdx + delta));
+    saveCurrentMonthToStorage();
     renderTransferDetail();
     renderTransferTable();
 }
 
 function changeLoanMonth(delta) {
     currentLoanMonthIdx = Math.max(0, Math.min(transfers.length - 1, currentLoanMonthIdx + delta));
+    saveCurrentMonthToStorage();
     renderAll();
+}
+
+function saveCurrentMonthToStorage() {
+    // Save the current transfer month to localStorage so other pages can sync
+    if (currentTransferIdx < transfers.length) {
+        const t = transfers[currentTransferIdx];
+        const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+        const monthNum = monthNames.indexOf(t.month) + 1;
+        const monthKey = `${t.year}-${String(monthNum).padStart(2, '0')}`;
+        localStorage.setItem("selectedBudgetMonth", monthKey);
+    }
 }
 
 function renderTransferDetail() {
@@ -1427,10 +1440,40 @@ document.addEventListener("DOMContentLoaded", function() {
         if (darkPref === null) localStorage.setItem("darkMode", "enabled");
     }
     loadData();
-    currentTransferIdx = transfers.length - 1;
-    currentLoanMonthIdx = transfers.length - 1; // Default to latest month
+    
+    // Try to sync with selected month from budget pages
+    syncWithBudgetMonth();
+    
     renderAll();
+    
+    // Save the current month so other pages know which month we're showing
+    saveCurrentMonthToStorage();
+    
+    // Listen for month changes from budget pages
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'selectedBudgetMonth') {
+            syncWithBudgetMonth();
+            renderAll();
+        }
+    });
 });
+
+function syncWithBudgetMonth() {
+    const selectedMonth = localStorage.getItem('selectedBudgetMonth');
+    if (!selectedMonth) return; // No selection, use current defaults
+    
+    // Parse the selected month (format: "2026-03")
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const monthName = monthNames[month - 1];
+    
+    // Find this month in the transfers array
+    const idx = transfers.findIndex(t => t.year === year && t.month === monthName);
+    if (idx !== -1) {
+        currentTransferIdx = idx;
+        currentLoanMonthIdx = idx;
+    }
+}
     }
 }
 
