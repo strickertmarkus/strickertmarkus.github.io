@@ -735,6 +735,23 @@ function generateChartData() {
     return data;
 }
 
+// Generate monthly chart data for cost and left charts (all 300 months)
+function generateMonthlyChartData() {
+    const data = [];
+    let simLoan = loanParams.huslan;
+    for (let m = 1; m <= 300; m++) {
+        data.push({
+            month: m,
+            interest: calcMonthlyInterest(simLoan),
+            totalHouse: calcTotalHouse(simLoan),
+            left: getTotalIncome() - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
+        });
+        simLoan -= calcAmort(simLoan);
+        if (simLoan < 0) simLoan = 0;
+    }
+    return data;
+}
+
 // ═══════════════════════════════════════════════════════
 // FORMATTING
 // ═══════════════════════════════════════════════════════
@@ -1267,17 +1284,18 @@ function baseOpts() {
 function createCharts() {
     const c = cc();
     const chartData = generateChartData();
+    const monthlyData = generateMonthlyChartData();
     
-    // Year-only labels for loan chart (just the year since data is sampled yearly)
+    // Year-only labels for loan chart (sampled yearly)
     const yearLabels = chartData.map(d => {
         const year = 2025 + Math.floor((d.month - 1) / 12);
         return year.toString();
     });
     
-    // Month/Year labels for cost and left charts
+    // Month/Year labels for monthly costs and left charts
     const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const monthLabels = chartData.map(d => {
-        // Month 1 = April 2025 (index 3), month 13 = April 2026, etc.
+    const monthLabels = monthlyData.map(d => {
+        // Month 1 = April 2025 (month index 3), month 2 = May 2025, etc.
         const totalMonths = d.month - 1; // 0-based
         const startYear = 2025;
         const startMonth = 3; // April (0-based)
@@ -1295,22 +1313,22 @@ function createCharts() {
 
     costChart = new Chart(document.getElementById("costChart"), {
         type: "line", data: { labels: monthLabels, datasets: [
-            { label: "Ränta/mån", data: chartData.map(d => d.interest), borderColor: c.interest, tension: 0.3, pointRadius: 2 },
-            { label: "Totalt hus/mån", data: chartData.map(d => d.totalHouse), borderColor: c.house, tension: 0.3, pointRadius: 2 }
+            { label: "Ränta/mån", data: monthlyData.map(d => d.interest), borderColor: c.interest, tension: 0.3, pointRadius: 2 },
+            { label: "Totalt hus/mån", data: monthlyData.map(d => d.totalHouse), borderColor: c.house, tension: 0.3, pointRadius: 2 }
         ] }, options: opts
     });
 
     leftChart = new Chart(document.getElementById("leftChart"), {
-        type: "bar", data: { labels: monthLabels, datasets: [{ label: "Kvar efter utgifter", data: chartData.map(d => d.left), backgroundColor: chartData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: chartData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
+        type: "bar", data: { labels: monthLabels, datasets: [{ label: "Kvar efter utgifter", data: monthlyData.map(d => d.left), backgroundColor: monthlyData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: monthlyData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
         options: opts
     });
 
     // Accumulated savings chart (from savings goals)
-    createSavingsChart(labels, c);
+    createSavingsChart(c);
     createExpenseCompareChart(c);
 }
 
-function createSavingsChart(labels, c) {
+function createSavingsChart(c) {
     // Simulate accumulated savings from goals - limit to months with actual budget data
     if (savingsGoals.length === 0) {
         savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
