@@ -1443,6 +1443,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // No selection found, default to latest month
         currentTransferIdx = transfers.length - 1;
         currentLoanMonthIdx = transfers.length - 1;
+        console.log("No selectedBudgetMonth found, using latest month (index", currentTransferIdx + ")");
+    } else {
+        console.log("Loaded selectedBudgetMonth, indices set to", currentTransferIdx);
     }
     
     // Save the current month selection so other pages can sync
@@ -1450,32 +1453,72 @@ document.addEventListener("DOMContentLoaded", function() {
     
     renderAll();
     
+    // Store the initial selected month
+    lastSyncedMonth = localStorage.getItem('selectedBudgetMonth');
+    
     // Listen for month changes from other tabs (budget.html, budget_maja.html)
     window.addEventListener('storage', (event) => {
-        if (event.key === 'selectedBudgetMonth') {
-            console.log("Month changed in another tab:", event.newValue);
-            initializeMonthFromSelection();
-            renderPersonalExpenses();
+        if (event.key === 'selectedBudgetMonth' && event.newValue) {
+            console.log("Storage event: Month changed to", event.newValue);
+            if (initializeMonthFromSelection()) {
+                lastSyncedMonth = event.newValue;
+                renderAll();
+            }
         }
     });
+    
+    // Also check for month changes when page becomes visible (switching tabs)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            const currentMonth = localStorage.getItem('selectedBudgetMonth');
+            if (currentMonth && currentMonth !== lastSyncedMonth) {
+                console.log("Page became visible, month changed from", lastSyncedMonth, "to", currentMonth);
+                lastSyncedMonth = currentMonth;
+                if (initializeMonthFromSelection()) {
+                    renderAll();
+                }
+            }
+        }
+    });
+    
+    // Periodic check every 2 seconds - useful when pages are in same window/tab
+    const monthSyncInterval = setInterval(() => {
+        const currentMonth = localStorage.getItem('selectedBudgetMonth');
+        if (currentMonth && currentMonth !== lastSyncedMonth) {
+            console.log("Periodic check: Month changed from", lastSyncedMonth, "to", currentMonth);
+            if (initializeMonthFromSelection()) {
+                lastSyncedMonth = currentMonth;
+                renderAll();
+            }
+        }
+    }, 2000);
 });
+
+let lastSyncedMonth = null;
 
 function initializeMonthFromSelection() {
     const selectedMonth = localStorage.getItem('selectedBudgetMonth');
-    if (!selectedMonth) return false;
+    if (!selectedMonth) {
+        console.log("No selectedBudgetMonth in localStorage");
+        return false;
+    }
     
     // Parse the selected month (format: "2026-03")
     const [year, month] = selectedMonth.split('-').map(Number);
     const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
     const monthName = monthNames[month - 1];
     
+    console.log(`Looking for month: ${monthName} ${year}`);
+    
     // Find this month in the transfers array
     const idx = transfers.findIndex(t => t.year === year && t.month === monthName);
     if (idx !== -1) {
+        console.log(`Found month ${monthName} ${year} at index ${idx}, transfers.length=${transfers.length}`);
         currentTransferIdx = idx;
         currentLoanMonthIdx = idx;
         return true;
     }
+    console.log(`Month ${monthName} ${year} not found in transfers array. Available months:`, transfers.map(t => `${t.month} ${t.year}`));
     return false;
 }
     }
