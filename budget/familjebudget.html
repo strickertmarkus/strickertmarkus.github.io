@@ -1267,9 +1267,16 @@ function baseOpts() {
 function createCharts() {
     const c = cc();
     const chartData = generateChartData();
-    // Convert month numbers to actual month/year labels starting from April 2025
+    
+    // Year-only labels for loan chart (just the year since data is sampled yearly)
+    const yearLabels = chartData.map(d => {
+        const year = 2025 + Math.floor((d.month - 1) / 12);
+        return year.toString();
+    });
+    
+    // Month/Year labels for cost and left charts
     const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const labels = chartData.map(d => {
+    const monthLabels = chartData.map(d => {
         // Month 1 = April 2025 (index 3), month 13 = April 2026, etc.
         const totalMonths = d.month - 1; // 0-based
         const startYear = 2025;
@@ -1278,22 +1285,23 @@ function createCharts() {
         const year = startYear + Math.floor((startMonth + totalMonths) / 12);
         return `${monthNames[actualMonth]} ${year}`;
     });
+    
     const opts = baseOpts();
 
     loanChart = new Chart(document.getElementById("loanChart"), {
-        type: "line", data: { labels, datasets: [{ label: "Kvarvarande lån", data: chartData.map(d => d.loan), borderColor: c.loan, backgroundColor: c.loan + "20", fill: true, tension: 0.3, pointRadius: 2 }] },
+        type: "line", data: { labels: yearLabels, datasets: [{ label: "Kvarvarande lån", data: chartData.map(d => d.loan), borderColor: c.loan, backgroundColor: c.loan + "20", fill: true, tension: 0.3, pointRadius: 2 }] },
         options: { ...opts, scales: { ...opts.scales, y: { ...opts.scales.y, ticks: { ...opts.scales.y.ticks, callback: v => (v/1e6).toFixed(1)+" Mkr" } } } }
     });
 
     costChart = new Chart(document.getElementById("costChart"), {
-        type: "line", data: { labels, datasets: [
+        type: "line", data: { labels: monthLabels, datasets: [
             { label: "Ränta/mån", data: chartData.map(d => d.interest), borderColor: c.interest, tension: 0.3, pointRadius: 2 },
             { label: "Totalt hus/mån", data: chartData.map(d => d.totalHouse), borderColor: c.house, tension: 0.3, pointRadius: 2 }
         ] }, options: opts
     });
 
     leftChart = new Chart(document.getElementById("leftChart"), {
-        type: "bar", data: { labels, datasets: [{ label: "Kvar efter utgifter", data: chartData.map(d => d.left), backgroundColor: chartData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: chartData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
+        type: "bar", data: { labels: monthLabels, datasets: [{ label: "Kvar efter utgifter", data: chartData.map(d => d.left), backgroundColor: chartData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: chartData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
         options: opts
     });
 
