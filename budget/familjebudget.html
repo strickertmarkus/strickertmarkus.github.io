@@ -1267,7 +1267,17 @@ function baseOpts() {
 function createCharts() {
     const c = cc();
     const chartData = generateChartData();
-    const labels = chartData.map(d => `År ${Math.ceil(d.month / 12)}`);
+    // Convert month numbers to actual month/year labels starting from April 2025
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const labels = chartData.map(d => {
+        // Month 1 = April 2025 (index 3), month 13 = April 2026, etc.
+        const totalMonths = d.month - 1; // 0-based
+        const startYear = 2025;
+        const startMonth = 3; // April (0-based)
+        const actualMonth = (startMonth + totalMonths) % 12;
+        const year = startYear + Math.floor((startMonth + totalMonths) / 12);
+        return `${monthNames[actualMonth]} ${year}`;
+    });
     const opts = baseOpts();
 
     loanChart = new Chart(document.getElementById("loanChart"), {
@@ -1347,7 +1357,12 @@ function createExpenseCompareChart(c) {
             else if (s.key === "insurances") idx = 1;
             else if (s.key === "subscriptions") idx = 2;
             else if (s.key === "savings") idx = 3;
-            for (const it of (s.items || [])) { amounts[idx] += (it.actual || it.budget || 0); }
+            // Only count actual expenses (actual > 0), not budget values
+            for (const it of (s.items || [])) { 
+                if (it.actual && it.actual > 0) {
+                    amounts[idx] += it.actual;
+                }
+            }
         }
     }
 
