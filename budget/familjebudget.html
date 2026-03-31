@@ -1438,13 +1438,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     loadData();
     
-    // Load month selection from other budget pages if available
-    initializeMonthFromSelection();
+    // Load month selection from other budget pages if available, otherwise default to latest
+    if (!initializeMonthFromSelection()) {
+        // No selection found, default to latest month
+        currentTransferIdx = transfers.length - 1;
+        currentLoanMonthIdx = transfers.length - 1;
+    }
     
-    currentTransferIdx = transfers.length - 1;
-    currentLoanMonthIdx = transfers.length - 1; // Default to latest month
-    
-    // Save the initial month selection so other pages can sync
+    // Save the current month selection so other pages can sync
     updateFamilyBudgetMonth();
     
     renderAll();
@@ -1461,7 +1462,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function initializeMonthFromSelection() {
     const selectedMonth = localStorage.getItem('selectedBudgetMonth');
-    if (!selectedMonth) return;
+    if (!selectedMonth) return false;
     
     // Parse the selected month (format: "2026-03")
     const [year, month] = selectedMonth.split('-').map(Number);
@@ -1473,6 +1474,10 @@ function initializeMonthFromSelection() {
     if (idx !== -1) {
         currentTransferIdx = idx;
         currentLoanMonthIdx = idx;
+        return true;
+    }
+    return false;
+}
     }
 }
 
