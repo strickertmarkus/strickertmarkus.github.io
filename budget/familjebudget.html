@@ -1315,12 +1315,12 @@ function createCharts() {
         type: "line", data: { labels: monthLabels, datasets: [
             { label: "Ränta/mån", data: monthlyData.map(d => d.interest), borderColor: c.interest, tension: 0.3, pointRadius: 2 },
             { label: "Totalt hus/mån", data: monthlyData.map(d => d.totalHouse), borderColor: c.house, tension: 0.3, pointRadius: 2 }
-        ] }, options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i] : '') } } } }
+        ] }, options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i].split(' ')[1] : '') } } } }
     });
 
     leftChart = new Chart(document.getElementById("leftChart"), {
         type: "bar", data: { labels: monthLabels, datasets: [{ label: "Kvar efter utgifter", data: monthlyData.map(d => d.left), backgroundColor: monthlyData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: monthlyData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
-        options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i] : '') } } } }
+        options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i].split(' ')[1] : '') } } } }
     });
 
     // Accumulated savings chart (from savings goals)
