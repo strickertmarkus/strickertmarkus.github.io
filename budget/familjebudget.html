@@ -1440,6 +1440,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (darkPref === null) localStorage.setItem("darkMode", "enabled");
     }
     loadData();
+    currentTransferIdx = transfers.length - 1;
+    currentLoanMonthIdx = transfers.length - 1;
     
     // Try to sync with selected month from budget pages
     syncWithBudgetMonth();
@@ -1472,8 +1474,6 @@ function syncWithBudgetMonth() {
     if (idx !== -1) {
         currentTransferIdx = idx;
         currentLoanMonthIdx = idx;
-    }
-}
     }
 }
 
