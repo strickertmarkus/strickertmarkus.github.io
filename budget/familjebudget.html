@@ -240,6 +240,8 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .btn-edit:hover { background: rgba(37,99,235,0.25); }
 .btn-del { background: rgba(220,38,38,0.12); color: var(--danger); }
 .btn-del:hover { background: rgba(220,38,38,0.25); }
+.btn-extra { background: rgba(96,165,250,0.12); color: #60A5FA; }
+.btn-extra:hover { background: rgba(96,165,250,0.25); }
 .btn-add-goal { padding: 12px 24px; font-size: 14px; font-family: inherit; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.4); color: var(--income); }
 .btn-add-goal:hover { background: rgba(16,185,129,0.3); border-color: rgba(16,185,129,0.6); }
 .btn-add { padding: 8px 16px; font-size: 13px; font-family: inherit; font-weight: 600; border-radius: 8px; cursor: pointer; border: 1.5px dashed var(--border); background: transparent; color: var(--text-sec); transition: all 0.2s; margin-top: 8px; }
@@ -611,10 +613,11 @@ function loadData() {
             savingsGoals = d.savingsGoals || [];
             sectionHeadings = d.sectionHeadings || {};
             
-            // Migration: fix any goals with invalid linkedItems
+            // Migration: fix any goals with invalid linkedItems and ensure extra field exists
             savingsGoals = savingsGoals.map(g => ({
                 ...g,
-                linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : []
+                linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : [],
+                extra: g.extra || 0
             }));
             
             return;
@@ -1203,8 +1206,10 @@ function saveGoal() {
             return; 
         }
         
-        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [] };
+        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0 };
         if (editingGoalIdx >= 0) {
+            // Preserve existing extra value when editing
+            goal.extra = savingsGoals[editingGoalIdx].extra || 0;
             savingsGoals[editingGoalIdx] = goal;
         } else {
             savingsGoals.push(goal);
@@ -1220,6 +1225,23 @@ function saveGoal() {
 function deleteGoal(idx) {
     if (confirm(`Vill du ta bort sparmålet "${savingsGoals[idx].name}"?`)) {
         savingsGoals.splice(idx, 1); saveData(); renderGoals();
+    }
+}
+
+function addGoalExtra(idx) {
+    const goal = savingsGoals[idx];
+    const currentExtra = goal.extra || 0;
+    const input = prompt(`Lägg till sparade pengar (extra) för "${goal.name}"\n\nNuvarande extra värde: ${fmt(currentExtra)} kr\n\nAnge nytt värde (eller 0 för att ta bort):`, currentExtra);
+    
+    if (input !== null) {
+        const newExtra = parseFloat(input) || 0;
+        if (newExtra < 0) {
+            alert("Värdet kan inte vara negativt.");
+            return;
+        }
+        goal.extra = newExtra;
+        saveData();
+        renderGoals();
     }
 }
 
@@ -1300,8 +1322,8 @@ function renderGoals() {
             linkedSavedAmount = markusResult.monthlyTotal + majaResult.monthlyTotal;
         }
         
-        // Count BOTH the manually entered "already saved" AND the linked items (all months)
-        const currentAmount = (g.current || 0) + linkedSavedAmount;
+        // Count BOTH the manually entered "already saved", the linked items (all months), AND the extra manual value
+        const currentAmount = (g.current || 0) + linkedSavedAmount + (g.extra || 0);
         const pct = g.target > 0 ? Math.min(Math.round((currentAmount / g.target) * 100), 100) : 0;
         const isComplete = currentAmount >= g.target;
         const remaining = Math.max(0, g.target - currentAmount);
@@ -1322,10 +1344,16 @@ function renderGoals() {
                 const amount = combinedMonthlyBreakdown[monthKey];
                 const monthNum = parseInt(monthKey.split('-')[1]) - 1; // "2026-03" → 2
                 const monthName = monthNames[monthNum] || monthKey;
-                return `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(amount)} kr ${monthName}</span>`;
-            }).join('<br>');
+                return `<div style="font-size:11px;color:var(--income);font-weight:600;line-height:1.4">+${fmt(amount)} kr ${monthName}</div>`;
+            }).join('');
             monthlyDisplayText = monthlyRows;
         }
+        
+        // Extra manual contribution
+        const extraValue = g.extra || 0;
+        const extraDisplay = extraValue > 0 
+            ? `<div style="font-size:11px;color:#60A5FA;font-weight:600;line-height:1.4">+${fmt(extraValue)} kr Extra</div>`
+            : '';
         
         return `
         <div class="goal-card">
@@ -1339,10 +1367,15 @@ function renderGoals() {
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
                 <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
             </div>
-            <div style="display:flex;justify-content:flex-end;align-items:center;flex-direction:column;margin-top:12px;margin-bottom:10px;text-align:right">
-                ${monthlyDisplayText}
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;margin-bottom:10px">
+                <div style="flex:1"></div>
+                <div style="text-align:right">
+                    ${monthlyDisplayText}
+                    ${extraDisplay}
+                </div>
             </div>
             <div class="goal-actions">
+                <button class="btn-extra" onclick="addGoalExtra(${idx})">➕ Lägg till</button>
                 <button class="btn-edit" onclick="openGoalModal(${idx})">✏️ Redigera</button>
                 <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
             </div>
