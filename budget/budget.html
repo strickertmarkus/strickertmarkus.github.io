@@ -222,13 +222,10 @@ html.dark-mode .delete-btn:hover {
     color: #EF4444;
 }
 html.dark-mode .increment-btn {
-    border-color: rgba(255,255,255,0.2) !important;
-    color: var(--text) !important;
+    color: #64748B;
 }
 html.dark-mode .increment-btn:hover {
-    background: rgba(96, 165, 250, 0.2) !important;
-    border-color: #60A5FA !important;
-    color: #60A5FA !important;
+    color: #60A5FA;
 }
 
 html.dark-mode .section-header:hover {
@@ -504,17 +501,13 @@ body {
 .items-table thead th:nth-child(2),
 .items-table thead th:nth-child(3),
 .items-table thead th:nth-child(4) { text-align: right; }
-.items-table tbody tr {
-    border-bottom: 1px solid #F3F4F6;
-}
-.items-table tbody tr:last-child {
-    border-bottom: none;
-}
 .items-table tbody td {
     padding: 10px 6px;
     font-size: 13px;
+    border-bottom: 1px solid #F3F4F6;
     vertical-align: middle;
 }
+.items-table tbody tr:last-child td { border-bottom: none; }
 .items-table tbody td:first-child {
     font-weight: 500;
     color: var(--text);
@@ -560,15 +553,21 @@ body {
     color: #B91C1C;
 }
 .increment-btn {
-    transition: all 0.2s;
+    background: none;
+    border: none;
+    color: var(--text-sec);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 8px;
+    line-height: 1;
+    transition: color 0.2s;
+    font-weight: 600;
 }
 .increment-btn:hover {
-    background: var(--accent-light) !important;
-    border-color: var(--accent) !important;
-    color: var(--accent) !important;
+    color: var(--accent);
 }
 .increment-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
 }
 .section-title-editable {
     cursor: pointer;
@@ -1559,7 +1558,7 @@ function renderSections() {
                                    oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
                                    onchange="onActualChange(this)"
                                    onfocus="this.select()">
-                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde" style="width: 28px; height: 28px; padding: 4px; border: 1px solid var(--border); background: transparent; border-radius: 6px; color: var(--text); cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">+</button>
+                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde">+</button>
                         </div>
                     </td>
                     ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
