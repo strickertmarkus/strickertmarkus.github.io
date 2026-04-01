@@ -617,7 +617,8 @@ function loadData() {
             savingsGoals = savingsGoals.map(g => ({
                 ...g,
                 linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : [],
-                extra: g.extra || 0
+                extra: g.extra || 0,
+                customMonthsToGoal: g.customMonthsToGoal || 0
             }));
             
             return;
@@ -1206,10 +1207,11 @@ function saveGoal() {
             return; 
         }
         
-        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0 };
+        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0, customMonthsToGoal: 0 };
         if (editingGoalIdx >= 0) {
-            // Preserve existing extra value when editing
+            // Preserve existing extra and customMonthsToGoal values when editing
             goal.extra = savingsGoals[editingGoalIdx].extra || 0;
+            goal.customMonthsToGoal = savingsGoals[editingGoalIdx].customMonthsToGoal || 0;
             savingsGoals[editingGoalIdx] = goal;
         } else {
             savingsGoals.push(goal);
@@ -1240,6 +1242,29 @@ function addGoalExtra(idx) {
             return;
         }
         goal.extra = newExtra;
+        saveData();
+        renderGoals();
+    }
+}
+
+function editGoalTimeHorizon(idx) {
+    const goal = savingsGoals[idx];
+    const remaining = Math.max(0, goal.target - ((goal.current || 0) + (goal.extra || 0)));
+    const monthly = goal.monthly || 0;
+    const currentMonths = goal.customMonthsToGoal || (monthly > 0 ? Math.ceil(remaining / monthly) : 0);
+    
+    const input = prompt(
+        `Ange \u00f6nskad tidshorisont (m\u00e5nader) f\u00f6r "${goal.name}"\n\nNuvarande: ${currentMonths} m\u00e5nader\nKvarst\u00e5ende belopp: ${fmt(remaining)} kr`,
+        currentMonths
+    );
+    
+    if (input !== null) {
+        const newMonths = parseInt(input) || 0;
+        if (newMonths < 0) {
+            alert("V\u00e4rdet kan inte vara negativt.");
+            return;
+        }
+        goal.customMonthsToGoal = newMonths;
         saveData();
         renderGoals();
     }
@@ -1328,7 +1353,7 @@ function renderGoals() {
         const isComplete = currentAmount >= g.target;
         const remaining = Math.max(0, g.target - currentAmount);
         const monthly = g.monthly || 0;
-        const monthsToGoal = monthly > 0 ? Math.ceil(remaining / monthly) : 0;
+        const monthsToGoal = g.customMonthsToGoal || (monthly > 0 ? Math.ceil(remaining / monthly) : 0);
         
         const linkedItemsDisplay = linkedItems.length > 0 
             ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">
@@ -1365,7 +1390,7 @@ function renderGoals() {
                 <div><span>Sparat:</span><div class="value">${fmt(currentAmount)} kr</div></div>
                 <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
-                <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
+                <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value" style="cursor:pointer;text-decoration:underline" onclick="editGoalTimeHorizon(${idx})" title="Klicka för att ändra">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;margin-bottom:10px">
                 <div style="flex:1"></div>
@@ -1375,7 +1400,7 @@ function renderGoals() {
                 </div>
             </div>
             <div class="goal-actions">
-                <button class="btn-extra" onclick="addGoalExtra(${idx})">➕ Lägg till</button>
+                <button class="btn-extra" onclick="addGoalExtra(${idx})"><span style="color:#22c55e">➕</span> Lägg till extra sparande</button>
                 <button class="btn-edit" onclick="openGoalModal(${idx})">✏️ Redigera</button>
                 <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
             </div>
