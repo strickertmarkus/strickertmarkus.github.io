@@ -1976,7 +1976,7 @@ function initCharts() {
             datasets: [
                 {
                     label: "Budget",
-                    data: expenseSections.map(s => s.items.reduce((sum, it) => sum + it.budget, 0)),
+                    data: expenseSections.map(() => 0),
                     backgroundColor: expenseSections.map(s => isDarkMode() ? s.color + '30' : s.light),
                     borderColor: expenseSections.map(s => isDarkMode() ? s.color + '60' : s.color),
                     borderWidth: 1.5,
@@ -1985,7 +1985,7 @@ function initCharts() {
                 },
                 {
                     label: "Utgifter",
-                    data: expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0)),
+                    data: expenseSections.map(() => 0),
                     backgroundColor: expenseSections.map(s => s.color),
                     borderColor: expenseSections.map(s => shadeColor(s.color, -40)),
                     borderWidth: 1.5,
@@ -1994,7 +1994,7 @@ function initCharts() {
                 },
                 ...(previousKey ? [{
                     label: "Föregående månad",
-                    data: previousExpenseData,
+                    data: expenseSections.map(() => 0),
                     backgroundColor: expenseSections.map(s => shadeColor(s.color, -15)),
                     borderColor: expenseSections.map(s => shadeColor(s.color, -30)),
                     borderWidth: 1.5,
@@ -2006,6 +2006,10 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart'
+            },
             scales: {
                 x: {
                     grid: { display: false },
@@ -2081,6 +2085,34 @@ function initCharts() {
         if (!pieChart) return;
         pieChart.data.datasets[0].data = realData;
         pieChart.update();
+    }, 50);
+    
+    // Animate bar chart data
+    setTimeout(() => {
+        if (!barChart) return;
+        const sections = getCurrentMonthSections();
+        const expenseSections = sections.filter(s => !s.isIncome);
+        barChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.budget, 0));
+        barChart.data.datasets[1].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
+        
+        // Update previous month data if it exists
+        if (barChart.data.datasets.length > 2) {
+            const allKeys = Object.keys(monthlyData).sort();
+            const currentKey = getMonthKey(currentMonth);
+            const currentIndex = allKeys.indexOf(currentKey);
+            const previousKey = currentIndex > 0 ? allKeys[currentIndex - 1] : null;
+            
+            if (previousKey) {
+                const previousSections = monthlyData[previousKey].sections;
+                const previousExpenseSections = previousSections.filter(s => !s.isIncome);
+                barChart.data.datasets[2].data = expenseSections.map(sName => {
+                    const prevSection = previousExpenseSections.find(ps => ps.name === sName.name);
+                    return prevSection ? prevSection.items.reduce((sum, it) => sum + it.actual, 0) : 0;
+                });
+            }
+        }
+        
+        barChart.update();
     }, 50);
 }
 
