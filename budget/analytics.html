@@ -187,6 +187,8 @@ html.dark-mode .header {
 .btn-edit:hover { background: rgba(37,99,235,0.25); }
 .btn-del { background: rgba(220,38,38,0.12); color: var(--danger); }
 .btn-del:hover { background: rgba(220,38,38,0.25); }
+.btn-extra { background: rgba(96,165,250,0.12); color: #60A5FA; }
+.btn-extra:hover { background: rgba(96,165,250,0.25); }
 .btn-add-goal {
     padding: 12px 24px;
     font-size: 14px;
@@ -1021,8 +1023,8 @@ function renderGoals() {
             ${monthlyBreakdownHtml}
             ${extraHtml ? `<div style="padding:0 2px">${extraHtml}</div>` : ''}
             <div class="goal-actions">
-                <button class="btn-edit" onclick="openGoalModal(${idx})" style="flex:1">✏️ Redigera</button>
-                <button onclick="addGoalExtra(${idx})" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:18px;font-weight:bold;line-height:1" title="Lägg till extra sparande">+</button>
+                <button class="btn-extra" onclick="addGoalExtra(${idx})"><span style="color:#22c55e">➕</span> Lägg till extra sparande</button>
+                <button class="btn-edit" onclick="openGoalModal(${idx})">✏️ Redigera</button>
                 <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
             </div>
         </div>`;

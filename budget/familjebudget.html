@@ -1426,12 +1426,9 @@ function renderGoals() {
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
                 <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value" style="cursor:pointer" onclick="editGoalTimeHorizon(${idx})" title="Klicka för att ändra">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;margin-bottom:10px">
-                <div style="flex:1"></div>
-                <div style="text-align:right">
+            <div style="margin-top:10px;margin-bottom:10px">
                     ${monthlyDisplayText}
                     ${extraDisplay}
-                </div>
             </div>
             <div class="goal-actions">
                 <button class="btn-extra" onclick="addGoalExtra(${idx})"><span style="color:#22c55e">➕</span> Lägg till extra sparande</button>
