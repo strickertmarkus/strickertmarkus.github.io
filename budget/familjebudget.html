@@ -1146,12 +1146,14 @@ function openGoalModal(idx) {
     const checkboxContainer = document.getElementById("goal-items-checkboxes");
     checkboxContainer.innerHTML = Object.keys(allItems).length === 0 
         ? '<span style="font-size:12px;color:var(--text-sec)">Inga sparande-utgifter funna. Lägg till i budgetplaneraren först.</span>'
-        : Object.entries(allItems).map(([name, amount]) => `
-            <div style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:6px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
-                <input type="checkbox" id="goal-item-${name}" value="${name}" ${selectedItems.includes(name)?'checked':''} style="cursor:pointer">
-                <label for="goal-item-${name}" style="flex:1;cursor:pointer;font-size:13px;margin:0">${name} <span style="color:var(--text-sec);font-size:11px">(${fmt(amount)} kr)</span></label>
+        : Object.entries(allItems).map(([name, amount]) => {
+            const safeId = `goal-item-${name.replace(/[^a-zA-Z0-9-_]/g, '-')}`;
+            return `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;border-radius:6px;cursor:pointer;transition:background 0.2s;background:transparent" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
+                <input type="checkbox" id="${safeId}" value="${name}" ${selectedItems.includes(name)?'checked':''} style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
+                <label for="${safeId}" style="flex:1;cursor:pointer;font-size:13px;margin:0;word-break:break-word">${name} <span style="color:var(--text-sec);font-size:11px">(${fmt(amount)} kr)</span></label>
             </div>
-        `).join('');
+        `}).join('');
     
     if (editingGoalIdx >= 0) {
         const g = savingsGoals[editingGoalIdx];
@@ -1173,20 +1175,40 @@ function openGoalModal(idx) {
 function closeGoalModal() { document.getElementById("goal-modal").classList.remove("active"); editingGoalIdx = -1; }
 
 function saveGoal() {
-    const name = document.getElementById("goal-name").value.trim();
-    const target = parseFloat(document.getElementById("goal-target").value) || 0;
-    const current = parseFloat(document.getElementById("goal-current").value) || 0;
-    const monthly = parseFloat(document.getElementById("goal-monthly").value) || 0;
-    const color = document.getElementById("goal-color").value;
-    
-    // Get selected items from checkboxes
-    const checkboxes = document.querySelectorAll("#goal-items-checkboxes input[type='checkbox']");
-    const linkedItems = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-    
-    if (!name || target <= 0) { alert("Fyll i namn och ett målbelopp större än 0."); return; }
-    const goal = { name, target, current, monthly, color, linkedItems };
-    if (editingGoalIdx >= 0) savingsGoals[editingGoalIdx] = goal; else savingsGoals.push(goal);
-    saveData(); renderGoals(); closeGoalModal();
+    try {
+        const name = document.getElementById("goal-name").value.trim();
+        const targetInput = document.getElementById("goal-target").value.trim();
+        const target = targetInput ? parseFloat(targetInput) : 0;
+        const current = parseFloat(document.getElementById("goal-current").value) || 0;
+        const monthly = parseFloat(document.getElementById("goal-monthly").value) || 0;
+        const color = document.getElementById("goal-color").value;
+        
+        // Get selected items from checkboxes
+        const checkboxes = document.querySelectorAll("#goal-items-checkboxes input[type='checkbox']");
+        const linkedItems = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        
+        if (!name) { 
+            alert("Fyll i ett namn för sparmålet."); 
+            return; 
+        }
+        if (target <= 0) { 
+            alert("Fyll i ett målbelopp större än 0."); 
+            return; 
+        }
+        
+        const goal = { name, target, current, monthly, color, linkedItems };
+        if (editingGoalIdx >= 0) {
+            savingsGoals[editingGoalIdx] = goal;
+        } else {
+            savingsGoals.push(goal);
+        }
+        saveData();
+        renderGoals();
+        closeGoalModal();
+    } catch(e) {
+        console.error('Error saving goal:', e);
+        alert('Ett fel uppstod när sparmålet skulle sparas. Se konsolen för detaljer.');
+    }
 }
 function deleteGoal(idx) {
     if (confirm(`Vill du ta bort sparmålet "${savingsGoals[idx].name}"?`)) {
