@@ -484,6 +484,8 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <input type="number" id="goal-current" placeholder="0">
         <label>Månatligt sparande (kr)</label>
         <input type="number" id="goal-monthly" placeholder="0">
+        <label>Tidshorisont (mån, valfritt)</label>
+        <input type="number" id="goal-time-horizon" placeholder="Automatisk">
         <label>Länkade budgetposter (valfritt)</label>
         <div id="goal-items-checkboxes" style="background:var(--bg);border-radius:8px;padding:10px;max-height:150px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--border)"></div>
         <div style="font-size:11px;color:var(--text-sec);margin:4px 0 12px">Välj vilka sparande-utgifter som bidrar till detta mål</div>
@@ -641,6 +643,8 @@ function saveData() {
         loanParams, income, expenses, huskonto, transfers,
         checklistItems, checkedItems, savingsGoals, sectionHeadings
     }));
+    // Reset section states on edit so they return to defaults on next page load
+    localStorage.removeItem("familjebudget_section_states");
 }
 
 // ═══════════════════════════════════════════════════════
@@ -824,6 +828,31 @@ function toggleSection(id) {
     const chevron = document.getElementById("chevron-" + id);
     body.classList.toggle("open");
     chevron.classList.toggle("open");
+    // Save section state to localStorage
+    saveSectionState(id, body.classList.contains("open"));
+}
+
+function saveSectionState(id, isOpen) {
+    const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
+    sectionStates[id] = isOpen;
+    localStorage.setItem("familjebudget_section_states", JSON.stringify(sectionStates));
+}
+
+function loadSectionStates() {
+    const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
+    for (const [id, isOpen] of Object.entries(sectionStates)) {
+        const body = document.getElementById("section-" + id);
+        const chevron = document.getElementById("chevron-" + id);
+        if (body && chevron) {
+            if (isOpen) {
+                body.classList.add("open");
+                chevron.classList.add("open");
+            } else {
+                body.classList.remove("open");
+                chevron.classList.remove("open");
+            }
+        }
+    }
 }
 
 function toggleLoanParamsTable() {
@@ -1172,12 +1201,14 @@ function openGoalModal(idx) {
         document.getElementById("goal-target").value = g.target;
         document.getElementById("goal-current").value = g.current;
         document.getElementById("goal-monthly").value = g.monthly || 0;
+        document.getElementById("goal-time-horizon").value = g.customMonthsToGoal || "";
         document.getElementById("goal-color").value = g.color || "#10B981";
     } else {
         document.getElementById("goal-name").value = "";
         document.getElementById("goal-target").value = "";
         document.getElementById("goal-current").value = 0;
         document.getElementById("goal-monthly").value = 0;
+        document.getElementById("goal-time-horizon").value = "";
         document.getElementById("goal-color").value = "#10B981";
     }
     document.getElementById("goal-modal").classList.add("active");
@@ -1207,11 +1238,11 @@ function saveGoal() {
             return; 
         }
         
-        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0, customMonthsToGoal: 0 };
+        const customMonthsToGoal = parseInt(document.getElementById("goal-time-horizon").value) || 0;
+        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0, customMonthsToGoal };
         if (editingGoalIdx >= 0) {
-            // Preserve existing extra and customMonthsToGoal values when editing
+            // Preserve existing extra value when editing
             goal.extra = savingsGoals[editingGoalIdx].extra || 0;
-            goal.customMonthsToGoal = savingsGoals[editingGoalIdx].customMonthsToGoal || 0;
             savingsGoals[editingGoalIdx] = goal;
         } else {
             savingsGoals.push(goal);
@@ -1390,7 +1421,7 @@ function renderGoals() {
                 <div><span>Sparat:</span><div class="value">${fmt(currentAmount)} kr</div></div>
                 <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
-                <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value" style="cursor:pointer;text-decoration:underline" onclick="editGoalTimeHorizon(${idx})" title="Klicka för att ändra">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
+                <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value" style="cursor:pointer" onclick="editGoalTimeHorizon(${idx})" title="Klicka för att ändra">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;margin-bottom:10px">
                 <div style="flex:1"></div>
@@ -1778,6 +1809,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (darkPref === null) localStorage.setItem("darkMode", "enabled");
     }
     loadData();
+    loadSectionStates();  // Restore section open/closed states
     currentTransferIdx = transfers.length - 1;
     currentLoanMonthIdx = transfers.length - 1;
     
