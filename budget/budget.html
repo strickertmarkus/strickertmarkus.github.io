@@ -1734,13 +1734,11 @@ function addNewSection() {
 function deleteSection(sIdx) {
     if (confirm('Vill du ta bort detta avsnitt?')) {
         const sections = getCurrentMonthSections();
-        const sectionToDelete = sections[sIdx];
         sections.splice(sIdx, 1);
-        // Filter SECTIONS by key to handle template sections properly
-        if (sectionToDelete.key) {
-            SECTIONS = SECTIONS.filter(s => s.key !== sectionToDelete.key);
-        }
-        refresh();  // This will call saveLocal() internally
+        // Save immediately before refresh to ensure data persists
+        saveLocal();
+        // Then refresh UI to show the change
+        refresh();
     }
 }
 
@@ -2583,6 +2581,16 @@ window.addEventListener('resize', () => {
     if (window.innerWidth > 800 && !dragState) {
         // If resized to desktop and drag-and-drop not initialized, initialize it
         initDragAndDrop();
+    }
+});
+
+// Handle page visibility change - reinitialize charts when returning to page
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        // When page becomes visible, reinitialize charts to fix any rendering issues
+        setTimeout(() => {
+            initCharts();
+        }, 100);
     }
 });
 
