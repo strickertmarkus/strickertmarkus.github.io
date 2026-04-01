@@ -2589,36 +2589,43 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // When page becomes visible, reinitialize charts to fix any rendering issues
         setTimeout(() => {
-            // Properly clean up and reset canvas elements
-            const pieCanvas = document.getElementById("pieChart");
-            const barCanvas = document.getElementById("barChart");
-            
-            // Reset canvas dimensions to force redraw
-            if (pieCanvas) {
-                const pieParent = pieCanvas.parentElement;
-                const pieWidth = pieParent.offsetWidth;
-                const pieHeight = pieParent.offsetHeight;
-                pieCanvas.width = pieWidth;
-                pieCanvas.height = pieHeight;
+            try {
+                // Force complete canvas reset
+                const pieCanvas = document.getElementById("pieChart");
+                const barCanvas = document.getElementById("barChart");
+                
+                if (pieCanvas && pieCanvas.parentElement) {
+                    const pieParent = pieCanvas.parentElement;
+                    // Reset canvas as new element to clear all state
+                    const newPieCanvas = pieCanvas.cloneNode(true);
+                    pieParent.replaceChild(newPieCanvas, pieCanvas);
+                }
+                
+                if (barCanvas && barCanvas.parentElement) {
+                    const barParent = barCanvas.parentElement;
+                    // Reset canvas as new element to clear all state
+                    const newBarCanvas = barCanvas.cloneNode(true);
+                    barParent.replaceChild(newBarCanvas, barCanvas);
+                }
+                
+                // Reinitialize charts with fresh canvases
+                initCharts();
+                
+                // Force layout recalculation and chart resize
+                setTimeout(() => {
+                    if (pieChart) {
+                        pieChart.resize();
+                    }
+                    if (barChart) {
+                        barChart.resize();
+                    }
+                }, 100);
+            } catch(e) {
+                console.error("Error reinitializing charts on visibility change:", e);
+                // Fallback: just reinitialize normally
+                initCharts();
             }
-            
-            if (barCanvas) {
-                const barParent = barCanvas.parentElement;
-                const barWidth = barParent.offsetWidth;
-                const barHeight = barParent.offsetHeight;
-                barCanvas.width = barWidth;
-                barCanvas.height = barHeight;
-            }
-            
-            // Reinitialize charts
-            initCharts();
-            
-            // Force a chart resize after initialization
-            setTimeout(() => {
-                if (pieChart) pieChart.resize();
-                if (barChart) barChart.resize();
-            }, 200);
-        }, 150);
+        }, 200);
     }
 });
 
