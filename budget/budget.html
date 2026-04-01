@@ -2152,7 +2152,7 @@ function updateCharts() {
     pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + '88');
     pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
     pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#2A3041" : "#FFFFFF";
-    pieChart.update({ animation: { duration: 800 } });
+    pieChart.update({ animation: false });
     renderPieLegend();
 
     barChart.data.labels = expenseSections.map(s => s.name);
@@ -2189,7 +2189,7 @@ function updateCharts() {
         }
     }
     
-    barChart.update();
+    barChart.update({ animation: false });
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
