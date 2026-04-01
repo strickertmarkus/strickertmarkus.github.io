@@ -1223,6 +1223,49 @@ function deleteGoal(idx) {
     }
 }
 
+// Read ALL months from budget data and return linked items with monthly breakdown
+function getLinkedItemsAllMonths(storageKey, linkedItemNames) {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw || !linkedItemNames || linkedItemNames.length === 0) return { monthlyTotal: 0, monthlyBreakdown: {} };
+    
+    try {
+        const data = JSON.parse(raw);
+        if (!data.monthlyData) return { monthlyTotal: 0, monthlyBreakdown: {} };
+        
+        const monthlyBreakdown = {}; // { "2026-03": 2000, "2026-04": 4000 }
+        let monthlyTotal = 0;
+        
+        // Iterate through ALL months
+        for (const monthKey of Object.keys(data.monthlyData).sort()) {
+            const sections = data.monthlyData[monthKey].sections;
+            if (!sections) continue;
+            
+            // Sum up all linked items for this month (from savings sections only)
+            let monthTotal = 0;
+            for (const section of sections) {
+                // Only look in savings sections
+                if (section.key === "savings") {
+                    for (const item of section.items || []) {
+                        if (linkedItemNames.includes(item.name) && item.actual > 0) {
+                            monthTotal += item.actual || 0;
+                        }
+                    }
+                }
+            }
+            
+            if (monthTotal > 0) {
+                monthlyBreakdown[monthKey] = monthTotal;
+                monthlyTotal += monthTotal;
+            }
+        }
+        
+        return { monthlyTotal, monthlyBreakdown };
+    } catch(e) {
+        console.error("Error reading linked items:", e);
+        return { monthlyTotal: 0, monthlyBreakdown: {} };
+    }
+}
+
 function renderGoals() {
     const container = document.getElementById("goals-container");
     if (savingsGoals.length === 0) {
@@ -1230,38 +1273,34 @@ function renderGoals() {
         return;
     }
     
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    
     container.innerHTML = savingsGoals.map((g, idx) => {
         // Ensure linkedItems is always an array
         const linkedItems = Array.isArray(g.linkedItems) ? g.linkedItems : [];
         
-        // Calculate cumulative saved from linked items by reading FRESH from budget data
-        let linkedSavedAmount = 0;
+        // Get monthly breakdown from ALL months in both budgets
+        let combinedMonthlyBreakdown = {}; // { "2026-03": 2000, "2026-04": 4000 }
+        let linkedSavedAmount = 0; // Total across all months
+        
         if (linkedItems.length > 0) {
-            // Get fresh data from both budgets
-            const markusData = extractFromBudget("budgetTracker");
-            const majaData = extractFromBudget("budgetTracker_maja");
-            const allCurrentSavings = {};
+            // Get all months from both budgets
+            const markusResult = getLinkedItemsAllMonths("budgetTracker", linkedItems);
+            const majaResult = getLinkedItemsAllMonths("budgetTracker_maja", linkedItems);
             
-            // Combine savings from both budgets
-            [markusData, majaData].forEach(data => {
-                if (data && data.savings) {
-                    data.savings.forEach(item => {
-                        if (!allCurrentSavings[item.name] || item.actual > (allCurrentSavings[item.name] || 0)) {
-                            allCurrentSavings[item.name] = item.actual || item.budget || 0;
-                        }
-                    });
-                }
-            });
+            // Combine monthly breakdowns (sum if both have the same month)
+            for (const [month, amount] of Object.entries(markusResult.monthlyBreakdown)) {
+                combinedMonthlyBreakdown[month] = (combinedMonthlyBreakdown[month] || 0) + amount;
+            }
+            for (const [month, amount] of Object.entries(majaResult.monthlyBreakdown)) {
+                combinedMonthlyBreakdown[month] = (combinedMonthlyBreakdown[month] || 0) + amount;
+            }
             
-            // Sum up linked items from fresh data
-            linkedItems.forEach(itemName => {
-                if (allCurrentSavings[itemName]) {
-                    linkedSavedAmount += allCurrentSavings[itemName];
-                }
-            });
+            // Total from both budgets
+            linkedSavedAmount = markusResult.monthlyTotal + majaResult.monthlyTotal;
         }
         
-        // Count BOTH the manually entered "already saved" AND the linked items
+        // Count BOTH the manually entered "already saved" AND the linked items (all months)
         const currentAmount = (g.current || 0) + linkedSavedAmount;
         const pct = g.target > 0 ? Math.min(Math.round((currentAmount / g.target) * 100), 100) : 0;
         const isComplete = currentAmount >= g.target;
@@ -1269,21 +1308,24 @@ function renderGoals() {
         const monthly = g.monthly || 0;
         const monthsToGoal = monthly > 0 ? Math.ceil(remaining / monthly) : 0;
         
-        // Calculate current month and show monthly contribution
-        const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-        const now = new Date();
-        const currentMonth = monthNames[now.getMonth()];
-        
         const linkedItemsDisplay = linkedItems.length > 0 
             ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">
                 <strong>Länkade utgifter:</strong> ${linkedItems.join(', ')}
               </div>`
             : '';
         
-        // Monthly display shows the linked items contribution
-        const monthlyDisplayText = linkedSavedAmount > 0 
-            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(linkedSavedAmount)} kr ${currentMonth}</span>`
-            : '';
+        // Build monthly display showing each month's contribution
+        let monthlyDisplayText = '';
+        if (Object.keys(combinedMonthlyBreakdown).length > 0) {
+            const sortedMonths = Object.keys(combinedMonthlyBreakdown).sort();
+            const monthlyRows = sortedMonths.map(monthKey => {
+                const amount = combinedMonthlyBreakdown[monthKey];
+                const monthNum = parseInt(monthKey.split('-')[1]) - 1; // "2026-03" → 2
+                const monthName = monthNames[monthNum] || monthKey;
+                return `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(amount)} kr ${monthName}</span>`;
+            }).join('<br>');
+            monthlyDisplayText = monthlyRows;
+        }
         
         return `
         <div class="goal-card">
@@ -1297,7 +1339,7 @@ function renderGoals() {
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
                 <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
             </div>
-            <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;margin-bottom:10px">
+            <div style="display:flex;justify-content:flex-end;align-items:center;flex-direction:column;margin-top:12px;margin-bottom:10px;text-align:right">
                 ${monthlyDisplayText}
             </div>
             <div class="goal-actions">
