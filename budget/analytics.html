@@ -376,6 +376,10 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); c
         <input type="number" id="goal-target" placeholder="50000">
         <label>Nuvarande sparat (kr)</label>
         <input type="number" id="goal-current" placeholder="0">
+        <label>Länkade sparandeposter</label>
+        <div id="goal-items-checkboxes" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:8px;"></div>
+        <label>Tidshorisont (månader)</label>
+        <input type="number" id="goal-time-horizon" placeholder="t.ex. 24">
         <label>Färg</label>
         <select id="goal-color">
             <option value="#10B981">Grön</option>
@@ -902,55 +906,123 @@ function autoAccumulateSavings() {
     return totalAutoSaved;
 }
 
+function getAllSavingItemsForAnalytics() {
+    const items = {};
+    for (const monthKey of Object.keys(monthlyData)) {
+        const sections = monthlyData[monthKey].sections;
+        if (!sections) continue;
+        for (const s of sections) {
+            if (s.key === "savings") {
+                for (const item of s.items || []) {
+                    if (!items[item.name]) items[item.name] = item.actual || item.budget || 0;
+                }
+            }
+        }
+    }
+    return items;
+}
+
+function getLinkedItemsMonthlyBreakdown(linkedItemNames) {
+    if (!linkedItemNames || linkedItemNames.length === 0) return { monthlyTotal: 0, monthlyBreakdown: {} };
+    const monthlyBreakdown = {};
+    let monthlyTotal = 0;
+    for (const monthKey of Object.keys(monthlyData).sort()) {
+        const sections = monthlyData[monthKey].sections;
+        if (!sections) continue;
+        let monthSum = 0;
+        for (const s of sections) {
+            if (s.key === "savings") {
+                for (const item of s.items || []) {
+                    if (linkedItemNames.includes(item.name) && (item.actual || 0) > 0) {
+                        monthSum += item.actual || 0;
+                    }
+                }
+            }
+        }
+        if (monthSum > 0) { monthlyBreakdown[monthKey] = monthSum; monthlyTotal += monthSum; }
+    }
+    return { monthlyTotal, monthlyBreakdown };
+}
+
+function addGoalExtra(idx) {
+    const goal = savingsGoals[idx];
+    const currentExtra = goal.extra || 0;
+    const input = prompt(`Lägg till sparade pengar (extra) för "${goal.name}"\n\nNuvarande extra värde: ${fmt(currentExtra)} kr\n\nAnge nytt värde (eller 0 för att ta bort):`, currentExtra);
+    if (input !== null) {
+        const newExtra = parseFloat(input) || 0;
+        if (newExtra < 0) { alert("Värdet kan inte vara negativt."); return; }
+        goal.extra = newExtra;
+        saveGoals();
+        renderGoals();
+    }
+}
+
 function renderGoals() {
     const container = document.getElementById("goals-container");
     if (savingsGoals.length === 0) {
         container.innerHTML = '<p style="color: var(--text-sec); font-size: 13px;">Inga sparmål ännu. Klicka nedan för att skapa ditt första!</p>';
         return;
     }
-    
-    // Calculate average monthly savings
-    const months = getSortedMonths();
-    let totalMonthlyAvg = 0;
-    if (months.length > 0) {
-        const totalSavings = months.reduce((sum, m) => sum + getSavingsActual(m), 0);
-        totalMonthlyAvg = Math.round(totalSavings / months.length);
-    }
-    
+
     container.innerHTML = savingsGoals.map((g, idx) => {
-        const pct = g.target > 0 ? Math.min(Math.round((g.current / g.target) * 100), 100) : 0;
-        const isComplete = g.current >= g.target;
-        const remaining = Math.max(0, g.target - g.current);
-        const monthsToGoal = totalMonthlyAvg > 0 ? Math.ceil(remaining / totalMonthlyAvg) : 0;
-        
-        // Build monthly breakdown
-        let monthlyBreakdown = '';
-        if (months.length > 0) {
-            monthlyBreakdown = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-sec);">';
-            months.slice(-3).forEach(m => { // Show last 3 months
-                const savings = getSavingsActual(m);
-                monthlyBreakdown += `<div style="display: flex; justify-content: space-between; padding: 4px 0;"><span>${getMonthLabelShort(m)}</span><span style="color: var(--income); font-weight: 600;">+${fmt(savings)} kr</span></div>`;
-            });
-            monthlyBreakdown += '</div>';
+        const linkedItems = Array.isArray(g.linkedItems) ? g.linkedItems : [];
+        const { monthlyTotal: linkedAmount, monthlyBreakdown } = getLinkedItemsMonthlyBreakdown(linkedItems);
+        const currentAmount = (g.current || 0) + linkedAmount + (g.extra || 0);
+        const pct = g.target > 0 ? Math.min(Math.round((currentAmount / g.target) * 100), 100) : 0;
+        const isComplete = currentAmount >= g.target;
+        const remaining = Math.max(0, g.target - currentAmount);
+
+        // Average monthly from linked items, or fall back to total savings avg
+        const months = getSortedMonths();
+        const numLinkedMonths = Object.keys(monthlyBreakdown).length;
+        let avgMonthly = 0;
+        if (numLinkedMonths > 0) {
+            avgMonthly = Math.round(linkedAmount / numLinkedMonths);
+        } else if (months.length > 0) {
+            const totalSavings = months.reduce((sum, m) => sum + getSavingsActual(m), 0);
+            avgMonthly = Math.round(totalSavings / months.length);
         }
-        
+        const monthsToGoal = g.customMonthsToGoal || (avgMonthly > 0 ? Math.ceil(remaining / avgMonthly) : 0);
+
+        // Monthly breakdown display
+        let monthlyBreakdownHtml = '';
+        if (Object.keys(monthlyBreakdown).length > 0) {
+            monthlyBreakdownHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
+            Object.keys(monthlyBreakdown).sort().forEach(m => {
+                monthlyBreakdownHtml += `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">${getMonthLabelShort(m)}</span><span style="color:var(--income);font-weight:600">+${fmt(monthlyBreakdown[m])} kr</span></div>`;
+            });
+            monthlyBreakdownHtml += '</div>';
+        }
+
+        const extraValue = g.extra || 0;
+        const extraHtml = extraValue > 0
+            ? `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">Extra</span><span style="color:#60A5FA;font-weight:600">+${fmt(extraValue)} kr</span></div>`
+            : '';
+
+        const linkedDisplay = linkedItems.length > 0
+            ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:6px 8px;background:var(--bg);border-radius:6px"><strong>Länkade:</strong> ${linkedItems.join(', ')}</div>`
+            : '';
+
         return `
         <div class="goal-card">
             <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
             <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
-            ${totalMonthlyAvg > 0 ? `<div class="goal-monthly">Genomsn. ${fmt(totalMonthlyAvg)} kr/månad</div>` : ''}
+            ${linkedDisplay}
+            ${avgMonthly > 0 ? `<div class="goal-monthly">Genomsn. ${fmt(avgMonthly)} kr/månad</div>` : ''}
             <div class="goal-progress-bar">
                 <div class="goal-progress-fill" style="width: ${pct}%; background: ${g.color || '#10B981'};"></div>
             </div>
             <div class="goal-stats">
-                <div><span>Sparat:</span><div class="value">${fmt(g.current)} kr</div></div>
+                <div><span>Sparat:</span><div class="value">${fmt(currentAmount)} kr</div></div>
                 <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
-                <div><span>${isComplete ? 'Status' : 'Tidshorisont'}:</span><div class="value">${isComplete ? '✅ Klart!' : monthsToGoal + ' mån'}</div></div>
+                <div><span>${isComplete ? 'Status' : 'Tidshorisont'}:</span><div class="value">${isComplete ? '✅ Klart!' : (monthsToGoal > 0 ? monthsToGoal + ' mån' : '—')}</div></div>
             </div>
-            ${monthlyBreakdown}
+            ${monthlyBreakdownHtml}
+            ${extraHtml ? `<div style="padding:0 2px">${extraHtml}</div>` : ''}
             <div class="goal-actions">
-                <button class="btn-edit" onclick="editGoal(${idx})">✏️ Redigera</button>
+                <button class="btn-edit" onclick="openGoalModal(${idx})" style="flex:1">✏️ Redigera</button>
+                <button onclick="addGoalExtra(${idx})" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:18px;font-weight:bold;line-height:1" title="Lägg till extra sparande">+</button>
                 <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
             </div>
         </div>`;
@@ -962,17 +1034,33 @@ function openGoalModal(idx) {
     const modal = document.getElementById("goal-modal");
     document.getElementById("modal-title").textContent = editingGoalIdx >= 0 ? "Redigera sparmål" : "Nytt sparmål";
 
+    // Populate linked items checkboxes
+    const allItems = getAllSavingItemsForAnalytics();
+    const selectedItems = editingGoalIdx >= 0 ? (savingsGoals[editingGoalIdx].linkedItems || []) : [];
+    const checkboxContainer = document.getElementById("goal-items-checkboxes");
+    checkboxContainer.innerHTML = Object.keys(allItems).length === 0
+        ? '<span style="font-size:12px;color:var(--text-sec)">Inga sparandeposter funna i datan.</span>'
+        : Object.entries(allItems).map(([name]) => {
+            const safeId = `goal-item-${name.replace(/[^a-zA-Z0-9-_]/g, '-')}`;
+            return `<div style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer">
+                <input type="checkbox" id="${safeId}" value="${name}" ${selectedItems.includes(name)?'checked':''} style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
+                <label for="${safeId}" style="flex:1;cursor:pointer;font-size:13px;margin:0">${name}</label>
+            </div>`;
+        }).join('');
+
     if (editingGoalIdx >= 0) {
         const g = savingsGoals[editingGoalIdx];
         document.getElementById("goal-name").value = g.name;
         document.getElementById("goal-target").value = g.target;
         document.getElementById("goal-current").value = g.current;
         document.getElementById("goal-color").value = g.color || "#10B981";
+        document.getElementById("goal-time-horizon").value = g.customMonthsToGoal || "";
     } else {
         document.getElementById("goal-name").value = "";
         document.getElementById("goal-target").value = "";
         document.getElementById("goal-current").value = 0;
         document.getElementById("goal-color").value = "#10B981";
+        document.getElementById("goal-time-horizon").value = "";
     }
     modal.classList.add("active");
 }
@@ -987,15 +1075,20 @@ function saveGoal() {
     const target = parseFloat(document.getElementById("goal-target").value) || 0;
     const current = parseFloat(document.getElementById("goal-current").value) || 0;
     const color = document.getElementById("goal-color").value;
+    const customMonthsToGoal = parseInt(document.getElementById("goal-time-horizon").value) || 0;
+
+    const checkboxes = document.querySelectorAll("#goal-items-checkboxes input[type='checkbox']");
+    const linkedItems = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
 
     if (!name || target <= 0) {
         alert("Fyll i namn och ett målbelopp större än 0.");
         return;
     }
 
-    const goal = { name, target, current, color };
+    const goal = { name, target, current, color, linkedItems, customMonthsToGoal, extra: 0 };
 
     if (editingGoalIdx >= 0) {
+        goal.extra = savingsGoals[editingGoalIdx].extra || 0;
         savingsGoals[editingGoalIdx] = goal;
     } else {
         savingsGoals.push(goal);

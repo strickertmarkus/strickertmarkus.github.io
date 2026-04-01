@@ -1393,6 +1393,8 @@ function renderGoals() {
             : '';
         
         // Build monthly display showing each month's contribution
+        const numLinkedMonths = Object.keys(combinedMonthlyBreakdown).length;
+        const avgMonthly = numLinkedMonths > 0 ? Math.round(linkedSavedAmount / numLinkedMonths) : (g.monthly || 0);
         let monthlyDisplayText = '';
         if (Object.keys(combinedMonthlyBreakdown).length > 0) {
             const sortedMonths = Object.keys(combinedMonthlyBreakdown).sort();
@@ -1400,7 +1402,7 @@ function renderGoals() {
                 const amount = combinedMonthlyBreakdown[monthKey];
                 const monthNum = parseInt(monthKey.split('-')[1]) - 1; // "2026-03" → 2
                 const monthName = monthNames[monthNum] || monthKey;
-                return `<div style="font-size:11px;color:var(--income);font-weight:600;line-height:1.4">+${fmt(amount)} kr ${monthName}</div>`;
+                return `<div style="display:flex;justify-content:space-between;padding:1px 0;font-size:11px"><span style="color:var(--text-sec)">${monthName}</span><span style="color:var(--income);font-weight:600">+${fmt(amount)} kr</span></div>`;
             }).join('');
             monthlyDisplayText = monthlyRows;
         }
@@ -1416,6 +1418,7 @@ function renderGoals() {
             <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
             <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
             ${linkedItemsDisplay}
+            ${avgMonthly > 0 ? `<div class="goal-monthly">Genomsn. ${fmt(avgMonthly)} kr/månad</div>` : ''}
             <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%;background:${g.color||'#10B981'}"></div></div>
             <div class="goal-stats">
                 <div><span>Sparat:</span><div class="value">${fmt(currentAmount)} kr</div></div>
