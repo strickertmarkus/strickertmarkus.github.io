@@ -1254,21 +1254,19 @@ function renderGoals() {
         const monthly = g.monthly || 0;
         const monthsToGoal = monthly > 0 ? Math.ceil(remaining / monthly) : 0;
         
-        // Calculate current month and show monthly contribution from linked items
+        // Calculate current month and show monthly contribution
         const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
         const now = new Date();
         const currentMonth = monthNames[now.getMonth()];
-        const monthlyFromLinked = linkedSavedAmount > 0 ? linkedSavedAmount : 0;
-        const totalMonthly = (monthly || 0) + monthlyFromLinked;
         
         const linkedItemsDisplay = linkedItems.length > 0 
             ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">
-                <strong>Länkade utgifter (${fmt(linkedSavedAmount)} kr):</strong><br>${linkedItems.join(', ')}
+                <strong>Länkade utgifter:</strong> ${linkedItems.join(', ')}
               </div>`
             : '';
         
-        const monthlyDisplayText = totalMonthly > 0 
-            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(totalMonthly)} kr ${currentMonth}</span>`
+        const monthlyDisplayText = monthly > 0 
+            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(monthly)} kr ${currentMonth}</span>`
             : '';
         
         return `
