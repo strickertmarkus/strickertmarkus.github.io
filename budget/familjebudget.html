@@ -1158,7 +1158,7 @@ function openGoalModal(idx) {
             return `
             <div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;border-radius:6px;cursor:pointer;transition:background 0.2s;background:transparent" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
                 <input type="checkbox" id="${safeId}" value="${name}" ${selectedItems.includes(name)?'checked':''} style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
-                <label for="${safeId}" style="flex:1;cursor:pointer;font-size:13px;margin:0;word-break:break-word">${name} <span style="color:var(--text-sec);font-size:11px">(${fmt(amount)} kr)</span></label>
+                <label for="${safeId}" style="flex:1;cursor:pointer;font-size:13px;margin:0;word-break:break-word">${name}</label>
             </div>
         `}).join('');
     
@@ -1267,15 +1267,14 @@ function renderGoals() {
               </div>`
             : '';
         
-        const monthlyDisplay = totalMonthly > 0 
-            ? `<div style="font-size:13px;color:var(--income);font-weight:600;margin-bottom:8px">+${fmt(totalMonthly)} kr ${currentMonth}</div>`
+        const monthlyDisplayText = totalMonthly > 0 
+            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(totalMonthly)} kr ${currentMonth}</span>`
             : '';
         
         return `
         <div class="goal-card">
             <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
             <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
-            ${monthlyDisplay}
             ${linkedItemsDisplay}
             <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%;background:${g.color||'#10B981'}"></div></div>
             <div class="goal-stats">
@@ -1283,6 +1282,9 @@ function renderGoals() {
                 <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
                 <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
                 <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;margin-bottom:10px">
+                ${monthlyDisplayText}
             </div>
             <div class="goal-actions">
                 <button class="btn-edit" onclick="openGoalModal(${idx})">✏️ Redigera</button>
