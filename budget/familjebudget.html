@@ -1230,18 +1230,33 @@ function renderGoals() {
         return;
     }
     
-    const allItems = getAllSavingItems();
-    
     container.innerHTML = savingsGoals.map((g, idx) => {
         // Ensure linkedItems is always an array
         const linkedItems = Array.isArray(g.linkedItems) ? g.linkedItems : [];
         
-        // Calculate cumulative saved from linked items
+        // Calculate cumulative saved from linked items by reading FRESH from budget data
         let linkedSavedAmount = 0;
         if (linkedItems.length > 0) {
+            // Get fresh data from both budgets
+            const markusData = extractFromBudget("budgetTracker");
+            const majaData = extractFromBudget("budgetTracker_maja");
+            const allCurrentSavings = {};
+            
+            // Combine savings from both budgets
+            [markusData, majaData].forEach(data => {
+                if (data && data.savings) {
+                    data.savings.forEach(item => {
+                        if (!allCurrentSavings[item.name] || item.actual > (allCurrentSavings[item.name] || 0)) {
+                            allCurrentSavings[item.name] = item.actual || item.budget || 0;
+                        }
+                    });
+                }
+            });
+            
+            // Sum up linked items from fresh data
             linkedItems.forEach(itemName => {
-                if (allItems[itemName]) {
-                    linkedSavedAmount += allItems[itemName];
+                if (allCurrentSavings[itemName]) {
+                    linkedSavedAmount += allCurrentSavings[itemName];
                 }
             });
         }
