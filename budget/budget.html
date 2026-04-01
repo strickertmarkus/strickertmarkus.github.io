@@ -1736,8 +1736,11 @@ function deleteSection(sIdx) {
         const sections = getCurrentMonthSections();
         const sectionToDelete = sections[sIdx];
         sections.splice(sIdx, 1);
-        SECTIONS = SECTIONS.filter(s => s !== sectionToDelete);
-        refresh();
+        // Filter SECTIONS by key to handle template sections properly
+        if (sectionToDelete.key) {
+            SECTIONS = SECTIONS.filter(s => s.key !== sectionToDelete.key);
+        }
+        refresh();  // This will call saveLocal() internally
     }
 }
 
