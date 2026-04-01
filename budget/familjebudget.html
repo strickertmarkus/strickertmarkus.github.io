@@ -1280,10 +1280,9 @@ function renderGoals() {
               </div>`
             : '';
         
-        // Monthly display shows both manual monthly savings AND linked items contribution
-        const totalMonthlyDisplay = monthly + linkedSavedAmount;
-        const monthlyDisplayText = totalMonthlyDisplay > 0 
-            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(totalMonthlyDisplay)} kr ${currentMonth}</span>`
+        // Monthly display shows the linked items contribution
+        const monthlyDisplayText = linkedSavedAmount > 0 
+            ? `<span style="font-size:13px;color:var(--income);font-weight:600">+${fmt(linkedSavedAmount)} kr ${currentMonth}</span>`
             : '';
         
         return `
