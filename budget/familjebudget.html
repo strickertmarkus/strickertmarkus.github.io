@@ -336,9 +336,9 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <div class="section-header" onclick="toggleSection('loan')">
             <div class="section-icon" style="background: var(--house-bg); color: var(--house);">🏠</div>
             <div style="flex:1"><div class="section-title" id="heading-loan" ondblclick="editHeading(event,'loan')">Lån Översikt</div><div class="section-subtitle">Parametrar, amortering & kostnader</div></div>
-            <span class="section-chevron open" id="chevron-loan">▼</span>
+            <span class="section-chevron" id="chevron-loan">▼</span>
         </div>
-        <div class="section-body open" id="section-loan">
+        <div class="section-body" id="section-loan">
             <div class="section-inner">
                 <div class="month-selector">
                     <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
@@ -384,10 +384,10 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <div class="section-body" id="section-income">
             <div class="section-inner">
                 <div class="param-grid" id="income-grid"></div>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Utgifter exkl. hyra</h3>
+                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Gemensamma utgifter Ica Kort</h3>
                 <div class="table-wrapper"><table class="data-table" id="expenses-table"><thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th><th style="width:40px"></th></tr></thead><tbody></tbody></table></div>
                 <button class="btn-add" onclick="addExpense()">+ Lägg till utgift</button>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Huskonto</h3>
+                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Gemensamma Utgifter Huskonto</h3>
                 <div class="table-wrapper"><table class="data-table" id="huskonto-table"><thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th><th style="width:40px"></th></tr></thead><tbody></tbody></table></div>
                 <button class="btn-add" onclick="addHuskonto()">+ Lägg till post</button>
             </div>
@@ -662,7 +662,36 @@ function calcTotalHouse(loan) {
     return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno();
 }
 function getTotalIncome() {
-    return (income.markus.inkomst || 0) + (income.maja.inkomst || 0);
+    // Try to get actual income from budget pages first
+    const markusBudgetData = readBudgetData("budgetTracker");
+    const majaBudgetData = readBudgetData("budgetTracker_maja");
+    
+    let markusIncome = income.markus.inkomst || 0;
+    let majaIncome = income.maja.inkomst || 0;
+    
+    // Extract actual income from Markus budget
+    if (markusBudgetData) {
+        for (const section of markusBudgetData.sections || []) {
+            if (section.isIncome || section.key === "income") {
+                for (const item of section.items || []) {
+                    markusIncome = Math.max(markusIncome, item.actual || item.budget || 0);
+                }
+            }
+        }
+    }
+    
+    // Extract actual income from Maja budget
+    if (majaBudgetData) {
+        for (const section of majaBudgetData.sections || []) {
+            if (section.isIncome || section.key === "income") {
+                for (const item of section.items || []) {
+                    majaIncome = Math.max(majaIncome, item.actual || item.budget || 0);
+                }
+            }
+        }
+    }
+    
+    return markusIncome + majaIncome;
 }
 function getTotalExpenses() {
     return expenses.reduce((s, e) => s + (e.amount || 0), 0);
@@ -809,7 +838,7 @@ function renderKPI() {
     grid.innerHTML = `
         <div class="kpi-card"><div class="kpi-label">Huslån</div><div class="kpi-value" style="color:var(--house)">${fmt(loan)} kr</div><div class="kpi-sub">av ${fmt(loanParams.huslan)} kr</div></div>
         <div class="kpi-card"><div class="kpi-label">Ränta/mån</div><div class="kpi-value" style="color:var(--danger)">${fmt(calcMonthlyInterest(loan))} kr</div><div class="kpi-sub">Listränta ${loanParams.listranta}%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Totalt hus/mån</div><div class="kpi-value" style="color:var(--house)">${fmt(calcTotalHouse(loan))} kr</div><div class="kpi-sub">Ränta + drift + amort.</div></div>
+        <div class="kpi-card"><div class="kpi-label">Totalt hus/mån</div><div class="kpi-value" style="color:var(--transfer)">${fmt(calcTotalHouse(loan))} kr</div><div class="kpi-sub">Ränta + drift + amort.</div></div>
         <div class="kpi-card"><div class="kpi-label">Nettoinkomst</div><div class="kpi-value" style="color:var(--income)">${fmt(getTotalIncome())} kr</div><div class="kpi-sub">Markus + Maja</div></div>
         <div class="kpi-card"><div class="kpi-label">Utgifter/mån</div><div class="kpi-value" style="color:var(--expense)">${fmt(getTotalExpenses())} kr</div><div class="kpi-sub">Exkl. boende</div></div>
         <div class="kpi-card"><div class="kpi-label">Kvar/mån</div><div class="kpi-value" style="color:${getKvar(loan)>0?'var(--income)':'var(--danger)'}">${fmt(getKvar(loan))} kr</div><div class="kpi-sub">Efter alla utgifter</div></div>
@@ -878,7 +907,7 @@ function renderIncomeExpenses() {
     const ig = document.getElementById("income-grid");
     ig.innerHTML = `
         <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--markus-color)"><input class="editable-input" type="number" value="${income.markus.inkomst}" onchange="updateIncome('markus',this.value)"> kr</span></div>
-        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)"><input class="editable-input" type="number" value="${income.maja.inkomst}" onchange="updateIncome('maja',this.value)"> kr${income.maja.foraldraledig?' (FL)':''}</span></div>
+        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)"><input class="editable-input" type="number" value="${income.maja.inkomst}" onchange="updateIncome('maja',this.value)"> kr</span></div>
         <div class="param-item"><span class="param-label">Totalt</span><span class="param-value" style="color:var(--income);font-weight:800">${fmt(getTotalIncome())} kr</span></div>
     `;
 
@@ -1329,10 +1358,15 @@ function createCharts() {
 }
 
 function createSavingsChart(c) {
+    // Filter goals: only show those with linkedItems (connected to actual savings) or monthly contributions > 0
+    const activeGoals = savingsGoals.filter(g => 
+        (g.linkedItems && g.linkedItems.length > 0) || (g.monthly && g.monthly > 0)
+    );
+    
     // Simulate accumulated savings from goals - limit to months with actual budget data
-    if (savingsGoals.length === 0) {
+    if (activeGoals.length === 0) {
         savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
-            type: "bar", data: { labels: ["Inga sparmål"], datasets: [{ label: "Sparande", data: [0], backgroundColor: c.savings + "40" }] },
+            type: "bar", data: { labels: ["Inga aktiva sparmål"], datasets: [{ label: "Sparande", data: [0], backgroundColor: c.savings + "40" }] },
             options: baseOpts()
         });
         return;
@@ -1345,7 +1379,7 @@ function createSavingsChart(c) {
     const majaMonths = majaBudget ? Object.keys(JSON.parse(majaBudget).monthlyData || {}).length : 0;
     const maxMonths = Math.max(markusMonths, majaMonths, 2); // Show at least 2 months
     
-    const datasets = savingsGoals.map(g => {
+    const datasets = activeGoals.map(g => {
         const monthly = g.monthly || 0;
         const data = [];
         let acc = g.current || 0;
