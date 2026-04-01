@@ -2004,7 +2004,7 @@ function initCharts() {
             ]
         },
         options: {
-            responsive: false,
+            responsive: true,
             maintainAspectRatio: false,
             scales: {
                 x: {
@@ -2590,36 +2590,38 @@ document.addEventListener('visibilitychange', () => {
         // When page becomes visible, reinitialize charts to fix any rendering issues
         setTimeout(() => {
             try {
-                // Force complete canvas reset
+                // Completely destroy old charts and clear canvas contexts
+                if (pieChart) {
+                    pieChart.destroy();
+                    pieChart = null;
+                }
+                if (barChart) {
+                    barChart.destroy();
+                    barChart = null;
+                }
+                
+                // Clear canvas internal state by redrawing blank
                 const pieCanvas = document.getElementById("pieChart");
                 const barCanvas = document.getElementById("barChart");
                 
-                if (pieCanvas && pieCanvas.parentElement) {
-                    const pieParent = pieCanvas.parentElement;
-                    // Reset canvas as new element to clear all state
-                    const newPieCanvas = pieCanvas.cloneNode(true);
-                    pieParent.replaceChild(newPieCanvas, pieCanvas);
+                if (pieCanvas) {
+                    const pieCtx = pieCanvas.getContext('2d');
+                    if (pieCtx) {
+                        pieCtx.clearRect(0, 0, pieCanvas.width, pieCanvas.height);
+                    }
                 }
                 
-                if (barCanvas && barCanvas.parentElement) {
-                    const barParent = barCanvas.parentElement;
-                    // Reset canvas as new element to clear all state
-                    const newBarCanvas = barCanvas.cloneNode(true);
-                    barParent.replaceChild(newBarCanvas, barCanvas);
+                if (barCanvas) {
+                    const barCtx = barCanvas.getContext('2d');
+                    if (barCtx) {
+                        barCtx.clearRect(0, 0, barCanvas.width, barCanvas.height);
+                    }
                 }
                 
-                // Reinitialize charts with fresh canvases
-                initCharts();
-                
-                // Force layout recalculation and chart resize
-                setTimeout(() => {
-                    if (pieChart) {
-                        pieChart.resize();
-                    }
-                    if (barChart) {
-                        barChart.resize();
-                    }
-                }, 100);
+                // Wait a frame, then reinitialize
+                requestAnimationFrame(() => {
+                    initCharts();
+                });
             } catch(e) {
                 console.error("Error reinitializing charts on visibility change:", e);
                 // Fallback: just reinitialize normally
