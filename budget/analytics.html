@@ -189,6 +189,8 @@ html.dark-mode .header {
 .btn-del:hover { background: rgba(220,38,38,0.25); }
 .btn-extra { background: rgba(96,165,250,0.12); color: #60A5FA; }
 .btn-extra:hover { background: rgba(96,165,250,0.25); }
+.stat-netto { color: #2563EB; }
+html.dark-mode .stat-netto { color: #60A5FA; }
 .btn-add-goal {
     padding: 12px 24px;
     font-size: 14px;
@@ -510,8 +512,8 @@ function renderKPIs() {
             <div class="sub">Ackumulerat sparande</div>
         </div>
         <div class="stat-card">
-            <div class="label" style="color: #2563EB">Netto överskott</div>
-            <div class="value" style="color: #2563EB">${fmt(netSaved)} kr</div>
+            <div class="label stat-netto">Netto överskott</div>
+            <div class="value stat-netto">${fmt(netSaved)} kr</div>
             <div class="sub">Inkomster minus utgifter</div>
         </div>
         <div class="stat-card">
@@ -991,14 +993,14 @@ function renderGoals() {
         if (Object.keys(monthlyBreakdown).length > 0) {
             monthlyBreakdownHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
             Object.keys(monthlyBreakdown).sort().forEach(m => {
-                monthlyBreakdownHtml += `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">${getMonthLabelShort(m)}</span><span style="color:var(--income);font-weight:600">+${fmt(monthlyBreakdown[m])} kr</span></div>`;
+                monthlyBreakdownHtml += `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">${getMonthLabelShort(m)}</span><span style="color:${g.color||'#10B981'};font-weight:600">+${fmt(monthlyBreakdown[m])} kr</span></div>`;
             });
             monthlyBreakdownHtml += '</div>';
         }
 
         const extraValue = g.extra || 0;
         const extraHtml = extraValue > 0
-            ? `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">Extra</span><span style="color:#60A5FA;font-weight:600">+${fmt(extraValue)} kr</span></div>`
+            ? `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:11px"><span style="color:var(--text-sec)">Extra</span><span style="color:${g.color||'#10B981'};font-weight:600">+${fmt(extraValue)} kr</span></div>`
             : '';
 
         const linkedDisplay = linkedItems.length > 0
@@ -1010,7 +1012,7 @@ function renderGoals() {
             <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
             <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
             ${linkedDisplay}
-            ${avgMonthly > 0 ? `<div class="goal-monthly">Genomsn. ${fmt(avgMonthly)} kr/månad</div>` : ''}
+            ${avgMonthly > 0 ? `<div class="goal-monthly" style="color:${g.color||'#10B981'}">Genomsn. ${fmt(avgMonthly)} kr/månad</div>` : ''}
             <div class="goal-progress-bar">
                 <div class="goal-progress-fill" style="width: ${pct}%; background: ${g.color || '#10B981'};"></div>
             </div>
