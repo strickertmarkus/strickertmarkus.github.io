@@ -331,6 +331,13 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <div class="container">
     <div class="kpi-grid" id="kpi-grid"></div>
 
+    <!-- Month Selector (shared for all sections) -->
+    <div class="month-selector" style="background: var(--card); border-radius: 14px; padding: 16px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 16px;">
+        <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
+        <div class="month-display" id="loan-month-display" style="min-width: 150px; text-align: center; font-weight: 600;">Denna månad</div>
+        <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
+    </div>
+
     <!-- Loan Overview -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('loan')">
@@ -340,11 +347,6 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         </div>
         <div class="section-body" id="section-loan">
             <div class="section-inner">
-                <div class="month-selector">
-                    <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
-                    <div class="month-display" id="loan-month-display">Denna månad</div>
-                    <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
-                </div>
                 <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Låneöversikt</h3>
                 <button class="table-collapse-btn" onclick="toggleLoanParamsTable()">▼ Läs mer</button>
                 <div class="table-wrapper collapsible-table" id="static-params-wrapper"><table class="data-table" id="static-params-table"><thead><tr><th>Parameter</th><th class="num">Värde</th></tr></thead><tbody></tbody></table></div>
@@ -363,7 +365,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
             <div style="flex:1"><div class="section-title" id="heading-charts" ondblclick="editHeading(event,'charts')">Grafer</div><div class="section-subtitle">Låneutveckling, kostnader & sparande</div></div>
             <span class="section-chevron" id="chevron-charts">▼</span>
         </div>
-        <div class="section-body open" id="section-charts">
+        <div class="section-body" id="section-charts">
             <div class="section-inner">
                 <div style="margin-bottom:16px"><div class="chart-title">Huslån över tid</div><div class="chart-container"><canvas id="loanChart"></canvas></div></div>
                 <div style="margin-bottom:16px"><div class="chart-title">Månadskostnader</div><div class="chart-container"><canvas id="costChart"></canvas></div></div>
@@ -693,6 +695,22 @@ function getTotalIncome() {
     
     return markusIncome + majaIncome;
 }
+
+function getIndividualIncome(storageKey) {
+    // Get income for a specific person from their budget page
+    const budgetData = readBudgetData(storageKey);
+    if (!budgetData) return 0;
+    
+    let totalIncome = 0;
+    for (const section of budgetData.sections || []) {
+        if (section.isIncome || section.key === "income") {
+            for (const item of section.items || []) {
+                totalIncome += item.actual || item.budget || 0;
+            }
+        }
+    }
+    return totalIncome;
+}
 function getTotalExpenses() {
     return expenses.reduce((s, e) => s + (e.amount || 0), 0);
 }
@@ -905,9 +923,14 @@ function renderAmortTable() {
 // ═══════════════════════════════════════════════════════
 function renderIncomeExpenses() {
     const ig = document.getElementById("income-grid");
+    
+    // Get individual income from budget pages
+    const markusIncome = getIndividualIncome("budgetTracker");
+    const majaIncome = getIndividualIncome("budgetTracker_maja");
+    
     ig.innerHTML = `
-        <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--markus-color)"><input class="editable-input" type="number" value="${income.markus.inkomst}" onchange="updateIncome('markus',this.value)"> kr</span></div>
-        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)"><input class="editable-input" type="number" value="${income.maja.inkomst}" onchange="updateIncome('maja',this.value)"> kr</span></div>
+        <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--markus-color)">${fmt(markusIncome)} kr</span></div>
+        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)">${fmt(majaIncome)} kr</span></div>
         <div class="param-item"><span class="param-label">Totalt</span><span class="param-value" style="color:var(--income);font-weight:800">${fmt(getTotalIncome())} kr</span></div>
     `;
 
