@@ -221,6 +221,15 @@ html.dark-mode .delete-btn {
 html.dark-mode .delete-btn:hover {
     color: #EF4444;
 }
+html.dark-mode .increment-btn {
+    border-color: rgba(255,255,255,0.2) !important;
+    color: var(--text) !important;
+}
+html.dark-mode .increment-btn:hover {
+    background: rgba(96, 165, 250, 0.2) !important;
+    border-color: #60A5FA !important;
+    color: #60A5FA !important;
+}
 
 html.dark-mode .section-header:hover {
     filter: brightness(1.1);
@@ -383,7 +392,7 @@ body {
 }
 .section-title .arrow {
     font-size: 12px;
-    transition: transform 0.3s;
+    transition: transform 0.25s ease-in-out;
     opacity: 0.7;
 }
 .section-header.collapsed .arrow { transform: rotate(-90deg); }
@@ -397,7 +406,7 @@ body {
 .section-body {
     padding: 0 24px 20px;
     overflow: visible;
-    transition: max-height 0.4s ease, padding 0.3s ease;
+    transition: max-height 0.25s ease-in-out, padding 0.25s ease-in-out;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -495,13 +504,17 @@ body {
 .items-table thead th:nth-child(2),
 .items-table thead th:nth-child(3),
 .items-table thead th:nth-child(4) { text-align: right; }
+.items-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+}
+.items-table tbody tr:last-child {
+    border-bottom: none;
+}
 .items-table tbody td {
     padding: 10px 6px;
     font-size: 13px;
-    border-bottom: 1px solid #F3F4F6;
     vertical-align: middle;
 }
-.items-table tbody tr:last-child td { border-bottom: none; }
 .items-table tbody td:first-child {
     font-weight: 500;
     color: var(--text);
@@ -545,6 +558,17 @@ body {
 }
 .delete-btn:hover {
     color: #B91C1C;
+}
+.increment-btn {
+    transition: all 0.2s;
+}
+.increment-btn:hover {
+    background: var(--accent-light) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+.increment-btn:active {
+    transform: scale(0.95);
 }
 .section-title-editable {
     cursor: pointer;
@@ -1380,7 +1404,7 @@ function computeTotals() {
     sections.forEach(s => {
         if (s.isIncome) {
             totalIncome = s.items.reduce((sum, it) => sum + (it.actual || it.budget), 0);
-        } else if (s.key !== 'savings') {
+        } else {
             totalBudget += s.items.reduce((sum, it) => sum + it.budget, 0);
             totalSpent += s.items.reduce((sum, it) => sum + it.actual, 0);
         }
@@ -1526,13 +1550,16 @@ function renderSections() {
                         <span class="editable-field" onclick="editBudget(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${fmt(item.budget)}</span>
                     </td>
                     <td>
-                        <input type="number" class="item-input ${item.actual > 0 ? 'has-value' : ''}"
-                               value="${item.actual || ''}"
-                               placeholder="0"
-                               data-section="${sIdx}" data-item="${iIdx}"
-                               oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
-                               onchange="onActualChange(this)"
-                               onfocus="this.select()">
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <input type="number" class="item-input ${item.actual > 0 ? 'has-value' : ''}"
+                                   value="${item.actual || ''}"
+                                   placeholder="0"
+                                   data-section="${sIdx}" data-item="${iIdx}"
+                                   oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
+                                   onchange="onActualChange(this)"
+                                   onfocus="this.select()">
+                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde" style="width: 28px; height: 28px; padding: 4px; border: 1px solid var(--border); background: transparent; border-radius: 6px; color: var(--text); cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">+</button>
+                        </div>
                     </td>
                     ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
                 </tr>
@@ -1784,6 +1811,23 @@ function editBudget(element, sIdx, iIdx) {
         if (e.key === "Enter") saveEdit();
         if (e.key === "Escape") refresh();
     };
+}
+
+function incrementItem(sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    const item = sections[sIdx].items[iIdx];
+    const current = item.actual || 0;
+    const incrementAmount = prompt(`Lägg till värde på "${item.name}"\n(Aktuellt värde: ${current} kr)`, '');
+    
+    if (incrementAmount !== null) {
+        const amount = parseFloat(incrementAmount);
+        if (isNaN(amount)) {
+            alert('Vänligen ange ett giltigt tal');
+            return;
+        }
+        item.actual = current + amount;
+        refresh();
+    }
 }
 
 function deleteItem(sIdx, iIdx) {
