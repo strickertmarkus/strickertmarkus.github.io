@@ -610,6 +610,13 @@ function loadData() {
             checkedItems = d.checkedItems || {};
             savingsGoals = d.savingsGoals || [];
             sectionHeadings = d.sectionHeadings || {};
+            
+            // Migration: fix any goals with invalid linkedItems
+            savingsGoals = savingsGoals.map(g => ({
+                ...g,
+                linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : []
+            }));
+            
             return;
         } catch(e) { /* fall through */ }
     }
@@ -1196,7 +1203,7 @@ function saveGoal() {
             return; 
         }
         
-        const goal = { name, target, current, monthly, color, linkedItems };
+        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [] };
         if (editingGoalIdx >= 0) {
             savingsGoals[editingGoalIdx] = goal;
         } else {
@@ -1226,10 +1233,13 @@ function renderGoals() {
     const allItems = getAllSavingItems();
     
     container.innerHTML = savingsGoals.map((g, idx) => {
+        // Ensure linkedItems is always an array
+        const linkedItems = Array.isArray(g.linkedItems) ? g.linkedItems : [];
+        
         // Calculate cumulative saved from linked items
         let linkedSavedAmount = 0;
-        if (g.linkedItems && g.linkedItems.length > 0) {
-            g.linkedItems.forEach(itemName => {
+        if (linkedItems.length > 0) {
+            linkedItems.forEach(itemName => {
                 if (allItems[itemName]) {
                     linkedSavedAmount += allItems[itemName];
                 }
@@ -1237,16 +1247,16 @@ function renderGoals() {
         }
         
         // Use linked items' cumulative sum if available, otherwise use goal.current
-        const currentAmount = g.linkedItems && g.linkedItems.length > 0 ? linkedSavedAmount : g.current;
+        const currentAmount = linkedItems.length > 0 ? linkedSavedAmount : g.current;
         const pct = g.target > 0 ? Math.min(Math.round((currentAmount / g.target) * 100), 100) : 0;
         const isComplete = currentAmount >= g.target;
         const remaining = Math.max(0, g.target - currentAmount);
         const monthly = g.monthly || 0;
         const monthsToGoal = monthly > 0 ? Math.ceil(remaining / monthly) : 0;
         
-        const linkedItemsDisplay = g.linkedItems && g.linkedItems.length > 0 
+        const linkedItemsDisplay = linkedItems.length > 0 
             ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">
-                <strong>Länkade utgifter (${fmt(linkedSavedAmount)} kr):</strong><br>${g.linkedItems.join(', ')}
+                <strong>Länkade utgifter (${fmt(linkedSavedAmount)} kr):</strong><br>${linkedItems.join(', ')}
               </div>`
             : '';
         
