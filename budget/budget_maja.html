@@ -503,14 +503,16 @@ body {
 .items-table thead th:nth-child(4) { text-align: right; }
 .items-table tbody tr {
     height: 40px;
+    border-bottom: 1px solid #F3F4F6;
+}
+.items-table tbody tr:last-child {
+    border-bottom: none;
 }
 .items-table tbody td {
     padding: 10px 6px;
     font-size: 13px;
-    border-bottom: 1px solid #F3F4F6;
     vertical-align: middle;
 }
-.items-table tbody tr:last-child td { border-bottom: none; }
 .items-table tbody td:first-child {
     font-weight: 500;
     color: var(--text);
@@ -1553,7 +1555,8 @@ function renderSections() {
                         <span class="editable-field" onclick="editBudget(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${fmt(item.budget)}</span>
                     </td>
                     <td>
-                        <div style="display: flex; gap: 4px; align-items: center;">
+                        <div style="display: flex; gap: 2px; align-items: center;">
+                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde">+</button>
                             <input type="number" class="item-input ${item.actual > 0 ? 'has-value' : ''}"
                                    value="${item.actual || ''}"
                                    placeholder="0"
@@ -1561,7 +1564,6 @@ function renderSections() {
                                    oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
                                    onchange="onActualChange(this)"
                                    onfocus="this.select()">
-                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde">+</button>
                         </div>
                     </td>
                     ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
