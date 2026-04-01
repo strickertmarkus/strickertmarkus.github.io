@@ -1808,6 +1808,23 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("dark-mode-btn").textContent = "☀️";
         if (darkPref === null) localStorage.setItem("darkMode", "enabled");
     }
+    
+    // Close goal modal when clicking on the overlay (outside the modal box)
+    const goalModal = document.getElementById("goal-modal");
+    goalModal.addEventListener("click", function(e) {
+        if (e.target === goalModal) {
+            closeGoalModal();
+        }
+    });
+    
+    // Close checklist modal when clicking on the overlay (outside the modal box)
+    const checklistModal = document.getElementById("checklist-modal");
+    checklistModal.addEventListener("click", function(e) {
+        if (e.target === checklistModal) {
+            closeChecklistModal();
+        }
+    });
+    
     loadData();
     loadSectionStates();  // Restore section open/closed states
     currentTransferIdx = transfers.length - 1;

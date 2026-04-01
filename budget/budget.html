@@ -2584,13 +2584,41 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Handle page visibility change - reinitialize charts when returning to page
+// Handle page visibility change - properly reinitialize charts when returning
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // When page becomes visible, reinitialize charts to fix any rendering issues
         setTimeout(() => {
+            // Properly clean up and reset canvas elements
+            const pieCanvas = document.getElementById("pieChart");
+            const barCanvas = document.getElementById("barChart");
+            
+            // Reset canvas dimensions to force redraw
+            if (pieCanvas) {
+                const pieParent = pieCanvas.parentElement;
+                const pieWidth = pieParent.offsetWidth;
+                const pieHeight = pieParent.offsetHeight;
+                pieCanvas.width = pieWidth;
+                pieCanvas.height = pieHeight;
+            }
+            
+            if (barCanvas) {
+                const barParent = barCanvas.parentElement;
+                const barWidth = barParent.offsetWidth;
+                const barHeight = barParent.offsetHeight;
+                barCanvas.width = barWidth;
+                barCanvas.height = barHeight;
+            }
+            
+            // Reinitialize charts
             initCharts();
-        }, 100);
+            
+            // Force a chart resize after initialization
+            setTimeout(() => {
+                if (pieChart) pieChart.resize();
+                if (barChart) barChart.resize();
+            }, 200);
+        }, 150);
     }
 });
 
