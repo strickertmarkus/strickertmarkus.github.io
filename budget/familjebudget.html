@@ -162,8 +162,8 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .chart-container { position: relative; height: 300px; width: 100%; }
 
 /* ── CHECKLIST ──────────────────────────────────── */
-.checklist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
-.checklist-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; user-select: none; }
+.checklist-grid { display: flex; flex-direction: column; gap: 8px; }
+.checklist-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; user-select: none; }
 .checklist-item:hover { background: var(--accent-bg); border-color: var(--accent); }
 .checklist-item.checked { background: var(--income-bg); border-color: var(--income); }
 .checklist-item.checked .checklist-text { text-decoration: line-through; opacity: 0.6; }
