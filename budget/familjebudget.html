@@ -1016,9 +1016,9 @@ function changeLoanMonth(delta) {
 }
 
 function saveCurrentMonthToStorage() {
-    // Save the current transfer month to localStorage so other pages can sync
-    if (currentTransferIdx < transfers.length) {
-        const t = transfers[currentTransferIdx];
+    // Save the current loan month to localStorage so other pages can sync
+    if (currentLoanMonthIdx < transfers.length) {
+        const t = transfers[currentLoanMonthIdx];
         const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
         const monthNum = monthNames.indexOf(t.month) + 1;
         const monthKey = `${t.year}-${String(monthNum).padStart(2, '0')}`;
