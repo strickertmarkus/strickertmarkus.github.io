@@ -292,6 +292,13 @@ html.dark-mode .nav-dropdown-menu a:hover { background: rgba(96,165,250,0.1); }
 .nav-dropdown-menu a .nav-icon { font-size: 18px; width: 24px; text-align: center; }
 .nav-dropdown-menu a.active { background: rgba(59,109,224,0.08); color: #3B6DE0; font-weight: 600; }
 html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); color: #60A5FA; }
+
+/* Editable Headings */
+h3.editable-heading { cursor: pointer; position: relative; display: inline-block; transition: background 0.2s; padding: 2px 4px; border-radius: 4px; }
+h3.editable-heading:hover { background: rgba(59,109,224,0.08); }
+html.dark-mode h3.editable-heading:hover { background: rgba(96,165,250,0.1); }
+.heading-input { font-size: inherit; font-weight: 700; background: transparent; border: none; border-bottom: 2px solid #3B6DE0; color: var(--text); font-family: inherit; outline: none; padding: 2px 4px; }
+html.dark-mode .heading-input { border-bottom-color: #60A5FA; }
 </style>
 </head>
 <body>
@@ -322,7 +329,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); c
 
     <!-- Savings Goals (First Row) -->
     <div class="savings-goals-section">
-        <h3>Sparmål</h3>
+        <h3 id="heading-goals" class="editable-heading" ondblclick="editHeading(event,'goals')">Sparmål</h3>
         <p>Följ dina sparmål och framsteg. Belopp ackumuleras automatiskt från sparande-sektionen.</p>
         <div class="goals-grid" id="goals-container"></div>
         <button class="btn-add-goal" onclick="openGoalModal()">+ Nytt sparmål</button>
@@ -331,13 +338,13 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); c
     <!-- Charts Row -->
     <div class="grid-2">
         <div class="card">
-            <h3>Utgifter per månad</h3>
+            <h3 id="heading-monthly" class="editable-heading" ondblclick="editHeading(event,'monthly')">Utgifter per månad</h3>
             <div class="chart-wrap">
                 <canvas id="monthlySpendChart"></canvas>
             </div>
         </div>
         <div class="card">
-            <h3>Budget kontra utgifter — trend</h3>
+            <h3 id="heading-budget-vs" class="editable-heading" ondblclick="editHeading(event,'budget-vs')">Budget kontra utgifter — trend</h3>
             <div class="chart-wrap">
                 <canvas id="budgetVsActualChart"></canvas>
             </div>
@@ -346,13 +353,13 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); c
 
     <div class="grid-2">
         <div class="card">
-            <h3>Utgiftsfördelning — genomsnitt</h3>
+            <h3 id="heading-expenses-avg" class="editable-heading" ondblclick="editHeading(event,'expenses-avg')">Utgiftsfördelning — genomsnitt</h3>
             <div class="chart-wrap">
                 <canvas id="avgPieChart"></canvas>
             </div>
         </div>
         <div class="card">
-            <h3>Kategoriöversikt — alla månader</h3>
+            <h3 id="heading-category" class="editable-heading" ondblclick="editHeading(event,'category')">Kategoriöversikt — alla månader</h3>
             <div class="chart-wrap" style="height: 360px;">
                 <canvas id="categoryChart"></canvas>
             </div>
@@ -405,6 +412,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); c
 // ── DATA ─────────────────────────────────────────────────
 let monthlyData = {};
 let savingsGoals = [];
+let sectionHeadings = {};
 let editingGoalIdx = -1;
 
 const MONTH_NAMES = ["Januari","Februari","Mars","April","Maj","Juni",
@@ -441,6 +449,34 @@ function loadGoals() {
 
 function saveGoals() {
     localStorage.setItem("savingsGoals", JSON.stringify(savingsGoals));
+}
+
+function editHeading(event, id) {
+    event.stopPropagation();
+    const el = document.getElementById("heading-" + id);
+    const current = el.textContent;
+    el.innerHTML = `<input class="heading-input" value="${current}" onblur="saveHeading('${id}', this)" onkeydown="if(event.key==='Enter')this.blur()">`;
+    el.querySelector("input").focus();
+}
+
+function saveHeading(id, input) {
+    const val = input.value.trim() || id;
+    sectionHeadings[id] = val;
+    document.getElementById("heading-" + id).innerHTML = `<span ondblclick="editHeading(event,'${id}')">${val}</span>`;
+    const headingData = JSON.parse(localStorage.getItem("analyticsHeadings") || "{}");
+    headingData[id] = val;
+    localStorage.setItem("analyticsHeadings", JSON.stringify(headingData));
+}
+
+function loadHeadings() {
+    const headingData = JSON.parse(localStorage.getItem("analyticsHeadings") || "{}");
+    sectionHeadings = headingData;
+    for (const [id, heading] of Object.entries(headingData)) {
+        const el = document.getElementById("heading-" + id);
+        if (el) {
+            el.textContent = heading;
+        }
+    }
 }
 
 function getMonthLabel(key) {
@@ -1150,6 +1186,7 @@ function initDarkMode() {
 initDarkMode();
 loadData();
 loadGoals();
+loadHeadings();
 renderKPIs();
 renderGoals();
 setTimeout(renderCharts, 200);
