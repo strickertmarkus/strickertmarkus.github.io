@@ -679,19 +679,20 @@ function calcTotalHouse(loan) {
     return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno();
 }
 function getTotalIncome() {
-    // Try to get actual income from budget pages first
-    const markusBudgetData = readBudgetData("budgetTracker");
-    const majaBudgetData = readBudgetData("budgetTracker_maja");
+    // Get actual income from budget pages using the selected month
+    const selectedMonth = localStorage.getItem("selectedBudgetMonth");
+    const markusBudgetData = readBudgetData("budgetTracker", selectedMonth, false);
+    const majaBudgetData = readBudgetData("budgetTracker_maja", selectedMonth, false);
     
-    let markusIncome = income.markus.inkomst || 0;
-    let majaIncome = income.maja.inkomst || 0;
+    let markusIncome = 0;
+    let majaIncome = 0;
     
     // Extract actual income from Markus budget
     if (markusBudgetData) {
         for (const section of markusBudgetData.sections || []) {
             if (section.isIncome || section.key === "income") {
                 for (const item of section.items || []) {
-                    markusIncome = Math.max(markusIncome, item.actual || item.budget || 0);
+                    markusIncome += item.actual || item.budget || 0;
                 }
             }
         }
@@ -702,7 +703,7 @@ function getTotalIncome() {
         for (const section of majaBudgetData.sections || []) {
             if (section.isIncome || section.key === "income") {
                 for (const item of section.items || []) {
-                    majaIncome = Math.max(majaIncome, item.actual || item.budget || 0);
+                    majaIncome += item.actual || item.budget || 0;
                 }
             }
         }
@@ -712,8 +713,10 @@ function getTotalIncome() {
 }
 
 function getIndividualIncome(storageKey) {
-    // Get income for a specific person from their budget page
-    const budgetData = readBudgetData(storageKey);
+    // Get income for a specific person from their budget page for the selected month
+    // Do NOT fallback to latest month if selected month doesn't exist
+    const selectedMonth = localStorage.getItem("selectedBudgetMonth");
+    const budgetData = readBudgetData(storageKey, selectedMonth, false);
     if (!budgetData) return 0;
     
     let totalIncome = 0;
@@ -1059,7 +1062,7 @@ function renderTransferTable() {
 // ═══════════════════════════════════════════════════════
 // PERSONAL EXPENSES (from budgetTracker localStorage)
 // ═══════════════════════════════════════════════════════
-function readBudgetData(storageKey, monthKey = null) {
+function readBudgetData(storageKey, monthKey = null, allowFallback = true) {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return null;
     try {
@@ -1068,13 +1071,17 @@ function readBudgetData(storageKey, monthKey = null) {
         const months = Object.keys(data.monthlyData).sort();
         if (months.length === 0) return null;
         
-        // Use specified monthKey, or selected month from localStorage, or latest month
+        // Use specified monthKey, or selected month from localStorage
         let selectedMonth = monthKey;
         if (!selectedMonth) {
             selectedMonth = localStorage.getItem("selectedBudgetMonth");
         }
-        if (!selectedMonth || !data.monthlyData[selectedMonth]) {
-            selectedMonth = months[months.length - 1]; // fallback to latest
+        
+        // If selected month doesn't exist and fallback is disabled, return null
+        if (!data.monthlyData[selectedMonth]) {
+            if (!allowFallback) return null;
+            // Otherwise fallback to latest month
+            selectedMonth = months[months.length - 1];
         }
         
         const sections = data.monthlyData[selectedMonth].sections;
