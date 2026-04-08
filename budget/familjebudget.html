@@ -1012,49 +1012,6 @@ function changeTransferMonth(delta) {
     renderTransferTable();
 }
 
-function updateTransferValue(idx, field, value) {
-    const numVal = parseFloat(value) || 0;
-    const t = transfers[idx];
-    
-    if (field === 'majaAndel') {
-        t.majaAndel = numVal;
-        t.markusAndel = 1 - numVal;
-    } else {
-        t[field] = numVal;
-    }
-    
-    // Recalculate derived values
-    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-    t.icaMaja = Math.round(t.ica * t.majaAndel);
-    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-    t.icaMarkus = Math.round(t.ica * t.markusAndel);
-    
-    saveData();
-    renderTransferDetail();
-    renderTransferTable();
-}
-
-function editTransferCell(idx, field, value) {
-    const numVal = parseFloat(value) || 0;
-    const t = transfers[idx];
-    
-    if (field === 'majaAndel') {
-        t.majaAndel = numVal;
-        t.markusAndel = 1 - numVal;
-    } else {
-        t[field] = numVal;
-    }
-    
-    // Recalculate derived values
-    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-    t.icaMaja = Math.round(t.ica * t.majaAndel);
-    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-    t.icaMarkus = Math.round(t.ica * t.markusAndel);
-    
-    saveData();
-    renderTransferTable();
-}
-
 function deleteTransfer(idx) {
     if (transfers.length <= 1) {
         alert("Du kan inte ta bort den sista månaden");
@@ -1133,10 +1090,10 @@ function renderTransferTable() {
         const icaMarkus = Math.round(t.ica * t.markusAndel);
         return `<tr style="${isCurrent ? 'background:var(--accent-bg);font-weight:600' : ''}">
             <td>${t.month} ${t.year}</td>
-            <td class="num"><input type="number" value="${t.husutgifter}" onchange="editTransferCell(${i},'husutgifter',this.value)" style="width:80px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></td>
-            <td class="num"><input type="number" value="${t.ica}" onchange="editTransferCell(${i},'ica',this.value)" style="width:80px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></td>
-            <td class="num"><input type="number" step="0.001" value="${(t.majaAndel*100).toFixed(1)}" onchange="editTransferCell(${i},'majaAndel',this.value/100)" style="width:70px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--maja-color)"></td>
-            <td class="num"><input type="number" step="0.001" value="${(t.markusAndel*100).toFixed(1)}" onchange="editTransferCell(${i},'markusAndel',this.value/100)" style="width:70px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--markus-color)"></td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'husutgifter','number')" style="cursor:pointer">${fmt(t.husutgifter)}</td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'ica','number')" style="cursor:pointer">${fmt(t.ica)}</td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'majaAndel','percent')" style="cursor:pointer;color:var(--maja-color)">${(t.majaAndel*100).toFixed(1)}%</td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'markusAndel','percent')" style="cursor:pointer;color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
             <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
             <td class="num" style="color:var(--maja-color)">${fmt(icaMaja)}</td>
             <td class="num" style="color:var(--markus-color)">${fmt(huskontoMarkus)}</td>
@@ -1144,6 +1101,63 @@ function renderTransferTable() {
             <td style="text-align:center"><span class="checklist-delete" onclick="deleteTransfer(${i})" style="cursor:pointer">✕</span></td>
         </tr>`;
     }).join("");
+}
+
+function startEditCell(cell, idx, field, type) {
+    const t = transfers[idx];
+    let currentValue = t[field];
+    if (type === 'percent') {
+        currentValue = (currentValue * 100).toFixed(1);
+    }
+    
+    const input = document.createElement('input');
+    input.type = type === 'percent' || type === 'number' ? 'number' : 'text';
+    if (type === 'percent') input.step = '0.1';
+    input.value = currentValue;
+    input.style.width = '80px';
+    input.style.padding = '4px';
+    input.style.border = '1px solid var(--border)';
+    input.style.borderRadius = '4px';
+    input.style.background = 'var(--card)';
+    input.style.color = 'var(--text)';
+    
+    input.onblur = () => {
+        finishEditCell(idx, field, input.value, type);
+    };
+    input.onkeydown = (e) => {
+        if (e.key === 'Enter') input.blur();
+        if (e.key === 'Escape') {
+            renderTransferTable();
+        }
+    };
+    
+    cell.innerHTML = '';
+    cell.appendChild(input);
+    input.focus();
+    input.select();
+}
+
+function finishEditCell(idx, field, value, type) {
+    const numVal = parseFloat(value) || 0;
+    const t = transfers[idx];
+    
+    if (type === 'percent') {
+        t[field] = numVal / 100;
+        if (field === 'majaAndel') {
+            t.markusAndel = 1 - t.majaAndel;
+        }
+    } else {
+        t[field] = numVal;
+    }
+    
+    // Recalculate derived values
+    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
+    t.icaMaja = Math.round(t.ica * t.majaAndel);
+    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
+    t.icaMarkus = Math.round(t.ica * t.markusAndel);
+    
+    saveData();
+    renderTransferTable();
 }
 
 // ═══════════════════════════════════════════════════════
