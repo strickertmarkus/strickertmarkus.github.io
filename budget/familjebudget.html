@@ -412,11 +412,10 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
                     <div class="month-display" id="transfer-month-display"></div>
                     <button class="month-btn" onclick="changeTransferMonth(1)">›</button>
                 </div>
-                <div id="transfer-detail"></div>
-                <button class="btn-add" onclick="addNewTransfer()" style="margin-top:12px;margin-bottom:12px">+ Lägg till månad</button>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.5px">Alla månader</h3>
+                <div id="transfer-detail" style="display:none"></div>
+                <button class="btn-add" onclick="addNewTransfer()" style="margin-bottom:12px">+ Lägg till månad</button>
                 <div class="table-wrapper"><table class="data-table" id="transfer-table"><thead><tr>
-                    <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th><th class="num">Maja %</th><th class="num">Markus %</th><th class="num">Huskonto Maja</th><th class="num">ICA Maja</th><th class="num">Huskonto Markus</th><th class="num">ICA Markus</th>
+                    <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th><th class="num">Maja %</th><th class="num">Markus %</th><th class="num">Huskonto Maja</th><th class="num">ICA Maja</th><th class="num">Huskonto Markus</th><th class="num">ICA Markus</th><th style="width:30px"></th>
                 </tr></thead><tbody></tbody></table></div>
             </div>
         </div>
@@ -1035,6 +1034,43 @@ function updateTransferValue(idx, field, value) {
     renderTransferTable();
 }
 
+function editTransferCell(idx, field, value) {
+    const numVal = parseFloat(value) || 0;
+    const t = transfers[idx];
+    
+    if (field === 'majaAndel') {
+        t.majaAndel = numVal;
+        t.markusAndel = 1 - numVal;
+    } else {
+        t[field] = numVal;
+    }
+    
+    // Recalculate derived values
+    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
+    t.icaMaja = Math.round(t.ica * t.majaAndel);
+    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
+    t.icaMarkus = Math.round(t.ica * t.markusAndel);
+    
+    saveData();
+    renderTransferTable();
+}
+
+function deleteTransfer(idx) {
+    if (transfers.length <= 1) {
+        alert("Du kan inte ta bort den sista månaden");
+        return;
+    }
+    if (confirm(`Vill du ta bort ${transfers[idx].month} ${transfers[idx].year}?`)) {
+        transfers.splice(idx, 1);
+        if (currentTransferIdx >= transfers.length) {
+            currentTransferIdx = transfers.length - 1;
+        }
+        saveData();
+        renderTransferDetail();
+        renderTransferTable();
+    }
+}
+
 function addNewTransfer() {
     // Get the last month and add one month
     const lastTransfer = transfers[transfers.length - 1];
@@ -1083,47 +1119,9 @@ function saveCurrentMonthToStorage() {
 }
 
 function renderTransferDetail() {
+    // Minimal display - just show the current month in the display
     const t = transfers[currentTransferIdx];
     document.getElementById("transfer-month-display").textContent = `${t.month} ${t.year}`;
-    
-    // Calculate derived values
-    const huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-    const icaMaja = Math.round(t.ica * t.majaAndel);
-    const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-    const icaMarkus = Math.round(t.ica * t.markusAndel);
-    
-    document.getElementById("transfer-detail").innerHTML = `
-        <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:16px">
-            <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text-sec)">BASUPPGIFTER</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-                <div>
-                    <label style="display:block;font-size:12px;color:var(--text-sec);margin-bottom:4px;text-transform:uppercase">Husutgifter (kr)</label>
-                    <input type="number" value="${t.husutgifter}" onchange="updateTransferValue(${currentTransferIdx},'husutgifter',this.value)" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:14px">
-                </div>
-                <div>
-                    <label style="display:block;font-size:12px;color:var(--text-sec);margin-bottom:4px;text-transform:uppercase">ICA-kort (kr)</label>
-                    <input type="number" value="${t.ica}" onchange="updateTransferValue(${currentTransferIdx},'ica',this.value)" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:14px">
-                </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div>
-                    <label style="display:block;font-size:12px;color:var(--text-sec);margin-bottom:4px;text-transform:uppercase">Maja andel (%)</label>
-                    <input type="number" step="0.001" value="${(t.majaAndel*100).toFixed(1)}" onchange="updateTransferValue(${currentTransferIdx},'majaAndel',this.value/100)" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:14px">
-                </div>
-                <div>
-                    <label style="display:block;font-size:12px;color:var(--text-sec);margin-bottom:4px;text-transform:uppercase">Markus andel (%)</label>
-                    <input type="number" step="0.001" value="${(t.markusAndel*100).toFixed(1)}" onchange="updateTransferValue(${currentTransferIdx},'markusAndel',this.value/100)" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:14px">
-                </div>
-            </div>
-        </div>
-        <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:20px 0 12px;text-transform:uppercase;letter-spacing:.5px">BERÄKNADE ÖVERFÖRINGAR</h3>
-        <div class="transfer-grid-4">
-            <div class="transfer-card maja-hus"><div class="transfer-label">Maja → Huskonto</div><div class="transfer-value" style="color:var(--maja-color)">${fmt(huskontoMaja)} kr</div><div class="transfer-sub">${fmtPct(t.majaAndel)} andel</div></div>
-            <div class="transfer-card maja-ica"><div class="transfer-label">Maja → ICA</div><div class="transfer-value" style="color:var(--maja-color)">${fmt(icaMaja)} kr</div></div>
-            <div class="transfer-card markus-hus"><div class="transfer-label">Markus → Huskonto</div><div class="transfer-value" style="color:var(--markus-color)">${fmt(huskontoMarkus)} kr</div><div class="transfer-sub">${fmtPct(t.markusAndel)} andel</div></div>
-            <div class="transfer-card markus-ica"><div class="transfer-label">Markus → ICA</div><div class="transfer-value" style="color:var(--markus-color)">${fmt(icaMarkus)} kr</div></div>
-        </div>
-    `;
 }
 
 function renderTransferTable() {
@@ -1134,11 +1132,16 @@ function renderTransferTable() {
         const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
         const icaMarkus = Math.round(t.ica * t.markusAndel);
         return `<tr style="${isCurrent ? 'background:var(--accent-bg);font-weight:600' : ''}">
-            <td>${t.month} ${t.year}</td><td class="num">${fmt(t.husutgifter)}</td><td class="num">${fmt(t.ica)}</td>
-            <td class="num" style="color:var(--maja-color)">${fmtPct(t.majaAndel)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmtPct(t.markusAndel)}</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td><td class="num" style="color:var(--maja-color)">${fmt(icaMaja)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(huskontoMarkus)}</td><td class="num" style="color:var(--markus-color)">${fmt(icaMarkus)}</td>
+            <td>${t.month} ${t.year}</td>
+            <td class="num"><input type="number" value="${t.husutgifter}" onchange="editTransferCell(${i},'husutgifter',this.value)" style="width:80px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></td>
+            <td class="num"><input type="number" value="${t.ica}" onchange="editTransferCell(${i},'ica',this.value)" style="width:80px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text)"></td>
+            <td class="num"><input type="number" step="0.001" value="${(t.majaAndel*100).toFixed(1)}" onchange="editTransferCell(${i},'majaAndel',this.value/100)" style="width:70px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--maja-color)"></td>
+            <td class="num"><input type="number" step="0.001" value="${(t.markusAndel*100).toFixed(1)}" onchange="editTransferCell(${i},'markusAndel',this.value/100)" style="width:70px;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--markus-color)"></td>
+            <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
+            <td class="num" style="color:var(--maja-color)">${fmt(icaMaja)}</td>
+            <td class="num" style="color:var(--markus-color)">${fmt(huskontoMarkus)}</td>
+            <td class="num" style="color:var(--markus-color)">${fmt(icaMarkus)}</td>
+            <td style="text-align:center"><span class="checklist-delete" onclick="deleteTransfer(${i})" style="cursor:pointer">✕</span></td>
         </tr>`;
     }).join("");
 }
