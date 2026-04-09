@@ -713,6 +713,83 @@ function getTotalIncome() {
     return markusIncome + majaIncome;
 }
 
+function getYearMeanIncome(yearNumber) {
+    // Calculate mean income for all 12 months of a given year
+    // Year 1 = months 1-12, Year 2 = months 13-24, etc.
+    const raw = localStorage.getItem("familjebudget_data");
+    if (!raw) return getTotalIncome();
+    try {
+        const data = JSON.parse(raw);
+        if (!data.transfers || data.transfers.length === 0) return getTotalIncome();
+        
+        // Get the starting month from transfers (e.g., "April 2025")
+        const firstTransfer = data.transfers[0];
+        const monthNames = ["Januari","Februari","Mars","April","Maj","Juni","Juli","Augusti","September","Oktober","November","December"];
+        const startMonthIdx = monthNames.indexOf(firstTransfer.month); // 0-11
+        const startYear = firstTransfer.year;
+        
+        // Calculate which 12 months belong to this year number
+        const startMonthAbsolute = (yearNumber - 1) * 12; // 0-indexed month offset from first transfer
+        const monthsToCheck = [];
+        
+        for (let i = 0; i < 12; i++) {
+            const monthOffset = startMonthAbsolute + i;
+            let actualMonthIdx = (startMonthIdx + monthOffset) % 12;
+            let actualYear = startYear + Math.floor((startMonthIdx + monthOffset) / 12);
+            const monthStr = String(actualMonthIdx + 1).padStart(2, '0'); // Convert to 1-indexed month
+            const monthKey = `${actualYear}-${monthStr}`;
+            monthsToCheck.push(monthKey);
+        }
+        
+        // Get all months from budgetTracker
+        let totalIncome = 0;
+        let incomeCount = 0;
+        
+        const markusRaw = localStorage.getItem("budgetTracker");
+        const majaRaw = localStorage.getItem("budgetTracker_maja");
+        const markusBudget = markusRaw ? JSON.parse(markusRaw) : null;
+        const majaBudget = majaRaw ? JSON.parse(majaRaw) : null;
+        
+        for (const monthKey of monthsToCheck) {
+            let monthIncome = 0;
+            
+            // Get Markus income for this month
+            if (markusBudget && markusBudget.monthlyData && markusBudget.monthlyData[monthKey]) {
+                const sections = markusBudget.monthlyData[monthKey].sections || [];
+                for (const section of sections) {
+                    if (section.isIncome || section.key === "income") {
+                        for (const item of section.items || []) {
+                            monthIncome += item.actual || item.budget || 0;
+                        }
+                    }
+                }
+            }
+            
+            // Get Maja income for this month
+            if (majaBudget && majaBudget.monthlyData && majaBudget.monthlyData[monthKey]) {
+                const sections = majaBudget.monthlyData[monthKey].sections || [];
+                for (const section of sections) {
+                    if (section.isIncome || section.key === "income") {
+                        for (const item of section.items || []) {
+                            monthIncome += item.actual || item.budget || 0;
+                        }
+                    }
+                }
+            }
+            
+            if (monthIncome > 0) {
+                totalIncome += monthIncome;
+                incomeCount++;
+            }
+        }
+        
+        // Return mean income, or fallback to current income if no data found
+        return incomeCount > 0 ? Math.round(totalIncome / 12) : getTotalIncome();
+    } catch (e) {
+        return getTotalIncome();
+    }
+}
+
 function getIndividualIncome(storageKey) {
     // Get income for a specific person from their budget page for the selected month
     // Do NOT fallback to latest month if selected month doesn't exist
@@ -774,7 +851,9 @@ function generateAmortTable() {
         const reno = calcReno();
         const totalHouse = interest + drift + amort + reno;
         const totalOut = totalHouse + getTotalExpenses() + getTotalHuskonto();
-        const left = getTotalIncome() - totalOut;
+        // Use yearly mean income instead of current month income
+        const yearlyMeanIncome = getYearMeanIncome(yr);
+        const left = yearlyMeanIncome - totalOut;
         rows.push({ year: yr, loan: simLoan, interest, drift, amort, reno, totalHouse, left });
         if (simLoan <= 0) break;
     }

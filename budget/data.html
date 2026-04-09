@@ -382,7 +382,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                 </div>
                 <div class="table-wrapper">
                     <table class="data-table" id="goals-table">
-                        <thead><tr><th>Namn</th><th class="num">Mål (kr)</th><th class="num">Nuvarande (kr)</th><th class="num">Månatligt (kr)</th><th class="num">Extra (kr)</th><th>Färg</th><th>Länkade poster</th><th style="width:60px"></th></tr></thead>
+                        <thead><tr><th>Namn</th><th class="num">Mål (kr)</th><th class="num">Nuvarande (kr)</th><th class="num">Månatligt (kr)</th><th class="num">Extra (kr)</th><th>Färg</th><th>Länkade poster</th><th class="num">Kvar (kr)</th><th class="num">Månader</th><th class="num">Framsteg %</th><th style="width:60px"></th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -760,6 +760,7 @@ function renderChecklist() {
 function updateChecklist(i, field, value) {
     checklistItems[i][field] = value;
     saveData();
+    renderChecklist();
 }
 
 function addChecklistItem() {
@@ -786,8 +787,11 @@ function deleteChecklist(i) {
 // RENDER SAVINGS GOALS
 // ═══════════════════════════════════════════════════════
 function renderGoals() {
-    document.querySelector("#goals-table tbody").innerHTML = savingsGoals.map((g, i) => `
-        <tr>
+    document.querySelector("#goals-table tbody").innerHTML = savingsGoals.map((g, i) => {
+        const kvar = Math.max(0, g.target - (g.current || 0) - (g.extra || 0));
+        const monthsLeft = g.monthly > 0 ? Math.ceil(kvar / g.monthly) : (kvar > 0 ? "∞" : "0");
+        const progress = g.target > 0 ? Math.round(((g.current || 0) + (g.extra || 0)) / g.target * 100) : 0;
+        return `<tr>
             <td><input class="editable-input editable-input-med" type="text" value="${g.name}" onchange="updateGoal(${i},'name',this.value)"></td>
             <td class="num"><input class="editable-input" type="number" value="${g.target}" onchange="updateGoal(${i},'target',this.value)"></td>
             <td class="num"><input class="editable-input" type="number" value="${g.current}" onchange="updateGoal(${i},'current',this.value)"></td>
@@ -795,9 +799,12 @@ function renderGoals() {
             <td class="num"><input class="editable-input" type="number" value="${g.extra || 0}" onchange="updateGoal(${i},'extra',this.value)"></td>
             <td><input class="editable-input" type="color" value="${g.color || '#10B981'}" onchange="updateGoal(${i},'color',this.value)" style="width:40px;height:28px;padding:2px;cursor:pointer"></td>
             <td><input class="editable-input editable-input-med" type="text" value="${(g.linkedItems||[]).join(', ')}" onchange="updateGoalLinked(${i},this.value)" placeholder="Post1, Post2"></td>
+            <td class="formula-result num" style="font-size:12px;color:var(--accent)">${fmt(kvar)} kr</td>
+            <td class="formula-result num" style="font-size:12px">${monthsLeft}</td>
+            <td class="formula-result num" style="font-size:12px;color:var(--income)">${progress}%</td>
             <td class="delete-cell" onclick="deleteGoal(${i})">✕</td>
-        </tr>
-    `).join("");
+        </tr>`;
+    }).join("");
 }
 
 function updateGoal(i, field, value) {
@@ -807,11 +814,13 @@ function updateGoal(i, field, value) {
         savingsGoals[i][field] = value;
     }
     saveData();
+    renderGoals();
 }
 
 function updateGoalLinked(i, value) {
     savingsGoals[i].linkedItems = value.split(',').map(s => s.trim()).filter(Boolean);
     saveData();
+    renderGoals();
 }
 
 function addGoal() {
