@@ -714,8 +714,9 @@ function getTotalIncome() {
 }
 
 function getYearMeanIncome(yearNumber) {
-    // Calculate mean income for all 12 months of a given year
+    // Calculate mean income for months that exist in a given year
     // Year 1 = months 1-12, Year 2 = months 13-24, etc.
+    // Only averages the months that actually have data
     const raw = localStorage.getItem("familjebudget_data");
     if (!raw) return getTotalIncome();
     try {
@@ -752,9 +753,11 @@ function getYearMeanIncome(yearNumber) {
         
         for (const monthKey of monthsToCheck) {
             let monthIncome = 0;
+            let monthHasData = false;
             
             // Get Markus income for this month
             if (markusBudget && markusBudget.monthlyData && markusBudget.monthlyData[monthKey]) {
+                monthHasData = true;
                 const sections = markusBudget.monthlyData[monthKey].sections || [];
                 for (const section of sections) {
                     if (section.isIncome || section.key === "income") {
@@ -767,6 +770,7 @@ function getYearMeanIncome(yearNumber) {
             
             // Get Maja income for this month
             if (majaBudget && majaBudget.monthlyData && majaBudget.monthlyData[monthKey]) {
+                monthHasData = true;
                 const sections = majaBudget.monthlyData[monthKey].sections || [];
                 for (const section of sections) {
                     if (section.isIncome || section.key === "income") {
@@ -777,14 +781,15 @@ function getYearMeanIncome(yearNumber) {
                 }
             }
             
-            if (monthIncome > 0) {
+            // Only count months that have data (even if income is 0)
+            if (monthHasData) {
                 totalIncome += monthIncome;
                 incomeCount++;
             }
         }
         
-        // Return mean income, or fallback to current income if no data found
-        return incomeCount > 0 ? Math.round(totalIncome / 12) : getTotalIncome();
+        // Return mean income based on actual months with data, or fallback to current income if no data found
+        return incomeCount > 0 ? Math.round(totalIncome / incomeCount) : getTotalIncome();
     } catch (e) {
         return getTotalIncome();
     }
