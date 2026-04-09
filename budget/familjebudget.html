@@ -795,6 +795,107 @@ function getYearMeanIncome(yearNumber) {
     }
 }
 
+function getOverallMeanIncome() {
+    // Calculate mean income across ALL available months in budgetTracker
+    // Used for stable long-term chart projections (doesn't change when switching months)
+    try {
+        const markusRaw = localStorage.getItem("budgetTracker");
+        const majaRaw = localStorage.getItem("budgetTracker_maja");
+        const markusBudget = markusRaw ? JSON.parse(markusRaw) : null;
+        const majaBudget = majaRaw ? JSON.parse(majaRaw) : null;
+        
+        let totalIncome = 0;
+        let monthCount = 0;
+        const processedMonths = new Set();
+        
+        // Process all months from Markus budget
+        if (markusBudget && markusBudget.monthlyData) {
+            for (const monthKey of Object.keys(markusBudget.monthlyData)) {
+                if (processedMonths.has(monthKey)) continue;
+                processedMonths.add(monthKey);
+                
+                let monthIncome = 0;
+                const sections = markusBudget.monthlyData[monthKey].sections || [];
+                for (const section of sections) {
+                    if (section.isIncome || section.key === "income") {
+                        for (const item of section.items || []) {
+                            monthIncome += item.actual || item.budget || 0;
+                        }
+                    }
+                }
+                
+                // Also add Maja income for this month if available
+                if (majaBudget && majaBudget.monthlyData && majaBudget.monthlyData[monthKey]) {
+                    const majaSections = majaBudget.monthlyData[monthKey].sections || [];
+                    for (const section of majaSections) {
+                        if (section.isIncome || section.key === "income") {
+                            for (const item of section.items || []) {
+                                monthIncome += item.actual || item.budget || 0;
+                            }
+                        }
+                    }
+                } else if (majaBudget && majaBudget.monthlyData) {
+                    // Maja might have data that Markus doesn't, add separately
+                    const majaSections = majaBudget.monthlyData[monthKey]?.sections || [];
+                    for (const section of majaSections) {
+                        if (section.isIncome || section.key === "income") {
+                            for (const item of section.items || []) {
+                                monthIncome += item.actual || item.budget || 0;
+                            }
+                        }
+                    }
+                }
+                
+                totalIncome += monthIncome;
+                monthCount++;
+            }
+        }
+        
+        // Also check for any months only in Maja budget
+        if (majaBudget && majaBudget.monthlyData) {
+            for (const monthKey of Object.keys(majaBudget.monthlyData)) {
+                if (processedMonths.has(monthKey)) continue;
+                processedMonths.add(monthKey);
+                
+                let monthIncome = 0;
+                const sections = majaBudget.monthlyData[monthKey].sections || [];
+                for (const section of sections) {
+                    if (section.isIncome || section.key === "income") {
+                        for (const item of section.items || []) {
+                            monthIncome += item.actual || item.budget || 0;
+                        }
+                    }
+                }
+                
+                totalIncome += monthIncome;
+                monthCount++;
+            }
+        }
+        
+        // Return mean, or fallback to data.html defaults if no months found
+        if (monthCount > 0) {
+            return Math.round(totalIncome / monthCount);
+        }
+    } catch (e) {
+        // Fall through to default
+    }
+    
+    // Fallback to data.html default income
+    try {
+        const raw = localStorage.getItem("familjebudget_data");
+        if (raw) {
+            const data = JSON.parse(raw);
+            if (data.income) {
+                return (data.income.markus?.inkomst || 0) + (data.income.maja?.inkomst || 0);
+            }
+        }
+    } catch (e) {
+        // Fall through
+    }
+    
+    return 49800; // Last resort default (based on your data)
+}
+
 function getIndividualIncome(storageKey) {
     // Get income for a specific person from their budget page for the selected month
     // Do NOT fallback to latest month if selected month doesn't exist
@@ -869,6 +970,7 @@ function generateAmortTable() {
 function generateChartData() {
     const data = [];
     let simLoan = loanParams.huslan;
+    const stableIncome = getOverallMeanIncome(); // Use stable mean income so chart doesn't change with month selection
     for (let m = 1; m <= 300; m++) {
         if (m === 1 || m % 12 === 1) {
             data.push({
@@ -876,7 +978,7 @@ function generateChartData() {
                 loan: simLoan,
                 interest: calcMonthlyInterest(simLoan),
                 totalHouse: calcTotalHouse(simLoan),
-                left: getTotalIncome() - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
+                left: stableIncome - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
             });
         }
         simLoan -= calcAmort(simLoan);
@@ -886,15 +988,17 @@ function generateChartData() {
 }
 
 // Generate monthly chart data for cost and left charts (all 300 months)
+// Uses stable overall mean income so graph doesn't change when switching months
 function generateMonthlyChartData() {
     const data = [];
     let simLoan = loanParams.huslan;
+    const stableIncome = getOverallMeanIncome(); // Use stable mean income for entire projection
     for (let m = 1; m <= 300; m++) {
         data.push({
             month: m,
             interest: calcMonthlyInterest(simLoan),
             totalHouse: calcTotalHouse(simLoan),
-            left: getTotalIncome() - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
+            left: stableIncome - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
         });
         simLoan -= calcAmort(simLoan);
         if (simLoan < 0) simLoan = 0;
