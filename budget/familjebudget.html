@@ -939,10 +939,12 @@ function getLoanAtMonth(monthIdx) {
 }
 
 // Generate amortization table dynamically
+// Uses stable overall mean income so table doesn't change when switching months
 function generateAmortTable() {
     const rows = [];
     let loan = loanParams.huslan;
     const years = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+    const stableIncome = getOverallMeanIncome(); // Use overall mean income for stability
     for (const yr of years) {
         const month = (yr - 1) * 12 + 1;
         // Simulate amortization to this month
@@ -957,9 +959,8 @@ function generateAmortTable() {
         const reno = calcReno();
         const totalHouse = interest + drift + amort + reno;
         const totalOut = totalHouse + getTotalExpenses() + getTotalHuskonto();
-        // Use yearly mean income instead of current month income
-        const yearlyMeanIncome = getYearMeanIncome(yr);
-        const left = yearlyMeanIncome - totalOut;
+        // Use stable overall mean income
+        const left = stableIncome - totalOut;
         rows.push({ year: yr, loan: simLoan, interest, drift, amort, reno, totalHouse, left });
         if (simLoan <= 0) break;
     }
