@@ -162,14 +162,18 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .chart-container { position: relative; height: 300px; width: 100%; }
 
 /* ── CHECKLIST ──────────────────────────────────── */
-.checklist-grid { display: flex; flex-direction: column; gap: 8px; }
-.checklist-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; user-select: none; }
-.checklist-item:hover { background: var(--accent-bg); border-color: var(--accent); }
-.checklist-item.checked { background: var(--income-bg); border-color: var(--income); }
+.checklist-grid { display: flex; flex-direction: column; gap: 0; }
+.checklist-category-header { padding: 12px 14px 8px; margin-top: 12px; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+.checklist-category-total { font-size: 12px; font-weight: 400; color: var(--text-sec); text-transform: none; letter-spacing: normal; }
+.checklist-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; user-select: none; }
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item:hover { background: var(--accent-bg); }
+.checklist-item.checked { background: var(--income-bg); }
 .checklist-item.checked .checklist-text { text-decoration: line-through; opacity: 0.6; }
 .checklist-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; transition: all 0.2s; }
 .checklist-item.checked .checklist-check { background: var(--income); border-color: var(--income); color: white; }
 .checklist-text { font-size: 14px; flex: 1; }
+.checklist-price { font-size: 13px; color: var(--text-sec); font-weight: 500; min-width: 70px; text-align: right; margin-right: 8px; }
 .checklist-link { font-size: 12px; color: var(--accent); text-decoration: none; }
 .checklist-link:hover { text-decoration: underline; }
 .checklist-progress { margin-bottom: 16px; text-align: center; }
@@ -513,6 +517,24 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <h3>Lägg till sak</h3>
         <label>Namn</label>
         <input type="text" id="checklist-new-name" placeholder="t.ex. Robotdammsugare">
+        <label>Kategori</label>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+            <select id="checklist-new-category" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--text)">
+                <option value="">-- Välj kategori --</option>
+                <option value="Kök">Kök</option>
+                <option value="Möbler">Möbler</option>
+                <option value="Förvaring">Förvaring</option>
+                <option value="Belysning">Belysning</option>
+                <option value="Dörrar">Dörrar</option>
+                <option value="Verktygsvara">Verktygsvara</option>
+                <option value="Altan/Trädgård">Altan/Trädgård</option>
+                <option value="Övrigt">Övrigt</option>
+                <option value="custom">-- Anpassad kategori --</option>
+            </select>
+            <input type="text" id="checklist-new-category-custom" placeholder="Egen kategori" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--text);display:none" />
+        </div>
+        <label>Pris (kr)</label>
+        <input type="number" id="checklist-new-price" placeholder="0" min="0" step="50" style="margin-bottom:12px">
         <label>Länk (valfritt)</label>
         <input type="url" id="checklist-new-link" placeholder="https://...">
         <div class="modal-buttons">
@@ -579,17 +601,46 @@ const DEFAULT_TRANSFERS = [
     { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
 ];
 
+const DEFAULT_CHECKLIST_CATEGORIES = ["Kök", "Möbler", "Förvaring", "Belysning", "Dörrar", "Verktygsvara", "Altan/Trädgård", "Övrigt"];
+
 const DEFAULT_CHECKLIST = [
-    { name:"Ved", link:"https://www.jula.se/catalog/bygg-och-farg/varme-och-ventilation/kaminer-och-oppna-spisar/fasta-branslen/ved-023627/" },
-    { name:"Grindar" },{ name:"Lampor" },{ name:"Stege" },{ name:"Säkringar" },{ name:"Mattor" },
-    { name:"Förvaringslådor inne" },{ name:"Förvaring garage" },{ name:"Krokar" },{ name:"Robotdammsugare" },
-    { name:"Robotgräsklippare" },{ name:"Snöskyffel" },{ name:"Skruvar/muttrar" },{ name:"Förvaring kök" },
-    { name:"Såg" },{ name:"Sladdlister" },{ name:"Grill" },{ name:"Gasolvärmare altan" },{ name:"Lampknappar" },
-    { name:"Dörr till sovrum uppe" },{ name:"Vägguttag" },{ name:"Blandare badrum" },{ name:"Tvåsitssoffa hall uppe" },
-    { name:"Nya köksredskap (slevar etc.)" },{ name:"Bra skärbräda i trä" },{ name:"Minst en bra kniv" },
-    { name:"Knivslip" },{ name:"Nya saxar" },{ name:"Dörrar övervåning" },{ name:"Garderobsdörrar" },
-    { name:"Matbord kök (runt)" },{ name:"Matbord matsal" },{ name:"Puffar ovanvåning" },{ name:"TV" },
-    { name:"Stekpanna rostfritt stål" },{ name:"Elvisp" },{ name:"TV-bänk" }
+    { name:"Stekpanna rostfritt stål", category:"Kök", price:0 },
+    { name:"Bra skärbräda i trä", category:"Kök", price:0 },
+    { name:"Minst en bra kniv", category:"Kök", price:0 },
+    { name:"Nya köksredskap (slevar etc.)", category:"Kök", price:0 },
+    { name:"Knivslip", category:"Kök", price:0 },
+    { name:"Nya saxar", category:"Kök", price:0 },
+    { name:"Elvisp", category:"Kök", price:0 },
+    { name:"Förvaring kök", category:"Förvaring", price:0 },
+    { name:"Förvaringslådor inne", category:"Förvaring", price:0 },
+    { name:"Förvaring garage", category:"Förvaring", price:0 },
+    { name:"Matbord kök (runt)", category:"Möbler", price:0 },
+    { name:"Matbord matsal", category:"Möbler", price:0 },
+    { name:"TV-bänk", category:"Möbler", price:0 },
+    { name:"Tvåsitssoffa hall uppe", category:"Möbler", price:0 },
+    { name:"Puffar ovanvåning", category:"Möbler", price:0 },
+    { name:"TV", category:"Möbler", price:0 },
+    { name:"Lampor", category:"Belysning", price:0 },
+    { name:"Lampknappar", category:"Belysning", price:0 },
+    { name:"Dörr till sovrum uppe", category:"Dörrar", price:0 },
+    { name:"Dörrar övervåning", category:"Dörrar", price:0 },
+    { name:"Garderobsdörrar", category:"Dörrar", price:0 },
+    { name:"Blandare badrum", category:"Övrigt", price:0 },
+    { name:"Vägguttag", category:"Övrigt", price:0 },
+    { name:"Säkringar", category:"Övrigt", price:0 },
+    { name:"Mattor", category:"Övrigt", price:0 },
+    { name:"Krokar", category:"Övrigt", price:0 },
+    { name:"Robotdammsugare", category:"Övrigt", price:0 },
+    { name:"Robotgräsklippare", category:"Övrigt", price:0 },
+    { name:"Snöskyffel", category:"Övrigt", price:0 },
+    { name:"Skruvar/muttrar", category:"Verktygsvara", price:0 },
+    { name:"Såg", category:"Verktygsvara", price:0 },
+    { name:"Stege", category:"Verktygsvara", price:0 },
+    { name:"Sladdlister", category:"Övrigt", price:0 },
+    { name:"Grill", category:"Altan/Trädgård", price:0 },
+    { name:"Gasolvärmare altan", category:"Altan/Trädgård", price:0 },
+    { name:"Ved", category:"Övrigt", price:0, link:"https://www.jula.se/catalog/bygg-och-farg/varme-och-ventilation/kaminer-och-oppna-spisar/fasta-branslen/ved-023627/" },
+    { name:"Grindar", category:"Övrigt", price:0 }
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -1746,15 +1797,45 @@ function renderChecklist() {
     const checked = Object.keys(checkedItems).filter(k => checkedItems[k]).length;
     document.getElementById("checklist-progress").innerHTML = `<span style="font-size:14px;font-weight:600">${checked} av ${total} klart</span><div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:${total>0?(checked/total*100):0}%"></div></div>`;
     document.getElementById("checklist-subtitle").textContent = `${checked}/${total} klart`;
-    grid.innerHTML = checklistItems.map((item, i) => {
-        const isChecked = checkedItems[i];
-        return `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})">
-            <div class="checklist-check">${isChecked?'✓':''}</div>
-            <span class="checklist-text">${item.name}</span>
-            ${item.link?`<a class="checklist-link" href="${item.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>`:''}
-            <span class="checklist-delete" onclick="event.stopPropagation();deleteChecklistItem(${i})">✕</span>
-        </div>`;
-    }).join("");
+    
+    // Group items by category
+    const grouped = {};
+    checklistItems.forEach((item, i) => {
+        const category = item.category || "Övrigt";
+        if (!grouped[category]) grouped[category] = [];
+        grouped[category].push({ item, index: i });
+    });
+    
+    // Build HTML with category headers
+    let html = "";
+    const categories = DEFAULT_CHECKLIST_CATEGORIES.filter(cat => grouped[cat]).concat(
+        Object.keys(grouped).filter(cat => !DEFAULT_CHECKLIST_CATEGORIES.includes(cat)).sort()
+    );
+    
+    for (const category of categories) {
+        const items = grouped[category];
+        const categoryTotal = items.reduce((sum, {item}) => sum + (item.price || 0), 0);
+        
+        html += `<div class="checklist-category-header">`;
+        html += `<span>${category}</span>`;
+        if (categoryTotal > 0) {
+            html += `<span class="checklist-category-total">${fmt(categoryTotal)} kr</span>`;
+        }
+        html += `</div>`;
+        
+        for (const {item, index: i} of items) {
+            const isChecked = checkedItems[i];
+            html += `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})">
+                <div class="checklist-check">${isChecked?'✓':''}</div>
+                <span class="checklist-text">${item.name}</span>
+                ${item.price > 0 ? `<span class="checklist-price">${fmt(item.price)} kr</span>` : ''}
+                ${item.link?`<a class="checklist-link" href="${item.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>`:''}
+                <span class="checklist-delete" onclick="event.stopPropagation();deleteChecklistItem(${i})">✕</span>
+            </div>`;
+        }
+    }
+    
+    grid.innerHTML = html;
 }
 function toggleCheckItem(i) { checkedItems[i] = !checkedItems[i]; saveData(); renderChecklist(); }
 function deleteChecklistItem(i) {
@@ -1769,20 +1850,39 @@ function deleteChecklistItem(i) {
     checkedItems = newChecked;
     saveData(); renderChecklist();
 }
-function addChecklistItem() { document.getElementById("checklist-modal").classList.add("active"); }
+function addChecklistItem() {
+    document.getElementById("checklist-modal").classList.add("active");
+    document.getElementById("checklist-new-category").value = "";
+    document.getElementById("checklist-new-category-custom").style.display = "none";
+}
 function closeChecklistModal() {
     document.getElementById("checklist-modal").classList.remove("active");
     document.getElementById("checklist-new-name").value = "";
+    document.getElementById("checklist-new-category").value = "";
+    document.getElementById("checklist-new-category-custom").value = "";
+    document.getElementById("checklist-new-category-custom").style.display = "none";
+    document.getElementById("checklist-new-price").value = "";
     document.getElementById("checklist-new-link").value = "";
 }
 function saveChecklistItem() {
     const name = document.getElementById("checklist-new-name").value.trim();
     if (!name) { alert("Fyll i ett namn."); return; }
+    
+    let category = document.getElementById("checklist-new-category").value.trim();
+    if (category === "custom") {
+        category = document.getElementById("checklist-new-category-custom").value.trim();
+        if (!category) { alert("Fyll i kategorinamn."); return; }
+    }
+    if (!category) category = "Övrigt";
+    
+    const price = parseInt(document.getElementById("checklist-new-price").value) || 0;
     const link = document.getElementById("checklist-new-link").value.trim();
-    checklistItems.push({ name, link: link || undefined });
+    
+    checklistItems.push({ name, category, price, link: link || undefined });
     saveData(); renderChecklist(); closeChecklistModal();
 }
 
+// Handle category select change
 // ═══════════════════════════════════════════════════════
 // CHARTS
 // ═══════════════════════════════════════════════════════
@@ -2122,6 +2222,15 @@ document.addEventListener("DOMContentLoaded", function() {
             closeChecklistModal();
         }
     });
+    
+    // Handle category select change for checklist
+    const categorySelect = document.getElementById("checklist-new-category");
+    const customInput = document.getElementById("checklist-new-category-custom");
+    if (categorySelect) {
+        categorySelect.addEventListener("change", function() {
+            customInput.style.display = this.value === "custom" ? "block" : "none";
+        });
+    }
     
     loadData();
     loadSectionStates();  // Restore section open/closed states
