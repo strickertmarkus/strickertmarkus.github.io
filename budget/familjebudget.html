@@ -602,6 +602,8 @@ const DEFAULT_TRANSFERS = [
     { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
 ];
 
+const STORAGE_KEY = "familjebudget_data";
+
 const DEFAULT_CHECKLIST_CATEGORIES = ["Kök", "Möbler", "Förvaring", "Belysning", "Dörrar", "Verktygsvara", "Altan/Trädgård", "Övrigt"];
 
 const DEFAULT_CHECKLIST = [
@@ -1822,7 +1824,7 @@ function renderChecklist() {
         const categoryTotal = items.reduce((sum, {item}) => sum + (item.price || 0), 0);
         grandTotal += categoryTotal;
         
-        html += `<div class="checklist-category-header" ondblclick="editChecklistCategory(event, '${category}')">`;
+        html += `<div class="checklist-category-header" data-category="${category.replace(/"/g, '&quot;')}" ondblclick="editChecklistCategory(event)">`;
         html += `<span style="cursor:pointer;user-select:none">${category}</span>`;
         if (categoryTotal > 0) {
             html += `<span class="checklist-category-total">${fmt(categoryTotal)} kr</span>`;
@@ -1831,11 +1833,12 @@ function renderChecklist() {
         
         for (const {item, index: i} of items) {
             const isChecked = checkedItems[i];
+            const safeLink = item.link ? item.link.replace(/"/g, '&quot;') : '';
             html += `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})" ondblclick="editChecklistItem(event, ${i})">
                 <div class="checklist-check">${isChecked?'✓':''}</div>
                 <span class="checklist-text" style="cursor:pointer">${item.name}</span>
                 ${item.price > 0 ? `<span class="checklist-price">${fmt(item.price)} kr</span>` : ''}
-                ${item.link?`<a class="checklist-link" href="${item.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>`:''}
+                ${item.link?`<a class="checklist-link" href="${safeLink}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>`:''}
                 <span class="checklist-delete" onclick="event.stopPropagation();deleteChecklistItem(${i})">✕</span>
             </div>`;
         }
@@ -1896,8 +1899,10 @@ function editChecklistItem(event, index) {
     document.getElementById("checklist-modal").classList.add("active");
 }
 
-function editChecklistCategory(event, category) {
+function editChecklistCategory(event) {
     event.stopPropagation();
+    const headerEl = event.target.closest('.checklist-category-header');
+    const category = headerEl.dataset.category;
     const newName = prompt(`Redigera kategori:`, category);
     if (newName && newName.trim() !== category) {
         // Rename category for all items in it
