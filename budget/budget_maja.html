@@ -1043,6 +1043,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
             <div class="kpi-label">Totalt utgifter</div>
             <div class="kpi-value" id="kpi-spent">0 kr</div>
             <div class="kpi-sub">Registrerade utgifter</div>
+            <div id="kpi-savings-sub" style="font-size:12px;color:var(--text-sec);padding:4px 0 0;display:none"><span>varav sparat</span> <span id="kpi-savings-amount" style="color:var(--savings);font-weight:600">0 kr</span></div>
         </div>
         <div class="kpi-card kpi-remain">
             <div class="kpi-label">Återstår</div>
@@ -1427,6 +1428,20 @@ function renderKPIs() {
     document.getElementById("kpi-budget").textContent = fmt(t.totalBudget);
     document.getElementById("kpi-spent").textContent = fmt(t.totalSpent);
     document.getElementById("kpi-remain").textContent = fmt(t.remaining);
+
+    // Calculate and display savings
+    const sections = getCurrentMonthSections();
+    const savingsSection = sections.find(s => s.key === "savings");
+    const totalSavings = savingsSection ? savingsSection.items.reduce((sum, it) => sum + (it.actual || 0), 0) : 0;
+    
+    const savingsSub = document.getElementById("kpi-savings-sub");
+    const savingsAmount = document.getElementById("kpi-savings-amount");
+    if (totalSavings > 0) {
+        savingsAmount.textContent = fmt(totalSavings) + " kr";
+        savingsSub.style.display = "block";
+    } else {
+        savingsSub.style.display = "none";
+    }
 
     const remainEl = document.getElementById("kpi-remain");
     if (t.remaining < 0) {
