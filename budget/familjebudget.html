@@ -655,7 +655,9 @@ let isChecklistEditMode = false;
 let checklistEditIndex = -1;
 
 function loadData() {
+    console.log('loadData called');
     const raw = localStorage.getItem(STORAGE_KEY);
+    console.log('raw data from localStorage:', raw ? 'exists (' + raw.length + ' chars)' : 'null');
     if (raw) {
         try {
             const d = JSON.parse(raw);
@@ -677,10 +679,15 @@ function loadData() {
                 customMonthsToGoal: g.customMonthsToGoal || 0
             }));
             
+            console.log('Data loaded from localStorage, transfers.length:', transfers.length);
             return;
-        } catch(e) { /* fall through */ }
+        } catch(e) { 
+            console.error('JSON parse error:', e);
+            /* fall through */ 
+        }
     }
     // Defaults
+    console.log('Using default data');
     loanParams = { ...DEFAULT_LOAN_PARAMS };
     income = JSON.parse(JSON.stringify(DEFAULT_INCOME));
     expenses = DEFAULT_EXPENSES.map(e => ({ ...e }));
@@ -690,6 +697,7 @@ function loadData() {
     checkedItems = {};
     savingsGoals = [];
     sectionHeadings = {};
+    console.log('Default data loaded, transfers.length:', transfers.length);
 }
 
 function saveData() {
@@ -1129,8 +1137,14 @@ function saveHeading(id, input) {
 // RENDER LOAN MONTH DISPLAY
 // ═══════════════════════════════════════════════════════
 function renderLoanMonthDisplay() {
+    console.log('renderLoanMonthDisplay called, transfers.length:', transfers.length, 'currentLoanMonthIdx:', currentLoanMonthIdx);
     const t = transfers[currentLoanMonthIdx];
-    document.getElementById("loan-month-display").textContent = `${t.month} ${t.year}`;
+    console.log('month data:', t);
+    if (t) {
+        document.getElementById("loan-month-display").textContent = `${t.month} ${t.year}`;
+    } else {
+        console.error('transfers[currentLoanMonthIdx] is undefined!');
+    }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2239,6 +2253,7 @@ document.addEventListener("click", function(e) {
 // RENDER ALL
 // ═══════════════════════════════════════════════════════
 function renderAll() {
+    console.log('renderAll called');
     try {
         // Restore headings
         Object.keys(sectionHeadings).forEach(id => {
@@ -2262,6 +2277,7 @@ function renderAll() {
         destroyCharts();
         createCharts();
     }
+    console.log('renderAll finished');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2271,6 +2287,7 @@ function renderAll() {
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", function() {
+    console.log('DOMContentLoaded event fired');
     const darkPref = localStorage.getItem("darkMode");
     if (darkPref === null || darkPref === "enabled") {
         document.documentElement.classList.add("dark-mode");
@@ -2303,15 +2320,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
+    console.log('About to call loadData');
     loadData();
+    console.log('After loadData: transfers.length =', transfers.length);
     loadSectionStates();  // Restore section open/closed states
     currentTransferIdx = transfers.length - 1;
     currentLoanMonthIdx = transfers.length - 1;
+    console.log('Set indices: currentLoanMonthIdx =', currentLoanMonthIdx);
     
     // Try to sync with selected month from budget pages
     syncWithBudgetMonth();
     
+    console.log('About to call renderAll');
     renderAll();
+    console.log('After renderAll');
     
     // Save the current month so other pages know which month we're showing
     saveCurrentMonthToStorage();
