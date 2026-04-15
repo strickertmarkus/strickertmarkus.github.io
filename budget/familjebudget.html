@@ -164,6 +164,7 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 /* ── CHECKLIST ──────────────────────────────────── */
 .checklist-grid { display: flex; flex-direction: column; gap: 0; }
 .checklist-category-header { padding: 12px 14px 8px; margin-top: 12px; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+.checklist-category-header:hover { opacity: 0.8; }
 .checklist-category-total { font-size: 12px; font-weight: 400; color: var(--text-sec); text-transform: none; letter-spacing: normal; }
 .checklist-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; user-select: none; }
 .checklist-item:last-child { border-bottom: none; }
@@ -648,9 +649,8 @@ const DEFAULT_CHECKLIST = [
 // ═══════════════════════════════════════════════════════
 let loanParams, income, expenses, huskonto, transfers, checklistItems, checkedItems, savingsGoals, sectionHeadings;
 let currentTransferIdx;
-let editingGoalIdx = -1;
-
-const STORAGE_KEY = "familjebudget_data";
+let isChecklistEditMode = false;
+let checklistEditIndex = -1;
 
 function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1479,6 +1479,9 @@ function renderPersonalExpenses() {
             html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Utgifter</div>`;
             actualExpenses.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount">${fmt(e.actual)} kr</span></div>`; });
             html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt utgifter</span><span class="amount" style="color:var(--danger)">${fmt(totalExpenses)} kr</span></div>`;
+            if (totalSavings > 0) {
+                html += `<div class="expense-item" style="font-size:12px;color:var(--text-sec);padding:4px 12px 0"><span class="name">varav sparat</span><span class="amount" style="font-size:12px;color:var(--savings)">${fmt(totalSavings)} kr</span></div>`;
+            }
         }
         if (actualSavings.length) {
             html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Sparande</div>`;
@@ -1812,12 +1815,15 @@ function renderChecklist() {
         Object.keys(grouped).filter(cat => !DEFAULT_CHECKLIST_CATEGORIES.includes(cat)).sort()
     );
     
+    let grandTotal = 0;
+    
     for (const category of categories) {
         const items = grouped[category];
         const categoryTotal = items.reduce((sum, {item}) => sum + (item.price || 0), 0);
+        grandTotal += categoryTotal;
         
-        html += `<div class="checklist-category-header">`;
-        html += `<span>${category}</span>`;
+        html += `<div class="checklist-category-header" ondblclick="editChecklistCategory(event, '${category}')">`;
+        html += `<span style="cursor:pointer;user-select:none">${category}</span>`;
         if (categoryTotal > 0) {
             html += `<span class="checklist-category-total">${fmt(categoryTotal)} kr</span>`;
         }
@@ -1825,14 +1831,18 @@ function renderChecklist() {
         
         for (const {item, index: i} of items) {
             const isChecked = checkedItems[i];
-            html += `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})">
+            html += `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})" ondblclick="editChecklistItem(event, ${i})">
                 <div class="checklist-check">${isChecked?'✓':''}</div>
-                <span class="checklist-text">${item.name}</span>
+                <span class="checklist-text" style="cursor:pointer">${item.name}</span>
                 ${item.price > 0 ? `<span class="checklist-price">${fmt(item.price)} kr</span>` : ''}
                 ${item.link?`<a class="checklist-link" href="${item.link}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗</a>`:''}
                 <span class="checklist-delete" onclick="event.stopPropagation();deleteChecklistItem(${i})">✕</span>
             </div>`;
         }
+    }
+    
+    if (grandTotal > 0) {
+        html += `<div style="padding:12px 14px;margin-top:8px;border-top:2px solid var(--accent);font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>Total kostnad</span><span style="color:var(--accent)">${fmt(grandTotal)} kr</span></div>`;
     }
     
     grid.innerHTML = html;
@@ -1851,12 +1861,60 @@ function deleteChecklistItem(i) {
     saveData(); renderChecklist();
 }
 function addChecklistItem() {
-    document.getElementById("checklist-modal").classList.add("active");
+    isChecklistEditMode = false;
+    checklistEditIndex = -1;
+    document.getElementById("checklist-modal").className = "modal-overlay";
+    document.querySelector("#checklist-modal h3").textContent = "Lägg till sak";
+    document.getElementById("checklist-new-name").value = "";
     document.getElementById("checklist-new-category").value = "";
+    document.getElementById("checklist-new-category-custom").value = "";
     document.getElementById("checklist-new-category-custom").style.display = "none";
+    document.getElementById("checklist-new-price").value = "";
+    document.getElementById("checklist-new-link").value = "";
+    document.getElementById("checklist-modal").classList.add("active");
 }
+
+function editChecklistItem(event, index) {
+    event.stopPropagation();
+    isChecklistEditMode = true;
+    checklistEditIndex = index;
+    const item = checklistItems[index];
+    
+    document.querySelector("#checklist-modal h3").textContent = "Redigera sak";
+    document.getElementById("checklist-new-name").value = item.name;
+    document.getElementById("checklist-new-category").value = item.category || "Övrigt";
+    if (item.category && !DEFAULT_CHECKLIST_CATEGORIES.includes(item.category)) {
+        document.getElementById("checklist-new-category").value = "custom";
+        document.getElementById("checklist-new-category-custom").style.display = "block";
+        document.getElementById("checklist-new-category-custom").value = item.category;
+    } else {
+        document.getElementById("checklist-new-category-custom").style.display = "none";
+        document.getElementById("checklist-new-category-custom").value = "";
+    }
+    document.getElementById("checklist-new-price").value = item.price || 0;
+    document.getElementById("checklist-new-link").value = item.link || "";
+    document.getElementById("checklist-modal").classList.add("active");
+}
+
+function editChecklistCategory(event, category) {
+    event.stopPropagation();
+    const newName = prompt(`Redigera kategori:`, category);
+    if (newName && newName.trim() !== category) {
+        // Rename category for all items in it
+        checklistItems.forEach(item => {
+            if (item.category === category) {
+                item.category = newName.trim();
+            }
+        });
+        saveData();
+        renderChecklist();
+    }
+}
+
 function closeChecklistModal() {
     document.getElementById("checklist-modal").classList.remove("active");
+    isChecklistEditMode = false;
+    checklistEditIndex = -1;
     document.getElementById("checklist-new-name").value = "";
     document.getElementById("checklist-new-category").value = "";
     document.getElementById("checklist-new-category-custom").value = "";
@@ -1864,6 +1922,7 @@ function closeChecklistModal() {
     document.getElementById("checklist-new-price").value = "";
     document.getElementById("checklist-new-link").value = "";
 }
+
 function saveChecklistItem() {
     const name = document.getElementById("checklist-new-name").value.trim();
     if (!name) { alert("Fyll i ett namn."); return; }
@@ -1878,7 +1937,14 @@ function saveChecklistItem() {
     const price = parseInt(document.getElementById("checklist-new-price").value) || 0;
     const link = document.getElementById("checklist-new-link").value.trim();
     
-    checklistItems.push({ name, category, price, link: link || undefined });
+    if (isChecklistEditMode && checklistEditIndex !== -1) {
+        // Update existing item
+        checklistItems[checklistEditIndex] = { name, category, price, link: link || undefined };
+    } else {
+        // Add new item
+        checklistItems.push({ name, category, price, link: link || undefined });
+    }
+    
     saveData(); renderChecklist(); closeChecklistModal();
 }
 
