@@ -1033,6 +1033,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
             <div class="kpi-label">Totala inkomster</div>
             <div class="kpi-value" id="kpi-income">0 kr</div>
             <div class="kpi-sub">Mottaget denna månad</div>
+            <div id="kpi-savings-account-sub" style="font-size:12px;color:var(--text-sec);padding:4px 0 0;display:none"><span>varav från sparkonto</span> <span id="kpi-savings-account-amount" style="color:var(--savings);font-weight:600">0 kr</span></div>
         </div>
         <div class="kpi-card kpi-budget">
             <div class="kpi-label">Totalt budgeterat</div>
@@ -1327,7 +1328,27 @@ function addNewMonth() {
         
         if (!monthlyData[nextKey]) {
             // Found a month that doesn't exist - create it
-            monthlyData[nextKey] = { sections: JSON.parse(JSON.stringify(SECTIONS)) };
+            // Copy structure from previous month (item names and budgets, but zero actual values)
+            const prevDate = new Date(currentMonth);
+            prevDate.setMonth(prevDate.getMonth());
+            const prevKey = getMonthKey(prevDate);
+            
+            let newSections;
+            if (monthlyData[prevKey]) {
+                // Copy previous month's structure
+                newSections = JSON.parse(JSON.stringify(monthlyData[prevKey].sections));
+                // Zero out all actual values
+                newSections.forEach(section => {
+                    section.items.forEach(item => {
+                        item.actual = 0;
+                    });
+                });
+            } else {
+                // No previous month found, use default sections
+                newSections = JSON.parse(JSON.stringify(SECTIONS));
+            }
+            
+            monthlyData[nextKey] = { sections: newSections };
             currentMonth = nextDate;
             updateMonthDisplay();
             saveSelectedMonth();
@@ -1441,6 +1462,24 @@ function renderKPIs() {
         savingsSub.style.display = "block";
     } else {
         savingsSub.style.display = "none";
+    }
+
+    // Calculate and display "varav från sparkonto" (Nordea Privat)
+    let nordaePrivatAmount = 0;
+    sections.forEach(section => {
+        const item = section.items.find(it => it.name === "Nordea Privat");
+        if (item) {
+            nordaePrivatAmount = item.actual || item.budget || 0;
+        }
+    });
+    
+    const savingsAccountSub = document.getElementById("kpi-savings-account-sub");
+    const savingsAccountAmount = document.getElementById("kpi-savings-account-amount");
+    if (nordaePrivatAmount > 0) {
+        savingsAccountAmount.textContent = fmt(nordaePrivatAmount) + " kr";
+        savingsAccountSub.style.display = "block";
+    } else {
+        savingsAccountSub.style.display = "none";
     }
 
     const remainEl = document.getElementById("kpi-remain");
