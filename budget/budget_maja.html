@@ -1433,7 +1433,7 @@ function computeTotals() {
     const sections = getCurrentMonthSections();
     sections.forEach(s => {
         if (s.isIncome) {
-            totalIncome = s.items.reduce((sum, it) => sum + (it.actual || it.budget), 0);
+            totalIncome = s.items.reduce((sum, it) => sum + (it.actual || 0), 0);
         } else {
             totalBudget += s.items.reduce((sum, it) => sum + it.budget, 0);
             totalSpent += s.items.reduce((sum, it) => sum + it.actual, 0);
@@ -1590,8 +1590,8 @@ function renderSections() {
             let pctClass = "ok";
             
             // Determine percentage class based on section type
-            if (section.key === 'savings') {
-                // For savings: use saving-ok or saving-positive
+            if (section.key === 'savings' || isIncome) {
+                // For savings and income: use saving-ok or saving-positive
                 if (iPct >= 100) pctClass = "saving-positive";
                 else pctClass = "saving-ok";
             } else {
@@ -1710,8 +1710,9 @@ function updateInputColor(input, sIdx, iIdx) {
     
     // Only apply colors if value is greater than 0 and budget is greater than 0
     if (val > 0 && budget > 0) {
-        if (isSavings) {
-            // For savings: blue at 100%+, green otherwise
+        const isIncome = section.isIncome;
+        if (isSavings || isIncome) {
+            // For savings and income: blue at 100%+, green otherwise
             if (pctBadge) {
                 if (p >= 100) pctBadge.classList.add('saving-positive');
                 else pctBadge.classList.add('saving-ok');
