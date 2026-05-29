@@ -1099,6 +1099,7 @@ const SECTIONS = [
         isIncome: true,
         items: [
             { name: "Lön (netto)", budget: 37488, actual: 0 },
+            { name: "Barnbidrag", budget: 1325, actual: 0 },
             { name: "Övriga inkomster", budget: 0, actual: 0 },
         ]
     },
@@ -1116,6 +1117,7 @@ const SECTIONS = [
             { name: "Internet", budget: 399, actual: 0 },
             { name: "Elektricitet", budget: 800, actual: 0 },
             { name: "Vatten & avlopp", budget: 500, actual: 0 },
+            { name: "Huskonto", budget: 0, actual: 0 },
         ]
     },
     {
@@ -1166,6 +1168,7 @@ const SECTIONS = [
         bg: "#FFF7ED",
         items: [
             { name: "Matinköp", budget: 5000, actual: 0 },
+            { name: "ICA-konto", budget: 0, actual: 0 },
             { name: "Restaurang/café", budget: 1000, actual: 0 },
             { name: "Transport", budget: 1200, actual: 0 },
             { name: "Kläder", budget: 500, actual: 0 },
@@ -1174,6 +1177,31 @@ const SECTIONS = [
             { name: "Gåvor", budget: 300, actual: 0 },
         ]
     },
+];
+
+// ── TRANSFER DATA (from familjebudget.html) ────────────────
+const DEFAULT_TRANSFERS = [
+    { year:2025,month:"April",husutgifter:24696,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16042,icaMaja:5415,huskontoMarkus:8638,icaMarkus:2915 },
+    { year:2025,month:"Maj",husutgifter:24680,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16031,icaMaja:5415,huskontoMarkus:8632,icaMarkus:2915 },
+    { year:2025,month:"Juni",husutgifter:24664,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16021,icaMaja:5415,huskontoMarkus:8626,icaMarkus:2915 },
+    { year:2025,month:"Juli",husutgifter:24648,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16010,icaMaja:5415,huskontoMarkus:8621,icaMarkus:2915 },
+    { year:2025,month:"Augusti",husutgifter:24632,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8615,icaMarkus:2915 },
+    { year:2025,month:"September",husutgifter:24616,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8610,icaMarkus:2915 },
+    { year:2025,month:"Oktober",husutgifter:24600,ica:8331,majaAndel:0.416,markusAndel:0.584,huskontoMaja:10233,icaMaja:3465,huskontoMarkus:14366,icaMarkus:4865 },
+    { year:2025,month:"November",husutgifter:24584,ica:8331,majaAndel:0.454,markusAndel:0.546,huskontoMaja:11150,icaMaja:3778,huskontoMarkus:13432,icaMarkus:4552 },
+    { year:2025,month:"December",husutgifter:24568,ica:8331,majaAndel:0.435,markusAndel:0.565,huskontoMaja:10687,icaMaja:3623,huskontoMarkus:13880,icaMarkus:4707 },
+    { year:2026,month:"Januari",husutgifter:24552,ica:8331,majaAndel:0.460,markusAndel:0.540,huskontoMaja:11284,icaMaja:3828,huskontoMarkus:13267,icaMarkus:4502 },
+    { year:2026,month:"Februari",husutgifter:27235,ica:8331,majaAndel:0.246,markusAndel:0.754,huskontoMaja:6707,icaMaja:2051,huskontoMarkus:20527,icaMarkus:6279 },
+    { year:2026,month:"Mars",husutgifter:27219,ica:8331,majaAndel:0.253,markusAndel:0.747,huskontoMaja:6890,icaMaja:2109,huskontoMarkus:20328,icaMarkus:6221 },
+    { year:2026,month:"April",husutgifter:27203,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6953,icaMaja:2129,huskontoMarkus:20249,icaMarkus:6201 },
+    { year:2026,month:"Maj",husutgifter:27187,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7192,icaMaja:2204,huskontoMarkus:19994,icaMarkus:6126 },
+    { year:2026,month:"Juni",husutgifter:27171,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7188,icaMaja:2204,huskontoMarkus:19982,icaMarkus:6126 },
+    { year:2026,month:"Juli",husutgifter:27155,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6941,icaMaja:2129,huskontoMarkus:20213,icaMarkus:6201 },
+    { year:2026,month:"Augusti",husutgifter:27139,ica:8331,majaAndel:0.273,markusAndel:0.727,huskontoMaja:7417,icaMaja:2276,huskontoMarkus:19721,icaMarkus:6054 },
+    { year:2026,month:"September",husutgifter:27123,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6932,icaMaja:2129,huskontoMarkus:20190,icaMarkus:6201 },
+    { year:2026,month:"Oktober",husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
+    { year:2026,month:"November",husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
+    { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
 ];
 
 // ── HELPERS ────────────────────────────────────────────────
@@ -1316,6 +1344,32 @@ function openSetStartMonth() {
     saveLocal();
 }
 
+function getTransferValuesForMonth(date, isMarkus = true) {
+    // Convert month to name format
+    const months = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // Find matching transfer record
+    const transfer = DEFAULT_TRANSFERS.find(t => t.year === year && t.month === monthName);
+    if (!transfer) return null;
+    
+    // Return values for Markus or Maja
+    if (isMarkus) {
+        return {
+            barnbidrag: 1325,
+            huskonto: transfer.huskontoMarkus,
+            ica: transfer.icaMarkus
+        };
+    } else {
+        return {
+            barnbidrag: 1325,
+            huskonto: transfer.huskontoMaja,
+            ica: transfer.icaMaja
+        };
+    }
+}
+
 function addNewMonth() {
     // Find the next month that doesn't already exist
     let nextDate = new Date(currentMonth);
@@ -1347,6 +1401,40 @@ function addNewMonth() {
             } else {
                 // No previous month found, use default sections
                 newSections = JSON.parse(JSON.stringify(SECTIONS));
+            }
+            
+            // Populate transfer values from familjebudget
+            // Determine if this is a Markus or Maja budget (check document title)
+            const isMarkusBudget = document.title.includes("Markus");
+            const transferValues = getTransferValuesForMonth(nextDate, isMarkusBudget);
+            
+            if (transferValues) {
+                // Update Barnbidrag in income section
+                const incomeSection = newSections.find(s => s.key === "income");
+                if (incomeSection) {
+                    const barnbidragItem = incomeSection.items.find(i => i.name === "Barnbidrag");
+                    if (barnbidragItem) {
+                        barnbidragItem.budget = transferValues.barnbidrag;
+                    }
+                }
+                
+                // Update Huskonto in house section
+                const houseSection = newSections.find(s => s.key === "house");
+                if (houseSection) {
+                    const huskontoItem = houseSection.items.find(i => i.name === "Huskonto");
+                    if (huskontoItem) {
+                        huskontoItem.budget = transferValues.huskonto;
+                    }
+                }
+                
+                // Update ICA-konto in misc section
+                const miscSection = newSections.find(s => s.key === "misc");
+                if (miscSection) {
+                    const icaItem = miscSection.items.find(i => i.name === "ICA-konto");
+                    if (icaItem) {
+                        icaItem.budget = transferValues.ica;
+                    }
+                }
             }
             
             monthlyData[nextKey] = { sections: newSections };

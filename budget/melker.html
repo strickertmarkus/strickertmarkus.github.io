@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vår älskade son Melker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    /* ── THEME VARIABLES — edit these to customise ── */
+    :root {
+      --accent:        #4a7fb5;   /* steel blue accent */
+      --accent-light:  #e8f1fa;   /* light blue background */
+      --accent-mid:    #a8c8e8;   /* mid blue for borders */
+      --heading-color: #1a3a5c;   /* deep navy for headings */
+      --body-bg:       #f8fafd;
+      --card-bg:       #ffffff;
+      --text:          #333333;
+      --text-muted:    #777777;
+      --border:        #d0dff0;
+      --table-head-bg: #c8def4;
+      --callout-bg:    #eef5fc;
+      --callout-border:#4a7fb5;
+      --font-body:     'Nunito', sans-serif;
+      --font-heading:  'Montserrat', sans-serif;
+      --radius:        12px;
+      --shadow:        0 2px 12px rgba(74,127,181,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--body-bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: var(--accent-light);
+      border-bottom: 2px solid var(--accent-mid);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .page-header h1 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      color: var(--heading-color);
+      font-weight: 700;
+    }
+    .page-header .back-link {
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .page-header .back-link:hover { text-decoration: underline; }
+
+    /* ── WELCOME CALLOUT ── */
+    .welcome-callout {
+      max-width: 860px;
+      margin: 2rem auto 0;
+      padding: 1rem 1.4rem;
+      background: var(--callout-bg);
+      border-left: 4px solid var(--callout-border);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .welcome-callout .icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    /* ── MAIN CONTENT ── */
+    .page-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── SECTION HEADINGS ── */
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--accent-mid);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ── HORIZONTAL RULE ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.2rem 0;
+    }
+
+    /* ── PROFILE CARD ── */
+    .profile-section {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .profile-photo {
+      width: 180px;
+      height: 220px;
+      border-radius: var(--radius);
+      object-fit: cover;
+      border: 3px solid var(--accent-mid);
+      box-shadow: var(--shadow);
+      background: var(--accent-light);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 3rem;
+    }
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: calc(var(--radius) - 3px);
+    }
+    .profile-fields { flex: 1; min-width: 240px; }
+    .profile-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row .emoji { font-size: 1.05rem; flex-shrink: 0; }
+    .profile-row .label { color: var(--text-muted); min-width: 150px; font-size: 0.85rem; }
+    .profile-row .value { font-weight: 600; color: var(--text); }
+
+    /* ── CALLOUT / ASIDE ── */
+    .callout {
+      background: var(--callout-bg);
+      border-left: 4px solid var(--callout-border);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.2rem 1.5rem;
+      margin: 1.2rem 0;
+      font-style: italic;
+      font-size: 0.93rem;
+      line-height: 1.8;
+    }
+    .callout .callout-icon { font-size: 1.2rem; margin-bottom: 0.5rem; display: block; font-style: normal; }
+    .callout p { margin-bottom: 0.6rem; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    thead tr { background: var(--table-head-bg); }
+    th {
+      padding: 0.65rem 1rem;
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 0.55rem 1rem;
+      border-top: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:hover { background: var(--accent-light); }
+    td:first-child { white-space: nowrap; color: var(--text-muted); font-size: 0.85rem; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ── DAY-BY-DAY ENTRIES ── */
+    .day-entry {
+      margin: 1.5rem 0;
+      border-left: 3px solid var(--accent-mid);
+      padding-left: 1.2rem;
+    }
+    .day-entry .day-date {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+    .day-entry .day-text {
+      font-size: 0.93rem;
+      font-style: italic;
+      line-height: 1.8;
+      margin-bottom: 0.75rem;
+    }
+    .day-entry .day-photo {
+      width: 100%;
+      max-width: 420px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 2px solid var(--accent-mid);
+      display: block;
+      background: var(--accent-light);
+      min-height: 120px;
+      object-fit: cover;
+    }
+    .day-entry .day-photo-placeholder {
+      width: 100%;
+      max-width: 420px;
+      height: 200px;
+      border-radius: var(--radius);
+      border: 2px dashed var(--accent-mid);
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      gap: 0.5rem;
+    }
+
+    /* ── MEMORABLE MOMENTS ── */
+    .moments-callout {
+      background: var(--callout-bg);
+      border: 1.5px solid var(--accent-mid);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.5rem;
+      margin: 1.2rem 0;
+    }
+    .moments-callout .moments-title {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--heading-color);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .moment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      font-size: 0.93rem;
+    }
+    .moment-item .heart { color: var(--accent); }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--accent-light);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .page-header h1 { font-size: 1.2rem; }
+      .profile-photo { width: 130px; height: 160px; }
+      .profile-row .label { min-width: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>👶🏻 Vår älskade son Melker</h1>
+    <a href="../index.html" class="back-link">← Tillbaka</a>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Welcome callout -->
+    <div class="welcome-callout">
+      <span class="icon">🍼</span>
+      <span>Välkommen till Melkers milstolperesa! Här samlar vi hans tillväxt, de första gångerna och alla minnen från de första åren.</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PROFIL
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Melkers profil 👶🏻</h2>
+
+    <div class="profile-section">
+
+      <!-- Profile photo — replace src with actual image path when available -->
+      <div class="profile-photo">
+        <img src="../Melker_Bilder/IMG_4596.jpeg" alt="Melker"
+             onerror="this.parentElement.innerHTML='👶🏻'">
+      </div>
+
+      <div class="profile-fields">
+        <div class="profile-row"><span class="emoji">👶🏻</span><span class="label">Namn</span><span class="value">Melker John Frick Strickert</span></div>
+        <div class="profile-row"><span class="emoji">🗓️</span><span class="label">Födelsedag</span><span class="value">3 januari 2026</span></div>
+        <div class="profile-row"><span class="emoji">⭐</span><span class="label">Personnummer</span><span class="value">20260103-8751</span></div>
+        <div class="profile-row"><span class="emoji">⏱️</span><span class="label">Födelsetid</span><span class="value">23:52</span></div>
+        <div class="profile-row"><span class="emoji">🩸</span><span class="label">Blodgrupp</span><span class="value">Rh-</span></div>
+        <div class="profile-row"><span class="emoji">⚖️</span><span class="label">Vikt vid födseln</span><span class="value">3 340 g</span></div>
+        <div class="profile-row"><span class="emoji">📏</span><span class="label">Längd vid födseln</span><span class="value">49 cm</span></div>
+        <div class="profile-row"><span class="emoji">📍</span><span class="label">Födelseort</span><span class="value">BB Linköping</span></div>
+        <div class="profile-row"><span class="emoji">🐣</span><span class="label">Förlossningssätt</span><span class="value">Vaginal</span></div>
+        <div class="profile-row"><span class="emoji">💯</span><span class="label">Apgar-poäng</span><span class="value">100/100</span></div>
+        <div class="profile-row"><span class="emoji">🧑🏻‍⚕️</span><span class="label">Barnläkare</span><span class="value">Karin &amp; Ewa + Caroline &amp; Josefin</span></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         FÖRLOSSNINGSBERÄTTELSE
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Förlossningsberättelse: 3/1 🤰🏻</h2>
+
+    <div class="callout">
+      <span class="callout-icon">📖</span>
+      <p>Kvällen den 2 januari (kl 22:39) tror vi att Majas vatten har gått. Inga värkar än och vi har kontakt med förlossningen. Får en tid den 3/1 kl 12:30. Väl inne görs kontroll av hjärtljud och undersökning om vattnet har gått eller inte. Maja ligger med CTG i 1h 30min. Vattnet har gått, Maja är 5cm öppen och väldigt lugn. De gör i ordning ett rum till oss för att stanna. Maja undersöks efter en stund och hon är fortfarande 5cm öppen, men livmodertappen är mjuk och har gjort ett bra förarbete. Värkarna verkar inte komma igång helt men vi beslutar med barnmorskan att vi ska låta kroppen försöka själv.</p>
+      <p>De närmsta timmarna har Maja ganska oregelbundna värkar. Maja är orolig för att det tar lång tid. "Varför kommer inte värkarna igång?" Vi ligger och tittar på Big Bang Theory och går runt lite på sjukhuset. Vid 22:00 byts personal. Strax innan har värkarna börjat intensifieras lite grann. Vid 23:20 gör barnmorskan (Caroline) en ny kontroll och Maja är 6cm öppen. Nu kommer jag ihåg att jag tänkte "då föds han den 4e". Jag sa till barnmorskan att han kanske också kommer födas vid 06:33 som Mila.</p>
+      <p>Men härefter går det fort. Maja använder lustgasen (jag testar den också…) och värkarna intensifierar snabbt. Jag håller Maja i handen och känner (och ser på CTG) att nu kommer en stor värk. Jag känner det i min hand också, för Maja trycker stenhårt. Först var det som en vanlig värk, men den gick över till en krystvärk. Kl 23:48 sker den första krystvärken, barnmorskan lägger upp Majas ben då hon ligger på sidan. Nästa krystvärk är Melker nära på att komma ut. Jag hör barnmorskan säga att vi ska ta bort lustgasen. Vi tar bort lustgasen för Maja och hon säger "Nej jag vill ha den!" i panik. Men vi tittar in i varandras ögon och andas tillsammans istället. På tredje krystvärken kommer huvudet ut och 23:52 föds Melker. Både jag och Maja är skakiga i kroppen och fyllda med en enorm glädje och lättnad. Maja säger åt dem att knäppa upp skjortan så han kan komma upp på mammas bröst. Och så var han här, vår älskade lilla grabb. Jag får klippa navelsträngen och titta på moderkakan. Sen myser vi tillsammans i sängen.</p>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         TILLVÄXT
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Tillväxt 📈</h2>
+    <p class="section-label">Melkers vikt och längdkurva</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Datum</th><th>Vikt (g)</th><th>Längd (cm)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>3/1-2026</td><td>3 340</td><td>49</td></tr>
+          <tr><td>5/1-2026</td><td>3 165</td><td>—</td></tr>
+          <tr><td>7/1-2026</td><td>3 275</td><td>—</td></tr>
+          <tr><td>12/1-2026</td><td>3 285</td><td>51</td></tr>
+          <tr><td>15/1-2026</td><td>3 365</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         THE FIRSTS
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">The Firsts 📷</h2>
+
+    <div class="callout">
+      <span class="callout-icon">💡</span>
+      <p>Melkers "Första gångerna" — datum, milstolpar och speciella ögonblick som vi vill minnas för alltid.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Datum</th><th>Händelse</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>4/1-2026</td><td>Första suga på bröstet</td></tr>
+          <tr><td>4/1-2026</td><td>Första titta in i ögonen</td></tr>
+          <tr><td>4/1-2026</td><td>Första blöjan</td></tr>
+          <tr><td>4/1-2026</td><td>Första rapen</td></tr>
+          <tr><td>4/1-2026</td><td>Första greppa i fingret</td></tr>
+          <tr><td>4/1-2026</td><td>Första nackvändningen i groda</td></tr>
+          <tr><td>5–6/1-2026</td><td>Första natten hemma</td></tr>
+          <tr><td>6/1-2026</td><td>Första gången i babygymmet</td></tr>
+          <tr><td>6/1-2026</td><td>Första promenaden i barnvagnen</td></tr>
+          <tr><td>7/1-2026</td><td>Första bilturen tillsammans med storasyster</td></tr>
+          <tr><td>8/1-2026</td><td>Första besöket av Farmor</td></tr>
+          <tr><td>8/1-2026</td><td>Första bajsolyckan (på mamma)</td></tr>
+          <tr><td>9/1-2026</td><td>Testade napp för första gången (gillade det inte så mycket)</td></tr>
+          <tr><td>10/1-2026</td><td>Navelstumpen åkte av</td></tr>
+          <tr><td>10/1-2026</td><td>Första badet</td></tr>
+          <tr><td>11/1-2026</td><td>Första gången i bärsjal</td></tr>
+          <tr><td>12/1-2026</td><td>Följde föremål med blicken (Milas play dough-burk, den gröna)</td></tr>
+          <tr><td>12/1-2026</td><td>Första gången på mage i babygymmet</td></tr>
+          <tr><td>12/1-2026</td><td>Första gången i mataffären (ICA Maxi)</td></tr>
+          <tr><td>12/1-2026</td><td>Första BVC-besöket</td></tr>
+          <tr><td>14/1-2026</td><td>Första spyan</td></tr>
+          <tr><td>15/1-2026</td><td>Första gången mamma var själv med både Mila och Melker</td></tr>
+          <tr><td>17/1-2026</td><td>Första gången pappa var själv med både Mila och Melker</td></tr>
+          <tr><td>25/1-2026</td><td>Första personen som höll Melker som inte är mamma och pappa (moster Isabel)</td></tr>
+          <tr><td>25/1-2026</td><td>Första gången i mormors famn</td></tr>
+          <tr><td>25/1-2026</td><td>Första gången i farmors famn</td></tr>
+          <tr><td>25/1-2026</td><td>Första gången sova i vaggan själv</td></tr>
+          <tr><td>12/2-2026</td><td>Låg på rygg och följde blicken och samtidigt vände huvudet från sida till sida</td></tr>
+          <tr><td>15/2-2026</td><td>Gammelmorfar höll Melker</td></tr>
+          <tr><td>19/2-2026</td><td>Första gången rullade från rygg till höger sida</td></tr>
+          <tr><td>21/2-2026</td><td>Första gången farfar, gammelfarmor och Håkan höll Melker</td></tr>
+          <tr><td>23/2-2026</td><td>Första gången rullade från rygg till vänster sida</td></tr>
+          <tr><td>28/2-2026</td><td>Första bussresan</td></tr>
+          <tr><td>1–2/3-2026</td><td>Första natten utan bajsblöja</td></tr>
+          <tr><td>2/3-2026</td><td>Första gången i bärselen</td></tr>
+          <tr><td>4/3-2026</td><td>Första gången i babysittern</td></tr>
+          <tr><td>12/3-2026</td><td>Första gången rulla från mage till rygg (åt höger)</td></tr>
+          <tr><td>13/3-2026</td><td>Första gången på Östgötapendeln (till Linköping)</td></tr>
+          <tr><td>29/3-2026</td><td>Första gången han snurrade på leksaken i babysittern</td></tr>
+          <tr><td>9/4-2026</td><td>Började prata och gollra</td></tr>
+          <tr><td>10/4-2026</td><td>Första gången på öppna förskolan (sov nästan hela tiden)</td></tr>
+          <tr><td>12/4-2026</td><td>Började greppa saker</td></tr>
+          <tr><td>30/4-2026</td><td>Första rullningen från rygg till mage (åt höger)</td></tr>
+          <tr><td>16/5-2026</td><td>Första gången på Omberg</td></tr>
+          <tr><td>16/5-2026</td><td>Första restaurangbesöket</td></tr>
+          <tr><td>16–17/5-2026</td><td>Första hotellnatten (på Omberg turisthotell)</td></tr>
+          <tr><td>26/5-2026</td><td>Första nattningen för natten utan att amma tills sömns</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         MINNESVÄRDA STUNDER
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Minnesvärda stunder ♥️</h2>
+
+    <div class="moments-callout">
+      <div class="moments-title">♥️ Memorable Moments</div>
+      <div class="moment-item"><span class="heart">💌</span><span>Började skratta mycket vid ca 3,5 månaders ålder</span></div>
+      <!-- Add more moments below -->
+      <div class="moment-item"><span class="heart">💌</span><span></span></div>
+      <div class="moment-item"><span class="heart">💌</span><span></span></div>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         DAY BY DAY
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Melker dag för dag 📸</h2>
+
+    <div class="day-entry">
+      <div class="day-date">4 januari 2026</div>
+      <div class="day-text">
+        Efter förlossningen ligger Melker på mammas bröst. Pappa får klippa navelsträngen och titta på moderkakan. En sån häftig upplevelse att se alla kärl. Vi bara myser tillsammans under natten, vi får våra segermackor och skålar. Vid ca 02:30 går vi till BB. Vi får rum 50 (Vallmon). Här har vi bara myst hela dagen. Vi alla somnade tillsammans i sängen under eftermiddagen. Eftersom Maja hade lång vattenavgång (LVA) behöver vi stanna minst 36 timmar efter födsel med lite extrakontroller. Kontrollerna ser bra ut. Resten av dagen spenderas med att prata med familj. Mila sa "Lillebror" flera gånger när vi FaceTimeade.
+      </div>
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">5 januari 2026</div>
+      <div class="day-text">
+        I natt sov vi bra allihopa. På morgonen kom barnläkaren in och undersökte Melker. Han har en extra grop över rumphålet och det skulle man titta så det inte var ett hål — det var det inte. Han fick godkänt. Efter detta vankades hörseltest. Kontroller har gjorts för syresättning, temp och andningsfrekvens på grund av LVA. Vi har myst under dagen och åker hem vid ca 14-tiden.
+        <br><br>
+        Väl hemma har vi köpt med en present från lillebror till Mila. Pappa gick in först och berättar att lillebror snart kommer. In kommer mamma och Melker och Mila ropar "Draken!" — för det är en Bolibompadrake vi köpt. Efter en stund går Mila fram till Melker och klappar honom och säger "lillebror". Underbar känsla. Resten av kvällen är mer blandade känslor. Mila vill göra allt som Melker gör, hon blir både större och mindre på samma gång. Till sist satt vi alla och myste i soffan. Ett fantastiskt slut på en underbar dag.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_41C186E82988-1.jpeg" alt="5 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">7 januari 2026</div>
+      <div class="day-text">
+        Idag gick jag upp med Mila på morgonen. Efter frukost gick jag upp och la mig i sängen med Melker. Han ville inte sova så han sög på mitt finger för att hålla sig lugn. Vi åkte första bilturen med storasyster idag på hans efterkontroll. Gulsotvärdet hade gått upp lite men inget farligt. Han hade gått upp i vikt, vilket var jättebra. Jag och Melker hade en lång mysstund innan bilturen som var så mysig.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0693.jpeg" alt="7 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">8 januari 2026</div>
+      <div class="day-text">
+        Idag tog jag och Melker en lång sovmorgon. Det var så skönt. På eftermiddagen kom farmor förbi och tittade på Melker. Både Melker och Mila fick presenter. Senare åkte jag och Mila till affären medan Maja och Melker var ute. Vi hade en mysig kväll framför tvn och Melker somnade så fint vid mammas bröst.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0737.jpeg" alt="8 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">10 januari 2026</div>
+      <div class="day-text">
+        Idag har varit en riktigt lugn och mysig dag. På förmiddagen tog Melker sitt första bad eftersom att navelstumpen åkte av under natten. Det var helt okej att bada men efter ett tag blev det lite kallt. Mamma och pappa var lite oroliga över min navel då det var ganska rött runt omkring den, men det blev bättre under dagen. Vi tog en promenad ute i det fina vädret medans Melker och Mila sov. På eftermiddagen och kvällen var det bara mys med mamma som gällde då pappa och Mila var hos farmor och firade jul.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0833.jpeg" alt="10 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">11 januari 2026</div>
+      <div class="day-text">
+        Under natten/tidig morgon hade Melker svårt att komma till ro och var vaken väldigt länge innan han väl somnade på morgonen. Mamma sov därför inte så bra och Melker har varit ganska trött under dagen, men han har ändå hunnit leka med Mila och träffa morfar och Cilla som var förbi på en fika. Mormor var också här och lekte lite. Det har varit jättefint väder (snö och sol) så tanken var att Mila och Melker skulle sova i vagnen under en promenad, men Mila ville inte sova i vagnen så pappa och Melker tog en promenad istället.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0861.jpeg" alt="11 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">13 januari 2026</div>
+      <div class="day-text">
+        Efter en lång och skön sovmorgon i sängen tillsammans med pappa var det dags att vakna för att äta. Mamma och Mila lekte i Milas rum medan pappa och Melker sov. Lite senare på förmiddagen tog familjen en promenad och Mila och Melker sov i vagnen. Efter det var vi bara hemma och myste, magtränade lite och ammade. På kvällen var Melker vaken länge — han är vaken så mycket längre nu än bara för någon dag sedan.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0893.jpeg" alt="13 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">14 januari 2026</div>
+      <div class="day-text">
+        Dagen startade med massa mys och därefter ett bad — det var bättre den här gången än första gången. Eftersom att det var så dåligt väder idag har vi hållt oss inne för det mesta. Men en stund var vi ute och hjälpte Mila bygga snögubbe, gräva och leka i snön. Vi åkte bilen och gjorde lite ärenden. Mila och Melker låg även i gymmet tillsammans. På kvällen var mormor här en stund.
+      </div>
+      <img class="day-photo" src="../Melker_Bilder/IMG_0931.jpeg" alt="14 januari 2026"
+           onerror="this.outerHTML='<div class=\'day-photo-placeholder\'>📷 Bild kommer snart</div>'">
+    </div>
+
+    <div class="day-entry">
+      <div class="day-date">16 januari 2026</div>
+      <div class="day-text">
+        Idag har varit en lugn dag utan besök. Mamma och Melker tog sovmorgon till ca 9:00. Därefter gick Melker till pappa och satt på hans ben. Efter en stund somnade han i pappas famn och det var så mysigt. Mamma och Melker tog en promenad medan Mila sov inne och pappa var hemma. På eftermiddagen var vi och handlade. Man börjar verkligen se att ansiktet börjar ta en annan form (till skillnad från de första dagarna) och hur mycket mer han tittar och är med. Efter Mila hade somnat på kvällen hade vi båda Melker i våra famnar och försökte göra honom nöjd. Det går för det mesta, trots att det är lite svårt att greppa bröstet ibland.
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+
+  <footer class="page-footer">
+    ♥ Melker John Frick Strickert &mdash; Född 3 januari 2026
+  </footer>
+
+</body>
+</html>
