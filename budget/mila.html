@@ -436,14 +436,67 @@
     }
 
     /* ── RESPONSIVE ── */
+    /* ── CONTENTEDITABLE ── */
+    [contenteditable]:hover {
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset;
+      border-radius: 3px;
+    }
+    [contenteditable]:focus {
+      outline: none;
+      background: rgba(249,168,184,0.05);
+      box-shadow: 0 0 0 1px rgba(249,168,184,0.3) inset;
+      border-radius: 3px;
+    }
+
+    /* ── FIRSTS TWO-COLUMN GRID ── */
+    .firsts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 24px;
+      margin: 0.75rem 0 0.5rem;
+    }
+    .first-item {
+      display: flex;
+      gap: 8px;
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.035);
+      font-size: 12.5px;
+      align-items: flex-start;
+      transition: background 0.15s;
+      border-radius: 4px;
+    }
+    .first-item:hover { background: rgba(249,168,184,0.04); }
+    .first-date {
+      color: #5A6478;
+      font-size: 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 82px;
+      padding-top: 1px;
+    }
+    .first-event { color: #C9D1DC; flex: 1; }
+
+    /* ── GROWTH CHART ── */
+    .growth-chart-wrap {
+      margin: 1.5rem 0 0.5rem;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 16px 16px 8px;
+    }
+    .growth-chart-wrap canvas { max-height: 220px; }
+
     @media (max-width: 600px) {
       .page-header h1 { font-size: 18px; }
       .profile-photo { width: 120px; height: 150px; }
       .profile-row .label { min-width: 120px; }
       td:first-child { width: 90px; }
+      .firsts-grid { grid-template-columns: 1fr; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -539,6 +592,9 @@
         </tbody>
       </table>
     </div>
+    <div class="growth-chart-wrap fade-in">
+      <canvas id="growth-chart"></canvas>
+    </div>
 
     <hr>
 
@@ -553,7 +609,7 @@
     </div>
 
     <div class="table-wrap">
-      <table>
+      <table class="firsts-table">
         <thead>
           <tr><th>Datum</th><th>Milstolpe</th></tr>
         </thead>
@@ -748,11 +804,150 @@ window.addEventListener('click', function(e) {
   }
 });
 
+// ── FIRSTS GRID ────────────────────────────────────────────────
+function createFirstItem(date, event) {
+  const item = document.createElement('div');
+  item.className = 'first-item';
+  const ds = document.createElement('span');
+  ds.className = 'first-date'; ds.contentEditable = 'true'; ds.textContent = date;
+  const es = document.createElement('span');
+  es.className = 'first-event'; es.contentEditable = 'true'; es.innerHTML = event;
+  item.appendChild(ds); item.appendChild(es);
+  return item;
+}
+
+function initFirstsGrid() {
+  document.querySelectorAll('.firsts-table').forEach(table => {
+    const wrap = table.closest('.table-wrap');
+    if (!wrap) return;
+    const grid = document.createElement('div');
+    grid.className = 'firsts-grid';
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 2) return;
+      grid.appendChild(createFirstItem(cells[0].textContent.trim(), cells[1].innerHTML.trim()));
+    });
+    wrap.style.display = 'none';
+    wrap.insertAdjacentElement('afterend', grid);
+    const btn = document.createElement('button');
+    btn.className = 'add-row-btn';
+    btn.innerHTML = '+ Lägg till milstolpe';
+    btn.addEventListener('click', () => {
+      const item = createFirstItem('Datum', 'Milstolpe');
+      grid.appendChild(item);
+      item.querySelector('.first-date').focus();
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    grid.insertAdjacentElement('afterend', btn);
+  });
+}
+
+// ── PHOTO UPLOAD ───────────────────────────────────────────────
+function triggerPhotoUpload(target, type) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (type === 'profile') {
+      const img = target.querySelector('img');
+      if (img) img.src = url;
+      else target.innerHTML = `<img src="${url}" alt="Foto" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      const newImg = document.createElement('img');
+      newImg.className = 'day-photo'; newImg.src = url;
+      newImg.title = 'Klicka för att byta foto'; newImg.style.cursor = 'pointer';
+      newImg.addEventListener('click', () => triggerPhotoUpload(newImg, 'day'));
+      target.replaceWith(newImg);
+    }
+  };
+  inp.click();
+}
+
+function initPhotoUpload() {
+  document.querySelectorAll('.profile-photo').forEach(el => {
+    el.title = 'Klicka för att byta foto'; el.style.cursor = 'pointer';
+    el.addEventListener('click', () => triggerPhotoUpload(el, 'profile'));
+  });
+  document.querySelectorAll('.day-photo, .day-photo-placeholder').forEach(el => {
+    el.title = 'Klicka för att byta foto'; el.style.cursor = 'pointer';
+    el.addEventListener('click', () => triggerPhotoUpload(el, 'day'));
+  });
+}
+
+// ── GROWTH CHART ───────────────────────────────────────────────
+function initGrowthChart() {
+  const canvas = document.getElementById('growth-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: ['25/1', '27/1', '30/1', '5/2', '15/2'],
+      datasets: [{
+        label: 'Vikt (g)',
+        data: [3250, 3150, 3305, 3390, 3650],
+        borderColor: '#F9A8B8', backgroundColor: 'rgba(249,168,184,0.08)',
+        borderWidth: 2, pointBackgroundColor: '#F9A8B8', pointRadius: 5,
+        tension: 0.4, yAxisID: 'y', fill: true,
+      }, {
+        label: 'Längd (cm)',
+        data: [49.8, null, null, null, 52],
+        borderColor: '#FBBF24', backgroundColor: 'transparent',
+        borderWidth: 2, borderDash: [4, 3], pointBackgroundColor: '#FBBF24',
+        pointRadius: 5, tension: 0.3, yAxisID: 'y1', spanGaps: true, fill: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#94A3B8', font: { family: 'Inter', size: 11 }, padding: 16 } },
+        tooltip: {
+          backgroundColor: '#1A1F2E', titleColor: '#F9A8B8', bodyColor: '#C9D1DC',
+          borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Vikt (g)', color: '#F9A8B8', font: { family: 'Inter', size: 11 } },
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'Längd (cm)', color: '#FBBF24', font: { family: 'Inter', size: 11 } },
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { drawOnChartArea: false },
+        }
+      }
+    }
+  });
+}
+
+// ── CONTENTEDITABLE ────────────────────────────────────────────
+function initContentEditable() {
+  document.querySelectorAll('.table-wrap td').forEach(td => { td.contentEditable = 'true'; });
+  document.querySelectorAll('.profile-row .value, .profile-row .emoji').forEach(el => { el.contentEditable = 'true'; });
+  const wt = document.querySelector('.welcome-callout > span:last-child');
+  if (wt) wt.contentEditable = 'true';
+  document.querySelectorAll('.callout p').forEach(p => { p.contentEditable = 'true'; });
+  document.querySelectorAll('.day-entry .day-date, .day-entry .day-text').forEach(el => { el.contentEditable = 'true'; });
+  document.querySelectorAll('.moment-item span:last-child').forEach(el => { el.contentEditable = 'true'; });
+  document.querySelectorAll('.section-label').forEach(el => { el.contentEditable = 'true'; });
+}
+
 // ── ADD ROW ────────────────────────────────────────────────────
 function initAddRow() {
   document.querySelectorAll('.table-wrap').forEach(wrap => {
     const table = wrap.querySelector('table');
     if (!table) return;
+    if (table.classList.contains('firsts-table')) return;
     const headers = [...table.querySelectorAll('th')].map(th => th.textContent.trim());
     if (headers.length === 0) return;
 
@@ -796,7 +991,7 @@ function initAddRow() {
 function initFadeIn() {
   const targets = document.querySelectorAll(
     '.section-title, .callout, .profile-section, .welcome-callout, ' +
-    '.moments-callout, .day-entry, .table-wrap'
+    '.moments-callout, .day-entry, .table-wrap, .firsts-grid, .growth-chart-wrap'
   );
   targets.forEach(el => el.classList.add('fade-in'));
 
@@ -812,6 +1007,10 @@ function initFadeIn() {
   document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
 }
 
+initFirstsGrid();
+initPhotoUpload();
+initGrowthChart();
+initContentEditable();
 initAddRow();
 initFadeIn();
 </script>
