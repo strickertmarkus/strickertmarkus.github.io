@@ -9,24 +9,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
-    /* ── THEME VARIABLES — edit these to customise ── */
+    /* ── THEME VARIABLES — Dark mode family app (Mila) ── */
     :root {
-      --accent:        #d4697a;   /* rose/pink accent */
-      --accent-light:  #f9e6ea;   /* light rose background */
-      --accent-mid:    #ebbdc5;   /* mid rose for borders */
-      --heading-color: #5a2533;   /* deep rose for headings */
-      --body-bg:       #fdfaf9;
-      --card-bg:       #ffffff;
-      --text:          #333333;
-      --text-muted:    #777777;
-      --border:        #e8d8da;
-      --table-head-bg: #f3d0d6;
-      --callout-bg:    #fdf0f2;
-      --callout-border:#d4697a;
+      --accent:        #FF9FAD;   /* light rose accent */
+      --accent-light:  #2D1620;   /* dark rose background */
+      --accent-mid:    #5A2533;   /* mid rose for borders */
+      --heading-color: #FFB3C1;   /* light rose headings */
+      --body-bg:       #0F1219;   /* dark background */
+      --card-bg:       #1A1F2E;   /* dark card */
+      --text:          #E2E8F0;   /* light text */
+      --text-muted:    #94A3B8;   /* muted light text */
+      --border:        #2A3041;   /* dark borders */
+      --table-head-bg: #2D1620;   /* dark rose table header */
+      --callout-bg:    #1F0A18;   /* very dark rose background */
+      --callout-border:#FF9FAD;   /* light rose border */
       --font-body:     'Nunito', sans-serif;
       --font-heading:  'Montserrat', sans-serif;
       --radius:        12px;
-      --shadow:        0 2px 12px rgba(212,105,122,0.10);
+      --shadow:        0 2px 12px rgba(255,159,173,0.15);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,12 +40,12 @@
 
     /* ── PAGE HEADER ── */
     .page-header {
-      background: var(--accent-light);
-      border-bottom: 2px solid var(--accent-mid);
+      background: linear-gradient(135deg, #1F0A18 0%, #2D1620 100%);
+      border-bottom: 2px solid var(--accent);
       padding: 1.5rem 2rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-wrap: wrap;
       gap: 0.75rem;
     }
@@ -55,13 +55,6 @@
       color: var(--heading-color);
       font-weight: 700;
     }
-    .page-header .back-link {
-      font-size: 0.9rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .page-header .back-link:hover { text-decoration: underline; }
 
     /* ── WELCOME CALLOUT ── */
     .welcome-callout {
@@ -212,8 +205,8 @@
       padding: 2rem;
       font-size: 0.85rem;
       color: var(--text-muted);
-      border-top: 1px solid var(--border);
-      background: var(--accent-light);
+      border-top: 2px solid var(--accent);
+      background: linear-gradient(135deg, #1F0A18 0%, #2D1620 100%);
     }
 
     /* ── RESPONSIVE ── */
@@ -228,7 +221,6 @@
 
   <header class="page-header">
     <h1>👶🏻 Vår älskade dotter Mila</h1>
-    <a href="../index.html" class="back-link">← Tillbaka</a>
   </header>
 
   <div class="page-content">
