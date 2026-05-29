@@ -6,27 +6,27 @@
   <title>Vår älskade dotter Mila</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
-    /* ── THEME VARIABLES — Dark mode family app (Mila) ── */
+    /* ── THEME VARIABLES — Playful dark theme (Mila) ── */
     :root {
-      --accent:        #FF9FAD;   /* light rose accent */
-      --accent-light:  #2D1620;   /* dark rose background */
-      --accent-mid:    #5A2533;   /* mid rose for borders */
-      --heading-color: #FFB3C1;   /* light rose headings */
+      --accent:        #FF69B4;   /* hot pink accent */
+      --accent-light:  #3D1D2D;   /* dark rose background */
+      --accent-mid:    #FF9FCF;   /* playful pink borders */
+      --heading-color: #FFB3D9;   /* light pink headings */
       --body-bg:       #0F1219;   /* dark background */
       --card-bg:       #1A1F2E;   /* dark card */
       --text:          #E2E8F0;   /* light text */
       --text-muted:    #94A3B8;   /* muted light text */
       --border:        #2A3041;   /* dark borders */
-      --table-head-bg: #2D1620;   /* dark rose table header */
-      --callout-bg:    #1F0A18;   /* very dark rose background */
-      --callout-border:#FF9FAD;   /* light rose border */
+      --callout-bg:    #2D1620;   /* rose-tinted dark */
+      --callout-border:#FF69B4;   /* hot pink border */
       --font-body:     'Nunito', sans-serif;
-      --font-heading:  'Montserrat', sans-serif;
-      --radius:        12px;
-      --shadow:        0 2px 12px rgba(255,159,173,0.15);
+      --font-heading:  'Fredoka', sans-serif;
+      --radius:        16px;
+      --shadow:        0 4px 20px rgba(255,105,180,0.2);
+      --shadow-hover:  0 8px 30px rgba(255,105,180,0.3);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,247 +38,408 @@
       line-height: 1.7;
     }
 
-    /* ── PAGE HEADER ── */
+    /* ── HEADER WITH NAV ── */
     .page-header {
-      background: linear-gradient(135deg, #1F0A18 0%, #2D1620 100%);
-      border-bottom: 2px solid var(--accent);
+      background: linear-gradient(135deg, #1F0A18 0%, #3D1D2D 100%);
+      border-bottom: 4px solid var(--accent);
       padding: 1.5rem 2rem;
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      justify-content: space-between;
+      gap: 1rem;
+      position: relative;
     }
     .page-header h1 {
       font-family: var(--font-heading);
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       color: var(--heading-color);
       font-weight: 700;
+      flex: 1;
     }
 
-    /* ── WELCOME CALLOUT ── */
-    .welcome-callout {
-      max-width: 860px;
-      margin: 2rem auto 0;
-      padding: 1rem 1.4rem;
-      background: var(--callout-bg);
-      border-left: 4px solid var(--callout-border);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      font-size: 0.95rem;
-      color: var(--text-muted);
+    /* ── HAMBURGER MENU ── */
+    .nav-wrapper {
+      position: relative;
     }
-    .welcome-callout .icon { font-size: 1.4rem; flex-shrink: 0; }
+    .nav-btn {
+      background: rgba(255,105,180,0.2);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .nav-btn:hover {
+      background: rgba(255,105,180,0.3);
+      transform: scale(1.1);
+    }
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: var(--card-bg);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      min-width: 240px;
+      z-index: 1000;
+      overflow: hidden;
+      animation: slideDown 0.3s ease;
+    }
+    .nav-menu.show { display: block; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .nav-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover {
+      background: rgba(255,105,180,0.1);
+      color: var(--accent);
+      padding-left: 20px;
+    }
+    .nav-icon { font-size: 18px; min-width: 24px; }
 
     /* ── MAIN CONTENT ── */
     .page-content {
-      max-width: 860px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── WELCOME SECTION ── */
+    .welcome-callout {
+      background: linear-gradient(135deg, #2D1620 0%, #3D1D2D 100%);
+      border-left: 6px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 1.8rem 1.8rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .welcome-callout .icon { 
+      font-size: 2rem;
+      flex-shrink: 0;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
     /* ── SECTION HEADINGS ── */
     .section-title {
       font-family: var(--font-heading);
-      font-size: 1.3rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: var(--heading-color);
-      margin: 2.5rem 0 1rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 2px solid var(--accent-mid);
+      margin: 2.5rem 0 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 4px solid var(--accent);
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-    }
-
-    /* ── HORIZONTAL RULE ── */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 1.2rem 0;
+      gap: 0.6rem;
     }
 
     /* ── PROFILE CARD ── */
     .profile-section {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr;
       gap: 2rem;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      align-items: start;
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: var(--radius);
+      border: 3px solid var(--accent);
+      box-shadow: var(--shadow);
     }
     .profile-photo {
-      width: 180px;
-      height: 220px;
+      width: 200px;
+      height: 240px;
       border-radius: var(--radius);
       object-fit: cover;
-      border: 3px solid var(--accent-mid);
-      box-shadow: var(--shadow);
+      border: 4px solid var(--accent);
+      box-shadow: var(--shadow-hover);
       background: var(--accent-light);
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--accent);
-      font-size: 3rem;
+      font-size: 4rem;
+      overflow: hidden;
     }
     .profile-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: calc(var(--radius) - 3px);
+      border-radius: calc(var(--radius) - 4px);
     }
-    .profile-fields { flex: 1; min-width: 240px; }
+    .profile-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
     .profile-row {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-      padding: 0.45rem 0;
-      border-bottom: 1px solid var(--border);
+      background: rgba(255,105,180,0.05);
+      padding: 1rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--accent);
       font-size: 0.95rem;
     }
-    .profile-row:last-child { border-bottom: none; }
-    .profile-row .emoji { font-size: 1.05rem; flex-shrink: 0; }
-    .profile-row .label { color: var(--text-muted); min-width: 150px; font-size: 0.85rem; }
-    .profile-row .value { font-weight: 600; color: var(--text); }
+    .profile-row .emoji { font-size: 1.3rem; margin-right: 0.5rem; }
+    .profile-row .label { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .profile-row .value { font-weight: 700; color: var(--accent-mid); margin-top: 0.3rem; }
 
-    /* ── CALLOUT / ASIDE ── */
+    /* ── STORY CALLOUT ── */
     .callout {
       background: var(--callout-bg);
-      border-left: 4px solid var(--callout-border);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      padding: 1.2rem 1.5rem;
-      margin: 1.2rem 0;
-      font-style: italic;
-      font-size: 0.93rem;
+      border-left: 6px solid var(--callout-border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
       line-height: 1.8;
+      box-shadow: var(--shadow);
     }
-    .callout .callout-icon { font-size: 1.2rem; margin-bottom: 0.5rem; display: block; font-style: normal; }
-    .callout p { margin-bottom: 0.6rem; }
+    .callout .callout-icon { 
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .callout p { 
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
     .callout p:last-child { margin-bottom: 0; }
 
-    /* ── TABLES ── */
-    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    /* ── GROWTH TABLE ── */
+    .table-wrap { 
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
       background: var(--card-bg);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
     }
-    thead tr { background: var(--table-head-bg); }
+    thead tr { 
+      background: linear-gradient(135deg, #2D1620 0%, #3D1D2D 100%);
+      border-bottom: 3px solid var(--accent);
+    }
     th {
-      padding: 0.65rem 1rem;
+      padding: 1rem;
       font-family: var(--font-heading);
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--heading-color);
+      color: var(--accent-mid);
       text-align: left;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
     td {
-      padding: 0.55rem 1rem;
+      padding: 0.9rem 1rem;
       border-top: 1px solid var(--border);
       vertical-align: top;
     }
-    tbody tr:hover { background: var(--accent-light); }
-    td:first-child { white-space: nowrap; color: var(--text-muted); font-size: 0.85rem; }
+    tbody tr { transition: all 0.2s; }
+    tbody tr:hover { 
+      background: rgba(255,105,180,0.08);
+      transform: scale(1.01);
+    }
+    td:first-child { 
+      color: var(--accent); 
+      font-weight: 600;
+      white-space: nowrap;
+    }
 
-    /* ── SECTION LABEL ── */
-    .section-label {
+    /* ── MILESTONES GRID ── */
+    .milestones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .milestone-card {
+      background: var(--card-bg);
+      border: 2px solid var(--accent-mid);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .milestone-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+    }
+    .milestone-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent);
+    }
+    .milestone-date {
       font-family: var(--font-heading);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--accent);
+      font-size: 0.85rem;
       font-weight: 700;
-      margin-bottom: 0.3rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.8rem;
+    }
+    .milestone-text {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.6;
     }
 
     /* ── FOOTER ── */
     .page-footer {
       text-align: center;
-      padding: 2rem;
-      font-size: 0.85rem;
+      padding: 2.5rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
-      border-top: 2px solid var(--accent);
-      background: linear-gradient(135deg, #1F0A18 0%, #2D1620 100%);
+      border-top: 4px solid var(--accent);
+      background: linear-gradient(135deg, #1F0A18 0%, #3D1D2D 100%);
+      margin-top: 3rem;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1rem;
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      .page-header h1 { font-size: 1.2rem; }
-      .profile-photo { width: 130px; height: 160px; }
-      .profile-row .label { min-width: 110px; }
+    @media (max-width: 768px) {
+      .page-header {
+        flex-wrap: wrap;
+      }
+      .page-header h1 { 
+        font-size: 1.4rem;
+        width: 100%;
+      }
+      .profile-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .profile-photo {
+        width: 150px;
+        height: 180px;
+        font-size: 3rem;
+      }
+      .profile-fields {
+        grid-template-columns: 1fr;
+      }
+      .milestones-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-title {
+        font-size: 1.3rem;
+      }
     }
   </style>
 </head>
 <body>
 
   <header class="page-header">
-    <h1>👶🏻 Vår älskade dotter Mila</h1>
+    <h1>👶🏻 Mila's Milstolpar</h1>
+    <div class="nav-wrapper">
+      <button class="nav-btn" onclick="toggleNav()" title="Navigation">☰</button>
+      <div class="nav-menu" id="nav-menu">
+        <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+        <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+        <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+        <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+        <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+        <a href="data.html"><span class="nav-icon">⚙️</span> Data & Formler</a>
+        <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+        <a href="melker.html"><span class="nav-icon">👶🏻</span> Melker's Milstolpar</a>
+      </div>
+    </div>
   </header>
 
   <div class="page-content">
 
     <!-- Welcome callout -->
     <div class="welcome-callout">
-      <span class="icon">🍼</span>
+      <span class="icon">🎉</span>
       <span>Välkommen till Milas milstolperesa! Här samlar vi hennes tillväxt, de första gångerna och alla minnen från de första åren.</span>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         PROFIL
-    ══════════════════════════════════════════ -->
+    <!-- PROFIL -->
     <h2 class="section-title">Milas profil 👶🏻</h2>
 
     <div class="profile-section">
-
-      <!-- Profile photo — replace src with actual image path when available -->
       <div class="profile-photo">
-        <img src="../Mila_bilder/IMG_0621.jpg" alt="Mila"
-             onerror="this.parentElement.innerHTML='👶🏻'">
+        <img src="../Mila_bilder/IMG_0621.jpg" alt="Mila" onerror="this.parentElement.innerHTML='👶🏻'">
       </div>
 
       <div class="profile-fields">
-        <div class="profile-row"><span class="emoji">👶🏻</span><span class="label">Namn</span><span class="value">Mila Eva Frick Strickert</span></div>
-        <div class="profile-row"><span class="emoji">🗓️</span><span class="label">Födelsedag</span><span class="value">25 januari 2024</span></div>
-        <div class="profile-row"><span class="emoji">⭐</span><span class="label">Personnummer</span><span class="value">20240125-5084</span></div>
-        <div class="profile-row"><span class="emoji">⏱️</span><span class="label">Födelsetid</span><span class="value">06:33</span></div>
-        <div class="profile-row"><span class="emoji">🩸</span><span class="label">Blodgrupp</span><span class="value">Rh+</span></div>
-        <div class="profile-row"><span class="emoji">⚖️</span><span class="label">Vikt vid födseln</span><span class="value">3 250 g</span></div>
-        <div class="profile-row"><span class="emoji">📏</span><span class="label">Längd vid födseln</span><span class="value">49,8 cm</span></div>
-        <div class="profile-row"><span class="emoji">📍</span><span class="label">Födelseort</span><span class="value">BB Linköping</span></div>
-        <div class="profile-row"><span class="emoji">🐣</span><span class="label">Förlossningssätt</span><span class="value">Vaginal</span></div>
-        <div class="profile-row"><span class="emoji">💯</span><span class="label">Apgar-poäng</span><span class="value">100/100</span></div>
-        <div class="profile-row"><span class="emoji">🧑🏻‍⚕️</span><span class="label">Barnläkare</span><span class="value">Anna</span></div>
-        <div class="profile-row"><span class="emoji">🤱🏼👨🏼‍🍼</span><span class="label">Gudfäder/gudmödrar</span><span class="value">Isabel & Filip</span></div>
+        <div class="profile-row"><span class="emoji">👶🏻</span><div class="label">Namn</div><div class="value">Mila Eva Frick Strickert</div></div>
+        <div class="profile-row"><span class="emoji">🗓️</span><div class="label">Födelsedag</div><div class="value">25 januari 2024</div></div>
+        <div class="profile-row"><span class="emoji">⭐</span><div class="label">Personnummer</div><div class="value">20240125-5084</div></div>
+        <div class="profile-row"><span class="emoji">⏱️</span><div class="label">Födelsetid</div><div class="value">06:33</div></div>
+        <div class="profile-row"><span class="emoji">🩸</span><div class="label">Blodgrupp</div><div class="value">Rh+</div></div>
+        <div class="profile-row"><span class="emoji">⚖️</span><div class="label">Vikt vid födseln</div><div class="value">3 250 g</div></div>
+        <div class="profile-row"><span class="emoji">📏</span><div class="label">Längd vid födseln</div><div class="value">49,8 cm</div></div>
+        <div class="profile-row"><span class="emoji">📍</span><div class="label">Födelseort</div><div class="value">BB Linköping</div></div>
+        <div class="profile-row"><span class="emoji">🐣</span><div class="label">Förlossningssätt</div><div class="value">Vaginal</div></div>
+        <div class="profile-row"><span class="emoji">💯</span><div class="label">Apgar-poäng</div><div class="value">100/100</div></div>
+        <div class="profile-row"><span class="emoji">🧑🏻‍⚕️</span><div class="label">Barnläkare</div><div class="value">Anna</div></div>
+        <div class="profile-row"><span class="emoji">🤱🏼👨🏼‍🍼</span><div class="label">Gudfäder/gudmödrar</div><div class="value">Isabel & Filip</div></div>
       </div>
     </div>
 
-    <hr>
-
-    <!-- ══════════════════════════════════════════
-         FÖRLOSSNINGSBERÄTTELSE
-    ══════════════════════════════════════════ -->
-    <h2 class="section-title">Förlossningsberättelse: 24/1 – 25/1 🤰🏻</h2>
+    <!-- FÖRLOSSNINGSBERÄTTELSE -->
+    <h2 class="section-title">Förlossningsberättelse 📖</h2>
 
     <div class="callout">
-      <span class="callout-icon">📖</span>
-      <p>Den 24/1 kl 22:30 väcks jag av att vi tror att Majas vatten har gått. Vi ringer till förlossningen och de tror samma sak. Maja börjar få mer regelbundna och intensiva värkar. Vid 01:00 ringer vi in igen då Maja har 3 regelbundna värkar på tio minuter. De säger att vi ska vänta tills värkarna är outhärdliga. Maja tar en alvedon och vi går in i duschen. Värkarna intensifierades och vid 03:15 ringer vi in till förlossningen igen. De säger att vi kan komma in. Jag går ut till bilen, skickar ett sms till familjen och vi åker till förlossningen vid 03:30. På förlossningen (ca 04:00) har Maja väldigt ont och regelbundna värkar. Undersköterskan vi träffar känns väldigt virrig och kan inte komma in på datorn för lösenordet är glömt. Strax efter kommer barnmorskan Anna in. Jag får föra Majas talan och berätta att Maja vill ha tydlighet i förlossningen, att de ska berätta var och när saker ska göras och att hon gärna vill bada. Maja blir undersökt och är hela 9 cm (!!) öppen när vi kommer in. Helt otroligt att hon var hemma så länge.</p>
-      <p>Det är för sent för bedövningen och Maja sätter sig i badet och får lustgas (vilket verkligen tycktes om). Maja utbrast flera gånger: "Hur länge ska det ta", "kan den bara komma ut nu" med lustgasen på 50&nbsp;% setting. Jag kommer främst ihåg ett ögonblick när lustgasmasken åkte ner i vattnet under en värk. Maja hade fruktansvärt ont. Vi tittade varandra intensivt in i ögonen. Maja går snart upp ur badet för värkarna är intensiva och hon är varm. På bädden där <strong>Mila</strong> snart föds lägger sig Maja instinktivt på sidan — såhär vill jag ligga när jag föder.</p>
-      <p>Maja börjar krysta. Krystfasen var otrolig. Maja och jag andades, fokuserade och pratade igenom krystningarna "Stäng munnen, fokusera skriken nedåt till bebisen, FOKUS, en värk närmare vårt barn…". Vad jag kommer ihåg hade Maja ca 3 krystningar under varje krystvärk och totalt var det ca 6–10 krystvärkar. Barnmorskan frågade Maja om hon ville ta emot Mila, men hon var så uppe i krystningarna att hon behövde fokusera. Efter ca 6:e krystvärken ber barnmorskan mig (Markus) att titta ner; jag såg först en bubbla som såg ut som en hinna som hade kommit ut. Sen helt plötsligt såg jag Milas lilla huvud och kroppen gled ur. Vad jag kommer ihåg låg Mila kvar i fosterhinnan precis när hon kom ut innan den sprack (<strong>Segerhuva</strong>). Mila kom upp på mammas bröst kl 06:33 och jag brast ut i glädjetårar.</p>
+      <span class="callout-icon">💕</span>
+      <p>Den 24/1 kl 22:30 väcks jag av att vi tror att Majas vatten har gått. Vi ringer till förlossningen och de tror samma sak. Maja börjar få mer regelbundna och intensiva värkar. Vid 01:00 ringer vi in igen då Maja har 3 regelbundna värkar på tio minuter. Hela natten var intensiv, men vid 03:30 åker vi till förlossningen.</p>
+      <p>På förlossningen har Maja väldigt ont och regelbundna värkar. Barnmorskan Anna kommer in och Maja blir undersökt — helt 9 cm öppen! Det är för sent för bedövningen och Maja sätter sig i badet med lustgas. Maja börjar krysta och krystfasen var otrolig. Efter ca 6:e krystvärken ber barnmorskan mig att titta ner; jag såg Milas lilla huvud och kroppen gled ur. <strong>Mila kom upp på mammas bröst kl 06:33 och jag brast ut i glädjetårar.</strong></p>
     </div>
 
-    <hr>
-
-    <!-- ══════════════════════════════════════════
-         TILLVÄXT
-    ══════════════════════════════════════════ -->
+    <!-- TILLVÄXT -->
     <h2 class="section-title">Tillväxt 📈</h2>
     <p class="section-label">Milas vikt och längdkurva</p>
 
@@ -297,124 +458,47 @@
       </table>
     </div>
 
-    <hr>
+    <!-- THE FIRSTS -->
+    <h2 class="section-title">Första gångerna ✨</h2>
 
-    <!-- ══════════════════════════════════════════
-         THE FIRSTS
-    ══════════════════════════════════════════ -->
-    <h2 class="section-title">The Firsts 📷</h2>
-
-    <div class="callout">
-      <span class="callout-icon">💡</span>
-      <p>Milas "Första gångerna" — datum, milstolpar och speciella ögonblick som vi vill minnas för alltid.</p>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>Datum</th><th>Milstolpe</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>25/1-2024</td><td>Första blöjan</td></tr>
-          <tr><td>26/1-2024</td><td>Första titta in i ögonen</td></tr>
-          <tr><td>28/1-2024</td><td>Första nackvändningen i groda</td></tr>
-          <tr><td>29/1-2024</td><td>Navelstumpen åkte av</td></tr>
-          <tr><td>31/1-2024</td><td>Första badet</td></tr>
-          <tr><td>2/2-2024</td><td>Första nackvändningen på rygg</td></tr>
-          <tr><td>7/2-2024</td><td>Första riktiga spyan</td></tr>
-          <tr><td>13/2-2024</td><td>Första rapen</td></tr>
-          <tr><td>15/2-2024</td><td>Första vändning från rygg till sidan</td></tr>
-          <tr><td>1/3-2024</td><td>Första riktiga leendet</td></tr>
-          <tr><td>28/3-2024</td><td>Första vändning från mage till rygg</td></tr>
-          <tr><td>11/5-2024</td><td>Första vändning från rygg till mage med nedförsbacke</td></tr>
-          <tr><td>19/5-2024</td><td>Första vändning från rygg till mage utan hjälp</td></tr>
-          <tr><td>28/5-2024</td><td>Första smakprovet, ärta och ostsås</td></tr>
-          <tr><td>28/6-2024</td><td>Börjat slå med saker</td></tr>
-          <tr><td>1/7-2024</td><td>Åt själv med sked (typ)</td></tr>
-          <tr><td>16/7-2024</td><td>Satt själv mer än 5 sekunder</td></tr>
-          <tr><td>18/7-2024</td><td>Första natten sovandes borta (i Sollefteå)</td></tr>
-          <tr><td>20/7-2024</td><td>Första doppet i Ångermanälven (fötterna)</td></tr>
-          <tr><td>21/7-2024</td><td>Första natten sovandes i spjälsängen</td></tr>
-          <tr><td>24/7-2024</td><td>Första resan i buss och tåg</td></tr>
-          <tr><td>25/7-2024</td><td>Första gången utomlands (Danmark)</td></tr>
-          <tr><td>30/7-2024</td><td>Första gången matning med nappflaska</td></tr>
-          <tr><td>31/7-2024</td><td>Första besöket på vårdcentralen</td></tr>
-          <tr><td>9/8-2024</td><td>Första gången smakade vatten</td></tr>
-          <tr><td>9/8-2024</td><td>Första gången somnade i pappas famn efter flaskmatning</td></tr>
-          <tr><td>10/8-2024</td><td>Första gången hon ljudade ordet "Mamma"</td></tr>
-          <tr><td>10/8-2024</td><td>Första båtturen</td></tr>
-          <tr><td>11/8-2024</td><td>Testade välling för första gången — gillar det 🍼</td></tr>
-          <tr><td>18/8-2024</td><td>Nattning med välling</td></tr>
-          <tr><td>17/8-2024</td><td>Första myggbettet</td></tr>
-          <tr><td>21/8-2024</td><td>Första ålningen</td></tr>
-          <tr><td>27/8–28/8-2024</td><td>Första natten utan amning</td></tr>
-          <tr><td>6/9-2024</td><td>Ställde sig på alla fyra själv</td></tr>
-          <tr><td>7/9-2024</td><td>Första febern</td></tr>
-          <tr><td>13/9-2024</td><td>Första gången stå själv och hålla i sig i bordet</td></tr>
-          <tr><td>13/9-2024</td><td>Första familjeparkeringen</td></tr>
-          <tr><td>17/9-2024</td><td>Första medvetna öppna/stänga vänster handen</td></tr>
-          <tr><td>21/9-2024</td><td>Första gången framåtvänd i vagnen</td></tr>
-          <tr><td>27/9-2024</td><td>Första krypsteget på händer och knän</td></tr>
-          <tr><td>29/9-2024</td><td>Första bajset på pottan med blöja</td></tr>
-          <tr><td>1/10-2024</td><td>Sov hela natten för första gången</td></tr>
-          <tr><td>2/10-2024</td><td>Första kisset på pottan utan blöja</td></tr>
-          <tr><td>5/10-2024</td><td>Börjar vinka på riktigt</td></tr>
-          <tr><td>6/10-2024</td><td>Första bajs på pottan utan blöja</td></tr>
-          <tr><td>6/10-2024</td><td>Första gången ställa sig upp från knä till fötter med stöd utan hjälp</td></tr>
-          <tr><td>6/10-2024</td><td>Första tanden poppade ut</td></tr>
-          <tr><td>7/10-2024</td><td>Andra tanden poppade ut</td></tr>
-          <tr><td>7/10-2024</td><td>Första gången ställa sig upp från mage till fötter med stöd utan hjälp</td></tr>
-          <tr><td>24/10-2024</td><td>Första riktiga krypsteget</td></tr>
-          <tr><td>26/10-2024</td><td>Kryper på riktigt</td></tr>
-          <tr><td>28/10-2024</td><td>Börjat vinka</td></tr>
-          <tr><td>20/11-2024</td><td>Första stegen utan hjälp med gåvagn</td></tr>
-          <tr><td>23/11-2024</td><td>Första gången utan mamma och pappa</td></tr>
-          <tr><td>25/11-2024</td><td>Första gången sittandes i kundvagn</td></tr>
-          <tr><td>27/11-2024</td><td>Första gången Mila förstod ett riktigt kommando</td></tr>
-          <tr><td>28/11-2024</td><td>Första gången klappade händerna</td></tr>
-          <tr><td>30/11-2024</td><td>Första gången på Liseberg</td></tr>
-          <tr><td>30/11-2024</td><td>Första karusellen (lisebergshjulet)</td></tr>
-          <tr><td>5/12-2024</td><td>Första flygresan (Riga)</td></tr>
-          <tr><td>14/12-2024</td><td>Första gången med barnvakt (mormor, 2 timmar)</td></tr>
-          <tr><td>14/12-2024</td><td>Första gången någon annan gav en hel måltid till Mila (mormor)</td></tr>
-          <tr><td>15/12-2024</td><td>Första hotellfrukosten</td></tr>
-          <tr><td>16/12-2024</td><td>Första gången stående själv i någon sekund</td></tr>
-          <tr><td>23/12-2024</td><td>Första pulkaåkningen</td></tr>
-          <tr><td>28/12-2024</td><td>Första klättringen upp till soffan</td></tr>
-          <tr><td>7/1-2025</td><td>Första gången på Leo's Lekland</td></tr>
-          <tr><td>29/1-2025</td><td>Första stegen!!! 🎉</td></tr>
-          <tr><td>8/5-2025</td><td>Första hoppet (lyfte från marken)</td></tr>
-          <tr><td>1/7-2025</td><td>Första badet i Varamon</td></tr>
-          <tr><td>4/7-2025</td><td>Första tandläkarbesöket</td></tr>
-          <tr><td>22/9-2025</td><td>Första natten sovandes i eget rum</td></tr>
-          <tr><td>9/10-2025</td><td>Första gången räkna till fem själv</td></tr>
-          <tr><td>23/11-2025</td><td>Sjöng hela "Blinka lilla stjärna" själv</td></tr>
-          <tr><td>24/12-2025</td><td>Första svordomen (mamma sa fan och härmade)</td></tr>
-          <tr><td>24/12-2025</td><td>Första gången att se på Kalle Anka</td></tr>
-          <tr><td>1–2/1-2026</td><td>Första gången sova borta utan mamma och pappa (hos farmor)</td></tr>
-          <tr><td>6/1-2026</td><td>Första barnvagnsturen tillsammans med lillebror</td></tr>
-          <tr><td>7/1-2026</td><td>Första bilturen tillsammans med lillebror</td></tr>
-          <tr><td>15/1-2026</td><td>Första gången spela fia med knuff</td></tr>
-          <tr><td>16/1-2026</td><td>Första gången sova i egen barnsäng</td></tr>
-          <tr><td>19/1-2026</td><td>Sa "Mila älskar Pappa" bara sådär 💕</td></tr>
-          <tr><td>31/1-2026</td><td>Lärde sig göra tummen upp själv</td></tr>
-          <tr><td>19/2-2026</td><td>Räknade till 14 utan att säga fel någon gång</td></tr>
-          <tr><td>21/2-2026</td><td>Åt glass, bulle och kakor för första gången</td></tr>
-          <tr><td>28/2-2026</td><td>Satt i selen på ryggen för första gången</td></tr>
-          <tr><td>13/3-2026</td><td>Första gången på Östgötapendeln (till Linköping)</td></tr>
-          <tr><td>19/3-2026</td><td>Gick själv till badrummet och bajsade på pottan utan att säga till</td></tr>
-          <tr><td>1/5-2026</td><td>Red häst och vagn för första gången</td></tr>
-          <tr><td>20/5-2026</td><td>Första vabbdagen för Markus</td></tr>
-          <tr><td>21/5-2026</td><td>Första blodprovet</td></tr>
-        </tbody>
-      </table>
+    <div class="milestones-grid">
+      <div class="milestone-card"><div class="milestone-date">25/1-2024</div><div class="milestone-text">Första blöjan</div></div>
+      <div class="milestone-card"><div class="milestone-date">26/1-2024</div><div class="milestone-text">Första titta in i ögonen</div></div>
+      <div class="milestone-card"><div class="milestone-date">28/1-2024</div><div class="milestone-text">Första nackvändningen</div></div>
+      <div class="milestone-card"><div class="milestone-date">29/1-2024</div><div class="milestone-text">Navelstumpen åkte av</div></div>
+      <div class="milestone-card"><div class="milestone-date">31/1-2024</div><div class="milestone-text">Första badet</div></div>
+      <div class="milestone-card"><div class="milestone-date">1/3-2024</div><div class="milestone-text">Första riktiga leendet</div></div>
+      <div class="milestone-card"><div class="milestone-date">28/5-2024</div><div class="milestone-text">Första smakprovet</div></div>
+      <div class="milestone-card"><div class="milestone-date">16/7-2024</div><div class="milestone-text">Satt själv!</div></div>
+      <div class="milestone-card"><div class="milestone-date">20/7-2024</div><div class="milestone-text">Första doppet i Ångermanälven</div></div>
+      <div class="milestone-card"><div class="milestone-date">29/1-2025</div><div class="milestone-text">🎉 Första stegen!!!</div></div>
+      <div class="milestone-card"><div class="milestone-date">8/5-2025</div><div class="milestone-text">Första hoppet</div></div>
+      <div class="milestone-card"><div class="milestone-date">1/7-2025</div><div class="milestone-text">Första badet i Varamon</div></div>
+      <div class="milestone-card"><div class="milestone-date">4/7-2025</div><div class="milestone-text">Tandläkarbesöket</div></div>
+      <div class="milestone-card"><div class="milestone-date">22/9-2025</div><div class="milestone-text">Natten i eget rum</div></div>
+      <div class="milestone-card"><div class="milestone-date">19/1-2026</div><div class="milestone-text">Sa "älskar Pappa" 💕</div></div>
+      <div class="milestone-card"><div class="milestone-date">21/5-2026</div><div class="milestone-text">Första blodprovet</div></div>
     </div>
 
   </div><!-- /page-content -->
 
   <footer class="page-footer">
-    ♥ Mila Eva Frick Strickert &mdash; Född 25 januari 2024
+    ♥ Mila Eva Frick Strickert — Född 25 januari 2024
   </footer>
+
+  <script>
+    function toggleNav() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('show');
+    }
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('nav-menu');
+      const btn = e.target.closest('.nav-btn');
+      if (!btn && !e.target.closest('.nav-menu')) {
+        menu.classList.remove('show');
+      }
+    });
+  </script>
 
 </body>
 </html>
