@@ -13,15 +13,15 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #0F1219;
-      color: #E2E8F0;
+      background: #181F2E;
+      color: #E8EDF5;
       line-height: 1.7;
       min-height: 100vh;
     }
 
     /* ── PAGE HEADER ── */
     .page-header {
-      background: linear-gradient(135deg, #180810 0%, #2A1020 100%);
+      background: linear-gradient(135deg, #2C1220 0%, #3E1E2C 100%);
       color: white;
       padding: 28px 24px 24px;
       text-align: center;
@@ -122,7 +122,7 @@
       align-items: flex-start;
       gap: 12px;
       font-size: 13px;
-      color: #94A3B8;
+      color: #B4C2D4;
       transition: border-left-color 0.3s;
     }
     .welcome-callout:hover { border-left-color: rgba(249, 168, 184, 0.55); }
@@ -162,7 +162,7 @@
     hr {
       border: none;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      background: linear-gradient(90deg, transparent, rgba(249,168,184,0.28), transparent);
       margin: 2.5rem 0;
     }
 
@@ -209,7 +209,7 @@
     .profile-row:last-child { border-bottom: none; }
     .profile-row .emoji { font-size: 13px; flex-shrink: 0; }
     .profile-row .label {
-      color: #6B7280;
+      color: #8C99AC;
       min-width: 160px;
       font-size: 12px;
       font-weight: 500;
@@ -229,7 +229,7 @@
       margin: 16px 0;
       font-size: 13px;
       line-height: 1.85;
-      color: #94A3B8;
+      color: #B4C2D4;
       font-style: normal;
       transition: border-left-color 0.2s;
     }
@@ -260,10 +260,10 @@
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       vertical-align: top;
-      color: #C9D1DC;
+      color: #D8E2EE;
     }
     td:first-child {
-      color: #5A6478;
+      color: #8294AA;
       font-size: 12px;
       white-space: nowrap;
       width: 130px;
@@ -354,7 +354,7 @@
     .day-entry .day-text {
       font-size: 13px;
       line-height: 1.85;
-      color: #8892A4;
+      color: #A0ACBE;
       margin-bottom: 12px;
     }
     .day-entry .day-photo {
@@ -405,7 +405,7 @@
       gap: 8px;
       padding: 6px 0;
       font-size: 13px;
-      color: #8892A4;
+      color: #A0ACBE;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       transition: color 0.2s;
     }
@@ -420,7 +420,7 @@
       font-size: 12px;
       color: rgba(255,255,255,0.3);
       border-top: 1px solid rgba(255,255,255,0.05);
-      background: linear-gradient(135deg, #180810 0%, #2A1020 100%);
+      background: linear-gradient(135deg, #2C1220 0%, #3E1E2C 100%);
       letter-spacing: 0.5px;
     }
 
@@ -468,14 +468,14 @@
     }
     .first-item:hover { background: rgba(249,168,184,0.04); }
     .first-date {
-      color: #5A6478;
+      color: #8294AA;
       font-size: 11px;
       white-space: nowrap;
       flex-shrink: 0;
       min-width: 82px;
       padding-top: 1px;
     }
-    .first-event { color: #C9D1DC; flex: 1; }
+    .first-event { color: #D8E2EE; flex: 1; }
 
     /* ── GROWTH CHART ── */
     .growth-chart-wrap {
@@ -769,6 +769,74 @@
 
   scene.add(new THREE.Points(geo, mat));
 
+  // ── BUBBLES ──────────────────────────────────────────────────
+  const bubbleTex = (function() {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const cx = c.getContext('2d');
+    const g = cx.createRadialGradient(64, 64, 6, 64, 64, 62);
+    g.addColorStop(0,    'rgba(255,255,255,0)');
+    g.addColorStop(0.65, 'rgba(255,255,255,0.05)');
+    g.addColorStop(0.88, 'rgba(255,255,255,0.24)');
+    g.addColorStop(1.0,  'rgba(255,255,255,0)');
+    cx.fillStyle = g; cx.beginPath(); cx.arc(64,64,64,0,Math.PI*2); cx.fill();
+    return new THREE.CanvasTexture(c);
+  })();
+  const bubbles = [];
+  for (let i = 0; i < 8; i++) {
+    const sz = 2.5 + Math.random() * 5.5;
+    const bm = new THREE.Mesh(
+      new THREE.PlaneGeometry(sz, sz),
+      new THREE.MeshBasicMaterial({ map: bubbleTex, transparent: true,
+        opacity: 0.28 + Math.random()*0.18, depthWrite: false })
+    );
+    bm.position.set((Math.random()-0.5)*90, (Math.random()-0.5)*55, (Math.random()-0.5)*10);
+    bm.userData.vx = (Math.random()-0.5)*0.007;
+    bm.userData.vy = 0.007 + Math.random()*0.011;
+    scene.add(bm); bubbles.push(bm);
+  }
+
+  // ── SHOOTING STARS ────────────────────────────────────────────
+  const shooters = [];
+  let shootTimer = 0;
+  function spawnShooter() {
+    const len = 3 + Math.random() * 5;
+    const ax = -55 + Math.random()*60, ay = 18 + Math.random()*14;
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(
+      new Float32Array([ax, ay, 5,  ax + 0.7*len, ay - 0.42*len, 5]), 3));
+    const sl = new THREE.Line(sg,
+      new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.88 }));
+    sl.userData.vx = 0.9 + Math.random()*0.7;
+    sl.userData.vy = -(0.5 + Math.random()*0.3);
+    sl.userData.fade = 0.015 + Math.random()*0.015;
+    scene.add(sl); shooters.push(sl);
+  }
+
+  // ── WIREFRAME GEMS ────────────────────────────────────────────
+  const ACCENT_COLOR = 0xF9A8B8;
+  const gems = [];
+  const gemGeoList = [
+    new THREE.OctahedronGeometry(1.1),
+    new THREE.TetrahedronGeometry(0.95),
+    new THREE.IcosahedronGeometry(0.85),
+    new THREE.OctahedronGeometry(0.75),
+    new THREE.TetrahedronGeometry(1.25),
+    new THREE.IcosahedronGeometry(1.0),
+  ];
+  for (let i = 0; i < 6; i++) {
+    const gm = new THREE.Mesh(
+      gemGeoList[i],
+      new THREE.MeshBasicMaterial({ color: ACCENT_COLOR, wireframe: true,
+        transparent: true, opacity: 0.22 })
+    );
+    gm.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*50, (Math.random()-0.5)*15);
+    gm.userData.rx = (Math.random()-0.5)*0.013;
+    gm.userData.ry = (Math.random()-0.5)*0.017;
+    gm.userData.vx = (Math.random()-0.5)*0.006;
+    gm.userData.vy = (Math.random()-0.5)*0.005;
+    scene.add(gm); gems.push(gm);
+  }
+
   function animate() {
     requestAnimationFrame(animate);
     const p = geo.attributes.position.array;
@@ -781,6 +849,33 @@
       if (p[i*3+1] < -35) p[i*3+1] =  35;
     }
     geo.attributes.position.needsUpdate = true;
+    // bubbles float upward
+    bubbles.forEach(b => {
+      b.position.y += b.userData.vy;
+      b.position.x += b.userData.vx;
+      if (b.position.y > 42) { b.position.y = -42; b.position.x = (Math.random()-0.5)*90; }
+    });
+    // shooting stars
+    shootTimer++;
+    if (shootTimer > 100 + Math.random()*150) { spawnShooter(); shootTimer = 0; }
+    for (let i = shooters.length-1; i >= 0; i--) {
+      const s = shooters[i];
+      s.position.x += s.userData.vx;
+      s.position.y += s.userData.vy;
+      s.material.opacity -= s.userData.fade;
+      if (s.material.opacity <= 0) { scene.remove(s); shooters.splice(i, 1); }
+    }
+    // wireframe gems drift + spin
+    gems.forEach(g => {
+      g.rotation.x += g.userData.rx;
+      g.rotation.y += g.userData.ry;
+      g.position.x += g.userData.vx;
+      g.position.y += g.userData.vy;
+      if (g.position.x >  50) g.position.x = -50;
+      if (g.position.x < -50) g.position.x =  50;
+      if (g.position.y >  35) g.position.y = -35;
+      if (g.position.y < -35) g.position.y =  35;
+    });
     renderer.render(scene, camera);
   }
   animate();
