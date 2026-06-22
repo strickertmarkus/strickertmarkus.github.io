@@ -8,220 +8,227 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg:   #0D1117;
-      --bg2:  #161B22;
-      --bg3:  #1F2937;
-      --border: rgba(255,255,255,0.09);
-      --text: #F0F6FC;
-      --text-sec: #8B949E;
-      --text-dim: #4A5568;
-      --radius: 16px;
+      --bg: #080D18;
+      --bg2: #0D1625;
+      --bg3: #162030;
+      --border: rgba(255,255,255,0.07);
+      --text: #E2EEFF;
+      --text-sec: #6B82A0;
+      --text-dim: #2E4060;
+      --radius: 15px;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse 100% 55% at 50% -5%, rgba(96,165,250,0.07) 0%, transparent 65%);
-      pointer-events: none; z-index: 0;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+    #bg-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .content { position: relative; z-index: 1; }
 
     /* ── HEADER ── */
-    .site-header {
-      position: relative; z-index: 1;
-      text-align: center;
-      padding: 64px 24px 52px;
-      border-bottom: 1px solid var(--border);
-    }
-    .site-logo { font-size: 52px; margin-bottom: 14px; display: block; }
-    .site-title {
-      font-size: 30px; font-weight: 800;
-      letter-spacing: -0.6px; color: var(--text);
-      margin-bottom: 6px;
-    }
-    .site-sub { font-size: 15px; color: var(--text-sec); }
+    .site-header { text-align: center; padding: 52px 24px 30px; }
+    .site-logo { font-size: 44px; margin-bottom: 12px; display: block; animation: logoFloat 4s ease-in-out infinite; }
+    @keyframes logoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .site-title { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 6px; }
+    .site-sub { font-size: 13px; color: var(--text-sec); }
 
-    /* ── MAIN ── */
-    .main {
-      position: relative; z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 44px 24px 80px;
-    }
-
-    /* ── SECTION ── */
-    .section { margin-bottom: 52px; }
-    .section-title {
-      font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
-      text-transform: uppercase; color: var(--text-dim);
-      margin-bottom: 18px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 14px;
-    }
+    /* ── LAYOUT ── */
+    .main { max-width: 1120px; margin: 0 auto; padding: 10px 18px 60px; }
+    .section { margin-bottom: 28px; }
+    .section-label { font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.07), transparent); }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .cards-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     /* ── CARD ── */
-    .card {
-      display: block;
-      text-decoration: none;
-      color: var(--text);
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px 20px 42px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s, background 0.2s;
-    }
-    .card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: var(--c-accent, transparent);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .card:hover {
-      border-color: var(--c-accent, rgba(255,255,255,0.22));
-      background: var(--bg3);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.35), 0 0 0 1px var(--c-accent, transparent);
-    }
+    .card { display: flex; flex-direction: column; text-decoration: none; color: var(--text); background: rgba(13,22,37,0.78); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px 14px; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.22s, box-shadow 0.22s; transform-style: preserve-3d; will-change: transform; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--c-accent, transparent); opacity: 0; transition: opacity 0.22s; }
+    .card:hover { border-color: var(--c-accent, rgba(255,255,255,0.18)); box-shadow: 0 14px 44px rgba(0,0,0,0.55); }
     .card:hover::before { opacity: 1; }
-    .card:active { transform: translateY(0) scale(0.975); transition-duration: 0.08s; }
-    .card-icon { font-size: 30px; margin-bottom: 11px; display: block; }
-    .card-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
-    .card-desc { font-size: 12px; color: var(--text-sec); line-height: 1.55; }
-    .card-arrow {
-      position: absolute; bottom: 16px; right: 18px;
-      font-size: 14px; color: var(--text-dim);
-      transition: transform 0.2s, color 0.2s;
-    }
-    .card:hover .card-arrow {
-      transform: translateX(4px);
-      color: var(--c-accent, var(--text-sec));
-    }
+    .card:active { opacity: 0.8; }
+    .card-icon { font-size: 26px; line-height: 1; margin-bottom: 9px; }
+    .card-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .card-desc { font-size: 11px; color: var(--text-sec); line-height: 1.45; flex: 1; }
+    .card-chevron { font-size: 16px; color: var(--text-dim); margin-top: 10px; text-align: right; transition: color 0.2s, transform 0.2s; }
+    .card:hover .card-chevron { color: var(--c-accent, var(--text-sec)); transform: translateX(4px); }
+    .card-large { flex-direction: row; align-items: center; gap: 14px; padding: 20px; }
+    .card-large .card-icon { font-size: 34px; margin-bottom: 0; flex-shrink: 0; }
+    .card-large .card-body { flex: 1; }
+    .card-large .card-name { font-size: 15px; }
+    .card-large .card-desc { font-size: 12px; }
+    .card-large .card-chevron { margin-top: 0; margin-left: 8px; }
+    @keyframes ripple-kf { to { transform: scale(5); opacity: 0; } }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 680px) {
-      .site-header { padding: 44px 16px 36px; }
-      .site-logo { font-size: 44px; }
-      .site-title { font-size: 24px; }
-      .main { padding: 28px 14px 60px; }
-      .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
-      .card { padding: 18px 14px 38px; }
-      .card-icon { font-size: 26px; margin-bottom: 8px; }
-      .card-name { font-size: 13px; }
-      .card-desc { font-size: 11px; }
+    @media (max-width: 860px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) {
+      .cards { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .cards-2 { grid-template-columns: 1fr; }
+      .card { padding: 14px 12px; } .card-large { padding: 14px; }
+      .card-icon { font-size: 22px; } .card-large .card-icon { font-size: 28px; }
+      .card-name { font-size: 12px; } .card-desc { font-size: 10px; }
+      .site-header { padding: 36px 16px 22px; } .site-title { font-size: 22px; } .main { padding: 6px 12px 50px; }
     }
-    @media (max-width: 380px) {
-      .cards { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 380px) { .cards { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+<canvas id="bg-canvas"></canvas>
+<div class="content">
 
 <header class="site-header">
   <span class="site-logo">🏡</span>
   <div class="site-title">Familia Strickert</div>
-  <div class="site-sub">Välj en sida nedan</div>
+  <div class="site-sub">Välkommen — välj en sida</div>
 </header>
 
 <main class="main">
 
-  <!-- BUDGET -->
   <div class="section">
-    <div class="section-title">Ekonomi &amp; Budget</div>
+    <div class="section-label">Ekonomi &amp; Budget</div>
     <div class="cards">
       <a href="budget.html" class="card" style="--c-accent:#3B6DE0">
-        <span class="card-icon">💰</span>
+        <div class="card-icon">💰</div>
         <div class="card-name">Markus Budget</div>
-        <div class="card-desc">Månadsbudget, inkomster, utgifter och sparmål</div>
-        <span class="card-arrow">→</span>
+        <div class="card-desc">Månadsbudget, inkomster och spar mål</div>
+        <div class="card-chevron">›</div>
       </a>
       <a href="analytics.html" class="card" style="--c-accent:#60A5FA">
-        <span class="card-icon">📈</span>
+        <div class="card-icon">📈</div>
         <div class="card-name">Markus Analys</div>
-        <div class="card-desc">Trender, jämförelser och statistik</div>
-        <span class="card-arrow">→</span>
-      </a>
-      <a href="budget_maja.html" class="card" style="--c-accent:#F9A8B8">
-        <span class="card-icon">💰</span>
-        <div class="card-name">Majas Budget</div>
-        <div class="card-desc">Majas månadsbudget och sparmål</div>
-        <span class="card-arrow">→</span>
-      </a>
-      <a href="analytics_maja.html" class="card" style="--c-accent:#F472B6">
-        <span class="card-icon">📈</span>
-        <div class="card-name">Majas Analys</div>
-        <div class="card-desc">Trender och statistik för Maja</div>
-        <span class="card-arrow">→</span>
+        <div class="card-desc">Trender och statistik</div>
+        <div class="card-chevron">›</div>
       </a>
       <a href="familjebudget.html" class="card" style="--c-accent:#FBBF24">
-        <span class="card-icon">🏠</span>
+        <div class="card-icon">🏠</div>
         <div class="card-name">Familjebudget</div>
-        <div class="card-desc">Gemensamma hushållskostnader och lån</div>
-        <span class="card-arrow">→</span>
+        <div class="card-desc">Hushåll och gemensamma kostnader</div>
+        <div class="card-chevron">›</div>
+      </a>
+      <a href="budget_maja.html" class="card" style="--c-accent:#F9A8B8">
+        <div class="card-icon">💰</div>
+        <div class="card-name">Majas Budget</div>
+        <div class="card-desc">Majas månadsbudget</div>
+        <div class="card-chevron">›</div>
+      </a>
+      <a href="analytics_maja.html" class="card" style="--c-accent:#F472B6">
+        <div class="card-icon">📈</div>
+        <div class="card-name">Majas Analys</div>
+        <div class="card-desc">Statistik för Maja</div>
+        <div class="card-chevron">›</div>
       </a>
       <a href="data.html" class="card" style="--c-accent:#6B7280">
-        <span class="card-icon">⚙️</span>
+        <div class="card-icon">⚙️</div>
         <div class="card-name">Data &amp; Formler</div>
-        <div class="card-desc">Exportera, importera och hantera grunddata</div>
-        <span class="card-arrow">→</span>
+        <div class="card-desc">Export och grunddata</div>
+        <div class="card-chevron">›</div>
       </a>
     </div>
   </div>
 
-  <!-- FAMILY & ACTIVITIES -->
   <div class="section">
-    <div class="section-title">Familj &amp; Aktivitet</div>
-    <div class="cards">
-      <a href="calendar.html" class="card" style="--c-accent:#FBBF24">
-        <span class="card-icon">📅</span>
-        <div class="card-name">Familjekalender</div>
-        <div class="card-desc">Händelser, påminnelser och att-göra för hela familjen</div>
-        <span class="card-arrow">→</span>
+    <div class="section-label">Familj &amp; Aktivitet</div>
+    <div class="cards-2">
+      <a href="calendar.html" class="card card-large" style="--c-accent:#FBBF24">
+        <div class="card-icon">📅</div>
+        <div class="card-body"><div class="card-name">Familjekalender</div><div class="card-desc">Händelser, påminnelser och att-göra för hela familjen</div></div>
+        <div class="card-chevron">›</div>
       </a>
-      <a href="exercise.html" class="card" style="--c-accent:#22D3EE">
-        <span class="card-icon">💪</span>
-        <div class="card-name">Träning</div>
-        <div class="card-desc">Träningslogg, mål, personliga rekord och framsteg</div>
-        <span class="card-arrow">→</span>
+      <a href="exercise.html" class="card card-large" style="--c-accent:#22D3EE">
+        <div class="card-icon">💪</div>
+        <div class="card-body"><div class="card-name">Träning</div><div class="card-desc">Träningslogg, mål och personliga rekord</div></div>
+        <div class="card-chevron">›</div>
       </a>
     </div>
   </div>
 
-  <!-- KIDS -->
   <div class="section">
-    <div class="section-title">Barnen</div>
-    <div class="cards">
-      <a href="mila.html" class="card" style="--c-accent:#F472B6">
-        <span class="card-icon">👧🏻</span>
-        <div class="card-name">Milas Milstolpar</div>
-        <div class="card-desc">Tillväxt, första gånger och minnen — Mila, f. 25 jan 2024</div>
-        <span class="card-arrow">→</span>
+    <div class="section-label">Barnen</div>
+    <div class="cards-2">
+      <a href="mila.html" class="card card-large" style="--c-accent:#F472B6">
+        <div class="card-icon">👧🏻</div>
+        <div class="card-body"><div class="card-name">Milas Milstolpar</div><div class="card-desc">Tillväxt och minnen — Mila, f. 25 jan 2024</div></div>
+        <div class="card-chevron">›</div>
       </a>
-      <a href="melker.html" class="card" style="--c-accent:#86EFAC">
-        <span class="card-icon">👦🏼</span>
-        <div class="card-name">Melkers Milstolpar</div>
-        <div class="card-desc">Tillväxt, första gånger och minnen — Melker, f. 3 jan 2026</div>
-        <span class="card-arrow">→</span>
+      <a href="melker.html" class="card card-large" style="--c-accent:#86EFAC">
+        <div class="card-icon">👦🏼</div>
+        <div class="card-body"><div class="card-name">Melkers Milstolpar</div><div class="card-desc">Tillväxt och minnen — Melker, f. 3 jan 2026</div></div>
+        <div class="card-chevron">›</div>
       </a>
     </div>
   </div>
 
 </main>
+</div>
+
+<script>
+// ── THREE.JS CONSTELLATION ─────────────────────────────────────────
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  if(!canvas||typeof THREE==='undefined')return;
+  var W=window.innerWidth, H=window.innerHeight;
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(W,H);
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(60,W/H,0.1,500); camera.position.z=45;
+  var N=80, pos=new Float32Array(N*3), vel=[];
+  for(var i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*110; pos[i*3+1]=(Math.random()-.5)*72; pos[i*3+2]=(Math.random()-.5)*25;
+    vel.push((Math.random()-.5)*.011,(Math.random()-.5)*.007);
+  }
+  var nodeGeo=new THREE.BufferGeometry();
+  nodeGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(nodeGeo,new THREE.PointsMaterial({color:0x4A90D9,size:.65,transparent:true,opacity:.65,sizeAttenuation:true})));
+  var MAX=280, lp=new Float32Array(MAX*6), lgeo=new THREE.BufferGeometry();
+  lgeo.setAttribute('position',new THREE.BufferAttribute(lp,3)); lgeo.setDrawRange(0,0);
+  scene.add(new THREE.LineSegments(lgeo,new THREE.LineBasicMaterial({color:0x1E4A8C,transparent:true,opacity:.2})));
+  var mouse={x:0,y:0};
+  document.addEventListener('mousemove',function(e){mouse.x=(e.clientX/W-.5)*.7;mouse.y=(e.clientY/H-.5)*.5;});
+  var D2=18*18;
+  function animate(){
+    requestAnimationFrame(animate);
+    for(var i=0;i<N;i++){
+      pos[i*3]+=vel[i*2]; pos[i*3+1]+=vel[i*2+1];
+      if(pos[i*3]>55)vel[i*2]=-Math.abs(vel[i*2]); if(pos[i*3]<-55)vel[i*2]=Math.abs(vel[i*2]);
+      if(pos[i*3+1]>36)vel[i*2+1]=-Math.abs(vel[i*2+1]); if(pos[i*3+1]<-36)vel[i*2+1]=Math.abs(vel[i*2+1]);
+    }
+    nodeGeo.attributes.position.needsUpdate=true;
+    var lc=0;
+    for(var a=0;a<N&&lc<MAX;a++)for(var b=a+1;b<N&&lc<MAX;b++){
+      var dx=pos[a*3]-pos[b*3],dy=pos[a*3+1]-pos[b*3+1];
+      if(dx*dx+dy*dy<D2){lp[lc*6]=pos[a*3];lp[lc*6+1]=pos[a*3+1];lp[lc*6+2]=pos[a*3+2];lp[lc*6+3]=pos[b*3];lp[lc*6+4]=pos[b*3+1];lp[lc*6+5]=pos[b*3+2];lc++;}
+    }
+    lgeo.attributes.position.needsUpdate=true; lgeo.setDrawRange(0,lc*2);
+    camera.position.x+=(mouse.x*5-camera.position.x)*.035;
+    camera.position.y+=(-mouse.y*3.5-camera.position.y)*.035;
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+  }
+  animate();
+  window.addEventListener('resize',function(){W=window.innerWidth;H=window.innerHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);});
+})();
+// ── CARD 3D TILT ─────────────────────────────────────────────────
+(function(){
+  document.querySelectorAll('.card').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      c.style.transform='perspective(700px) rotateY('+(x*10)+'deg) rotateX('+(-y*8)+'deg) scale(1.025)';
+    });
+    c.addEventListener('mouseleave',function(){
+      c.style.transition='transform 0.35s ease,border-color 0.22s,box-shadow 0.22s';
+      c.style.transform='perspective(700px) rotateY(0) rotateX(0) scale(1)';
+      setTimeout(function(){c.style.transition='';},360);
+    });
+    c.addEventListener('mouseenter',function(){c.style.transition='none';});
+    c.addEventListener('click',function(e){
+      var r=c.getBoundingClientRect(),d=Math.max(c.clientWidth,c.clientHeight);
+      var rw=document.createElement('span');
+      rw.style.cssText='position:absolute;border-radius:50%;transform:scale(0);animation:ripple-kf 0.55s ease-out forwards;background:rgba(255,255,255,0.14);width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px;pointer-events:none;';
+      c.appendChild(rw); setTimeout(function(){if(rw.parentNode)rw.remove();},700);
+    });
+  });
+})();
+</script>
 </body>
 </html>

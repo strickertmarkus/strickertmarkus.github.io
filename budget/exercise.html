@@ -38,6 +38,11 @@
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden;}
 
     body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 90% 50% at 50% -10%, rgba(34,211,238,0.06) 0%, transparent 65%);pointer-events:none;z-index:0;}
+    .bg-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.1;}
+    .bg-orb-1{width:500px;height:500px;background:var(--accent);top:-150px;left:-120px;animation:orbDrift1 22s ease-in-out infinite;}
+    .bg-orb-2{width:360px;height:360px;background:var(--purple);bottom:5%;right:-100px;animation:orbDrift2 28s ease-in-out infinite;}
+    @keyframes orbDrift1{0%,100%{transform:translate(0,0)} 33%{transform:translate(70px,50px)} 66%{transform:translate(-30px,80px)}}
+    @keyframes orbDrift2{0%,100%{transform:translate(0,0)} 40%{transform:translate(-60px,-40px)} 70%{transform:translate(40px,-70px)}}
     .app-wrap{position:relative;z-index:1;}
     .ripple-host{position:relative;overflow:hidden;}
     .ripple-wave{position:absolute;border-radius:50%;transform:scale(0);animation:ripple-anim 0.5s ease-out forwards;pointer-events:none;background:rgba(255,255,255,0.18);}
@@ -201,6 +206,8 @@
 </head>
 <body>
 <div class="app-wrap">
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
 
   <header class="app-header">
     <div class="brand">
@@ -259,9 +266,13 @@
         <div class="goal-nums"><span><input type="number" id="g2-cur" value="0" readonly style="width:60px;font-size:18px"> / <input type="number" id="g2-goal" value="5000" min="100" style="width:60px;font-size:13px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
       </div>
       <div class="goal-card">
-        <div class="goal-icon">⚖️</div><div class="goal-lbl">Målvikt (kg)</div>
+        <div class="goal-icon">❤️</div><div class="goal-lbl">Kondition (VO2max)</div>
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:var(--green)"></div></div></div>
-        <div class="goal-nums"><span>Nu: <input type="number" id="g3-cur" step=".1" value="80" style="width:50px;font-size:16px;font-weight:700"> / <input type="number" id="g3-goal" step=".1" value="78" style="width:50px;font-size:13px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
+        <div class="goal-nums"><span>Nu: <input type="number" id="g3-cur" step=".1" value="0" readonly style="width:50px;font-size:16px;font-weight:700"> / <input type="number" id="g3-goal" step=".1" value="45" min="20" max="80" style="width:50px;font-size:13px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
+        <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+          <input type="number" id="kondition-inp" step=".1" min="10" max="100" placeholder="Logga score" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:6px 10px;outline:none">
+          <button class="btn-sm" onclick="logKondition()">+ Logga</button>
+        </div>
       </div>
     </div>
 
@@ -346,6 +357,27 @@
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('plan-modal')">Avbryt</button>
       <button class="btn-primary" onclick="savePlan()">Spara plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DAY CONFIG MODAL ── -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal" style="max-width:340px">
+    <button class="modal-close" onclick="closeModal('day-modal')">✕</button>
+    <h2 id="day-modal-title">Måndag</h2>
+    <div class="form-group">
+      <label>Träningstyp</label>
+      <select id="day-modal-type">
+        <option>Bröst + Triceps</option><option>Rygg + Biceps</option><option>Ben + Axlar</option>
+        <option>Helkropp</option><option>Kondition</option><option>Överkropp</option>
+        <option>Underkropp</option><option>Stretching / Rörlighet</option><option>Vila</option><option>Övrigt</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" id="day-modal-log" style="margin-right:auto">🏋️ Logga pass</button>
+      <button class="btn-ghost" onclick="closeModal('day-modal')">Avbryt</button>
+      <button class="btn-primary" onclick="saveDayType()">Spara</button>
     </div>
   </div>
 </div>
@@ -486,7 +518,7 @@
 var DB={get:function(k){return JSON.parse(localStorage.getItem('ex_'+k)||'null');},set:function(k,v){localStorage.setItem('ex_'+k,JSON.stringify(v));}};
 function getWorkouts(){return DB.get('wk')||[];}
 function saveWorkouts(w){DB.set('wk',w);}
-function getGoals(){return DB.get('goals')||{weeklyWk:4,weeklyVol:5000,bwGoal:78};}
+function getGoals(){return DB.get('goals')||{weeklyWk:4,weeklyVol:5000,konditionGoal:45};}
 function getBW(){return DB.get('bw')||[];}
 function getPRs(){return DB.get('prs')||{};}
 function getPlan(){return DB.get('plan')||{mon:'Bröst + Triceps',tue:'Rygg + Biceps',wed:'Ben + Axlar',thu:'Kondition',fri:'Helkropp',sat:'Vila',sun:'Vila'};}
@@ -544,33 +576,59 @@ function renderWeekGrid(){
     var div=document.createElement('div');
     div.className='week-day'+(isToday?' today':'')+(isDone?' done':'');
     div.innerHTML='<div class="wd-name">'+DAYS[i]+'</div><div class="wd-date">'+d.getDate()+'</div><div class="wd-type">'+(plan[key]||'Vila')+'</div>'+(isDone?'<div class="wd-check">✅</div>':'');
-    if(isToday)(function(type){div.addEventListener('click',function(){document.getElementById('wk-type').value=type;openWorkoutModal();});})(plan[key]||'Övrigt');
+    (function(k,lbl,dateISO){div.addEventListener('click',function(){openDayConfig(k,lbl,dateISO);});})(key,DAYS[i],iso);
     grid.appendChild(div);
   });
 }
 
 // ══ GOALS ════════════════════════════════════════════════════════
 function refreshGoals(){
-  var goals=getGoals(), wks=getWorkouts(), bwData=getBW(), ws=weekStartISO();
+  var goals=getGoals(), wks=getWorkouts(), ws=weekStartISO();
   var thisWk=wks.filter(function(w){return w.date>=ws;});
   var weekVol=thisWk.reduce(function(s,w){return s+calcVol(w);},0);
   document.getElementById('g1-goal').value=goals.weeklyWk||4;
   document.getElementById('g2-goal').value=goals.weeklyVol||5000;
-  document.getElementById('g3-goal').value=goals.bwGoal||78;
+  document.getElementById('g3-goal').value=goals.konditionGoal||45;
   var cw=thisWk.length;
   document.getElementById('g1-cur').value=cw;
   document.getElementById('g1-bar').style.width=Math.min(100,(cw/(goals.weeklyWk||4))*100)+'%';
   document.getElementById('g2-cur').value=Math.round(weekVol);
   document.getElementById('g2-bar').style.width=Math.min(100,(weekVol/(goals.weeklyVol||5000))*100)+'%';
-  var curBW=bwData.length?bwData[bwData.length-1].weight:80;
-  document.getElementById('g3-cur').value=curBW;
-  var bwStart=bwData.length>1?bwData[0].weight:curBW, bwGoal=goals.bwGoal||78;
-  var bwP=bwStart===bwGoal?100:Math.min(100,Math.max(0,((bwStart-curBW)/(bwStart-bwGoal))*100));
-  document.getElementById('g3-bar').style.width=bwP+'%';
+  var kondData=DB.get('kond')||[], curKond=kondData.length?kondData[kondData.length-1].score:0;
+  document.getElementById('g3-cur').value=curKond||0;
+  var kondGoal=goals.konditionGoal||45, kondP=kondGoal>0?Math.min(100,(curKond/kondGoal)*100):0;
+  document.getElementById('g3-bar').style.width=kondP+'%';
 }
 function saveGoals(){
-  DB.set('goals',{weeklyWk:+(document.getElementById('g1-goal').value)||4,weeklyVol:+(document.getElementById('g2-goal').value)||5000,bwGoal:+(document.getElementById('g3-goal').value)||78});
+  DB.set('goals',{weeklyWk:+(document.getElementById('g1-goal').value)||4,weeklyVol:+(document.getElementById('g2-goal').value)||5000,konditionGoal:+(document.getElementById('g3-goal').value)||45});
   refreshAll(); showToast('Mål sparade! ✅');
+}
+function logKondition(){
+  var v=parseFloat(document.getElementById('kondition-inp').value);
+  if(isNaN(v)||v<10||v>100){showToast('Ange ett giltigt värde (10–100)');return;}
+  var data=DB.get('kond')||[], today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+  if(idx>=0)data[idx].score=v; else data.push({date:today,score:v});
+  data.sort(function(a,b){return a.date.localeCompare(b.date);});
+  DB.set('kond',data); document.getElementById('kondition-inp').value='';
+  refreshGoals(); showToast('Kondition loggad! ❤️');
+}
+var editingDayKey=null, editingDayISO=null;
+function openDayConfig(key,label,iso){
+  editingDayKey=key; editingDayISO=iso;
+  document.getElementById('day-modal-title').textContent='📅 '+label;
+  var plan=getPlan(), sel=document.getElementById('day-modal-type');
+  sel.value=plan[key]||'Vila';
+  var today=todayISO(), logBtn=document.getElementById('day-modal-log');
+  if(iso<=today){
+    logBtn.style.display='';
+    logBtn.onclick=function(){closeModal('day-modal');var type=document.getElementById('day-modal-type').value;document.getElementById('wk-type').value=type;document.getElementById('wk-date').value=iso;openWorkoutModal();};
+  } else { logBtn.style.display='none'; }
+  document.getElementById('day-modal').classList.add('show');
+}
+function saveDayType(){
+  if(!editingDayKey)return;
+  var plan=getPlan(); plan[editingDayKey]=document.getElementById('day-modal-type').value;
+  DB.set('plan',plan); renderWeekGrid(); closeModal('day-modal'); showToast('Dag uppdaterad! ✅');
 }
 
 // ══ CHARTS ══════════════════════════════════════════════════════

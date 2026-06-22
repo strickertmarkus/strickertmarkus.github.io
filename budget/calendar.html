@@ -179,6 +179,26 @@
     .fab:hover { transform: scale(1.1); box-shadow: 0 8px 30px var(--accent-glow); }
     .fab:active { transform: scale(.96); }
 
+    /* ── TOOLTIP ── */
+    .day-tooltip { display: none; position: fixed; z-index: 5000; background: var(--bg2); border: 1px solid var(--border-a); border-radius: 10px; padding: 10px 12px; max-width: 220px; min-width: 160px; font-size: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: none; }
+    .day-tooltip.show { display: block; animation: tooltipFadeIn .15s ease; }
+    @keyframes tooltipFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .tt-date { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .tt-event { font-size: 12px; color: var(--text); padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .tt-event:last-of-type { border-bottom: none; }
+    .tt-empty { color: var(--text-dim); font-size: 11px; font-style: italic; }
+    .tt-hint { font-size: 10px; color: var(--text-dim); margin-top: 7px; border-top: 1px solid rgba(255,255,255,.04); padding-top: 5px; }
+    /* ── TRIP DISPLAY ── */
+    .trip-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .trip-dest { font-size: 12px; color: var(--text-sec); margin-bottom: 8px; }
+    .trip-countdown { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+    .trip-days { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
+    .trip-dates { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+    .trip-sched-item { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .trip-sched-item:last-child { border-bottom: none; }
+    .trip-sched-time { color: var(--accent); font-weight: 600; min-width: 52px; font-size: 11px; flex-shrink: 0; }
+    .trip-sched-text { color: var(--text-sec); }
+    .trip-in-past { font-size: 12px; color: var(--text-dim); font-style: italic; }
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
@@ -293,11 +313,43 @@
           <button class="btn-xs" onclick="addTodo()">+</button>
         </div>
       </div>
+      <div class="sidebar-section" id="trip-section">
+        <div class="sidebar-title">
+          <span>✈️ Kommande resa</span>
+          <button class="btn-xs" onclick="openTripModal()">+ Konfigurera</button>
+        </div>
+        <div id="trip-content"><div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div></div>
+      </div>
     </div>
   </div>
 </div>
 
 <button class="fab" onclick="openEventModal()" title="Ny händelse">+</button>
+
+<!-- TRIP MODAL -->
+<div class="modal-overlay" id="trip-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTripModal()">✕</button>
+    <h2>✈️ Reseplanering</h2>
+    <div class="form-group"><label>Resenamn</label><input type="text" id="trip-name-inp" placeholder="Mallorca 2026"></div>
+    <div class="form-group"><label>Destination</label><input type="text" id="trip-dest-inp" placeholder="Palma, Spanien"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Avresa</label><input type="date" id="trip-start-inp"></div>
+      <div class="form-group"><label>Hemresa</label><input type="date" id="trip-end-inp"></div>
+    </div>
+    <div class="form-group"><label>Anteckningar</label><textarea id="trip-notes-inp" rows="2" placeholder="Hotell, flyg, viktiga detaljer…"></textarea></div>
+    <div class="form-group">
+      <label>Schema <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(valfritt)</span></label>
+      <div id="trip-sched-list"></div>
+      <button class="btn-ghost" style="margin-top:8px;font-size:12px;padding:6px 12px" onclick="addTripSchedRow()">+ Dag/aktivitet</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="trip-del-btn" onclick="deleteTrip()">🗑 Ta bort</button>
+      <button class="btn-ghost" onclick="closeTripModal()">Avbryt</button>
+      <button class="btn-primary" onclick="saveTrip()">Spara resa</button>
+    </div>
+  </div>
+</div>
 
 <!-- EVENT MODAL -->
 <div class="modal-overlay" id="event-modal">
@@ -535,7 +587,12 @@ function renderMonth() {
             + escHtml((dayEvs[0].emoji||'') + ' ' + dayEvs[0].title) + '</div>';
     }
     cell.innerHTML = html;
-    (function(iso){ cell.addEventListener('click', function(){ selectDay(iso); }); })(dateISO);
+    (function(iso, evs){
+      cell.addEventListener('click', function(){ selectDay(iso); });
+      cell.addEventListener('dblclick', function(e){ e.stopPropagation(); openEventModal(iso); });
+      cell.addEventListener('mouseenter', function(e){ showDayTooltip(iso, evs, e.currentTarget); });
+      cell.addEventListener('mouseleave', function(){ hideDayTooltip(); });
+    })(dateISO, dayEvs.slice(0,5));
     grid.appendChild(cell);
   }
 
@@ -756,10 +813,103 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function(){
+// ── DAY TOOLTIP ────────────────────────────────────────────────
+function showDayTooltip(dateISO, evs, cell) {
+  var tt = document.getElementById('day-tooltip');
+  if (!tt) return;
+  var p = dateISO.split('-');
+  var html = '<div class="tt-date">📅 ' + p[2] + '/' + p[1] + '</div>';
+  if (!evs.length) {
+    html += '<div class="tt-empty">Inga händelser</div>';
+  } else {
+    evs.forEach(function(ev) {
+      var col = getMemberColor(ev.member);
+      html += '<div class="tt-event"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0"></span>' + escHtml((ev.emoji ? ev.emoji+' ' : '') + ev.title) + '</div>';
+    });
+  }
+  html += '<div class="tt-hint">Klicka • Dubbelklicka = ny händelse</div>';
+  tt.innerHTML = html;
+  var r = cell.getBoundingClientRect();
+  var ttW = 220, left = Math.max(4, Math.min(r.left, window.innerWidth - ttW - 8));
+  tt.style.left = left + 'px';
+  tt.style.top = (r.top + window.scrollY - 10) + 'px';
+  tt.style.transform = 'translateY(-100%)';
+  tt.classList.add('show');
+}
+function hideDayTooltip() {
+  var tt = document.getElementById('day-tooltip');
+  if (tt) tt.classList.remove('show');
+}
+// ── TRIPS ──────────────────────────────────────────────────────
+function getTrip() { return JSON.parse(localStorage.getItem('cal_trip') || 'null'); }
+function saveCalTrip(t) { localStorage.setItem('cal_trip', JSON.stringify(t)); }
+function renderTrip() {
+  var trip = getTrip(), content = document.getElementById('trip-content');
+  if (!trip) { content.innerHTML = '<div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div>'; return; }
+  var today = new Date(); today.setHours(0,0,0,0);
+  var start = new Date(trip.startDate), days = Math.round((start - today) / 86400000);
+  var end = trip.endDate ? new Date(trip.endDate) : null;
+  var countHtml;
+  if (days > 0) countHtml = '<div class="trip-countdown"><span class="trip-days">'+days+'</span> dagar kvar</div>';
+  else if (days === 0) countHtml = '<div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">🎉 Idag är det dags!</div>';
+  else if (end && end >= today) countHtml = '<div style="font-size:14px;font-weight:700;color:#34D399;margin-bottom:8px">✈️ Resan pågår!</div>';
+  else countHtml = '<div class="trip-in-past">Resan är avslutad</div>';
+  var schedHtml = '';
+  if (trip.schedule && trip.schedule.length) {
+    schedHtml = '<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Schema</div>';
+    trip.schedule.forEach(function(s) { schedHtml += '<div class="trip-sched-item"><span class="trip-sched-time">'+escHtml(s.time||'')+'</span><span class="trip-sched-text">'+escHtml(s.activity||'')+'</span></div>'; });
+  }
+  var s1=trip.startDate?trip.startDate.split('-'):null, s2=trip.endDate?trip.endDate.split('-'):null;
+  content.innerHTML =
+    '<div class="trip-name">' + (trip.emoji||'✈️') + ' ' + escHtml(trip.name||'') + '</div>' +
+    '<div class="trip-dest">📍 ' + escHtml(trip.destination||'') + '</div>' + countHtml +
+    '<div class="trip-dates">' + (s1?s1[2]+'/'+s1[1]+'/'+s1[0]:'—') + (s2?' — '+s2[2]+'/'+s2[1]+'/'+s2[0]:'') + '</div>' +
+    (trip.notes ? '<div style="font-size:11px;color:var(--text-sec);margin-bottom:6px;font-style:italic">'+escHtml(trip.notes)+'</div>' : '') + schedHtml;
+}
+function openTripModal() {
+  var trip = getTrip() || {};
+  document.getElementById('trip-name-inp').value = trip.name || '';
+  document.getElementById('trip-dest-inp').value = trip.destination || '';
+  document.getElementById('trip-start-inp').value = trip.startDate || '';
+  document.getElementById('trip-end-inp').value = trip.endDate || '';
+  document.getElementById('trip-notes-inp').value = trip.notes || '';
+  document.getElementById('trip-del-btn').style.display = trip.name ? '' : 'none';
+  renderTripSchedForm(trip.schedule || []);
+  document.getElementById('trip-modal').classList.add('show');
+}
+function closeTripModal() { document.getElementById('trip-modal').classList.remove('show'); }
+function renderTripSchedForm(sched) {
+  var list = document.getElementById('trip-sched-list'); list.innerHTML = '';
+  sched.forEach(function(s) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
+    row.innerHTML = '<input type="text" placeholder="Dag/tid" value="'+escHtml(s.time||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" value="'+escHtml(s.activity||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
+    list.appendChild(row);
+  });
+}
+function addTripSchedRow() {
+  var list = document.getElementById('trip-sched-list'), row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
+  row.innerHTML = '<input type="text" placeholder="Dag/tid" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
+  list.appendChild(row);
+}
+function saveTrip() {
+  var name = document.getElementById('trip-name-inp').value.trim();
+  if (!name) { document.getElementById('trip-name-inp').focus(); return; }
+  var schedule = [];
+  document.querySelectorAll('#trip-sched-list > div').forEach(function(row) {
+    var inputs = row.querySelectorAll('input'), t = inputs[0].value.trim(), a = inputs[1].value.trim();
+    if (t || a) schedule.push({ time: t, activity: a });
+  });
+  saveCalTrip({ name: name, destination: document.getElementById('trip-dest-inp').value.trim(), startDate: document.getElementById('trip-start-inp').value, endDate: document.getElementById('trip-end-inp').value, notes: document.getElementById('trip-notes-inp').value.trim(), schedule: schedule, emoji: '✈️' });
+  closeTripModal(); renderTrip(); showToast('Resa sparad! ✈️');
+}
+function deleteTrip() { saveCalTrip(null); closeTripModal(); renderTrip(); showToast('Resa borttagen'); }
+document.addEventListener('DOMContentLoaded', function() {
   loadNotifSettings();
   renderMonth();
   renderTodos();
+  renderTrip();
 });
 // ── RIPPLE ─────────────────────────────────────────────────────
 (function(){
@@ -774,5 +924,6 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 })();
 </script>
+<div class="day-tooltip" id="day-tooltip"></div>
 </body>
 </html>
