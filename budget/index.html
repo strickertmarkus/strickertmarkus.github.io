@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Familia Strickert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    :root {
+      --bg:   #0D1117;
+      --bg2:  #161B22;
+      --bg3:  #1F2937;
+      --border: rgba(255,255,255,0.09);
+      --text: #F0F6FC;
+      --text-sec: #8B949E;
+      --text-dim: #4A5568;
+      --radius: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 100% 55% at 50% -5%, rgba(96,165,250,0.07) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 64px 24px 52px;
+      border-bottom: 1px solid var(--border);
+    }
+    .site-logo { font-size: 52px; margin-bottom: 14px; display: block; }
+    .site-title {
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -0.6px; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .site-sub { font-size: 15px; color: var(--text-sec); }
+
+    /* ── MAIN ── */
+    .main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 44px 24px 80px;
+    }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 52px; }
+    .section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px 42px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s, background 0.2s;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--c-accent, transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .card:hover {
+      border-color: var(--c-accent, rgba(255,255,255,0.22));
+      background: var(--bg3);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35), 0 0 0 1px var(--c-accent, transparent);
+    }
+    .card:hover::before { opacity: 1; }
+    .card:active { transform: translateY(0) scale(0.975); transition-duration: 0.08s; }
+    .card-icon { font-size: 30px; margin-bottom: 11px; display: block; }
+    .card-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+    .card-desc { font-size: 12px; color: var(--text-sec); line-height: 1.55; }
+    .card-arrow {
+      position: absolute; bottom: 16px; right: 18px;
+      font-size: 14px; color: var(--text-dim);
+      transition: transform 0.2s, color 0.2s;
+    }
+    .card:hover .card-arrow {
+      transform: translateX(4px);
+      color: var(--c-accent, var(--text-sec));
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .site-header { padding: 44px 16px 36px; }
+      .site-logo { font-size: 44px; }
+      .site-title { font-size: 24px; }
+      .main { padding: 28px 14px 60px; }
+      .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .card { padding: 18px 14px 38px; }
+      .card-icon { font-size: 26px; margin-bottom: 8px; }
+      .card-name { font-size: 13px; }
+      .card-desc { font-size: 11px; }
+    }
+    @media (max-width: 380px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="site-logo">🏡</span>
+  <div class="site-title">Familia Strickert</div>
+  <div class="site-sub">Välj en sida nedan</div>
+</header>
+
+<main class="main">
+
+  <!-- BUDGET -->
+  <div class="section">
+    <div class="section-title">Ekonomi &amp; Budget</div>
+    <div class="cards">
+      <a href="budget.html" class="card" style="--c-accent:#3B6DE0">
+        <span class="card-icon">💰</span>
+        <div class="card-name">Markus Budget</div>
+        <div class="card-desc">Månadsbudget, inkomster, utgifter och sparmål</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="analytics.html" class="card" style="--c-accent:#60A5FA">
+        <span class="card-icon">📈</span>
+        <div class="card-name">Markus Analys</div>
+        <div class="card-desc">Trender, jämförelser och statistik</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="budget_maja.html" class="card" style="--c-accent:#F9A8B8">
+        <span class="card-icon">💰</span>
+        <div class="card-name">Majas Budget</div>
+        <div class="card-desc">Majas månadsbudget och sparmål</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="analytics_maja.html" class="card" style="--c-accent:#F472B6">
+        <span class="card-icon">📈</span>
+        <div class="card-name">Majas Analys</div>
+        <div class="card-desc">Trender och statistik för Maja</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="familjebudget.html" class="card" style="--c-accent:#FBBF24">
+        <span class="card-icon">🏠</span>
+        <div class="card-name">Familjebudget</div>
+        <div class="card-desc">Gemensamma hushållskostnader och lån</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="data.html" class="card" style="--c-accent:#6B7280">
+        <span class="card-icon">⚙️</span>
+        <div class="card-name">Data &amp; Formler</div>
+        <div class="card-desc">Exportera, importera och hantera grunddata</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- FAMILY & ACTIVITIES -->
+  <div class="section">
+    <div class="section-title">Familj &amp; Aktivitet</div>
+    <div class="cards">
+      <a href="calendar.html" class="card" style="--c-accent:#FBBF24">
+        <span class="card-icon">📅</span>
+        <div class="card-name">Familjekalender</div>
+        <div class="card-desc">Händelser, påminnelser och att-göra för hela familjen</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="exercise.html" class="card" style="--c-accent:#22D3EE">
+        <span class="card-icon">💪</span>
+        <div class="card-name">Träning</div>
+        <div class="card-desc">Träningslogg, mål, personliga rekord och framsteg</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KIDS -->
+  <div class="section">
+    <div class="section-title">Barnen</div>
+    <div class="cards">
+      <a href="mila.html" class="card" style="--c-accent:#F472B6">
+        <span class="card-icon">👧🏻</span>
+        <div class="card-name">Milas Milstolpar</div>
+        <div class="card-desc">Tillväxt, första gånger och minnen — Mila, f. 25 jan 2024</div>
+        <span class="card-arrow">→</span>
+      </a>
+      <a href="melker.html" class="card" style="--c-accent:#86EFAC">
+        <span class="card-icon">👦🏼</span>
+        <div class="card-name">Melkers Milstolpar</div>
+        <div class="card-desc">Tillväxt, första gånger och minnen — Melker, f. 3 jan 2026</div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

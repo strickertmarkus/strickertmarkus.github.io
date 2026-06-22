@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --bg: #181F2E;
@@ -36,8 +35,11 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
 
-    #three-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 90% 50% at 50% -10%, rgba(251,191,36,0.07) 0%, transparent 65%); pointer-events: none; z-index: 0; }
     .app-wrap { position: relative; z-index: 1; }
+    .ripple-host { position: relative; overflow: hidden; }
+    .ripple-wave { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.5s ease-out forwards; pointer-events: none; background: rgba(255,255,255,0.18); }
+    @keyframes ripple-anim { to { transform: scale(5); opacity: 0; } }
 
     /* ── HEADER ── */
     .app-header {
@@ -192,7 +194,6 @@
   </style>
 </head>
 <body>
-<canvas id="three-canvas"></canvas>
 <div class="app-wrap">
 
   <header class="app-header">
@@ -208,6 +209,8 @@
     <div class="nav-dropdown-wrapper">
       <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
       <div class="nav-dropdown-menu" id="nav-menu">
+        <a href="index.html"><span class="nav-icon">🏡</span> Startsida</a>
+        <div class="nav-sep"></div>
         <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
         <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
         <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
@@ -758,6 +761,18 @@ document.addEventListener('DOMContentLoaded', function(){
   renderMonth();
   renderTodos();
 });
+// ── RIPPLE ─────────────────────────────────────────────────────
+(function(){
+  document.querySelectorAll('button, .cal-day, .member-chip').forEach(function(el){
+    el.classList.add('ripple-host');
+    el.addEventListener('click', function(e){
+      var r=el.getBoundingClientRect(), d=Math.max(el.clientWidth,el.clientHeight);
+      var rw=document.createElement('span'); rw.className='ripple-wave';
+      rw.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';
+      el.appendChild(rw); rw.addEventListener('animationend',function(){rw.remove();});
+    });
+  });
+})();
 </script>
 </body>
 </html>
