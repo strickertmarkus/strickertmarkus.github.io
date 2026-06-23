@@ -1,0 +1,204 @@
+╔════════════════════════════════════════════════════════════════╗
+║         COMPLETE FILE REPLACEMENT INSTRUCTIONS                  ║
+║    Shopping List Improvements + Navigation + Exercise Refactor  ║
+╚════════════════════════════════════════════════════════════════╝
+
+Three main tasks to complete. Follow in order:
+
+═══════════════════════════════════════════════════════════════════
+TASK 1: REPLACE SHOPPING.HTML (HIGHEST PRIORITY)
+═══════════════════════════════════════════════════════════════════
+
+Status: shopping.html exists but needs complete rewrite with these fixes:
+  ✓ Button onclick properly wired  
+  ✓ Enter key support for fast item entry
+  ✓ Date tracking for each list
+  ✓ Archive feature for completed lists
+  ✓ Progress display (X/Y items checked)
+
+HOW TO APPLY:
+1. Open shopping.html in your editor
+2. Select ALL content (Ctrl+A)
+3. Delete everything
+4. Go to: SHOPPING_HTML_REPLACEMENT.txt in this folder
+5. Copy everything from <!DOCTYPE to </html>
+6. Paste into the now-empty shopping.html
+7. Save file (Ctrl+S)
+8. Hard refresh browser (Ctrl+Shift+R)
+9. Test:
+   - Create a list
+   - Add items with Enter key (should add item and keep focus)
+   - Check items off
+   - When all checked, "Arkivera denna lista" button should appear
+   - Archive should appear in sidebar
+
+═══════════════════════════════════════════════════════════════════
+TASK 2: ADD SHOPPING LINK TO ALL BUDGET PAGES
+═══════════════════════════════════════════════════════════════════
+
+Status: Shopping link exists ONLY in index.html. Need to add to 10+ other pages.
+
+PAGES TO UPDATE:
+1. budget.html
+2. analytics.html  
+3. budget_maja.html
+4. analytics_maja.html
+5. familjebudget.html
+6. data.html
+7. calendar.html
+8. exercise.html
+9. mila.html
+10. melker.html
+
+HOW TO APPLY (same for ALL pages):
+
+A. Determine which navigation style the page uses:
+   - Open the page in editor
+   - Find the nav menu (usually <nav> or .nav-menu or nav-dropdown-menu)
+   - Check if it uses:
+     * DROP-DOWN style (calendar.html, exercise.html):
+       Looks like: <a href="..."><span class="nav-icon">...</span>Text</a>
+     * MENU-ITEM style (index.html, others):
+       Looks like: <a href="..." class="menu-item" style="--c-icon...">
+
+B. For DROPDOWN-STYLE pages (calendar.html, exercise.html):
+   Find the line with other navigation links like:
+   <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+   
+   ADD AFTER IT:
+   <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+
+C. For MENU-ITEM STYLE pages (all others except calendar.html & exercise.html):
+   Find the nav menu section and add:
+   
+   <a href="shopping.html" class="menu-item" style="--c-icon:rgba(52,211,153,.18);--c-accent:#34D399">
+     <div class="mi-icon">🛒</div>
+     <div class="mi-body"><div class="mi-name">Inköpslista</div><div class="mi-desc">Recept, shoppinglistor och butikssortering</div></div>
+     <span class="mi-chev">›</span>
+   </a>
+
+D. After adding to each page, save and test by clicking the link
+
+═══════════════════════════════════════════════════════════════════
+TASK 3: REFACTOR EXERCISE.HTML - VO₂-MAX TRACKING
+═══════════════════════════════════════════════════════════════════
+
+Status: Currently tracks body weight (ex_bw). Need to track VO₂-Max instead.
+
+CHANGES TO MAKE:
+
+Step 1: Update HTML UI elements
+   Find line with: <h3>⚖️ Kroppsvikt</h3>
+   REMOVE the entire chart card for body weight (full <div class="chart-card">)
+   
+Step 2: Update chart reference  
+   Find line with: <h3>📊 Volym per vecka (kg)</h3>
+   Keep this chart - it's useful
+   
+   After it, ADD new VO₂-Max chart:
+   <div class="chart-card">
+     <h3>❤️ VO₂-Max framsteg</h3>
+     <div class="chart-area"><canvas id="chart-vo2"></canvas></div>
+   </div>
+
+Step 3: Update body weight input to VO₂-Max input
+   Find section with:
+   <input type="number" id="bw-inp" step=".1" placeholder="80.0">
+   <label>kg</label>
+   <button class="btn-sm" onclick="logBW()">+ Logga</button>
+   
+   REPLACE WITH:
+   <input type="number" id="vo2-inp" step="0.1" min="10" max="100" placeholder="50.0">
+   <label>ml/kg/min</label>
+   <button class="btn-sm" onclick="logVO2()">+ Logga</button>
+
+Step 4: Update JavaScript - Add chartVO2 variable
+   Find line: var chartVol, chartBW;
+   REPLACE WITH: var chartVol, chartBW, chartVO2;
+
+Step 5: Replace logBW() function
+   See EXERCISE_HTML_CHANGES.txt file for exact replacement code
+   This changes the function from storing body weight to VO₂-Max
+
+Step 6: Update renderCharts() function
+   See EXERCISE_HTML_CHANGES.txt file for exact replacement code
+   This adds the scatter plot with dashed goal line
+
+Step 7: Remove getBW() function (optional but clean)
+   Find and comment out or remove the getBW() function
+
+TESTING EXERCISE.HTML:
+   1. Hard refresh (Ctrl+Shift+R)
+   2. Enter a VO₂-Max score (e.g., 45.5)
+   3. Click "+ Logga"
+   4. Verify:
+      - Score appears on scatter plot as a green point
+      - Dashed amber line shows the goal value
+      - Goal card shows progress bar
+      - Chart updates in real-time
+   5. Add 2-3 more scores and verify they all appear as points
+   6. Change the goal value and verify dashed line moves
+   7. Verify body weight chart is GONE
+
+═══════════════════════════════════════════════════════════════════
+SUMMARY OF CHANGES
+═══════════════════════════════════════════════════════════════════
+
+SHOPPING.HTML:
+  - Complete file rewrite
+  - Fixes: button onclick, Enter key, date tracking, archive feature
+  - Files affected: shopping.html
+
+NAVIGATION:
+  - Add shopping link to 10 pages
+  - Pattern 1 (calendar.html, exercise.html): dropdown style
+  - Pattern 2 (all others): menu-item style
+  - Files affected: budget.html, analytics.html, budget_maja.html, 
+                    analytics_maja.html, familjebudget.html, data.html,
+                    calendar.html, exercise.html, mila.html, melker.html
+
+EXERCISE.HTML:
+  - Remove body weight tracking
+  - Add VO₂-Max tracking with scatter plot
+  - Add dashed goal line
+  - Remove "Volym/Vecka" chart reference (or keep if useful)
+  - Update JavaScript functions: logVO2() and renderCharts()
+  - Files affected: exercise.html
+
+═══════════════════════════════════════════════════════════════════
+GIT WORKFLOW
+═══════════════════════════════════════════════════════════════════
+
+After all changes are complete:
+
+1. Test all three features in browser:
+   - Shopping list create/add/archive flow
+   - Shopping navigation from all pages  
+   - VO₂-Max logging and chart display
+
+2. Run git commands:
+   git add budget/shopping.html budget/exercise.html budget/*.html
+   git commit -m "Fix shopping list UX, add universal navigation, refactor exercise tracking to VO2-Max"
+   git push origin main
+
+═══════════════════════════════════════════════════════════════════
+
+NEED HELP? Issues commonly encountered:
+
+Q: Enter key doesn't work for shopping
+A: Make sure saveItemQuick() function exists and eventListener is attached
+   Check browser console for JavaScript errors (F12 > Console)
+
+Q: Shopping chart not showing
+A: Clear browser cache (Ctrl+Shift+R) and ensure chartVO2 is declared
+   Check if Chart.js library is loaded (should be in <script> tags)
+
+Q: Navigation link doesn't appear
+A: Verify you added link to correct page's nav menu location
+   Check page styling to use matching nav-item or menu-item class
+
+Q: Goal dashed line not showing
+A: Ensure borderDash: [5,5] is in the correct dataset for goal line
+   Verify goal value is between 10-100 (VO₂-Max range)
+
+═══════════════════════════════════════════════════════════════════

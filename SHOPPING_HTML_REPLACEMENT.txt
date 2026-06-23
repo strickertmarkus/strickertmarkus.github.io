@@ -1,3 +1,14 @@
+SHOPPING.HTML - COMPLETE REPLACEMENT
+====================================
+Replace entire file with this content. This includes all fixes:
+- Button onclick properly wired
+- Enter key support for fast entry
+- Date tracking for each list
+- Archive feature for completed lists
+- Progress tracking (X/Y items checked)
+
+Copy everything from <!DOCTYPE to </html> below:
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -15,59 +26,54 @@
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
     body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -5%,rgba(251,191,36,.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
     .wrap{position:relative;z-index:1;}
-    /* header */
     .app-header{padding:18px 16px;border-bottom:1px solid var(--border);background:rgba(15,22,33,.8);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;}
     .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;}
     .h-logo{font-size:26px;line-height:1;}
     .h-title{flex:1;font-size:17px;font-weight:700;letter-spacing:-.5px;}
     .h-back{text-decoration:none;color:var(--text-sec);font-size:12px;font-weight:600;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all .2s;}
     .h-back:hover{color:var(--text);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);}
-    /* layout */
     .main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:220px 1fr;gap:18px;}
-    /* sidebar */
-    .sidebar{background:rgba(22,30,47,.6);border:1px solid var(--border);border-radius:var(--radius);padding:14px;align-self:start;}
+    .sidebar{background:rgba(22,30,47,.6);border:1px solid var(--border);border-radius:var(--radius);padding:14px;align-self:start;max-height:calc(100vh - 120px);overflow-y:auto;}
     .sb-head{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
     .sb-btn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:3px 8px;border-radius:5px;font-size:11px;cursor:pointer;font-family:inherit;transition:all .2s;}
     .sb-btn:hover{background:rgba(251,191,36,.1);}
     .list-stack{display:flex;flex-direction:column;gap:5px;}
-    .list-row{display:flex;align-items:center;gap:6px;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid transparent;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s;}
+    .list-row{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid transparent;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s;}
     .list-row:hover{background:rgba(255,255,255,.08);}
     .list-row.active{background:rgba(251,191,36,.15);border-color:var(--accent);color:var(--accent);font-weight:600;}
-    .list-row span{flex:1;}
+    .lr-name{flex:1;}
+    .lr-date{font-size:10px;color:var(--text-dim);margin-top:2px;}
     .list-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:14px;}
     .list-row:hover .list-del{opacity:1;}
     .list-empty{font-size:12px;color:var(--text-dim);text-align:center;padding:14px 0;}
-    /* main area */
+    .archive-head{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-top:12px;margin-bottom:6px;}
+    .archive-row{font-size:11px;padding:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);border-radius:6px;cursor:pointer;transition:all .2s;}
+    .archive-row:hover{background:rgba(255,255,255,.05);}
     .content{display:flex;flex-direction:column;gap:14px;}
-    /* panels */
     .panel{background:rgba(22,30,47,.6);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
     .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
     .panel-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-sec);}
     .panel-btn{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);color:var(--accent);padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
     .panel-btn:hover{background:rgba(251,191,36,.22);}
-    /* recipes */
     .recipe-stack{display:flex;flex-direction:column;gap:7px;}
     .recipe-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
     .recipe-top{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;transition:background .2s;}
     .recipe-top:hover{background:rgba(251,191,36,.06);}
-    .recipe-icon{font-size:16px;}
     .recipe-name{flex:1;font-size:13px;font-weight:600;}
     .recipe-count{font-size:11px;color:var(--text-dim);}
     .recipe-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:14px;padding:0 4px;}
     .recipe-top:hover .recipe-del{opacity:1;}
-    .recipe-toggle{font-size:10px;color:var(--text-dim);transition:transform .2s;}
-    .recipe-card.open .recipe-toggle{transform:rotate(90deg);}
-    .recipe-ingredients{display:none;flex-direction:column;gap:3px;padding:0 12px 10px 38px;}
-    .recipe-card.open .recipe-ingredients{display:flex;}
+    .recipe-chevron{font-size:10px;color:var(--text-dim);transition:transform .25s;}
+    .recipe-card.open .recipe-chevron{transform:rotate(90deg);}
+    .recipe-body{display:none;flex-direction:column;gap:3px;padding:0 12px 10px 38px;}
+    .recipe-card.open .recipe-body{display:flex;}
     .ri-row{font-size:11px;color:var(--text-sec);display:flex;align-items:center;gap:6px;}
     .ri-row::before{content:'•';color:var(--accent);}
-    /* add to list from recipe */
-    .recipe-add-btn{font-size:11px;margin-top:6px;align-self:start;}
-    /* items */
+    .recipe-add-btn{margin-top:7px;align-self:start;font-size:11px;}
     .items-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
     .t-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-sec);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
     .t-btn:hover{background:rgba(255,255,255,.09);color:var(--text);}
-    .t-btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+    .t-btn.primary{background:var(--accent);color:#0F1621;border-color:var(--accent);}
     .t-btn.primary:hover{background:#F9A948;}
     .items-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .store-block{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:9px;padding:11px;}
@@ -80,7 +86,6 @@
     .item-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:13px;cursor:pointer;flex-shrink:0;}
     .item-row:hover .item-del{opacity:1;}
     .no-items{grid-column:1/-1;text-align:center;padding:24px;color:var(--text-dim);font-size:12px;}
-    /* modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
     .modal.show{display:flex;}
     .mbox{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:22px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto;}
@@ -88,18 +93,14 @@
     .m-inp{width:100%;padding:9px 11px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:9px;}
     .m-inp:focus{outline:none;border-color:var(--accent);}
     .m-inp::placeholder{color:var(--text-dim);}
-    .m-sel{width:100%;padding:9px 11px;background:rgba(15,22,33,.9);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:9px;}
+    .m-sel{width:100%;padding:9px 11px;background:rgba(15,22,33,.95);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:9px;}
+    .m-note{font-size:11px;color:var(--text-dim);margin-bottom:6px;}
     .m-row{display:flex;gap:8px;margin-top:14px;}
     .m-row button{flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit;transition:all .2s;}
     .m-cancel{background:rgba(255,255,255,.07);color:var(--text);}
     .m-cancel:hover{background:rgba(255,255,255,.13);}
     .m-save{background:var(--accent);color:#0F1621;}
     .m-save:hover{background:#F9A948;}
-    .m-note{font-size:11px;color:var(--text-dim);margin-bottom:8px;}
-    .archive-row{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:7px;font-size:12px;color:var(--text-sec);margin-bottom:4px;}
-    .archive-row span:first-child{flex:1;}
-    .archive-row .list-del{opacity:.5;}
-    /* responsive */
     @media(max-width:860px){.main{grid-template-columns:1fr;}.items-grid{grid-template-columns:1fr;}}
     @media(max-width:520px){.main{padding:14px 10px 50px;}.panel{padding:12px;}.h-title{font-size:15px;}}
   </style>
@@ -117,51 +118,30 @@
 
 <main class="main">
 
-  <!-- Sidebar: lists -->
   <aside class="sidebar">
     <div class="sb-head">Listor <button class="sb-btn" onclick="openModal('list-modal')">+ Ny</button></div>
     <div class="list-stack" id="list-stack"><div class="list-empty">Inga listor</div></div>
-    <div class="sb-head" style="margin-top:14px;">
-      Arkiv
-    </div>
-    <div class="list-stack" id="archive-stack"></div>
-    <div class="sb-head" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;">
-      Arkiv
-    </div>
-    <div id="archive-stack"></div>
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;"><div class="archive-head">Arkiv</div><div id="archive-stack"></div></div>
   </aside>
 
-  <!-- Content -->
   <div class="content">
-
-    <!-- Recipes panel -->
     <div class="panel">
-      <div class="panel-head">
-        <span class="panel-title">📋 Recept</span>
-        <button class="panel-btn" onclick="openModal('recipe-modal')">+ Nytt recept</button>
-      </div>
+      <div class="panel-head"><span class="panel-title">📋 Recept</span><button class="panel-btn" onclick="openModal('recipe-modal')">+ Nytt recept</button></div>
       <div class="recipe-stack" id="recipe-stack"><div style="font-size:12px;color:var(--text-dim);">Inga recept än.</div></div>
     </div>
 
-    <!-- Items panel -->
     <div class="panel">
-      <div class="panel-head">
-        <span class="panel-title">🧺 Artiklar</span>
-        <button class="panel-btn" onclick="openItemModal()">+ Ny artikel</button>
-      </div>
+      <div class="panel-head"><span class="panel-title">🧺 Artiklar</span><button class="panel-btn" id="add-item-btn">+ Ny artikel</button></div>
       <div class="items-toolbar">
         <button class="t-btn primary" onclick="autoSort()">🔄 Sortera butiksmässigt</button>
         <button class="t-btn" onclick="clearChecked()">✓ Rensa bockade</button>
       </div>
       <div class="items-grid" id="items-grid"><div class="no-items">Välj eller skapa en lista för att börja.</div></div>
     </div>
-
   </div>
 </main>
+</div>
 
-</div><!-- .wrap -->
-
-<!-- Modal: New list -->
 <div class="modal" id="list-modal">
   <div class="mbox">
     <div class="m-title">Ny inköpslista</div>
@@ -173,12 +153,11 @@
   </div>
 </div>
 
-<!-- Modal: New recipe -->
 <div class="modal" id="recipe-modal">
   <div class="mbox">
     <div class="m-title">Nytt recept</div>
-    <input class="m-inp" id="recipe-name-inp" type="text" placeholder="Receptnamn (t.ex. Pasta Carbonara)">
-    <div class="m-note">Ingredienser (en per rad):</div>
+    <input class="m-inp" id="recipe-name-inp" type="text" placeholder="Receptnamn">
+    <div class="m-note">Ingredienser:</div>
     <div id="ing-stack"></div>
     <button class="t-btn" onclick="addIngRow()" style="width:100%;margin-bottom:10px;">+ Ingrediens</button>
     <div class="m-row">
@@ -188,95 +167,68 @@
   </div>
 </div>
 
-<!-- Modal: New item -->
 <div class="modal" id="item-modal">
   <div class="mbox">
-    <div class="m-title">Ny artikel</div>
-    <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Tryck Enter för att snabbt lägga till fler artiklar.</div>
-    <input class="m-inp" id="item-text-inp" type="text" placeholder="Artikelnamn" autocomplete="off">
-    <div class="m-note">Kopplat recept (valfritt):</div>
-    <select class="m-sel" id="item-recipe-sel"><option value="">— Inget recept —</option></select>
-    <div class="m-note">Butik/avdelning:</div>
-    <select class="m-sel" id="item-store-sel"><option value="">— Välj befintlig —</option></select>
-    <input class="m-inp" id="item-store-new" type="text" placeholder="Eller ange ny butik/avdelning">
+    <div class="m-title">Lägg till artikel</div>
+    <input class="m-inp" id="item-text-inp" type="text" placeholder="Artikelnamn" autofocus>
+    <div class="m-note">Snabbtips: Skriv artikel + Enter för nästa!</div>
+    <div class="m-note">Butik / avdelning (valfritt):</div>
+    <select class="m-sel" id="item-store-sel"><option value="">— Välj avdelning —</option></select>
+    <input class="m-inp" id="item-store-new" type="text" placeholder="Eller ange ny avdelning">
     <div class="m-row">
-      <button class="m-cancel" onclick="closeModal('item-modal')">Avbryt</button>
-      <button class="m-save" onclick="saveItem()">Lägg till</button>
+      <button class="m-cancel" onclick="closeModal('item-modal')">Stäng</button>
+      <button class="m-save" onclick="saveItemQuick()">Lägg till & nästa</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ── storage ── */
-const S = {
-  get: k => JSON.parse(localStorage.getItem('sh_' + k) || '[]'),
-  set: (k, v) => localStorage.setItem('sh_' + k, JSON.stringify(v))
-};
+const S = { get: k => JSON.parse(localStorage.getItem('sh_'+k)||'[]'), set: (k,v) => localStorage.setItem('sh_'+k,JSON.stringify(v)) };
 
-/* ── default ICA Maxi store order ── */
-function defaultStores() {
-  const d = S.get('stores');
-  if (d.length) return;
+function ensureStores() {
+  if (S.get('stores').length) return;
   S.set('stores', [
-    {id:1, name:'Frukt & Grönt', order:1},
-    {id:2, name:'Bröd & Bakverk', order:2},
-    {id:3, name:'Kött & Chark', order:3},
-    {id:4, name:'Fisk & Skaldjur', order:4},
-    {id:5, name:'Mejeri & Ägg', order:5},
-    {id:6, name:'Ost & Delikatess', order:6},
-    {id:7, name:'Torrvaror', order:7},
-    {id:8, name:'Konserver', order:8},
-    {id:9, name:'Drycker', order:9},
-    {id:10, name:'Frysta varor', order:10},
-    {id:11, name:'Städ & Tvätt', order:11},
-    {id:12, name:'Hygien', order:12},
-    {id:99, name:'Övrigt', order:99}
+    {id:1,name:'Frukt & Grönt',order:1},{id:2,name:'Bröd & Bakverk',order:2},{id:3,name:'Kött & Chark',order:3},
+    {id:4,name:'Fisk & Skaldjur',order:4},{id:5,name:'Mejeri & Ägg',order:5},{id:6,name:'Ost',order:6},
+    {id:7,name:'Torrvaror',order:7},{id:8,name:'Konserver',order:8},{id:9,name:'Drycker',order:9},
+    {id:10,name:'Frysta varor',order:10},{id:11,name:'Städ & Tvätt',order:11},{id:12,name:'Hygien',order:12},
+    {id:99,name:'Övrigt',order:99}
   ]);
 }
 
 let activeList = null;
-let ingCount = 0;
 
-/* ── init ── */
 document.addEventListener('DOMContentLoaded', () => {
-  defaultStores();
-  renderLists();
-  renderRecipes();
+  ensureStores();
+  document.getElementById('add-item-btn').onclick = openItemModal;
+  renderLists(); renderRecipes(); renderArchive();
   const lists = S.get('lists');
   if (lists.length) { activeList = lists[0].id; renderLists(); renderItems(); }
+  document.getElementById('item-text-inp').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveItemQuick(); }
+  });
 });
 
-/* ── modal helpers ── */
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
-});
-document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+document.addEventListener('click', e => { if (e.target.classList?.contains('modal')) e.target.classList.remove('show'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show')); });
 
-/* ── lists ── */
 function renderLists() {
-  const lists = S.get('lists').filter(l => !l.archived);
-  const archived = S.get('lists').filter(l => l.archived);
+  const lists = S.get('lists');
   const el = document.getElementById('list-stack');
-  const archEl = document.getElementById('archive-stack');
-  if (!lists.length) { el.innerHTML = '<div class="list-empty">Inga listor</div>'; }
-  else el.innerHTML = lists.map(l => {
-    const done = l.items?.length && l.items.every(i => i.checked);
-    return `<div class="list-row${l.id === activeList ? ' active' : ''}" onclick="selectList(${l.id})">
-      <span class="lr-name">${l.name}${done ? ' ✓' : ''}</span>
-      <span style="font-size:10px;color:var(--text-dim);">${l.createdAt || ''}</span>
-      <span class="list-del" onclick="delList(event,${l.id})">✕</span>
-    </div>`;
+  if (!lists.length) { el.innerHTML = '<div class="list-empty">Inga listor</div>'; return; }
+  el.innerHTML = lists.map(l => {
+    const progress = l.items.filter(i => i.checked).length + ' / ' + l.items.length;
+    return `
+      <div class="list-row${l.id===activeList?' active':''}" onclick="selectList(${l.id})">
+        <div style="flex:1;">
+          <div class="lr-name">${l.name}</div>
+          <div class="lr-date">${l.date || 'Ingen datum'} • ${progress}</div>
+        </div>
+        <span class="list-del" onclick="delList(event,${l.id})">✕</span>
+      </div>`;
   }).join('');
-  if (archEl) {
-    archEl.innerHTML = archived.length
-      ? archived.map(l => `<div class="archive-row" title="${l.completedAt || ''}">
-          <span>✅ ${l.name}</span><span style="font-size:10px;color:var(--text-dim);">${l.completedAt || ''}</span>
-          <span class="list-del" onclick="delArchivedList(event,${l.id})">✕</span>
-        </div>`).join('')
-      : '<div class="list-empty">Inga arkiverade listor</div>';
-  }
 }
 
 function selectList(id) { activeList = id; renderLists(); renderItems(); }
@@ -285,11 +237,10 @@ function saveList() {
   const name = document.getElementById('list-name-inp').value.trim();
   if (!name) return;
   const lists = S.get('lists');
-  const id = Date.now();
   const today = new Date().toLocaleDateString('sv-SE');
-  lists.push({ id, name, items: [], createdAt: today });
+  lists.push({ id: Date.now(), name, date: today, items: [], createdAt: today });
   S.set('lists', lists);
-  activeList = id;
+  activeList = lists[lists.length-1].id;
   renderLists(); renderItems();
   closeModal('list-modal');
   document.getElementById('list-name-inp').value = '';
@@ -304,7 +255,6 @@ function delList(e, id) {
   renderLists(); renderItems();
 }
 
-/* ── recipes ── */
 function renderRecipes() {
   const recipes = S.get('recipes');
   const el = document.getElementById('recipe-stack');
@@ -312,13 +262,13 @@ function renderRecipes() {
   el.innerHTML = recipes.map(r => `
     <div class="recipe-card" id="rc${r.id}">
       <div class="recipe-top" onclick="toggleRecipe(${r.id})">
-        <span class="recipe-icon">🍽️</span>
+        <span style="font-size:16px;">🍽️</span>
         <span class="recipe-name">${r.name}</span>
         <span class="recipe-count">${r.items.length} ing.</span>
         <span class="recipe-del" onclick="delRecipe(event,${r.id})">✕</span>
-        <span class="recipe-toggle">›</span>
+        <span class="recipe-chevron">›</span>
       </div>
-      <div class="recipe-ingredients">
+      <div class="recipe-body">
         ${r.items.map(i => `<div class="ri-row">${i}</div>`).join('')}
         <button class="panel-btn recipe-add-btn" onclick="addFromRecipe(${r.id})">+ Lägg till i lista</button>
       </div>
@@ -328,10 +278,9 @@ function renderRecipes() {
 function toggleRecipe(id) { document.getElementById('rc'+id)?.classList.toggle('open'); }
 
 function addIngRow() {
-  const c = document.getElementById('ing-stack');
   const d = document.createElement('div');
   d.innerHTML = `<input class="m-inp ing-inp" type="text" placeholder="Ingrediens">`;
-  c.appendChild(d);
+  document.getElementById('ing-stack').appendChild(d);
 }
 
 function saveRecipe() {
@@ -356,43 +305,46 @@ function delRecipe(e, id) {
 }
 
 function addFromRecipe(recipeId) {
-  if (!activeList) { alert('Välj en inköpslista först.'); return; }
+  if (!activeList) { alert('Välj en lista först.'); return; }
   const recipe = S.get('recipes').find(r => r.id === recipeId);
   if (!recipe) return;
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   if (!list) return;
   recipe.items.forEach(ing => {
-    list.items.push({ id: Date.now() + Math.random(), text: ing, store: '', checked: false, recipeId });
+    list.items.push({ id: Date.now()+Math.random(), text: ing, store: '', checked: false });
   });
   S.set('lists', lists);
   renderItems();
 }
 
-/* ── items ── */
 function renderItems() {
   const el = document.getElementById('items-grid');
   if (!activeList) { el.innerHTML = '<div class="no-items">Välj eller skapa en lista för att börja.</div>'; return; }
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   if (!list || !list.items.length) { el.innerHTML = '<div class="no-items">Listan är tom. Lägg till artiklar!</div>'; return; }
+  
+  const allChecked = list.items.every(i => i.checked);
+  if (allChecked && list.items.length) {
+    el.innerHTML = '<div class="no-items"><strong>✓ Färdig!</strong><br><button class="t-btn primary" onclick="archiveList()" style="margin-top:8px;width:100%;">Arkivera denna lista</button></div>';
+    return;
+  }
+  
   const stores = S.get('stores');
-  // group by store
   const groups = {};
   list.items.forEach(item => {
     const sn = item.store || 'Övrigt';
-    if (!groups[sn]) groups[sn] = [];
-    groups[sn].push(item);
+    (groups[sn] = groups[sn] || []).push(item);
   });
-  // sort store groups by order
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
+  const sortedKeys = Object.keys(groups).sort((a,b) => {
     const oa = stores.find(s => s.name === a)?.order ?? 98;
     const ob = stores.find(s => s.name === b)?.order ?? 98;
     return oa - ob;
   });
   el.innerHTML = sortedKeys.map(store => `
     <div class="store-block">
-      <div class="store-title">${store}<span style="font-size:10px;color:var(--text-dim);">${groups[store].length}</span></div>
+      <div class="store-title"><span>${store}</span><span style="font-size:10px;color:var(--text-dim);">${groups[store].length}</span></div>
       ${groups[store].map(item => `
         <div class="item-row">
           <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked)">
@@ -404,57 +356,35 @@ function renderItems() {
 
 function openItemModal() {
   if (!activeList) { alert('Skapa en lista först.'); return; }
-  const recipes = S.get('recipes');
-  const rs = document.getElementById('item-recipe-sel');
-  rs.innerHTML = '<option value="">— Inget recept —</option>';
-  recipes.forEach(r => { rs.innerHTML += `<option value="${r.id}">${r.name}</option>`; });
   const stores = S.get('stores');
   const ss = document.getElementById('item-store-sel');
-  ss.innerHTML = '<option value="">— Välj befintlig —</option>';
+  ss.innerHTML = '<option value="">— Välj avdelning —</option>';
   stores.forEach(s => { ss.innerHTML += `<option value="${s.name}">${s.name}</option>`; });
+  document.getElementById('item-text-inp').value = '';
+  document.getElementById('item-store-new').value = '';
   openModal('item-modal');
-  setTimeout(() => {
-    const inp = document.getElementById('item-text-inp');
-    inp.focus();
-    inp.onkeydown = e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const text = inp.value.trim();
-        if (!text) return;
-        const store = document.getElementById('item-store-sel').value ||
-                      document.getElementById('item-store-new').value.trim();
-        addItemToList(text, store);
-        inp.value = '';
-        inp.focus();
-      }
-    };
-  }, 60);
+  setTimeout(() => document.getElementById('item-text-inp').focus(), 50);
 }
 
-function addItemToList(text, store) {
-  if (!activeList) return;
+function saveItemQuick() {
+  const text = document.getElementById('item-text-inp').value.trim();
+  if (!text) return;
+  const store = document.getElementById('item-store-sel').value || document.getElementById('item-store-new').value.trim();
   if (store && !S.get('stores').find(s => s.name === store)) {
     const stores = S.get('stores');
     const maxOrder = Math.max(...stores.map(s => s.order), 0);
-    stores.splice(stores.length - 1, 0, { id: Date.now(), name: store, order: maxOrder });
+    stores.splice(stores.length-1, 0, { id: Date.now(), name: store, order: maxOrder });
     S.set('stores', stores);
   }
   const lists = S.get('lists');
-  const list  = lists.find(l => l.id === activeList);
+  const list = lists.find(l => l.id === activeList);
   if (!list) return;
-  list.items.push({ id: Date.now() + Math.random(), text, store, checked: false });
+  list.items.push({ id: Date.now(), text, store, checked: false });
   S.set('lists', lists);
   renderItems();
-  checkAutoArchive();
-}
-function saveItem() {
-  const text = document.getElementById('item-text-inp').value.trim();
-  const store = document.getElementById('item-store-sel').value ||
-                document.getElementById('item-store-new').value.trim();
-  if (text) addItemToList(text, store);
-  closeModal('item-modal');
   document.getElementById('item-text-inp').value = '';
   document.getElementById('item-store-new').value = '';
+  document.getElementById('item-text-inp').focus();
 }
 
 function toggleItem(listId, itemId, checked) {
@@ -463,7 +393,8 @@ function toggleItem(listId, itemId, checked) {
   const item = list?.items.find(i => String(i.id) === String(itemId));
   if (item) item.checked = checked;
   S.set('lists', lists);
-  renderItems();  checkAutoArchive();}
+  renderItems();
+}
 
 function delItem(listId, itemId) {
   const lists = S.get('lists');
@@ -471,42 +402,6 @@ function delItem(listId, itemId) {
   if (list) list.items = list.items.filter(i => String(i.id) !== String(itemId));
   S.set('lists', lists);
   renderItems();
-}
-
-function checkAutoArchive() {
-  if (!activeList) return;
-  const lists = S.get('lists');
-  const list = lists.find(l => l.id === activeList);
-  if (!list || !list.items?.length) return;
-  if (list.items.every(i => i.checked)) {
-    const el = document.getElementById('items-grid');
-    if (el && !document.getElementById('archive-prompt')) {
-      const banner = document.createElement('div');
-      banner.id = 'archive-prompt';
-      banner.style.cssText = 'grid-column:1/-1;background:rgba(251,191,36,.12);border:1px solid var(--accent);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-top:8px;';
-      banner.innerHTML = `<span>🎉 Alla artiklar klara!</span><button onclick="archiveList()" style="background:var(--accent);color:#0F1621;border:none;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;">Arkivera listan</button>`;
-      el.appendChild(banner);
-    }
-  }
-}
-
-function archiveList() {
-  const lists = S.get('lists');
-  const list = lists.find(l => l.id === activeList);
-  if (!list) return;
-  list.archived = true;
-  list.completedAt = new Date().toISOString().slice(0,10);
-  S.set('lists', lists);
-  activeList = lists.find(l => !l.archived)?.id || null;
-  renderLists();
-  renderItems();
-}
-
-function delArchivedList(e, id) {
-  e.stopPropagation();
-  if (!confirm('Ta bort arkiverad lista?')) return;
-  S.set('lists', S.get('lists').filter(l => l.id !== id));
-  renderLists();
 }
 
 function clearChecked() {
@@ -517,17 +412,41 @@ function clearChecked() {
   renderItems();
 }
 
+function archiveList() {
+  if (!activeList) return;
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  if (!list) return;
+  const archive = S.get('archive');
+  archive.push({ ...list, archivedAt: new Date().toLocaleDateString('sv-SE') });
+  S.set('archive', archive);
+  lists.splice(lists.indexOf(list), 1);
+  S.set('lists', lists);
+  activeList = lists[0]?.id || null;
+  renderLists(); renderItems(); renderArchive();
+}
+
+function renderArchive() {
+  const archive = S.get('archive');
+  const el = document.getElementById('archive-stack');
+  if (!archive.length) { el.innerHTML = '<div style="font-size:10px;color:var(--text-dim);padding:4px;">Ingen arkiverad ännu</div>'; return; }
+  el.innerHTML = archive.slice(-5).reverse().map(a => `
+    <div class="archive-row" title="${a.name} • ${a.items.length} artiklar">
+      📦 ${a.name}<br><span style="font-size:9px;color:var(--text-dim);">${a.archivedAt}</span>
+    </div>`).join('');
+}
+
 function autoSort() {
   if (!activeList) { alert('Välj en lista först.'); return; }
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   if (!list?.items?.length) return;
   const stores = S.get('stores');
-  list.items.sort((a, b) => {
-    const oa = stores.find(s => s.name === (a.store || 'Övrigt'))?.order ?? 98;
-    const ob = stores.find(s => s.name === (b.store || 'Övrigt'))?.order ?? 98;
+  list.items.sort((a,b) => {
+    const oa = stores.find(s => s.name === (a.store||'Övrigt'))?.order ?? 98;
+    const ob = stores.find(s => s.name === (b.store||'Övrigt'))?.order ?? 98;
     if (oa !== ob) return oa - ob;
-    return (a.text || '').localeCompare(b.text || '', 'sv');
+    return (a.text||'').localeCompare(b.text||'','sv');
   });
   S.set('lists', lists);
   renderItems();

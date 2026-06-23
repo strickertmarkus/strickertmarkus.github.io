@@ -1,0 +1,37 @@
+NAVIGATION ADDITIONS FOR ALL BUDGET PAGES
+==========================================
+
+Add this link to the navigation menu in EVERY budget page:
+
+Location: Find the nav menu (usually in nav-dropdown-menu or similar menu structure)
+Add this line among the other links:
+
+<a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+
+PAGES TO UPDATE:
+===============
+
+1. calendar.html - ADD after the line with calendar link
+2. exercise.html - ADD after other navigation links
+3. budget.html - ADD in nav menu
+4. analytics.html - ADD in nav menu
+5. budget_maja.html - ADD in nav menu
+6. analytics_maja.html - ADD in nav menu
+7. familjebudget.html - ADD in nav menu
+8. data.html - ADD in nav menu
+9. mila.html - ADD in nav menu
+10. melker.html - ADD in nav menu
+
+The link format depends on the page style:
+
+For calendar.html & exercise.html (dropdown style):
+  <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+
+For other pages (menu-item style):
+  <a href="shopping.html" class="menu-item" style="--c-icon:rgba(52,211,153,.18);--c-accent:#34D399">
+    <div class="mi-icon">🛒</div>
+    <div class="mi-body"><div class="mi-name">Inköpslista</div><div class="mi-desc">Recept, shoppinglistor och butikssortering</div></div>
+    <span class="mi-chev">›</span>
+  </a>
+
+The second format is used in index.html, so check each page to see which navigation style it uses, then use the matching format.

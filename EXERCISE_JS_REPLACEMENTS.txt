@@ -1,0 +1,158 @@
+EXERCISE.HTML - JAVASCRIPT CODE REPLACEMENTS
+==============================================
+
+COPY-PASTE the exact code below to replace the corresponding sections.
+
+═══════════════════════════════════════════════════════════════════
+REPLACEMENT 1: Add chartVO2 variable (near line 600)
+═══════════════════════════════════════════════════════════════════
+
+OLD (around line 599):
+var chartVol, chartBW;
+
+NEW:
+var chartVol, chartBW, chartVO2;
+
+
+═══════════════════════════════════════════════════════════════════
+REPLACEMENT 2: Replace logBW() function (around line 650)
+═══════════════════════════════════════════════════════════════════
+
+OLD:
+function logBW(){
+  var v=parseFloat(document.getElementById('bw-inp').value);
+  if(isNaN(v)||v<20||v>300)return;
+  var data=getBW(), today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+  if(idx>=0)data[idx].weight=v; else data.push({date:today,weight:v});
+  data.sort(function(a,b){return a.date.localeCompare(b.date);});
+  DB.set('bw',data); document.getElementById('bw-inp').value='';
+  renderCharts(); refreshGoals(); showToast('Vikt loggad! ⚖️');
+}
+
+NEW:
+function logVO2(){
+  var v=parseFloat(document.getElementById('vo2-inp').value);
+  if(isNaN(v)||v<10||v>100){showToast('Ange ett giltigt värde (10–100)');return;}
+  var data=DB.get('vo2')||[], today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+  if(idx>=0)data[idx].score=v; else data.push({date:today,score:v});
+  data.sort(function(a,b){return a.date.localeCompare(b.date);});
+  DB.set('vo2',data); document.getElementById('vo2-inp').value='';
+  renderCharts(); refreshGoals(); showToast('VO₂-Max loggad! ❤️');
+}
+
+
+═══════════════════════════════════════════════════════════════════
+REPLACEMENT 3: Update renderCharts() - replace chart rendering (around line 625)
+═══════════════════════════════════════════════════════════════════
+
+OLD code segment (find this block):
+  var bwCtx=document.getElementById('chart-bw').getContext('2d');
+  if(chartBW)chartBW.destroy();
+  var bwLabels=bwData.slice(-20).map(function(e){return fmtDate(e.date);});
+  var bwVals=bwData.slice(-20).map(function(e){return e.weight;});
+  chartBW=new Chart(bwCtx,{type:'line',data:{labels:bwLabels.length?bwLabels:['—'],datasets:[{label:'Vikt (kg)',data:bwVals,borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,.08)',borderWidth:2,pointBackgroundColor:'#A78BFA',pointRadius:4,tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#161B22',titleColor:'#A78BFA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+
+NEW (exact replacement):
+  var vo2Ctx=document.getElementById('chart-vo2').getContext('2d');
+  if(chartVO2)chartVO2.destroy();
+  var vo2Data=DB.get('vo2')||[], goals=getGoals();
+  var vo2Labels=vo2Data.slice(-20).map(function(e){return fmtDate(e.date);});
+  var vo2Vals=vo2Data.slice(-20).map(function(e){return e.score;});
+  var goalVal=goals.konditionGoal||45;
+  var goalVals=vo2Vals.map(function(){return goalVal;});
+  chartVO2=new Chart(vo2Ctx,{type:'scatter',data:{labels:vo2Labels.length?vo2Labels:['—'],datasets:[{label:'VO₂-Max',data:vo2Vals.map(function(v,i){return{x:vo2Labels[i],y:v};}),backgroundColor:'#34D399',borderColor:'#34D399',pointRadius:5,pointHoverRadius:7,showLine:false,fill:false},{label:'Mål',type:'line',data:goalVals.map(function(g,i){return{x:vo2Labels[i],y:g};}),borderColor:'#FBBF24',borderDash:[5,5],borderWidth:2,pointRadius:0,fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#34D399',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{type:'category',ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:10,max:100}}}});
+
+
+═══════════════════════════════════════════════════════════════════
+REPLACEMENT 4: (OPTIONAL) Comment out getBW() if you want to clean up
+═══════════════════════════════════════════════════════════════════
+
+Find this function (around line 580):
+function getBW(){return DB.get('bw')||[];}
+
+Either delete it OR comment it out:
+// function getBW(){return DB.get('bw')||[];}
+
+Note: It might still be referenced elsewhere, so commenting is safer than deleting.
+
+
+═══════════════════════════════════════════════════════════════════
+VERIFICATION CHECKLIST
+═══════════════════════════════════════════════════════════════════
+
+After making these JavaScript changes, verify:
+
+1. chartVO2 variable is declared (check around line 599)
+2. logVO2() function exists and has correct logic
+3. renderCharts() includes the vo2 chart rendering code
+4. No syntax errors in console (press F12, check Console tab)
+5. HTML elements exist:
+   - <input id="vo2-inp"> 
+   - <canvas id="chart-vo2"></canvas>
+   - button with onclick="logVO2()"
+
+6. Test flow:
+   a. Hard refresh page (Ctrl+Shift+R)
+   b. Scroll to "Mål" section
+   c. Find VO₂-Max goal card (should show goal input)
+   d. Enter a value like "45.5"
+   e. Click "+ Logga"
+   f. Should see toast: "VO₂-Max loggad! ❤️"
+   g. Scroll to "Framsteg" section
+   h. Should see scatter plot with one green point
+   i. Dashed amber line should be visible at goal level (45)
+   j. Enter another VO₂ score
+   k. Verify new point appears on chart
+   l. Verify progress bar in goal card updates
+
+
+═══════════════════════════════════════════════════════════════════
+CHART STRUCTURE EXPLANATION
+═══════════════════════════════════════════════════════════════════
+
+The new VO₂ chart has two datasets:
+
+Dataset 1 - VO₂ Data Points:
+  - type: 'scatter'
+  - Each entry: {x: date, y: vo2_score}
+  - Color: Green (#34D399)
+  - Radius: 5px (7px on hover)
+  - No line connecting points (showLine: false)
+
+Dataset 2 - Goal Line:
+  - type: 'line'
+  - Horizontal line at goal value
+  - Color: Amber (#FBBF24)
+  - Pattern: Dashed [5px dash, 5px gap]
+  - Width: 2px
+  - No points on line (pointRadius: 0)
+
+Scales:
+  - X-axis: Dates (category scale)
+  - Y-axis: 10-100 range (VO₂ range)
+
+
+═══════════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════
+
+Issue: "chart-vo2 is not defined" or blank canvas
+Solution: Ensure <canvas id="chart-vo2"></canvas> exists in HTML
+
+Issue: Dashed line not showing
+Solution: Verify borderDash: [5,5] is exact in the goal dataset
+
+Issue: Chart shows no data
+Solution: 
+  1. Check browser console for errors (F12)
+  2. Verify DB.get('vo2') has data (enter a score first)
+  3. Hard refresh page to clear cache
+
+Issue: Button onclick not working
+Solution: Ensure HTML has onclick="logVO2()" not onclick="logBW()"
+
+Issue: Progress bar not updating
+Solution: Verify refreshGoals() is called after logVO2()
+
+
+═══════════════════════════════════════════════════════════════════

@@ -229,6 +229,7 @@
         <div class="nav-sep"></div>
         <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
         <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+        <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
         <div class="nav-sep"></div>
         <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
         <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
@@ -286,10 +287,10 @@
         <div class="chart-area"><canvas id="chart-vol"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>⚖️ Kroppsvikt</h3>
+        <h3>💨 VO₂-Max</h3>
         <div class="bw-row">
-          <div class="bw-inp-wrap"><label>Vikt</label><input type="number" id="bw-inp" step=".1" placeholder="80.0"><label>kg</label></div>
-          <button class="btn-sm" onclick="logBW()">+ Logga</button>
+          <div class="bw-inp-wrap"><label>VO₂</label><input type="number" id="bw-inp" step=".1" placeholder="45.0"><label>ml/kg/min</label></div>
+          <button class="btn-sm" onclick="logVO2()">+ Logga</button>
         </div>
         <div class="chart-area"><canvas id="chart-bw"></canvas></div>
       </div>
@@ -519,7 +520,7 @@ var DB={get:function(k){return JSON.parse(localStorage.getItem('ex_'+k)||'null')
 function getWorkouts(){return DB.get('wk')||[];}
 function saveWorkouts(w){DB.set('wk',w);}
 function getGoals(){return DB.get('goals')||{weeklyWk:4,weeklyVol:5000,konditionGoal:45};}
-function getBW(){return DB.get('bw')||[];}
+// function getBW(){return DB.get('bw')||[];}
 function getPRs(){return DB.get('prs')||{};}
 function getPlan(){return DB.get('plan')||{mon:'Bröst + Triceps',tue:'Rygg + Biceps',wed:'Ben + Axlar',thu:'Kondition',fri:'Helkropp',sat:'Vila',sun:'Vila'};}
 
@@ -600,7 +601,7 @@ function refreshGoals(){
   document.getElementById('g3-bar').style.width=kondP+'%';
 }
 function saveGoals(){
-  DB.set('goals',{weeklyWk:+(document.getElementById('g1-goal').value)||4,weeklyVol:+(document.getElementById('g2-goal').value)||5000,konditionGoal:+(document.getElementById('g3-goal').value)||45});
+  DB.set('goals',{weeklyWk:+(document.getElementById('g1-goal').value)||4,weeklyVol:+(document.getElementById('g2-goal').value)||5000,konditionGoal:+(document.getElementById('g3-goal').value)||45,vo2Goal:50});
   refreshAll(); showToast('Mål sparade! ✅');
 }
 function logKondition(){
@@ -632,10 +633,10 @@ function saveDayType(){
 }
 
 // ══ CHARTS ══════════════════════════════════════════════════════
-var chartVol, chartBW;
+var chartVol, chartVO2;
 function getWeekNum(d){var d2=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));d2.setUTCDate(d2.getUTCDate()+4-(d2.getUTCDay()||7));var ys=new Date(Date.UTC(d2.getUTCFullYear(),0,1));return Math.ceil(((d2-ys)/86400000+1)/7);}
 function renderCharts(){
-  var wks=getWorkouts(), bwData=getBW();
+  var wks=getWorkouts();
   var weekVols={};
   wks.forEach(function(w){
     var d=new Date(w.date), dow=d.getDay()===0?6:d.getDay()-1, ws=new Date(d); ws.setDate(d.getDate()-dow);
@@ -648,21 +649,22 @@ function renderCharts(){
   if(chartVol)chartVol.destroy();
   chartVol=new Chart(volCtx,{type:'bar',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Volym (kg)',data:wkVals.length?wkVals:[0],backgroundColor:'rgba(34,211,238,.22)',borderColor:'#22D3EE',borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#161B22',titleColor:'#22D3EE',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
-  if(chartBW)chartBW.destroy();
-  var bwLabels=bwData.slice(-20).map(function(e){return fmtDate(e.date);});
-  var bwVals=bwData.slice(-20).map(function(e){return e.weight;});
-  chartBW=new Chart(bwCtx,{type:'line',data:{labels:bwLabels.length?bwLabels:['—'],datasets:[{label:'Vikt (kg)',data:bwVals,borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,.08)',borderWidth:2,pointBackgroundColor:'#A78BFA',pointRadius:4,tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#161B22',titleColor:'#A78BFA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+  if(chartVO2)chartVO2.destroy();
+  var vo2Data=DB.get('vo2')||[], goals=getGoals(), goalVal=goals.vo2Goal||50;
+  var vo2Points=vo2Data.slice(-30).map(function(e,i){return {x:i,y:e.score,label:fmtDate(e.date)};});
+  var vo2Labels=vo2Data.slice(-30).map(function(e){return fmtDate(e.date);});
+  chartVO2=new Chart(bwCtx,{type:'scatter',data:{labels:vo2Labels.length?vo2Labels:['—'],datasets:[{label:'VO₂-Max (ml/kg/min)',data:vo2Points.length?vo2Points:[],borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.25)',pointBackgroundColor:'#60A5FA',pointRadius:5,pointHoverRadius:6,borderWidth:0},{label:'Mål',type:'line',data:vo2Points.length?vo2Points.map(function(p){return {x:p.x,y:goalVal};}):[], borderColor:'#FBBF24',borderWidth:2,borderDash:[5,5],pointRadius:0,fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#161B22',titleColor:'#60A5FA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1,callbacks:{label:function(c){if(c.dataset.label==='Mål')return 'Mål: '+goalVal+' ml/kg/min';return 'VO₂: '+c.parsed.y+' ml/kg/min';}}}},scales:{x:{type:'linear',ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:10,max:100}}}});
 }
 
-// ══ BODY WEIGHT ══════════════════════════════════════════════════
-function logBW(){
+// ══ VO₂-MAX ══════════════════════════════════════════════════════
+function logVO2(){
   var v=parseFloat(document.getElementById('bw-inp').value);
-  if(isNaN(v)||v<20||v>300)return;
-  var data=getBW(), today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
-  if(idx>=0)data[idx].weight=v; else data.push({date:today,weight:v});
+  if(isNaN(v)||v<10||v>100){showToast('Ange ett giltigt värde (10–100)');return;}
+  var data=DB.get('vo2')||[], today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+  if(idx>=0)data[idx].score=v; else data.push({date:today,score:v});
   data.sort(function(a,b){return a.date.localeCompare(b.date);});
-  DB.set('bw',data); document.getElementById('bw-inp').value='';
-  renderCharts(); refreshGoals(); showToast('Vikt loggad! ⚖️');
+  DB.set('vo2',data); document.getElementById('bw-inp').value='';
+  renderCharts(); refreshGoals(); showToast('VO₂-Max loggad! 💨');
 }
 
 // ══ PRs ══════════════════════════════════════════════════════════

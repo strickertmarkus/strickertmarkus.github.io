@@ -1,0 +1,154 @@
+EXERCISE.HTML - CHANGES NEEDED
+===============================
+
+KEY CHANGES:
+1. Replace body weight section with VO₂-Max tracking
+2. Remove "Volym / Vecka" chart  
+3. Add scatter plot for VO₂-Max with dashed goal line
+4. Keep volume per week chart but simplify
+5. Option: Add exercise-specific kg tracking
+
+SPECIFIC UPDATES:
+
+1. In the GOALS section (around line 275), REPLACE:
+   OLD: <div class="goal-lbl">Kondition (VO2max)</div>
+   WITH: <div class="goal-lbl">VO₂ Max (ml/kg/min)</div>
+
+2. REMOVE the entire "⚖️ Kroppsvikt" chart card section (lines ~310-320)
+
+3. In the CHARTS section, find where it says "Volym per vecka (kg)" 
+   This chart can stay - it shows volume per week which is useful
+
+4. After the volume chart, ADD the VO₂-Max scatter chart:
+
+   <div class="chart-card">
+     <h3>❤️ VO₂-Max framsteg</h3>
+     <div class="chart-area"><canvas id="chart-vo2"></canvas></div>
+   </div>
+
+5. In the GOALS section, REPLACE the body weight logging UI:
+   OLD:
+   <div class="bw-row">
+     <div class="bw-inp-wrap"><label>Vikt</label><input type="number" id="bw-inp" step=".1" placeholder="80.0"><label>kg</label></div>
+     <button class="btn-sm" onclick="logBW()">+ Logga</button>
+   </div>
+
+   WITH:
+   <div class="bw-row">
+     <div class="bw-inp-wrap"><label>Score</label><input type="number" id="vo2-inp" step="0.1" min="10" max="100" placeholder="50.0"><label>ml/kg/min</label></div>
+     <button class="btn-sm" onclick="logVO2()">+ Logga</button>
+   </div>
+
+6. In the JavaScript, REPLACE the `logBW()` function:
+
+   OLD: 
+   function logBW(){
+     var v=parseFloat(document.getElementById('bw-inp').value);
+     if(isNaN(v)||v<20||v>300)return;
+     var data=getBW(), today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+     if(idx>=0)data[idx].weight=v; else data.push({date:today,weight:v});
+     data.sort(function(a,b){return a.date.localeCompare(b.date);});
+     DB.set('bw',data); document.getElementById('bw-inp').value='';
+     renderCharts(); refreshGoals(); showToast('Vikt loggad! ⚖️');
+   }
+
+   WITH:
+   function logVO2(){
+     var v=parseFloat(document.getElementById('vo2-inp').value);
+     if(isNaN(v)||v<10||v>100){showToast('Ange ett giltigt värde (10–100)');return;}
+     var data=DB.get('vo2')||[], today=todayISO(), idx=data.findIndex(function(e){return e.date===today;});
+     if(idx>=0)data[idx].score=v; else data.push({date:today,score:v});
+     data.sort(function(a,b){return a.date.localeCompare(b.date);});
+     DB.set('vo2',data); document.getElementById('vo2-inp').value='';
+     renderCharts(); refreshGoals(); showToast('VO₂-Max loggad! ❤️');
+   }
+
+7. In the JavaScript, REPLACE the `renderCharts()` function's body weight chart section:
+
+   FIND: var bwCtx=document.getElementById('chart-bw').getContext('2d');
+   REPLACE THE ENTIRE bwCtx BLOCK with:
+
+   var vo2Ctx=document.getElementById('chart-vo2').getContext('2d');
+   if(chartVO2)chartVO2.destroy();
+   var vo2Data=DB.get('vo2')||[], goals=getGoals();
+   var vo2Labels=vo2Data.slice(-20).map(function(e){return fmtDate(e.date);});
+   var vo2Scores=vo2Data.slice(-20).map(function(e){return e.score;});
+   var goalLine=goals.konditionGoal||45;
+   
+   chartVO2=new Chart(vo2Ctx,{
+     type:'scatter',
+     data:{
+       labels:vo2Labels,
+       datasets:[
+         {
+           label:'VO₂-Max',
+           data:vo2Scores.map(function(v,i){return{x:vo2Labels[i],y:v};}),
+           backgroundColor:'#34D399',
+           borderColor:'#34D399',
+           pointRadius:5,
+           pointHoverRadius:7,
+           showLine:false
+         },
+         {
+           label:'Mål',
+           type:'line',
+           data:vo2Scores.map(function(v,i){return{x:vo2Labels[i],y:goalLine};}),
+           borderColor:'#FBBF24',
+           borderDash:[5,5],
+           borderWidth:2,
+           pointRadius:0,
+           fill:false,
+           tension:0
+         }
+       ]
+     },
+     options:{
+       responsive:true,
+       maintainAspectRatio:false,
+       plugins:{
+         legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},
+         tooltip:{backgroundColor:'#161B22',titleColor:'#34D399',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}
+       },
+       scales:{
+         x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},
+         y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:10,max:100}
+       }
+     }
+   });
+
+8. At the top of the script, add `chartVO2` variable:
+   var chartVol, chartBW, chartVO2;
+
+9. REMOVE or comment out the `getBW()` function and related body weight code
+
+10. UPDATE the stat card for volume - keep it as is since it's still useful for weekly volume tracking
+
+
+OPTIONAL: Exercise-specific kg tracking
+=========================================
+
+To add exercise-specific kg tracking instead of global body weight:
+
+1. Add a new goal card for "Exercise kg tracking"
+2. Modify the workout modal to track kg per exercise (already done)
+3. Create a helper function to sum kg per exercise type
+4. Add a new chart showing "kg lifted per exercise" comparison
+
+This would require:
+- Parsing workout data to extract kg per exercise
+- Creating a bar chart grouping by exercise name
+- Summing reps*weight for each exercise
+
+NOTE: This is already partially supported in the current code since exercises have weight, sets, and reps. You could create a chart that shows total volume (sets*reps*weight) per exercise type.
+
+TESTING CHECKLIST:
+==================
+✓ Hard refresh (Ctrl+Shift+R) to clear cache
+✓ Log a VO2-Max score
+✓ Verify score appears on scatter plot
+✓ Verify goal line (dashed) appears at the goal value
+✓ Verify "Volym/Vecka" chart is removed
+✓ Verify VO2-Max card in goals shows progress bar
+✓ Test multiple VO2-Max entries
+✓ Update goal value and verify dashed line moves
+✓ Verify chart updates in real-time
