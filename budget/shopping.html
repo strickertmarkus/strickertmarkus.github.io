@@ -64,7 +64,7 @@
     /* add to list from recipe */
     .recipe-add-btn{font-size:11px;margin-top:6px;align-self:start;}
     /* items */
-    .items-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+    .items-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
     .t-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-sec);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
     .t-btn:hover{background:rgba(255,255,255,.09);color:var(--text);}
     .t-btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);}
@@ -77,8 +77,14 @@
     .item-cb{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
     .item-label{flex:1;cursor:pointer;}
     .item-label.done{text-decoration:line-through;color:var(--text-dim);}
+    .item-edit{color:var(--accent);opacity:0;transition:opacity .2s;font-size:13px;cursor:pointer;flex-shrink:0;padding:0 2px;}
+    .item-row:hover .item-edit{opacity:1;}
     .item-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:13px;cursor:pointer;flex-shrink:0;}
     .item-row:hover .item-del{opacity:1;}
+    .item-row.adding{background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.35);}
+    .item-inline-inp{flex:1;background:transparent;border:none;color:var(--text);font-size:12px;font-family:inherit;outline:none;}
+    .item-inline-inp::placeholder{color:var(--text-dim);}
+    .item-inline-hint{font-size:10px;color:var(--text-dim);white-space:nowrap;}
     .no-items{grid-column:1/-1;text-align:center;padding:24px;color:var(--text-dim);font-size:12px;}
     /* modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
@@ -125,10 +131,6 @@
       Arkiv
     </div>
     <div class="list-stack" id="archive-stack"></div>
-    <div class="sb-head" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;">
-      Arkiv
-    </div>
-    <div id="archive-stack"></div>
   </aside>
 
   <!-- Content -->
@@ -147,9 +149,9 @@
     <div class="panel">
       <div class="panel-head">
         <span class="panel-title">🧺 Artiklar</span>
-        <button class="panel-btn" onclick="openItemModal()">+ Ny artikel</button>
       </div>
       <div class="items-toolbar">
+        <button class="t-btn primary" onclick="startInlineAdd()">+ Ny artikel</button>
         <button class="t-btn primary" onclick="autoSort()">🔄 Sortera butiksmässigt</button>
         <button class="t-btn" onclick="clearChecked()">✓ Rensa bockade</button>
       </div>
@@ -188,20 +190,16 @@
   </div>
 </div>
 
-<!-- Modal: New item -->
-<div class="modal" id="item-modal">
+<!-- Modal: Edit item -->
+<div class="modal" id="edit-item-modal">
   <div class="mbox">
-    <div class="m-title">Ny artikel</div>
-    <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Tryck Enter för att snabbt lägga till fler artiklar.</div>
-    <input class="m-inp" id="item-text-inp" type="text" placeholder="Artikelnamn" autocomplete="off">
-    <div class="m-note">Kopplat recept (valfritt):</div>
-    <select class="m-sel" id="item-recipe-sel"><option value="">— Inget recept —</option></select>
-    <div class="m-note">Butik/avdelning:</div>
-    <select class="m-sel" id="item-store-sel"><option value="">— Välj befintlig —</option></select>
-    <input class="m-inp" id="item-store-new" type="text" placeholder="Eller ange ny butik/avdelning">
+    <div class="m-title">Redigera artikel</div>
+    <input class="m-inp" id="edit-item-text" type="text" placeholder="Artikelnamn">
+    <div class="m-note">Kategori (auto-detekterad):</div>
+    <select class="m-sel" id="edit-item-cat"><option value="">— Auto —</option></select>
     <div class="m-row">
-      <button class="m-cancel" onclick="closeModal('item-modal')">Avbryt</button>
-      <button class="m-save" onclick="saveItem()">Lägg till</button>
+      <button class="m-cancel" onclick="closeModal('edit-item-modal')">Avbryt</button>
+      <button class="m-save" onclick="saveEditedItem()">Spara</button>
     </div>
   </div>
 </div>
@@ -213,7 +211,7 @@ const S = {
   set: (k, v) => localStorage.setItem('sh_' + k, JSON.stringify(v))
 };
 
-/* ── default ICA Maxi store order ── */
+/* ── legacy store data migration ── */
 function defaultStores() {
   const d = S.get('stores');
   if (d.length) return;
@@ -236,6 +234,7 @@ function defaultStores() {
 
 let activeList = null;
 let ingCount = 0;
+let inlineAddActive = false;
 
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -363,10 +362,77 @@ function addFromRecipe(recipeId) {
   const list = lists.find(l => l.id === activeList);
   if (!list) return;
   recipe.items.forEach(ing => {
-    list.items.push({ id: Date.now() + Math.random(), text: ing, store: '', checked: false, recipeId });
+    list.items.push({ id: Date.now() + Math.random(), text: ing, checked: false, recipeId });
   });
   S.set('lists', lists);
   renderItems();
+}
+
+/* ── category detection (store-walk order) ── */
+const CATEGORIES = [
+  { name: 'Hygien', order: 1, keywords: ['tvätt','tvål','tandborste','tandkräm','schampo','balsam','deodorant','tandtråd','vätska','hygien','toalettpapper','damhygien'] },
+  { name: 'Baby', order: 2, keywords: ['baby','blöja','spädbarnsmat','bröstmjölkersättning','leksak','spottsnål'] },
+  { name: 'Frukt & Grönt', order: 3, keywords: ['frukt','banan','äpple','päron','apelsin','grapefrukt','körsbär','plommon','hallon','jordgubbe','blåbär','grönt','tomat','sallad','broccoli','blomkål','paprika','gurka','zucchini','aubergine','ört','potato','potatis','morot','lök'] },
+  { name: 'Kött & Fisk', order: 4, keywords: ['kött','nötkött','fläsk','gris','kyckling','örnhöna','fågel','köttfärs','kalv','lammkött','vilt','fisk','lax','torsk','abborre','gädda','skaldjur','räka','musla','bläckfisk','chark','korv','hönskorv','leverpastej','paté','skinka','rostbiff','spik'] },
+  { name: 'Mejeri & Ägg', order: 5, keywords: ['mjölk','smör','grädde','yoghurt','filmjölk','quark','ägg','ost','mozzarella'] },
+  { name: 'Skafferi', order: 6, keywords: ['mjöl','socker','salt','peppar','olivolja','olja','vinäger','bröd','frukost','müsli','cornflakes','kaffe','te','kakao','pasta','ris','bönor','linser','konserver','tomatpuré','tomatnisse','krydda'] },
+  { name: 'Fryst', order: 7, keywords: ['fryst','frys','glass','frysvara','pizza','frysa'] },
+  { name: 'Godis & Snacks', order: 8, keywords: ['godis','choklad','karamell','kola','chips','popcorn','kräm','kex','kaka','buskis','fruktbar','fruktgummi','pastill','nougat','dragé','snacks','nötter','mandel','peanuts'] }
+];
+
+function detectCategory(text) {
+  const lower = (text || '').toLowerCase();
+  for (const cat of CATEGORIES) {
+    if (cat.keywords.some(kw => lower.includes(kw))) return cat.order;
+  }
+  return 99; // default
+}
+
+function getItemOrder(item) {
+  return Number.isFinite(item.category) ? item.category : detectCategory(item.text);
+}
+
+function focusInlineAdd() {
+  requestAnimationFrame(() => {
+    document.getElementById('inline-item-inp')?.focus();
+  });
+}
+
+function startInlineAdd() {
+  if (!activeList) { alert('Skapa en lista först.'); return; }
+  inlineAddActive = true;
+  renderItems();
+  focusInlineAdd();
+}
+
+function cancelInlineAdd() {
+  inlineAddActive = false;
+  renderItems();
+}
+
+function saveInlineAdd(keepAdding) {
+  const input = document.getElementById('inline-item-inp');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) {
+    if (!keepAdding) cancelInlineAdd();
+    return;
+  }
+  addItemToList(text);
+  inlineAddActive = keepAdding;
+  renderItems();
+  if (keepAdding) focusInlineAdd();
+}
+
+function handleInlineAddKey(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    saveInlineAdd(true);
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    cancelInlineAdd();
+  }
 }
 
 /* ── items ── */
@@ -375,86 +441,80 @@ function renderItems() {
   if (!activeList) { el.innerHTML = '<div class="no-items">Välj eller skapa en lista för att börja.</div>'; return; }
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
-  if (!list || !list.items.length) { el.innerHTML = '<div class="no-items">Listan är tom. Lägg till artiklar!</div>'; return; }
-  const stores = S.get('stores');
-  // group by store
-  const groups = {};
-  list.items.forEach(item => {
-    const sn = item.store || 'Övrigt';
-    if (!groups[sn]) groups[sn] = [];
-    groups[sn].push(item);
+  if (!list) { el.innerHTML = '<div class="no-items">Välj eller skapa en lista för att börja.</div>'; return; }
+  // sort by category order
+  const sorted = [...(list.items || [])].sort((a, b) => {
+    const ca = getItemOrder(a);
+    const cb = getItemOrder(b);
+    if (ca !== cb) return ca - cb;
+    return (a.text || '').localeCompare(b.text || '', 'sv');
   });
-  // sort store groups by order
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const oa = stores.find(s => s.name === a)?.order ?? 98;
-    const ob = stores.find(s => s.name === b)?.order ?? 98;
-    return oa - ob;
-  });
-  el.innerHTML = sortedKeys.map(store => `
-    <div class="store-block">
-      <div class="store-title">${store}<span style="font-size:10px;color:var(--text-dim);">${groups[store].length}</span></div>
-      ${groups[store].map(item => `
-        <div class="item-row">
-          <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked)">
-          <span class="item-label${item.checked?' done':''}" onclick="this.previousElementSibling.click()">${item.text}</span>
-          <span class="item-del" onclick="delItem(${activeList},'${item.id}')">✕</span>
-        </div>`).join('')}
-    </div>`).join('');
-}
-
-function openItemModal() {
-  if (!activeList) { alert('Skapa en lista först.'); return; }
-  const recipes = S.get('recipes');
-  const rs = document.getElementById('item-recipe-sel');
-  rs.innerHTML = '<option value="">— Inget recept —</option>';
-  recipes.forEach(r => { rs.innerHTML += `<option value="${r.id}">${r.name}</option>`; });
-  const stores = S.get('stores');
-  const ss = document.getElementById('item-store-sel');
-  ss.innerHTML = '<option value="">— Välj befintlig —</option>';
-  stores.forEach(s => { ss.innerHTML += `<option value="${s.name}">${s.name}</option>`; });
-  openModal('item-modal');
-  setTimeout(() => {
-    const inp = document.getElementById('item-text-inp');
-    inp.focus();
-    inp.onkeydown = e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const text = inp.value.trim();
-        if (!text) return;
-        const store = document.getElementById('item-store-sel').value ||
-                      document.getElementById('item-store-new').value.trim();
-        addItemToList(text, store);
-        inp.value = '';
-        inp.focus();
-      }
-    };
-  }, 60);
-}
-
-function addItemToList(text, store) {
-  if (!activeList) return;
-  if (store && !S.get('stores').find(s => s.name === store)) {
-    const stores = S.get('stores');
-    const maxOrder = Math.max(...stores.map(s => s.order), 0);
-    stores.splice(stores.length - 1, 0, { id: Date.now(), name: store, order: maxOrder });
-    S.set('stores', stores);
+  const rows = sorted.map(item => `
+    <div class="item-row">
+      <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked)">
+      <span class="item-label${item.checked?' done':''}" onclick="this.previousElementSibling.click()">${item.text}</span>
+      <span class="item-edit" onclick="openEditItem('${item.id}')">✎</span>
+      <span class="item-del" onclick="delItem(${activeList},'${item.id}')">✕</span>
+    </div>`);
+  if (inlineAddActive) {
+    rows.push(`
+    <div class="item-row adding">
+      <span style="width:15px;flex-shrink:0;color:var(--accent);">+</span>
+      <input class="item-inline-inp" id="inline-item-inp" type="text" placeholder="Skriv artikel och tryck Enter" onkeydown="handleInlineAddKey(event)">
+      <span class="item-inline-hint">Enter = ny rad</span>
+    </div>`);
   }
+  if (!rows.length) {
+    el.innerHTML = '<div class="no-items">Listan är tom. Klicka på Ny artikel för att börja.</div>';
+    return;
+  }
+  el.innerHTML = '<div style="grid-column:1/-1;">' + rows.join('') + '</div>';
+}
+
+let editingItemId = null;
+
+function openEditItem(itemId) {
+  if (!activeList) return;
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(i => String(i.id) === String(itemId));
+  if (!item) return;
+  editingItemId = itemId;
+  document.getElementById('edit-item-text').value = item.text;
+  // populate categories
+  const catSel = document.getElementById('edit-item-cat');
+  catSel.innerHTML = '<option value="">— Auto —</option>' + CATEGORIES.map(c => `<option value="${c.order}">${c.name}</option>`).join('');
+  catSel.value = item.category || '';
+  openModal('edit-item-modal');
+}
+
+function saveEditedItem() {
+  if (!activeList || !editingItemId) return;
+  const text = document.getElementById('edit-item-text').value.trim();
+  const cat = document.getElementById('edit-item-cat').value;
+  if (!text) return;
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(i => String(i.id) === String(editingItemId));
+  if (!item) return;
+  item.text = text;
+  if (cat) item.category = parseInt(cat, 10);
+  else delete item.category;
+  S.set('lists', lists);
+  renderItems();
+  closeModal('edit-item-modal');
+  editingItemId = null;
+}
+
+function addItemToList(text) {
+  if (!activeList) return;
   const lists = S.get('lists');
   const list  = lists.find(l => l.id === activeList);
   if (!list) return;
-  list.items.push({ id: Date.now() + Math.random(), text, store, checked: false });
+  list.items.push({ id: Date.now() + Math.random(), text, checked: false });
   S.set('lists', lists);
   renderItems();
   checkAutoArchive();
-}
-function saveItem() {
-  const text = document.getElementById('item-text-inp').value.trim();
-  const store = document.getElementById('item-store-sel').value ||
-                document.getElementById('item-store-new').value.trim();
-  if (text) addItemToList(text, store);
-  closeModal('item-modal');
-  document.getElementById('item-text-inp').value = '';
-  document.getElementById('item-store-new').value = '';
 }
 
 function toggleItem(listId, itemId, checked) {
@@ -522,10 +582,9 @@ function autoSort() {
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   if (!list?.items?.length) return;
-  const stores = S.get('stores');
   list.items.sort((a, b) => {
-    const oa = stores.find(s => s.name === (a.store || 'Övrigt'))?.order ?? 98;
-    const ob = stores.find(s => s.name === (b.store || 'Övrigt'))?.order ?? 98;
+    const oa = getItemOrder(a);
+    const ob = getItemOrder(b);
     if (oa !== ob) return oa - ob;
     return (a.text || '').localeCompare(b.text || '', 'sv');
   });
