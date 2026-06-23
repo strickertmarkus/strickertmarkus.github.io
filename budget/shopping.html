@@ -72,17 +72,23 @@
     .items-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .store-block{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:9px;padding:11px;}
     .store-title{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:7px;display:flex;justify-content:space-between;}
-    .item-row{display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;font-size:12px;transition:background .15s;}
+    .item-row{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:8px;font-size:14px;transition:background .15s;}
     .item-row:hover{background:rgba(255,255,255,.05);}
-    .item-cb{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
-    .item-label{flex:1;cursor:pointer;}
+    .item-cb{width:19px;height:19px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+    .item-label{flex:1;cursor:pointer;font-size:14px;line-height:1.35;}
     .item-label.done{text-decoration:line-through;color:var(--text-dim);}
     .item-edit{color:var(--accent);opacity:0;transition:opacity .2s;font-size:13px;cursor:pointer;flex-shrink:0;padding:0 2px;}
     .item-row:hover .item-edit{opacity:1;}
     .item-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:13px;cursor:pointer;flex-shrink:0;}
     .item-row:hover .item-del{opacity:1;}
+    @keyframes itemAppear{
+      0%{opacity:0;transform:translateY(-10px) scale(.985);}
+      70%{opacity:1;}
+      100%{opacity:1;transform:translateY(0) scale(1);}
+    }
+    .item-row.item-new{animation:itemAppear .35s ease-out;background:rgba(251,191,36,.08);}
     .item-row.adding{background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.35);}
-    .item-inline-inp{flex:1;background:transparent;border:none;color:var(--text);font-size:12px;font-family:inherit;outline:none;}
+    .item-inline-inp{flex:1;background:transparent;border:none;color:var(--text);font-size:14px;font-family:inherit;outline:none;}
     .item-inline-inp::placeholder{color:var(--text-dim);}
     .item-inline-hint{font-size:10px;color:var(--text-dim);white-space:nowrap;}
     .no-items{grid-column:1/-1;text-align:center;padding:24px;color:var(--text-dim);font-size:12px;}
@@ -235,6 +241,7 @@ function defaultStores() {
 let activeList = null;
 let ingCount = 0;
 let inlineAddActive = false;
+const NEW_ROW_IDS = new Set();
 
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -450,7 +457,7 @@ function renderItems() {
     return (a.text || '').localeCompare(b.text || '', 'sv');
   });
   const rows = sorted.map(item => `
-    <div class="item-row">
+    <div class="item-row${NEW_ROW_IDS.has(String(item.id)) ? ' item-new' : ''}">
       <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked)">
       <span class="item-label${item.checked?' done':''}" onclick="this.previousElementSibling.click()">${item.text}</span>
       <span class="item-edit" onclick="openEditItem('${item.id}')">✎</span>
@@ -511,10 +518,16 @@ function addItemToList(text) {
   const lists = S.get('lists');
   const list  = lists.find(l => l.id === activeList);
   if (!list) return;
-  list.items.push({ id: Date.now() + Math.random(), text, checked: false });
+  const id = Date.now() + Math.random();
+  list.items.push({ id, text, checked: false });
+  NEW_ROW_IDS.add(String(id));
   S.set('lists', lists);
   renderItems();
   checkAutoArchive();
+  setTimeout(() => {
+    NEW_ROW_IDS.delete(String(id));
+    renderItems();
+  }, 420);
 }
 
 function toggleItem(listId, itemId, checked) {
