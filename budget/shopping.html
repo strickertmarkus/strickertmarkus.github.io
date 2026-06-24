@@ -421,6 +421,7 @@ function openRecipeComposer() {
   recipeComposeActive = true;
   renderRecipes();
   requestAnimationFrame(() => document.getElementById('recipe-name-inp').focus());
+  addRecipeIngRow(true);
 }
 
 function addRecipeIngRow(focus = true) {
