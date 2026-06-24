@@ -72,6 +72,8 @@
     .ri-row::before{content:'•';color:var(--accent);}
     /* add to list from recipe */
     .recipe-add-btn{font-size:11px;margin-top:6px;align-self:start;}
+    .recipe-compose{margin-bottom:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);}
+    .recipe-compose .m-row button{padding:9px 10px;}
     /* items */
     .items-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
     .t-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-sec);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
@@ -175,7 +177,17 @@
     <div class="panel">
       <div class="panel-head">
         <span class="panel-title">📋 Recept</span>
-        <button class="panel-btn" onclick="openRecipeModal()">+ Nytt recept</button>
+        <button class="panel-btn" onclick="openRecipeComposer()">+ Nytt recept</button>
+      </div>
+      <div class="recipe-compose" id="recipe-compose" style="display:none;">
+        <input class="m-inp" id="recipe-name-inp" type="text" placeholder="Receptnamn (t.ex. Pasta Carbonara)" onkeydown="handleRecipeNameKey(event)">
+        <div class="m-note">Ingredienser (en per rad). Tryck Enter för ny rad.</div>
+        <div id="recipe-ing-stack"></div>
+        <button class="t-btn" onclick="addRecipeIngRow()" style="width:100%;margin-bottom:10px;">+ Ingrediens</button>
+        <div class="m-row" style="margin-top:10px;">
+          <button class="m-cancel" onclick="cancelRecipeComposer()">Avbryt</button>
+          <button class="m-save" onclick="saveRecipe()">Spara</button>
+        </div>
       </div>
       <div class="recipe-stack" id="recipe-stack"><div style="font-size:12px;color:var(--text-dim);">Inga recept än.</div></div>
     </div>
@@ -206,21 +218,6 @@
     <div class="m-row">
       <button class="m-cancel" onclick="closeModal('list-modal')">Avbryt</button>
       <button class="m-save" onclick="saveList()">Skapa</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: New recipe -->
-<div class="modal" id="recipe-modal">
-  <div class="mbox">
-    <div class="m-title">Nytt recept</div>
-    <input class="m-inp" id="recipe-name-inp" type="text" placeholder="Receptnamn (t.ex. Pasta Carbonara)">
-    <div class="m-note">Ingredienser (en per rad). Tryck Enter för ny rad.</div>
-    <div id="recipe-ing-stack"></div>
-    <button class="t-btn" onclick="addRecipeIngRow()" style="width:100%;margin-bottom:10px;">+ Ingrediens</button>
-    <div class="m-row">
-      <button class="m-cancel" onclick="closeModal('recipe-modal')">Avbryt</button>
-      <button class="m-save" onclick="saveRecipe()">Spara</button>
     </div>
   </div>
 </div>
@@ -271,6 +268,7 @@ let activeList = null;
 let ingCount = 0;
 let inlineAddActive = false;
 const NEW_ROW_IDS = new Set();
+let recipeComposeActive = false;
 
 function toggleNavMenu() {
   document.querySelector('.nav-dropdown-wrapper')?.classList.toggle('open');
@@ -381,9 +379,7 @@ function saveRecipe() {
   recipes.push({ id: Date.now(), name, items });
   S.set('recipes', recipes);
   renderRecipes();
-  closeModal('recipe-modal');
-  document.getElementById('recipe-name-inp').value = '';
-  document.getElementById('recipe-ing-stack').innerHTML = '';
+  cancelRecipeComposer();
 }
 
 function delRecipe(e, id) {
@@ -407,22 +403,20 @@ function addFromRecipe(recipeId) {
   renderItems();
 }
 
-function openRecipeModal() {
+function openRecipeComposer() {
+  recipeComposeActive = true;
+  document.getElementById('recipe-compose').style.display = 'block';
   document.getElementById('recipe-name-inp').value = '';
-  const stack = document.getElementById('recipe-ing-stack');
-  stack.innerHTML = '';
-  addRecipeIngRow();
-  openModal('recipe-modal');
-  requestAnimationFrame(() => {
-    document.getElementById('recipe-name-inp').focus();
-  });
+  document.getElementById('recipe-ing-stack').innerHTML = '';
+  requestAnimationFrame(() => document.getElementById('recipe-name-inp').focus());
 }
 
 function addRecipeIngRow(focus = true) {
+  if (!recipeComposeActive) openRecipeComposer();
   const stack = document.getElementById('recipe-ing-stack');
   const id = 'recipe-ing-' + Date.now() + '-' + Math.random().toString(16).slice(2);
   const row = document.createElement('div');
-  row.className = 'item-row';
+  row.className = 'item-row adding';
   row.style.marginBottom = '8px';
   row.innerHTML = `
     <span style="width:19px;flex-shrink:0;color:var(--accent);font-weight:700;">•</span>
@@ -433,6 +427,20 @@ function addRecipeIngRow(focus = true) {
   if (focus) requestAnimationFrame(() => document.getElementById(id)?.focus());
 }
 
+function cancelRecipeComposer() {
+  recipeComposeActive = false;
+  document.getElementById('recipe-compose').style.display = 'none';
+  document.getElementById('recipe-name-inp').value = '';
+  document.getElementById('recipe-ing-stack').innerHTML = '';
+}
+
+function handleRecipeNameKey(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    addRecipeIngRow(true);
+  }
+}
+
 function handleRecipeIngKey(event) {
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -440,7 +448,7 @@ function handleRecipeIngKey(event) {
   }
   if (event.key === 'Escape') {
     event.preventDefault();
-    closeModal('recipe-modal');
+    cancelRecipeComposer();
   }
 }
 
