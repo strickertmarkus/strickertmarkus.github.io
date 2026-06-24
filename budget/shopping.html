@@ -22,6 +22,15 @@
     .h-title{flex:1;font-size:17px;font-weight:700;letter-spacing:-.5px;}
     .h-back{text-decoration:none;color:var(--text-sec);font-size:12px;font-weight:600;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all .2s;}
     .h-back:hover{color:var(--text);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);}
+    .nav-dropdown-wrapper{position:relative;}
+    .nav-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-sec);padding:6px 10px;border-radius:8px;font-size:16px;cursor:pointer;font-family:inherit;transition:all .2s;line-height:1;}
+    .nav-btn:hover{color:var(--text);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.08);}
+    .nav-dropdown-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:250px;background:rgba(22,30,47,.98);border:1px solid var(--border);border-radius:12px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.35);backdrop-filter:blur(10px);z-index:120;}
+    .nav-dropdown-wrapper.open .nav-dropdown-menu{display:block;}
+    .nav-dropdown-menu a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);padding:9px 10px;border-radius:8px;font-size:13px;transition:background .2s;}
+    .nav-dropdown-menu a:hover{background:rgba(255,255,255,.06);}
+    .nav-sep{height:1px;background:var(--border);margin:6px 4px;}
+    .nav-icon{width:18px;text-align:center;flex-shrink:0;}
     /* layout */
     .main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:220px 1fr;gap:18px;}
     /* sidebar */
@@ -124,6 +133,26 @@
     <span class="h-logo">🛒</span>
     <h1 class="h-title">Inköpslista</h1>
     <a href="index.html" class="h-back">← Hem</a>
+    <div class="nav-dropdown-wrapper">
+      <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
+      <div class="nav-dropdown-menu" id="nav-menu">
+        <a href="index.html"><span class="nav-icon">🏡</span> Startsida</a>
+        <div class="nav-sep"></div>
+        <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+        <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+        <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+        <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+        <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+        <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+        <div class="nav-sep"></div>
+        <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+        <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+        <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+        <div class="nav-sep"></div>
+        <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
+        <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -146,7 +175,7 @@
     <div class="panel">
       <div class="panel-head">
         <span class="panel-title">📋 Recept</span>
-        <button class="panel-btn" onclick="openModal('recipe-modal')">+ Nytt recept</button>
+        <button class="panel-btn" onclick="openRecipeModal()">+ Nytt recept</button>
       </div>
       <div class="recipe-stack" id="recipe-stack"><div style="font-size:12px;color:var(--text-dim);">Inga recept än.</div></div>
     </div>
@@ -186,9 +215,9 @@
   <div class="mbox">
     <div class="m-title">Nytt recept</div>
     <input class="m-inp" id="recipe-name-inp" type="text" placeholder="Receptnamn (t.ex. Pasta Carbonara)">
-    <div class="m-note">Ingredienser (en per rad):</div>
-    <div id="ing-stack"></div>
-    <button class="t-btn" onclick="addIngRow()" style="width:100%;margin-bottom:10px;">+ Ingrediens</button>
+    <div class="m-note">Ingredienser (en per rad). Tryck Enter för ny rad.</div>
+    <div id="recipe-ing-stack"></div>
+    <button class="t-btn" onclick="addRecipeIngRow()" style="width:100%;margin-bottom:10px;">+ Ingrediens</button>
     <div class="m-row">
       <button class="m-cancel" onclick="closeModal('recipe-modal')">Avbryt</button>
       <button class="m-save" onclick="saveRecipe()">Spara</button>
@@ -242,6 +271,15 @@ let activeList = null;
 let ingCount = 0;
 let inlineAddActive = false;
 const NEW_ROW_IDS = new Set();
+
+function toggleNavMenu() {
+  document.querySelector('.nav-dropdown-wrapper')?.classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.querySelector('.nav-dropdown-wrapper');
+  if (wrapper && !wrapper.contains(e.target)) wrapper.classList.remove('open');
+});
 
 /* ── init ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -333,25 +371,19 @@ function renderRecipes() {
 
 function toggleRecipe(id) { document.getElementById('rc'+id)?.classList.toggle('open'); }
 
-function addIngRow() {
-  const c = document.getElementById('ing-stack');
-  const d = document.createElement('div');
-  d.innerHTML = `<input class="m-inp ing-inp" type="text" placeholder="Ingrediens">`;
-  c.appendChild(d);
-}
+function addIngRow() { addRecipeIngRow(true); }
 
 function saveRecipe() {
   const name = document.getElementById('recipe-name-inp').value.trim();
   if (!name) return;
-  const items = [...document.querySelectorAll('.ing-inp')].map(i => i.value.trim()).filter(Boolean);
-  if (!items.length) { alert('Lägg till minst en ingrediens.'); return; }
+  const items = [...document.querySelectorAll('.recipe-ing-inp')].map(i => i.value.trim()).filter(Boolean);
   const recipes = S.get('recipes');
   recipes.push({ id: Date.now(), name, items });
   S.set('recipes', recipes);
   renderRecipes();
   closeModal('recipe-modal');
   document.getElementById('recipe-name-inp').value = '';
-  document.getElementById('ing-stack').innerHTML = '';
+  document.getElementById('recipe-ing-stack').innerHTML = '';
 }
 
 function delRecipe(e, id) {
@@ -373,6 +405,43 @@ function addFromRecipe(recipeId) {
   });
   S.set('lists', lists);
   renderItems();
+}
+
+function openRecipeModal() {
+  document.getElementById('recipe-name-inp').value = '';
+  const stack = document.getElementById('recipe-ing-stack');
+  stack.innerHTML = '';
+  addRecipeIngRow();
+  openModal('recipe-modal');
+  requestAnimationFrame(() => {
+    document.getElementById('recipe-name-inp').focus();
+  });
+}
+
+function addRecipeIngRow(focus = true) {
+  const stack = document.getElementById('recipe-ing-stack');
+  const id = 'recipe-ing-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.style.marginBottom = '8px';
+  row.innerHTML = `
+    <span style="width:19px;flex-shrink:0;color:var(--accent);font-weight:700;">•</span>
+    <input class="item-inline-inp recipe-ing-inp" id="${id}" type="text" placeholder="Ingrediens" onkeydown="handleRecipeIngKey(event)">
+    <span class="item-inline-hint">Enter = ny rad</span>
+  `;
+  stack.appendChild(row);
+  if (focus) requestAnimationFrame(() => document.getElementById(id)?.focus());
+}
+
+function handleRecipeIngKey(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    addRecipeIngRow(true);
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeModal('recipe-modal');
+  }
 }
 
 /* ── category detection (store-walk order) ── */
@@ -525,6 +594,7 @@ function addItemToList(text) {
   checkAutoArchive();
   setTimeout(() => {
     NEW_ROW_IDS.delete(String(id));
+    renderItems();
   }, 420);
 }
 
