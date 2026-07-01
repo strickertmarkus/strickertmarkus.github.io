@@ -418,7 +418,7 @@ function saveRecipe() {
   const name = document.getElementById('recipe-name-inp').value.trim();
   if (!name) return;
   const recipes = S.get('recipes');
-  recipes.push({ id: Date.now(), name, items: [''], url: '' });
+  recipes.push({ id: Date.now(), name, items: ['[NY]'], url: '' });
   S.set('recipes', recipes);
   renderRecipes();
   cancelRecipeComposer();
@@ -604,7 +604,7 @@ function renderRecipeIngredients(recipeId) {
   container.innerHTML = (recipe.items || []).map(ing => {
     if (ing === '[NY]') {
       return `<div class="item-row" style="margin-bottom:4px;padding:6px 0;">
-        <input class="recipe-ing-edit-inp" type="text" placeholder="Ny ingrediens..." style="flex:1;padding:6px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:6px;color:inherit;font-size:13px;" onblur="finishRecipeIngEdit(${recipeId},'[NY]',this.value)" onkeydown="if(event.key==='Enter'){finishRecipeIngEdit(${recipeId},'[NY]',this.value);}">
+        <input class="recipe-ing-edit-inp" type="text" placeholder="Ny ingrediens..." style="flex:1;padding:6px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:6px;color:inherit;font-size:13px;" onblur="saveRecipeIngredient(${recipeId},'[NY]',this.value,false)" onkeydown="handleRecipeIngKey(event,${recipeId},'[NY]')">
       </div>`;
     }
     return `<div class="item-row" style="margin-bottom:4px;padding:6px 0;border-radius:4px;">
@@ -650,7 +650,14 @@ function addRecipeItemRow(recipeId) {
   }, 50);
 }
 
-function finishRecipeIngEdit(recipeId, oldIng, newVal) {
+function handleRecipeIngKey(event, recipeId, oldIng) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    saveRecipeIngredient(recipeId, oldIng, event.target.value, true);
+  }
+}
+
+function saveRecipeIngredient(recipeId, oldIng, newVal, keepAdding) {
   const recipes = S.get('recipes');
   const recipe = recipes.find(r => r.id === recipeId);
   if (!recipe) return;
@@ -660,7 +667,8 @@ function finishRecipeIngEdit(recipeId, oldIng, newVal) {
     if (newVal.trim()) {
       const idx = recipe.items.indexOf('[NY]');
       if (idx !== -1) recipe.items[idx] = newVal.trim();
-    } else {
+      if (keepAdding) recipe.items.push('[NY]');
+    } else if (!keepAdding) {
       // Empty input - remove the [NY] marker
       recipe.items = recipe.items.filter(i => i !== '[NY]');
     }
@@ -678,6 +686,13 @@ function finishRecipeIngEdit(recipeId, oldIng, newVal) {
   
   S.set('recipes', recipes);
   renderRecipes();
+  
+  if (keepAdding && oldIng === '[NY]') {
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.recipe-ing-edit-inp');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  }
 }
 
 function editRecipeItem(recipeId, oldIng) {
