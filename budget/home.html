@@ -46,15 +46,24 @@
     .editable-wrap:hover .edit-hint { opacity: 0.7; }
 
     /* ── CATEGORY MODAL ── */
-    .category-modal { position: fixed; inset: 0; background: rgba(8,13,24,.95); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .3s ease-out; z-index: 100; }
-    .category-modal.active { opacity: 1; pointer-events: auto; }
-    .category-modal-content { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 60px 16px 40px; z-index: 101; display: flex; flex-direction: column; }
-    .category-modal-header { position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px; background: linear-gradient(180deg, rgba(8,13,24,.98) 0%, rgba(8,13,24,.8) 100%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 102; }
+    .category-modal { position: fixed; inset: 0; background: rgba(8,13,24,.95); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; z-index: 100; }
+    .category-modal.active { opacity: 1; pointer-events: auto; animation: backdropIn .5s ease-out forwards; }
+    .category-modal-content { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 80px 16px 40px; z-index: 101; display: flex; flex-direction: column; align-items: center; }
+    .category-modal-header { position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px; background: linear-gradient(180deg, rgba(8,13,24,.98) 0%, rgba(8,13,24,.8) 100%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 102; animation: slideDown .4s ease-out; }
     .category-modal-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .category-modal-close { cursor: pointer; font-size: 24px; color: var(--text-sec); transition: color .2s; }
     .category-modal-close:hover { color: var(--text); }
-    .modal-menu-group { max-width: 680px; margin: 0 auto; animation: slideUp .4s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-menu-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; max-width: 800px; animation: modalExpand .5s cubic-bezier(.34,1.56,.64,1); }
+    .modal-menu-group .menu-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px !important; background: rgba(255,255,255,.04) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; transition: all .2s; }
+    .modal-menu-group .menu-item:hover { background: rgba(255,255,255,.08) !important; transform: translateY(-4px); }
+    .modal-menu-group .mi-icon { font-size: 32px; margin-bottom: 12px; }
+    .modal-menu-group .mi-body { text-align: center; }
+    .modal-menu-group .mi-name { font-size: 14px; font-weight: 700 !important; }
+    .modal-menu-group .mi-desc { font-size: 12px; color: var(--text-sec); margin-top: 4px; }
+    .modal-menu-group .mi-chev { display: none; }
+    @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes modalExpand { from { opacity: 0; transform: scale(.85) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
     /* ── MENU LAYOUT ── */
     .main { max-width: 680px; margin: 0 auto; padding: 8px 16px 60px; }
@@ -106,32 +115,31 @@
 <main class="main">
 
   <!-- Category Hub -->
-  <div class="category-hub" style="margin-bottom: 32px; padding: 24px; background: linear-gradient(135deg, rgba(13,22,37,.8) 0%, rgba(22,32,48,.6) 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,.08);">
-    <h2 style="text-align: center; margin-bottom: 24px; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Utforska</h2>
-    <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+  <div class="category-hub" style="margin-bottom: 32px;">
+    <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; width: 100%;">
       
       <!-- Economy -->
-      <div class="cat-card" style="padding: 16px; background: rgba(59,109,224,.08); border: 1px solid rgba(59,109,224,.15); border-radius: 8px; text-decoration: none; color: inherit; transition: all .2s; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-ekonomi','Ekonomi &amp; Budget')" onmouseover="this.style.borderColor='rgba(59,109,224,.3)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.15)'; this.style.background='rgba(59,109,224,.08)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 24px; margin-bottom: 8px;">💰</span>
-        <span style="font-size: 12px; font-weight: 600; color: var(--text);">Ekonomi</span>
+      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-ekonomi','Ekonomi &amp; Budget')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
+        <span style="font-size: 40px; margin-bottom: 12px;">💰</span>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Ekonomi</span>
       </div>
 
       <!-- Training -->
-      <div class="cat-card" style="padding: 16px; background: rgba(129,143,248,.08); border: 1px solid rgba(129,143,248,.15); border-radius: 8px; text-decoration: none; color: inherit; transition: all .2s; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(129,143,248,.3)'; this.style.background='rgba(129,143,248,.12)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(129,143,248,.15)'; this.style.background='rgba(129,143,248,.08)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🏃</span>
-        <span style="font-size: 12px; font-weight: 600; color: var(--text);">Träning</span>
+      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
+        <span style="font-size: 40px; margin-bottom: 12px;">🏃</span>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Träning</span>
       </div>
 
       <!-- Family -->
-      <div class="cat-card" style="padding: 16px; background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.15); border-radius: 8px; text-decoration: none; color: inherit; transition: all .2s; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(251,191,36,.3)'; this.style.background='rgba(251,191,36,.12)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(251,191,36,.15)'; this.style.background='rgba(251,191,36,.08)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 24px; margin-bottom: 8px;">👨‍👩‍👧‍👦</span>
-        <span style="font-size: 12px; font-weight: 600; color: var(--text);">Familj</span>
+      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
+        <span style="font-size: 40px; margin-bottom: 12px;">👨‍👩‍👧‍👦</span>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Familj</span>
       </div>
 
       <!-- Tools -->
-      <div class="cat-card" style="padding: 16px; background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.15); border-radius: 8px; text-decoration: none; color: inherit; transition: all .2s; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-barnen','Barnen')" onmouseover="this.style.borderColor='rgba(96,165,250,.3)'; this.style.background='rgba(96,165,250,.12)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(96,165,250,.15)'; this.style.background='rgba(96,165,250,.08)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🛒</span>
-        <span style="font-size: 12px; font-weight: 600; color: var(--text);">Verktyg</span>
+      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-barnen','Barnen')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
+        <span style="font-size: 40px; margin-bottom: 12px;">🛒</span>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Verktyg</span>
       </div>
 
     </div>
@@ -252,9 +260,15 @@ function openCategory(menuId, title) {
   // Update title
   modalTitle.textContent = title;
   
-  // Show modal
+  // Show modal with morphing animation
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
+  
+  // Trigger animation by adding animation class
+  modalContent.style.animation = 'none';
+  setTimeout(() => {
+    modalContent.style.animation = 'modalExpand .5s cubic-bezier(.34,1.56,.64,1)';
+  }, 10);
 }
 
 function closeCategory() {
