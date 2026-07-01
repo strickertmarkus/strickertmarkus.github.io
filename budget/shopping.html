@@ -85,6 +85,12 @@
     .store-title{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:7px;display:flex;justify-content:space-between;}
     .item-row{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:8px;font-size:14px;transition:background .15s;}
     .item-row:hover{background:rgba(255,255,255,.05);}
+    @keyframes checkPulse {
+      0%{transform:scale(1);}
+      50%{transform:scale(1.02);}
+      100%{transform:scale(1);}
+    }
+    .item-row.check-pulse{animation:checkPulse .2s ease-out;}
     .item-cb{width:19px;height:19px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;transition:transform .1s ease-out,box-shadow .1s ease-out;}
     .item-cb:active{transform:scale(.92);box-shadow:0 0 8px rgba(251,191,36,.3);}
     .item-label{flex:1;cursor:pointer;font-size:14px;line-height:1.35;}
@@ -573,7 +579,7 @@ function renderItems() {
   });
   const rows = sorted.map(item => `
     <div class="item-row${NEW_ROW_IDS.has(String(item.id)) ? ' item-new' : ''}">
-      <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked)">
+        <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked);this.closest('.item-row').classList.add('check-pulse');setTimeout(()=>this.closest('.item-row').classList.remove('check-pulse'),200);">
       <span class="item-label${item.checked?' done':''}" onclick="this.previousElementSibling.click()">${item.text}</span>
       <span class="item-edit" onclick="openEditItem('${item.id}')">✎</span>
       <span class="item-del" onclick="delItem(${activeList},'${item.id}')">✕</span>
