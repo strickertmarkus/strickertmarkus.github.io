@@ -88,9 +88,9 @@
     .item-cb{width:19px;height:19px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
     .item-label{flex:1;cursor:pointer;font-size:14px;line-height:1.35;}
     .item-label.done{text-decoration:line-through;color:var(--text-dim);}
-    .item-edit{color:var(--accent);opacity:0;transition:opacity .2s;font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;line-height:1;}
+    .item-edit{color:var(--accent);opacity:0;transition:all .2s;font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;line-height:1;}
     .item-row:hover .item-edit{opacity:1;box-shadow:0 0 0 1px rgba(251,191,36,.14),0 0 12px rgba(251,191,36,.18);background:rgba(251,191,36,.08);transform:translateY(-1px);}
-    .item-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;line-height:1;}
+    .item-del{color:#EF4444;opacity:0;transition:all .2s;font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;line-height:1;}
     .item-row:hover .item-del{opacity:1;box-shadow:0 0 0 1px rgba(239,68,68,.14),0 0 12px rgba(239,68,68,.18);background:rgba(239,68,68,.08);transform:translateY(-1px);}
     @keyframes itemAppear{
       0%{opacity:0;transform:translateY(-10px) scale(.985);}
@@ -112,8 +112,10 @@
     .recipe-draft-actions .m-save{background:var(--accent);color:#0F1621;}
     .recipe-draft-actions .m-save:hover{background:#F9A948;}
     .recipe-draft .item-row.adding{margin-bottom:8px;}
-    .recipe-del{color:#EF4444;opacity:0;transition:opacity .2s;font-size:14px;padding:0 4px;}
+    .recipe-del{color:#EF4444;opacity:0;transition:all .2s;font-size:14px;padding:0 4px;}
     .recipe-card:hover .recipe-del{opacity:1;box-shadow:0 0 0 1px rgba(239,68,68,.14),0 0 12px rgba(239,68,68,.18);background:rgba(239,68,68,.08);border-radius:6px;}
+    .recipe-link-btn{color:var(--accent);opacity:0;transition:all .2s;font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;}
+    .recipe-top:hover .recipe-link-btn{opacity:1;box-shadow:0 0 0 1px rgba(251,191,36,.14),0 0 12px rgba(251,191,36,.18);background:rgba(251,191,36,.08);}
     .no-items{grid-column:1/-1;text-align:center;padding:24px;color:var(--text-dim);font-size:12px;}
     /* modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
@@ -220,6 +222,30 @@
     <div class="m-row">
       <button class="m-cancel" onclick="closeModal('list-modal')">Avbryt</button>
       <button class="m-save" onclick="saveList()">Skapa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit recipe link -->
+<div class="modal" id="recipe-link-modal">
+  <div class="mbox">
+    <div class="m-title">Receptlänk</div>
+    <input class="m-inp" id="recipe-link-inp" type="text" placeholder="https://example.com/recipe">
+    <div class="m-row">
+      <button class="m-cancel" onclick="closeModal('recipe-link-modal')">Avbryt</button>
+      <button class="m-save" onclick="saveRecipeLink()">Spara</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit recipe link -->
+<div class="modal" id="recipe-link-modal">
+  <div class="mbox">
+    <div class="m-title">Receptlänk</div>
+    <input class="m-inp" id="recipe-link-inp" type="text" placeholder="https://example.com/recipe">
+    <div class="m-row">
+      <button class="m-cancel" onclick="closeModal('recipe-link-modal')">Avbryt</button>
+      <button class="m-save" onclick="saveRecipeLink()">Spara</button>
     </div>
   </div>
 </div>
@@ -367,18 +393,20 @@ function renderRecipes() {
   if (!recipes.length && !recipeComposeActive) { el.innerHTML = '<div style="font-size:12px;color:var(--text-dim);">Inga recept än.</div>'; return; }
   el.innerHTML = draftHtml + recipes.map(r => `
     <div class="recipe-card" id="rc${r.id}">
-      <div class="recipe-top" onclick="toggleRecipe(${r.id})">
+      <div class="recipe-top" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border-radius:9px 9px 0 0;border-bottom:1px solid rgba(255,255,255,.03);">
         <span class="recipe-icon">🍽️</span>
-        <span class="recipe-name">${r.name}</span>
-        <span class="recipe-count">${r.items.length} ing.</span>
+        <span class="recipe-name" style="flex:1;font-size:14px;font-weight:600;">${r.name}</span>
+        ${r.url ? `<a href="${r.url}" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none;padding:2px 6px;border-radius:6px;transition:all .2s;" onmouseover="this.style.background='rgba(251,191,36,.08)';this.style.boxShadow='0 0 0 1px rgba(251,191,36,.14),0 0 12px rgba(251,191,36,.18)'" onmouseout="this.style.background='';this.style.boxShadow=''">🔗</a>` : ''}
+        <span class="recipe-link-btn" style="cursor:pointer;" onclick="openRecipeLinkModal(${r.id})">🔗</span>
         <span class="recipe-del" onclick="delRecipe(event,${r.id})">✕</span>
-        <span class="recipe-toggle">›</span>
       </div>
-      <div class="recipe-ingredients">
-        ${r.items.map(i => `<div class="ri-row">${i}</div>`).join('')}
-        <button class="panel-btn recipe-add-btn" onclick="addFromRecipe(${r.id})">+ Lägg till i lista</button>
+      <div style="padding:10px 12px;border-radius:0 0 9px 9px;background:rgba(255,255,255,.01);">
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Ingredienser:</div>
+        <div id="ing-list-${r.id}" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <button class="t-btn" onclick="addRecipeItemRow(${r.id})" style="width:100%;margin-top:8px;font-size:12px;padding:6px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:6px;color:var(--accent);cursor:pointer;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(251,191,36,.15)';" onmouseout="this.style.background='rgba(251,191,36,.1)';">+ Ingrediens</button>
       </div>
     </div>`).join('');
+  recipes.forEach(r => renderRecipeIngredients(r.id));
 }
 
 function toggleRecipe(id) { document.getElementById('rc'+id)?.classList.toggle('open'); }
@@ -388,9 +416,8 @@ function addIngRow() { addRecipeIngRow(true); }
 function saveRecipe() {
   const name = document.getElementById('recipe-name-inp').value.trim();
   if (!name) return;
-  const items = [...document.querySelectorAll('.recipe-ing-inp')].map(i => i.value.trim()).filter(Boolean);
   const recipes = S.get('recipes');
-  recipes.push({ id: Date.now(), name, items });
+  recipes.push({ id: Date.now(), name, items: [''], url: '' });
   S.set('recipes', recipes);
   renderRecipes();
   cancelRecipeComposer();
@@ -421,7 +448,6 @@ function openRecipeComposer() {
   recipeComposeActive = true;
   renderRecipes();
   requestAnimationFrame(() => document.getElementById('recipe-name-inp').focus());
-  addRecipeIngRow(true);
 }
 
 function addRecipeIngRow(focus = true) {
@@ -448,7 +474,7 @@ function cancelRecipeComposer() {
 function handleRecipeNameKey(event) {
   if (event.key === 'Enter') {
     event.preventDefault();
-    addRecipeIngRow(true);
+    saveRecipe();
   }
 }
 
@@ -566,7 +592,77 @@ function renderItems() {
   el.innerHTML = '<div style="grid-column:1/-1;">' + rows.join('') + '</div>';
 }
 
-let editingItemId = null;
+let editingRecipeId = null;
+
+function renderRecipeIngredients(recipeId) {
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (!recipe) return;
+  const container = document.getElementById(`ing-list-${recipeId}`);
+  if (!container) return;
+  container.innerHTML = (recipe.items || []).filter(i => i).map(ing => `
+    <div class="item-row" style="margin-bottom:4px;padding:6px 0;border-radius:4px;">
+      <span style="width:15px;flex-shrink:0;color:var(--accent);">•</span>
+      <span class="item-label" style="flex:1;cursor:pointer;font-size:13px;">${ing}</span>
+      <span class="item-edit" onclick="editRecipeItem(${recipeId},'${ing.replace(/'/g, "\\'")}')" style="cursor:pointer;">✏</span>
+      <span class="item-del" onclick="delRecipeItem(${recipeId},'${ing.replace(/'/g, "\\'")}')" style="cursor:pointer;">✕</span>
+    </div>`).join('');
+}
+
+function openRecipeLinkModal(recipeId) {
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  editingRecipeId = recipeId;
+  document.getElementById('recipe-link-inp').value = recipe?.url || '';
+  openModal('recipe-link-modal');
+}
+
+function saveRecipeLink() {
+  const url = document.getElementById('recipe-link-inp').value.trim();
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === editingRecipeId);
+  if (recipe) {
+    recipe.url = url || undefined;
+    S.set('recipes', recipes);
+    renderRecipes();
+  }
+  closeModal('recipe-link-modal');
+}
+
+function addRecipeItemRow(recipeId) {
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (!recipe) return;
+  if (!recipe.items) recipe.items = [];
+  const newIng = '';
+  recipe.items.push(newIng);
+  S.set('recipes', recipes);
+  renderRecipes();
+}
+
+function editRecipeItem(recipeId, oldIng) {
+  const newIng = prompt('Redigera ingrediens:', oldIng);
+  if (newIng !== null && newIng.trim()) {
+    const recipes = S.get('recipes');
+    const recipe = recipes.find(r => r.id === recipeId);
+    const idx = recipe?.items.indexOf(oldIng);
+    if (idx !== undefined && idx !== -1) {
+      recipe.items[idx] = newIng.trim();
+      S.set('recipes', recipes);
+      renderRecipes();
+    }
+  }
+}
+
+function delRecipeItem(recipeId, ing) {
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (recipe) {
+    recipe.items = (recipe.items || []).filter(i => i !== ing);
+    S.set('recipes', recipes);
+    renderRecipes();
+  }
+}
 
 function openEditItem(itemId) {
   if (!activeList) return;
