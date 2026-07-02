@@ -47,16 +47,16 @@
 
     /* ── CATEGORY MODAL ── */
     .category-modal { position: fixed; inset: 0; background: rgba(8,13,24,.95); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; z-index: 100; }
-    .category-modal.active { opacity: 1; pointer-events: auto; animation: backdropIn .5s ease-out forwards; }
+    .category-modal.active { opacity: 1; pointer-events: auto; animation: backdropIn .3s ease-out forwards; }
     .category-modal-content { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 80px 16px 40px; z-index: 101; display: flex; flex-direction: column; align-items: center; }
-    .category-modal-header { position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px; background: linear-gradient(180deg, rgba(8,13,24,.98) 0%, rgba(8,13,24,.8) 100%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 102; animation: slideDown .4s ease-out; }
+    .category-modal-header { position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px; background: linear-gradient(180deg, rgba(8,13,24,.98) 0%, rgba(8,13,24,.8) 100%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 102; animation: slideDown .25s ease-out; }
     .category-modal-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .category-modal-close { cursor: pointer; font-size: 24px; color: var(--text-sec); transition: color .2s; }
     .category-modal-close:hover { color: var(--text); }
-    .modal-menu-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; max-width: 800px; animation: modalExpand .5s cubic-bezier(.34,1.56,.64,1); }
+    .modal-menu-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; max-width: 800px; animation: modalExpand .35s cubic-bezier(.34,1.56,.64,1); }
     .modal-menu-group .menu-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px !important; background: rgba(255,255,255,.04) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; transition: all .2s; }
     .modal-menu-group .menu-item:hover { background: rgba(255,255,255,.08) !important; transform: translateY(-4px); }
-    .modal-menu-group .mi-icon { font-size: 32px; margin-bottom: 12px; }
+    .modal-menu-group .mi-icon { font-size: 0; margin-bottom: 0; }
     .modal-menu-group .mi-body { text-align: center; }
     .modal-menu-group .mi-name { font-size: 14px; font-weight: 700 !important; }
     .modal-menu-group .mi-desc { font-size: 12px; color: var(--text-sec); margin-top: 4px; }
@@ -116,30 +116,34 @@
 
   <!-- Category Hub -->
   <div class="category-hub" style="margin-bottom: 32px;">
-    <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; width: 100%;">
+    <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
       
       <!-- Economy -->
-      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-ekonomi','Ekonomi &amp; Budget')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 40px; margin-bottom: 12px;">💰</span>
-        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Ekonomi</span>
-      </div>
-
-      <!-- Training -->
-      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 40px; margin-bottom: 12px;">🏃</span>
-        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Träning</span>
+      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(59,109,224,.15) 0%, rgba(59,109,224,.08) 100%); border: 2px solid rgba(59,109,224,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(59,109,224,.1);" onclick="openCategory('menu-ekonomi','Ekonomi')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='linear-gradient(135deg, rgba(59,109,224,.2) 0%, rgba(59,109,224,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(59,109,224,.2)'" onmouseout="this.style.borderColor='rgba(59,109,224,.3)'; this.style.background='linear-gradient(135deg, rgba(59,109,224,.15) 0%, rgba(59,109,224,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(59,109,224,.1)'">
+        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #3B6DE0 0%, #60A5FA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ek</span>
+        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Ekonomi</span>
+        <span style="font-size: 12px; color: var(--text-sec);">Budget & Analytics</span>
       </div>
 
       <!-- Family -->
-      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-familj','Familj &amp; Aktivitet')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 40px; margin-bottom: 12px;">👨‍👩‍👧‍👦</span>
-        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Familj</span>
+      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(34,211,238,.15) 0%, rgba(34,211,238,.08) 100%); border: 2px solid rgba(34,211,238,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(34,211,238,.1);" onclick="openCategory('menu-familj','Familj')" onmouseover="this.style.borderColor='rgba(34,211,238,.5)'; this.style.background='linear-gradient(135deg, rgba(34,211,238,.2) 0%, rgba(34,211,238,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(34,211,238,.2)'" onmouseout="this.style.borderColor='rgba(34,211,238,.3)'; this.style.background='linear-gradient(135deg, rgba(34,211,238,.15) 0%, rgba(34,211,238,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(34,211,238,.1)'">
+        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Fa</span>
+        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Familj</span>
+        <span style="font-size: 12px; color: var(--text-sec);">Mila & Melker</span>
+      </div>
+
+      <!-- Training -->
+      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(167,139,250,.15) 0%, rgba(167,139,250,.08) 100%); border: 2px solid rgba(167,139,250,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(167,139,250,.1);" onclick="openCategory('menu-training','Träning')" onmouseover="this.style.borderColor='rgba(167,139,250,.5)'; this.style.background='linear-gradient(135deg, rgba(167,139,250,.2) 0%, rgba(167,139,250,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(167,139,250,.2)'" onmouseout="this.style.borderColor='rgba(167,139,250,.3)'; this.style.background='linear-gradient(135deg, rgba(167,139,250,.15) 0%, rgba(167,139,250,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(167,139,250,.1)'">
+        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Tr</span>
+        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Träning</span>
+        <span style="font-size: 12px; color: var(--text-sec);">Träningslogg</span>
       </div>
 
       <!-- Tools -->
-      <div class="cat-card" style="padding: 24px; background: rgba(59,109,224,.12); border: 2px solid rgba(59,109,224,.25); border-radius: 12px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer;" onclick="openCategory('menu-barnen','Barnen')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='rgba(59,109,224,.16)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(59,109,224,.25)'; this.style.background='rgba(59,109,224,.12)'; this.style.transform='translateY(0)'">
-        <span style="font-size: 40px; margin-bottom: 12px;">🛒</span>
-        <span style="font-size: 13px; font-weight: 700; color: var(--text);">Verktyg</span>
+      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(251,146,60,.15) 0%, rgba(251,146,60,.08) 100%); border: 2px solid rgba(251,146,60,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(251,146,60,.1);" onclick="openCategory('menu-tools','Verktyg')" onmouseover="this.style.borderColor='rgba(251,146,60,.5)'; this.style.background='linear-gradient(135deg, rgba(251,146,60,.2) 0%, rgba(251,146,60,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(251,146,60,.2)'" onmouseout="this.style.borderColor='rgba(251,146,60,.3)'; this.style.background='linear-gradient(135deg, rgba(251,146,60,.15) 0%, rgba(251,146,60,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(251,146,60,.1)'">
+        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ve</span>
+        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Verktyg</span>
+        <span style="font-size: 12px; color: var(--text-sec);">Kalender & Lista</span>
       </div>
 
     </div>
@@ -149,32 +153,32 @@
     <div class="menu-label">Ekonomi &amp; Budget</div>
     <div class="menu-group">
       <a href="budget.html" class="menu-item" style="--c-icon:rgba(59,109,224,.18);--c-accent:#3B6DE0">
-        <div class="mi-icon">💰</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Markus Budget</div><div class="mi-desc">Månadsbudget, inkomster och sparmål</div></div>
         <span class="mi-chev">›</span>
       </a>
       <a href="analytics.html" class="menu-item" style="--c-icon:rgba(96,165,250,.18);--c-accent:#60A5FA">
-        <div class="mi-icon">📈</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Markus Analys</div><div class="mi-desc">Trender och statistik</div></div>
         <span class="mi-chev">›</span>
       </a>
       <a href="familjebudget.html" class="menu-item" style="--c-icon:rgba(251,191,36,.18);--c-accent:#FBBF24">
-        <div class="mi-icon">🏠</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Familjebudget</div><div class="mi-desc">Hushåll och gemensamma kostnader</div></div>
         <span class="mi-chev">›</span>
       </a>
       <a href="budget_maja.html" class="menu-item" style="--c-icon:rgba(249,168,184,.18);--c-accent:#F9A8B8">
-        <div class="mi-icon">💰</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Majas Budget</div><div class="mi-desc">Majas månadsbudget och sparmål</div></div>
         <span class="mi-chev">›</span>
       </a>
       <a href="analytics_maja.html" class="menu-item" style="--c-icon:rgba(244,114,182,.18);--c-accent:#F472B6">
-        <div class="mi-icon">📈</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Majas Analys</div><div class="mi-desc">Statistik och trender för Maja</div></div>
         <span class="mi-chev">›</span>
       </a>
       <a href="data.html" class="menu-item" style="--c-icon:rgba(107,114,128,.18);--c-accent:#6B7280">
-        <div class="mi-icon">⚙️</div>
+        <div class="mi-icon"></div>
         <div class="mi-body"><div class="mi-name">Data &amp; Formler</div><div class="mi-desc">Export, import och grunddata</div></div>
         <span class="mi-chev">›</span>
       </a>
@@ -182,37 +186,43 @@
   </div>
 
   <div class="menu-section" id="menu-familj">
-    <div class="menu-label">Familj &amp; Aktivitet</div>
+    <div class="menu-label">Familj</div>
     <div class="menu-group">
-      <a href="calendar.html" class="menu-item" style="--c-icon:rgba(251,191,36,.18);--c-accent:#FBBF24">
-        <div class="mi-icon">📅</div>
-        <div class="mi-body"><div class="mi-name">Familjekalender</div><div class="mi-desc">Händelser, påminnelser och att-göra</div></div>
+      <a href="mila.html" class="menu-item" style="--c-icon:rgba(244,114,182,.18);--c-accent:#F472B6">
+        <div class="mi-icon"></div>
+        <div class="mi-body"><div class="mi-name">Mila</div><div class="mi-desc">Tillväxt och minnen</div></div>
         <span class="mi-chev">›</span>
       </a>
-      <a href="exercise.html" class="menu-item" style="--c-icon:rgba(34,211,238,.18);--c-accent:#22D3EE">
-        <div class="mi-icon">💪</div>
-        <div class="mi-body"><div class="mi-name">Träning</div><div class="mi-desc">Träningslogg, mål och personliga rekord</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="shopping.html" class="menu-item" style="--c-icon:rgba(52,211,153,.18);--c-accent:#34D399">
-        <div class="mi-icon">🛒</div>
-        <div class="mi-body"><div class="mi-name">Inköpslista</div><div class="mi-desc">Recept, shoppinglistor och butikssortering</div></div>
+      <a href="melker.html" class="menu-item" style="--c-icon:rgba(134,239,172,.18);--c-accent:#86EFAC">
+        <div class="mi-icon"></div>
+        <div class="mi-body"><div class="mi-name">Melker</div><div class="mi-desc">Tillväxt och minnen</div></div>
         <span class="mi-chev">›</span>
       </a>
     </div>
   </div>
 
-  <div class="menu-section" id="menu-barnen">
-    <div class="menu-label">Barnen</div>
+  <div class="menu-section" id="menu-training">
+    <div class="menu-label">Träning</div>
     <div class="menu-group">
-      <a href="mila.html" class="menu-item" style="--c-icon:rgba(244,114,182,.18);--c-accent:#F472B6">
-        <div class="mi-icon">👧🏻</div>
-        <div class="mi-body"><div class="mi-name">Milas Milstolpar</div><div class="mi-desc">Tillväxt och minnen — Mila, f. 25 jan 2024</div></div>
+      <a href="exercise.html" class="menu-item" style="--c-icon:rgba(34,211,238,.18);--c-accent:#22D3EE">
+        <div class="mi-icon"></div>
+        <div class="mi-body"><div class="mi-name">Träningslogg</div><div class="mi-desc">Träning och personliga rekord</div></div>
         <span class="mi-chev">›</span>
       </a>
-      <a href="melker.html" class="menu-item" style="--c-icon:rgba(134,239,172,.18);--c-accent:#86EFAC">
-        <div class="mi-icon">👦🏼</div>
-        <div class="mi-body"><div class="mi-name">Melkers Milstolpar</div><div class="mi-desc">Tillväxt och minnen — Melker, f. 3 jan 2026</div></div>
+    </div>
+  </div>
+
+  <div class="menu-section" id="menu-tools">
+    <div class="menu-label">Verktyg</div>
+    <div class="menu-group">
+      <a href="calendar.html" class="menu-item" style="--c-icon:rgba(251,191,36,.18);--c-accent:#FBBF24">
+        <div class="mi-icon"></div>
+        <div class="mi-body"><div class="mi-name">Familjekalender</div><div class="mi-desc">Händelser och påminnelser</div></div>
+        <span class="mi-chev">›</span>
+      </a>
+      <a href="shopping.html" class="menu-item" style="--c-icon:rgba(52,211,153,.18);--c-accent:#34D399">
+        <div class="mi-icon"></div>
+        <div class="mi-body"><div class="mi-name">Shoppinglista</div><div class="mi-desc">Recept och inköpslista</div></div>
         <span class="mi-chev">›</span>
       </a>
     </div>
