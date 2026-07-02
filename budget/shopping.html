@@ -633,6 +633,7 @@ function renderItems() {
 }
 
 let editingRecipeId = null;
+let inlineAddRecipeId = null;
 
 function renderRecipeIngredients(recipeId) {
   const recipes = S.get('recipes');
@@ -640,19 +641,25 @@ function renderRecipeIngredients(recipeId) {
   if (!recipe) return;
   const container = document.getElementById(`ing-list-${recipeId}`);
   if (!container) return;
-  container.innerHTML = (recipe.items || []).map(ing => {
-    if (ing === '[NY]') {
-      return `<div class="item-row" style="margin-bottom:4px;padding:6px 0;">
-        <input class="recipe-ing-edit-inp" type="text" placeholder="Ny ingrediens..." style="flex:1;padding:6px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:6px;color:inherit;font-size:13px;" onblur="saveRecipeIngredient(${recipeId},'[NY]',this.value,false)" onkeydown="handleRecipeIngEditKey(event,${recipeId},'[NY]')">
-      </div>`;
-    }
-    return `<div class="item-row" style="margin-bottom:4px;padding:6px 0;border-radius:4px;">
+  
+  let html = (recipe.items || []).filter(ing => ing !== '[NY]').map(ing => `
+    <div class="item-row" style="margin-bottom:4px;padding:6px 0;border-radius:4px;">
       <span style="width:15px;flex-shrink:0;color:var(--accent);">•</span>
       <span class="item-label" style="flex:1;cursor:pointer;font-size:13px;">${ing}</span>
       <span class="item-edit" onclick="editRecipeItem(${recipeId},'${ing.replace(/'/g, "\\'")}')" style="cursor:pointer;">✏</span>
       <span class="item-del" onclick="delRecipeItem(${recipeId},'${ing.replace(/'/g, "\\'")}')" style="cursor:pointer;">✕</span>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
+  
+  if (inlineAddRecipeId === recipeId) {
+    html += `
+      <div class="item-row adding" style="margin-bottom:4px;padding:6px 0;">
+        <span style="width:15px;flex-shrink:0;color:var(--accent);">+</span>
+        <input class="item-inline-inp recipe-ing-edit-inp" id="inline-recing-${recipeId}" type="text" placeholder="Ny ingrediens och tryck Enter..." style="flex:1;padding:6px;background:transparent;border:1px dashed rgba(251,191,36,.35);border-radius:6px;color:rgba(251,191,36,.35);font-size:13px;" onkeydown="handleRecipeIngEditKey(event,${recipeId})">
+      </div>
+    `;
+  }
+  container.innerHTML = html;
 }
 
 function openRecipeLinkModal(recipeId) {
@@ -676,65 +683,51 @@ function saveRecipeLink() {
 }
 
 function addRecipeItemRow(recipeId) {
-  const recipes = S.get('recipes');
-  const recipe = recipes.find(r => r.id === recipeId);
-  if (!recipe) return;
-  if (!recipe.items) recipe.items = [];
-  recipe.items.push('[NY]');
-  S.set('recipes', recipes);
-  renderRecipes();
-  setTimeout(() => {
-    const inputs = document.querySelectorAll('.recipe-ing-edit-inp');
-    if (inputs.length) inputs[inputs.length - 1].focus();
-  }, 50);
+  inlineAddRecipeId = recipeId;
+  renderRecipeIngredients(recipeId);
+  requestAnimationFrame(() => {
+    document.getElementById(`inline-recing-${recipeId}`)?.focus();
+  });
 }
 
-function handleRecipeIngEditKey(event, recipeId, oldIng) {
+function handleRecipeIngEditKey(event, recipeId) {
   if (event.key === 'Enter') {
     event.preventDefault();
-    saveRecipeIngredient(recipeId, oldIng, event.target.value, true);
+    saveRecipeIngredientInline(recipeId, event.target.value.trim(), true);
   }
   if (event.key === 'Escape') {
     event.preventDefault();
-    renderRecipes();
+    inlineAddRecipeId = null;
+    renderRecipeIngredients(recipeId);
   }
 }
 
-function saveRecipeIngredient(recipeId, oldIng, newVal, keepAdding) {
-  const recipes = S.get('recipes');
-  const recipe = recipes.find(r => r.id === recipeId);
-  if (!recipe) return;
-  
-  if (oldIng === '[NY]') {
-    // New ingredient
-    if (newVal.trim()) {
-      const idx = recipe.items.indexOf('[NY]');
-      if (idx !== -1) recipe.items[idx] = newVal.trim();
-      if (keepAdding) recipe.items.push('[NY]');
-    } else if (!keepAdding) {
-      // Empty input - remove the [NY] marker
-      recipe.items = recipe.items.filter(i => i !== '[NY]');
+function saveRecipeIngredientInline(recipeId, text, keepAdding) {
+  if (!text) {
+    if (!keepAdding) {
+      inlineAddRecipeId = null;
+      renderRecipeIngredients(recipeId);
     }
-  } else {
-    // Editing existing ingredient
-    const idx = recipe.items.indexOf(oldIng);
-    if (idx !== -1) {
-      if (newVal.trim()) {
-        recipe.items[idx] = newVal.trim();
-      } else {
-        recipe.items.splice(idx, 1);
-      }
-    }
+    return;
   }
   
-  S.set('recipes', recipes);
-  renderRecipes();
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (recipe) {
+    if (!recipe.items) recipe.items = [];
+    // remove any legacy [NY] markers just in case
+    recipe.items = recipe.items.filter(i => i !== '[NY]');
+    recipe.items.push(text);
+    S.set('recipes', recipes);
+  }
   
-  if (keepAdding && oldIng === '[NY]') {
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('.recipe-ing-edit-inp');
-      if (inputs.length) inputs[inputs.length - 1].focus();
-    }, 50);
+  inlineAddRecipeId = keepAdding ? recipeId : null;
+  renderRecipeIngredients(recipeId);
+  
+  if (keepAdding) {
+    requestAnimationFrame(() => {
+      document.getElementById(`inline-recing-${recipeId}`)?.focus();
+    });
   }
 }
 
