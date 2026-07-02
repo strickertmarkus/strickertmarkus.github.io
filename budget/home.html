@@ -267,14 +267,18 @@ function openCategory(menuId, title, accentColor, iconBg) {
   const menuGroup = menuSection.querySelector('.menu-group');
   modalContent.innerHTML = menuGroup.innerHTML;
   
-  // Apply category-specific colors to modal items
+  // Apply category-specific colors to modal items (cards themselves)
   const menuItems = modalContent.querySelectorAll('.menu-item');
+  const accentRGB = hexToRgb(accentColor);
   menuItems.forEach(item => {
     item.style.setProperty('--c-accent', accentColor);
     item.style.setProperty('--c-icon', iconBg);
+    // Apply colored background to card
+    item.style.background = `linear-gradient(135deg, rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.12) 0%, rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.06) 100%)` + ' !important';
+    item.style.borderColor = `rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.25)` + ' !important';
     const icon = item.querySelector('.mi-icon');
     if (icon) {
-      icon.style.background = iconBg;
+      icon.style.background = '';
     }
   });
   
@@ -291,6 +295,15 @@ function openCategory(menuId, title, accentColor, iconBg) {
   setTimeout(() => {
     modalContent.style.animation = 'modalExpand .5s cubic-bezier(.34,1.56,.64,1)';
   }, 10);
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 96, g: 165, b: 250 };
 }
 
 function closeCategory() {

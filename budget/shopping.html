@@ -91,9 +91,9 @@
       100%{transform:scale(1);}
     }
     .item-row.check-pulse{animation:checkPulse .15s ease-out;}
-    .item-cb{width:19px;height:19px;cursor:pointer;flex-shrink:0;transition:transform .1s ease-out,border-color .1s ease-out,background .1s ease-out;appearance:none;-webkit-appearance:none;-moz-appearance:none;background:transparent;border:2px solid var(--accent);border-radius:6px;accent-color:var(--accent);}
+    .item-cb{width:19px;height:19px;cursor:pointer;flex-shrink:0;transition:background .08s,border-color .08s;appearance:none;-webkit-appearance:none;-moz-appearance:none;background:transparent;border:2px solid var(--accent);border-radius:6px;accent-color:var(--accent);}
     .item-cb:checked{background:rgba(251,191,36,.2);border-color:var(--accent);}
-    .item-cb:active{transform:scale(.92);box-shadow:inset 0 0 4px rgba(251,191,36,.3);}
+    .item-cb:active{transform:scale(.95);}
     .item-label{flex:1;cursor:pointer;font-size:14px;line-height:1.35;}
     .item-label.done{text-decoration:line-through;color:var(--text-dim);}
     .item-edit{color:var(--accent);opacity:0;transition:all .2s;font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;line-height:1;}
@@ -273,7 +273,7 @@
 </div>
 
 <script>
-/* ── storage ── */
+let composerIngredients = [];
 const S = {
   get: k => JSON.parse(localStorage.getItem('sh_' + k) || '[]'),
   set: (k, v) => localStorage.setItem('sh_' + k, JSON.stringify(v))
@@ -425,7 +425,12 @@ function saveRecipe() {
   const name = document.getElementById('recipe-name-inp').value.trim();
   if (!name) return;
   const recipes = S.get('recipes');
-  recipes.push({ id: Date.now(), name, items: ['[NY]'], url: '' });
+  recipes.push({
+    id: Date.now(),
+    name,
+    items: composerIngredients.length ? [...composerIngredients] : ['[NY]'],
+    url: ''
+  });
   S.set('recipes', recipes);
   renderRecipes();
   cancelRecipeComposer();
@@ -454,6 +459,7 @@ function addFromRecipe(recipeId) {
 
 function openRecipeComposer() {
   recipeComposeActive = true;
+  composerIngredients = [];
   renderRecipes();
   requestAnimationFrame(() => document.getElementById('recipe-name-inp').focus());
 }
@@ -500,27 +506,31 @@ function handleRecipeIngKey(event) {
 function saveComposerIngredient(text, keepAdding) {
   if (!text) {
     if (!keepAdding) {
-      const stack = document.getElementById('recipe-ing-stack');
-      const input = stack?.querySelector('.recipe-ing-inp');
-      if (input) input.remove();
+      const currentInput = document.querySelector('.recipe-ing-inp');
+      if (currentInput) {
+        currentInput.closest('.item-row')?.remove();
+      }
     }
     return;
   }
-  const stack = document.getElementById('recipe-ing-stack');
-  if (!stack) return;
-  const inputs = stack.querySelectorAll('.recipe-ing-inp');
+  
+  // Add to composer ingredients array
+  composerIngredients.push(text);
+  
+  // Update the DOM to show ingredient is saved
+  const inputs = document.querySelectorAll('.recipe-ing-inp');
   if (inputs.length > 0) {
-    const lastInput = inputs[inputs.length - 1];
-    const row = lastInput.closest('.item-row');
+    const currentInput = inputs[inputs.length - 1];
+    const row = currentInput.closest('.item-row');
     if (row) {
       row.classList.remove('adding');
       row.innerHTML = `
         <span style="width:19px;flex-shrink:0;color:var(--accent);font-weight:700;">•</span>
-        <span class="item-label" style="flex:1;cursor:pointer;font-size:14px;">${text}</span>
-        <span class="item-edit" onclick="" style="cursor:pointer;color:var(--accent);">✎</span>
+        <span style="flex:1;cursor:pointer;font-size:14px;">${text}</span>
       `;
     }
   }
+  
   if (keepAdding) {
     addRecipeIngRow(true);
   }
