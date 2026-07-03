@@ -606,7 +606,7 @@ function renderItems() {
   });
   const rows = sorted.map(item => `
     <div class="item-row${NEW_ROW_IDS.has(String(item.id)) ? ' item-new' : ''}">
-        <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked);">
+        <input class="item-cb" type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${activeList},'${item.id}',this.checked,this);">
       <span class="item-label${item.checked?' done':''}" onclick="this.previousElementSibling.click()">${item.text}</span>
       <span class="item-edit" onclick="openEditItem('${item.id}')">✎</span>
       <span class="item-del" onclick="delItem(${activeList},'${item.id}')">✕</span>
@@ -649,7 +649,7 @@ function renderRecipeIngredients(recipeId) {
     html += `
       <div class="item-row adding" style="margin-bottom:4px;padding:6px 0;">
         <span style="width:15px;flex-shrink:0;color:var(--accent);">+</span>
-        <input class="item-inline-inp recipe-ing-edit-inp" id="inline-recing-${recipeId}" type="text" placeholder="Ny ingrediens och tryck Enter..." style="flex:1;padding:6px;background:transparent;border:1px dashed rgba(251,191,36,.35);border-radius:6px;color:rgba(251,191,36,.35);font-size:13px;" onkeydown="handleRecipeIngEditKey(event,${recipeId})">
+        <input class="item-inline-inp recipe-ing-edit-inp" id="inline-recing-${recipeId}" type="text" placeholder="Ny ingrediens och tryck Enter..." style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;" onkeydown="handleRecipeIngEditKey(event,${recipeId})">
       </div>
     `;
   }
@@ -798,13 +798,19 @@ function addItemToList(text) {
   }, 420);
 }
 
-function toggleItem(listId, itemId, checked) {
+function toggleItem(listId, itemId, checked, cbElement) {
   const lists = S.get('lists');
   const list = lists.find(l => l.id === listId);
   const item = list?.items.find(i => String(i.id) === String(itemId));
   if (item) item.checked = checked;
   S.set('lists', lists);
-  renderItems();  checkAutoArchive();}
+  // Update in-place — no full re-render so checkbox is instant
+  if (cbElement) {
+    const label = cbElement.nextElementSibling;
+    if (label) label.className = 'item-label' + (checked ? ' done' : '');
+  }
+  checkAutoArchive();
+}
 
 function delItem(listId, itemId) {
   const lists = S.get('lists');
