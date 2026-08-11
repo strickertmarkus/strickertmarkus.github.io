@@ -8,57 +8,78 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0F1621;--bg2:#161E2F;--bg3:#1A2335;--border:rgba(255,255,255,0.07);--text:#E2EEFF;--text-sec:#7A8FA0;--text-dim:#3A4A60;--accent:#FBBF24;--radius:8px;}
+    :root{--bg:#0F1621;--bg2:#161E2F;--bg3:#1A2335;--border:rgba(255,255,255,0.07);--text:#E2EEFF;--text-sec:#7A8FA0;--text-dim:#3A4A60;--accent:#FBBF24;--heading:#E8C56A;--radius:8px;}
     *{box-sizing:border-box;margin:0;padding:0;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);background:linear-gradient(180deg, var(--bg) 0%, rgba(26,35,53,.15) 100%);color:var(--text);line-height:1.5;font-size:14px;min-height:100vh;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px;min-height:100vh;}
     .wrap{max-width:600px;margin:0 auto;padding:16px;}
     header{display:flex;align-items:center;gap:12px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;}
     .logo{font-size:18px;font-weight:600;}
-    .header-right{margin-left:auto;display:flex;gap:8px;}
+    .header-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+    .undo-btn{background:none;border:none;color:var(--text-sec);cursor:pointer;font-size:14px;padding:6px;transition:color .3s ease-out;}
+    .undo-btn:hover{color:var(--text);}
     .dropdown-wrapper{position:relative;}
-    .dropdown-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-sec);transition:all .2s;}
+    .dropdown-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-sec);transition:all .3s ease-out;}
     .dropdown-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08);}
     .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:rgba(22,30,47,.98);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,.3);min-width:180px;z-index:100;backdrop-filter:blur(10px);}
     .dropdown-wrapper.open .dropdown-menu{display:block;}
-    .dropdown-menu a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;transition:background .2s;font-size:13px;}
+    .dropdown-menu a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;transition:background .3s ease-out;font-size:13px;}
     .dropdown-menu a:last-child{border-bottom:none;}
     .dropdown-menu a:hover{background:rgba(255,255,255,.06);color:var(--text);}
-    main{display:flex;flex-direction:column;gap:6px;}
-    .category-title{font-weight:600;font-size:15px;color:var(--text);padding:8px 0;margin-top:12px;margin-bottom:4px;border-bottom:2px solid var(--accent);}
-    .category-title.new-category{color:var(--text-dim);cursor:pointer;padding:6px 0;}
-    .category-title.new-category:hover{color:var(--text);}
-    .list-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:none;}
-    .list-item input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;}
-    .list-item label{flex:1;cursor:pointer;padding:2px 0;}
-    .list-item label.done{text-decoration:line-through;color:var(--text-dim);}
-    .list-item .item-actions{display:flex;gap:6px;}
-    .item-actions button{background:none;border:none;color:var(--text-sec);cursor:pointer;font-size:18px;transition:color .2s;padding:4px 6px;line-height:1;}
-    .item-actions button:hover{color:#EF4444;}
-    .add-item-line{display:flex;align-items:center;gap:10px;padding:8px 0;color:var(--text-dim);}
-    .add-item-line:hover{color:var(--text-sec);}
-    .add-item-line input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:14px;padding:2px 0;}
+    main{display:flex;flex-direction:column;gap:2px;}
+    .category-title{font-weight:600;font-size:14px;color:var(--heading);padding:5px 0;margin-top:7px;margin-bottom:2px;border-bottom:1px solid #4a5568;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
+    .category-title:hover{color:var(--accent);}
+    .category-title input{background:none;border:none;outline:none;color:var(--heading);font-family:inherit;font-size:14px;font-weight:600;width:100%;padding:2px 0;}
+    .category-title.new-category{color:var(--text-dim);cursor:pointer;padding:4px 0;}
+    .category-title.new-category:hover{color:var(--accent);}
+    .list-item{display:flex;align-items:center;gap:7px;padding:3px 0;border-bottom:none;font-size:13px;}
+    .list-item input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-color .12s cubic-bezier(.22,1,.36,1),background-size .16s cubic-bezier(.22,1,.36,1),border-color .12s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1);}
+      .list-item input[type="checkbox"]:checked{background-color:transparent;background-size:12px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.3 12 13 4.5' fill='none' stroke='%23FBBF24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
+      .list-item input[type="checkbox"]:active{transform:scale(.84);}
+    .list-item input[type="checkbox"]:disabled{opacity:1;background-color:transparent;border:1.5px solid var(--accent);cursor:text;}
+    .list-item label{flex:0 1 auto;cursor:text;padding:2px 0;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .16s cubic-bezier(.22,1,.36,1),background-size .2s cubic-bezier(.22,1,.36,1);}
+    .list-item label.done{color:var(--text-dim);background-size:100% 1px;}
+    .list-item input.edit-input{background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13px;width:auto;min-width:4ch;max-width:calc(100% - 24px);padding:2px 0;}
+    .list-item .item-actions{display:none;gap:6px;}
+    .add-item-line{display:flex;align-items:center;gap:7px;padding:3px 0;color:var(--text-dim);cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
+    .add-item-line:hover{color:var(--accent);}
+    .add-item-line input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13px;padding:2px 0;}
+    .add-item-line input[type="checkbox"]{width:16px;height:16px;flex:none;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;opacity:1;cursor:text;}
     .add-item-line input::placeholder{color:var(--text-dim);}
+    .category-title.new-category input:focus,.new-recipe input:focus{border-bottom:1px solid var(--accent);}
+    .add-item-line span{cursor:pointer;}
+    .inline-add{display:inline-flex;align-items:center;min-width:0;margin-left:8px;color:var(--text-dim);cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
+    .inline-add:hover{color:var(--accent);}
+    .inline-add input{min-width:0;width:150px;background:none;border:none;border-bottom:1px solid transparent;outline:none;color:var(--text);font:inherit;padding:2px 0;}
+    .inline-add input:focus{border-bottom-color:transparent;}
     .section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-sec);margin-top:20px;margin-bottom:8px;}
     .recipe-item{padding:10px 0;border-bottom:1px solid #4a5568;}
     .recipe-header{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;}
     .recipe-toggle{font-size:12px;color:var(--text-sec);width:14px;transition:transform .2s;}
     .recipe-item.open .recipe-toggle{transform:rotate(90deg);}
     .recipe-name{flex:1;font-weight:500;color:var(--text);}
+    .recipe-name input{background:none;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text);font:inherit;font-weight:500;width:100%;padding:2px 0;}
     .recipe-actions{opacity:0;display:flex;gap:6px;transition:opacity .2s;}
     .recipe-item:hover .recipe-actions{opacity:1;}
     .recipe-actions button{background:none;border:none;color:var(--text-sec);cursor:pointer;font-size:16px;transition:color .2s;padding:4px 6px;}
     .recipe-actions button:hover{color:#EF4444;}
     .recipe-items{display:none;padding-left:24px;margin-top:6px;margin-bottom:6px;}
-    .recipe-item.open .recipe-items{display:flex;flex-direction:column;gap:6px;}
-    .recipe-add-item{display:flex;gap:6px;}
-    .recipe-add-item input{flex:1;padding:6px 8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;outline:none;color:var(--text);}
+    .recipe-item.open .recipe-items{display:flex;flex-direction:column;gap:5px;}
+    .recipe-add-item{display:flex;align-items:center;gap:5px;padding:2px 0;color:var(--text-dim);}
+    .recipe-add-item input{flex:1;padding:2px 0;background:none;border:none;border-bottom:1px solid transparent;font-family:inherit;font-size:13px;outline:none;color:var(--text);transition:border-color .16s cubic-bezier(.22,1,.36,1);}
     .recipe-add-item input::placeholder{color:var(--text-dim);}
-    .recipe-add-item input:focus{border-color:var(--accent);background:rgba(255,255,255,.08);}
-    .recipe-add-item button{padding:6px 10px;background:var(--accent);color:#0F1621;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:12px;transition:background .2s;}
-    .recipe-add-item button:hover{background:#F9A948;}
-    .recipe-ingredient{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;}
-    .recipe-ingredient input[type="checkbox"]{width:16px;height:16px;}
+    .recipe-add-item input:focus{border-color:transparent;}
+    .recipe-ingredient{display:flex;align-items:center;gap:5px;padding:3px 0;font-size:13px;}
+    .recipe-ingredient input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-size .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1);}
+    .recipe-ingredient input[type="checkbox"]:checked{background-size:11px 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.3 12 13 4.5' fill='none' stroke='%23FBBF24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
+    .recipe-ingredient input[type="checkbox"]:disabled{opacity:1;background-color:transparent;border:1.5px solid var(--accent);cursor:pointer;}
+    .recipe-add-item input[type="checkbox"]{width:16px;height:16px;flex:none;appearance:none;opacity:1;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;cursor:pointer;}
+    .recipe-ingredient label{flex:0 1 auto;cursor:text;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .16s cubic-bezier(.22,1,.36,1),background-size .2s cubic-bezier(.22,1,.36,1);}
+    .recipe-ingredient label.done{color:var(--text-dim);background-size:100% 1px;}
+    .recipe-ingredient input[type="text"]{flex:none;width:auto;min-width:4ch;max-width:calc(100% - 24px);background:none;border:none;outline:none;color:var(--text);font:inherit;padding:2px 0;}
+    .new-recipe{color:var(--text-dim);cursor:pointer;padding:4px 0;transition:color .16s cubic-bezier(.22,1,.36,1);}
+    .new-recipe:hover{color:var(--accent);}
+    .new-recipe input{background:none;border:none;outline:none;color:var(--text);font:inherit;width:100%;padding:2px 0;}
     .empty-state{text-align:center;padding:20px;color:var(--text-dim);font-size:13px;}
   </style>
 </head>
@@ -67,12 +88,13 @@
   <header>
     <div class="logo">Inköpslista</div>
     <div class="header-right">
+      <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
       <div class="dropdown-wrapper">
-        <button class="dropdown-btn">Listor</button>
+        <button class="dropdown-btn">☰ Listor</button>
         <div class="dropdown-menu" id="lists-menu"></div>
       </div>
       <div class="dropdown-wrapper">
-        <button class="dropdown-btn">Recept</button>
+        <button class="dropdown-btn">☰ Recept</button>
         <div class="dropdown-menu" id="recipes-dropdown"></div>
       </div>
     </div>
@@ -88,9 +110,21 @@
 
 <script>
 let recipeSessionStore = [];
-let addingNewItem = false;
+let addingNewItem = null;
 let addingNewCategory = false;
+let addingNewRecipe = false;
+let editingRecipeIngredient = null;
+const openRecipeIds = new Set();
+let editingItemId = null;
+let editingCategoryId = null;
+let editingRecipeId = null;
+let undoHistory = [];
 const deepClone = v => JSON.parse(JSON.stringify(v));
+function focusAtEnd(element) {
+  if (!element) return;
+  element.focus();
+  element.setSelectionRange(element.value.length, element.value.length);
+}
 const S = {
   get: k => {
     if (k === 'recipes') return deepClone(recipeSessionStore);
@@ -107,6 +141,17 @@ const S = {
 
 let activeList = null;
 
+function saveState() {
+  undoHistory.push(deepClone(S.get('lists')));
+}
+
+function undo() {
+  if (!undoHistory.length) return;
+  const prevState = undoHistory.pop();
+  S.set('lists', prevState);
+  renderItems();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   localStorage.removeItem('sh_recipes');
   recipeSessionStore = [];
@@ -114,12 +159,32 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!lists.length) {
     S.set('lists', [{id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: []}]);
   }
+  lists.forEach(list => {
+    list.items = (list.items || []).filter(item => item.text !== '- storlek M');
+  });
+  S.set('lists', lists);
   activeList = S.get('lists')[0]?.id || 1;
   renderListsMenu();
   renderRecipesDropdown();
   renderItems();
   renderRecipes();
+  setupDropdownHandlers();
 });
+
+function setupDropdownHandlers() {
+  document.addEventListener('click', closeDropdowns);
+  document.querySelectorAll('.dropdown-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.target.closest('.dropdown-wrapper').classList.toggle('open');
+    });
+  });
+}
+
+function closeDropdowns(e) {
+  if (!e.target.classList.contains('dropdown-btn') && !e.target.closest('.dropdown-wrapper')) {
+    document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('open'));
+  }
+}
 
 function renderListsMenu() {
   const lists = S.get('lists');
@@ -131,8 +196,7 @@ function renderListsMenu() {
 function renderRecipesDropdown() {
   const recipes = S.get('recipes');
   const menu = document.getElementById('recipes-dropdown');
-  menu.innerHTML = recipes.map(r => `<a href="#" onclick="addRecipeItems(${r.id}); return false;">Lägg till: ${r.name}</a>`).join('') +
-    '<a href="#" onclick="createNewRecipe(); return false;">+ Nytt recept</a>';
+  menu.innerHTML = recipes.map(r => `<a href="#" onclick="addRecipeItems(${r.id}); return false;">Lägg till: ${r.name}</a>`).join('');
 }
 
 function selectList(id) {
@@ -144,6 +208,7 @@ function selectList(id) {
 function createNewList() {
   const name = prompt('Listans namn:');
   if (!name) return;
+  saveState();
   const lists = S.get('lists');
   const id = Math.max(...lists.map(l => l.id || 0)) + 1;
   lists.push({id, name, createdAt: new Date().toISOString().slice(0,10), items: []});
@@ -153,20 +218,41 @@ function createNewList() {
   renderItems();
 }
 
-function createNewRecipe() {
-  const name = prompt('Receptets namn:');
+function startAddRecipe() {
+  if (addingNewRecipe) return;
+  addingNewRecipe = true;
+  renderRecipes();
+  setTimeout(() => document.getElementById('new-recipe-input')?.focus(), 0);
+}
+
+function saveNewRecipe(event) {
+  if (event?.key && event.key !== 'Enter') return;
+  if (event) event.preventDefault();
+  const input = document.getElementById('new-recipe-input');
+  const name = input?.value.trim();
   if (!name) return;
   const recipes = S.get('recipes');
-  const id = Math.max(...recipes.map(r => r.id || 0)) + 1;
+  const id = recipes.length ? Math.max(...recipes.map(r => r.id || 0)) + 1 : 1;
   recipes.push({id, name, items: []});
   S.set('recipes', recipes);
+  addingNewRecipe = false;
   renderRecipesDropdown();
   renderRecipes();
 }
 
-function startAddItem() {
+function cancelAddRecipe() {
+  if (!addingNewRecipe) return;
+  if (!document.getElementById('new-recipe-input')?.value.trim()) {
+    addingNewRecipe = false;
+    renderRecipes();
+    return;
+  }
+  saveNewRecipe();
+}
+
+function startAddItem(categoryId = null) {
   if (addingNewItem) return;
-  addingNewItem = true;
+  addingNewItem = {categoryId};
   renderItems();
   setTimeout(() => {
     const inp = document.getElementById('new-item-input');
@@ -180,21 +266,35 @@ function saveNewItem(event) {
   const inp = document.getElementById('new-item-input');
   const text = inp.value.trim();
   if (text) {
+    saveState();
     const lists = S.get('lists');
     const list = lists.find(l => l.id === activeList);
     if (list) {
       if (!list.items) list.items = [];
-      list.items.push({id: Date.now(), type: 'item', text, checked: false});
+      const itemId = Date.now();
+      const draftId = itemId + 1;
+      const newItems = [{id: itemId, type: 'item', text, checked: false}, {id: draftId, type: 'item', text: '', checked: false}];
+      const categoryIndex = list.items.findIndex(item => item.id === addingNewItem?.categoryId);
+      if (categoryIndex === -1) {
+        list.items.push(...newItems);
+      } else {
+        let insertionIndex = categoryIndex + 1;
+        while (insertionIndex < list.items.length && list.items[insertionIndex].type !== 'category') {
+          insertionIndex += 1;
+        }
+        list.items.splice(insertionIndex, 0, ...newItems);
+      }
       S.set('lists', lists);
+      editingItemId = draftId;
     }
   }
-  addingNewItem = false;
+  addingNewItem = null;
   renderItems();
 }
 
 function cancelAddItem() {
-  addingNewItem = false;
-  renderItems();
+  if (!addingNewItem) return;
+  saveNewItem();
 }
 
 function startAddCategory() {
@@ -213,12 +313,17 @@ function saveNewCategory(event) {
   const inp = document.getElementById('new-category-input');
   const text = inp.value.trim();
   if (text) {
+    saveState();
     const lists = S.get('lists');
     const list = lists.find(l => l.id === activeList);
     if (list) {
       if (!list.items) list.items = [];
-      list.items.push({id: Date.now(), type: 'category', text});
+      const categoryId = Date.now();
+      const itemId = categoryId + 1;
+      list.items.push({id: categoryId, type: 'category', text});
+      list.items.push({id: itemId, type: 'item', text: '', checked: false});
       S.set('lists', lists);
+      editingItemId = itemId;
     }
   }
   addingNewCategory = false;
@@ -230,30 +335,197 @@ function cancelAddCategory() {
   renderItems();
 }
 
+function startEditItem(id) {
+  editingItemId = id;
+  renderItems();
+  setTimeout(() => focusAtEnd(document.getElementById(`item-edit-${id}`)), 0);
+}
+
+function saveEditItem(id, event) {
+  if (event && event.key && event.key !== 'Enter') return;
+  if (event) event.preventDefault();
+  const inp = document.getElementById(`item-edit-${id}`);
+  const text = inp.value.trim();
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(i => i.id === id);
+  if (item) {
+    saveState();
+    if (!text) {
+      const idx = list.items.indexOf(item);
+      if (idx > 0) {
+        const prevItem = list.items[idx - 1];
+        list.items.splice(idx, 1);
+        S.set('lists', lists);
+        editingItemId = prevItem.id;
+      } else {
+        list.items.splice(idx, 1);
+        S.set('lists', lists);
+        editingItemId = null;
+      }
+    } else {
+      item.text = text;
+      S.set('lists', lists);
+      editingItemId = null;
+    }
+  }
+  renderItems();
+}
+
+function cancelEditItem(id) {
+  if (editingItemId !== id) return;
+  requestAnimationFrame(() => {
+    if (editingItemId !== id) return;
+    saveEditItem(id);
+  });
+}
+
+function handleItemKeydown(id, event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    const inp = event.target;
+    const text = inp.value.trim();
+    saveState();
+    const lists = S.get('lists');
+    const list = lists.find(l => l.id === activeList);
+    const item = list?.items.find(i => i.id === id);
+    if (item) {
+      item.text = text;
+      const idx = list.items.indexOf(item);
+      const newId = Date.now();
+      list.items.splice(idx + 1, 0, {id: newId, type: 'item', text: '', checked: false});
+      S.set('lists', lists);
+      editingItemId = newId;
+    }
+    renderItems();
+  } else if (event.key === 'Escape') {
+    cancelEditItem();
+  } else if (event.key === 'Backspace') {
+    const inp = event.target;
+    if (inp.value === '') {
+      event.preventDefault();
+      saveState();
+      const lists = S.get('lists');
+      const list = lists.find(l => l.id === activeList);
+      const item = list?.items.find(i => i.id === id);
+      if (item) {
+        const idx = list.items.indexOf(item);
+        if (idx >= 0) {
+          list.items.splice(idx, 1);
+          S.set('lists', lists);
+          if (idx > 0) {
+            editingItemId = list.items[idx - 1].id;
+            renderItems();
+            setTimeout(() => {
+              const inp = document.getElementById(`item-edit-${list.items[idx - 1].id}`);
+              if (inp) inp.focus();
+            }, 0);
+          } else {
+            editingItemId = list.items[0]?.id || null;
+            renderItems();
+          }
+        }
+      }
+    }
+  }
+}
+
+function startEditCategory(id) {
+  editingCategoryId = id;
+  renderItems();
+  setTimeout(() => focusAtEnd(document.getElementById(`cat-edit-${id}`)), 0);
+}
+
+function handleCategoryKeydown(id, event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    commitCategoryEdit(id);
+  } else if (event.key === 'Escape') {
+    editingCategoryId = null;
+    renderItems();
+  } else if (event.key === 'Backspace' && event.target.value === '') {
+    event.preventDefault();
+    commitCategoryEdit(id);
+  }
+}
+
+function commitCategoryEdit(id) {
+  if (editingCategoryId !== id) return;
+  const inp = document.getElementById(`cat-edit-${id}`);
+  const text = inp?.value.trim() || '';
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(i => i.id === id);
+  if (item && item.type === 'category') {
+    saveState();
+    if (!text) {
+      list.items = list.items.filter(i => i.id !== id);
+    } else {
+      item.text = text;
+    }
+    S.set('lists', lists);
+  }
+  editingCategoryId = null;
+  renderItems();
+}
+
 function toggleItem(id, checked) {
+  saveState();
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   const item = list?.items.find(i => i.id === id);
   if (item) item.checked = checked;
   S.set('lists', lists);
-  renderItems();
+  const label = document.getElementById(`item-${id}`);
+  label?.classList.toggle('done', checked);
 }
 
-function delItem(id) {
-  const lists = S.get('lists');
-  const list = lists.find(l => l.id === activeList);
-  if (list) list.items = list.items.filter(i => i.id !== id);
-  S.set('lists', lists);
-  renderItems();
-}
-
-function deleteEmptyItem(id) {
-  const lists = S.get('lists');
-  const list = lists.find(l => l.id === activeList);
-  const item = list?.items.find(i => i.id === id);
-  if (item && !item.text.trim()) {
-    delItem(id);
+function commitItemDraft(id, checked) {
+  const input = document.getElementById(`item-edit-${id}`);
+  const text = input?.value.trim();
+  if (!text) {
+    renderItems();
+    return;
   }
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(entry => entry.id === id);
+  if (item) {
+    saveState();
+    item.text = text;
+    item.checked = checked;
+    S.set('lists', lists);
+  }
+  editingItemId = null;
+  renderItems();
+}
+
+function commitNewItemDraft(checked) {
+  const input = document.getElementById('new-item-input');
+  const text = input?.value.trim();
+  if (!text) {
+    renderItems();
+    return;
+  }
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  if (list) {
+    saveState();
+    const categoryIndex = list.items.findIndex(item => item.id === addingNewItem?.categoryId);
+    const newItem = {id: Date.now(), type: 'item', text, checked};
+    if (categoryIndex === -1) {
+      list.items.push(newItem);
+    } else {
+      let insertionIndex = categoryIndex + 1;
+      while (insertionIndex < list.items.length && list.items[insertionIndex].type !== 'category') {
+        insertionIndex += 1;
+      }
+      list.items.splice(insertionIndex, 0, newItem);
+    }
+    S.set('lists', lists);
+  }
+  addingNewItem = null;
+  renderItems();
 }
 
 function renderItems() {
@@ -266,21 +538,51 @@ function renderItems() {
     return;
   }
   let html = '';
-  items.forEach(i => {
+  items.forEach((i, index) => {
     if (i.type === 'category') {
-      html += `<div class="category-title">${i.text}</div>`;
+      if (editingCategoryId === i.id) {
+        html += `<div class="category-title"><input type="text" id="cat-edit-${i.id}" value="${i.text}" onkeydown="handleCategoryKeydown(${i.id}, event)" onblur="commitCategoryEdit(${i.id})"></div>`;
+      } else {
+        html += `<div class="category-title" onclick="startEditCategory(${i.id})">${i.text}</div>`;
+      }
+      const nextItem = items[index + 1];
+      if (addingNewItem?.categoryId === i.id) {
+        html += `<div class="add-item-line"><input type="checkbox" onmousedown="event.preventDefault(); commitNewItemDraft(!this.checked)"><input type="text" id="new-item-input" placeholder="+ Lägg till artikel" onkeydown="saveNewItem(event)" onblur="cancelAddItem()"></div>`;
+      } else if (!addingNewItem && (!nextItem || nextItem.type === 'category')) {
+        html += `<div class="add-item-line" onclick="startAddItem(${i.id})"><span>+ Lägg till artikel</span></div>`;
+      }
     } else {
-      html += `
-        <div class="list-item">
-          <input type="checkbox" ${i.checked ? 'checked' : ''} onchange="toggleItem(${i.id}, this.checked)">
-          <label class="${i.checked ? 'done' : ''}" onclick="this.previousElementSibling.click()">${i.text}</label>
-          <div class="item-actions">
-            <button onclick="delItem(${i.id})">✕</button>
+      if (editingItemId === i.id) {
+        html += `
+          <div class="list-item">
+            <input type="checkbox" onmousedown="event.preventDefault(); commitItemDraft(${i.id}, !this.checked)">
+            <input type="text" id="item-edit-${i.id}" class="edit-input" size="${Math.max(4, i.text.length + 3)}" value="${i.text}" onkeydown="handleItemKeydown(${i.id}, event)" onblur="cancelEditItem(${i.id})">
           </div>
-        </div>
-      `;
+        `;
+      } else if (i.text.trim()) {
+        html += `
+          <div class="list-item">
+            <input type="checkbox" ${i.checked ? 'checked' : ''} onchange="toggleItem(${i.id}, this.checked)">
+            <label id="item-${i.id}" class="${i.checked ? 'done' : ''}" onclick="startEditItem(${i.id})">${i.text}</label>
+          </div>
+        `;
+      }
     }
   });
+  if (addingNewItem && !addingNewItem.categoryId) {
+    html += `
+      <div class="add-item-line">
+        <input type="checkbox" onmousedown="event.preventDefault(); commitNewItemDraft(!this.checked)">
+        <input type="text" id="new-item-input" placeholder="+ Lägg till artikel" onkeydown="saveNewItem(event)" onblur="cancelAddItem()">
+      </div>
+    `;
+  } else if (!items.length) {
+    html += `
+      <div class="add-item-line" onclick="startAddItem()">
+        <span>+ Lägg till artikel</span>
+      </div>
+    `;
+  }
   if (addingNewCategory) {
     html += `
       <div class="category-title new-category">
@@ -290,44 +592,50 @@ function renderItems() {
   } else {
     html += `<div class="category-title new-category" onclick="startAddCategory()">+ Lägg till rubrik</div>`;
   }
-  if (addingNewItem) {
-    html += `
-      <div class="add-item-line">
-        <input type="checkbox" disabled>
-        <input type="text" id="new-item-input" placeholder="Ny artikel..." onkeydown="saveNewItem(event)" onblur="cancelAddItem()">
-      </div>
-    `;
-  } else {
-    html += `
-      <div class="add-item-line" onclick="startAddItem()">
-        <input type="checkbox" disabled>
-        <span>+ Lägg till artikel</span>
-      </div>
-    `;
-  }
   el.innerHTML = html;
+  if (editingItemId) {
+    setTimeout(() => focusAtEnd(document.getElementById(`item-edit-${editingItemId}`)), 0);
+  }
 }
 
 function addRecipeItems(recipeId) {
   const recipes = S.get('recipes');
   const recipe = recipes.find(r => r.id === recipeId);
   if (!recipe?.items?.length) return alert('Receptet har inga ingredienser');
+  saveState();
   const lists = S.get('lists');
   const list = lists.find(l => l.id === activeList);
   if (!list) return;
   if (!list.items) list.items = [];
   recipe.items.forEach(ingr => {
     if (!list.items.find(i => i.text === ingr && i.type !== 'category')) {
-      list.items.push({id: Date.now() + Math.random(), type: 'item', text: ingr, checked: false});
+      insertItemInFirstCategory(list, ingr);
     }
   });
   S.set('lists', lists);
   renderItems();
 }
 
+function insertItemInFirstCategory(list, text) {
+  const firstCategoryIndex = list.items.findIndex(item => item.type === 'category');
+  const newItem = {id: Date.now() + Math.random(), type: 'item', text, checked: false};
+  if (firstCategoryIndex === -1) {
+    list.items.push(newItem);
+    return;
+  }
+  let insertionIndex = firstCategoryIndex + 1;
+  while (insertionIndex < list.items.length && list.items[insertionIndex].type !== 'category') {
+    insertionIndex += 1;
+  }
+  list.items.splice(insertionIndex, 0, newItem);
+}
+
 function toggleRecipe(id) {
   const el = document.querySelector(`[data-recipe-id="${id}"]`);
-  if (el) el.classList.toggle('open');
+  if (!el) return;
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) openRecipeIds.add(id);
+  else openRecipeIds.delete(id);
 }
 
 function delRecipe(id) {
@@ -336,6 +644,44 @@ function delRecipe(id) {
   S.set('recipes', recipes.filter(r => r.id !== id));
   renderRecipesDropdown();
   renderRecipes();
+}
+
+function startEditRecipeName(id) {
+  editingRecipeId = id;
+  openRecipeIds.add(id);
+  renderRecipes();
+  setTimeout(() => focusAtEnd(document.getElementById(`recipe-name-edit-${id}`)), 0);
+}
+
+function commitRecipeName(id) {
+  if (editingRecipeId !== id) return;
+  const input = document.getElementById(`recipe-name-edit-${id}`);
+  const name = input?.value.trim() || '';
+  const recipes = S.get('recipes');
+  if (!name) {
+    S.set('recipes', recipes.filter(recipe => recipe.id !== id));
+    openRecipeIds.delete(id);
+  } else {
+    const recipe = recipes.find(entry => entry.id === id);
+    if (recipe) recipe.name = name;
+    S.set('recipes', recipes);
+  }
+  editingRecipeId = null;
+  renderRecipesDropdown();
+  renderRecipes();
+}
+
+function handleRecipeNameKeydown(id, event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    commitRecipeName(id);
+  } else if (event.key === 'Escape') {
+    editingRecipeId = null;
+    renderRecipes();
+  } else if (event.key === 'Backspace' && event.target.value === '') {
+    event.preventDefault();
+    commitRecipeName(id);
+  }
 }
 
 function saveRecipeItem(recipeId, event) {
@@ -350,17 +696,183 @@ function saveRecipeItem(recipeId, event) {
     if (!recipe.items) recipe.items = [];
     if (!recipe.items.includes(text)) {
       recipe.items.push(text);
+      const lists = S.get('lists');
+      const list = lists.find(l => l.id === activeList);
+      if (list && !list.items.some(item => item.type !== 'category' && item.text === text)) {
+        insertItemInFirstCategory(list, text);
+        S.set('lists', lists);
+        renderItems();
+      }
     }
     S.set('recipes', recipes);
   }
-  inp.value = '';
+  openRecipeIds.add(recipeId);
+  editingRecipeIngredient = {recipeId, index: recipe.items.length};
+  recipe.items.push('');
+  S.set('recipes', recipes);
   renderRecipes();
 }
 
-function delRecipeItem(recipeId, index) {
+function handleRecipeIngredientKeydown(recipeId, index, event) {
   const recipes = S.get('recipes');
   const recipe = recipes.find(r => r.id === recipeId);
-  if (recipe && recipe.items) {
+  if (!recipe?.items) return;
+  if (event.key === 'Escape') {
+    editingRecipeIngredient = null;
+    renderRecipes();
+    return;
+  }
+  if (event.key === 'Backspace' && event.target.value === '') {
+    event.preventDefault();
+    recipe.items.splice(index, 1);
+    const previousIndex = index - 1;
+    editingRecipeIngredient = previousIndex >= 0 ? {recipeId, index: previousIndex} : null;
+    openRecipeIds.add(recipeId);
+    S.set('recipes', recipes);
+    renderRecipes();
+    return;
+  }
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  const text = event.target.value.trim();
+  if (!text) {
+    recipe.items.splice(index, 1);
+  } else {
+    recipe.items[index] = text;
+    const lists = S.get('lists');
+    const list = lists.find(l => l.id === activeList);
+    if (list && !list.items.some(item => item.type !== 'category' && item.text === text)) {
+      insertItemInFirstCategory(list, text);
+      S.set('lists', lists);
+      renderItems();
+    }
+  }
+  const nextIndex = index + 1;
+  recipe.items.splice(nextIndex, 0, '');
+  editingRecipeIngredient = {recipeId, index: nextIndex};
+  openRecipeIds.add(recipeId);
+  S.set('recipes', recipes);
+  renderRecipes();
+}
+
+function startEditRecipeIngredient(recipeId, index) {
+  editingRecipeIngredient = {recipeId, index};
+  openRecipeIds.add(recipeId);
+  renderRecipes();
+}
+
+function toggleRecipeIngredient(recipeId, text, checked, checkbox) {
+  const lists = S.get('lists');
+  const list = lists.find(l => l.id === activeList);
+  const item = list?.items.find(entry => entry.type !== 'category' && entry.text === text);
+  if (item) {
+    saveState();
+    item.checked = checked;
+    S.set('lists', lists);
+  }
+  checkbox?.nextElementSibling?.classList.toggle('done', checked);
+}
+
+function commitRecipeIngredientDraft(recipeId, index, checked) {
+  const input = document.getElementById(`recipe-edit-${recipeId}-${index}`);
+  const text = input?.value.trim();
+  if (!text) {
+    renderRecipes();
+    return;
+  }
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(entry => entry.id === recipeId);
+  if (recipe?.items) {
+    recipe.items[index] = text;
+    S.set('recipes', recipes);
+  }
+  const lists = S.get('lists');
+  const list = lists.find(entry => entry.id === activeList);
+  if (list) {
+    saveState();
+    let item = list.items.find(entry => entry.type !== 'category' && entry.text === text);
+    if (!item) {
+      insertItemInFirstCategory(list, text);
+      item = list.items.find(entry => entry.type !== 'category' && entry.text === text);
+    }
+    if (item) item.checked = checked;
+    S.set('lists', lists);
+    renderItems();
+  }
+  editingRecipeIngredient = null;
+  renderRecipes();
+}
+
+function commitNewRecipeIngredientDraft(recipeId, checked) {
+  const input = document.getElementById(`new-recipe-ingredient-${recipeId}`);
+  const text = input?.value.trim();
+  if (!text) {
+    renderRecipes();
+    return;
+  }
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(entry => entry.id === recipeId);
+  if (recipe) {
+    if (!recipe.items) recipe.items = [];
+    recipe.items.push(text);
+    S.set('recipes', recipes);
+  }
+  const lists = S.get('lists');
+  const list = lists.find(entry => entry.id === activeList);
+  if (list) {
+    saveState();
+    let item = list.items.find(entry => entry.type !== 'category' && entry.text === text);
+    if (!item) {
+      insertItemInFirstCategory(list, text);
+      item = list.items.find(entry => entry.type !== 'category' && entry.text === text);
+    }
+    if (item) item.checked = checked;
+    S.set('lists', lists);
+    renderItems();
+  }
+  openRecipeIds.add(recipeId);
+  renderRecipes();
+}
+
+function recipeIngredientIsChecked(text) {
+  const list = S.get('lists').find(entry => entry.id === activeList);
+  return Boolean(list?.items.find(item => item.type !== 'category' && item.text === text)?.checked);
+}
+
+function cancelRecipeIngredientEdit() {
+  editingRecipeIngredient = null;
+  renderRecipes();
+}
+
+function commitRecipeIngredientEdit(recipeId, index) {
+  if (editingRecipeIngredient?.recipeId !== recipeId || editingRecipeIngredient?.index !== index) return;
+  const input = document.getElementById(`recipe-edit-${recipeId}-${index}`);
+  const text = input?.value.trim();
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(entry => entry.id === recipeId);
+  if (!recipe?.items) return;
+  if (text) {
+    recipe.items[index] = text;
+    const lists = S.get('lists');
+    const list = lists.find(entry => entry.id === activeList);
+    if (list && !list.items.some(item => item.type !== 'category' && item.text === text)) {
+      saveState();
+      insertItemInFirstCategory(list, text);
+      S.set('lists', lists);
+      renderItems();
+    }
+  } else {
+    recipe.items.splice(index, 1);
+  }
+  S.set('recipes', recipes);
+  editingRecipeIngredient = null;
+  renderRecipes();
+}
+
+function deleteRecipeItem(recipeId, index) {
+  const recipes = S.get('recipes');
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (recipe?.items) {
     recipe.items.splice(index, 1);
     S.set('recipes', recipes);
     renderRecipes();
@@ -370,47 +882,37 @@ function delRecipeItem(recipeId, index) {
 function renderRecipes() {
   const recipes = S.get('recipes');
   const el = document.getElementById('recipes-list');
-  if (!recipes.length) {
-    el.innerHTML = '<div class="empty-state">Inga sparade recept ännu.</div>';
-    return;
-  }
-  el.innerHTML = recipes.map(r => `
-    <div class="recipe-item" data-recipe-id="${r.id}">
+  const recipesHtml = recipes.map(r => `
+    <div class="recipe-item ${openRecipeIds.has(r.id) ? 'open' : ''}" data-recipe-id="${r.id}">
       <div class="recipe-header" onclick="toggleRecipe(${r.id})">
         <span class="recipe-toggle">›</span>
-        <span class="recipe-name">${r.name}</span>
+        ${editingRecipeId === r.id
+          ? `<span class="recipe-name"><input id="recipe-name-edit-${r.id}" type="text" value="${r.name}" onkeydown="handleRecipeNameKeydown(${r.id}, event)" onblur="commitRecipeName(${r.id})" onclick="event.stopPropagation()"></span>`
+          : `<span class="recipe-name" onclick="event.stopPropagation(); startEditRecipeName(${r.id})">${r.name}</span>`}
         <div class="recipe-actions">
           <button onclick="addRecipeItems(${r.id}); event.stopPropagation()">+</button>
-          <button onclick="delRecipe(${r.id}); event.stopPropagation()">✕</button>
+          <button onclick="delRecipe(${r.id}); event.stopPropagation()">Radera</button>
         </div>
       </div>
       <div class="recipe-items">
         ${(r.items || []).map((ing, idx) => `
-          <div class="recipe-ingredient">
-            <input type="checkbox">
-            <label>${ing}</label>
-            <button onclick="delRecipeItem(${r.id}, ${idx})" style="margin-left:auto;font-size:16px;padding:2px 4px;">✕</button>
-          </div>
+          ${editingRecipeIngredient?.recipeId === r.id && editingRecipeIngredient?.index === idx
+            ? `<div class="recipe-ingredient"><input type="checkbox" onmousedown="event.preventDefault(); commitRecipeIngredientDraft(${r.id}, ${idx}, !this.checked)"><input id="recipe-edit-${r.id}-${idx}" type="text" size="${Math.max(4, ing.length + 3)}" value="${ing}" onkeydown="handleRecipeIngredientKeydown(${r.id}, ${idx}, event)" onblur="commitRecipeIngredientEdit(${r.id}, ${idx})"></div>`
+            : ing.trim() ? `<div class="recipe-ingredient"><input type="checkbox" ${recipeIngredientIsChecked(ing) ? 'checked' : ''} onchange="toggleRecipeIngredient(${r.id}, this.nextElementSibling.dataset.ingredient, this.checked, this)"><label data-ingredient="${ing}" class="${recipeIngredientIsChecked(ing) ? 'done' : ''}" onclick="startEditRecipeIngredient(${r.id}, ${idx})">${ing}</label></div>` : ''}
         `).join('')}
-        <div class="recipe-add-item">
-          <input type="text" placeholder="Lägg till ingrediens..." onkeydown="saveRecipeItem(${r.id}, event)">
-          <button onclick="document.querySelector('[data-recipe-id=\\\"${r.id}\\\"] .recipe-add-item input').focus()">+</button>
-        </div>
+        ${(r.items || []).some(ingredient => ingredient.trim()) ? '' : `<div class="recipe-add-item"><input type="checkbox" onmousedown="event.preventDefault(); commitNewRecipeIngredientDraft(${r.id}, !this.checked)"><input id="new-recipe-ingredient-${r.id}" type="text" placeholder="+ Lägg till ingrediens" onkeydown="saveRecipeItem(${r.id}, event)"></div>`}
       </div>
     </div>
   `).join('');
+  const addRecipeHtml = addingNewRecipe
+    ? '<div class="new-recipe"><input id="new-recipe-input" type="text" placeholder="Nytt recept..." onkeydown="saveNewRecipe(event)" onblur="cancelAddRecipe()"></div>'
+    : '<div class="new-recipe" onclick="startAddRecipe()">+ Lägg till recept</div>';
+  el.innerHTML = addRecipeHtml + recipesHtml;
+  if (editingRecipeIngredient) {
+    const {recipeId, index} = editingRecipeIngredient;
+    setTimeout(() => focusAtEnd(document.getElementById(`recipe-edit-${recipeId}-${index}`)), 0);
+  }
 }
-
-document.addEventListener('click', e => {
-  document.querySelectorAll('.dropdown-wrapper').forEach(w => {
-    if (!w.contains(e.target)) w.classList.remove('open');
-  });
-});
-document.querySelectorAll('.dropdown-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.target.closest('.dropdown-wrapper').classList.toggle('open');
-  });
-});
 </script>
 </body>
 </html>
