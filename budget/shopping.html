@@ -89,6 +89,7 @@
     <div class="logo">Inköpslista</div>
     <div class="header-right">
       <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
+      <button class="dropdown-btn" onclick="saveTemplate()" title="Spara listans rubriker som mall">Spara mall</button>
       <div class="dropdown-wrapper">
         <button class="dropdown-btn">☰ Listor</button>
         <div class="dropdown-menu" id="lists-menu"></div>
@@ -205,13 +206,28 @@ function selectList(id) {
   renderItems();
 }
 
+function saveTemplate() {
+  const list = S.get('lists').find(entry => entry.id === activeList);
+  const headings = (list?.items || [])
+    .filter(item => item.type === 'category' && item.text.trim())
+    .map(item => item.text.trim());
+  if (!headings.length) return alert('Lägg till minst en rubrik innan du sparar mallen');
+  localStorage.setItem('sh_template_headings', JSON.stringify(headings));
+}
+
+function getTemplateItems() {
+  const headings = JSON.parse(localStorage.getItem('sh_template_headings') || '[]');
+  const timestamp = Date.now();
+  return headings.map((text, index) => ({id: timestamp + index, type: 'category', text}));
+}
+
 function createNewList() {
   const name = prompt('Listans namn:');
   if (!name) return;
   saveState();
   const lists = S.get('lists');
   const id = Math.max(...lists.map(l => l.id || 0)) + 1;
-  lists.push({id, name, createdAt: new Date().toISOString().slice(0,10), items: []});
+  lists.push({id, name, createdAt: new Date().toISOString().slice(0,10), items: getTemplateItems()});
   S.set('lists', lists);
   activeList = id;
   renderListsMenu();
@@ -533,10 +549,6 @@ function renderItems() {
   const list = lists.find(l => l.id === activeList);
   const items = list?.items || [];
   const el = document.getElementById('items-list');
-  if (!items.length && !addingNewItem && !addingNewCategory) {
-    el.innerHTML = '<div class="empty-state">Klicka för att lägga till artikel eller rubrik</div>';
-    return;
-  }
   let html = '';
   items.forEach((i, index) => {
     if (i.type === 'category') {
