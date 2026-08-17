@@ -13,19 +13,32 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px;min-height:100vh;}
     .wrap{max-width:600px;margin:0 auto;padding:16px;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;}
-    .logo{font-size:18px;font-weight:600;}
-    .header-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
-    .undo-btn{background:none;border:none;color:var(--text-sec);cursor:pointer;font-size:14px;padding:6px;transition:color .3s ease-out;}
-    .undo-btn:hover{color:var(--text);}
+    header{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+    .logo{font-size:18px;font-weight:600;cursor:pointer;}
+    .logo input{background:none;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text);font:inherit;font-size:18px;font-weight:600;padding:2px 0;width:100%;max-width:260px;cursor:text;}
+    .header-top{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:8px;}
+    .header-left{flex:0 0 auto;}
+    .header-right-top{display:flex;align-items:center;gap:6px;margin-left:auto;}
+    .logo-row{padding-top:10px;margin-top:2px;border-top:1px solid rgba(255,255,255,.05);}
+    .undo-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-sec);cursor:pointer;font-size:21px;line-height:1;padding:5px 10px;transition:all .2s ease-out;min-width:52px;}
+    .undo-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08);}
+    .home-btn{display:inline-block;background:rgba(255,255,255,.04);border:1px solid var(--border);padding:8px 10px;border-radius:var(--radius);text-decoration:none;font-size:13px;color:var(--text-sec);transition:all .2s ease-out;min-width:74px;text-align:center;}
+    .home-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08);}
     .dropdown-wrapper{position:relative;}
-    .dropdown-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-sec);transition:all .3s ease-out;}
+    .dropdown-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:8px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-sec);transition:all .2s ease-out;min-width:84px;}
     .dropdown-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08);}
+    .dropdown-btn.saved{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.55);color:#A7F3D0;}
     .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:rgba(22,30,47,.98);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,.3);min-width:180px;z-index:100;backdrop-filter:blur(10px);}
     .dropdown-wrapper.open .dropdown-menu{display:block;}
-    .dropdown-menu a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;transition:background .3s ease-out;font-size:13px;}
+    .dropdown-menu a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;transition:background .2s ease-out;color .2s ease-out;font-size:13px;}
     .dropdown-menu a:last-child{border-bottom:none;}
     .dropdown-menu a:hover{background:rgba(255,255,255,.06);color:var(--text);}
+    .dropdown-menu .list-menu-row{display:flex;align-items:center;gap:4px;border-bottom:1px solid #4a5568;}
+    .dropdown-menu .list-menu-row a{flex:1;border-bottom:none;}
+    .dropdown-menu .list-delete-btn{background:none;border:none;color:var(--text-dim);font-size:14px;line-height:1;padding:6px 8px;margin-right:4px;cursor:pointer;transition:color .14s ease-out;}
+    .dropdown-menu .list-delete-btn:hover{color:#EF4444;}
+    .dropdown-menu .menu-action{display:block;padding:8px 12px;text-decoration:none;color:var(--accent);border-bottom:1px solid #4a5568;font-size:13px;transition:background .2s ease-out,color .2s ease-out;}
+    .dropdown-menu .menu-action:hover{background:rgba(255,255,255,.06);color:#FDE68A;}
     main{display:flex;flex-direction:column;gap:2px;}
     .category-title{font-weight:600;font-size:14px;color:var(--heading);padding:5px 0;margin-top:7px;margin-bottom:2px;border-bottom:1px solid #4a5568;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
     .category-title:hover{color:var(--accent);}
@@ -33,13 +46,14 @@
     .category-title.new-category{color:var(--text-dim);cursor:pointer;padding:4px 0;}
     .category-title.new-category:hover{color:var(--accent);}
     .list-item{display:flex;align-items:center;gap:7px;padding:3px 0;border-bottom:none;font-size:13px;}
-    .list-item input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-color .12s cubic-bezier(.22,1,.36,1),background-size .16s cubic-bezier(.22,1,.36,1),border-color .12s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1);}
+    .list-item.selected-row{background:rgba(251,191,36,.1);border-radius:6px;padding:4px 6px;}
+    .list-item input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-color .08s cubic-bezier(.22,1,.36,1),background-size .08s cubic-bezier(.22,1,.36,1),border-color .08s cubic-bezier(.22,1,.36,1),transform .08s cubic-bezier(.22,1,.36,1);}
       .list-item input[type="checkbox"]:checked{background-color:transparent;background-size:12px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.3 12 13 4.5' fill='none' stroke='%23FBBF24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
       .list-item input[type="checkbox"]:active{transform:scale(.84);}
     .list-item input[type="checkbox"]:disabled{opacity:1;background-color:transparent;border:1.5px solid var(--accent);cursor:text;}
-    .list-item label{flex:0 1 auto;cursor:text;padding:2px 0;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .16s cubic-bezier(.22,1,.36,1),background-size .2s cubic-bezier(.22,1,.36,1);}
+    .list-item label{flex:0 1 auto;cursor:text;padding:2px 0;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .08s cubic-bezier(.22,1,.36,1),background-size .08s cubic-bezier(.22,1,.36,1);}
     .list-item label.done{color:var(--text-dim);background-size:100% 1px;}
-    .list-item input.edit-input{background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13px;width:auto;min-width:4ch;max-width:calc(100% - 24px);padding:2px 0;}
+    .list-item input.edit-input{background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13px;flex:1;width:100%;min-width:18ch;max-width:100%;padding:2px 0;}
     .list-item .item-actions{display:none;gap:6px;}
     .add-item-line{display:flex;align-items:center;gap:7px;padding:3px 0;color:var(--text-dim);cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
     .add-item-line:hover{color:var(--accent);}
@@ -70,34 +84,48 @@
     .recipe-add-item input::placeholder{color:var(--text-dim);}
     .recipe-add-item input:focus{border-color:transparent;}
     .recipe-ingredient{display:flex;align-items:center;gap:5px;padding:3px 0;font-size:13px;}
-    .recipe-ingredient input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-size .16s cubic-bezier(.22,1,.36,1),transform .16s cubic-bezier(.22,1,.36,1);}
+    .recipe-ingredient input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;appearance:none;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;background-position:center;background-repeat:no-repeat;background-size:0;transition:background-size .08s cubic-bezier(.22,1,.36,1),transform .08s cubic-bezier(.22,1,.36,1);}
     .recipe-ingredient input[type="checkbox"]:checked{background-size:11px 11px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5 6.3 12 13 4.5' fill='none' stroke='%23FBBF24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
     .recipe-ingredient input[type="checkbox"]:disabled{opacity:1;background-color:transparent;border:1.5px solid var(--accent);cursor:pointer;}
     .recipe-add-item input[type="checkbox"]{width:16px;height:16px;flex:none;appearance:none;opacity:1;background-color:transparent;border:1.5px solid var(--accent);border-radius:3px;cursor:pointer;}
-    .recipe-ingredient label{flex:0 1 auto;cursor:text;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .16s cubic-bezier(.22,1,.36,1),background-size .2s cubic-bezier(.22,1,.36,1);}
+    .recipe-ingredient label{flex:0 1 auto;cursor:text;background-image:linear-gradient(var(--text-dim),var(--text-dim));background-repeat:no-repeat;background-position:0 50%;background-size:0 1px;transition:color .08s cubic-bezier(.22,1,.36,1),background-size .08s cubic-bezier(.22,1,.36,1);}
     .recipe-ingredient label.done{color:var(--text-dim);background-size:100% 1px;}
-    .recipe-ingredient input[type="text"]{flex:none;width:auto;min-width:4ch;max-width:calc(100% - 24px);background:none;border:none;outline:none;color:var(--text);font:inherit;padding:2px 0;}
+    .recipe-ingredient input[type="text"]{flex:1;width:100%;min-width:18ch;max-width:100%;background:none;border:none;outline:none;color:var(--text);font:inherit;padding:2px 0;}
     .new-recipe{color:var(--text-dim);cursor:pointer;padding:4px 0;transition:color .16s cubic-bezier(.22,1,.36,1);}
     .new-recipe:hover{color:var(--accent);}
     .new-recipe input{background:none;border:none;outline:none;color:var(--text);font:inherit;width:100%;padding:2px 0;}
     .empty-state{text-align:center;padding:20px;color:var(--text-dim);font-size:13px;}
+    @media (max-width: 520px){
+      .header-top{flex-wrap:wrap;gap:8px;}
+      .header-right-top{order:3;width:100%;justify-content:space-between;margin-left:0;}
+    }
   </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">Inköpslista</div>
-    <div class="header-right">
-      <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
-      <button class="dropdown-btn" onclick="saveTemplate()" title="Spara listans rubriker som mall">Spara mall</button>
-      <div class="dropdown-wrapper">
-        <button class="dropdown-btn">☰ Listor</button>
-        <div class="dropdown-menu" id="lists-menu"></div>
+    <div class="header-top">
+      <div class="header-left">
+        <a class="home-btn" href="home.html" title="Till budgetstartsidan">Hem</a>
       </div>
-      <div class="dropdown-wrapper">
-        <button class="dropdown-btn">☰ Recept</button>
-        <div class="dropdown-menu" id="recipes-dropdown"></div>
+      <div class="header-right-top">
+        <div class="dropdown-wrapper">
+          <button class="dropdown-btn" id="mallar-btn">☰ Mallar</button>
+          <div class="dropdown-menu" id="templates-menu"></div>
+        </div>
+        <div class="dropdown-wrapper">
+          <button class="dropdown-btn">☰ Listor</button>
+          <div class="dropdown-menu" id="lists-menu"></div>
+        </div>
+        <div class="dropdown-wrapper">
+          <button class="dropdown-btn">☰ Recept</button>
+          <div class="dropdown-menu" id="recipes-dropdown"></div>
+        </div>
+        <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
       </div>
+    </div>
+    <div class="logo-row">
+      <div class="logo">Inköpslista</div>
     </div>
   </header>
 
@@ -119,6 +147,9 @@ const openRecipeIds = new Set();
 let editingItemId = null;
 let editingCategoryId = null;
 let editingRecipeId = null;
+let editingHeaderTitle = false;
+let saveTemplateFeedbackTimeout = null;
+let selectedItemIds = new Set();
 let undoHistory = [];
 const deepClone = v => JSON.parse(JSON.stringify(v));
 function focusAtEnd(element) {
@@ -153,19 +184,67 @@ function undo() {
   renderItems();
 }
 
+function toggleSelectedItem(id) {
+  if (selectedItemIds.has(id)) selectedItemIds.delete(id);
+  else selectedItemIds.add(id);
+  renderItems();
+}
+
+function isTextInputTarget(target) {
+  if (!target) return false;
+  const tag = target.tagName?.toLowerCase();
+  return tag === 'input' || tag === 'textarea' || target.isContentEditable;
+}
+
+function handleItemLabelClick(id, event) {
+  if (event?.ctrlKey || event?.metaKey) {
+    event.preventDefault();
+    toggleSelectedItem(id);
+    return;
+  }
+  startEditItem(id);
+}
+
+function handleGlobalKeydown(event) {
+  if (event.key === 'Escape' && selectedItemIds.size) {
+    selectedItemIds.clear();
+    renderItems();
+    return;
+  }
+  if (event.key !== 'Backspace' || !selectedItemIds.size || isTextInputTarget(event.target)) return;
+  event.preventDefault();
+  deleteSelectedItems();
+}
+
+function deleteSelectedItems() {
+  if (!selectedItemIds.size) return;
+  saveState();
+  const lists = S.get('lists');
+  const list = lists.find(entry => entry.id === activeList);
+  if (!list) return;
+  list.items = (list.items || []).filter(item => item.type === 'category' || !selectedItemIds.has(item.id));
+  S.set('lists', lists);
+  selectedItemIds.clear();
+  renderItems();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   localStorage.removeItem('sh_recipes');
   recipeSessionStore = [];
-  const lists = S.get('lists');
+  let lists = S.get('lists');
   if (!lists.length) {
-    S.set('lists', [{id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: []}]);
+    lists = [{id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: []}];
   }
   lists.forEach(list => {
     list.items = (list.items || []).filter(item => item.text !== '- storlek M');
   });
   S.set('lists', lists);
-  activeList = S.get('lists')[0]?.id || 1;
+  activeList = lists[0]?.id || 1;
+  renderHeaderTitle();
+  document.querySelector('.logo')?.addEventListener('click', startEditHeaderTitle);
+  document.addEventListener('keydown', handleGlobalKeydown);
   renderListsMenu();
+  renderTemplatesMenu();
   renderRecipesDropdown();
   renderItems();
   renderRecipes();
@@ -176,7 +255,8 @@ function setupDropdownHandlers() {
   document.addEventListener('click', closeDropdowns);
   document.querySelectorAll('.dropdown-btn').forEach(btn => {
     btn.addEventListener('click', e => {
-      e.target.closest('.dropdown-wrapper').classList.toggle('open');
+      const wrapper = e.target.closest('.dropdown-wrapper');
+      if (wrapper) wrapper.classList.toggle('open');
     });
   });
 }
@@ -190,8 +270,76 @@ function closeDropdowns(e) {
 function renderListsMenu() {
   const lists = S.get('lists');
   const menu = document.getElementById('lists-menu');
-  menu.innerHTML = lists.map(l => `<a href="#" onclick="selectList(${l.id}); return false;">${l.name}</a>`).join('') + 
-    '<a href="#" onclick="createNewList(); return false;">+ Ny lista</a>';
+  menu.innerHTML = lists.map(l => `
+    <div class="list-menu-row">
+      <a href="#" onclick="selectList(${l.id}); return false;">${l.name}</a>
+      <button class="list-delete-btn" onclick="deleteList(${l.id}); event.stopPropagation();" title="Radera lista">x</button>
+    </div>
+  `).join('') + '<a href="#" onclick="createNewList(); return false;">+ Ny lista</a>';
+}
+
+function getSavedTemplates() {
+  return JSON.parse(localStorage.getItem('sh_saved_templates') || '[]');
+}
+
+function getActiveTemplateId() {
+  const raw = localStorage.getItem('sh_active_template_id');
+  return raw ? Number(raw) : null;
+}
+
+function renderTemplatesMenu() {
+  const templates = getSavedTemplates();
+  const activeTemplateId = getActiveTemplateId();
+  const menu = document.getElementById('templates-menu');
+  if (!menu) return;
+  const saveAction = '<a href="#" class="menu-action" onclick="saveTemplate(); return false;">+ Spara mall</a>';
+  if (!templates.length) {
+    menu.innerHTML = saveAction + '<a href="#" onclick="return false;">Inga mallar sparade</a>';
+    return;
+  }
+  menu.innerHTML = saveAction + templates.map(template => `
+    <div class="list-menu-row">
+      <a href="#" onclick="selectTemplate(${template.id}); return false;">${template.id === activeTemplateId ? '✓ ' : ''}${template.name}</a>
+      <button class="list-delete-btn" onclick="deleteTemplate(${template.id}); event.stopPropagation();" title="Radera mall">x</button>
+    </div>
+  `).join('');
+}
+
+function renderHeaderTitle() {
+  const logo = document.querySelector('.logo');
+  if (!logo) return;
+  const savedTitle = localStorage.getItem('sh_header_title') || 'Inköpslista';
+  if (editingHeaderTitle) {
+    logo.innerHTML = `<input id="header-title-input" type="text" value="${savedTitle}" onkeydown="handleHeaderTitleKeydown(event)" onblur="saveHeaderTitle()">`;
+    setTimeout(() => focusAtEnd(document.getElementById('header-title-input')), 0);
+    return;
+  }
+  logo.textContent = savedTitle;
+  document.title = savedTitle;
+}
+
+function startEditHeaderTitle() {
+  editingHeaderTitle = true;
+  renderHeaderTitle();
+}
+
+function saveHeaderTitle() {
+  if (!editingHeaderTitle) return;
+  const input = document.getElementById('header-title-input');
+  const nextTitle = input?.value.trim() || 'Inköpslista';
+  localStorage.setItem('sh_header_title', nextTitle);
+  editingHeaderTitle = false;
+  renderHeaderTitle();
+}
+
+function handleHeaderTitleKeydown(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    saveHeaderTitle();
+  } else if (event.key === 'Escape') {
+    editingHeaderTitle = false;
+    renderHeaderTitle();
+  }
 }
 
 function renderRecipesDropdown() {
@@ -202,23 +350,74 @@ function renderRecipesDropdown() {
 
 function selectList(id) {
   activeList = id;
+  selectedItemIds.clear();
   renderListsMenu();
   renderItems();
 }
 
 function saveTemplate() {
+  const saveButton = document.getElementById('mallar-btn');
+  let name = '';
+  try {
+    name = prompt('Mallens namn:')?.trim() || '';
+  } catch (_) {
+    name = '';
+  }
+  if (!name) {
+    const stamp = new Date();
+    const datePart = stamp.toLocaleDateString('sv-SE');
+    const timePart = stamp.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'});
+    name = `Mall ${datePart} ${timePart}`;
+  }
   const list = S.get('lists').find(entry => entry.id === activeList);
   const headings = (list?.items || [])
     .filter(item => item.type === 'category' && item.text.trim())
     .map(item => item.text.trim());
   if (!headings.length) return alert('Lägg till minst en rubrik innan du sparar mallen');
-  localStorage.setItem('sh_template_headings', JSON.stringify(headings));
+  const templates = getSavedTemplates();
+  const id = Date.now();
+  templates.push({id, name: name.trim(), headings});
+  localStorage.setItem('sh_saved_templates', JSON.stringify(templates));
+  localStorage.setItem('sh_active_template_id', String(id));
+  renderTemplatesMenu();
+  if (saveButton) {
+    if (saveTemplateFeedbackTimeout) clearTimeout(saveTemplateFeedbackTimeout);
+    saveButton.classList.add('saved');
+    saveButton.textContent = '✓ Mall sparad';
+    saveTemplateFeedbackTimeout = setTimeout(() => {
+      saveButton.classList.remove('saved');
+      saveButton.textContent = '☰ Mallar';
+      saveTemplateFeedbackTimeout = null;
+    }, 1400);
+  }
 }
 
 function getTemplateItems() {
-  const headings = JSON.parse(localStorage.getItem('sh_template_headings') || '[]');
+  const templates = getSavedTemplates();
+  const activeTemplateId = getActiveTemplateId();
+  const activeTemplate = templates.find(template => template.id === activeTemplateId);
+  const headings = activeTemplate?.headings || [];
   const timestamp = Date.now();
   return headings.map((text, index) => ({id: timestamp + index, type: 'category', text}));
+}
+
+function selectTemplate(id) {
+  localStorage.setItem('sh_active_template_id', String(id));
+  renderTemplatesMenu();
+}
+
+function deleteTemplate(id) {
+  const templates = getSavedTemplates();
+  const remaining = templates.filter(template => template.id !== id);
+  localStorage.setItem('sh_saved_templates', JSON.stringify(remaining));
+  if (getActiveTemplateId() === id) {
+    if (remaining.length) {
+      localStorage.setItem('sh_active_template_id', String(remaining[0].id));
+    } else {
+      localStorage.removeItem('sh_active_template_id');
+    }
+  }
+  renderTemplatesMenu();
 }
 
 function createNewList() {
@@ -230,6 +429,22 @@ function createNewList() {
   lists.push({id, name, createdAt: new Date().toISOString().slice(0,10), items: getTemplateItems()});
   S.set('lists', lists);
   activeList = id;
+  renderListsMenu();
+  renderItems();
+}
+
+function deleteList(id) {
+  const lists = S.get('lists');
+  const target = lists.find(list => list.id === id);
+  if (!target) return;
+  if (!confirm(`Radera listan \"${target.name}\"?`)) return;
+  saveState();
+  const remaining = lists.filter(list => list.id !== id);
+  if (!remaining.length) {
+    remaining.push({id: Date.now(), name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: getTemplateItems()});
+  }
+  S.set('lists', remaining);
+  if (activeList === id) activeList = remaining[0].id;
   renderListsMenu();
   renderItems();
 }
@@ -568,14 +783,14 @@ function renderItems() {
         html += `
           <div class="list-item">
             <input type="checkbox" onmousedown="event.preventDefault(); commitItemDraft(${i.id}, !this.checked)">
-            <input type="text" id="item-edit-${i.id}" class="edit-input" size="${Math.max(4, i.text.length + 3)}" value="${i.text}" onkeydown="handleItemKeydown(${i.id}, event)" onblur="cancelEditItem(${i.id})">
+            <input type="text" id="item-edit-${i.id}" class="edit-input" value="${i.text}" onkeydown="handleItemKeydown(${i.id}, event)" onblur="cancelEditItem(${i.id})">
           </div>
         `;
       } else if (i.text.trim()) {
         html += `
-          <div class="list-item">
+          <div class="list-item ${selectedItemIds.has(i.id) ? 'selected-row' : ''}">
             <input type="checkbox" ${i.checked ? 'checked' : ''} onchange="toggleItem(${i.id}, this.checked)">
-            <label id="item-${i.id}" class="${i.checked ? 'done' : ''}" onclick="startEditItem(${i.id})">${i.text}</label>
+            <label id="item-${i.id}" class="${i.checked ? 'done' : ''}" onclick="handleItemLabelClick(${i.id}, event)">${i.text}</label>
           </div>
         `;
       }
@@ -909,7 +1124,7 @@ function renderRecipes() {
       <div class="recipe-items">
         ${(r.items || []).map((ing, idx) => `
           ${editingRecipeIngredient?.recipeId === r.id && editingRecipeIngredient?.index === idx
-            ? `<div class="recipe-ingredient"><input type="checkbox" onmousedown="event.preventDefault(); commitRecipeIngredientDraft(${r.id}, ${idx}, !this.checked)"><input id="recipe-edit-${r.id}-${idx}" type="text" size="${Math.max(4, ing.length + 3)}" value="${ing}" onkeydown="handleRecipeIngredientKeydown(${r.id}, ${idx}, event)" onblur="commitRecipeIngredientEdit(${r.id}, ${idx})"></div>`
+            ? `<div class="recipe-ingredient"><input type="checkbox" onmousedown="event.preventDefault(); commitRecipeIngredientDraft(${r.id}, ${idx}, !this.checked)"><input id="recipe-edit-${r.id}-${idx}" type="text" value="${ing}" onkeydown="handleRecipeIngredientKeydown(${r.id}, ${idx}, event)" onblur="commitRecipeIngredientEdit(${r.id}, ${idx})"></div>`
             : ing.trim() ? `<div class="recipe-ingredient"><input type="checkbox" ${recipeIngredientIsChecked(ing) ? 'checked' : ''} onchange="toggleRecipeIngredient(${r.id}, this.nextElementSibling.dataset.ingredient, this.checked, this)"><label data-ingredient="${ing}" class="${recipeIngredientIsChecked(ing) ? 'done' : ''}" onclick="startEditRecipeIngredient(${r.id}, ${idx})">${ing}</label></div>` : ''}
         `).join('')}
         ${(r.items || []).some(ingredient => ingredient.trim()) ? '' : `<div class="recipe-add-item"><input type="checkbox" onmousedown="event.preventDefault(); commitNewRecipeIngredientDraft(${r.id}, !this.checked)"><input id="new-recipe-ingredient-${r.id}" type="text" placeholder="+ Lägg till ingrediens" onkeydown="saveRecipeItem(${r.id}, event)"></div>`}
