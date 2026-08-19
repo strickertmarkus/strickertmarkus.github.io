@@ -35,10 +35,10 @@
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden;}
+    body{font-family:'Inter',sans-serif;background:#0F1219;color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden;}
 
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 90% 50% at 50% -10%, rgba(34,211,238,0.06) 0%, transparent 65%);pointer-events:none;z-index:0;}
-    .bg-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.1;}
+    body::before{display:none;}
+    .bg-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.1;display:none;}
     .bg-orb-1{width:500px;height:500px;background:var(--accent);top:-150px;left:-120px;animation:orbDrift1 22s ease-in-out infinite;}
     .bg-orb-2{width:360px;height:360px;background:var(--purple);bottom:5%;right:-100px;animation:orbDrift2 28s ease-in-out infinite;}
     @keyframes orbDrift1{0%,100%{transform:translate(0,0)} 33%{transform:translate(70px,50px)} 66%{transform:translate(-30px,80px)}}
@@ -74,20 +74,27 @@
     .main-content{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 6rem;}
 
     /* ── STATS ROW ── */
-    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:2rem;}
-    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:border-color .2s,background .2s;position:relative;overflow:hidden;cursor:default;}
-    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c-accent,var(--accent));opacity:.75;}
-    .stat-card:hover{background:var(--surface-h);border-color:rgba(255,255,255,.14);}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--bg2);border-radius:14px;padding:22px 20px;box-shadow:0 2px 12px rgba(0,0,0,.28);border:1px solid var(--border);display:flex;flex-direction:column;gap:6px;text-align:center;transition:transform .2s,box-shadow .2s;border-color:var(--border);position:relative;overflow:hidden;cursor:default;}
+    .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35);background:var(--bg2);border-color:var(--border);}
     .stat-icon{display:none;}
-    .stat-val{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1;}
-    .stat-val small{font-size:14px;font-weight:500;color:var(--text-sec);margin-left:2px;}
-    .stat-label{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;}
-    .stat-sub{font-size:11px;color:var(--text-dim);}
+    .stat-val{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1;}
+    .stat-val small{font-size:14px;font-weight:500;color:inherit;margin-left:2px;}
+    .stat-label{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+    .stat-sub{font-size:11px;color:var(--text-sec);margin-top:4px;}
+    .stat-week .stat-label{color:#0ea5c6;}
+    .stat-week .stat-val{color:var(--accent);}
+    .stat-total .stat-label{color:var(--text-sec);}
+    .stat-total .stat-val{color:var(--text);}
+    .stat-duration .stat-label{color:#ea730d;}
+    .stat-duration .stat-val{color:var(--orange);}
+    .stat-last .stat-label{color:#10b981;}
+    .stat-last .stat-val{color:var(--green);}
 
     /* ── SECTION HDR ── */
     .section-hdr{display:flex;align-items:center;justify-content:space-between;margin:2.5rem 0 1rem;}
-    .section-hdr h2{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:10px;}
-    .section-hdr h2::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;opacity:.65;display:inline-block;}
+    .section-hdr h2{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.2px;display:flex;align-items:center;gap:10px;}
+    .section-hdr h2::before{content:'';width:3px;height:16px;background:var(--accent);border-radius:2px;opacity:.75;display:inline-block;}
     .btn-sm{background:var(--accent-dim);border:1px solid var(--border-a);color:var(--accent);border-radius:var(--radius-sm);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:background .2s;font-family:'Inter',sans-serif;}
     .btn-sm:hover{background:rgba(34,211,238,.22);}
     .btn-primary{background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;font-family:'Inter',sans-serif;}
@@ -111,10 +118,10 @@
 
     /* ── GOALS ── */
     .goals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-    .goal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;transition:border-color .2s;}
-    .goal-card:hover{border-color:rgba(255,255,255,.14);}
+    .goal-card{background:var(--bg2);border-radius:14px;padding:22px 20px;box-shadow:0 2px 12px rgba(0,0,0,.28);border:1px solid var(--border);transition:transform .2s,box-shadow .2s;}
+    .goal-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35);border-color:var(--border);}
     .goal-icon{font-size:22px;margin-bottom:8px;}
-    .goal-lbl{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+    .goal-lbl{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
     .progress-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
     .progress-bar{height:100%;border-radius:3px;background:var(--accent);transition:width .6s cubic-bezier(.34,1.56,.64,1);}
     .goal-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
@@ -124,16 +131,17 @@
     .goal-card input[type="number"]{background:transparent;border:none;border-bottom:1px solid var(--border-a);color:var(--text);font-size:20px;font-weight:800;font-family:'Inter',sans-serif;width:60px;outline:none;letter-spacing:-.5px;}
     .goal-card input[type="number"]:focus{border-bottom-color:var(--accent);}
     .goal-sub{margin-top:8px;font-size:11px;color:var(--text-sec);}
-    .goal-history{margin-top:10px;max-height:120px;overflow:auto;border:1px solid var(--border);border-radius:8px;}
+    .goal-history{margin-top:10px;max-height:120px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);}
     .goal-history table{width:100%;border-collapse:collapse;font-size:11px;}
     .goal-history th,.goal-history td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;}
     .goal-history th{color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
     .goal-history tr:last-child td{border-bottom:none;}
 
     /* ── CHARTS ── */
-    .charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
-    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 14px;}
-    .chart-card h3{font-size:11px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+    .charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+    .chart-card{background:var(--bg2);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.28);border:1px solid var(--border);}
+    .chart-card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:.4px;}
+    .chart-note{margin:-8px 0 10px;font-size:11px;color:var(--text-sec);}
     .chart-area{height:200px;position:relative;}
     .bw-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
     .bw-inp-wrap{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;}
@@ -141,17 +149,21 @@
     .bw-inp-wrap label{font-size:12px;color:var(--text-sec);}
 
     /* ── PRs ── */
-    .pr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-    .pr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;transition:border-color .2s,background .2s;cursor:pointer;}
-    .pr-card:hover{border-color:var(--border-a);background:var(--accent-dim);}
-    .pr-name{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-    .pr-val{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;}
-    .pr-val span{font-size:12px;color:var(--text-dim);font-weight:500;margin-left:2px;}
+    .pr-grid{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .pr-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .pr-table th,.pr-table td{padding:8px 10px;border-bottom:1px solid var(--border);}
+    .pr-table th{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;text-align:left;background:rgba(255,255,255,.02);}
+    .pr-table td:last-child,.pr-table th:last-child{text-align:right;}
+    .pr-table tbody tr{cursor:pointer;transition:background .15s;}
+    .pr-table tbody tr:hover{background:var(--accent-dim);}
+    .pr-table tbody tr:last-child td{border-bottom:none;}
+    .pr-ex-name{font-weight:600;color:var(--text);}
+    .pr-ex-val{font-weight:700;color:var(--accent);}
 
     /* ── LOG TABLE ── */
-    .log-wrap{overflow-x:auto;}
+    .log-wrap{overflow-x:auto;background:var(--bg2);border-radius:14px;padding:8px 0;box-shadow:0 2px 12px rgba(0,0,0,.28);border:1px solid var(--border);}
     .log-table{width:100%;border-collapse:collapse;font-size:13px;}
-    .log-table th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(34,211,238,.25);text-align:left;}
+    .log-table th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;border-bottom:2px solid var(--border);text-align:left;}
     .log-table td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
     .log-table tbody tr{transition:background .15s;}
     .log-table tbody tr:hover td{background:var(--accent-dim);}
@@ -160,6 +172,7 @@
     .log-main-row:hover td{background:var(--surface-h);}
     .log-detail{display:none;background:rgba(255,255,255,.02);}
     .log-detail.show{display:table-row;}
+    .log-detail:hover td,.log-detail.show:hover td{background:transparent;}
     .log-detail-box{padding:10px 12px;font-size:12px;color:var(--text-sec);line-height:1.5;}
     .log-actions{display:flex;gap:8px;justify-content:flex-end;}
     .log-edit{background:transparent;border:1px solid var(--border);color:var(--text-sec);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;}
@@ -173,7 +186,7 @@
     /* ── MODALS ── */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9000;align-items:center;justify-content:center;padding:20px;}
     .modal-overlay.show{display:flex;}
-    .modal{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:26px 22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:slideUp .25s cubic-bezier(.16,1,.3,1);box-shadow:0 24px 64px rgba(0,0,0,.5);}
+    .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:26px 22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:slideUp .25s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 12px rgba(0,0,0,.28),0 24px 64px rgba(0,0,0,.45);}
     @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
     .modal h2{font-size:17px;font-weight:800;margin-bottom:18px;letter-spacing:-.3px;}
     .modal-close{float:right;background:var(--surface);border:1px solid var(--border);color:var(--text-sec);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
@@ -228,9 +241,18 @@
     }
 
     /* ── EXERCISE ROWS ── */
-    .ex-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
-    .ex-row{display:grid;grid-template-columns:1fr 70px 70px 75px 30px;gap:6px;align-items:center;}
+    .ex-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+    .ex-row-item{display:flex;flex-direction:column;gap:6px;}
+    .ex-row{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px 76px 30px;gap:6px;align-items:center;}
+    .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 118px 118px 30px;}
+    .ex-row-head{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+    .ex-kind-btn{background:transparent;border:1px solid var(--border);color:var(--text-sec);border-radius:999px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;line-height:1.1;}
+    .ex-kind-btn.active{background:var(--accent-dim);border-color:var(--border-a);color:var(--accent);}
     .ex-row input{padding:7px 10px;}
+    .ex-row input[type="number"]{padding-right:16px;appearance:textfield;-moz-appearance:textfield;}
+    .ex-row input[type="number"]::-webkit-outer-spin-button,
+    .ex-row input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+    .ex-row .ex-cell-hidden{display:none;}
     .ex-del{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;transition:color .15s;}
     .ex-del:hover{color:#F87171;}
 
@@ -256,7 +278,8 @@
     @media(max-width:480px){
       .goals-grid{grid-template-columns:1fr;}
       .week-grid{grid-template-columns:repeat(3,1fr);}
-      .ex-row{grid-template-columns:1fr 60px 60px 65px 28px;}
+      .ex-row{grid-template-columns:minmax(0,1fr) 62px 62px 68px 28px;}
+      .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 84px 84px 28px;}
     }
   </style>
 </head>
@@ -296,10 +319,10 @@
 
     <!-- STATS -->
     <div class="stats-row">
-      <div class="stat-card fade-in" style="--c-accent:var(--accent)"><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-label">Denna vecka</div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
-      <div class="stat-card fade-in" style="--c-accent:var(--purple)"><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-label">Totalt pass</div><div class="stat-sub">alla tider</div></div>
-      <div class="stat-card fade-in" style="--c-accent:var(--orange)"><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-label">Tid vecka</div><div class="stat-sub">summerad träningstid</div></div>
-      <div class="stat-card fade-in" style="--c-accent:var(--green)"><div class="stat-val"><span id="last-d">—</span></div><div class="stat-label">Senaste pass</div><div class="stat-sub" id="last-sub"></div></div>
+      <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
+      <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
+      <div class="stat-card stat-duration fade-in"><div class="stat-label">Tid vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
+      <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
     </div>
 
     <!-- WEEKLY PLAN -->
@@ -346,6 +369,7 @@
     <div class="charts-row fade-in">
       <div class="chart-card">
         <h3>Träningspass per vecka</h3>
+        <div class="chart-note" id="sessions-total-note">Totalt pass: 0</div>
         <div class="chart-area"><canvas id="chart-sessions"></canvas></div>
       </div>
       <div class="chart-card">
@@ -415,7 +439,7 @@
       <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="wk-vo2" placeholder="45" min="10" max="100" step="0.1"></div>
     </div>
     <div class="form-group">
-      <label>Övningar &nbsp;<span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(Namn · Set · Reps · kg)</span></label>
+      <label>Övningar &nbsp;<span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(Typ · Namn · Set/Reps/kg eller Distans/Tid)</span></label>
       <div class="ex-list" id="ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" onclick="addExRow()">+ Lägg till övning</button>
     </div>
@@ -516,12 +540,13 @@
       <input type="text" id="day-workout-type" list="type-suggestions" placeholder="Ex: Ben + Axlar">
     </div>
     <div class="form-group">
-      <label>Övningar (Namn · Set · Reps · kg)</label>
+      <label>Övningar (Typ · Namn · Set/Reps/kg eller Distans/Tid)</label>
       <div class="ex-list" id="day-workout-ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
     </div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('day-workout-modal')">Avbryt</button>
+      <button class="btn-sm" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
       <button class="btn-primary" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
   </div>
@@ -724,14 +749,95 @@ function getPlan(){return DB.get('plan')||{mon:'Bröst + Triceps',tue:'Rygg + Bi
 var DAYS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 var DAY_KEYS=['mon','tue','wed','thu','fri','sat','sun'];
 var WORKOUT_TYPES=['Bröst + Triceps','Rygg + Biceps','Ben + Axlar','Helkropp','Kondition','Överkropp','Underkropp','Stretching / Rörlighet','Vila','Övrigt'];
+var EXERCISE_KINDS=[{value:'strength',label:'Styrka'},{value:'cardio',label:'Kondition'}];
 
 function todayISO(){return new Date().toISOString().slice(0,10);}
 function weekStartISO(){var d=new Date(),day=d.getDay(),diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);return d.toISOString().slice(0,10);}
-function calcVol(wk){var v=0;(wk.exercises||[]).forEach(function(e){v+=(e.sets||0)*(e.reps||0)*(e.weight||0);});return v;}
+function normalizeExercise(ex){
+  ex=ex||{};
+  var kind=ex.kind||((ex.distance||ex.time)?'cardio':'strength');
+  if(kind==='cardio'){
+    return {kind:'cardio',name:ex.name||'',distance:+ex.distance||0,time:+ex.time||0};
+  }
+  return {kind:'strength',name:ex.name||'',sets:+ex.sets||1,reps:+ex.reps||0,weight:+ex.weight||0};
+}
+function calcVol(wk){var v=0;(wk.exercises||[]).forEach(function(ex){var e=normalizeExercise(ex);if(e.kind==='strength')v+=(e.sets||0)*(e.reps||0)*(e.weight||0);});return v;}
 function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p[1];}
 function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtSec(sec){sec=Math.max(0,Math.floor(sec||0));var m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function formatCardioTime(min){return min?min+' min':'—';}
+
+function canonicalWorkoutType(type, exercises){
+  var raw=(type||'').trim();
+  if(!raw)return 'Övrigt';
+  if(raw.length>1)return raw;
+  var map={
+    'H':'Helkropp',
+    'K':'Kondition',
+    'B':'Bröst + Triceps',
+    'R':'Rygg + Biceps',
+    'L':'Ben + Axlar',
+    'O':'Övrigt',
+    'V':'Vila',
+    'Ö':'Överkropp',
+    'U':'Underkropp',
+    'S':'Stretching / Rörlighet'
+  };
+  if(map[raw])return map[raw];
+  var onlyCardio=(exercises||[]).length>0 && (exercises||[]).every(function(ex){return normalizeExercise(ex).kind==='cardio';});
+  return onlyCardio?'Kondition':'Övrigt';
+}
+
+function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
+  var e=normalizeExercise(ex);
+  var hasExplicitSets=ex&&Object.prototype.hasOwnProperty.call(ex,'sets');
+  var hasExplicitReps=ex&&Object.prototype.hasOwnProperty.call(ex,'reps');
+  var hasExplicitWeight=ex&&Object.prototype.hasOwnProperty.call(ex,'weight');
+  var strengthCls=e.kind==='strength'?'':' ex-cell-hidden';
+  return '<div class="ex-row-head">'
+      +'<input type="hidden" class="'+prefix+'-kind" value="'+e.kind+'">'
+      +'<button class="ex-kind-btn'+(e.kind==='strength'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'strength\')">Styrka</button>'
+      +'<button class="ex-kind-btn'+(e.kind==='cardio'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'cardio\')">Kondition</button>'
+    +'</div>'
+    +'<div class="ex-row">'
+      +'<input type="text" class="'+prefix+'-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
+      +'<input type="number" class="'+prefix+'-metric1" data-role="'+(e.kind==='cardio'?'distance':'sets')+'" placeholder="'+(e.kind==='cardio'?'Distans':'Sets')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.distance||''):(hasExplicitSets?(ex.sets||''):''))+'">'
+      +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="1" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
+      +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
+      +'<button class="ex-del" type="button" onclick="'+removeHandler+'">✕</button>'
+    +'</div>';
+}
+
+function setExerciseKind(el,kind){
+  var wrap=el.closest('.inline-ex-row, .ex-row-wrap, .ex-row-item');
+  if(!wrap)return;
+  var hidden=wrap.querySelector('[class$="-kind"]');
+  if(hidden)hidden.value=kind;
+  wrap.classList.remove('is-strength','is-cardio');
+  wrap.classList.add('is-'+kind);
+  wrap.querySelectorAll('.ex-kind-btn').forEach(function(btn){btn.classList.toggle('active',btn===el);});
+  var metric1=wrap.querySelector('[class*="-metric1"]');
+  var metric2=wrap.querySelector('[class*="-metric2"]');
+  var metric3=wrap.querySelector('[class*="-metric3"]');
+  if(metric1){metric1.dataset.role=kind==='cardio'?'distance':'sets';metric1.placeholder=kind==='cardio'?'Distans':'Sets';metric1.step=kind==='cardio'?'0.1':'1';metric1.value='';}
+  if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.value='';}
+  if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');}
+  if(metric3)metric3.value='';
+}
+
+function parseExerciseRow(row,prefix){
+  var nameEl=row.querySelector('.'+prefix+'-name');
+  if(!nameEl)return null;
+  var name=nameEl.value.trim();
+  if(!name)return null;
+  var kindEl=row.querySelector('.'+prefix+'-kind');
+  var kind=kindEl?kindEl.value:'strength';
+  if(kind==='cardio'){
+    return normalizeExercise({kind:'cardio',name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0});
+  }
+  return normalizeExercise({kind:'strength',name:name,sets:+row.querySelector('.'+prefix+'-metric1').value||1,reps:+row.querySelector('.'+prefix+'-metric2').value||0,weight:+row.querySelector('.'+prefix+'-metric3').value||0});
+}
 
 function upsertVO2ForDate(date,val){
   if(!val&&val!==0)return;
@@ -898,15 +1004,9 @@ function addDayWorkoutExRow(ex){
   var list=document.getElementById('day-workout-ex-list');
   if(!list)return;
   var row=document.createElement('div');
-  row.className='ex-row';
-  row.innerHTML='<input type="text" class="dw-name" placeholder="Övning"><input type="number" class="dw-sets" placeholder="Set" min="1" max="20"><input type="number" class="dw-reps" placeholder="Reps" min="1"><input type="number" class="dw-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="this.closest(\'.ex-row\').remove()">✕</button>';
+  row.className='ex-row-item is-'+normalizeExercise(ex).kind;
+  row.innerHTML=buildExerciseEditorRowHtml('dw',ex,"this.closest('.ex-row-item').remove()");
   list.appendChild(row);
-  if(ex){
-    row.querySelector('.dw-name').value=ex.name||'';
-    row.querySelector('.dw-sets').value=ex.sets||'';
-    row.querySelector('.dw-reps').value=ex.reps||'';
-    row.querySelector('.dw-weight').value=ex.weight||'';
-  }
 }
 
 function openDayWorkoutBuilder(label,iso){
@@ -926,22 +1026,21 @@ function openDayWorkoutBuilder(label,iso){
 }
 
 function saveDayWorkoutPlan(){
+  return persistDayWorkoutPlan({startAfterSave:false});
+}
+
+function persistDayWorkoutPlan(opts){
+  opts=opts||{};
   var modal=document.getElementById('day-workout-modal');
   var date=modal.dataset.date;
-  if(!date)return;
+  if(!date)return false;
   var type=(document.getElementById('day-workout-type').value||'Övrigt').trim()||'Övrigt';
   var ex=[];
-  document.querySelectorAll('#day-workout-ex-list .ex-row').forEach(function(row){
-    var name=row.querySelector('.dw-name').value.trim();
-    if(!name)return;
-    ex.push({
-      name:name,
-      sets:+row.querySelector('.dw-sets').value||1,
-      reps:+row.querySelector('.dw-reps').value||0,
-      weight:+row.querySelector('.dw-weight').value||0
-    });
+  document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(function(row){
+    var parsed=parseExerciseRow(row,'dw');
+    if(parsed)ex.push(parsed);
   });
-  if(!ex.length){showToast('Lägg till minst en övning.');return;}
+  if(!ex.length){showToast('Lägg till minst en övning.');return false;}
   var byDate=getPlannedSessions();
   byDate[date]={type:type,exercises:ex};
   savePlannedSessions(byDate);
@@ -953,7 +1052,17 @@ function saveDayWorkoutPlan(){
   refreshTypeSuggestions();
   renderWeekGrid();
   closeModal('day-workout-modal');
-  showToast('Passupplägg sparat.');
+  showToast(opts.startAfterSave?'Passupplägg sparat. Startar pass...':'Passupplägg sparat.');
+  return true;
+}
+
+function startDayWorkoutFromBuilder(){
+  var modal=document.getElementById('day-workout-modal');
+  var date=modal.dataset.date;
+  if(!date)return;
+  var ok=persistDayWorkoutPlan({startAfterSave:true});
+  if(!ok)return;
+  startWorkoutSessionForDate(date);
 }
 
 function startWorkoutSessionForDate(iso){
@@ -967,7 +1076,12 @@ function startWorkoutSessionForDate(iso){
   sessionState={
     date:iso,
     type:planned.type||'Övrigt',
-    exercises:(planned.exercises||[]).map(function(ex){return {name:ex.name,plannedSets:+ex.sets||1,reps:+ex.reps||0,weight:+ex.weight||0};}),
+    exercises:(planned.exercises||[]).map(function(ex){
+      var norm=normalizeExercise(ex);
+      return norm.kind==='cardio'
+        ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,plannedSets:1}
+        : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0};
+    }),
     exerciseIndex:0,
     currentSet:1,
     setRunning:false,
@@ -1027,7 +1141,9 @@ function renderSessionMode(){
     var ex=sessionState.exercises[sessionState.exerciseIndex];
     var targetSets=ex.plannedSets;
     currentExEl.textContent=ex.name;
-    currentTargetEl.textContent='Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps @ '+ex.weight+' kg';
+    currentTargetEl.textContent=ex.kind==='cardio'
+      ? 'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)
+      : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps @ '+ex.weight+' kg';
 
     if(sessionState.setRunning){
       controls.className='session-cta-row';
@@ -1050,10 +1166,15 @@ function renderSessionMode(){
     logs.forEach(function(l,idx){
       var row=document.createElement('div');
       row.className='set-log-item';
-      row.innerHTML='<div class="set-tag">Set '+l.setNo+'</div>'
-        +'<input type="number" value="'+l.actualReps+'" min="0" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualReps\',this.value)">'
-        +'<input type="number" value="'+l.actualWeight+'" min="0" step=".5" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualWeight\',this.value)">'
-        +'<input type="text" value="'+fmtSec(l.durationSec)+'" readonly>';
+      row.innerHTML=ex.kind==='cardio'
+        ? '<div class="set-tag">Runda '+l.setNo+'</div>'
+          +'<input type="number" value="'+(l.actualDistance||0)+'" min="0" step="0.1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualDistance\',this.value)">'
+          +'<input type="number" value="'+(l.actualTime||0)+'" min="0" step="1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualTime\',this.value)">'
+          +'<input type="text" value="'+fmtSec(l.durationSec)+'" readonly>'
+        : '<div class="set-tag">Set '+l.setNo+'</div>'
+          +'<input type="number" value="'+l.actualReps+'" min="0" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualReps\',this.value)">'
+          +'<input type="number" value="'+l.actualWeight+'" min="0" step=".5" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualWeight\',this.value)">'
+          +'<input type="text" value="'+fmtSec(l.durationSec)+'" readonly>';
       setLog.appendChild(row);
     });
     if(!logs.length){
@@ -1067,7 +1188,7 @@ function renderSessionMode(){
     var logs=sessionState.logs[i]||[];
     var dur=logs.reduce(function(s,x){return s+(x.durationSec||0);},0);
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+ex.plannedSets+'x'+ex.reps+' @ '+ex.weight+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
+    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+(ex.kind==='cardio'?((ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)):(ex.plannedSets+'x'+ex.reps+' @ '+ex.weight))+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
     tbody.appendChild(tr);
   });
 }
@@ -1091,7 +1212,12 @@ function completeCurrentSet(){
   if(!sessionState||!sessionState.setRunning)return;
   var ex=sessionState.exercises[sessionState.exerciseIndex];
   var dur=Math.max(1,Math.round((Date.now()-sessionState.setStartedAt)/1000));
-  sessionState.logs[sessionState.exerciseIndex].push({
+  sessionState.logs[sessionState.exerciseIndex].push(ex.kind==='cardio' ? {
+    setNo:sessionState.currentSet,
+    actualDistance:ex.distance||0,
+    actualTime:ex.time||Math.round(dur/60),
+    durationSec:dur
+  } : {
     setNo:sessionState.currentSet,
     targetReps:ex.reps,
     targetWeight:ex.weight,
@@ -1149,21 +1275,26 @@ function saveSessionWorkout(){
   sessionState.exercises.forEach(function(ex,i){
     var logs=sessionState.logs[i]||[];
     if(!logs.length)return;
-    var sets=logs.length;
-    var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
-    var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
     var dur=logs.reduce(function(s,l){return s+(l.durationSec||0);},0);
-    exercises.push({name:ex.name,sets:sets,reps:reps,weight:weight});
+    if(ex.kind==='cardio'){
+      exercises.push(normalizeExercise({name:ex.name,kind:'cardio',distance:logs.reduce(function(s,l){return s+(l.actualDistance||0);},0),time:logs.reduce(function(s,l){return s+(l.actualTime||0);},0)}));
+    } else {
+      var sets=logs.length;
+      var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
+      var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
+      exercises.push(normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight}));
+    }
     exerciseTimings.push({name:ex.name,durationSec:dur});
   });
   if(!exercises.length){showToast('Inga set loggade ännu.');return;}
   var hrAvg=parseInt(document.getElementById('session-hr').value,10)||null;
   var vo2=parseFloat(document.getElementById('session-vo2').value);
   vo2=isNaN(vo2)?null:vo2;
+  var sessionType=canonicalWorkoutType(sessionState.type,sessionState.exercises);
   var wk={
     id:Date.now(),
     date:sessionState.date,
-    type:sessionState.type,
+    type:sessionType,
     exercises:exercises,
     duration:Math.round(totalSec/60),
     hrAvg:hrAvg,
@@ -1199,10 +1330,19 @@ function renderCharts(){
   var wkKeys=Object.keys(weekStats).sort().slice(-10);
   var wkLabels=wkKeys.map(function(k){return 'v'+getWeekNum(new Date(k));});
   var sessionsVals=wkKeys.map(function(k){return weekStats[k].sessions;});
-  var durationVals=wkKeys.map(function(k){return weekStats[k].duration;});
+  var avgSessions=0;
+  if(sessionsVals.length){avgSessions=sessionsVals.reduce(function(sum,val){return sum+val;},0)/sessionsVals.length;}
+  var avgVals=wkKeys.map(function(){return +avgSessions.toFixed(2);});
+  var peakVal=Math.max(0,
+    sessionsVals.length?Math.max.apply(null,sessionsVals):0,
+    avgVals.length?Math.ceil(Math.max.apply(null,avgVals)):0
+  );
+  var yMax=Math.max(4,peakVal+1);
+  var note=document.getElementById('sessions-total-note');
+  if(note)note.textContent='Totalt pass: '+wks.length;
   var sessionsCtx=document.getElementById('chart-sessions').getContext('2d');
   if(chartSessions)chartSessions.destroy();
-  chartSessions=new Chart(sessionsCtx,{type:'bar',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass',data:sessionsVals.length?sessionsVals:[0],backgroundColor:'rgba(34,211,238,.26)',borderColor:'#22D3EE',borderWidth:2,borderRadius:6,yAxisID:'y'},{label:'Tid (min)',type:'line',data:durationVals.length?durationVals:[0],borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,.18)',tension:.35,pointRadius:3,fill:true,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y1:{beginAtZero:true,position:'right',ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{drawOnChartArea:false}}}}});
+  chartSessions=new Chart(sessionsCtx,{type:'bar',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],backgroundColor:'rgba(34,211,238,.26)',borderColor:'#22D3EE',borderWidth:2,borderRadius:6,yAxisID:'y',order:2},{label:'Medel pass / vecka',type:'line',data:avgVals.length?avgVals:[0],borderColor:'#FB923C',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
   if(chartVO2)chartVO2.destroy();
   var vo2Data=(DB.get('vo2')||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);});
@@ -1239,8 +1379,10 @@ var editingPRName=null;
 function renderPRs(){
   var prs=getPRs(), grid=document.getElementById('pr-grid'), keys=Object.keys(prs);
   if(!keys.length){grid.innerHTML='<p style="color:var(--text-dim);font-size:13px;padding:10px">Inga PR:n sparade. Klicka &quot;+ Nytt PR&quot; för att börja.</p>';return;}
-  var html='';
-  keys.forEach(function(k){html+='<div class="pr-card" onclick="openEditPR(\''+escHtml(k)+'\','+prs[k]+')"><div class="pr-name">'+escHtml(k)+'</div><div class="pr-val">'+prs[k]+'<span>kg</span></div></div>';});
+  keys.sort(function(a,b){return String(a).localeCompare(String(b),'sv');});
+  var html='<table class="pr-table"><thead><tr><th>Övning</th><th>PR</th></tr></thead><tbody>';
+  keys.forEach(function(k){html+='<tr onclick="openEditPR(\''+escHtml(k)+'\','+prs[k]+')"><td class="pr-ex-name">'+escHtml(k)+'</td><td class="pr-ex-val">'+prs[k]+'</td></tr>';});
+  html+='</tbody></table>';
   grid.innerHTML=html;
 }
 function openPRModal(){editingPRName=null;document.getElementById('pr-name').value='';document.getElementById('pr-val').value='';document.getElementById('pr-del-btn').style.display='none';document.getElementById('pr-modal').classList.add('show');}
@@ -1256,6 +1398,7 @@ function renderLog(){
   empty.style.display='none';
   var html='';
   wks.forEach(function(w){
+    var typeDisp=canonicalWorkoutType(w.type,w.exercises);
     var vol=calcVol(w);
     var exNames=(w.exercises||[]).map(function(e){return e.name;}).filter(Boolean);
     var exDisp=exNames.slice(0,3).join(', ')+(exNames.length>3?' +'+(exNames.length-3):'');
@@ -1264,23 +1407,17 @@ function renderLog(){
     var hrDisp=w.hrAvg?w.hrAvg+' bpm':'—';
     var exRows='';
     (w.exercises||[]).forEach(function(e){
-      exRows+='<div class="ex-row inline-ex-row">'
-        +'<input type="text" class="in-ex-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
-        +'<input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20" value="'+(e.sets||'')+'">'
-        +'<input type="number" class="in-ex-reps" placeholder="Reps" min="1" value="'+(e.reps||'')+'">'
-        +'<input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0" value="'+(e.weight||'')+'">'
-        +'<button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button>'
-      +'</div>';
+      exRows+='<div class="inline-ex-row ex-row-item is-'+normalizeExercise(e).kind+'">'+buildExerciseEditorRowHtml('in',e,'removeInlineExercise(this)')+'</div>';
     });
-    if(!exRows)exRows='<div class="ex-row inline-ex-row"><input type="text" class="in-ex-name" placeholder="Övning"><input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20"><input type="number" class="in-ex-reps" placeholder="Reps" min="1"><input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button></div>';
-    html+='<tr class="log-main-row" onclick="toggleWorkoutDetails('+w.id+')"><td>'+fmtDate(w.date)+'</td><td><span class="log-tag">'+escHtml(w.type||'—')+'</span></td>';
+    if(!exRows)exRows='<div class="inline-ex-row ex-row-item is-strength">'+buildExerciseEditorRowHtml('in',null,'removeInlineExercise(this)')+'</div>';
+    html+='<tr class="log-main-row" onclick="toggleWorkoutDetails('+w.id+')"><td>'+fmtDate(w.date)+'</td><td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>';
     html+='<td style="font-size:12px;color:var(--text-sec)">'+escHtml(exDisp||'—')+'</td>';
     html+='<td>'+volDisp+'</td><td>'+durDisp+'</td><td>'+hrDisp+'</td>';
     html+='<td class="log-actions"><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
     html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="7"><div class="log-detail-box">';
     html+='<div class="form-row">'
       +'<div class="form-group"><label>Datum</label><input type="date" id="in-date-'+w.id+'" value="'+(w.date||'')+'"></div>'
-      +'<div class="form-group"><label>Typ</label><input type="text" id="in-type-'+w.id+'" list="type-suggestions" value="'+escHtml(w.type||'')+'" placeholder="Ex: Rygg + Triceps"></div>'
+      +'<div class="form-group"><label>Typ</label><input type="text" id="in-type-'+w.id+'" list="type-suggestions" value="'+escHtml(typeDisp||'')+'" placeholder="Ex: Rygg + Triceps"></div>'
     +'</div>';
     html+='<div class="form-row">'
       +'<div class="form-group"><label>Tid (min)</label><input type="number" id="in-dur-'+w.id+'" min="1" value="'+(w.duration||'')+'"></div>'
@@ -1295,7 +1432,7 @@ function renderLog(){
       +'<div class="form-group"><label>Löptid (min)</label><input type="number" id="in-run-min-'+w.id+'" min="0" value="'+(w.runTime||'')+'"></div>'
     +'</div>';
     html+='<div class="form-group"><label>Anteckningar</label><textarea id="in-notes-'+w.id+'" rows="2">'+escHtml(w.notes||'')+'</textarea></div>';
-    html+='<div class="form-group"><label>Övningar</label><div id="inline-ex-list-'+w.id+'">'+exRows+'</div><button class="btn-sm" type="button" onclick="addInlineExercise('+w.id+')">+ Lägg till övning</button></div>';
+    html+='<div class="form-group"><label>Övningar</label><div class="ex-list" id="inline-ex-list-'+w.id+'">'+exRows+'</div><button class="btn-sm" type="button" onclick="addInlineExercise('+w.id+')">+ Lägg till övning</button></div>';
     if((w.exerciseTimings||[]).length){
       html+='<div class="form-group"><label>Tid per övning</label><div style="display:flex;flex-direction:column;gap:4px">';
       (w.exerciseTimings||[]).forEach(function(ti){
@@ -1322,8 +1459,8 @@ function addInlineExercise(id){
   var list=document.getElementById('inline-ex-list-'+id);
   if(!list)return;
   var row=document.createElement('div');
-  row.className='ex-row inline-ex-row';
-  row.innerHTML='<input type="text" class="in-ex-name" placeholder="Övning"><input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20"><input type="number" class="in-ex-reps" placeholder="Reps" min="1"><input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button>';
+  row.className='inline-ex-row ex-row-item is-strength';
+  row.innerHTML=buildExerciseEditorRowHtml('in',null,'removeInlineExercise(this)');
   list.appendChild(row);
 }
 
@@ -1333,7 +1470,7 @@ function saveInlineWorkout(id){
   if(idx===-1)return;
   var wk=wks[idx];
   wk.date=document.getElementById('in-date-'+id).value||wk.date;
-  wk.type=document.getElementById('in-type-'+id).value||wk.type;
+  wk.type=canonicalWorkoutType(document.getElementById('in-type-'+id).value||wk.type,wk.exercises);
   wk.duration=parseInt(document.getElementById('in-dur-'+id).value)||null;
   wk.hrAvg=parseInt(document.getElementById('in-hr-'+id).value)||null;
   wk.vo2=parseFloat(document.getElementById('in-vo2-'+id).value)||null;
@@ -1344,14 +1481,8 @@ function saveInlineWorkout(id){
   var exRows=document.querySelectorAll('#inline-ex-list-'+id+' .inline-ex-row');
   var exercises=[];
   exRows.forEach(function(row){
-    var name=row.querySelector('.in-ex-name').value.trim();
-    if(!name)return;
-    exercises.push({
-      name:name,
-      sets:+row.querySelector('.in-ex-sets').value||1,
-      reps:+row.querySelector('.in-ex-reps').value||0,
-      weight:+row.querySelector('.in-ex-weight').value||0
-    });
+    var parsed=parseExerciseRow(row,'in');
+    if(parsed)exercises.push(parsed);
   });
   wk.exercises=exercises;
   wks[idx]=wk;
@@ -1382,12 +1513,8 @@ function editWorkout(id){
   var list=document.getElementById('ex-list');
   list.innerHTML='';
   (wk.exercises||[]).forEach(function(e){
-    addExRow();
+    addExRow(e);
     var row=list.lastElementChild;
-    row.querySelector('.ex-name').value=e.name||'';
-    row.querySelector('.ex-sets').value=e.sets||'';
-    row.querySelector('.ex-reps').value=e.reps||'';
-    row.querySelector('.ex-weight').value=e.weight||'';
   });
   if(!(wk.exercises||[]).length)addExRow();
 }
@@ -1407,32 +1534,29 @@ function openWorkoutModal(){
   refreshTemplateSelectors();
   document.getElementById('wk-modal').classList.add('show');
 }
-function addExRow(){
+function addExRow(ex){
   var list=document.getElementById('ex-list');
-  var row=document.createElement('div'); row.className='ex-row';
-  row.innerHTML='<input type="text" class="ex-name" placeholder="Övning"><input type="number" class="ex-sets" placeholder="Set" min="1" max="20"><input type="number" class="ex-reps" placeholder="Reps" min="1"><input type="number" class="ex-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" onclick="this.closest(\'.ex-row\').remove()">✕</button>';
+  var row=document.createElement('div'); row.className='ex-row-item is-'+normalizeExercise(ex).kind;
+  row.innerHTML=buildExerciseEditorRowHtml('ex',ex,"this.closest('.ex-row-item').remove()");
   list.appendChild(row);
   row.querySelector('.ex-name').focus();
 }
 function saveWorkout(){
   var date=document.getElementById('wk-date').value;
-  var type=document.getElementById('wk-type').value;
+  var typeRaw=document.getElementById('wk-type').value;
   var dur=parseInt(document.getElementById('wk-dur').value)||null;
   var hrAvg=parseInt(document.getElementById('wk-hr-avg').value)||null;
   var vo2=parseFloat(document.getElementById('wk-vo2').value)||null;
   var runKm=parseFloat(document.getElementById('wk-run-km').value)||0;
   var runMin=parseInt(document.getElementById('wk-run-min').value)||null;
   var notes=document.getElementById('wk-notes').value.trim();
-  var rows=document.querySelectorAll('#ex-list .ex-row');
+  var rows=document.querySelectorAll('#ex-list .ex-row-item');
   var exercises=[];
   rows.forEach(function(row){
-    var name=row.querySelector('.ex-name').value.trim();
-    if(!name)return;
-    var sets=+row.querySelector('.ex-sets').value||1;
-    var reps=+row.querySelector('.ex-reps').value||0;
-    var weight=+row.querySelector('.ex-weight').value||0;
-    exercises.push({name:name,sets:sets,reps:reps,weight:weight});
+    var parsed=parseExerciseRow(row,'ex');
+    if(parsed)exercises.push(parsed);
   });
+  var type=canonicalWorkoutType(typeRaw,exercises);
   var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes};
   var wks=getWorkouts();
   if(editingWorkoutId){
@@ -1470,17 +1594,11 @@ function refreshTemplateSelectors(){
 function saveCurrentAsTemplate(){
   var name=prompt('Namn på mallpass:', document.getElementById('wk-type').value||'Mallpass');
   if(!name)return;
-  var rows=document.querySelectorAll('#ex-list .ex-row');
+  var rows=document.querySelectorAll('#ex-list .ex-row-item');
   var exercises=[];
   rows.forEach(function(row){
-    var n=row.querySelector('.ex-name').value.trim();
-    if(!n)return;
-    exercises.push({
-      name:n,
-      sets:+row.querySelector('.ex-sets').value||1,
-      reps:+row.querySelector('.ex-reps').value||0,
-      weight:+row.querySelector('.ex-weight').value||0
-    });
+    var parsed=parseExerciseRow(row,'ex');
+    if(parsed)exercises.push(parsed);
   });
   if(!exercises.length){showToast('Lägg till minst en övning.');return;}
   var templates=getTemplates();
@@ -1506,12 +1624,7 @@ function applyTemplateToWorkout(){
   var list=document.getElementById('ex-list');
   list.innerHTML='';
   (tpl.exercises||[]).forEach(function(e){
-    addExRow();
-    var row=list.lastElementChild;
-    row.querySelector('.ex-name').value=e.name||'';
-    row.querySelector('.ex-sets').value=e.sets||'';
-    row.querySelector('.ex-reps').value=e.reps||'';
-    row.querySelector('.ex-weight').value=e.weight||'';
+    addExRow(e);
   });
   showToast('Mall inläst.');
 }
