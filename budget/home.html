@@ -156,6 +156,16 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.08);
     }
 
+    .shortcut-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .shortcut-widget .btn {
+      width: fit-content;
+    }
+
     html.dark-mode .widget { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
 
     .widget-head {
@@ -353,6 +363,16 @@
         </div>
         <div id="trip-content" class="empty">Ingen resa planerad.</div>
         <div class="tap-hint">Tryck för att öppna Familjekalender</div>
+      </article>
+
+      <article class="widget link-card shortcut-widget" id="transfer-widget" onclick="location.href='familjebudget.html?transfer=1'">
+        <div class="widget-head">
+          <div class="widget-title">Överföringar</div>
+          <div class="badge">Familjebudget</div>
+        </div>
+        <div class="next-main">Till månadens överföring</div>
+        <div class="next-sub">Öppnar Familjebudgeten och hoppar direkt till aktuell månad.</div>
+        <button class="btn" type="button" onclick="event.stopPropagation();location.href='familjebudget.html?transfer=1'">Öppna</button>
       </article>
     </div>
 

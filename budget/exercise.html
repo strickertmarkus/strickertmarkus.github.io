@@ -174,6 +174,8 @@
     .log-detail.show{display:table-row;}
     .log-detail:hover td,.log-detail.show:hover td{background:transparent;}
     .log-detail-box{padding:10px 12px;font-size:12px;color:var(--text-sec);line-height:1.5;}
+    .log-detail-box .form-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+    .log-detail-box .form-group{min-width:0;}
     .log-actions{display:flex;gap:8px;justify-content:flex-end;}
     .log-edit{background:transparent;border:1px solid var(--border);color:var(--text-sec);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;}
     .log-edit:hover{color:var(--text);border-color:var(--border-a);}
@@ -1399,10 +1401,17 @@ function renderLog(){
   var html='';
   wks.forEach(function(w){
     var typeDisp=canonicalWorkoutType(w.type,w.exercises);
+    var isCardio=(w.exercises||[]).some(function(e){return normalizeExercise(e).kind==='cardio';}) || typeDisp==='Kondition';
     var vol=calcVol(w);
+    var cardioDistance=(w.exercises||[]).reduce(function(sum,e){
+      var ex=normalizeExercise(e);
+      return sum+(ex.kind==='cardio'?(parseFloat(ex.distance)||0):0);
+    },0);
     var exNames=(w.exercises||[]).map(function(e){return e.name;}).filter(Boolean);
     var exDisp=exNames.slice(0,3).join(', ')+(exNames.length>3?' +'+(exNames.length-3):'');
-    var volDisp=vol>0?Math.round(vol).toLocaleString('sv')+' kg':'—';
+    var volDisp=isCardio
+      ? (cardioDistance>0 ? String(cardioDistance).replace(/\.0$/,'')+' km' : '—')
+      : (vol>0?Math.round(vol).toLocaleString('sv')+' kg':'—');
     var durDisp=w.duration?w.duration+' min':'—';
     var hrDisp=w.hrAvg?w.hrAvg+' bpm':'—';
     var exRows='';
@@ -1415,7 +1424,7 @@ function renderLog(){
     html+='<td>'+volDisp+'</td><td>'+durDisp+'</td><td>'+hrDisp+'</td>';
     html+='<td class="log-actions"><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
     html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="7"><div class="log-detail-box">';
-    html+='<div class="form-row">'
+    html+='<div class="form-row log-detail-row">'
       +'<div class="form-group"><label>Datum</label><input type="date" id="in-date-'+w.id+'" value="'+(w.date||'')+'"></div>'
       +'<div class="form-group"><label>Typ</label><input type="text" id="in-type-'+w.id+'" list="type-suggestions" value="'+escHtml(typeDisp||'')+'" placeholder="Ex: Rygg + Triceps"></div>'
     +'</div>';

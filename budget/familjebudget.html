@@ -365,7 +365,6 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
         <div class="month-display" id="loan-month-display" style="min-width: 150px; text-align: center; font-weight: 600;">Denna månad</div>
         <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
-        <button class="btn-export" type="button" onclick="jumpToCurrentTransferMonth()">Till månadens överföring</button>
     </div>
 
     <!-- Loan Overview -->
@@ -1216,6 +1215,10 @@ function updateParam(key, val) {
     loanParams[key] = parseFloat(val) || 0;
     saveData();
     renderAll();
+
+    if (new URLSearchParams(window.location.search).get("transfer") === "1") {
+        jumpToCurrentTransferMonth();
+    }
 }
 
 // ═══════════════════════════════════════════════════════
