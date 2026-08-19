@@ -98,14 +98,17 @@
 
     /* ── WEEK GRID ── */
     .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
-    .week-day{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;min-height:82px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .week-day{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;min-height:82px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
     .week-day.today{border-color:var(--accent);background:var(--accent-dim);}
     .week-day.done{border-color:var(--green);background:var(--green-dim);}
+    .week-day.pending{border-color:rgba(248,113,113,.38);background:rgba(248,113,113,.12);}
     .week-day:hover:not(.today):not(.done){background:var(--surface-h);border-color:rgba(255,255,255,.14);}
     .wd-name{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;}
     .wd-date{font-size:18px;font-weight:800;color:var(--text);}
     .wd-type{font-size:9px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;word-break:break-word;}
-    .wd-check{font-size:15px;margin-top:2px;}
+    .wd-status{position:absolute;top:6px;right:6px;font-size:13px;font-weight:800;line-height:1;}
+    .week-day.done .wd-status{color:#86efac;}
+    .week-day.pending .wd-status{color:#fca5a5;}
 
     /* ── GOALS ── */
     .goals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
@@ -183,12 +186,45 @@
     .form-group select option{background:var(--bg2);}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+    #day-modal .modal-footer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;justify-content:stretch;}
+    #day-modal .modal-footer button{width:100%;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;padding:9px 4px;line-height:1;white-space:nowrap;font-size:11px;letter-spacing:-.1px;margin-right:0;}
+    #day-modal .modal-footer .day-save{grid-column:auto;}
+
     .btn-danger{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:#F87171;border-radius:var(--radius-sm);padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s;margin-right:auto;}
     .btn-danger:hover{background:rgba(248,113,113,.28);}
     .week-template-save-box{position:relative;border:1px solid transparent;border-radius:10px;padding:2px;transition:background-color .35s,border-color .35s,box-shadow .35s;}
     .week-template-save-box::after{content:'OK';position:absolute;right:10px;top:50%;transform:translateY(-50%) scale(.8);font-size:11px;font-weight:800;color:#052e1a;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;}
     .week-template-save-box.saved{background:rgba(52,211,153,.25);border-color:rgba(52,211,153,.7);box-shadow:0 0 0 1px rgba(52,211,153,.35),0 8px 20px rgba(52,211,153,.18);}
     .week-template-save-box.saved::after{opacity:1;transform:translateY(-50%) scale(1);}
+    .session-overlay{padding:0;background:rgba(8,12,20,.88);backdrop-filter:blur(10px);}
+    .session-shell{width:100%;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#0d1117 0%,#121923 100%);}
+    .session-top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);}
+    .session-title{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+    .session-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;padding:14px;height:calc(100% - 66px);overflow:auto;}
+    .session-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;}
+    .session-main{display:flex;flex-direction:column;gap:12px;}
+    .session-timers{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .timer-box{background:rgba(34,211,238,.08);border:1px solid var(--border-a);border-radius:10px;padding:10px;}
+    .timer-lbl{font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;}
+    .timer-val{font-size:28px;font-weight:800;line-height:1.1;margin-top:4px;}
+    .session-nextset{font-size:13px;color:var(--text-sec);}
+    .session-cta-row{display:flex;gap:8px;flex-wrap:wrap;}
+    .session-cta{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;}
+    .session-cta.primary{background:var(--accent);color:#03131a;border-color:transparent;}
+    .session-cta.success{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.45);color:#86efac;}
+    .session-cta.warn{background:rgba(251,146,60,.18);border-color:rgba(251,146,60,.4);color:#fdba74;}
+    .session-cta:hover{filter:brightness(1.06);}
+    .session-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .session-table th,.session-table td{padding:7px;border-bottom:1px solid var(--border);text-align:left;}
+    .session-table th{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.7px;}
+    .set-log-item{display:grid;grid-template-columns:68px 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:6px;}
+    .set-log-item input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 8px;font-size:12px;}
+    .set-log-item .set-tag{font-size:11px;color:var(--text-sec);font-weight:700;}
+    .session-complete{display:none;}
+    .session-complete.show{display:block;}
+    @media(max-width:980px){
+      .session-grid{grid-template-columns:1fr;}
+    }
 
     /* ── EXERCISE ROWS ── */
     .ex-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
@@ -373,7 +409,10 @@
       <div class="form-group"><label>Löpdistans (km)</label><input type="number" id="wk-run-km" placeholder="10" step="0.1" min="0"></div>
       <div class="form-group"><label>Löptid (min)</label><input type="number" id="wk-run-min" placeholder="50" min="0"></div>
     </div>
-    <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="wk-hr-avg" placeholder="145" min="40" max="230"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="wk-hr-avg" placeholder="145" min="40" max="230"></div>
+      <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="wk-vo2" placeholder="45" min="10" max="100" step="0.1"></div>
+    </div>
     <div class="form-group">
       <label>Övningar &nbsp;<span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(Namn · Set · Reps · kg)</span></label>
       <div class="ex-list" id="ex-list"></div>
@@ -458,9 +497,76 @@
       <input type="text" id="day-modal-type" list="type-suggestions" placeholder="Ex: Rygg + Triceps">
     </div>
     <div class="modal-footer">
-      <button class="btn-sm" id="day-modal-log" style="margin-right:auto">Logga pass</button>
-      <button class="btn-ghost" onclick="closeModal('day-modal')">Avbryt</button>
-      <button class="btn-primary" onclick="saveDayType()">Spara</button>
+      <button class="btn-sm" id="day-modal-log">Logga pass</button>
+      <button class="btn-sm" id="day-modal-edit">Bygg pass</button>
+      <button class="btn-sm" id="day-modal-start">Starta pass</button>
+      <button class="btn-primary day-save" onclick="saveDayType()">Spara</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DAY WORKOUT BUILDER ── -->
+<div class="modal-overlay" id="day-workout-modal">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('day-workout-modal')">✕</button>
+    <h2 id="day-workout-title">Passupplägg</h2>
+    <div class="form-group">
+      <label>Passnamn / typ</label>
+      <input type="text" id="day-workout-type" list="type-suggestions" placeholder="Ex: Ben + Axlar">
+    </div>
+    <div class="form-group">
+      <label>Övningar (Namn · Set · Reps · kg)</label>
+      <div class="ex-list" id="day-workout-ex-list"></div>
+      <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('day-workout-modal')">Avbryt</button>
+      <button class="btn-primary" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SESSION MODE ── -->
+<div class="modal-overlay session-overlay" id="session-modal">
+  <div class="session-shell">
+    <div class="session-top">
+      <div>
+        <div class="session-title">Passläge</div>
+        <div id="session-subtitle" style="font-size:12px;color:var(--text-sec)">-</div>
+      </div>
+      <button class="session-cta" type="button" onclick="stopSessionMode(true)">Avsluta</button>
+    </div>
+    <div class="session-grid">
+      <div class="session-main session-card">
+        <div class="session-timers">
+          <div class="timer-box"><div class="timer-lbl">Passets tid</div><div class="timer-val" id="session-pass-timer">00:00</div></div>
+          <div class="timer-box"><div class="timer-lbl">Nuvarande set</div><div class="timer-val" id="session-set-timer">00:00</div></div>
+        </div>
+        <div id="session-current-ex" style="font-size:20px;font-weight:800;letter-spacing:-.4px">-</div>
+        <div class="session-nextset" id="session-current-target">-</div>
+        <div class="session-cta-row" id="session-controls"></div>
+        <div>
+          <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Loggade set (redigerbara)</div>
+          <div id="session-set-log"></div>
+        </div>
+        <div class="session-complete" id="session-complete-box">
+          <div style="font-size:14px;font-weight:700;margin-bottom:10px">Passet är klart</div>
+          <div class="form-row">
+            <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="session-hr" min="40" max="230" placeholder="145"></div>
+            <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="session-vo2" min="10" max="100" step="0.1" placeholder="45"></div>
+          </div>
+          <div class="session-cta-row">
+            <button class="session-cta success" type="button" onclick="saveSessionWorkout()">Spara pass</button>
+          </div>
+        </div>
+      </div>
+      <div class="session-card">
+        <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Översikt</div>
+        <table class="session-table">
+          <thead><tr><th>Övning</th><th>Plan</th><th>Klart</th><th>Tid</th></tr></thead>
+          <tbody id="session-plan-table"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -608,6 +714,8 @@ function getTemplates(){return DB.get('templates')||[];}
 function saveTemplates(t){DB.set('templates',t);}
 function getWeekTemplates(){return DB.get('weekTemplates')||[];}
 function saveWeekTemplates(t){DB.set('weekTemplates',t);}
+function getPlannedSessions(){return DB.get('plannedSessions')||{};}
+function savePlannedSessions(p){DB.set('plannedSessions',p);}
 // function getBW(){return DB.get('bw')||[];}
 function getPRs(){return DB.get('prs')||{};}
 function getPlan(){return DB.get('plan')||{mon:'Bröst + Triceps',tue:'Rygg + Biceps',wed:'Ben + Axlar',thu:'Kondition',fri:'Helkropp',sat:'Vila',sun:'Vila'};}
@@ -622,6 +730,18 @@ function calcVol(wk){var v=0;(wk.exercises||[]).forEach(function(e){v+=(e.sets||
 function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p[1];}
 function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtSec(sec){sec=Math.max(0,Math.floor(sec||0));var m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+
+function upsertVO2ForDate(date,val){
+  if(!val&&val!==0)return;
+  var v=parseFloat(val);
+  if(isNaN(v)||v<10||v>100)return;
+  var data=DB.get('vo2')||[];
+  var idx=data.findIndex(function(e){return e.date===date;});
+  if(idx>=0)data[idx].score=v; else data.push({date:date,score:v});
+  data.sort(function(a,b){return a.date.localeCompare(b.date);});
+  DB.set('vo2',data);
+}
 
 function getTypeSuggestions(){
   var set={};
@@ -683,10 +803,10 @@ function renderWeekGrid(){
   DAY_KEYS.forEach(function(key,i){
     var d=new Date(ws); d.setDate(ws.getDate()+i);
     var iso=d.toISOString().slice(0,10);
-    var isToday=i===dow, isDone=wks.some(function(w){return w.date===iso;});
+    var isToday=i===dow, isDone=wks.some(function(w){return w.date===iso;}), isPending=(iso<=todayISO()&&!isDone);
     var div=document.createElement('div');
-    div.className='week-day'+(isToday?' today':'')+(isDone?' done':'');
-    div.innerHTML='<div class="wd-name">'+DAYS[i]+'</div><div class="wd-date">'+d.getDate()+'</div><div class="wd-type">'+(plan[key]||'Vila')+'</div>'+(isDone?'<div class="wd-check">OK</div>':'');
+    div.className='week-day'+(isToday?' today':'')+(isDone?' done':'')+(isPending?' pending':'');
+    div.innerHTML='<div class="wd-status">'+(isDone?'✓':(isPending?'✕':''))+'</div><div class="wd-name">'+DAYS[i]+'</div><div class="wd-date">'+d.getDate()+'</div><div class="wd-type">'+(plan[key]||'Vila')+'</div>';
     (function(k,lbl,dateISO){div.addEventListener('click',function(){openDayConfig(k,lbl,dateISO);});})(key,DAYS[i],iso);
     grid.appendChild(div);
   });
@@ -748,12 +868,19 @@ function logKondition(){
 }
 var editingDayKey=null, editingDayISO=null;
 var editingWorkoutId=null;
+var sessionState=null;
+var sessionTickHandle=null;
 function openDayConfig(key,label,iso){
   editingDayKey=key; editingDayISO=iso;
   document.getElementById('day-modal-title').textContent=label;
   var plan=getPlan(), sel=document.getElementById('day-modal-type');
+  refreshTypeSuggestions();
   sel.value=plan[key]||'Vila';
   var today=todayISO(), logBtn=document.getElementById('day-modal-log');
+  var editBtn=document.getElementById('day-modal-edit');
+  var startBtn=document.getElementById('day-modal-start');
+  editBtn.onclick=function(){openDayWorkoutBuilder(label,iso);};
+  startBtn.onclick=function(){startWorkoutSessionForDate(iso);};
   if(iso<=today){
     logBtn.style.display='';
     logBtn.onclick=function(){closeModal('day-modal');var type=document.getElementById('day-modal-type').value;document.getElementById('wk-type').value=type;document.getElementById('wk-date').value=iso;openWorkoutModal();};
@@ -764,6 +891,291 @@ function saveDayType(){
   if(!editingDayKey)return;
   var plan=getPlan(); plan[editingDayKey]=document.getElementById('day-modal-type').value;
   DB.set('plan',plan); refreshTypeSuggestions(); renderWeekGrid(); closeModal('day-modal'); showToast('Dag uppdaterad.');
+}
+
+function addDayWorkoutExRow(ex){
+  var list=document.getElementById('day-workout-ex-list');
+  if(!list)return;
+  var row=document.createElement('div');
+  row.className='ex-row';
+  row.innerHTML='<input type="text" class="dw-name" placeholder="Övning"><input type="number" class="dw-sets" placeholder="Set" min="1" max="20"><input type="number" class="dw-reps" placeholder="Reps" min="1"><input type="number" class="dw-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="this.closest(\'.ex-row\').remove()">✕</button>';
+  list.appendChild(row);
+  if(ex){
+    row.querySelector('.dw-name').value=ex.name||'';
+    row.querySelector('.dw-sets').value=ex.sets||'';
+    row.querySelector('.dw-reps').value=ex.reps||'';
+    row.querySelector('.dw-weight').value=ex.weight||'';
+  }
+}
+
+function openDayWorkoutBuilder(label,iso){
+  closeModal('day-modal');
+  refreshTypeSuggestions();
+  var plan=getPlan();
+  var byDate=getPlannedSessions();
+  var p=byDate[iso]||{type:plan[editingDayKey]||'Övrigt',exercises:[]};
+  document.getElementById('day-workout-title').textContent='Passupplägg - '+label+' '+fmtDate(iso);
+  document.getElementById('day-workout-type').value=p.type||'Övrigt';
+  var list=document.getElementById('day-workout-ex-list');
+  list.innerHTML='';
+  (p.exercises||[]).forEach(function(ex){addDayWorkoutExRow(ex);});
+  if(!(p.exercises||[]).length)addDayWorkoutExRow();
+  document.getElementById('day-workout-modal').dataset.date=iso;
+  document.getElementById('day-workout-modal').classList.add('show');
+}
+
+function saveDayWorkoutPlan(){
+  var modal=document.getElementById('day-workout-modal');
+  var date=modal.dataset.date;
+  if(!date)return;
+  var type=(document.getElementById('day-workout-type').value||'Övrigt').trim()||'Övrigt';
+  var ex=[];
+  document.querySelectorAll('#day-workout-ex-list .ex-row').forEach(function(row){
+    var name=row.querySelector('.dw-name').value.trim();
+    if(!name)return;
+    ex.push({
+      name:name,
+      sets:+row.querySelector('.dw-sets').value||1,
+      reps:+row.querySelector('.dw-reps').value||0,
+      weight:+row.querySelector('.dw-weight').value||0
+    });
+  });
+  if(!ex.length){showToast('Lägg till minst en övning.');return;}
+  var byDate=getPlannedSessions();
+  byDate[date]={type:type,exercises:ex};
+  savePlannedSessions(byDate);
+  if(editingDayKey){
+    var plan=getPlan();
+    plan[editingDayKey]=type;
+    DB.set('plan',plan);
+  }
+  refreshTypeSuggestions();
+  renderWeekGrid();
+  closeModal('day-workout-modal');
+  showToast('Passupplägg sparat.');
+}
+
+function startWorkoutSessionForDate(iso){
+  var byDate=getPlannedSessions();
+  var planned=byDate[iso];
+  if(!planned||!(planned.exercises||[]).length){
+    showToast('Skapa passupplägg först.');
+    return;
+  }
+  closeModal('day-modal');
+  sessionState={
+    date:iso,
+    type:planned.type||'Övrigt',
+    exercises:(planned.exercises||[]).map(function(ex){return {name:ex.name,plannedSets:+ex.sets||1,reps:+ex.reps||0,weight:+ex.weight||0};}),
+    exerciseIndex:0,
+    currentSet:1,
+    setRunning:false,
+    setStartedAt:null,
+    passStartedAt:Date.now(),
+    awaitingDecision:false,
+    logs:[]
+  };
+  sessionState.exercises.forEach(function(){sessionState.logs.push([]);});
+  document.getElementById('session-hr').value='';
+  document.getElementById('session-vo2').value='';
+  document.getElementById('session-complete-box').classList.remove('show');
+  document.getElementById('session-modal').classList.add('show');
+  renderSessionMode();
+  startSessionTimerLoop();
+}
+
+function startSessionTimerLoop(){
+  stopSessionTimerLoop();
+  sessionTickHandle=setInterval(updateSessionTimers,1000);
+  updateSessionTimers();
+}
+
+function stopSessionTimerLoop(){
+  if(sessionTickHandle){clearInterval(sessionTickHandle);sessionTickHandle=null;}
+}
+
+function updateSessionTimers(){
+  if(!sessionState)return;
+  var passSec=(Date.now()-sessionState.passStartedAt)/1000;
+  var setSec=sessionState.setRunning?(Date.now()-sessionState.setStartedAt)/1000:0;
+  var passEl=document.getElementById('session-pass-timer');
+  var setEl=document.getElementById('session-set-timer');
+  if(passEl)passEl.textContent=fmtSec(passSec);
+  if(setEl)setEl.textContent=fmtSec(setSec);
+}
+
+function renderSessionMode(){
+  if(!sessionState)return;
+  var doneAll=sessionState.exerciseIndex>=sessionState.exercises.length;
+  var subtitle=document.getElementById('session-subtitle');
+  subtitle.textContent=fmtDate(sessionState.date)+' - '+sessionState.type;
+  var controls=document.getElementById('session-controls');
+  var currentExEl=document.getElementById('session-current-ex');
+  var currentTargetEl=document.getElementById('session-current-target');
+  var setLog=document.getElementById('session-set-log');
+  controls.innerHTML='';
+  setLog.innerHTML='';
+
+  if(doneAll){
+    currentExEl.textContent='Alla övningar klara';
+    currentTargetEl.textContent='Kontrollera puls/VO2 och spara passet.';
+    document.getElementById('session-complete-box').classList.add('show');
+  } else {
+    document.getElementById('session-complete-box').classList.remove('show');
+    var ex=sessionState.exercises[sessionState.exerciseIndex];
+    var targetSets=ex.plannedSets;
+    currentExEl.textContent=ex.name;
+    currentTargetEl.textContent='Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps @ '+ex.weight+' kg';
+
+    if(sessionState.setRunning){
+      controls.innerHTML='<button class="session-cta primary" type="button" onclick="completeCurrentSet()">Klar med set</button>';
+    } else if(sessionState.awaitingDecision){
+      var btns='';
+      if(sessionState.currentSet<targetSets){
+        btns+='<button class="session-cta primary" type="button" onclick="startNextSet()">Starta nästa set</button>';
+      }
+      btns+='<button class="session-cta warn" type="button" onclick="addExtraSet()">Extra set</button>';
+      btns+='<button class="session-cta success" type="button" onclick="finishCurrentExercise()">Övning klar</button>';
+      controls.innerHTML=btns;
+    } else {
+      controls.innerHTML='<button class="session-cta primary" type="button" onclick="startCurrentSet()">Starta set</button>';
+    }
+
+    var logs=sessionState.logs[sessionState.exerciseIndex]||[];
+    logs.forEach(function(l,idx){
+      var row=document.createElement('div');
+      row.className='set-log-item';
+      row.innerHTML='<div class="set-tag">Set '+l.setNo+'</div>'
+        +'<input type="number" value="'+l.actualReps+'" min="0" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualReps\',this.value)">'
+        +'<input type="number" value="'+l.actualWeight+'" min="0" step=".5" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualWeight\',this.value)">'
+        +'<input type="text" value="'+fmtSec(l.durationSec)+'" readonly>';
+      setLog.appendChild(row);
+    });
+    if(!logs.length){
+      setLog.innerHTML='<div style="font-size:12px;color:var(--text-dim)">Inga set loggade ännu.</div>';
+    }
+  }
+
+  var tbody=document.getElementById('session-plan-table');
+  tbody.innerHTML='';
+  sessionState.exercises.forEach(function(ex,i){
+    var logs=sessionState.logs[i]||[];
+    var dur=logs.reduce(function(s,x){return s+(x.durationSec||0);},0);
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+ex.plannedSets+'x'+ex.reps+' @ '+ex.weight+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateSetLog(exIdx,logIdx,key,val){
+  if(!sessionState||!sessionState.logs[exIdx]||!sessionState.logs[exIdx][logIdx])return;
+  var n=key==='actualWeight'?parseFloat(val):parseInt(val,10);
+  sessionState.logs[exIdx][logIdx][key]=isNaN(n)?0:n;
+}
+
+function startCurrentSet(){
+  if(!sessionState||sessionState.exerciseIndex>=sessionState.exercises.length)return;
+  if(sessionState.setRunning)return;
+  sessionState.setRunning=true;
+  sessionState.awaitingDecision=false;
+  sessionState.setStartedAt=Date.now();
+  renderSessionMode();
+}
+
+function completeCurrentSet(){
+  if(!sessionState||!sessionState.setRunning)return;
+  var ex=sessionState.exercises[sessionState.exerciseIndex];
+  var dur=Math.max(1,Math.round((Date.now()-sessionState.setStartedAt)/1000));
+  sessionState.logs[sessionState.exerciseIndex].push({
+    setNo:sessionState.currentSet,
+    targetReps:ex.reps,
+    targetWeight:ex.weight,
+    actualReps:ex.reps,
+    actualWeight:ex.weight,
+    durationSec:dur
+  });
+  sessionState.setRunning=false;
+  sessionState.setStartedAt=null;
+  sessionState.awaitingDecision=true;
+  renderSessionMode();
+}
+
+function startNextSet(){
+  if(!sessionState)return;
+  sessionState.currentSet+=1;
+  sessionState.awaitingDecision=false;
+  renderSessionMode();
+}
+
+function addExtraSet(){
+  if(!sessionState)return;
+  var ex=sessionState.exercises[sessionState.exerciseIndex];
+  ex.plannedSets+=1;
+  sessionState.currentSet+=1;
+  sessionState.awaitingDecision=false;
+  renderSessionMode();
+}
+
+function finishCurrentExercise(){
+  if(!sessionState)return;
+  sessionState.setRunning=false;
+  sessionState.setStartedAt=null;
+  sessionState.awaitingDecision=false;
+  sessionState.exerciseIndex+=1;
+  sessionState.currentSet=1;
+  renderSessionMode();
+}
+
+function stopSessionMode(confirmClose){
+  if(confirmClose&&sessionState){
+    var ok=confirm('Avsluta passläge utan att spara?');
+    if(!ok)return;
+  }
+  stopSessionTimerLoop();
+  sessionState=null;
+  closeModal('session-modal');
+}
+
+function saveSessionWorkout(){
+  if(!sessionState)return;
+  var totalSec=Math.max(60,Math.round((Date.now()-sessionState.passStartedAt)/1000));
+  var exercises=[];
+  var exerciseTimings=[];
+  sessionState.exercises.forEach(function(ex,i){
+    var logs=sessionState.logs[i]||[];
+    if(!logs.length)return;
+    var sets=logs.length;
+    var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
+    var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
+    var dur=logs.reduce(function(s,l){return s+(l.durationSec||0);},0);
+    exercises.push({name:ex.name,sets:sets,reps:reps,weight:weight});
+    exerciseTimings.push({name:ex.name,durationSec:dur});
+  });
+  if(!exercises.length){showToast('Inga set loggade ännu.');return;}
+  var hrAvg=parseInt(document.getElementById('session-hr').value,10)||null;
+  var vo2=parseFloat(document.getElementById('session-vo2').value);
+  vo2=isNaN(vo2)?null:vo2;
+  var wk={
+    id:Date.now(),
+    date:sessionState.date,
+    type:sessionState.type,
+    exercises:exercises,
+    duration:Math.round(totalSec/60),
+    hrAvg:hrAvg,
+    vo2:vo2,
+    runDistance:0,
+    runTime:null,
+    notes:'Skapad i passläge',
+    exerciseTimings:exerciseTimings
+  };
+  var wks=getWorkouts();
+  wks.push(wk);
+  saveWorkouts(wks);
+  if(vo2!==null)upsertVO2ForDate(sessionState.date,vo2);
+  refreshTypeSuggestions();
+  refreshAll();
+  stopSessionMode(false);
+  showToast('Pass sparat från passläge.');
 }
 
 // ══ CHARTS ══════════════════════════════════════════════════════
@@ -870,11 +1282,22 @@ function renderLog(){
       +'<div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="in-hr-'+w.id+'" min="40" max="230" value="'+(w.hrAvg||'')+'"></div>'
     +'</div>';
     html+='<div class="form-row">'
+      +'<div class="form-group"><label>VO2 max</label><input type="number" id="in-vo2-'+w.id+'" min="10" max="100" step="0.1" value="'+(w.vo2||'')+'"></div>'
+      +'<div class="form-group"><label>Passvolym</label><input type="text" value="'+volDisp+'" readonly></div>'
+    +'</div>';
+    html+='<div class="form-row">'
       +'<div class="form-group"><label>Löpdistans (km)</label><input type="number" id="in-run-km-'+w.id+'" step="0.1" min="0" value="'+(w.runDistance||'')+'"></div>'
       +'<div class="form-group"><label>Löptid (min)</label><input type="number" id="in-run-min-'+w.id+'" min="0" value="'+(w.runTime||'')+'"></div>'
     +'</div>';
     html+='<div class="form-group"><label>Anteckningar</label><textarea id="in-notes-'+w.id+'" rows="2">'+escHtml(w.notes||'')+'</textarea></div>';
     html+='<div class="form-group"><label>Övningar</label><div id="inline-ex-list-'+w.id+'">'+exRows+'</div><button class="btn-sm" type="button" onclick="addInlineExercise('+w.id+')">+ Lägg till övning</button></div>';
+    if((w.exerciseTimings||[]).length){
+      html+='<div class="form-group"><label>Tid per övning</label><div style="display:flex;flex-direction:column;gap:4px">';
+      (w.exerciseTimings||[]).forEach(function(ti){
+        html+='<div style="font-size:11px;color:var(--text-sec)">'+escHtml(ti.name||'Övning')+': '+fmtSec(ti.durationSec||0)+'</div>';
+      });
+      html+='</div></div>';
+    }
     html+='<div class="modal-footer"><button class="btn-primary" type="button" onclick="saveInlineWorkout('+w.id+')">Spara ändringar</button></div>';
     html+='</div></td></tr>';
   });
@@ -908,6 +1331,7 @@ function saveInlineWorkout(id){
   wk.type=document.getElementById('in-type-'+id).value||wk.type;
   wk.duration=parseInt(document.getElementById('in-dur-'+id).value)||null;
   wk.hrAvg=parseInt(document.getElementById('in-hr-'+id).value)||null;
+  wk.vo2=parseFloat(document.getElementById('in-vo2-'+id).value)||null;
   wk.runDistance=parseFloat(document.getElementById('in-run-km-'+id).value)||0;
   wk.runTime=parseInt(document.getElementById('in-run-min-'+id).value)||null;
   wk.notes=document.getElementById('in-notes-'+id).value.trim();
@@ -927,6 +1351,7 @@ function saveInlineWorkout(id){
   wk.exercises=exercises;
   wks[idx]=wk;
   saveWorkouts(wks);
+  if(wk.vo2)upsertVO2ForDate(wk.date,wk.vo2);
   refreshTypeSuggestions();
   refreshAll();
   var detail=document.getElementById('detail-'+id);
@@ -947,6 +1372,7 @@ function editWorkout(id){
   document.getElementById('wk-run-km').value=wk.runDistance||'';
   document.getElementById('wk-run-min').value=wk.runTime||'';
   document.getElementById('wk-hr-avg').value=wk.hrAvg||'';
+  document.getElementById('wk-vo2').value=wk.vo2||'';
   document.getElementById('wk-notes').value=wk.notes||'';
   var list=document.getElementById('ex-list');
   list.innerHTML='';
@@ -969,6 +1395,7 @@ function openWorkoutModal(){
   document.getElementById('wk-run-km').value='';
   document.getElementById('wk-run-min').value='';
   document.getElementById('wk-hr-avg').value='';
+  document.getElementById('wk-vo2').value='';
   document.getElementById('wk-notes').value='';
   document.getElementById('ex-list').innerHTML='';
   addExRow();
@@ -987,6 +1414,7 @@ function saveWorkout(){
   var type=document.getElementById('wk-type').value;
   var dur=parseInt(document.getElementById('wk-dur').value)||null;
   var hrAvg=parseInt(document.getElementById('wk-hr-avg').value)||null;
+  var vo2=parseFloat(document.getElementById('wk-vo2').value)||null;
   var runKm=parseFloat(document.getElementById('wk-run-km').value)||0;
   var runMin=parseInt(document.getElementById('wk-run-min').value)||null;
   var notes=document.getElementById('wk-notes').value.trim();
@@ -1000,7 +1428,7 @@ function saveWorkout(){
     var weight=+row.querySelector('.ex-weight').value||0;
     exercises.push({name:name,sets:sets,reps:reps,weight:weight});
   });
-  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,runDistance:runKm,runTime:runMin,notes:notes};
+  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes};
   var wks=getWorkouts();
   if(editingWorkoutId){
     wks=wks.map(function(x){return x.id===editingWorkoutId?wk:x;});
@@ -1008,6 +1436,7 @@ function saveWorkout(){
     wks.push(wk);
   }
   saveWorkouts(wks);
+  if(vo2)upsertVO2ForDate(date,vo2);
   editingWorkoutId=null;
   refreshTypeSuggestions();
   closeModal('wk-modal'); refreshAll(); showToast('Träning sparad.');
@@ -1189,6 +1618,16 @@ function planWeekFromTemplate(){
     added++;
   });
   saveWorkouts(wks);
+  var planned=getPlannedSessions();
+  DAY_KEYS.forEach(function(key,i){
+    var type=plan[key]||'Vila';
+    if(type==='Vila')return;
+    var d=new Date(ws); d.setDate(ws.getDate()+i);
+    var iso=d.toISOString().slice(0,10);
+    planned[iso]=planned[iso]||{type:type,exercises:[]};
+    planned[iso].type=type;
+  });
+  savePlannedSessions(planned);
   refreshTypeSuggestions();
   refreshAll();
   closeModal('template-modal');
