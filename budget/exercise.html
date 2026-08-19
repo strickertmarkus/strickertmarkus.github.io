@@ -209,6 +209,7 @@
       .charts-row{grid-template-columns:1fr;}
       .goals-grid{grid-template-columns:repeat(2,1fr);}
       .week-grid{grid-template-columns:repeat(4,1fr);}
+      .modal .form-row{grid-template-columns:1fr;}
       .main-content{padding:1.5rem 1rem 5rem;}
       .streak-badge{display:none;}
     }
@@ -802,22 +803,38 @@ function renderLog(){
     var volDisp=vol>0?Math.round(vol).toLocaleString('sv')+' kg':'—';
     var durDisp=w.duration?w.duration+' min':'—';
     var hrDisp=w.hrAvg?w.hrAvg+' bpm':'—';
-    var exCount=(w.exercises||[]).length;
+    var typeOptions=WORKOUT_TYPES.map(function(t){return '<option value="'+t+'"'+(w.type===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var exRows='';
+    (w.exercises||[]).forEach(function(e){
+      exRows+='<div class="ex-row inline-ex-row">'
+        +'<input type="text" class="in-ex-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
+        +'<input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20" value="'+(e.sets||'')+'">'
+        +'<input type="number" class="in-ex-reps" placeholder="Reps" min="1" value="'+(e.reps||'')+'">'
+        +'<input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0" value="'+(e.weight||'')+'">'
+        +'<button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button>'
+      +'</div>';
+    });
+    if(!exRows)exRows='<div class="ex-row inline-ex-row"><input type="text" class="in-ex-name" placeholder="Övning"><input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20"><input type="number" class="in-ex-reps" placeholder="Reps" min="1"><input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button></div>';
     html+='<tr class="log-main-row" onclick="toggleWorkoutDetails('+w.id+')"><td>'+fmtDate(w.date)+'</td><td><span class="log-tag">'+escHtml(w.type||'—')+'</span></td>';
     html+='<td style="font-size:12px;color:var(--text-sec)">'+escHtml(exDisp||'—')+'</td>';
     html+='<td>'+volDisp+'</td><td>'+durDisp+'</td><td>'+hrDisp+'</td>';
-    html+='<td class="log-actions"><button class="log-edit" onclick="event.stopPropagation();editWorkout('+w.id+')">Redigera</button><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
+    html+='<td class="log-actions"><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
     html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="7"><div class="log-detail-box">';
-    html+='<div><strong>Övningar:</strong> '+exCount+'</div>';
-    if(w.runDistance||w.runTime){html+='<div><strong>Löpning:</strong> '+(w.runDistance?Number(w.runDistance).toFixed(1)+' km':'-')+' · '+(w.runTime?w.runTime+' min':'-')+'</div>';}
-    if(w.notes){html+='<div><strong>Anteckningar:</strong> '+escHtml(w.notes)+'</div>';}
-    if((w.exercises||[]).length){
-      html+='<div style="margin-top:6px"><strong>Detaljer:</strong><ul style="margin:4px 0 0 18px">';
-      (w.exercises||[]).forEach(function(e){
-        html+='<li>'+escHtml(e.name||'')+' - '+(e.sets||0)+' x '+(e.reps||0)+' @ '+(e.weight||0)+' kg</li>';
-      });
-      html+='</ul></div>';
-    }
+    html+='<div class="form-row">'
+      +'<div class="form-group"><label>Datum</label><input type="date" id="in-date-'+w.id+'" value="'+(w.date||'')+'"></div>'
+      +'<div class="form-group"><label>Typ</label><select id="in-type-'+w.id+'">'+typeOptions+'</select></div>'
+    +'</div>';
+    html+='<div class="form-row">'
+      +'<div class="form-group"><label>Tid (min)</label><input type="number" id="in-dur-'+w.id+'" min="1" value="'+(w.duration||'')+'"></div>'
+      +'<div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="in-hr-'+w.id+'" min="40" max="230" value="'+(w.hrAvg||'')+'"></div>'
+    +'</div>';
+    html+='<div class="form-row">'
+      +'<div class="form-group"><label>Löpdistans (km)</label><input type="number" id="in-run-km-'+w.id+'" step="0.1" min="0" value="'+(w.runDistance||'')+'"></div>'
+      +'<div class="form-group"><label>Löptid (min)</label><input type="number" id="in-run-min-'+w.id+'" min="0" value="'+(w.runTime||'')+'"></div>'
+    +'</div>';
+    html+='<div class="form-group"><label>Anteckningar</label><textarea id="in-notes-'+w.id+'" rows="2">'+escHtml(w.notes||'')+'</textarea></div>';
+    html+='<div class="form-group"><label>Övningar</label><div id="inline-ex-list-'+w.id+'">'+exRows+'</div><button class="btn-sm" type="button" onclick="addInlineExercise('+w.id+')">+ Lägg till övning</button></div>';
+    html+='<div class="modal-footer"><button class="btn-primary" type="button" onclick="saveInlineWorkout('+w.id+')">Spara ändringar</button></div>';
     html+='</div></td></tr>';
   });
   tbody.innerHTML=html;
@@ -825,6 +842,54 @@ function renderLog(){
 function toggleWorkoutDetails(id){
   var row=document.getElementById('detail-'+id);
   if(row)row.classList.toggle('show');
+}
+
+function removeInlineExercise(btn){
+  var row=btn.closest('.inline-ex-row');
+  if(row)row.remove();
+}
+
+function addInlineExercise(id){
+  var list=document.getElementById('inline-ex-list-'+id);
+  if(!list)return;
+  var row=document.createElement('div');
+  row.className='ex-row inline-ex-row';
+  row.innerHTML='<input type="text" class="in-ex-name" placeholder="Övning"><input type="number" class="in-ex-sets" placeholder="Set" min="1" max="20"><input type="number" class="in-ex-reps" placeholder="Reps" min="1"><input type="number" class="in-ex-weight" placeholder="kg" step=".5" min="0"><button class="ex-del" type="button" onclick="removeInlineExercise(this)">✕</button>';
+  list.appendChild(row);
+}
+
+function saveInlineWorkout(id){
+  var wks=getWorkouts();
+  var idx=wks.findIndex(function(w){return w.id===id;});
+  if(idx===-1)return;
+  var wk=wks[idx];
+  wk.date=document.getElementById('in-date-'+id).value||wk.date;
+  wk.type=document.getElementById('in-type-'+id).value||wk.type;
+  wk.duration=parseInt(document.getElementById('in-dur-'+id).value)||null;
+  wk.hrAvg=parseInt(document.getElementById('in-hr-'+id).value)||null;
+  wk.runDistance=parseFloat(document.getElementById('in-run-km-'+id).value)||0;
+  wk.runTime=parseInt(document.getElementById('in-run-min-'+id).value)||null;
+  wk.notes=document.getElementById('in-notes-'+id).value.trim();
+
+  var exRows=document.querySelectorAll('#inline-ex-list-'+id+' .inline-ex-row');
+  var exercises=[];
+  exRows.forEach(function(row){
+    var name=row.querySelector('.in-ex-name').value.trim();
+    if(!name)return;
+    exercises.push({
+      name:name,
+      sets:+row.querySelector('.in-ex-sets').value||1,
+      reps:+row.querySelector('.in-ex-reps').value||0,
+      weight:+row.querySelector('.in-ex-weight').value||0
+    });
+  });
+  wk.exercises=exercises;
+  wks[idx]=wk;
+  saveWorkouts(wks);
+  refreshAll();
+  var detail=document.getElementById('detail-'+id);
+  if(detail)detail.classList.add('show');
+  showToast('Pass uppdaterat.');
 }
 function deleteWorkout(id){var wks=getWorkouts().filter(function(w){return w.id!==id;});saveWorkouts(wks);refreshAll();showToast('Pass borttaget');}
 
