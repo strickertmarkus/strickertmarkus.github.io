@@ -166,13 +166,26 @@
 
     .transfer-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 124px);
+      justify-content: start;
       gap: 8px;
       margin-top: 2px;
     }
 
     .transfer-actions .btn {
       width: 100%;
+      padding: 6px 9px;
+      font-size: 11px;
+      border-radius: 7px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
+    }
+
+    .transfer-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.14);
+      border-color: rgba(96,165,250,.55);
+      background: rgba(15,26,46,.9);
+      color: #93C5FD;
     }
 
     .transfer-popup {
@@ -241,6 +254,23 @@
       gap: 10px;
     }
 
+    .transfer-person-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .transfer-person-head {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 0 2px;
+    }
+
+    .transfer-person-head.pink { color: #F472B6; }
+    .transfer-person-head.blue { color: #60A5FA; }
+
     .transfer-mini-card {
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -250,6 +280,24 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+    }
+
+    .transfer-mini-card.pink {
+      border-color: rgba(244,114,182,.42);
+      background: linear-gradient(180deg, rgba(244,114,182,.14), rgba(255,255,255,.03));
+    }
+
+    .transfer-mini-card.blue {
+      border-color: rgba(96,165,250,.42);
+      background: linear-gradient(180deg, rgba(96,165,250,.14), rgba(255,255,255,.03));
+    }
+
+    .transfer-mini-card.pink .transfer-mini-val {
+      color: #F472B6;
+    }
+
+    .transfer-mini-card.blue .transfer-mini-val {
+      color: #60A5FA;
     }
 
     .transfer-mini-lbl {
@@ -277,6 +325,207 @@
       color: var(--text-sec);
       font-size: 13px;
       padding: 6px 2px 2px;
+    }
+
+    .month-popup {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px) scale(.98);
+      transform-origin: top left;
+      transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .shortcut-widget.month-open .month-popup {
+      max-height: 78vh;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .month-popup-shell {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
+      max-height: calc(78vh - 12px);
+      overflow-y: auto;
+    }
+
+    .month-popup-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .month-popup-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .month-popup-sub {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .month-popup-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .month-summary-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .month-expense-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .month-summary-section-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: .2px;
+    }
+
+    .month-expense-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .month-expense-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: top;
+    }
+
+    .month-expense-table tr:last-child td {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .month-expense-table .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+
+    .month-expense-table .val {
+      text-align: right;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .month-expense-table .pink {
+      color: #F472B6;
+    }
+
+    .month-expense-table .blue {
+      color: #60A5FA;
+    }
+
+    .month-expense-table .total-row td {
+      padding-top: 8px;
+      font-weight: 800;
+    }
+
+    .month-list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .month-list-table th,
+    .month-list-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: middle;
+    }
+
+    .month-list-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .month-list-table th.num,
+    .month-list-table td.num {
+      text-align: right;
+    }
+
+    .month-list-table tr:last-child td {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .month-list-table .total-row td {
+      padding-top: 8px;
+      font-weight: 800;
+    }
+
+    .month-summary-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+    }
+
+    .month-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+
+    .month-row .lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .month-row .val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .month-row.pink { border-color: rgba(244,114,182,.36); }
+    .month-row.blue { border-color: rgba(96,165,250,.36); }
+    .month-row.pink .val { color: #F472B6; }
+    .month-row.blue .val { color: #60A5FA; }
+
+    .month-summary-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     html.dark-mode .widget { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
@@ -501,6 +750,18 @@
             <div class="transfer-popup-grid" id="transfer-popup-grid"></div>
           </div>
         </div>
+        <div class="month-popup" id="month-popup" aria-hidden="true">
+          <div class="month-popup-shell">
+            <div class="month-popup-head">
+              <div>
+                <div class="month-popup-title" id="month-popup-title">-</div>
+                <div class="month-popup-sub" id="month-popup-sub">-</div>
+              </div>
+              <button class="transfer-close" id="month-close-btn" type="button" aria-label="Stäng">✕</button>
+            </div>
+            <div class="month-popup-table" id="month-popup-table"></div>
+          </div>
+        </div>
       </article>
     </div>
 
@@ -641,6 +902,33 @@ function getFamilyBudgetData() {
   return parseJSON(localStorage.getItem('familjebudget_data'), null);
 }
 
+function getBudgetTotalIncome(storageKey) {
+  var data = parseJSON(localStorage.getItem(storageKey), null);
+  if (!data || !Array.isArray(data.sections)) return 0;
+  return data.sections.reduce(function(total, section){
+    if (!(section && (section.isIncome || section.key === 'income'))) return total;
+    return total + (section.items || []).reduce(function(sectionTotal, item){
+      return sectionTotal + Number(item.actual || item.budget || 0);
+    }, 0);
+  }, 0);
+}
+
+function getFamilyIncomes() {
+  var markus = getBudgetTotalIncome('budgetTracker');
+  var maja = getBudgetTotalIncome('budgetTracker_maja');
+  if (!markus && !maja) {
+    return { markus: 38813, maja: 0 };
+  }
+  return { markus: markus, maja: maja };
+}
+
+function renderMoneyRows(items, toneClass) {
+  return items.map(function(item){
+    var name = String(item.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return '<tr><td>' + name + '</td><td class="num ' + (toneClass || '') + '">' + fmtKr(item.amount) + '</td></tr>';
+  }).join('');
+}
+
 function getCurrentMonthTransfer() {
   var data = getFamilyBudgetData();
   var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
@@ -678,15 +966,27 @@ function renderTransferPopup() {
   title.textContent = row.month + ' ' + row.year;
   sub.textContent = 'Husutgifter: ' + fmtKr(row.husutgifter) + ' · ICA-kort: ' + fmtKr(row.ica);
 
-  var cards = [
-    { label: 'Maja → huskonto', value: row.huskontoMaja },
-    { label: 'Maja → ICA-kort', value: row.icaMaja },
-    { label: 'Markus → huskonto', value: row.huskontoMarkus },
-    { label: 'Markus → ICA-kort', value: row.icaMarkus }
-  ];
-
-  grid.innerHTML = cards.map(function(card){
-    return '<div class="transfer-mini-card"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div><div class="transfer-mini-hint">Klicka Mån. utgifter för att öppna familjesidan</div></div>';
+  grid.innerHTML = [
+    {
+      name: 'Maja',
+      tone: 'pink',
+      cards: [
+        { label: 'ICA-kort', value: row.icaMaja },
+        { label: 'Huskonto', value: row.huskontoMaja }
+      ]
+    },
+    {
+      name: 'Markus',
+      tone: 'blue',
+      cards: [
+        { label: 'ICA-kort', value: row.icaMarkus },
+        { label: 'Huskonto', value: row.huskontoMarkus }
+      ]
+    }
+  ].map(function(person){
+    return '<div class="transfer-person-col"><div class="transfer-person-head ' + person.tone + '">' + person.name + '</div>' + person.cards.map(function(card){
+      return '<div class="transfer-mini-card ' + person.tone + '"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div><div class="transfer-mini-hint">Automatiskt från aktuell månad</div></div>';
+    }).join('') + '</div>';
   }).join('');
 }
 
@@ -698,6 +998,67 @@ function toggleTransferPopup(forceOpen) {
   widget.classList.toggle('open', shouldOpen);
   popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
   if (shouldOpen) renderTransferPopup();
+}
+
+function renderMonthPopup() {
+  var title = document.getElementById('month-popup-title');
+  var sub = document.getElementById('month-popup-sub');
+  var table = document.getElementById('month-popup-table');
+
+  if (!title || !sub || !table) return;
+
+  var familyData = getFamilyBudgetData() || {};
+  var incomes = getFamilyIncomes();
+  var expenses = Array.isArray(familyData.expenses) ? familyData.expenses : [];
+  var huskonto = Array.isArray(familyData.huskonto) ? familyData.huskonto : [];
+
+  title.textContent = 'Mån. utgifter';
+  sub.textContent = 'Kompakt familjeöversikt för aktuell månad.';
+
+  table.innerHTML = ''
+    + '<div class="month-summary-grid">'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Nettoinkomst</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + '<tr><td><span style="color:#60A5FA;font-weight:700">Markus nettolön</span></td><td class="num" style="color:#60A5FA;font-weight:800">' + fmtKr(incomes.markus) + '</td></tr>'
+            + '<tr><td><span style="color:#F472B6;font-weight:700">Majas nettolön</span></td><td class="num" style="color:#F472B6;font-weight:800">' + fmtKr(incomes.maja) + '</td></tr>'
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(incomes.markus + incomes.maja) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Gemensamma utgifter Ica Kort</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + (expenses.length ? renderMoneyRows(expenses) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga utgifter registrerade</td></tr>')
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(expenses.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Gemensamma Utgifter Huskonto</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + (huskonto.length ? renderMoneyRows(huskonto) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga poster registrerade</td></tr>')
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(huskonto.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+    + '</div>';
+}
+
+function toggleMonthPopup(forceOpen) {
+  var widget = document.getElementById('transfer-widget');
+  var popup = document.getElementById('month-popup');
+  if (!widget || !popup) return;
+  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('month-open');
+  widget.classList.toggle('month-open', shouldOpen);
+  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  if (shouldOpen) renderMonthPopup();
 }
 
 function toISODate(d) {
@@ -852,10 +1213,14 @@ window.addEventListener('DOMContentLoaded', function(){
     transferOpenBtn.addEventListener('click', function(){ toggleTransferPopup(); });
   }
   if (transferMonthBtn) {
-    transferMonthBtn.addEventListener('click', function(){ location.href = 'familjebudget.html?income=1'; });
+    transferMonthBtn.addEventListener('click', function(){ toggleMonthPopup(); });
   }
   if (transferCloseBtn) {
     transferCloseBtn.addEventListener('click', function(){ toggleTransferPopup(false); });
+  }
+  var monthCloseBtn = document.getElementById('month-close-btn');
+  if (monthCloseBtn) {
+    monthCloseBtn.addEventListener('click', function(){ toggleMonthPopup(false); });
   }
 
   renderAllWidgets();
