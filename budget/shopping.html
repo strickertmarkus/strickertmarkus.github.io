@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inköpslista</title>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="indexeddb-fallback.js"></script>
+  <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -276,6 +280,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderItems();
   renderRecipes();
   setupDropdownHandlers();
+});
+
+window.addEventListener('firebase-sync', function(event) {
+  var key = event.detail && event.detail.key;
+  if (key && key.indexOf('sh_') === 0) {
+    location.reload();
+  }
 });
 
 function setupDropdownHandlers() {

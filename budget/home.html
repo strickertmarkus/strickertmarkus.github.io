@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Familia Strickert Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="indexeddb-fallback.js"></script>
+  <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1192,6 +1196,16 @@ window.addEventListener('storage', renderAllWidgets);
 window.addEventListener('focus', renderAllWidgets);
 document.addEventListener('visibilitychange', function(){
   if (!document.hidden) renderAllWidgets();
+});
+window.addEventListener('firebase-sync', function(event){
+  var key = event.detail && event.detail.key;
+  if (!key) return;
+  if (key.indexOf('sh_') === 0 || key.indexOf('cal_') === 0 || key === 'familjebudget_data' || key === 'budgetTracker' || key === 'budgetTracker_maja') {
+    renderAllWidgets();
+    var widget = document.getElementById('transfer-widget');
+    if (widget && widget.classList.contains('open')) renderTransferPopup();
+    if (widget && widget.classList.contains('month-open')) renderMonthPopup();
+  }
 });
 
 window.addEventListener('DOMContentLoaded', function(){

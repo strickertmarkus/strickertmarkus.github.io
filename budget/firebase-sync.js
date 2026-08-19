@@ -39,7 +39,23 @@ const SYNC_KEYS = [
   "savingsGoals",
   "savingsGoals_maja",
   "familjebudget_data",
-  "darkMode"
+  "darkMode",
+  "sh_lists",
+  "sh_saved_templates",
+  "sh_active_template_id",
+  "sh_header_title",
+  "cal_events",
+  "cal_todos",
+  "cal_notif",
+  "cal_trip",
+  "ex_wk",
+  "ex_goals",
+  "ex_templates",
+  "ex_weekTemplates",
+  "ex_plannedSessions",
+  "ex_prs",
+  "ex_plan",
+  "ex_vo2"
 ];
 
 /** Safe write to localStorage (won't throw even if blocked on iOS) */
