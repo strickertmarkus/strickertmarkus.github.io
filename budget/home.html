@@ -160,10 +160,123 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .shortcut-widget .btn {
-      width: fit-content;
+    .transfer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .transfer-actions .btn {
+      width: 100%;
+    }
+
+    .transfer-popup {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px) scale(.98);
+      transform-origin: top left;
+      transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .shortcut-widget.open .transfer-popup {
+      max-height: 420px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .transfer-popup-shell {
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .transfer-popup-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .transfer-popup-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .transfer-popup-sub {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .transfer-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text-sec);
+      cursor: pointer;
+      line-height: 1;
+      font-size: 16px;
+      flex: 0 0 auto;
+    }
+
+    .transfer-popup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .transfer-mini-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+      min-height: 86px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .transfer-mini-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+
+    .transfer-mini-val {
+      margin-top: 6px;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .transfer-mini-hint {
+      font-size: 11px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .transfer-empty {
+      color: var(--text-sec);
+      font-size: 13px;
+      padding: 6px 2px 2px;
     }
 
     html.dark-mode .widget { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
@@ -365,14 +478,29 @@
         <div class="tap-hint">Tryck för att öppna Familjekalender</div>
       </article>
 
-      <article class="widget link-card shortcut-widget" id="transfer-widget" onclick="location.href='familjebudget.html?transfer=1'">
+      <article class="widget shortcut-widget" id="transfer-widget">
         <div class="widget-head">
           <div class="widget-title">Överföringar</div>
           <div class="badge">Familjebudget</div>
         </div>
-        <div class="next-main">Till månadens överföring</div>
-        <div class="next-sub">Öppnar Familjebudgeten och hoppar direkt till aktuell månad.</div>
-        <button class="btn" type="button" onclick="event.stopPropagation();location.href='familjebudget.html?transfer=1'">Öppna</button>
+        <div class="next-main">Månadens överföringar</div>
+        <div class="next-sub">Visa transferbeloppen för aktuell månad eller gå direkt till familjesidan.</div>
+        <div class="transfer-actions">
+          <button class="btn" id="transfer-open-btn" type="button">Överföringar</button>
+          <button class="btn" id="transfer-month-btn" type="button">Mån. utgifter</button>
+        </div>
+        <div class="transfer-popup" id="transfer-popup" aria-hidden="true">
+          <div class="transfer-popup-shell">
+            <div class="transfer-popup-head">
+              <div>
+                <div class="transfer-popup-title" id="transfer-popup-title">-</div>
+                <div class="transfer-popup-sub" id="transfer-popup-sub">-</div>
+              </div>
+              <button class="transfer-close" id="transfer-close-btn" type="button" aria-label="Stäng">✕</button>
+            </div>
+            <div class="transfer-popup-grid" id="transfer-popup-grid"></div>
+          </div>
+        </div>
       </article>
     </div>
 
@@ -507,6 +635,69 @@ function getCalendarEvents() {
 
 function getTrip() {
   return parseJSON(localStorage.getItem('cal_trip'), null);
+}
+
+function getFamilyBudgetData() {
+  return parseJSON(localStorage.getItem('familjebudget_data'), null);
+}
+
+function getCurrentMonthTransfer() {
+  var data = getFamilyBudgetData();
+  var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
+  if (!transfers.length) return null;
+
+  var now = new Date();
+  var monthNames = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  var currentMonthName = monthNames[now.getMonth()];
+  var currentYear = now.getFullYear();
+  return transfers.find(function(row){
+    return row && row.month === currentMonthName && row.year === currentYear;
+  }) || null;
+}
+
+function fmtKr(value) {
+  var number = Number(value || 0);
+  return number.toLocaleString('sv-SE') + ' kr';
+}
+
+function renderTransferPopup() {
+  var row = getCurrentMonthTransfer();
+  var title = document.getElementById('transfer-popup-title');
+  var sub = document.getElementById('transfer-popup-sub');
+  var grid = document.getElementById('transfer-popup-grid');
+
+  if (!title || !sub || !grid) return;
+
+  if (!row) {
+    title.textContent = 'Ingen överföring hittades';
+    sub.textContent = 'Det finns ingen sparad rad för aktuell månad ännu.';
+    grid.innerHTML = '<div class="transfer-empty">Öppna Familjebudgeten och lägg till månadsraden först.</div>';
+    return;
+  }
+
+  title.textContent = row.month + ' ' + row.year;
+  sub.textContent = 'Husutgifter: ' + fmtKr(row.husutgifter) + ' · ICA-kort: ' + fmtKr(row.ica);
+
+  var cards = [
+    { label: 'Maja → huskonto', value: row.huskontoMaja },
+    { label: 'Maja → ICA-kort', value: row.icaMaja },
+    { label: 'Markus → huskonto', value: row.huskontoMarkus },
+    { label: 'Markus → ICA-kort', value: row.icaMarkus }
+  ];
+
+  grid.innerHTML = cards.map(function(card){
+    return '<div class="transfer-mini-card"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div><div class="transfer-mini-hint">Klicka Mån. utgifter för att öppna familjesidan</div></div>';
+  }).join('');
+}
+
+function toggleTransferPopup(forceOpen) {
+  var widget = document.getElementById('transfer-widget');
+  var popup = document.getElementById('transfer-popup');
+  if (!widget || !popup) return;
+  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('open');
+  widget.classList.toggle('open', shouldOpen);
+  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  if (shouldOpen) renderTransferPopup();
 }
 
 function toISODate(d) {
@@ -645,6 +836,10 @@ document.addEventListener('visibilitychange', function(){
 window.addEventListener('DOMContentLoaded', function(){
   var addBtn = document.getElementById('shopping-add-btn');
   var addInput = document.getElementById('shopping-add-input');
+  var transferOpenBtn = document.getElementById('transfer-open-btn');
+  var transferMonthBtn = document.getElementById('transfer-month-btn');
+  var transferCloseBtn = document.getElementById('transfer-close-btn');
+
   addBtn.addEventListener('click', addShoppingItemFromHome);
   addInput.addEventListener('keydown', function(e){
     if (e.key === 'Enter') {
@@ -652,6 +847,16 @@ window.addEventListener('DOMContentLoaded', function(){
       addShoppingItemFromHome();
     }
   });
+
+  if (transferOpenBtn) {
+    transferOpenBtn.addEventListener('click', function(){ toggleTransferPopup(); });
+  }
+  if (transferMonthBtn) {
+    transferMonthBtn.addEventListener('click', function(){ location.href = 'familjebudget.html?income=1'; });
+  }
+  if (transferCloseBtn) {
+    transferCloseBtn.addEventListener('click', function(){ toggleTransferPopup(false); });
+  }
 
   renderAllWidgets();
   setInterval(renderAllWidgets, 60000);

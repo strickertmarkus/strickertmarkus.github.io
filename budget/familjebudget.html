@@ -284,8 +284,8 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .btn-icon:hover { background: rgba(255,255,255,0.25); }
 
 /* ── NAV DROPDOWN ───────────────────────────────── */
-.nav-dropdown-wrapper { position: relative; display: inline-block; }
-.nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; overflow: hidden; animation: dropIn 0.2s ease; }
+.nav-dropdown-wrapper { position: relative; display: inline-block; z-index: 4000; }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); min-width: 220px; z-index: 5000; overflow: hidden; animation: dropIn 0.2s ease; }
 .nav-dropdown-menu.show { display: block; }
 @keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
@@ -1099,6 +1099,22 @@ function toggleSection(id) {
     saveSectionState(id, body.classList.contains("open"));
 }
 
+function getCurrentTransferIndex() {
+    const now = new Date();
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const currentMonthName = monthNames[now.getMonth()];
+    const currentYear = now.getFullYear();
+    return transfers.findIndex(t => t.year === currentYear && t.month === currentMonthName);
+}
+
+function openCurrentMonthTransfer() {
+    const idx = getCurrentTransferIndex();
+    if (idx === -1) return false;
+    currentTransferIdx = idx;
+    currentLoanMonthIdx = idx;
+    return true;
+}
+
 function saveSectionState(id, isOpen) {
     const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
     sectionStates[id] = isOpen;
@@ -1374,17 +1390,12 @@ function renderTransferTable() {
 }
 
 function jumpToCurrentTransferMonth() {
-    const now = new Date();
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const currentMonthName = monthNames[now.getMonth()];
-    const currentYear = now.getFullYear();
-    const idx = transfers.findIndex(t => t.year === currentYear && t.month === currentMonthName);
+    const idx = getCurrentTransferIndex();
     if (idx === -1) {
         showToast('Ingen överföringsrad för aktuell månad hittades.');
         return;
     }
-    currentTransferIdx = idx;
-    currentLoanMonthIdx = idx;
+    openCurrentMonthTransfer();
     if (typeof sectionStates !== 'undefined') {
         sectionStates.transfers = true;
         localStorage.setItem('familjebudget_section_states', JSON.stringify(sectionStates));
@@ -2336,6 +2347,8 @@ function renderAll() {
 // ═══════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", function() {
     applyMonthlyHeaderImage();
+    const queryParams = new URLSearchParams(window.location.search);
+    const openIncomeFromHome = queryParams.get("income") === "1";
     const darkPref = localStorage.getItem("darkMode");
     if (darkPref === null || darkPref === "enabled") {
         document.documentElement.classList.add("dark-mode");
@@ -2367,6 +2380,12 @@ document.addEventListener("DOMContentLoaded", function() {
             customInput.style.display = this.value === "custom" ? "block" : "none";
         });
     }
+
+    if (openIncomeFromHome) {
+        const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
+        sectionStates.income = true;
+        localStorage.setItem("familjebudget_section_states", JSON.stringify(sectionStates));
+    }
     
     loadData();
     loadSectionStates();  // Restore section open/closed states
@@ -2375,6 +2394,10 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Try to sync with selected month from budget pages
     syncWithBudgetMonth();
+
+    if (openIncomeFromHome) {
+        openCurrentMonthTransfer();
+    }
     
     renderAll();
     
