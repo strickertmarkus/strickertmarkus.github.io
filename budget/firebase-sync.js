@@ -11,6 +11,8 @@
  */
 
 let firebaseInitialized = false;
+let authReady = false;
+let authUser = null;
 let db = null;
 let syncEnabled = true;
 const syncQueue = {};
@@ -23,7 +25,7 @@ console.log('[Firebase] firebase-sync.js v9 loaded');
 const _realSetItem = localStorage.setItem.bind(localStorage);
 const _realGetItem = localStorage.getItem.bind(localStorage);
 
-const firebaseConfig = {
+const firebaseConfig = window.FIREBASE_CONFIG || {
   apiKey: "AIzaSyCgGL762gcglRpix4-akfP7NydFj5ChxfM",
   authDomain: "frick-budget.firebaseapp.com",
   projectId: "frick-budget",
@@ -77,19 +79,58 @@ async function initFirebaseSync() {
         setTimeout(() => { clearInterval(iv); reject(new Error('SDK timeout')); }, 5000);
       });
     }
-    const app = firebase.initializeApp(firebaseConfig);
-    db = firebase.database(app);
-    firebaseInitialized = true;
-    console.log('[Firebase] ✓ Connected to Realtime Database');
+    const app = (firebase.apps && firebase.apps.length)
+      ? firebase.app()
+      : firebase.initializeApp(firebaseConfig);
 
-    await loadAllFromFirebase();
-    setupRealtimeListeners();
-    startRemotePolling();
-    startLocalPolling();
+    if (firebase.auth && !authReady) {
+      const auth = firebase.auth(app);
+      try {
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      } catch (error) {
+        console.warn('[Firebase] Auth persistence fallback:', error.message);
+      }
+      auth.onAuthStateChanged((user) => {
+        authUser = user || null;
+        authReady = true;
+        if (user && !firebaseInitialized) {
+          bootstrapFirebaseSync(app);
+        }
+      });
+      if (!auth.currentUser) {
+        console.log('[Firebase] Waiting for auth user before starting sync');
+        return;
+      }
+      authUser = auth.currentUser;
+      authReady = true;
+    }
+
+    bootstrapFirebaseSync(app);
   } catch (error) {
     console.warn('[Firebase] ✗ Failed to initialize:', error.message);
     syncEnabled = false;
   }
+}
+
+async function bootstrapFirebaseSync(app) {
+  if (firebaseInitialized) return;
+  db = firebase.database(app);
+  firebaseInitialized = true;
+  console.log('[Firebase] ✓ Connected to Realtime Database');
+
+  if (!authUser && firebase.auth && firebase.auth(app).currentUser) {
+    authUser = firebase.auth(app).currentUser;
+  }
+
+  if (!authUser && firebase.auth) {
+    console.log('[Firebase] Sync paused until login');
+    return;
+  }
+
+  await loadAllFromFirebase();
+  setupRealtimeListeners();
+  startRemotePolling();
+  startLocalPolling();
 }
 
 /**
