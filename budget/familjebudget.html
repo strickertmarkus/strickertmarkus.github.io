@@ -102,7 +102,19 @@ html.dark-mode .transfer-card { background: rgba(255,255,255,0.04); border-color
     background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
     color: white; padding: 28px 24px 20px; text-align: center; position: relative;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
 }
+.header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--header-month-image, none);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.22;
+    pointer-events: none;
+}
+.header > * { position: relative; z-index: 1; }
 .header h1 { font-size: clamp(18px, 4vw, 28px); font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
 .header p { font-size: 13px; opacity: 0.8; font-weight: 400; }
 
@@ -353,6 +365,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
         <div class="month-display" id="loan-month-display" style="min-width: 150px; text-align: center; font-weight: 600;">Denna månad</div>
         <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
+        <button class="btn-export" type="button" onclick="jumpToCurrentTransferMonth()">Till månadens överföring</button>
     </div>
 
     <!-- Loan Overview -->
@@ -1342,7 +1355,7 @@ function renderTransferTable() {
         const icaMaja = Math.round(t.ica * t.majaAndel);
         const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
         const icaMarkus = Math.round(t.ica * t.markusAndel);
-        return `<tr style="${isCurrent ? 'background:var(--accent-bg);font-weight:600' : ''}">
+        return `<tr id="transfer-row-${i}" style="${isCurrent ? 'background:var(--accent-bg);font-weight:600' : ''}">
             <td>${t.month} ${t.year}</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'husutgifter','number')" style="cursor:pointer">${fmt(t.husutgifter)}</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'ica','number')" style="cursor:pointer">${fmt(t.ica)}</td>
@@ -1355,6 +1368,43 @@ function renderTransferTable() {
             <td style="text-align:center"><span class="checklist-delete" onclick="deleteTransfer(${i})" style="cursor:pointer">✕</span></td>
         </tr>`;
     }).join("");
+}
+
+function jumpToCurrentTransferMonth() {
+    const now = new Date();
+    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const currentMonthName = monthNames[now.getMonth()];
+    const currentYear = now.getFullYear();
+    const idx = transfers.findIndex(t => t.year === currentYear && t.month === currentMonthName);
+    if (idx === -1) {
+        showToast('Ingen överföringsrad för aktuell månad hittades.');
+        return;
+    }
+    currentTransferIdx = idx;
+    currentLoanMonthIdx = idx;
+    if (typeof sectionStates !== 'undefined') {
+        sectionStates.transfers = true;
+        localStorage.setItem('familjebudget_section_states', JSON.stringify(sectionStates));
+    }
+    renderTransferDetail();
+    renderTransferTable();
+    const body = document.getElementById('section-transfers');
+    const chev = document.getElementById('chevron-transfers');
+    if (body) body.classList.add('open');
+    if (chev) chev.classList.add('open');
+    const row = document.getElementById('transfer-row-' + idx);
+    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function applyMonthlyHeaderImage() {
+    const monthIndex = new Date().getMonth() + 1;
+    const monthKey = String(monthIndex).padStart(2, '0');
+    const candidates = [
+        'url("img/header/month-' + monthKey + '.jpg")',
+        'url("img/header/' + monthKey + '.jpg")',
+        'url("img/header/' + monthKey + '.png")'
+    ];
+    document.documentElement.style.setProperty('--header-month-image', candidates.join(','));
 }
 
 function startEditCell(cell, idx, field, type) {
@@ -2282,6 +2332,7 @@ function renderAll() {
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", function() {
+    applyMonthlyHeaderImage();
     const darkPref = localStorage.getItem("darkMode");
     if (darkPref === null || darkPref === "enabled") {
         document.documentElement.classList.add("dark-mode");

@@ -18,7 +18,7 @@
     .logo input{background:none;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text);font:inherit;font-size:18px;font-weight:600;padding:2px 0;width:100%;max-width:260px;cursor:text;}
     .header-top{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:8px;}
     .header-left{flex:0 0 auto;}
-    .header-right-top{display:flex;align-items:center;gap:6px;margin-left:auto;}
+    .header-right-top{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
     .logo-row{padding-top:10px;margin-top:2px;border-top:1px solid rgba(255,255,255,.05);}
     .undo-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-sec);cursor:pointer;font-size:21px;line-height:1;padding:5px 10px;transition:all .2s ease-out;min-width:52px;}
     .undo-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08);}
@@ -39,6 +39,10 @@
     .dropdown-menu .list-delete-btn:hover{color:#EF4444;}
     .dropdown-menu .menu-action{display:block;padding:8px 12px;text-decoration:none;color:var(--accent);border-bottom:1px solid #4a5568;font-size:13px;transition:background .2s ease-out,color .2s ease-out;}
     .dropdown-menu .menu-action:hover{background:rgba(255,255,255,.06);color:#FDE68A;}
+    .nav-dropdown-menu a{display:flex;align-items:center;gap:10px;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;font-size:13px;transition:background .2s ease-out,color .2s ease-out;white-space:nowrap;}
+    .nav-dropdown-menu a:last-child{border-bottom:none;}
+    .nav-dropdown-menu a:hover{background:rgba(255,255,255,.06);color:var(--text);}
+    .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
     main{display:flex;flex-direction:column;gap:2px;}
     .category-title{font-weight:600;font-size:14px;color:var(--heading);padding:5px 0;margin-top:7px;margin-bottom:2px;border-bottom:1px solid #4a5568;cursor:pointer;transition:color .16s cubic-bezier(.22,1,.36,1);}
     .category-title:hover{color:var(--accent);}
@@ -97,7 +101,13 @@
     .empty-state{text-align:center;padding:20px;color:var(--text-dim);font-size:13px;}
     @media (max-width: 520px){
       .header-top{flex-wrap:wrap;gap:8px;}
-      .header-right-top{order:3;width:100%;justify-content:space-between;margin-left:0;}
+      .header-right-top{order:3;width:100%;justify-content:stretch;margin-left:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+      .header-right-top .dropdown-wrapper,
+      .header-right-top .undo-btn{width:100%;}
+      .header-right-top .dropdown-btn,
+      .header-right-top .undo-btn{width:100%;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;padding:8px 6px;}
+      .header-left{width:100%;}
+      .home-btn{width:100%;}
     }
   </style>
 </head>
@@ -120,6 +130,23 @@
         <div class="dropdown-wrapper">
           <button class="dropdown-btn">☰ Recept</button>
           <div class="dropdown-menu" id="recipes-dropdown"></div>
+        </div>
+        <div class="dropdown-wrapper">
+          <button class="dropdown-btn">☰ Sidor</button>
+          <div class="dropdown-menu nav-dropdown-menu" id="nav-menu">
+            <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+            <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+            <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+            <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+            <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+            <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+            <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+            <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+            <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+            <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+            <a href="mila.html"><span class="nav-icon">👶🏻</span> Milas Milstolpar</a>
+            <a href="melker.html"><span class="nav-icon">👶🏻</span> Melkers Milstolpar</a>
+          </div>
         </div>
         <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
       </div>

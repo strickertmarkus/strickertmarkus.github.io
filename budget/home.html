@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" class="dark-mode">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,20 +12,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #F0F2F5;
-      --card: #FFFFFF;
-      --text: #1A1A2E;
-      --text-sec: #6B7280;
-      --border: #E5E7EB;
-      --accent: #3B6DE0;
-      --accent-bg: #EFF6FF;
-      --warning: #F59E0B;
-      --warning-bg: #FFF7ED;
-      --danger: #DC2626;
-      --ok: #10B981;
-    }
-
-    html.dark-mode {
       --bg: #0F1219;
       --card: #1A1F2E;
       --text: #E2E8F0;
@@ -70,9 +56,31 @@
       margin-bottom: 4px;
     }
 
-    .header p {
-      font-size: 13px;
-      opacity: .85;
+    .header-meta {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      font-size:13px;
+      opacity:.9;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .header-time {
+      font-weight:800;
+      letter-spacing:.5px;
+      color:#FBBF24;
+      text-shadow:0 2px 10px rgba(251,191,36,.18);
+    }
+
+    .header-date {
+      color:#93C5FD;
+      font-weight:600;
+    }
+
+    .header-dot {
+      opacity:.45;
     }
 
     .nav-dropdown-wrapper { position: absolute; top: 16px; right: 16px; }
@@ -248,7 +256,7 @@
 
     .shopping-item {
       display: grid;
-      grid-template-columns: 20px 1fr;
+      grid-template-columns: 20px 1fr 22px;
       align-items: center;
       gap: 8px;
       padding: 7px 4px;
@@ -270,6 +278,18 @@
       color: var(--text-sec);
     }
 
+    .shopping-del {
+      border:none;
+      background:transparent;
+      color:var(--text-sec);
+      font-size:14px;
+      cursor:pointer;
+      line-height:1;
+      opacity:.55;
+    }
+
+    .shopping-del:hover { color: var(--danger); opacity: 1; }
+
     .empty {
       color: var(--text-sec);
       font-size: 13px;
@@ -289,8 +309,8 @@
 </head>
 <body>
 <div class="header">
-  <h1>Familia Strickert</h1>
-  <p>Startsida med live-widgets</p>
+  <h1>Familjen Frick Strickert</h1>
+  <div class="header-meta"><span class="header-time" id="clock-time">00:00</span><span class="header-dot">•</span><span class="header-date" id="clock-date">-</span></div>
 
   <div class="nav-dropdown-wrapper">
     <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
@@ -356,11 +376,6 @@
 </div>
 
 <script>
-(function applyThemeFromStorage(){
-  var dark = localStorage.getItem('darkMode') === 'true';
-  if (dark) document.documentElement.classList.add('dark-mode');
-})();
-
 function toggleNavMenu() {
   document.getElementById('nav-menu').classList.toggle('show');
 }
@@ -431,6 +446,14 @@ function toggleShoppingItem(id, checked) {
   saveShoppingLists(lists);
 }
 
+function deleteShoppingItem(id) {
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  list.items = (list.items || []).filter(function(it){ return !(it && it.id === id); });
+  saveShoppingLists(lists);
+  renderShoppingWidget();
+}
+
 function renderShoppingWidget() {
   var list = getCurrentShoppingList();
   var items = getVisibleShoppingItems(list);
@@ -453,6 +476,7 @@ function renderShoppingWidget() {
     return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
       '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
       '<span class="txt">' + safe + '</span>' +
+      '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
       '</li>';
   }).join('');
 }
@@ -575,7 +599,18 @@ function renderTripWidget() {
                    '<div class="trip-countdown"><span class="trip-days">' + (days > 0 ? days : 0) + '</span><span class="trip-label">' + daysLabel + '</span></div>';
 }
 
+function renderClockWidget() {
+  var now = new Date();
+  var time = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  var date = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  var timeEl = document.getElementById('clock-time');
+  var dateEl = document.getElementById('clock-date');
+  if (timeEl) timeEl.textContent = time;
+  if (dateEl) dateEl.textContent = date.charAt(0).toUpperCase() + date.slice(1);
+}
+
 function renderAllWidgets() {
+  renderClockWidget();
   renderShoppingWidget();
   renderNextEventWidget();
   renderTripWidget();
@@ -599,7 +634,7 @@ window.addEventListener('DOMContentLoaded', function(){
   });
 
   renderAllWidgets();
-  setInterval(renderTripWidget, 60000);
+  setInterval(renderAllWidgets, 60000);
 });
 </script>
 </body>
