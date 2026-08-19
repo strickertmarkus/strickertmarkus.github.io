@@ -3,331 +3,604 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Familia Strickert</title>
+  <title>Familia Strickert Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #080D18;
-      --bg2: #0D1625;
-      --bg3: #162030;
-      --border: rgba(255,255,255,0.07);
-      --text: #E2EEFF;
-      --text-sec: #6B82A0;
-      --text-dim: #2E4060;
-      --radius: 12px;
+      --bg: #F0F2F5;
+      --card: #FFFFFF;
+      --text: #1A1A2E;
+      --text-sec: #6B7280;
+      --border: #E5E7EB;
+      --accent: #3B6DE0;
+      --accent-bg: #EFF6FF;
+      --warning: #F59E0B;
+      --warning-bg: #FFF7ED;
+      --danger: #DC2626;
+      --ok: #10B981;
     }
-    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 40% at 50% -5%, rgba(96,165,250,0.08) 0%, transparent 60%); pointer-events: none; z-index: 0; }
-    .bg-orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(90px); opacity: .09; }
-    .bg-orb-1 { width: 600px; height: 600px; background: #3B6DE0; top: -200px; left: -150px; animation: orbFloat1 25s ease-in-out infinite; }
-    .bg-orb-2 { width: 400px; height: 400px; background: #818CF8; bottom: 0; right: -100px; animation: orbFloat2 30s ease-in-out infinite; }
-    .bg-orb-3 { width: 280px; height: 280px; background: #FBBF24; top: 40%; left: 68%; animation: orbFloat3 20s ease-in-out infinite; }
-    @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(60px,40px)} 66%{transform:translate(-20px,70px)} }
-    @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 40%{transform:translate(-50px,-30px)} 70%{transform:translate(30px,-60px)} }
-    @keyframes orbFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
-    .content { position: relative; z-index: 1; }
 
-    /* ── HEADER ── */
-    .site-header { text-align: center; padding: 48px 24px 22px; }
-    .site-logo { font-size: 40px; margin-bottom: 10px; display: block; animation: logoFloat 4s ease-in-out infinite; }
-    @keyframes logoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-    .site-title { font-size: 25px; font-weight: 800; letter-spacing: -0.8px; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px; display: block; }
-    .site-sub { font-size: 13px; color: var(--text-sec); display: block; }
-    [contenteditable] { cursor: text; outline: none; border-radius: 4px; transition: background .2s; }
-    [contenteditable]:hover { background: rgba(255,255,255,0.04); }
-    [contenteditable]:focus { background: rgba(255,255,255,0.08); }
-    .editable-wrap { position: relative; display: inline-block; }
-    .edit-hint { position: absolute; top: 50%; right: -20px; transform: translateY(-50%); font-size: 11px; opacity: 0; transition: opacity .2s; color: var(--text-dim); pointer-events: none; }
-    .editable-wrap:hover .edit-hint { opacity: 0.7; }
+    html.dark-mode {
+      --bg: #0F1219;
+      --card: #1A1F2E;
+      --text: #E2E8F0;
+      --text-sec: #94A3B8;
+      --border: #2A3041;
+      --accent: #60A5FA;
+      --accent-bg: #0F1A2E;
+      --warning: #FBBF24;
+      --warning-bg: #1F1008;
+      --danger: #F87171;
+      --ok: #34D399;
+    }
 
-    /* ── CATEGORY MODAL ── */
-    .category-modal { position: fixed; inset: 0; background: rgba(8,13,24,.95); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; z-index: 100; }
-    .category-modal.active { opacity: 1; pointer-events: auto; animation: backdropIn .3s ease-out forwards; }
-    .category-modal-content { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 80px 16px 40px; z-index: 101; display: flex; flex-direction: column; align-items: center; }
-    .category-modal-header { position: fixed; top: 0; left: 0; right: 0; padding: 16px 24px; background: linear-gradient(180deg, rgba(8,13,24,.98) 0%, rgba(8,13,24,.8) 100%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; z-index: 102; animation: slideDown .25s ease-out; }
-    .category-modal-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #E2EEFF 0%, #60A5FA 52%, #818CF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .category-modal-close { cursor: pointer; font-size: 24px; color: var(--text-sec); transition: color .2s; }
-    .category-modal-close:hover { color: var(--text); }
-    .modal-menu-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; max-width: 800px; animation: modalExpand .35s cubic-bezier(.34,1.56,.64,1); }
-    .modal-menu-group .menu-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px !important; background: rgba(255,255,255,.04) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; transition: all .2s; }
-    .modal-menu-group .menu-item:hover { background: rgba(255,255,255,.08) !important; transform: translateY(-4px); }
-    .modal-menu-group .mi-icon { font-size: 0; margin-bottom: 0; }
-    .modal-menu-group .mi-body { text-align: center; }
-    .modal-menu-group .mi-name { font-size: 14px; font-weight: 700 !important; }
-    .modal-menu-group .mi-desc { font-size: 12px; color: var(--text-sec); margin-top: 4px; }
-    .modal-menu-group .mi-chev { display: none; }
-    @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes modalExpand { from { opacity: 0; transform: scale(.85) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .3s ease, color .3s ease;
+    }
 
-    /* ── MENU LAYOUT ── */
-    .main { max-width: 680px; margin: 0 auto; padding: 8px 16px 60px; }
-    .menu-section { margin-bottom: 18px; display: none; }
-    .menu-label { font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-    .menu-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.07), transparent); }
-    .menu-group { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
-    .menu-item { display: flex; align-items: center; gap: 13px; text-decoration: none; color: var(--text); padding: 11px 14px; background: rgba(13,22,37,0.55); transition: background .18s; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-    .menu-item:last-child { border-bottom: none; }
-    .menu-item:hover { background: rgba(255,255,255,0.05); }
-    .menu-item:active { background: rgba(255,255,255,0.09); }
-    .mi-icon { font-size: 18px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--c-icon, rgba(96,165,250,0.12)); border-radius: 8px; flex-shrink: 0; }
-    .mi-body { flex: 1; min-width: 0; }
-    .mi-name { font-size: 14px; font-weight: 600; line-height: 1.2; }
-    .mi-desc { font-size: 11px; color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .mi-chev { font-size: 18px; color: var(--text-dim); transition: transform .2s, color .2s; flex-shrink: 0; }
-    .menu-item:hover .mi-chev { color: var(--c-accent, var(--text-sec)); transform: translateX(3px); }
-    @keyframes ripple-kf { to { transform: scale(5); opacity: 0; } }
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
+      color: #fff;
+      padding: 28px 24px 20px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 480px) {
-      .site-header { padding: 36px 16px 18px; }
-      .site-title { font-size: 21px; }
-      .main { padding: 6px 10px 50px; }
-      .mi-name { font-size: 13px; }
-      .mi-desc { font-size: 10px; }
+    html.dark-mode .header {
+      background: linear-gradient(135deg, #0B0F1A 0%, #151C2C 100%);
+      box-shadow: 0 4px 30px rgba(0,0,0,.5);
+    }
+
+    .header h1 {
+      font-size: clamp(18px, 4vw, 28px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      opacity: .85;
+    }
+
+    .nav-dropdown-wrapper { position: absolute; top: 16px; right: 16px; }
+    .nav-btn {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15);
+      min-width: 230px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    .nav-dropdown-menu.show { display: block; }
+    .nav-dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-dropdown-menu a:hover { background: var(--accent-bg); }
+    .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+    .nav-sep { border-top: 1px solid var(--border); margin: 4px 0; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .col { display: grid; gap: 16px; }
+
+    .widget {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+      transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+    .widget.link-card { cursor: pointer; }
+    .widget.link-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+
+    html.dark-mode .widget { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+
+    .widget-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .widget-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-weight: 700;
+      color: var(--text-sec);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .next-main {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .next-sub {
+      color: var(--text-sec);
+      font-size: 13px;
+    }
+
+    .trip-countdown {
+      margin: 10px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .trip-days {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--warning);
+    }
+
+    .trip-label {
+      font-size: 13px;
+      color: var(--text-sec);
+      font-weight: 600;
+    }
+
+    .shopping-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .shopping-input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    .shopping-input:focus { border-color: var(--accent); }
+
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .shopping-list {
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      max-height: 440px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .shopping-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .shopping-item:last-child { border-bottom: none; }
+
+    .shopping-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ok);
+      cursor: pointer;
+    }
+
+    .shopping-item.done .txt {
+      text-decoration: line-through;
+      color: var(--text-sec);
+    }
+
+    .empty {
+      color: var(--text-sec);
+      font-size: 13px;
+      padding: 6px 2px;
+    }
+
+    .tap-hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-sec);
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-<div class="bg-orb bg-orb-1"></div>
-<div class="bg-orb bg-orb-2"></div>
-<div class="bg-orb bg-orb-3"></div>
-<div class="content">
+<div class="header">
+  <h1>Familia Strickert</h1>
+  <p>Startsida med live-widgets</p>
 
-<header class="site-header">
-  <span class="site-logo">🏡</span>
-  <div class="editable-wrap">
-    <span class="site-title" id="site-title" contenteditable="true" spellcheck="false">Strickert Familjen</span>
-    <span class="edit-hint">✏️</span>
-  </div>
-  <br>
-  <div class="editable-wrap">
-    <span class="site-sub" id="site-sub" contenteditable="true" spellcheck="false">Välkommen — välj en sida</span>
-    <span class="edit-hint">✏️</span>
-  </div>
-</header>
-
-<main class="main">
-
-  <!-- Category Hub -->
-  <div class="category-hub" style="margin-bottom: 32px;">
-    <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; width: 100%;">
-      
-      <!-- Economy -->
-      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(59,109,224,.15) 0%, rgba(59,109,224,.08) 100%); border: 2px solid rgba(59,109,224,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(59,109,224,.1);" onclick="openCategory('menu-ekonomi','Ekonomi','#3B6DE0','rgba(59,109,224,.18)')" onmouseover="this.style.borderColor='rgba(59,109,224,.5)'; this.style.background='linear-gradient(135deg, rgba(59,109,224,.2) 0%, rgba(59,109,224,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(59,109,224,.2)'" onmouseout="this.style.borderColor='rgba(59,109,224,.3)'; this.style.background='linear-gradient(135deg, rgba(59,109,224,.15) 0%, rgba(59,109,224,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(59,109,224,.1)'">
-        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #3B6DE0 0%, #60A5FA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ek</span>
-        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Ekonomi</span>
-        <span style="font-size: 12px; color: var(--text-sec);">Budget & Analytics</span>
-      </div>
-
-      <!-- Family -->
-      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(34,211,238,.15) 0%, rgba(34,211,238,.08) 100%); border: 2px solid rgba(34,211,238,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(34,211,238,.1);" onclick="openCategory('menu-familj','Familj','#22D3EE','rgba(34,211,238,.18)')" onmouseover="this.style.borderColor='rgba(34,211,238,.5)'; this.style.background='linear-gradient(135deg, rgba(34,211,238,.2) 0%, rgba(34,211,238,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(34,211,238,.2)'" onmouseout="this.style.borderColor='rgba(34,211,238,.3)'; this.style.background='linear-gradient(135deg, rgba(34,211,238,.15) 0%, rgba(34,211,238,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(34,211,238,.1)'">
-        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Fa</span>
-        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Familj</span>
-        <span style="font-size: 12px; color: var(--text-sec);">Mila & Melker</span>
-      </div>
-
-      <!-- Training -->
-      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(167,139,250,.15) 0%, rgba(167,139,250,.08) 100%); border: 2px solid rgba(167,139,250,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(167,139,250,.1);" onclick="openCategory('menu-training','Träning','#A78BFA','rgba(167,139,250,.18)')" onmouseover="this.style.borderColor='rgba(167,139,250,.5)'; this.style.background='linear-gradient(135deg, rgba(167,139,250,.2) 0%, rgba(167,139,250,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(167,139,250,.2)'" onmouseout="this.style.borderColor='rgba(167,139,250,.3)'; this.style.background='linear-gradient(135deg, rgba(167,139,250,.15) 0%, rgba(167,139,250,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(167,139,250,.1)'">
-        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Tr</span>
-        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Träning</span>
-        <span style="font-size: 12px; color: var(--text-sec);">Träningslogg</span>
-      </div>
-
-      <!-- Tools -->
-      <div class="cat-card" style="padding: 32px; background: linear-gradient(135deg, rgba(251,146,60,.15) 0%, rgba(251,146,60,.08) 100%); border: 2px solid rgba(251,146,60,.3); border-radius: 16px; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 8px 24px rgba(251,146,60,.1);" onclick="openCategory('menu-tools','Verktyg','#FB923C','rgba(251,146,60,.18)')" onmouseover="this.style.borderColor='rgba(251,146,60,.5)'; this.style.background='linear-gradient(135deg, rgba(251,146,60,.2) 0%, rgba(251,146,60,.12) 100%)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 32px rgba(251,146,60,.2)'" onmouseout="this.style.borderColor='rgba(251,146,60,.3)'; this.style.background='linear-gradient(135deg, rgba(251,146,60,.15) 0%, rgba(251,146,60,.08) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(251,146,60,.1)'">
-        <span style="font-size: 48px; margin-bottom: 16px; font-weight: 700; background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ve</span>
-        <span style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Verktyg</span>
-        <span style="font-size: 12px; color: var(--text-sec);">Kalender & Lista</span>
-      </div>
-
+  <div class="nav-dropdown-wrapper">
+    <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
+    <div class="nav-dropdown-menu" id="nav-menu">
+      <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+      <div class="nav-sep"></div>
+      <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+      <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+      <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+      <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+      <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+      <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+      <div class="nav-sep"></div>
+      <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+      <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+      <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+      <div class="nav-sep"></div>
+      <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
+      <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
     </div>
   </div>
-
-  <div class="menu-section" id="menu-ekonomi">
-    <div class="menu-label">Ekonomi &amp; Budget</div>
-    <div class="menu-group">
-      <a href="budget.html" class="menu-item" style="--c-icon:rgba(59,109,224,.18);--c-accent:#3B6DE0">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Markus Budget</div><div class="mi-desc">Månadsbudget, inkomster och sparmål</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="analytics.html" class="menu-item" style="--c-icon:rgba(96,165,250,.18);--c-accent:#60A5FA">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Markus Analys</div><div class="mi-desc">Trender och statistik</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="familjebudget.html" class="menu-item" style="--c-icon:rgba(251,191,36,.18);--c-accent:#FBBF24">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Familjebudget</div><div class="mi-desc">Hushåll och gemensamma kostnader</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="budget_maja.html" class="menu-item" style="--c-icon:rgba(249,168,184,.18);--c-accent:#F9A8B8">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Majas Budget</div><div class="mi-desc">Majas månadsbudget och sparmål</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="analytics_maja.html" class="menu-item" style="--c-icon:rgba(244,114,182,.18);--c-accent:#F472B6">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Majas Analys</div><div class="mi-desc">Statistik och trender för Maja</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="data.html" class="menu-item" style="--c-icon:rgba(107,114,128,.18);--c-accent:#6B7280">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Data &amp; Formler</div><div class="mi-desc">Export, import och grunddata</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="menu-section" id="menu-familj">
-    <div class="menu-label">Familj</div>
-    <div class="menu-group">
-      <a href="mila.html" class="menu-item" style="--c-icon:rgba(244,114,182,.18);--c-accent:#F472B6">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Mila</div><div class="mi-desc">Tillväxt och minnen</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="melker.html" class="menu-item" style="--c-icon:rgba(134,239,172,.18);--c-accent:#86EFAC">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Melker</div><div class="mi-desc">Tillväxt och minnen</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="menu-section" id="menu-training">
-    <div class="menu-label">Träning</div>
-    <div class="menu-group">
-      <a href="exercise.html" class="menu-item" style="--c-icon:rgba(34,211,238,.18);--c-accent:#22D3EE">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Träningslogg</div><div class="mi-desc">Träning och personliga rekord</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="menu-section" id="menu-tools">
-    <div class="menu-label">Verktyg</div>
-    <div class="menu-group">
-      <a href="calendar.html" class="menu-item" style="--c-icon:rgba(251,191,36,.18);--c-accent:#FBBF24">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Familjekalender</div><div class="mi-desc">Händelser och påminnelser</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-      <a href="shopping.html" class="menu-item" style="--c-icon:rgba(52,211,153,.18);--c-accent:#34D399">
-        <div class="mi-icon"></div>
-        <div class="mi-body"><div class="mi-name">Shoppinglista</div><div class="mi-desc">Recept och inköpslista</div></div>
-        <span class="mi-chev">›</span>
-      </a>
-    </div>
-  </div>
-
-</main>
 </div>
 
-<!-- Category Modal -->
-<div class="category-modal" id="category-modal">
-  <div class="category-modal-header">
-    <div class="category-modal-title" id="modal-title">Ekonomi</div>
-    <span class="category-modal-close" onclick="closeCategory()">✕</span>
-  </div>
-  <div class="category-modal-content">
-    <div class="modal-menu-group" id="modal-content"></div>
+<div class="container">
+  <div class="grid">
+    <div class="col">
+      <article class="widget link-card" id="next-event-widget" onclick="location.href='calendar.html'">
+        <div class="widget-head">
+          <div class="widget-title">Kommande Aktivitet</div>
+          <div class="badge">Kalender</div>
+        </div>
+        <div id="next-event-content" class="empty">Inga kommande händelser.</div>
+        <div class="tap-hint">Tryck för att öppna Familjekalender</div>
+      </article>
+
+      <article class="widget link-card" id="trip-widget" onclick="location.href='calendar.html'">
+        <div class="widget-head">
+          <div class="widget-title">Nästa Familjeresa</div>
+          <div class="badge">Resa</div>
+        </div>
+        <div id="trip-content" class="empty">Ingen resa planerad.</div>
+        <div class="tap-hint">Tryck för att öppna Familjekalender</div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="widget link-card" id="shopping-widget" onclick="location.href='shopping.html'">
+        <div class="widget-head">
+          <div class="widget-title">Inköpslista</div>
+          <div class="badge" id="shopping-count">0 artiklar</div>
+        </div>
+
+        <div class="shopping-input-row" onclick="event.stopPropagation()">
+          <input class="shopping-input" id="shopping-add-input" type="text" placeholder="Lägg till artikel...">
+          <button class="btn" id="shopping-add-btn" type="button">Lägg till</button>
+        </div>
+
+        <ul class="shopping-list" id="shopping-items" onclick="event.stopPropagation()"></ul>
+        <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
+      </article>
+    </div>
   </div>
 </div>
 
 <script>
-// ── EDITABLE SITE TEXT ────────────────────────────────────────────
-(function(){
-  [['site-title','idx_siteTitle'],['site-sub','idx_siteSub']].forEach(function(pair){
-    var el=document.getElementById(pair[0]);
-    if(!el)return;
-    var saved=localStorage.getItem(pair[1]);
-    if(saved)el.textContent=saved;
-    el.addEventListener('blur',function(){localStorage.setItem(pair[1],el.textContent.trim()||el.textContent);});
-    el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();}});
-  });
+(function applyThemeFromStorage(){
+  var dark = localStorage.getItem('darkMode') === 'true';
+  if (dark) document.documentElement.classList.add('dark-mode');
 })();
-// ── CATEGORY MODAL ────────────────────────────────────────────────────────
-function openCategory(menuId, title, accentColor, iconBg) {
-  const modal = document.getElementById('category-modal');
-  const modalTitle = document.getElementById('modal-title');
-  const modalContent = document.getElementById('modal-content');
-  const menuSection = document.getElementById(menuId);
-  
-  if (!menuSection) return;
-  
-  // Copy the menu group HTML to the modal
-  const menuGroup = menuSection.querySelector('.menu-group');
-  modalContent.innerHTML = menuGroup.innerHTML;
-  
-  // Apply category-specific colors to modal items (cards themselves) ONLY
-  const menuItems = modalContent.querySelectorAll('.menu-item');
-  const accentRGB = hexToRgb(accentColor);
-  menuItems.forEach(item => {
-    // Apply colored background to card based on category accent
-    item.style.setProperty('background', `linear-gradient(135deg, rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.12) 0%, rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.06) 100%)`, 'important');
-    item.style.setProperty('border-color', `rgba(${accentRGB.r},${accentRGB.g},${accentRGB.b},.25)`, 'important');
-    // We explicitly DO NOT override --c-accent or --c-icon, so the icons keep their original colors
-  });
-  
-  // Update title with accent color
-  modalTitle.textContent = title;
-  modalTitle.style.color = accentColor;
-  
-  // Show modal with morphing animation
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-  
-  // Trigger animation by adding animation class
-  modalContent.style.animation = 'none';
-  setTimeout(() => {
-    modalContent.style.animation = 'modalExpand .5s cubic-bezier(.34,1.56,.64,1)';
-  }, 10);
+
+function toggleNavMenu() {
+  document.getElementById('nav-menu').classList.toggle('show');
 }
 
-function hexToRgb(hex) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 96, g: 165, b: 250 };
-}
-
-function closeCategory() {
-  const modal = document.getElementById('category-modal');
-  modal.classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-// Close modal on escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeCategory();
+window.addEventListener('click', function(e){
+  var wrap = document.querySelector('.nav-dropdown-wrapper');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('nav-menu').classList.remove('show');
+  }
 });
 
-// Close modal when clicking outside
-document.getElementById('category-modal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'category-modal') closeCategory();
+function parseJSON(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function getShoppingLists() {
+  return parseJSON(localStorage.getItem('sh_lists'), []);
+}
+
+function saveShoppingLists(lists) {
+  localStorage.setItem('sh_lists', JSON.stringify(lists));
+}
+
+function ensureShoppingList() {
+  var lists = getShoppingLists();
+  if (!lists.length) {
+    lists = [{ id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: [] }];
+    saveShoppingLists(lists);
+  }
+  return lists;
+}
+
+function getCurrentShoppingList() {
+  var lists = ensureShoppingList();
+  return lists[0];
+}
+
+function getVisibleShoppingItems(list) {
+  return (list.items || []).filter(function(item){
+    return item && item.type !== 'category' && String(item.text || '').trim();
+  });
+}
+
+function addShoppingItemFromHome() {
+  var input = document.getElementById('shopping-add-input');
+  var text = (input.value || '').trim();
+  if (!text) return;
+
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  list.items = list.items || [];
+  list.items.push({ id: Date.now() + Math.random(), type: 'item', text: text, checked: false });
+  saveShoppingLists(lists);
+  input.value = '';
+  renderShoppingWidget();
+}
+
+function toggleShoppingItem(id, checked) {
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  var item = (list.items || []).find(function(it){ return it && it.id === id; });
+  if (!item) return;
+  item.checked = checked;
+  saveShoppingLists(lists);
+}
+
+function renderShoppingWidget() {
+  var list = getCurrentShoppingList();
+  var items = getVisibleShoppingItems(list);
+  var ul = document.getElementById('shopping-items');
+  var count = document.getElementById('shopping-count');
+
+  count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
+
+  if (!items.length) {
+    ul.innerHTML = '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>';
+    return;
+  }
+
+  ul.innerHTML = items.map(function(item){
+    var safe = String(item.text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
+      '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
+      '<span class="txt">' + safe + '</span>' +
+      '</li>';
+  }).join('');
+}
+
+function getCalendarEvents() {
+  return parseJSON(localStorage.getItem('cal_events'), []);
+}
+
+function getTrip() {
+  return parseJSON(localStorage.getItem('cal_trip'), null);
+}
+
+function toISODate(d) {
+  return d.toISOString().slice(0,10);
+}
+
+function normalizeDateOnly(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function nextOccurrence(eventObj, todayDate) {
+  var base = normalizeDateOnly(eventObj.date);
+  if (isNaN(base.getTime())) return null;
+
+  if (!eventObj.repeat || eventObj.repeat === 'none') {
+    return base >= todayDate ? base : null;
+  }
+
+  if (eventObj.repeat === 'weekly') {
+    var cand = new Date(base);
+    while (cand < todayDate) cand.setDate(cand.getDate() + 7);
+    return cand;
+  }
+
+  if (eventObj.repeat === 'monthly') {
+    var y = todayDate.getFullYear();
+    var m = todayDate.getMonth();
+    var day = base.getDate();
+    var candMonth = new Date(y, m, day);
+    if (candMonth < todayDate) candMonth = new Date(y, m + 1, day);
+    return candMonth;
+  }
+
+  return base >= todayDate ? base : null;
+}
+
+function getUpcomingEvent() {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  var events = getCalendarEvents().map(function(ev){
+    var nextDate = nextOccurrence(ev, today);
+    if (!nextDate) return null;
+    return {
+      title: ev.title || 'Händelse',
+      time: ev.time || '',
+      member: ev.member || 'family',
+      emoji: ev.emoji || '📅',
+      dateObj: nextDate
+    };
+  }).filter(Boolean);
+
+  events.sort(function(a,b){
+    var aISO = toISODate(a.dateObj);
+    var bISO = toISODate(b.dateObj);
+    if (aISO !== bISO) return aISO.localeCompare(bISO);
+    return (a.time || '').localeCompare(b.time || '');
+  });
+
+  return events[0] || null;
+}
+
+function formatDateSv(dateObj) {
+  return dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' });
+}
+
+function renderNextEventWidget() {
+  var wrap = document.getElementById('next-event-content');
+  var ev = getUpcomingEvent();
+
+  if (!ev) {
+    wrap.className = 'empty';
+    wrap.textContent = 'Inga kommande händelser.';
+    return;
+  }
+
+  var txtMain = (ev.emoji ? ev.emoji + ' ' : '') + ev.title;
+  var txtMeta = (ev.time ? ev.time + ' · ' : '') + formatDateSv(ev.dateObj);
+
+  wrap.className = '';
+  wrap.innerHTML = '<div class="next-main">' + txtMain + '</div>' +
+                   '<div class="next-sub">' + txtMeta + '</div>';
+}
+
+function renderTripWidget() {
+  var trip = getTrip();
+  var wrap = document.getElementById('trip-content');
+
+  if (!trip || !trip.startDate) {
+    wrap.className = 'empty';
+    wrap.textContent = 'Ingen resa planerad.';
+    return;
+  }
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var start = normalizeDateOnly(trip.startDate);
+  var days = Math.ceil((start - today) / 86400000);
+
+  var name = trip.name || 'Familjeresa';
+  var destination = trip.destination || 'Okänd destination';
+  var startLabel = formatDateSv(start);
+  var daysLabel = days > 0 ? days + ' dagar kvar' : (days === 0 ? 'Idag!' : 'Redan påbörjad');
+
+  wrap.className = '';
+  wrap.innerHTML = '<div class="next-main">✈️ ' + name + '</div>' +
+                   '<div class="next-sub">' + destination + ' · ' + startLabel + '</div>' +
+                   '<div class="trip-countdown"><span class="trip-days">' + (days > 0 ? days : 0) + '</span><span class="trip-label">' + daysLabel + '</span></div>';
+}
+
+function renderAllWidgets() {
+  renderShoppingWidget();
+  renderNextEventWidget();
+  renderTripWidget();
+}
+
+window.addEventListener('storage', renderAllWidgets);
+window.addEventListener('focus', renderAllWidgets);
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden) renderAllWidgets();
 });
 
-// ── RIPPLE ────────────────────────────────────────────────────────
-(function(){
-  document.querySelectorAll('.menu-item').forEach(function(c){
-    c.addEventListener('click',function(e){
-      var r=c.getBoundingClientRect(),d=Math.max(c.clientWidth,c.clientHeight);
-      var rw=document.createElement('span');
-      rw.style.cssText='position:absolute;border-radius:50%;transform:scale(0);animation:ripple-kf 0.5s ease-out forwards;background:rgba(255,255,255,0.1);width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px;pointer-events:none;';
-      c.appendChild(rw);setTimeout(function(){if(rw.parentNode)rw.remove();},600);
-    });
+window.addEventListener('DOMContentLoaded', function(){
+  var addBtn = document.getElementById('shopping-add-btn');
+  var addInput = document.getElementById('shopping-add-input');
+  addBtn.addEventListener('click', addShoppingItemFromHome);
+  addInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addShoppingItemFromHome();
+    }
   });
-})();
+
+  renderAllWidgets();
+  setInterval(renderTripWidget, 60000);
+});
 </script>
 </body>
 </html>
