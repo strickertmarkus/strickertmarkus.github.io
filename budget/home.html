@@ -609,6 +609,10 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .filter-bar { display: none; }
+      .app-header { flex-wrap: wrap; justify-content: center; gap: 8px; padding-bottom: 12px; }
+      .brand { width: 100%; }
+      .month-nav { display: flex; position: static; transform: none; left: auto; top: auto; margin: 0 auto; order: 2; }
+      .nav-dropdown-wrapper { position: static; transform: none; right: auto; top: auto; margin: 0 0 0 auto; order: 3; }
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .sidebar { padding-top: 0; }
@@ -616,7 +620,6 @@
       .sidebar #transfer-widget { margin-top: 14px; }
       .cal-cell { min-height: 56px; padding: 5px 4px; }
       .cal-num { font-size: 12px; }
-      .month-nav { display: none; }
       .form-group input[data-picker="date"],
       .form-group input[data-picker="time"],
       .form-group input[type="date"],
@@ -1114,7 +1117,7 @@ function renderUpcoming() {
     var col=getMemberColor(ev.member);
     var p=ev.date.split('-');
     var dateStr=p[2]+'/'+p[1];
-    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div><div class="event-assignee">För '+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</div></div></div>';
+    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div><div class="event-assignee">'+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</div></div></div>';
   });
   if (list) list.innerHTML=html;
 }

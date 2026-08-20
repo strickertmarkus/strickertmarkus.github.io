@@ -355,11 +355,14 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .filter-bar { display: none; }
+      .app-header { flex-wrap: wrap; justify-content: center; gap: 8px; padding-bottom: 12px; }
+      .brand { width: 100%; justify-content: center; }
+      .month-nav { display: flex; width: 100%; justify-content: center; margin-top: 2px; }
+      .nav-dropdown-wrapper { margin-left: auto; }
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .cal-cell { min-height: 56px; padding: 5px 4px; }
       .cal-num { font-size: 12px; }
-      .month-nav { display: none; }
       .form-group input[data-picker="date"],
       .form-group input[data-picker="time"],
       .form-group input[type="date"],
