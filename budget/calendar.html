@@ -535,6 +535,16 @@
         <input type="text" id="ev-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sluttid (valfri)</label>
+        <input type="text" id="ev-end-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
+      </div>
+      <div class="form-group">
+        <label>Slutdatum för upprepning (valfritt)</label>
+        <input type="text" id="ev-repeat-until" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
     <div class="form-group">
       <label>Familjemedlem</label>
       <div class="member-color-row" id="member-color-row">
@@ -687,23 +697,37 @@ function expandRepeating(events, year, month) {
   var result = [];
   events.forEach(function(ev) {
     result.push(ev);
+    var until = ev.repeatUntil ? new Date(ev.repeatUntil + 'T23:59:59') : null;
     if (ev.repeat === 'weekly') {
-      for (var w=1; w<=5; w++) {
+      for (var w=1; w<=52; w++) {
         var d = new Date(ev.date);
         d.setDate(d.getDate() + w*7);
+        if (until && d > until) break;
         if (d.getFullYear() === year && d.getMonth() === month) {
           result.push(Object.assign({}, ev, { date: d.toISOString().slice(0,10), id: ev.id + '_w' + w }));
         }
       }
     }
     if (ev.repeat === 'monthly') {
-      var base = new Date(ev.date);
-      var rep = new Date(year, month, base.getDate());
-      var repISO = rep.toISOString().slice(0,10);
-      if (repISO !== ev.date) result.push(Object.assign({}, ev, { date: repISO, id: ev.id + '_m' }));
+      for (var m=1; m<=60; m++) {
+        var base = new Date(ev.date);
+        var rep = new Date(base);
+        rep.setMonth(rep.getMonth() + m);
+        if (until && rep > until) break;
+        if (rep.getFullYear() === year && rep.getMonth() === month) {
+          result.push(Object.assign({}, ev, { date: rep.toISOString().slice(0,10), id: ev.id + '_m' + m }));
+        }
+      }
     }
   });
   return result;
+}
+
+function formatEventTimeRange(ev) {
+  var start = ev.time || '';
+  var end = ev.endTime || '';
+  if (start && end) return start + ' - ' + end;
+  return start || end || '';
 }
 
 // ── RENDER MONTH ──────────────────────────────────────────────
@@ -778,7 +802,8 @@ function renderDayEvents(dateISO) {
   var html='';
   dayEvs.forEach(function(ev){
     var col = getMemberColor(ev.member);
-    html += '<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+escHtml(MEMBER_LABELS[ev.member]||'')+(ev.time?' · '+ev.time:'')+'</div></div></div>';
+    var timeLabel = formatEventTimeRange(ev);
+    html += '<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+escHtml(MEMBER_LABELS[ev.member]||'')+(timeLabel?' · '+timeLabel:'')+'</div></div></div>';
   });
   list.innerHTML=html;
 }
@@ -822,6 +847,8 @@ function openEventModal(dateOverride) {
   document.getElementById('ev-title').value='';
   document.getElementById('ev-date').value = dateOverride || selectedDate || todayISO();
   document.getElementById('ev-time').value='';
+  document.getElementById('ev-end-time').value='';
+  document.getElementById('ev-repeat-until').value='';
   document.getElementById('ev-emoji').value='';
   document.getElementById('ev-notes').value='';
   document.getElementById('ev-repeat').value='none';
@@ -840,6 +867,8 @@ function editEvent(id) {
   document.getElementById('ev-title').value = ev.title;
   document.getElementById('ev-date').value = ev.date;
   document.getElementById('ev-time').value = ev.time||'';
+  document.getElementById('ev-end-time').value = ev.endTime||'';
+  document.getElementById('ev-repeat-until').value = ev.repeatUntil||'';
   document.getElementById('ev-emoji').value = ev.emoji||'';
   document.getElementById('ev-notes').value = ev.notes||'';
   document.getElementById('ev-repeat').value = ev.repeat||'none';
@@ -869,10 +898,12 @@ function saveEvent() {
     date: document.getElementById('ev-date').value,
     title: title,
     time: document.getElementById('ev-time').value||'',
+    endTime: document.getElementById('ev-end-time').value||'',
     member: selectedMember,
     emoji: document.getElementById('ev-emoji').value||'',
     notes: document.getElementById('ev-notes').value.trim(),
     repeat: document.getElementById('ev-repeat').value,
+    repeatUntil: document.getElementById('ev-repeat-until').value||'',
   };
   if (editId) {
     var idx = events.findIndex(function(e){ return e.id===editId; });
@@ -1021,7 +1052,7 @@ function initCalendarFlatpickr() {
     flatpickr.localize(flatpickr.l10ns.sv);
   }
 
-  ['trip-start-inp','trip-end-inp','ev-date'].forEach(function(id) {
+  ['trip-start-inp','trip-end-inp','ev-date','ev-repeat-until'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     flatpickr(el, {
