@@ -159,7 +159,7 @@
       </div>
     </div>
     <div class="logo-row">
-      <div class="logo">Inköpslista</div>
+      <div class="logo" onclick="location.href='home.html'" title="Gå till startsidan">Inköpslista</div>
     </div>
   </header>
 
@@ -275,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
   S.set('lists', lists);
   activeList = lists[0]?.id || 1;
   renderHeaderTitle();
-  document.querySelector('.logo')?.addEventListener('click', startEditHeaderTitle);
   document.addEventListener('keydown', handleGlobalKeydown);
   renderListsMenu();
   renderTemplatesMenu();

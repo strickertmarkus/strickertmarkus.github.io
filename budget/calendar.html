@@ -11,6 +11,9 @@
 <script src="auth-config.js"></script>
 <script src="auth-gate.js"></script>
   <script src="firebase-sync.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -108,7 +111,10 @@
     .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
     .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .cal-dot-more { font-size: 9px; color: var(--text-dim); align-self: center; }
-    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 1px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 2px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: flex; align-items: center; gap: 5px; }
+    .cal-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+    .cal-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .cal-pill-more { font-size: 9px; font-weight: 700; opacity: .85; margin-left: auto; }
 
     /* ── SIDEBAR ── */
     .sidebar { padding-left: 0; }
@@ -166,9 +172,149 @@
     .modal-close:hover { background: var(--surface-h); }
     .form-group { margin-bottom: 14px; }
     .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif; padding: 9px 12px; outline: none; transition: border-color .2s; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif; padding: 9px 12px; outline: none; transition: border-color .22s ease, box-shadow .22s ease, background-color .22s ease; }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-a); }
     .form-group select option { background: var(--bg2); }
+    .form-group input[type="date"], .form-group input[type="time"], .todo-member-sel, .form-group select { color-scheme: dark; }
+    .form-group input[type="date"]:focus, .form-group input[type="time"]:focus { box-shadow: 0 0 0 2px rgba(251,191,36,.2); background: rgba(255,255,255,.05); }
+    .form-group input[type="date"], .form-group input[type="time"] { border-color: var(--border); border-radius: 10px; background: rgba(255,255,255,.03); accent-color: #FBBF24; }
+
+    .form-group input[data-picker="date"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .form-group input[data-picker="time"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .form-group input[type="date"]:hover::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]:hover::-webkit-calendar-picker-indicator,
+    .form-group input[type="date"]:focus::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]:focus::-webkit-calendar-picker-indicator {
+      opacity: 0;
+    }
+
+    .flatpickr-calendar {
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0,0,0,.45);
+      color: #E2E8F0;
+    }
+
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year,
+    .flatpickr-weekdays,
+    span.flatpickr-weekday {
+      background: transparent;
+      color: #E2E8F0;
+      fill: #E2E8F0;
+    }
+
+    .flatpickr-day {
+      color: #E2E8F0;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+
+    .flatpickr-day:hover {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.35);
+    }
+
+    .flatpickr-day.today {
+      border-color: #FBBF24;
+      color: #FBBF24;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
+
+    .flatpickr-time input,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #E2E8F0;
+      background: transparent;
+    }
+
+    .flatpickr-time {
+      border-top: 1px solid rgba(251,191,36,.24);
+    }
+
+    .flatpickr-time .flatpickr-time-separator,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper:hover,
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus {
+      background: rgba(251,191,36,.18);
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp:after,
+    .flatpickr-time .numInputWrapper span.arrowDown:after {
+      border-bottom-color: #FBBF24;
+      border-top-color: #FBBF24;
+    }
+
+    .fp-time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      padding: 8px;
+      border-top: 1px solid rgba(251,191,36,.24);
+      max-height: 164px;
+      overflow-y: auto;
+    }
+
+    .fp-time-chip {
+      border: 1px solid rgba(251,191,36,.26);
+      background: rgba(255,255,255,.03);
+      color: #E2E8F0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      padding: 7px 0;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .fp-time-chip:hover {
+      background: rgba(251,191,36,.2);
+      color: #FBBF24;
+    }
+
+    .fp-time-chip.active {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .member-color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .mc-opt { padding: 5px 12px; border-radius: 20px; border: 1.5px solid transparent; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; opacity: .6; }
@@ -226,7 +372,7 @@
   <header class="app-header">
     <div class="brand">
       <div class="brand-icon">📅</div>
-      <div class="brand-text"><h1>Familjekalender</h1><p>Familia Strickert</p></div>
+      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjekalender</h1><p>Familia Strickert</p></div>
     </div>
     <div class="month-nav">
       <button onclick="prevMonth()">‹</button>
@@ -344,8 +490,8 @@
     <div class="form-group"><label>Resenamn</label><input type="text" id="trip-name-inp" placeholder="Mallorca 2026"></div>
     <div class="form-group"><label>Destination</label><input type="text" id="trip-dest-inp" placeholder="Palma, Spanien"></div>
     <div class="form-row">
-      <div class="form-group"><label>Avresa</label><input type="date" id="trip-start-inp"></div>
-      <div class="form-group"><label>Hemresa</label><input type="date" id="trip-end-inp"></div>
+      <div class="form-group"><label>Avresa</label><input type="text" id="trip-start-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
+      <div class="form-group"><label>Hemresa</label><input type="text" id="trip-end-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
     </div>
     <div class="form-group"><label>Anteckningar</label><textarea id="trip-notes-inp" rows="2" placeholder="Hotell, flyg, viktiga detaljer…"></textarea></div>
     <div class="form-group">
@@ -374,11 +520,11 @@
     <div class="form-row">
       <div class="form-group">
         <label>Datum</label>
-        <input type="date" id="ev-date">
+        <input type="text" id="ev-date" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD">
       </div>
       <div class="form-group">
         <label>Tid (valfri)</label>
-        <input type="time" id="ev-time">
+        <input type="text" id="ev-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
       </div>
     </div>
     <div class="form-group">
@@ -585,16 +731,13 @@ function renderMonth() {
 
     var html = '<div class="cal-num">'+d+'</div>';
     if (dayEvs.length) {
-      html += '<div class="cal-dots">';
-      var shown = dayEvs.slice(0,4);
-      shown.forEach(function(ev){
-        html += '<span class="cal-dot" style="background:'+getMemberColor(ev.member)+'"></span>';
-      });
-      if (dayEvs.length > 4) html += '<span class="cal-dot-more">+' + (dayEvs.length-4) + '</span>';
-      html += '</div>';
-      // show first event as pill on larger cells
-      html += '<div class="cal-event-pill" style="background:'+getMemberColor(dayEvs[0].member)+'22;color:'+getMemberColor(dayEvs[0].member)+'">'
-            + escHtml((dayEvs[0].emoji||'') + ' ' + dayEvs[0].title) + '</div>';
+      var firstEvent = dayEvs[0];
+      var firstColor = getMemberColor(firstEvent.member);
+      html += '<div class="cal-event-pill" style="background:'+firstColor+'22;color:'+firstColor+'">'
+            + '<span class="cal-pill-dot" style="background:'+firstColor+'"></span>'
+            + '<span class="cal-pill-text">' + escHtml((firstEvent.emoji||'') + ' ' + firstEvent.title) + '</span>'
+            + (dayEvs.length > 1 ? '<span class="cal-pill-more">+' + (dayEvs.length - 1) + '</span>' : '')
+            + '</div>';
     }
     cell.innerHTML = html;
     (function(iso, evs){
@@ -828,6 +971,85 @@ document.getElementById('event-modal').addEventListener('click', function(e){ if
 // ── HELPERS ───────────────────────────────────────────────────
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+function getTimePresetValues() {
+  var values = [];
+  for (var h = 6; h <= 23; h++) {
+    for (var m = 0; m < 60; m += 30) {
+      values.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
+    }
+  }
+  return values;
+}
+
+function attachTimePresetGrid(instance) {
+  if (!instance || !instance.calendarContainer) return;
+  var oldGrid = instance.calendarContainer.querySelector('.fp-time-grid');
+  if (oldGrid) oldGrid.remove();
+
+  var grid = document.createElement('div');
+  grid.className = 'fp-time-grid';
+  var selected = (instance.input && instance.input.value) ? instance.input.value : '';
+
+  getTimePresetValues().forEach(function(val) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'fp-time-chip' + (selected === val ? ' active' : '');
+    chip.textContent = val;
+    chip.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      instance.setDate(val, true, 'H:i');
+      instance.close();
+    });
+    grid.appendChild(chip);
+  });
+
+  instance.calendarContainer.appendChild(grid);
+}
+
+function initCalendarFlatpickr() {
+  if (typeof flatpickr === 'undefined') return;
+  if (flatpickr.l10ns && flatpickr.l10ns.sv) {
+    flatpickr.localize(flatpickr.l10ns.sv);
+  }
+
+  ['trip-start-inp','trip-end-inp','ev-date'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    flatpickr(el, {
+      dateFormat: 'Y-m-d',
+      monthSelectorType: 'static',
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv'
+    });
+  });
+
+  var timeEl = document.getElementById('ev-time');
+  if (timeEl) {
+    flatpickr(timeEl, {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: 'H:i',
+      time_24hr: true,
+      minuteIncrement: 1,
+      defaultHour: 12,
+      defaultMinute: 0,
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv',
+      onReady: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      },
+      onOpen: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      }
+    });
+  }
+}
+
 function showToast(msg) {
   var t=document.getElementById('toast');
   if(!t){ t=document.createElement('div'); t.id='toast'; Object.assign(t.style,{position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',background:'#1E2638',border:'1px solid rgba(251,191,36,.35)',color:'#FBBF24',padding:'10px 20px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'Inter,sans-serif'}); document.body.appendChild(t); }
@@ -928,6 +1150,7 @@ function saveTrip() {
 }
 function deleteTrip() { if (!confirm('Ta bort resan? Den kan inte återskapas.')) return; saveCalTrip(null); closeTripModal(); renderTrip(); showToast('Resa borttagen'); }
 document.addEventListener('DOMContentLoaded', function() {
+  initCalendarFlatpickr();
   loadNotifSettings();
   renderMonth();
   renderTodos();
