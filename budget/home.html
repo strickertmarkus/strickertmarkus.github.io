@@ -106,7 +106,7 @@
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
-    .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; }
+    .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .cal-cell:hover { border-color: rgba(255,255,255,.14); }
     .cal-cell.has-events:hover { border-color: rgba(251,191,36,.52); background: rgba(251,191,36,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
     .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
@@ -126,9 +126,9 @@
     .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
     .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .cal-dot-more { font-size: 9px; color: var(--text-dim); align-self: center; }
-    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 2px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: flex; align-items: center; gap: 5px; }
+    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 2px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 5px; }
     .cal-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
-    .cal-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .cal-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; flex: 1 1 auto; }
     .cal-pill-more { font-size: 9px; font-weight: 700; opacity: .85; margin-left: auto; }
 
     /* ── SIDEBAR ── */
@@ -149,6 +149,7 @@
     .event-info { flex: 1; min-width: 0; }
     .event-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-meta { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+    .event-assignee { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
     .empty-sidebar { text-align: center; padding: 1.5rem 1rem; color: var(--text-dim); font-size: 12px; }
 
     .under-calendar-widgets {
@@ -607,6 +608,7 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
+      .filter-bar { display: none; }
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .sidebar { padding-top: 0; }
@@ -615,6 +617,10 @@
       .cal-cell { min-height: 56px; padding: 5px 4px; }
       .cal-num { font-size: 12px; }
       .month-nav { display: none; }
+      .form-group input[data-picker="date"],
+      .form-group input[data-picker="time"],
+      .form-group input[type="date"],
+      .form-group input[type="time"] { font-size: 16px; touch-action: manipulation; }
     }
     @media (max-width: 480px) {
       .filter-bar { gap: 6px; }
@@ -1093,7 +1099,10 @@ function renderDayEvents(dateISO) {
 
 function renderUpcoming() {
   var today = todayISO();
-  var events = getEvents().filter(function(ev){ return ev.date >= today && isEventVisible(ev); });
+  var limit = new Date();
+  limit.setMonth(limit.getMonth() + 1);
+  var limitISO = limit.toISOString().slice(0, 10);
+  var events = getEvents().filter(function(ev){ return ev.date >= today && ev.date <= limitISO && isEventVisible(ev); });
   events.sort(function(a,b){ return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''); });
   var list = document.getElementById('upcoming-list');
   if (!events.length) {
@@ -1105,7 +1114,7 @@ function renderUpcoming() {
     var col=getMemberColor(ev.member);
     var p=ev.date.split('-');
     var dateStr=p[2]+'/'+p[1];
-    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div></div></div>';
+    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div><div class="event-assignee">För '+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</div></div></div>';
   });
   if (list) list.innerHTML=html;
 }
