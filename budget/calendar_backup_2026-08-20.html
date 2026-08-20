@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Familjen Frick Strickert</title>
+  <title>Familjekalender</title>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
@@ -27,7 +27,6 @@
       --surface-h: rgba(255,255,255,0.07);
       --border: rgba(255,255,255,0.08);
       --accent: #FBBF24;
-      --accent-bg: #0F1A2E;
       --accent-dim: rgba(251,191,36,0.1);
       --accent-glow: rgba(251,191,36,0.25);
       --border-a: rgba(251,191,36,0.3);
@@ -56,24 +55,20 @@
     .app-header {
       background: rgba(24,31,46,0.88); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
-      padding: 16px 24px; display: flex; align-items: center; justify-content: center;
+      padding: 14px 24px; display: flex; align-items: center; gap: 12px;
       position: sticky; top: 0; z-index: 100;
-      text-align: center;
     }
-    .brand { display: flex; align-items: center; justify-content: center; }
+    .brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .brand-icon { width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid var(--border-a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
     .brand-text h1 { font-size: 15px; font-weight: 700; }
     .brand-text p { font-size: 11px; color: var(--text-sec); }
-    .header-meta-inline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 2px; }
-    .header-meta-inline .dot { opacity: .45; }
-    .header-time { font-weight: 800; letter-spacing: .5px; color: #FBBF24; text-shadow: 0 2px 10px rgba(251,191,36,.18); }
-    .header-date { color: #93C5FD; font-weight: 600; }
 
-    .month-nav { display: flex; align-items: center; gap: 8px; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); }
+    .month-nav { display: flex; align-items: center; gap: 8px; }
     .month-nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 14px; transition: background .2s; display: flex; align-items: center; justify-content: center; }
     .month-nav button:hover { background: var(--surface-h); }
     #month-label { font-size: 14px; font-weight: 700; min-width: 160px; text-align: center; }
 
-    .nav-dropdown-wrapper { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); display: inline-block; z-index: 1000; }
+    .nav-dropdown-wrapper { position: relative; display: inline-block; z-index: 1000; }
     .nav-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
     .nav-btn:hover { background: var(--surface-h); }
     .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.5); min-width: 230px; overflow: hidden; animation: dropIn .2s cubic-bezier(.16,1,.3,1); }
@@ -102,27 +97,17 @@
     .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 0; max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
 
     /* ── CALENDAR ── */
-    .cal-section { padding-right: 1.5rem; position: relative; }
+    .cal-section { padding-right: 1.5rem; }
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
     .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; }
-    .cal-cell:hover { border-color: rgba(255,255,255,.14); }
-    .cal-cell.has-events:hover { border-color: rgba(251,191,36,.52); background: rgba(251,191,36,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
+    .cal-cell:hover { background: var(--surface-h); border-color: rgba(255,255,255,.14); }
     .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
     .cal-cell.today { border-color: var(--accent); background: rgba(251,191,36,.07); }
     .cal-cell.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(251,191,36,.2); }
     .cal-num { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .cal-cell.today .cal-num { color: var(--accent); }
-
-    .cal-week-number {
-      margin-bottom: 8px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .5px;
-      text-transform: uppercase;
-      color: #FBBF24;
-    }
     .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
     .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .cal-dot-more { font-size: 9px; color: var(--text-dim); align-self: center; }
@@ -132,14 +117,9 @@
     .cal-pill-more { font-size: 9px; font-weight: 700; opacity: .85; margin-left: auto; }
 
     /* ── SIDEBAR ── */
-    .sidebar {
-      padding-left: 0;
-      padding-top: 54px;
-    }
+    .sidebar { padding-left: 0; }
     .sidebar-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
-    .sidebar-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
-    .sidebar-title .btn-xs,
-    .sidebar-title a.btn-xs { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+    .sidebar-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
     .btn-xs { background: var(--accent-dim); border: 1px solid var(--border-a); color: var(--accent); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background .2s; font-family: 'Inter', sans-serif; }
     .btn-xs:hover { background: rgba(251,191,36,.2); }
     .event-item { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; cursor: pointer; transition: background .15s; border-radius: 4px; }
@@ -150,215 +130,6 @@
     .event-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-meta { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
     .empty-sidebar { text-align: center; padding: 1.5rem 1rem; color: var(--text-dim); font-size: 12px; }
-
-    .under-calendar-widgets {
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: minmax(320px, 592px);
-      justify-content: start;
-      gap: 12px;
-    }
-
-    /* ── TRANSFER + SHOPPING WIDGETS ── */
-    .backup-copy {
-      --accent: #60A5FA;
-      --accent-bg: #0F1A2E;
-      --text-sec: #94A3B8;
-      --border: #2A3041;
-    }
-
-    .transfer-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 124px);
-      justify-content: start;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .transfer-actions .btn {
-      width: 100%;
-      padding: 6px 9px;
-      font-size: 11px;
-      border-radius: 7px;
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
-    }
-
-    .transfer-actions .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,.14);
-      border-color: rgba(96,165,250,.55);
-      background: rgba(15,26,46,.9);
-      color: #93C5FD;
-    }
-
-    .next-main {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-
-    .next-sub {
-      color: var(--text-sec);
-      font-size: 13px;
-    }
-
-    .shortcut-widget { display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
-    .transfer-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1); pointer-events: none; overflow: hidden; }
-    .shortcut-widget.open .transfer-popup { max-height: 420px; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .month-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1); pointer-events: none; overflow: hidden; }
-    .shortcut-widget.month-open .month-popup { max-height: 78vh; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .transfer-popup-shell {
-      margin-top: 10px;
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
-    }
-    .transfer-popup-head,
-    .month-popup-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .transfer-popup-title,
-    .month-popup-title { font-size: 16px; font-weight: 800; color: var(--text); line-height: 1.25; }
-    .transfer-popup-sub,
-    .month-popup-sub { font-size: 12px; color: var(--text-sec); margin-top: 4px; }
-    .transfer-close {
-      width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
-      background: rgba(255,255,255,.03); color: var(--text-sec); cursor: pointer; line-height: 1; font-size: 16px; flex: 0 0 auto;
-    }
-    .transfer-popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .transfer-person-col { display: flex; flex-direction: column; gap: 8px; }
-    .transfer-person-head { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; padding: 0 2px; }
-    .transfer-person-head.pink { color: #F472B6; }
-    .transfer-person-head.blue { color: #60A5FA; }
-    .transfer-mini-card { border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.03); padding: 12px; min-height: 86px; display: flex; flex-direction: column; justify-content: space-between; }
-    .transfer-mini-card.pink { border-color: rgba(244,114,182,.42); background: linear-gradient(180deg, rgba(244,114,182,.14), rgba(255,255,255,.03)); }
-    .transfer-mini-card.blue { border-color: rgba(96,165,250,.42); background: linear-gradient(180deg, rgba(96,165,250,.14), rgba(255,255,255,.03)); }
-    .transfer-mini-card.pink .transfer-mini-val { color: #F472B6; }
-    .transfer-mini-card.blue .transfer-mini-val { color: #60A5FA; }
-    .transfer-mini-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-sec); font-weight: 700; }
-    .transfer-mini-val { margin-top: 6px; font-size: 19px; font-weight: 800; color: var(--accent); }
-    .transfer-mini-hint { font-size: 11px; color: var(--text-sec); margin-top: 4px; }
-    .transfer-empty { color: var(--text-sec); font-size: 13px; padding: 6px 2px 2px; }
-    .month-popup-shell {
-      margin-top: 10px;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
-      max-height: calc(78vh - 12px);
-      overflow-y: auto;
-    }
-    .month-popup-table { display: grid; gap: 8px; }
-    .month-summary-grid { display: grid; gap: 8px; }
-    .month-expense-section { border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: rgba(255,255,255,.03); }
-    .month-summary-section-title { font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 8px; letter-spacing: .2px; }
-    .month-list-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .month-list-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-sec); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-weight: 700; }
-    .month-list-table th.num,
-    .month-list-table td.num { text-align: right; }
-    .month-list-table td { font-size: 12px; color: var(--text); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: middle; }
-    .month-list-table tr:last-child td { border-bottom: none; padding-bottom: 0; }
-    .month-list-table tr.total-row td { padding-top: 8px; font-weight: 800; }
-    .month-row { border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.03); padding: 10px; display: flex; justify-content: space-between; gap: 8px; }
-    .month-row .lbl { font-size: 11px; color: var(--text-sec); text-transform: uppercase; letter-spacing: .7px; }
-    .month-row .val { font-size: 15px; font-weight: 800; color: var(--text); }
-    .widget-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .widget-title { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; color: var(--text-sec); }
-    .badge { font-size: 11px; padding: 3px 8px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); font-weight: 600; }
-    .widget {
-      background: var(--card, var(--bg2));
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.3);
-      transition: box-shadow .2s ease, transform .2s ease;
-    }
-    .link-card { cursor: pointer; }
-    .widget.link-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
-
-    .shopping-input-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      margin-bottom: 10px;
-      width: 100%;
-      align-items: center;
-    }
-    .shopping-input {
-      border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text);
-      font: inherit; font-size: 13px; padding: 9px 10px; outline: none; min-width: 0;
-    }
-    .shopping-input::placeholder { font-size: 13px; color: var(--text-sec); }
-    .shopping-input:focus { border-color: var(--accent); }
-    .btn {
-      border: 1px solid var(--accent);
-      background: var(--accent-bg);
-      color: var(--accent);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-    #shopping-add-btn { font-size: 11px; padding: 7px 11px; }
-    .shopping-list { list-style: none; display: grid; gap: 6px; max-height: 440px; overflow: auto; padding-right: 2px; }
-    .shopping-item { display: grid; grid-template-columns: 20px 1fr 22px; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .shopping-item:last-child { border-bottom: none; }
-    .shopping-item input[type="checkbox"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 1px solid rgba(148,163,184,.72);
-      border-radius: 4px;
-      background: rgba(255,255,255,.05);
-      display: grid;
-      place-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 0 1px rgba(15,23,42,.65), inset 0 1px 0 rgba(255,255,255,.05);
-      transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
-    }
-    .shopping-item input[type="checkbox"]::before {
-      content: '';
-      width: 7px;
-      height: 4px;
-      border-left: 2px solid #93C5FD;
-      border-bottom: 2px solid #93C5FD;
-      transform: rotate(-45deg) scale(0);
-      transform-origin: center;
-      transition: transform .12s ease;
-    }
-    .shopping-item input[type="checkbox"]:checked {
-      background: rgba(15,26,46,.95);
-      border-color: rgba(96,165,250,.72);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.2), inset 0 1px 0 rgba(255,255,255,.06);
-    }
-    .shopping-item input[type="checkbox"]:hover {
-      border-color: rgba(147,197,253,.82);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.12), inset 0 1px 0 rgba(255,255,255,.06);
-    }
-    .shopping-item input[type="checkbox"]:focus-visible {
-      outline: none;
-      border-color: rgba(147,197,253,.9);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.22), inset 0 1px 0 rgba(255,255,255,.06);
-    }
-    .shopping-item input[type="checkbox"]:checked::before { transform: rotate(-45deg) scale(1); }
-    .shopping-item .txt { min-width: 0; cursor: text; }
-    .shopping-item .txt[contenteditable="true"] {
-      background: rgba(15,26,46,.72);
-      border: 1px solid rgba(96,165,250,.55);
-      border-radius: 6px;
-      padding: 3px 7px;
-      outline: none;
-    }
-    .shopping-item.done .txt { text-decoration: line-through; color: var(--text-sec); }
-    .shopping-del { border:none; background:transparent; color:var(--text-sec); font-size:14px; cursor:pointer; line-height:1; opacity:.55; }
-    .shopping-del:hover { color: #F87171; opacity: 1; }
-    .empty { color: var(--text-sec); font-size: 13px; padding: 6px 2px; }
-    .tap-hint { margin-top: 10px; font-size: 11px; color: var(--text-sec); }
 
     /* ── TODO LIST ── */
     .todo-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
@@ -561,6 +332,15 @@
     .fab:hover { transform: scale(1.1); box-shadow: 0 8px 30px var(--accent-glow); }
     .fab:active { transform: scale(.96); }
 
+    /* ── TOOLTIP ── */
+    .day-tooltip { display: none; position: fixed; z-index: 5000; background: var(--bg2); border: 1px solid var(--border-a); border-radius: 10px; padding: 10px 12px; max-width: 220px; min-width: 160px; font-size: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: none; }
+    .day-tooltip.show { display: block; animation: tooltipFadeIn .15s ease; }
+    @keyframes tooltipFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .tt-date { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .tt-event { font-size: 12px; color: var(--text); padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .tt-event:last-of-type { border-bottom: none; }
+    .tt-empty { color: var(--text-dim); font-size: 11px; font-style: italic; }
+    .tt-hint { font-size: 10px; color: var(--text-dim); margin-top: 7px; border-top: 1px solid rgba(255,255,255,.04); padding-top: 5px; }
     /* ── TRIP DISPLAY ── */
     .trip-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
     .trip-dest { font-size: 12px; color: var(--text-sec); margin-bottom: 8px; }
@@ -572,45 +352,10 @@
     .trip-sched-time { color: var(--accent); font-weight: 600; min-width: 52px; font-size: 11px; flex-shrink: 0; }
     .trip-sched-text { color: var(--text-sec); }
     .trip-in-past { font-size: 12px; color: var(--text-dim); font-style: italic; }
-
-    .home-day-popover {
-      position: absolute;
-      min-width: 250px;
-      max-width: 320px;
-      background: linear-gradient(180deg, rgba(26,31,46,.98), rgba(15,18,25,.98));
-      border: 1px solid rgba(251,191,36,.32);
-      border-radius: 12px;
-      box-shadow: 0 16px 34px rgba(0,0,0,.42);
-      padding: 10px;
-      opacity: 0;
-      transform: translateY(-6px) scale(.9);
-      transform-origin: var(--origin-x, 50%) var(--origin-y, 0%);
-      pointer-events: none;
-      transition: opacity .22s ease, transform .28s cubic-bezier(.22,1,.36,1);
-      z-index: 10;
-    }
-    .home-day-popover.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .home-day-popover[aria-hidden="true"] { display: none; }
-    .home-day-popover-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 7px; }
-    .home-day-popover-title { font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: #FBBF24; font-weight: 800; }
-    .home-day-popover-date { margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--text); }
-    .home-day-popover-close { width: 22px; height: 22px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text-sec); font-size: 12px; line-height: 1; cursor: pointer; flex: 0 0 auto; }
-    .home-day-popover-close:hover { color: var(--text); border-color: rgba(255,255,255,.24); background: rgba(255,255,255,.08); }
-    .home-day-popover-item { display: grid; grid-template-columns: 4px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
-    .home-day-popover-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .home-day-popover-dot { border-radius: 999px; background: #60A5FA; }
-    .home-day-popover-item-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .home-day-popover-item-meta { margin-top: 1px; font-size: 10px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .home-day-popover-empty { font-size: 11px; color: var(--text-sec); padding: 2px 0 1px; }
-
-    @media (max-width: 1100px) { .transfer-actions { grid-template-columns: 1fr; } }
-
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
-      .sidebar { padding-top: 0; }
-      .under-calendar-widgets { grid-template-columns: 1fr; }
       .cal-cell { min-height: 56px; padding: 5px 4px; }
       .cal-num { font-size: 12px; }
       .month-nav { display: none; }
@@ -626,7 +371,8 @@
 
   <header class="app-header">
     <div class="brand">
-      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjen Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
+      <div class="brand-icon">📅</div>
+      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjekalender</h1><p>Familia Strickert</p></div>
     </div>
     <div class="month-nav">
       <button onclick="prevMonth()">‹</button>
@@ -681,7 +427,6 @@
   <div class="main-layout">
     <!-- CALENDAR -->
     <div class="cal-section">
-      <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
       <div class="cal-weekdays">
         <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
         <div class="cal-wd">Tor</div><div class="cal-wd">Fre</div><div class="cal-wd">Lör</div><div class="cal-wd">Sön</div>
@@ -697,56 +442,6 @@
         </div>
         <div id="day-events-list"></div>
       </div>
-      <div class="home-day-popover" id="home-day-popover" aria-hidden="true">
-        <div class="home-day-popover-head">
-          <div>
-            <div class="home-day-popover-title">Kalenderdag</div>
-            <div class="home-day-popover-date" id="home-day-popover-date">-</div>
-          </div>
-          <button type="button" class="home-day-popover-close" id="home-day-popover-close" aria-label="Stäng">✕</button>
-        </div>
-        <div id="home-day-popover-list"></div>
-      </div>
-
-      <div class="under-calendar-widgets">
-        <article class="widget shortcut-widget backup-copy" id="transfer-widget">
-          <div class="widget-head">
-            <div class="widget-title">Överföringar</div>
-            <div class="badge">Familjebudget</div>
-          </div>
-          <div class="next-main">Månadens överföringar</div>
-          <div class="next-sub">Visa transferbeloppen för aktuell månad eller gå direkt till familjesidan.</div>
-          <div class="transfer-actions">
-            <button class="btn" id="transfer-open-btn" type="button">Överföringar</button>
-            <button class="btn" id="transfer-month-btn" type="button">Mån. utgifter</button>
-          </div>
-          <div class="transfer-popup" id="transfer-popup" aria-hidden="true">
-            <div class="transfer-popup-shell">
-              <div class="transfer-popup-head">
-                <div>
-                  <div class="transfer-popup-title" id="transfer-popup-title">-</div>
-                  <div class="transfer-popup-sub" id="transfer-popup-sub">-</div>
-                </div>
-                <button class="transfer-close" id="transfer-close-btn" type="button" aria-label="Stäng">✕</button>
-              </div>
-              <div class="transfer-popup-grid" id="transfer-popup-grid"></div>
-            </div>
-          </div>
-          <div class="month-popup" id="month-popup" aria-hidden="true">
-            <div class="month-popup-shell">
-              <div class="month-popup-head">
-                <div>
-                  <div class="month-popup-title" id="month-popup-title">-</div>
-                  <div class="month-popup-sub" id="month-popup-sub">-</div>
-                </div>
-                <button class="transfer-close" id="month-close-btn" type="button" aria-label="Stäng">✕</button>
-              </div>
-              <div class="month-popup-table" id="month-popup-table"></div>
-            </div>
-          </div>
-        </article>
-
-      </div>
     </div>
 
     <!-- SIDEBAR -->
@@ -757,20 +452,30 @@
         </div>
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
       </div>
-
-      <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
-        <div class="widget-head">
-          <div class="widget-title">Inköpslista</div>
-          <div class="badge" id="shopping-count">0 artiklar</div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">
+          <span>✅ Att göra</span>
         </div>
-        <div class="shopping-input-row" onclick="event.stopPropagation()">
-          <input class="shopping-input" id="shopping-add-input" type="text" placeholder="Lägg till artikel...">
-          <button class="btn" id="shopping-add-btn" type="button">Lägg till</button>
+        <div id="todo-list"></div>
+        <div class="todo-add-row">
+          <input type="text" class="todo-input" id="todo-input" placeholder="Ny uppgift…" onkeydown="if(event.key==='Enter')addTodo()">
+          <select class="todo-member-sel" id="todo-member">
+            <option value="family">👨‍👩‍👧‍👦</option>
+            <option value="markus">🔵</option>
+            <option value="maja">🩷</option>
+            <option value="mila">💗</option>
+            <option value="melker">🟢</option>
+          </select>
+          <button class="btn-xs" onclick="addTodo()">+</button>
         </div>
-        <ul class="shopping-list" id="shopping-items" onclick="event.stopPropagation()"></ul>
-        <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
-      </article>
-
+      </div>
+      <div class="sidebar-section" id="trip-section">
+        <div class="sidebar-title">
+          <span>✈️ Kommande resa</span>
+          <button class="btn-xs" onclick="openTripModal()">+ Konfigurera</button>
+        </div>
+        <div id="trip-content"><div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -998,22 +703,12 @@ function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
   document.getElementById('month-label').textContent = MONTHS[month] + ' ' + year;
-  var weekEl = document.getElementById('calendar-week-number');
 
   var daysInMonth = new Date(year, month+1, 0).getDate();
   var rawFirst = new Date(year, month, 1).getDay();
   var firstDay = rawFirst === 0 ? 6 : rawFirst - 1;
   var today = todayISO();
   var events = expandRepeating(getEvents(), year, month);
-
-  var isoWeekNumber = function(d) {
-    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    var dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-  };
-  if (weekEl) weekEl.textContent = 'Vecka ' + isoWeekNumber(new Date());
 
   var grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
@@ -1031,7 +726,7 @@ function renderMonth() {
     var isSel = dateISO===selectedDate;
 
     var cell = document.createElement('div');
-    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '');
+    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'');
     cell.dataset.date = dateISO;
 
     var html = '<div class="cal-num">'+d+'</div>';
@@ -1046,20 +741,10 @@ function renderMonth() {
     }
     cell.innerHTML = html;
     (function(iso, evs){
-      cell.addEventListener('click', function(e){
-        e.stopPropagation();
-        if (evs.length) {
-          selectedDate = iso;
-          document.getElementById('day-panel').classList.remove('show');
-          renderMonth();
-          var anchor = document.querySelector('.cal-cell[data-date="' + iso + '"]');
-          if (anchor) openDayEventsPopup(iso, evs, anchor);
-          return;
-        }
-        closeDayEventsPopup();
-        selectDay(iso);
-      });
+      cell.addEventListener('click', function(){ selectDay(iso); });
       cell.addEventListener('dblclick', function(e){ e.stopPropagation(); openEventModal(iso); });
+      cell.addEventListener('mouseenter', function(e){ showDayTooltip(iso, evs, e.currentTarget); });
+      cell.addEventListener('mouseleave', function(){ hideDayTooltip(); });
     })(dateISO, dayEvs.slice(0,5));
     grid.appendChild(cell);
   }
@@ -1095,10 +780,7 @@ function renderUpcoming() {
   var events = getEvents().filter(function(ev){ return ev.date >= today && isEventVisible(ev); });
   events.sort(function(a,b){ return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''); });
   var list = document.getElementById('upcoming-list');
-  if (!events.length) {
-    if (list) list.innerHTML='<div class="empty-sidebar">Inga kommande händelser</div>';
-    return;
-  }
+  if (!events.length) { list.innerHTML='<div class="empty-sidebar">Inga kommande händelser</div>'; return; }
   var html='';
   events.slice(0,8).forEach(function(ev){
     var col=getMemberColor(ev.member);
@@ -1106,79 +788,15 @@ function renderUpcoming() {
     var dateStr=p[2]+'/'+p[1];
     html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div></div></div>';
   });
-  if (list) list.innerHTML=html;
+  list.innerHTML=html;
 }
 
 // ── MONTH NAV ─────────────────────────────────────────────────
-function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); closeDayEventsPopup(); renderMonth(); }
-function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); closeDayEventsPopup(); renderMonth(); }
-
-function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
-  var widget = document.querySelector('.cal-section');
-  var pop = document.getElementById('home-day-popover');
-  var dateEl = document.getElementById('home-day-popover-date');
-  var listEl = document.getElementById('home-day-popover-list');
-  if (!widget || !pop || !dateEl || !listEl || !anchorEl) return;
-
-  dateEl.textContent = dayISO.split('-').reverse().join('/');
-  if (!dayEvents.length) {
-    listEl.innerHTML = '<div class="home-day-popover-empty">Inga händelser denna dag.</div>';
-  } else {
-    listEl.innerHTML = dayEvents.map(function(ev){
-      var color = getMemberColor(ev.member);
-      var memberTxt = ev.member && ev.member !== 'family' ? (ev.member.charAt(0).toUpperCase() + ev.member.slice(1)) : 'Familj';
-      var meta = memberTxt + (ev.time ? ' · ' + ev.time : '');
-      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml((ev.emoji ? ev.emoji + ' ' : '') + (ev.title || 'Händelse')) + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div></div></div>';
-    }).join('');
-  }
-
-  pop.classList.remove('show');
-  pop.setAttribute('aria-hidden', 'false');
-  requestAnimationFrame(function(){
-    positionDayEventsPopup(anchorEl);
-    pop.classList.add('show');
-  });
-}
-
-function positionDayEventsPopup(anchorEl) {
-  var widget = document.querySelector('.cal-section');
-  var pop = document.getElementById('home-day-popover');
-  if (!widget || !pop || !anchorEl) return;
-
-  var widgetRect = widget.getBoundingClientRect();
-  var anchorRect = anchorEl.getBoundingClientRect();
-
-  var anchorX = anchorRect.left - widgetRect.left + (anchorRect.width / 2);
-  var anchorBottom = anchorRect.bottom - widgetRect.top;
-  var left = anchorX - (pop.offsetWidth / 2);
-  left = Math.max(8, Math.min(left, widget.clientWidth - pop.offsetWidth - 8));
-
-  var top = anchorBottom + 8;
-  if (top + pop.offsetHeight > widget.clientHeight - 8) {
-    top = Math.max(8, (anchorRect.top - widgetRect.top) - pop.offsetHeight - 8);
-  }
-
-  pop.style.left = Math.round(left) + 'px';
-  pop.style.top = Math.round(top) + 'px';
-  pop.style.setProperty('--origin-x', Math.round(anchorX - left) + 'px');
-  pop.style.setProperty('--origin-y', top < anchorBottom ? '100%' : '0%');
-}
-
-function closeDayEventsPopup() {
-  var pop = document.getElementById('home-day-popover');
-  if (!pop) return;
-  pop.classList.remove('show');
-  pop.setAttribute('aria-hidden', 'true');
-}
+function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); renderMonth(); }
+function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); renderMonth(); }
 
 // Close day panel when tapping outside (mobile)
 document.addEventListener('click', function(e) {
-  var dayPop = document.getElementById('home-day-popover');
-  var calSection = document.querySelector('.cal-section');
-  if (dayPop && dayPop.getAttribute('aria-hidden') !== 'true' && calSection && !calSection.contains(e.target)) {
-    closeDayEventsPopup();
-  }
-
   var panel = document.getElementById('day-panel');
   if (!panel || !panel.classList.contains('show')) return;
   var calGrid = document.getElementById('cal-grid');
@@ -1353,306 +971,6 @@ document.getElementById('event-modal').addEventListener('click', function(e){ if
 // ── HELPERS ───────────────────────────────────────────────────
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function parseJSON(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; }
-  catch (_) { return fallback; }
-}
-
-function renderHeaderMeta() {
-  var el = document.getElementById('header-home-meta');
-  if (!el) return;
-  var now = new Date();
-  var time = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-  var date = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-  el.innerHTML = '<span class="header-meta-inline"><span class="header-time">' + time + '</span><span class="dot">•</span><span class="header-date">' + date.charAt(0).toUpperCase() + date.slice(1) + '</span></span>';
-}
-
-function getShoppingLists() { return parseJSON(localStorage.getItem('sh_lists'), []); }
-function saveShoppingLists(lists) { localStorage.setItem('sh_lists', JSON.stringify(lists)); }
-function ensureShoppingList() {
-  var lists = getShoppingLists();
-  if (!lists.length) {
-    lists = [{ id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: [] }];
-    saveShoppingLists(lists);
-  }
-  return lists;
-}
-function getVisibleShoppingItems(list) {
-  return (list.items || []).filter(function(item){
-    return item && item.type !== 'category' && String(item.text || '').trim();
-  });
-}
-function getCurrentShoppingList() { return ensureShoppingList()[0]; }
-function addShoppingItemFromHome() {
-  var input = document.getElementById('shopping-add-input');
-  if (!input) return;
-  var text = (input.value || '').trim();
-  if (!text) return;
-  var lists = ensureShoppingList();
-  var list = lists[0];
-  list.items = list.items || [];
-  list.items.push({ id: Date.now() + Math.random(), type: 'item', text: text, checked: false });
-  saveShoppingLists(lists);
-  input.value = '';
-  renderShoppingWidget();
-}
-function toggleShoppingItem(id, checked) {
-  var lists = ensureShoppingList();
-  var list = lists[0];
-  var item = (list.items || []).find(function(it){ return it && it.id === id; });
-  if (!item) return;
-  item.checked = checked;
-  saveShoppingLists(lists);
-  renderShoppingWidget();
-}
-function updateShoppingItemText(id, text) {
-  var cleaned = String(text || '').trim();
-  if (!cleaned) return;
-  var lists = ensureShoppingList();
-  var list = lists[0];
-  var item = (list.items || []).find(function(it){ return it && it.id === id; });
-  if (!item) return;
-  item.text = cleaned;
-  saveShoppingLists(lists);
-}
-function startEditShoppingItem(el, id) {
-  if (!el || el.getAttribute('contenteditable') === 'true') return;
-  var original = String(el.textContent || '');
-  el.setAttribute('contenteditable', 'true');
-  el.setAttribute('spellcheck', 'false');
-  el.focus();
-
-  if (window.getSelection && document.createRange) {
-    var range = document.createRange();
-    range.selectNodeContents(el);
-    var sel = window.getSelection();
-    if (sel) {
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  }
-
-  function cleanup() {
-    el.removeEventListener('keydown', onKeyDown);
-    el.removeEventListener('blur', onBlur);
-    el.removeAttribute('contenteditable');
-    el.removeAttribute('spellcheck');
-  }
-
-  function finish(saveChanges) {
-    var next = String(el.textContent || '').trim();
-    cleanup();
-
-    if (!saveChanges) {
-      el.textContent = original;
-      return;
-    }
-    if (!next) {
-      el.textContent = original;
-      return;
-    }
-    if (next === original.trim()) {
-      el.textContent = next;
-      return;
-    }
-
-    updateShoppingItemText(id, next);
-    renderShoppingWidget();
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      finish(true);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      finish(false);
-    }
-  }
-
-  function onBlur() { finish(true); }
-
-  el.addEventListener('keydown', onKeyDown);
-  el.addEventListener('blur', onBlur);
-}
-function deleteShoppingItem(id) {
-  var lists = ensureShoppingList();
-  var list = lists[0];
-  list.items = (list.items || []).filter(function(it){ return !(it && it.id === id); });
-  saveShoppingLists(lists);
-  renderShoppingWidget();
-}
-function renderShoppingWidget() {
-  var list = getCurrentShoppingList();
-  var items = getVisibleShoppingItems(list);
-  var ul = document.getElementById('shopping-items');
-  var count = document.getElementById('shopping-count');
-  if (!ul || !count) return;
-
-  count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
-  if (!items.length) {
-    ul.innerHTML = '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>';
-    return;
-  }
-  ul.innerHTML = items.map(function(item){
-    var safe = String(item.text || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-    return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
-      '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
-      '<span class="txt" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' + safe + '</span>' +
-      '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
-      '</li>';
-  }).join('');
-}
-
-function getFamilyBudgetData() { return parseJSON(localStorage.getItem('familjebudget_data'), null); }
-function getBudgetTotalIncome(storageKey) {
-  var data = parseJSON(localStorage.getItem(storageKey), null);
-  if (!data || !Array.isArray(data.sections)) return 0;
-  return data.sections.reduce(function(total, section){
-    if (!(section && (section.isIncome || section.key === 'income'))) return total;
-    return total + (section.items || []).reduce(function(st, item){ return st + Number(item.actual || item.budget || 0); }, 0);
-  }, 0);
-}
-function getFamilyIncomes() {
-  var markus = getBudgetTotalIncome('budgetTracker');
-  var maja = getBudgetTotalIncome('budgetTracker_maja');
-  if (!markus && !maja) return { markus: 38813, maja: 0 };
-  return { markus: markus, maja: maja };
-}
-function fmtKr(value) { return Number(value || 0).toLocaleString('sv-SE') + ' kr'; }
-function getCurrentMonthTransfer() {
-  var data = getFamilyBudgetData();
-  var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
-  if (!transfers.length) return null;
-  var now = new Date();
-  var monthNames = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
-  var currentMonthName = monthNames[now.getMonth()];
-  var currentYear = now.getFullYear();
-  return transfers.find(function(row){ return row && row.month === currentMonthName && row.year === currentYear; }) || null;
-}
-function renderTransferPopup() {
-  var row = getCurrentMonthTransfer();
-  var title = document.getElementById('transfer-popup-title');
-  var sub = document.getElementById('transfer-popup-sub');
-  var grid = document.getElementById('transfer-popup-grid');
-  if (!title || !sub || !grid) return;
-  if (!row) {
-    title.textContent = 'Ingen överföring hittades';
-    sub.textContent = 'Det finns ingen sparad rad för aktuell månad ännu.';
-    grid.innerHTML = '<div class="transfer-empty">Öppna Familjebudgeten och lägg till månadsraden först.</div>';
-    return;
-  }
-  title.textContent = row.month + ' ' + row.year;
-  sub.textContent = 'Husutgifter: ' + fmtKr(row.husutgifter) + ' · ICA-kort: ' + fmtKr(row.ica);
-  grid.innerHTML = [
-    {
-      name: 'Maja',
-      tone: 'pink',
-      cards: [
-        { label: 'ICA-kort', value: row.icaMaja },
-        { label: 'Huskonto', value: row.huskontoMaja }
-      ]
-    },
-    {
-      name: 'Markus',
-      tone: 'blue',
-      cards: [
-        { label: 'ICA-kort', value: row.icaMarkus },
-        { label: 'Huskonto', value: row.huskontoMarkus }
-      ]
-    }
-  ].map(function(person){
-    return '<div class="transfer-person-col"><div class="transfer-person-head ' + person.tone + '">' + person.name + '</div>' + person.cards.map(function(card){
-      return '<div class="transfer-mini-card ' + person.tone + '"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div><div class="transfer-mini-hint">Automatiskt från aktuell månad</div></div>';
-    }).join('') + '</div>';
-  }).join('');
-}
-
-function renderMoneyRows(items) {
-  return items.map(function(item){
-    return '<tr><td>' + escHtml(item.name || 'Post') + '</td><td class="num">' + fmtKr(item.amount) + '</td></tr>';
-  }).join('');
-}
-
-function renderMonthPopup() {
-  var title = document.getElementById('month-popup-title');
-  var sub = document.getElementById('month-popup-sub');
-  var table = document.getElementById('month-popup-table');
-  if (!title || !sub || !table) return;
-  var data = getFamilyBudgetData() || {};
-  var incomes = getFamilyIncomes();
-  var expenses = Array.isArray(data.expenses) ? data.expenses : [];
-  var huskonto = Array.isArray(data.huskonto) ? data.huskonto : [];
-  title.textContent = 'Mån. utgifter';
-  sub.textContent = 'Kompakt familjeöversikt för aktuell månad.';
-  table.innerHTML = ''
-    + '<div class="month-summary-grid">'
-      + '<div class="month-expense-section">'
-        + '<div class="month-summary-section-title">Nettoinkomst</div>'
-        + '<table class="month-list-table">'
-          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
-          + '<tbody>'
-            + '<tr><td><span style="color:#60A5FA;font-weight:700">Markus nettolön</span></td><td class="num" style="color:#60A5FA;font-weight:800">' + fmtKr(incomes.markus) + '</td></tr>'
-            + '<tr><td><span style="color:#F472B6;font-weight:700">Majas nettolön</span></td><td class="num" style="color:#F472B6;font-weight:800">' + fmtKr(incomes.maja) + '</td></tr>'
-            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(incomes.markus + incomes.maja) + '</td></tr>'
-          + '</tbody>'
-        + '</table>'
-      + '</div>'
-      + '<div class="month-expense-section">'
-        + '<div class="month-summary-section-title">Gemensamma utgifter Ica Kort</div>'
-        + '<table class="month-list-table">'
-          + '<thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
-          + '<tbody>'
-            + (expenses.length ? renderMoneyRows(expenses) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga utgifter registrerade</td></tr>')
-            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(expenses.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
-          + '</tbody>'
-        + '</table>'
-      + '</div>'
-      + '<div class="month-expense-section">'
-        + '<div class="month-summary-section-title">Gemensamma Utgifter Huskonto</div>'
-        + '<table class="month-list-table">'
-          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
-          + '<tbody>'
-            + (huskonto.length ? renderMoneyRows(huskonto) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga poster registrerade</td></tr>')
-            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(huskonto.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
-          + '</tbody>'
-        + '</table>'
-      + '</div>'
-    + '</div>';
-}
-function toggleTransferPopup(forceOpen) {
-  var widget = document.getElementById('transfer-widget');
-  var popup = document.getElementById('transfer-popup');
-  var monthPopup = document.getElementById('month-popup');
-  if (!widget || !popup || !monthPopup) return;
-  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('open');
-  widget.classList.toggle('open', shouldOpen);
-  if (shouldOpen) {
-    widget.classList.remove('month-open');
-    monthPopup.setAttribute('aria-hidden', 'true');
-  }
-  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-  if (shouldOpen) renderTransferPopup();
-}
-function toggleMonthPopup(forceOpen) {
-  var widget = document.getElementById('transfer-widget');
-  var popup = document.getElementById('month-popup');
-  var transferPopup = document.getElementById('transfer-popup');
-  if (!widget || !popup || !transferPopup) return;
-  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('month-open');
-  widget.classList.toggle('month-open', shouldOpen);
-  if (shouldOpen) {
-    widget.classList.remove('open');
-    transferPopup.setAttribute('aria-hidden', 'true');
-  }
-  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-  if (shouldOpen) renderMonthPopup();
-}
-
 function getTimePresetValues() {
   var values = [];
   for (var h = 6; h <= 23; h++) {
@@ -1739,6 +1057,33 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
+// ── DAY TOOLTIP ────────────────────────────────────────────────
+function showDayTooltip(dateISO, evs, cell) {
+  var tt = document.getElementById('day-tooltip');
+  if (!tt) return;
+  var p = dateISO.split('-');
+  var html = '<div class="tt-date">📅 ' + p[2] + '/' + p[1] + '</div>';
+  if (!evs.length) {
+    html += '<div class="tt-empty">Inga händelser</div>';
+  } else {
+    evs.forEach(function(ev) {
+      var col = getMemberColor(ev.member);
+      html += '<div class="tt-event"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0"></span>' + escHtml((ev.emoji ? ev.emoji+' ' : '') + ev.title) + '</div>';
+    });
+  }
+  html += '<div class="tt-hint">Klicka • Dubbelklicka = ny händelse</div>';
+  tt.innerHTML = html;
+  var r = cell.getBoundingClientRect();
+  var ttW = 220, left = Math.max(4, Math.min(r.left, window.innerWidth - ttW - 8));
+  tt.style.left = left + 'px';
+  tt.style.top = (r.top + window.scrollY - 10) + 'px';
+  tt.style.transform = 'translateY(-100%)';
+  tt.classList.add('show');
+}
+function hideDayTooltip() {
+  var tt = document.getElementById('day-tooltip');
+  if (tt) tt.classList.remove('show');
+}
 // ── TRIPS ──────────────────────────────────────────────────────
 function getTrip() { return JSON.parse(localStorage.getItem('cal_trip') || 'null'); }
 function saveCalTrip(t) { localStorage.setItem('cal_trip', JSON.stringify(t)); }
@@ -1805,40 +1150,11 @@ function saveTrip() {
 }
 function deleteTrip() { if (!confirm('Ta bort resan? Den kan inte återskapas.')) return; saveCalTrip(null); closeTripModal(); renderTrip(); showToast('Resa borttagen'); }
 document.addEventListener('DOMContentLoaded', function() {
-  var shoppingAddBtn = document.getElementById('shopping-add-btn');
-  var shoppingAddInput = document.getElementById('shopping-add-input');
-  var transferOpenBtn = document.getElementById('transfer-open-btn');
-  var transferMonthBtn = document.getElementById('transfer-month-btn');
-  var transferCloseBtn = document.getElementById('transfer-close-btn');
-  var monthCloseBtn = document.getElementById('month-close-btn');
-
   initCalendarFlatpickr();
   loadNotifSettings();
   renderMonth();
-  renderShoppingWidget();
-  renderHeaderMeta();
-  setInterval(renderHeaderMeta, 60000);
-
-  if (shoppingAddBtn) shoppingAddBtn.addEventListener('click', addShoppingItemFromHome);
-  var dayPopoverClose = document.getElementById('home-day-popover-close');
-  if (dayPopoverClose) {
-    dayPopoverClose.addEventListener('click', function(e){
-      e.stopPropagation();
-      closeDayEventsPopup();
-    });
-  }
-  if (shoppingAddInput) {
-    shoppingAddInput.addEventListener('keydown', function(e){
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addShoppingItemFromHome();
-      }
-    });
-  }
-  if (transferOpenBtn) transferOpenBtn.addEventListener('click', function(){ toggleTransferPopup(); });
-  if (transferMonthBtn) transferMonthBtn.addEventListener('click', function(){ toggleMonthPopup(); });
-  if (transferCloseBtn) transferCloseBtn.addEventListener('click', function(){ toggleTransferPopup(false); });
-  if (monthCloseBtn) monthCloseBtn.addEventListener('click', function(){ toggleMonthPopup(false); });
+  renderTodos();
+  renderTrip();
 });
 window.addEventListener('firebase-sync', function(event) {
   var key = event.detail && event.detail.key;
@@ -1846,14 +1162,8 @@ window.addEventListener('firebase-sync', function(event) {
   if (key.indexOf('cal_') === 0) {
     loadNotifSettings();
     renderMonth();
-  }
-  if (key.indexOf('sh_') === 0) {
-    renderShoppingWidget();
-  }
-  if (key === 'familjebudget_data' || key === 'budgetTracker' || key === 'budgetTracker_maja') {
-    var widget = document.getElementById('transfer-widget');
-    if (widget && widget.classList.contains('open')) renderTransferPopup();
-    if (widget && widget.classList.contains('month-open')) renderMonthPopup();
+    renderTodos();
+    renderTrip();
   }
 });
 // ── RIPPLE ─────────────────────────────────────────────────────
@@ -1869,5 +1179,6 @@ window.addEventListener('firebase-sync', function(event) {
   });
 })();
 </script>
+<div class="day-tooltip" id="day-tooltip"></div>
 </body>
 </html>

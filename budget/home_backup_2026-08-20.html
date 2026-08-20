@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="sv" class="dark-mode">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Familia Strickert Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="indexeddb-fallback.js"></script>
+<script src="auth-config.js"></script>
+<script src="auth-gate.js"></script>
+  <script src="firebase-sync.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0F1219;
+      --card: #1A1F2E;
+      --text: #E2E8F0;
+      --text-sec: #94A3B8;
+      --border: #2A3041;
+      --accent: #60A5FA;
+      --accent-bg: #0F1A2E;
+      --warning: #FBBF24;
+      --warning-bg: #1F1008;
+      --danger: #F87171;
+      --ok: #34D399;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .3s ease, color .3s ease;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
+      color: #fff;
+      padding: 28px 24px 20px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    }
+
+    html.dark-mode .header {
+      background: linear-gradient(135deg, #0B0F1A 0%, #151C2C 100%);
+      box-shadow: 0 4px 30px rgba(0,0,0,.5);
+    }
+
+    .header h1 {
+      font-size: clamp(18px, 4vw, 28px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .header-meta {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      font-size:13px;
+      opacity:.9;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .header-time {
+      font-weight:800;
+      letter-spacing:.5px;
+      color:#FBBF24;
+      text-shadow:0 2px 10px rgba(251,191,36,.18);
+    }
+
+    .header-date {
+      color:#93C5FD;
+      font-weight:600;
+    }
+
+    .header-dot {
+      opacity:.45;
+    }
+
+    .nav-dropdown-wrapper { position: absolute; top: 16px; right: 16px; }
+    .nav-btn {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15);
+      min-width: 230px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    .nav-dropdown-menu.show { display: block; }
+    .nav-dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-dropdown-menu a:hover { background: var(--accent-bg); }
+    .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+    .nav-sep { border-top: 1px solid var(--border); margin: 4px 0; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .col { display: grid; gap: 16px; }
+
+    .widget {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+      transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+    .widget.link-card { cursor: pointer; }
+    .widget.link-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+
+    .shortcut-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .transfer-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 124px);
+      justify-content: start;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .transfer-actions .btn {
+      width: 100%;
+      padding: 6px 9px;
+      font-size: 11px;
+      border-radius: 7px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease;
+    }
+
+    .transfer-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.14);
+      border-color: rgba(96,165,250,.55);
+      background: rgba(15,26,46,.9);
+      color: #93C5FD;
+    }
+
+    .transfer-popup {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px) scale(.98);
+      transform-origin: top left;
+      transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .shortcut-widget.open .transfer-popup {
+      max-height: 420px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .transfer-popup-shell {
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .transfer-popup-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .transfer-popup-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .transfer-popup-sub {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .transfer-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text-sec);
+      cursor: pointer;
+      line-height: 1;
+      font-size: 16px;
+      flex: 0 0 auto;
+    }
+
+    .transfer-popup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .transfer-person-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .transfer-person-head {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 0 2px;
+    }
+
+    .transfer-person-head.pink { color: #F472B6; }
+    .transfer-person-head.blue { color: #60A5FA; }
+
+    .transfer-mini-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+      min-height: 86px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .transfer-mini-card.pink {
+      border-color: rgba(244,114,182,.42);
+      background: linear-gradient(180deg, rgba(244,114,182,.14), rgba(255,255,255,.03));
+    }
+
+    .transfer-mini-card.blue {
+      border-color: rgba(96,165,250,.42);
+      background: linear-gradient(180deg, rgba(96,165,250,.14), rgba(255,255,255,.03));
+    }
+
+    .transfer-mini-card.pink .transfer-mini-val {
+      color: #F472B6;
+    }
+
+    .transfer-mini-card.blue .transfer-mini-val {
+      color: #60A5FA;
+    }
+
+    .transfer-mini-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+
+    .transfer-mini-val {
+      margin-top: 6px;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .transfer-mini-hint {
+      font-size: 11px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .transfer-empty {
+      color: var(--text-sec);
+      font-size: 13px;
+      padding: 6px 2px 2px;
+    }
+
+    .month-popup {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px) scale(.98);
+      transform-origin: top left;
+      transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .shortcut-widget.month-open .month-popup {
+      max-height: 78vh;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .month-popup-shell {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15,26,46,.95), rgba(26,31,46,.98));
+      max-height: calc(78vh - 12px);
+      overflow-y: auto;
+    }
+
+    .month-popup-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .month-popup-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .month-popup-sub {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    .month-popup-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .month-summary-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .month-expense-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .month-summary-section-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: .2px;
+    }
+
+    .month-expense-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .month-expense-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: top;
+    }
+
+    .month-expense-table tr:last-child td {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .month-expense-table .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+
+    .month-expense-table .val {
+      text-align: right;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .month-expense-table .pink {
+      color: #F472B6;
+    }
+
+    .month-expense-table .blue {
+      color: #60A5FA;
+    }
+
+    .month-expense-table .total-row td {
+      padding-top: 8px;
+      font-weight: 800;
+    }
+
+    .month-list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .month-list-table th,
+    .month-list-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: middle;
+    }
+
+    .month-list-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .month-list-table th.num,
+    .month-list-table td.num {
+      text-align: right;
+    }
+
+    .month-list-table tr:last-child td {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .month-list-table .total-row td {
+      padding-top: 8px;
+      font-weight: 800;
+    }
+
+    .month-summary-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+    }
+
+    .month-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+
+    .month-row .lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .month-row .val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .month-row.pink { border-color: rgba(244,114,182,.36); }
+    .month-row.blue { border-color: rgba(96,165,250,.36); }
+    .month-row.pink .val { color: #F472B6; }
+    .month-row.blue .val { color: #60A5FA; }
+
+    .month-summary-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-sec);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    html.dark-mode .widget { box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+
+    .widget-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .widget-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-weight: 700;
+      color: var(--text-sec);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .home-cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7,1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .home-cal-weekdays div {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-sec);
+      font-weight: 700;
+      padding: 6px 0;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .home-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7,1fr);
+      gap: 4px;
+    }
+
+    .home-cal-cell {
+      min-height: 52px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+      transition: border-color .2s ease, background-color .2s ease, transform .18s ease, box-shadow .2s ease;
+    }
+
+    .home-cal-cell.has-events {
+      cursor: pointer;
+    }
+
+    .home-cal-cell.has-events:hover {
+      border-color: rgba(251,191,36,.62);
+      background: rgba(251,191,36,.10);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0,0,0,.22);
+    }
+
+    .home-cal-cell.empty {
+      border-style: dashed;
+      opacity: .35;
+    }
+
+    .home-cal-cell.today {
+      border-color: #FBBF24;
+      background: rgba(251,191,36,.07);
+    }
+
+    .home-cal-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .home-cal-cell.today .home-cal-num {
+      color: #FBBF24;
+    }
+
+    .home-cal-dots {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      min-height: 8px;
+    }
+
+    .home-cal-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .home-cal-pill {
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.2;
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .home-next-event-mini {
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.02);
+      padding: 8px;
+    }
+
+    .home-next-event-mini .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #FBBF24;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .home-next-event-mini .title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-next-event-mini .up-item {
+      display: grid;
+      grid-template-columns: 4px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .home-next-event-mini .up-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .home-next-event-mini .up-color {
+      width: 4px;
+      height: 100%;
+      min-height: 26px;
+      border-radius: 999px;
+      background: #60A5FA;
+    }
+
+    .home-next-event-mini .up-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-next-event-mini .up-meta {
+      margin-top: 1px;
+      font-size: 10px;
+      color: var(--text-sec);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-next-event-mini .week-empty {
+      font-size: 11px;
+      color: var(--text-sec);
+      padding: 2px 0 1px;
+    }
+
+    #home-calendar-widget {
+      position: relative;
+    }
+
+    .calendar-open-arrow-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .calendar-open-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(251,146,60,.45);
+      background: rgba(251,146,60,.16);
+      color: #FDBA74;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease, color .2s ease;
+      z-index: 1;
+    }
+
+    .calendar-open-arrow:hover {
+      transform: translateX(2px);
+      background: rgba(251,146,60,.28);
+      color: #FFEDD5;
+      box-shadow: 0 0 0 3px rgba(251,146,60,.18), 0 8px 16px rgba(0,0,0,.24);
+    }
+
+    .calendar-open-arrow:active {
+      transform: translateX(1px) scale(.96);
+    }
+
+    .home-day-popover {
+      position: absolute;
+      min-width: 250px;
+      max-width: 320px;
+      background: linear-gradient(180deg, rgba(26,31,46,.98), rgba(15,18,25,.98));
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 12px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.42);
+      padding: 10px;
+      opacity: 0;
+      transform: translateY(-6px) scale(.9);
+      transform-origin: var(--origin-x, 50%) var(--origin-y, 0%);
+      pointer-events: none;
+      transition: opacity .22s ease, transform .28s cubic-bezier(.22,1,.36,1);
+      z-index: 10;
+    }
+
+    .home-day-popover.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .home-day-popover[aria-hidden="true"] {
+      display: none;
+    }
+
+    .home-day-popover-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding-bottom: 7px;
+    }
+
+    .home-day-popover-title {
+      font-size: 11px;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #FBBF24;
+      font-weight: 800;
+    }
+
+    .home-day-popover-date {
+      margin-top: 2px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .home-day-popover-close {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text-sec);
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .home-day-popover-close:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,.24);
+      background: rgba(255,255,255,.08);
+    }
+
+    .home-day-popover-item {
+      display: grid;
+      grid-template-columns: 4px 1fr;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .home-day-popover-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .home-day-popover-dot {
+      border-radius: 999px;
+      background: #60A5FA;
+    }
+
+    .home-day-popover-item-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-day-popover-item-meta {
+      margin-top: 1px;
+      font-size: 10px;
+      color: var(--text-sec);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-day-popover-empty {
+      font-size: 11px;
+      color: var(--text-sec);
+      padding: 2px 0 1px;
+    }
+
+    .home-week-number {
+      margin-top: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #FBBF24;
+    }
+
+    .home-cal-quick {
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      background: rgba(255,255,255,.02);
+      display: grid;
+      gap: 6px;
+    }
+
+    .home-cal-quick-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+
+    .home-cal-quick input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 7px 8px;
+      font-size: 12px;
+      outline: none;
+      font-family: inherit;
+      color-scheme: dark;
+      transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    .home-cal-quick input:focus {
+      border-color: rgba(255,255,255,.2);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+    }
+
+    .home-cal-quick input[type="date"],
+    .home-cal-quick input[type="time"] {
+      border-color: var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      accent-color: #FBBF24;
+    }
+
+    .home-cal-quick input[data-picker="date"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .home-cal-quick input[data-picker="time"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .home-cal-quick input[type="date"]::-webkit-calendar-picker-indicator,
+    .home-cal-quick input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .home-cal-quick input[type="date"]:hover::-webkit-calendar-picker-indicator,
+    .home-cal-quick input[type="time"]:hover::-webkit-calendar-picker-indicator,
+    .home-cal-quick input[type="date"]:focus::-webkit-calendar-picker-indicator,
+    .home-cal-quick input[type="time"]:focus::-webkit-calendar-picker-indicator {
+      opacity: 0;
+    }
+
+    .flatpickr-calendar {
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0,0,0,.45);
+      color: #E2E8F0;
+    }
+
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year,
+    .flatpickr-weekdays,
+    span.flatpickr-weekday {
+      background: transparent;
+      color: #E2E8F0;
+      fill: #E2E8F0;
+    }
+
+    .flatpickr-day {
+      color: #E2E8F0;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+
+    .flatpickr-day:hover {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.35);
+    }
+
+    .flatpickr-day.today {
+      border-color: #FBBF24;
+      color: #FBBF24;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
+
+    .flatpickr-time input,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #E2E8F0;
+      background: transparent;
+    }
+
+    .flatpickr-time {
+      border-top: 1px solid rgba(251,191,36,.24);
+    }
+
+    .flatpickr-time .flatpickr-time-separator,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper:hover,
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus {
+      background: rgba(251,191,36,.18);
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp:after,
+    .flatpickr-time .numInputWrapper span.arrowDown:after {
+      border-bottom-color: #FBBF24;
+      border-top-color: #FBBF24;
+    }
+
+    .fp-time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      padding: 8px;
+      border-top: 1px solid rgba(251,191,36,.24);
+      max-height: 164px;
+      overflow-y: auto;
+    }
+
+    .fp-time-chip {
+      border: 1px solid rgba(251,191,36,.26);
+      background: rgba(255,255,255,.03);
+      color: #E2E8F0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      padding: 7px 0;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .fp-time-chip:hover {
+      background: rgba(251,191,36,.2);
+      color: #FBBF24;
+    }
+
+    .fp-time-chip.active {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
+
+    .home-cal-quick-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .home-cal-add-btn {
+      border: 1px solid rgba(251,191,36,.45);
+      background: rgba(251,191,36,.1);
+      color: #FBBF24;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .home-cal-add-btn:hover {
+      background: rgba(251,191,36,.16);
+    }
+
+    .next-main {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .next-sub {
+      color: var(--text-sec);
+      font-size: 13px;
+    }
+
+    .trip-countdown {
+      margin: 10px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .trip-days {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--warning);
+    }
+
+    .trip-label {
+      font-size: 13px;
+      color: var(--text-sec);
+      font-weight: 600;
+    }
+
+    .shopping-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .shopping-input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    .shopping-input:focus { border-color: var(--accent); }
+
+    .btn {
+      border: 1px solid var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .shopping-list {
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      max-height: 440px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .shopping-item {
+      display: grid;
+      grid-template-columns: 20px 1fr 22px;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .shopping-item:last-child { border-bottom: none; }
+
+    .shopping-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ok);
+      cursor: pointer;
+    }
+
+    .shopping-item.done .txt {
+      text-decoration: line-through;
+      color: var(--text-sec);
+    }
+
+    .shopping-del {
+      border:none;
+      background:transparent;
+      color:var(--text-sec);
+      font-size:14px;
+      cursor:pointer;
+      line-height:1;
+      opacity:.55;
+    }
+
+    .shopping-del:hover { color: var(--danger); opacity: 1; }
+
+    .empty {
+      color: var(--text-sec);
+      font-size: 13px;
+      padding: 6px 2px;
+    }
+
+    .tap-hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-sec);
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>Familjen Frick Strickert</h1>
+  <div class="header-meta"><span class="header-time" id="clock-time">00:00</span><span class="header-dot">•</span><span class="header-date" id="clock-date">-</span></div>
+
+  <div class="nav-dropdown-wrapper">
+    <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
+    <div class="nav-dropdown-menu" id="nav-menu">
+      <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+      <div class="nav-sep"></div>
+      <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+      <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+      <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+      <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+      <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+      <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+      <div class="nav-sep"></div>
+      <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+      <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+      <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+      <div class="nav-sep"></div>
+      <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
+      <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid">
+    <div class="col">
+      <article class="widget" id="home-calendar-widget">
+        <div class="widget-head">
+          <div class="widget-title">Familjekalender</div>
+          <div class="badge" id="home-calendar-badge">-</div>
+        </div>
+        <div class="home-cal-weekdays" id="home-cal-weekdays"></div>
+        <div class="home-cal-grid" id="home-cal-grid"></div>
+        <div class="home-week-number" id="home-week-number">Vecka -</div>
+        <div class="home-cal-quick" onclick="event.stopPropagation()">
+          <div class="home-cal-quick-title">Ny aktivitet</div>
+          <input id="home-cal-title" type="text" placeholder="Vad händer?">
+          <div class="home-cal-quick-row">
+            <input id="home-cal-date" type="text" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD">
+            <input id="home-cal-time" type="text" lang="sv-SE" data-picker="time" placeholder="TT:MM">
+            <button class="home-cal-add-btn" id="home-cal-add-btn" type="button">Lägg till</button>
+          </div>
+        </div>
+        <div class="home-next-event-mini" id="home-next-event-mini">
+          <div class="label">📅 Kommande händelser</div>
+          <div class="title">Inga kommande händelser.</div>
+        </div>
+        <div class="calendar-open-arrow-row">
+          <button type="button" class="calendar-open-arrow" id="calendar-open-arrow" title="Öppna Familjekalender" aria-label="Öppna Familjekalender">➜</button>
+        </div>
+        <div class="home-day-popover" id="home-day-popover" aria-hidden="true">
+          <div class="home-day-popover-head">
+            <div>
+              <div class="home-day-popover-title">Kalenderdag</div>
+              <div class="home-day-popover-date" id="home-day-popover-date">-</div>
+            </div>
+            <button type="button" class="home-day-popover-close" id="home-day-popover-close" aria-label="Stäng">✕</button>
+          </div>
+          <div id="home-day-popover-list"></div>
+        </div>
+      </article>
+
+      <article class="widget shortcut-widget" id="transfer-widget">
+        <div class="widget-head">
+          <div class="widget-title">Överföringar</div>
+          <div class="badge">Familjebudget</div>
+        </div>
+        <div class="next-main">Månadens överföringar</div>
+        <div class="next-sub">Visa transferbeloppen för aktuell månad eller gå direkt till familjesidan.</div>
+        <div class="transfer-actions">
+          <button class="btn" id="transfer-open-btn" type="button">Överföringar</button>
+          <button class="btn" id="transfer-month-btn" type="button">Mån. utgifter</button>
+        </div>
+        <div class="transfer-popup" id="transfer-popup" aria-hidden="true">
+          <div class="transfer-popup-shell">
+            <div class="transfer-popup-head">
+              <div>
+                <div class="transfer-popup-title" id="transfer-popup-title">-</div>
+                <div class="transfer-popup-sub" id="transfer-popup-sub">-</div>
+              </div>
+              <button class="transfer-close" id="transfer-close-btn" type="button" aria-label="Stäng">✕</button>
+            </div>
+            <div class="transfer-popup-grid" id="transfer-popup-grid"></div>
+          </div>
+        </div>
+        <div class="month-popup" id="month-popup" aria-hidden="true">
+          <div class="month-popup-shell">
+            <div class="month-popup-head">
+              <div>
+                <div class="month-popup-title" id="month-popup-title">-</div>
+                <div class="month-popup-sub" id="month-popup-sub">-</div>
+              </div>
+              <button class="transfer-close" id="month-close-btn" type="button" aria-label="Stäng">✕</button>
+            </div>
+            <div class="month-popup-table" id="month-popup-table"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="widget link-card" id="shopping-widget" onclick="location.href='shopping.html'">
+        <div class="widget-head">
+          <div class="widget-title">Inköpslista</div>
+          <div class="badge" id="shopping-count">0 artiklar</div>
+        </div>
+
+        <div class="shopping-input-row" onclick="event.stopPropagation()">
+          <input class="shopping-input" id="shopping-add-input" type="text" placeholder="Lägg till artikel...">
+          <button class="btn" id="shopping-add-btn" type="button">Lägg till</button>
+        </div>
+
+        <ul class="shopping-list" id="shopping-items" onclick="event.stopPropagation()"></ul>
+        <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleNavMenu() {
+  document.getElementById('nav-menu').classList.toggle('show');
+}
+
+window.addEventListener('click', function(e){
+  var wrap = document.querySelector('.nav-dropdown-wrapper');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('nav-menu').classList.remove('show');
+  }
+});
+
+function parseJSON(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function getShoppingLists() {
+  return parseJSON(localStorage.getItem('sh_lists'), []);
+}
+
+function saveShoppingLists(lists) {
+  localStorage.setItem('sh_lists', JSON.stringify(lists));
+}
+
+function ensureShoppingList() {
+  var lists = getShoppingLists();
+  if (!lists.length) {
+    lists = [{ id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: [] }];
+    saveShoppingLists(lists);
+  }
+  return lists;
+}
+
+function getCurrentShoppingList() {
+  var lists = ensureShoppingList();
+  return lists[0];
+}
+
+function getVisibleShoppingItems(list) {
+  return (list.items || []).filter(function(item){
+    return item && item.type !== 'category' && String(item.text || '').trim();
+  });
+}
+
+function addShoppingItemFromHome() {
+  var input = document.getElementById('shopping-add-input');
+  var text = (input.value || '').trim();
+  if (!text) return;
+
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  list.items = list.items || [];
+  list.items.push({ id: Date.now() + Math.random(), type: 'item', text: text, checked: false });
+  saveShoppingLists(lists);
+  input.value = '';
+  renderShoppingWidget();
+}
+
+function toggleShoppingItem(id, checked) {
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  var item = (list.items || []).find(function(it){ return it && it.id === id; });
+  if (!item) return;
+  item.checked = checked;
+  saveShoppingLists(lists);
+}
+
+function deleteShoppingItem(id) {
+  var lists = ensureShoppingList();
+  var list = lists[0];
+  list.items = (list.items || []).filter(function(it){ return !(it && it.id === id); });
+  saveShoppingLists(lists);
+  renderShoppingWidget();
+}
+
+function renderShoppingWidget() {
+  var list = getCurrentShoppingList();
+  var items = getVisibleShoppingItems(list);
+  var ul = document.getElementById('shopping-items');
+  var count = document.getElementById('shopping-count');
+
+  count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
+
+  if (!items.length) {
+    ul.innerHTML = '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>';
+    return;
+  }
+
+  ul.innerHTML = items.map(function(item){
+    var safe = String(item.text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
+      '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
+      '<span class="txt">' + safe + '</span>' +
+      '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
+      '</li>';
+  }).join('');
+}
+
+function getCalendarEvents() {
+  return parseJSON(localStorage.getItem('cal_events'), []);
+}
+
+var __homeCalEventsSnapshot = null;
+
+function monitorCalendarSync() {
+  var raw = localStorage.getItem('cal_events') || '[]';
+  if (__homeCalEventsSnapshot === null) {
+    __homeCalEventsSnapshot = raw;
+    return;
+  }
+  if (raw !== __homeCalEventsSnapshot) {
+    __homeCalEventsSnapshot = raw;
+    renderAllWidgets();
+  }
+}
+
+function saveCalendarEvents(events) {
+  localStorage.setItem('cal_events', JSON.stringify(events));
+}
+
+function getTimePresetValues() {
+  var values = [];
+  for (var h = 6; h <= 23; h++) {
+    for (var m = 0; m < 60; m += 30) {
+      values.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
+    }
+  }
+  return values;
+}
+
+function attachTimePresetGrid(instance) {
+  if (!instance || !instance.calendarContainer) return;
+  var oldGrid = instance.calendarContainer.querySelector('.fp-time-grid');
+  if (oldGrid) oldGrid.remove();
+
+  var grid = document.createElement('div');
+  grid.className = 'fp-time-grid';
+  var selected = (instance.input && instance.input.value) ? instance.input.value : '';
+
+  getTimePresetValues().forEach(function(val) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'fp-time-chip' + (selected === val ? ' active' : '');
+    chip.textContent = val;
+    chip.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      instance.setDate(val, true, 'H:i');
+      instance.close();
+    });
+    grid.appendChild(chip);
+  });
+
+  instance.calendarContainer.appendChild(grid);
+}
+
+function initHomeFlatpickr() {
+  if (typeof flatpickr === 'undefined') return;
+  if (flatpickr.l10ns && flatpickr.l10ns.sv) {
+    flatpickr.localize(flatpickr.l10ns.sv);
+  }
+
+  var dateEl = document.getElementById('home-cal-date');
+  var timeEl = document.getElementById('home-cal-time');
+  if (dateEl) {
+    flatpickr(dateEl, {
+      dateFormat: 'Y-m-d',
+      monthSelectorType: 'static',
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv'
+    });
+  }
+  if (timeEl) {
+    flatpickr(timeEl, {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: 'H:i',
+      time_24hr: true,
+      minuteIncrement: 1,
+      defaultHour: 12,
+      defaultMinute: 0,
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv',
+      onReady: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      },
+      onOpen: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      }
+    });
+  }
+}
+
+function addCalendarEventFromHome() {
+  var titleEl = document.getElementById('home-cal-title');
+  var dateEl = document.getElementById('home-cal-date');
+  var timeEl = document.getElementById('home-cal-time');
+  if (!titleEl || !dateEl || !timeEl) return;
+
+  var title = (titleEl.value || '').trim();
+  var date = (dateEl.value || '').trim();
+  var time = (timeEl.value || '').trim();
+  if (!title) {
+    titleEl.focus();
+    return;
+  }
+
+  if (!date) {
+    date = toISODate(new Date());
+  }
+
+  var events = getCalendarEvents();
+  events.push({
+    id: String(Date.now()),
+    date: date,
+    title: title,
+    time: time,
+    member: 'family',
+    emoji: '📅',
+    repeat: 'none'
+  });
+
+  saveCalendarEvents(events);
+  titleEl.value = '';
+  timeEl.value = '';
+  dateEl.value = toISODate(new Date());
+  renderAllWidgets();
+}
+
+function getTrip() {
+  return parseJSON(localStorage.getItem('cal_trip'), null);
+}
+
+var MEMBER_COLORS = { markus:'#38BDF8', maja:'#F9A8B8', mila:'#F472B6', melker:'#86EFAC', family:'#FBBF24' };
+var MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+
+function getMemberColor(member) {
+  return MEMBER_COLORS[member] || '#FBBF24';
+}
+
+function escHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function expandRepeating(events, year, month) {
+  var result = [];
+  events.forEach(function(ev) {
+    result.push(ev);
+    if (ev.repeat === 'weekly') {
+      for (var w = 1; w <= 5; w++) {
+        var d = new Date(ev.date);
+        d.setDate(d.getDate() + w * 7);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          result.push(Object.assign({}, ev, { date: d.toISOString().slice(0,10), id: ev.id + '_w' + w }));
+        }
+      }
+    }
+    if (ev.repeat === 'monthly') {
+      var base = new Date(ev.date);
+      var rep = new Date(year, month, base.getDate());
+      var repISO = rep.toISOString().slice(0,10);
+      if (repISO !== ev.date) result.push(Object.assign({}, ev, { date: repISO, id: ev.id + '_m' }));
+    }
+  });
+  return result;
+}
+
+function eventOccursOnDate(ev, dayDate, dayISO) {
+  var base = normalizeDateOnly(ev.date);
+  if (!base || isNaN(base.getTime())) return false;
+
+  var repeat = ev.repeat || 'none';
+  if (repeat === 'none') {
+    return ev.date === dayISO;
+  }
+
+  if (repeat === 'weekly') {
+    if (dayDate < base) return false;
+    var diffDays = Math.floor((dayDate - base) / 86400000);
+    return diffDays % 7 === 0;
+  }
+
+  if (repeat === 'monthly') {
+    if (dayDate < base) return false;
+    return dayDate.getDate() === base.getDate();
+  }
+
+  return ev.date === dayISO;
+}
+
+function renderHomeCalendarWidget() {
+  var badge = document.getElementById('home-calendar-badge');
+  var weekdays = document.getElementById('home-cal-weekdays');
+  var grid = document.getElementById('home-cal-grid');
+  var weekLabel = document.getElementById('home-week-number');
+  if (!badge || !weekdays || !grid) return;
+
+  var now = new Date();
+  now.setHours(0,0,0,0);
+  var weekDay = (now.getDay() + 6) % 7;
+  var weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - weekDay);
+  var weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  var today = toISODate(now);
+  var shortMonth = function(d) {
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+  };
+  var isoWeekNumber = function(d) {
+    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  };
+
+  badge.textContent = shortMonth(weekStart) + ' - ' + shortMonth(weekEnd);
+  if (weekLabel) weekLabel.textContent = 'Vecka ' + isoWeekNumber(now);
+
+  weekdays.innerHTML = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'].map(function(lbl){
+    return '<div>' + lbl + '</div>';
+  }).join('');
+
+  var events = getCalendarEvents();
+  var html = '';
+
+  for (var i = 0; i < 7; i++) {
+    var dayDate = new Date(weekStart);
+    dayDate.setDate(weekStart.getDate() + i);
+    var dateISO = toISODate(dayDate);
+    var dayEvents = events.filter(function(ev){ return eventOccursOnDate(ev, dayDate, dateISO); });
+    var isToday = dateISO === today;
+
+    html += '<div class="home-cal-cell' + (isToday ? ' today' : '') + (dayEvents.length ? ' has-events' : '') + '" data-day-iso="' + dateISO + '">';
+    html += '<div class="home-cal-num">' + dayDate.getDate() + '</div>';
+
+    if (dayEvents.length) {
+      html += '<div class="home-cal-dots">';
+      dayEvents.slice(0, 3).forEach(function(ev){
+        html += '<span class="home-cal-dot" style="background:' + getMemberColor(ev.member) + '"></span>';
+      });
+      html += '</div>';
+
+      html += '<div class="home-cal-pill" style="background:' + getMemberColor(dayEvents[0].member) + '22;color:' + getMemberColor(dayEvents[0].member) + '">'
+        + escHtml(((dayEvents[0].emoji || '') ? dayEvents[0].emoji + ' ' : '') + (dayEvents[0].title || 'Händelse'))
+        + '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.home-cal-cell.has-events').forEach(function(cell){
+    cell.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var dayISO = cell.getAttribute('data-day-iso') || '';
+      var dayDate = normalizeDateOnly(dayISO);
+      var dayEvents = events.filter(function(ev){
+        return eventOccursOnDate(ev, dayDate, dayISO);
+      });
+      openDayEventsPopup(dayISO, dayEvents);
+      positionDayEventsPopup(cell);
+    });
+  });
+}
+
+function getFamilyBudgetData() {
+  return parseJSON(localStorage.getItem('familjebudget_data'), null);
+}
+
+function getBudgetTotalIncome(storageKey) {
+  var data = parseJSON(localStorage.getItem(storageKey), null);
+  if (!data || !Array.isArray(data.sections)) return 0;
+  return data.sections.reduce(function(total, section){
+    if (!(section && (section.isIncome || section.key === 'income'))) return total;
+    return total + (section.items || []).reduce(function(sectionTotal, item){
+      return sectionTotal + Number(item.actual || item.budget || 0);
+    }, 0);
+  }, 0);
+}
+
+function getFamilyIncomes() {
+  var markus = getBudgetTotalIncome('budgetTracker');
+  var maja = getBudgetTotalIncome('budgetTracker_maja');
+  if (!markus && !maja) {
+    return { markus: 38813, maja: 0 };
+  }
+  return { markus: markus, maja: maja };
+}
+
+function renderMoneyRows(items, toneClass) {
+  return items.map(function(item){
+    var name = String(item.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return '<tr><td>' + name + '</td><td class="num ' + (toneClass || '') + '">' + fmtKr(item.amount) + '</td></tr>';
+  }).join('');
+}
+
+function getCurrentMonthTransfer() {
+  var data = getFamilyBudgetData();
+  var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
+  if (!transfers.length) return null;
+
+  var now = new Date();
+  var monthNames = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  var currentMonthName = monthNames[now.getMonth()];
+  var currentYear = now.getFullYear();
+  return transfers.find(function(row){
+    return row && row.month === currentMonthName && row.year === currentYear;
+  }) || null;
+}
+
+function fmtKr(value) {
+  var number = Number(value || 0);
+  return number.toLocaleString('sv-SE') + ' kr';
+}
+
+function renderTransferPopup() {
+  var row = getCurrentMonthTransfer();
+  var title = document.getElementById('transfer-popup-title');
+  var sub = document.getElementById('transfer-popup-sub');
+  var grid = document.getElementById('transfer-popup-grid');
+
+  if (!title || !sub || !grid) return;
+
+  if (!row) {
+    title.textContent = 'Ingen överföring hittades';
+    sub.textContent = 'Det finns ingen sparad rad för aktuell månad ännu.';
+    grid.innerHTML = '<div class="transfer-empty">Öppna Familjebudgeten och lägg till månadsraden först.</div>';
+    return;
+  }
+
+  title.textContent = row.month + ' ' + row.year;
+  sub.textContent = 'Husutgifter: ' + fmtKr(row.husutgifter) + ' · ICA-kort: ' + fmtKr(row.ica);
+
+  grid.innerHTML = [
+    {
+      name: 'Maja',
+      tone: 'pink',
+      cards: [
+        { label: 'ICA-kort', value: row.icaMaja },
+        { label: 'Huskonto', value: row.huskontoMaja }
+      ]
+    },
+    {
+      name: 'Markus',
+      tone: 'blue',
+      cards: [
+        { label: 'ICA-kort', value: row.icaMarkus },
+        { label: 'Huskonto', value: row.huskontoMarkus }
+      ]
+    }
+  ].map(function(person){
+    return '<div class="transfer-person-col"><div class="transfer-person-head ' + person.tone + '">' + person.name + '</div>' + person.cards.map(function(card){
+      return '<div class="transfer-mini-card ' + person.tone + '"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div><div class="transfer-mini-hint">Automatiskt från aktuell månad</div></div>';
+    }).join('') + '</div>';
+  }).join('');
+}
+
+function toggleTransferPopup(forceOpen) {
+  var widget = document.getElementById('transfer-widget');
+  var popup = document.getElementById('transfer-popup');
+  if (!widget || !popup) return;
+  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('open');
+  widget.classList.toggle('open', shouldOpen);
+  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  if (shouldOpen) renderTransferPopup();
+}
+
+function renderMonthPopup() {
+  var title = document.getElementById('month-popup-title');
+  var sub = document.getElementById('month-popup-sub');
+  var table = document.getElementById('month-popup-table');
+
+  if (!title || !sub || !table) return;
+
+  var familyData = getFamilyBudgetData() || {};
+  var incomes = getFamilyIncomes();
+  var expenses = Array.isArray(familyData.expenses) ? familyData.expenses : [];
+  var huskonto = Array.isArray(familyData.huskonto) ? familyData.huskonto : [];
+
+  title.textContent = 'Mån. utgifter';
+  sub.textContent = 'Kompakt familjeöversikt för aktuell månad.';
+
+  table.innerHTML = ''
+    + '<div class="month-summary-grid">'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Nettoinkomst</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + '<tr><td><span style="color:#60A5FA;font-weight:700">Markus nettolön</span></td><td class="num" style="color:#60A5FA;font-weight:800">' + fmtKr(incomes.markus) + '</td></tr>'
+            + '<tr><td><span style="color:#F472B6;font-weight:700">Majas nettolön</span></td><td class="num" style="color:#F472B6;font-weight:800">' + fmtKr(incomes.maja) + '</td></tr>'
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(incomes.markus + incomes.maja) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Gemensamma utgifter Ica Kort</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + (expenses.length ? renderMoneyRows(expenses) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga utgifter registrerade</td></tr>')
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(expenses.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+      + '<div class="month-expense-section">'
+        + '<div class="month-summary-section-title">Gemensamma Utgifter Huskonto</div>'
+        + '<table class="month-list-table">'
+          + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
+          + '<tbody>'
+            + (huskonto.length ? renderMoneyRows(huskonto) : '<tr><td colspan="2" class="val" style="text-align:left;color:var(--text-sec)">Inga poster registrerade</td></tr>')
+            + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(huskonto.reduce(function(total, item){ return total + Number(item.amount || 0); }, 0)) + '</td></tr>'
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+    + '</div>';
+}
+
+function toggleMonthPopup(forceOpen) {
+  var widget = document.getElementById('transfer-widget');
+  var popup = document.getElementById('month-popup');
+  if (!widget || !popup) return;
+  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !widget.classList.contains('month-open');
+  widget.classList.toggle('month-open', shouldOpen);
+  popup.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  if (shouldOpen) renderMonthPopup();
+}
+
+function toISODate(d) {
+  var year = d.getFullYear();
+  var month = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
+}
+
+function normalizeDateOnly(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function nextOccurrence(eventObj, todayDate) {
+  var base = normalizeDateOnly(eventObj.date);
+  if (isNaN(base.getTime())) return null;
+
+  if (!eventObj.repeat || eventObj.repeat === 'none') {
+    return base >= todayDate ? base : null;
+  }
+
+  if (eventObj.repeat === 'weekly') {
+    var cand = new Date(base);
+    while (cand < todayDate) cand.setDate(cand.getDate() + 7);
+    return cand;
+  }
+
+  if (eventObj.repeat === 'monthly') {
+    var y = todayDate.getFullYear();
+    var m = todayDate.getMonth();
+    var day = base.getDate();
+    var candMonth = new Date(y, m, day);
+    if (candMonth < todayDate) candMonth = new Date(y, m + 1, day);
+    return candMonth;
+  }
+
+  return base >= todayDate ? base : null;
+}
+
+function getUpcomingEvent() {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  var events = getCalendarEvents().map(function(ev){
+    var nextDate = nextOccurrence(ev, today);
+    if (!nextDate) return null;
+    return {
+      title: ev.title || 'Händelse',
+      time: ev.time || '',
+      member: ev.member || 'family',
+      emoji: ev.emoji || '📅',
+      dateObj: nextDate
+    };
+  }).filter(Boolean);
+
+  events.sort(function(a,b){
+    var aISO = toISODate(a.dateObj);
+    var bISO = toISODate(b.dateObj);
+    if (aISO !== bISO) return aISO.localeCompare(bISO);
+    return (a.time || '').localeCompare(b.time || '');
+  });
+
+  return events[0] || null;
+}
+
+function getUpcomingEvents(limit) {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var weekDay = (today.getDay() + 6) % 7;
+  var weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - weekDay);
+
+  var events = getCalendarEvents();
+  var weekEvents = [];
+
+  for (var i = 0; i < 7; i++) {
+    var dayDate = new Date(weekStart);
+    dayDate.setDate(weekStart.getDate() + i);
+    var dayISO = toISODate(dayDate);
+    events.forEach(function(ev){
+      if (eventOccursOnDate(ev, dayDate, dayISO)) {
+        weekEvents.push({
+          id: ev.id,
+          title: ev.title || 'Händelse',
+          time: ev.time || '',
+          member: ev.member || 'family',
+          emoji: ev.emoji || '📅',
+          dateObj: new Date(dayDate)
+        });
+      }
+    });
+  }
+
+  weekEvents.sort(function(a,b){
+    var aISO = toISODate(a.dateObj);
+    var bISO = toISODate(b.dateObj);
+    if (aISO !== bISO) return aISO.localeCompare(bISO);
+    return (a.time || '').localeCompare(b.time || '');
+  });
+
+  return weekEvents.slice(0, limit || 8);
+}
+
+function formatDateSv(dateObj) {
+  return dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' });
+}
+
+function renderNextEventWidget() {
+  var wrap = document.getElementById('home-next-event-mini');
+  if (!wrap) return;
+
+  var upcoming = getUpcomingEvents(5);
+  if (!upcoming.length) {
+    wrap.innerHTML = '<div class="label">📅 Kommande händelser</div><div class="week-empty">Inga aktiviteter inbokade denna vecka</div>';
+    return;
+  }
+
+  var html = '<div class="label">📅 Kommande händelser</div>';
+  upcoming.forEach(function(ev){
+    var p = toISODate(ev.dateObj).split('-');
+    var dateStr = p[2] + '/' + p[1];
+    var meta = dateStr + (ev.time ? ' · ' + ev.time : '');
+    html += '<div class="up-item"><div class="up-color" style="background:' + getMemberColor(ev.member) + '"></div><div><div class="up-title">' + escHtml(ev.title) + '</div><div class="up-meta">' + escHtml(meta) + '</div></div></div>';
+  });
+
+  wrap.innerHTML = html;
+}
+
+function openDayEventsPopup(dayISO, dayEvents) {
+  var widget = document.getElementById('home-calendar-widget');
+  var pop = document.getElementById('home-day-popover');
+  var dateEl = document.getElementById('home-day-popover-date');
+  var listEl = document.getElementById('home-day-popover-list');
+  if (!widget || !pop || !dateEl || !listEl) return;
+
+  var dateLabel = dayISO.split('-').reverse().join('/');
+  dateEl.textContent = dateLabel;
+
+  if (!dayEvents.length) {
+    listEl.innerHTML = '<div class="home-day-popover-empty">Inga händelser denna dag.</div>';
+  } else {
+    listEl.innerHTML = dayEvents.map(function(ev){
+      var color = getMemberColor(ev.member);
+      var memberTxt = ev.member && ev.member !== 'family' ? (ev.member.charAt(0).toUpperCase() + ev.member.slice(1)) : 'Familj';
+      var meta = memberTxt + (ev.time ? ' · ' + ev.time : '');
+      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml((ev.emoji ? ev.emoji + ' ' : '') + (ev.title || 'Händelse')) + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div></div></div>';
+    }).join('');
+  }
+
+  pop.classList.remove('show');
+  pop.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(function(){
+    pop.classList.add('show');
+  });
+}
+
+function positionDayEventsPopup(anchorEl) {
+  var widget = document.getElementById('home-calendar-widget');
+  var pop = document.getElementById('home-day-popover');
+  if (!widget || !pop || !anchorEl) return;
+
+  var widgetRect = widget.getBoundingClientRect();
+  var anchorRect = anchorEl.getBoundingClientRect();
+
+  var anchorX = anchorRect.left - widgetRect.left + (anchorRect.width / 2);
+  var anchorBottom = anchorRect.bottom - widgetRect.top;
+
+  var left = anchorX - (pop.offsetWidth / 2);
+  left = Math.max(8, Math.min(left, widget.clientWidth - pop.offsetWidth - 8));
+
+  var top = anchorBottom + 8;
+  if (top + pop.offsetHeight > widget.clientHeight - 8) {
+    top = Math.max(8, (anchorRect.top - widgetRect.top) - pop.offsetHeight - 8);
+  }
+
+  pop.style.left = Math.round(left) + 'px';
+  pop.style.top = Math.round(top) + 'px';
+  pop.style.setProperty('--origin-x', Math.round(anchorX - left) + 'px');
+  pop.style.setProperty('--origin-y', top < anchorBottom ? '100%' : '0%');
+}
+
+function closeDayEventsPopup() {
+  var pop = document.getElementById('home-day-popover');
+  if (!pop) return;
+  pop.classList.remove('show');
+  pop.setAttribute('aria-hidden', 'true');
+}
+
+function renderTripWidget() {
+  var trip = getTrip();
+  var wrap = document.getElementById('trip-content');
+
+  if (!trip || !trip.startDate) {
+    wrap.className = 'empty';
+    wrap.textContent = 'Ingen resa planerad.';
+    return;
+  }
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var start = normalizeDateOnly(trip.startDate);
+  var days = Math.ceil((start - today) / 86400000);
+
+  var name = trip.name || 'Familjeresa';
+  var destination = trip.destination || 'Okänd destination';
+  var startLabel = formatDateSv(start);
+  var daysLabel = days > 0 ? days + ' dagar kvar' : (days === 0 ? 'Idag!' : 'Redan påbörjad');
+
+  wrap.className = '';
+  wrap.innerHTML = '<div class="next-main">✈️ ' + name + '</div>' +
+                   '<div class="next-sub">' + destination + ' · ' + startLabel + '</div>' +
+                   '<div class="trip-countdown"><span class="trip-days">' + (days > 0 ? days : 0) + '</span><span class="trip-label">' + daysLabel + '</span></div>';
+}
+
+function renderClockWidget() {
+  var now = new Date();
+  var time = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  var date = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  var timeEl = document.getElementById('clock-time');
+  var dateEl = document.getElementById('clock-date');
+  if (timeEl) timeEl.textContent = time;
+  if (dateEl) dateEl.textContent = date.charAt(0).toUpperCase() + date.slice(1);
+}
+
+function renderAllWidgets() {
+  __homeCalEventsSnapshot = localStorage.getItem('cal_events') || '[]';
+  renderClockWidget();
+  renderShoppingWidget();
+  renderHomeCalendarWidget();
+  renderNextEventWidget();
+}
+
+window.addEventListener('storage', renderAllWidgets);
+window.addEventListener('focus', renderAllWidgets);
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden) renderAllWidgets();
+});
+window.addEventListener('firebase-sync', function(event){
+  var key = event.detail && event.detail.key;
+  if (!key) return;
+  if (key.indexOf('sh_') === 0 || key.indexOf('cal_') === 0 || key === 'familjebudget_data' || key === 'budgetTracker' || key === 'budgetTracker_maja') {
+    renderAllWidgets();
+    var widget = document.getElementById('transfer-widget');
+    if (widget && widget.classList.contains('open')) renderTransferPopup();
+    if (widget && widget.classList.contains('month-open')) renderMonthPopup();
+  }
+});
+
+window.addEventListener('DOMContentLoaded', function(){
+  var pageTitle = document.querySelector('.header h1');
+  var addBtn = document.getElementById('shopping-add-btn');
+  var addInput = document.getElementById('shopping-add-input');
+  var calAddBtn = document.getElementById('home-cal-add-btn');
+  var calTitle = document.getElementById('home-cal-title');
+  var calDate = document.getElementById('home-cal-date');
+  var calTime = document.getElementById('home-cal-time');
+  var calendarOpenArrow = document.getElementById('calendar-open-arrow');
+  var dayPopover = document.getElementById('home-day-popover');
+  var dayPopoverClose = document.getElementById('home-day-popover-close');
+  var transferOpenBtn = document.getElementById('transfer-open-btn');
+  var transferMonthBtn = document.getElementById('transfer-month-btn');
+  var transferCloseBtn = document.getElementById('transfer-close-btn');
+
+  if (pageTitle) {
+    pageTitle.style.cursor = 'pointer';
+    pageTitle.addEventListener('click', function(){
+      location.href = 'home.html';
+    });
+  }
+
+  addBtn.addEventListener('click', addShoppingItemFromHome);
+  addInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addShoppingItemFromHome();
+    }
+  });
+
+  if (calDate && !calDate.value) {
+    calDate.value = toISODate(new Date());
+  }
+  initHomeFlatpickr();
+  if (calAddBtn) {
+    calAddBtn.addEventListener('click', addCalendarEventFromHome);
+  }
+  if (calTitle) {
+    calTitle.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCalendarEventFromHome();
+      }
+    });
+  }
+
+  if (transferOpenBtn) {
+    transferOpenBtn.addEventListener('click', function(){ toggleTransferPopup(); });
+  }
+  if (transferMonthBtn) {
+    transferMonthBtn.addEventListener('click', function(){ toggleMonthPopup(); });
+  }
+  if (transferCloseBtn) {
+    transferCloseBtn.addEventListener('click', function(){ toggleTransferPopup(false); });
+  }
+  var monthCloseBtn = document.getElementById('month-close-btn');
+  if (monthCloseBtn) {
+    monthCloseBtn.addEventListener('click', function(){ toggleMonthPopup(false); });
+  }
+  if (calendarOpenArrow) {
+    calendarOpenArrow.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      location.href = 'calendar.html';
+    });
+  }
+  if (dayPopoverClose) {
+    dayPopoverClose.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      closeDayEventsPopup();
+    });
+  }
+  document.addEventListener('click', function(e){
+    if (!dayPopover || dayPopover.getAttribute('aria-hidden') === 'true') return;
+    if (dayPopover.contains(e.target)) return;
+    if (e.target.closest('.home-cal-cell.has-events')) return;
+    closeDayEventsPopup();
+  });
+
+  renderAllWidgets();
+  setInterval(renderAllWidgets, 60000);
+  setInterval(monitorCalendarSync, 1500);
+});
+</script>
+</body>
+</html>
