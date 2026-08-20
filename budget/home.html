@@ -611,6 +611,7 @@
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .sidebar { padding-top: 0; }
       .under-calendar-widgets { grid-template-columns: 1fr; }
+      .sidebar #transfer-widget { margin-top: 14px; }
       .cal-cell { min-height: 56px; padding: 5px 4px; }
       .cal-num { font-size: 12px; }
       .month-nav { display: none; }
@@ -1534,6 +1535,41 @@ function getCurrentMonthTransfer() {
   var currentYear = now.getFullYear();
   return transfers.find(function(row){ return row && row.month === currentMonthName && row.year === currentYear; }) || null;
 }
+
+var transferOriginalParent = null;
+var transferOriginalNextSibling = null;
+
+function syncMobileWidgetOrder() {
+  var transferWidget = document.getElementById('transfer-widget');
+  var underCalendarWidgets = document.querySelector('.under-calendar-widgets');
+  var sidebar = document.querySelector('.sidebar');
+  var shoppingWidget = document.getElementById('shopping-widget');
+  if (!transferWidget || !underCalendarWidgets || !sidebar || !shoppingWidget) return;
+
+  if (!transferOriginalParent) {
+    transferOriginalParent = underCalendarWidgets;
+    transferOriginalNextSibling = transferWidget.nextElementSibling;
+  }
+
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile) {
+    if (transferWidget.parentElement !== sidebar) {
+      shoppingWidget.insertAdjacentElement('afterend', transferWidget);
+    }
+    underCalendarWidgets.style.display = 'none';
+    return;
+  }
+
+  if (transferWidget.parentElement !== transferOriginalParent) {
+    if (transferOriginalNextSibling && transferOriginalNextSibling.parentElement === transferOriginalParent) {
+      transferOriginalParent.insertBefore(transferWidget, transferOriginalNextSibling);
+    } else {
+      transferOriginalParent.appendChild(transferWidget);
+    }
+  }
+  underCalendarWidgets.style.display = '';
+}
+
 function renderTransferPopup() {
   var row = getCurrentMonthTransfer();
   var title = document.getElementById('transfer-popup-title');
@@ -1814,6 +1850,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   initCalendarFlatpickr();
   loadNotifSettings();
+  syncMobileWidgetOrder();
   renderMonth();
   renderShoppingWidget();
   renderHeaderMeta();
@@ -1839,6 +1876,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (transferMonthBtn) transferMonthBtn.addEventListener('click', function(){ toggleMonthPopup(); });
   if (transferCloseBtn) transferCloseBtn.addEventListener('click', function(){ toggleTransferPopup(false); });
   if (monthCloseBtn) monthCloseBtn.addEventListener('click', function(){ toggleMonthPopup(false); });
+
+  window.addEventListener('resize', syncMobileWidgetOrder);
 });
 window.addEventListener('firebase-sync', function(event) {
   var key = event.detail && event.detail.key;
