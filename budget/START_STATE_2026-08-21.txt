@@ -1,0 +1,5 @@
+START STATE MARKER
+Date: 2026-08-21T12:40:03+02:00
+Branch: main
+Commit: e7d132adff9805a857577e60a439c0a44a475377
+Purpose: Baseline before page-grouped roadmap implementation (one task at a time).

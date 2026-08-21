@@ -1422,21 +1422,88 @@ function ensureShoppingList() {
   }
   return lists;
 }
+function normalizeShoppingHeading(text) {
+  return String(text || '').trim().toLowerCase();
+}
+function parseShoppingInputWithCategory(text) {
+  var cleaned = String(text || '').trim();
+  var match = cleaned.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
+  if (!match) return { text: cleaned, category: '' };
+  var itemText = String(match[1] || '').trim();
+  var categoryText = String(match[2] || '').trim();
+  if (!itemText || !categoryText) return { text: cleaned, category: '' };
+  return { text: itemText, category: categoryText };
+}
+function findShoppingCategoryIndex(items, categoryName) {
+  var target = normalizeShoppingHeading(categoryName);
+  if (!target) return -1;
+  for (var i = 0; i < items.length; i++) {
+    var row = items[i];
+    if (row && row.type === 'category' && normalizeShoppingHeading(row.text) === target) {
+      return i;
+    }
+  }
+  return -1;
+}
+function insertShoppingItemAtTop(items, item) {
+  var firstCategoryIndex = items.findIndex(function(row){ return row && row.type === 'category'; });
+  if (firstCategoryIndex === -1) {
+    items.push(item);
+    return;
+  }
+  items.splice(firstCategoryIndex, 0, item);
+}
+function insertShoppingItemInCategory(items, categoryIndex, item) {
+  if (categoryIndex < 0) {
+    insertShoppingItemAtTop(items, item);
+    return;
+  }
+  var insertAt = categoryIndex + 1;
+  while (insertAt < items.length && items[insertAt] && items[insertAt].type !== 'category') {
+    insertAt += 1;
+  }
+  items.splice(insertAt, 0, item);
+}
 function getVisibleShoppingItems(list) {
-  return (list.items || []).filter(function(item){
-    return item && item.type !== 'category' && String(item.text || '').trim();
+  var visible = [];
+  var activeCategory = '';
+  (list.items || []).forEach(function(item){
+    if (!item) return;
+    if (item.type === 'category') {
+      activeCategory = String(item.text || '').trim();
+      return;
+    }
+    if (!String(item.text || '').trim()) return;
+    visible.push({
+      id: item.id,
+      type: item.type,
+      text: item.text,
+      checked: !!item.checked,
+      category: activeCategory
+    });
   });
+  return visible;
 }
 function getCurrentShoppingList() { return ensureShoppingList()[0]; }
 function addShoppingItemFromHome() {
   var input = document.getElementById('shopping-add-input');
   if (!input) return;
-  var text = (input.value || '').trim();
-  if (!text) return;
+  var parsed = parseShoppingInputWithCategory(input.value || '');
+  if (!parsed.text) return;
   var lists = ensureShoppingList();
   var list = lists[0];
   list.items = list.items || [];
-  list.items.push({ id: Date.now() + Math.random(), type: 'item', text: text, checked: false });
+  var newItem = { id: Date.now() + Math.random(), type: 'item', text: parsed.text, checked: false };
+  if (parsed.category) {
+    var categoryIndex = findShoppingCategoryIndex(list.items, parsed.category);
+    if (categoryIndex >= 0) {
+      insertShoppingItemInCategory(list.items, categoryIndex, newItem);
+    } else {
+      insertShoppingItemAtTop(list.items, newItem);
+    }
+  } else {
+    insertShoppingItemAtTop(list.items, newItem);
+  }
   saveShoppingLists(lists);
   input.value = '';
   renderShoppingWidget();
@@ -1451,18 +1518,31 @@ function toggleShoppingItem(id, checked) {
   renderShoppingWidget();
 }
 function updateShoppingItemText(id, text) {
-  var cleaned = String(text || '').trim();
-  if (!cleaned) return;
+  var parsed = parseShoppingInputWithCategory(text || '');
+  if (!parsed.text) return;
   var lists = ensureShoppingList();
   var list = lists[0];
-  var item = (list.items || []).find(function(it){ return it && it.id === id; });
-  if (!item) return;
-  item.text = cleaned;
+  var items = list.items || [];
+  var idx = items.findIndex(function(it){ return it && it.id === id; });
+  if (idx === -1) return;
+  var item = items[idx];
+  item.text = parsed.text;
+  if (parsed.category) {
+    items.splice(idx, 1);
+    var categoryIndex = findShoppingCategoryIndex(items, parsed.category);
+    if (categoryIndex >= 0) {
+      insertShoppingItemInCategory(items, categoryIndex, item);
+    } else {
+      insertShoppingItemAtTop(items, item);
+    }
+  }
   saveShoppingLists(lists);
 }
 function startEditShoppingItem(el, id) {
   if (!el || el.getAttribute('contenteditable') === 'true') return;
-  var original = String(el.textContent || '');
+  var original = String(el.dataset.rawText || el.textContent || '');
+  var originalDisplay = String(el.textContent || '');
+  el.textContent = original;
   el.setAttribute('contenteditable', 'true');
   el.setAttribute('spellcheck', 'false');
   el.focus();
@@ -1489,15 +1569,15 @@ function startEditShoppingItem(el, id) {
     cleanup();
 
     if (!saveChanges) {
-      el.textContent = original;
+      el.textContent = originalDisplay;
       return;
     }
     if (!next) {
-      el.textContent = original;
+      el.textContent = originalDisplay;
       return;
     }
     if (next === original.trim()) {
-      el.textContent = next;
+      el.textContent = originalDisplay;
       return;
     }
 
@@ -1540,14 +1620,21 @@ function renderShoppingWidget() {
     return;
   }
   ul.innerHTML = items.map(function(item){
-    var safe = String(item.text || '')
+    var displayText = item.category ? (String(item.text || '') + ' (' + String(item.category || '') + ')') : String(item.text || '');
+    var safe = displayText
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+    var rawTextAttr = String(item.text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
     return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
       '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
-      '<span class="txt" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' + safe + '</span>' +
+      '<span class="txt" data-raw-text="' + rawTextAttr + '" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' + safe + '</span>' +
       '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
       '</li>';
   }).join('');
