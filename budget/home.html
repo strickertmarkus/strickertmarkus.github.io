@@ -560,6 +560,7 @@
       overflow: auto;
       min-width: 132px;
       display: none;
+      touch-action: pan-y;
     }
 
     .fp-floating-menu.show { display: block; }
@@ -2031,7 +2032,7 @@ function attachCustomMonthYearPicker(instance) {
       opt.type = 'button';
       opt.className = 'fp-my-option' + (isActive ? ' active' : '');
       opt.textContent = label;
-      bindTapAndClick(opt, function(e) {
+      opt.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         onPick();
