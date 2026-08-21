@@ -2032,7 +2032,34 @@ function attachCustomMonthYearPicker(instance) {
       opt.type = 'button';
       opt.className = 'fp-my-option' + (isActive ? ' active' : '');
       opt.textContent = label;
+
+      var touchStartY = 0;
+      var touchMoved = false;
+
+      opt.addEventListener('touchstart', function(e) {
+        var t = e.touches && e.touches[0];
+        touchStartY = t ? t.clientY : 0;
+        touchMoved = false;
+      }, { passive: true });
+
+      opt.addEventListener('touchmove', function(e) {
+        var t = e.touches && e.touches[0];
+        if (!t) return;
+        if (Math.abs(t.clientY - touchStartY) > 10) touchMoved = true;
+      }, { passive: true });
+
+      opt.addEventListener('touchend', function(e) {
+        if (touchMoved) return;
+        opt.dataset.fpTouchHandledAt = String(Date.now());
+        e.preventDefault();
+        e.stopPropagation();
+        onPick();
+        closeMenus();
+      }, { passive: false });
+
       opt.addEventListener('click', function(e) {
+        var justTouchedAt = Number(opt.dataset.fpTouchHandledAt || 0);
+        if (justTouchedAt && (Date.now() - justTouchedAt) < 700) return;
         e.preventDefault();
         e.stopPropagation();
         onPick();
