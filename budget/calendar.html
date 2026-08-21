@@ -230,6 +230,86 @@
       fill: #E2E8F0;
     }
 
+    .flatpickr-current-month {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fp-my-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .fp-my-trigger {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(251,191,36,.24);
+      border-radius: 8px;
+      color: #E2E8F0;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1;
+      padding: 6px 10px;
+      min-height: 34px;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fp-my-trigger:hover,
+    .fp-my-trigger.open {
+      background: rgba(251,191,36,.12);
+      border-color: rgba(251,191,36,.46);
+      color: #FBBF24;
+    }
+
+    .fp-my-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(0,0,0,.45);
+      padding: 6px;
+      display: none;
+      z-index: 40;
+      max-height: 220px;
+      overflow: auto;
+      min-width: 132px;
+    }
+
+    .fp-my-menu.show { display: block; }
+    .fp-my-menu.month { left: 0; }
+    .fp-my-menu.year { right: 0; min-width: 96px; }
+
+    .fp-my-option {
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #E2E8F0;
+      border-radius: 7px;
+      text-align: left;
+      padding: 7px 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fp-my-option:hover {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.35);
+    }
+
+    .fp-my-option.active {
+      background: #FBBF24;
+      color: #181F2E;
+      font-weight: 700;
+    }
+
     .flatpickr-current-month .flatpickr-monthDropdown-months,
     .flatpickr-current-month input.cur-year {
       appearance: none;
@@ -1086,6 +1166,122 @@ function attachTimePresetGrid(instance) {
   instance.calendarContainer.appendChild(grid);
 }
 
+var FP_MONTHS_SV = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+
+function attachCustomMonthYearPicker(instance) {
+  if (!instance || !instance.calendarContainer) return;
+  var current = instance.calendarContainer.querySelector('.flatpickr-current-month');
+  if (!current) return;
+
+  function closeMenus() {
+    current.querySelectorAll('.fp-my-menu').forEach(function(menu){ menu.classList.remove('show'); });
+    current.querySelectorAll('.fp-my-trigger').forEach(function(btn){ btn.classList.remove('open'); });
+  }
+
+  var wrap = current.querySelector('.fp-my-wrap');
+  if (!wrap) {
+    current.innerHTML = '';
+    wrap = document.createElement('div');
+    wrap.className = 'fp-my-wrap';
+
+    var monthBtn = document.createElement('button');
+    monthBtn.type = 'button';
+    monthBtn.className = 'fp-my-trigger month';
+
+    var yearBtn = document.createElement('button');
+    yearBtn.type = 'button';
+    yearBtn.className = 'fp-my-trigger year';
+
+    var monthMenu = document.createElement('div');
+    monthMenu.className = 'fp-my-menu month';
+    FP_MONTHS_SV.forEach(function(name, idx){
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'fp-my-option';
+      opt.textContent = name;
+      opt.dataset.month = String(idx);
+      opt.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        instance.changeMonth(idx - instance.currentMonth);
+        closeMenus();
+      });
+      monthMenu.appendChild(opt);
+    });
+
+    var yearMenu = document.createElement('div');
+    yearMenu.className = 'fp-my-menu year';
+
+    monthBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var show = !monthMenu.classList.contains('show');
+      closeMenus();
+      if (show) {
+        monthMenu.classList.add('show');
+        monthBtn.classList.add('open');
+      }
+    });
+
+    yearBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var show = !yearMenu.classList.contains('show');
+      closeMenus();
+      if (show) {
+        yearMenu.classList.add('show');
+        yearBtn.classList.add('open');
+      }
+    });
+
+    wrap.appendChild(monthBtn);
+    wrap.appendChild(yearBtn);
+    wrap.appendChild(monthMenu);
+    wrap.appendChild(yearMenu);
+    current.appendChild(wrap);
+
+    if (!instance._fpMonthYearOutsideHandler) {
+      instance._fpMonthYearOutsideHandler = function(ev) {
+        if (instance.calendarContainer && !instance.calendarContainer.contains(ev.target)) closeMenus();
+      };
+      document.addEventListener('click', instance._fpMonthYearOutsideHandler);
+    }
+  }
+
+  var monthButton = current.querySelector('.fp-my-trigger.month');
+  var yearButton = current.querySelector('.fp-my-trigger.year');
+  var monthMenuEl = current.querySelector('.fp-my-menu.month');
+  var yearMenuEl = current.querySelector('.fp-my-menu.year');
+
+  if (monthButton) monthButton.textContent = FP_MONTHS_SV[instance.currentMonth] || '';
+  if (yearButton) yearButton.textContent = String(instance.currentYear);
+
+  if (monthMenuEl) {
+    monthMenuEl.querySelectorAll('.fp-my-option').forEach(function(opt){
+      opt.classList.toggle('active', Number(opt.dataset.month) === instance.currentMonth);
+    });
+  }
+
+  if (yearMenuEl) {
+    yearMenuEl.innerHTML = '';
+    for (var y = instance.currentYear - 12; y <= instance.currentYear + 12; y++) {
+      var yOpt = document.createElement('button');
+      yOpt.type = 'button';
+      yOpt.className = 'fp-my-option' + (y === instance.currentYear ? ' active' : '');
+      yOpt.textContent = String(y);
+      yOpt.addEventListener('click', (function(targetYear){
+        return function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          instance.changeYear(targetYear);
+          closeMenus();
+        };
+      })(y));
+      yearMenuEl.appendChild(yOpt);
+    }
+  }
+}
+
 function initCalendarFlatpickr() {
   if (typeof flatpickr === 'undefined') return;
   if (flatpickr.l10ns && flatpickr.l10ns.sv) {
@@ -1097,11 +1293,15 @@ function initCalendarFlatpickr() {
     if (!el) return;
     flatpickr(el, {
       dateFormat: 'Y-m-d',
-      monthSelectorType: 'dropdown',
+      monthSelectorType: 'static',
       allowInput: true,
       clickOpens: true,
       disableMobile: true,
-      locale: 'sv'
+      locale: 'sv',
+      onReady: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onOpen: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onMonthChange: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onYearChange: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); }
     });
   });
 
