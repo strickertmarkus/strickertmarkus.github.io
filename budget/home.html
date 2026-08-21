@@ -2003,9 +2003,19 @@ function attachCustomMonthYearPicker(instance) {
   var current = instance.calendarContainer.querySelector('.flatpickr-current-month');
   if (!current) return;
 
+  if (!Array.isArray(instance.config.ignoredFocusElements)) {
+    instance.config.ignoredFocusElements = [];
+  }
+
   function bindTapAndClick(el, handler) {
     if (!el || !handler || el.dataset.fpBound === '1') return;
     el.dataset.fpBound = '1';
+    el.addEventListener('pointerdown', function(e) {
+      e.stopPropagation();
+    });
+    el.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+    });
     el.addEventListener('touchstart', function(e) {
       el.dataset.fpLastTouchAt = String(Date.now());
       handler(e);
@@ -2026,6 +2036,15 @@ function attachCustomMonthYearPicker(instance) {
 
     var menu = document.createElement('div');
     menu.className = 'fp-floating-menu' + (kind === 'year' ? ' year' : '');
+    menu.addEventListener('pointerdown', function(e) {
+      e.stopPropagation();
+    });
+    menu.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+    });
+    menu.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
 
     function addOption(label, isActive, onPick) {
       var opt = document.createElement('button');
@@ -2047,6 +2066,14 @@ function attachCustomMonthYearPicker(instance) {
         if (!t) return;
         if (Math.abs(t.clientY - touchStartY) > 10) touchMoved = true;
       }, { passive: true });
+
+      opt.addEventListener('pointerdown', function(e) {
+        e.stopPropagation();
+      });
+
+      opt.addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+      });
 
       opt.addEventListener('touchend', function(e) {
         if (touchMoved) return;
@@ -2086,6 +2113,10 @@ function attachCustomMonthYearPicker(instance) {
 
     document.body.appendChild(menu);
     instance._fpFloatingMenu = menu;
+    instance.config.ignoredFocusElements = instance.config.ignoredFocusElements.filter(function(node) {
+      return node && node !== menu;
+    });
+    instance.config.ignoredFocusElements.push(menu);
 
     var rect = anchorButton.getBoundingClientRect();
     var menuWidth = kind === 'year' ? 96 : 132;
