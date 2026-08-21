@@ -465,36 +465,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      pointer-events: auto;
     }
 
     .fp-my-wrap {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       position: relative;
       z-index: 2;
     }
 
     .fp-my-trigger {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(251,191,36,.24);
-      border-radius: 8px;
+      background: none;
+      border: none;
       color: #E2E8F0;
       font-weight: 700;
       font-size: 16px;
-      line-height: 1;
-      padding: 6px 10px;
-      min-height: 34px;
+      line-height: 1.1;
+      padding: 2px 1px;
+      min-height: 0;
       cursor: pointer;
-      transition: background .18s, border-color .18s, color .18s;
+      transition: color .18s;
       font-family: 'Inter', sans-serif;
+      text-transform: lowercase;
     }
 
     .fp-my-trigger:hover,
     .fp-my-trigger.open {
-      background: rgba(251,191,36,.12);
-      border-color: rgba(251,191,36,.46);
       color: #FBBF24;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
 
     .fp-my-menu {
@@ -539,44 +540,6 @@
       color: #181F2E;
       font-weight: 700;
     }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months,
-    .flatpickr-current-month input.cur-year {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(251,191,36,.24);
-      border-radius: 7px;
-      color: #E2E8F0;
-      font-weight: 700;
-      min-height: 28px;
-      padding: 2px 8px;
-      outline: none;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-      padding-right: 24px;
-      background-image: linear-gradient(45deg, transparent 50%, #FBBF24 50%), linear-gradient(135deg, #FBBF24 50%, transparent 50%);
-      background-position: calc(100% - 14px) calc(50% - 2px), calc(100% - 9px) calc(50% - 2px);
-      background-size: 5px 5px, 5px 5px;
-      background-repeat: no-repeat;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months option {
-      background: #1E2638;
-      color: #E2E8F0;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
-    .flatpickr-current-month input.cur-year:hover,
-    .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
-    .flatpickr-current-month input.cur-year:focus {
-      background-color: rgba(251,191,36,.12);
-      border-color: rgba(251,191,36,.46);
-      color: #FBBF24;
-    }
-
 
     .flatpickr-day {
       color: #E2E8F0;
