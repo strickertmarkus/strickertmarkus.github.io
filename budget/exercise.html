@@ -290,6 +290,42 @@
       .ex-row{grid-template-columns:minmax(0,1fr) 62px 62px 68px 28px;}
       .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 84px 84px 28px;}
     }
+    @media(max-width:430px){
+      .main-content{padding:1.25rem .75rem 4rem;}
+      .stats-row{grid-template-columns:1fr;gap:10px;}
+      .week-grid{grid-template-columns:repeat(2,1fr);}
+      .section-hdr{flex-wrap:wrap;gap:8px;}
+      .section-hdr > div{width:100%;display:flex;flex-wrap:wrap;gap:8px;}
+      .chart-card{padding:16px;}
+      .log-wrap{overflow-x:hidden;padding:6px 0;}
+      .log-table{table-layout:fixed;font-size:11px;}
+      .log-table thead{display:table-header-group;}
+      .log-table th,.log-table td{padding:8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .log-table th:nth-child(1),.log-table td:nth-child(1){width:16%;}
+      .log-table th:nth-child(2),.log-table td:nth-child(2){width:21%;}
+      .log-table th:nth-child(3),.log-table td:nth-child(3){width:23%;}
+      .log-table th:nth-child(4),.log-table td:nth-child(4){width:12%;}
+      .log-table th:nth-child(5),.log-table td:nth-child(5){width:10%;}
+      .log-table th:nth-child(6),.log-table td:nth-child(6){width:12%;}
+      .log-table th:nth-child(7),.log-table td:nth-child(7){width:6%;text-align:right;}
+      .log-main-row td:nth-child(3){max-width:0;}
+      .log-tag{max-width:100%;font-size:10px;padding:2px 7px;}
+      .log-del{font-size:12px;padding:2px 4px;}
+      .log-detail{display:none;}
+      .log-detail.show{display:table-row;}
+      .log-detail td{padding:0;border:none;background:transparent;white-space:normal;overflow:visible;text-overflow:clip;}
+      .log-detail-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px;}
+      .log-detail-box .form-row,
+      .log-detail-box .log-detail-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+      .log-detail-box .form-group input,
+      .log-detail-box .form-group select,
+      .log-detail-box .form-group textarea{min-width:0;padding:7px 8px;font-size:12px;}
+      .log-detail-box .ex-row{grid-template-columns:minmax(0,1fr) 56px 56px 60px 24px;gap:4px;}
+      .log-detail-box .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 74px 74px 24px;}
+      .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
+      .modal{padding:18px 14px;}
+      .fab{position:static;margin:0 auto 16px;width:52px;height:52px;font-size:24px;}
+    }
   </style>
 </head>
 <body>
