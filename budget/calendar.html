@@ -318,6 +318,26 @@
       font-weight: 700;
     }
 
+    .fp-floating-menu {
+      position: fixed;
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(0,0,0,.45);
+      padding: 6px;
+      z-index: 2147483000;
+      max-height: 220px;
+      overflow: auto;
+      min-width: 132px;
+      display: none;
+    }
+
+    .fp-floating-menu.show { display: block; }
+
+    .fp-floating-menu.year {
+      min-width: 96px;
+    }
+
     .flatpickr-day {
       color: #E2E8F0;
       border-radius: 8px;
@@ -1138,6 +1158,17 @@ function attachTimePresetGrid(instance) {
 
 var FP_MONTHS_SV = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
 
+function closeFloatingMonthYearMenu(instance) {
+  if (!instance) return;
+  if (instance._fpFloatingMenu && instance._fpFloatingMenu.parentNode) {
+    instance._fpFloatingMenu.parentNode.removeChild(instance._fpFloatingMenu);
+  }
+  instance._fpFloatingMenu = null;
+  if (instance.calendarContainer) {
+    instance.calendarContainer.querySelectorAll('.fp-my-trigger').forEach(function(btn){ btn.classList.remove('open'); });
+  }
+}
+
 function attachCustomMonthYearPicker(instance) {
   if (!instance || !instance.calendarContainer) return;
   var current = instance.calendarContainer.querySelector('.flatpickr-current-month');
@@ -1158,8 +1189,58 @@ function attachCustomMonthYearPicker(instance) {
   }
 
   function closeMenus() {
-    current.querySelectorAll('.fp-my-menu').forEach(function(menu){ menu.classList.remove('show'); });
-    current.querySelectorAll('.fp-my-trigger').forEach(function(btn){ btn.classList.remove('open'); });
+    closeFloatingMonthYearMenu(instance);
+  }
+
+  function openFloatingMenu(kind, anchorButton) {
+    closeMenus();
+
+    var menu = document.createElement('div');
+    menu.className = 'fp-floating-menu' + (kind === 'year' ? ' year' : '');
+
+    function addOption(label, isActive, onPick) {
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'fp-my-option' + (isActive ? ' active' : '');
+      opt.textContent = label;
+      bindTapAndClick(opt, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        onPick();
+        closeMenus();
+      });
+      menu.appendChild(opt);
+    }
+
+    if (kind === 'month') {
+      FP_MONTHS_SV.forEach(function(name, idx) {
+        addOption(name, idx === instance.currentMonth, function() {
+          instance.changeMonth(idx - instance.currentMonth);
+        });
+      });
+    } else {
+      for (var y = instance.currentYear - 12; y <= instance.currentYear + 12; y++) {
+        (function(targetYear) {
+          addOption(String(targetYear), targetYear === instance.currentYear, function() {
+            instance.changeYear(targetYear);
+          });
+        })(y);
+      }
+    }
+
+    document.body.appendChild(menu);
+    instance._fpFloatingMenu = menu;
+
+    var rect = anchorButton.getBoundingClientRect();
+    var menuWidth = kind === 'year' ? 96 : 132;
+    var left = kind === 'year' ? (rect.right - menuWidth) : rect.left;
+    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+    var top = rect.bottom + 8;
+    if (top + 220 > window.innerHeight) top = Math.max(8, rect.top - 220);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.classList.add('show');
+    anchorButton.classList.add('open');
   }
 
   var wrap = current.querySelector('.fp-my-wrap');
@@ -1176,94 +1257,60 @@ function attachCustomMonthYearPicker(instance) {
     yearBtn.type = 'button';
     yearBtn.className = 'fp-my-trigger year';
 
-    var monthMenu = document.createElement('div');
-    monthMenu.className = 'fp-my-menu month';
-    FP_MONTHS_SV.forEach(function(name, idx){
-      var opt = document.createElement('button');
-      opt.type = 'button';
-      opt.className = 'fp-my-option';
-      opt.textContent = name;
-      opt.dataset.month = String(idx);
-      bindTapAndClick(opt, function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        instance.changeMonth(idx - instance.currentMonth);
-        closeMenus();
-      });
-      monthMenu.appendChild(opt);
-    });
-
-    var yearMenu = document.createElement('div');
-    yearMenu.className = 'fp-my-menu year';
-
     bindTapAndClick(monthBtn, function(e){
       e.preventDefault();
       e.stopPropagation();
-      var show = !monthMenu.classList.contains('show');
-      closeMenus();
-      if (show) {
-        monthMenu.classList.add('show');
-        monthBtn.classList.add('open');
-      }
+      openFloatingMenu('month', monthBtn);
     });
 
     bindTapAndClick(yearBtn, function(e){
       e.preventDefault();
       e.stopPropagation();
-      var show = !yearMenu.classList.contains('show');
-      closeMenus();
-      if (show) {
-        yearMenu.classList.add('show');
-        yearBtn.classList.add('open');
-      }
+      openFloatingMenu('year', yearBtn);
     });
 
     wrap.appendChild(monthBtn);
     wrap.appendChild(yearBtn);
-    wrap.appendChild(monthMenu);
-    wrap.appendChild(yearMenu);
     current.appendChild(wrap);
 
     if (!instance._fpMonthYearOutsideHandler) {
       instance._fpMonthYearOutsideHandler = function(ev) {
-        if (instance.calendarContainer && !instance.calendarContainer.contains(ev.target)) closeMenus();
+        var currentNode = instance.calendarContainer && instance.calendarContainer.querySelector('.flatpickr-current-month');
+        var insideCurrent = !!(currentNode && currentNode.contains(ev.target));
+        var insideFloating = !!(instance._fpFloatingMenu && instance._fpFloatingMenu.contains(ev.target));
+        if (!insideCurrent && !insideFloating) closeMenus();
       };
+      document.addEventListener('touchstart', instance._fpMonthYearOutsideHandler);
       document.addEventListener('click', instance._fpMonthYearOutsideHandler);
+    }
+
+    if (!instance._fpMonthYearRepositionHandler) {
+      instance._fpMonthYearRepositionHandler = function() {
+        closeMenus();
+      };
+      window.addEventListener('resize', instance._fpMonthYearRepositionHandler);
+      window.addEventListener('scroll', instance._fpMonthYearRepositionHandler, true);
+    }
+
+    if (!instance._fpMonthYearCleanupBound) {
+      instance._fpMonthYearCleanupBound = true;
+      var prevOnClose = instance.config.onClose;
+      instance.set('onClose', function(selectedDates, dateStr, inst) {
+        closeFloatingMonthYearMenu(inst);
+        if (Array.isArray(prevOnClose)) {
+          prevOnClose.forEach(function(fn){ if (typeof fn === 'function') fn(selectedDates, dateStr, inst); });
+        } else if (typeof prevOnClose === 'function') {
+          prevOnClose(selectedDates, dateStr, inst);
+        }
+      });
     }
   }
 
   var monthButton = current.querySelector('.fp-my-trigger.month');
   var yearButton = current.querySelector('.fp-my-trigger.year');
-  var monthMenuEl = current.querySelector('.fp-my-menu.month');
-  var yearMenuEl = current.querySelector('.fp-my-menu.year');
 
   if (monthButton) monthButton.textContent = FP_MONTHS_SV[instance.currentMonth] || '';
   if (yearButton) yearButton.textContent = String(instance.currentYear);
-
-  if (monthMenuEl) {
-    monthMenuEl.querySelectorAll('.fp-my-option').forEach(function(opt){
-      opt.classList.toggle('active', Number(opt.dataset.month) === instance.currentMonth);
-    });
-  }
-
-  if (yearMenuEl) {
-    yearMenuEl.innerHTML = '';
-    for (var y = instance.currentYear - 12; y <= instance.currentYear + 12; y++) {
-      var yOpt = document.createElement('button');
-      yOpt.type = 'button';
-      yOpt.className = 'fp-my-option' + (y === instance.currentYear ? ' active' : '');
-      yOpt.textContent = String(y);
-      bindTapAndClick(yOpt, (function(targetYear){
-        return function(e){
-          e.preventDefault();
-          e.stopPropagation();
-          instance.changeYear(targetYear);
-          closeMenus();
-        };
-      })(y));
-      yearMenuEl.appendChild(yOpt);
-    }
-  }
 }
 
 function initCalendarFlatpickr() {
