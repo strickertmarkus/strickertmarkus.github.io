@@ -291,14 +291,25 @@
       .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 84px 84px 28px;}
     }
     @media(max-width:430px){
+      .log-table{table-layout:fixed;font-size:11px;}
+      .log-table th,.log-table td{padding:8px 6px;}
+      .log-table th:nth-child(1),.log-table td:nth-child(1){width:15%;}
+      .log-table th:nth-child(2),.log-table td:nth-child(2){width:23%;}
+      .log-table th:nth-child(3),.log-table td:nth-child(3){width:20%;}
+      .log-table th:nth-child(4),.log-table td:nth-child(4){width:16%;}
+      .log-table th:nth-child(5),.log-table td:nth-child(5){width:16%;}
+      .log-table th:nth-child(6),.log-table td:nth-child(6){width:10%;text-align:right;}
+      .log-tag{font-size:10px;padding:2px 7px;white-space:normal;line-height:1.15;justify-content:center;text-align:center;}
+      .log-del{font-size:12px;padding:2px 4px;}
       .log-detail td{padding:0;border:none;background:transparent;white-space:normal;overflow:visible;text-overflow:clip;}
-      .log-detail-box{padding:10px;}
+      .log-detail-box{padding:8px;overflow-x:hidden;}
       .log-detail-box .form-row,
-      .log-detail-box .log-detail-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+      .log-detail-box .log-detail-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
       .log-detail-box .form-group{min-width:0;}
+      .log-detail-box .form-group label{font-size:10px;letter-spacing:.5px;white-space:normal;}
       .log-detail-box .form-group input,
       .log-detail-box .form-group select,
-      .log-detail-box .form-group textarea{min-width:0;padding:7px 8px;font-size:12px;}
+      .log-detail-box .form-group textarea{min-width:0;padding:6px 7px;font-size:11px;}
       .log-detail-box .ex-row{grid-template-columns:minmax(0,1fr) 56px 56px 60px 24px;gap:4px;}
       .log-detail-box .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 74px 74px 24px;}
       .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
@@ -420,7 +431,7 @@
     <div class="section-hdr fade-in"><h2>Träningslog</h2></div>
     <div class="log-wrap fade-in">
       <table class="log-table">
-        <thead><tr><th>Datum</th><th>Typ</th><th>Övningar</th><th>Volym</th><th>Tid</th><th>Puls</th><th></th></tr></thead>
+        <thead><tr><th>Datum</th><th>Typ</th><th>Volym</th><th>Tid</th><th>Puls</th><th></th></tr></thead>
         <tbody id="log-body"></tbody>
       </table>
       <div class="empty-state" id="log-empty"><div class="empty-icon">TR</div><p>Inga loggade pass ännu.<br>Tryck + för att logga ditt första träningspass.</p></div>
@@ -1440,10 +1451,9 @@ function renderLog(){
     });
     if(!exRows)exRows='<div class="inline-ex-row ex-row-item is-strength">'+buildExerciseEditorRowHtml('in',null,'removeInlineExercise(this)')+'</div>';
     html+='<tr class="log-main-row" onclick="toggleWorkoutDetails('+w.id+')"><td>'+fmtDate(w.date)+'</td><td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>';
-    html+='<td style="font-size:12px;color:var(--text-sec)">'+escHtml(exDisp||'—')+'</td>';
     html+='<td>'+volDisp+'</td><td>'+durDisp+'</td><td>'+hrDisp+'</td>';
     html+='<td class="log-actions"><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
-    html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="7"><div class="log-detail-box">';
+    html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="6"><div class="log-detail-box">';
     html+='<div class="form-row log-detail-row">'
       +'<div class="form-group"><label>Datum</label><input type="date" id="in-date-'+w.id+'" value="'+(w.date||'')+'"></div>'
       +'<div class="form-group"><label>Typ</label><input type="text" id="in-type-'+w.id+'" list="type-suggestions" value="'+escHtml(typeDisp||'')+'" placeholder="Ex: Rygg + Triceps"></div>'
