@@ -1974,8 +1974,15 @@ function attachCustomMonthYearPicker(instance) {
   function bindTapAndClick(el, handler) {
     if (!el || !handler || el.dataset.fpBound === '1') return;
     el.dataset.fpBound = '1';
-    el.addEventListener('click', handler);
-    el.addEventListener('touchstart', handler, { passive: false });
+    el.addEventListener('touchstart', function(e) {
+      el.dataset.fpLastTouchAt = String(Date.now());
+      handler(e);
+    }, { passive: false });
+    el.addEventListener('click', function(e) {
+      var lastTouchAt = Number(el.dataset.fpLastTouchAt || 0);
+      if (lastTouchAt && (Date.now() - lastTouchAt) < 700) return;
+      handler(e);
+    });
   }
 
   function closeMenus() {
