@@ -230,38 +230,6 @@
       fill: #E2E8F0;
     }
 
-    .flatpickr-current-month .flatpickr-monthDropdown-months,
-    .flatpickr-current-month input.cur-year,
-    .flatpickr-current-month .numInputWrapper {
-      border: 1px solid rgba(251,191,36,.28);
-      border-radius: 8px;
-      background: rgba(255,255,255,.04);
-      padding: 2px 6px;
-      min-height: 30px;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      color: #E2E8F0;
-      font-weight: 600;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months option {
-      background: #1E2638;
-      color: #E2E8F0;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
-    .flatpickr-current-month input.cur-year:hover,
-    .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
-    .flatpickr-current-month input.cur-year:focus {
-      background: rgba(251,191,36,.14);
-      border-color: rgba(251,191,36,.46);
-      color: #FBBF24;
-      outline: none;
-    }
 
     .flatpickr-day {
       color: #E2E8F0;
@@ -1092,7 +1060,7 @@ function initCalendarFlatpickr() {
     if (!el) return;
     flatpickr(el, {
       dateFormat: 'Y-m-d',
-      monthSelectorType: 'dropdown',
+      monthSelectorType: 'static',
       allowInput: true,
       clickOpens: true,
       disableMobile: true,

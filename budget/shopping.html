@@ -25,7 +25,8 @@
     .logo input{background:none;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text);font:inherit;font-size:18px;font-weight:600;padding:2px 0;width:100%;max-width:260px;cursor:text;}
     .header-top{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;padding:8px;}
     .header-left{flex:0 0 auto;}
-    .header-right-top{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+    .header-right-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+    .nav-dropdown-wrapper{margin-left:auto;}
     .logo-row{padding-top:10px;margin-top:2px;border-top:1px solid rgba(255,255,255,.05);}
     .undo-btn{background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.35);border-radius:var(--radius);color:#fff;cursor:pointer;font-size:18px;line-height:1;padding:8px 12px;transition:all .2s ease-out;min-width:52px;height:36px;display:inline-flex;align-items:center;justify-content:center;font-weight:600;}
     .undo-btn:hover{border-color:rgba(251,191,36,.55);color:#fff;background:rgba(251,191,36,.18);}
@@ -36,6 +37,8 @@
     .dropdown-btn:hover{border-color:rgba(251,191,36,.55);color:#fff;background:rgba(251,191,36,.18);}
     .dropdown-btn.icon-only{min-width:40px;width:40px;padding:8px;}
     .dropdown-btn.saved{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.55);color:#A7F3D0;}
+    .nav-btn{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.5);}
+    .nav-btn:hover{background:rgba(59,130,246,.3);border-color:rgba(96,165,250,.7);}
     .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:rgba(22,30,47,.98);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,.3);min-width:180px;z-index:100;backdrop-filter:blur(10px);}
     .dropdown-wrapper.open .dropdown-menu{display:block;}
     .dropdown-menu a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-sec);border-bottom:1px solid #4a5568;transition:background .2s ease-out;color .2s ease-out;font-size:13px;}
@@ -109,11 +112,13 @@
     .empty-state{text-align:center;padding:20px;color:var(--text-dim);font-size:13px;}
     @media (max-width: 520px){
       .header-top{flex-wrap:wrap;gap:8px;}
-      .header-right-top{order:3;width:100%;justify-content:stretch;margin-left:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+      .header-right-top{order:3;width:100%;justify-content:stretch;margin-left:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
       .header-right-top .dropdown-wrapper,
       .header-right-top .undo-btn{width:100%;}
       .header-right-top .dropdown-btn,
       .header-right-top .undo-btn{width:100%;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;padding:8px 6px;}
+      .nav-dropdown-wrapper{order:4;margin-left:0;width:100%;}
+      .nav-dropdown-wrapper .dropdown-btn{width:100%;min-width:0;}
       .header-left{width:100%;}
       .home-btn{width:100%;}
     }
@@ -139,24 +144,24 @@
           <button class="dropdown-btn">☰ Recept</button>
           <div class="dropdown-menu" id="recipes-dropdown"></div>
         </div>
-        <div class="dropdown-wrapper">
-          <button class="dropdown-btn icon-only" aria-label="Meny" title="Meny">☰</button>
-          <div class="dropdown-menu nav-dropdown-menu" id="nav-menu">
-            <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
-            <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
-            <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
-            <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
-            <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
-            <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
-            <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
-            <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
-            <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
-            <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
-            <a href="mila.html"><span class="nav-icon">👶🏻</span> Milas Milstolpar</a>
-            <a href="melker.html"><span class="nav-icon">👶🏻</span> Melkers Milstolpar</a>
-          </div>
-        </div>
         <button class="undo-btn" onclick="undo()" title="Ångra">↶</button>
+      </div>
+      <div class="dropdown-wrapper nav-dropdown-wrapper">
+        <button class="dropdown-btn nav-btn icon-only" aria-label="Meny" title="Meny">☰</button>
+        <div class="dropdown-menu nav-dropdown-menu" id="nav-menu">
+          <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+          <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+          <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+          <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+          <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+          <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+          <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+          <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+          <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+          <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+          <a href="mila.html"><span class="nav-icon">👶🏻</span> Milas Milstolpar</a>
+          <a href="melker.html"><span class="nav-icon">👶🏻</span> Melkers Milstolpar</a>
+        </div>
       </div>
     </div>
     <div class="logo-row">
