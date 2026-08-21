@@ -466,6 +466,12 @@
       align-items: center;
       justify-content: center;
       pointer-events: auto;
+      overflow: visible;
+    }
+
+    .flatpickr-months,
+    .flatpickr-month {
+      overflow: visible;
     }
 
     .fp-my-wrap {
@@ -511,6 +517,7 @@
       max-height: 220px;
       overflow: auto;
       min-width: 132px;
+      pointer-events: auto;
     }
 
     .fp-my-menu.show { display: block; }
@@ -1964,6 +1971,13 @@ function attachCustomMonthYearPicker(instance) {
   var current = instance.calendarContainer.querySelector('.flatpickr-current-month');
   if (!current) return;
 
+  function bindTapAndClick(el, handler) {
+    if (!el || !handler || el.dataset.fpBound === '1') return;
+    el.dataset.fpBound = '1';
+    el.addEventListener('click', handler);
+    el.addEventListener('touchstart', handler, { passive: false });
+  }
+
   function closeMenus() {
     current.querySelectorAll('.fp-my-menu').forEach(function(menu){ menu.classList.remove('show'); });
     current.querySelectorAll('.fp-my-trigger').forEach(function(btn){ btn.classList.remove('open'); });
@@ -1991,7 +2005,7 @@ function attachCustomMonthYearPicker(instance) {
       opt.className = 'fp-my-option';
       opt.textContent = name;
       opt.dataset.month = String(idx);
-      opt.addEventListener('click', function(e){
+      bindTapAndClick(opt, function(e){
         e.preventDefault();
         e.stopPropagation();
         instance.changeMonth(idx - instance.currentMonth);
@@ -2003,7 +2017,7 @@ function attachCustomMonthYearPicker(instance) {
     var yearMenu = document.createElement('div');
     yearMenu.className = 'fp-my-menu year';
 
-    monthBtn.addEventListener('click', function(e){
+    bindTapAndClick(monthBtn, function(e){
       e.preventDefault();
       e.stopPropagation();
       var show = !monthMenu.classList.contains('show');
@@ -2014,7 +2028,7 @@ function attachCustomMonthYearPicker(instance) {
       }
     });
 
-    yearBtn.addEventListener('click', function(e){
+    bindTapAndClick(yearBtn, function(e){
       e.preventDefault();
       e.stopPropagation();
       var show = !yearMenu.classList.contains('show');
@@ -2060,7 +2074,7 @@ function attachCustomMonthYearPicker(instance) {
       yOpt.type = 'button';
       yOpt.className = 'fp-my-option' + (y === instance.currentYear ? ' active' : '');
       yOpt.textContent = String(y);
-      yOpt.addEventListener('click', (function(targetYear){
+      bindTapAndClick(yOpt, (function(targetYear){
         return function(e){
           e.preventDefault();
           e.stopPropagation();
