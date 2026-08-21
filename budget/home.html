@@ -460,6 +460,39 @@
       fill: #E2E8F0;
     }
 
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year,
+    .flatpickr-current-month .numInputWrapper {
+      border: 1px solid rgba(251,191,36,.28);
+      border-radius: 8px;
+      background: rgba(255,255,255,.04);
+      padding: 2px 6px;
+      min-height: 30px;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      color: #E2E8F0;
+      font-weight: 600;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months option {
+      background: #1E2638;
+      color: #E2E8F0;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    .flatpickr-current-month input.cur-year:hover,
+    .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
+    .flatpickr-current-month input.cur-year:focus {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.46);
+      color: #FBBF24;
+      outline: none;
+    }
+
     .flatpickr-day {
       color: #E2E8F0;
       border-radius: 8px;
@@ -492,6 +525,8 @@
 
     .flatpickr-time {
       border-top: 1px solid rgba(251,191,36,.24);
+      background: rgba(255,255,255,.02);
+      border-radius: 0 0 12px 12px;
     }
 
     .flatpickr-time .flatpickr-time-separator,
@@ -610,12 +645,19 @@
     @media (max-width: 768px) {
       .filter-bar { display: none; }
       .app-header { flex-wrap: wrap; justify-content: center; gap: 8px; padding-bottom: 12px; }
+      .app-wrap { padding-bottom: 0; }
       .brand { width: 100%; }
       .month-nav { display: flex; position: static; transform: none; left: auto; top: auto; margin: 0 auto; order: 2; }
       .nav-dropdown-wrapper { position: static; transform: none; right: auto; top: auto; margin: 0 0 0 auto; order: 3; }
       .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .sidebar { padding-top: 0; }
+      .fab {
+        position: static;
+        margin: 0 auto 20px;
+        width: 50px;
+        height: 50px;
+      }
       .under-calendar-widgets { grid-template-columns: 1fr; }
       .sidebar #transfer-widget { margin-top: 14px; }
       .cal-cell { min-height: 56px; padding: 5px 4px; }
@@ -628,6 +670,9 @@
     @media (max-width: 480px) {
       .filter-bar { gap: 6px; }
       .member-chip span { display: none; }
+      .fab {
+        margin-bottom: 16px;
+      }
     }
   </style>
 </head>
@@ -766,6 +811,14 @@
           <span>📅 Kommande händelser</span>
         </div>
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
+      </div>
+
+      <div class="sidebar-section" id="trip-section">
+        <div class="sidebar-title">
+          <span>✈️ Kommande resa</span>
+          <button class="btn-xs" onclick="openTripModal()">+ Konfigurera</button>
+        </div>
+        <div id="trip-content"><div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div></div>
       </div>
 
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
@@ -1867,7 +1920,7 @@ function initCalendarFlatpickr() {
     if (!el) return;
     flatpickr(el, {
       dateFormat: 'Y-m-d',
-      monthSelectorType: 'static',
+      monthSelectorType: 'dropdown',
       allowInput: true,
       clickOpens: true,
       disableMobile: true,
@@ -1983,6 +2036,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadNotifSettings();
   syncMobileWidgetOrder();
   renderMonth();
+  renderTrip();
   renderShoppingWidget();
   renderHeaderMeta();
   setInterval(renderHeaderMeta, 60000);
