@@ -33,6 +33,17 @@
         transition: background .28s ease, border-color .28s ease, color .28s ease, box-shadow .28s ease;
       }
 
+      /* Start-set is a primary workout action even before hype mode begins. */
+      #session-controls:not(.decision-row) .session-cta.primary {
+        flex: 1 1 100%;
+        width: 100%;
+        min-height: 58px;
+        padding: 15px 22px;
+        font-size: 16px;
+        font-weight: 900;
+        border-radius: 12px;
+      }
+
       #session-modal.hype-mode {
         --accent: #FB923C;
         --accent-dim: rgba(251,146,60,.14);
@@ -64,6 +75,7 @@
       }
       #session-modal.hype-mode .session-cta.primary {
         flex: 1 1 100%;
+        width: 100%;
         min-height: 58px;
         padding: 15px 22px;
         background: linear-gradient(135deg,#FB923C,#F97316);
@@ -126,17 +138,132 @@
         text-transform: uppercase;
         letter-spacing: .9px;
       }
-      @media (max-width: 430px) {
+
+      /* Mobile is a first-class layout for pass mode. */
+      @media (max-width: 600px) {
+        #session-modal {
+          padding: 0 !important;
+          align-items: stretch !important;
+          justify-content: stretch !important;
+        }
+        #session-modal .session-shell {
+          width: 100vw !important;
+          min-width: 0 !important;
+          height: 100dvh !important;
+          min-height: 100dvh !important;
+          overflow: hidden !important;
+        }
+        #session-modal .session-top {
+          padding: 10px 12px !important;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        #session-modal .session-title {
+          font-size: 16px !important;
+        }
+        #session-modal #session-subtitle {
+          font-size: 11px !important;
+          line-height: 1.25;
+        }
+        #session-modal .session-top > .session-cta {
+          padding: 8px 10px !important;
+          font-size: 11px !important;
+          min-height: 38px;
+          white-space: nowrap;
+        }
+        #session-modal .session-grid {
+          display: grid !important;
+          grid-template-columns: minmax(0,1fr) !important;
+          gap: 8px !important;
+          padding: 8px !important;
+          height: auto !important;
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          -webkit-overflow-scrolling: touch;
+        }
+        #session-modal .session-card {
+          width: 100% !important;
+          min-width: 0 !important;
+          padding: 10px !important;
+          border-radius: 12px !important;
+        }
+        #session-modal .session-main {
+          gap: 10px !important;
+        }
+        #session-modal .session-timers {
+          grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+          gap: 7px !important;
+        }
+        #session-modal .timer-box {
+          min-width: 0;
+          padding: 8px !important;
+        }
+        #session-modal .timer-lbl {
+          font-size: 9px !important;
+          letter-spacing: .55px !important;
+        }
+        #session-modal .timer-val {
+          font-size: 24px !important;
+        }
+        #session-modal #session-current-ex {
+          font-size: 18px !important;
+          overflow-wrap: anywhere;
+        }
+        #session-modal .session-nextset {
+          font-size: 12px !important;
+          line-height: 1.35;
+          overflow-wrap: anywhere;
+        }
+        #session-controls {
+          width: 100%;
+        }
+        #session-controls:not(.decision-row) .session-cta.primary,
+        #session-modal.hype-mode #session-controls .session-cta.primary {
+          width: 100% !important;
+          min-height: 66px !important;
+          padding: 16px 14px !important;
+          font-size: 17px !important;
+          border-radius: 13px !important;
+        }
+        #session-modal .session-cta-row.decision-row {
+          grid-template-columns: 1fr !important;
+          gap: 7px !important;
+        }
+        #session-modal .session-cta-row.decision-row .session-cta {
+          min-height: 48px;
+          font-size: 13px !important;
+        }
         .session-countdown-ring {
-          width: 148px;
-          height: 148px;
+          width: min(148px, 43vw);
+          height: min(148px, 43vw);
         }
         .session-countdown-value {
           font-size: 34px;
         }
-        #session-modal.hype-mode .session-cta.primary {
-          min-height: 62px;
-          font-size: 16px;
+        #session-modal .set-log-item {
+          grid-template-columns: 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) !important;
+          gap: 5px !important;
+          min-width: 0;
+        }
+        #session-modal .set-log-item input {
+          min-width: 0;
+          padding: 7px 5px !important;
+          font-size: 11px !important;
+        }
+        #session-modal .set-log-item .set-tag {
+          font-size: 10px !important;
+        }
+        #session-modal .session-table {
+          table-layout: fixed;
+          width: 100%;
+          font-size: 10px !important;
+        }
+        #session-modal .session-table th,
+        #session-modal .session-table td {
+          padding: 6px 4px !important;
+          overflow-wrap: anywhere;
         }
       }
     `;
