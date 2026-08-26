@@ -70,7 +70,6 @@
 
       @media (max-width:600px) {
         #session-pre-timer.show {
-          height: 100dvh !important;
           min-height: 100dvh !important;
           padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
         }
@@ -97,6 +96,7 @@
   function ensureExerciseHeadingRow() {
     var current = document.getElementById('session-current-ex');
     if (!current) return null;
+
     var row = document.getElementById('session-ex-heading-row');
     if (!row) {
       row = document.createElement('div');
@@ -120,8 +120,7 @@
   }
 
   function setHidden(el, hidden) {
-    if (!el || el.hidden === hidden) return;
-    el.hidden = hidden;
+    if (el && el.hidden !== hidden) el.hidden = hidden;
   }
 
   function updateNextExercise() {
@@ -141,7 +140,7 @@
     if (!name) {
       setHidden(arrow, true);
       setHidden(next, true);
-      if (next.textContent !== '') next.textContent = '';
+      if (next.textContent) next.textContent = '';
       return;
     }
 
@@ -155,49 +154,42 @@
     updateNextExercise();
   }
 
+  function scheduleRefresh() {
+    setTimeout(refresh, 0);
+    setTimeout(refresh, 80);
+  }
+
   function install() {
+    if (window.__exerciseHypePolishPassiveInstalled) return;
+    window.__exerciseHypePolishPassiveInstalled = true;
+
     addStyles();
     refresh();
 
-    var attempts = 0;
-    function bind() {
-      attempts++;
-      if (typeof window.renderSessionMode !== 'function') {
-        if (attempts < 80) setTimeout(bind, 100);
-        return;
-      }
-      if (window.__exerciseHypePolishInstalled) return;
-      window.__exerciseHypePolishInstalled = true;
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+      if (target.closest('#session-modal') || target.closest('#day-workout-modal')) scheduleRefresh();
+    }, true);
 
-      var previousRender = window.renderSessionMode;
-      window.renderSessionMode = function () {
-        var result = previousRender.apply(this, arguments);
-        refresh();
-        return result;
-      };
+    document.addEventListener('input', function (event) {
+      var target = event.target;
+      if (target && target.closest && target.closest('#session-modal')) scheduleRefresh();
+    }, true);
 
-      ['startCurrentSet','startNextSet','completeCurrentSet','addExtraSet','finishCurrentExercise'].forEach(function (name) {
-        var fn = window[name];
-        if (typeof fn !== 'function' || fn.__hypePolishWrapped) return;
-        var wrapped = function () {
-          var result = fn.apply(this, arguments);
-          setTimeout(refresh, 0);
-          return result;
-        };
-        wrapped.__hypePolishWrapped = true;
-        window[name] = wrapped;
-      });
+    document.addEventListener('change', function (event) {
+      var target = event.target;
+      if (target && target.closest && target.closest('#session-modal')) scheduleRefresh();
+    }, true);
 
-      refresh();
-    }
-    bind();
-
-    /* No broad MutationObserver here. The previous subtree observer could
-       observe the text changes made by refresh() itself and enter an infinite
-       render loop when a workout session was opened. Session wrappers above
-       are the authoritative refresh points. */
+    /* Passive safety sync only. No MutationObserver and no function wrapping. */
+    setInterval(function () {
+      var modal = document.getElementById('session-modal');
+      var pre = document.getElementById('session-pre-timer');
+      if ((modal && modal.classList.contains('show')) || (pre && pre.classList.contains('show'))) refresh();
+    }, 750);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
   else install();
 })();
