@@ -294,5 +294,36 @@ function isFirebaseConnected() {
   return syncEnabled && firebaseInitialized && db !== null;
 }
 
+// Exercise page layout correction for native date controls on narrow screens.
+function applyExerciseLogDateFieldFix() {
+  if (!/\/exercise\.html$/.test(window.location.pathname)) return;
+  const style = document.createElement('style');
+  style.id = 'exercise-log-date-field-fix';
+  style.textContent = `
+    .log-detail-row .form-group {
+      min-width: 0 !important;
+      overflow: visible !important;
+    }
+    .log-detail-row input {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      text-align: left !important;
+    }
+    .log-detail-row input[type="date"] {
+      text-align: left !important;
+      direction: ltr !important;
+    }
+    .log-detail-row input[type="date"]::-webkit-datetime-edit,
+    .log-detail-row input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+      text-align: left !important;
+      padding: 0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // Auto-init when DOM is ready
 document.addEventListener('DOMContentLoaded', initFirebaseSync, { once: true });
+document.addEventListener('DOMContentLoaded', applyExerciseLogDateFieldFix, { once: true });
