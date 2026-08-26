@@ -204,12 +204,10 @@ function startLocalPolling() {
     if (!db || !syncEnabled) return;
     for (const key of SYNC_KEYS) {
       let currentValue = null;
-      // Try localStorage first
       try {
         currentValue = _realGetItem(key);
       } catch (e) { /* blocked */ }
 
-      // If localStorage didn't have a new value, check IndexedDB
       if ((currentValue === null || currentValue === lastKnownValues[key])
            && typeof fallbackGetItem !== 'undefined') {
         try {
@@ -235,13 +233,11 @@ function startLocalPolling() {
  * Writes to localStorage and dispatches event for page UI refresh.
  */
 function handleRemoteUpdate(key, value) {
-  if (lastKnownValues[key] === value) return; // No change
+  if (lastKnownValues[key] === value) return;
   console.log(`[Firebase] Remote update: '${key}'`);
   lastKnownValues[key] = value;
   safeSetLocal(key, value);
 
-  // Dispatch event — page handlers should use event.detail.value
-  // to get the data, not rely on localStorage (which may be stale on iOS)
   window.dispatchEvent(new CustomEvent('firebase-sync', {
     detail: { key, value }
   }));
@@ -250,7 +246,6 @@ function handleRemoteUpdate(key, value) {
 /** Write to Firebase (debounced 500ms) */
 function syncToFirebase(key, value) {
   if (!syncEnabled || !db) return;
-  // Mark as known to prevent echo from our own write
   lastKnownValues[key] = value;
   if (syncQueue[key]) clearTimeout(syncQueue[key]);
   syncQueue[key] = setTimeout(async () => {
@@ -266,16 +261,13 @@ function syncToFirebase(key, value) {
 
 /** Monkey-patch localStorage.setItem to auto-sync tracked keys to Firebase */
 localStorage.setItem = function(key, value) {
-  // Write to real localStorage
   try {
     _realSetItem(key, value);
   } catch (error) {
-    // localStorage blocked (iOS Safari) — try IndexedDB fallback if available
     if (typeof fallbackSetItem !== 'undefined') {
       fallbackSetItem(key, value).catch(() => {});
     }
   }
-  // Sync tracked keys to Firebase
   if (SYNC_KEYS.includes(key)) {
     syncToFirebase(key, value);
   }
@@ -284,7 +276,6 @@ localStorage.setItem = function(key, value) {
 /** Force reload all data from Firebase */
 async function forceSyncFromFirebase() {
   console.log('[Firebase] Forcing full sync...');
-  // Reset known values so handleRemoteUpdate sees everything as new
   for (const key of SYNC_KEYS) delete lastKnownValues[key];
   await loadAllFromFirebase();
   window.dispatchEvent(new Event('firebase-force-sync'));
@@ -294,7 +285,7 @@ function isFirebaseConnected() {
   return syncEnabled && firebaseInitialized && db !== null;
 }
 
-// Exercise page layout correction for native date controls on narrow screens.
+// Exercise page layout correction for native date controls.
 function applyExerciseLogDateFieldFix() {
   if (!/\/exercise\.html$/.test(window.location.pathname)) return;
   const style = document.createElement('style');
@@ -319,6 +310,47 @@ function applyExerciseLogDateFieldFix() {
     .log-detail-row input[type="date"]::-webkit-datetime-edit-fields-wrapper {
       text-align: left !important;
       padding: 0 !important;
+    }
+
+    @media (max-width: 430px) {
+      .log-detail-box {
+        overflow-x: visible !important;
+      }
+      .log-detail-box .log-detail-row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 6px !important;
+      }
+      .log-detail-row .form-group {
+        min-width: 0 !important;
+        width: 100% !important;
+        overflow: visible !important;
+      }
+      .log-detail-row input[type="date"] {
+        display: block !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 6px 7px !important;
+        text-align: left !important;
+        direction: ltr !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+      }
+      .log-detail-row input[type="date"]::-webkit-date-and-time-value,
+      .log-detail-row input[type="date"]::-webkit-datetime-edit,
+      .log-detail-row input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        text-align: left !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .log-detail-row input[type="date"]::-webkit-calendar-picker-indicator {
+        margin-left: auto !important;
+        flex: 0 0 auto !important;
+      }
     }
   `;
   document.head.appendChild(style);
