@@ -41,6 +41,14 @@
       sessionFocus.src = 'exercise-session-focus.js';
       sessionFocus.async = false;
       sessionFocus.dataset.exerciseSessionFocus = 'true';
+      sessionFocus.addEventListener('load', function () {
+        if (document.querySelector('script[data-exercise-session-progress]')) return;
+        var sessionProgress = document.createElement('script');
+        sessionProgress.src = 'exercise-session-progress.js';
+        sessionProgress.async = false;
+        sessionProgress.dataset.exerciseSessionProgress = 'true';
+        document.head.appendChild(sessionProgress);
+      }, { once: true });
       document.head.appendChild(sessionFocus);
     }, { once: true });
     document.head.appendChild(sessionEnhancements);
