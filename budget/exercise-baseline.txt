@@ -62,9 +62,11 @@ COMPLETED / FINISHED
   - Same behavior for strength and cardio.
   - Tap/click or keyboard activation skips the countdown immediately.
   - Responsive mobile layout.
+  - Visual format now matches the 60-segment workout countdown.
   Key commits:
   - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
   - e385d37d9639f36fd0a3b03dba56bba44de5ff3a
+  - 879daf43e19bab7de9cb1d3ca3e580396bec231e
 
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
@@ -94,9 +96,22 @@ COMPLETED / FINISHED
   Key commits:
   - 0d8a880ba1576adfd0271ad62175ff52e9fd65b7
   - ac3293b33109cb4d2782130d183366a9acf12b4a
+  - de25b93ed3c2384da481c2bc2f843b6acbd49547
+  - 6f1ee44a00bacb3f94a8862483fb2e6c0d3c9ad4
+
+- Between-set activity configuration.
+  Status: FINISHED
+  Pass builder can optionally configure what happens between planned sets per exercise:
+  - Ingen
+  - Vila with configurable seconds (default 60 s)
+  - Valfri övning with custom name, e.g. Hopprep, and configurable seconds (default 30 s)
+  The activity is shown as a segmented countdown before the next set, can be skipped with one tap, is persisted in plannedSessions, copied into active sessionState, and has separate reload-draft protection.
+  Key commits:
+  - 879daf43e19bab7de9cb1d3ca3e580396bec231e
+  - f7c8927df2ce9356850694a3ac62493b3c464753
 
 Current exercise asset checkpoint after completed work:
-- Points 3/6/7 feature commit: ba35b9db5f0fa4edb6939c98f6800af2868a3c45
-- Loader/cache commit: e385d37d9639f36fd0a3b03dba56bba44de5ff3a
+- Between-set / segmented pre-timer feature: 879daf43e19bab7de9cb1d3ca3e580396bec231e
+- Loader/cache commit: f7c8927df2ce9356850694a3ac62493b3c464753
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
