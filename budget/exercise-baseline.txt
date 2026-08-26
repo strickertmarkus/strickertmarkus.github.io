@@ -30,6 +30,8 @@ COMPLETED / FINISHED
   - Stable set/reps/kg/time details without mobile pop-in.
   - Mobile repaint/compositing fix between active set and decision state.
   - Flowing session layout restored after fixed-layout experiment.
+  - Current exercise shown larger with next exercise inline after an arrow.
+  - Existing workout overview is visible at the bottom of Träningsläge.
   Key commits:
   - 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
   - 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
@@ -41,6 +43,7 @@ COMPLETED / FINISHED
   - 4bba7b1bb8e8c8927dd857904d61dc94520cd13e
   - 7f061bc61b0b48b0bee7e8b73a47ef81de7e89ad
   - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
+  - 2cb01c1da19b49cabc11c513df5139819f24f3ec
 
 - Point 5 — Circular countdown for timed cardio sets.
   Status: FINISHED
@@ -62,11 +65,14 @@ COMPLETED / FINISHED
   - Same behavior for strength and cardio.
   - Tap/click or keyboard activation skips the countdown immediately.
   - Responsive mobile layout.
-  - Visual format now matches the 60-segment workout countdown.
+  - Visual format matches the 60-segment workout countdown.
+  - Full-viewport overlay in both normal and Träningsläge views.
+  - No visible skip-instruction text.
   Key commits:
   - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
   - e385d37d9639f36fd0a3b03dba56bba44de5ff3a
   - 879daf43e19bab7de9cb1d3ca3e580396bec231e
+  - 2cb01c1da19b49cabc11c513df5139819f24f3ec
 
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
@@ -101,17 +107,24 @@ COMPLETED / FINISHED
 
 - Between-set activity configuration.
   Status: FINISHED
-  Pass builder can optionally configure what happens between planned sets per exercise:
+  The Pass builder has one pass-wide "Mellan varje set" setting, not one setting per exercise row.
+  Options:
   - Ingen
   - Vila with configurable seconds (default 60 s)
   - Valfri övning with custom name, e.g. Hopprep, and configurable seconds (default 30 s)
-  The activity is shown as a segmented countdown before the next set, can be skipped with one tap, is persisted in plannedSessions, copied into active sessionState, and has separate reload-draft protection.
+  Builder styling follows the normal blue exercise-page theme.
+  The global setting is persisted on the planned session as betweenSets and copied into active sessionState.
+  Legacy per-exercise betweenSets values/drafts are migrated to the pass-wide setting.
+  The between-set activity is shown as a real segmented full-screen training step before the next planned set, an extra set, or transition to the next exercise, and can be skipped with one tap.
+  Direct-start from the builder is handled so the setting is copied after persistence and cannot be skipped because of save/start ordering.
   Key commits:
   - 879daf43e19bab7de9cb1d3ca3e580396bec231e
   - f7c8927df2ce9356850694a3ac62493b3c464753
+  - 7a463d8af66c9d95f2e24d1b45cff26a1359dd1f
+  - 4f51aa27b5987a04335eb8d30ed0016261015796
 
 Current exercise asset checkpoint after completed work:
-- Between-set / segmented pre-timer feature: 879daf43e19bab7de9cb1d3ca3e580396bec231e
-- Loader/cache commit: f7c8927df2ce9356850694a3ac62493b3c464753
+- Global between-set feature/fix: 7a463d8af66c9d95f2e24d1b45cff26a1359dd1f
+- Loader/cache commit: 4f51aa27b5987a04335eb8d30ed0016261015796
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
