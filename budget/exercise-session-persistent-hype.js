@@ -47,7 +47,6 @@
         color: #67E8F9;
       }
 
-      /* Persistent hype keeps the focused full-width workout card between sets. */
       #session-modal.persistent-hype .session-grid {
         grid-template-columns: minmax(0,1fr) !important;
       }
@@ -70,7 +69,6 @@
         display: block;
       }
 
-      /* Overview deliberately restores the original two-column, editable view. */
       #session-modal.session-overview-mode .session-grid {
         display: grid !important;
         grid-template-columns: 1.2fr 1fr !important;
@@ -181,13 +179,12 @@
 
     resetForNewSession(state);
     var active = !!state;
-    var hype = active && !overviewMode;
+    var persistent = active && !overviewMode;
 
-    /* Force hype styling for the whole session. Existing timer code may toggle
-       hype-mode by setRunning; this layer intentionally owns the final state. */
-    modal.classList.toggle('persistent-hype', hype);
-    modal.classList.toggle('hype-focus', hype);
-    modal.classList.toggle('hype-mode', hype);
+    /* Keep the focused Hype layout for the whole session, but leave the
+       hype-mode class to the active-set logic so animations only run during sets. */
+    modal.classList.toggle('persistent-hype', persistent);
+    modal.classList.toggle('hype-focus', persistent);
     modal.classList.toggle('session-overview-mode', active && overviewMode);
 
     var button = ensureToggleButton();
@@ -197,16 +194,7 @@
       button.setAttribute('aria-pressed', overviewMode ? 'true' : 'false');
     }
 
-    if (hype) renderPersistentDetails(state);
-
-    /* When overview is open, rebuild the editable log from sessionState without
-       changing the underlying data. */
-    if (active && overviewMode && typeof window.renderSessionMode === 'function') {
-      var log = document.getElementById('session-set-log');
-      if (log && log.children.length === 0) {
-        // The normal render wrapper will populate it on the current render pass.
-      }
-    }
+    if (persistent) renderPersistentDetails(state);
   }
 
   function install() {
