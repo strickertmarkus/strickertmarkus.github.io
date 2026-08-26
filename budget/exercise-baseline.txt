@@ -20,111 +20,59 @@ COMPLETED / FINISHED
 
 - Point 4 — Träningsläge / Hype session experience.
   Status: FINISHED
-  Includes:
-  - Persistent orange Träningsläge styling throughout the focused workout session.
-  - Speed-line/tunnel animation only while a set is actively running.
-  - Larger active-set controls.
-  - One-tap start of the next planned set.
-  - Extra set and Övning klar use distinct colors.
-  - Focused session view with manual Overview/Träningsläge toggle.
-  - Stable set/reps/kg/time details without mobile pop-in.
-  - Mobile repaint/compositing fix between active set and decision state.
-  - Flowing session layout restored after fixed-layout experiment.
-  - Current exercise shown larger with next exercise inline after an arrow.
-  - Existing workout overview is visible at the bottom of Träningsläge.
-  Key commits:
-  - 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
-  - 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
-  - 2b78530a41d348ed110c350faaa5bf5f7140f5f0
-  - f74b6b6dd36b0b08ea6bb97d8c4151c3db7a3f88
-  - c61b92dcde120e5d503b7c6a339775aaa9dfcbe0
-  - 0c7cf244b823da98483f351257020e090a8728b9
-  - 3db3b8fcda80f4f815d3ad28a8a4ec7c567f3956
-  - 4bba7b1bb8e8c8927dd857904d61dc94520cd13e
-  - 7f061bc61b0b48b0bee7e8b73a47ef81de7e89ad
-  - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
-  - 2cb01c1da19b49cabc11c513df5139819f24f3ec
+  Includes persistent orange Träningsläge styling, active-set tunnel animation, larger controls, focused layout, stable details, mobile repaint fixes and progress UI.
+  Note: the later optional hype-polish layer (next-exercise inline/overview-bottom polish) is currently NOT loaded in the emergency-stable loader while session stability is being re-established.
 
 - Point 5 — Circular countdown for timed cardio sets.
   Status: FINISHED
-  Includes:
-  - 60-segment proportional countdown.
-  - Remaining planned time display.
-  - Tap-to-pause/resume.
-  - Extra spacing between cardio timer and Starta set controls.
-  Key commits:
-  - 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
-  - cc5f1a20f1158a262fed1d1149cd2a45f54dc2eb
-  - 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
-  - 4bba7b1bb8e8c8927dd857904d61dc94520cd13e
+  Includes 60-segment proportional countdown, remaining planned time and tap-to-pause/resume.
 
 - Point 6 — Five-second pre-timer before every set.
   Status: FINISHED
-  Includes:
-  - Circular 5-second countdown before the first set and each following set.
-  - Same behavior for strength and cardio.
-  - Tap/click or keyboard activation skips the countdown immediately.
-  - Responsive mobile layout.
-  - Visual format matches the 60-segment workout countdown.
-  - Full-viewport overlay in both normal and Träningsläge views.
-  - No visible skip-instruction text.
-  Key commits:
-  - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
-  - e385d37d9639f36fd0a3b03dba56bba44de5ff3a
-  - 879daf43e19bab7de9cb1d3ca3e580396bec231e
-  - 2cb01c1da19b49cabc11c513df5139819f24f3ec
+  Includes circular 5-second countdown before each set, strength/cardio support, skip by tap/click and responsive mobile layout.
 
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
   Cardio exercises are excluded from workout-volume calculation; strength volume remains reps x weight across completed strength sets.
-  Existing volume fields are normalized when workout data are saved/read through the exercise page.
-  Key commits:
-  - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
-  - e385d37d9639f36fd0a3b03dba56bba44de5ff3a
 
 - Workout progress UI.
   Status: FINISHED
-  Includes strength/cardio color coding and current/completed set progress.
-  Key commits:
-  - 1a991ade3d093b8c61602ad77ab9f79b6dc41db4
-  - 7c80292d05e7fbb4b7a40b61a66591eb6084074b
 
 - Reload recovery / accidental refresh protection.
-  Status: FINISHED
-  Active sessions and unfinished Pass configuration are checkpointed and restored after reload.
-  Key commits:
-  - 41f3204a11878e828547ae50c256929771b4454c
-  - e545db6308c35909a9e25e03100f5d25058e79d1
+  Status: SAFETY MODE
+  Session checkpointing remains available, but automatic restoration of an active workout is temporarily disabled after the 2026-08-26 freeze incident. Existing recovery snapshots are preserved as backups instead of being auto-opened.
 
 - Week selector + Denna vecka toolbar alignment.
   Status: FINISHED
-  Date selector and Denna vecka remain on the same row on desktop and mobile.
-  Key commits:
-  - 0d8a880ba1576adfd0271ad62175ff52e9fd65b7
-  - ac3293b33109cb4d2782130d183366a9acf12b4a
-  - de25b93ed3c2384da481c2bc2f843b6acbd49547
-  - 6f1ee44a00bacb3f94a8862483fb2e6c0d3c9ad4
 
-- Between-set activity configuration.
-  Status: FINISHED
+- Between-set activity configuration V2.
+  Status: ACTIVE / SAFE REBUILD
   The Pass builder has one pass-wide "Mellan varje set" setting, not one setting per exercise row.
   Options:
   - Ingen
   - Vila with configurable seconds (default 60 s)
   - Valfri övning with custom name, e.g. Hopprep, and configurable seconds (default 30 s)
   Builder styling follows the normal blue exercise-page theme.
-  The global setting is persisted on the planned session as betweenSets and copied into active sessionState.
-  Legacy per-exercise betweenSets values/drafts are migrated to the pass-wide setting.
-  The between-set activity is shown as a real segmented full-screen training step before the next planned set, an extra set, or transition to the next exercise, and can be skipped with one tap.
-  Direct-start from the builder is handled so the setting is copied after persistence and cannot be skipped because of save/start ordering.
-  Key commits:
-  - 879daf43e19bab7de9cb1d3ca3e580396bec231e
-  - f7c8927df2ce9356850694a3ac62493b3c464753
-  - 7a463d8af66c9d95f2e24d1b45cff26a1359dd1f
-  - 4f51aa27b5987a04335eb8d30ed0016261015796
+
+  V2 safety architecture:
+  - Does NOT wrap startNextSet, addExtraSet, finishCurrentExercise, renderSessionMode or other core session-state functions.
+  - Does NOT use a broad MutationObserver.
+  - Uses one capture-phase click handler only on buttons inside #session-controls.
+  - When a between-set step is required, the original button click is delayed, the timer runs, then that exact same button is clicked once with a bypass flag.
+  - If config/UI setup fails, the original button action is allowed/fired instead of leaving the session blocked.
+  - Setting is stored per profile/date locally and also written to plannedSessions.betweenSets when a saved plan exists.
+  - Runtime reads the setting from the workout date rather than modifying active sessionState.
+
+  Safe V2 commits:
+  - Feature: ba16ad721f6ec79d8626e61d1aa541db18f959e4
+  - Loader/cache: a9e89f78db8e4b77daa66401012d95e0c0e5bdd7
+
+Emergency stability commits before V2:
+- Emergency-stable loader: ab8ce28293214d55589abe6df6e00fb562aa88b5
+- Recovery safety mode: 1d408e3fa65bd2e7e19f3a70a9cdcfb6dea112e1
 
 Current exercise asset checkpoint after completed work:
-- Global between-set feature/fix: 7a463d8af66c9d95f2e24d1b45cff26a1359dd1f
-- Loader/cache commit: 4f51aa27b5987a04335eb8d30ed0016261015796
+- Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
+- Loader/cache: a9e89f78db8e4b77daa66401012d95e0c0e5bdd7
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
