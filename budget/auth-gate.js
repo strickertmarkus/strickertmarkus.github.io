@@ -29,7 +29,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-1902-between-sets';
+  var exerciseAssetsVersion = '20260826-1918-hype-polish';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
@@ -96,6 +96,14 @@
                         betweenSets.src = 'exercise-between-sets.js?v=' + exerciseAssetsVersion;
                         betweenSets.async = false;
                         betweenSets.dataset.exerciseBetweenSets = 'true';
+                        betweenSets.addEventListener('load', function () {
+                          if (document.querySelector('script[data-exercise-hype-polish]')) return;
+                          var hypePolish = document.createElement('script');
+                          hypePolish.src = 'exercise-hype-polish.js?v=' + exerciseAssetsVersion;
+                          hypePolish.async = false;
+                          hypePolish.dataset.exerciseHypePolish = 'true';
+                          document.head.appendChild(hypePolish);
+                        }, { once: true });
                         document.head.appendChild(betweenSets);
                       }, { once: true });
                       document.head.appendChild(weekToolbarFix);
