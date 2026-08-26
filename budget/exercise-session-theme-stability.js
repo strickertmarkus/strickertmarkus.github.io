@@ -9,63 +9,8 @@
     var style = document.createElement('style');
     style.id = 'exercise-session-theme-stability-style';
     style.textContent = `
-      /* The focused session layout can remain persistent, but the orange visual
-         Hype theme is now intentionally tied only to an actively running set. */
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) {
-        --accent: #22D3EE !important;
-        --accent-dim: rgba(34,211,238,.12) !important;
-        --accent-glow: rgba(34,211,238,.24) !important;
-        --border-a: rgba(34,211,238,.30) !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell {
-        background: linear-gradient(180deg,#0b1220 0%,#0c1626 52%,#09111d 100%) !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-top {
-        border-bottom-color: rgba(34,211,238,.16) !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-card {
-        background: rgba(34,211,238,.035) !important;
-        border-color: rgba(34,211,238,.14) !important;
-        box-shadow: none !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .timer-box {
-        background: rgba(34,211,238,.07) !important;
-        border-color: rgba(34,211,238,.22) !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .timer-val,
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) #session-current-ex,
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-table th {
-        color: #67E8F9 !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-cta.primary {
-        background: linear-gradient(135deg,#22D3EE,#0891B2) !important;
-        border-color: transparent !important;
-        color: #04151a !important;
-        box-shadow: 0 8px 24px rgba(8,145,178,.18) !important;
-      }
-
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-cta.warn,
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-cta.success {
-        background: rgba(34,211,238,.055) !important;
-        border-color: rgba(34,211,238,.19) !important;
-        color: #A5F3FC !important;
-      }
-
-      /* No speed-line pseudo-elements between sets. */
-      #session-modal.persistent-hype:not(.hype-mode) .session-shell::before,
-      #session-modal.persistent-hype:not(.hype-mode) .session-shell::after {
-        content: none !important;
-        animation: none !important;
-      }
-
-      /* Active set: keep the orange theme completely stable. */
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) {
+      /* Persistent session stays orange at all times while Hype view is active. */
+      #session-modal.persistent-hype:not(.session-overview-mode) {
         --accent: #FB923C !important;
         --accent-dim: rgba(251,146,60,.14) !important;
         --accent-glow: rgba(251,146,60,.32) !important;
@@ -73,31 +18,96 @@
         background: rgba(21,10,4,.94) !important;
       }
 
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell {
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-shell {
         background:
           radial-gradient(circle at 50% 5%, rgba(251,146,60,.17), transparent 34%),
           linear-gradient(180deg,#17100c 0%,#1a0f09 48%,#100b09 100%) !important;
       }
 
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-card {
-        background: rgba(251,146,60,.055) !important;
-        border-color: rgba(251,146,60,.22) !important;
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-top {
+        border-bottom-color: rgba(251,146,60,.22) !important;
       }
 
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .timer-box {
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-card {
+        background: rgba(251,146,60,.055) !important;
+        border-color: rgba(251,146,60,.22) !important;
+        box-shadow: 0 0 34px rgba(251,146,60,.035) !important;
+      }
+
+      #session-modal.persistent-hype:not(.session-overview-mode) .timer-box {
         background: rgba(251,146,60,.10) !important;
         border-color: rgba(251,146,60,.42) !important;
       }
 
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .timer-val,
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) #session-current-ex {
+      #session-modal.persistent-hype:not(.session-overview-mode) .timer-val,
+      #session-modal.persistent-hype:not(.session-overview-mode) #session-current-ex,
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-table th {
         color: #FDBA74 !important;
       }
 
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-cta.primary {
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.primary {
         background: linear-gradient(135deg,#FB923C,#F97316) !important;
+        border-color: transparent !important;
         color: #1d0d03 !important;
         box-shadow: 0 8px 26px rgba(249,115,22,.22) !important;
+      }
+
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.warn,
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.success {
+        border-color: rgba(251,146,60,.28) !important;
+        background: rgba(251,146,60,.085) !important;
+        color: #FDBA74 !important;
+      }
+
+      /* Between sets: keep orange colors, but remove only the tunnel/speed-line layer. */
+      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell::before,
+      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell::after {
+        content: none !important;
+        animation: none !important;
+      }
+
+      /* During an active set, restore the speed-line animation. */
+      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell {
+        position: relative;
+        overflow: hidden;
+      }
+      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::before,
+      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::after {
+        content: '';
+        position: absolute;
+        inset: -28%;
+        pointer-events: none;
+        z-index: 0;
+        opacity: .22;
+        background:
+          repeating-conic-gradient(
+            from 0deg at 50% 52%,
+            transparent 0deg 7deg,
+            rgba(251,146,60,.18) 7.15deg 7.55deg,
+            transparent 7.7deg 14deg
+          );
+        -webkit-mask-image: radial-gradient(circle at 50% 52%, transparent 0 17%, rgba(0,0,0,.2) 23%, #000 38%, rgba(0,0,0,.9) 58%, transparent 78%);
+        mask-image: radial-gradient(circle at 50% 52%, transparent 0 17%, rgba(0,0,0,.2) 23%, #000 38%, rgba(0,0,0,.9) 58%, transparent 78%);
+        animation: hypeTunnelRush 1.35s linear infinite;
+        transform-origin: 50% 52%;
+      }
+      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::after {
+        opacity: .12;
+        animation-duration: 2.1s;
+        animation-delay: -.8s;
+        filter: blur(.4px);
+      }
+      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      @media (max-width: 600px) {
+        #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::before,
+        #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::after {
+          inset: -40%;
+          opacity: .17;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -124,6 +134,8 @@
     var overview = modal.classList.contains('session-overview-mode');
     var running = !!(state && state.setRunning);
 
+    /* hype-mode now means active speed-line animation only. The orange visual
+       theme itself is owned by persistent-hype and never changes between sets. */
     if (modal.classList.contains('persistent-hype') && !overview) {
       modal.classList.toggle('hype-mode', running);
     }
