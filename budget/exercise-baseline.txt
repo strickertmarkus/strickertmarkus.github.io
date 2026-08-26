@@ -1,6 +1,10 @@
-Exercise page baseline before Markus/Maja user-toggle implementation.
+Exercise page baseline before larger exercise-page changes.
 
 Baseline commit: 2945f0005d87a472700601da0801cb0a1a8549cb
 Date recorded: 2026-08-26
 
-Use this commit as the restore point for exercise.html before the larger exercise-page changes.
+Completed changes:
+- Point 2 — Markus/Maja exercise profile toggle with fully separate data stores.
+  Commit: 604ef049f7e12f9e0658bff764e02e91bdd6118e
+
+Use the baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
