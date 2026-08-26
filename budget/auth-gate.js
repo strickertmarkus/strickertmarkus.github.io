@@ -1,7 +1,5 @@
 (function () {
-  if (typeof firebase === "undefined") {
-    return;
-  }
+  if (typeof firebase === "undefined") return;
 
   var cfg = window.FIREBASE_CONFIG || {
     apiKey: "AIzaSyCgGL762gcglRpix4-akfP7NydFj5ChxfM",
@@ -14,117 +12,50 @@
   };
 
   try {
-    if (!firebase.apps || !firebase.apps.length) {
-      firebase.initializeApp(cfg);
-    }
-  } catch (e) {
-    // Firebase may already be initialized on this page.
-  }
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(cfg);
+  } catch (e) {}
 
-  if (!firebase.auth) {
-    return;
-  }
+  if (!firebase.auth) return;
 
   var auth = firebase.auth();
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-2018-freeze-loop-fix';
+  var exerciseAssetsVersion = '20260826-2027-emergency-stable';
 
-  if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
-    var sessionEnhancements = document.createElement('script');
-    sessionEnhancements.src = 'exercise-session-enhancements.js?v=' + exerciseAssetsVersion;
-    sessionEnhancements.async = false;
-    sessionEnhancements.dataset.exerciseSessionEnhancements = 'true';
-    sessionEnhancements.addEventListener('load', function () {
-      if (document.querySelector('script[data-exercise-session-focus]')) return;
-      var sessionFocus = document.createElement('script');
-      sessionFocus.src = 'exercise-session-focus.js?v=' + exerciseAssetsVersion;
-      sessionFocus.async = false;
-      sessionFocus.dataset.exerciseSessionFocus = 'true';
-      sessionFocus.addEventListener('load', function () {
-        if (document.querySelector('script[data-exercise-session-progress]')) return;
-        var sessionProgress = document.createElement('script');
-        sessionProgress.src = 'exercise-session-progress.js?v=' + exerciseAssetsVersion;
-        sessionProgress.async = false;
-        sessionProgress.dataset.exerciseSessionProgress = 'true';
-        sessionProgress.addEventListener('load', function () {
-          if (document.querySelector('script[data-exercise-session-persistent-hype]')) return;
-          var persistentHype = document.createElement('script');
-          persistentHype.src = 'exercise-session-persistent-hype.js?v=' + exerciseAssetsVersion;
-          persistentHype.async = false;
-          persistentHype.dataset.exerciseSessionPersistentHype = 'true';
-          persistentHype.addEventListener('load', function () {
-            if (document.querySelector('script[data-exercise-session-theme-stability]')) return;
-            var themeStability = document.createElement('script');
-            themeStability.src = 'exercise-session-theme-stability.js?v=' + exerciseAssetsVersion;
-            themeStability.async = false;
-            themeStability.dataset.exerciseSessionThemeStability = 'true';
-            themeStability.addEventListener('load', function () {
-              if (document.querySelector('script[data-exercise-session-stable-details]')) return;
-              var stableDetails = document.createElement('script');
-              stableDetails.src = 'exercise-session-stable-details.js?v=' + exerciseAssetsVersion;
-              stableDetails.async = false;
-              stableDetails.dataset.exerciseSessionStableDetails = 'true';
-              stableDetails.addEventListener('load', function () {
-                if (document.querySelector('script[data-exercise-session-mobile-repaint-fix]')) return;
-                var mobileRepaintFix = document.createElement('script');
-                mobileRepaintFix.src = 'exercise-session-mobile-repaint-fix.js?v=' + exerciseAssetsVersion;
-                mobileRepaintFix.async = false;
-                mobileRepaintFix.dataset.exerciseSessionMobileRepaintFix = 'true';
-                mobileRepaintFix.addEventListener('load', function () {
-                  if (document.querySelector('script[data-exercise-reload-recovery]')) return;
-                  var recovery = document.createElement('script');
-                  recovery.src = 'exercise-reload-recovery.js?v=' + exerciseAssetsVersion;
-                  recovery.async = false;
-                  recovery.dataset.exerciseReloadRecovery = 'true';
-                  recovery.addEventListener('load', function () {
-                    if (document.querySelector('script[data-exercise-points-3-6-7]')) return;
-                    var points367 = document.createElement('script');
-                    points367.src = 'exercise-points-3-6-7.js?v=' + exerciseAssetsVersion;
-                    points367.async = false;
-                    points367.dataset.exercisePoints367 = 'true';
-                    points367.addEventListener('load', function () {
-                      if (document.querySelector('script[data-exercise-mobile-week-toolbar-fix]')) return;
-                      var weekToolbarFix = document.createElement('script');
-                      weekToolbarFix.src = 'exercise-mobile-week-toolbar-fix.js?v=' + exerciseAssetsVersion;
-                      weekToolbarFix.async = false;
-                      weekToolbarFix.dataset.exerciseMobileWeekToolbarFix = 'true';
-                      weekToolbarFix.addEventListener('load', function () {
-                        if (document.querySelector('script[data-exercise-between-sets]')) return;
-                        var betweenSets = document.createElement('script');
-                        betweenSets.src = 'exercise-between-sets.js?v=' + exerciseAssetsVersion;
-                        betweenSets.async = false;
-                        betweenSets.dataset.exerciseBetweenSets = 'true';
-                        betweenSets.addEventListener('load', function () {
-                          if (document.querySelector('script[data-exercise-hype-polish]')) return;
-                          var hypePolish = document.createElement('script');
-                          hypePolish.src = 'exercise-hype-polish.js?v=' + exerciseAssetsVersion;
-                          hypePolish.async = false;
-                          hypePolish.dataset.exerciseHypePolish = 'true';
-                          document.head.appendChild(hypePolish);
-                        }, { once: true });
-                        document.head.appendChild(betweenSets);
-                      }, { once: true });
-                      document.head.appendChild(weekToolbarFix);
-                    }, { once: true });
-                    document.head.appendChild(points367);
-                  }, { once: true });
-                  document.head.appendChild(recovery);
-                }, { once: true });
-                document.head.appendChild(mobileRepaintFix);
-              }, { once: true });
-              document.head.appendChild(stableDetails);
-            }, { once: true });
-            document.head.appendChild(themeStability);
-          }, { once: true });
-          document.head.appendChild(persistentHype);
-        }, { once: true });
-        document.head.appendChild(sessionProgress);
-      }, { once: true });
-      document.head.appendChild(sessionFocus);
-    }, { once: true });
-    document.head.appendChild(sessionEnhancements);
+  function loadScriptOnce(src, attr, done) {
+    if (document.querySelector('script[' + attr + ']')) {
+      if (done) done();
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = src + '?v=' + exerciseAssetsVersion;
+    s.async = false;
+    s.setAttribute(attr, 'true');
+    if (done) s.addEventListener('load', done, { once: true });
+    document.head.appendChild(s);
+  }
+
+  if (isExercisePage) {
+    loadScriptOnce('exercise-session-enhancements.js', 'data-exercise-session-enhancements', function () {
+      loadScriptOnce('exercise-session-focus.js', 'data-exercise-session-focus', function () {
+        loadScriptOnce('exercise-session-progress.js', 'data-exercise-session-progress', function () {
+          loadScriptOnce('exercise-session-persistent-hype.js', 'data-exercise-session-persistent-hype', function () {
+            loadScriptOnce('exercise-session-theme-stability.js', 'data-exercise-session-theme-stability', function () {
+              loadScriptOnce('exercise-session-stable-details.js', 'data-exercise-session-stable-details', function () {
+                loadScriptOnce('exercise-session-mobile-repaint-fix.js', 'data-exercise-session-mobile-repaint-fix', function () {
+                  loadScriptOnce('exercise-reload-recovery.js', 'data-exercise-reload-recovery', function () {
+                    loadScriptOnce('exercise-points-3-6-7.js', 'data-exercise-points-3-6-7', function () {
+                      loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix');
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   }
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
@@ -154,7 +85,6 @@
     var emailEl = document.getElementById("login-email");
     var passEl = document.getElementById("login-password");
     var createBtn = document.getElementById("create-account-btn");
-
     if (!form || !emailEl || !passEl) return;
 
     form.addEventListener("submit", function (event) {
@@ -166,13 +96,8 @@
         return;
       }
       auth.signInWithEmailAndPassword(email, password)
-        .then(function () {
-          showMessage("Inloggad. Omdirigerar...", false);
-          goToNext();
-        })
-        .catch(function (error) {
-          showMessage(error && error.message ? error.message : "Kunde inte logga in.", true);
-        });
+        .then(function () { showMessage("Inloggad. Omdirigerar...", false); goToNext(); })
+        .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte logga in.", true); });
     });
 
     if (createBtn) {
@@ -184,27 +109,18 @@
           return;
         }
         auth.createUserWithEmailAndPassword(email, password)
-          .then(function () {
-            showMessage("Konto skapat och inloggad.", false);
-            goToNext();
-          })
-          .catch(function (error) {
-            showMessage(error && error.message ? error.message : "Kunde inte skapa konto.", true);
-          });
+          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext(); })
+          .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte skapa konto.", true); });
       });
     }
   }
 
   auth.onAuthStateChanged(function (user) {
     if (isLoginPage) {
-      if (user) {
-        goToNext();
-        return;
-      }
+      if (user) { goToNext(); return; }
       wireLoginUi();
       return;
     }
-
     if (!user) {
       var current = window.location.pathname.split("/").pop() + window.location.search + window.location.hash;
       window.location.replace("login.html?next=" + encodeURIComponent(current));
