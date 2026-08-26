@@ -1,0 +1,6 @@
+Exercise page baseline before Markus/Maja user-toggle implementation.
+
+Baseline commit: 2945f0005d87a472700601da0801cb0a1a8549cb
+Date recorded: 2026-08-26
+
+Use this commit as the restore point for exercise.html before the larger exercise-page changes.
