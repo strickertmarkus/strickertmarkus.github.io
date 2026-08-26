@@ -12,7 +12,6 @@
     var style = document.createElement('style');
     style.id = 'exercise-hype-polish-style';
     style.textContent = `
-      /* The five-second timer must cover the full viewport in every session view. */
       #session-pre-timer.show {
         position: fixed !important;
         inset: 0 !important;
@@ -24,11 +23,8 @@
         margin: 0 !important;
         border-radius: 0 !important;
       }
-      #session-pre-timer .session-pre-skip {
-        display: none !important;
-      }
+      #session-pre-timer .session-pre-skip { display: none !important; }
 
-      /* Current and next exercise share one heading row. */
       .session-ex-heading-row {
         display: flex;
         align-items: baseline;
@@ -60,11 +56,8 @@
         overflow-wrap: anywhere;
       }
       #session-next-ex-arrow[hidden],
-      #session-next-ex-inline[hidden] {
-        display: none !important;
-      }
+      #session-next-ex-inline[hidden] { display: none !important; }
 
-      /* Restore the existing plan overview as the last card in Träningsläge. */
       #session-modal.persistent-hype:not(.session-overview-mode) .session-grid > .session-card:nth-child(2) {
         display: block !important;
         grid-column: 1 / -1 !important;
@@ -81,18 +74,10 @@
           min-height: 100dvh !important;
           padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
         }
-        .session-ex-heading-row {
-          gap: 5px 8px;
-        }
-        #session-current-ex {
-          font-size: clamp(23px,7vw,29px) !important;
-        }
-        #session-next-ex-arrow {
-          font-size: 14px;
-        }
-        #session-next-ex-inline {
-          font-size: 11px;
-        }
+        .session-ex-heading-row { gap: 5px 8px; }
+        #session-current-ex { font-size: clamp(23px,7vw,29px) !important; }
+        #session-next-ex-arrow { font-size: 14px; }
+        #session-next-ex-inline { font-size: 11px; }
         #session-modal.persistent-hype:not(.session-overview-mode) .session-grid > .session-card:nth-child(2) {
           margin-top: 8px;
         }
@@ -134,6 +119,11 @@
     return row;
   }
 
+  function setHidden(el, hidden) {
+    if (!el || el.hidden === hidden) return;
+    el.hidden = hidden;
+  }
+
   function updateNextExercise() {
     ensureExerciseHeadingRow();
     var state = getState();
@@ -149,15 +139,15 @@
 
     var name = nextExercise && String(nextExercise.name || '').trim();
     if (!name) {
-      arrow.hidden = true;
-      next.hidden = true;
-      next.textContent = '';
+      setHidden(arrow, true);
+      setHidden(next, true);
+      if (next.textContent !== '') next.textContent = '';
       return;
     }
 
-    arrow.hidden = false;
-    next.hidden = false;
-    next.textContent = name;
+    setHidden(arrow, false);
+    setHidden(next, false);
+    if (next.textContent !== name) next.textContent = name;
   }
 
   function refresh() {
@@ -202,10 +192,10 @@
     }
     bind();
 
-    var observer = new MutationObserver(function () {
-      if (document.getElementById('session-pre-timer') || document.getElementById('session-current-ex')) refresh();
-    });
-    observer.observe(document.documentElement, {childList:true, subtree:true});
+    /* No broad MutationObserver here. The previous subtree observer could
+       observe the text changes made by refresh() itself and enter an infinite
+       render loop when a workout session was opened. Session wrappers above
+       are the authoritative refresh points. */
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
