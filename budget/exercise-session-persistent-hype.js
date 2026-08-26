@@ -133,6 +133,18 @@
     return button;
   }
 
+  function ensurePersistentDetails() {
+    var existing = document.getElementById('hype-set-details');
+    if (existing) return existing;
+    var target = document.getElementById('session-current-target');
+    if (!target || !target.parentNode) return null;
+    var details = document.createElement('div');
+    details.id = 'hype-set-details';
+    details.className = 'hype-set-details';
+    target.insertAdjacentElement('afterend', details);
+    return details;
+  }
+
   function resetForNewSession(state) {
     var token = state && state.passStartedAt ? String(state.passStartedAt) : null;
     if (token && token !== sessionToken) {
@@ -145,7 +157,7 @@
   }
 
   function renderPersistentDetails(state) {
-    var details = document.getElementById('hype-set-details');
+    var details = ensurePersistentDetails();
     var ex = currentExercise(state);
     if (!details || !state || !ex || state.exerciseIndex >= state.exercises.length) return;
 
@@ -172,6 +184,16 @@
     }).join('');
   }
 
+  function preRenderPersistentState() {
+    var state = getState();
+    if (!state) return;
+    resetForNewSession(state);
+    if (!overviewMode) {
+      ensurePersistentDetails();
+      renderPersistentDetails(state);
+    }
+  }
+
   function applyViewState() {
     var modal = document.getElementById('session-modal');
     var state = getState();
@@ -181,8 +203,6 @@
     var active = !!state;
     var persistent = active && !overviewMode;
 
-    /* Keep the focused Hype layout for the whole session, but leave the
-       hype-mode class to the active-set logic so animations only run during sets. */
     modal.classList.toggle('persistent-hype', persistent);
     modal.classList.toggle('hype-focus', persistent);
     modal.classList.toggle('session-overview-mode', active && overviewMode);
@@ -200,6 +220,7 @@
   function install() {
     addStyles();
     ensureToggleButton();
+    ensurePersistentDetails();
 
     var attempts = 0;
     function bindWhenReady() {
@@ -216,8 +237,12 @@
       var previousStop = window.stopSessionMode;
 
       window.renderSessionMode = function () {
+        /* Populate set/reps/kg/time before the original DOM render returns, so
+           the browser paints the details together with the rest of Hype mode. */
+        preRenderPersistentState();
         var result = previousRender.apply(this, arguments);
         ensureToggleButton();
+        ensurePersistentDetails();
         applyViewState();
         return result;
       };
@@ -238,6 +263,7 @@
         };
       }
 
+      preRenderPersistentState();
       applyViewState();
     }
 
