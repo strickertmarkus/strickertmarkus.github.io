@@ -29,7 +29,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-1252';
+  var exerciseAssetsVersion = '20260826-1455';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
@@ -60,6 +60,14 @@
             themeStability.src = 'exercise-session-theme-stability.js?v=' + exerciseAssetsVersion;
             themeStability.async = false;
             themeStability.dataset.exerciseSessionThemeStability = 'true';
+            themeStability.addEventListener('load', function () {
+              if (document.querySelector('script[data-exercise-session-stable-details]')) return;
+              var stableDetails = document.createElement('script');
+              stableDetails.src = 'exercise-session-stable-details.js?v=' + exerciseAssetsVersion;
+              stableDetails.async = false;
+              stableDetails.dataset.exerciseSessionStableDetails = 'true';
+              document.head.appendChild(stableDetails);
+            }, { once: true });
             document.head.appendChild(themeStability);
           }, { once: true });
           document.head.appendChild(persistentHype);
