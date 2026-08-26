@@ -29,7 +29,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-1848-mobile-week-row';
+  var exerciseAssetsVersion = '20260826-1902-between-sets';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
@@ -90,6 +90,14 @@
                       weekToolbarFix.src = 'exercise-mobile-week-toolbar-fix.js?v=' + exerciseAssetsVersion;
                       weekToolbarFix.async = false;
                       weekToolbarFix.dataset.exerciseMobileWeekToolbarFix = 'true';
+                      weekToolbarFix.addEventListener('load', function () {
+                        if (document.querySelector('script[data-exercise-between-sets]')) return;
+                        var betweenSets = document.createElement('script');
+                        betweenSets.src = 'exercise-between-sets.js?v=' + exerciseAssetsVersion;
+                        betweenSets.async = false;
+                        betweenSets.dataset.exerciseBetweenSets = 'true';
+                        document.head.appendChild(betweenSets);
+                      }, { once: true });
                       document.head.appendChild(weekToolbarFix);
                     }, { once: true });
                     document.head.appendChild(points367);
