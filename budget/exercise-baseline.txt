@@ -3,21 +3,72 @@ Exercise page baseline before larger exercise-page changes.
 Baseline commit: 2945f0005d87a472700601da0801cb0a1a8549cb
 Date recorded: 2026-08-26
 
-Completed changes:
-- Point 2 — Markus/Maja exercise profile toggle with fully separate data stores.
-  Commit: 604ef049f7e12f9e0658bff764e02e91bdd6118e
+COMPLETED / FINISHED
+====================
 
-- Point 4 — Orange Hype Mode while a set is actively running, larger active-set control, and one-tap start of the next planned set.
-  Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
-  Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
-  Mobile/start-button refinement: 168f36bf1cced109f507ad27592e73a974c83701
-  Focused active-set view, tunnel-speed animation, and decision-button layout: 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
-  Focus feature loader: f9d6a10d417efff68ee7a0b75d48fdeb8b0257f4
+- Point 2 — Markus/Maja exercise profile toggle with separate exercise data stores.
+  Status: FINISHED
+  Main commit: 604ef049f7e12f9e0658bff764e02e91bdd6118e
 
-- Point 5 — Circular orange countdown for timed cardio sets, showing remaining planned time while the set is active.
-  Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
-  Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
-  60-segment countdown refinement: cc5f1a20f1158a262fed1d1149cd2a45f54dc2eb
-  Tap-to-pause/resume timer support: 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
+- Point 4 — Hype Mode session experience.
+  Status: FINISHED
+  Includes:
+  - Persistent orange Hype styling throughout the focused workout session.
+  - Speed-line/tunnel animation only while a set is actively running.
+  - Larger active-set controls.
+  - One-tap start of the next planned set.
+  - Extra set and Övning klar use distinct colors.
+  - Focused session view with manual Overview/Hype toggle.
+  - Stable set/reps/kg/time details without mobile pop-in.
+  - Mobile repaint/compositing fix between active set and decision state.
+  - Flowing Hype layout restored after fixed-layout experiment.
+  Key commits:
+  - 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
+  - 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
+  - 2b78530a41d348ed110c350faaa5bf5f7140f5f0
+  - f74b6b6dd36b0b08ea6bb97d8c4151c3db7a3f88
+  - c61b92dcde120e5d503b7c6a339775aaa9dfcbe0
+  - 0c7cf244b823da98483f351257020e090a8728b9
+  - 3db3b8fcda80f4f815d3ad28a8a4ec7c567f3956
+  - 4bba7b1bb8e8c8927dd857904d61dc94520cd13e
+  - 7f061bc61b0b48b0bee7e8b73a47ef81de7e89ad
 
-Use the baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
+- Point 5 — Circular countdown for timed cardio sets.
+  Status: FINISHED
+  Includes:
+  - 60-segment proportional countdown.
+  - Remaining planned time display.
+  - Tap-to-pause/resume.
+  - Extra spacing between cardio timer and Starta set controls.
+  Key commits:
+  - 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
+  - cc5f1a20f1158a262fed1d1149cd2a45f54dc2eb
+  - 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
+  - 4bba7b1bb8e8c8927dd857904d61dc94520cd13e
+
+- Workout progress UI.
+  Status: FINISHED
+  Includes strength/cardio color coding and current/completed set progress.
+  Key commits:
+  - 1a991ade3d093b8c61602ad77ab9f79b6dc41db4
+  - 7c80292d05e7fbb4b7a40b61a66591eb6084074b
+
+- Reload recovery / accidental refresh protection.
+  Status: FINISHED
+  Active sessions and unfinished Pass configuration are checkpointed and restored after reload.
+  Key commits:
+  - 41f3204a11878e828547ae50c256929771b4454c
+  - e545db6308c35909a9e25e03100f5d25058e79d1
+
+- Week selector + Denna vecka toolbar alignment.
+  Status: FINISHED
+  Date selector and Denna vecka remain on the same row on desktop and mobile.
+  Key commits:
+  - 0d8a880ba1576adfd0271ad62175ff52e9fd65b7
+  - ac3293b33109cb4d2782130d183366a9acf12b4a
+
+Current exercise asset checkpoint after completed work:
+- Theme/UI commit: 0d8a880ba1576adfd0271ad62175ff52e9fd65b7
+- Loader/cache commit: ac3293b33109cb4d2782130d183366a9acf12b4a
+
+Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
