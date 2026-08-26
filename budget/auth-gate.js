@@ -29,22 +29,23 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
+  var exerciseAssetsVersion = '20260826-1126';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
-    sessionEnhancements.src = 'exercise-session-enhancements.js';
+    sessionEnhancements.src = 'exercise-session-enhancements.js?v=' + exerciseAssetsVersion;
     sessionEnhancements.async = false;
     sessionEnhancements.dataset.exerciseSessionEnhancements = 'true';
     sessionEnhancements.addEventListener('load', function () {
       if (document.querySelector('script[data-exercise-session-focus]')) return;
       var sessionFocus = document.createElement('script');
-      sessionFocus.src = 'exercise-session-focus.js';
+      sessionFocus.src = 'exercise-session-focus.js?v=' + exerciseAssetsVersion;
       sessionFocus.async = false;
       sessionFocus.dataset.exerciseSessionFocus = 'true';
       sessionFocus.addEventListener('load', function () {
         if (document.querySelector('script[data-exercise-session-progress]')) return;
         var sessionProgress = document.createElement('script');
-        sessionProgress.src = 'exercise-session-progress.js';
+        sessionProgress.src = 'exercise-session-progress.js?v=' + exerciseAssetsVersion;
         sessionProgress.async = false;
         sessionProgress.dataset.exerciseSessionProgress = 'true';
         document.head.appendChild(sessionProgress);
