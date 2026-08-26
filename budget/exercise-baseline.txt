@@ -12,28 +12,31 @@ COMPLETED / FINISHED
 
 - Point 3 — Longest running distance counts running only.
   Status: FINISHED
-  Crosstrainer/elliptical and other non-running cardio are excluded from the longest-run calculation.
-  Existing and newly saved workout data are handled.
-  Key commits:
-  - ba35b9db5f0fa4edb6939c98f6800af2868a3c45
-  - e385d37d9639f36fd0a3b03dba56bba44de5ff3a
 
 - Point 4 — Träningsläge / Hype session experience.
-  Status: FINISHED
+  Status: FINISHED / PASSIVE POLISH RE-ENABLED
   Includes persistent orange Träningsläge styling, active-set tunnel animation, larger controls, focused layout, stable details, mobile repaint fixes and progress UI.
-  Note: the later optional hype-polish layer (next-exercise inline/overview-bottom polish) is currently NOT loaded in the emergency-stable loader while session stability is being re-established.
+  Passive polish now adds:
+  - full-viewport 5-second pre-timer in Träningsläge
+  - larger current exercise + smaller next exercise after an arrow
+  - no visible skip-instruction text on the 5-second timer
+  - existing workout overview at the bottom of Träningsläge
+  Safety architecture:
+  - no MutationObserver
+  - no wrapping/replacing renderSessionMode, startNextSet, addExtraSet, finishCurrentExercise or other core session functions
+  - only idempotent DOM updates, ordinary event listeners and a low-frequency passive UI sync
+  Safe passive polish commits:
+  - Feature: 8c505cadd2193ced2b14cb897e9ed08affa058c9
+  - Loader/cache: 1f2dd852ebdc78d1d34a0510333d3bfa0bff189f
 
 - Point 5 — Circular countdown for timed cardio sets.
   Status: FINISHED
-  Includes 60-segment proportional countdown, remaining planned time and tap-to-pause/resume.
 
 - Point 6 — Five-second pre-timer before every set.
   Status: FINISHED
-  Includes circular 5-second countdown before each set, strength/cardio support, skip by tap/click and responsive mobile layout.
 
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
-  Cardio exercises are excluded from workout-volume calculation; strength volume remains reps x weight across completed strength sets.
 
 - Workout progress UI.
   Status: FINISHED
@@ -47,22 +50,14 @@ COMPLETED / FINISHED
 
 - Between-set activity configuration V2.
   Status: ACTIVE / SAFE REBUILD
-  The Pass builder has one pass-wide "Mellan varje set" setting, not one setting per exercise row.
-  Options:
-  - Ingen
-  - Vila with configurable seconds (default 60 s)
-  - Valfri övning with custom name, e.g. Hopprep, and configurable seconds (default 30 s)
+  The Pass builder has one pass-wide "Mellan varje set" setting.
+  Options: Ingen, Vila, or Valfri övning with configurable time.
   Builder styling follows the normal blue exercise-page theme.
-
-  V2 safety architecture:
-  - Does NOT wrap startNextSet, addExtraSet, finishCurrentExercise, renderSessionMode or other core session-state functions.
-  - Does NOT use a broad MutationObserver.
-  - Uses one capture-phase click handler only on buttons inside #session-controls.
-  - When a between-set step is required, the original button click is delayed, the timer runs, then that exact same button is clicked once with a bypass flag.
-  - If config/UI setup fails, the original button action is allowed/fired instead of leaving the session blocked.
-  - Setting is stored per profile/date locally and also written to plannedSessions.betweenSets when a saved plan exists.
-  - Runtime reads the setting from the workout date rather than modifying active sessionState.
-
+  Safety architecture:
+  - no core session-state function wrappers
+  - no broad MutationObserver
+  - capture-phase click handling only inside #session-controls
+  - delayed original button click is replayed exactly once after the timer, with fallback to normal button behavior on failure
   Safe V2 commits:
   - Feature: ba16ad721f6ec79d8626e61d1aa541db18f959e4
   - Loader/cache: a9e89f78db8e4b77daa66401012d95e0c0e5bdd7
@@ -73,6 +68,7 @@ Emergency stability commits before V2:
 
 Current exercise asset checkpoint after completed work:
 - Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
-- Loader/cache: a9e89f78db8e4b77daa66401012d95e0c0e5bdd7
+- Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
+- Loader/cache: 1f2dd852ebdc78d1d34a0510333d3bfa0bff189f
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
