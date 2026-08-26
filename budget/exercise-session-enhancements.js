@@ -33,7 +33,6 @@
         transition: background .28s ease, border-color .28s ease, color .28s ease, box-shadow .28s ease;
       }
 
-      /* Start-set is a primary workout action even before hype mode begins. */
       #session-controls:not(.decision-row) .session-cta.primary {
         flex: 1 1 100%;
         width: 100%;
@@ -99,27 +98,50 @@
         display: flex;
       }
       .session-countdown-ring {
-        --countdown-progress: 100%;
-        width: 168px;
-        height: 168px;
-        border-radius: 50%;
+        width: 180px;
+        height: 180px;
+        position: relative;
         display: grid;
         place-items: center;
-        position: relative;
-        background: conic-gradient(#FB923C var(--countdown-progress), rgba(251,146,60,.12) 0);
-        box-shadow: 0 0 34px rgba(251,146,60,.14);
       }
-      .session-countdown-ring::after {
-        content: '';
+      .session-countdown-segments {
         position: absolute;
-        inset: 8px;
+        inset: 0;
         border-radius: 50%;
-        background: #15100d;
-        border: 1px solid rgba(251,146,60,.22);
+      }
+      .session-countdown-segment {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 3px;
+        height: 13px;
+        margin-left: -1.5px;
+        margin-top: -6.5px;
+        border-radius: 999px;
+        background: rgba(251,146,60,.14);
+        transform-origin: 1.5px 6.5px;
+        transition: background .18s ease, box-shadow .18s ease, opacity .18s ease;
+      }
+      .session-countdown-segment.active {
+        background: #FB923C;
+        box-shadow: 0 0 7px rgba(251,146,60,.58);
+        opacity: 1;
+      }
+      .session-countdown-segment.inactive {
+        background: rgba(251,146,60,.11);
+        box-shadow: none;
+        opacity: .65;
+      }
+      .session-countdown-core {
+        position: absolute;
+        inset: 24px;
+        border-radius: 50%;
+        background: rgba(21,16,13,.96);
+        border: 1px solid rgba(251,146,60,.13);
       }
       .session-countdown-copy {
         position: relative;
-        z-index: 1;
+        z-index: 2;
         text-align: center;
       }
       .session-countdown-value {
@@ -139,7 +161,6 @@
         letter-spacing: .9px;
       }
 
-      /* Mobile is a first-class layout for pass mode. */
       @media (max-width: 600px) {
         #session-modal {
           padding: 0 !important;
@@ -236,8 +257,16 @@
           font-size: 13px !important;
         }
         .session-countdown-ring {
-          width: min(148px, 43vw);
-          height: min(148px, 43vw);
+          width: min(164px, 48vw);
+          height: min(164px, 48vw);
+        }
+        .session-countdown-segment {
+          height: 11px;
+          margin-top: -5.5px;
+          transform-origin: 1.5px 5.5px;
+        }
+        .session-countdown-core {
+          inset: 21px;
         }
         .session-countdown-value {
           font-size: 34px;
@@ -278,7 +307,16 @@
     var wrap = document.createElement('div');
     wrap.id = 'session-cardio-countdown';
     wrap.className = 'session-cardio-countdown';
+
+    var segments = '';
+    for (var i = 0; i < 60; i++) {
+      var angle = i * 6;
+      segments += '<span class="session-countdown-segment active" data-segment="' + i + '" style="transform:rotate(' + angle + 'deg) translateY(-82px)"></span>';
+    }
+
     wrap.innerHTML = '<div class="session-countdown-ring" id="session-countdown-ring">' +
+      '<div class="session-countdown-segments" id="session-countdown-segments">' + segments + '</div>' +
+      '<div class="session-countdown-core"></div>' +
       '<div class="session-countdown-copy">' +
         '<div class="session-countdown-value" id="session-countdown-value">00:00</div>' +
         '<div class="session-countdown-label">Tid kvar</div>' +
@@ -293,6 +331,21 @@
     var minutes = Math.floor(seconds / 60);
     var rest = seconds % 60;
     return String(minutes).padStart(2, '0') + ':' + String(rest).padStart(2, '0');
+  }
+
+  function updateCountdownSegments(remainingSeconds, totalSeconds) {
+    var segments = document.querySelectorAll('#session-countdown-segments .session-countdown-segment');
+    if (!segments.length) return;
+
+    var clampedRemaining = Math.max(0, Math.min(totalSeconds, remainingSeconds));
+    var activeCount = totalSeconds > 0 ? Math.ceil((clampedRemaining / totalSeconds) * 60) : 0;
+    activeCount = Math.max(0, Math.min(60, activeCount));
+
+    segments.forEach(function(segment, index) {
+      var active = index < activeCount;
+      segment.classList.toggle('active', active);
+      segment.classList.toggle('inactive', !active);
+    });
   }
 
   function syncHypeState() {
@@ -312,11 +365,9 @@
     var totalSeconds = Number(ex.time) * 60;
     var elapsedSeconds = Math.max(0, (Date.now() - state.setStartedAt) / 1000);
     var remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
-    var progress = totalSeconds > 0 ? Math.max(0, Math.min(100, (remainingSeconds / totalSeconds) * 100)) : 0;
     var value = document.getElementById('session-countdown-value');
-    var ring = document.getElementById('session-countdown-ring');
     if (value) value.textContent = formatRemaining(remainingSeconds);
-    if (ring) ring.style.setProperty('--countdown-progress', progress.toFixed(2) + '%');
+    updateCountdownSegments(remainingSeconds, totalSeconds);
   }
 
   function installEnhancements() {
@@ -360,7 +411,6 @@
       return result;
     };
 
-    // One tap now moves to the next planned set AND starts it immediately.
     window.startNextSet = function () {
       var result = originalStartNextSet.apply(this, arguments);
       var state = getSessionState();
