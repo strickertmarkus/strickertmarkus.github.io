@@ -7,4 +7,12 @@ Completed changes:
 - Point 2 — Markus/Maja exercise profile toggle with fully separate data stores.
   Commit: 604ef049f7e12f9e0658bff764e02e91bdd6118e
 
+- Point 4 — Orange Hype Mode while a set is actively running, larger active-set control, and one-tap start of the next planned set.
+  Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
+  Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
+
+- Point 5 — Circular orange countdown for timed cardio sets, showing remaining planned time while the set is active.
+  Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
+  Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
+
 Use the baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
