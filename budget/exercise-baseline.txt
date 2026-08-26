@@ -10,9 +10,14 @@ Completed changes:
 - Point 4 — Orange Hype Mode while a set is actively running, larger active-set control, and one-tap start of the next planned set.
   Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
   Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
+  Mobile/start-button refinement: 168f36bf1cced109f507ad27592e73a974c83701
+  Focused active-set view, tunnel-speed animation, and decision-button layout: 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
+  Focus feature loader: f9d6a10d417efff68ee7a0b75d48fdeb8b0257f4
 
 - Point 5 — Circular orange countdown for timed cardio sets, showing remaining planned time while the set is active.
   Feature commit: 1ce58e0257c75f29180b0c54fb65bb7e0385aa34
   Loader commit: 3d046790e239f80cde71415978402a016ec2efe5
+  60-segment countdown refinement: cc5f1a20f1158a262fed1d1149cd2a45f54dc2eb
+  Tap-to-pause/resume timer support: 14cc8948c2678b71d5fe7cc3ae9d69aae5a40fee
 
 Use the baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
