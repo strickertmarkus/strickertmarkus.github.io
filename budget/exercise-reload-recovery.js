@@ -6,9 +6,11 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var SESSION_KEY = 'ex_reload_session_' + profile;
+  var FAILED_SESSION_KEY = SESSION_KEY + '_failed';
   var DRAFT_KEY = 'ex_reload_pass_draft_' + profile;
   var restoring = false;
   var draftSaveTimer = null;
+  var exitIntentUntil = 0;
 
   function getState() {
     try {
@@ -38,7 +40,7 @@
   }
 
   function saveSessionCheckpoint() {
-    if (restoring) return;
+    if (restoring || Date.now() < exitIntentUntil) return;
     var state = getState();
     if (!state) {
       localStorage.removeItem(SESSION_KEY);
@@ -65,6 +67,32 @@
   function clearSessionCheckpoint() {
     localStorage.removeItem(SESSION_KEY);
   }
+
+  function markExitIntent() {
+    exitIntentUntil = Date.now() + 5000;
+    clearSessionCheckpoint();
+  }
+
+  function hideSessionUi() {
+    ['session-pre-timer','session-between-overlay'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    var modal = document.getElementById('session-modal');
+    if (modal) {
+      modal.classList.remove('show','hype-mode','persistent-hype','hype-focus','session-overview-mode');
+    }
+  }
+
+  window.__exerciseEmergencyExit = function () {
+    markExitIntent();
+    try {
+      if (typeof window.__exerciseCancelBetweenSet === 'function') window.__exerciseCancelBetweenSet();
+    } catch (e) {}
+    setState(null);
+    hideSessionUi();
+    clearSessionCheckpoint();
+  };
 
   function captureControl(control) {
     return {
@@ -175,16 +203,18 @@
   }
 
   function restoreSessionCheckpoint() {
-    var checkpoint = safeParse(localStorage.getItem(SESSION_KEY));
+    var rawCheckpoint = localStorage.getItem(SESSION_KEY);
+    var checkpoint = safeParse(rawCheckpoint);
     if (!checkpoint || !checkpoint.state) return false;
     if (typeof window.renderSessionMode !== 'function') return false;
 
+    var restored = false;
     restoring = true;
     try {
       var state = checkpoint.state;
       var downtime = Math.max(0, Date.now() - Number(checkpoint.savedAt || Date.now()));
       shiftRecoveredTimers(state, downtime);
-      if (!setState(state)) return false;
+      if (!setState(state)) throw new Error('Could not restore exercise session state');
 
       var hr = document.getElementById('session-hr');
       var vo2 = document.getElementById('session-vo2');
@@ -204,12 +234,22 @@
           if (toggle && currentModal && !currentModal.classList.contains('session-overview-mode')) toggle.click();
         }, 0);
       }
+      restored = true;
       return true;
     } catch (e) {
+      /* Never allow a broken recovery snapshot to trap the page in a reload loop.
+         Preserve the raw snapshot for diagnosis/manual recovery, but remove it
+         from the active recovery key and return to the normal exercise page. */
+      try {
+        if (rawCheckpoint) localStorage.setItem(FAILED_SESSION_KEY, rawCheckpoint);
+      } catch (ignore) {}
+      clearSessionCheckpoint();
+      setState(null);
+      hideSessionUi();
       return false;
     } finally {
       restoring = false;
-      setTimeout(saveSessionCheckpoint, 0);
+      if (restored) setTimeout(saveSessionCheckpoint, 0);
     }
   }
 
@@ -241,7 +281,7 @@
     var stopFn = window.stopSessionMode;
     if (typeof stopFn === 'function' && !stopFn.__reloadRecoveryWrapped) {
       var wrappedStop = function () {
-        clearSessionCheckpoint();
+        markExitIntent();
         var result = stopFn.apply(this, arguments);
         clearSessionCheckpoint();
         return result;
@@ -249,6 +289,17 @@
       wrappedStop.__reloadRecoveryWrapped = true;
       window.stopSessionMode = wrappedStop;
     }
+
+    /* Capture the visible Avsluta control before inline/wrapped handlers run.
+       This prevents pagehide/beforeunload from immediately recreating a
+       checkpoint if another session layer throws while exiting. */
+    document.addEventListener('click', function (event) {
+      var button = event.target && event.target.closest ? event.target.closest('#session-modal button') : null;
+      if (!button) return;
+      var inline = button.getAttribute('onclick') || '';
+      var text = (button.textContent || '').trim().toLowerCase();
+      if (inline.indexOf('stopSessionMode') >= 0 || text === 'avsluta') markExitIntent();
+    }, true);
   }
 
   function bindDraftCheckpointing() {
