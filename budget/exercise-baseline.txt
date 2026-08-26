@@ -38,6 +38,27 @@ COMPLETED / FINISHED
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
 
+- Point 8 — Latest completed workout subtype.
+  Status: FINISHED
+  "Senaste pass" now uses the latest actually completed workout for the selected profile, ignores future-dated entries, and shows the workout subtype/type as a separate gray line. If type is generic/missing it derives Kondition, Styrka or Blandpass from exercise content.
+  Safe passive feature commit:
+  - 243b6d87bb499bcc7165f227ead3cf82d9ddbffc
+
+- Point 9 — Separate heart-rate graphs for cardio and strength.
+  Status: FINISHED
+  Two pulse charts are visible simultaneously:
+  - Medelpuls – Kondition
+  - Medelpuls – Styrka
+  Each uses completed workouts with registered hrAvg and has a clickable Chart.js legend for hiding/showing its series. Mixed workouts containing both cardio and strength are represented in both relevant graphs. The legacy chart-hr canvas remains hidden in the DOM for compatibility with the base renderCharts() function.
+  Responsive layout stacks cleanly on mobile.
+  Safe passive feature commit:
+  - 243b6d87bb499bcc7165f227ead3cf82d9ddbffc
+  Loader/cache commit:
+  - 049d5f1dd7e4b76e930e57059ab35b8f671ed8a9
+
+- Point 10 — Distance-training three-row idea.
+  Status: IGNORED BY USER / DO NOT IMPLEMENT
+
 - Workout progress UI.
   Status: FINISHED
 
@@ -69,6 +90,7 @@ Emergency stability commits before V2:
 Current exercise asset checkpoint after completed work:
 - Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
-- Loader/cache: 1f2dd852ebdc78d1d34a0510333d3bfa0bff189f
+- Points 8/9: 243b6d87bb499bcc7165f227ead3cf82d9ddbffc
+- Loader/cache: 049d5f1dd7e4b76e930e57059ab35b8f671ed8a9
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
