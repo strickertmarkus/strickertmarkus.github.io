@@ -52,11 +52,25 @@
         box-shadow: 0 8px 26px rgba(249,115,22,.22) !important;
       }
 
-      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.warn,
+      /* Give the two between-set decisions their own subtle identities. */
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.warn {
+        border-color: rgba(245,158,11,.42) !important;
+        background: rgba(245,158,11,.14) !important;
+        color: #FCD34D !important;
+      }
       #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.success {
-        border-color: rgba(251,146,60,.28) !important;
-        background: rgba(251,146,60,.085) !important;
-        color: #FDBA74 !important;
+        border-color: rgba(52,211,153,.34) !important;
+        background: rgba(52,211,153,.10) !important;
+        color: #6EE7B7 !important;
+      }
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.warn:active,
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.success:active {
+        transform: scale(.985);
+      }
+
+      /* Give Starta nästa set more breathing room below the timers/content. */
+      #session-modal.persistent-hype:not(.session-overview-mode) .session-cta-row.decision-row .session-cta.primary:first-child {
+        margin-top: 18px !important;
       }
 
       /* Between sets: keep orange colors, but remove only the tunnel/speed-line layer. */
@@ -103,6 +117,9 @@
       }
 
       @media (max-width: 600px) {
+        #session-modal.persistent-hype:not(.session-overview-mode) .session-cta-row.decision-row .session-cta.primary:first-child {
+          margin-top: 16px !important;
+        }
         #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::before,
         #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::after {
           inset: -40%;
