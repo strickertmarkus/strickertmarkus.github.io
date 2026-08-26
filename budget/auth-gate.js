@@ -21,7 +21,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-2027-emergency-stable';
+  var exerciseAssetsVersion = '20260826-2045-between-v2-safe';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -46,7 +46,9 @@
                 loadScriptOnce('exercise-session-mobile-repaint-fix.js', 'data-exercise-session-mobile-repaint-fix', function () {
                   loadScriptOnce('exercise-reload-recovery.js', 'data-exercise-reload-recovery', function () {
                     loadScriptOnce('exercise-points-3-6-7.js', 'data-exercise-points-3-6-7', function () {
-                      loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix');
+                      loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix', function () {
+                        loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2');
+                      });
                     });
                   });
                 });
