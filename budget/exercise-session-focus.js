@@ -34,6 +34,46 @@
         min-height: calc(100% - 2px);
       }
 
+      .hype-set-details {
+        display: none;
+        grid-template-columns: repeat(3,minmax(0,auto));
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin: 4px 0 2px;
+        text-align: center;
+      }
+      #session-modal.hype-focus .hype-set-details {
+        display: grid;
+      }
+      .hype-set-detail {
+        min-width: 108px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: rgba(251,146,60,.075);
+        border: 1px solid rgba(251,146,60,.22);
+      }
+      .hype-set-detail-label {
+        font-size: 10px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+        color: #A8A29E;
+      }
+      .hype-set-detail-value {
+        margin-top: 5px;
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -.8px;
+        color: #FDBA74;
+        font-variant-numeric: tabular-nums;
+      }
+      #session-modal.hype-focus .session-log-section {
+        display: none !important;
+      }
+
       #session-modal .session-cta-row.decision-row {
         display: grid !important;
         grid-template-columns: repeat(2,minmax(0,1fr)) !important;
@@ -131,6 +171,23 @@
         #session-modal.hype-focus .session-main {
           min-height: calc(100dvh - 76px) !important;
         }
+        .hype-set-details {
+          grid-template-columns: repeat(3,minmax(0,1fr));
+          gap: 6px;
+          width: 100%;
+        }
+        .hype-set-detail {
+          min-width: 0;
+          padding: 10px 5px;
+        }
+        .hype-set-detail-label {
+          font-size: 8px;
+          letter-spacing: .55px;
+        }
+        .hype-set-detail-value {
+          font-size: clamp(19px,6vw,26px);
+          letter-spacing: -.5px;
+        }
         #session-modal .session-cta-row.decision-row {
           grid-template-columns: repeat(2,minmax(0,1fr)) !important;
           gap: 7px !important;
@@ -158,6 +215,97 @@
       }
     `;
     document.head.appendChild(style);
+  }
+
+  function ensureLogSection() {
+    var setLog = document.getElementById('session-set-log');
+    if (!setLog || !setLog.parentElement) return null;
+    setLog.parentElement.classList.add('session-log-section');
+    return setLog.parentElement;
+  }
+
+  function ensureHypeDetails() {
+    var existing = document.getElementById('hype-set-details');
+    if (existing) return existing;
+    var target = document.getElementById('session-current-target');
+    if (!target || !target.parentNode) return null;
+    var details = document.createElement('div');
+    details.id = 'hype-set-details';
+    details.className = 'hype-set-details';
+    target.insertAdjacentElement('afterend', details);
+    return details;
+  }
+
+  function renderHypeDetails() {
+    var details = ensureHypeDetails();
+    var state = getState();
+    var ex = currentExercise();
+    if (!details || !state || !state.setRunning || !ex) {
+      if (details) details.innerHTML = '';
+      return;
+    }
+
+    var cells;
+    if (ex.kind === 'cardio') {
+      cells = [
+        { label: 'Runda', value: String(state.currentSet || 1) },
+        { label: 'Distans', value: ex.distance ? ex.distance + ' km' : '—' },
+        { label: 'Tid', value: ex.time ? ex.time + ' min' : '—' }
+      ];
+    } else {
+      cells = [
+        { label: 'Set', value: (state.currentSet || 1) + ' / ' + (ex.plannedSets || 1) },
+        { label: 'Reps', value: String(ex.reps || 0) },
+        { label: 'Vikt', value: (ex.weight || 0) + ' kg' }
+      ];
+    }
+
+    details.innerHTML = cells.map(function (cell) {
+      return '<div class="hype-set-detail">' +
+        '<div class="hype-set-detail-label">' + cell.label + '</div>' +
+        '<div class="hype-set-detail-value">' + cell.value + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function rebuildEditableSetLog() {
+    var state = getState();
+    var setLog = document.getElementById('session-set-log');
+    ensureLogSection();
+    if (!state || !setLog || state.setRunning || state.exerciseIndex >= state.exercises.length) return;
+
+    var ex = state.exercises[state.exerciseIndex];
+    var logs = state.logs && state.logs[state.exerciseIndex] ? state.logs[state.exerciseIndex] : [];
+    setLog.innerHTML = '';
+
+    logs.forEach(function (l, idx) {
+      var row = document.createElement('div');
+      row.className = 'set-log-item';
+      if (ex.kind === 'cardio') {
+        row.innerHTML = '<div class="set-tag">Runda ' + l.setNo + '</div>' +
+          '<input type="number" value="' + (l.actualDistance || 0) + '" min="0" step="0.1" data-log-key="actualDistance">' +
+          '<input type="number" value="' + (l.actualTime || 0) + '" min="0" step="1" data-log-key="actualTime">' +
+          '<input type="text" value="' + (typeof fmtSec === 'function' ? fmtSec(l.durationSec) : l.durationSec) + '" readonly>';
+      } else {
+        row.innerHTML = '<div class="set-tag">Set ' + l.setNo + '</div>' +
+          '<input type="number" value="' + (l.actualReps || 0) + '" min="0" data-log-key="actualReps">' +
+          '<input type="number" value="' + (l.actualWeight || 0) + '" min="0" step=".5" data-log-key="actualWeight">' +
+          '<input type="text" value="' + (typeof fmtSec === 'function' ? fmtSec(l.durationSec) : l.durationSec) + '" readonly>';
+      }
+
+      row.querySelectorAll('[data-log-key]').forEach(function (input) {
+        input.addEventListener('change', function () {
+          if (typeof window.updateSetLog === 'function') {
+            window.updateSetLog(state.exerciseIndex, idx, input.dataset.logKey, input.value);
+          }
+        });
+      });
+      setLog.appendChild(row);
+    });
+
+    if (!logs.length) {
+      setLog.innerHTML = '<div style="font-size:12px;color:var(--text-dim)">Inga set loggade ännu.</div>';
+    }
   }
 
   function ensurePauseHint() {
@@ -212,6 +360,9 @@
 
     var running = !!(state && state.setRunning);
     modal.classList.toggle('hype-focus', running);
+    ensureLogSection();
+    renderHypeDetails();
+    if (!running) rebuildEditableSetLog();
 
     var ring = document.getElementById('session-countdown-ring');
     var hint = document.getElementById('session-countdown-pause-hint');
@@ -279,6 +430,8 @@
     addStyles();
     ensurePauseHint();
     bindRing();
+    ensureLogSection();
+    ensureHypeDetails();
 
     if (window.__exerciseSessionFocusInstalled) return;
     if (typeof window.renderSessionMode !== 'function' || typeof window.updateSessionTimers !== 'function') return;
@@ -294,6 +447,8 @@
       var result = previousRender.apply(this, arguments);
       ensurePauseHint();
       bindRing();
+      ensureLogSection();
+      ensureHypeDetails();
       renderPauseState();
       return result;
     };
@@ -308,6 +463,7 @@
       clearPauseState(getState());
       var result = previousComplete.apply(this, arguments);
       renderPauseState();
+      rebuildEditableSetLog();
       return result;
     };
 
@@ -315,6 +471,7 @@
       clearPauseState(getState());
       var result = previousFinish.apply(this, arguments);
       renderPauseState();
+      rebuildEditableSetLog();
       return result;
     };
 
