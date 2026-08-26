@@ -9,6 +9,25 @@
     var style = document.createElement('style');
     style.id = 'exercise-session-theme-stability-style';
     style.textContent = `
+      /* Keep the week picker and Denna vecka button on one row everywhere. */
+      .week-pick {
+        flex-direction: row !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        min-width: 0;
+      }
+      .week-pick input[type="date"] {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+      }
+      .week-pick .btn-sm,
+      .week-pick button {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+      }
+
       /* Persistent session stays orange at all times while Hype view is active. */
       #session-modal.persistent-hype:not(.session-overview-mode) {
         --accent: #FB923C !important;
@@ -120,6 +139,20 @@
       }
 
       @media (max-width: 600px) {
+        .week-pick {
+          width: 100%;
+          gap: 7px !important;
+        }
+        .week-pick input[type="date"] {
+          font-size: 11px !important;
+          padding-left: 8px !important;
+          padding-right: 8px !important;
+        }
+        .week-pick .btn-sm,
+        .week-pick button {
+          padding-left: 10px !important;
+          padding-right: 10px !important;
+        }
         #session-modal.persistent-hype.cardio-countdown-active:not(.session-overview-mode) #session-controls {
           margin-top: 22px !important;
         }
