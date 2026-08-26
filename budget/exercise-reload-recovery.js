@@ -6,77 +6,39 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var SESSION_KEY = 'ex_reload_session_' + profile;
-  var FAILED_SESSION_KEY = SESSION_KEY + '_failed';
-  var DRAFT_KEY = 'ex_reload_pass_draft_' + profile;
-  var restoring = false;
-  var draftSaveTimer = null;
+  var SUSPENDED_KEY = SESSION_KEY + '_suspended_20260826';
   var exitIntentUntil = 0;
 
   function getState() {
-    try {
-      return typeof sessionState !== 'undefined' ? sessionState : null;
-    } catch (e) {
-      return null;
-    }
+    try { return typeof sessionState !== 'undefined' ? sessionState : null; }
+    catch (e) { return null; }
   }
 
   function setState(value) {
+    try { sessionState = value; return true; }
+    catch (e) {
+      try { window.sessionState = value; return true; }
+      catch (ignore) { return false; }
+    }
+  }
+
+  function archiveAndClearOldCheckpoint() {
     try {
-      sessionState = value;
-      return true;
-    } catch (e) {
-      try {
-        window.sessionState = value;
-        return true;
-      } catch (ignore) {
-        return false;
+      var raw = localStorage.getItem(SESSION_KEY);
+      if (raw && !localStorage.getItem(SUSPENDED_KEY)) {
+        localStorage.setItem(SUSPENDED_KEY, raw);
       }
-    }
-  }
-
-  function safeParse(raw) {
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (e) { return null; }
-  }
-
-  function saveSessionCheckpoint() {
-    if (restoring || Date.now() < exitIntentUntil) return;
-    var state = getState();
-    if (!state) {
       localStorage.removeItem(SESSION_KEY);
-      return;
-    }
-
-    var modal = document.getElementById('session-modal');
-    var hr = document.getElementById('session-hr');
-    var vo2 = document.getElementById('session-vo2');
-    var payload = {
-      version: 1,
-      savedAt: Date.now(),
-      state: state,
-      hr: hr ? hr.value : '',
-      vo2: vo2 ? vo2.value : '',
-      view: modal && modal.classList.contains('session-overview-mode') ? 'overview' : 'hype'
-    };
-
-    try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
     } catch (e) {}
   }
 
-  function clearSessionCheckpoint() {
-    localStorage.removeItem(SESSION_KEY);
-  }
-
-  function markExitIntent() {
-    exitIntentUntil = Date.now() + 5000;
-    clearSessionCheckpoint();
-  }
-
-  function hideSessionUi() {
+  function hideTransientSessionUi() {
     ['session-pre-timer','session-between-overlay'].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) el.classList.remove('show');
+      if (el) {
+        el.classList.remove('show');
+        if (id === 'session-between-overlay') el.remove();
+      }
     });
     var modal = document.getElementById('session-modal');
     if (modal) {
@@ -84,290 +46,98 @@
     }
   }
 
+  function emergencyResetOnBoot() {
+    archiveAndClearOldCheckpoint();
+    setState(null);
+    hideTransientSessionUi();
+  }
+
+  function saveSessionCheckpoint() {
+    if (Date.now() < exitIntentUntil) return;
+    var state = getState();
+    if (!state) {
+      try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+      return;
+    }
+
+    var modal = document.getElementById('session-modal');
+    var hr = document.getElementById('session-hr');
+    var vo2 = document.getElementById('session-vo2');
+    var payload = {
+      version: 2,
+      savedAt: Date.now(),
+      state: state,
+      hr: hr ? hr.value : '',
+      vo2: vo2 ? vo2.value : '',
+      view: modal && modal.classList.contains('session-overview-mode') ? 'overview' : 'hype'
+    };
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify(payload)); } catch (e) {}
+  }
+
+  function markExitIntent() {
+    exitIntentUntil = Date.now() + 5000;
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+
   window.__exerciseEmergencyExit = function () {
     markExitIntent();
-    try {
-      if (typeof window.__exerciseCancelBetweenSet === 'function') window.__exerciseCancelBetweenSet();
-    } catch (e) {}
     setState(null);
-    hideSessionUi();
-    clearSessionCheckpoint();
+    hideTransientSessionUi();
   };
 
-  function captureControl(control) {
-    return {
-      value: control.value,
-      checked: !!control.checked,
-      type: control.type || '',
-      tag: control.tagName
-    };
-  }
-
-  function applyControl(control, saved) {
-    if (!control || !saved) return;
-    if (saved.type === 'checkbox' || saved.type === 'radio') {
-      control.checked = !!saved.checked;
-    } else {
-      control.value = saved.value == null ? '' : saved.value;
-    }
-  }
-
-  function savePassDraft() {
-    if (restoring) return;
-    var modal = document.getElementById('day-workout-modal');
-    if (!modal || !modal.classList.contains('show')) return;
-
-    var list = document.getElementById('day-workout-ex-list');
-    var dateEl = document.getElementById('day-workout-date');
-    var typeEl = document.getElementById('day-workout-type');
-    if (!list) return;
-
-    var rows = Array.prototype.slice.call(list.querySelectorAll('.ex-row-item')).map(function (row) {
-      return Array.prototype.slice.call(row.querySelectorAll('input,select,textarea')).map(captureControl);
-    });
-
-    var payload = {
-      version: 1,
-      savedAt: Date.now(),
-      date: (dateEl && dateEl.value) || modal.dataset.date || '',
-      type: typeEl ? typeEl.value : '',
-      rows: rows
-    };
-
-    try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
-    } catch (e) {}
-  }
-
-  function savePassDraftSoon() {
-    clearTimeout(draftSaveTimer);
-    draftSaveTimer = setTimeout(savePassDraft, 40);
-  }
-
-  function clearPassDraft() {
-    clearTimeout(draftSaveTimer);
-    localStorage.removeItem(DRAFT_KEY);
-  }
-
-  function restorePassDraft() {
-    if (getState()) return false;
-    var draft = safeParse(localStorage.getItem(DRAFT_KEY));
-    if (!draft || !draft.date || !Array.isArray(draft.rows)) return false;
-    if (typeof window.loadDayWorkoutBuilder !== 'function' || typeof window.addDayWorkoutExRow !== 'function') return false;
-
-    restoring = true;
-    try {
-      window.loadDayWorkoutBuilder(draft.date);
-
-      var modal = document.getElementById('day-workout-modal');
-      var list = document.getElementById('day-workout-ex-list');
-      var dateEl = document.getElementById('day-workout-date');
-      var typeEl = document.getElementById('day-workout-type');
-      if (!modal || !list) return false;
-
-      var rows = Array.prototype.slice.call(list.querySelectorAll('.ex-row-item'));
-      while (rows.length < draft.rows.length) {
-        window.addDayWorkoutExRow();
-        rows = Array.prototype.slice.call(list.querySelectorAll('.ex-row-item'));
-      }
-      while (rows.length > draft.rows.length && rows.length > 0) {
-        rows[rows.length - 1].remove();
-        rows = Array.prototype.slice.call(list.querySelectorAll('.ex-row-item'));
-      }
-
-      rows.forEach(function (row, rowIndex) {
-        var controls = Array.prototype.slice.call(row.querySelectorAll('input,select,textarea'));
-        var savedControls = draft.rows[rowIndex] || [];
-        controls.forEach(function (control, controlIndex) {
-          applyControl(control, savedControls[controlIndex]);
-        });
-      });
-
-      if (dateEl) dateEl.value = draft.date;
-      if (typeEl) typeEl.value = draft.type || typeEl.value;
-      modal.dataset.date = draft.date;
-      modal.classList.add('show');
-      return true;
-    } catch (e) {
-      return false;
-    } finally {
-      restoring = false;
-    }
-  }
-
-  function shiftRecoveredTimers(state, downtime) {
-    if (!state || !downtime || downtime < 0) return;
-    if (typeof state.passStartedAt === 'number') state.passStartedAt += downtime;
-    if (state.setRunning && typeof state.setStartedAt === 'number') state.setStartedAt += downtime;
-    if (state.__hypePaused && typeof state.__hypePausedAt === 'number') state.__hypePausedAt += downtime;
-  }
-
-  function restoreSessionCheckpoint() {
-    var rawCheckpoint = localStorage.getItem(SESSION_KEY);
-    var checkpoint = safeParse(rawCheckpoint);
-    if (!checkpoint || !checkpoint.state) return false;
-    if (typeof window.renderSessionMode !== 'function') return false;
-
-    var restored = false;
-    restoring = true;
-    try {
-      var state = checkpoint.state;
-      var downtime = Math.max(0, Date.now() - Number(checkpoint.savedAt || Date.now()));
-      shiftRecoveredTimers(state, downtime);
-      if (!setState(state)) throw new Error('Could not restore exercise session state');
-
-      var hr = document.getElementById('session-hr');
-      var vo2 = document.getElementById('session-vo2');
-      if (hr) hr.value = checkpoint.hr || '';
-      if (vo2) vo2.value = checkpoint.vo2 || '';
-
-      var modal = document.getElementById('session-modal');
-      if (modal) modal.classList.add('show');
-
-      window.renderSessionMode();
-      if (typeof window.startSessionTimerLoop === 'function') window.startSessionTimerLoop();
-
-      if (checkpoint.view === 'overview') {
-        setTimeout(function () {
-          var currentModal = document.getElementById('session-modal');
-          var toggle = document.getElementById('session-view-toggle');
-          if (toggle && currentModal && !currentModal.classList.contains('session-overview-mode')) toggle.click();
-        }, 0);
-      }
-      restored = true;
-      return true;
-    } catch (e) {
-      /* Never allow a broken recovery snapshot to trap the page in a reload loop.
-         Preserve the raw snapshot for diagnosis/manual recovery, but remove it
-         from the active recovery key and return to the normal exercise page. */
-      try {
-        if (rawCheckpoint) localStorage.setItem(FAILED_SESSION_KEY, rawCheckpoint);
-      } catch (ignore) {}
-      clearSessionCheckpoint();
-      setState(null);
-      hideSessionUi();
-      return false;
-    } finally {
-      restoring = false;
-      if (restored) setTimeout(saveSessionCheckpoint, 0);
-    }
-  }
-
-  function wrapAfter(name, callback) {
+  function wrapAfter(name) {
     var fn = window[name];
-    if (typeof fn !== 'function' || fn.__reloadRecoveryWrapped) return;
+    if (typeof fn !== 'function' || fn.__emergencyRecoveryWrapped) return;
     var wrapped = function () {
       var result = fn.apply(this, arguments);
-      callback.apply(this, arguments);
+      saveSessionCheckpoint();
       return result;
     };
-    wrapped.__reloadRecoveryWrapped = true;
+    wrapped.__emergencyRecoveryWrapped = true;
     window[name] = wrapped;
   }
 
-  function bindSessionCheckpointing() {
-    [
-      'renderSessionMode',
-      'startCurrentSet',
-      'startNextSet',
-      'completeCurrentSet',
-      'addExtraSet',
-      'finishCurrentExercise',
-      'updateSetLog'
-    ].forEach(function (name) {
-      wrapAfter(name, saveSessionCheckpoint);
-    });
-
-    var stopFn = window.stopSessionMode;
-    if (typeof stopFn === 'function' && !stopFn.__reloadRecoveryWrapped) {
-      var wrappedStop = function () {
-        markExitIntent();
-        var result = stopFn.apply(this, arguments);
-        clearSessionCheckpoint();
-        return result;
-      };
-      wrappedStop.__reloadRecoveryWrapped = true;
-      window.stopSessionMode = wrappedStop;
-    }
-
-    /* Capture the visible Avsluta control before inline/wrapped handlers run.
-       This prevents pagehide/beforeunload from immediately recreating a
-       checkpoint if another session layer throws while exiting. */
-    document.addEventListener('click', function (event) {
-      var button = event.target && event.target.closest ? event.target.closest('#session-modal button') : null;
-      if (!button) return;
-      var inline = button.getAttribute('onclick') || '';
-      var text = (button.textContent || '').trim().toLowerCase();
-      if (inline.indexOf('stopSessionMode') >= 0 || text === 'avsluta') markExitIntent();
-    }, true);
-  }
-
-  function bindDraftCheckpointing() {
-    document.addEventListener('input', function (event) {
-      if (event.target && event.target.closest && event.target.closest('#day-workout-modal')) savePassDraftSoon();
-      if (event.target && event.target.closest && event.target.closest('#session-modal')) saveSessionCheckpoint();
-    }, true);
-
-    document.addEventListener('change', function (event) {
-      if (event.target && event.target.closest && event.target.closest('#day-workout-modal')) savePassDraftSoon();
-      if (event.target && event.target.closest && event.target.closest('#session-modal')) saveSessionCheckpoint();
-    }, true);
-
-    var list = document.getElementById('day-workout-ex-list');
-    if (list && !window.__exerciseDraftObserver) {
-      window.__exerciseDraftObserver = new MutationObserver(function () {
-        savePassDraftSoon();
-      });
-      window.__exerciseDraftObserver.observe(list, { childList: true, subtree: true });
-    }
-
-    var closeFn = window.closeModal;
-    if (typeof closeFn === 'function' && !closeFn.__reloadRecoveryWrapped) {
-      var wrappedClose = function (id) {
-        if (id === 'day-workout-modal') clearPassDraft();
-        return closeFn.apply(this, arguments);
-      };
-      wrappedClose.__reloadRecoveryWrapped = true;
-      window.closeModal = wrappedClose;
-    }
-  }
-
   function install() {
+    emergencyResetOnBoot();
+
     var attempts = 0;
     function ready() {
       attempts++;
-      if (typeof window.renderSessionMode !== 'function' || typeof window.loadDayWorkoutBuilder !== 'function') {
+      if (typeof window.renderSessionMode !== 'function') {
         if (attempts < 80) setTimeout(ready, 100);
         return;
       }
-      if (window.__exerciseReloadRecoveryInstalled) return;
-      window.__exerciseReloadRecoveryInstalled = true;
 
-      bindSessionCheckpointing();
-      bindDraftCheckpointing();
+      ['renderSessionMode','startCurrentSet','startNextSet','completeCurrentSet','addExtraSet','finishCurrentExercise','updateSetLog']
+        .forEach(wrapAfter);
 
-      var restoredSession = restoreSessionCheckpoint();
-      if (!restoredSession) restorePassDraft();
+      var stopFn = window.stopSessionMode;
+      if (typeof stopFn === 'function' && !stopFn.__emergencyRecoveryWrapped) {
+        var wrappedStop = function () {
+          markExitIntent();
+          var result = stopFn.apply(this, arguments);
+          markExitIntent();
+          return result;
+        };
+        wrappedStop.__emergencyRecoveryWrapped = true;
+        window.stopSessionMode = wrappedStop;
+      }
 
-      window.addEventListener('pagehide', function () {
-        saveSessionCheckpoint();
-        savePassDraft();
-      });
-      window.addEventListener('beforeunload', function () {
-        saveSessionCheckpoint();
-        savePassDraft();
-      });
+      document.addEventListener('click', function (event) {
+        var button = event.target && event.target.closest ? event.target.closest('#session-modal button') : null;
+        if (!button) return;
+        var inline = button.getAttribute('onclick') || '';
+        var text = (button.textContent || '').trim().toLowerCase();
+        if (inline.indexOf('stopSessionMode') >= 0 || text === 'avsluta') markExitIntent();
+      }, true);
 
-      setInterval(function () {
-        if (getState()) saveSessionCheckpoint();
-      }, 1000);
+      window.addEventListener('pagehide', saveSessionCheckpoint);
+      window.addEventListener('beforeunload', saveSessionCheckpoint);
+      setInterval(function () { if (getState()) saveSessionCheckpoint(); }, 1000);
     }
     ready();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', install, { once: true });
-  } else {
-    install();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true });
+  else install();
 })();
