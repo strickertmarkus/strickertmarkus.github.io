@@ -6,41 +6,51 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var DRAFT_KEY = 'ex_between_set_draft_' + profile;
+
   var intersetActive = false;
   var intersetTimer = null;
   var intersetDeadline = 0;
   var intersetTotalMs = 0;
   var intersetDone = null;
+  var draftTimer = null;
 
   function addStyles() {
     if (document.getElementById('exercise-between-sets-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-between-sets-style';
     style.textContent = `
-      .between-set-editor {
-        grid-column: 1 / -1;
-        margin-top: 8px;
-        padding: 10px;
-        border: 1px solid rgba(251,146,60,.18);
-        border-radius: 10px;
-        background: rgba(251,146,60,.045);
+      /* One pass-wide between-set setting. Keep the builder in the normal blue theme. */
+      #between-set-global-editor {
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid rgba(34,211,238,.28);
+        border-radius: 11px;
+        background: rgba(34,211,238,.055);
+        box-shadow: inset 0 0 0 1px rgba(34,211,238,.025);
       }
-      .between-set-title {
-        margin-bottom: 7px;
-        color: #FDBA74;
+      #between-set-global-editor .between-set-title {
+        margin-bottom: 8px;
+        color: #67E8F9;
         font-size: 10px;
+        line-height: 1.2;
         font-weight: 800;
         letter-spacing: .65px;
         text-transform: uppercase;
       }
-      .between-set-fields {
+      #between-set-global-editor .between-set-subtitle {
+        margin: -3px 0 10px;
+        color: #8B949E;
+        font-size: 10px;
+        line-height: 1.35;
+      }
+      #between-set-global-editor .between-set-fields {
         display: grid;
-        grid-template-columns: minmax(120px,.8fr) minmax(110px,.55fr) minmax(150px,1fr);
+        grid-template-columns: minmax(130px,.8fr) minmax(105px,.5fr) minmax(160px,1fr);
         gap: 8px;
         align-items: end;
       }
-      .between-set-field { min-width: 0; }
-      .between-set-field label {
+      #between-set-global-editor .between-set-field { min-width: 0; }
+      #between-set-global-editor .between-set-field label {
         display: block;
         margin-bottom: 4px;
         color: #8B949E;
@@ -49,29 +59,42 @@
         letter-spacing: .35px;
         text-transform: uppercase;
       }
-      .between-set-field select,
-      .between-set-field input {
+      #between-set-global-editor .between-set-field select,
+      #between-set-global-editor .between-set-field input {
         width: 100%;
         min-width: 0;
         height: 38px;
         padding: 7px 9px;
-        border: 1px solid rgba(255,255,255,.10);
+        border: 1px solid rgba(34,211,238,.24);
         border-radius: 8px;
-        background: #21262D;
+        background: rgba(33,38,45,.92);
         color: #F0F6FC;
+        outline: none;
         font: 600 12px/1 'Inter',sans-serif;
       }
-      .between-set-field[hidden] { display: none !important; }
+      #between-set-global-editor .between-set-field select:focus,
+      #between-set-global-editor .between-set-field input:focus {
+        border-color: rgba(34,211,238,.68);
+        box-shadow: 0 0 0 2px rgba(34,211,238,.10);
+      }
+      #between-set-global-editor .between-set-field[hidden] { display: none !important; }
 
+      /* Remove any legacy per-exercise editor if stale markup survived a cached render. */
+      .ex-row-item > .between-set-editor { display: none !important; }
+
+      /* Between-set activity is a real training step and covers the full session viewport. */
       #session-between-overlay {
-        position: absolute;
+        position: fixed;
         inset: 0;
-        z-index: 58;
+        width: 100vw;
+        height: 100dvh;
+        z-index: 2147482990;
         display: none;
         place-items: center;
-        background: rgba(12,8,5,.84);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        margin: 0;
+        background: rgba(12,8,5,.88);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
@@ -81,10 +104,9 @@
       .session-between-heading {
         margin-bottom: 13px;
         color: #FDBA74;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 900;
-        letter-spacing: .7px;
-        text-transform: uppercase;
+        letter-spacing: .5px;
       }
       .session-between-skip {
         margin-top: 12px;
@@ -95,7 +117,7 @@
         text-transform: uppercase;
       }
 
-      /* The 5-second pre-timer now uses the exact segmented visual language of the workout timer. */
+      /* Keep the five-second timer visually identical to the segmented workout timer. */
       #session-pre-timer-ring.session-pre-segmented {
         width: 180px !important;
         height: 180px !important;
@@ -128,22 +150,21 @@
         letter-spacing: .9px;
         text-transform: uppercase;
       }
-      #session-pre-timer-ring .session-pre-skip {
-        margin-top: 5px;
-        color: #78716C;
-        font-size: 8px;
-        font-weight: 700;
-        letter-spacing: .45px;
-        text-transform: uppercase;
-      }
+      #session-pre-timer-ring .session-pre-skip { display: none !important; }
 
       @media (max-width:600px) {
-        .between-set-editor { padding: 9px; }
-        .between-set-fields {
+        #between-set-global-editor {
+          margin-top: 10px;
+          padding: 10px;
+        }
+        #between-set-global-editor .between-set-fields {
           grid-template-columns: minmax(0,1fr) 92px;
           gap: 7px;
         }
-        .between-set-field-name { grid-column: 1 / -1; }
+        #between-set-global-editor .between-set-field-name { grid-column: 1 / -1; }
+        #session-between-overlay {
+          padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+        }
         #session-pre-timer-ring.session-pre-segmented,
         #session-between-ring {
           width: min(164px,48vw) !important;
@@ -193,6 +214,46 @@
     };
   }
 
+  function firstLegacyConfig(plan) {
+    if (!plan || !Array.isArray(plan.exercises)) return null;
+    var fallback = null;
+    for (var i = 0; i < plan.exercises.length; i++) {
+      var raw = plan.exercises[i] && plan.exercises[i].betweenSets;
+      if (!raw) continue;
+      var c = normalizeConfig(raw);
+      if (!fallback) fallback = c;
+      if (c.type !== 'none') return c;
+    }
+    return fallback;
+  }
+
+  function currentBuilderDate() {
+    var modal = document.getElementById('day-workout-modal');
+    var date = document.getElementById('day-workout-date');
+    return (modal && modal.dataset.date) || (date && date.value) || '';
+  }
+
+  function configForDate(date) {
+    var draft = safeParse(localStorage.getItem(DRAFT_KEY));
+    if (draft && draft.date === date) {
+      if (draft.config) return normalizeConfig(draft.config);
+      /* Migrate the previous per-row draft format. */
+      if (Array.isArray(draft.configs) && draft.configs.length) {
+        for (var i = 0; i < draft.configs.length; i++) {
+          var dc = normalizeConfig(draft.configs[i]);
+          if (dc.type !== 'none') return dc;
+        }
+        return normalizeConfig(draft.configs[0]);
+      }
+    }
+
+    var planned = getPlannedSafe();
+    var plan = planned && planned[date];
+    if (!plan) return normalizeConfig(null);
+    if (plan.betweenSets) return normalizeConfig(plan.betweenSets);
+    return normalizeConfig(firstLegacyConfig(plan));
+  }
+
   function updateEditorVisibility(editor) {
     if (!editor) return;
     var type = editor.querySelector('[data-between-type]');
@@ -203,43 +264,20 @@
     if (name) name.hidden = value !== 'custom';
   }
 
-  function augmentRow(row, config) {
-    if (!row || row.querySelector('.between-set-editor')) return;
+  function applyConfigToEditor(editor, config) {
+    if (!editor) return;
     var c = normalizeConfig(config);
-    var editor = document.createElement('div');
-    editor.className = 'between-set-editor';
-    editor.innerHTML =
-      '<div class="between-set-title">Mellan varje set</div>' +
-      '<div class="between-set-fields">' +
-        '<div class="between-set-field">' +
-          '<label>Aktivitet</label>' +
-          '<select data-between-type>' +
-            '<option value="none">Ingen</option>' +
-            '<option value="rest">Vila</option>' +
-            '<option value="custom">Valfri övning</option>' +
-          '</select>' +
-        '</div>' +
-        '<div class="between-set-field between-set-field-seconds">' +
-          '<label>Tid (sek)</label>' +
-          '<input data-between-seconds type="number" min="1" step="1" inputmode="numeric" value="' + c.seconds + '">' +
-        '</div>' +
-        '<div class="between-set-field between-set-field-name">' +
-          '<label>Övning</label>' +
-          '<input data-between-name type="text" placeholder="Ex: Hopprep" value="">' +
-        '</div>' +
-      '</div>';
-    row.appendChild(editor);
-    editor.querySelector('[data-between-type]').value = c.type;
-    editor.querySelector('[data-between-name]').value = c.name;
+    var type = editor.querySelector('[data-between-type]');
+    var seconds = editor.querySelector('[data-between-seconds]');
+    var name = editor.querySelector('[data-between-name]');
+    if (type) type.value = c.type;
+    if (seconds) seconds.value = c.seconds;
+    if (name) name.value = c.name;
     updateEditorVisibility(editor);
-    editor.querySelector('[data-between-type]').addEventListener('change', function () {
-      updateEditorVisibility(editor);
-      saveDraftSoon();
-    });
   }
 
-  function rowConfig(row) {
-    var editor = row && row.querySelector('.between-set-editor');
+  function captureGlobalConfig() {
+    var editor = document.getElementById('between-set-global-editor');
     if (!editor) return normalizeConfig(null);
     return normalizeConfig({
       type: editor.querySelector('[data-between-type]').value,
@@ -248,19 +286,56 @@
     });
   }
 
-  function currentBuilderDate() {
-    var modal = document.getElementById('day-workout-modal');
-    var date = document.getElementById('day-workout-date');
-    return (modal && modal.dataset.date) || (date && date.value) || '';
+  function removeLegacyEditors() {
+    document.querySelectorAll('#day-workout-ex-list .between-set-editor').forEach(function (el) { el.remove(); });
   }
 
-  function captureBuilderConfigs() {
+  function ensureGlobalEditor(date, forceReload) {
+    removeLegacyEditors();
     var list = document.getElementById('day-workout-ex-list');
-    if (!list) return [];
-    return Array.prototype.slice.call(list.querySelectorAll('.ex-row-item')).map(rowConfig);
+    if (!list || !list.parentElement) return null;
+
+    var editor = document.getElementById('between-set-global-editor');
+    var created = false;
+    if (!editor) {
+      created = true;
+      editor = document.createElement('div');
+      editor.id = 'between-set-global-editor';
+      editor.innerHTML =
+        '<div class="between-set-title">Mellan varje set</div>' +
+        '<div class="between-set-subtitle">Gäller hela passet.</div>' +
+        '<div class="between-set-fields">' +
+          '<div class="between-set-field">' +
+            '<label>Aktivitet</label>' +
+            '<select data-between-type>' +
+              '<option value="none">Ingen</option>' +
+              '<option value="rest">Vila</option>' +
+              '<option value="custom">Valfri övning</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="between-set-field between-set-field-seconds">' +
+            '<label>Tid (sek)</label>' +
+            '<input data-between-seconds type="number" min="1" step="1" inputmode="numeric" value="60">' +
+          '</div>' +
+          '<div class="between-set-field between-set-field-name">' +
+            '<label>Övning</label>' +
+            '<input data-between-name type="text" placeholder="Ex: Hopprep">' +
+          '</div>' +
+        '</div>';
+
+      list.parentElement.appendChild(editor);
+      editor.querySelector('[data-between-type]').addEventListener('change', function () {
+        updateEditorVisibility(editor);
+        saveDraftSoon();
+      });
+      editor.addEventListener('input', saveDraftSoon, true);
+      editor.addEventListener('change', saveDraftSoon, true);
+    }
+
+    if (created || forceReload) applyConfigToEditor(editor, configForDate(date || currentBuilderDate()));
+    return editor;
   }
 
-  var draftTimer = null;
   function saveDraftSoon() {
     clearTimeout(draftTimer);
     draftTimer = setTimeout(function () {
@@ -269,7 +344,11 @@
       var date = currentBuilderDate();
       if (!date) return;
       try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({date:date, configs:captureBuilderConfigs(), savedAt:Date.now()}));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          date: date,
+          config: captureGlobalConfig(),
+          savedAt: Date.now()
+        }));
       } catch (e) {}
     }, 50);
   }
@@ -279,45 +358,39 @@
     localStorage.removeItem(DRAFT_KEY);
   }
 
-  function configsForDate(date) {
-    var draft = safeParse(localStorage.getItem(DRAFT_KEY));
-    if (draft && draft.date === date && Array.isArray(draft.configs)) return draft.configs;
-    var planned = getPlannedSafe();
-    var p = planned && planned[date];
-    return p && Array.isArray(p.exercises) ? p.exercises.map(function (ex) { return ex && ex.betweenSets; }) : [];
-  }
-
-  function augmentBuilderRows(date) {
-    var list = document.getElementById('day-workout-ex-list');
-    if (!list) return;
-    var configs = configsForDate(date || currentBuilderDate());
-    Array.prototype.slice.call(list.querySelectorAll('.ex-row-item')).forEach(function (row, idx) {
-      augmentRow(row, configs[idx]);
-    });
-  }
-
-  function persistConfigs(date, configs) {
+  function persistGlobalConfig(date, config) {
     if (!date) return;
     var planned = getPlannedSafe();
-    var p = planned && planned[date];
-    if (!p || !Array.isArray(p.exercises)) return;
-    p.exercises.forEach(function (ex, idx) {
-      if (!ex || typeof ex !== 'object') return;
-      ex.betweenSets = normalizeConfig(configs[idx]);
-    });
-    planned[date] = p;
+    var plan = planned && planned[date];
+    if (!plan) return;
+
+    plan.betweenSets = normalizeConfig(config);
+    if (Array.isArray(plan.exercises)) {
+      plan.exercises.forEach(function (ex) {
+        if (ex && typeof ex === 'object' && Object.prototype.hasOwnProperty.call(ex, 'betweenSets')) {
+          delete ex.betweenSets;
+        }
+      });
+    }
+    planned[date] = plan;
     savePlannedSafe(planned);
   }
 
-  function copyConfigIntoActiveState(date) {
+  function copyConfigIntoActiveState(date, fallbackConfig) {
     var state = getState();
-    if (!state || !Array.isArray(state.exercises)) return;
+    if (!state) return;
+
     var planned = getPlannedSafe();
-    var p = planned && planned[date || state.date];
-    if (!p || !Array.isArray(p.exercises)) return;
-    state.exercises.forEach(function (ex, idx) {
-      ex.betweenSets = normalizeConfig(p.exercises[idx] && p.exercises[idx].betweenSets);
-    });
+    var plan = planned && planned[date || state.date];
+    var config = plan && plan.betweenSets ? plan.betweenSets : fallbackConfig;
+    if (!config && plan) config = firstLegacyConfig(plan);
+    state.betweenSets = normalizeConfig(config);
+
+    if (Array.isArray(state.exercises)) {
+      state.exercises.forEach(function (ex) {
+        if (ex && Object.prototype.hasOwnProperty.call(ex, 'betweenSets')) delete ex.betweenSets;
+      });
+    }
   }
 
   function buildSegments(containerId) {
@@ -338,7 +411,6 @@
       '<div class="session-countdown-copy">' +
         '<div id="session-pre-timer-value">5</div>' +
         '<div class="session-pre-label">Gör dig redo</div>' +
-        '<div class="session-pre-skip">Tryck för att hoppa över</div>' +
       '</div>';
   }
 
@@ -359,9 +431,7 @@
   function ensureIntersetOverlay() {
     var existing = document.getElementById('session-between-overlay');
     if (existing) return existing;
-    var shell = document.querySelector('#session-modal .session-shell');
-    if (!shell) return null;
-    if (getComputedStyle(shell).position === 'static') shell.style.position = 'relative';
+
     var overlay = document.createElement('div');
     overlay.id = 'session-between-overlay';
     overlay.setAttribute('role','button');
@@ -382,9 +452,12 @@
       '</div>';
     overlay.addEventListener('click', finishInterset);
     overlay.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finishInterset(); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        finishInterset();
+      }
     });
-    shell.appendChild(overlay);
+    document.body.appendChild(overlay);
     return overlay;
   }
 
@@ -400,6 +473,7 @@
     var remain = Math.max(0, intersetDeadline - Date.now());
     var value = document.getElementById('session-between-value');
     if (value) value.textContent = formatTime(remain / 1000);
+
     var activeCount = intersetTotalMs > 0 ? Math.ceil(60 * remain / intersetTotalMs) : 0;
     activeCount = Math.max(0, Math.min(60, activeCount));
     document.querySelectorAll('#session-between-segments .session-countdown-segment').forEach(function (segment, idx) {
@@ -407,20 +481,31 @@
       segment.classList.toggle('active', active);
       segment.classList.toggle('inactive', !active);
     });
+
     if (remain <= 0) finishInterset();
   }
 
   function startInterset(config, done) {
     config = normalizeConfig(config);
-    if (config.type === 'none') { done(); return; }
+    if (config.type === 'none') {
+      if (typeof done === 'function') done();
+      return;
+    }
+
     var overlay = ensureIntersetOverlay();
-    if (!overlay) { done(); return; }
+    if (!overlay) {
+      if (typeof done === 'function') done();
+      return;
+    }
+
     intersetActive = true;
     intersetDone = done;
     intersetTotalMs = Math.max(1000, config.seconds * 1000);
     intersetDeadline = Date.now() + intersetTotalMs;
+
     var heading = document.getElementById('session-between-heading');
     if (heading) heading.textContent = config.type === 'custom' ? (config.name || 'Valfri övning') : 'Vila';
+
     overlay.classList.add('show');
     updateInterset();
     intersetTimer = setInterval(updateInterset, 50);
@@ -431,8 +516,10 @@
     intersetActive = false;
     if (intersetTimer) clearInterval(intersetTimer);
     intersetTimer = null;
+
     var overlay = document.getElementById('session-between-overlay');
     if (overlay) overlay.classList.remove('show');
+
     var done = intersetDone;
     intersetDone = null;
     if (typeof done === 'function') done();
@@ -447,13 +534,23 @@
     if (overlay) overlay.classList.remove('show');
   }
 
-  function shouldRunInterset(state) {
-    if (!state || !Array.isArray(state.exercises) || state.exerciseIndex >= state.exercises.length) return null;
-    var ex = state.exercises[state.exerciseIndex];
-    var plannedSets = Math.max(1, Number(ex.plannedSets) || 1);
-    if (Number(state.currentSet) >= plannedSets) return null;
-    var config = normalizeConfig(ex.betweenSets);
+  function activeIntersetConfig(state) {
+    if (!state || state.setRunning || !state.awaitingDecision) return null;
+    var config = normalizeConfig(state.betweenSets);
     return config.type === 'none' ? null : config;
+  }
+
+  function hasNextExercise(state) {
+    return !!(state && Array.isArray(state.exercises) && Number(state.exerciseIndex) + 1 < state.exercises.length);
+  }
+
+  function runBeforeAction(originalFn, self, args, requireNextExercise) {
+    if (intersetActive) return;
+    var state = getState();
+    var config = activeIntersetConfig(state);
+    if (requireNextExercise && !hasNextExercise(state)) config = null;
+    if (!config) return originalFn.apply(self, args);
+    startInterset(config, function () { originalFn.apply(self, args); });
   }
 
   function install() {
@@ -480,36 +577,38 @@
       var originalPersist = window.persistDayWorkoutPlan;
       var originalStartSession = window.startWorkoutSessionForDate;
       var originalNextSet = window.startNextSet;
+      var originalAddExtra = window.addExtraSet;
+      var originalFinishExercise = window.finishCurrentExercise;
       var originalRender = window.renderSessionMode;
       var originalStop = window.stopSessionMode;
       var originalClose = window.closeModal;
 
-      window.addDayWorkoutExRow = function (ex) {
-        var list = document.getElementById('day-workout-ex-list');
-        var before = list ? list.querySelectorAll('.ex-row-item').length : 0;
+      window.addDayWorkoutExRow = function () {
         var result = originalAdd.apply(this, arguments);
-        list = document.getElementById('day-workout-ex-list');
-        if (list) {
-          var rows = list.querySelectorAll('.ex-row-item');
-          if (rows.length > before) augmentRow(rows[rows.length - 1], ex && ex.betweenSets);
-        }
-        saveDraftSoon();
+        removeLegacyEditors();
+        ensureGlobalEditor(currentBuilderDate(), false);
         return result;
       };
 
       window.loadDayWorkoutBuilder = function (iso) {
         var result = originalLoad.apply(this, arguments);
-        setTimeout(function () { augmentBuilderRows(iso); }, 0);
+        setTimeout(function () {
+          ensureGlobalEditor(iso, true);
+        }, 0);
         return result;
       };
 
-      window.persistDayWorkoutPlan = function (opts) {
+      window.persistDayWorkoutPlan = function () {
         var date = currentBuilderDate();
-        var configs = captureBuilderConfigs();
+        var config = captureGlobalConfig();
         var result = originalPersist.apply(this, arguments);
         if (result !== false) {
-          persistConfigs(date, configs);
+          /* Base save/start may already have started the session. Persist and then
+             copy again so the active session always receives the new setting. */
+          persistGlobalConfig(date, config);
+          copyConfigIntoActiveState(date, config);
           clearDraft();
+          if (typeof window.renderSessionMode === 'function' && getState()) window.renderSessionMode();
         }
         return result;
       };
@@ -517,17 +616,25 @@
       window.startWorkoutSessionForDate = function (iso) {
         var result = originalStartSession.apply(this, arguments);
         copyConfigIntoActiveState(iso);
-        if (typeof window.renderSessionMode === 'function') window.renderSessionMode();
+        if (typeof window.renderSessionMode === 'function' && getState()) window.renderSessionMode();
         return result;
       };
 
       window.startNextSet = function () {
-        var self = this, args = arguments;
-        if (intersetActive) return;
-        var config = shouldRunInterset(getState());
-        if (!config) return originalNextSet.apply(self, args);
-        startInterset(config, function () { originalNextSet.apply(self, args); });
+        return runBeforeAction(originalNextSet, this, arguments, false);
       };
+
+      if (typeof originalAddExtra === 'function') {
+        window.addExtraSet = function () {
+          return runBeforeAction(originalAddExtra, this, arguments, false);
+        };
+      }
+
+      if (typeof originalFinishExercise === 'function') {
+        window.finishCurrentExercise = function () {
+          return runBeforeAction(originalFinishExercise, this, arguments, true);
+        };
+      }
 
       if (typeof originalRender === 'function') {
         window.renderSessionMode = function () {
@@ -552,21 +659,7 @@
         };
       }
 
-      document.addEventListener('input', function (e) {
-        if (e.target && e.target.closest && e.target.closest('.between-set-editor')) saveDraftSoon();
-      }, true);
-      document.addEventListener('change', function (e) {
-        if (e.target && e.target.closest && e.target.closest('.between-set-editor')) saveDraftSoon();
-      }, true);
-
-      var list = document.getElementById('day-workout-ex-list');
-      if (list) {
-        new MutationObserver(function () {
-          augmentBuilderRows(currentBuilderDate());
-        }).observe(list, {childList:true});
-      }
-
-      augmentBuilderRows(currentBuilderDate());
+      ensureGlobalEditor(currentBuilderDate(), true);
       copyConfigIntoActiveState();
       setInterval(syncPretimerSegments, 50);
     }
