@@ -29,7 +29,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-1455';
+  var exerciseAssetsVersion = '20260826-1455-mobile2';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
@@ -66,6 +66,14 @@
               stableDetails.src = 'exercise-session-stable-details.js?v=' + exerciseAssetsVersion;
               stableDetails.async = false;
               stableDetails.dataset.exerciseSessionStableDetails = 'true';
+              stableDetails.addEventListener('load', function () {
+                if (document.querySelector('script[data-exercise-session-mobile-repaint-fix]')) return;
+                var mobileRepaintFix = document.createElement('script');
+                mobileRepaintFix.src = 'exercise-session-mobile-repaint-fix.js?v=' + exerciseAssetsVersion;
+                mobileRepaintFix.async = false;
+                mobileRepaintFix.dataset.exerciseSessionMobileRepaintFix = 'true';
+                document.head.appendChild(mobileRepaintFix);
+              }, { once: true });
               document.head.appendChild(stableDetails);
             }, { once: true });
             document.head.appendChild(themeStability);
