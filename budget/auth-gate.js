@@ -33,8 +33,16 @@
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
     sessionEnhancements.src = 'exercise-session-enhancements.js';
-    sessionEnhancements.defer = true;
+    sessionEnhancements.async = false;
     sessionEnhancements.dataset.exerciseSessionEnhancements = 'true';
+    sessionEnhancements.addEventListener('load', function () {
+      if (document.querySelector('script[data-exercise-session-focus]')) return;
+      var sessionFocus = document.createElement('script');
+      sessionFocus.src = 'exercise-session-focus.js';
+      sessionFocus.async = false;
+      sessionFocus.dataset.exerciseSessionFocus = 'true';
+      document.head.appendChild(sessionFocus);
+    }, { once: true });
     document.head.appendChild(sessionEnhancements);
   }
 
