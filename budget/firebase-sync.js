@@ -18,12 +18,47 @@ let syncEnabled = true;
 const syncQueue = {};
 let remotePollInterval = null;
 let localPollInterval = null;
-const lastKnownValues = {}; // Track values to detect changes in both directions
+const lastKnownValues = {};
 console.log('[Firebase] firebase-sync.js v9 loaded');
 
-// Save REAL localStorage methods before any monkey-patching
+// Save REAL localStorage methods before any monkey-patching.
 const _realSetItem = localStorage.setItem.bind(localStorage);
 const _realGetItem = localStorage.getItem.bind(localStorage);
+const _nativeStorageGetItem = Storage.prototype.getItem;
+const _nativeStorageSetItem = Storage.prototype.setItem;
+
+const EXERCISE_KEYS = [
+  'ex_wk',
+  'ex_goals',
+  'ex_templates',
+  'ex_weekTemplates',
+  'ex_plannedSessions',
+  'ex_prs',
+  'ex_plan',
+  'ex_vo2'
+];
+const isExercisePage = /\/exercise\.html$/.test(window.location.pathname);
+const requestedExerciseUser = new URLSearchParams(window.location.search).get('user');
+const exerciseUser = requestedExerciseUser && requestedExerciseUser.toLowerCase() === 'maja' ? 'maja' : 'markus';
+
+function scopedExerciseKey(key) {
+  if (!isExercisePage || !EXERCISE_KEYS.includes(key)) return key;
+  return exerciseUser === 'maja' ? `${key}_maja` : key;
+}
+
+function logicalExerciseKey(key) {
+  if (!isExercisePage || exerciseUser !== 'maja' || !key.endsWith('_maja')) return key;
+  const baseKey = key.slice(0, -5);
+  return EXERCISE_KEYS.includes(baseKey) ? baseKey : key;
+}
+
+// Scope exercise storage before exercise.html's inline script runs. Markus keeps the
+// original keys; Maja receives a completely separate *_maja data set.
+Storage.prototype.getItem = function(key) {
+  const stringKey = String(key);
+  const mappedKey = this === localStorage ? scopedExerciseKey(stringKey) : stringKey;
+  return _nativeStorageGetItem.call(this, mappedKey);
+};
 
 const firebaseConfig = window.FIREBASE_CONFIG || {
   apiKey: "AIzaSyCgGL762gcglRpix4-akfP7NydFj5ChxfM",
@@ -50,14 +85,8 @@ const SYNC_KEYS = [
   "cal_todos",
   "cal_notif",
   "cal_trip",
-  "ex_wk",
-  "ex_goals",
-  "ex_templates",
-  "ex_weekTemplates",
-  "ex_plannedSessions",
-  "ex_prs",
-  "ex_plan",
-  "ex_vo2"
+  ...EXERCISE_KEYS,
+  ...EXERCISE_KEYS.map(key => `${key}_maja`)
 ];
 
 /** Safe write to localStorage (won't throw even if blocked on iOS) */
@@ -238,8 +267,12 @@ function handleRemoteUpdate(key, value) {
   lastKnownValues[key] = value;
   safeSetLocal(key, value);
 
+  const eventKey = logicalExerciseKey(key);
+  if (isExercisePage && exerciseUser === 'maja' && EXERCISE_KEYS.includes(key)) return;
+  if (isExercisePage && exerciseUser === 'markus' && key.endsWith('_maja')) return;
+
   window.dispatchEvent(new CustomEvent('firebase-sync', {
-    detail: { key, value }
+    detail: { key: eventKey, value }
   }));
 }
 
@@ -259,17 +292,19 @@ function syncToFirebase(key, value) {
   }, 500);
 }
 
-/** Monkey-patch localStorage.setItem to auto-sync tracked keys to Firebase */
-localStorage.setItem = function(key, value) {
+/** Scope localStorage writes and auto-sync tracked keys to Firebase. */
+Storage.prototype.setItem = function(key, value) {
+  const stringKey = String(key);
+  const mappedKey = this === localStorage ? scopedExerciseKey(stringKey) : stringKey;
   try {
-    _realSetItem(key, value);
+    _nativeStorageSetItem.call(this, mappedKey, value);
   } catch (error) {
-    if (typeof fallbackSetItem !== 'undefined') {
-      fallbackSetItem(key, value).catch(() => {});
+    if (this === localStorage && typeof fallbackSetItem !== 'undefined') {
+      fallbackSetItem(mappedKey, value).catch(() => {});
     }
   }
-  if (SYNC_KEYS.includes(key)) {
-    syncToFirebase(key, value);
+  if (this === localStorage && SYNC_KEYS.includes(mappedKey)) {
+    syncToFirebase(mappedKey, value);
   }
 };
 
@@ -285,9 +320,80 @@ function isFirebaseConnected() {
   return syncEnabled && firebaseInitialized && db !== null;
 }
 
+function switchExerciseUser(user) {
+  if (!isExercisePage || !['markus', 'maja'].includes(user)) return;
+  const url = new URL(window.location.href);
+  url.searchParams.set('user', user);
+  window.location.href = url.toString();
+}
+
+function applyExerciseUserToggle() {
+  if (!isExercisePage) return;
+
+  document.title = `${exerciseUser === 'maja' ? 'Maja' : 'Markus'} Träning`;
+  const brandSub = document.querySelector('.brand-text p');
+  if (brandSub) brandSub.textContent = exerciseUser === 'maja' ? 'Maja' : 'Markus';
+
+  const header = document.querySelector('.app-header');
+  const brand = document.querySelector('.app-header .brand');
+  if (!header || !brand || document.getElementById('exercise-user-toggle')) return;
+
+  const style = document.createElement('style');
+  style.id = 'exercise-user-toggle-style';
+  style.textContent = `
+    .exercise-user-toggle {
+      display:flex;
+      align-items:center;
+      flex-shrink:0;
+      padding:3px;
+      gap:2px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:rgba(255,255,255,.035);
+    }
+    .exercise-user-option {
+      border:0;
+      background:transparent;
+      color:var(--text-sec);
+      border-radius:7px;
+      padding:5px 9px;
+      font:600 11px/1.2 'Inter',sans-serif;
+      cursor:pointer;
+      transition:background .15s,color .15s;
+    }
+    .exercise-user-option.active {
+      background:var(--accent-dim);
+      color:var(--accent);
+      box-shadow:inset 0 0 0 1px var(--border-a);
+    }
+    @media(max-width:430px) {
+      .app-header { gap:7px !important; padding-left:12px !important; padding-right:12px !important; }
+      .exercise-user-option { padding:5px 7px; font-size:10px; }
+      .streak-badge { padding-left:8px !important; padding-right:8px !important; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const toggle = document.createElement('div');
+  toggle.id = 'exercise-user-toggle';
+  toggle.className = 'exercise-user-toggle';
+  toggle.setAttribute('role', 'group');
+  toggle.setAttribute('aria-label', 'Välj träningsprofil');
+  toggle.innerHTML = `
+    <button type="button" class="exercise-user-option${exerciseUser === 'markus' ? ' active' : ''}" data-user="markus">Markus</button>
+    <button type="button" class="exercise-user-option${exerciseUser === 'maja' ? ' active' : ''}" data-user="maja">Maja</button>
+  `;
+  toggle.addEventListener('click', event => {
+    const button = event.target.closest('[data-user]');
+    if (!button || button.dataset.user === exerciseUser) return;
+    switchExerciseUser(button.dataset.user);
+  });
+  brand.insertAdjacentElement('afterend', toggle);
+}
+
 // Exercise page layout correction for native date controls.
 function applyExerciseLogDateFieldFix() {
-  if (!/\/exercise\.html$/.test(window.location.pathname)) return;
+  if (!isExercisePage) return;
   const style = document.createElement('style');
   style.id = 'exercise-log-date-field-fix';
   style.textContent = `
@@ -358,4 +464,5 @@ function applyExerciseLogDateFieldFix() {
 
 // Auto-init when DOM is ready
 document.addEventListener('DOMContentLoaded', initFirebaseSync, { once: true });
+document.addEventListener('DOMContentLoaded', applyExerciseUserToggle, { once: true });
 document.addEventListener('DOMContentLoaded', applyExerciseLogDateFieldFix, { once: true });
