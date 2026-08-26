@@ -52,7 +52,6 @@
         box-shadow: 0 8px 26px rgba(249,115,22,.22) !important;
       }
 
-      /* Give the two between-set decisions their own subtle identities. */
       #session-modal.persistent-hype:not(.session-overview-mode) .session-cta.warn {
         border-color: rgba(245,158,11,.42) !important;
         background: rgba(245,158,11,.14) !important;
@@ -68,7 +67,12 @@
         transform: scale(.985);
       }
 
-      /* Give Starta nästa set more breathing room below the timers/content. */
+      /* Flowing layout restored. Only add breathing room under the cardio countdown. */
+      #session-modal.persistent-hype.cardio-countdown-active:not(.session-overview-mode) #session-controls {
+        margin-top: 18px !important;
+      }
+
+      /* Keep the next-set decision comfortably separated in normal flow. */
       #session-modal.persistent-hype:not(.session-overview-mode) .session-cta-row.decision-row .session-cta.primary:first-child {
         margin-top: 18px !important;
       }
@@ -80,7 +84,6 @@
         animation: none !important;
       }
 
-      /* During an active set, restore the speed-line animation. */
       #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell {
         position: relative;
         overflow: hidden;
@@ -117,6 +120,9 @@
       }
 
       @media (max-width: 600px) {
+        #session-modal.persistent-hype.cardio-countdown-active:not(.session-overview-mode) #session-controls {
+          margin-top: 22px !important;
+        }
         #session-modal.persistent-hype:not(.session-overview-mode) .session-cta-row.decision-row .session-cta.primary:first-child {
           margin-top: 16px !important;
         }
@@ -150,11 +156,16 @@
 
     var overview = modal.classList.contains('session-overview-mode');
     var running = !!(state && state.setRunning);
+    var ex = state && Array.isArray(state.exercises) && state.exerciseIndex < state.exercises.length
+      ? state.exercises[state.exerciseIndex]
+      : null;
+    var timedCardio = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
 
-    /* hype-mode now means active speed-line animation only. The orange visual
-       theme itself is owned by persistent-hype and never changes between sets. */
     if (modal.classList.contains('persistent-hype') && !overview) {
       modal.classList.toggle('hype-mode', running);
+      modal.classList.toggle('cardio-countdown-active', timedCardio);
+    } else {
+      modal.classList.remove('cardio-countdown-active');
     }
   }
 
