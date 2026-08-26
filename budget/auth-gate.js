@@ -29,7 +29,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-1605-week-toolbar';
+  var exerciseAssetsVersion = '20260826-1622-points-3-6-7';
 
   if (isExercisePage && !document.querySelector('script[data-exercise-session-enhancements]')) {
     var sessionEnhancements = document.createElement('script');
@@ -78,6 +78,14 @@
                   recovery.src = 'exercise-reload-recovery.js?v=' + exerciseAssetsVersion;
                   recovery.async = false;
                   recovery.dataset.exerciseReloadRecovery = 'true';
+                  recovery.addEventListener('load', function () {
+                    if (document.querySelector('script[data-exercise-points-3-6-7]')) return;
+                    var points367 = document.createElement('script');
+                    points367.src = 'exercise-points-3-6-7.js?v=' + exerciseAssetsVersion;
+                    points367.async = false;
+                    points367.dataset.exercisePoints367 = 'true';
+                    document.head.appendChild(points367);
+                  }, { once: true });
                   document.head.appendChild(recovery);
                 }, { once: true });
                 document.head.appendChild(mobileRepaintFix);
