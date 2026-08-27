@@ -29,6 +29,22 @@ COMPLETED / FINISHED
   - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
   - Overview toggle label race fixed at source so persistent hype emits Till Träningsläge directly instead of legacy Till Hype Mode: 54d1abee04332febcdcce74f1c21bb81730e4a70
 
+- Session current-set cards + editable logged sets.
+  Status: RESTORED V6
+  - current Set / Reps / Vikt cards are visible in both Träningsläge and Översikt
+  - cardio uses Runda / Distans / Tid
+  - the existing #session-set-log remains visible while later sets are running
+  - completed sets stay listed and editable when set 2, set 3, etc. starts
+  - edits still use the original updateSetLog/sessionState.logs path; no parallel state model was introduced
+  - orange card styling while a set is active, blue/cyan styling between sets and in overview
+  - responsive mobile card/log layout included
+  Safety:
+  - CSS/UI-only module
+  - no core session wrappers
+  - no MutationObserver
+  Feature commit: e82ea54229a5d42e96cd287e97ae16bb8590bf44
+  Loader/cache commit: a364173d38ae2c7159ee0ca3351539f277295d1c
+
 - Point 5 — Circular countdown for timed cardio sets.
   Status: FINISHED
 
@@ -136,12 +152,13 @@ Current exercise asset checkpoint:
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
 - Persistent overview toggle wording fix: 54d1abee04332febcdcce74f1c21bb81730e4a70
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
+- Restored session set cards/log V6: e82ea54229a5d42e96cd287e97ae16bb8590bf44
 - Builder floating drag/date cleanup: 05adb724a8376031d364e926726f5040f138e9ab
 - Builder floating input/grid style V5: 2d7a3939b21673e3c633186f9b1ba5460bbb8289
 - Pulse index-safe range renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
 - Log pulse/volume V4: 4f054918541e398a4af8f24e91ef3467b0c6e28b
 - Mobile log table/title V5: 30a7bd97f8cde68342fead6485bd4491c919e512
 - Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
-- Loader/cache: 50f0f4c1819bedb1d167232e6534891d96accaa0
+- Loader/cache: a364173d38ae2c7159ee0ca3351539f277295d1c
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
