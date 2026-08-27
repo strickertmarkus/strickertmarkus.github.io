@@ -13,25 +13,36 @@ Status: FINISHED / VERIFIED IN CURRENT CODE
 - the shared shopping data is kept consistent between home.html and shopping.html.
 
 2. Home calendar: optional end date/end time
-Status: NOT STARTED
-- Fix end time/end date handling in the calendar widget on home.html.
-- Add a toggle when choosing the date/time.
-- When enabled, allow selecting an end date/time in the same date-picker/menu.
-- This item also applies to calendar.html and should be kept behaviorally consistent there.
+Status: FINISHED / SHARED CALENDAR UI V2
+- Existing endTime support is retained.
+- A new Slutdatum / sluttid toggle controls whether the end section is shown.
+- When enabled, the event editor shows both end date and end time in the same modal.
+- endDate is stored on the same event object as the existing date/time fields.
+- Legacy events containing only endTime remain compatible and automatically open with the toggle enabled.
+- Invalid ranges are blocked when end date is before start date, or when end time is earlier than start time on the same day.
+- Multi-day events are expanded visually across their intermediate calendar dates while editing/deleting still targets the original event.
+- Implemented consistently in both home.html and calendar.html.
+Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Loader commit: 20159c6417592e0d1f3afcc120be065ec89872fb
 
 3. Home calendar layout / month selector
-Status: NOT STARTED
-- Make the calendar heading larger.
-- Move the month selector out of the heading and place it directly above the calendar.
-- Make the selector more compact.
-- Put it on the same row as the week label (for example “Vecka 34”), aligned to the right.
-- This item also applies to calendar.html.
+Status: FINISHED / SHARED CALENDAR UI V2
+- Calendar/page heading is larger.
+- Month navigation is moved out of the sticky page header and into a compact toolbar directly above the calendar.
+- Week number is on the left and the compact month selector/navigation is on the right.
+- Existing home week-number element is reused; calendar.html receives the same toolbar structure.
+- Responsive/mobile layout included.
+Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Loader commit: 20159c6417592e0d1f3afcc120be065ec89872fb
 
 4. Date picker year/month interaction
-Status: NOT STARTED
-- When choosing year/month in the date picker, make the visible year/month text directly clickable/selectable.
-- Do not rely on the current hard-to-see/invisible arrow controls.
-- This item also applies to calendar.html.
+Status: FINISHED / SHARED CALENDAR UI V2
+- Existing Flatpickr date fields are upgraded from static month text to a visible clickable month dropdown.
+- The year field remains directly editable and selects its text on focus for faster replacement.
+- New end-date field uses the same picker behavior.
+- Applied consistently to home.html and calendar.html, including relevant date inputs such as event and trip dates.
+Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Loader commit: 20159c6417592e0d1f3afcc120be065ec89872fb
 
 5. Group shopping items under category headings on home.html
 Status: FINISHED / HOME PRESENTATION V1
@@ -44,6 +55,6 @@ Status: FINISHED / HOME PRESENTATION V1
 Feature commit: c83c3ff20eb10f822862e20e4f72094582610903
 Loader commits: d17376990802555b94a051700896fa7f1354f3b7, 0bb8ac0f205e8bc81720870c127723d7f56b1d90
 
-Scope note:
-- This file tracks the home.html part of the original checklist plus later Home follow-up requests.
-- Shared calendar items should later be implemented consistently in both home.html and calendar.html.
+HOME.HTML CHECKLIST STATUS: COMPLETE FOR NOW
+All current Home items from the original checklist plus the later shopping-category follow-up are implemented.
+Shared calendar items were implemented in both home.html and calendar.html through calendar-ui-v2.js.
