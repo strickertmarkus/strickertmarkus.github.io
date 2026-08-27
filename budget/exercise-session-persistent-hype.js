@@ -210,7 +210,10 @@
     var button = ensureToggleButton();
     if (button) {
       button.style.display = active ? '' : 'none';
-      button.textContent = overviewMode ? 'Till Hype Mode' : 'Visa översikt';
+      /* Keep the canonical product wording here. Other compatibility code may
+         replace legacy "Hype Mode" strings, so never emit that legacy label. */
+      var wantedText = overviewMode ? 'Till Träningsläge' : 'Visa översikt';
+      if (button.textContent !== wantedText) button.textContent = wantedText;
       button.setAttribute('aria-pressed', overviewMode ? 'true' : 'false');
     }
 
@@ -238,7 +241,7 @@
 
       window.renderSessionMode = function () {
         /* Populate set/reps/kg/time before the original DOM render returns, so
-           the browser paints the details together with the rest of Hype mode. */
+           the browser paints the details together with the rest of Träningsläge. */
         preRenderPersistentState();
         var result = previousRender.apply(this, arguments);
         ensureToggleButton();
