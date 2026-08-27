@@ -37,13 +37,16 @@ COMPLETED / FINISHED
   Status: FINISHED
 
 - Point 6 — Five-second pre-timer.
-  Status: FINISHED / TOGGLE ADDED
-  The 5-second start timer can now be enabled/disabled per planned workout:
+  Status: FINISHED / TOGGLE + VISIBILITY GUARD
+  The 5-second start timer can be enabled/disabled per planned workout:
   - toggle in Bygg pass
   - toggle inside Träningsläge, effective immediately for following starts
   - default remains enabled
   - automatic hidden next-set transitions skip the pre-timer; the timer runs when the user actually presses Starta set
+  - when disabled, a capture-phase visibility guard adds pretimer-disabled-v3 before Starta set reaches the legacy pretimer wrapper, so #session-pre-timer cannot flash on screen even briefly
+  - if a hidden legacy pre-timer is internally started while disabled, the guard dismisses it immediately while keeping it visually suppressed
   Feature commit: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
+  Visibility guard commit: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
 
 - Point 7 — Mixed workout volume counts strength only.
   Status: FINISHED
@@ -53,12 +56,23 @@ COMPLETED / FINISHED
   "Senaste pass" uses the latest actually completed workout for the selected profile, ignores future-dated entries, and shows workout subtype/type as a separate gray line.
 
 - Point 9 — Heart-rate graph for cardio and strength.
-  Status: FINISHED / UPDATED
-  Cardio and strength pulse are now in one shared chart with two independently toggleable legend series:
+  Status: FINISHED / MIN-AVG-MAX RANGE ADDED
+  Cardio and strength pulse are in one shared chart with two independently toggleable legend series:
   - Kondition: red line
   - Styrka: cyan/blue line
-  Mixed workouts can appear in both series. The legacy chart-hr canvas remains hidden in the DOM for compatibility with base renderCharts().
-  Updated feature commit: 5b23c62435dfff78b5946067e5be00749ee2be30
+  Each workout can now also store hrMin and hrMax alongside hrAvg.
+  Min/avg/max can be registered from:
+  - the normal Logga träning modal
+  - the Träningsläge completion form
+  - inline editing of already logged workouts
+  Graph presentation:
+  - avg remains the main line
+  - a translucent color-matched min–max band surrounds each main series where range data exists
+  - legend still shows only Kondition and Styrka; toggling a series also toggles its range band
+  - tooltip shows average and min–max when available
+  - old workouts without min/max remain fully compatible and simply render without a band
+  Combined-line commit: 5b23c62435dfff78b5946067e5be00749ee2be30
+  Heart-rate range feature commit: 0972f293f41c6a7978ebea5fbda067a4b42ed752
 
 - Point 10 — Distance-training three-row idea.
   Status: IGNORED BY USER / DO NOT IMPLEMENT
@@ -118,6 +132,8 @@ Current exercise asset checkpoint:
 - Combined pulse chart: 5b23c62435dfff78b5946067e5be00749ee2be30
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
 - Builder row tools / week toolbar V3: 04123a6266601107de8a4a52fdd9efe26e000347
-- Loader/cache: dd523f5386ea26c876bb7f9c5249ac7d0dba6069
+- Heart-rate min/max + graph range: 0972f293f41c6a7978ebea5fbda067a4b42ed752
+- Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
+- Loader/cache: 44faa252a9195525d9b24344f7d8252d0045b9f6
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
