@@ -21,7 +21,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260827-0827-log-pulse-volume-v4';
+  var exerciseAssetsVersion = '20260827-0835-hr-range-index-v4';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
