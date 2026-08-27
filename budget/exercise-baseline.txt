@@ -1,3 +1,10 @@
+EXERCISE CHECKLIST STATUS: COMPLETE / CLOSED FOR NOW
+Recorded closed: 2026-08-27
+
+All requested exercise.html checklist work is considered done for the current round.
+The distance-training three-row idea remains intentionally skipped by user choice and is therefore closed, not pending.
+Future exercise.html requests should be treated as new follow-up work rather than unfinished items from the original checklist.
+
 Exercise page baseline before larger exercise-page changes.
 
 Baseline commit: 2945f0005d87a472700601da0801cb0a1a8549cb
@@ -81,7 +88,7 @@ COMPLETED / FINISHED
   Index-safe interval renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
 
 - Point 10 — Distance-training three-row idea.
-  Status: IGNORED BY USER / DO NOT IMPLEMENT
+  Status: IGNORED BY USER / CLOSED / DO NOT IMPLEMENT
 
 - Workout progress UI.
   Status: FINISHED
