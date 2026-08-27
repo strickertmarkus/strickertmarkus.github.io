@@ -21,7 +21,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260827-1048-log-table-toggle-v6';
+  var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -56,7 +56,9 @@
                                     loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
                                       loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
                                         loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
-                                          loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5');
+                                          loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
+                                            loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6');
+                                          });
                                         });
                                       });
                                     });
