@@ -22,8 +22,10 @@
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
+  var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
+  var calendarAssetsVersion = '20260827-1255-calendar-ui-v2';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -88,6 +90,14 @@
     homeScript.async = false;
     homeScript.setAttribute('data-home-shopping-groups-v1', 'true');
     document.head.appendChild(homeScript);
+  }
+
+  if ((isHomePage || isCalendarPage) && !document.querySelector('script[data-calendar-ui-v2]')) {
+    var calendarScript = document.createElement('script');
+    calendarScript.src = 'calendar-ui-v2.js?v=' + calendarAssetsVersion;
+    calendarScript.async = false;
+    calendarScript.setAttribute('data-calendar-ui-v2', 'true');
+    document.head.appendChild(calendarScript);
   }
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
