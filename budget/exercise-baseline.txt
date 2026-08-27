@@ -15,20 +15,15 @@ COMPLETED / FINISHED
 
 - Point 4 — Träningsläge / Hype session experience.
   Status: FINISHED / SAFE PASSIVE POLISH
-  Includes:
-  - persistent Träningsläge layout and progress UI
-  - stronger orange contrast while a set is actively running
-  - calmer blue/cyan theme between active sets
-  - active-only tunnel/speed-line animation
-  - larger current exercise + smaller next exercise after an arrow
-  - full-viewport 5-second pre-timer
-  - overview visible at the bottom of Träningsläge
-  - compact overview also visible inside the between-set/rest overlay
-  - visible session controls simplified to Starta set and Klar med set; the original decision buttons remain hidden in the DOM and are advanced automatically using the existing state machine
-  Safety architecture for the latest polish:
-  - no MutationObserver
+  Includes persistent Träningsläge layout/progress UI, stronger orange active-set contrast,
+  calmer blue/cyan between-set styling, active-only tunnel effect, larger current exercise,
+  next-exercise hint, full viewport pre-timer, overview at bottom and compact between-set overview.
+  Visible controls are simplified to Starta set and Klar med set while the existing state machine
+  remains authoritative for hidden transitions.
+  Safety:
+  - no broad MutationObserver
   - no replacement/wrapping of core session functions by exercise-flow-polish-v2.js
-  - no removal of the original decision-state buttons/functions
+  - original decision-state functions remain intact
   Relevant commits:
   - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
   - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
@@ -38,13 +33,11 @@ COMPLETED / FINISHED
 
 - Point 6 — Five-second pre-timer.
   Status: FINISHED / TOGGLE + VISIBILITY GUARD
-  The 5-second start timer can be enabled/disabled per planned workout:
   - toggle in Bygg pass
-  - toggle inside Träningsläge, effective immediately for following starts
-  - default remains enabled
-  - automatic hidden next-set transitions skip the pre-timer; the timer runs when the user actually presses Starta set
-  - when disabled, a capture-phase visibility guard adds pretimer-disabled-v3 before Starta set reaches the legacy pretimer wrapper, so #session-pre-timer cannot flash on screen even briefly
-  - if a hidden legacy pre-timer is internally started while disabled, the guard dismisses it immediately while keeping it visually suppressed
+  - toggle inside Träningsläge
+  - default enabled
+  - hidden automatic next-set transitions skip it
+  - disabled state is hidden before the legacy timer wrapper can paint, preventing a flash
   Feature commit: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
   Visibility guard commit: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
 
@@ -53,26 +46,22 @@ COMPLETED / FINISHED
 
 - Point 8 — Latest completed workout subtype.
   Status: FINISHED
-  "Senaste pass" uses the latest actually completed workout for the selected profile, ignores future-dated entries, and shows workout subtype/type as a separate gray line.
+  Senaste pass uses the latest actually completed workout for the selected profile,
+  ignores future-dated entries and shows workout subtype/type as a gray secondary line.
 
 - Point 9 — Heart-rate graph for cardio and strength.
-  Status: FINISHED / MIN-AVG-MAX RANGE ADDED
-  Cardio and strength pulse are in one shared chart with two independently toggleable legend series:
+  Status: FINISHED / MIN-AVG-MAX + INDEX-SAFE RANGE
   - Kondition: red line
   - Styrka: cyan/blue line
-  Each workout can now also store hrMin and hrMax alongside hrAvg.
-  Min/avg/max can be registered from:
-  - the normal Logga träning modal
-  - the Träningsläge completion form
-  - inline editing of already logged workouts
-  Graph presentation:
-  - avg remains the main line
-  - a translucent color-matched min–max band surrounds each main series where range data exists
-  - legend still shows only Kondition and Styrka; toggling a series also toggles its range band
-  - tooltip shows average and min–max when available
-  - old workouts without min/max remain fully compatible and simply render without a band
-  Combined-line commit: 5b23c62435dfff78b5946067e5be00749ee2be30
-  Heart-rate range feature commit: 0972f293f41c6a7978ebea5fbda067a4b42ed752
+  - workouts can store hrMin/hrAvg/hrMax
+  - min/avg/max can be edited from normal workout logging, Träningsläge completion and Träningslog edit mode
+  - pulse range is drawn per exact average-point x-index, not with separate fill datasets
+  - each interval is a translucent local band with dashed min/max edge marks
+  - tooltip shows average plus min–max
+  - legacy workouts without min/max remain compatible
+  Main combined-line commit: 5b23c62435dfff78b5946067e5be00749ee2be30
+  Heart-rate fields/range feature: 0972f293f41c6a7978ebea5fbda067a4b42ed752
+  Index-safe interval renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
 
 - Point 10 — Distance-training three-row idea.
   Status: IGNORED BY USER / DO NOT IMPLEMENT
@@ -82,44 +71,52 @@ COMPLETED / FINISHED
 
 - Reload recovery / accidental refresh protection.
   Status: SAFETY MODE
-  Session checkpointing remains available, but automatic restoration of an active workout is temporarily disabled after the 2026-08-26 freeze incident. Existing recovery snapshots are preserved as backups instead of being auto-opened.
+  Session checkpointing remains available, but automatic restoration of an active workout is temporarily disabled after the 2026-08-26 freeze incident.
+  Existing recovery snapshots are preserved as backups instead of being auto-opened.
 
 - Week selector / weekly toolbar.
   Status: FIXED V3
-  - Denna vecka button is removed directly from the real .week-toolbar structure and also hidden by an onclick fallback selector.
-  - The earlier V2 missed this because it incorrectly required a .week-pick container that the main weekly toolbar does not have.
-  - Redigera and Mallpass are moved from the Veckoplan section heading into the weekly toolbar row.
-  - responsive mobile styling retained.
+  - Denna vecka removed
+  - Redigera and Mallpass moved into toolbar row
+  - responsive mobile styling retained
   Corrective feature commit: 04123a6266601107de8a4a52fdd9efe26e000347
 
 - Bygg pass row utilities.
-  Status: IMPLEMENTED V3
-  Each #day-workout-ex-list exercise row now gets:
-  - + button that duplicates the complete row immediately below it, including Styrka/Kondition selection and all current values.
-  - drag grip for direct mouse drag on desktop.
-  - mobile long-press drag/reorder; holding a row background or grip activates vertical reordering.
-  - row order is changed directly in the DOM, so the existing persistDayWorkoutPlan() saves exercises in that new order without changing the base data model.
-  - input event is emitted after copy/reorder so existing builder draft/reload checkpointing can see the change.
-  Safety architecture:
-  - separate builder-only module.
-  - no core session function wrappers.
-  - no MutationObserver.
-  - periodic idempotent row enhancement only while using the existing builder DOM.
-  Feature commit: 04123a6266601107de8a4a52fdd9efe26e000347
-  Loader/cache commit: dd523f5386ea26c876bb7f9c5249ac7d0dba6069
+  Status: IMPLEMENTED / FLOATING DRAG V4
+  - + duplicates the complete row immediately below, preserving type and current values
+  - desktop and mobile reorder supported
+  - dragged row now lifts into a fixed floating card that follows mouse/finger continuously
+  - a dashed placeholder moves between rows and surrounding rows animate with FLIP-style transitions
+  - floating card animates into the destination on release
+  - modal auto-scrolls near top/bottom while dragging
+  - original DOM row is only moved on drop; saved exercise order therefore remains the real DOM order
+  - redundant visible date picker in Bygg pass is hidden; the selected date remains in DOM/modal state for save/start compatibility
+  - label is simplified from Datum och vecka to Vecka
+  Safety:
+  - builder-only module
+  - no core session wrappers
+  - no MutationObserver
+  Original row-tools commit: 04123a6266601107de8a4a52fdd9efe26e000347
+  Floating drag/date cleanup commit: 05adb724a8376031d364e926726f5040f138e9ab
+
+- Träningslog pulse / volume editing.
+  Status: FINISHED V4
+  - expanded log editor displays Minpuls / Medelpuls / Maxpuls together
+  - existing logged strength workouts get strength volume derived from sets × reps × kg
+  - mixed workouts display strength kg volume instead of being blank because they also contain cardio
+  - pure cardio workouts can display distance
+  Feature commit: 4f054918541e398a4af8f24e91ef3467b0c6e28b
 
 - Between-set activity configuration V2.
   Status: ACTIVE / SAFE REBUILD
-  One pass-wide "Mellan varje set" setting: Ingen, Vila or Valfri övning with configurable time.
-  Latest presentation update:
-  - between-set/rest overlay uses a calmer blue/cyan theme
-  - compact workout overview is shown below the between-set timer
-  Core V2 safety remains unchanged:
+  One pass-wide Mellan varje set setting: Ingen, Vila or Valfri övning with configurable time.
+  Presentation uses calmer blue/cyan styling and compact overview below the between-set timer.
+  Core safety:
   - no core session-state function wrappers
   - no broad MutationObserver
   - capture-phase click handling only inside #session-controls
-  - delayed original decision button is replayed exactly once after the timer
-  Original safe V2 feature commit: ba16ad721f6ec79d8626e61d1aa541db18f959e4
+  - delayed original decision button is replayed exactly once after timer
+  Original safe V2 commit: ba16ad721f6ec79d8626e61d1aa541db18f959e4
   Presentation/flow polish commit: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
 
 Emergency stability commits:
@@ -129,11 +126,11 @@ Emergency stability commits:
 Current exercise asset checkpoint:
 - Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
-- Combined pulse chart: 5b23c62435dfff78b5946067e5be00749ee2be30
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
-- Builder row tools / week toolbar V3: 04123a6266601107de8a4a52fdd9efe26e000347
-- Heart-rate min/max + graph range: 0972f293f41c6a7978ebea5fbda067a4b42ed752
+- Builder floating drag/date cleanup: 05adb724a8376031d364e926726f5040f138e9ab
+- Pulse index-safe range renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
+- Log pulse/volume V4: 4f054918541e398a4af8f24e91ef3467b0c6e28b
 - Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
-- Loader/cache: 44faa252a9195525d9b24344f7d8252d0045b9f6
+- Loader/cache: 96b348e829eb17fd708e3845acabf10b5d59169b
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
