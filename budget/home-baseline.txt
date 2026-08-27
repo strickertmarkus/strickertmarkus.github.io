@@ -102,6 +102,8 @@ LATER HOME/CALENDAR FOLLOW-UPS
 Current shared calendar loader/cache commit: 3698305ea9f352d80003ce0ed9432b54c11232dd
 Current calendar asset version: 20260827-2105-home-type-scale-v9
 
-HOME.HTML CHECKLIST STATUS: COMPLETE FOR NOW
-All current Home items from the original checklist plus later Home follow-ups are implemented.
+HOME.HTML CHECKLIST STATUS: COMPLETE / CLOSED FOR NOW
+Closed: 2026-08-27
+All current Home items from the original checklist plus later Home follow-ups are implemented and considered finished for the current round.
 Shared calendar items are implemented in both home.html and calendar.html; Home-only presentation/interaction polish is layered afterwards.
+Future home.html requests should be treated as new follow-up work rather than unfinished items from this checklist.
