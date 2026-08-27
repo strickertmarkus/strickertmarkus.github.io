@@ -141,7 +141,7 @@
           return;
         }
         auth.createUserWithEmailAndPassword(email, password)
-          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext); })
+          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext(); })
           .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte skapa konto.", true); });
       });
     }
