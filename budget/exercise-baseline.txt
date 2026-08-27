@@ -71,11 +71,28 @@ COMPLETED / FINISHED
   Session checkpointing remains available, but automatic restoration of an active workout is temporarily disabled after the 2026-08-26 freeze incident. Existing recovery snapshots are preserved as backups instead of being auto-opened.
 
 - Week selector / weekly toolbar.
-  Status: FINISHED / UPDATED
-  - Denna vecka button removed.
-  - Redigera and Mallpass moved down into the week/date toolbar row.
-  - compact responsive styling added for mobile.
-  Feature commit: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
+  Status: FIXED V3
+  - Denna vecka button is removed directly from the real .week-toolbar structure and also hidden by an onclick fallback selector.
+  - The earlier V2 missed this because it incorrectly required a .week-pick container that the main weekly toolbar does not have.
+  - Redigera and Mallpass are moved from the Veckoplan section heading into the weekly toolbar row.
+  - responsive mobile styling retained.
+  Corrective feature commit: 04123a6266601107de8a4a52fdd9efe26e000347
+
+- Bygg pass row utilities.
+  Status: IMPLEMENTED V3
+  Each #day-workout-ex-list exercise row now gets:
+  - + button that duplicates the complete row immediately below it, including Styrka/Kondition selection and all current values.
+  - drag grip for direct mouse drag on desktop.
+  - mobile long-press drag/reorder; holding a row background or grip activates vertical reordering.
+  - row order is changed directly in the DOM, so the existing persistDayWorkoutPlan() saves exercises in that new order without changing the base data model.
+  - input event is emitted after copy/reorder so existing builder draft/reload checkpointing can see the change.
+  Safety architecture:
+  - separate builder-only module.
+  - no core session function wrappers.
+  - no MutationObserver.
+  - periodic idempotent row enhancement only while using the existing builder DOM.
+  Feature commit: 04123a6266601107de8a4a52fdd9efe26e000347
+  Loader/cache commit: dd523f5386ea26c876bb7f9c5249ac7d0dba6069
 
 - Between-set activity configuration V2.
   Status: ACTIVE / SAFE REBUILD
@@ -100,6 +117,7 @@ Current exercise asset checkpoint:
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
 - Combined pulse chart: 5b23c62435dfff78b5946067e5be00749ee2be30
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
-- Loader/cache: c320bf59bde6e3b7c0daf972461f5e157cb059ab
+- Builder row tools / week toolbar V3: 04123a6266601107de8a4a52fdd9efe26e000347
+- Loader/cache: dd523f5386ea26c876bb7f9c5249ac7d0dba6069
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
