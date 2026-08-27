@@ -23,7 +23,7 @@
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
-  var exerciseAssetsVersion = '20260827-2115-between-custom-exercise-v3';
+  var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2000-home-header-center-v8';
 
