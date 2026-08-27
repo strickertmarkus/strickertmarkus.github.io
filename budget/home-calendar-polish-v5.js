@@ -16,41 +16,56 @@
         display:none !important;
       }
 
-      /* Header: title and hamburger share the same horizontal centre line.
-         The meta line is positioned underneath without affecting title centring. */
+      /* Home header remains centred; keep the existing title/meta line rhythm
+         while making time/date slightly more prominent. */
       body.home-calendar-polish-v5 .app-header {
-        justify-content:flex-start !important;
-        text-align:left !important;
+        justify-content:center !important;
+        text-align:center !important;
         min-height:70px;
+        position:sticky !important;
       }
       body.home-calendar-polish-v5 .brand {
+        position:absolute !important;
+        left:50% !important;
+        top:50% !important;
+        transform:translate(-50%,-50%) !important;
+        margin:0 !important;
+        width:max-content !important;
         min-width:0;
-        margin-right:auto !important;
-        justify-content:flex-start !important;
+        max-width:calc(100% - 150px);
+        justify-content:center !important;
+        z-index:1;
       }
       body.home-calendar-polish-v5 .brand-text {
         min-width:0;
         position:relative;
-        min-height:38px;
+        min-height:46px;
+        text-align:center !important;
       }
       body.home-calendar-polish-v5 .brand-text h1 {
         font-size:22px !important;
-        line-height:38px !important;
+        line-height:26px !important;
         letter-spacing:-.45px !important;
         white-space:nowrap !important;
+        text-align:center !important;
       }
       body.home-calendar-polish-v5 .brand-text p {
-        position:absolute;
-        left:0;
-        top:31px;
+        position:static !important;
+        margin-top:1px !important;
+        font-size:13px !important;
+        line-height:1.25 !important;
         white-space:nowrap;
+        text-align:center !important;
+      }
+      body.home-calendar-polish-v5 .app-header .nav-dropdown-wrapper {
+        z-index:3 !important;
       }
 
       /* Reserve the toolbar area permanently. The toolbar is positioned in
          that reserved strip, so moving .month-nav from the header does not
          change layout after first paint. */
       body.home-calendar-polish-v5 .cal-section {
-        padding-top:40px !important;
+        padding-top:42px !important;
       }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 {
         position:absolute !important;
@@ -58,35 +73,79 @@
         left:0 !important;
         right:24px !important;
         width:auto !important;
+        min-height:34px !important;
         padding:0 !important;
         margin:0 !important;
+      }
+      body.home-calendar-polish-v5 .calendar-toolbar-v2 .cal-week-number,
+      body.home-calendar-polish-v5 .calendar-toolbar-v2 .calendar-week-number-v2 {
+        font-size:12px !important;
+        letter-spacing:.6px !important;
       }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav {
         margin:0 0 0 auto !important;
         justify-content:flex-end !important;
         flex:0 0 auto !important;
+        gap:5px !important;
+      }
+      body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button {
+        width:30px !important;
+        height:30px !important;
+        font-size:14px !important;
+      }
+      body.home-calendar-polish-v5 .calendar-toolbar-v2 #month-label {
+        font-size:12px !important;
+        padding:0 6px !important;
       }
 
       @media (max-width:768px) {
+        body.home-calendar-polish-v5 .brand {
+          max-width:calc(100% - 130px) !important;
+        }
         body.home-calendar-polish-v5 .brand-text h1 {
           font-size:20px !important;
-          line-height:38px !important;
+          line-height:24px !important;
           letter-spacing:-.35px !important;
         }
+        body.home-calendar-polish-v5 .brand-text p {
+          margin-top:1px !important;
+          font-size:12.5px !important;
+        }
         body.home-calendar-polish-v5 .cal-section {
-          padding-top:36px !important;
+          padding-top:39px !important;
         }
         body.home-calendar-polish-v5 .calendar-toolbar-v2 {
           right:0 !important;
+          min-height:32px !important;
+        }
+        body.home-calendar-polish-v5 .calendar-toolbar-v2 .cal-week-number,
+        body.home-calendar-polish-v5 .calendar-toolbar-v2 .calendar-week-number-v2 {
+          font-size:11px !important;
         }
         body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav {
           margin:0 0 0 auto !important;
+          gap:4px !important;
+        }
+        body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button {
+          width:29px !important;
+          height:29px !important;
+          font-size:14px !important;
+        }
+        body.home-calendar-polish-v5 .calendar-toolbar-v2 #month-label {
+          font-size:11.5px !important;
+          padding:0 4px !important;
         }
       }
 
       @media (max-width:390px) {
+        body.home-calendar-polish-v5 .brand {
+          max-width:calc(100% - 112px) !important;
+        }
         body.home-calendar-polish-v5 .brand-text h1 {
           font-size:18px !important;
+        }
+        body.home-calendar-polish-v5 .brand-text p {
+          font-size:12px !important;
         }
       }
     `;
