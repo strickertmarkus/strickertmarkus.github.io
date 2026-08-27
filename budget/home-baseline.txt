@@ -10,8 +10,7 @@ HOME.HTML TODO
 Status: FINISHED / VERIFIED IN CURRENT CODE
 - home.html parses entries in the form `Artikel (Kategori)` and places the item under the matching shopping-list category when that heading exists.
 - home.html reads the shared shopping-list category headings and associates each item with its active category.
-- the home widget currently renders that category back as `Artikel (Kategori)`.
-- The same underlying shopping data is therefore already kept consistent between home.html and shopping.html.
+- the shared shopping data is kept consistent between home.html and shopping.html.
 
 2. Home calendar: optional end date/end time
 Status: NOT STARTED
@@ -35,13 +34,15 @@ Status: NOT STARTED
 - This item also applies to calendar.html.
 
 5. Group shopping items under category headings on home.html
-Status: NOT STARTED
-- In the home.html shopping widget, visually group items under the same category/heading structure used by shopping.html.
-- Examples: Maxi, Willys, Hemköp or any other shopping-list heading should appear as compact headings with their items below them.
-- Reuse the existing shared shopping data/category structure; do not introduce a separate home-only category model.
-- Preserve the current home.html visual style: same compact widget/card, item-row styling, typography, controls and overall density.
-- The goal is category grouping within the current Home design, not making the Home widget look like the full shopping.html page.
-- Must remain responsive/mobile friendly.
+Status: FINISHED / HOME PRESENTATION V1
+- Home shopping widget now visually groups items under their shared shopping-list category headings.
+- Item text is shown without redundant `(Kategori)` suffix when a visible heading already provides the category context.
+- Existing shared shopping data/category structure is reused; no home-only category model was introduced.
+- Add/edit/check/delete continue using the original Home shopping functions.
+- Current compact Home widget styling is preserved with small accent-colored category headings rather than copying the full shopping.html layout.
+- Responsive/mobile styling included.
+Feature commit: c83c3ff20eb10f822862e20e4f72094582610903
+Loader commits: d17376990802555b94a051700896fa7f1354f3b7, 0bb8ac0f205e8bc81720870c127723d7f56b1d90
 
 Scope note:
 - This file tracks the home.html part of the original checklist plus later Home follow-up requests.
