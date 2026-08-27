@@ -21,7 +21,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260827-1007-builder-floating-drag-v4';
+  var exerciseAssetsVersion = '20260827-1015-builder-style-v5';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -52,9 +52,11 @@
                             loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
                               loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
                                 loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
-                                  loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
-                                    loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
-                                      loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4');
+                                  loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
+                                    loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
+                                      loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
+                                        loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4');
+                                      });
                                     });
                                   });
                                 });
