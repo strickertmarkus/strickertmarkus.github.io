@@ -25,7 +25,28 @@
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-1505-home-calendar-polish-v5';
+  var calendarAssetsVersion = '20260827-1518-home-header-prelayout-v6';
+
+  /* Home's month navigation exists in the raw HTML header and is moved into
+     the calendar toolbar later. Reserve the final toolbar strip and hide the
+     raw header position before first paint so there is no visible jump. */
+  if (isHomePage && !document.getElementById('home-critical-prelayout-v6')) {
+    var critical = document.createElement('style');
+    critical.id = 'home-critical-prelayout-v6';
+    critical.textContent = '\n' +
+      '.app-header{justify-content:flex-start!important;text-align:left!important;min-height:70px;}\n' +
+      '.app-header .brand{margin-right:auto!important;justify-content:flex-start!important;min-width:0;}\n' +
+      '.app-header .brand-text{position:relative;min-height:38px;min-width:0;}\n' +
+      '.app-header .brand-text h1{font-size:22px!important;line-height:38px!important;letter-spacing:-.45px!important;white-space:nowrap!important;}\n' +
+      '.app-header .brand-text p{position:absolute;left:0;top:31px;white-space:nowrap;}\n' +
+      '.app-header>.month-nav{visibility:hidden!important;}\n' +
+      '.cal-section{padding-top:40px!important;}\n' +
+      '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;padding:0!important;margin:0!important;}\n' +
+      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;}\n' +
+      '@media(max-width:768px){.app-header .brand-text h1{font-size:20px!important;line-height:38px!important;letter-spacing:-.35px!important}.cal-section{padding-top:36px!important}.calendar-toolbar-v2{right:0!important}}\n' +
+      '@media(max-width:390px){.app-header .brand-text h1{font-size:18px!important}}';
+    document.head.appendChild(critical);
+  }
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
