@@ -34,17 +34,18 @@ Status: FINISHED / SHARED CALENDAR UI V2
 Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
 
 4. Date picker year/month interaction
-Status: FINISHED / STABLE PICKER V3
+Status: FINISHED / STABLE PICKER V3 + YEAR MENU V4
 - The original V2 native month-dropdown approach was replaced after it could block date/outside clicks, especially on Safari/iOS.
 - Flatpickr is restored to its stable static month header with closeOnSelect enabled.
 - Clicking the visible month name opens a separate compact month menu without covering the calendar day grid.
-- The year remains directly clickable/editable and selects its text for quick replacement.
+- Clicking the visible year opens a matching scrollable year list centered on the current year.
+- The year list uses the same dark/accent styling as the month selector and supports touch scrolling on mobile.
 - Date selection explicitly synchronizes the input value and closes the picker.
 - Clicking outside explicitly closes open date pickers.
 - Applied consistently to home.html and calendar.html, including event/trip/end-date fields.
 Original calendar feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
 Stable picker fix commit: c5aabeb6ae41be3f60c5d60738d455f8a2f88ec1
-Loader/cache commit: 76b8a77cf4a56c91c66399fb5a6a175398ed68be
+Year-menu follow-up commit: c738905ad2ae292fa42412420d5c52cf58d9f140
 
 5. Group shopping items under category headings on home.html
 Status: FINISHED / HOME PRESENTATION V1
@@ -56,6 +57,27 @@ Status: FINISHED / HOME PRESENTATION V1
 - Responsive/mobile styling included.
 Feature commit: c83c3ff20eb10f822862e20e4f72094582610903
 Loader commits: d17376990802555b94a051700896fa7f1354f3b7, 0bb8ac0f205e8bc81720870c127723d7f56b1d90
+
+LATER HOME/CALENDAR FOLLOW-UPS
+==============================
+
+- Annual event recurrence
+  Status: FINISHED V4
+  - Upprepning now includes `Årligen`.
+  - Annual occurrences are generated for the requested calendar month/year without changing existing weekly/monthly behavior.
+  - repeatUntil is respected.
+  - Multi-day annual events preserve their duration and continuation-day rendering.
+  Feature commit: c738905ad2ae292fa42412420d5c52cf58d9f140
+
+- Home floating new-event button
+  Status: FINISHED V4
+  - Home's orange + button stays fixed/floating on mobile instead of being changed to position:static by the old mobile CSS.
+  - Bottom position includes iOS safe-area inset.
+  - Desktop behavior remains floating as before.
+  Feature commit: c738905ad2ae292fa42412420d5c52cf58d9f140
+
+Current shared calendar loader/cache commit: 49bd12293916e35fa1817b4e7f93cbcb0c61c10c
+Current calendar asset version: 20260827-1410-calendar-followups-v4
 
 HOME.HTML CHECKLIST STATUS: COMPLETE FOR NOW
 All current Home items from the original checklist plus later Home follow-ups are implemented.
