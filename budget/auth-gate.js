@@ -21,7 +21,9 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
+  var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
+  var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -80,6 +82,14 @@
     });
   }
 
+  if (isHomePage && !document.querySelector('script[data-home-shopping-groups-v1]')) {
+    var homeScript = document.createElement('script');
+    homeScript.src = 'home-shopping-groups-v1.js?v=' + homeAssetsVersion;
+    homeScript.async = false;
+    homeScript.setAttribute('data-home-shopping-groups-v1', 'true');
+    document.head.appendChild(homeScript);
+  }
+
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
 
   function nextTarget() {
@@ -131,7 +141,7 @@
           return;
         }
         auth.createUserWithEmailAndPassword(email, password)
-          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext(); })
+          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext); })
           .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte skapa konto.", true); });
       });
     }
