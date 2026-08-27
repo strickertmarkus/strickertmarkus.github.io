@@ -27,6 +27,7 @@ COMPLETED / FINISHED
   Relevant commits:
   - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
   - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
+  - Overview toggle label race fixed at source so persistent hype emits Till Träningsläge directly instead of legacy Till Hype Mode: 54d1abee04332febcdcce74f1c21bb81730e4a70
 
 - Point 5 — Circular countdown for timed cardio sets.
   Status: FINISHED
@@ -54,7 +55,7 @@ COMPLETED / FINISHED
   - Kondition: red line
   - Styrka: cyan/blue line
   - workouts can store hrMin/hrAvg/hrMax
-  - min/avg/max can be edited from normal workout logging, Träningsläge completion and Träningslog edit mode
+  - min/avg/max can be edited from normal workout logging, Träningsläge completion and Träningslogg edit mode
   - pulse range is drawn per exact average-point x-index, not with separate fill datasets
   - each interval is a translucent local band with dashed min/max edge marks
   - tooltip shows average plus min–max
@@ -102,13 +103,17 @@ COMPLETED / FINISHED
   Floating drag/date cleanup commit: 05adb724a8376031d364e926726f5040f138e9ab
   Floating input/grid style commit: 2d7a3939b21673e3c633186f9b1ba5460bbb8289
 
-- Träningslog pulse / volume editing.
-  Status: FINISHED V4
+- Träningslogg pulse / volume editing.
+  Status: FINISHED V5 / MOBILE TABLE FIX
   - expanded log editor displays Minpuls / Medelpuls / Maxpuls together
   - existing logged strength workouts get strength volume derived from sets × reps × kg
   - mixed workouts display strength kg volume instead of being blank because they also contain cardio
   - pure cardio workouts can display distance
-  Feature commit: 4f054918541e398a4af8f24e91ef3467b0c6e28b
+  - heading is Träningslogg
+  - mobile Safari action td is forced back to table-cell instead of flex, fixing clipped row highlight/borders and misplaced delete X
+  - mobile pulse/action column widths are stabilized and pulse stays on one line
+  Pulse/volume feature commit: 4f054918541e398a4af8f24e91ef3467b0c6e28b
+  Mobile table/title fix commit: 30a7bd97f8cde68342fead6485bd4491c919e512
 
 - Between-set activity configuration V2.
   Status: ACTIVE / SAFE REBUILD
@@ -129,12 +134,14 @@ Emergency stability commits:
 Current exercise asset checkpoint:
 - Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
+- Persistent overview toggle wording fix: 54d1abee04332febcdcce74f1c21bb81730e4a70
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
 - Builder floating drag/date cleanup: 05adb724a8376031d364e926726f5040f138e9ab
 - Builder floating input/grid style V5: 2d7a3939b21673e3c633186f9b1ba5460bbb8289
 - Pulse index-safe range renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
 - Log pulse/volume V4: 4f054918541e398a4af8f24e91ef3467b0c6e28b
+- Mobile log table/title V5: 30a7bd97f8cde68342fead6485bd4491c919e512
 - Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
-- Loader/cache: 15c53dca940fe406462b77f1515681e01e1b420a
+- Loader/cache: 50f0f4c1819bedb1d167232e6534891d96accaa0
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
