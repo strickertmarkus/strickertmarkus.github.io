@@ -25,13 +25,15 @@ Status: FINISHED / SHARED CALENDAR UI V2
 Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
 
 3. Home calendar layout / month selector
-Status: FINISHED / SHARED CALENDAR UI V2
+Status: FINISHED / SHARED CALENDAR UI V2 + HOME POLISH V5
 - Calendar/page heading is larger.
 - Month navigation is moved out of the sticky page header and into a compact toolbar directly above the calendar.
 - Week number is on the left and the compact month selector/navigation is on the right.
-- Existing home week-number element is reused; calendar.html receives the same toolbar structure.
-- Responsive/mobile layout included.
+- Home V5 resets the old mobile `margin:0 auto` completely so the month navigation sits against the right edge and aligns with the Sunday/calendar-grid edge.
+- Home heading `Familjen Frick Strickert` is enlarged further and kept on one line, with responsive font sizes for narrow phones.
+- Existing home week-number element is reused; calendar.html receives the shared toolbar structure.
 Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Home polish commit: 1541c4369578adad556ff9e7245305b084804e55
 
 4. Date picker year/month interaction
 Status: FINISHED / STABLE PICKER V3 + YEAR MENU V4
@@ -63,7 +65,7 @@ LATER HOME/CALENDAR FOLLOW-UPS
 
 - Annual event recurrence
   Status: FINISHED V4
-  - Upprepning now includes `Årligen`.
+  - Upprepning includes `Årligen`.
   - Annual occurrences are generated for the requested calendar month/year without changing existing weekly/monthly behavior.
   - repeatUntil is respected.
   - Multi-day annual events preserve their duration and continuation-day rendering.
@@ -76,9 +78,18 @@ LATER HOME/CALENDAR FOLLOW-UPS
   - Desktop behavior remains floating as before.
   Feature commit: c738905ad2ae292fa42412420d5c52cf58d9f140
 
-Current shared calendar loader/cache commit: 49bd12293916e35fa1817b4e7f93cbcb0c61c10c
-Current calendar asset version: 20260827-1410-calendar-followups-v4
+- Home empty-day single-click overview
+  Status: FINISHED V5
+  - The legacy day panel below the Home calendar is no longer shown.
+  - Populated dates retain the existing day-overview popover.
+  - Empty dates now use the exact same popover path and show `Inga händelser denna dag.` instead of opening the old add panel.
+  - The old day-panel DOM remains hidden rather than deleted so legacy month-navigation/close code can still access it safely.
+  - Existing double-click on any calendar day remains untouched and continues opening the event editor for that date.
+  Feature commit: 1541c4369578adad556ff9e7245305b084804e55
+
+Current shared calendar loader/cache commit: 1563ec3a462202484fcac4e9505b063a6ec4128b
+Current calendar asset version: 20260827-1505-home-calendar-polish-v5
 
 HOME.HTML CHECKLIST STATUS: COMPLETE FOR NOW
 All current Home items from the original checklist plus later Home follow-ups are implemented.
-Shared calendar items are implemented in both home.html and calendar.html.
+Shared calendar items are implemented in both home.html and calendar.html; Home-only presentation/interaction polish is layered afterwards.
