@@ -82,22 +82,25 @@ COMPLETED / FINISHED
   Corrective feature commit: 04123a6266601107de8a4a52fdd9efe26e000347
 
 - Bygg pass row utilities.
-  Status: IMPLEMENTED / FLOATING DRAG V4
+  Status: IMPLEMENTED / FLOATING DRAG V4 + STYLE V5
   - + duplicates the complete row immediately below, preserving type and current values
   - desktop and mobile reorder supported
-  - dragged row now lifts into a fixed floating card that follows mouse/finger continuously
+  - dragged row lifts into a fixed floating card that follows mouse/finger continuously
   - a dashed placeholder moves between rows and surrounding rows animate with FLIP-style transitions
   - floating card animates into the destination on release
   - modal auto-scrolls near top/bottom while dragging
   - original DOM row is only moved on drop; saved exercise order therefore remains the real DOM order
-  - redundant visible date picker in Bygg pass is hidden; the selected date remains in DOM/modal state for save/start compatibility
-  - label is simplified from Datum och vecka to Vecka
+  - redundant visible date picker in Bygg pass is hidden; selected date remains in DOM/modal state for save/start compatibility
+  - label simplified from Datum och vecka to Vecka
+  - floating drag clone explicitly keeps the same dark input/select styling as the builder instead of falling back to white browser controls
+  - builder grid gives the exercise-name input more width while sets/reps/kg fields are narrower, including mobile
   Safety:
-  - builder-only module
+  - builder-only modules
   - no core session wrappers
   - no MutationObserver
   Original row-tools commit: 04123a6266601107de8a4a52fdd9efe26e000347
   Floating drag/date cleanup commit: 05adb724a8376031d364e926726f5040f138e9ab
+  Floating input/grid style commit: 2d7a3939b21673e3c633186f9b1ba5460bbb8289
 
 - Träningslog pulse / volume editing.
   Status: FINISHED V4
@@ -128,9 +131,10 @@ Current exercise asset checkpoint:
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
 - Builder floating drag/date cleanup: 05adb724a8376031d364e926726f5040f138e9ab
+- Builder floating input/grid style V5: 2d7a3939b21673e3c633186f9b1ba5460bbb8289
 - Pulse index-safe range renderer: 6854544f3628bccdc15b27bfbf64b0052628e8e9
 - Log pulse/volume V4: 4f054918541e398a4af8f24e91ef3467b0c6e28b
 - Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
-- Loader/cache: 96b348e829eb17fd708e3845acabf10b5d59169b
+- Loader/cache: 15c53dca940fe406462b77f1515681e01e1b420a
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
