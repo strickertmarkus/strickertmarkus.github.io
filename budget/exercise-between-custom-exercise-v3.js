@@ -303,6 +303,17 @@
       return;
     }
 
+    /* While the temporary custom exercise is awaiting its hidden "Övning klar"
+       transition, consume that auto-click here as well. This prevents it from
+       falling through to the legacy between-set module and opening a blue
+       custom-activity overlay. */
+    if (state.__betweenCustomRuntimeV3 && button.closest('#session-controls') && !state.setRunning && state.awaitingDecision) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setTimeout(maybeFinishCustom, 0);
+      return;
+    }
+
     if (!button.closest('#session-controls') || state.setRunning || !state.awaitingDecision || state.__betweenCustomRuntimeV3) return;
     var transition = transitionKind(button, state);
     if (!transition) return;
