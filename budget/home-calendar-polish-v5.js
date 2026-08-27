@@ -16,24 +16,50 @@
         display:none !important;
       }
 
-      body.home-calendar-polish-v5 .brand,
+      /* Header: title and hamburger share the same horizontal centre line.
+         The meta line is positioned underneath without affecting title centring. */
+      body.home-calendar-polish-v5 .app-header {
+        justify-content:flex-start !important;
+        text-align:left !important;
+        min-height:70px;
+      }
+      body.home-calendar-polish-v5 .brand {
+        min-width:0;
+        margin-right:auto !important;
+        justify-content:flex-start !important;
+      }
       body.home-calendar-polish-v5 .brand-text {
         min-width:0;
+        position:relative;
+        min-height:38px;
       }
       body.home-calendar-polish-v5 .brand-text h1 {
         font-size:22px !important;
-        line-height:1.15 !important;
+        line-height:38px !important;
         letter-spacing:-.45px !important;
         white-space:nowrap !important;
       }
+      body.home-calendar-polish-v5 .brand-text p {
+        position:absolute;
+        left:0;
+        top:31px;
+        white-space:nowrap;
+      }
 
-      /* The old Home mobile rule gave .month-nav margin:0 auto. Merely setting
-         margin-left:auto later left margin-right:auto in place and visually
-         pulled the selector back toward the centre. Reset all margins here so
-         its right edge follows the same content edge as the Sunday column. */
+      /* Reserve the toolbar area permanently. The toolbar is positioned in
+         that reserved strip, so moving .month-nav from the header does not
+         change layout after first paint. */
+      body.home-calendar-polish-v5 .cal-section {
+        padding-top:40px !important;
+      }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 {
-        width:100% !important;
+        position:absolute !important;
+        top:0 !important;
+        left:0 !important;
+        right:24px !important;
+        width:auto !important;
         padding:0 !important;
+        margin:0 !important;
       }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav {
         margin:0 0 0 auto !important;
@@ -44,7 +70,14 @@
       @media (max-width:768px) {
         body.home-calendar-polish-v5 .brand-text h1 {
           font-size:20px !important;
+          line-height:38px !important;
           letter-spacing:-.35px !important;
+        }
+        body.home-calendar-polish-v5 .cal-section {
+          padding-top:36px !important;
+        }
+        body.home-calendar-polish-v5 .calendar-toolbar-v2 {
+          right:0 !important;
         }
         body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav {
           margin:0 0 0 auto !important;
