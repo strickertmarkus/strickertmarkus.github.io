@@ -23,7 +23,7 @@
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
-  var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
+  var exerciseAssetsVersion = '20260827-2115-between-custom-exercise-v3';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2000-home-header-center-v8';
 
@@ -87,17 +87,19 @@
                   loadScriptOnce('exercise-reload-recovery.js', 'data-exercise-reload-recovery', function () {
                     loadScriptOnce('exercise-points-3-6-7.js', 'data-exercise-points-3-6-7', function () {
                       loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix', function () {
-                        loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
-                          loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
-                            loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
-                              loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
-                                loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
-                                  loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
-                                    loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
-                                      loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
-                                        loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
-                                          loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
-                                            loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6');
+                        loadScriptOnce('exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3', function () {
+                          loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
+                            loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
+                              loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
+                                loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
+                                  loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
+                                    loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
+                                      loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
+                                        loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
+                                          loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
+                                            loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
+                                              loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6');
+                                            });
                                           });
                                         });
                                       });
