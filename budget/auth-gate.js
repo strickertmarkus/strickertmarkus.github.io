@@ -21,7 +21,7 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var exerciseAssetsVersion = '20260826-2158-flow-polish-v2';
+  var exerciseAssetsVersion = '20260827-0725-builder-row-tools-v3';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -50,7 +50,9 @@
                         loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
                           loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
                             loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
-                              loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2');
+                              loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
+                                loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3');
+                              });
                             });
                           });
                         });
