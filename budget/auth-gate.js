@@ -25,7 +25,7 @@
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-1255-calendar-ui-v2';
+  var calendarAssetsVersion = '20260827-1325-calendar-picker-v3';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -37,6 +37,19 @@
     s.async = false;
     s.setAttribute(attr, 'true');
     if (done) s.addEventListener('load', done, { once: true });
+    document.head.appendChild(s);
+  }
+
+  function loadCalendarScript(src, attr, done) {
+    if (document.querySelector('script[' + attr + ']')) {
+      if (done) done();
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = src + '?v=' + calendarAssetsVersion;
+    s.async = false;
+    s.setAttribute(attr, 'true');
+    if (done) s.addEventListener('load', done, { once:true });
     document.head.appendChild(s);
   }
 
@@ -92,12 +105,10 @@
     document.head.appendChild(homeScript);
   }
 
-  if ((isHomePage || isCalendarPage) && !document.querySelector('script[data-calendar-ui-v2]')) {
-    var calendarScript = document.createElement('script');
-    calendarScript.src = 'calendar-ui-v2.js?v=' + calendarAssetsVersion;
-    calendarScript.async = false;
-    calendarScript.setAttribute('data-calendar-ui-v2', 'true');
-    document.head.appendChild(calendarScript);
+  if (isHomePage || isCalendarPage) {
+    loadCalendarScript('calendar-ui-v2.js', 'data-calendar-ui-v2', function () {
+      loadCalendarScript('calendar-picker-fix-v3.js', 'data-calendar-picker-fix-v3');
+    });
   }
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
