@@ -7,10 +7,11 @@ HOME.HTML TODO
 ==============
 
 1. Shopping quick-add category/store sync
-Status: NOT STARTED
-- On home.html, if an item is entered with a store/category name such as Maxi, Willys or Hemköp, save it under the corresponding heading/category on the normal shopping-list page.
-- In the opposite direction, when an item is added on the shopping-list page under a heading/category, show that heading/category in parentheses after the item on home.html.
-- Keep the same underlying shopping data consistent in both views.
+Status: FINISHED / VERIFIED IN CURRENT CODE
+- home.html parses entries in the form `Artikel (Kategori)` and places the item under the matching shopping-list category when that heading exists.
+- home.html reads the shared shopping-list category headings and associates each item with its active category.
+- the home widget currently renders that category back as `Artikel (Kategori)`.
+- The same underlying shopping data is therefore already kept consistent between home.html and shopping.html.
 
 2. Home calendar: optional end date/end time
 Status: NOT STARTED
@@ -33,6 +34,15 @@ Status: NOT STARTED
 - Do not rely on the current hard-to-see/invisible arrow controls.
 - This item also applies to calendar.html.
 
+5. Group shopping items under category headings on home.html
+Status: NOT STARTED
+- In the home.html shopping widget, visually group items under the same category/heading structure used by shopping.html.
+- Examples: Maxi, Willys, Hemköp or any other shopping-list heading should appear as compact headings with their items below them.
+- Reuse the existing shared shopping data/category structure; do not introduce a separate home-only category model.
+- Preserve the current home.html visual style: same compact widget/card, item-row styling, typography, controls and overall density.
+- The goal is category grouping within the current Home design, not making the Home widget look like the full shopping.html page.
+- Must remain responsive/mobile friendly.
+
 Scope note:
-- This file tracks the home.html part of the original checklist.
+- This file tracks the home.html part of the original checklist plus later Home follow-up requests.
 - Shared calendar items should later be implemented consistently in both home.html and calendar.html.
