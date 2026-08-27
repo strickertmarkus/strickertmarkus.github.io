@@ -138,17 +138,28 @@ COMPLETED / FINISHED
   Pulse/volume feature commit: 4f054918541e398a4af8f24e91ef3467b0c6e28b
   Mobile table/title fix commit: 30a7bd97f8cde68342fead6485bd4491c919e512
 
-- Between-set activity configuration V2.
-  Status: ACTIVE / SAFE REBUILD
-  One pass-wide Mellan varje set setting: Ingen, Vila or Valfri övning with configurable time.
-  Presentation uses calmer blue/cyan styling and compact overview below the between-set timer.
-  Core safety:
-  - no core session-state function wrappers
-  - no broad MutationObserver
-  - capture-phase click handling only inside #session-controls
-  - delayed original decision button is replayed exactly once after timer
+- Between-set activity configuration V2 + custom exercise runtime V3.
+  Status: ACTIVE / REST TIMER + REAL CUSTOM EXERCISE
+  Builder still has one pass-wide Mellan varje set setting: Ingen, Vila or Valfri övning with configurable time.
+  Runtime behavior is now split deliberately:
+  - Vila alone uses the existing blue/cyan between-set overlay and countdown.
+  - Valfri övning is intercepted before the legacy overlay and temporarily enters the normal session exercise path.
+  - A custom activity such as Hopprep therefore receives Starta set / Klar med set, optional five-second pre-timer, orange active Hype styling and the normal circular timed-cardio countdown.
+  - After the custom activity is completed, the exact original exercise/set is restored and the pending next-set/next-exercise transition continues.
+  - Custom activity occurrences are accumulated in session data and injected as a real cardio exercise when the workout is saved.
+  - The session overview shows a dedicated Mellanövning row with occurrence count and elapsed time.
+  - A guard consumes hidden Övning klar auto-clicks while the temporary custom exercise is active so they cannot fall through to the old blue custom overlay.
+  Safety:
+  - custom module is loaded before exercise-between-sets.js so capture order is deterministic
+  - no MutationObserver
+  - no wrapping/replacement of core session functions
+  - only the temporary current exercise slot is swapped during the custom activity, then restored before normal progression
+  - original rest V2 remains untouched for actual rest periods
   Original safe V2 commit: ba16ad721f6ec79d8626e61d1aa541db18f959e4
-  Presentation/flow polish commit: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
+  Custom exercise feature commit: 2d2fb03a29776dc98b1475012442486bfe54afe2
+  Custom transition guard commit: 2748697d67121678a4a21e3bdcb5e3d7dd7b4b17
+  Loader/cache commits: c0f325179886c66166e01ef34142d59aa3772676, 14b5ac3eaba06454bcb87b2824e29173da325e72
+  Current exercise asset version: 20260827-2125-between-custom-exercise-v3b
 
 Emergency stability commits:
 - Emergency-stable loader: ab8ce28293214d55589abe6df6e00fb562aa88b5
@@ -156,6 +167,7 @@ Emergency stability commits:
 
 Current exercise asset checkpoint:
 - Safe between-set V2: ba16ad721f6ec79d8626e61d1aa541db18f959e4
+- Custom between-set exercise V3: 2748697d67121678a4a21e3bdcb5e3d7dd7b4b17
 - Passive hype polish: 8c505cadd2193ced2b14cb897e9ed08affa058c9
 - Persistent overview toggle wording fix: 54d1abee04332febcdcce74f1c21bb81730e4a70
 - Safe flow polish V2: 2eb0aef1d6ab769ee55a9f19b6fd80819164f7da
@@ -166,6 +178,6 @@ Current exercise asset checkpoint:
 - Log pulse/volume V4: 4f054918541e398a4af8f24e91ef3467b0c6e28b
 - Mobile log table/title V5: 30a7bd97f8cde68342fead6485bd4491c919e512
 - Disabled pretimer visibility guard: 4b12893e9fc7d17c3e6c90f6dc4ecedec966b18a
-- Loader/cache: a364173d38ae2c7159ee0ca3351539f277295d1c
+- Loader/cache: 14b5ac3eaba06454bcb87b2824e29173da325e72
 
 Use the original baseline commit above as the restore point for exercise.html before the larger exercise-page changes.
