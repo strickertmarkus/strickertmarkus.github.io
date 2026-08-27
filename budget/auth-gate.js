@@ -25,28 +25,31 @@
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-2000-home-header-center-v8';
+  var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
      raw header position before first paint so there is no visible jump. */
-  if (isHomePage && !document.getElementById('home-critical-prelayout-v8')) {
+  if (isHomePage && !document.getElementById('home-critical-prelayout-v9')) {
     var critical = document.createElement('style');
-    critical.id = 'home-critical-prelayout-v8';
+    critical.id = 'home-critical-prelayout-v9';
     critical.textContent = '\n' +
       '.app-header{justify-content:center!important;text-align:center!important;min-height:70px;position:sticky!important;}\n' +
       '.app-header .brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;width:max-content!important;justify-content:center!important;min-width:0;max-width:calc(100% - 150px);z-index:1;}\n' +
-      '.app-header .brand-text{position:relative;min-height:48px;min-width:0;text-align:center!important;}\n' +
+      '.app-header .brand-text{position:relative;min-height:46px;min-width:0;text-align:center!important;}\n' +
       '.app-header .brand-text h1{font-size:22px!important;line-height:26px!important;letter-spacing:-.45px!important;white-space:nowrap!important;text-align:center!important;}\n' +
-      '.app-header .brand-text p{position:static!important;margin-top:3px!important;white-space:nowrap;text-align:center!important;}\n' +
+      '.app-header .brand-text p{position:static!important;margin-top:1px!important;font-size:13px!important;line-height:1.25!important;white-space:nowrap;text-align:center!important;}\n' +
       '.app-header .nav-dropdown-wrapper{z-index:3!important;}\n' +
       '.app-header>.month-nav{visibility:hidden!important;}\n' +
-      '.cal-section{padding-top:40px!important;}\n' +
-      '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;padding:0!important;margin:0!important;}\n' +
-      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;}\n' +
+      '.cal-section{padding-top:42px!important;}\n' +
+      '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;min-height:34px!important;padding:0!important;margin:0!important;}\n' +
+      '.calendar-toolbar-v2 .cal-week-number,.calendar-toolbar-v2 .calendar-week-number-v2{font-size:12px!important;letter-spacing:.6px!important;}\n' +
+      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;gap:5px!important;}\n' +
+      '.calendar-toolbar-v2 .month-nav button{width:30px!important;height:30px!important;font-size:14px!important;}\n' +
+      '.calendar-toolbar-v2 #month-label{font-size:12px!important;padding:0 6px!important;}\n' +
       '#trip-section{display:none!important;}\n' +
-      '@media(max-width:768px){.app-header .brand{max-width:calc(100% - 130px)!important}.app-header .brand-text h1{font-size:20px!important;line-height:24px!important;letter-spacing:-.35px!important}.cal-section{padding-top:36px!important}.calendar-toolbar-v2{right:0!important}}\n' +
-      '@media(max-width:390px){.app-header .brand{max-width:calc(100% - 112px)!important}.app-header .brand-text h1{font-size:18px!important}}';
+      '@media(max-width:768px){.app-header .brand{max-width:calc(100% - 130px)!important}.app-header .brand-text h1{font-size:20px!important;line-height:24px!important;letter-spacing:-.35px!important}.app-header .brand-text p{margin-top:1px!important;font-size:12.5px!important}.cal-section{padding-top:39px!important}.calendar-toolbar-v2{right:0!important;min-height:32px!important}.calendar-toolbar-v2 .cal-week-number,.calendar-toolbar-v2 .calendar-week-number-v2{font-size:11px!important}.calendar-toolbar-v2 .month-nav{gap:4px!important}.calendar-toolbar-v2 .month-nav button{width:29px!important;height:29px!important;font-size:14px!important}.calendar-toolbar-v2 #month-label{font-size:11.5px!important;padding:0 4px!important}}\n' +
+      '@media(max-width:390px){.app-header .brand{max-width:calc(100% - 112px)!important}.app-header .brand-text h1{font-size:18px!important}.app-header .brand-text p{font-size:12px!important}}';
     document.head.appendChild(critical);
   }
 
