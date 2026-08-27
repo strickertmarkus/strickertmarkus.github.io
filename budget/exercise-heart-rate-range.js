@@ -10,15 +10,13 @@
   var lastSessionToken = null;
 
   function getWorkoutsSafe() {
-    try {
-      return typeof window.getWorkouts === 'function' ? (window.getWorkouts() || []) : [];
-    } catch (e) { return []; }
+    try { return typeof window.getWorkouts === 'function' ? (window.getWorkouts() || []) : []; }
+    catch (e) { return []; }
   }
 
   function saveWorkoutsSafe(list) {
-    try {
-      if (typeof window.saveWorkouts === 'function') window.saveWorkouts(list);
-    } catch (e) {}
+    try { if (typeof window.saveWorkouts === 'function') window.saveWorkouts(list); }
+    catch (e) {}
   }
 
   function getState() {
@@ -55,9 +53,7 @@
         font-size:10px;
         line-height:1.35;
       }
-      #hr-card-combined .chart-note .hr-band-note-v3 {
-        color:var(--text-dim);
-      }
+      #hr-card-combined .chart-note .hr-band-note-v3 { color:var(--text-dim); }
       @media(max-width:600px) {
         .hr-triple-row-v3 { gap:6px; }
         .hr-triple-row-v3 .form-group label { font-size:9px; letter-spacing:.45px; }
@@ -77,9 +73,7 @@
 
   function ensureWorkoutFields() {
     var avg = document.getElementById('wk-hr-avg');
-    if (!avg) return;
-    if (document.getElementById('wk-hr-min')) return;
-
+    if (!avg || document.getElementById('wk-hr-min')) return;
     var avgGroup = avg.closest('.form-group');
     var oldRow = avgGroup && avgGroup.parentElement;
     if (!avgGroup || !oldRow) return;
@@ -149,7 +143,6 @@
       lastWorkoutEditId = null;
       return;
     }
-
     var editId = null;
     try { editId = Number(window.editingWorkoutId || 0) || null; } catch (e) {}
     if (!lastWorkoutModalOpen || editId !== lastWorkoutEditId) {
@@ -205,11 +198,7 @@
     var button = event.target && event.target.closest ? event.target.closest('button') : null;
     if (!button) return;
     var onclick = button.getAttribute('onclick') || '';
-    var mode = null;
-    var id = null;
-    var minEl = null;
-    var maxEl = null;
-    var avgEl = null;
+    var mode = null, id = null, minEl = null, maxEl = null, avgEl = null;
 
     if (onclick.indexOf('saveWorkout()') >= 0) {
       mode = 'workout';
@@ -308,7 +297,19 @@
     }).slice(-50);
   }
 
-  function avgDataset(label, data, color, pointStyle, range) {
+  function rangesFor(entries, kind) {
+    return entries.map(function (w) {
+      if (!workoutKinds(w)[kind]) return null;
+      return {
+        min:numberOrNull(w.hrMin),
+        max:numberOrNull(w.hrMax),
+        id:w.id,
+        date:w.date
+      };
+    });
+  }
+
+  function avgDataset(label, data, color, fillColor, edgeColor, pointStyle, ranges) {
     return {
       label:label,
       data:data,
@@ -323,27 +324,62 @@
       tension:.28,
       fill:false,
       spanGaps:true,
-      _hrRange:range,
+      _hrRange:ranges,
+      _rangeFill:fillColor,
+      _rangeEdge:edgeColor,
       _mainPulse:true
     };
   }
 
-  function bandDataset(label, data, fill, backgroundColor, group) {
-    return {
-      label:label,
-      data:data,
-      borderColor:'rgba(0,0,0,0)',
-      backgroundColor:backgroundColor,
-      pointRadius:0,
-      pointHoverRadius:0,
-      borderWidth:0,
-      tension:.28,
-      fill:fill,
-      spanGaps:false,
-      _pulseBand:true,
-      _pulseGroup:group
-    };
-  }
+  var rangeBarsPlugin = {
+    id:'exerciseHrRangeBars',
+    beforeDatasetsDraw:function (chart) {
+      var ctx = chart.ctx;
+      var yScale = chart.scales && chart.scales.y;
+      if (!ctx || !yScale) return;
+
+      chart.data.datasets.forEach(function (dataset, datasetIndex) {
+        if (!dataset._mainPulse || !chart.isDatasetVisible(datasetIndex)) return;
+        var meta = chart.getDatasetMeta(datasetIndex);
+        if (!meta || meta.hidden || !Array.isArray(meta.data)) return;
+
+        meta.data.forEach(function (point, dataIndex) {
+          var range = dataset._hrRange && dataset._hrRange[dataIndex];
+          if (!range || range.min === null || range.max === null) return;
+          if (!point || point.skip) return;
+
+          var props = typeof point.getProps === 'function' ? point.getProps(['x','y'], true) : point;
+          var x = Number(props.x);
+          if (!Number.isFinite(x)) return;
+
+          var yMin = yScale.getPixelForValue(range.min);
+          var yMax = yScale.getPixelForValue(range.max);
+          if (!Number.isFinite(yMin) || !Number.isFinite(yMax)) return;
+
+          var halfWidth = chart.width < 520 ? 4.5 : 6;
+          var left = x - halfWidth;
+          var right = x + halfWidth;
+          var top = Math.min(yMin,yMax);
+          var bottom = Math.max(yMin,yMax);
+
+          ctx.save();
+          ctx.fillStyle = dataset._rangeFill;
+          ctx.fillRect(left, top, right - left, Math.max(1,bottom - top));
+
+          ctx.strokeStyle = dataset._rangeEdge;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3,3]);
+          ctx.beginPath();
+          ctx.moveTo(left - 2, top);
+          ctx.lineTo(right + 2, top);
+          ctx.moveTo(left - 2, bottom);
+          ctx.lineTo(right + 2, bottom);
+          ctx.stroke();
+          ctx.restore();
+        });
+      });
+    }
+  };
 
   function renderRangeChart(force) {
     if (typeof window.Chart !== 'function') return;
@@ -357,27 +393,9 @@
     lastSignature = signature;
 
     var labels = entries.length ? entries.map(function (w) { return fmtDateSafe(w.date); }) : ['—'];
-    function values(kind, prop) {
-      return entries.map(function (w) {
-        if (!workoutKinds(w)[kind]) return null;
-        var n = numberOrNull(w[prop]);
-        return n;
-      });
-    }
     function averages(kind) {
       return entries.map(function (w) { return workoutKinds(w)[kind] ? Number(w.hrAvg) : null; });
     }
-    function ranges(kind) {
-      return entries.map(function (w) {
-        if (!workoutKinds(w)[kind]) return null;
-        return {min:numberOrNull(w.hrMin), max:numberOrNull(w.hrMax)};
-      });
-    }
-
-    var cardioMin = values('cardio','hrMin');
-    var cardioMax = values('cardio','hrMax');
-    var strengthMin = values('strength','hrMin');
-    var strengthMax = values('strength','hrMax');
 
     var existing = window.Chart.getChart ? window.Chart.getChart(canvas) : null;
     if (existing) existing.destroy();
@@ -387,15 +405,12 @@
 
     rangeChart = new Chart(canvas.getContext('2d'), {
       type:'line',
+      plugins:[rangeBarsPlugin],
       data:{
         labels:labels,
         datasets:[
-          bandDataset('Kondition min', cardioMin, false, 'rgba(239,68,68,.00)', 'cardio'),
-          bandDataset('Kondition intervall', cardioMax, '-1', 'rgba(239,68,68,.13)', 'cardio'),
-          avgDataset('Kondition', averages('cardio'), '#EF4444', 'circle', ranges('cardio')),
-          bandDataset('Styrka min', strengthMin, false, 'rgba(34,211,238,.00)', 'strength'),
-          bandDataset('Styrka intervall', strengthMax, '-1', 'rgba(34,211,238,.11)', 'strength'),
-          avgDataset('Styrka', averages('strength'), '#22D3EE', 'rectRounded', ranges('strength'))
+          avgDataset('Kondition', averages('cardio'), '#EF4444', 'rgba(239,68,68,.14)', 'rgba(248,113,113,.82)', 'circle', rangesFor(entries,'cardio')),
+          avgDataset('Styrka', averages('strength'), '#22D3EE', 'rgba(34,211,238,.12)', 'rgba(103,232,249,.78)', 'rectRounded', rangesFor(entries,'strength'))
         ]
       },
       options:{
@@ -405,23 +420,7 @@
         plugins:{
           legend:{
             display:true,
-            labels:{
-              color:'#8B949E',
-              font:{family:'Inter',size:11},
-              usePointStyle:true,
-              boxWidth:9,
-              filter:function (item, data) { return !!data.datasets[item.datasetIndex]._mainPulse; }
-            },
-            onClick:function (event, item, legend) {
-              var chart = legend.chart;
-              var main = item.datasetIndex;
-              var bandStart = main === 2 ? 0 : 3;
-              var nextVisible = !chart.isDatasetVisible(main);
-              [bandStart,bandStart + 1,main].forEach(function (idx) {
-                chart.setDatasetVisibility(idx, nextVisible);
-              });
-              chart.update();
-            }
+            labels:{color:'#8B949E',font:{family:'Inter',size:11},usePointStyle:true,boxWidth:9}
           },
           tooltip:{
             backgroundColor:'#161B22',
@@ -429,7 +428,6 @@
             bodyColor:'#C9D1DC',
             borderColor:'rgba(255,255,255,.08)',
             borderWidth:1,
-            filter:function (ctx) { return !!ctx.dataset._mainPulse; },
             callbacks:{
               label:function (ctx) {
                 var avg = ctx.parsed.y;
@@ -452,7 +450,7 @@
       var cardioCount = entries.filter(function (w) { return workoutKinds(w).cardio; }).length;
       var strengthCount = entries.filter(function (w) { return workoutKinds(w).strength; }).length;
       note.innerHTML = entries.length
-        ? 'Kondition: ' + cardioCount + ' pass · Styrka: ' + strengthCount + ' pass <span class="hr-band-note-v3">· Färgat band = min–max</span>'
+        ? 'Kondition: ' + cardioCount + ' pass · Styrka: ' + strengthCount + ' pass <span class="hr-band-note-v3">· Band = min–max · streck = intervallkant</span>'
         : 'Ingen registrerad puls ännu';
     }
   }
