@@ -25,7 +25,7 @@
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-1325-calendar-picker-v3';
+  var calendarAssetsVersion = '20260827-1410-calendar-followups-v4';
 
   function loadScriptOnce(src, attr, done) {
     if (document.querySelector('script[' + attr + ']')) {
@@ -107,7 +107,9 @@
 
   if (isHomePage || isCalendarPage) {
     loadCalendarScript('calendar-ui-v2.js', 'data-calendar-ui-v2', function () {
-      loadCalendarScript('calendar-picker-fix-v3.js', 'data-calendar-picker-fix-v3');
+      loadCalendarScript('calendar-picker-fix-v3.js', 'data-calendar-picker-fix-v3', function () {
+        loadCalendarScript('calendar-followups-v4.js', 'data-calendar-followups-v4');
+      });
     });
   }
 
