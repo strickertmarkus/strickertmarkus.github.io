@@ -25,24 +25,26 @@
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var exerciseAssetsVersion = '20260827-1112-session-set-cards-v6';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-1715-home-header-center-v7';
+  var calendarAssetsVersion = '20260827-2000-home-header-center-v8';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
      raw header position before first paint so there is no visible jump. */
-  if (isHomePage && !document.getElementById('home-critical-prelayout-v7')) {
+  if (isHomePage && !document.getElementById('home-critical-prelayout-v8')) {
     var critical = document.createElement('style');
-    critical.id = 'home-critical-prelayout-v7';
+    critical.id = 'home-critical-prelayout-v8';
     critical.textContent = '\n' +
       '.app-header{justify-content:center!important;text-align:center!important;min-height:70px;position:sticky!important;}\n' +
-      '.app-header .brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;justify-content:center!important;min-width:0;max-width:calc(100% - 150px);}\n' +
+      '.app-header .brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;width:max-content!important;justify-content:center!important;min-width:0;max-width:calc(100% - 150px);z-index:1;}\n' +
       '.app-header .brand-text{position:relative;min-height:48px;min-width:0;text-align:center!important;}\n' +
       '.app-header .brand-text h1{font-size:22px!important;line-height:26px!important;letter-spacing:-.45px!important;white-space:nowrap!important;text-align:center!important;}\n' +
       '.app-header .brand-text p{position:static!important;margin-top:3px!important;white-space:nowrap;text-align:center!important;}\n' +
+      '.app-header .nav-dropdown-wrapper{z-index:3!important;}\n' +
       '.app-header>.month-nav{visibility:hidden!important;}\n' +
       '.cal-section{padding-top:40px!important;}\n' +
       '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;padding:0!important;margin:0!important;}\n' +
       '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;}\n' +
+      '#trip-section{display:none!important;}\n' +
       '@media(max-width:768px){.app-header .brand{max-width:calc(100% - 130px)!important}.app-header .brand-text h1{font-size:20px!important;line-height:24px!important;letter-spacing:-.35px!important}.cal-section{padding-top:36px!important}.calendar-toolbar-v2{right:0!important}}\n' +
       '@media(max-width:390px){.app-header .brand{max-width:calc(100% - 112px)!important}.app-header .brand-text h1{font-size:18px!important}}';
     document.head.appendChild(critical);
