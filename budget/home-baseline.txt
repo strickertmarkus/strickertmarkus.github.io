@@ -25,20 +25,20 @@ Status: FINISHED / SHARED CALENDAR UI V2
 Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
 
 3. Home calendar layout / month selector
-Status: FINISHED / SHARED CALENDAR UI V2 + HOME POLISH V5 + FIRST-PAINT V6
+Status: FINISHED / SHARED CALENDAR UI V2 + HOME POLISH V5 + FIRST-PAINT V7
 - Calendar/page heading is larger.
 - Month navigation is moved out of the sticky page header and into a compact toolbar directly above the calendar.
 - Week number is on the left and the compact month selector/navigation is on the right.
 - Home V5 resets the old mobile `margin:0 auto` completely so the month navigation sits against the right edge and aligns with the Sunday/calendar-grid edge.
-- Home heading `Familjen Frick Strickert` is enlarged, kept on one line and aligned on the same horizontal centre line as the hamburger button.
-- Header meta stays visually underneath but is absolutely positioned so it does not pull the heading off the hamburger centre line.
-- First-paint V6 injects critical Home layout CSS directly from auth-gate.js while the document is still in `<head>`.
+- Home heading `Familjen Frick Strickert` plus its time/date meta block is centered in the Home header and vertically centered against the hamburger/menu row.
+- Heading remains one line with responsive font sizes on narrow phones.
+- First-paint V7 injects the final centered Home header geometry and calendar-toolbar position directly from auth-gate.js while the document is still in `<head>`.
 - The raw HTML header month navigation is hidden before first paint, its final calendar-toolbar strip is reserved from the start, and the moved toolbar is absolutely positioned into that reserved strip.
 - This prevents the visible reload jump where the month selector first appeared in its old header location and then moved into the calendar.
 - Existing home week-number element is reused; calendar.html receives the shared toolbar structure.
 Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
 Home polish update commit: 4a85779f817a458f27241b668046c01d84130da5
-First-paint/auth commit: 694d22a6eed3ab0f3beb5bc25019395a01cc721d
+Centered first-paint/auth commit: e12920f658651ae1623ec29f0f0ab9a936ffaa96
 
 4. Date picker year/month interaction
 Status: FINISHED / STABLE PICKER V3 + YEAR MENU V4
@@ -92,8 +92,8 @@ LATER HOME/CALENDAR FOLLOW-UPS
   - Existing double-click on any calendar day remains untouched and continues opening the event editor for that date.
   Feature commit: 1541c4369578adad556ff9e7245305b084804e55
 
-Current shared calendar loader/cache commit: 694d22a6eed3ab0f3beb5bc25019395a01cc721d
-Current calendar asset version: 20260827-1518-home-header-prelayout-v6
+Current shared calendar loader/cache commit: e12920f658651ae1623ec29f0f0ab9a936ffaa96
+Current calendar asset version: 20260827-1715-home-header-center-v7
 
 HOME.HTML CHECKLIST STATUS: COMPLETE FOR NOW
 All current Home items from the original checklist plus later Home follow-ups are implemented.
