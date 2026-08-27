@@ -1,0 +1,38 @@
+Home page TODO tracking from original Familjeapp checklist.
+
+Recorded: 2026-08-27
+Current home.html blob SHA when tracking started: 1f44e31b31d9cc5ce0d72dc06abf69363e7e8b89
+
+HOME.HTML TODO
+==============
+
+1. Shopping quick-add category/store sync
+Status: NOT STARTED
+- On home.html, if an item is entered with a store/category name such as Maxi, Willys or Hemköp, save it under the corresponding heading/category on the normal shopping-list page.
+- In the opposite direction, when an item is added on the shopping-list page under a heading/category, show that heading/category in parentheses after the item on home.html.
+- Keep the same underlying shopping data consistent in both views.
+
+2. Home calendar: optional end date/end time
+Status: NOT STARTED
+- Fix end time/end date handling in the calendar widget on home.html.
+- Add a toggle when choosing the date/time.
+- When enabled, allow selecting an end date/time in the same date-picker/menu.
+- This item also applies to calendar.html and should be kept behaviorally consistent there.
+
+3. Home calendar layout / month selector
+Status: NOT STARTED
+- Make the calendar heading larger.
+- Move the month selector out of the heading and place it directly above the calendar.
+- Make the selector more compact.
+- Put it on the same row as the week label (for example “Vecka 34”), aligned to the right.
+- This item also applies to calendar.html.
+
+4. Date picker year/month interaction
+Status: NOT STARTED
+- When choosing year/month in the date picker, make the visible year/month text directly clickable/selectable.
+- Do not rely on the current hard-to-see/invisible arrow controls.
+- This item also applies to calendar.html.
+
+Scope note:
+- This file tracks the home.html part of the original checklist.
+- Shared calendar items should later be implemented consistently in both home.html and calendar.html.
