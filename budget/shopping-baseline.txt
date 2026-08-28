@@ -26,12 +26,28 @@ Status: FINISHED / HOME-PARITY MODEL
 - The entire text area / remaining row hit area enters edit mode; the user does not need to tap exactly on a letter.
 - Enter commits the edit; Escape cancels; leaving the row commits.
 - Only after editing completes is the value persisted through Shopping's existing startEditItem/saveEditItem data path, so sh_lists and existing Firebase sync remain authoritative.
-- Normal item rows copy Home's geometry: 20px checkbox / flexible text / 22px delete action, Home-style spacing, borders, blue checkbox, editable-field treatment and ~.16s transitions.
+- Normal item rows copy Home's geometry: 20px checkbox / flexible text / 22px delete action, Home-style spacing, borders, checkbox, editable-field treatment and ~.16s transitions.
 - A small × delete action is added at the right, matching the Home shopping row layout.
-- Category headings use the same compact accent heading treatment as Home.
 - Category names are edited inline without an initial re-render.
-- Pressing Enter while editing a category heading now saves the heading and immediately opens a new article input beneath that heading, restoring the fast heading -> article flow.
+- Pressing Enter while editing a category heading saves the heading and immediately opens a new article input beneath that heading, restoring the fast heading -> article flow.
 - Add-item and add-category rows are focused immediately from the same click gesture.
+- Desktop and mobile included.
+
+Shopping yellow/category routing V5
+===================================
+Status: FINISHED
+- V4 layout and interaction logic remain unchanged.
+- Category headings are slightly larger while retaining the compact Home-derived layout.
+- Shopping item accents are changed from blue to Shopping yellow: checkbox tick/border/glow and inline edit border/glow.
+- Items can now be typed/edited with a category/store suffix exactly like Home, e.g. "Mjölk (Willys)" or "Kaffe (Maxi)".
+- The suffix is case-insensitively matched against existing category headings.
+- On save, the visible item text is cleaned to "Mjölk" / "Kaffe" and the item is physically moved under the matching heading.
+- If the heading does not exist, behavior follows Home: the cleaned item is moved to the uncategorized top area.
+- New-item save, checkbox-draft save and inline item edits all use the same routing behavior.
+- Recipe ingredients support the same suffix syntax. Recipe text may retain the suffix so the recipe remembers its intended store, while the shopping-list item is cleaned and routed under the matching category.
+- Recipe add-to-shopping and recipe ingredient checkbox actions use category-aware insertion.
+- Recipe checked-state UI is refreshed against the cleaned shopping item text so category routing does not break checkbox mirroring.
+- A narrow child-list-only observer on #recipes-list refreshes recipe checkbox state after recipe re-renders; it does not observe text/attributes and does not mutate DOM structure.
 - Desktop and mobile included.
 
 Recipe persistence / compact recipe UI V3
@@ -54,7 +70,9 @@ Shopping UI module: budget/shopping-ui-polish-v2.js (contents now Home-parity V4
 Shopping UI V4 commit: 370a6775fca6de1bb7948aa8a73ee683ecfb87db
 Recipe persistence/UI module: budget/shopping-recipes-v3.js
 Recipe feature commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
-Loader/cache V4 commit: 3e324a056117701704ffe64cf4b446e35e6e0228
-Shopping asset version: 20260828-0805-shopping-home-parity-v4
+Yellow/category V5 module: budget/shopping-yellow-category-v5.js
+Yellow/category V5 commit: 7a0f03cd0a22b78fac51d3263c418bf3dbdad062
+Loader/cache V5 commit: f2f92381aea48e2a362ff45e7452ffe4eac8eb13
+Shopping asset version: 20260828-0820-shopping-yellow-category-v5
 
 SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
