@@ -24,7 +24,7 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
-  var exerciseAssetsVersion = '20260828-1815-session-layout-v17';
+  var exerciseAssetsVersion = '20260828-set-log-edit-v18';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -102,9 +102,9 @@
 
   if (isExercisePage) {
     /* HR presentation loads first so its final cardio/strength range chart is
-       ready during the same initial frame as the base charts. Session modules
-       remain ordered where they intentionally wrap preceding behavior. The
-       final V17 module owns session geometry and editable current-set values. */
+       ready during the same initial frame as the base charts. The remaining
+       session modules stay ordered because several intentionally wrap earlier
+       session functions. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
@@ -127,8 +127,8 @@
       ['exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix'],
       ['exercise-log-details-v4.js', 'data-exercise-log-details-v4'],
       ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
-      ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7'],
-      ['exercise-session-layout-v17.js', 'data-exercise-session-layout-v17']
+      ['exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6'],
+      ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7']
     ];
 
     (function loadExerciseAt(index) {
