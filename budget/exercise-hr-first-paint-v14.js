@@ -37,36 +37,30 @@
     return chart;
   }
 
-  function reveal(chart) {
+  function reveal() {
     if (timer) {
       clearInterval(timer);
       timer = null;
     }
 
-    /* Do not expose an in-progress Chart.js animation. Force the exact final
-       geometry once, then reveal on the following painted frame. */
-    try { if (chart && typeof chart.stop === 'function') chart.stop(); } catch (_) {}
-    try { if (chart && typeof chart.update === 'function') chart.update('none'); } catch (_) {}
-
+    /* The final range chart is now created very early in the Exercise loader.
+       Reveal it immediately and let its native Chart.js entrance animation
+       continue. Only the legacy/intermediate charts stay hidden. */
     requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        document.documentElement.classList.remove('exercise-hr-booting-v14');
-        document.documentElement.classList.add('exercise-hr-ready-v14');
-      });
+      document.documentElement.classList.remove('exercise-hr-booting-v14');
+      document.documentElement.classList.add('exercise-hr-ready-v14');
     });
   }
 
   function check() {
-    var chart = finalChart();
-    if (chart) {
-      reveal(chart);
+    if (finalChart()) {
+      reveal();
       return;
     }
 
     /* Safety fallback: never leave the graph hidden forever if a future module
-       changes its internal marker. This is intentionally long enough that the
-       current range module will normally finish well before it is reached. */
-    if (Date.now() - started > 6000) {
+       changes its internal marker. */
+    if (Date.now() - started > 3500) {
       if (timer) {
         clearInterval(timer);
         timer = null;
@@ -76,6 +70,6 @@
     }
   }
 
-  timer = setInterval(check, 25);
+  timer = setInterval(check, 16);
   check();
 })();
