@@ -274,6 +274,12 @@
     ensureLogSection();
     if (!state || !setLog || state.setRunning || state.exerciseIndex >= state.exercises.length) return;
 
+    /* The timer updates this view repeatedly. Do not rebuild the logged-set DOM
+       while the user is editing one of its inputs, otherwise Safari/Chrome loses
+       the focused field before the edit can be committed. */
+    var active = document.activeElement;
+    if (active && setLog.contains(active) && active.hasAttribute('data-log-key')) return;
+
     var ex = state.exercises[state.exerciseIndex];
     var logs = state.logs && state.logs[state.exerciseIndex] ? state.logs[state.exerciseIndex] : [];
     setLog.innerHTML = '';
@@ -294,11 +300,13 @@
       }
 
       row.querySelectorAll('[data-log-key]').forEach(function (input) {
-        input.addEventListener('change', function () {
+        function commitValue() {
           if (typeof window.updateSetLog === 'function') {
             window.updateSetLog(state.exerciseIndex, idx, input.dataset.logKey, input.value);
           }
-        });
+        }
+        input.addEventListener('input', commitValue);
+        input.addEventListener('change', commitValue);
       });
       setLog.appendChild(row);
     });
