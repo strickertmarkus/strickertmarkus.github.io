@@ -8,25 +8,14 @@
   var transitionKey = 'budget-user-transition-v1';
   var lastUserKey = 'budget-last-user-v1';
   var rememberedUser = 'markus';
+  var transitionBackground = '#0F1219';
 
-  function storedDarkMode() {
-    try {
-      var value = String(localStorage.getItem('darkMode') || '').toLowerCase();
-      return value === 'true' || value === '1' || value === 'dark';
-    } catch (_) {
-      return false;
-    }
-  }
-
-  var transitionBackground = storedDarkMode() ? '#0F1219' : '#F0F2F5';
-
-  /* This script is loaded from <head>. Paint the correct budget canvas before
-     body/CSS exist so a cross-document navigation never exposes the browser's
-     default white background. The class is removed after the final page frame. */
+  /* Budget pages are dark-only. Paint the dark canvas before body/CSS exist so
+     cross-document profile navigation never exposes the browser default. */
   if (isBudgetPage) {
     document.documentElement.classList.add('budget-transition-root-v3');
     document.documentElement.style.backgroundColor = transitionBackground;
-    document.documentElement.style.colorScheme = storedDarkMode() ? 'dark' : 'light';
+    document.documentElement.style.colorScheme = 'dark';
 
     if (!document.getElementById('budget-transition-root-v3-style')) {
       var rootStyle = document.createElement('style');
@@ -174,6 +163,7 @@
   function lockTransitionCanvas() {
     document.documentElement.classList.add('budget-transition-root-v3');
     document.documentElement.style.backgroundColor = transitionBackground;
+    document.documentElement.style.colorScheme = 'dark';
     if (document.body) {
       document.body.style.backgroundColor = transitionBackground;
       document.body.style.minHeight = '100vh';
@@ -190,14 +180,10 @@
     try {
       sessionStorage.setItem(transitionKey, JSON.stringify({
         target:user,
-        at:Date.now(),
-        background:transitionBackground
+        at:Date.now()
       }));
     } catch (_) {}
 
-    /* No outgoing fade to a blank canvas. Keep the current themed frame visible
-       right up to navigation; the incoming document paints the same canvas color
-       from <head>, then reveals its final content. */
     window.location.href = targetFor(user);
   }
 
@@ -252,11 +238,6 @@
       var raw = sessionStorage.getItem(transitionKey);
       var data = raw ? JSON.parse(raw) : null;
       switched = !!(data && data.target === currentUser && Date.now() - Number(data.at || 0) < 5000);
-      if (data && data.background) {
-        transitionBackground = data.background;
-        document.documentElement.style.backgroundColor = transitionBackground;
-        if (document.body) document.body.style.backgroundColor = transitionBackground;
-      }
       sessionStorage.removeItem(transitionKey);
     } catch (_) {}
 
@@ -270,7 +251,6 @@
         setTimeout(function () {
           document.documentElement.classList.remove('budget-transition-root-v3');
           document.documentElement.style.backgroundColor = '';
-          document.documentElement.style.colorScheme = '';
           if (document.body) {
             document.body.style.backgroundColor = '';
             document.body.style.minHeight = '';
