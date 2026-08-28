@@ -1,0 +1,50 @@
+EXERCISE FOLLOW-UP — 2026-08-28
+
+Builder / between-activity V7
+=============================
+
+1. Global between-exercise control
+- New toggle "Mellan övningar" is placed in the free area to the RIGHT of the week selector in Passupplägg.
+- Clarification: this does NOT replace the existing 5 s starttimer toggle.
+- Existing 5 s builder toggle remains visible in its original location.
+- Global toggle only controls whether the compact "Mellan varje övning" editor is shown.
+- Global config applies only when moving from one exercise to the next.
+
+2. Per-exercise between-set control
+- Each strength exercise row has a compact "Mellan set" toggle/editor.
+- It can select Vila or Valfri övning with time/name for that exercise only.
+- Runtime routing is transition-specific:
+  * next set / extra set -> current exercise's betweenSets
+  * next exercise -> pass-level betweenExercises
+- Existing safe runtime remains authoritative:
+  * Vila -> blue rest overlay
+  * Valfri övning -> normal orange timed exercise / Starta set flow
+- Multiple custom between activities are archived separately in the session summary/save path.
+
+3. Save preview
+- Spara passupplägg now opens a centered compact preview overlay before final persistence.
+- Background remains visible behind a translucent/blurred overlay.
+- Preview shows exercises, targets, per-set between activities and global between-exercise activity.
+- Actions: "Tillbaka & redigera" or "Spara pass".
+- Existing 5 s timer setting is explicitly restored after preview-save so the new save flow does not erase it.
+
+4. Markus / Maja profile toggle styling
+- Markus active profile remains blue.
+- Maja active profile button/name becomes pink.
+- Separate exercise data stores remain unchanged.
+
+Implementation
+==============
+- budget/exercise-builder-between-preview-v7.js
+- budget/exercise-between-routing-v7.js
+- auth loader order: routing BEFORE custom exercise V3 BEFORE rest V2; builder/preview loaded last.
+- exercise asset version: 20260828-1110-builder-between-preview-v7d
+
+Key commits
+===========
+- Initial routing: b715d3c4ae921373a8ccf1020d6b6d06b3cd1819
+- Builder / preview UI: 5f65785b08288048950753968ec885f73355de5c
+- Routed custom summary preservation: 1cf2fffa9b7b88b49721fcd8d9bc105ef4674141
+- Keep 5 s toggle visible after placement clarification: dc6da192f7ed8b161f39654b82151a410744788a
+- Preserve pre-timer through preview save: 8cab688b5dd855c740df42afd9b9e1dedf29db39
+- Final cache/loader bump: 22d6d9a8f9445d1c90f8c50514ec40067c5e28c2
