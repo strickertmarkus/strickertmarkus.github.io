@@ -76,6 +76,106 @@
     return true;
   }
 
+  function summaryKey(summary) {
+    return String(summary && summary.name || 'Valfri övning').trim().toLocaleLowerCase('sv-SE') + '|' +
+      Math.max(1,Math.round(Number(summary && summary.seconds) || 30));
+  }
+
+  function archiveMap(state) {
+    if (!state.__betweenCustomArchiveV7) state.__betweenCustomArchiveV7 = Object.create(null);
+    return state.__betweenCustomArchiveV7;
+  }
+
+  function archiveSummary(state, summary) {
+    if (!state || !summary || !Array.isArray(summary.logs) || !summary.logs.length) return;
+    var map = archiveMap(state);
+    var key = summaryKey(summary);
+    if (!map[key]) {
+      map[key] = {
+        name:summary.name || 'Valfri övning',
+        seconds:Math.max(1,Math.round(Number(summary.seconds) || 30)),
+        logs:[]
+      };
+    }
+    summary.logs.forEach(function (log) { map[key].logs.push(Object.assign({},log)); });
+  }
+
+  function maybeArchiveBeforeNewCustom(state, nextConfig) {
+    if (!state || nextConfig.type !== 'custom' || !nextConfig.name) return;
+    var current = state.__betweenCustomSummaryV3;
+    if (!current || !Array.isArray(current.logs) || !current.logs.length) return;
+    if (summaryKey(current) === summaryKey(nextConfig)) return;
+    archiveSummary(state,current);
+  }
+
+  function injectArchivesForSave(state) {
+    if (!state || state.__betweenCustomArchiveInjectedV7) return;
+
+    var current = state.__betweenCustomSummaryV3;
+    if (current && Array.isArray(current.logs) && current.logs.length) {
+      archiveSummary(state,current);
+      /* Empty V3's live bucket before its later capture handler runs, so the
+         same activity cannot be injected twice on save. */
+      state.__betweenCustomSummaryV3 = {
+        name:current.name,
+        seconds:current.seconds,
+        logs:[]
+      };
+    }
+
+    var map = archiveMap(state);
+    Object.keys(map).forEach(function (key) {
+      var summary = map[key];
+      if (!summary || !summary.logs.length) return;
+      state.exercises.push({
+        kind:'cardio',
+        name:summary.name,
+        distance:0,
+        time:summary.seconds / 60,
+        plannedSets:summary.logs.length,
+        __betweenCustomSavedV7:true
+      });
+      state.logs.push(summary.logs.map(function (log,index) {
+        var copy = Object.assign({},log);
+        copy.setNo = index + 1;
+        return copy;
+      }));
+    });
+    state.__betweenCustomArchiveInjectedV7 = true;
+  }
+
+  function fmtSec(sec) {
+    sec = Math.max(0,Math.round(Number(sec) || 0));
+    return String(Math.floor(sec / 60)).padStart(2,'0') + ':' + String(sec % 60).padStart(2,'0');
+  }
+
+  function syncArchiveRows() {
+    var state = getState();
+    var tbody = document.getElementById('session-plan-table');
+    if (!state || !tbody) return;
+    tbody.querySelectorAll('tr[data-between-custom-archive-v7]').forEach(function (row) { row.remove(); });
+    var map = state.__betweenCustomArchiveV7;
+    if (!map) return;
+    Object.keys(map).forEach(function (key) {
+      var summary = map[key];
+      if (!summary || !summary.logs || !summary.logs.length) return;
+      var duration = summary.logs.reduce(function (sum,log) { return sum + (Number(log.durationSec) || 0); },0);
+      var row = document.createElement('tr');
+      row.setAttribute('data-between-custom-archive-v7','true');
+      row.innerHTML = '<td></td><td></td><td></td><td></td>';
+      var cells = row.querySelectorAll('td');
+      cells[0].textContent = summary.name;
+      var chip = document.createElement('span');
+      chip.className = 'between-custom-chip-v3';
+      chip.textContent = 'Mellanövning';
+      cells[0].appendChild(chip);
+      cells[1].textContent = summary.seconds + ' sek';
+      cells[2].textContent = String(summary.logs.length);
+      cells[3].textContent = fmtSec(duration);
+      tbody.appendChild(row);
+    });
+  }
+
   function clearRouteSoon() {
     if (clearTimer) clearTimeout(clearTimer);
     clearTimer = setTimeout(function () {
@@ -86,12 +186,24 @@
   }
 
   function handleCapture(event) {
-    var button = event.target && event.target.closest ? event.target.closest('#session-controls button') : null;
+    var button = event.target && event.target.closest ? event.target.closest('button') : null;
     if (!button) return;
     var state = getState();
-    if (!state || state.setRunning || !state.awaitingDecision || state.__betweenCustomRuntimeV3) return;
+    if (!state) return;
+
+    if (button.closest('#session-complete-box') && /spara pass/i.test(button.textContent || '')) {
+      injectArchivesForSave(state);
+      return;
+    }
+
+    if (!button.closest('#session-controls') || state.setRunning || !state.awaitingDecision || state.__betweenCustomRuntimeV3) return;
     var transition = transitionKind(button,state);
     if (!transition) return;
+
+    var planned = originalGetPlanned ? (originalGetPlanned() || {}) : {};
+    var nextConfig = configForTransition(planned,state,transition);
+    maybeArchiveBeforeNewCustom(state,nextConfig);
+
     activeTransition = transition;
     activeState = state;
     clearRouteSoon();
@@ -104,6 +216,7 @@
     /* Loaded before both existing between modules, so their capture handlers
        see the transition-specific routed configuration synchronously. */
     document.addEventListener('click',handleCapture,true);
+    setInterval(syncArchiveRows,220);
     window.__exerciseBetweenRoutingV7 = {
       configForTransition:configForTransition,
       normalizeConfig:normalizeConfig
