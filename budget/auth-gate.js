@@ -24,7 +24,7 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
-  var exerciseAssetsVersion = '20260828-1715-hr-early-v15';
+  var exerciseAssetsVersion = '20260828-1745-chart-sync-v16';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
