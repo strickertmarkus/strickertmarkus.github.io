@@ -469,7 +469,9 @@
     document.addEventListener('click', captureSave, true);
     setInterval(syncUi, 300);
     setInterval(function () { renderRangeChart(false); }, 700);
-    setTimeout(function () { renderRangeChart(true); }, 500);
+    /* HR card is already created by exercise-points-8-9, which is now loaded
+       immediately before this module. No legacy 500 ms startup delay needed. */
+    renderRangeChart(true);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
