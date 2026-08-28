@@ -20,6 +20,7 @@
       html body .goals-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
       html body .goals-grid > .goal-card:first-child { display:none !important; }
       html body .goals-grid > .goal-card:nth-child(3):not(.goal-vo2-chart-v12) { display:none !important; }
+      html body .goals-grid > .goal-card.vo2-goal-source-v12 { display:none !important; }
       html body .charts-row > .chart-card:nth-child(2) { display:none !important; }
       html body .goals-grid > .goal-vo2-chart-v12 {
         display:block !important;
@@ -206,6 +207,23 @@
     if (isFinite(value) && Number(input.value) !== value) input.value = String(value);
   }
 
+  function refreshGoalDatasetLabel() {
+    try {
+      var chart = window.chartVO2;
+      if (!chart || !chart.data || !Array.isArray(chart.data.datasets)) return;
+      var changed = false;
+      chart.data.datasets.forEach(function (dataset) {
+        if (dataset && dataset.label === 'Mål') {
+          dataset.label = 'Mål VO₂ max';
+          dataset.borderDash = [6,4];
+          dataset.borderWidth = 2;
+          changed = true;
+        }
+      });
+      if (changed) chart.update('none');
+    } catch (_) {}
+  }
+
   function saveGoalValue(value) {
     try {
       var goals = typeof window.getGoals === 'function' ? (window.getGoals() || {}) : {};
@@ -293,6 +311,7 @@
         db.get = originalGet;
         setTimeout(function () {
           syncGoalInput();
+          refreshGoalDatasetLabel();
           try { if (window.chartVO2) window.chartVO2.draw(); } catch (_) {}
         },0);
       }
@@ -394,6 +413,7 @@
     arrangeGoals();
     registerGoalPlugin();
     installRenderSource();
+    refreshGoalDatasetLabel();
     scheduleBuilderControls();
   }
 
