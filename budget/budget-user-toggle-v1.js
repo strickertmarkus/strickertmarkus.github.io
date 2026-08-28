@@ -2,8 +2,96 @@
   'use strict';
 
   var path = window.location.pathname.toLowerCase();
-  var isBudgetPage = path.endsWith('/budget/budget.html') || path.endsWith('/budget.html') ||
-    path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
+  var isMajaPage = path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
+  var isBudgetPage = path.endsWith('/budget/budget.html') || path.endsWith('/budget.html') || isMajaPage;
+  var pageDataKey = isMajaPage ? 'budgetTracker_maja' : 'budgetTracker';
+  var snapshotKey = 'budget-navigation-snapshot-v1';
+
+  function installPersistenceGuard() {
+    if (!isBudgetPage || window.__budgetPersistenceGuardV1Installed) return;
+    window.__budgetPersistenceGuardV1Installed = true;
+
+    /* saveLocal() writes immediately to localStorage, while firebase-sync.js
+       debounces its remote write. Keep one short-lived same-tab snapshot so a
+       fast navigation/reload cannot let an older Firebase value overwrite the
+       local budget that the user just left. */
+    window.addEventListener('pagehide', function () {
+      try {
+        if (typeof window.saveLocal === 'function') window.saveLocal();
+      } catch (_) {}
+
+      try {
+        var value = localStorage.getItem(pageDataKey);
+        if (!value) return;
+        sessionStorage.setItem(snapshotKey, JSON.stringify({
+          at: Date.now(),
+          key: pageDataKey,
+          value: value
+        }));
+      } catch (_) {}
+    }, {capture:true});
+
+    var snapshot = null;
+    try {
+      var raw = sessionStorage.getItem(snapshotKey);
+      snapshot = raw ? JSON.parse(raw) : null;
+    } catch (_) {}
+
+    if (!snapshot || !snapshot.key || typeof snapshot.value !== 'string' ||
+        Date.now() - Number(snapshot.at || 0) > 15000) {
+      try { sessionStorage.removeItem(snapshotKey); } catch (_) {}
+      return;
+    }
+
+    var started = Date.now();
+    var syncRequested = false;
+
+    function renderCurrentPageIfNeeded() {
+      if (snapshot.key !== pageDataKey) return;
+      try { if (typeof window.loadLocal === 'function') window.loadLocal(); } catch (_) {}
+      try { if (typeof window.updateMonthDisplay === 'function') window.updateMonthDisplay(); } catch (_) {}
+      try { if (typeof window.renderSections === 'function') window.renderSections(); } catch (_) {}
+      try { if (typeof window.renderKPIs === 'function') window.renderKPIs(); } catch (_) {}
+      try { if (typeof window.updateCharts === 'function') window.updateCharts(); } catch (_) {}
+      try { if (typeof window.saveSelectedMonth === 'function') window.saveSelectedMonth(); } catch (_) {}
+    }
+
+    function protectRecentLocalValue() {
+      var changed = false;
+      try {
+        if (localStorage.getItem(snapshot.key) !== snapshot.value) {
+          localStorage.setItem(snapshot.key, snapshot.value);
+          changed = true;
+        }
+      } catch (_) {}
+
+      if (changed) renderCurrentPageIfNeeded();
+
+      if (!syncRequested) {
+        try {
+          if (typeof window.isFirebaseConnected === 'function' &&
+              window.isFirebaseConnected() &&
+              typeof window.syncToFirebase === 'function') {
+            window.syncToFirebase(snapshot.key, snapshot.value);
+            syncRequested = true;
+          }
+        } catch (_) {}
+      }
+
+      if (Date.now() - started < 5000) {
+        setTimeout(protectRecentLocalValue, 80);
+      } else {
+        try {
+          if (!syncRequested && typeof window.syncToFirebase === 'function') {
+            window.syncToFirebase(snapshot.key, snapshot.value);
+          }
+        } catch (_) {}
+        try { sessionStorage.removeItem(snapshotKey); } catch (_) {}
+      }
+    }
+
+    setTimeout(protectRecentLocalValue, 0);
+  }
 
   function installUiCleanup() {
     if (!isBudgetPage || window.__budgetUiCleanupV4Installed) return;
@@ -54,6 +142,8 @@
   }
 
   function loadStable() {
+    installPersistenceGuard();
+
     var stable = document.createElement('script');
     stable.src = 'budget-user-toggle-stable-999.js?v=20260828-2215-stable-999';
     stable.async = false;
