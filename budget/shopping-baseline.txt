@@ -19,40 +19,42 @@ Status: FINISHED
 
 Shopping list engine V7
 =======================
-Status: ACTIVE / ROBUST SINGLE-STATE MODEL
+Status: ACTIVE / SINGLE-STATE MODEL
 
-Root-cause analysis of previous add/edit bugs
----------------------------------------------
-- Legacy saveNewItem stored TWO records on the first Enter: the real item plus an empty placeholder item.
-- The next Enter was therefore handled by a different function, handleItemKeydown, instead of the same add path.
-- V4/V5/V6 then layered capture-click, category routing and blur wrappers over those two different legacy paths.
-- Re-rendering an input could trigger blur/cancel/save against an element that had just been removed, producing disappearing items and inconsistent next-row creation.
-- Mobile add/edit inputs used 13–14 px text; iOS Safari auto-zooms focused form fields below 16 px, which caused the visible zoom when moving to the next item.
+- budget/shopping-list-engine-v7.js owns normal shopping item/category rendering and add/edit state.
+- No empty placeholder items are stored in sh_lists.
+- Category -> Enter saves the category and opens one item draft.
+- Item draft -> Enter saves exactly one item and opens exactly one new draft.
+- The same path is used for item 1, item 2, item 3, etc.
+- Existing item -> Enter saves the edit and opens a new draft after that item.
+- Blur saves non-empty drafts but does not create an extra row.
+- Escape cancels the active editor.
+- Draft text is mirrored to JS state on every input event.
+- Main item/category editing uses contenteditable to avoid iOS form-input zoom.
+- (Willys)/(Maxi) suffix routing is native in V7 for normal shopping items.
+- Unknown category suffixes follow Home behavior and move the cleaned item to uncategorized area.
+- Yellow Shopping accents and Home-derived row geometry are retained.
 
-V7 design
----------
-- Legacy Shopping V4/V5/V6 list modules are no longer loaded by auth-gate.
-- A single module, budget/shopping-list-engine-v7.js, owns normal shopping item/category rendering and add/edit state.
-- No empty placeholder item is ever stored in sh_lists. A new item exists only as a DOM/state draft until it contains text and is committed.
-- Category -> Enter saves the category and opens one draft item editor under that category.
-- Draft item -> Enter saves exactly one item and immediately opens exactly one new draft after it.
-- The same draft path is used for item 1, item 2, item 3, etc.; there is no switch to a second legacy keydown path.
-- Existing item -> Enter saves the edit and opens a new draft immediately after that item.
-- Blur/click outside saves non-empty item/category drafts but does not create an extra next row.
-- Escape cancels the active edit/draft.
-- Draft/editor text is mirrored into JS state on every input event, so an incidental render cannot discard partly typed text.
-- The list uses contenteditable for item/category/draft editing, avoiding iOS input auto-zoom in the main Shopping flow.
-- Recipe/native text inputs are forced to at least 16 px on mobile to avoid Safari focus zoom there as well.
-- While an editor/draft is active, sh_lists firebase-sync events are handled in place and prevented from triggering the legacy full-page reload that could otherwise destroy the active draft.
-- Whole-row click target, Home-derived spacing/geometry, yellow checkbox/edit accents and larger category headings are retained.
-- Desktop and mobile included.
+Shopping rapid-interaction stability V8
+=======================================
+Status: ACTIVE
 
-Category/store suffix routing
+- budget/shopping-list-stability-v8.js is loaded BEFORE the V7 engine so its capture-phase guards are registered first.
+- Late focusout events immediately following Enter are suppressed for a short transition window. This prevents Safari/iOS from closing or committing the newly-created editor because the previous DOM editor lost focus during re-render.
+- Repeated/held Enter events are ignored during the transition window so one physical action cannot create multiple state transitions.
+- Delete actions have a short 115 ms acceptance guard. Deliberate rapid deletion remains possible, but accidental cascading deletion caused by rows shifting under the same finger gesture is prevented.
+- Local sh_lists firebase-sync echoes are ignored for 260 ms after an accepted local mutation; V7 has already rendered the local result, so this removes redundant DOM churn during rapid delete/add sequences.
+- Checkbox local mutations use the same short local-echo guard.
+
+V8 compact visual adjustments
 -----------------------------
-- Native in V7 for normal Shopping items: "Mjölk (Willys)" saves as "Mjölk" under Willys.
-- Matching is case-insensitive.
-- Unknown headings follow Home behavior and place the cleaned item in the uncategorized area.
-- Routing works for new items and existing item edits without wrapping the Enter/blur state machine.
+- Separator lines between normal shopping items are removed.
+- Add-item separator line is also removed so the section reads as one compact list.
+- Item rows are reduced from 39/42 px-style spacing to approximately 34 px desktop / 37 px mobile while preserving the existing 14 px item text size.
+- Mobile padding is reduced from 8 px vertical to 5 px.
+- "+ Lägg till artikel" is reduced to 12 px, matching "+ Lägg till rubrik".
+- Checkbox squares increase from 16 px to 18 px; item text size is unchanged.
+- Checkbox grid column is widened slightly to preserve alignment.
 
 Recipe persistence / compact UI V3
 ==================================
@@ -65,30 +67,24 @@ Recipe category bridge V7
 =========================
 Status: ACTIVE / ISOLATED FROM LIST EDITOR
 - budget/shopping-recipe-category-bridge-v7.js handles recipe-only (Willys)/(Maxi) routing.
-- The bridge uses the V7 list engine helpers but does not wrap normal Shopping item save/edit/Enter functions.
-- Recipe ingredient checkbox state is refreshed against the cleaned shopping item text.
-- A childList-only observer on #recipes-list refreshes checkbox presentation after recipe re-renders; it does not observe text/attributes and does not mutate recipe structure.
-
-Verification
-============
-- Syntax checked locally for the V7 engine and recipe bridge.
-- Data-state sequence tested: Willys -> Item 1 -> Enter -> Item 2 -> Enter -> Item 3 -> Enter produces three persistent ordered items with no empty records.
-- Category-routing test: editing Item 2 to "Frallor (Maxi)" moves only that item under Maxi and preserves the remaining items.
+- The bridge uses V7 helpers and does not wrap the normal Shopping Enter/blur state machine.
 
 Implementation
 ==============
+Shopping list stability/compact layer: budget/shopping-list-stability-v8.js
+V8 stability commit: 5be569b774b8c0d97b1ea4b644219beb2eb7a78a
 Shopping list engine: budget/shopping-list-engine-v7.js
-Engine commit: 9336d0d59cf8761db9af469a02751cc59d2db869
+V7 engine commit: 9336d0d59cf8761db9af469a02751cc59d2db869
 Recipe persistence/UI: budget/shopping-recipes-v3.js
 Recipe persistence commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
 Recipe category bridge: budget/shopping-recipe-category-bridge-v7.js
 Recipe bridge commit: a8a0bb24d9e043a6e28f4f2228975fac99b1d519
-Loader/cache V7 commit: cf801f78491c06883d9586f804d90a31b64c24d0
-Shopping asset version: 20260828-0900-shopping-list-engine-v7
+Loader/cache V8 commit: d1db557701a91f20f104848b91b8b46a3a3c84da
+Shopping asset version: 20260828-0945-shopping-stability-v8
 
 Legacy files still present in repo but NOT loaded for normal Shopping list interaction:
 - shopping-ui-polish-v2.js
 - shopping-yellow-category-v5.js
 - shopping-draft-blur-v6.js
 
-SHOPPING.HTML STATUS: V7 ACTIVE / READY FOR VISUAL VERIFICATION
+SHOPPING.HTML STATUS: V8 STABILITY ACTIVE / READY FOR VISUAL VERIFICATION
