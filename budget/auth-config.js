@@ -23,6 +23,7 @@ window.FIREBASE_CONFIG = {
       'html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}' +
       'html body .goals-grid>.goal-card:first-child{display:none!important}' +
       'html body .goals-grid>.goal-card:nth-child(3):not(.goal-vo2-chart-v12){display:none!important}' +
+      'html body .goals-grid>.goal-card.vo2-goal-source-v12{display:none!important}' +
       'html body .charts-row>.chart-card:nth-child(2){display:none!important}' +
       'html body .goals-grid>.goal-vo2-chart-v12{display:block!important}' +
       'html body .goal-vo2-chart-v12 .bw-row{display:none!important}' +
@@ -65,6 +66,10 @@ window.FIREBASE_CONFIG = {
     }
 
     var goalsGrid = document.querySelector('.goals-grid');
+    var legacyVo2 = document.getElementById('g3-goal');
+    var legacyVo2Card = legacyVo2 && legacyVo2.closest ? legacyVo2.closest('.goal-card') : null;
+    if (legacyVo2Card) legacyVo2Card.classList.add('vo2-goal-source-v12');
+
     var canvas = document.getElementById('chart-bw');
     var vo2Card = canvas && canvas.closest ? canvas.closest('.chart-card') : null;
     var runInput = document.getElementById('g2-goal');
@@ -84,7 +89,7 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-exercise-shell-v12]')) {
     var shellScript = document.createElement('script');
-    shellScript.src = 'exercise-shell-v12.js?v=20260828-1435-shell-v12';
+    shellScript.src = 'exercise-shell-v12.js?v=20260828-1505-shell-v12b';
     shellScript.async = false;
     shellScript.setAttribute('data-exercise-shell-v12','true');
     document.head.appendChild(shellScript);
