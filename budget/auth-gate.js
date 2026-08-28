@@ -27,7 +27,7 @@
   var exerciseAssetsVersion = '20260828-1224-goal-builder-polish-v8';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-1245-recipe-icons-v5b';
+  var shoppingAssetsVersion = '20260828-1250-recipe-icons-v5c';
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v8')) {
     var exerciseCritical = document.createElement('style');
