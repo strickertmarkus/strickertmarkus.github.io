@@ -27,7 +27,7 @@
   var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-0715-shopping-recipes-v3';
+  var shoppingAssetsVersion = '20260828-0805-shopping-home-parity-v4';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
