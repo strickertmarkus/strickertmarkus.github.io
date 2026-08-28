@@ -24,14 +24,14 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
-  var exerciseAssetsVersion = '20260828-1224-goal-builder-polish-v8';
+  var exerciseAssetsVersion = '20260828-1455-shell-v12-cleanup';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
-  if (isExercisePage && !document.getElementById('exercise-profile-critical-v8')) {
+  if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
     var exerciseCritical = document.createElement('style');
-    exerciseCritical.id = 'exercise-profile-critical-v8';
+    exerciseCritical.id = 'exercise-profile-critical-v12';
     exerciseCritical.textContent =
       '.exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}' +
       '.exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}';
@@ -101,55 +101,45 @@
   }
 
   if (isExercisePage) {
-    loadScriptOnce('exercise-session-enhancements.js', 'data-exercise-session-enhancements', function () {
-      loadScriptOnce('exercise-session-focus.js', 'data-exercise-session-focus', function () {
-        loadScriptOnce('exercise-session-progress.js', 'data-exercise-session-progress', function () {
-          loadScriptOnce('exercise-session-persistent-hype.js', 'data-exercise-session-persistent-hype', function () {
-            loadScriptOnce('exercise-session-theme-stability.js', 'data-exercise-session-theme-stability', function () {
-              loadScriptOnce('exercise-session-stable-details.js', 'data-exercise-session-stable-details', function () {
-                loadScriptOnce('exercise-session-mobile-repaint-fix.js', 'data-exercise-session-mobile-repaint-fix', function () {
-                  loadScriptOnce('exercise-reload-recovery.js', 'data-exercise-reload-recovery', function () {
-                    loadScriptOnce('exercise-points-3-6-7.js', 'data-exercise-points-3-6-7', function () {
-                      loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix', function () {
-                        loadScriptOnce('exercise-between-routing-v7.js', 'data-exercise-between-routing-v7', function () {
-                          loadScriptOnce('exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3', function () {
-                            loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
-                              loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
-                                loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
-                                  loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
-                                    loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
-                                      loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
-                                        loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
-                                          loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
-                                            loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
-                                              loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
-                                                loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6', function () {
-                                                  loadScriptOnce('exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7', function () {
-                                                    loadScriptOnce('exercise-goal-builder-polish-v8.js', 'data-exercise-goal-builder-polish-v8');
-                                                  });
-                                                });
-                                              });
-                                            });
-                                          });
-                                        });
-                                      });
-                                    });
-                                  });
-                                });
-                              });
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
+    /* Session modules remain ordered because some deliberately wrap functions
+       installed by the preceding module. Pure first-paint/layout patches were
+       removed from this chain and consolidated into exercise-shell-v12.js. */
+    var exerciseScripts = [
+      ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
+      ['exercise-session-focus.js', 'data-exercise-session-focus'],
+      ['exercise-session-progress.js', 'data-exercise-session-progress'],
+      ['exercise-session-persistent-hype.js', 'data-exercise-session-persistent-hype'],
+      ['exercise-session-theme-stability.js', 'data-exercise-session-theme-stability'],
+      ['exercise-session-stable-details.js', 'data-exercise-session-stable-details'],
+      ['exercise-session-mobile-repaint-fix.js', 'data-exercise-session-mobile-repaint-fix'],
+      ['exercise-reload-recovery.js', 'data-exercise-reload-recovery'],
+      ['exercise-points-3-6-7.js', 'data-exercise-points-3-6-7'],
+      ['exercise-between-routing-v7.js', 'data-exercise-between-routing-v7'],
+      ['exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3'],
+      ['exercise-between-sets.js', 'data-exercise-between-sets-v2'],
+      ['exercise-hype-polish.js', 'data-exercise-hype-polish-passive'],
+      ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
+      ['exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2'],
+      ['exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3'],
+      ['exercise-builder-style-v5.js', 'data-exercise-builder-style-v5'],
+      ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
+      ['exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix'],
+      ['exercise-log-details-v4.js', 'data-exercise-log-details-v4'],
+      ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
+      ['exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6'],
+      ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7']
+    ];
+
+    (function loadExerciseAt(index) {
+      if (index >= exerciseScripts.length) {
+        try {
+          if (window.__exerciseShellV12 && typeof window.__exerciseShellV12.prepare === 'function') window.__exerciseShellV12.prepare();
+        } catch (_) {}
+        return;
+      }
+      var item = exerciseScripts[index];
+      loadScriptOnce(item[0], item[1], function () { loadExerciseAt(index + 1); });
+    })(0);
   }
 
   if (isHomePage && !document.querySelector('script[data-home-shopping-groups-v1]')) {
