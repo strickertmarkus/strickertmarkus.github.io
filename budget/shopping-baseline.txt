@@ -11,81 +11,84 @@ Status: FINISHED / VERIFIED
 - Home presentation later gained category headings while retaining shared Shopping data.
 
 2. Shopping button layout / consistent theme
-Status: FINISHED V4 / HOME-PARITY RESET
-- Header controls now stay on one compact row on desktop and mobile.
+Status: FINISHED
+- Header controls stay on one compact row on desktop and mobile.
 - Hem, Mallar, Listor and Recept use compact matching controls.
 - Hamburger navigation remains separate at the far right.
-- Ångra is deliberately reduced to the standalone ↶ symbol with no button box/background.
-- Redundant hamburger glyphs are removed from Mallar/Listor/Recept labels.
+- Ångra is the standalone ↶ symbol without a button box/background.
 
-Shopping item interaction / layout V4
-=====================================
-Status: FINISHED / HOME-PARITY MODEL
-- The previous V2 approach still depended on Shopping's old startEditItem -> renderItems -> delayed focus path and was not sufficiently responsive on iPhone.
-- V4 changes the visible item interaction to the same model as Home: the visible text becomes contenteditable immediately in the original user click, without re-rendering before the keyboard/focus step.
-- The entire text area / remaining row hit area enters edit mode; the user does not need to tap exactly on a letter.
-- Enter commits the edit; Escape cancels; leaving the row commits.
-- Only after editing completes is the value persisted through Shopping's existing startEditItem/saveEditItem data path, so sh_lists and existing Firebase sync remain authoritative.
-- Normal item rows copy Home's geometry: 20px checkbox / flexible text / 22px delete action, Home-style spacing, borders, checkbox, editable-field treatment and ~.16s transitions.
-- A small × delete action is added at the right, matching the Home shopping row layout.
-- Category names are edited inline without an initial re-render.
-- Pressing Enter while editing a category heading saves the heading and immediately opens a new article input beneath that heading, restoring the fast heading -> article flow.
-- Add-item and add-category rows are focused immediately from the same click gesture.
+Shopping list engine V7
+=======================
+Status: ACTIVE / ROBUST SINGLE-STATE MODEL
+
+Root-cause analysis of previous add/edit bugs
+---------------------------------------------
+- Legacy saveNewItem stored TWO records on the first Enter: the real item plus an empty placeholder item.
+- The next Enter was therefore handled by a different function, handleItemKeydown, instead of the same add path.
+- V4/V5/V6 then layered capture-click, category routing and blur wrappers over those two different legacy paths.
+- Re-rendering an input could trigger blur/cancel/save against an element that had just been removed, producing disappearing items and inconsistent next-row creation.
+- Mobile add/edit inputs used 13–14 px text; iOS Safari auto-zooms focused form fields below 16 px, which caused the visible zoom when moving to the next item.
+
+V7 design
+---------
+- Legacy Shopping V4/V5/V6 list modules are no longer loaded by auth-gate.
+- A single module, budget/shopping-list-engine-v7.js, owns normal shopping item/category rendering and add/edit state.
+- No empty placeholder item is ever stored in sh_lists. A new item exists only as a DOM/state draft until it contains text and is committed.
+- Category -> Enter saves the category and opens one draft item editor under that category.
+- Draft item -> Enter saves exactly one item and immediately opens exactly one new draft after it.
+- The same draft path is used for item 1, item 2, item 3, etc.; there is no switch to a second legacy keydown path.
+- Existing item -> Enter saves the edit and opens a new draft immediately after that item.
+- Blur/click outside saves non-empty item/category drafts but does not create an extra next row.
+- Escape cancels the active edit/draft.
+- Draft/editor text is mirrored into JS state on every input event, so an incidental render cannot discard partly typed text.
+- The list uses contenteditable for item/category/draft editing, avoiding iOS input auto-zoom in the main Shopping flow.
+- Recipe/native text inputs are forced to at least 16 px on mobile to avoid Safari focus zoom there as well.
+- While an editor/draft is active, sh_lists firebase-sync events are handled in place and prevented from triggering the legacy full-page reload that could otherwise destroy the active draft.
+- Whole-row click target, Home-derived spacing/geometry, yellow checkbox/edit accents and larger category headings are retained.
 - Desktop and mobile included.
 
-Shopping yellow/category routing V5
-===================================
-Status: FINISHED
-- V4 layout and interaction logic remain unchanged.
-- Category headings are slightly larger while retaining the compact Home-derived layout.
-- Shopping item accents are changed from blue to Shopping yellow: checkbox tick/border/glow and inline edit border/glow.
-- Items can now be typed/edited with a category/store suffix exactly like Home, e.g. "Mjölk (Willys)" or "Kaffe (Maxi)".
-- The suffix is case-insensitively matched against existing category headings.
-- On save, the visible item text is cleaned to "Mjölk" / "Kaffe" and the item is physically moved under the matching heading.
-- If the heading does not exist, behavior follows Home: the cleaned item is moved to the uncategorized top area.
-- New-item save, checkbox-draft save and inline item edits all use the same routing behavior.
-- Recipe ingredients support the same suffix syntax. Recipe text may retain the suffix so the recipe remembers its intended store, while the shopping-list item is cleaned and routed under the matching category.
-- Recipe add-to-shopping and recipe ingredient checkbox actions use category-aware insertion.
-- Recipe checked-state UI is refreshed against the cleaned shopping item text so category routing does not break checkbox mirroring.
-- A narrow child-list-only observer on #recipes-list refreshes recipe checkbox state after recipe re-renders; it does not observe text/attributes and does not mutate DOM structure.
-- Desktop and mobile included.
+Category/store suffix routing
+-----------------------------
+- Native in V7 for normal Shopping items: "Mjölk (Willys)" saves as "Mjölk" under Willys.
+- Matching is case-insensitive.
+- Unknown headings follow Home behavior and place the cleaned item in the uncategorized area.
+- Routing works for new items and existing item edits without wrapping the Enter/blur state machine.
 
-Shopping draft / blur preservation V6
-=====================================
-Status: FINISHED
-- Clicking outside a non-empty editor is treated as Save, not Cancel.
-- A partly typed new article is committed on blur instead of being lost during a later render.
-- A partly typed new category heading is committed on blur; this specifically replaces the legacy cancelAddCategory behavior that discarded the draft.
-- New recipe names are likewise preserved on blur.
-- The legacy input-based item editor also commits changed text immediately on blur when it is used internally by the Home-parity persistence bridge.
-- Empty untouched draft fields still close/cancel as before.
-- Existing Enter/Escape behavior, Home-parity row interaction, yellow theme and category routing remain unchanged.
+Recipe persistence / compact UI V3
+==================================
+Status: FINISHED / RETAINED
+- Recipes persist under sh_recipes_v3 and synchronize directly with Firebase.
+- Recipe creation, rename, ingredient add/edit/delete and add-to-shopping remain persistent.
+- Compact recipe layout remains active.
 
-Recipe persistence / compact recipe UI V3
-=========================================
-Status: FINISHED
-- Root cause of disappearing recipes was the legacy recipeSessionStore implementation: recipes were stored only in RAM and sh_recipes was explicitly deleted on each DOMContentLoaded.
-- V3 replaces the recipe UI/function path with a persistent recipe store under sh_recipes_v3.
-- Recipe data includes an updatedAt timestamp and is synchronized directly to Firebase Realtime Database at sh_recipes_v3 for cross-device persistence.
-- Local and remote recipe stores reconcile by timestamp; newer remote data updates the page without requiring a reload.
-- Recipe creation, rename, ingredient add/edit/delete, recipe dropdown and "add recipe to shopping list" now use the persistent V3 store.
-- Ingredient edits continue to add/sync the ingredient into the currently selected shopping list, using the existing sh_lists data so normal list Firebase sync remains unchanged.
-- Recipe ingredient checkboxes mirror the matching item in the active shopping list.
-- "+ Lägg till ingrediens" remains permanently available at the bottom of every open recipe.
-- Recipe name and ingredient edit fields focus immediately after render for faster iOS typing.
-- Recipe presentation is compact: smaller vertical spacing, tighter nested ingredient list, compact + / × actions, smaller section spacing and responsive mobile sizing.
+Recipe category bridge V7
+=========================
+Status: ACTIVE / ISOLATED FROM LIST EDITOR
+- budget/shopping-recipe-category-bridge-v7.js handles recipe-only (Willys)/(Maxi) routing.
+- The bridge uses the V7 list engine helpers but does not wrap normal Shopping item save/edit/Enter functions.
+- Recipe ingredient checkbox state is refreshed against the cleaned shopping item text.
+- A childList-only observer on #recipes-list refreshes checkbox presentation after recipe re-renders; it does not observe text/attributes and does not mutate recipe structure.
+
+Verification
+============
+- Syntax checked locally for the V7 engine and recipe bridge.
+- Data-state sequence tested: Willys -> Item 1 -> Enter -> Item 2 -> Enter -> Item 3 -> Enter produces three persistent ordered items with no empty records.
+- Category-routing test: editing Item 2 to "Frallor (Maxi)" moves only that item under Maxi and preserves the remaining items.
 
 Implementation
 ==============
-Shopping UI module: budget/shopping-ui-polish-v2.js (contents now Home-parity V4)
-Shopping UI V4 commit: 370a6775fca6de1bb7948aa8a73ee683ecfb87db
-Recipe persistence/UI module: budget/shopping-recipes-v3.js
-Recipe feature commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
-Yellow/category V5 module: budget/shopping-yellow-category-v5.js
-Yellow/category V5 commit: 7a0f03cd0a22b78fac51d3263c418bf3dbdad062
-Draft/blur V6 module: budget/shopping-draft-blur-v6.js
-Draft/blur V6 commit: 7471c9e66ae9e43a9e876497dceec5cb3b887206
-Loader/cache V6 commit: e16c69c9cda3ef94f74180bcda8f47e62e8ad086
-Shopping asset version: 20260828-0845-shopping-draft-blur-v6
+Shopping list engine: budget/shopping-list-engine-v7.js
+Engine commit: 9336d0d59cf8761db9af469a02751cc59d2db869
+Recipe persistence/UI: budget/shopping-recipes-v3.js
+Recipe persistence commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
+Recipe category bridge: budget/shopping-recipe-category-bridge-v7.js
+Recipe bridge commit: a8a0bb24d9e043a6e28f4f2228975fac99b1d519
+Loader/cache V7 commit: cf801f78491c06883d9586f804d90a31b64c24d0
+Shopping asset version: 20260828-0900-shopping-list-engine-v7
 
-SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
+Legacy files still present in repo but NOT loaded for normal Shopping list interaction:
+- shopping-ui-polish-v2.js
+- shopping-yellow-category-v5.js
+- shopping-draft-blur-v6.js
+
+SHOPPING.HTML STATUS: V7 ACTIVE / READY FOR VISUAL VERIFICATION
