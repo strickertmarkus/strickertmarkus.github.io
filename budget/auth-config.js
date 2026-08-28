@@ -13,6 +13,18 @@ window.FIREBASE_CONFIG = {
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
+  /* Start the final HR modules immediately on a cold/hard refresh. auth-gate
+     later requests the exact same URLs, so these preloads are reused. */
+  ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
+    var href = src + '?v=20260828-1715-hr-early-v15';
+    if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
+    var link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'script';
+    link.href = href;
+    document.head.appendChild(link);
+  });
+
   /* Hard-refresh gate. The current exercise.html still contains a few legacy
      source elements for compatibility. They must never be painted before the
      final DOM geometry and first Chart.js render are ready. */
@@ -34,8 +46,13 @@ window.FIREBASE_CONFIG = {
       'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
       'html.exercise-hr-booting-v14 body #chart-hr{visibility:hidden!important}' +
       'html.exercise-hr-booting-v14 body #hr-card-combined .chart-area,html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
+      'html.exercise-shell-ready-v13 body .main-content{animation:exerciseShellRevealV15 .34s cubic-bezier(.16,1,.3,1) both}' +
+      'html.exercise-shell-ready-v13 body .fab{animation:exerciseFabRevealV15 .3s cubic-bezier(.16,1,.3,1) .06s both}' +
+      '@keyframes exerciseShellRevealV15{from{opacity:.12;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}' +
+      '@keyframes exerciseFabRevealV15{from{opacity:0;transform:translateY(5px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}' +
       'html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}' +
-      '@media(max-width:768px){html body .goals-grid{grid-template-columns:1fr!important}}';
+      '@media(max-width:768px){html body .goals-grid{grid-template-columns:1fr!important}}' +
+      '@media(prefers-reduced-motion:reduce){html.exercise-shell-ready-v13 body .main-content,html.exercise-shell-ready-v13 body .fab{animation:none!important}}';
     document.head.appendChild(style);
   }
 
@@ -189,7 +206,7 @@ window.FIREBASE_CONFIG = {
      range). Keep its drawing hidden until the final range chart is complete. */
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
-    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1645-hr-first-paint-v14';
+    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1720-hr-first-paint-v15';
     hrPaintScript.async = false;
     hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
     document.head.appendChild(hrPaintScript);
