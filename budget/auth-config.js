@@ -51,3 +51,19 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(progressScript);
   }
 })();
+
+(function () {
+  var path = window.location.pathname.toLowerCase();
+  var isShopping = path.endsWith('/budget/shopping.html') || path.endsWith('/shopping.html');
+  if (!isShopping) return;
+
+  /* Recipe header geometry is loaded from head so the legacy text arrow never
+     gets a visible first frame before the recipe modules finish rendering. */
+  if (!document.querySelector('script[data-shopping-recipe-header-polish-v6]')) {
+    var script = document.createElement('script');
+    script.src = 'shopping-recipe-header-polish-v6.js?v=20260828-1345-recipe-header-v6';
+    script.async = false;
+    script.setAttribute('data-shopping-recipe-header-polish-v6','true');
+    document.head.appendChild(script);
+  }
+})();
