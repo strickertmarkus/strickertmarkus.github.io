@@ -1,37 +1,47 @@
 (function () {
-  if (typeof firebase === "undefined") return;
+  if (typeof firebase === 'undefined') return;
 
   var cfg = window.FIREBASE_CONFIG || {
-    apiKey: "AIzaSyCgGL762gcglRpix4-akfP7NydFj5ChxfM",
-    authDomain: "frick-budget.firebaseapp.com",
-    projectId: "frick-budget",
-    storageBucket: "frick-budget.firebasestorage.app",
-    messagingSenderId: "231130144804",
-    appId: "1:231130144804:web:49ad446a858c585d2838b1",
-    databaseURL: "https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app"
+    apiKey: 'AIzaSyCgGL762gcglRpix4-akfP7NydFj5ChxfM',
+    authDomain: 'frick-budget.firebaseapp.com',
+    projectId: 'frick-budget',
+    storageBucket: 'frick-budget.firebasestorage.app',
+    messagingSenderId: '231130144804',
+    appId: '1:231130144804:web:49ad446a858c585d2838b1',
+    databaseURL: 'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'
   };
 
   try {
     if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(cfg);
   } catch (e) {}
-
   if (!firebase.auth) return;
 
   var auth = firebase.auth();
   var lowerPath = window.location.pathname.toLowerCase();
-  var isLoginPage = lowerPath.endsWith("/budget/login.html") || lowerPath.endsWith("/login.html");
-  var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
-  var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
-  var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
-  var isShoppingPage = lowerPath.endsWith("/budget/shopping.html") || lowerPath.endsWith("/shopping.html");
-  var exerciseAssetsVersion = '20260828-1110-builder-between-preview-v7d';
+  var isLoginPage = lowerPath.endsWith('/budget/login.html') || lowerPath.endsWith('/login.html');
+  var isExercisePage = lowerPath.endsWith('/budget/exercise.html') || lowerPath.endsWith('/exercise.html');
+  var isHomePage = lowerPath.endsWith('/budget/home.html') || lowerPath.endsWith('/home.html');
+  var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
+  var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
+
+  var exerciseAssetsVersion = '20260828-1224-goal-builder-polish-v8';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1015-shopping-recipe-links-v9';
 
-  /* Home's month navigation exists in the raw HTML header and is moved into
-     the calendar toolbar later. Reserve the final toolbar strip and hide the
-     raw header position before first paint so there is no visible jump. */
+  /* This exists before firebase-sync creates the profile toggle, preventing
+     Maja from painting with the generic blue active style for one frame. */
+  if (isExercisePage && !document.getElementById('exercise-profile-critical-v8')) {
+    var exerciseCritical = document.createElement('style');
+    exerciseCritical.id = 'exercise-profile-critical-v8';
+    exerciseCritical.textContent =
+      '.exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}' +
+      '.exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}';
+    document.head.appendChild(exerciseCritical);
+  }
+
+  /* Home first-paint layout: keep the raw month nav hidden until the shared
+     calendar toolbar has moved it into its final position. */
   if (isHomePage && !document.getElementById('home-critical-prelayout-v9')) {
     var critical = document.createElement('style');
     critical.id = 'home-critical-prelayout-v9';
@@ -64,7 +74,7 @@
     s.src = src + '?v=' + exerciseAssetsVersion;
     s.async = false;
     s.setAttribute(attr, 'true');
-    if (done) s.addEventListener('load', done, { once: true });
+    if (done) s.addEventListener('load', done, { once:true });
     document.head.appendChild(s);
   }
 
@@ -118,7 +128,9 @@
                                             loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
                                               loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
                                                 loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6', function () {
-                                                  loadScriptOnce('exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7');
+                                                  loadScriptOnce('exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7', function () {
+                                                    loadScriptOnce('exercise-goal-builder-polish-v8.js', 'data-exercise-goal-builder-polish-v8');
+                                                  });
                                                 });
                                               });
                                             });
@@ -176,8 +188,8 @@
 
   function nextTarget() {
     var params = new URLSearchParams(window.location.search);
-    var next = params.get("next");
-    return next && next.trim() ? next : "home.html";
+    var next = params.get('next');
+    return next && next.trim() ? next : 'home.html';
   }
 
   function goToNext() {
@@ -185,46 +197,46 @@
   }
 
   function showMessage(msg, isError) {
-    var el = document.getElementById("login-message");
+    var el = document.getElementById('login-message');
     if (!el) return;
     el.textContent = msg;
-    el.style.color = isError ? "#F87171" : "#34D399";
+    el.style.color = isError ? '#F87171' : '#34D399';
   }
 
   function wireLoginUi() {
     if (window.__budgetLoginBound) return;
     window.__budgetLoginBound = true;
 
-    var form = document.getElementById("login-form");
-    var emailEl = document.getElementById("login-email");
-    var passEl = document.getElementById("login-password");
-    var createBtn = document.getElementById("create-account-btn");
+    var form = document.getElementById('login-form');
+    var emailEl = document.getElementById('login-email');
+    var passEl = document.getElementById('login-password');
+    var createBtn = document.getElementById('create-account-btn');
     if (!form || !emailEl || !passEl) return;
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener('submit', function (event) {
       event.preventDefault();
-      var email = (emailEl.value || "").trim();
-      var password = passEl.value || "";
+      var email = (emailEl.value || '').trim();
+      var password = passEl.value || '';
       if (!email || !password) {
-        showMessage("Fyll i e-post och lösenord.", true);
+        showMessage('Fyll i e-post och lösenord.', true);
         return;
       }
       auth.signInWithEmailAndPassword(email, password)
-        .then(function () { showMessage("Inloggad. Omdirigerar...", false); goToNext(); })
-        .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte logga in.", true); });
+        .then(function () { showMessage('Inloggad. Omdirigerar...', false); goToNext(); })
+        .catch(function (error) { showMessage(error && error.message ? error.message : 'Kunde inte logga in.', true); });
     });
 
     if (createBtn) {
-      createBtn.addEventListener("click", function () {
-        var email = (emailEl.value || "").trim();
-        var password = passEl.value || "";
+      createBtn.addEventListener('click', function () {
+        var email = (emailEl.value || '').trim();
+        var password = passEl.value || '';
         if (!email || !password) {
-          showMessage("Fyll i e-post och lösenord först.", true);
+          showMessage('Fyll i e-post och lösenord först.', true);
           return;
         }
         auth.createUserWithEmailAndPassword(email, password)
-          .then(function () { showMessage("Konto skapat och inloggad.", false); goToNext(); })
-          .catch(function (error) { showMessage(error && error.message ? error.message : "Kunde inte skapa konto.", true); });
+          .then(function () { showMessage('Konto skapat och inloggad.', false); goToNext(); })
+          .catch(function (error) { showMessage(error && error.message ? error.message : 'Kunde inte skapa konto.', true); });
       });
     }
   }
@@ -236,8 +248,8 @@
       return;
     }
     if (!user) {
-      var current = window.location.pathname.split("/").pop() + window.location.search + window.location.hash;
-      window.location.replace("login.html?next=" + encodeURIComponent(current));
+      var current = window.location.pathname.split('/').pop() + window.location.search + window.location.hash;
+      window.location.replace('login.html?next=' + encodeURIComponent(current));
     }
   });
 })();
