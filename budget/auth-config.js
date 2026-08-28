@@ -17,6 +17,7 @@ window.FIREBASE_CONFIG = {
      source elements for compatibility. They must never be painted before the
      final DOM geometry and first Chart.js render are ready. */
   document.documentElement.classList.add('exercise-shell-booting-v13');
+  document.documentElement.classList.add('exercise-hr-booting-v14');
 
   if (!document.getElementById('exercise-shell-critical-v13')) {
     var style = document.createElement('style');
@@ -31,6 +32,8 @@ window.FIREBASE_CONFIG = {
       'html body .charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
       'html body .goals-grid>.goal-vo2-chart-v13{display:block!important}' +
       'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
+      'html.exercise-hr-booting-v14 body #chart-hr{visibility:hidden!important}' +
+      'html.exercise-hr-booting-v14 body #hr-card-combined .chart-area,html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
       'html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}' +
       '@media(max-width:768px){html body .goals-grid{grid-template-columns:1fr!important}}';
     document.head.appendChild(style);
@@ -180,6 +183,16 @@ window.FIREBASE_CONFIG = {
     shellScript.async = false;
     shellScript.setAttribute('data-exercise-shell-v13','true');
     document.head.appendChild(shellScript);
+  }
+
+  /* The pulse graph has two compatibility render stages (legacy -> combined ->
+     range). Keep its drawing hidden until the final range chart is complete. */
+  if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
+    var hrPaintScript = document.createElement('script');
+    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1645-hr-first-paint-v14';
+    hrPaintScript.async = false;
+    hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
+    document.head.appendChild(hrPaintScript);
   }
 
   /* Canonical pass progress remains isolated from page-shell cleanup. */
