@@ -8,6 +8,37 @@
   var transitionKey = 'budget-user-transition-v1';
   var lastUserKey = 'budget-last-user-v1';
   var rememberedUser = 'markus';
+
+  function storedDarkMode() {
+    try {
+      var value = String(localStorage.getItem('darkMode') || '').toLowerCase();
+      return value === 'true' || value === '1' || value === 'dark';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  var transitionBackground = storedDarkMode() ? '#0F1219' : '#F0F2F5';
+
+  /* This script is loaded from <head>. Paint the correct budget canvas before
+     body/CSS exist so a cross-document navigation never exposes the browser's
+     default white background. The class is removed after the final page frame. */
+  if (isBudgetPage) {
+    document.documentElement.classList.add('budget-transition-root-v3');
+    document.documentElement.style.backgroundColor = transitionBackground;
+    document.documentElement.style.colorScheme = storedDarkMode() ? 'dark' : 'light';
+
+    if (!document.getElementById('budget-transition-root-v3-style')) {
+      var rootStyle = document.createElement('style');
+      rootStyle.id = 'budget-transition-root-v3-style';
+      rootStyle.textContent =
+        'html.budget-transition-root-v3,html.budget-transition-root-v3 body{background:' + transitionBackground + '!important}' +
+        'html.budget-transition-root-v3 body{min-height:100vh}' +
+        'html.budget-transition-arriving-v3 body{animation:none!important}';
+      document.head.appendChild(rootStyle);
+    }
+  }
+
   try {
     var savedUser = localStorage.getItem(lastUserKey);
     if (savedUser === 'maja' || savedUser === 'markus') rememberedUser = savedUser;
@@ -65,10 +96,10 @@
       html.budget-user-arrived-v1 body .header > #budget-user-toggle-v1,
       html.budget-user-arrived-v1 body .header > #month-nav,
       html.budget-user-arrived-v1 body .container {
-        animation:budgetUserArriveV2 .14s cubic-bezier(.16,1,.3,1) both;
+        animation:budgetUserArriveV3 .13s cubic-bezier(.16,1,.3,1) both;
       }
-      @keyframes budgetUserArriveV2 {
-        from { opacity:.35; transform:translateY(2px); }
+      @keyframes budgetUserArriveV3 {
+        from { opacity:.45; transform:translateY(1px); }
         to { opacity:1; transform:translateY(0); }
       }
       @media(max-width:600px) {
@@ -140,22 +171,33 @@
     });
   }
 
+  function lockTransitionCanvas() {
+    document.documentElement.classList.add('budget-transition-root-v3');
+    document.documentElement.style.backgroundColor = transitionBackground;
+    if (document.body) {
+      document.body.style.backgroundColor = transitionBackground;
+      document.body.style.minHeight = '100vh';
+    }
+  }
+
   function startSwitch(user) {
     if (!isBudgetPage || user === currentUser || (user !== 'markus' && user !== 'maja')) return;
     flushCurrentEdit();
     rememberUser(user);
     updateToggleVisual(user);
+    lockTransitionCanvas();
 
     try {
       sessionStorage.setItem(transitionKey, JSON.stringify({
         target:user,
-        at:Date.now()
+        at:Date.now(),
+        background:transitionBackground
       }));
     } catch (_) {}
 
-    /* Match Exercise: no artificial outgoing delay. The target page has
-       already been prefetched, and its first-paint gate reveals only the final
-       profile UI. */
+    /* No outgoing fade to a blank canvas. Keep the current themed frame visible
+       right up to navigation; the incoming document paints the same canvas color
+       from <head>, then reveals its final content. */
     window.location.href = targetFor(user);
   }
 
@@ -210,6 +252,11 @@
       var raw = sessionStorage.getItem(transitionKey);
       var data = raw ? JSON.parse(raw) : null;
       switched = !!(data && data.target === currentUser && Date.now() - Number(data.at || 0) < 5000);
+      if (data && data.background) {
+        transitionBackground = data.background;
+        document.documentElement.style.backgroundColor = transitionBackground;
+        if (document.body) document.body.style.backgroundColor = transitionBackground;
+      }
       sessionStorage.removeItem(transitionKey);
     } catch (_) {}
 
@@ -218,8 +265,17 @@
         document.documentElement.classList.remove('budget-toggle-booting-v1');
         if (switched) {
           document.documentElement.classList.add('budget-user-arrived-v1');
-          setTimeout(function () { document.documentElement.classList.remove('budget-user-arrived-v1'); },170);
+          setTimeout(function () { document.documentElement.classList.remove('budget-user-arrived-v1'); },150);
         }
+        setTimeout(function () {
+          document.documentElement.classList.remove('budget-transition-root-v3');
+          document.documentElement.style.backgroundColor = '';
+          document.documentElement.style.colorScheme = '';
+          if (document.body) {
+            document.body.style.backgroundColor = '';
+            document.body.style.minHeight = '';
+          }
+        },switched ? 150 : 0);
       });
     });
   }
