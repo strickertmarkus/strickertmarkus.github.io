@@ -27,7 +27,7 @@
   var exerciseAssetsVersion = '20260828-1224-goal-builder-polish-v8';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-1015-shopping-recipe-links-v9';
+  var shoppingAssetsVersion = '20260828-1235-recipe-link-popup-v5';
 
   /* This exists before firebase-sync creates the profile toggle, preventing
      Maja from painting with the generic blue active style for one frame. */
