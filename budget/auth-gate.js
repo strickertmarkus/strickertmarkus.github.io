@@ -24,7 +24,7 @@
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var isShoppingPage = lowerPath.endsWith("/budget/shopping.html") || lowerPath.endsWith("/shopping.html");
-  var exerciseAssetsVersion = '20260828-1055-builder-between-preview-v7c';
+  var exerciseAssetsVersion = '20260828-1110-builder-between-preview-v7d';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1015-shopping-recipe-links-v9';
