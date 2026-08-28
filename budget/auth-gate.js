@@ -27,7 +27,7 @@
   var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-0845-shopping-draft-blur-v6';
+  var shoppingAssetsVersion = '20260828-0900-shopping-list-engine-v7';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
@@ -75,6 +75,19 @@
     }
     var s = document.createElement('script');
     s.src = src + '?v=' + calendarAssetsVersion;
+    s.async = false;
+    s.setAttribute(attr, 'true');
+    if (done) s.addEventListener('load', done, { once:true });
+    document.head.appendChild(s);
+  }
+
+  function loadShoppingScript(src, attr, done) {
+    if (document.querySelector('script[' + attr + ']')) {
+      if (done) done();
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = src + '?v=' + shoppingAssetsVersion;
     s.async = false;
     s.setAttribute(attr, 'true');
     if (done) s.addEventListener('load', done, { once:true });
@@ -135,36 +148,12 @@
     document.head.appendChild(homeScript);
   }
 
-  if (isShoppingPage && !document.querySelector('script[data-shopping-ui-polish-v2]')) {
-    var shoppingScript = document.createElement('script');
-    shoppingScript.src = 'shopping-ui-polish-v2.js?v=' + shoppingAssetsVersion;
-    shoppingScript.async = false;
-    shoppingScript.setAttribute('data-shopping-ui-polish-v2', 'true');
-    document.head.appendChild(shoppingScript);
-  }
-
-  if (isShoppingPage && !document.querySelector('script[data-shopping-recipes-v3]')) {
-    var recipeScript = document.createElement('script');
-    recipeScript.src = 'shopping-recipes-v3.js?v=' + shoppingAssetsVersion;
-    recipeScript.async = false;
-    recipeScript.setAttribute('data-shopping-recipes-v3', 'true');
-    document.head.appendChild(recipeScript);
-  }
-
-  if (isShoppingPage && !document.querySelector('script[data-shopping-yellow-category-v5]')) {
-    var shoppingV5 = document.createElement('script');
-    shoppingV5.src = 'shopping-yellow-category-v5.js?v=' + shoppingAssetsVersion;
-    shoppingV5.async = false;
-    shoppingV5.setAttribute('data-shopping-yellow-category-v5', 'true');
-    document.head.appendChild(shoppingV5);
-  }
-
-  if (isShoppingPage && !document.querySelector('script[data-shopping-draft-blur-v6]')) {
-    var shoppingV6 = document.createElement('script');
-    shoppingV6.src = 'shopping-draft-blur-v6.js?v=' + shoppingAssetsVersion;
-    shoppingV6.async = false;
-    shoppingV6.setAttribute('data-shopping-draft-blur-v6', 'true');
-    document.head.appendChild(shoppingV6);
+  if (isShoppingPage) {
+    loadShoppingScript('shopping-list-engine-v7.js', 'data-shopping-list-engine-v7', function () {
+      loadShoppingScript('shopping-recipes-v3.js', 'data-shopping-recipes-v3', function () {
+        loadShoppingScript('shopping-recipe-category-bridge-v7.js', 'data-shopping-recipe-category-bridge-v7');
+      });
+    });
   }
 
   if (isHomePage || isCalendarPage) {
