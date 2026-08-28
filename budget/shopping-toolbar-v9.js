@@ -48,7 +48,7 @@
   function loadRecipeLinkPopup() {
     if (document.querySelector('script[data-shopping-recipe-link-popup-v5]')) return;
     var s = document.createElement('script');
-    s.src = 'shopping-recipe-link-popup-v5.js?v=20260828-1235-recipe-link-popup-v5';
+    s.src = 'shopping-recipe-link-popup-v5.js?v=20260828-1245-recipe-icons-v5b';
     s.async = false;
     s.setAttribute('data-shopping-recipe-link-popup-v5','true');
     document.head.appendChild(s);
@@ -65,7 +65,6 @@
     document.body.classList.add('shopping-toolbar-v9');
     addStyles();
 
-    /* Keep DOM order equal to visual/tab order: Undo before Mallar. */
     group.insertBefore(undo, firstMenu);
     undo.setAttribute('aria-label', 'Ångra senaste ändring');
     undo.setAttribute('title', 'Ångra');
