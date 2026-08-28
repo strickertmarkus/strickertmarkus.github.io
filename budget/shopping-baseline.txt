@@ -11,25 +11,28 @@ Status: FINISHED / VERIFIED
 - Home presentation later gained category headings while retaining shared Shopping data.
 
 2. Shopping button layout / consistent theme
-Status: FINISHED V2
-- Header controls reorganized visually into a cleaner toolbar while retaining shopping.html's existing yellow/dark theme.
-- Hem remains a separate navigation action.
-- Mallar / Listor / Recept / Ångra are presented as one even action group.
-- Hamburger navigation stays separate at the right edge.
-- On mobile, Hem + hamburger occupy the top control line and Mallar/Listor/Recept/Ångra form a compact four-column row beneath.
-- Redundant hamburger glyphs were removed from Mallar/Listor/Recept labels.
+Status: FINISHED V4 / HOME-PARITY RESET
+- Header controls now stay on one compact row on desktop and mobile.
+- Hem, Mallar, Listor and Recept use compact matching controls.
+- Hamburger navigation remains separate at the far right.
+- Ångra is deliberately reduced to the standalone ↶ symbol with no button box/background.
+- Redundant hamburger glyphs are removed from Mallar/Listor/Recept labels.
 
-Shopping item interaction polish V2
-===================================
-Status: FINISHED
-- Existing shopping data/render functions remain authoritative; no parallel shopping data model was added for normal list items.
-- Existing startEditItem/startAddItem behavior is retained, with immediate synchronous focus layered after render so iOS can open the keyboard from the same user gesture.
-- The item label now fills the available row width, so editing does not require tapping directly on the letters.
-- Empty row padding also falls back to the same edit action, excluding checkbox/input/button targets.
-- Add-item rows receive the same larger touch target.
-- Touch action/tap highlight and transition timing are aligned closer to the Home shopping widget feel (~.16 s UI transitions) while keeping Shopping's existing yellow styling.
-- Edit inputs receive a clear yellow-theme focus state.
-- Desktop and mobile behavior included.
+Shopping item interaction / layout V4
+=====================================
+Status: FINISHED / HOME-PARITY MODEL
+- The previous V2 approach still depended on Shopping's old startEditItem -> renderItems -> delayed focus path and was not sufficiently responsive on iPhone.
+- V4 changes the visible item interaction to the same model as Home: the visible text becomes contenteditable immediately in the original user click, without re-rendering before the keyboard/focus step.
+- The entire text area / remaining row hit area enters edit mode; the user does not need to tap exactly on a letter.
+- Enter commits the edit; Escape cancels; leaving the row commits.
+- Only after editing completes is the value persisted through Shopping's existing startEditItem/saveEditItem data path, so sh_lists and existing Firebase sync remain authoritative.
+- Normal item rows copy Home's geometry: 20px checkbox / flexible text / 22px delete action, Home-style spacing, borders, blue checkbox, editable-field treatment and ~.16s transitions.
+- A small × delete action is added at the right, matching the Home shopping row layout.
+- Category headings use the same compact accent heading treatment as Home.
+- Category names are edited inline without an initial re-render.
+- Pressing Enter while editing a category heading now saves the heading and immediately opens a new article input beneath that heading, restoring the fast heading -> article flow.
+- Add-item and add-category rows are focused immediately from the same click gesture.
+- Desktop and mobile included.
 
 Recipe persistence / compact recipe UI V3
 =========================================
@@ -41,18 +44,17 @@ Status: FINISHED
 - Recipe creation, rename, ingredient add/edit/delete, recipe dropdown and "add recipe to shopping list" now use the persistent V3 store.
 - Ingredient edits continue to add/sync the ingredient into the currently selected shopping list, using the existing sh_lists data so normal list Firebase sync remains unchanged.
 - Recipe ingredient checkboxes mirror the matching item in the active shopping list.
-- "+ Lägg till ingrediens" remains permanently available at the bottom of every open recipe, not only for empty recipes.
+- "+ Lägg till ingrediens" remains permanently available at the bottom of every open recipe.
 - Recipe name and ingredient edit fields focus immediately after render for faster iOS typing.
-- Recipe presentation is more compact: smaller vertical spacing, tighter nested ingredient list, compact + / × actions, smaller section spacing and responsive mobile sizing.
-- Existing Shopping yellow/dark theme is retained.
+- Recipe presentation is compact: smaller vertical spacing, tighter nested ingredient list, compact + / × actions, smaller section spacing and responsive mobile sizing.
 
 Implementation
 ==============
-Shopping UI module: budget/shopping-ui-polish-v2.js
-Shopping UI commit: cc01514b1b4a3c92d092124f288b7dbc8254add7
+Shopping UI module: budget/shopping-ui-polish-v2.js (contents now Home-parity V4)
+Shopping UI V4 commit: 370a6775fca6de1bb7948aa8a73ee683ecfb87db
 Recipe persistence/UI module: budget/shopping-recipes-v3.js
 Recipe feature commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
-Loader/cache commit: f948db95f3c7eb4cc45de66969c26dd70a64bed3
-Shopping asset version: 20260828-0715-shopping-recipes-v3
+Loader/cache V4 commit: 3e324a056117701704ffe64cf4b446e35e6e0228
+Shopping asset version: 20260828-0805-shopping-home-parity-v4
 
 SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
