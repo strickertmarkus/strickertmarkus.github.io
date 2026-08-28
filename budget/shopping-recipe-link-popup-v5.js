@@ -7,13 +7,6 @@
   var STORAGE_KEY = 'sh_recipes_v3';
   var FIREBASE_KEY = 'sh_recipes_v3';
   var activeRecipeId = null;
-  var decorateTimer = null;
-
-  function escapeHtml(value) {
-    return String(value == null ? '' : value)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
 
   function normalizeUrl(value) {
     var raw = String(value || '').trim();
@@ -55,12 +48,7 @@
     } catch (_) {}
     try { if (typeof window.renderRecipes === 'function') window.renderRecipes(); } catch (_) {}
     try { if (typeof window.renderRecipesDropdown === 'function') window.renderRecipesDropdown(); } catch (_) {}
-    setTimeout(decorate, 0);
     return true;
-  }
-
-  function linkSvg() {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.6 13.4a4 4 0 0 0 5.66 0l2.14-2.14a4 4 0 1 0-5.66-5.66l-1.22 1.22"/><path d="M13.4 10.6a4 4 0 0 0-5.66 0L5.6 12.74a4 4 0 1 0 5.66 5.66l1.22-1.22"/></svg>';
   }
 
   function addStyles() {
@@ -70,6 +58,26 @@
     style.textContent = `
       body.shopping-recipe-link-popup-v5 .recipe-header{position:relative!important;padding-right:73px!important}
       body.shopping-recipe-link-popup-v5 .recipe-title-wrap{padding-right:0!important}
+
+      /* Native SVG chevron from first paint. The legacy text glyph is never visible. */
+      body.shopping-recipe-link-popup-v5 .recipe-toggle{
+        font-size:0!important;
+        width:22px!important;
+        min-width:22px!important;
+        height:34px!important;
+      }
+      body.shopping-recipe-link-popup-v5 .recipe-toggle::before{
+        content:'';
+        display:block;
+        width:17px;
+        height:17px;
+        background-repeat:no-repeat;
+        background-position:center;
+        background-size:17px 17px;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237F8DA0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+        pointer-events:none;
+      }
+
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4,
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4{
         position:absolute!important;top:50%!important;transform:translateY(-50%)!important;
@@ -79,17 +87,35 @@
         opacity:.78!important;line-height:1!important;color:#7F8DA0!important;
         -webkit-tap-highlight-color:transparent!important
       }
-      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4{right:37px!important}
+      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4{
+        right:37px!important;
+        font-size:0!important;
+      }
+      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4>*{display:none!important}
+      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4::before{
+        content:'';
+        display:block;
+        width:21px;
+        height:21px;
+        background-repeat:no-repeat;
+        background-position:center;
+        background-size:21px 21px;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237F8DA0' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.6 13.4a4 4 0 0 0 5.66 0l2.14-2.14a4 4 0 1 0-5.66-5.66l-1.22 1.22'/%3E%3Cpath d='M13.4 10.6a4 4 0 0 0-5.66 0L5.6 12.74a4 4 0 1 0 5.66 5.66l1.22-1.22'/%3E%3C/svg%3E");
+        pointer-events:none;
+      }
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4{right:1px!important;font-size:25px!important;font-weight:300!important}
-      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4 svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:hover,
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:active{color:#FBBF24!important;opacity:1!important}
+      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:hover::before,
+      body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:active::before{
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.6 13.4a4 4 0 0 0 5.66 0l2.14-2.14a4 4 0 1 0-5.66-5.66l-1.22 1.22'/%3E%3Cpath d='M13.4 10.6a4 4 0 0 0-5.66 0L5.6 12.74a4 4 0 1 0 5.66 5.66l1.22-1.22'/%3E%3C/svg%3E");
+      }
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4:hover,
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4:active{color:#F87171!important;opacity:1!important}
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:active,
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4:active{transform:translateY(-50%) scale(.90)!important}
 
-      /* Existing recipe inline edit is now name-only. Links are managed by the link icon. */
+      /* Existing recipe inline edit is name-only. Links are managed by the link icon. */
       body.shopping-recipe-link-popup-v5 .recipe-meta-editor{grid-template-columns:minmax(0,1fr)!important}
       body.shopping-recipe-link-popup-v5 .recipe-meta-editor input[type="url"]{display:none!important}
 
@@ -120,10 +146,12 @@
       .recipe-link-save-v5{border:1px solid rgba(251,191,36,.38);background:rgba(251,191,36,.14);color:#FBBF24}
       @media(max-width:520px){
         body.shopping-recipe-link-popup-v5 .recipe-header{padding-right:78px!important}
+        body.shopping-recipe-link-popup-v5 .recipe-toggle{width:24px!important;min-width:24px!important;height:38px!important}
+        body.shopping-recipe-link-popup-v5 .recipe-toggle::before{width:19px;height:19px;background-size:19px 19px}
         body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4,
         body.shopping-recipe-link-popup-v5 .recipe-delete-v4{width:37px!important;height:40px!important;min-width:37px!important}
         body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4{right:39px!important}
-        body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4 svg{width:21px;height:21px}
+        body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4::before{width:22px;height:22px;background-size:22px 22px}
         body.shopping-recipe-link-popup-v5 .recipe-delete-v4{font-size:27px!important}
         .recipe-link-card-v5 input{font-size:16px!important}
       }
@@ -131,16 +159,12 @@
     document.head.appendChild(style);
   }
 
-  function decorate() {
+  function decorateAccessibility() {
     var root = document.getElementById('recipes-list');
     if (!root) return;
     root.querySelectorAll('.recipe-edit-meta-v4').forEach(function (button) {
-      if (button.dataset.linkPopupV5 === '1') return;
-      button.dataset.linkPopupV5 = '1';
-      button.dataset.action = 'recipe-link-popup-v5';
       button.title = 'Receptlänk';
       button.setAttribute('aria-label','Lägg till eller ändra receptlänk');
-      button.innerHTML = linkSvg();
     });
   }
 
@@ -212,13 +236,30 @@
   }
 
   function handleRecipeClickCapture(event) {
-    var button = event.target && event.target.closest ? event.target.closest('.recipe-edit-meta-v4') : null;
-    if (!button) return;
-    var recipe = button.closest('.recipe-item');
-    if (!recipe) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    openPopup(Number(recipe.dataset.recipeId));
+    var root = document.getElementById('recipes-list');
+    if (!root || !root.contains(event.target)) return;
+
+    var linkButton = event.target && event.target.closest ? event.target.closest('.recipe-edit-meta-v4') : null;
+    if (linkButton) {
+      var recipe = linkButton.closest('.recipe-item');
+      if (!recipe) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openPopup(Number(recipe.dataset.recipeId));
+      return;
+    }
+
+    /* A plain recipe heading used to enter the legacy meta editor, which
+       briefly rendered the pencil. Treat it as expand/collapse instead. */
+    var title = event.target && event.target.closest ? event.target.closest('.recipe-name-v4') : null;
+    if (title) {
+      var recipeItem = title.closest('.recipe-item');
+      var toggle = recipeItem && recipeItem.querySelector('.recipe-toggle');
+      if (!toggle) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toggle.click();
+    }
   }
 
   function install() {
@@ -229,9 +270,8 @@
     document.body.classList.add('shopping-recipe-link-popup-v5');
     addStyles();
     ensurePopup();
-    decorate();
+    decorateAccessibility();
     root.addEventListener('click', handleRecipeClickCapture, true);
-    decorateTimer = setInterval(decorate, 220);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(install,0); }, {once:true});
