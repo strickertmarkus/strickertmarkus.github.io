@@ -13,44 +13,85 @@ window.FIREBASE_CONFIG = {
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
-  /* First-paint guard for the final Goals layout. Pass / vecka is no longer a
-     Goal card, and the old VO2 card/manual logger must never flash before the
-     chart is moved beside the running-distance goal. */
-  if (!document.getElementById('exercise-goal-first-paint-v9')) {
+  /* Final Exercise shell geometry is known before body parsing. This prevents
+     legacy controls/cards from participating in the first painted layout. */
+  if (!document.getElementById('exercise-shell-critical-v12')) {
     var style = document.createElement('style');
-    style.id = 'exercise-goal-first-paint-v9';
+    style.id = 'exercise-shell-critical-v12';
     style.textContent =
-      '.goals-grid>.goal-card:first-child{display:none!important}' +
-      '.goals-grid>.goal-card:nth-child(3){visibility:hidden!important}' +
-      '.charts-row>.chart-card:nth-child(2){visibility:hidden!important}' +
-      '.charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
-      /* The large 5-second builder card is obsolete. The compact toggle next
-         to Mellanövningar is now the only builder control. Higher specificity
-         also wins over the older routing module that tried to force it open. */
-      'html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}';
+      '.week-pick>button{display:none!important}' +
+      'html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}' +
+      'html body .goals-grid>.goal-card:first-child{display:none!important}' +
+      'html body .goals-grid>.goal-card:nth-child(3):not(.goal-vo2-chart-v12){display:none!important}' +
+      'html body .charts-row>.chart-card:nth-child(2){display:none!important}' +
+      'html body .goals-grid>.goal-vo2-chart-v12{display:block!important}' +
+      'html body .goal-vo2-chart-v12 .bw-row{display:none!important}' +
+      'html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}' +
+      '@media(max-width:768px){html body .goals-grid{grid-template-columns:1fr!important}}';
     document.head.appendChild(style);
   }
 
-  /* Load the corrective goal layer before body paint. */
-  if (!document.querySelector('script[data-exercise-goal-layout-fix-v9]')) {
-    var goalScript = document.createElement('script');
-    goalScript.src = 'exercise-goal-layout-fix-v9.js?v=20260828-1240-goal-layout-fix-v9';
-    goalScript.async = false;
-    goalScript.setAttribute('data-exercise-goal-layout-fix-v9','true');
-    document.head.appendChild(goalScript);
+  /* This listener is registered before exercise.html registers refreshAll().
+     Therefore the VO2 canvas is already in its final container before Chart.js
+     creates any chart, and Denna vecka is gone before the first usable frame. */
+  document.addEventListener('DOMContentLoaded', function () {
+    var toolbar = document.querySelector('.week-toolbar');
+    var pick = toolbar && toolbar.querySelector('.week-pick');
+    if (pick) {
+      Array.prototype.slice.call(pick.children).forEach(function (child) {
+        if (child.tagName === 'BUTTON' && String(child.textContent || '').trim().toLowerCase() === 'denna vecka') child.remove();
+      });
+
+      if (!document.getElementById('week-inline-actions-v2')) {
+        var headers = Array.prototype.slice.call(document.querySelectorAll('.section-hdr'));
+        var weekHeader = headers.find(function (header) {
+          var h2 = header.querySelector('h2');
+          return h2 && String(h2.textContent || '').trim().toLowerCase() === 'veckoplan';
+        });
+        if (weekHeader) {
+          var buttons = Array.prototype.slice.call(weekHeader.querySelectorAll('button')).filter(function (button) {
+            var text = String(button.textContent || '').trim().toLowerCase();
+            return text === 'redigera' || text === 'mallpass';
+          });
+          if (buttons.length) {
+            var actions = document.createElement('div');
+            actions.id = 'week-inline-actions-v2';
+            actions.className = 'week-inline-actions-v2';
+            buttons.forEach(function (button) { actions.appendChild(button); });
+            pick.appendChild(actions);
+          }
+        }
+      }
+    }
+
+    var goalsGrid = document.querySelector('.goals-grid');
+    var canvas = document.getElementById('chart-bw');
+    var vo2Card = canvas && canvas.closest ? canvas.closest('.chart-card') : null;
+    var runInput = document.getElementById('g2-goal');
+    var runCard = runInput && runInput.closest ? runInput.closest('.goal-card') : null;
+    if (goalsGrid && vo2Card) {
+      vo2Card.classList.add('goal-vo2-chart-v12');
+      if (vo2Card.parentElement !== goalsGrid) {
+        if (runCard && runCard.parentElement === goalsGrid) runCard.insertAdjacentElement('afterend', vo2Card);
+        else goalsGrid.appendChild(vo2Card);
+      }
+    }
+
+    try {
+      if (window.__exerciseShellV12 && typeof window.__exerciseShellV12.prepare === 'function') window.__exerciseShellV12.prepare();
+    } catch (_) {}
+  }, {once:true});
+
+  if (!document.querySelector('script[data-exercise-shell-v12]')) {
+    var shellScript = document.createElement('script');
+    shellScript.src = 'exercise-shell-v12.js?v=20260828-1435-shell-v12';
+    shellScript.async = false;
+    shellScript.setAttribute('data-exercise-shell-v12','true');
+    document.head.appendChild(shellScript);
   }
 
-  /* VO2 graph data comes only from workouts that have a logged workout.vo2. */
-  if (!document.querySelector('script[data-exercise-goal-vo2-source-v11]')) {
-    var vo2Script = document.createElement('script');
-    vo2Script.src = 'exercise-goal-vo2-source-v11.js?v=20260828-1410-workout-vo2-v11';
-    vo2Script.async = false;
-    vo2Script.setAttribute('data-exercise-goal-vo2-source-v11','true');
-    document.head.appendChild(vo2Script);
-  }
-
-  /* Canonical pass progress is independent of the temporary exercise swap
-     used while a custom between-exercise is running. */
+  /* Canonical pass progress remains isolated from UI-shell cleanup because it
+     represents session data, not page layout. */
   if (!document.querySelector('script[data-exercise-progress-consistency-v10]')) {
     var progressScript = document.createElement('script');
     progressScript.src = 'exercise-progress-consistency-v10.js?v=20260828-1320-progress-consistency-v10';
