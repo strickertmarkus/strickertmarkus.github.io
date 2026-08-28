@@ -260,7 +260,7 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
     var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260828-1846-budget-user-toggle-v1';
+    script.src = 'budget-user-toggle-v1.js?v=20260828-1850-budget-user-toggle-v2';
     script.async = false;
     script.setAttribute('data-budget-user-toggle-v1','true');
     document.head.appendChild(script);
