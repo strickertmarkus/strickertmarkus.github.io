@@ -24,7 +24,7 @@
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
   var isShoppingPage = lowerPath.endsWith("/budget/shopping.html") || lowerPath.endsWith("/shopping.html");
-  var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
+  var exerciseAssetsVersion = '20260828-1035-builder-between-preview-v7';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1015-shopping-recipe-links-v9';
@@ -105,18 +105,22 @@
                   loadScriptOnce('exercise-reload-recovery.js', 'data-exercise-reload-recovery', function () {
                     loadScriptOnce('exercise-points-3-6-7.js', 'data-exercise-points-3-6-7', function () {
                       loadScriptOnce('exercise-mobile-week-toolbar-fix.js', 'data-exercise-mobile-week-toolbar-fix', function () {
-                        loadScriptOnce('exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3', function () {
-                          loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
-                            loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
-                              loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
-                                loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
-                                  loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
-                                    loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
-                                      loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
-                                        loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
-                                          loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
-                                            loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
-                                              loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6');
+                        loadScriptOnce('exercise-between-routing-v7.js', 'data-exercise-between-routing-v7', function () {
+                          loadScriptOnce('exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3', function () {
+                            loadScriptOnce('exercise-between-sets.js', 'data-exercise-between-sets-v2', function () {
+                              loadScriptOnce('exercise-hype-polish.js', 'data-exercise-hype-polish-passive', function () {
+                                loadScriptOnce('exercise-points-8-9.js', 'data-exercise-points-8-9', function () {
+                                  loadScriptOnce('exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2', function () {
+                                    loadScriptOnce('exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3', function () {
+                                      loadScriptOnce('exercise-builder-style-v5.js', 'data-exercise-builder-style-v5', function () {
+                                        loadScriptOnce('exercise-heart-rate-range.js', 'data-exercise-heart-rate-range', function () {
+                                          loadScriptOnce('exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix', function () {
+                                            loadScriptOnce('exercise-log-details-v4.js', 'data-exercise-log-details-v4', function () {
+                                              loadScriptOnce('exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5', function () {
+                                                loadScriptOnce('exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6', function () {
+                                                  loadScriptOnce('exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7');
+                                                });
+                                              });
                                             });
                                           });
                                         });
