@@ -177,6 +177,26 @@
     document.head.appendChild(style);
   }
 
+  function preservePreTimerAfterPreviewSave(button) {
+    if (!button || !button.closest('[data-preview-save-v7]')) return false;
+    var modal = document.getElementById('day-workout-modal');
+    var input = document.getElementById('day-workout-date');
+    var date = (modal && modal.dataset.date) || (input && input.value) || '';
+    if (!date) return true;
+    var api = window.__exerciseFlowPolishV2;
+    var enabled = true;
+    try {
+      if (api && typeof api.timerEnabledForDate === 'function') enabled = api.timerEnabledForDate(date) !== false;
+    } catch (_) {}
+    setTimeout(function () {
+      try {
+        var flow = window.__exerciseFlowPolishV2;
+        if (flow && typeof flow.setTimerEnabled === 'function') flow.setTimerEnabled(date,enabled);
+      } catch (_) {}
+    },30);
+    return true;
+  }
+
   function clearRouteSoon() {
     if (clearTimer) clearTimeout(clearTimer);
     clearTimer = setTimeout(function () {
@@ -189,6 +209,8 @@
   function handleCapture(event) {
     var button = event.target && event.target.closest ? event.target.closest('button') : null;
     if (!button) return;
+    if (preservePreTimerAfterPreviewSave(button)) return;
+
     var state = getState();
     if (!state) return;
 
