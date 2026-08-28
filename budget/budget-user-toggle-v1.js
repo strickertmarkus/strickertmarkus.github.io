@@ -45,11 +45,11 @@
         color:#94A3B8;
         font:700 12px/1.1 'Inter',sans-serif;
         cursor:pointer;
-        transition:background .16s ease,color .16s ease,box-shadow .16s ease,transform .12s ease;
+        transition:background .13s ease,color .13s ease,box-shadow .13s ease,transform .09s ease;
         -webkit-tap-highlight-color:transparent;
       }
       .budget-user-option-v1:hover { color:#E2E8F0; }
-      .budget-user-option-v1:active { transform:scale(.97); }
+      .budget-user-option-v1:active { transform:scale(.98); }
       .budget-user-option-v1[data-user="markus"].active {
         color:#60A5FA;
         background:rgba(59,130,246,.16);
@@ -60,25 +60,15 @@
         background:rgba(244,114,182,.15);
         box-shadow:inset 0 0 0 1px rgba(244,114,182,.48),0 2px 10px rgba(244,114,182,.07);
       }
-      body.budget-user-switching-v1 .header > h1,
-      body.budget-user-switching-v1 .header > p,
-      body.budget-user-switching-v1 .header > #budget-user-toggle-v1,
-      body.budget-user-switching-v1 .header > #month-nav,
-      body.budget-user-switching-v1 .container {
-        opacity:0 !important;
-        transform:translateY(5px) !important;
-        transition:opacity .14s ease,transform .14s ease !important;
-        pointer-events:none !important;
-      }
       html.budget-user-arrived-v1 body .header > h1,
       html.budget-user-arrived-v1 body .header > p,
       html.budget-user-arrived-v1 body .header > #budget-user-toggle-v1,
       html.budget-user-arrived-v1 body .header > #month-nav,
       html.budget-user-arrived-v1 body .container {
-        animation:budgetUserArriveV1 .22s cubic-bezier(.16,1,.3,1) both;
+        animation:budgetUserArriveV2 .14s cubic-bezier(.16,1,.3,1) both;
       }
-      @keyframes budgetUserArriveV1 {
-        from { opacity:.08; transform:translateY(6px); }
+      @keyframes budgetUserArriveV2 {
+        from { opacity:.35; transform:translateY(2px); }
         to { opacity:1; transform:translateY(0); }
       }
       @media(max-width:600px) {
@@ -99,11 +89,6 @@
         .budget-user-option-v1 { min-width:54px; padding-left:7px; padding-right:7px; font-size:10.5px; }
       }
       @media(prefers-reduced-motion:reduce) {
-        body.budget-user-switching-v1 .header > h1,
-        body.budget-user-switching-v1 .header > p,
-        body.budget-user-switching-v1 .header > #budget-user-toggle-v1,
-        body.budget-user-switching-v1 .header > #month-nav,
-        body.budget-user-switching-v1 .container { transition:none !important; }
         html.budget-user-arrived-v1 body .header > h1,
         html.budget-user-arrived-v1 body .header > p,
         html.budget-user-arrived-v1 body .header > #budget-user-toggle-v1,
@@ -133,10 +118,33 @@
     } catch (_) {}
   }
 
+  function primeTargetPage() {
+    if (!isBudgetPage) return;
+    var otherUser = currentUser === 'markus' ? 'maja' : 'markus';
+    var href = targetFor(otherUser);
+    if (!document.querySelector('link[data-budget-profile-prefetch="' + otherUser + '"]')) {
+      var link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = href;
+      link.setAttribute('data-budget-profile-prefetch',otherUser);
+      document.head.appendChild(link);
+    }
+  }
+
+  function updateToggleVisual(user) {
+    document.querySelectorAll('#budget-user-toggle-v1 [data-user]').forEach(function (button) {
+      var active = button.dataset.user === user;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-pressed',active ? 'true' : 'false');
+      button.disabled = true;
+    });
+  }
+
   function startSwitch(user) {
     if (!isBudgetPage || user === currentUser || (user !== 'markus' && user !== 'maja')) return;
     flushCurrentEdit();
     rememberUser(user);
+    updateToggleVisual(user);
 
     try {
       sessionStorage.setItem(transitionKey, JSON.stringify({
@@ -145,12 +153,10 @@
       }));
     } catch (_) {}
 
-    document.body.classList.add('budget-user-switching-v1');
-    var buttons = document.querySelectorAll('#budget-user-toggle-v1 button');
-    buttons.forEach(function (button) { button.disabled = true; });
-
-    var delay = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 145;
-    setTimeout(function () { window.location.href = targetFor(user); }, delay);
+    /* Match Exercise: no artificial outgoing delay. The target page has
+       already been prefetched, and its first-paint gate reveals only the final
+       profile UI. */
+    window.location.href = targetFor(user);
   }
 
   function ensureToggle() {
@@ -212,7 +218,7 @@
         document.documentElement.classList.remove('budget-toggle-booting-v1');
         if (switched) {
           document.documentElement.classList.add('budget-user-arrived-v1');
-          setTimeout(function () { document.documentElement.classList.remove('budget-user-arrived-v1'); },280);
+          setTimeout(function () { document.documentElement.classList.remove('budget-user-arrived-v1'); },170);
         }
       });
     });
@@ -223,6 +229,7 @@
       rememberUser(currentUser);
       addStyles();
       ensureToggle();
+      primeTargetPage();
     }
     cleanBudgetMenu();
     finishArrival();
