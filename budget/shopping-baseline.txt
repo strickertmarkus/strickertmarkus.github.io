@@ -1,0 +1,41 @@
+SHOPPING.HTML CHECKLIST / BASELINE
+Recorded: 2026-08-28
+
+Original Familjeapp shopping-related items
+==========================================
+
+1. Home <-> Shopping category sync
+Status: FINISHED / VERIFIED
+- Home and shopping.html share shopping list/category data.
+- Home quick-add can target an existing category/store heading.
+- Home presentation later gained category headings while retaining shared Shopping data.
+
+2. Shopping button layout / consistent theme
+Status: FINISHED V2
+- Header controls reorganized visually into a cleaner toolbar while retaining shopping.html's existing yellow/dark theme.
+- Hem remains a separate navigation action.
+- Mallar / Listor / Recept / Ångra are presented as one even action group.
+- Hamburger navigation stays separate at the right edge.
+- On mobile, Hem + hamburger occupy the top control line and Mallar/Listor/Recept/Ångra form a compact four-column row beneath.
+- Redundant hamburger glyphs were removed from Mallar/Listor/Recept labels.
+
+Shopping item interaction polish V2
+===================================
+Status: FINISHED
+- Existing shopping data/render functions remain authoritative; no parallel shopping data model was added.
+- Existing startEditItem/startAddItem behavior is retained, with immediate synchronous focus layered after render so iOS can open the keyboard from the same user gesture.
+- The item label now fills the available row width, so editing does not require tapping directly on the letters.
+- Empty row padding also falls back to the same edit action, excluding checkbox/input/button targets.
+- Add-item rows receive the same larger touch target.
+- Touch action/tap highlight and transition timing are aligned closer to the Home shopping widget feel (~.16 s UI transitions) while keeping Shopping's existing yellow styling.
+- Edit inputs receive a clear yellow-theme focus state.
+- Desktop and mobile behavior included.
+
+Implementation
+==============
+Feature module: budget/shopping-ui-polish-v2.js
+Feature commit: cc01514b1b4a3c92d092124f288b7dbc8254add7
+Loader/cache commit: 6f784aaf6bad5442b78b9fedbf385486a69def23
+Shopping asset version: 20260828-0645-shopping-ui-polish-v2
+
+SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
