@@ -15,7 +15,7 @@ Status: FINISHED V9
 - Header controls stay on one compact row on desktop and mobile.
 - Hem, Mallar, Listor and Recept use compact matching controls.
 - Hamburger navigation remains separate at the far right.
-- Ångra is now a clean custom SVG icon with no button box/background.
+- Ångra is a clean custom SVG icon with no button box/background.
 - Ångra is physically and visually positioned immediately to the LEFT of Mallar, so DOM/tab order matches visual order.
 
 Shopping list engine V7
@@ -50,24 +50,26 @@ Status: ACTIVE
 - "+ Lägg till artikel" matches "+ Lägg till rubrik" size.
 - Checkbox squares are slightly larger than before.
 
-Recipe persistence / linked headings V4
-=======================================
+Recipe persistence / linked headings V4 + link popup V5
+========================================================
 Status: ACTIVE
 
-- budget/shopping-recipes-v4.js replaces the previously loaded recipe V3 + category bridge combination.
-- Existing recipe data remains compatible: storage and Firebase continue using sh_recipes_v3, but normalization now preserves an optional recipe URL.
+- budget/shopping-recipes-v4.js remains the authoritative recipe persistence/render layer.
+- Storage and Firebase continue using sh_recipes_v3 and preserve optional recipe URLs.
 - Each recipe stores: id, name, optional url, items.
-- Existing recipes are migrated in place when next saved; no recipe/ingredient data is intentionally deleted.
-- A new recipe editor contains both Receptnamn and optional Länk.
-- Existing recipes have a small unboxed pencil action for editing name/link.
-- When a recipe has a URL, the recipe heading itself becomes a real external link and displays a subtle ↗ marker.
-- The chevron remains dedicated to expanding/collapsing ingredients, so opening a recipe and opening its web link are separate actions.
-- The old per-recipe + button for adding all ingredients to the shopping list is removed from the recipe card.
-- Adding a complete recipe to the shopping list remains available through the Recept dropdown in the page toolbar.
-- Recipe delete is now a standalone × symbol with no surrounding box, border or background.
+- The recipe heading opens its URL when a URL exists; chevron remains expand/collapse only.
 - Recipe ingredients still use V7 category-aware insertion, including (Willys)/(Maxi) suffix routing.
 - Recipe checkbox state is read against the V7 shopping engine.
-- Mobile recipe text/url inputs are at least 16 px to avoid Safari focus zoom.
+- budget/shopping-recipe-link-popup-v5.js adds the current link-management UI without replacing recipe persistence.
+- The old pencil is replaced visually/functionally by a real chain-link SVG icon.
+- Link icon and recipe delete × are grouped at the far right of the recipe heading and have larger mobile touch targets.
+- Clicking the chain-link icon opens a compact modal popup for entering/editing/removing the recipe URL.
+- URL entry validates http/https and automatically prefixes https:// when needed.
+- Saving/removing a link updates the same local sh_recipes_v3 store and Firebase value, then re-renders recipes.
+- Existing inline recipe editing is name-only; the URL field for existing recipes is hidden there so link management has one dedicated path.
+- New recipe creation may still accept an optional URL at creation time.
+- Recipe delete stays an unboxed × symbol.
+- Mobile popup input is 16 px to avoid Safari focus zoom.
 
 Implementation
 ==============
@@ -76,11 +78,13 @@ V8 stability commit: 5be569b774b8c0d97b1ea4b644219beb2eb7a78a
 Shopping list engine: budget/shopping-list-engine-v7.js
 V7 engine commit: 9336d0d59cf8761db9af469a02751cc59d2db869
 Shopping toolbar V9: budget/shopping-toolbar-v9.js
-Toolbar V9 commit: 31b92afd1f983d1dfec1f973b7adae29052e8c6a
+Toolbar popup-loader commit: afe2429d1059e6e6dd41233600533ea8899852df
 Recipe persistence/UI V4: budget/shopping-recipes-v4.js
 Recipe V4 commit: 3e10ddcbc59642354e23e181b4ef0814c412ec24
-Loader/cache V9 commit: c3210a13511991c41d278610ff4369320574dc2f
-Shopping asset version: 20260828-1015-shopping-recipe-links-v9
+Recipe link popup V5: budget/shopping-recipe-link-popup-v5.js
+Recipe link popup commit: 33b8c94a720f0f8139b42bc3541e1108089cb34c
+Loader/cache commit: b62a73c845123b7b973eccf745314f68e9303527
+Shopping asset version: 20260828-1235-recipe-link-popup-v5
 
 Legacy files still present in repo but NOT loaded for current Shopping interaction:
 - shopping-ui-polish-v2.js
@@ -89,4 +93,4 @@ Legacy files still present in repo but NOT loaded for current Shopping interacti
 - shopping-recipes-v3.js
 - shopping-recipe-category-bridge-v7.js
 
-SHOPPING.HTML STATUS: V9 ACTIVE / READY FOR VISUAL VERIFICATION
+SHOPPING.HTML STATUS: V9 + RECIPE LINK POPUP V5 ACTIVE / READY FOR VISUAL VERIFICATION
