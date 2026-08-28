@@ -231,6 +231,44 @@
     if (maja) maja.remove();
   }
 
+  function speedUpInitialCharts() {
+    if (!isBudgetPage || window.__budgetChartsFastBootV1) return;
+    if (typeof window.initCharts !== 'function') return;
+
+    window.__budgetChartsFastBootV1 = true;
+    var originalInitCharts = window.initCharts;
+    var guardUntil = Date.now() + 700;
+
+    /* budget.html / budget_maja.html still have a legacy 500 ms chart startup
+       timer. Render on the next frame instead, then make the already-created
+       charts jump to their real data immediately. During the short guard window
+       the legacy timer is reduced to a cheap data refresh instead of destroying
+       and recreating both charts. */
+    window.initCharts = function () {
+      if (Date.now() < guardUntil) {
+        try {
+          if (typeof window.updateCharts === 'function') window.updateCharts();
+        } catch (_) {}
+        return;
+      }
+      window.initCharts = originalInitCharts;
+      return originalInitCharts.apply(this,arguments);
+    };
+
+    requestAnimationFrame(function () {
+      try {
+        originalInitCharts();
+        if (typeof window.updateCharts === 'function') window.updateCharts();
+      } catch (_) {}
+    });
+
+    setTimeout(function () {
+      if (window.initCharts !== originalInitCharts && Date.now() >= guardUntil) {
+        window.initCharts = originalInitCharts;
+      }
+    },720);
+  }
+
   function finishArrival() {
     if (!isBudgetPage) return;
     var switched = false;
@@ -266,6 +304,7 @@
       addStyles();
       ensureToggle();
       primeTargetPage();
+      speedUpInitialCharts();
     }
     cleanBudgetMenu();
     finishArrival();
