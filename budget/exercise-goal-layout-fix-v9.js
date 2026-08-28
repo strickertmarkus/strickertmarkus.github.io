@@ -11,22 +11,23 @@
     style.id = 'exercise-goal-layout-fix-v9-style';
     style.textContent = `
       /* Pass / vecka stays as a goal card, but without the small progress graph. */
-      .goals-grid > .goal-card:first-child > .goal-row {
+      body .goals-grid > .goal-card:first-child > .goal-row {
         display:none !important;
       }
 
-      /* V8 accidentally hid the real Framsteg chart. Restore it permanently. */
-      .chart-card.sessions-chart-hidden-v8 {
+      /* V8 accidentally hid the real Framsteg chart. Higher specificity keeps
+         Träningspass per vecka visible even while V8 still adds its old class. */
+      body .chart-card.sessions-chart-hidden-v8 {
         display:block !important;
       }
 
       /* The legacy VO2 goal card remains only as a hidden state/source. */
-      .goals-grid > .goal-card.vo2-goal-source-v8 {
+      body .goals-grid > .goal-card.vo2-goal-source-v8 {
         display:none !important;
       }
 
       /* The moved VO2 history chart is the visible VO2 goal surface. */
-      .goals-grid > .goal-vo2-chart-v8 {
+      body .goals-grid > .goal-vo2-chart-v8 {
         display:block !important;
         visibility:visible !important;
       }
