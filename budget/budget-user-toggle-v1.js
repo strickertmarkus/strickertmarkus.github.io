@@ -10,20 +10,24 @@
   var rememberedUser = 'markus';
   var transitionBackground = '#0F1219';
 
-  /* Budget pages are dark-only. Paint the dark canvas before body/CSS exist so
-     cross-document profile navigation never exposes the browser default. */
+  /* Mirror the Exercise first-paint pattern: keep the destination page hidden
+     while its final controls and charts are prepared, then reveal everything on
+     one frame and start the Chart.js entrance animations together. */
   if (isBudgetPage) {
-    document.documentElement.classList.add('budget-transition-root-v3');
+    document.documentElement.classList.add('budget-transition-root-v4', 'budget-profile-booting-v2');
     document.documentElement.style.backgroundColor = transitionBackground;
     document.documentElement.style.colorScheme = 'dark';
 
-    if (!document.getElementById('budget-transition-root-v3-style')) {
+    if (!document.getElementById('budget-profile-first-paint-v2-style')) {
       var rootStyle = document.createElement('style');
-      rootStyle.id = 'budget-transition-root-v3-style';
+      rootStyle.id = 'budget-profile-first-paint-v2-style';
       rootStyle.textContent =
-        'html.budget-transition-root-v3,html.budget-transition-root-v3 body{background:' + transitionBackground + '!important}' +
-        'html.budget-transition-root-v3 body{min-height:100vh}' +
-        'html.budget-transition-arriving-v3 body{animation:none!important}';
+        'html.budget-transition-root-v4,html.budget-transition-root-v4 body{background:' + transitionBackground + '!important}' +
+        'html.budget-transition-root-v4 body{min-height:100vh}' +
+        'html.budget-profile-booting-v2 body .header>*,html.budget-profile-booting-v2 body .container{visibility:hidden!important}' +
+        'html.budget-profile-ready-v2 body .header>*,html.budget-profile-ready-v2 body .container{animation:budgetProfileRevealV2 .34s cubic-bezier(.16,1,.3,1) both}' +
+        '@keyframes budgetProfileRevealV2{from{opacity:.12;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}' +
+        '@media(prefers-reduced-motion:reduce){html.budget-profile-ready-v2 body .header>*,html.budget-profile-ready-v2 body .container{animation:none!important}}';
       document.head.appendChild(rootStyle);
     }
   }
@@ -65,11 +69,10 @@
         color:#94A3B8;
         font:700 12px/1.1 'Inter',sans-serif;
         cursor:pointer;
-        transition:background .13s ease,color .13s ease,box-shadow .13s ease,transform .09s ease;
+        transition:background .15s ease,color .15s ease;
         -webkit-tap-highlight-color:transparent;
       }
       .budget-user-option-v1:hover { color:#E2E8F0; }
-      .budget-user-option-v1:active { transform:scale(.98); }
       .budget-user-option-v1[data-user="markus"].active {
         color:#60A5FA;
         background:rgba(59,130,246,.16);
@@ -79,17 +82,6 @@
         color:#F472B6;
         background:rgba(244,114,182,.15);
         box-shadow:inset 0 0 0 1px rgba(244,114,182,.48),0 2px 10px rgba(244,114,182,.07);
-      }
-      html.budget-user-arrived-v1 body .header > h1,
-      html.budget-user-arrived-v1 body .header > p,
-      html.budget-user-arrived-v1 body .header > #budget-user-toggle-v1,
-      html.budget-user-arrived-v1 body .header > #month-nav,
-      html.budget-user-arrived-v1 body .container {
-        animation:budgetUserArriveV3 .13s cubic-bezier(.16,1,.3,1) both;
-      }
-      @keyframes budgetUserArriveV3 {
-        from { opacity:.45; transform:translateY(1px); }
-        to { opacity:1; transform:translateY(0); }
       }
       @media(max-width:600px) {
         .budget-user-toggle-v1 {
@@ -107,13 +99,6 @@
       }
       @media(max-width:380px) {
         .budget-user-option-v1 { min-width:54px; padding-left:7px; padding-right:7px; font-size:10.5px; }
-      }
-      @media(prefers-reduced-motion:reduce) {
-        html.budget-user-arrived-v1 body .header > h1,
-        html.budget-user-arrived-v1 body .header > p,
-        html.budget-user-arrived-v1 body .header > #budget-user-toggle-v1,
-        html.budget-user-arrived-v1 body .header > #month-nav,
-        html.budget-user-arrived-v1 body .container { animation:none !important; }
       }
     `;
     document.head.appendChild(style);
@@ -151,17 +136,8 @@
     }
   }
 
-  function updateToggleVisual(user) {
-    document.querySelectorAll('#budget-user-toggle-v1 [data-user]').forEach(function (button) {
-      var active = button.dataset.user === user;
-      button.classList.toggle('active',active);
-      button.setAttribute('aria-pressed',active ? 'true' : 'false');
-      button.disabled = true;
-    });
-  }
-
   function lockTransitionCanvas() {
-    document.documentElement.classList.add('budget-transition-root-v3');
+    document.documentElement.classList.add('budget-transition-root-v4');
     document.documentElement.style.backgroundColor = transitionBackground;
     document.documentElement.style.colorScheme = 'dark';
     if (document.body) {
@@ -174,16 +150,14 @@
     if (!isBudgetPage || user === currentUser || (user !== 'markus' && user !== 'maja')) return;
     flushCurrentEdit();
     rememberUser(user);
-    updateToggleVisual(user);
     lockTransitionCanvas();
 
     try {
-      sessionStorage.setItem(transitionKey, JSON.stringify({
-        target:user,
-        at:Date.now()
-      }));
+      sessionStorage.setItem(transitionKey, JSON.stringify({ target:user, at:Date.now() }));
     } catch (_) {}
 
+    /* Exercise uses an immediate document navigation. Do the same here; no
+       outgoing fade or pre-emptive active-state swap on the old page. */
     window.location.href = targetFor(user);
   }
 
@@ -205,7 +179,7 @@
       '<button type="button" class="budget-user-option-v1' + (currentUser === 'maja' ? ' active' : '') + '" data-user="maja" aria-pressed="' + (currentUser === 'maja' ? 'true' : 'false') + '">Maja</button>';
     toggle.addEventListener('click',function (event) {
       var button = event.target && event.target.closest ? event.target.closest('[data-user]') : null;
-      if (!button || button.disabled) return;
+      if (!button || button.dataset.user === currentUser) return;
       startSwitch(button.dataset.user);
     });
     sub.insertAdjacentElement('afterend',toggle);
@@ -232,18 +206,16 @@
   }
 
   function speedUpInitialCharts() {
-    if (!isBudgetPage || window.__budgetChartsFastBootV1) return;
+    if (!isBudgetPage || window.__budgetChartsFastBootV2) return;
     if (typeof window.initCharts !== 'function') return;
 
-    window.__budgetChartsFastBootV1 = true;
+    window.__budgetChartsFastBootV2 = true;
     var originalInitCharts = window.initCharts;
-    var guardUntil = Date.now() + 700;
+    var guardUntil = Date.now() + 750;
 
-    /* budget.html / budget_maja.html still have a legacy 500 ms chart startup
-       timer. Render on the next frame instead, then make the already-created
-       charts jump to their real data immediately. During the short guard window
-       the legacy timer is reduced to a cheap data refresh instead of destroying
-       and recreating both charts. */
+    /* The page still contains a legacy 500 ms chart-start timer. Create the
+       charts immediately instead. If that legacy timer later fires during this
+       short guard, only refresh the existing charts instead of rebuilding them. */
     window.initCharts = function () {
       if (Date.now() < guardUntil) {
         try {
@@ -259,6 +231,7 @@
       try {
         originalInitCharts();
         if (typeof window.updateCharts === 'function') window.updateCharts();
+        window.__budgetChartsPreparedAtV2 = Date.now();
       } catch (_) {}
     });
 
@@ -266,36 +239,103 @@
       if (window.initCharts !== originalInitCharts && Date.now() >= guardUntil) {
         window.initCharts = originalInitCharts;
       }
-    },720);
+    },770);
   }
 
-  function finishArrival() {
-    if (!isBudgetPage) return;
-    var switched = false;
-    try {
-      var raw = sessionStorage.getItem(transitionKey);
-      var data = raw ? JSON.parse(raw) : null;
-      switched = !!(data && data.target === currentUser && Date.now() - Number(data.at || 0) < 5000);
-      sessionStorage.removeItem(transitionKey);
-    } catch (_) {}
+  function chartFor(id) {
+    var canvas = document.getElementById(id);
+    if (!canvas || !window.Chart || typeof window.Chart.getChart !== 'function') return null;
+    return window.Chart.getChart(canvas) || window.Chart.getChart(id) || null;
+  }
 
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        document.documentElement.classList.remove('budget-toggle-booting-v1');
-        if (switched) {
-          document.documentElement.classList.add('budget-user-arrived-v1');
-          setTimeout(function () { document.documentElement.classList.remove('budget-user-arrived-v1'); },150);
-        }
-        setTimeout(function () {
-          document.documentElement.classList.remove('budget-transition-root-v3');
-          document.documentElement.style.backgroundColor = '';
-          if (document.body) {
-            document.body.style.backgroundColor = '';
-            document.body.style.minHeight = '';
-          }
-        },switched ? 150 : 0);
+  function finalCharts() {
+    var pie = chartFor('pieChart');
+    var bar = chartFor('barChart');
+    if (!pie || !bar) return null;
+    if (!pie.data || !pie.data.datasets || !pie.data.datasets[0]) return null;
+    if (!bar.data || !bar.data.datasets || !bar.data.datasets.length) return null;
+    return [pie, bar];
+  }
+
+  function clearTransitionCanvas() {
+    document.documentElement.classList.remove('budget-transition-root-v4');
+    document.documentElement.style.backgroundColor = '';
+    if (document.body) {
+      document.body.style.backgroundColor = '';
+      document.body.style.minHeight = '';
+    }
+  }
+
+  function watchFirstPaint() {
+    if (!isBudgetPage || window.__budgetFirstPaintWatchV2) return;
+    window.__budgetFirstPaintWatchV2 = true;
+
+    var started = Date.now();
+    var timer = null;
+
+    function revealTogether(charts) {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+
+      /* Same sequence as Exercise: put every final chart at its native animation
+         start state while hidden, reveal the UI on one frame, then start all
+         Chart.js entrance animations together. */
+      charts.forEach(function (chart) {
+        try { if (typeof chart.stop === 'function') chart.stop(); } catch (_) {}
+        try { if (typeof chart.reset === 'function') chart.reset(); } catch (_) {}
       });
-    });
+
+      requestAnimationFrame(function () {
+        document.documentElement.classList.remove('budget-profile-booting-v2', 'budget-toggle-booting-v1');
+        document.documentElement.classList.add('budget-profile-ready-v2');
+        clearTransitionCanvas();
+
+        charts.forEach(function (chart) {
+          try { if (typeof chart.update === 'function') chart.update(); } catch (_) {}
+        });
+
+        setTimeout(function () {
+          document.documentElement.classList.remove('budget-profile-ready-v2');
+        },380);
+      });
+    }
+
+    function fallbackReveal() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      document.documentElement.classList.remove('budget-profile-booting-v2', 'budget-toggle-booting-v1');
+      document.documentElement.classList.add('budget-profile-ready-v2');
+      clearTransitionCanvas();
+      setTimeout(function () {
+        document.documentElement.classList.remove('budget-profile-ready-v2');
+      },380);
+    }
+
+    function check() {
+      var charts = finalCharts();
+      var preparedAt = Number(window.__budgetChartsPreparedAtV2 || 0);
+
+      /* initCharts has an old internal 50 ms data-animation timer. Keep the page
+         hidden until that has had time to settle, then reset once and reveal the
+         final charts exactly like the Exercise chart gate. */
+      if (charts && preparedAt && Date.now() - preparedAt >= 70) {
+        revealTogether(charts);
+        return;
+      }
+
+      if (Date.now() - started > 2500) fallbackReveal();
+    }
+
+    timer = setInterval(check,16);
+    check();
+  }
+
+  function consumeTransitionMarker() {
+    try { sessionStorage.removeItem(transitionKey); } catch (_) {}
   }
 
   function install() {
@@ -305,9 +345,10 @@
       ensureToggle();
       primeTargetPage();
       speedUpInitialCharts();
+      watchFirstPaint();
+      consumeTransitionMarker();
     }
     cleanBudgetMenu();
-    finishArrival();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
