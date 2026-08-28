@@ -10,6 +10,52 @@ window.FIREBASE_CONFIG = {
 
 (function () {
   var path = window.location.pathname.toLowerCase();
+  var darkOnlyPages = [
+    '/budget/budget.html','/budget.html',
+    '/budget/budget_maja.html','/budget_maja.html',
+    '/budget/analytics.html','/analytics.html',
+    '/budget/analytics_maja.html','/analytics_maja.html',
+    '/budget/familjebudget.html','/familjebudget.html',
+    '/budget/data.html','/data.html'
+  ];
+  var isBudgetDarkOnly = darkOnlyPages.some(function (suffix) { return path.endsWith(suffix); });
+  if (!isBudgetDarkOnly) return;
+
+  /* Budgetområdet är dark-only. Apply before page CSS/body so there is never a
+     light first frame, while leaving the shared darkMode storage key untouched
+     for non-budget pages. */
+  document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
+  document.documentElement.style.colorScheme = 'dark';
+  document.documentElement.style.backgroundColor = '#0F1219';
+
+  if (!document.getElementById('budget-dark-only-critical-v1')) {
+    var style = document.createElement('style');
+    style.id = 'budget-dark-only-critical-v1';
+    style.textContent =
+      'html.budget-dark-only-v1,html.budget-dark-only-v1 body{background:#0F1219!important;color-scheme:dark!important}' +
+      'html.budget-dark-only-v1 #dark-mode-btn{display:none!important}' +
+      'html.budget-dark-only-v1 .header>.nav-dropdown-wrapper{right:16px!important}' +
+      '@media(max-width:480px){html.budget-dark-only-v1 .header>.nav-dropdown-wrapper{right:8px!important}}';
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
+    var button = document.getElementById('dark-mode-btn');
+    if (button) button.remove();
+    var nav = document.querySelector('.header > .nav-dropdown-wrapper');
+    if (nav) nav.style.right = window.matchMedia && window.matchMedia('(max-width:480px)').matches ? '8px' : '16px';
+
+    /* The old inline toggle functions may remain in legacy page source, but are
+       deliberately inert. There is now only one supported budget theme. */
+    window.toggleDarkMode = function () {
+      document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
+    };
+  }, {once:true});
+})();
+
+(function () {
+  var path = window.location.pathname.toLowerCase();
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
@@ -260,7 +306,7 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
     var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260828-1850-budget-user-toggle-v2';
+    script.src = 'budget-user-toggle-v1.js?v=20260828-1905-budget-dark-only-v1';
     script.async = false;
     script.setAttribute('data-budget-user-toggle-v1','true');
     document.head.appendChild(script);
