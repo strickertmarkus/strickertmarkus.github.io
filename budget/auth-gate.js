@@ -27,10 +27,8 @@
   var exerciseAssetsVersion = '20260828-1224-goal-builder-polish-v8';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-1235-recipe-link-popup-v5';
+  var shoppingAssetsVersion = '20260828-1245-recipe-icons-v5b';
 
-  /* This exists before firebase-sync creates the profile toggle, preventing
-     Maja from painting with the generic blue active style for one frame. */
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v8')) {
     var exerciseCritical = document.createElement('style');
     exerciseCritical.id = 'exercise-profile-critical-v8';
@@ -40,8 +38,6 @@
     document.head.appendChild(exerciseCritical);
   }
 
-  /* Home first-paint layout: keep the raw month nav hidden until the shared
-     calendar toolbar has moved it into its final position. */
   if (isHomePage && !document.getElementById('home-critical-prelayout-v9')) {
     var critical = document.createElement('style');
     critical.id = 'home-critical-prelayout-v9';
