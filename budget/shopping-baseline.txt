@@ -22,7 +22,7 @@ Status: FINISHED V2
 Shopping item interaction polish V2
 ===================================
 Status: FINISHED
-- Existing shopping data/render functions remain authoritative; no parallel shopping data model was added.
+- Existing shopping data/render functions remain authoritative; no parallel shopping data model was added for normal list items.
 - Existing startEditItem/startAddItem behavior is retained, with immediate synchronous focus layered after render so iOS can open the keyboard from the same user gesture.
 - The item label now fills the available row width, so editing does not require tapping directly on the letters.
 - Empty row padding also falls back to the same edit action, excluding checkbox/input/button targets.
@@ -31,11 +31,28 @@ Status: FINISHED
 - Edit inputs receive a clear yellow-theme focus state.
 - Desktop and mobile behavior included.
 
+Recipe persistence / compact recipe UI V3
+=========================================
+Status: FINISHED
+- Root cause of disappearing recipes was the legacy recipeSessionStore implementation: recipes were stored only in RAM and sh_recipes was explicitly deleted on each DOMContentLoaded.
+- V3 replaces the recipe UI/function path with a persistent recipe store under sh_recipes_v3.
+- Recipe data includes an updatedAt timestamp and is synchronized directly to Firebase Realtime Database at sh_recipes_v3 for cross-device persistence.
+- Local and remote recipe stores reconcile by timestamp; newer remote data updates the page without requiring a reload.
+- Recipe creation, rename, ingredient add/edit/delete, recipe dropdown and "add recipe to shopping list" now use the persistent V3 store.
+- Ingredient edits continue to add/sync the ingredient into the currently selected shopping list, using the existing sh_lists data so normal list Firebase sync remains unchanged.
+- Recipe ingredient checkboxes mirror the matching item in the active shopping list.
+- "+ Lägg till ingrediens" remains permanently available at the bottom of every open recipe, not only for empty recipes.
+- Recipe name and ingredient edit fields focus immediately after render for faster iOS typing.
+- Recipe presentation is more compact: smaller vertical spacing, tighter nested ingredient list, compact + / × actions, smaller section spacing and responsive mobile sizing.
+- Existing Shopping yellow/dark theme is retained.
+
 Implementation
 ==============
-Feature module: budget/shopping-ui-polish-v2.js
-Feature commit: cc01514b1b4a3c92d092124f288b7dbc8254add7
-Loader/cache commit: 6f784aaf6bad5442b78b9fedbf385486a69def23
-Shopping asset version: 20260828-0645-shopping-ui-polish-v2
+Shopping UI module: budget/shopping-ui-polish-v2.js
+Shopping UI commit: cc01514b1b4a3c92d092124f288b7dbc8254add7
+Recipe persistence/UI module: budget/shopping-recipes-v3.js
+Recipe feature commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
+Loader/cache commit: f948db95f3c7eb4cc45de66969c26dd70a64bed3
+Shopping asset version: 20260828-0715-shopping-recipes-v3
 
 SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
