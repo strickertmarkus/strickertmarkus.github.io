@@ -23,9 +23,11 @@
   var isExercisePage = lowerPath.endsWith("/budget/exercise.html") || lowerPath.endsWith("/exercise.html");
   var isHomePage = lowerPath.endsWith("/budget/home.html") || lowerPath.endsWith("/home.html");
   var isCalendarPage = lowerPath.endsWith("/budget/calendar.html") || lowerPath.endsWith("/calendar.html");
+  var isShoppingPage = lowerPath.endsWith("/budget/shopping.html") || lowerPath.endsWith("/shopping.html");
   var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
+  var shoppingAssetsVersion = '20260828-0645-shopping-ui-polish-v2';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
@@ -131,6 +133,14 @@
     homeScript.async = false;
     homeScript.setAttribute('data-home-shopping-groups-v1', 'true');
     document.head.appendChild(homeScript);
+  }
+
+  if (isShoppingPage && !document.querySelector('script[data-shopping-ui-polish-v2]')) {
+    var shoppingScript = document.createElement('script');
+    shoppingScript.src = 'shopping-ui-polish-v2.js?v=' + shoppingAssetsVersion;
+    shoppingScript.async = false;
+    shoppingScript.setAttribute('data-shopping-ui-polish-v2', 'true');
+    document.head.appendChild(shoppingScript);
   }
 
   if (isHomePage || isCalendarPage) {
