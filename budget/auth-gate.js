@@ -24,7 +24,7 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
-  var exerciseAssetsVersion = '20260828-set-log-edit-v18';
+  var exerciseAssetsVersion = '20260828-session-shell-v19';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -102,9 +102,8 @@
 
   if (isExercisePage) {
     /* HR presentation loads first so its final cardio/strength range chart is
-       ready during the same initial frame as the base charts. The remaining
-       session modules stay ordered because several intentionally wrap earlier
-       session functions. */
+       ready during the same initial frame as the base charts. Session behavior
+       remains ordered, while V19 is the single final geometry/paint owner. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
@@ -114,7 +113,6 @@
       ['exercise-session-persistent-hype.js', 'data-exercise-session-persistent-hype'],
       ['exercise-session-theme-stability.js', 'data-exercise-session-theme-stability'],
       ['exercise-session-stable-details.js', 'data-exercise-session-stable-details'],
-      ['exercise-session-mobile-repaint-fix.js', 'data-exercise-session-mobile-repaint-fix'],
       ['exercise-reload-recovery.js', 'data-exercise-reload-recovery'],
       ['exercise-points-3-6-7.js', 'data-exercise-points-3-6-7'],
       ['exercise-between-routing-v7.js', 'data-exercise-between-routing-v7'],
@@ -124,11 +122,11 @@
       ['exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2'],
       ['exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3'],
       ['exercise-builder-style-v5.js', 'data-exercise-builder-style-v5'],
-      ['exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix'],
       ['exercise-log-details-v4.js', 'data-exercise-log-details-v4'],
       ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
       ['exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6'],
-      ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7']
+      ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7'],
+      ['exercise-session-shell-v19.js', 'data-exercise-session-shell-v19']
     ];
 
     (function loadExerciseAt(index) {
