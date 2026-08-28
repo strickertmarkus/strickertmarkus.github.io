@@ -41,8 +41,6 @@
 
     if (transition === 'finish') {
       if (plan.betweenExercises) return normalizeConfig(plan.betweenExercises);
-      /* One-way compatibility: the old pass-wide betweenSets value becomes
-         "between exercises" until the plan is saved with the new builder. */
       if (plan.betweenSets) return normalizeConfig(plan.betweenSets);
       return normalizeConfig(null);
     }
@@ -64,9 +62,6 @@
       var planned = originalGetPlanned.apply(this, arguments) || {};
       if (!activeTransition || !activeState || !activeState.date || !planned[activeState.date]) return planned;
 
-      /* Return a shallow routed view only for this event. No persistent plan
-         data is mutated, so Firebase/localStorage never sees a temporary
-         betweenSets value. Existing safe modules can keep reading plan.betweenSets. */
       var routed = Object.assign({}, planned);
       var plan = Object.assign({}, planned[activeState.date]);
       plan.betweenSets = configForTransition(planned, activeState, activeTransition);
@@ -114,8 +109,6 @@
     var current = state.__betweenCustomSummaryV3;
     if (current && Array.isArray(current.logs) && current.logs.length) {
       archiveSummary(state,current);
-      /* Empty V3's live bucket before its later capture handler runs, so the
-         same activity cannot be injected twice on save. */
       state.__betweenCustomSummaryV3 = {
         name:current.name,
         seconds:current.seconds,
@@ -176,6 +169,14 @@
     });
   }
 
+  function addClarificationStyles() {
+    if (document.getElementById('exercise-between-routing-v7-clarification')) return;
+    var style = document.createElement('style');
+    style.id = 'exercise-between-routing-v7-clarification';
+    style.textContent = 'body #day-workout-modal #pretimer-builder-v2{display:flex!important}';
+    document.head.appendChild(style);
+  }
+
   function clearRouteSoon() {
     if (clearTimer) clearTimeout(clearTimer);
     clearTimer = setTimeout(function () {
@@ -213,8 +214,7 @@
     if (window.__exerciseBetweenRoutingV7Installed) return;
     if (!installGetPlannedRouter()) { setTimeout(install,40); return; }
     window.__exerciseBetweenRoutingV7Installed = true;
-    /* Loaded before both existing between modules, so their capture handlers
-       see the transition-specific routed configuration synchronously. */
+    addClarificationStyles();
     document.addEventListener('click',handleCapture,true);
     setInterval(syncArchiveRows,220);
     window.__exerciseBetweenRoutingV7 = {
