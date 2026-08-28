@@ -50,6 +50,17 @@ Status: FINISHED
 - A narrow child-list-only observer on #recipes-list refreshes recipe checkbox state after recipe re-renders; it does not observe text/attributes and does not mutate DOM structure.
 - Desktop and mobile included.
 
+Shopping draft / blur preservation V6
+=====================================
+Status: FINISHED
+- Clicking outside a non-empty editor is treated as Save, not Cancel.
+- A partly typed new article is committed on blur instead of being lost during a later render.
+- A partly typed new category heading is committed on blur; this specifically replaces the legacy cancelAddCategory behavior that discarded the draft.
+- New recipe names are likewise preserved on blur.
+- The legacy input-based item editor also commits changed text immediately on blur when it is used internally by the Home-parity persistence bridge.
+- Empty untouched draft fields still close/cancel as before.
+- Existing Enter/Escape behavior, Home-parity row interaction, yellow theme and category routing remain unchanged.
+
 Recipe persistence / compact recipe UI V3
 =========================================
 Status: FINISHED
@@ -72,7 +83,9 @@ Recipe persistence/UI module: budget/shopping-recipes-v3.js
 Recipe feature commit: dd1ea5a7860fae2a541bed0a78020f391a17cd5c
 Yellow/category V5 module: budget/shopping-yellow-category-v5.js
 Yellow/category V5 commit: 7a0f03cd0a22b78fac51d3263c418bf3dbdad062
-Loader/cache V5 commit: f2f92381aea48e2a362ff45e7452ffe4eac8eb13
-Shopping asset version: 20260828-0820-shopping-yellow-category-v5
+Draft/blur V6 module: budget/shopping-draft-blur-v6.js
+Draft/blur V6 commit: 7471c9e66ae9e43a9e876497dceec5cb3b887206
+Loader/cache V6 commit: e16c69c9cda3ef94f74180bcda8f47e62e8ad086
+Shopping asset version: 20260828-0845-shopping-draft-blur-v6
 
 SHOPPING.HTML CHECKLIST STATUS: COMPLETE FOR NOW
