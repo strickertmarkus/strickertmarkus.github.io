@@ -4,13 +4,18 @@
   var path = window.location.pathname.toLowerCase();
   var isMarkus = path.endsWith('/budget/budget.html') || path.endsWith('/budget.html');
   var isMaja = path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
-  if (!isMarkus && !isMaja) return;
-
-  var currentUser = isMaja ? 'maja' : 'markus';
+  var isBudgetPage = isMarkus || isMaja;
   var transitionKey = 'budget-user-transition-v1';
+  var lastUserKey = 'budget-last-user-v1';
+  var rememberedUser = 'markus';
+  try {
+    var savedUser = localStorage.getItem(lastUserKey);
+    if (savedUser === 'maja' || savedUser === 'markus') rememberedUser = savedUser;
+  } catch (_) {}
+  var currentUser = isMaja ? 'maja' : (isMarkus ? 'markus' : rememberedUser);
 
   function addStyles() {
-    if (document.getElementById('budget-user-toggle-v1-style')) return;
+    if (!isBudgetPage || document.getElementById('budget-user-toggle-v1-style')) return;
     var style = document.createElement('style');
     style.id = 'budget-user-toggle-v1-style';
     style.textContent = `
@@ -113,6 +118,11 @@
     return user === 'maja' ? 'budget_maja.html' : 'budget.html';
   }
 
+  function rememberUser(user) {
+    if (user !== 'markus' && user !== 'maja') return;
+    try { localStorage.setItem(lastUserKey,user); } catch (_) {}
+  }
+
   function flushCurrentEdit() {
     try {
       var active = document.activeElement;
@@ -124,8 +134,9 @@
   }
 
   function startSwitch(user) {
-    if (user === currentUser || (user !== 'markus' && user !== 'maja')) return;
+    if (!isBudgetPage || user === currentUser || (user !== 'markus' && user !== 'maja')) return;
     flushCurrentEdit();
+    rememberUser(user);
 
     try {
       sessionStorage.setItem(transitionKey, JSON.stringify({
@@ -143,6 +154,7 @@
   }
 
   function ensureToggle() {
+    if (!isBudgetPage) return null;
     var existing = document.getElementById('budget-user-toggle-v1');
     if (existing) return existing;
     var header = document.querySelector('.header');
@@ -177,7 +189,7 @@
 
     var link = document.createElement('a');
     link.href = targetFor(currentUser);
-    link.className = 'active';
+    if (isBudgetPage) link.className = 'active';
     link.setAttribute('data-budget-menu-v1','true');
     link.innerHTML = '<span class="nav-icon">💰</span> Budget';
     reference.parentNode.insertBefore(link,reference);
@@ -186,6 +198,7 @@
   }
 
   function finishArrival() {
+    if (!isBudgetPage) return;
     var switched = false;
     try {
       var raw = sessionStorage.getItem(transitionKey);
@@ -206,8 +219,11 @@
   }
 
   function install() {
-    addStyles();
-    ensureToggle();
+    if (isBudgetPage) {
+      rememberUser(currentUser);
+      addStyles();
+      ensureToggle();
+    }
     cleanBudgetMenu();
     finishArrival();
   }
