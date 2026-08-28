@@ -24,7 +24,7 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
-  var exerciseAssetsVersion = '20260828-1455-shell-v12-cleanup';
+  var exerciseAssetsVersion = '20260828-1715-hr-early-v15';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -101,10 +101,13 @@
   }
 
   if (isExercisePage) {
-    /* Session modules remain ordered because some deliberately wrap functions
-       installed by the preceding module. Pure first-paint/layout patches were
-       removed from this chain and consolidated into exercise-shell-v12.js. */
+    /* HR presentation loads first so its final cardio/strength range chart is
+       ready during the same initial frame as the base charts. The remaining
+       session modules stay ordered because several intentionally wrap earlier
+       session functions. */
     var exerciseScripts = [
+      ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
+      ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
       ['exercise-session-focus.js', 'data-exercise-session-focus'],
       ['exercise-session-progress.js', 'data-exercise-session-progress'],
@@ -118,11 +121,9 @@
       ['exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3'],
       ['exercise-between-sets.js', 'data-exercise-between-sets-v2'],
       ['exercise-hype-polish.js', 'data-exercise-hype-polish-passive'],
-      ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2'],
       ['exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3'],
       ['exercise-builder-style-v5.js', 'data-exercise-builder-style-v5'],
-      ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-pretimer-visibility-fix.js', 'data-exercise-pretimer-visibility-fix'],
       ['exercise-log-details-v4.js', 'data-exercise-log-details-v4'],
       ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
@@ -133,7 +134,7 @@
     (function loadExerciseAt(index) {
       if (index >= exerciseScripts.length) {
         try {
-          if (window.__exerciseShellV12 && typeof window.__exerciseShellV12.prepare === 'function') window.__exerciseShellV12.prepare();
+          if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();
         } catch (_) {}
         return;
       }
