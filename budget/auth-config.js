@@ -13,20 +13,24 @@ window.FIREBASE_CONFIG = {
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
-  /* Final Exercise shell geometry is known before body parsing. This prevents
-     legacy controls/cards from participating in the first painted layout. */
-  if (!document.getElementById('exercise-shell-critical-v12')) {
+  /* Hard-refresh gate. The current exercise.html still contains a few legacy
+     source elements for compatibility. They must never be painted before the
+     final DOM geometry and first Chart.js render are ready. */
+  document.documentElement.classList.add('exercise-shell-booting-v13');
+
+  if (!document.getElementById('exercise-shell-critical-v13')) {
     var style = document.createElement('style');
-    style.id = 'exercise-shell-critical-v12';
+    style.id = 'exercise-shell-critical-v13';
     style.textContent =
-      '.week-pick>button{display:none!important}' +
+      'html.exercise-shell-booting-v13 body .main-content,html.exercise-shell-booting-v13 body .fab{visibility:hidden!important}' +
+      '.week-toolbar>button[onclick*="goToCurrentWeek"]{display:none!important}' +
       'html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}' +
       'html body .goals-grid>.goal-card:first-child{display:none!important}' +
-      'html body .goals-grid>.goal-card:nth-child(3):not(.goal-vo2-chart-v12){display:none!important}' +
-      'html body .goals-grid>.goal-card.vo2-goal-source-v12{display:none!important}' +
-      'html body .charts-row>.chart-card:nth-child(2){display:none!important}' +
-      'html body .goals-grid>.goal-vo2-chart-v12{display:block!important}' +
-      'html body .goal-vo2-chart-v12 .bw-row{display:none!important}' +
+      'html body .goals-grid>.goal-card:nth-child(3):not(.goal-vo2-chart-v13){display:none!important}' +
+      'html body .goals-grid>.goal-card.vo2-goal-source-v13{display:none!important}' +
+      'html body .charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
+      'html body .goals-grid>.goal-vo2-chart-v13{display:block!important}' +
+      'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
       'html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}' +
       '@media(max-width:768px){html body .goals-grid{grid-template-columns:1fr!important}}';
     document.head.appendChild(style);
@@ -62,10 +66,10 @@ window.FIREBASE_CONFIG = {
   }
 
   function installEarlyVo2Source() {
-    if (window.__exerciseVo2SourceWrappedV12) return true;
+    if (window.__exerciseVo2SourceWrappedV13) return true;
     if (typeof window.renderCharts !== 'function' || !window.DB || typeof window.DB.get !== 'function') return false;
     var originalRender = window.renderCharts;
-    window.__exerciseVo2SourceWrappedV12 = true;
+    window.__exerciseVo2SourceWrappedV13 = true;
     window.renderCharts = function () {
       var db = window.DB;
       var originalGet = db.get;
@@ -80,10 +84,10 @@ window.FIREBASE_CONFIG = {
   }
 
   function installEarlyGoalPlugin() {
-    if (window.__exerciseVo2GoalLineV12Registered || !window.Chart) return;
-    window.__exerciseVo2GoalLineV12Registered = true;
+    if (window.__exerciseVo2GoalLineV13Registered || !window.Chart) return;
+    window.__exerciseVo2GoalLineV13Registered = true;
     window.Chart.register({
-      id:'exerciseVo2GoalLineV12',
+      id:'exerciseVo2GoalLineV13',
       afterDatasetsDraw:function (chart) {
         if (!chart || !chart.canvas || chart.canvas.id !== 'chart-bw') return;
         var area = chart.chartArea;
@@ -116,74 +120,69 @@ window.FIREBASE_CONFIG = {
     });
   }
 
-  /* This listener is registered before exercise.html registers refreshAll().
-     Therefore final geometry, VO2 source and goal plugin are all ready before
-     Chart.js creates the first graph. */
-  document.addEventListener('DOMContentLoaded', function () {
+  function arrangeCriticalDom() {
     var toolbar = document.querySelector('.week-toolbar');
-    var pick = toolbar && toolbar.querySelector('.week-pick');
-    if (pick) {
-      Array.prototype.slice.call(pick.children).forEach(function (child) {
+    if (toolbar) {
+      Array.prototype.slice.call(toolbar.children).forEach(function (child) {
         if (child.tagName === 'BUTTON' && String(child.textContent || '').trim().toLowerCase() === 'denna vecka') child.remove();
       });
-
-      if (!document.getElementById('week-inline-actions-v2')) {
-        var headers = Array.prototype.slice.call(document.querySelectorAll('.section-hdr'));
-        var weekHeader = headers.find(function (header) {
-          var h2 = header.querySelector('h2');
-          return h2 && String(h2.textContent || '').trim().toLowerCase() === 'veckoplan';
-        });
-        if (weekHeader) {
-          var buttons = Array.prototype.slice.call(weekHeader.querySelectorAll('button')).filter(function (button) {
-            var text = String(button.textContent || '').trim().toLowerCase();
-            return text === 'redigera' || text === 'mallpass';
-          });
-          if (buttons.length) {
-            var actions = document.createElement('div');
-            actions.id = 'week-inline-actions-v2';
-            actions.className = 'week-inline-actions-v2';
-            buttons.forEach(function (button) { actions.appendChild(button); });
-            pick.appendChild(actions);
-          }
-        }
-      }
     }
 
     var goalsGrid = document.querySelector('.goals-grid');
+    var g1 = document.getElementById('g1-goal');
+    var g1Card = g1 && g1.closest ? g1.closest('.goal-card') : null;
+    if (g1Card) g1Card.classList.add('goal-pass-week-legacy-v13');
+
     var legacyVo2 = document.getElementById('g3-goal');
     var legacyVo2Card = legacyVo2 && legacyVo2.closest ? legacyVo2.closest('.goal-card') : null;
-    if (legacyVo2Card) legacyVo2Card.classList.add('vo2-goal-source-v12');
+    if (legacyVo2Card) legacyVo2Card.classList.add('vo2-goal-source-v13');
 
     var canvas = document.getElementById('chart-bw');
     var vo2Card = canvas && canvas.closest ? canvas.closest('.chart-card') : null;
     var runInput = document.getElementById('g2-goal');
     var runCard = runInput && runInput.closest ? runInput.closest('.goal-card') : null;
     if (goalsGrid && vo2Card) {
-      vo2Card.classList.add('goal-vo2-chart-v12');
+      vo2Card.classList.add('goal-vo2-chart-v13');
       if (vo2Card.parentElement !== goalsGrid) {
         if (runCard && runCard.parentElement === goalsGrid) runCard.insertAdjacentElement('afterend',vo2Card);
         else goalsGrid.appendChild(vo2Card);
       }
     }
+  }
 
+  function revealFinalFrame() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.documentElement.classList.remove('exercise-shell-booting-v13');
+        document.documentElement.classList.add('exercise-shell-ready-v13');
+      });
+    });
+  }
+
+  /* Registered before exercise.html's own DOMContentLoaded refreshAll handler.
+     Geometry and data source are therefore final before Chart.js builds the
+     first visible charts. The boot gate is released only after that task. */
+  document.addEventListener('DOMContentLoaded', function () {
+    arrangeCriticalDom();
     installEarlyVo2Source();
     installEarlyGoalPlugin();
 
     try {
-      if (window.__exerciseShellV12 && typeof window.__exerciseShellV12.prepare === 'function') window.__exerciseShellV12.prepare();
+      if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();
     } catch (_) {}
+
+    revealFinalFrame();
   }, {once:true});
 
-  if (!document.querySelector('script[data-exercise-shell-v12]')) {
+  if (!document.querySelector('script[data-exercise-shell-v13]')) {
     var shellScript = document.createElement('script');
-    shellScript.src = 'exercise-shell-v12.js?v=20260828-1525-shell-v12c';
+    shellScript.src = 'exercise-shell-v13.js?v=20260828-1615-shell-v13';
     shellScript.async = false;
-    shellScript.setAttribute('data-exercise-shell-v12','true');
+    shellScript.setAttribute('data-exercise-shell-v13','true');
     document.head.appendChild(shellScript);
   }
 
-  /* Canonical pass progress remains isolated from UI-shell cleanup because it
-     represents session data, not page layout. */
+  /* Canonical pass progress remains isolated from page-shell cleanup. */
   if (!document.querySelector('script[data-exercise-progress-consistency-v10]')) {
     var progressScript = document.createElement('script');
     progressScript.src = 'exercise-progress-consistency-v10.js?v=20260828-1320-progress-consistency-v10';
