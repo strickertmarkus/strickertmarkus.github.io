@@ -13,18 +13,17 @@ window.FIREBASE_CONFIG = {
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
-  /* First-paint guard. These selectors describe the raw exercise.html layout
-     before the Exercise polish modules run. They prevent the old VO2 goal card
-     and old VO2 chart position from ever painting, while keeping the real
-     Framsteg -> Träningspass per vecka chart visible. Once chart-bw is moved
-     into the Goals grid, the raw .charts-row selector no longer applies. */
+  /* First-paint guard for the final Goals layout. Pass / vecka is no longer a
+     Goal card, and the old VO2 card/manual logger must never flash before the
+     chart is moved beside the running-distance goal. */
   if (!document.getElementById('exercise-goal-first-paint-v9')) {
     var style = document.createElement('style');
     style.id = 'exercise-goal-first-paint-v9';
     style.textContent =
-      '.goals-grid>.goal-card:first-child>.goal-row{display:none!important}' +
+      '.goals-grid>.goal-card:first-child{display:none!important}' +
       '.goals-grid>.goal-card:nth-child(3){visibility:hidden!important}' +
       '.charts-row>.chart-card:nth-child(2){visibility:hidden!important}' +
+      '.charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
       /* The large 5-second builder card is obsolete. The compact toggle next
          to Mellanövningar is now the only builder control. Higher specificity
          also wins over the older routing module that tried to force it open. */
@@ -39,6 +38,15 @@ window.FIREBASE_CONFIG = {
     goalScript.async = false;
     goalScript.setAttribute('data-exercise-goal-layout-fix-v9','true');
     document.head.appendChild(goalScript);
+  }
+
+  /* VO2 graph data comes only from workouts that have a logged workout.vo2. */
+  if (!document.querySelector('script[data-exercise-goal-vo2-source-v11]')) {
+    var vo2Script = document.createElement('script');
+    vo2Script.src = 'exercise-goal-vo2-source-v11.js?v=20260828-1410-workout-vo2-v11';
+    vo2Script.async = false;
+    vo2Script.setAttribute('data-exercise-goal-vo2-source-v11','true');
+    document.head.appendChild(vo2Script);
   }
 
   /* Canonical pass progress is independent of the temporary exercise swap
