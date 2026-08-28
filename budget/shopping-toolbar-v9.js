@@ -45,8 +45,17 @@
     document.head.appendChild(style);
   }
 
+  function loadRecipeLinkPopup() {
+    if (document.querySelector('script[data-shopping-recipe-link-popup-v5]')) return;
+    var s = document.createElement('script');
+    s.src = 'shopping-recipe-link-popup-v5.js?v=20260828-1235-recipe-link-popup-v5';
+    s.async = false;
+    s.setAttribute('data-shopping-recipe-link-popup-v5','true');
+    document.head.appendChild(s);
+  }
+
   function install() {
-    if (window.__shoppingToolbarV9Installed) return;
+    if (window.__shoppingToolbarV9Installed) { loadRecipeLinkPopup(); return; }
     var group = document.querySelector('.header-right-top');
     var undo = group && group.querySelector('.undo-btn');
     var firstMenu = group && group.querySelector('.dropdown-wrapper');
@@ -61,6 +70,7 @@
     undo.setAttribute('aria-label', 'Ångra senaste ändring');
     undo.setAttribute('title', 'Ångra');
     undo.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7H4V3"/><path d="M4.5 7A8.5 8.5 0 1 1 4 16"/></svg>';
+    loadRecipeLinkPopup();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
