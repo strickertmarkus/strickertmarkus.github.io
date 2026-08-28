@@ -27,7 +27,7 @@
   var exerciseAssetsVersion = '20260827-2125-between-custom-exercise-v3b';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
-  var shoppingAssetsVersion = '20260828-0805-shopping-home-parity-v4';
+  var shoppingAssetsVersion = '20260828-0820-shopping-yellow-category-v5';
 
   /* Home's month navigation exists in the raw HTML header and is moved into
      the calendar toolbar later. Reserve the final toolbar strip and hide the
@@ -149,6 +149,14 @@
     recipeScript.async = false;
     recipeScript.setAttribute('data-shopping-recipes-v3', 'true');
     document.head.appendChild(recipeScript);
+  }
+
+  if (isShoppingPage && !document.querySelector('script[data-shopping-yellow-category-v5]')) {
+    var shoppingV5 = document.createElement('script');
+    shoppingV5.src = 'shopping-yellow-category-v5.js?v=' + shoppingAssetsVersion;
+    shoppingV5.async = false;
+    shoppingV5.setAttribute('data-shopping-yellow-category-v5', 'true');
+    document.head.appendChild(shoppingV5);
   }
 
   if (isHomePage || isCalendarPage) {
