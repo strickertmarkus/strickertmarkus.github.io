@@ -16,7 +16,7 @@ window.FIREBASE_CONFIG = {
   /* Start the final HR modules immediately on a cold/hard refresh. auth-gate
      later requests the exact same URLs, so these preloads are reused. */
   ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
-    var href = src + '?v=20260828-1715-hr-early-v15';
+    var href = src + '?v=20260828-1745-chart-sync-v16';
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
     var link = document.createElement('link');
     link.rel = 'preload';
@@ -44,8 +44,8 @@ window.FIREBASE_CONFIG = {
       'html body .charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
       'html body .goals-grid>.goal-vo2-chart-v13{display:block!important}' +
       'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
-      'html.exercise-hr-booting-v14 body #chart-hr{visibility:hidden!important}' +
-      'html.exercise-hr-booting-v14 body #hr-card-combined .chart-area,html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
+      'html.exercise-hr-booting-v14 body #chart-sessions,html.exercise-hr-booting-v14 body #chart-bw,html.exercise-hr-booting-v14 body #chart-hr,html.exercise-hr-booting-v14 body #chart-hr-combined{visibility:hidden!important}' +
+      'html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
       'html.exercise-shell-ready-v13 body .main-content{animation:exerciseShellRevealV15 .34s cubic-bezier(.16,1,.3,1) both}' +
       'html.exercise-shell-ready-v13 body .fab{animation:exerciseFabRevealV15 .3s cubic-bezier(.16,1,.3,1) .06s both}' +
       '@keyframes exerciseShellRevealV15{from{opacity:.12;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}' +
@@ -202,11 +202,11 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(shellScript);
   }
 
-  /* The pulse graph has two compatibility render stages (legacy -> combined ->
-     range). Keep its drawing hidden until the final range chart is complete. */
+  /* All graph canvases stay hidden until sessions, VO2 and the final HR range
+     chart exist. V14 then starts their Chart.js animation on one shared frame. */
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
-    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1720-hr-first-paint-v15';
+    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1745-chart-sync-v16';
     hrPaintScript.async = false;
     hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
     document.head.appendChild(hrPaintScript);
