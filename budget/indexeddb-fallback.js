@@ -199,16 +199,16 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
     style.textContent =
       'html.finance-shell-booting-v8 body .header>*{visibility:hidden!important}' +
       'html.finance-shell-booting-v8 body .container{visibility:hidden!important}' +
-      'html.finance-shell-booting-v8 body .header{min-height:150px!important;background:linear-gradient(135deg,#0B0F1A,#151C2C)!important}' +
-      '@media(max-width:600px){html.finance-shell-booting-v8 body .header{min-height:144px!important}}';
+      'html.finance-shell-booting-v8 body .header{min-height:122px!important;background:linear-gradient(135deg,#0B0F1A,#151C2C)!important}' +
+      '@media(max-width:600px){html.finance-shell-booting-v8 body .header{min-height:116px!important}}';
     document.head.appendChild(style);
   }
 
-  if (!document.querySelector('script[data-finance-shell-v8]')) {
+  if (!document.querySelector('script[data-finance-shell-v9]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v8.js?v=20260829-1305-finance-shell-v8';
+    script.src = 'finance-shell-v9.js?v=20260829-1747-compact-glow-v9';
     script.async = false;
-    script.setAttribute('data-finance-shell-v8','true');
+    script.setAttribute('data-finance-shell-v9','true');
     document.head.appendChild(script);
   }
 
