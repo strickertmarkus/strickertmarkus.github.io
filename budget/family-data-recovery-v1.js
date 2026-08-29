@@ -6,6 +6,7 @@ if(!active)return;
 
 var KEY='familjebudget_data';
 var BACKUP='familjebudget_data_recovery_backup_v1';
+var RELOAD_KEY='family-data-recovery-v1-reloaded';
 
 var DEFAULTS={
   loanParams:{huspris:5000000,huslan:3750000,kontantinsats:1250000,listranta:3.067,driftkostnad:47025,fastighetsavgift:9525,skattereduktion:100,bolan:75,lagfart:75000,renovering:1.0,ammortering:2,pantbrev:-9160,lantmateriavgift:825},
@@ -94,6 +95,14 @@ function syncValue(json){
   try{if(typeof window.fallbackSetItem==='function')window.fallbackSetItem(KEY,json)}catch(_){}
   try{if(typeof window.syncToFirebase==='function')window.syncToFirebase(KEY,json)}catch(_){}
 }
+function reloadIfNeeded(){
+  if(document.readyState==='loading')return;
+  try{
+    if(sessionStorage.getItem(RELOAD_KEY))return;
+    sessionStorage.setItem(RELOAD_KEY,'1');
+  }catch(_){}
+  setTimeout(function(){location.reload()},80);
+}
 async function repair(){
   var localRaw=rawGet(KEY),local=parse(localRaw),idb=await readIdb();
   var best=score(idb)>score(local)?idb:local;
@@ -101,7 +110,11 @@ async function repair(){
   if(localRaw&&!rawGet(BACKUP))rawSet(BACKUP,localRaw);
   var fixed=mergePreserving(best);
   var json=JSON.stringify(fixed);
-  if(localRaw!==json){rawSet(KEY,json);syncValue(json)}
+  if(localRaw!==json){
+    rawSet(KEY,json);
+    syncValue(json);
+    reloadIfNeeded();
+  }
 }
 
 repair();
