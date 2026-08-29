@@ -107,19 +107,46 @@
     }
   }
 
+  function installHeaderLayout() {
+    if (!isBudgetPage) return;
+    var header = document.querySelector('.header');
+    if (!header) return;
+    header.classList.add('budget-compact-header-v5');
+
+    var monthNav = document.getElementById('month-nav');
+    if (monthNav) monthNav.classList.add('budget-month-nav-v5');
+
+    var toggle = document.getElementById('budget-user-toggle-v1');
+    if (toggle) toggle.classList.add('budget-profile-toggle-v5');
+
+    var addMonth = monthNav && monthNav.querySelector('button[onclick*="addNewMonth"]');
+    if (addMonth) addMonth.classList.add('budget-add-month-v5');
+  }
+
   function installUiCleanup() {
-    if (!isBudgetPage || window.__budgetUiCleanupV4Installed) return;
-    window.__budgetUiCleanupV4Installed = true;
+    if (!isBudgetPage || window.__budgetUiCleanupV5Installed) return;
+    window.__budgetUiCleanupV5Installed = true;
     installHeaderIdentity();
+    installHeaderLayout();
 
     var style = document.createElement('style');
-    style.id = 'budget-ui-cleanup-v4-style';
+    style.id = 'budget-ui-cleanup-v5-style';
     style.textContent =
       '#set-start-month-btn{display:none!important}' +
       '#month-nav>button[onclick*="deleteCurrentMonth"]{display:none!important}' +
       '.budget-month-delete-v4{margin-left:10px;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:#94A3B8;font:700 16px/1 Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px}' +
       '.budget-month-delete-v4:hover{color:#F87171;background:rgba(248,113,113,.10)}' +
-      '.custom-dropdown-item.budget-month-row-v4{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}';
+      '.custom-dropdown-item.budget-month-row-v4{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}' +
+      '.header.budget-compact-header-v5{display:grid!important;grid-template-columns:minmax(72px,1fr) auto;grid-template-areas:"title months" "user months" "profile profile";align-items:center!important;column-gap:14px!important;row-gap:0!important;padding:18px 70px 16px 20px!important;text-align:left!important}' +
+      '.header.budget-compact-header-v5>h1{grid-area:title;margin:0!important;justify-self:start!important;line-height:1.05!important}' +
+      '.header.budget-compact-header-v5>p{grid-area:user;margin:3px 0 0!important;justify-self:start!important;line-height:1.1!important}' +
+      '.header.budget-compact-header-v5>#month-nav{grid-area:months;margin:0!important;display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important}' +
+      '.header.budget-compact-header-v5>#budget-user-toggle-v1{grid-area:profile;margin:10px 0 0!important;justify-self:start!important;max-width:none!important}' +
+      '.header.budget-compact-header-v5 #month-nav .custom-dropdown-wrapper{flex-basis:auto!important}' +
+      '.header.budget-compact-header-v5 #month-dropdown{min-width:150px!important;width:auto!important;padding:8px 32px 8px 12px!important;font-size:12px!important;white-space:nowrap!important}' +
+      '.header.budget-compact-header-v5 .budget-add-month-v5{padding:8px 11px!important;font-size:12px!important;white-space:nowrap!important}' +
+      '@media(max-width:600px){.header.budget-compact-header-v5{grid-template-columns:minmax(62px,.65fr) minmax(200px,1.35fr);column-gap:8px!important;padding:14px 60px 12px 14px!important}.header.budget-compact-header-v5>h1{font-size:19px!important}.header.budget-compact-header-v5>p{font-size:11px!important}.header.budget-compact-header-v5>#month-nav{gap:5px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:118px!important;padding:7px 28px 7px 8px!important;font-size:11px!important}.header.budget-compact-header-v5 .budget-add-month-v5{padding:7px 8px!important;font-size:11px!important}.header.budget-compact-header-v5>#budget-user-toggle-v1{margin-top:8px!important}}' +
+      '@media(max-width:360px){.header.budget-compact-header-v5{grid-template-columns:minmax(56px,.55fr) minmax(184px,1.45fr);padding-left:10px!important;padding-right:54px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:108px!important;font-size:10.5px!important}.header.budget-compact-header-v5 .budget-add-month-v5{padding-left:6px!important;padding-right:6px!important;font-size:10.5px!important}}';
     document.head.appendChild(style);
 
     function decorateMonthMenu() {
