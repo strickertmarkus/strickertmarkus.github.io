@@ -177,3 +177,42 @@ async function syncIndexedDBToLocalStorage(keys) {
 window.fallbackSetItem = fallbackSetItem;
 window.fallbackGetItem = fallbackGetItem;
 window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
+
+/* Shared finance shell: reserve the final header geometry before first paint,
+   then let one versioned module normalize Budget / Analys / Familjebudget. */
+(function () {
+  var path = window.location.pathname.toLowerCase();
+  var financePages = [
+    '/budget/budget.html','/budget.html',
+    '/budget/budget_maja.html','/budget_maja.html',
+    '/budget/analytics.html','/analytics.html',
+    '/budget/analytics_maja.html','/analytics_maja.html',
+    '/budget/familjebudget.html','/familjebudget.html'
+  ];
+  var isFinance = financePages.some(function (suffix) { return path.endsWith(suffix); });
+  if (!isFinance) return;
+
+  document.documentElement.classList.add('finance-shell-booting-v8');
+  if (!document.getElementById('finance-shell-critical-v8')) {
+    var style = document.createElement('style');
+    style.id = 'finance-shell-critical-v8';
+    style.textContent =
+      'html.finance-shell-booting-v8 body .header>*{visibility:hidden!important}' +
+      'html.finance-shell-booting-v8 body .container{visibility:hidden!important}' +
+      'html.finance-shell-booting-v8 body .header{min-height:150px!important;background:linear-gradient(135deg,#0B0F1A,#151C2C)!important}' +
+      '@media(max-width:600px){html.finance-shell-booting-v8 body .header{min-height:144px!important}}';
+    document.head.appendChild(style);
+  }
+
+  if (!document.querySelector('script[data-finance-shell-v8]')) {
+    var script = document.createElement('script');
+    script.src = 'finance-shell-v8.js?v=20260829-1305-finance-shell-v8';
+    script.async = false;
+    script.setAttribute('data-finance-shell-v8','true');
+    document.head.appendChild(script);
+  }
+
+  setTimeout(function () {
+    document.documentElement.classList.remove('finance-shell-booting-v8');
+  },1800);
+})();
