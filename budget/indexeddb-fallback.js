@@ -207,7 +207,7 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
   if (!document.querySelector('script[data-finance-shell-v14]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v14.js?v=20260829-2347-profile-width-fix-v14';
+    script.src = 'finance-shell-v14.js?v=20260829-2352-authoritative-profile-geometry-v14';
     script.async = false;
     script.setAttribute('data-finance-shell-v14','true');
     document.head.appendChild(script);
