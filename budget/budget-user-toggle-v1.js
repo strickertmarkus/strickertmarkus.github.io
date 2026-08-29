@@ -93,9 +93,24 @@
     setTimeout(protectRecentLocalValue, 0);
   }
 
+  function installHeaderIdentity() {
+    if (!isBudgetPage) return;
+    var header = document.querySelector('.header');
+    if (!header) return;
+    var title = header.querySelector('h1');
+    var subtitle = header.querySelector('p');
+    if (title) title.textContent = 'Budget';
+    if (subtitle) {
+      subtitle.textContent = isMajaPage ? 'Maja' : 'Markus';
+      subtitle.style.color = isMajaPage ? '#F472B6' : '#60A5FA';
+      subtitle.style.fontWeight = '700';
+    }
+  }
+
   function installUiCleanup() {
     if (!isBudgetPage || window.__budgetUiCleanupV4Installed) return;
     window.__budgetUiCleanupV4Installed = true;
+    installHeaderIdentity();
 
     var style = document.createElement('style');
     style.id = 'budget-ui-cleanup-v4-style';
