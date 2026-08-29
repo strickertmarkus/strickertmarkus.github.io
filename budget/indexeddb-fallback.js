@@ -55,7 +55,7 @@ function isMobileDevice() {
  * @param {string} value - The value to store
  */
 async function fallbackSetItem(key, value) {
-  // Try localStorage first (desktop is faster with localStorage) using ORIGINAL function
+  // Try localStorage first (desktop is faster, direct access) using ORIGINAL function
   try {
     _idbOrigSetItem( key, value);
     // Success - also sync to IndexedDB as backup
@@ -204,12 +204,24 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
     document.head.appendChild(style);
   }
 
+  function loadFinancePolishV10() {
+    if (document.querySelector('script[data-finance-shell-polish-v10]')) return;
+    var polish = document.createElement('script');
+    polish.src = 'finance-shell-polish-v10.js?v=20260829-2020-aligned-transitions-v10';
+    polish.async = false;
+    polish.setAttribute('data-finance-shell-polish-v10','true');
+    document.head.appendChild(polish);
+  }
+
   if (!document.querySelector('script[data-finance-shell-v9]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v9.js?v=20260829-1747-compact-glow-v9';
+    script.src = 'finance-shell-v9.js?v=20260829-2020-aligned-transitions-v10';
     script.async = false;
     script.setAttribute('data-finance-shell-v9','true');
+    script.addEventListener('load', loadFinancePolishV10, {once:true});
     document.head.appendChild(script);
+  } else {
+    loadFinancePolishV10();
   }
 
   setTimeout(function () {
