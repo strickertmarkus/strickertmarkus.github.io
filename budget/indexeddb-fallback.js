@@ -223,3 +223,17 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
     document.head.appendChild(monthControls);
   }
 })();
+
+/* Recover the shared family-budget dataset if an empty/corrupt payload was
+   persisted. This is separate from the finance shell so data.html gets it too. */
+(function () {
+  var path = window.location.pathname.toLowerCase();
+  var isFamilyData = path.endsWith('/budget/familjebudget.html') || path.endsWith('/familjebudget.html') ||
+                     path.endsWith('/budget/data.html') || path.endsWith('/data.html');
+  if (!isFamilyData || document.querySelector('script[data-family-data-recovery-v1]')) return;
+  var recovery = document.createElement('script');
+  recovery.src = 'family-data-recovery-v1.js?v=20260830-0018-recover-family-data-v1';
+  recovery.async = false;
+  recovery.setAttribute('data-family-data-recovery-v1','true');
+  document.head.appendChild(recovery);
+})();
