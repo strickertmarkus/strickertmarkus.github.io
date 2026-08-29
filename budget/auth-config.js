@@ -21,9 +21,6 @@ window.FIREBASE_CONFIG = {
   var isBudgetDarkOnly = darkOnlyPages.some(function (suffix) { return path.endsWith(suffix); });
   if (!isBudgetDarkOnly) return;
 
-  /* Budgetområdet är dark-only. Apply before page CSS/body so there is never a
-     light first frame, while leaving the shared darkMode storage key untouched
-     for non-budget pages. */
   document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
   document.documentElement.style.colorScheme = 'dark';
   document.documentElement.style.backgroundColor = '#0F1219';
@@ -46,8 +43,6 @@ window.FIREBASE_CONFIG = {
     var nav = document.querySelector('.header > .nav-dropdown-wrapper');
     if (nav) nav.style.right = window.matchMedia && window.matchMedia('(max-width:480px)').matches ? '8px' : '16px';
 
-    /* The old inline toggle functions may remain in legacy page source, but are
-       deliberately inert. There is now only one supported budget theme. */
     window.toggleDarkMode = function () {
       document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
     };
@@ -59,8 +54,6 @@ window.FIREBASE_CONFIG = {
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
-  /* Start the final HR modules immediately on a cold/hard refresh. auth-gate
-     later requests the exact same URLs, so these preloads are reused. */
   ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
     var href = src + '?v=20260828-1745-chart-sync-v16';
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
@@ -71,9 +64,6 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(link);
   });
 
-  /* Hard-refresh gate. The current exercise.html still contains a few legacy
-     source elements for compatibility. They must never be painted before the
-     final DOM geometry and first Chart.js render are ready. */
   document.documentElement.classList.add('exercise-shell-booting-v13');
   document.documentElement.classList.add('exercise-hr-booting-v14');
 
@@ -225,9 +215,6 @@ window.FIREBASE_CONFIG = {
     });
   }
 
-  /* Registered before exercise.html's own DOMContentLoaded refreshAll handler.
-     Geometry and data source are therefore final before Chart.js builds the
-     first visible charts. The boot gate is released only after that task. */
   document.addEventListener('DOMContentLoaded', function () {
     arrangeCriticalDom();
     installEarlyVo2Source();
@@ -248,8 +235,6 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(shellScript);
   }
 
-  /* All graph canvases stay hidden until sessions, VO2 and the final HR range
-     chart exist. V14 then starts their Chart.js animation on one shared frame. */
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
     hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1745-chart-sync-v16';
@@ -258,7 +243,6 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(hrPaintScript);
   }
 
-  /* Canonical pass progress remains isolated from page-shell cleanup. */
   if (!document.querySelector('script[data-exercise-progress-consistency-v10]')) {
     var progressScript = document.createElement('script');
     progressScript.src = 'exercise-progress-consistency-v10.js?v=20260828-1320-progress-consistency-v10';
@@ -273,8 +257,6 @@ window.FIREBASE_CONFIG = {
   var isShopping = path.endsWith('/budget/shopping.html') || path.endsWith('/shopping.html');
   if (!isShopping) return;
 
-  /* Recipe header geometry is loaded from head so the legacy text arrow never
-     gets a visible first frame before the recipe modules finish rendering. */
   if (!document.querySelector('script[data-shopping-recipe-header-polish-v6]')) {
     var script = document.createElement('script');
     script.src = 'shopping-recipe-header-polish-v6.js?v=20260828-1345-recipe-header-v6';
@@ -290,9 +272,6 @@ window.FIREBASE_CONFIG = {
     path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
   if (!isBudget) return;
 
-  /* Keep the old separate-page architecture/data keys, but never paint the
-     pre-toggle header/menu first. The tiny switcher module releases this gate
-     after it has inserted the final profile control and cleaned the nav menu. */
   document.documentElement.classList.add('budget-toggle-booting-v1');
   if (!document.getElementById('budget-toggle-critical-v1')) {
     var style = document.createElement('style');
@@ -306,13 +285,12 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
     var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260829-0805-compact-header-v5';
+    script.src = 'budget-user-toggle-v1.js?v=20260829-0815-month-dropdown-v6';
     script.async = false;
     script.setAttribute('data-budget-user-toggle-v1','true');
     document.head.appendChild(script);
   }
 
-  /* Fail open if the enhancement cannot load for any reason. */
   setTimeout(function () {
     document.documentElement.classList.remove('budget-toggle-booting-v1');
   },1800);
