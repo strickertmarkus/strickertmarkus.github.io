@@ -306,7 +306,7 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
     var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260829-0750-header-identity-v2';
+    script.src = 'budget-user-toggle-v1.js?v=20260829-0805-compact-header-v5';
     script.async = false;
     script.setAttribute('data-budget-user-toggle-v1','true');
     document.head.appendChild(script);
