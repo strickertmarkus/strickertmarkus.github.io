@@ -118,25 +118,25 @@
 
     var toggle = document.getElementById('budget-user-toggle-v1');
     if (toggle) toggle.classList.add('budget-profile-toggle-v5');
-
-    var addMonth = monthNav && monthNav.querySelector('button[onclick*="addNewMonth"]');
-    if (addMonth) addMonth.classList.add('budget-add-month-v5');
   }
 
   function installUiCleanup() {
-    if (!isBudgetPage || window.__budgetUiCleanupV5Installed) return;
-    window.__budgetUiCleanupV5Installed = true;
+    if (!isBudgetPage || window.__budgetUiCleanupV6Installed) return;
+    window.__budgetUiCleanupV6Installed = true;
     installHeaderIdentity();
     installHeaderLayout();
 
     var style = document.createElement('style');
-    style.id = 'budget-ui-cleanup-v5-style';
+    style.id = 'budget-ui-cleanup-v6-style';
     style.textContent =
       '#set-start-month-btn{display:none!important}' +
       '#month-nav>button[onclick*="deleteCurrentMonth"]{display:none!important}' +
+      '#month-nav>button[onclick*="addNewMonth"]{display:none!important}' +
       '.budget-month-delete-v4{margin-left:10px;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:#94A3B8;font:700 16px/1 Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px}' +
       '.budget-month-delete-v4:hover{color:#F87171;background:rgba(248,113,113,.10)}' +
       '.custom-dropdown-item.budget-month-row-v4{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}' +
+      '.custom-dropdown-item.budget-month-add-v6{margin-top:4px!important;border-top:1px solid rgba(148,163,184,.22)!important;border-bottom:0!important;color:#4ADE80!important;font-weight:700!important;text-align:center!important;justify-content:center!important}' +
+      '.custom-dropdown-item.budget-month-add-v6:hover{background:rgba(74,222,128,.10)!important;color:#4ADE80!important;padding-left:16px!important}' +
       '.header.budget-compact-header-v5{display:grid!important;grid-template-columns:minmax(72px,1fr) auto;grid-template-areas:"title months" "user months" "profile profile";align-items:center!important;column-gap:14px!important;row-gap:0!important;padding:18px 70px 16px 20px!important;text-align:left!important}' +
       '.header.budget-compact-header-v5>h1{grid-area:title;margin:0!important;justify-self:start!important;line-height:1.05!important}' +
       '.header.budget-compact-header-v5>p{grid-area:user;margin:3px 0 0!important;justify-self:start!important;line-height:1.1!important}' +
@@ -144,15 +144,15 @@
       '.header.budget-compact-header-v5>#budget-user-toggle-v1{grid-area:profile;margin:10px 0 0!important;justify-self:start!important;max-width:none!important}' +
       '.header.budget-compact-header-v5 #month-nav .custom-dropdown-wrapper{flex-basis:auto!important}' +
       '.header.budget-compact-header-v5 #month-dropdown{min-width:150px!important;width:auto!important;padding:8px 32px 8px 12px!important;font-size:12px!important;white-space:nowrap!important}' +
-      '.header.budget-compact-header-v5 .budget-add-month-v5{padding:8px 11px!important;font-size:12px!important;white-space:nowrap!important}' +
-      '@media(max-width:600px){.header.budget-compact-header-v5{grid-template-columns:minmax(62px,.65fr) minmax(200px,1.35fr);column-gap:8px!important;padding:14px 60px 12px 14px!important}.header.budget-compact-header-v5>h1{font-size:19px!important}.header.budget-compact-header-v5>p{font-size:11px!important}.header.budget-compact-header-v5>#month-nav{gap:5px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:118px!important;padding:7px 28px 7px 8px!important;font-size:11px!important}.header.budget-compact-header-v5 .budget-add-month-v5{padding:7px 8px!important;font-size:11px!important}.header.budget-compact-header-v5>#budget-user-toggle-v1{margin-top:8px!important}}' +
-      '@media(max-width:360px){.header.budget-compact-header-v5{grid-template-columns:minmax(56px,.55fr) minmax(184px,1.45fr);padding-left:10px!important;padding-right:54px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:108px!important;font-size:10.5px!important}.header.budget-compact-header-v5 .budget-add-month-v5{padding-left:6px!important;padding-right:6px!important;font-size:10.5px!important}}';
+      '@media(max-width:600px){.header.budget-compact-header-v5{grid-template-columns:minmax(62px,.65fr) minmax(118px,1.35fr);column-gap:8px!important;padding:14px 60px 12px 14px!important}.header.budget-compact-header-v5>h1{font-size:19px!important}.header.budget-compact-header-v5>p{font-size:11px!important}.header.budget-compact-header-v5>#month-nav{gap:5px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:118px!important;padding:7px 28px 7px 8px!important;font-size:11px!important}.header.budget-compact-header-v5>#budget-user-toggle-v1{margin-top:8px!important}}' +
+      '@media(max-width:360px){.header.budget-compact-header-v5{grid-template-columns:minmax(56px,.55fr) minmax(108px,1.45fr);padding-left:10px!important;padding-right:54px!important}.header.budget-compact-header-v5 #month-dropdown{min-width:108px!important;font-size:10.5px!important}}';
     document.head.appendChild(style);
 
     function decorateMonthMenu() {
       var menu = document.getElementById('month-dropdown-menu');
       if (!menu) return;
-      Array.prototype.slice.call(menu.querySelectorAll('.custom-dropdown-item')).forEach(function (item) {
+
+      Array.prototype.slice.call(menu.querySelectorAll('.custom-dropdown-item:not(.budget-month-add-v6)')).forEach(function (item) {
         if (item.querySelector('.budget-month-delete-v4')) return;
         item.classList.add('budget-month-row-v4');
         var label = String(item.textContent || '').trim();
@@ -174,6 +174,29 @@
         });
         item.appendChild(remove);
       });
+
+      if (!menu.querySelector('.budget-month-add-v6')) {
+        var add = document.createElement('div');
+        add.className = 'custom-dropdown-item budget-month-add-v6';
+        add.setAttribute('role','button');
+        add.setAttribute('tabindex','0');
+        add.textContent = '+ Ny månad';
+
+        function createMonth(event) {
+          if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          menu.classList.remove('active');
+          if (typeof window.addNewMonth === 'function') window.addNewMonth();
+        }
+
+        add.addEventListener('click', createMonth);
+        add.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') createMonth(event);
+        });
+        menu.appendChild(add);
+      }
     }
 
     decorateMonthMenu();
