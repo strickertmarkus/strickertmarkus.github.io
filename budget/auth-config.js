@@ -285,7 +285,7 @@ window.FIREBASE_CONFIG = {
 
   if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
     var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260829-0815-month-dropdown-v6';
+    script.src = 'budget-user-toggle-v1.js?v=20260829-1249-finance-toggle-v7';
     script.async = false;
     script.setAttribute('data-budget-user-toggle-v1','true');
     document.head.appendChild(script);
