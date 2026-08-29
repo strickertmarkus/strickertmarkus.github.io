@@ -57,7 +57,7 @@ function isMobileDevice() {
 async function fallbackSetItem(key, value) {
   // Try localStorage first (desktop is faster, direct access) using ORIGINAL function
   try {
-    _idbOrigSetItem( key, value);
+    _idbOrigSetItem(key, value);
     // Success - also sync to IndexedDB as backup
     if (isMobileDevice()) {
       // Mobile: IndexedDB is primary, localStorage is secondary
@@ -87,7 +87,7 @@ async function fallbackSetItem(key, value) {
           // After IndexedDB write, also try to update localStorage
           // (this triggers firebase-sync.js monkey-patch if localStorage is partially working)
           try {
-            _idbOrigSetItem( key, value);
+            _idbOrigSetItem(key, value);
           } catch (ignored) {
             // localStorage is still blocked, that's ok
           }
@@ -110,7 +110,7 @@ async function fallbackSetItem(key, value) {
 async function fallbackGetItem(key) {
   // Try localStorage first using ORIGINAL function
   try {
-    const value = _idbOrigGetItem( key);
+    const value = _idbOrigGetItem(key);
     if (value !== null) {
       return value;
     }
@@ -150,14 +150,14 @@ async function syncIndexedDBToLocalStorage(keys) {
 
     for (const key of keys) {
       try {
-        const value = _idbOrigGetItem( key);
+        const value = _idbOrigGetItem(key);
         if (value === null) {
           // localStorage is missing this key, try to restore from IndexedDB
           const request = store.get(key);
           request.onsuccess = () => {
             if (request.result !== undefined) {
               try {
-                _idbOrigSetItem( key, request.result);
+                _idbOrigSetItem(key, request.result);
               } catch (e) {
                 // localStorage still blocked, that's ok
               }
@@ -178,8 +178,10 @@ window.fallbackSetItem = fallbackSetItem;
 window.fallbackGetItem = fallbackGetItem;
 window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
-/* Shared finance shell: reserve the final header geometry before first paint,
-   then let one versioned module normalize Budget / Analys / Familjebudget. */
+/* Shared finance shell.
+   Important: this bootstrap is deliberately non-blocking. It never hides the
+   page while the shell loads, so a script/cache failure cannot strand Safari
+   on a blank screen. */
 (function () {
   var path = window.location.pathname.toLowerCase();
   var financePages = [
@@ -192,39 +194,22 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
   var isFinance = financePages.some(function (suffix) { return path.endsWith(suffix); });
   if (!isFinance) return;
 
-  document.documentElement.classList.add('finance-shell-booting-v8');
-  if (!document.getElementById('finance-shell-critical-v8')) {
-    var style = document.createElement('style');
-    style.id = 'finance-shell-critical-v8';
-    style.textContent =
-      'html.finance-shell-booting-v8 body .header>*{visibility:hidden!important}' +
-      'html.finance-shell-booting-v8 body .container{visibility:hidden!important}' +
-      'html.finance-shell-booting-v8 body .header{min-height:122px!important;background:linear-gradient(135deg,#0B0F1A,#151C2C)!important}' +
-      '@media(max-width:600px){html.finance-shell-booting-v8 body .header{min-height:116px!important}}';
-    document.head.appendChild(style);
-  }
+  // Clean up any stale classes/styles left by V8-V13 before loading V14.
+  document.documentElement.classList.remove(
+    'finance-shell-booting-v8',
+    'finance-shell-v9',
+    'finance-shell-arriving-v9',
+    'finance-shell-arriving-v12',
+    'finance-shell-leaving-v10'
+  );
+  var oldCritical = document.getElementById('finance-shell-critical-v8');
+  if (oldCritical) oldCritical.remove();
 
-  function loadFinancePolishV10() {
-    if (document.querySelector('script[data-finance-shell-polish-v10]')) return;
-    var polish = document.createElement('script');
-    polish.src = 'finance-shell-polish-v10.js?v=20260829-2322-safari-safe-v13';
-    polish.async = false;
-    polish.setAttribute('data-finance-shell-polish-v10','true');
-    document.head.appendChild(polish);
-  }
-
-  if (!document.querySelector('script[data-finance-shell-v9]')) {
+  if (!document.querySelector('script[data-finance-shell-v14]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v9.js?v=20260829-2322-safari-safe-v13';
+    script.src = 'finance-shell-v14.js?v=20260829-2345-nonblocking-v14';
     script.async = false;
-    script.setAttribute('data-finance-shell-v9','true');
-    script.addEventListener('load', loadFinancePolishV10, {once:true});
+    script.setAttribute('data-finance-shell-v14','true');
     document.head.appendChild(script);
-  } else {
-    loadFinancePolishV10();
   }
-
-  setTimeout(function () {
-    document.documentElement.classList.remove('finance-shell-booting-v8');
-  },700);
 })();
