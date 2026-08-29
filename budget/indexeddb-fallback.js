@@ -207,7 +207,7 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
   function loadFinancePolishV10() {
     if (document.querySelector('script[data-finance-shell-polish-v10]')) return;
     var polish = document.createElement('script');
-    polish.src = 'finance-shell-polish-v10.js?v=20260829-2140-visible-pill-motion-v12';
+    polish.src = 'finance-shell-polish-v10.js?v=20260829-2322-safari-safe-v13';
     polish.async = false;
     polish.setAttribute('data-finance-shell-polish-v10','true');
     document.head.appendChild(polish);
@@ -215,7 +215,7 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
   if (!document.querySelector('script[data-finance-shell-v9]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v9.js?v=20260829-2140-visible-pill-motion-v12';
+    script.src = 'finance-shell-v9.js?v=20260829-2322-safari-safe-v13';
     script.async = false;
     script.setAttribute('data-finance-shell-v9','true');
     script.addEventListener('load', loadFinancePolishV10, {once:true});
@@ -226,5 +226,5 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
   setTimeout(function () {
     document.documentElement.classList.remove('finance-shell-booting-v8');
-  },1800);
+  },700);
 })();
