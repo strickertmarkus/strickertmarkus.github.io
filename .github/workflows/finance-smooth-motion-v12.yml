@@ -1,0 +1,102 @@
+name: Finance smooth motion v12
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finance-smooth-motion-v12.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Simplify finance motion
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          ui = Path('budget/finance-ui.js')
+          s = ui.read_text()
+
+          nav_pattern = re.compile(r"  var financeNavigating = false;\n\n  function navigate\(nextView, nextUser\) \{.*?\n  \}\n\n  function installStyles\(\) \{", re.S)
+          nav_replacement = "  var financeNavigating = false;\n\n  function navigate(nextView, nextUser) {\n    var href = route(nextView, nextUser);\n    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase()) || financeNavigating) return;\n    financeNavigating = true;\n    flushBudget();\n    markTransition(nextView, nextUser);\n    location.assign(href);\n  }\n\n  function installStyles() {"
+          s, n = nav_pattern.subn(lambda m: nav_replacement, s, count=1)
+          if n != 1:
+              raise SystemExit('navigate block not found')
+
+          old_css = "      '.container.finance-departing-clean-v1{transform-origin:center top;pointer-events:none;animation:financeDepartCleanV1 .14s cubic-bezier(.32,.72,0,1) both;will-change:transform,filter}' +\n      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .52s cubic-bezier(.22,.78,.2,1) both;will-change:transform,filter}' +\n      '@keyframes financeDepartCleanV1{0%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{transform:translate3d(var(--finance-exit-x,0px),1px,0) scale(.996);filter:blur(1.2px)}}' +\n      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),4px,0) scale(.992);filter:blur(2.4px)}42%{filter:blur(.65px)}100%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}}' +\n"
+          new_css = "      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .34s cubic-bezier(.22,1,.36,1) both;will-change:transform}' +\n      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),3px,0) scale(.9985)}100%{transform:translate3d(0,0,0) scale(1)}}' +\n"
+          if old_css not in s:
+              raise SystemExit('old motion CSS not found')
+          s = s.replace(old_css, new_css, 1)
+
+          old_reduce = "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1,.container.finance-departing-clean-v1{animation:none!important;filter:none!important;transform:none!important}}"
+          new_reduce = "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1{animation:none!important;transform:none!important}}"
+          if old_reduce not in s:
+              raise SystemExit('reduced motion rule not found')
+          s = s.replace(old_reduce, new_reduce, 1)
+
+          arrival_pattern = re.compile(r"  function animateArrival\(\) \{.*?\n  \}\n\n  function prefetch\(\) \{", re.S)
+          arrival_replacement = "  function animateArrival() {\n    var fresh = false;\n    var direction = 0;\n    try {\n      var data = JSON.parse(sessionStorage.getItem(TRANSITION_KEY) || 'null');\n      fresh = !!(data && Date.now() - Number(data.at || 0) < 5000);\n      direction = fresh ? Number(data.direction || 0) : 0;\n      sessionStorage.removeItem(TRANSITION_KEY);\n    } catch (_) {}\n    if (!fresh) return;\n    var container = document.querySelector('.container');\n    if (!container) return;\n    container.style.setProperty('--finance-enter-x', direction > 0 ? '5px' : (direction < 0 ? '-5px' : '0px'));\n    requestAnimationFrame(function () {\n      container.classList.add('finance-arrival-clean-v1');\n      setTimeout(function () {\n        container.classList.remove('finance-arrival-clean-v1');\n        container.style.removeProperty('--finance-enter-x');\n      }, 420);\n    });\n  }\n\n  function prefetch() {"
+          s, n = arrival_pattern.subn(lambda m: arrival_replacement, s, count=1)
+          if n != 1:
+              raise SystemExit('animateArrival block not found')
+
+          ui.write_text(s)
+
+          pages = [
+              'budget/budget.html',
+              'budget/budget_maja.html',
+              'budget/analytics.html',
+              'budget/analytics_maja.html',
+              'budget/familjebudget.html',
+          ]
+          for name in pages:
+              p = Path(name)
+              t = p.read_text()
+              old = 'finance-ui.js?v=20260830-finance-clean-v11'
+              new = 'finance-ui.js?v=20260830-finance-clean-v12'
+              if old not in t:
+                  raise SystemExit(f'{name}: v11 loader not found')
+              p.write_text(t.replace(old, new, 1))
+          PY
+
+      - name: Verify JavaScript syntax
+        run: node --check budget/finance-ui.js
+
+      - name: Verify smooth motion scope
+        shell: bash
+        run: |
+          grep -q "financeArrivalCleanV1 .34s" budget/finance-ui.js
+          grep -q "location.assign(href);" budget/finance-ui.js
+          grep -q "finance-clean-v12" budget/budget.html
+          grep -q "finance-clean-v12" budget/analytics.html
+          grep -q "finance-clean-v12" budget/familjebudget.html
+          if grep -q "finance-departing-clean-v1" budget/finance-ui.js; then exit 1; fi
+          if grep -q "blur(2.4px)" budget/finance-ui.js; then exit 1; fi
+          if grep -q "setTimeout(function () { location.assign(href); }, 145);" budget/finance-ui.js; then exit 1; fi
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Remove finance navigation stall"
+          git push
