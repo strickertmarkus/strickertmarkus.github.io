@@ -24,6 +24,40 @@
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
 
+  var financeHubPages = ['budget.html','budget_maja.html','analytics.html','analytics_maja.html','familjebudget.html'];
+  var isFinanceHubPage = financeHubPages.some(function (name) { return lowerPath.endsWith('/' + name); });
+
+  function financeHubTarget() {
+    var saved = '';
+    try { saved = String(localStorage.getItem('finance-last-page-v1') || '').toLowerCase(); } catch (_) {}
+    if (financeHubPages.indexOf(saved) !== -1) return saved;
+    var remembered = 'markus';
+    try { remembered = localStorage.getItem('budget-last-user-v1') === 'maja' ? 'maja' : 'markus'; } catch (_) {}
+    return remembered === 'maja' ? 'budget_maja.html' : 'budget.html';
+  }
+
+  function normalizeFinanceNavigation() {
+    var menu = document.getElementById('nav-menu');
+    if (!menu) return;
+    var links = Array.prototype.slice.call(menu.querySelectorAll('a[href]'));
+    var financeLinks = links.filter(function (link) {
+      var href = String(link.getAttribute('href') || '').split('#')[0].split('?')[0].toLowerCase();
+      var name = href.split('/').pop();
+      return financeHubPages.indexOf(name) !== -1;
+    });
+    var existing = menu.querySelector('a[data-finance-hub-link="true"]');
+    var hub = existing || document.createElement('a');
+    hub.setAttribute('data-finance-hub-link','true');
+    hub.href = financeHubTarget();
+    hub.innerHTML = '<span class="nav-icon">💰</span> Budget';
+    hub.classList.toggle('active', isFinanceHubPage);
+    hub.addEventListener('click', function () { hub.href = financeHubTarget(); });
+    if (!existing && financeLinks.length) financeLinks[0].parentNode.insertBefore(hub, financeLinks[0]);
+    financeLinks.forEach(function (link) { if (link !== hub) link.remove(); });
+  }
+
+  document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
+
   var exerciseAssetsVersion = '20260828-session-shell-v19';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
