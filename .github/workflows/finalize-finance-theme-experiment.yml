@@ -1,0 +1,91 @@
+name: Finalize finance theme experiment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finalize-finance-theme-experiment.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Finalize theme accents
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('budget/finance-ui.js')
+          s = p.read_text()
+          pairs = [
+            ("text-shadow:0 2px 10px rgba(251,146,60,.14)!important", "text-shadow:0 2px 10px rgba(var(--finance-accent-rgb),.14)!important"),
+            ("background:rgba(96,165,250,.10)!important;color:#F0F6FC!important", "background:rgba(var(--finance-accent-rgb),.10)!important;color:#F0F6FC!important"),
+            ("background:rgba(96,165,250,.12)!important;color:#93C5FD!important;box-shadow:inset 3px 0 0 #60A5FA!important", "background:rgba(var(--finance-accent-rgb),.12)!important;color:var(--finance-accent-hover)!important;box-shadow:inset 3px 0 0 var(--finance-accent)!important"),
+          ]
+          for old, new in pairs:
+            if old not in s:
+              raise SystemExit(f'missing theme fragment: {old}')
+            s = s.replace(old, new, 1)
+          p.write_text(s)
+
+          for name in [
+            'budget/budget.html','budget/budget_maja.html','budget/analytics.html',
+            'budget/analytics_maja.html','budget/familjebudget.html'
+          ]:
+            q = Path(name)
+            t = q.read_text()
+            old = 'finance-ui.js?v=20260830-finance-theme-exp-v1'
+            new = 'finance-ui.js?v=20260830-finance-theme-exp-v2'
+            if old not in t:
+              raise SystemExit(f'{name}: exp-v1 loader missing')
+            q.write_text(t.replace(old, new, 1))
+          PY
+
+      - name: Verify experiment
+        shell: bash
+        run: |
+          node --check budget/finance-ui.js
+          grep -q "rgba(var(--finance-accent-rgb),.14)" budget/finance-ui.js
+          grep -q "finance-theme-exp-v2" budget/budget.html
+          grep -q "finance-theme-exp-v2" budget/analytics.html
+          grep -q "finance-theme-exp-v2" budget/familjebudget.html
+          grep -q "el.querySelector('canvas')" budget/finance-ui.js
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+          changed="$(git diff --name-only)"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit experiment refinement
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Refine finance view theme experiment"
+          git push
+
+      - name: Remove temporary experiment branches
+        shell: bash
+        run: |
+          for branch in \
+            experiment/finance-view-themes \
+            experiment/finance-view-themes-work \
+            experiment/finance-view-themes-work2 \
+            experiment/finance-view-themes-work3 \
+            experiment/finance-view-themes-work4 \
+            experiment/finance-view-themes-finalwork \
+            experiment/test-do-not-use \
+            experiment/finance-view-themes-apply
+          do
+            git push origin --delete "$branch" || true
+          done
