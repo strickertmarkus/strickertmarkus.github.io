@@ -60,6 +60,92 @@ if old_targets not in s:
 s = s.replace(old_targets, new_targets, 1)
 ui.write_text(s)
 
+old_delayed_init = """// Delay chart initialization to ensure DOM is fully laid out
+setTimeout(() => {
+    console.log(\"Initializing charts...\");
+    console.log(\"Chart.js available:\", typeof Chart !== 'undefined');
+    console.log(\"pieChart canvas:\", document.getElementById(\"pieChart\"));
+    console.log(\"barChart canvas:\", document.getElementById(\"barChart\"));
+    try {
+        initCharts();
+        console.log(\"Charts initialized successfully\");
+    } catch (e) {
+        console.error(\"Error initializing charts:\", e);
+    }
+}, 500);
+renderPieLegend();"""
+new_delayed_init = """// Initialize charts once after the initial layout is committed.
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        try {
+            initCharts();
+        } catch (e) {
+            console.error(\"Error initializing charts:\", e);
+        }
+    });
+});
+renderPieLegend();"""
+
+old_visibility = """// Handle page visibility change - properly reinitialize charts when returning
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        // When page becomes visible, reinitialize charts to fix any rendering issues
+        setTimeout(() => {
+            try {
+                // Completely destroy old charts and clear canvas contexts
+                if (pieChart) {
+                    pieChart.destroy();
+                    pieChart = null;
+                }
+                if (barChart) {
+                    barChart.destroy();
+                    barChart = null;
+                }
+                
+                // Clear canvas internal state by redrawing blank
+                const pieCanvas = document.getElementById(\"pieChart\");
+                const barCanvas = document.getElementById(\"barChart\");
+                
+                if (pieCanvas) {
+                    const pieCtx = pieCanvas.getContext('2d');
+                    if (pieCtx) {
+                        pieCtx.clearRect(0, 0, pieCanvas.width, pieCanvas.height);
+                    }
+                }
+                
+                if (barCanvas) {
+                    const barCtx = barCanvas.getContext('2d');
+                    if (barCtx) {
+                        barCtx.clearRect(0, 0, barCanvas.width, barCanvas.height);
+                    }
+                }
+                
+                // Wait a frame, then reinitialize
+                requestAnimationFrame(() => {
+                    initCharts();
+                });
+            } catch(e) {
+                console.error(\"Error reinitializing charts on visibility change:\", e);
+                // Fallback: just reinitialize normally
+                initCharts();
+            }
+        }, 200);
+    }
+});
+
+"""
+new_visibility = """// Keep existing Chart instances when returning to the page; repaint without replaying the intro animation.
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    requestAnimationFrame(() => {
+        if (pieChart) pieChart.resize();
+        if (barChart) barChart.resize();
+        updateCharts();
+    });
+});
+
+"""
+
 for name in ['budget/budget.html', 'budget/budget_maja.html']:
     p = Path(name)
     t = p.read_text()
@@ -102,33 +188,15 @@ for name in ['budget/budget.html', 'budget/budget_maja.html']:
         raise SystemExit(f'{name}: current month restore block not found')
     t = t.replace(old_month, new_month, 1)
 
-    start = t.find("// Handle page visibility change - properly reinitialize charts when returning")
-    end = t.find("renderPieLegend();", start)
-    if start < 0 or end < 0:
-        raise SystemExit(f'{name}: chart init/visibility block not found')
-    end += len("renderPieLegend();")
-    new_chart_boot = """// Keep existing Chart instances when returning to the page. Repaint without replaying the intro animation.
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
-    requestAnimationFrame(() => {
-        if (pieChart) pieChart.resize();
-        if (barChart) barChart.resize();
-        updateCharts();
-    });
-});
+    if old_delayed_init not in t:
+        raise SystemExit(f'{name}: delayed chart init block not found')
+    t = t.replace(old_delayed_init, new_delayed_init, 1)
 
-// Initialize charts once after the initial layout is committed.
-requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-        try {
-            initCharts();
-        } catch (e) {
-            console.error("Error initializing charts:", e);
-        }
-    });
-});
-renderPieLegend();"""
-    t = t[:start] + new_chart_boot + t[end:]
+    if name.endswith('budget.html'):
+        if old_visibility not in t:
+            raise SystemExit(f'{name}: visibility chart reset block not found')
+        t = t.replace(old_visibility, new_visibility, 1)
+
     p.write_text(t)
 
 for name in [
