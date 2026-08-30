@@ -1,0 +1,130 @@
+name: Finance UI cleanup
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refactor finance loading
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          stamp = '20260830-finance-clean-v1'
+
+          # 1) indexeddb-fallback.js must only contain storage fallback code.
+          p = Path('budget/indexeddb-fallback.js')
+          text = p.read_text(encoding='utf-8')
+          marker = 'window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;'
+          if marker not in text:
+              raise SystemExit('indexeddb export marker not found')
+          text = text[:text.index(marker) + len(marker)] + '\n'
+          p.write_text(text, encoding='utf-8')
+
+          # 2) auth-config.js must no longer bootstrap legacy Budget UI.
+          p = Path('budget/auth-config.js')
+          text = p.read_text(encoding='utf-8')
+          marker = "\n(function () {\n  var path = window.location.pathname.toLowerCase();\n  var isBudget = path.endsWith('/budget/budget.html')"
+          if marker in text:
+              text = text[:text.index(marker)].rstrip() + '\n'
+          p.write_text(text, encoding='utf-8')
+
+          finance_pages = {
+              'budget/budget.html': True,
+              'budget/budget_maja.html': True,
+              'budget/analytics.html': False,
+              'budget/analytics_maja.html': False,
+              'budget/familjebudget.html': False,
+          }
+
+          def replace_script(text, name, replacement):
+              pattern = rf'<script\s+src="{re.escape(name)}(?:\?[^\"]*)?"[^>]*></script>'
+              new, n = re.subn(pattern, replacement, text, count=1)
+              if n != 1:
+                  raise SystemExit(f'Expected exactly one {name} tag')
+              return new
+
+          # 3) Finance pages load the clean modules directly with cache-busted URLs.
+          for filename, needs_guard in finance_pages.items():
+              p = Path(filename)
+              text = p.read_text(encoding='utf-8')
+              text = re.sub(r'^.*finance-month-controls-v16\.js.*\n?', '', text, flags=re.M)
+              text = replace_script(text, 'indexeddb-fallback.js', f'<script src="indexeddb-fallback.js?v={stamp}"></script>')
+              text = replace_script(text, 'auth-config.js', f'<script src="auth-config.js?v={stamp}"></script>')
+
+              finance_tag = f'<script src="finance-ui.js?v={stamp}"></script>'
+              guard_tag = f'<script src="budget-persistence-guard.js?v={stamp}"></script>'
+              text = re.sub(r'^.*finance-ui\.js.*\n?', '', text, flags=re.M)
+              text = re.sub(r'^.*budget-persistence-guard\.js.*\n?', '', text, flags=re.M)
+              firebase = '<script src="firebase-sync.js"></script>'
+              if firebase not in text:
+                  raise SystemExit(f'firebase-sync tag missing in {filename}')
+              additions = firebase + '\n'
+              if needs_guard:
+                  additions += guard_tag + '\n'
+              additions += finance_tag
+              text = text.replace(firebase, additions, 1)
+              p.write_text(text, encoding='utf-8')
+
+          # Data & Formler gets clean storage/auth versions, but not the finance header.
+          p = Path('budget/data.html')
+          text = p.read_text(encoding='utf-8')
+          text = replace_script(text, 'indexeddb-fallback.js', f'<script src="indexeddb-fallback.js?v={stamp}"></script>')
+          text = replace_script(text, 'auth-config.js', f'<script src="auth-config.js?v={stamp}"></script>')
+          p.write_text(text, encoding='utf-8')
+
+          # 4) Remove obsolete finance UI layers. Git history remains the rollback/archive.
+          obsolete = [
+              'budget/finance-shell-v8.js',
+              'budget/finance-shell-v9.js',
+              'budget/finance-shell-v10.js',
+              'budget/finance-shell-v14.js',
+              'budget/finance-shell-polish-v10.js',
+              'budget/finance-month-controls-v15.js',
+              'budget/finance-month-controls-v16.js',
+              'budget/budget-user-toggle-v1.js',
+              'budget/budget-user-toggle-stable-999.js',
+              'budget/family-data-recovery-v1.js',
+          ]
+          for filename in obsolete:
+              Path(filename).unlink(missing_ok=True)
+
+          # 5) Validate active finance pages no longer reference legacy UI files.
+          legacy_terms = ['finance-shell-v', 'finance-month-controls-v', 'budget-user-toggle-v1.js']
+          active_files = list(finance_pages) + ['budget/data.html', 'budget/auth-config.js', 'budget/indexeddb-fallback.js']
+          for filename in active_files:
+              text = Path(filename).read_text(encoding='utf-8')
+              for term in legacy_terms:
+                  if term in text:
+                      raise SystemExit(f'Legacy reference {term} remains in {filename}')
+
+      - name: Verify persistence boundary
+        run: |
+          git diff --exit-code -- budget/firebase-sync.js
+          test -f budget/finance-ui.js
+          test -f budget/budget-persistence-guard.js
+          grep -q 'budgetTracker_maja' budget/budget-persistence-guard.js
+          grep -q 'budgetTracker' budget/budget-persistence-guard.js
+
+      - name: Commit refactor
+        run: |
+          if git diff --quiet; then
+            echo "Already refactored"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Consolidate finance UI and preserve budget persistence"
+          git push
