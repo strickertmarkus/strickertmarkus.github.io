@@ -1,0 +1,42 @@
+name: Fix finance UI syntax
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-finance-ui-syntax.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fix SVG data URL quoting
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('budget/finance-ui.js')
+          s = p.read_text()
+          old = "background-image:url(\"data:image/svg+xml,%3Csvg fill='%238B949E' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E\")"
+          new = "background-image:url(\"data:image/svg+xml,%3Csvg fill=%22%238B949E%22 height=%2216%22 viewBox=%220 0 24 24%22 width=%2216%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E\")"
+          if old not in s:
+              raise SystemExit('Expected broken SVG data URL not found')
+          p.write_text(s.replace(old, new, 1))
+      - name: Verify JavaScript syntax
+        run: node --check budget/finance-ui.js
+      - name: Verify persistence files untouched
+        run: |
+          git diff --name-only | grep -qx 'budget/finance-ui.js'
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/finance-ui.js
+          git commit -m 'Fix finance UI JavaScript syntax'
+          git push
