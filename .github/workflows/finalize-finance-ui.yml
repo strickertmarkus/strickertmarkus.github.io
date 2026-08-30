@@ -1,0 +1,71 @@
+name: Finalize finance UI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finalize-finance-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply final cleanup
+        run: python3 .github/scripts/finalize_finance_ui.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify final architecture
+        shell: bash
+        run: |
+          grep -q "@view-transition{navigation:auto}" budget/finance-ui.js
+          grep -q "setupFinanceMorphTargets();" budget/finance-ui.js
+          grep -q "finance-morph-style" budget/finance-ui.js
+          grep -q "finance-ui.js?v=20260830-finance-final-v1" budget/budget.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v1" budget/budget_maja.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v1" budget/analytics.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v1" budget/analytics_maja.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v1" budget/familjebudget.html
+
+          for dead in \
+            "TRANSITION_KEY" \
+            "transitionDirection" \
+            "markTransition" \
+            "animateArrival" \
+            "finance-arrival-clean-v1" \
+            "finance-shell-v14" \
+            "finance-shell-v9" \
+            "budget-finance-toggle-v14" \
+            "budget-user-toggle-v1"; do
+            if grep -q "$dead" budget/finance-ui.js; then
+              echo "Dead finance code still present: $dead" >&2
+              exit 1
+            fi
+          done
+
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit final finance UI
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Finalize finance UI architecture"
+          git push
