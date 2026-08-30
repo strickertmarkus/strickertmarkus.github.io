@@ -69,16 +69,36 @@
     try { localStorage.setItem('budget-last-user-v1', nextUser); } catch (_) {}
   }
 
-  function markTransition(nextView, nextUser) {
-    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, at: Date.now() })); } catch (_) {}
+  function transitionDirection(nextView) {
+    var order = { budget: 0, analysis: 1, family: 2 };
+    if (nextView === view) return 0;
+    return order[nextView] > order[view] ? 1 : -1;
   }
+
+  function markTransition(nextView, nextUser) {
+    var direction = transitionDirection(nextView);
+    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, direction: direction, at: Date.now() })); } catch (_) {}
+    return direction;
+  }
+
+  var financeNavigating = false;
 
   function navigate(nextView, nextUser) {
     var href = route(nextView, nextUser);
-    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase())) return;
+    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase()) || financeNavigating) return;
+    financeNavigating = true;
     flushBudget();
-    markTransition(nextView, nextUser);
-    location.assign(href);
+    var direction = markTransition(nextView, nextUser);
+    var container = document.querySelector('.container');
+    var reduceMotion = false;
+    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+    if (!container || reduceMotion) {
+      location.assign(href);
+      return;
+    }
+    container.style.setProperty('--finance-exit-x', direction > 0 ? '-5px' : (direction < 0 ? '5px' : '0px'));
+    container.classList.add('finance-departing-clean-v1');
+    setTimeout(function () { location.assign(href); }, 145);
   }
 
   function installStyles() {
@@ -121,12 +141,14 @@
       '.finance-month-delete-clean-v1:hover{color:#F87171!important;background:rgba(248,113,113,.10)!important}' +
       'html.finance-ui-clean-v1 #month-dropdown-menu .finance-month-add-clean-v1{margin-top:4px!important;border-top:1px solid rgba(74,222,128,.18)!important;border-bottom:0!important;color:#4ADE80!important;justify-content:center!important;font-weight:750!important}' +
       'html.finance-ui-clean-v1 #month-dropdown-menu .finance-month-add-clean-v1:hover{background:rgba(74,222,128,.09)!important;color:#86EFAC!important}' +
-      '.container.finance-arrival-clean-v1>*{transform-origin:top center;animation:financeArrivalCleanV1 .42s cubic-bezier(.16,1,.3,1) both;will-change:transform}.container.finance-arrival-clean-v1>*:nth-child(2){animation-delay:.035s}.container.finance-arrival-clean-v1>*:nth-child(3){animation-delay:.07s}.container.finance-arrival-clean-v1>*:nth-child(4){animation-delay:.105s}.container.finance-arrival-clean-v1>*:nth-child(n+5){animation-delay:.14s}' +
-      '@keyframes financeArrivalCleanV1{0%{transform:translateY(-18px) scaleX(.985) scaleY(.965)}48%{transform:translateY(3px) scaleX(1.006) scaleY(1.012)}72%{transform:translateY(-1.5px) scaleX(.998) scaleY(.996)}88%{transform:translateY(.5px) scaleX(1.001) scaleY(1.002)}100%{transform:translateY(0) scale(1)}}' +
+      '.container.finance-departing-clean-v1{transform-origin:center top;pointer-events:none;animation:financeDepartCleanV1 .14s cubic-bezier(.32,.72,0,1) both;will-change:transform,filter}' +
+      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .52s cubic-bezier(.22,.78,.2,1) both;will-change:transform,filter}' +
+      '@keyframes financeDepartCleanV1{0%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{transform:translate3d(var(--finance-exit-x,0px),1px,0) scale(.996);filter:blur(1.2px)}}' +
+      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),4px,0) scale(.992);filter:blur(2.4px)}42%{filter:blur(.65px)}100%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}}' +
       '@keyframes financeMonthMenuInCleanV1{from{opacity:0;transform:translate(-50%,-8px) scale(.98)}to{opacity:1;transform:translate(-50%,0) scale(1)}}' +
       '@media(max-width:600px){html.finance-ui-clean-v1 body .header{height:156px!important;min-height:156px!important;max-height:156px!important;padding:0!important}html.finance-ui-clean-v1 body .header>h1{left:50%!important;top:13px!important;transform:translateX(-50%)!important;font-size:20px!important;max-width:calc(100% - 112px)!important;text-align:center!important}html.finance-ui-clean-v1 body .header>p{left:50%!important;top:39px!important;transform:translateX(-50%)!important;font-size:11px!important;text-align:center!important}html.finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{top:8px!important;right:8px!important}.finance-profile-clean-v1,.finance-view-clean-v1{bottom:8px!important;border-radius:17px!important}.finance-profile-clean-v1{left:12px!important}.finance-view-clean-v1{right:7px!important}.finance-profile-clean-v1 button,.finance-view-clean-v1 button{height:28px!important;border-radius:13px!important}.finance-profile-clean-v1 button{min-width:47px!important;padding:0 6px!important;font-size:9.5px!important}.finance-view-clean-v1 button{width:37px!important}.finance-view-clean-v1 svg{width:16px!important;height:16px!important}html.finance-ui-clean-v1 body .header>#month-nav{top:54px!important;bottom:auto!important;height:40px!important;width:max-content!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;gap:7px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{height:40px!important;width:150px!important;flex-basis:150px!important}html.finance-ui-clean-v1 body .header #month-dropdown{height:40px!important;width:150px!important;min-width:150px!important;padding:0 7px!important;font-size:14px!important;border-radius:0!important}.finance-month-arrow-clean-v1{width:32px!important;height:32px!important;flex-basis:32px!important;border-radius:8px!important;font-size:14px!important}html.finance-ui-clean-v1 #month-dropdown-menu{min-width:176px!important;border-radius:11px!important}html.finance-ui-clean-v1 #month-dropdown-menu .custom-dropdown-item{min-height:34px!important;padding:8px 10px!important;font-size:10px!important}}' +
       '@media(max-width:370px){.finance-profile-clean-v1{left:8px!important}.finance-profile-clean-v1 button{min-width:43px!important;padding:0 5px!important}.finance-view-clean-v1 button{width:34px!important}html.finance-ui-clean-v1 body .header>#month-nav{width:max-content!important;gap:6px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{width:140px!important;flex-basis:140px!important}html.finance-ui-clean-v1 body .header #month-dropdown{width:140px!important;min-width:140px!important;font-size:13px!important}.finance-month-arrow-clean-v1{width:32px!important;height:32px!important;flex-basis:32px!important}}' +
-      '@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1>*{animation:none!important}}';
+      '@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1,.container.finance-departing-clean-v1{animation:none!important;filter:none!important;transform:none!important}}';
     document.head.appendChild(style);
   }
 
@@ -431,17 +453,23 @@
 
   function animateArrival() {
     var fresh = false;
+    var direction = 0;
     try {
       var data = JSON.parse(sessionStorage.getItem(TRANSITION_KEY) || 'null');
       fresh = !!(data && Date.now() - Number(data.at || 0) < 5000);
+      direction = fresh ? Number(data.direction || 0) : 0;
       sessionStorage.removeItem(TRANSITION_KEY);
     } catch (_) {}
     if (!fresh) return;
     var container = document.querySelector('.container');
     if (!container) return;
+    container.style.setProperty('--finance-enter-x', direction > 0 ? '10px' : (direction < 0 ? '-10px' : '0px'));
     requestAnimationFrame(function () {
       container.classList.add('finance-arrival-clean-v1');
-      setTimeout(function () { container.classList.remove('finance-arrival-clean-v1'); }, 800);
+      setTimeout(function () {
+        container.classList.remove('finance-arrival-clean-v1');
+        container.style.removeProperty('--finance-enter-x');
+      }, 620);
     });
   }
 
