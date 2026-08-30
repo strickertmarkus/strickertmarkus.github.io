@@ -1,0 +1,175 @@
+name: Finance liquid motion v11
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finance-liquid-motion-v11.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refine finance page motion
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          ui = Path('budget/finance-ui.js')
+          s = ui.read_text()
+
+          old_mark = """  function markTransition(nextView, nextUser) {
+    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, at: Date.now() })); } catch (_) {}
+  }
+"""
+          new_mark = """  function transitionDirection(nextView) {
+    var order = { budget: 0, analysis: 1, family: 2 };
+    if (nextView === view) return 0;
+    return order[nextView] > order[view] ? 1 : -1;
+  }
+
+  function markTransition(nextView, nextUser) {
+    var direction = transitionDirection(nextView);
+    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, direction: direction, at: Date.now() })); } catch (_) {}
+    return direction;
+  }
+"""
+          if old_mark not in s:
+              raise SystemExit('markTransition block not found')
+          s = s.replace(old_mark, new_mark, 1)
+
+          old_nav = """  function navigate(nextView, nextUser) {
+    var href = route(nextView, nextUser);
+    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase())) return;
+    flushBudget();
+    markTransition(nextView, nextUser);
+    location.assign(href);
+  }
+"""
+          new_nav = """  var financeNavigating = false;
+
+  function navigate(nextView, nextUser) {
+    var href = route(nextView, nextUser);
+    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase()) || financeNavigating) return;
+    financeNavigating = true;
+    flushBudget();
+    var direction = markTransition(nextView, nextUser);
+    var container = document.querySelector('.container');
+    var reduceMotion = false;
+    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+    if (!container || reduceMotion) {
+      location.assign(href);
+      return;
+    }
+    container.style.setProperty('--finance-exit-x', direction > 0 ? '-5px' : (direction < 0 ? '5px' : '0px'));
+    container.classList.add('finance-departing-clean-v1');
+    setTimeout(function () { location.assign(href); }, 145);
+  }
+"""
+          if old_nav not in s:
+              raise SystemExit('navigate block not found')
+          s = s.replace(old_nav, new_nav, 1)
+
+          css_start = s.find("      '.container.finance-arrival-clean-v1>*{")
+          css_end = s.find("      '@keyframes financeMonthMenuInCleanV1", css_start)
+          if css_start < 0 or css_end < 0:
+              raise SystemExit('old finance arrival CSS block not found')
+          new_css = """      '.container.finance-departing-clean-v1{transform-origin:center top;pointer-events:none;animation:financeDepartCleanV1 .14s cubic-bezier(.32,.72,0,1) both;will-change:transform,filter}' +
+      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .52s cubic-bezier(.22,.78,.2,1) both;will-change:transform,filter}' +
+      '@keyframes financeDepartCleanV1{0%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{transform:translate3d(var(--finance-exit-x,0px),1px,0) scale(.996);filter:blur(1.2px)}}' +
+      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),4px,0) scale(.992);filter:blur(2.4px)}42%{filter:blur(.65px)}100%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}}' +
+"""
+          s = s[:css_start] + new_css + s[css_end:]
+
+          fn_start = s.find('  function animateArrival() {')
+          fn_end = s.find('  function prefetch() {', fn_start)
+          if fn_start < 0 or fn_end < 0:
+              raise SystemExit('animateArrival function not found')
+          new_arrival = """  function animateArrival() {
+    var fresh = false;
+    var direction = 0;
+    try {
+      var data = JSON.parse(sessionStorage.getItem(TRANSITION_KEY) || 'null');
+      fresh = !!(data && Date.now() - Number(data.at || 0) < 5000);
+      direction = fresh ? Number(data.direction || 0) : 0;
+      sessionStorage.removeItem(TRANSITION_KEY);
+    } catch (_) {}
+    if (!fresh) return;
+    var container = document.querySelector('.container');
+    if (!container) return;
+    container.style.setProperty('--finance-enter-x', direction > 0 ? '10px' : (direction < 0 ? '-10px' : '0px'));
+    requestAnimationFrame(function () {
+      container.classList.add('finance-arrival-clean-v1');
+      setTimeout(function () {
+        container.classList.remove('finance-arrival-clean-v1');
+        container.style.removeProperty('--finance-enter-x');
+      }, 620);
+    });
+  }
+
+"""
+          s = s[:fn_start] + new_arrival + s[fn_end:]
+
+          # Reduced motion must disable both sides of the transition.
+          s = s.replace(
+              "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1>*{animation:none!important}}",
+              "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1,.container.finance-departing-clean-v1{animation:none!important;filter:none!important;transform:none!important}}",
+              1
+          )
+
+          ui.write_text(s)
+
+          pages = [
+              'budget/budget.html',
+              'budget/budget_maja.html',
+              'budget/analytics.html',
+              'budget/analytics_maja.html',
+              'budget/familjebudget.html',
+          ]
+          for name in pages:
+              p = Path(name)
+              t = p.read_text()
+              old = 'finance-ui.js?v=20260830-finance-clean-v10'
+              new = 'finance-ui.js?v=20260830-finance-clean-v11'
+              if old not in t:
+                  raise SystemExit(f'{name}: v10 loader not found')
+              p.write_text(t.replace(old, new, 1))
+          PY
+
+      - name: Verify JavaScript syntax
+        run: node --check budget/finance-ui.js
+
+      - name: Verify liquid motion scope
+        shell: bash
+        run: |
+          grep -q "financeDepartCleanV1 .14s" budget/finance-ui.js
+          grep -q "financeArrivalCleanV1 .52s" budget/finance-ui.js
+          grep -q "blur(2.4px)" budget/finance-ui.js
+          grep -q "finance-clean-v11" budget/budget.html
+          grep -q "finance-clean-v11" budget/analytics.html
+          grep -q "finance-clean-v11" budget/familjebudget.html
+          ! grep -q "scaleX(.985)" budget/finance-ui.js
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Smooth finance page transitions"
+          git push
