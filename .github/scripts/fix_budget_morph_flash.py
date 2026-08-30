@@ -55,7 +55,7 @@ ui.write_text(s)
 
 headings = {
     'budget/budget.html': ('MARKUS BUDGETPLANERARE', 'Budgetplanerare'),
-    'budget/budget_maja.html': ('MAJA BUDGETPLANERARE', 'Budgetplanerare'),
+    'budget/budget_maja.html': ('MAJAS BUDGETPLANERARE', 'Budgetplanerare'),
     'budget/analytics.html': ('ANALYS & STATISTIK — MARKUS', 'Analys'),
     'budget/analytics_maja.html': ('ANALYS & STATISTIK — MAJA', 'Analys'),
     'budget/familjebudget.html': ('FAMILJEBUDGET', 'Familjebudget'),
