@@ -20,118 +20,45 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           ui = Path('budget/finance-ui.js')
           s = ui.read_text()
 
-          old_mark = """  function markTransition(nextView, nextUser) {
-    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, at: Date.now() })); } catch (_) {}
-  }
-"""
-          new_mark = """  function transitionDirection(nextView) {
-    var order = { budget: 0, analysis: 1, family: 2 };
-    if (nextView === view) return 0;
-    return order[nextView] > order[view] ? 1 : -1;
-  }
-
-  function markTransition(nextView, nextUser) {
-    var direction = transitionDirection(nextView);
-    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, direction: direction, at: Date.now() })); } catch (_) {}
-    return direction;
-  }
-"""
-          if old_mark not in s:
+          mark_pattern = r"  function markTransition\(nextView, nextUser\) \{\n    try \{ sessionStorage\.setItem\(TRANSITION_KEY, JSON\.stringify\(\{ view: nextView, user: nextUser, at: Date\.now\(\) \}\)\); \} catch \(_\) \{\}\n  \}\n"
+          mark_replacement = "  function transitionDirection(nextView) {\n    var order = { budget: 0, analysis: 1, family: 2 };\n    if (nextView === view) return 0;\n    return order[nextView] > order[view] ? 1 : -1;\n  }\n\n  function markTransition(nextView, nextUser) {\n    var direction = transitionDirection(nextView);\n    try { sessionStorage.setItem(TRANSITION_KEY, JSON.stringify({ view: nextView, user: nextUser, direction: direction, at: Date.now() })); } catch (_) {}\n    return direction;\n  }\n"
+          s, n = re.subn(mark_pattern, lambda m: mark_replacement, s, count=1)
+          if n != 1:
               raise SystemExit('markTransition block not found')
-          s = s.replace(old_mark, new_mark, 1)
 
-          old_nav = """  function navigate(nextView, nextUser) {
-    var href = route(nextView, nextUser);
-    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase())) return;
-    flushBudget();
-    markTransition(nextView, nextUser);
-    location.assign(href);
-  }
-"""
-          new_nav = """  var financeNavigating = false;
-
-  function navigate(nextView, nextUser) {
-    var href = route(nextView, nextUser);
-    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase()) || financeNavigating) return;
-    financeNavigating = true;
-    flushBudget();
-    var direction = markTransition(nextView, nextUser);
-    var container = document.querySelector('.container');
-    var reduceMotion = false;
-    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
-    if (!container || reduceMotion) {
-      location.assign(href);
-      return;
-    }
-    container.style.setProperty('--finance-exit-x', direction > 0 ? '-5px' : (direction < 0 ? '5px' : '0px'));
-    container.classList.add('finance-departing-clean-v1');
-    setTimeout(function () { location.assign(href); }, 145);
-  }
-"""
-          if old_nav not in s:
+          nav_pattern = r"  function navigate\(nextView, nextUser\) \{\n    var href = route\(nextView, nextUser\);\n    if \(location\.pathname\.toLowerCase\(\)\.endsWith\('/' \+ href\.toLowerCase\(\)\)\) return;\n    flushBudget\(\);\n    markTransition\(nextView, nextUser\);\n    location\.assign\(href\);\n  \}\n"
+          nav_replacement = "  var financeNavigating = false;\n\n  function navigate(nextView, nextUser) {\n    var href = route(nextView, nextUser);\n    if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase()) || financeNavigating) return;\n    financeNavigating = true;\n    flushBudget();\n    var direction = markTransition(nextView, nextUser);\n    var container = document.querySelector('.container');\n    var reduceMotion = false;\n    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}\n    if (!container || reduceMotion) {\n      location.assign(href);\n      return;\n    }\n    container.style.setProperty('--finance-exit-x', direction > 0 ? '-5px' : (direction < 0 ? '5px' : '0px'));\n    container.classList.add('finance-departing-clean-v1');\n    setTimeout(function () { location.assign(href); }, 145);\n  }\n"
+          s, n = re.subn(nav_pattern, lambda m: nav_replacement, s, count=1)
+          if n != 1:
               raise SystemExit('navigate block not found')
-          s = s.replace(old_nav, new_nav, 1)
 
           css_start = s.find("      '.container.finance-arrival-clean-v1>*{")
           css_end = s.find("      '@keyframes financeMonthMenuInCleanV1", css_start)
           if css_start < 0 or css_end < 0:
               raise SystemExit('old finance arrival CSS block not found')
-          new_css = """      '.container.finance-departing-clean-v1{transform-origin:center top;pointer-events:none;animation:financeDepartCleanV1 .14s cubic-bezier(.32,.72,0,1) both;will-change:transform,filter}' +
-      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .52s cubic-bezier(.22,.78,.2,1) both;will-change:transform,filter}' +
-      '@keyframes financeDepartCleanV1{0%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{transform:translate3d(var(--finance-exit-x,0px),1px,0) scale(.996);filter:blur(1.2px)}}' +
-      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),4px,0) scale(.992);filter:blur(2.4px)}42%{filter:blur(.65px)}100%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}}' +
-"""
+          new_css = "      '.container.finance-departing-clean-v1{transform-origin:center top;pointer-events:none;animation:financeDepartCleanV1 .14s cubic-bezier(.32,.72,0,1) both;will-change:transform,filter}' +\n      '.container.finance-arrival-clean-v1{transform-origin:center top;animation:financeArrivalCleanV1 .52s cubic-bezier(.22,.78,.2,1) both;will-change:transform,filter}' +\n      '@keyframes financeDepartCleanV1{0%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{transform:translate3d(var(--finance-exit-x,0px),1px,0) scale(.996);filter:blur(1.2px)}}' +\n      '@keyframes financeArrivalCleanV1{0%{transform:translate3d(var(--finance-enter-x,0px),4px,0) scale(.992);filter:blur(2.4px)}42%{filter:blur(.65px)}100%{transform:translate3d(0,0,0) scale(1);filter:blur(0)}}' +\n"
           s = s[:css_start] + new_css + s[css_end:]
 
           fn_start = s.find('  function animateArrival() {')
           fn_end = s.find('  function prefetch() {', fn_start)
           if fn_start < 0 or fn_end < 0:
               raise SystemExit('animateArrival function not found')
-          new_arrival = """  function animateArrival() {
-    var fresh = false;
-    var direction = 0;
-    try {
-      var data = JSON.parse(sessionStorage.getItem(TRANSITION_KEY) || 'null');
-      fresh = !!(data && Date.now() - Number(data.at || 0) < 5000);
-      direction = fresh ? Number(data.direction || 0) : 0;
-      sessionStorage.removeItem(TRANSITION_KEY);
-    } catch (_) {}
-    if (!fresh) return;
-    var container = document.querySelector('.container');
-    if (!container) return;
-    container.style.setProperty('--finance-enter-x', direction > 0 ? '10px' : (direction < 0 ? '-10px' : '0px'));
-    requestAnimationFrame(function () {
-      container.classList.add('finance-arrival-clean-v1');
-      setTimeout(function () {
-        container.classList.remove('finance-arrival-clean-v1');
-        container.style.removeProperty('--finance-enter-x');
-      }, 620);
-    });
-  }
-
-"""
+          new_arrival = "  function animateArrival() {\n    var fresh = false;\n    var direction = 0;\n    try {\n      var data = JSON.parse(sessionStorage.getItem(TRANSITION_KEY) || 'null');\n      fresh = !!(data && Date.now() - Number(data.at || 0) < 5000);\n      direction = fresh ? Number(data.direction || 0) : 0;\n      sessionStorage.removeItem(TRANSITION_KEY);\n    } catch (_) {}\n    if (!fresh) return;\n    var container = document.querySelector('.container');\n    if (!container) return;\n    container.style.setProperty('--finance-enter-x', direction > 0 ? '10px' : (direction < 0 ? '-10px' : '0px'));\n    requestAnimationFrame(function () {\n      container.classList.add('finance-arrival-clean-v1');\n      setTimeout(function () {\n        container.classList.remove('finance-arrival-clean-v1');\n        container.style.removeProperty('--finance-enter-x');\n      }, 620);\n    });\n  }\n\n"
           s = s[:fn_start] + new_arrival + s[fn_end:]
 
-          # Reduced motion must disable both sides of the transition.
-          s = s.replace(
-              "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1>*{animation:none!important}}",
-              "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1,.container.finance-departing-clean-v1{animation:none!important;filter:none!important;transform:none!important}}",
-              1
-          )
-
+          old_reduce = "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1>*{animation:none!important}}"
+          new_reduce = "@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1,.container.finance-departing-clean-v1{animation:none!important;filter:none!important;transform:none!important}}"
+          if old_reduce not in s:
+              raise SystemExit('reduced motion rule not found')
+          s = s.replace(old_reduce, new_reduce, 1)
           ui.write_text(s)
 
-          pages = [
-              'budget/budget.html',
-              'budget/budget_maja.html',
-              'budget/analytics.html',
-              'budget/analytics_maja.html',
-              'budget/familjebudget.html',
-          ]
+          pages = ['budget/budget.html','budget/budget_maja.html','budget/analytics.html','budget/analytics_maja.html','budget/familjebudget.html']
           for name in pages:
               p = Path(name)
               t = p.read_text()
@@ -154,7 +81,7 @@ jobs:
           grep -q "finance-clean-v11" budget/budget.html
           grep -q "finance-clean-v11" budget/analytics.html
           grep -q "finance-clean-v11" budget/familjebudget.html
-          ! grep -q "scaleX(.985)" budget/finance-ui.js
+          if grep -q "scaleX(.985)" budget/finance-ui.js; then exit 1; fi
           changed="$(git diff --name-only)"
           echo "$changed"
           while IFS= read -r f; do
