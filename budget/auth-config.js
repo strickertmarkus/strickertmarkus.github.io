@@ -269,33 +269,3 @@ window.FIREBASE_CONFIG = {
     document.head.appendChild(script);
   }
 })();
-
-(function () {
-  var path = window.location.pathname.toLowerCase();
-  var isBudget = path.endsWith('/budget/budget.html') || path.endsWith('/budget.html') ||
-    path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
-  if (!isBudget) return;
-
-  document.documentElement.classList.add('budget-toggle-booting-v1');
-  if (!document.getElementById('budget-toggle-critical-v1')) {
-    var style = document.createElement('style');
-    style.id = 'budget-toggle-critical-v1';
-    style.textContent =
-      'html.budget-toggle-booting-v1 body .header>*,' +
-      'html.budget-toggle-booting-v1 body .container{visibility:hidden!important}' +
-      '@media(prefers-reduced-motion:reduce){body.budget-user-switching-v1 *{transition:none!important}}';
-    document.head.appendChild(style);
-  }
-
-  if (!document.querySelector('script[data-budget-user-toggle-v1]')) {
-    var script = document.createElement('script');
-    script.src = 'budget-user-toggle-v1.js?v=20260829-1249-finance-toggle-v7';
-    script.async = false;
-    script.setAttribute('data-budget-user-toggle-v1','true');
-    document.head.appendChild(script);
-  }
-
-  setTimeout(function () {
-    document.documentElement.classList.remove('budget-toggle-booting-v1');
-  },1800);
-})();
