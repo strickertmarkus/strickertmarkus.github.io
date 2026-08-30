@@ -58,8 +58,7 @@
       '::view-transition-old(root),::view-transition-new(root){animation:none!important;mix-blend-mode:normal!important}' +
       '::view-transition-old(root){opacity:0!important}' +
       '::view-transition-group(finance-title),::view-transition-group(finance-person),::view-transition-group(finance-month),::view-transition-group(finance-profile),::view-transition-group(finance-views),::view-transition-group(finance-menu),::view-transition-group(finance-panel-0),::view-transition-group(finance-panel-1),::view-transition-group(finance-panel-2){animation-duration:.46s!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}' +
-      '::view-transition-old(finance-title),::view-transition-old(finance-person),::view-transition-old(finance-month),::view-transition-old(finance-profile),::view-transition-old(finance-views),::view-transition-old(finance-menu),::view-transition-old(finance-panel-0),::view-transition-old(finance-panel-1),::view-transition-old(finance-panel-2){opacity:0!important;animation:none!important;mix-blend-mode:normal!important}' +
-      '::view-transition-new(finance-title),::view-transition-new(finance-person),::view-transition-new(finance-month),::view-transition-new(finance-profile),::view-transition-new(finance-views),::view-transition-new(finance-menu),::view-transition-new(finance-panel-0),::view-transition-new(finance-panel-1),::view-transition-new(finance-panel-2){opacity:1!important;animation:none!important;mix-blend-mode:normal!important}';
+      '::view-transition-old(finance-title),::view-transition-new(finance-title),::view-transition-old(finance-person),::view-transition-new(finance-person),::view-transition-old(finance-month),::view-transition-new(finance-month),::view-transition-old(finance-profile),::view-transition-new(finance-profile),::view-transition-old(finance-views),::view-transition-new(finance-views),::view-transition-old(finance-menu),::view-transition-new(finance-menu),::view-transition-old(finance-panel-0),::view-transition-new(finance-panel-0),::view-transition-old(finance-panel-1),::view-transition-new(finance-panel-1),::view-transition-old(finance-panel-2),::view-transition-new(finance-panel-2){mix-blend-mode:normal!important}';
     document.head.appendChild(style);
   }
 
@@ -443,8 +442,11 @@
 
     var container = document.querySelector('.container');
     if (!container) return;
-    Array.prototype.slice.call(container.children, 0, 3).forEach(function (el, index) {
-      el.style.viewTransitionName = 'finance-panel-' + index;
+    var morphIndex = 0;
+    Array.prototype.slice.call(container.children).forEach(function (el) {
+      if (morphIndex >= 3 || el.querySelector('canvas')) return;
+      el.style.viewTransitionName = 'finance-panel-' + morphIndex;
+      morphIndex += 1;
     });
   }
 
