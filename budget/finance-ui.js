@@ -88,8 +88,8 @@
     style.textContent =
       'html.finance-ui-clean-v1 body .header{height:160px!important;min-height:160px!important;max-height:160px!important;position:relative!important;padding:0!important;text-align:center!important;overflow:visible!important;background:rgba(24,31,46,.94)!important;border-bottom:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 28px rgba(0,0,0,.32)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important}' +
       'html.finance-ui-clean-v1 body .header::before{display:none!important}' +
-      'html.finance-ui-clean-v1 body .header>h1{position:absolute!important;left:50%!important;top:14px!important;transform:translateX(-50%)!important;width:max-content!important;max-width:calc(100% - 112px)!important;margin:0!important;font-size:21px!important;font-weight:800!important;letter-spacing:-.45px!important;line-height:1.1!important;white-space:nowrap!important;text-align:center!important}' +
-      'html.finance-ui-clean-v1 body .header>p{position:absolute!important;left:50%!important;top:40px!important;transform:translateX(-50%)!important;margin:0!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;text-align:center!important}' +
+      'html.finance-ui-clean-v1 body .header>h1{position:absolute!important;left:16px!important;top:14px!important;transform:none!important;width:max-content!important;max-width:calc(100% - 86px)!important;margin:0!important;font-size:21px!important;font-weight:800!important;letter-spacing:-.45px!important;line-height:1.1!important;white-space:nowrap!important;text-align:left!important}' +
+      'html.finance-ui-clean-v1 body .header>p{position:absolute!important;left:16px!important;top:40px!important;transform:none!important;margin:0!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;text-align:left!important}' +
       'html.finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{position:absolute!important;top:10px!important;right:10px!important;left:auto!important}' +
       'html.finance-ui-clean-v1 body .top-bar{display:none!important}' +
       '.finance-profile-clean-v1,.finance-view-clean-v1{position:absolute!important;bottom:9px!important;display:flex!important;align-items:center!important;gap:2px!important;padding:3px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:18px!important;background:rgba(255,255,255,.075)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 4px 16px rgba(0,0,0,.12)!important;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);z-index:6!important}' +
@@ -106,13 +106,13 @@
       '.finance-view-clean-v1 button[data-view="budget"].active{opacity:1;background:rgba(96,165,250,.16);box-shadow:inset 0 0 0 1px rgba(96,165,250,.52),0 0 12px rgba(96,165,250,.28),0 0 22px rgba(59,130,246,.10)}' +
       '.finance-view-clean-v1 button[data-view="analysis"].active{opacity:1;background:rgba(74,222,128,.14);box-shadow:inset 0 0 0 1px rgba(74,222,128,.48),0 0 12px rgba(74,222,128,.25),0 0 22px rgba(34,197,94,.09)}' +
       '.finance-view-clean-v1 button[data-view="family"].active{opacity:1;background:rgba(251,146,60,.15);box-shadow:inset 0 0 0 1px rgba(251,146,60,.50),0 0 12px rgba(251,146,60,.27),0 0 22px rgba(249,115,22,.09)}' +
-      'html.finance-ui-clean-v1 body .header>#month-nav{position:absolute!important;left:50%!important;right:auto!important;top:61px!important;bottom:auto!important;transform:translateX(-50%)!important;margin:0!important;padding:3px!important;height:40px!important;width:174px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-wrap:nowrap!important;gap:0!important;z-index:8!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:21px!important;background:rgba(255,255,255,.065)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 5px 18px rgba(0,0,0,.16)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}' +
-      'html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{position:relative!important;display:block!important;flex:0 0 112px!important;width:112px!important;height:34px!important}' +
-      'html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper::after{content:"";position:absolute;right:8px;top:12px;width:5px;height:5px;border-right:1.5px solid #64748B;border-bottom:1.5px solid #64748B;transform:rotate(45deg);pointer-events:none}' +
-      'html.finance-ui-clean-v1 body .header #month-dropdown{appearance:none!important;height:34px!important;width:112px!important;min-width:112px!important;margin:0!important;padding:0 18px 0 6px!important;border:0!important;border-radius:17px!important;background:transparent!important;background-image:none!important;color:#F0F6FC!important;font:750 12px/1 Inter,sans-serif!important;letter-spacing:-.1px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;box-shadow:none!important;transform:none!important;cursor:pointer!important}' +
+      'html.finance-ui-clean-v1 body .header>#month-nav{position:absolute!important;left:50%!important;right:auto!important;top:60px!important;bottom:auto!important;transform:translateX(-50%)!important;margin:0!important;padding:0!important;height:40px!important;width:max-content!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-wrap:nowrap!important;gap:8px!important;z-index:8!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}' +
+      'html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{position:relative!important;display:block!important;flex:0 0 148px!important;width:148px!important;height:40px!important}' +
+      'html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper::after{content:"";position:absolute;right:13px;top:16px;width:5px;height:5px;border-right:1.5px solid #64748B;border-bottom:1.5px solid #64748B;transform:rotate(45deg);pointer-events:none;z-index:2}' +
+      'html.finance-ui-clean-v1 body .header #month-dropdown{appearance:none!important;height:40px!important;width:148px!important;min-width:148px!important;margin:0!important;padding:0 26px 0 14px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:12px!important;background:rgba(255,255,255,.07)!important;background-image:none!important;color:#F0F6FC!important;font:750 13px/1 Inter,sans-serif!important;letter-spacing:-.1px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 4px 14px rgba(0,0,0,.15)!important;transform:none!important;cursor:pointer!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}' +
       'html.finance-ui-clean-v1 body .header #month-dropdown:active{background:rgba(255,255,255,.055)!important}' +
-      '.finance-month-arrow-clean-v1{appearance:none!important;width:28px!important;height:34px!important;flex:0 0 28px!important;margin:0!important;padding:0!important;border:0!important;border-radius:17px!important;background:transparent!important;color:#A8B3C4!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;font:500 23px/1 Inter,sans-serif!important;-webkit-tap-highlight-color:transparent}' +
-      '.finance-month-arrow-clean-v1:active:not(:disabled){background:rgba(255,255,255,.07)!important;transform:scale(.94)}.finance-month-arrow-clean-v1:disabled{opacity:.22!important;cursor:default!important}' +
+      '.finance-month-arrow-clean-v1{appearance:none!important;width:36px!important;height:36px!important;flex:0 0 36px!important;margin:0!important;padding:0!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:10px!important;background:rgba(255,255,255,.055)!important;color:#A8B3C4!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;font:500 23px/1 Inter,sans-serif!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 3px 10px rgba(0,0,0,.12)!important;-webkit-tap-highlight-color:transparent}' +
+      '.finance-month-arrow-clean-v1:active:not(:disabled){background:rgba(96,165,250,.12)!important;border-color:rgba(96,165,250,.28)!important;transform:scale(.94)}.finance-month-arrow-clean-v1:disabled{opacity:.22!important;cursor:default!important}' +
       'html.finance-ui-clean-v1 #month-dropdown-menu{display:none;position:absolute!important;top:calc(100% + 7px)!important;left:50%!important;right:auto!important;min-width:188px!important;width:max-content!important;max-width:min(260px,88vw)!important;margin:0!important;padding:5px 0!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:12px!important;background:#161B22!important;color:#C9D1D9!important;box-shadow:0 14px 38px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.035)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;overflow-y:auto!important;transform:translateX(-50%)!important;transform-origin:top center!important;z-index:1000!important}' +
       'html.finance-ui-clean-v1 #month-dropdown-menu.active{display:block!important;animation:financeMonthMenuInCleanV1 .18s cubic-bezier(.16,1,.3,1)!important}' +
       'html.finance-ui-clean-v1 #month-dropdown-menu .custom-dropdown-item{min-height:36px!important;padding:9px 10px!important;color:#C9D1D9!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.045)!important;background:transparent!important;font:600 11px/1.35 Inter,sans-serif!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}' +
@@ -125,8 +125,8 @@
       '.container.finance-arrival-clean-v1>*{transform-origin:top center;animation:financeArrivalCleanV1 .30s cubic-bezier(.16,1,.3,1) both;will-change:transform}.container.finance-arrival-clean-v1>*:nth-child(2){animation-delay:.025s}.container.finance-arrival-clean-v1>*:nth-child(3){animation-delay:.05s}.container.finance-arrival-clean-v1>*:nth-child(4){animation-delay:.075s}.container.finance-arrival-clean-v1>*:nth-child(n+5){animation-delay:.10s}' +
       '@keyframes financeArrivalCleanV1{0%{transform:translateY(-12px) scale(.995)}72%{transform:translateY(1px) scale(1.001)}100%{transform:translateY(0) scale(1)}}' +
       '@keyframes financeMonthMenuInCleanV1{from{opacity:0;transform:translate(-50%,-8px) scale(.98)}to{opacity:1;transform:translate(-50%,0) scale(1)}}' +
-      '@media(max-width:600px){html.finance-ui-clean-v1 body .header{height:156px!important;min-height:156px!important;max-height:156px!important;padding:0!important}html.finance-ui-clean-v1 body .header>h1{top:13px!important;font-size:20px!important;max-width:calc(100% - 108px)!important}html.finance-ui-clean-v1 body .header>p{top:39px!important;font-size:11px!important}html.finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{top:8px!important;right:8px!important}.finance-profile-clean-v1,.finance-view-clean-v1{bottom:8px!important;border-radius:17px!important}.finance-profile-clean-v1{left:12px!important}.finance-view-clean-v1{right:7px!important}.finance-profile-clean-v1 button,.finance-view-clean-v1 button{height:28px!important;border-radius:13px!important}.finance-profile-clean-v1 button{min-width:47px!important;padding:0 6px!important;font-size:9.5px!important}.finance-view-clean-v1 button{width:37px!important}.finance-view-clean-v1 svg{width:16px!important;height:16px!important}html.finance-ui-clean-v1 body .header>#month-nav{top:60px!important;bottom:auto!important;height:40px!important;width:172px!important;padding:3px!important;border-radius:21px!important;gap:0!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{height:34px!important;width:110px!important;flex-basis:110px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper::after{right:7px!important;top:12px!important;width:5px!important;height:5px!important}html.finance-ui-clean-v1 body .header #month-dropdown{height:34px!important;width:110px!important;min-width:110px!important;padding:0 17px 0 5px!important;font-size:12px!important}.finance-month-arrow-clean-v1{width:28px!important;height:34px!important;flex-basis:28px!important;font-size:22px!important}html.finance-ui-clean-v1 #month-dropdown-menu{min-width:176px!important;border-radius:11px!important}html.finance-ui-clean-v1 #month-dropdown-menu .custom-dropdown-item{min-height:34px!important;padding:8px 10px!important;font-size:10px!important}}' +
-      '@media(max-width:370px){.finance-profile-clean-v1{left:8px!important}.finance-profile-clean-v1 button{min-width:43px!important;padding:0 5px!important}.finance-view-clean-v1 button{width:34px!important}html.finance-ui-clean-v1 body .header>#month-nav{width:164px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{width:104px!important;flex-basis:104px!important}html.finance-ui-clean-v1 body .header #month-dropdown{width:104px!important;min-width:104px!important;font-size:11.5px!important}.finance-month-arrow-clean-v1{width:27px!important;flex-basis:27px!important}}' +
+      '@media(max-width:600px){html.finance-ui-clean-v1 body .header{height:156px!important;min-height:156px!important;max-height:156px!important;padding:0!important}html.finance-ui-clean-v1 body .header>h1{left:12px!important;top:13px!important;transform:none!important;font-size:20px!important;max-width:calc(100% - 86px)!important;text-align:left!important}html.finance-ui-clean-v1 body .header>p{left:12px!important;top:39px!important;transform:none!important;font-size:11px!important;text-align:left!important}html.finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{top:8px!important;right:8px!important}.finance-profile-clean-v1,.finance-view-clean-v1{bottom:8px!important;border-radius:17px!important}.finance-profile-clean-v1{left:12px!important}.finance-view-clean-v1{right:7px!important}.finance-profile-clean-v1 button,.finance-view-clean-v1 button{height:28px!important;border-radius:13px!important}.finance-profile-clean-v1 button{min-width:47px!important;padding:0 6px!important;font-size:9.5px!important}.finance-view-clean-v1 button{width:37px!important}.finance-view-clean-v1 svg{width:16px!important;height:16px!important}html.finance-ui-clean-v1 body .header>#month-nav{top:60px!important;bottom:auto!important;height:40px!important;width:max-content!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;gap:7px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{height:40px!important;width:142px!important;flex-basis:142px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper::after{right:12px!important;top:16px!important;width:5px!important;height:5px!important}html.finance-ui-clean-v1 body .header #month-dropdown{height:40px!important;width:142px!important;min-width:142px!important;padding:0 25px 0 13px!important;font-size:13px!important;border-radius:12px!important}.finance-month-arrow-clean-v1{width:35px!important;height:35px!important;flex-basis:35px!important;border-radius:10px!important;font-size:22px!important}html.finance-ui-clean-v1 #month-dropdown-menu{min-width:176px!important;border-radius:11px!important}html.finance-ui-clean-v1 #month-dropdown-menu .custom-dropdown-item{min-height:34px!important;padding:8px 10px!important;font-size:10px!important}}' +
+      '@media(max-width:370px){.finance-profile-clean-v1{left:8px!important}.finance-profile-clean-v1 button{min-width:43px!important;padding:0 5px!important}.finance-view-clean-v1 button{width:34px!important}html.finance-ui-clean-v1 body .header>#month-nav{width:max-content!important;gap:6px!important}html.finance-ui-clean-v1 body .header>#month-nav>.custom-dropdown-wrapper{width:132px!important;flex-basis:132px!important}html.finance-ui-clean-v1 body .header #month-dropdown{width:132px!important;min-width:132px!important;font-size:12px!important}.finance-month-arrow-clean-v1{width:33px!important;flex-basis:33px!important}}' +
       '@media(prefers-reduced-motion:reduce){.container.finance-arrival-clean-v1>*{animation:none!important}}';
     document.head.appendChild(style);
   }
@@ -218,28 +218,86 @@
     });
   }
 
-  function monthRows() {
-    var menu = document.getElementById('month-dropdown-menu');
-    if (!menu) return [];
-    return Array.prototype.slice.call(menu.querySelectorAll('.custom-dropdown-item:not(.finance-month-add-clean-v1)'));
+  function financeMonthLabel(key) {
+    if (!/^\d{4}-\d{2}$/.test(String(key || ''))) return 'Välj månad';
+    var names = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+    var parts = key.split('-');
+    return (names[Number(parts[1]) - 1] || '') + ' ' + parts[0];
+  }
+
+  function trackerMonthKeys(storageKey) {
+    try {
+      var raw = localStorage.getItem(storageKey);
+      var data = raw ? JSON.parse(raw) : null;
+      return data && data.monthlyData ? Object.keys(data.monthlyData).sort() : [];
+    } catch (_) { return []; }
+  }
+
+  function financeMonthKeys() {
+    var keys;
+    if (page.family) {
+      keys = trackerMonthKeys('budgetTracker').concat(trackerMonthKeys('budgetTracker_maja'));
+      keys = Array.from(new Set(keys)).sort();
+    } else {
+      keys = trackerMonthKeys(user === 'maja' ? 'budgetTracker_maja' : 'budgetTracker');
+    }
+    var selected = '';
+    try { selected = localStorage.getItem('selectedBudgetMonth') || ''; } catch (_) {}
+    if (!keys.length && /^\d{4}-\d{2}$/.test(selected)) keys = [selected];
+    return keys;
+  }
+
+  function financeSelectedMonth(keys) {
+    keys = keys || financeMonthKeys();
+    var selected = '';
+    try { selected = localStorage.getItem('selectedBudgetMonth') || ''; } catch (_) {}
+    if (selected && keys.indexOf(selected) !== -1) return selected;
+    return keys.length ? keys[keys.length - 1] : '';
   }
 
   function updateMonthArrows() {
-    var rows = monthRows();
-    var index = rows.findIndex(function (row) { return row.classList.contains('selected'); });
+    var keys = financeMonthKeys();
+    var selected = financeSelectedMonth(keys);
+    var index = keys.indexOf(selected);
     var prev = document.getElementById('finance-month-prev-clean-v1');
     var next = document.getElementById('finance-month-next-clean-v1');
     if (prev) prev.disabled = index <= 0;
-    if (next) next.disabled = index < 0 || index >= rows.length - 1;
+    if (next) next.disabled = index < 0 || index >= keys.length - 1;
+  }
+
+  function refreshFinanceMonthView(key) {
+    if (isBudget && typeof window.setBudgetMonthFromFinance === 'function') {
+      window.setBudgetMonthFromFinance(key);
+      return;
+    }
+    if (view === 'analysis') {
+      try { if (typeof window.renderKPIs === 'function') window.renderKPIs(); } catch (_) {}
+      try { if (typeof window.renderGoals === 'function') window.renderGoals(); } catch (_) {}
+      try { if (typeof window.renderCharts === 'function') window.renderCharts(); } catch (_) {}
+      return;
+    }
+    if (page.family) {
+      try { if (typeof window.syncWithBudgetMonth === 'function') window.syncWithBudgetMonth(); } catch (_) {}
+      try { if (typeof window.renderAll === 'function') window.renderAll(); } catch (_) {}
+    }
+  }
+
+  function selectFinanceMonth(key) {
+    if (!key) return;
+    try { localStorage.setItem('selectedBudgetMonth', key); } catch (_) {}
+    refreshFinanceMonthView(key);
+    buildFinanceMonthMenu();
+    updateMonthArrows();
+    var menu = document.getElementById('month-dropdown-menu');
+    if (menu) menu.classList.remove('active');
   }
 
   function stepMonth(delta) {
-    var rows = monthRows();
-    var index = rows.findIndex(function (row) { return row.classList.contains('selected'); });
-    var target = rows[index + delta];
-    if (!target) return;
-    target.click();
-    setTimeout(function () { decorateMonthMenu(); updateMonthArrows(); }, 0);
+    var keys = financeMonthKeys();
+    var selected = financeSelectedMonth(keys);
+    var index = keys.indexOf(selected);
+    var target = keys[index + delta];
+    if (target) selectFinanceMonth(target);
   }
 
   function arrow(id, label, glyph, delta) {
@@ -258,79 +316,118 @@
     return button;
   }
 
-  var decoratingMonthMenu = false;
-  function decorateMonthMenu() {
-    if (!isBudget || decoratingMonthMenu) return;
+  function buildFinanceMonthMenu() {
     var menu = document.getElementById('month-dropdown-menu');
-    if (!menu) return;
-    decoratingMonthMenu = true;
-    try {
-      Array.prototype.slice.call(menu.querySelectorAll('.custom-dropdown-item:not(.finance-month-add-clean-v1)')).forEach(function (item) {
-        if (item.querySelector('.finance-month-delete-clean-v1')) return;
-        var label = String(item.textContent || '').trim();
-        item.textContent = '';
-        var span = document.createElement('span');
-        span.className = 'finance-month-label-clean-v1';
-        span.textContent = label;
+    var dropdown = document.getElementById('month-dropdown');
+    if (!menu || !dropdown) return;
+    var keys = financeMonthKeys();
+    var selected = financeSelectedMonth(keys);
+    if (selected) {
+      try { localStorage.setItem('selectedBudgetMonth', selected); } catch (_) {}
+    }
+    dropdown.textContent = selected ? financeMonthLabel(selected) : 'Ingen månad';
+    menu.innerHTML = '';
+
+    keys.forEach(function (key) {
+      var item = document.createElement('div');
+      item.className = 'custom-dropdown-item' + (key === selected ? ' selected' : '');
+      item.dataset.financeMonthKey = key;
+      var label = document.createElement('span');
+      label.className = 'finance-month-label-clean-v1';
+      label.textContent = financeMonthLabel(key);
+      item.appendChild(label);
+
+      if (isBudget) {
         var remove = document.createElement('button');
         remove.type = 'button';
         remove.className = 'finance-month-delete-clean-v1';
         remove.textContent = '×';
-        remove.title = 'Radera ' + label;
-        remove.setAttribute('aria-label','Radera ' + label);
+        remove.title = 'Radera ' + financeMonthLabel(key);
+        remove.setAttribute('aria-label','Radera ' + financeMonthLabel(key));
         remove.addEventListener('click', function (event) {
           event.preventDefault();
           event.stopPropagation();
-          item.click();
+          selectFinanceMonth(key);
           setTimeout(function () {
             if (typeof window.deleteCurrentMonth === 'function') window.deleteCurrentMonth();
+            setTimeout(function () { buildFinanceMonthMenu(); updateMonthArrows(); }, 0);
           }, 0);
         });
-        item.appendChild(span);
         item.appendChild(remove);
-      });
-
-      if (!menu.querySelector('.finance-month-add-clean-v1')) {
-        var add = document.createElement('div');
-        add.className = 'custom-dropdown-item finance-month-add-clean-v1';
-        add.textContent = '+ Ny månad';
-        add.addEventListener('click', function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          menu.classList.remove('active');
-          if (typeof window.addNewMonth === 'function') window.addNewMonth();
-          setTimeout(decorateMonthMenu, 0);
-        });
-        menu.appendChild(add);
       }
-    } finally {
-      decoratingMonthMenu = false;
+
+      item.addEventListener('click', function () { selectFinanceMonth(key); });
+      menu.appendChild(item);
+    });
+
+    if (isBudget) {
+      var add = document.createElement('div');
+      add.className = 'custom-dropdown-item finance-month-add-clean-v1';
+      add.textContent = '+ Ny månad';
+      add.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        menu.classList.remove('active');
+        if (typeof window.addNewMonth === 'function') window.addNewMonth();
+        setTimeout(function () { buildFinanceMonthMenu(); updateMonthArrows(); }, 0);
+      });
+      menu.appendChild(add);
     }
     updateMonthArrows();
   }
 
   function setupMonthControl() {
-    if (!isBudget) return;
     var header = document.querySelector('.header');
+    if (!header) return;
     var nav = document.getElementById('month-nav');
-    var wrapper = nav && nav.querySelector('.custom-dropdown-wrapper');
-    var menu = document.getElementById('month-dropdown-menu');
-    if (!header || !nav || !wrapper || !menu) return;
-
-    Array.prototype.slice.call(nav.children).forEach(function (child) {
-      if (child === wrapper) return;
-      child.remove();
-    });
+    if (!nav) {
+      nav = document.createElement('div');
+      nav.id = 'month-nav';
+      header.appendChild(nav);
+    }
+    nav.innerHTML = '';
     if (nav.parentNode !== header) header.appendChild(nav);
 
-    nav.insertBefore(arrow('finance-month-prev-clean-v1','Föregående månad','‹',-1), wrapper);
-    nav.appendChild(arrow('finance-month-next-clean-v1','Nästa månad','›',1));
-    decorateMonthMenu();
+    var wrapper = document.createElement('div');
+    wrapper.className = 'custom-dropdown-wrapper';
+    var dropdown = document.createElement('button');
+    dropdown.id = 'month-dropdown';
+    dropdown.type = 'button';
+    dropdown.setAttribute('aria-haspopup','listbox');
+    dropdown.setAttribute('aria-expanded','false');
+    var menu = document.createElement('div');
+    menu.id = 'month-dropdown-menu';
+    menu.className = 'custom-dropdown-menu';
+    wrapper.appendChild(dropdown);
+    wrapper.appendChild(menu);
 
-    var observer = new MutationObserver(function () {
-      setTimeout(decorateMonthMenu, 0);
+    nav.appendChild(arrow('finance-month-prev-clean-v1','Föregående månad','‹',-1));
+    nav.appendChild(wrapper);
+    nav.appendChild(arrow('finance-month-next-clean-v1','Nästa månad','›',1));
+
+    dropdown.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      var open = menu.classList.toggle('active');
+      dropdown.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-    observer.observe(menu, { childList: true });
+    document.addEventListener('click', function (event) {
+      if (!nav.contains(event.target)) {
+        menu.classList.remove('active');
+        dropdown.setAttribute('aria-expanded','false');
+      }
+    });
+
+    buildFinanceMonthMenu();
+    var selected = financeSelectedMonth(financeMonthKeys());
+    if (selected) refreshFinanceMonthView(selected);
+
+    window.addEventListener('firebase-sync', function (event) {
+      var syncKey = event && event.detail && event.detail.key;
+      if (syncKey === 'budgetTracker' || syncKey === 'budgetTracker_maja') {
+        setTimeout(function () { buildFinanceMonthMenu(); updateMonthArrows(); }, 0);
+      }
+    });
   }
 
   function animateArrival() {

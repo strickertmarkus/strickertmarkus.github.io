@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260830-finance-clean-v4"></script>
+<script src="finance-ui.js?v=20260830-finance-clean-v5"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1317,6 +1317,19 @@ function onMonthSelect() {
     initCharts();
     saveLocal();
 }
+
+
+// Finance UI API: switch month without depending on the legacy header dropdown.
+window.setBudgetMonthFromFinance = function(monthKey) {
+    if (!/^\d{4}-\d{2}$/.test(String(monthKey || '')) || !monthlyData[monthKey]) return false;
+    const [year, month] = monthKey.split('-').map(Number);
+    currentMonth = new Date(year, month - 1, 1);
+    onMonthSelect();
+    return true;
+};
+window.getBudgetMonthsForFinance = function() {
+    return Object.keys(monthlyData).sort();
+};
 
 function openSetStartMonth() {
     // Allow user to select which month to use as the start/base month
