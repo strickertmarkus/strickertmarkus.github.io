@@ -50,6 +50,22 @@
 
   installFinancePreload();
 
+  function installFinanceMorphBootstrap() {
+    if (document.getElementById('finance-morph-v13-style')) return;
+    var style = document.createElement('style');
+    style.id = 'finance-morph-v13-style';
+    style.textContent =
+      '@view-transition{navigation:auto}' +
+      '::view-transition-old(root),::view-transition-new(root){animation:none!important;mix-blend-mode:normal!important}' +
+      '::view-transition-old(root){opacity:0!important}' +
+      '::view-transition-group(finance-title),::view-transition-group(finance-person),::view-transition-group(finance-month),::view-transition-group(finance-profile),::view-transition-group(finance-views),::view-transition-group(finance-menu),::view-transition-group(finance-panel-0),::view-transition-group(finance-panel-1),::view-transition-group(finance-panel-2){animation-duration:.46s!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}' +
+      '::view-transition-old(finance-panel-0),::view-transition-old(finance-panel-1),::view-transition-old(finance-panel-2),::view-transition-new(finance-panel-0),::view-transition-new(finance-panel-1),::view-transition-new(finance-panel-2){mix-blend-mode:normal!important;animation-duration:.46s!important}' +
+      '::view-transition-old(finance-title),::view-transition-new(finance-title),::view-transition-old(finance-person),::view-transition-new(finance-person){mix-blend-mode:normal!important;animation-duration:.40s!important}';
+    document.head.appendChild(style);
+  }
+
+  installFinanceMorphBootstrap();
+
   function route(nextView, nextUser) {
     if (nextView === 'analysis') return nextUser === 'maja' ? 'analytics_maja.html' : 'analytics.html';
     if (nextView === 'family') return 'familjebudget.html';
@@ -440,6 +456,30 @@
     });
   }
 
+  function setupFinanceMorphTargets() {
+    var header = document.querySelector('.header');
+    if (header) {
+      var h1 = header.querySelector('h1');
+      var sub = header.querySelector('p');
+      var menu = header.querySelector('.nav-dropdown-wrapper');
+      if (h1) h1.style.viewTransitionName = 'finance-title';
+      if (sub) sub.style.viewTransitionName = 'finance-person';
+      if (menu) menu.style.viewTransitionName = 'finance-menu';
+    }
+    var month = document.getElementById('month-nav');
+    var profile = document.getElementById('finance-profile-clean-v1');
+    var views = document.getElementById('finance-view-clean-v1');
+    if (month) month.style.viewTransitionName = 'finance-month';
+    if (profile) profile.style.viewTransitionName = 'finance-profile';
+    if (views) views.style.viewTransitionName = 'finance-views';
+
+    var container = document.querySelector('.container');
+    if (!container) return;
+    Array.prototype.slice.call(container.children, 0, 3).forEach(function (el, index) {
+      el.style.viewTransitionName = 'finance-panel-' + index;
+    });
+  }
+
   function animateArrival() {
     var fresh = false;
     var direction = 0;
@@ -450,6 +490,11 @@
       sessionStorage.removeItem(TRANSITION_KEY);
     } catch (_) {}
     if (!fresh) return;
+    var nativeMorph = false;
+    try {
+      nativeMorph = !!(window.CSS && CSS.supports && CSS.supports('view-transition-name: none') && ('onpagereveal' in window));
+    } catch (_) {}
+    if (nativeMorph) return;
     var container = document.querySelector('.container');
     if (!container) return;
     container.style.setProperty('--finance-enter-x', direction > 0 ? '5px' : (direction < 0 ? '-5px' : '0px'));
@@ -482,6 +527,7 @@
     buildViewToggle();
     updateActiveStates();
     setupMonthControl();
+    setupFinanceMorphTargets();
     animateArrival();
     prefetch();
     requestAnimationFrame(function () {
