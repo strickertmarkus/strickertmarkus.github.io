@@ -1,0 +1,70 @@
+name: Refine finance month v9
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refine-finance-month-v9.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tone down month glow
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('budget/finance-ui.js')
+          s = p.read_text()
+
+          old = "color:#82B7FF!important;font:760 15px/1 Inter,sans-serif!important;letter-spacing:-.15px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;box-shadow:none!important;text-shadow:0 0 10px rgba(96,165,250,.34),0 2px 14px rgba(96,165,250,.20)!important;"
+          new = "color:#8CC0FF!important;font:760 15px/1 Inter,sans-serif!important;letter-spacing:-.15px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;box-shadow:none!important;text-shadow:0 2px 12px rgba(96,165,250,.18)!important;"
+          if old not in s:
+              raise SystemExit('month style not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+
+          pages = [
+              'budget/budget.html',
+              'budget/budget_maja.html',
+              'budget/analytics.html',
+              'budget/analytics_maja.html',
+              'budget/familjebudget.html',
+          ]
+          for name in pages:
+              f = Path(name)
+              text = f.read_text()
+              oldv = 'finance-ui.js?v=20260830-finance-clean-v8'
+              newv = 'finance-ui.js?v=20260830-finance-clean-v9'
+              if oldv not in text:
+                  raise SystemExit(f'finance v8 loader not found in {name}')
+              f.write_text(text.replace(oldv, newv, 1))
+          PY
+      - name: Verify JavaScript syntax
+        run: node --check budget/finance-ui.js
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Tone down finance month glow"
+          git push
