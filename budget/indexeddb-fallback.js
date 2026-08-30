@@ -243,11 +243,11 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
   var isBudget = path.endsWith('/budget/budget.html') || path.endsWith('/budget.html') ||
                  path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
-  if (isBudget && !document.querySelector('script[data-finance-month-controls-v15]')) {
+  if (isBudget && !document.querySelector('script[data-finance-month-controls-v16]')) {
     var monthControls = document.createElement('script');
-    monthControls.src = 'finance-month-controls-v15.js?v=20260830-0008-dark-centered-months-v15';
+    monthControls.src = 'finance-month-controls-v16.js?v=20260830-0945-week-style-dark-v16';
     monthControls.async = false;
-    monthControls.setAttribute('data-finance-month-controls-v15','true');
+    monthControls.setAttribute('data-finance-month-controls-v16','true');
     document.head.appendChild(monthControls);
   }
 })();
