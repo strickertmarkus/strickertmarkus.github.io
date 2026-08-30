@@ -1,0 +1,48 @@
+name: Patch budget month controls
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add direct month controls loader
+        shell: python
+        run: |
+          from pathlib import Path
+
+          needle = '<script src="indexeddb-fallback.js"></script>'
+          tag = '<script src="finance-month-controls-v16.js?v=20260830-1045-direct-html-v16" data-finance-month-controls-v16="true"></script>'
+          changed = False
+
+          for name in ('budget/budget.html', 'budget/budget_maja.html'):
+              path = Path(name)
+              text = path.read_text(encoding='utf-8')
+              if tag in text:
+                  continue
+              if needle not in text:
+                  raise SystemExit(f'Expected loader not found in {name}')
+              text = text.replace(needle, needle + '\n' + tag, 1)
+              path.write_text(text, encoding='utf-8')
+              changed = True
+
+          Path('/tmp/month_controls_changed').write_text('1' if changed else '0')
+      - name: Commit patch
+        run: |
+          if [ "$(cat /tmp/month_controls_changed)" != "1" ]; then
+            echo "Already patched"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add budget/budget.html budget/budget_maja.html
+          git commit -m "Load month controls directly from budget pages"
+          git push
