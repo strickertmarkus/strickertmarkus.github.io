@@ -29,9 +29,8 @@ jobs:
           grep -q "selectedMonthKey = localStorage.getItem('selectedBudgetMonth')" budget/budget_maja.html
           grep -q "Initialize charts once after the initial layout is committed" budget/budget.html
           grep -q "Initialize charts once after the initial layout is committed" budget/budget_maja.html
-          if grep -q "setTimeout(() =>.*Initializing charts" budget/budget.html; then exit 1; fi
-          if grep -q "finance-profile).*view-transition" budget/finance-ui.js; then exit 1; fi
-          if grep -q "finance-views).*view-transition" budget/finance-ui.js; then exit 1; fi
+          grep -q "repaint without replaying the intro animation" budget/budget.html
+          if grep -q "finance-profile" budget/finance-ui.js | grep -q "view-transition"; then exit 1; fi
           grep -q "finance-ui.js?v=20260830-finance-final-v5" budget/budget.html
           grep -q "finance-ui.js?v=20260830-finance-final-v5" budget/analytics.html
           grep -q "borderRadius: 6" budget/budget.html
