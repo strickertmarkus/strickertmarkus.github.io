@@ -1,0 +1,53 @@
+name: Refine finance morph v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refine-finance-morph-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply refinement
+        run: python3 .github/scripts/refine_finance_morph_v2.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          grep -q "::view-transition-old(finance-panel-0).*opacity:0" budget/finance-ui.js
+          grep -q "::view-transition-new(finance-panel-0).*opacity:1" budget/finance-ui.js
+          grep -q "borderRadius: 6" budget/budget.html
+          grep -q "borderRadius: 6" budget/budget_maja.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v2" budget/budget.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v2" budget/analytics.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v2" budget/familjebudget.html
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit refinement
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Refine finance morph rendering"
+          git push
