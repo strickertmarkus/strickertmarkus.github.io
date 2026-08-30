@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260830-finance-final-v4"></script>
+<script src="finance-ui.js?v=20260830-finance-final-v5"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2394,7 +2394,11 @@ function loadLocal() {
                     })  
                 };
             });
-            if (data.currentMonth) {
+            const selectedMonthKey = localStorage.getItem('selectedBudgetMonth');
+            if (/^\d{4}-\d{2}$/.test(selectedMonthKey || '') && monthlyData[selectedMonthKey]) {
+                const [y, m] = selectedMonthKey.split('-').map(Number);
+                currentMonth = new Date(y, m - 1, 1);
+            } else if (data.currentMonth) {
                 const tryMonth = new Date(data.currentMonth);
                 const tryKey = getMonthKey(tryMonth);
                 // Check if currentMonth still exists, if not use first available month
@@ -2755,19 +2759,16 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Delay chart initialization to ensure DOM is fully laid out
-setTimeout(() => {
-    console.log("Initializing charts...");
-    console.log("Chart.js available:", typeof Chart !== 'undefined');
-    console.log("pieChart canvas:", document.getElementById("pieChart"));
-    console.log("barChart canvas:", document.getElementById("barChart"));
-    try {
-        initCharts();
-        console.log("Charts initialized successfully");
-    } catch (e) {
-        console.error("Error initializing charts:", e);
-    }
-}, 500);
+// Initialize charts once after the initial layout is committed.
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        try {
+            initCharts();
+        } catch (e) {
+            console.error("Error initializing charts:", e);
+        }
+    });
+});
 renderPieLegend();
 
 // Listen for month changes from familjebudget.html
