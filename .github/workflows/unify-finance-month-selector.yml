@@ -19,7 +19,9 @@ jobs:
           fetch-depth: 0
 
       - name: Apply patch
-        run: python3 .github/scripts/unify_finance_month.py
+        run: |
+          sed -i 's/s = pattern.sub(controller, s, count=1)/s = pattern.sub(lambda match: controller, s, count=1)/' .github/scripts/unify_finance_month.py
+          python3 .github/scripts/unify_finance_month.py
 
       - name: Verify JavaScript syntax
         run: node --check budget/finance-ui.js
