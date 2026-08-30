@@ -19,6 +19,15 @@ function remember(u){user=u;try{localStorage.setItem('budget-last-user-v1',u)}ca
 function flush(){try{var a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur()}catch(_){}try{if(typeof window.saveLocal==='function')window.saveLocal()}catch(_){}}
 function mark(v,u){try{sessionStorage.setItem('finance-view-transition-v14',JSON.stringify({view:v,user:u,at:Date.now()}))}catch(_){}}
 
+function ensureMonthControls(){
+  if(!(bm||bj)||document.querySelector('script[data-finance-month-controls-v16]'))return;
+  var m=document.createElement('script');
+  m.src='finance-month-controls-v16.js?v=20260830-1035-v14-direct-v16';
+  m.async=false;
+  m.setAttribute('data-finance-month-controls-v16','true');
+  document.head.appendChild(m);
+}
+
 function setHeader(v,u){var h=document.querySelector('.header');if(!h)return;var h1=h.querySelector('h1'),sub=h.querySelector('p');if(h1)h1.textContent=title(v);if(sub){sub.textContent=u==='maja'?'Maja':'Markus';sub.style.color=color(u);sub.style.fontWeight='700';sub.style.opacity='1'}}
 function setProfile(u){document.querySelectorAll('#budget-user-toggle-v1 [data-user]').forEach(function(b){var active=b.dataset.user===u;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false')})}
 function setView(v){document.querySelectorAll('#budget-finance-toggle-v14 [data-view]').forEach(function(b){var active=b.dataset.view===v;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false')})}
@@ -70,7 +79,8 @@ function prefetch(){['budget','analysis','family'].forEach(function(v){var href=
 
 function animateIfTransition(){var tr=false;try{var d=JSON.parse(sessionStorage.getItem('finance-view-transition-v14')||'null');tr=!!(d&&Date.now()-Number(d.at||0)<5000);sessionStorage.removeItem('finance-view-transition-v14')}catch(_){}if(!tr)return;var c=document.querySelector('.container');if(!c)return;requestAnimationFrame(function(){c.classList.add('finance-arrival-v14');setTimeout(function(){c.classList.remove('finance-arrival-v14')},700)})}
 
-function install(){document.documentElement.classList.remove('finance-shell-booting-v8','finance-shell-v9','finance-shell-arriving-v9','finance-shell-arriving-v12');document.documentElement.classList.add('finance-shell-v14');installStyles();setHeader(view,user);var h=document.querySelector('.header');if(!h)return;clearLegacyBudgetLayout();var old8=document.getElementById('finance-toggle-row-v8');if(old8)old8.remove();var old9=document.getElementById('finance-toggle-row-v9');if(old9){var existingProfile=old9.querySelector('#budget-user-toggle-v1');if(existingProfile)h.appendChild(existingProfile);old9.remove()}var row=document.getElementById('finance-toggle-row-v14');if(!row){row=document.createElement('div');row.id='finance-toggle-row-v14';h.appendChild(row)}var pt=profileToggle(),ft=financeToggle();if(pt.parentNode!==row)row.appendChild(pt);if(ft.parentNode!==h)h.appendChild(ft);enforceProfileGeometry();setProfile(user);setView(view);prefetch();animateIfTransition();[0,60,180,500,1200].forEach(function(delay){setTimeout(function(){clearLegacyBudgetLayout();var r=document.getElementById('finance-toggle-row-v14'),p=document.getElementById('budget-user-toggle-v1');if(r&&p&&p.parentNode!==r)r.appendChild(p);enforceProfileGeometry()},delay)})}
+function install(){document.documentElement.classList.remove('finance-shell-booting-v8','finance-shell-v9','finance-shell-arriving-v9','finance-shell-arriving-v12');document.documentElement.classList.add('finance-shell-v14');installStyles();ensureMonthControls();setHeader(view,user);var h=document.querySelector('.header');if(!h)return;clearLegacyBudgetLayout();var old8=document.getElementById('finance-toggle-row-v8');if(old8)old8.remove();var old9=document.getElementById('finance-toggle-row-v9');if(old9){var existingProfile=old9.querySelector('#budget-user-toggle-v1');if(existingProfile)h.appendChild(existingProfile);old9.remove()}var row=document.getElementById('finance-toggle-row-v14');if(!row){row=document.createElement('div');row.id='finance-toggle-row-v14';h.appendChild(row)}var pt=profileToggle(),ft=financeToggle();if(pt.parentNode!==row)row.appendChild(pt);if(ft.parentNode!==h)h.appendChild(ft);enforceProfileGeometry();setProfile(user);setView(view);prefetch();animateIfTransition();[0,60,180,500,1200].forEach(function(delay){setTimeout(function(){clearLegacyBudgetLayout();var r=document.getElementById('finance-toggle-row-v14'),p=document.getElementById('budget-user-toggle-v1');if(r&&p&&p.parentNode!==r)r.appendChild(p);enforceProfileGeometry()},delay)})}
 
+ensureMonthControls();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
