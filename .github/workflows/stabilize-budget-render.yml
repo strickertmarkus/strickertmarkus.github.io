@@ -1,0 +1,58 @@
+name: Stabilize budget render
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/stabilize-budget-render.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  stabilize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply stabilization
+        run: python3 .github/scripts/stabilize_budget_render.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify budget render flow
+        shell: bash
+        run: |
+          grep -q "if (selected && !isBudget) refreshFinanceMonthView(selected);" budget/finance-ui.js
+          grep -q "selectedMonthKey = localStorage.getItem('selectedBudgetMonth')" budget/budget.html
+          grep -q "selectedMonthKey = localStorage.getItem('selectedBudgetMonth')" budget/budget_maja.html
+          grep -q "Initialize charts once after the initial layout is committed" budget/budget.html
+          grep -q "Initialize charts once after the initial layout is committed" budget/budget_maja.html
+          if grep -q "setTimeout(() =>.*Initializing charts" budget/budget.html; then exit 1; fi
+          if grep -q "finance-profile).*view-transition" budget/finance-ui.js; then exit 1; fi
+          if grep -q "finance-views).*view-transition" budget/finance-ui.js; then exit 1; fi
+          grep -q "finance-ui.js?v=20260830-finance-final-v5" budget/budget.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v5" budget/analytics.html
+          grep -q "borderRadius: 6" budget/budget.html
+          grep -q "borderRadius: 6" budget/budget_maja.html
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit stabilization
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Stabilize budget chart startup"
+          git push
