@@ -178,6 +178,34 @@ window.fallbackSetItem = fallbackSetItem;
 window.fallbackGetItem = fallbackGetItem;
 window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
+/* Compatibility for cached dark-only code.
+   Familjebudget/data.html still reference #dark-mode-btn during their own
+   DOMContentLoaded initialization. Keep a cached auth-config from physically
+   removing that element until all page init listeners have run. */
+(function () {
+  var path = window.location.pathname.toLowerCase();
+  var needsDarkHook = path.endsWith('/budget/familjebudget.html') || path.endsWith('/familjebudget.html') ||
+                      path.endsWith('/budget/data.html') || path.endsWith('/data.html');
+  if (!needsDarkHook || !window.Element || !Element.prototype.remove) return;
+  var originalRemove = Element.prototype.remove;
+  Element.prototype.remove = function () {
+    if (this && this.id === 'dark-mode-btn') {
+      try {
+        this.style.display = 'none';
+        this.setAttribute('aria-hidden','true');
+        this.tabIndex = -1;
+      } catch (_) {}
+      return;
+    }
+    return originalRemove.apply(this, arguments);
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      if (Element.prototype.remove !== originalRemove) Element.prototype.remove = originalRemove;
+    }, 0);
+  }, {once:true});
+})();
+
 /* Shared finance shell.
    Important: this bootstrap is deliberately non-blocking. It never hides the
    page while the shell loads, so a script/cache failure cannot strand Safari
@@ -222,18 +250,4 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
     monthControls.setAttribute('data-finance-month-controls-v15','true');
     document.head.appendChild(monthControls);
   }
-})();
-
-/* Recover the shared family-budget dataset if an empty/corrupt payload was
-   persisted. This is separate from the finance shell so data.html gets it too. */
-(function () {
-  var path = window.location.pathname.toLowerCase();
-  var isFamilyData = path.endsWith('/budget/familjebudget.html') || path.endsWith('/familjebudget.html') ||
-                     path.endsWith('/budget/data.html') || path.endsWith('/data.html');
-  if (!isFamilyData || document.querySelector('script[data-family-data-recovery-v1]')) return;
-  var recovery = document.createElement('script');
-  recovery.src = 'family-data-recovery-v1.js?v=20260830-0018-recover-family-data-v1';
-  recovery.async = false;
-  recovery.setAttribute('data-family-data-recovery-v1','true');
-  document.head.appendChild(recovery);
 })();
