@@ -2230,7 +2230,7 @@ function initCharts() {
             hoveredSegment = newHovered;
             const currentSections = getCurrentMonthSections().filter(s => !s.isIncome);
             const colors = currentSections.map((s, i) => {
-                if (newHovered === -1) return s.color + '88';
+                if (newHovered === -1) return s.color + 'A0';
                 return i === newHovered ? s.color + 'CC' : s.color + '44';
             });
             pieChart.data.datasets[0].backgroundColor = colors;
@@ -2248,7 +2248,7 @@ function initCharts() {
         if (!pieChart || !pieChart.data || !pieChart.data.datasets[0]) return;
         hoveredSegment = -1;
         const currentSections = getCurrentMonthSections().filter(s => !s.isIncome);
-        pieChart.data.datasets[0].backgroundColor = currentSections.map(s => s.color + '88');
+        pieChart.data.datasets[0].backgroundColor = currentSections.map(s => s.color + 'A0');
         pieChart._glowIndex = -1;
         pieChart.update({ animation: false });
     };
@@ -2322,7 +2322,7 @@ function updateCharts() {
     const expenseSections = sections.filter(s => !s.isIncome);
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + '88');
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
     pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
     pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#2A3041" : "#FFFFFF";
     pieChart.update({ animation: false });
