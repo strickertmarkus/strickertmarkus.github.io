@@ -1,0 +1,56 @@
+name: Fix budget morph flash
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-budget-morph-flash.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply morph flash fix
+        run: python3 .github/scripts/fix_budget_morph_flash.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify morph startup
+        shell: bash
+        run: |
+          grep -q "body .header>h1{view-transition-name:finance-title}" budget/finance-ui.js
+          grep -q "header>\*:not(h1){visibility:hidden" budget/finance-ui.js
+          grep -q ">Budgetplanerare</h1>" budget/budget.html
+          grep -q ">Budgetplanerare</h1>" budget/budget_maja.html
+          grep -q ">Analys</h1>" budget/analytics.html
+          grep -q ">Analys</h1>" budget/analytics_maja.html
+          grep -q ">Familjebudget</h1>" budget/familjebudget.html
+          grep -q "finance-ui.js?v=20260830-finance-final-v6" budget/budget.html
+          grep -q "el.querySelector('canvas')" budget/finance-ui.js
+          if grep -q "h1.style.viewTransitionName = 'finance-title'" budget/finance-ui.js; then exit 1; fi
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Remove budget morph startup flash"
+          git push
