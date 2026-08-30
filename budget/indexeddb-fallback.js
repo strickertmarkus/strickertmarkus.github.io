@@ -235,7 +235,7 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
 
   if (!document.querySelector('script[data-finance-shell-v14]')) {
     var script = document.createElement('script');
-    script.src = 'finance-shell-v14.js?v=20260829-2352-authoritative-profile-geometry-v14';
+    script.src = 'finance-shell-v14.js?v=20260830-1025-month-rescue-v14';
     script.async = false;
     script.setAttribute('data-finance-shell-v14','true');
     document.head.appendChild(script);
@@ -245,7 +245,7 @@ window.syncIndexedDBToLocalStorage = syncIndexedDBToLocalStorage;
                  path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html');
   if (isBudget && !document.querySelector('script[data-finance-month-controls-v16]')) {
     var monthControls = document.createElement('script');
-    monthControls.src = 'finance-month-controls-v16.js?v=20260830-0945-week-style-dark-v16';
+    monthControls.src = 'finance-month-controls-v16.js?v=20260830-1025-month-rescue-v16';
     monthControls.async = false;
     monthControls.setAttribute('data-finance-month-controls-v16','true');
     document.head.appendChild(monthControls);
