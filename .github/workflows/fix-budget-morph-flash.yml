@@ -54,3 +54,5 @@ jobs:
           git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
           git commit -m "Remove budget morph startup flash"
           git push
+
+# retry 2
