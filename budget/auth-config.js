@@ -39,7 +39,11 @@ window.FIREBASE_CONFIG = {
   document.addEventListener('DOMContentLoaded', function () {
     document.documentElement.classList.add('dark-mode','budget-dark-only-v1');
     var button = document.getElementById('dark-mode-btn');
-    if (button) button.remove();
+    if (button) {
+      button.style.display = 'none';
+      button.setAttribute('aria-hidden','true');
+      button.tabIndex = -1;
+    }
     var nav = document.querySelector('.header > .nav-dropdown-wrapper');
     if (nav) nav.style.right = window.matchMedia && window.matchMedia('(max-width:480px)').matches ? '8px' : '16px';
 
