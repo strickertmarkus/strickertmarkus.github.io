@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/calendar-push-reminders.yml'
+      - 'budget/push-worker.mjs'
 
 permissions:
   contents: read
