@@ -1,0 +1,72 @@
+name: Apply shared nav motion and person morph v1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-nav-motion-and-person-morph-v1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply shared nav motion and person morph
+        run: python3 .github/scripts/apply_nav_motion_and_person_morph_v1.py
+
+      - name: Verify JavaScript
+        run: |
+          node --check budget/nav-menu-motion.js
+          node --check budget/finance-ui.js
+
+      - name: Verify navigation motion coverage and finance scope
+        shell: bash
+        run: |
+          grep -Fq 'transform .328s cubic-bezier(.22,1,.36,1)' budget/nav-menu-motion.js
+          grep -Fq 'transform .308s cubic-bezier(.22,1,.36,1)' budget/nav-menu-motion.js
+          grep -Fq 'clip-path:inset(0 0 68% 56% round 12px)' budget/nav-menu-motion.js
+          grep -Fq "item.style.setProperty('--nav-expand-delay'" budget/nav-menu-motion.js
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            grep -Fq 'nav-menu-motion.js?v=20260831-nav-motion-v1' "$f"
+          done < /tmp/nav-motion-pages.txt
+
+          ! grep -Fq '.nav-dropdown-menu.show > :nth-child(9)' budget/budget.html
+          ! grep -Fq 'clip-path: inset(0 0 68% 56% round 12px)' budget/budget.html
+
+          grep -Fq "if (page.family) {" budget/finance-ui.js
+          grep -Fq "hrefs.push(route(view, user === 'maja' ? 'markus' : 'maja'))" budget/finance-ui.js
+          grep -Fq "sub.style.viewTransitionName = 'finance-person'" budget/finance-ui.js
+
+          for f in budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html; do
+            grep -Fq 'finance-ui.js?v=20260831-finance-theme-blue-v10-person-morph' "$f"
+          done
+
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/nav-menu-motion.js|budget/finance-ui.js|budget/*.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+            case "$f" in
+              *backup*.html) echo "Backup page changed unexpectedly: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit shared navigation motion
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/nav-menu-motion.js budget/finance-ui.js budget/*.html
+          git commit -m "Share hamburger motion and morph profile navigation"
+          git push
