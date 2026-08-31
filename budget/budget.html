@@ -2029,17 +2029,6 @@ function refresh() {
 let pieChart, barChart;
 let showComparisonMode = false;
 
-function lightenChartColor(hex, amount = 0.10) {
-    const value = String(hex || '').replace('#', '');
-    if (!/^[0-9a-f]{6}$/i.test(value)) return hex;
-    const rgb = parseInt(value, 16);
-    const mix = channel => Math.round(channel + (255 - channel) * amount);
-    const r = mix((rgb >> 16) & 255);
-    const g = mix((rgb >> 8) & 255);
-    const b = mix(rgb & 255);
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
 function initCharts() {
     // Pre-populate legend to stabilize grid layout before chart animation
     renderPieLegend();
@@ -2075,15 +2064,14 @@ function initCharts() {
             labels: expenseSections.map(s => s.name),
             datasets: [{
                 data: expenseSections.map(() => 0),
-                backgroundColor: expenseSections.map(s => s.color),
-                hoverBackgroundColor: expenseSections.map(s => s.color),
-                borderColor: expenseSections.map(s => lightenChartColor(s.color)),
-                borderWidth: 1.5,
-                borderAlign: "inner",
+                backgroundColor: expenseSections.map(s => s.color + 'A0'),
+                hoverBackgroundColor: expenseSections.map(s => s.color + 'A0'),
+                borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF",
+                borderWidth: isDarkMode() ? 3 : 4,
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: 1.5,
-                hoverBorderColor: expenseSections.map(s => lightenChartColor(s.color)),
+                hoverBorderWidth: 0,
+                hoverBorderColor: 'transparent',
                 hoverOffset: 0,
             }]
         },
@@ -2281,13 +2269,12 @@ function updateCharts() {
     const expenseSections = sections.filter(s => !s.isIncome);
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color);
-    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => s.color);
-    pieChart.data.datasets[0].borderColor = expenseSections.map(s => lightenChartColor(s.color));
-    pieChart.data.datasets[0].borderWidth = 1.5;
-    pieChart.data.datasets[0].borderAlign = "inner";
-    pieChart.data.datasets[0].hoverBorderWidth = 1.5;
-    pieChart.data.datasets[0].hoverBorderColor = expenseSections.map(s => lightenChartColor(s.color));
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
+    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => s.color + 'A0');
+    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
+    pieChart.data.datasets[0].borderWidth = isDarkMode() ? 3 : 4;
+    pieChart.data.datasets[0].hoverBorderWidth = 0;
+    pieChart.data.datasets[0].hoverBorderColor = 'transparent';
     pieChart.update({ animation: false });
     renderPieLegend();
 
