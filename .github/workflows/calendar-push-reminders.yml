@@ -1,0 +1,39 @@
+name: Calendar push reminders
+
+on:
+  schedule:
+    - cron: '2-57/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-reminders:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.PUSH_WORKER_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      TZ: Europe/Stockholm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check sender credential
+        shell: bash
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "Missing repository secret FIREBASE_SERVICE_ACCOUNT_JSON" >&2
+            exit 1
+          fi
+
+      - name: Install Firebase Admin SDK
+        run: npm install --no-save --no-package-lock firebase-admin@13
+
+      - name: Send due calendar reminders
+        run: node budget/push-worker.mjs
