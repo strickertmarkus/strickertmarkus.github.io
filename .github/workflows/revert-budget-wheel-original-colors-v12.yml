@@ -1,0 +1,54 @@
+name: Revert Budget wheel original colors v12
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/revert-budget-wheel-original-colors-v12.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revert Budget wheel colors
+        run: python3 .github/scripts/revert_budget_wheel_original_colors_v12.py
+
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          for f in budget/budget.html budget/budget_maja.html; do
+            grep -Fq "backgroundColor: expenseSections.map(s => s.color + 'A0')" "$f"
+            grep -Fq "hoverBackgroundColor: expenseSections.map(s => s.color + 'A0')" "$f"
+            grep -Fq 'borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF"' "$f"
+            grep -Fq 'borderWidth: isDarkMode() ? 3 : 4' "$f"
+            grep -Fq 'hoverBorderWidth: 0' "$f"
+            grep -Fq "hoverBorderColor: 'transparent'" "$f"
+            grep -Fq 'borderRadius: 6' "$f"
+            grep -Fq 'spacing: 1' "$f"
+            ! grep -Fq 'function lightenChartColor' "$f"
+          done
+          grep -Fq 'z-index:100!important' budget/finance-ui.js
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js budget/finance-ui.js budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/budget.html|budget/budget_maja.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit wheel color revert
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/budget.html budget/budget_maja.html
+          git commit -m "Restore original Budget wheel colors"
+          git push
