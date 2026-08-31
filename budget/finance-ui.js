@@ -21,7 +21,7 @@
     ? { accent: '#4ADE80', hover: '#86EFAC', active: '#22C55E', rgb: '74,222,128', month: '#4ADE80', monthHover: '#86EFAC', monthActive: '#22C55E', bgAlpha: '.085', headerAlpha: '.06', borderAlpha: '.20', glowAlpha: '.075' }
     : (view === 'family'
       ? { accent: '#FB923C', hover: '#FDBA74', active: '#F97316', rgb: '251,146,60', month: '#FB923C', monthHover: '#FDBA74', monthActive: '#F97316', bgAlpha: '.085', headerAlpha: '.06', borderAlpha: '.20', glowAlpha: '.075' }
-      : { accent: '#F87171', hover: '#FCA5A5', active: '#EF4444', rgb: '248,113,113', month: '#FB7185', monthHover: '#FDA4AF', monthActive: '#F43F5E', bgAlpha: '.105', headerAlpha: '.072', borderAlpha: '.23', glowAlpha: '.09' });
+      : { accent: '#A78BFA', hover: '#C4B5FD', active: '#8B5CF6', rgb: '167,139,250', month: '#C084FC', monthHover: '#D8B4FE', monthActive: '#A855F7', bgAlpha: '.105', headerAlpha: '.072', borderAlpha: '.23', glowAlpha: '.09' });
   document.documentElement.dataset.financeView = view;
   document.documentElement.style.setProperty('--finance-accent', financeTheme.accent);
   document.documentElement.style.setProperty('--finance-accent-hover', financeTheme.hover);
