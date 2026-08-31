@@ -212,6 +212,113 @@
     select.appendChild(option);
   }
 
+  function ensureReminderControl() {
+    if (!isCalendar) return document.getElementById('ev-reminder');
+    var existing = document.getElementById('ev-reminder');
+    if (existing) return existing;
+
+    var notes = document.getElementById('ev-notes');
+    var modal = document.getElementById('event-modal');
+    if (!modal) return null;
+
+    var group = document.createElement('div');
+    group.className = 'form-group';
+    group.setAttribute('data-calendar-reminder-v4', 'true');
+    group.innerHTML =
+      '<label>Påminnelse</label>' +
+      '<select id="ev-reminder">' +
+        '<option value="">Ingen</option>' +
+        '<option value="0">Vid starttid</option>' +
+        '<option value="15">15 min före</option>' +
+        '<option value="60">1 timme före</option>' +
+        '<option value="180">3 timmar före</option>' +
+        '<option value="1440">1 dag före</option>' +
+      '</select>';
+
+    var notesGroup = notes && notes.closest ? notes.closest('.form-group') : null;
+    if (notesGroup && notesGroup.parentNode) notesGroup.parentNode.insertBefore(group, notesGroup);
+    else {
+      var footer = modal.querySelector('.modal-footer');
+      if (footer && footer.parentNode) footer.parentNode.insertBefore(group, footer);
+    }
+    return document.getElementById('ev-reminder');
+  }
+
+  function getEventsSafe() {
+    try { return typeof window.getEvents === 'function' ? (window.getEvents() || []) : []; }
+    catch (e) { return []; }
+  }
+
+  function syncReminderUi(ev, isNew) {
+    var select = ensureReminderControl();
+    if (!select) return;
+    if (isNew) {
+      select.value = '60';
+      return;
+    }
+    if (!ev || ev.reminderMinutes === null || ev.reminderMinutes === undefined || ev.reminderMinutes === '') {
+      select.value = '';
+      return;
+    }
+    select.value = String(ev.reminderMinutes);
+  }
+
+  function persistReminder(events) {
+    try {
+      if (window.DB && typeof window.DB.set === 'function') {
+        window.DB.set('events', events);
+        return true;
+      }
+    } catch (e) {}
+    try {
+      localStorage.setItem('cal_events', JSON.stringify(events));
+      return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function bindReminderSave() {
+    if (!isCalendar || typeof window.saveEvent !== 'function' || window.saveEvent.__calendarReminderV4Wrapped) return;
+    var originalSave = window.saveEvent;
+    var saveWrapped = function () {
+      var reminder = document.getElementById('ev-reminder');
+      var reminderMinutes = reminder && reminder.value !== '' ? Number(reminder.value) : null;
+      var editIdEl = document.getElementById('edit-event-id');
+      var editId = editIdEl ? String(editIdEl.value || '') : '';
+      var before = getEventsSafe();
+      var beforeIds = before.map(function (ev) { return String(ev && ev.id); });
+
+      var result = originalSave.apply(this, arguments);
+      var events = getEventsSafe();
+      var target = null;
+
+      if (editId) {
+        target = events.find(function (ev) { return String(ev && ev.id) === editId; }) || null;
+      } else {
+        for (var i = events.length - 1; i >= 0; i--) {
+          if (beforeIds.indexOf(String(events[i] && events[i].id)) < 0) {
+            target = events[i];
+            break;
+          }
+        }
+      }
+
+      if (target) {
+        target.reminderMinutes = Number.isFinite(reminderMinutes) && reminderMinutes >= 0 ? reminderMinutes : null;
+        persistReminder(events);
+        try { if (typeof window.renderMonth === 'function') window.renderMonth(); } catch (e) {}
+        try {
+          if (typeof selectedDate !== 'undefined' && selectedDate && typeof window.renderDayEvents === 'function') {
+            window.renderDayEvents(selectedDate);
+          }
+        } catch (e) {}
+      }
+      return result;
+    };
+    saveWrapped.__calendarReminderV4Wrapped = true;
+    window.saveEvent = saveWrapped;
+  }
+
   function parseIso(iso) {
     var parts = String(iso || '').split('-').map(Number);
     if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return null;
@@ -306,8 +413,13 @@
       var originalOpen = window.openEventModal;
       var openWrapped = function () {
         ensureYearlyOption();
+        ensureReminderControl();
         var result = originalOpen.apply(this, arguments);
-        setTimeout(function () { ensureYearlyOption(); decorateYears(); }, 20);
+        setTimeout(function () {
+          ensureYearlyOption();
+          decorateYears();
+          if (isCalendar) syncReminderUi(null, true);
+        }, 20);
         return result;
       };
       openWrapped.__calendarFollowupsV4Wrapped = true;
@@ -316,10 +428,17 @@
 
     if (typeof window.editEvent === 'function' && !window.editEvent.__calendarFollowupsV4Wrapped) {
       var originalEdit = window.editEvent;
-      var editWrapped = function () {
+      var editWrapped = function (id) {
         ensureYearlyOption();
+        ensureReminderControl();
         var result = originalEdit.apply(this, arguments);
-        setTimeout(function () { ensureYearlyOption(); decorateYears(); }, 20);
+        var events = getEventsSafe();
+        var ev = events.find(function (item) { return String(item && item.id) === String(id); }) || null;
+        setTimeout(function () {
+          ensureYearlyOption();
+          decorateYears();
+          if (isCalendar) syncReminderUi(ev, false);
+        }, 20);
         return result;
       };
       editWrapped.__calendarFollowupsV4Wrapped = true;
@@ -337,9 +456,11 @@
     window.__calendarFollowupsV4Installed = true;
     addStyles();
     ensureYearlyOption();
+    ensureReminderControl();
     bindYearlyExpansion();
     bindYearPicker();
     bindModalRefresh();
+    bindReminderSave();
     installHomeFabFix();
     setTimeout(decorateYears, 40);
 
