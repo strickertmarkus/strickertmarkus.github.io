@@ -8,6 +8,8 @@ window.FIREBASE_CONFIG = {
   databaseURL: "https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
+window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkSLbYF1l4EFBho3eT11rSdjV8esa4m9v97GjLk";
+
 (function () {
   var path = window.location.pathname.toLowerCase();
   var darkOnlyPages = [
