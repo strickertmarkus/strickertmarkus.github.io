@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import { initializeApp, cert } from 'firebase-admin/app';
+import { initializeApp, cert, deleteApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
 import { getMessaging } from 'firebase-admin/messaging';
 
@@ -111,13 +111,13 @@ function invalidTokenCode(code) {
 }
 
 const serviceAccount = JSON.parse(requiredEnv('FIREBASE_SERVICE_ACCOUNT_JSON'));
-initializeApp({
+const app = initializeApp({
   credential: cert(serviceAccount),
   databaseURL: firebaseDatabaseUrl()
 });
 
-const db = getDatabase();
-const fcm = getMessaging();
+const db = getDatabase(app);
+const fcm = getMessaging(app);
 
 async function sendToDevices(deviceEntries, payload) {
   let success = 0;
@@ -253,16 +253,20 @@ async function processReminders(events, devices) {
   }
 }
 
-const [eventsSnap, devicesSnap] = await Promise.all([
-  db.ref('cal_events').get(),
-  db.ref('pushDevices').get()
-]);
+try {
+  const [eventsSnap, devicesSnap] = await Promise.all([
+    db.ref('cal_events').get(),
+    db.ref('pushDevices').get()
+  ]);
 
-const eventsValue = parseStored(eventsSnap.val(), []);
-const events = Array.isArray(eventsValue) ? eventsValue : [];
-const devices = devicesSnap.val() || {};
+  const eventsValue = parseStored(eventsSnap.val(), []);
+  const events = Array.isArray(eventsValue) ? eventsValue : [];
+  const devices = devicesSnap.val() || {};
 
-console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
-await processQueue(devices);
-await processReminders(events, devices);
-console.log('[push] worker complete');
+  console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
+  await processQueue(devices);
+  await processReminders(events, devices);
+  console.log('[push] worker complete');
+} finally {
+  await deleteApp(app);
+}
