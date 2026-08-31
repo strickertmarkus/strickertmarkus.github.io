@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260831-finance-theme-violet-v6"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v7"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2069,8 +2069,8 @@ function initCharts() {
                 borderWidth: isDarkMode() ? 3 : 4,
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: 0,
-                hoverBorderColor: 'transparent',
+                hoverBorderWidth: isDarkMode() ? 4 : 5,
+                hoverBorderColor: isDarkMode() ? 'rgba(125,211,252,0.70)' : '#2563EB',
                 hoverOffset: 0,
             }]
         },
