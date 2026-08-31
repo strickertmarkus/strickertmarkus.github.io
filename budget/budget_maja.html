@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260831-finance-theme-blue-v8"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v9"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2074,11 +2074,13 @@ function initCharts() {
             datasets: [{
                 data: expenseSections.map(() => 0),
                 backgroundColor: expenseSections.map(s => s.color),
+                hoverBackgroundColor: expenseSections.map(s => s.color),
                 borderColor: expenseSections.map(s => lightenChartColor(s.color)),
-                borderWidth: 2,
+                borderWidth: 1.5,
+                borderAlign: "inner",
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: 2,
+                hoverBorderWidth: 1.5,
                 hoverBorderColor: expenseSections.map(s => lightenChartColor(s.color)),
                 hoverOffset: 0,
             }]
@@ -2107,25 +2109,7 @@ function initCharts() {
                     cornerRadius: 8,
                 }
             }
-        },
-        plugins: [{
-            id: 'segmentGlow',
-            afterDatasetDraw(chart) {
-                if (chart._glowIndex == null || chart._glowIndex < 0) return;
-                const meta = chart.getDatasetMeta(0);
-                const arc = meta.data[chart._glowIndex];
-                if (!arc) return;
-                const ctx = chart.ctx;
-                ctx.save();
-                ctx.globalCompositeOperation = 'destination-over';
-                ctx.shadowColor = chart._glowColor || 'rgba(255,255,255,0.5)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-                arc.draw(ctx);
-                ctx.restore();
-            }
-        }]
+        }
     });
 
     // Bar chart
@@ -2222,42 +2206,6 @@ function initCharts() {
         }
     });
     
-    // Per-segment hover glow: highlight only the hovered segment
-    const pieCanvas = document.getElementById("pieChart");
-    // Use onmousemove/onmouseleave (not addEventListener) to prevent listener accumulation on re-init
-    let hoveredSegment = -1;
-
-    pieCanvas.onmousemove = (e) => {
-        if (!pieChart || !pieChart.data || !pieChart.data.datasets[0]) return;
-        const elements = pieChart.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
-        const newHovered = elements.length > 0 ? elements[0].index : -1;
-        if (newHovered !== hoveredSegment) {
-            hoveredSegment = newHovered;
-            const currentSections = getCurrentMonthSections().filter(s => !s.isIncome);
-            const colors = currentSections.map((s, i) => {
-                if (newHovered === -1) return s.color + 'A0';
-                return i === newHovered ? s.color + 'CC' : s.color + '44';
-            });
-            pieChart.data.datasets[0].backgroundColor = colors;
-            if (newHovered >= 0 && newHovered < currentSections.length) {
-                const c = currentSections[newHovered].color;
-                pieChart._glowIndex = newHovered;
-                pieChart._glowColor = c + '90';
-            } else {
-                pieChart._glowIndex = -1;
-            }
-            pieChart.update({ animation: false });
-        }
-    };
-    pieCanvas.onmouseleave = () => {
-        if (!pieChart || !pieChart.data || !pieChart.data.datasets[0]) return;
-        hoveredSegment = -1;
-        const currentSections = getCurrentMonthSections().filter(s => !s.isIncome);
-        pieChart.data.datasets[0].backgroundColor = currentSections.map(s => s.color + 'A0');
-        pieChart._glowIndex = -1;
-        pieChart.update({ animation: false });
-    };
-
     // Animate in the real data after chart has settled into the layout
     setTimeout(() => {
         if (!pieChart) return;
@@ -2300,9 +2248,11 @@ function updateCharts() {
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
     pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color);
+    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => s.color);
     pieChart.data.datasets[0].borderColor = expenseSections.map(s => lightenChartColor(s.color));
-    pieChart.data.datasets[0].borderWidth = 2;
-    pieChart.data.datasets[0].hoverBorderWidth = 2;
+    pieChart.data.datasets[0].borderWidth = 1.5;
+    pieChart.data.datasets[0].borderAlign = "inner";
+    pieChart.data.datasets[0].hoverBorderWidth = 1.5;
     pieChart.data.datasets[0].hoverBorderColor = expenseSections.map(s => lightenChartColor(s.color));
     pieChart.update({ animation: { duration: 800 } });
     renderPieLegend();
