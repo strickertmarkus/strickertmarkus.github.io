@@ -1,0 +1,51 @@
+name: Refine Budget wheel contrast v9
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refine-budget-wheel-contrast-v9.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refine Budget wheel contrast
+        run: python3 .github/scripts/refine_budget_wheel_contrast_v9.py
+
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          for f in budget/budget.html budget/budget_maja.html; do
+            test "$(grep -Fc 'expenseSections.map(s => s.color)' "$f")" -ge 2
+            grep -Fq 'borderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF"' "$f"
+            grep -Fq 'borderWidth: 4' "$f"
+            grep -Fq 'hoverBorderWidth: 4' "$f"
+            grep -Fq 'hoverBorderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF"' "$f"
+            ! grep -Fq "expenseSections.map(s => s.color + 'C0')" "$f"
+            ! grep -Fq 'rgba(125,211,252,0.70)' "$f"
+          done
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js budget/finance-ui.js budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/budget.html|budget/budget_maja.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit wheel contrast refinement
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/budget.html budget/budget_maja.html
+          git commit -m "Increase Budget wheel segment contrast"
+          git push
