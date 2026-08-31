@@ -1,0 +1,51 @@
+name: Try budget violet theme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/try-budget-violet-theme.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply Budget-only violet theme
+        run: python3 .github/scripts/try_budget_violet_theme.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify scope
+        shell: bash
+        run: |
+          grep -q "accent: '#8B5CF6'" budget/finance-ui.js
+          grep -q "finance-theme-budget-violet-v1" budget/budget.html
+          grep -q "finance-theme-budget-violet-v1" budget/budget_maja.html
+          grep -q "finance-theme-exp-v4" budget/analytics.html
+          grep -q "finance-theme-exp-v4" budget/analytics_maja.html
+          grep -q "finance-theme-exp-v4" budget/familjebudget.html
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit Budget-only theme experiment
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html
+          git commit -m "Try violet theme on Budget view"
+          git push
