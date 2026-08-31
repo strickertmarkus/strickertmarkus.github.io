@@ -2064,13 +2064,13 @@ function initCharts() {
             labels: expenseSections.map(s => s.name),
             datasets: [{
                 data: expenseSections.map(() => 0),
-                backgroundColor: expenseSections.map(s => s.color + 'C0'),
-                borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF",
-                borderWidth: isDarkMode() ? 3 : 4,
+                backgroundColor: expenseSections.map(s => s.color),
+                borderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF",
+                borderWidth: 4,
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: 0,
-                hoverBorderColor: 'transparent',
+                hoverBorderWidth: 4,
+                hoverBorderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF",
                 hoverOffset: 0,
             }]
         },
@@ -2322,9 +2322,11 @@ function updateCharts() {
     const expenseSections = sections.filter(s => !s.isIncome);
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'C0');
-    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
-    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#2A3041" : "#FFFFFF";
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color);
+    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#0B0F16" : "#FFFFFF";
+    pieChart.data.datasets[0].borderWidth = 4;
+    pieChart.data.datasets[0].hoverBorderWidth = 4;
+    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#0B0F16" : "#FFFFFF";
     pieChart.update({ animation: false });
     renderPieLegend();
 
