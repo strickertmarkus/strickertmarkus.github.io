@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260831-finance-theme-blue-v7"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v8"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2062,13 +2062,13 @@ function initCharts() {
             labels: expenseSections.map(s => s.name),
             datasets: [{
                 data: expenseSections.map(() => 0),
-                backgroundColor: expenseSections.map(s => s.color + 'A0'),
+                backgroundColor: expenseSections.map(s => s.color + 'C0'),
                 borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF",
                 borderWidth: isDarkMode() ? 3 : 4,
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: isDarkMode() ? 4 : 5,
-                hoverBorderColor: isDarkMode() ? 'rgba(125,211,252,0.70)' : '#2563EB',
+                hoverBorderWidth: 0,
+                hoverBorderColor: 'transparent',
                 hoverOffset: 0,
             }]
         },
@@ -2288,9 +2288,9 @@ function updateCharts() {
     const expenseSections = sections.filter(s => !s.isIncome);
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'C0');
     pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
-    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? 'rgba(125,211,252,0.70)' : '#2563EB';
+    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#2A3041" : "#FFFFFF";
     pieChart.update({ animation: { duration: 800 } });
     renderPieLegend();
 
