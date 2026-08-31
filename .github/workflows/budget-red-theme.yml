@@ -1,0 +1,51 @@
+name: Budget red theme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/budget-red-theme.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply red Budget theme
+        run: python3 .github/scripts/budget_red_theme.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          grep -q "accent: '#F87171'.*rgb: '248,113,113'.*month: '#FB7185'" budget/finance-ui.js
+          grep -q "accent: '#4ADE80'.*rgb: '74,222,128'" budget/finance-ui.js
+          grep -q "accent: '#FB923C'.*rgb: '251,146,60'" budget/finance-ui.js
+          for f in budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html; do
+            grep -q "finance-theme-red-v5" "$f"
+          done
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit red Budget theme
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Switch Budget finance theme to red"
+          git push
