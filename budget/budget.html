@@ -14,7 +14,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
-<script src="finance-ui.js?v=20260831-finance-theme-blue-v9"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v10-person-morph"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -989,71 +989,9 @@ html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { 
 
 /* ── NAV DROPDOWN ───────────────────────────────── */
 .nav-dropdown-wrapper { position: relative; display: inline-block; }
-.nav-dropdown-menu {
-    display: block;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 6px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-    min-width: 220px;
-    z-index: 1000;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform-origin: 100% 0%;
-    transform: translate3d(7px,-7px,0) scale(.72);
-    clip-path: inset(0 0 68% 56% round 12px);
-    transition:
-        transform .30s cubic-bezier(.22,1,.36,1),
-        clip-path .30s cubic-bezier(.22,1,.36,1),
-        opacity .15s ease,
-        visibility 0s linear .30s;
-    will-change: transform, clip-path, opacity;
-}
-.nav-dropdown-menu.show {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translate3d(0,0,0) scale(1);
-    clip-path: inset(0 0 0 0 round 12px);
-    transition:
-        transform .32s cubic-bezier(.22,1,.36,1),
-        clip-path .32s cubic-bezier(.22,1,.36,1),
-        opacity .12s ease,
-        visibility 0s;
-}
-.nav-dropdown-menu > a,
-.nav-dropdown-menu > div {
-    opacity: 0;
-    transform: translate3d(12px,-4px,0) scale(.97);
-    transform-origin: 100% 0%;
-    transition: transform .22s cubic-bezier(.22,1,.36,1), opacity .14s ease;
-}
-.nav-dropdown-menu.show > a,
-.nav-dropdown-menu.show > div {
-    opacity: 1;
-    transform: translate3d(0,0,0) scale(1);
-}
-.nav-dropdown-menu.show > :nth-child(1) { transition-delay: .025s; }
-.nav-dropdown-menu.show > :nth-child(2) { transition-delay: .045s; }
-.nav-dropdown-menu.show > :nth-child(3) { transition-delay: .065s; }
-.nav-dropdown-menu.show > :nth-child(4) { transition-delay: .085s; }
-.nav-dropdown-menu.show > :nth-child(5) { transition-delay: .105s; }
-.nav-dropdown-menu.show > :nth-child(6) { transition-delay: .125s; }
-.nav-dropdown-menu.show > :nth-child(7) { transition-delay: .145s; }
-.nav-dropdown-menu.show > :nth-child(8) { transition-delay: .165s; }
-.nav-dropdown-menu.show > :nth-child(9) { transition-delay: .185s; }
-.nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition-property: background, transform, opacity; }
-@media (prefers-reduced-motion: reduce) {
-    .nav-dropdown-menu,
-    .nav-dropdown-menu > a,
-    .nav-dropdown-menu > div { transition-duration: .001s !important; transition-delay: 0s !important; }
-}
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; overflow: hidden; }
+.nav-dropdown-menu.show { display: block; }
+.nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
 .nav-dropdown-menu a:hover { background: rgba(59,109,224,0.08); }
 html.dark-mode .nav-dropdown-menu a:hover { background: rgba(96,165,250,0.1); }
 .nav-dropdown-menu a .nav-icon { font-size: 18px; width: 24px; text-align: center; }
@@ -1062,6 +1000,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 
 
 </style>
+<script src="nav-menu-motion.js?v=20260831-nav-motion-v1"></script>
 </head>
 <body>
 

@@ -204,11 +204,14 @@
       if (!button) return;
       var nextUser = button.dataset.user;
       if (nextUser === user) return;
-      flushBudget();
+      if (page.family) {
+        remember(nextUser);
+        updateActiveStates();
+        setHeaderIdentity();
+        return;
+      }
       remember(nextUser);
-      updateActiveStates();
-      setHeaderIdentity();
-      if (!page.family) navigate(view, nextUser);
+      navigate(view, nextUser);
     });
     header.appendChild(group);
   }
@@ -476,8 +479,13 @@
   }
 
   function prefetch() {
-    ['budget','analysis','family'].forEach(function (nextView) {
-      var href = route(nextView, user);
+    var hrefs = ['budget','analysis','family'].map(function (nextView) {
+      return route(nextView, user);
+    });
+    if (!page.family) {
+      hrefs.push(route(view, user === 'maja' ? 'markus' : 'maja'));
+    }
+    Array.from(new Set(hrefs)).forEach(function (href) {
       if (location.pathname.toLowerCase().endsWith('/' + href.toLowerCase())) return;
       var link = document.createElement('link');
       link.rel = 'prefetch';
