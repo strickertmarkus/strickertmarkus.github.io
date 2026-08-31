@@ -5,6 +5,7 @@ import { getDatabase } from 'firebase-admin/database';
 import { getMessaging } from 'firebase-admin/messaging';
 
 const LOOKBACK_MINUTES = 20;
+const WEB_APP_BASE_URL = 'https://strickertmarkus.github.io/budget/';
 const MEMBER_LABELS = {
   markus: 'Markus',
   maja: 'Maja',
@@ -110,6 +111,11 @@ function invalidTokenCode(code) {
     code === 'messaging/invalid-argument';
 }
 
+function absoluteWebAppUrl(relativeUrl) {
+  try { return new URL(String(relativeUrl || 'home.html'), WEB_APP_BASE_URL).href; }
+  catch (_) { return WEB_APP_BASE_URL + 'home.html'; }
+}
+
 const serviceAccount = JSON.parse(requiredEnv('FIREBASE_SERVICE_ACCOUNT_JSON'));
 const app = initializeApp({
   credential: cert(serviceAccount),
@@ -123,18 +129,30 @@ async function sendToDevices(deviceEntries, payload) {
   let success = 0;
   let failed = 0;
 
+  const title = String(payload.title || 'Familjekalender');
+  const body = String(payload.body || '');
+  const url = String(payload.url || 'home.html');
+  const tag = String(payload.tag || '');
+
   for (const [deviceId, device] of deviceEntries) {
     try {
       await fcm.send({
         token: device.token,
+        notification: {
+          title,
+          body
+        },
         data: {
-          title: String(payload.title || 'Familjekalender'),
-          body: String(payload.body || ''),
-          url: String(payload.url || 'home.html'),
-          tag: String(payload.tag || '')
+          title,
+          body,
+          url,
+          tag
         },
         webpush: {
-          headers: { Urgency: 'high' }
+          headers: { Urgency: 'high' },
+          fcmOptions: {
+            link: absoluteWebAppUrl(url)
+          }
         }
       });
       success += 1;
