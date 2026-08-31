@@ -77,6 +77,7 @@
       '@view-transition{navigation:auto}' +
       ':root{view-transition-name:none}' +
       'body .header>h1{view-transition-name:finance-title}' +
+      'body .header>p{view-transition-name:finance-person;color:' + (user === 'maja' ? '#F472B6' : '#60A5FA') + '!important;font-weight:700!important;opacity:1!important}' +
       '::view-transition-group(finance-title),::view-transition-group(finance-person),::view-transition-group(finance-panel-0),::view-transition-group(finance-panel-1),::view-transition-group(finance-panel-2){animation-duration:.46s!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}' +
       '::view-transition-old(finance-title),::view-transition-new(finance-title),::view-transition-old(finance-person),::view-transition-new(finance-person),::view-transition-old(finance-panel-0),::view-transition-new(finance-panel-0),::view-transition-old(finance-panel-1),::view-transition-new(finance-panel-1),::view-transition-old(finance-panel-2),::view-transition-new(finance-panel-2){mix-blend-mode:normal!important}';
     document.head.appendChild(style);
@@ -462,12 +463,6 @@
   }
 
   function setupFinanceMorphTargets() {
-    var header = document.querySelector('.header');
-    if (header) {
-      var sub = header.querySelector('p');
-      if (sub) sub.style.viewTransitionName = 'finance-person';
-    }
-
     var container = document.querySelector('.container');
     if (!container) return;
     var morphIndex = 0;

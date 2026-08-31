@@ -12,7 +12,7 @@
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
-<script src="finance-ui.js?v=20260831-finance-theme-blue-v10-person-morph"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v11-person-first-paint"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -24,20 +24,20 @@
     --text: #1A1A2E;
     --text-sec: #6B7280;
     --border: #E5E7EB;
-    --accent: #3B6DE0;
-    --accent-light: #DBEAFE;
-    --accent-bg: #EFF6FF;
+    --accent: #F97316;
+    --accent-light: #FED7AA;
+    --accent-bg: #FFF7ED;
     --income: #10B981;
     --income-light: #D1FAE5;
     --income-bg: #ECFDF5;
-    --house: #3B6DE0;
-    --house-light: #DBEAFE;
-    --house-bg: #EFF6FF;
+    --house: #F97316;
+    --house-light: #FED7AA;
+    --house-bg: #FFF7ED;
     --danger: #DC2626;
     --warning: #F59E0B;
-    --savings: #0EA5E9;
-    --savings-light: #BAE6FD;
-    --savings-bg: #F0F9FF;
+    --savings: #F59E0B;
+    --savings-light: #FDE68A;
+    --savings-bg: #FFFBEB;
     --expense: #A855F7;
     --expense-light: #EDE9FE;
     --expense-bg: #F5F3FF;
@@ -54,20 +54,20 @@ html.dark-mode {
     --text: #E2E8F0;
     --text-sec: #94A3B8;
     --border: #2A3041;
-    --accent: #60A5FA;
-    --accent-light: #1E3A5F;
-    --accent-bg: #0F1A2E;
+    --accent: #FB923C;
+    --accent-light: #7C2D12;
+    --accent-bg: #1F1008;
     --income: #34D399;
     --income-light: #065F46;
     --income-bg: #0D2818;
-    --house: #60A5FA;
-    --house-light: #1E3A5F;
-    --house-bg: #0F1A2E;
+    --house: #FB923C;
+    --house-light: #7C2D12;
+    --house-bg: #1F1008;
     --danger: #F87171;
     --warning: #FBBF24;
-    --savings: #38BDF8;
-    --savings-light: #155E75;
-    --savings-bg: #0A1A20;
+    --savings: #FBBF24;
+    --savings-light: #78350F;
+    --savings-bg: #1C1408;
     --expense: #A78BFA;
     --expense-light: #4C1D95;
     --expense-bg: #1A0F2E;
@@ -103,7 +103,7 @@ html.dark-mode .checklist-item.checked { background: rgba(52,211,153,0.08); bord
 html.dark-mode .transfer-card { background: rgba(255,255,255,0.04); border-color: var(--border); }
 
 .header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #3B6DE0 100%);
+    background: linear-gradient(135deg, #2A1608 0%, #7C2D12 100%);
     color: white; padding: 28px 24px 20px; text-align: center; position: relative;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     overflow: visible;
@@ -154,9 +154,9 @@ html.dark-mode .section-header:hover { background: rgba(255,255,255,0.03); }
 .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-.data-table .total-row { font-weight: 700; background: rgba(59,109,224,0.06); }
+.data-table .total-row { font-weight: 700; background: rgba(249,115,22,0.06); }
 .data-table .total-row td { color: var(--accent); }
-html.dark-mode .data-table .total-row { background: rgba(96,165,250,0.08); }
+html.dark-mode .data-table .total-row { background: rgba(251,146,60,0.09); }
 html.dark-mode .data-table .total-row td { color: var(--accent); }
 .data-table .positive { color: var(--income); }
 .data-table .negative { color: var(--danger); }
@@ -169,7 +169,7 @@ html.dark-mode .data-table .total-row td { color: var(--accent); }
 }
 .editable-input:hover { background: transparent; }
 .editable-input:focus { padding: 4px 6px; background: var(--accent-bg); border: 1.5px solid var(--accent); outline: none; }
-html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
+html.dark-mode .editable-input:focus { background: rgba(251,146,60,0.10); }
 .editable-input-wide { width: 140px; text-align: left; }
 
 /* ── CHART CARD ─────────────────────────────────── */
@@ -257,12 +257,12 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 .goal-stats .value { color: var(--text); font-weight: 700; font-size: 14px; }
 .goal-actions { display: flex; gap: 8px; }
 .goal-actions button { padding: 6px 12px; font-size: 12px; font-family: inherit; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: none; flex: 1; }
-.btn-edit { background: rgba(37,99,235,0.12); color: var(--accent); }
-.btn-edit:hover { background: rgba(37,99,235,0.25); }
+.btn-edit { background: rgba(251,146,60,0.12); color: var(--accent); }
+.btn-edit:hover { background: rgba(251,146,60,0.24); }
 .btn-del { background: rgba(220,38,38,0.12); color: var(--danger); }
 .btn-del:hover { background: rgba(220,38,38,0.25); }
-.btn-extra { background: rgba(96,165,250,0.12); color: #60A5FA; }
-.btn-extra:hover { background: rgba(96,165,250,0.25); }
+.btn-extra { background: rgba(251,146,60,0.12); color: var(--accent); }
+.btn-extra:hover { background: rgba(251,146,60,0.24); }
 .btn-add-goal { padding: 12px 24px; font-size: 14px; font-family: inherit; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.4); color: var(--income); }
 .btn-add-goal:hover { background: rgba(16,185,129,0.3); border-color: rgba(16,185,129,0.6); }
 .btn-add { padding: 8px 16px; font-size: 13px; font-family: inherit; font-weight: 600; border-radius: 8px; cursor: pointer; border: 1.5px dashed var(--border); background: transparent; color: var(--text-sec); transition: all 0.2s; margin-top: 8px; }
@@ -294,10 +294,10 @@ html.dark-mode .editable-input:focus { background: rgba(96,165,250,0.1); }
 @keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
 .nav-dropdown-menu a:hover { background: var(--accent-bg); }
-html.dark-mode .nav-dropdown-menu a:hover { background: rgba(96,165,250,0.1); }
+html.dark-mode .nav-dropdown-menu a:hover { background: rgba(251,146,60,0.11); }
 .nav-dropdown-menu a .nav-icon { font-size: 18px; width: 24px; text-align: center; }
 .nav-dropdown-menu a.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
-html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
+html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); }
 
 /* ── RESPONSIVE ─────────────────────────────────── */
 @media (max-width: 800px) {
@@ -2046,13 +2046,13 @@ function cc() {
     return {
         grid: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         text: dark ? "#94A3B8" : "#6B7280",
-        loan: dark ? "#60A5FA" : "#3B6DE0",
+        loan: dark ? "#FB923C" : "#F97316",
         interest: dark ? "#F87171" : "#DC2626",
-        house: dark ? "#A78BFA" : "#7C3AED",
+        house: dark ? "#FBBF24" : "#F59E0B",
         left: dark ? "#34D399" : "#10B981",
         maja: dark ? "#F472B6" : "#EC4899",
         markus: dark ? "#60A5FA" : "#3B82F6",
-        savings: dark ? "#38BDF8" : "#0EA5E9"
+        savings: dark ? "#FDBA74" : "#FB923C"
     };
 }
 
