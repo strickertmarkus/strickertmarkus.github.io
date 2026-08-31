@@ -2290,7 +2290,7 @@ function updateCharts() {
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
     pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
     pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
-    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#2A3041" : "#FFFFFF";
+    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? 'rgba(125,211,252,0.70)' : '#2563EB';
     pieChart.update({ animation: { duration: 800 } });
     renderPieLegend();
 
