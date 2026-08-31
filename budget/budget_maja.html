@@ -2027,6 +2027,17 @@ function refresh() {
 let pieChart, barChart;
 let showComparisonMode = false;
 
+function lightenChartColor(hex, amount = 0.10) {
+    const value = String(hex || '').replace('#', '');
+    if (!/^[0-9a-f]{6}$/i.test(value)) return hex;
+    const rgb = parseInt(value, 16);
+    const mix = channel => Math.round(channel + (255 - channel) * amount);
+    const r = mix((rgb >> 16) & 255);
+    const g = mix((rgb >> 8) & 255);
+    const b = mix(rgb & 255);
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
 function initCharts() {
     // Pre-populate legend to stabilize grid layout before chart animation
     renderPieLegend();
@@ -2063,12 +2074,12 @@ function initCharts() {
             datasets: [{
                 data: expenseSections.map(() => 0),
                 backgroundColor: expenseSections.map(s => s.color),
-                borderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF",
-                borderWidth: 4,
+                borderColor: expenseSections.map(s => lightenChartColor(s.color)),
+                borderWidth: 2,
                 borderRadius: 6,
                 spacing: 1,
-                hoverBorderWidth: 4,
-                hoverBorderColor: isDarkMode() ? "#0B0F16" : "#FFFFFF",
+                hoverBorderWidth: 2,
+                hoverBorderColor: expenseSections.map(s => lightenChartColor(s.color)),
                 hoverOffset: 0,
             }]
         },
@@ -2289,10 +2300,10 @@ function updateCharts() {
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
     pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color);
-    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#0B0F16" : "#FFFFFF";
-    pieChart.data.datasets[0].borderWidth = 4;
-    pieChart.data.datasets[0].hoverBorderWidth = 4;
-    pieChart.data.datasets[0].hoverBorderColor = isDarkMode() ? "#0B0F16" : "#FFFFFF";
+    pieChart.data.datasets[0].borderColor = expenseSections.map(s => lightenChartColor(s.color));
+    pieChart.data.datasets[0].borderWidth = 2;
+    pieChart.data.datasets[0].hoverBorderWidth = 2;
+    pieChart.data.datasets[0].hoverBorderColor = expenseSections.map(s => lightenChartColor(s.color));
     pieChart.update({ animation: { duration: 800 } });
     renderPieLegend();
 
