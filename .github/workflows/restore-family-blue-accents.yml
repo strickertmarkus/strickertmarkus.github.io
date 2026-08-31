@@ -1,0 +1,41 @@
+name: Restore Family blue accents
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-family-blue-accents.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Family blue accents
+        run: python3 .github/scripts/restore_family_blue_accents.py
+
+      - name: Verify scoped change
+        shell: bash
+        run: |
+          grep -Fq -- '--accent: #3B6DE0;' budget/familjebudget.html
+          grep -Fq -- '--accent: #60A5FA;' budget/familjebudget.html
+          grep -Fq -- '--savings: #0EA5E9;' budget/familjebudget.html
+          grep -Fq -- '--savings: #38BDF8;' budget/familjebudget.html
+          grep -Fq 'nav-menu-motion.js?v=20260831-nav-motion-v1' budget/familjebudget.html
+          grep -Fq 'finance-ui.js?v=20260831-finance-theme-blue-v11-person-first-paint' budget/familjebudget.html
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js budget/finance-ui.js
+          changed="$(git diff --name-only)"
+          test "$changed" = 'budget/familjebudget.html'
+
+      - name: Commit Family blue accent restore
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/familjebudget.html
+          git commit -m "Restore Family internal blue accents"
+          git push
