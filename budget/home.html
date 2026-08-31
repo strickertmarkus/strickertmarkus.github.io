@@ -7,6 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
@@ -18,6 +19,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="manifest" href="manifest.webmanifest?v=20260831-push-v1">
+  <meta name="theme-color" content="#181F2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Familjen">
   <style>
     :root {
       --bg: #181F2E;
@@ -1422,6 +1427,7 @@ function saveEvent() {
     notes: document.getElementById('ev-notes').value.trim(),
     repeat: document.getElementById('ev-repeat').value,
     repeatUntil: document.getElementById('ev-repeat-until').value||'',
+    reminderMinutes: (document.getElementById('ev-reminder') && document.getElementById('ev-reminder').value !== '') ? Number(document.getElementById('ev-reminder').value) : null,
   };
   if (editId) {
     var idx = events.findIndex(function(e){ return e.id===editId; });
@@ -2388,5 +2394,6 @@ window.addEventListener('firebase-sync', function(event) {
   });
 })();
 </script>
+<script src="push-notifications.js?v=20260831-push-v1"></script>
 </body>
 </html>

@@ -1016,6 +1016,7 @@ function saveEvent() {
     notes: document.getElementById('ev-notes').value.trim(),
     repeat: document.getElementById('ev-repeat').value,
     repeatUntil: document.getElementById('ev-repeat-until').value||'',
+    reminderMinutes: editId ? ((events.find(function(e){ return e.id===editId; }) || {}).reminderMinutes ?? null) : null,
   };
   if (editId) {
     var idx = events.findIndex(function(e){ return e.id===editId; });
