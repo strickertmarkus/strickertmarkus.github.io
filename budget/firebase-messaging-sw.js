@@ -1,30 +1,6 @@
 /* global firebase */
 'use strict';
 
-self.window = self;
-importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js');
-importScripts('auth-config.js');
-
-if (!firebase.apps.length) firebase.initializeApp(self.FIREBASE_CONFIG);
-var messaging = firebase.messaging();
-
-messaging.onBackgroundMessage(function (payload) {
-  var data = payload && payload.data ? payload.data : {};
-  var title = data.title || 'Familjekalender';
-  var options = {
-    body: data.body || '',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
-    tag: data.tag || undefined,
-    renotify: false,
-    data: {
-      url: data.url || 'home.html'
-    }
-  };
-  return self.registration.showNotification(title, options);
-});
-
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
   var target = event.notification && event.notification.data && event.notification.data.url
@@ -47,4 +23,32 @@ self.addEventListener('notificationclick', function (event) {
       return null;
     })
   );
+});
+
+self.window = self;
+importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js');
+importScripts('auth-config.js');
+
+if (!firebase.apps.length) firebase.initializeApp(self.FIREBASE_CONFIG);
+var messaging = firebase.messaging();
+
+messaging.onBackgroundMessage(function (payload) {
+  // Messages with a notification payload are displayed automatically by FCM.
+  // Keep this handler only as a fallback for older/data-only messages.
+  if (payload && payload.notification) return;
+
+  var data = payload && payload.data ? payload.data : {};
+  var title = data.title || 'Familjekalender';
+  var options = {
+    body: data.body || '',
+    icon: '/favicon.ico',
+    badge: '/favicon.ico',
+    tag: data.tag || undefined,
+    renotify: false,
+    data: {
+      url: data.url || 'home.html'
+    }
+  };
+  return self.registration.showNotification(title, options);
 });
