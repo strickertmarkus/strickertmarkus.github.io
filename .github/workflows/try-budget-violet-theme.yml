@@ -1,0 +1,54 @@
+name: Try budget violet theme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/try-budget-violet-theme.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply violet budget theme
+        run: python3 .github/scripts/try_budget_violet_theme.py
+
+      - name: Verify JavaScript
+        run: node --check budget/finance-ui.js
+
+      - name: Verify scoped changes
+        shell: bash
+        run: |
+          grep -q "accent: '#A78BFA'" budget/finance-ui.js
+          grep -q "month: '#C084FC'" budget/finance-ui.js
+          grep -q "accent: '#4ADE80'" budget/finance-ui.js
+          grep -q "accent: '#FB923C'" budget/finance-ui.js
+          grep -q "finance-theme-violet-v6" budget/budget.html
+          grep -q "finance-theme-violet-v6" budget/budget_maja.html
+          grep -q "finance-theme-violet-v6" budget/analytics.html
+          grep -q "finance-theme-violet-v6" budget/analytics_maja.html
+          grep -q "finance-theme-violet-v6" budget/familjebudget.html
+          git diff --quiet -- budget/firebase-sync.js budget/indexeddb-fallback.js budget/budget-persistence-guard.js
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          while IFS= read -r f; do
+            case "$f" in
+              budget/finance-ui.js|budget/budget.html|budget/budget_maja.html|budget/analytics.html|budget/analytics_maja.html|budget/familjebudget.html) ;;
+              '') ;;
+              *) echo "Unexpected changed file: $f" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
+
+      - name: Commit violet budget theme
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/finance-ui.js budget/budget.html budget/budget_maja.html budget/analytics.html budget/analytics_maja.html budget/familjebudget.html
+          git commit -m "Try violet budget theme"
+          git push
