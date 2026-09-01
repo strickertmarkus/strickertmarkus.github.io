@@ -22,6 +22,11 @@
       document.head.appendChild(themeMeta);
     }
     themeMeta.setAttribute('content', homeTopColor);
+
+    /* The installed iOS app can retain an older manifest theme. Point the
+       existing manifest link at a fresh version so #181F2E is not reused. */
+    var manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) manifestLink.setAttribute('href', 'manifest.webmanifest?v=20260901-home-orange-v3');
   }
 
   var style = document.createElement('style');
