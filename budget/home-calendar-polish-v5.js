@@ -16,6 +16,12 @@
         display:none !important;
       }
 
+      /* Match the shopping and transfer widget headings to the orange clock. */
+      body.home-calendar-polish-v5 #shopping-widget .widget-title,
+      body.home-calendar-polish-v5 #transfer-widget .widget-title {
+        color:#FBBF24 !important;
+      }
+
       /* Home header remains centred; keep the existing title/meta line rhythm
          while making time/date slightly more prominent. */
       body.home-calendar-polish-v5 .app-header {
