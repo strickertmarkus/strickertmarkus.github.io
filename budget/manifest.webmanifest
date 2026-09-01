@@ -4,8 +4,8 @@
   "start_url": "./home.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#181F2E",
-  "theme_color": "#181F2E",
+  "background_color": "#0F1219",
+  "theme_color": "#0D1117",
   "description": "Familjens kalender, budget, träning och inköpslista",
   "icons": [
     {
