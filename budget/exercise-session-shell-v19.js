@@ -83,8 +83,8 @@
         touch-action:manipulation;
       }
 
-      /* Pre-timer visibility is now controlled by its own .show class only.
-         The old v19 html gate was the reason a direct-rest start could count
+      /* Pre-timer visibility is controlled by its own .show class only.
+         The old v19 html gate was the reason direct-rest starts could count
          five seconds invisibly. */
       #session-pre-timer {
         display:none !important;
@@ -98,11 +98,17 @@
         opacity:1 !important;
         pointer-events:auto !important;
       }
+
+      /* The legacy timer still updates --pre-progress every 50 ms for its
+         internal clock. The visible ring deliberately ignores that stepped
+         value and uses the requestAnimationFrame-driven variable below. */
       #session-pre-timer-ring {
+        background:conic-gradient(#FB923C var(--pre-smooth-progress,0deg),rgba(251,146,60,.13) 0deg) !important;
         will-change:background;
         contain:paint;
       }
       #session-pre-timer-ring::after {
+        transform:rotate(var(--pre-smooth-progress,0deg)) translateY(-81px) !important;
         will-change:transform;
         -webkit-backface-visibility:hidden;
         backface-visibility:hidden;
@@ -202,6 +208,9 @@
         #session-modal.show textarea {
           font-size:16px !important;
         }
+        #session-pre-timer-ring::after {
+          transform:rotate(var(--pre-smooth-progress,0deg)) translateY(-74px) !important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -223,10 +232,10 @@
       return;
     }
     if (!smoothStartedAt) smoothStartedAt = now;
-    var elapsed = Math.max(0, Math.min(5000, now - smoothStartedAt));
+    var elapsed = Math.max(0,Math.min(5000,now - smoothStartedAt));
     var degrees = (elapsed / 5000) * 360;
     var ring = document.getElementById('session-pre-timer-ring');
-    if (ring) ring.style.setProperty('--pre-progress', degrees.toFixed(3) + 'deg');
+    if (ring) ring.style.setProperty('--pre-smooth-progress',degrees.toFixed(3) + 'deg');
     if (elapsed < 5000 && timerVisible()) smoothFrame = requestAnimationFrame(paintSmoothProgress);
     else smoothFrame = 0;
   }
@@ -236,7 +245,7 @@
     if (smoothFrame) cancelAnimationFrame(smoothFrame);
     smoothStartedAt = performance.now();
     var ring = document.getElementById('session-pre-timer-ring');
-    if (ring) ring.style.setProperty('--pre-progress','0deg');
+    if (ring) ring.style.setProperty('--pre-smooth-progress','0deg');
     smoothFrame = requestAnimationFrame(paintSmoothProgress);
   }
 
@@ -268,7 +277,7 @@
   function install() {
     addStyles();
 
-    /* Remove the obsolete class if an older cached shell left it behind. */
+    /* Clear classes belonging to the retired pre-timer gate. */
     document.documentElement.classList.remove('exercise-pretimer-active-v19','exercise-session-open-v19');
     if (document.body) document.body.classList.remove('exercise-session-open-v19');
 
