@@ -18,7 +18,7 @@
          orange/amber glow, glassy surfaces and restrained coloured accents. */
       html,
       body.home-calendar-polish-v5 {
-        background:#0F1219 !important;
+        background:#11151D !important;
       }
       body.home-calendar-polish-v5::before {
         background:
@@ -31,14 +31,14 @@
         text-align:center !important;
         min-height:70px;
         position:sticky !important;
-        background:linear-gradient(180deg, rgba(13,17,23,.985), rgba(251,146,60,.065)) !important;
+        background:linear-gradient(180deg, rgba(16,20,28,.985), rgba(251,146,60,.065)) !important;
         border-bottom:1px solid rgba(251,146,60,.22) !important;
         box-shadow:0 7px 26px rgba(0,0,0,.38), 0 1px 24px rgba(251,146,60,.075) !important;
         backdrop-filter:blur(20px) !important;
         -webkit-backdrop-filter:blur(20px) !important;
       }
       body.home-calendar-polish-v5 .filter-bar {
-        background:rgba(13,17,23,.72) !important;
+        background:rgba(16,20,28,.72) !important;
         border-bottom:1px solid rgba(251,146,60,.12) !important;
         backdrop-filter:blur(14px);
         -webkit-backdrop-filter:blur(14px);
@@ -52,30 +52,30 @@
 
       body.home-calendar-polish-v5 .sidebar-section,
       body.home-calendar-polish-v5 .widget {
-        background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.024)) !important;
-        border-color:rgba(255,255,255,.095) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 10px 28px rgba(0,0,0,.16);
+        background:linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.030)) !important;
+        border-color:rgba(255,255,255,.105) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.028), 0 10px 28px rgba(0,0,0,.16);
       }
       body.home-calendar-polish-v5 #shopping-widget {
         border-color:rgba(74,222,128,.14) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 10px 28px rgba(0,0,0,.16), 0 0 24px rgba(74,222,128,.035);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.028), 0 10px 28px rgba(0,0,0,.16), 0 0 24px rgba(74,222,128,.035);
       }
       body.home-calendar-polish-v5 #transfer-widget {
         border-color:rgba(251,146,60,.18) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.025), 0 10px 28px rgba(0,0,0,.16), 0 0 24px rgba(251,146,60,.05);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.028), 0 10px 28px rgba(0,0,0,.16), 0 0 24px rgba(251,146,60,.05);
       }
       body.home-calendar-polish-v5 .link-card {
         transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease !important;
       }
       body.home-calendar-polish-v5 .link-card:hover {
         transform:translateY(-1px);
-        background:linear-gradient(180deg, rgba(255,255,255,.058), rgba(255,255,255,.03)) !important;
+        background:linear-gradient(180deg, rgba(255,255,255,.064), rgba(255,255,255,.036)) !important;
       }
 
       body.home-calendar-polish-v5 .cal-cell {
-        background:rgba(255,255,255,.032) !important;
-        border-color:rgba(255,255,255,.075) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.014);
+        background:rgba(255,255,255,.038) !important;
+        border-color:rgba(255,255,255,.082) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.016);
       }
       body.home-calendar-polish-v5 .cal-cell:hover {
         border-color:rgba(251,146,60,.22) !important;
@@ -94,7 +94,7 @@
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button,
       body.home-calendar-polish-v5 .btn-notif,
       body.home-calendar-polish-v5 .btn-xs {
-        background:rgba(255,255,255,.045) !important;
+        background:rgba(255,255,255,.052) !important;
         border-color:rgba(251,146,60,.18) !important;
       }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button:hover,
