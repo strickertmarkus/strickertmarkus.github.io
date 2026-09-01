@@ -14,8 +14,6 @@
         display:none !important;
       }
 
-      /* Finance-page inspired family theme: dark neutral base with warm
-         orange/amber glow, glassy surfaces and restrained coloured accents. */
       html,
       body.home-calendar-polish-v5 {
         background:#0F1219 !important;
@@ -26,22 +24,26 @@
           radial-gradient(700px 320px at 12% 44%, rgba(56,189,248,.035), transparent 72%) !important;
       }
 
+      /* Slightly taller, calmer header. Keep the header and filter strip close
+         in tone so they read as one continuous top section. */
       body.home-calendar-polish-v5 .app-header {
         justify-content:center !important;
         text-align:center !important;
-        min-height:70px;
+        min-height:76px !important;
         position:sticky !important;
-        background:linear-gradient(180deg, rgba(13,17,23,.99), rgba(251,146,60,.03)) !important;
-        border-bottom:1px solid rgba(251,146,60,.12) !important;
-        box-shadow:0 6px 22px rgba(0,0,0,.34), 0 1px 16px rgba(251,146,60,.025) !important;
+        background:rgba(15,18,25,.94) !important;
+        border-bottom:1px solid rgba(255,255,255,.055) !important;
+        box-shadow:0 4px 16px rgba(0,0,0,.20), inset 0 -1px 0 rgba(251,146,60,.025) !important;
         backdrop-filter:blur(14px) !important;
         -webkit-backdrop-filter:blur(14px) !important;
       }
       body.home-calendar-polish-v5 .filter-bar {
-        background:rgba(13,17,23,.72) !important;
-        border-bottom:1px solid rgba(251,146,60,.12) !important;
-        backdrop-filter:blur(14px);
-        -webkit-backdrop-filter:blur(14px);
+        background:rgba(15,18,25,.86) !important;
+        border-bottom:1px solid rgba(255,255,255,.06) !important;
+        padding-top:9px !important;
+        padding-bottom:7px !important;
+        backdrop-filter:blur(12px);
+        -webkit-backdrop-filter:blur(12px);
       }
 
       body.home-calendar-polish-v5 #shopping-widget .widget-title,
@@ -117,12 +119,12 @@
       body.home-calendar-polish-v5 .brand-text {
         min-width:0;
         position:relative;
-        min-height:46px;
+        min-height:48px;
         text-align:center !important;
       }
       body.home-calendar-polish-v5 .brand-text h1 {
         font-size:22px !important;
-        line-height:26px !important;
+        line-height:27px !important;
         letter-spacing:-.45px !important;
         white-space:nowrap !important;
         text-align:center !important;
@@ -136,40 +138,11 @@
         text-align:center !important;
       }
 
-      /* Compact notification toggle beside the hamburger. */
       body.home-calendar-polish-v5 .app-header .nav-dropdown-wrapper {
         z-index:3 !important;
-        display:flex !important;
-        align-items:center !important;
-        gap:7px !important;
-      }
-      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-toggle-v6 {
-        margin:0 !important;
-        width:30px !important;
-        height:30px !important;
-        min-width:30px !important;
-        padding:0 !important;
-        display:flex !important;
-        align-items:center !important;
-        justify-content:center !important;
-        border-radius:999px !important;
-        background:rgba(255,255,255,.035) !important;
-        border:1px solid rgba(251,146,60,.14) !important;
-        color:#A8B0BC !important;
-        font-size:13px !important;
-        line-height:1 !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
-        transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease !important;
-      }
-      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-toggle-v6:hover,
-      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-toggle-v6.is-open {
-        background:rgba(251,146,60,.10) !important;
-        border-color:rgba(251,146,60,.30) !important;
-        color:#FDBA74 !important;
-        box-shadow:0 0 14px rgba(251,146,60,.055),inset 0 1px 0 rgba(255,255,255,.03) !important;
       }
 
-      /* Hamburger/menu uses the same restrained glass + amber language as Home. */
+      /* Keep the Home glass/amber language for the hamburger menu. */
       body.home-calendar-polish-v5 .app-header .nav-btn {
         background:linear-gradient(180deg,rgba(255,255,255,.048),rgba(255,255,255,.028)) !important;
         border:1px solid rgba(251,146,60,.15) !important;
@@ -203,6 +176,55 @@
       }
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu .nav-sep {
         border-top-color:rgba(251,146,60,.10) !important;
+      }
+
+      /* The old notification settings panel and mobile bell are no longer UI. */
+      body.home-calendar-polish-v5 #notif-panel,
+      body.home-calendar-polish-v5 #push-mobile-bell {
+        display:none !important;
+      }
+
+      /* Compact notification on/off switch in the original filter-bar slot. */
+      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
+        margin-left:auto !important;
+        margin-right:1px !important;
+        margin-bottom:-1px !important;
+        transform:translateY(2px);
+        position:relative !important;
+        width:34px !important;
+        min-width:34px !important;
+        height:18px !important;
+        padding:0 !important;
+        border-radius:999px !important;
+        border:1px solid rgba(255,255,255,.12) !important;
+        background:rgba(255,255,255,.07) !important;
+        box-shadow:inset 0 1px 2px rgba(0,0,0,.22) !important;
+        cursor:pointer !important;
+        font-size:0 !important;
+        line-height:0 !important;
+        transition:background .18s ease,border-color .18s ease,box-shadow .18s ease !important;
+      }
+      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
+        position:absolute;
+        left:2px;
+        top:2px;
+        width:12px;
+        height:12px;
+        border-radius:50%;
+        background:#7D8794;
+        box-shadow:0 1px 3px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.22);
+        transform:translateX(0);
+        transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
+      }
+      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on {
+        background:rgba(251,146,60,.18) !important;
+        border-color:rgba(251,146,60,.42) !important;
+        box-shadow:inset 0 0 0 1px rgba(251,146,60,.035),0 0 10px rgba(251,146,60,.035) !important;
+      }
+      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
+        transform:translateX(16px);
+        background:#FDBA74;
+        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 7px rgba(251,146,60,.12);
       }
 
       body.home-calendar-polish-v5 .cal-section {
@@ -242,17 +264,35 @@
       }
 
       @media (max-width:768px) {
+        body.home-calendar-polish-v5 .app-header {
+          min-height:74px !important;
+        }
         body.home-calendar-polish-v5 .brand {
           max-width:calc(100% - 130px) !important;
         }
         body.home-calendar-polish-v5 .brand-text h1 {
           font-size:20px !important;
-          line-height:24px !important;
+          line-height:25px !important;
           letter-spacing:-.35px !important;
         }
         body.home-calendar-polish-v5 .brand-text p {
           margin-top:1px !important;
           font-size:12.5px !important;
+        }
+        body.home-calendar-polish-v5 .filter-bar {
+          padding-bottom:6px !important;
+        }
+        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
+          width:32px !important;
+          min-width:32px !important;
+          height:17px !important;
+        }
+        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
+          width:11px;
+          height:11px;
+        }
+        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
+          transform:translateX(15px);
         }
         body.home-calendar-polish-v5 .cal-section {
           padding-top:39px !important;
@@ -277,15 +317,6 @@
         body.home-calendar-polish-v5 .calendar-toolbar-v2 #month-label {
           font-size:11.5px !important;
           padding:0 4px !important;
-        }
-        body.home-calendar-polish-v5 .app-header .nav-dropdown-wrapper {
-          gap:5px !important;
-        }
-        body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-toggle-v6 {
-          width:28px !important;
-          height:28px !important;
-          min-width:28px !important;
-          font-size:12px !important;
         }
       }
 
@@ -341,36 +372,60 @@
     }, 0);
   }
 
-  function syncNotifToggle() {
-    var button = document.querySelector('.app-header .btn-notif.home-notif-toggle-v6');
-    var panel = document.getElementById('notif-panel');
-    if (!button) return;
-    var open = !!(panel && panel.classList.contains('show'));
-    button.classList.toggle('is-open', open);
-    button.setAttribute('aria-pressed', open ? 'true' : 'false');
-    button.setAttribute('aria-expanded', open ? 'true' : 'false');
+  function storedNotificationEnabled() {
+    try {
+      var settings = JSON.parse(localStorage.getItem('cal_push_settings_v1') || 'null');
+      return !!(settings && settings.enabled);
+    } catch (_) {
+      return false;
+    }
   }
 
-  function moveNotifToggleToHeader() {
-    var button = document.querySelector('.btn-notif');
-    var wrapper = document.querySelector('.app-header .nav-dropdown-wrapper');
-    var navButton = wrapper && wrapper.querySelector('.nav-btn');
-    if (!button || !wrapper || !navButton) return;
+  function syncNotificationSwitch() {
+    var button = document.querySelector('.filter-bar .btn-notif.home-notif-switch-v7');
+    if (!button) return;
+    var checkbox = document.getElementById('notif-enabled');
+    var enabled = checkbox ? !!checkbox.checked : storedNotificationEnabled();
+    button.classList.toggle('is-on', enabled);
+    button.setAttribute('aria-checked', enabled ? 'true' : 'false');
+    button.setAttribute('title', enabled ? 'Notiser: På' : 'Notiser: Av');
+  }
 
-    if (!button.classList.contains('home-notif-toggle-v6')) {
-      button.classList.add('home-notif-toggle-v6');
-      button.setAttribute('title','Notiser');
-      button.setAttribute('aria-label','Visa notiser');
-      button.addEventListener('click',function () { setTimeout(syncNotifToggle,0); });
+  function setupNotificationSwitch() {
+    var button = document.querySelector('.btn-notif');
+    var filter = document.querySelector('.filter-bar');
+    if (!button || !filter) return;
+
+    button.removeAttribute('onclick');
+    button.classList.remove('home-notif-toggle-v6','is-open');
+    button.classList.add('home-notif-switch-v7');
+    button.type = 'button';
+    button.setAttribute('role','switch');
+    button.setAttribute('aria-label','Notiser');
+    button.setAttribute('aria-expanded','false');
+    button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"></span>';
+    if (button.parentElement !== filter) filter.appendChild(button);
+
+    if (!button.__homeNotifSwitchV7Bound) {
+      button.__homeNotifSwitchV7Bound = true;
+      button.addEventListener('click',function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var checkbox = document.getElementById('notif-enabled');
+        if (!checkbox) return;
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change',{bubbles:true}));
+        syncNotificationSwitch();
+        setTimeout(syncNotificationSwitch,250);
+        setTimeout(syncNotificationSwitch,1200);
+      });
     }
-    if (button.parentElement !== wrapper) wrapper.insertBefore(button,navButton);
-    syncNotifToggle();
 
     var panel = document.getElementById('notif-panel');
-    if (panel && !panel.__homeNotifObserverV6) {
-      panel.__homeNotifObserverV6 = new MutationObserver(syncNotifToggle);
-      panel.__homeNotifObserverV6.observe(panel,{attributes:true,attributeFilter:['class']});
-    }
+    if (panel) panel.classList.remove('show');
+    var mobileBell = document.getElementById('push-mobile-bell');
+    if (mobileBell) mobileBell.remove();
+    syncNotificationSwitch();
   }
 
   function install() {
@@ -384,10 +439,15 @@
     document.body.classList.add('home-calendar-polish-v5');
     addStyles();
     window.selectDay = selectDayAsOverview;
-    moveNotifToggleToHeader();
+    setupNotificationSwitch();
 
     var panel = document.getElementById('day-panel');
     if (panel) panel.classList.remove('show');
+
+    setInterval(function () {
+      setupNotificationSwitch();
+      syncNotificationSwitch();
+    }, 500);
   }
 
   if (document.readyState === 'loading') {
