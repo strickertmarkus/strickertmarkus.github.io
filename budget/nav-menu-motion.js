@@ -72,7 +72,6 @@
       background:none !important;
     }
 
-    /* Same dimensions and vertical layout as the finance header. */
     html.home-finance-orange-v3 body .app-header,
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
       height:160px !important;
@@ -126,7 +125,6 @@
       z-index:8 !important;
     }
 
-    /* Finance-style centered month selector. */
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 {
       visibility:visible !important;
       display:flex !important;
@@ -175,8 +173,6 @@
       text-shadow:0 2px 10px rgba(251,146,60,.14) !important;
     }
 
-    /* Notification switch mirrors the finance bottom control height while
-       keeping the moving bell interaction. */
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
       position:absolute !important;
       left:16px !important;
@@ -226,7 +222,6 @@
       opacity:1 !important;
     }
 
-    /* Month navigation now lives in header, so toolbar carries only week text. */
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .calendar-toolbar-v2 {
       right:0 !important;
     }
@@ -273,9 +268,19 @@
     return true;
   }
 
+  function loadHomeCalendarViews() {
+    if (!isHome || document.querySelector('script[data-home-calendar-views-v11]')) return;
+    var script = document.createElement('script');
+    script.src = 'home-calendar-views-v11.js?v=20260901-home-calendar-views-v11';
+    script.async = false;
+    script.setAttribute('data-home-calendar-views-v11', 'true');
+    document.head.appendChild(script);
+  }
+
   function setup() {
     requestAnimationFrame(indexMenus);
     if (!isHome) return;
+    loadHomeCalendarViews();
     [0, 60, 180, 450, 950, 1500].forEach(function (delay) {
       setTimeout(placeHomeMonthNav, delay);
     });
