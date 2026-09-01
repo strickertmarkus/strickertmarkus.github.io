@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260901-session-ux-v20b';
+  var exerciseAssetsVersion = '20260901-session-runtime-core-v21';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260901-creation-push-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -135,16 +135,14 @@
   }
 
   if (isExercisePage) {
-    /* HR presentation loads first so its final cardio/strength range chart is
-       ready during the same initial frame as the base charts. Session behavior
-       remains ordered, with V20 loaded last for final Hype UX behavior. */
+    /* Keep the established Hype theme, but replace the two older render-heavy
+       focus/persistent patches with one small runtime core. V20 still loads last. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
-      ['exercise-session-focus.js', 'data-exercise-session-focus'],
+      ['exercise-session-runtime-core-v21.js', 'data-exercise-session-runtime-core-v21'],
       ['exercise-session-progress.js', 'data-exercise-session-progress'],
-      ['exercise-session-persistent-hype.js', 'data-exercise-session-persistent-hype'],
       ['exercise-session-theme-stability.js', 'data-exercise-session-theme-stability'],
       ['exercise-session-stable-details.js', 'data-exercise-session-stable-details'],
       ['exercise-reload-recovery.js', 'data-exercise-reload-recovery'],
