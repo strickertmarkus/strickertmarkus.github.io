@@ -95,6 +95,18 @@
         padding-right:8px !important;
       }
 
+      /* When the user skips the rest timer, the old between-set palette can
+         briefly paint the underlying Starta set CTA blue before Hype state
+         catches up. Lock only that CTA to the established orange palette for
+         the short hand-off from rest -> 5 s timer -> running set. */
+      #session-modal.persistent-hype.rest-skip-orange-bridge-v1:not(.session-overview-mode) #session-controls .session-cta.primary {
+        background:linear-gradient(135deg,#FF9A3D,#F97316) !important;
+        border-color:transparent !important;
+        color:#1b0902 !important;
+        box-shadow:0 10px 30px rgba(249,115,22,.34) !important;
+        transition:none !important;
+      }
+
       @media(max-width:480px) {
         #day-workout-ex-list .ex-row,
         .builder-row-floating-v4 .ex-row {
@@ -119,6 +131,21 @@
       }
     `;
     document.head.appendChild(style);
+
+    var restSkipBridgeTimer = null;
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      var button = target && target.closest ? target.closest('#session-between-overlay-v2.show .bs-start-next-v20') : null;
+      if (!button) return;
+      var modal = document.getElementById('session-modal');
+      if (!modal) return;
+      modal.classList.add('rest-skip-orange-bridge-v1');
+      if (restSkipBridgeTimer) clearTimeout(restSkipBridgeTimer);
+      restSkipBridgeTimer = setTimeout(function () {
+        modal.classList.remove('rest-skip-orange-bridge-v1');
+        restSkipBridgeTimer = null;
+      }, 7000);
+    }, true);
 
     syncUnitLabels();
     setInterval(syncUnitLabels, 250);
