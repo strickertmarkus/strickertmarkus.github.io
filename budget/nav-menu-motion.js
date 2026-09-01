@@ -4,6 +4,27 @@
   if (window.__navMenuMotionInstalled) return;
   window.__navMenuMotionInstalled = true;
 
+  var lowerPath = window.location.pathname.toLowerCase();
+  var isHome = lowerPath.endsWith('/budget/home.html') || lowerPath.endsWith('/home.html');
+
+  /* Home is used as an installed iOS web app. Keep the browser/status-bar
+     surface in the same warm charcoal as the top of the Home header so the
+     header begins at the physical top of the screen instead of below a hard
+     dark strip. Do this in <head>, before the page paints. */
+  if (isHome) {
+    var homeTopColor = '#1F1D1E';
+    document.documentElement.classList.add('home-status-integrated-v2');
+    document.documentElement.style.setProperty('background-color', homeTopColor, 'important');
+
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeMeta) {
+      themeMeta = document.createElement('meta');
+      themeMeta.setAttribute('name', 'theme-color');
+      document.head.appendChild(themeMeta);
+    }
+    themeMeta.setAttribute('content', homeTopColor);
+  }
+
   var style = document.createElement('style');
   style.id = 'nav-menu-motion-v1-style';
   style.textContent =
@@ -39,6 +60,18 @@
       'opacity:1!important;' +
       'transform:translate3d(0,0,0) scale(1)!important;' +
       'transition-delay:var(--nav-expand-delay,24ms)!important' +
+    '}' +
+    'html.home-status-integrated-v2{' +
+      'background:#1F1D1E!important;' +
+      'background-color:#1F1D1E!important' +
+    '}' +
+    'html.home-status-integrated-v2 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7{' +
+      'color:#FFF0AE!important;' +
+      'filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(251,191,36,.72))!important' +
+    '}' +
+    'html.home-status-integrated-v2 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-bell-v8{' +
+      'stroke-width:2.35!important;' +
+      'opacity:1!important' +
     '}' +
     '@media(prefers-reduced-motion:reduce){' +
       '.nav-dropdown-menu,.nav-dropdown-menu>*{' +
