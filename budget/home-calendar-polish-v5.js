@@ -24,21 +24,21 @@
           radial-gradient(700px 320px at 12% 44%, rgba(56,189,248,.035), transparent 72%) !important;
       }
 
-      /* Slightly taller, calmer header. Keep the header and filter strip close
-         in tone so they read as one continuous top section. */
+      /* Slightly taller header with a little more amber again, while keeping
+         the transition into the filter strip soft. */
       body.home-calendar-polish-v5 .app-header {
         justify-content:center !important;
         text-align:center !important;
-        min-height:76px !important;
+        min-height:82px !important;
         position:sticky !important;
-        background:rgba(15,18,25,.94) !important;
-        border-bottom:1px solid rgba(255,255,255,.055) !important;
-        box-shadow:0 4px 16px rgba(0,0,0,.20), inset 0 -1px 0 rgba(251,146,60,.025) !important;
+        background:linear-gradient(180deg,rgba(16,18,24,.97),rgba(251,146,60,.055)) !important;
+        border-bottom:1px solid rgba(251,146,60,.095) !important;
+        box-shadow:0 5px 18px rgba(0,0,0,.22), inset 0 -1px 0 rgba(251,146,60,.035) !important;
         backdrop-filter:blur(14px) !important;
         -webkit-backdrop-filter:blur(14px) !important;
       }
       body.home-calendar-polish-v5 .filter-bar {
-        background:rgba(15,18,25,.86) !important;
+        background:linear-gradient(180deg,rgba(18,20,27,.90),rgba(15,18,25,.86)) !important;
         border-bottom:1px solid rgba(255,255,255,.06) !important;
         padding-top:9px !important;
         padding-bottom:7px !important;
@@ -119,12 +119,12 @@
       body.home-calendar-polish-v5 .brand-text {
         min-width:0;
         position:relative;
-        min-height:48px;
+        min-height:50px;
         text-align:center !important;
       }
       body.home-calendar-polish-v5 .brand-text h1 {
         font-size:22px !important;
-        line-height:27px !important;
+        line-height:28px !important;
         letter-spacing:-.45px !important;
         white-space:nowrap !important;
         text-align:center !important;
@@ -186,19 +186,27 @@
 
       /* Compact notification on/off switch in the original filter-bar slot. */
       body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
+        display:block !important;
+        visibility:visible !important;
+        opacity:1 !important;
+        flex:0 0 38px !important;
+        align-self:flex-end !important;
         margin-left:auto !important;
-        margin-right:1px !important;
-        margin-bottom:-1px !important;
-        transform:translateY(2px);
+        margin-right:0 !important;
+        margin-bottom:-3px !important;
+        transform:none !important;
         position:relative !important;
-        width:34px !important;
-        min-width:34px !important;
-        height:18px !important;
+        z-index:5 !important;
+        width:38px !important;
+        min-width:38px !important;
+        max-width:38px !important;
+        height:20px !important;
+        min-height:20px !important;
         padding:0 !important;
         border-radius:999px !important;
-        border:1px solid rgba(255,255,255,.12) !important;
-        background:rgba(255,255,255,.07) !important;
-        box-shadow:inset 0 1px 2px rgba(0,0,0,.22) !important;
+        border:1px solid rgba(255,255,255,.16) !important;
+        background:rgba(255,255,255,.095) !important;
+        box-shadow:inset 0 1px 2px rgba(0,0,0,.24),0 1px 3px rgba(0,0,0,.16) !important;
         cursor:pointer !important;
         font-size:0 !important;
         line-height:0 !important;
@@ -208,23 +216,23 @@
         position:absolute;
         left:2px;
         top:2px;
-        width:12px;
-        height:12px;
+        width:14px;
+        height:14px;
         border-radius:50%;
-        background:#7D8794;
-        box-shadow:0 1px 3px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.22);
+        background:#A1A9B4;
+        box-shadow:0 1px 3px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.28);
         transform:translateX(0);
         transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
       }
       body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on {
-        background:rgba(251,146,60,.18) !important;
-        border-color:rgba(251,146,60,.42) !important;
-        box-shadow:inset 0 0 0 1px rgba(251,146,60,.035),0 0 10px rgba(251,146,60,.035) !important;
+        background:rgba(251,146,60,.24) !important;
+        border-color:rgba(251,146,60,.55) !important;
+        box-shadow:inset 0 0 0 1px rgba(251,146,60,.045),0 0 11px rgba(251,146,60,.055) !important;
       }
       body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
-        transform:translateX(16px);
+        transform:translateX(18px);
         background:#FDBA74;
-        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 7px rgba(251,146,60,.12);
+        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 8px rgba(251,146,60,.16);
       }
 
       body.home-calendar-polish-v5 .cal-section {
@@ -265,14 +273,14 @@
 
       @media (max-width:768px) {
         body.home-calendar-polish-v5 .app-header {
-          min-height:74px !important;
+          min-height:80px !important;
         }
         body.home-calendar-polish-v5 .brand {
           max-width:calc(100% - 130px) !important;
         }
         body.home-calendar-polish-v5 .brand-text h1 {
           font-size:20px !important;
-          line-height:25px !important;
+          line-height:26px !important;
           letter-spacing:-.35px !important;
         }
         body.home-calendar-polish-v5 .brand-text p {
@@ -283,16 +291,20 @@
           padding-bottom:6px !important;
         }
         body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
-          width:32px !important;
-          min-width:32px !important;
-          height:17px !important;
+          flex-basis:36px !important;
+          width:36px !important;
+          min-width:36px !important;
+          max-width:36px !important;
+          height:19px !important;
+          min-height:19px !important;
+          margin-bottom:-2px !important;
         }
         body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
-          width:11px;
-          height:11px;
+          width:13px;
+          height:13px;
         }
         body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
-          transform:translateX(15px);
+          transform:translateX(17px);
         }
         body.home-calendar-polish-v5 .cal-section {
           padding-top:39px !important;
@@ -382,7 +394,7 @@
   }
 
   function syncNotificationSwitch() {
-    var button = document.querySelector('.filter-bar .btn-notif.home-notif-switch-v7');
+    var button = document.querySelector('.filter-bar .home-notif-switch-v7');
     if (!button) return;
     var checkbox = document.getElementById('notif-enabled');
     var enabled = checkbox ? !!checkbox.checked : storedNotificationEnabled();
@@ -392,9 +404,19 @@
   }
 
   function setupNotificationSwitch() {
-    var button = document.querySelector('.btn-notif');
     var filter = document.querySelector('.filter-bar');
-    if (!button || !filter) return;
+    if (!filter) return;
+
+    var button = filter.querySelector('.btn-notif.home-notif-switch-v7') || document.querySelector('.btn-notif');
+    if (!button) {
+      button = document.createElement('button');
+      button.className = 'btn-notif';
+      filter.appendChild(button);
+    }
+
+    document.querySelectorAll('.app-header .btn-notif').forEach(function (extra) {
+      if (extra !== button) extra.remove();
+    });
 
     button.removeAttribute('onclick');
     button.classList.remove('home-notif-toggle-v6','is-open');
@@ -403,7 +425,9 @@
     button.setAttribute('role','switch');
     button.setAttribute('aria-label','Notiser');
     button.setAttribute('aria-expanded','false');
-    button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"></span>';
+    if (!button.querySelector('.home-notif-knob-v7')) {
+      button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"></span>';
+    }
     if (button.parentElement !== filter) filter.appendChild(button);
 
     if (!button.__homeNotifSwitchV7Bound) {
@@ -412,7 +436,10 @@
         event.preventDefault();
         event.stopPropagation();
         var checkbox = document.getElementById('notif-enabled');
-        if (!checkbox) return;
+        if (!checkbox) {
+          setTimeout(setupNotificationSwitch,100);
+          return;
+        }
         checkbox.checked = !checkbox.checked;
         checkbox.dispatchEvent(new Event('change',{bubbles:true}));
         syncNotificationSwitch();
