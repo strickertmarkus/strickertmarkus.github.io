@@ -2,8 +2,8 @@
   'use strict';
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
-  if (window.__exerciseSessionEnhancementsV24Installed) return;
-  window.__exerciseSessionEnhancementsV24Installed = true;
+  if (window.__exerciseSessionEnhancementsV25Installed) return;
+  window.__exerciseSessionEnhancementsV25Installed = true;
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
@@ -17,11 +17,11 @@
   }
 
   function addStyles() {
-    if (document.getElementById('exercise-session-enhancements-v24-style')) return;
+    if (document.getElementById('exercise-session-enhancements-v25-style')) return;
     var style = document.createElement('style');
-    style.id = 'exercise-session-enhancements-v24-style';
+    style.id = 'exercise-session-enhancements-v25-style';
     style.textContent = `
-      /* Presentation only. Hype colour/state is owned by runtime-core-v21. */
+      /* Presentation only. Runtime-core owns session state. */
       #session-controls:not(.decision-row) .session-cta.primary {
         flex:1 1 100%;
         width:100%;
@@ -30,6 +30,39 @@
         font-size:16px;
         font-weight:900;
         border-radius:12px;
+      }
+
+      /* A visible pre-timer is already the start of the next active set.
+         Force the active orange palette in CSS as well as JS so there is no
+         intermediate blue frame while other session modules settle. */
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) {
+        --accent:#FF8A1F !important;
+        --accent-dim:rgba(255,122,26,.20) !important;
+        --accent-glow:rgba(255,122,26,.48) !important;
+        --border-a:rgba(255,151,69,.68) !important;
+        background:rgba(28,8,2,.98) !important;
+      }
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) .session-shell {
+        background:radial-gradient(circle at 50% 8%,rgba(255,122,26,.28),transparent 38%),linear-gradient(180deg,#1d0b04 0%,#160804 55%,#0d0908 100%) !important;
+      }
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) .session-card {
+        background:rgba(255,122,26,.10) !important;
+        border-color:rgba(255,151,69,.42) !important;
+        box-shadow:0 0 38px rgba(249,115,22,.08) !important;
+      }
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) .timer-box {
+        background:rgba(255,122,26,.16) !important;
+        border-color:rgba(255,151,69,.58) !important;
+      }
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) #session-current-ex,
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) .timer-val,
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) .session-table th {
+        color:#FFB36B !important;
+      }
+      #session-modal.show.persistent-hype:has(#session-pre-timer.show):not(.session-overview-mode) #session-controls .session-cta.primary {
+        background:linear-gradient(135deg,#FF9A3D,#F97316) !important;
+        color:#1b0902 !important;
+        box-shadow:0 10px 30px rgba(249,115,22,.34) !important;
       }
 
       .session-cardio-countdown {
@@ -191,11 +224,33 @@
     updateSegments(remaining,total);
   }
 
+  function bindPretimerTheme() {
+    var pre = document.getElementById('session-pre-timer');
+    if (!pre || pre.dataset.themeLockV25 === 'true') return !!pre;
+    pre.dataset.themeLockV25 = 'true';
+
+    function sync() {
+      if (!pre.classList.contains('show')) return;
+      var modal = document.getElementById('session-modal');
+      if (modal && modal.classList.contains('persistent-hype') && !modal.classList.contains('session-overview-mode')) {
+        modal.classList.add('hype-mode');
+      }
+    }
+
+    new MutationObserver(sync).observe(pre,{attributes:true,attributeFilter:['class']});
+    sync();
+    return true;
+  }
+
   function install() {
     addStyles();
     ensureCountdown();
     syncCountdown();
-    setInterval(syncCountdown,100);
+    bindPretimerTheme();
+    setInterval(function () {
+      syncCountdown();
+      bindPretimerTheme();
+    },100);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
