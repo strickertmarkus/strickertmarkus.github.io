@@ -5,41 +5,15 @@
   if (window.__exerciseSessionShellV19Installed) return;
   window.__exerciseSessionShellV19Installed = true;
 
-  function getState() {
-    try { return typeof sessionState !== 'undefined' ? sessionState : null; }
-    catch (_) { return null; }
-  }
-
-  function currentExercise(state) {
-    if (!state || !Array.isArray(state.exercises)) return null;
-    var index = Number(state.exerciseIndex || 0);
-    return index >= 0 && index < state.exercises.length ? state.exercises[index] : null;
-  }
-
-  function timerEnabled(state) {
-    if (!state || !state.date) return true;
-    try {
-      if (window.__exerciseFlowPolishV2 && typeof window.__exerciseFlowPolishV2.timerEnabledForDate === 'function') {
-        return window.__exerciseFlowPolishV2.timerEnabledForDate(state.date) !== false;
-      }
-    } catch (_) {}
-    try {
-      if (typeof window.getPlannedSessions === 'function') {
-        var planned = window.getPlannedSessions() || {};
-        var plan = planned[state.date];
-        if (plan && typeof plan.preTimerEnabled === 'boolean') return plan.preTimerEnabled;
-      }
-    } catch (_) {}
-    return true;
-  }
-
   function addStyles() {
     if (document.getElementById('exercise-session-shell-v19-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-session-shell-v19-style';
     style.textContent = `
-      html.exercise-session-open-v19,
-      html.exercise-session-open-v19 body {
+      /* Clean full-screen session shell. This module is presentation-only:
+         it no longer gates, skips or mutates the five-second pre-timer. */
+      html:has(#session-modal.show),
+      html:has(#session-modal.show) body {
         overflow:hidden !important;
         overscroll-behavior:none !important;
       }
@@ -109,49 +83,44 @@
         touch-action:manipulation;
       }
 
-      #session-pre-timer,
-      #session-pre-timer.show {
+      /* Pre-timer visibility is now controlled by its own .show class only.
+         The old v19 html gate was the reason a direct-rest start could count
+         five seconds invisibly. */
+      #session-pre-timer {
         display:none !important;
         visibility:hidden !important;
         opacity:0 !important;
         pointer-events:none !important;
       }
-      html.exercise-pretimer-active-v19 #session-pre-timer.show {
+      #session-pre-timer.show {
         display:grid !important;
         visibility:visible !important;
         opacity:1 !important;
         pointer-events:auto !important;
       }
+      #session-pre-timer-ring {
+        will-change:background;
+        contain:paint;
+      }
+      #session-pre-timer-ring::after {
+        will-change:transform;
+        -webkit-backface-visibility:hidden;
+        backface-visibility:hidden;
+      }
+
       #session-between-overlay-v2:not(.show) {
         display:none !important;
         visibility:hidden !important;
         pointer-events:none !important;
       }
-      #session-modal:not(.session-v19-cardio-running) #session-cardio-countdown,
-      #session-modal:not(.session-v19-cardio-running) #session-cardio-countdown.show {
-        display:none !important;
-      }
-      #session-modal.session-v19-cardio-running #session-cardio-countdown.show {
-        display:flex !important;
-      }
 
       #session-modal.persistent-hype:not(.session-overview-mode) .session-shell::before,
       #session-modal.persistent-hype:not(.session-overview-mode) .session-shell::after {
-        content:'' !important;
         pointer-events:none !important;
         z-index:0 !important;
         will-change:transform,opacity;
         -webkit-backface-visibility:hidden;
         backface-visibility:hidden;
-      }
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell::before,
-      #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell::after {
-        opacity:0 !important;
-        animation-play-state:paused !important;
-      }
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::before,
-      #session-modal.persistent-hype.hype-mode:not(.session-overview-mode) .session-shell::after {
-        animation-play-state:running !important;
       }
       #session-modal.show .session-shell > * {
         position:relative;
@@ -238,120 +207,84 @@
     document.head.appendChild(style);
   }
 
-  function syncState() {
-    var modal = document.getElementById('session-modal');
-    var state = getState();
-    var open = !!(modal && modal.classList.contains('show') && state);
-    document.documentElement.classList.toggle('exercise-session-open-v19', open);
-    if (document.body) document.body.classList.toggle('exercise-session-open-v19', open);
-    if (!modal) return;
+  var smoothFrame = 0;
+  var smoothStartedAt = 0;
+  var smoothObserved = false;
 
-    var exercise = currentExercise(state);
-    var running = !!(state && state.setRunning);
-    var cardioRunning = !!(running && exercise && exercise.kind === 'cardio' && Number(exercise.time) > 0 && state.setStartedAt);
-    modal.classList.toggle('session-v19-set-running', running);
-    modal.classList.toggle('session-v19-cardio-running', cardioRunning);
-    modal.classList.toggle('session-v19-between-sets', !!(state && !running));
-
-    if (!state || running) document.documentElement.classList.remove('exercise-pretimer-active-v19');
-
-    if (!cardioRunning) {
-      var countdown = document.getElementById('session-cardio-countdown');
-      if (countdown) countdown.classList.remove('show');
-    }
-
-    if (!document.documentElement.classList.contains('exercise-pretimer-active-v19')) {
-      var pre = document.getElementById('session-pre-timer');
-      if (pre) pre.classList.remove('show');
-    }
+  function timerVisible() {
+    var pre = document.getElementById('session-pre-timer');
+    return !!(pre && pre.classList.contains('show'));
   }
 
-  function installFinalRenderHook() {
-    var attempts = 0;
-    function bind() {
-      attempts += 1;
-      if (typeof window.renderSessionMode !== 'function') {
-        if (attempts < 80) setTimeout(bind,50);
-        return;
-      }
-      if (window.renderSessionMode.__sessionShellV19Wrapped) {
-        syncState();
-        return;
-      }
-      var previous = window.renderSessionMode;
-      var wrapped = function () {
-        syncState();
-        var result = previous.apply(this,arguments);
-        syncState();
-        return result;
-      };
-      wrapped.__sessionShellV19Wrapped = true;
-      window.renderSessionMode = wrapped;
-      syncState();
+  function paintSmoothProgress(now) {
+    if (!timerVisible()) {
+      smoothFrame = 0;
+      smoothStartedAt = 0;
+      return;
     }
-    bind();
+    if (!smoothStartedAt) smoothStartedAt = now;
+    var elapsed = Math.max(0, Math.min(5000, now - smoothStartedAt));
+    var degrees = (elapsed / 5000) * 360;
+    var ring = document.getElementById('session-pre-timer-ring');
+    if (ring) ring.style.setProperty('--pre-progress', degrees.toFixed(3) + 'deg');
+    if (elapsed < 5000 && timerVisible()) smoothFrame = requestAnimationFrame(paintSmoothProgress);
+    else smoothFrame = 0;
   }
 
-  function installPretimerActionHooks() {
-    var attempts = 0;
-    function bind() {
-      attempts += 1;
-      if (typeof window.startCurrentSet !== 'function' || typeof window.startNextSet !== 'function') {
-        if (attempts < 80) setTimeout(bind,50);
-        return;
+  function startSmoothProgress() {
+    if (!timerVisible()) return;
+    if (smoothFrame) cancelAnimationFrame(smoothFrame);
+    smoothStartedAt = performance.now();
+    var ring = document.getElementById('session-pre-timer-ring');
+    if (ring) ring.style.setProperty('--pre-progress','0deg');
+    smoothFrame = requestAnimationFrame(paintSmoothProgress);
+  }
+
+  function stopSmoothProgress() {
+    if (smoothFrame) cancelAnimationFrame(smoothFrame);
+    smoothFrame = 0;
+    smoothStartedAt = 0;
+  }
+
+  function observePretimer() {
+    var pre = document.getElementById('session-pre-timer');
+    if (!pre) return false;
+    if (pre.dataset.smoothPretimerV23 === 'true') return true;
+    pre.dataset.smoothPretimerV23 = 'true';
+    var observer = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        if (mutations[i].attributeName !== 'class') continue;
+        if (timerVisible()) startSmoothProgress();
+        else stopSmoothProgress();
+        break;
       }
-      if (window.__exercisePretimerGateV19Installed) return;
-      window.__exercisePretimerGateV19Installed = true;
-
-      function finishHiddenPretimerNow() {
-        var pre = document.getElementById('session-pre-timer');
-        if (!pre || !pre.classList.contains('show')) return false;
-        try { pre.click(); return true; }
-        catch (_) { return false; }
-      }
-
-      var previousStart = window.startCurrentSet;
-      window.startCurrentSet = function () {
-        var state = getState();
-        var enabled = timerEnabled(state);
-        document.documentElement.classList.toggle('exercise-pretimer-active-v19',enabled);
-        var result = previousStart.apply(this,arguments);
-        if (!enabled) {
-          finishHiddenPretimerNow();
-          document.documentElement.classList.remove('exercise-pretimer-active-v19');
-        }
-        syncState();
-        return result;
-      };
-
-      var previousNext = window.startNextSet;
-      window.startNextSet = function () {
-        document.documentElement.classList.remove('exercise-pretimer-active-v19');
-        var result = previousNext.apply(this,arguments);
-        finishHiddenPretimerNow();
-        document.documentElement.classList.remove('exercise-pretimer-active-v19');
-        syncState();
-        return result;
-      };
-    }
-    bind();
+    });
+    observer.observe(pre,{attributes:true,attributeFilter:['class']});
+    if (timerVisible()) startSmoothProgress();
+    smoothObserved = true;
+    return true;
   }
 
   function install() {
     addStyles();
-    syncState();
-    installFinalRenderHook();
-    installPretimerActionHooks();
 
-    document.addEventListener('click',function (event) {
-      var target = event.target;
-      if (!target || !target.closest) return;
-      if (target.closest('#session-modal') || target.closest('#session-between-overlay-v2') || target.closest('#session-pre-timer')) {
-        setTimeout(syncState,0);
+    /* Remove the obsolete class if an older cached shell left it behind. */
+    document.documentElement.classList.remove('exercise-pretimer-active-v19','exercise-session-open-v19');
+    if (document.body) document.body.classList.remove('exercise-session-open-v19');
+
+    if (!observePretimer()) {
+      var attempts = 0;
+      var retry = setInterval(function () {
+        attempts += 1;
+        if (observePretimer() || attempts >= 80) clearInterval(retry);
+      },50);
+    }
+
+    window.__exerciseSessionShellV19 = {
+      sync:function () {
+        if (!smoothObserved) observePretimer();
       }
-    },true);
-    window.addEventListener('resize',syncState,{passive:true});
-    window.__exerciseSessionShellV19 = {sync:syncState};
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
