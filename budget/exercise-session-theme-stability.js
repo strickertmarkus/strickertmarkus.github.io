@@ -178,63 +178,8 @@
     document.head.appendChild(style);
   }
 
-  function syncThemeState() {
-    var modal = document.getElementById('session-modal');
-    if (!modal) return;
-
-    var state = null;
-    try {
-      state = typeof sessionState !== 'undefined' ? sessionState : null;
-    } catch (e) {}
-
-    var overview = modal.classList.contains('session-overview-mode');
-    var running = !!(state && state.setRunning);
-    var ex = state && Array.isArray(state.exercises) && state.exerciseIndex < state.exercises.length
-      ? state.exercises[state.exerciseIndex]
-      : null;
-    var timedCardio = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
-
-    if (modal.classList.contains('persistent-hype') && !overview) {
-      modal.classList.toggle('hype-mode', running);
-      modal.classList.toggle('cardio-countdown-active', timedCardio);
-    } else {
-      modal.classList.remove('cardio-countdown-active');
-    }
-  }
-
   function install() {
     addStyles();
-    syncThemeState();
-
-    var attempts = 0;
-    function bindWhenReady() {
-      attempts++;
-      if (typeof window.renderSessionMode !== 'function' || typeof window.updateSessionTimers !== 'function') {
-        if (attempts < 50) setTimeout(bindWhenReady, 100);
-        return;
-      }
-      if (window.__exerciseThemeStateInstalled) return;
-      window.__exerciseThemeStateInstalled = true;
-
-      var previousRender = window.renderSessionMode;
-      var previousTick = window.updateSessionTimers;
-
-      window.renderSessionMode = function () {
-        var result = previousRender.apply(this, arguments);
-        syncThemeState();
-        return result;
-      };
-
-      window.updateSessionTimers = function () {
-        var result = previousTick.apply(this, arguments);
-        syncThemeState();
-        return result;
-      };
-
-      syncThemeState();
-    }
-
-    bindWhenReady();
   }
 
   if (document.readyState === 'loading') {
