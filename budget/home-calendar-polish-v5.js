@@ -24,22 +24,22 @@
           radial-gradient(700px 320px at 12% 44%, rgba(56,189,248,.035), transparent 72%) !important;
       }
 
-      /* Header: same family as the page, but without reading as a separate slab. */
+      /* Budget-inspired deep blue header while the page keeps its amber accents. */
       body.home-calendar-polish-v5 .app-header {
         justify-content:center !important;
         text-align:center !important;
         min-height:82px !important;
         position:sticky !important;
         background:
-          radial-gradient(520px 115px at 50% 18%, rgba(251,146,60,.075), transparent 72%),
-          linear-gradient(180deg,rgba(15,18,25,.98),rgba(17,19,25,.94)) !important;
-        border-bottom:1px solid rgba(255,255,255,.045) !important;
-        box-shadow:0 3px 14px rgba(0,0,0,.18), inset 0 -1px 0 rgba(251,146,60,.025) !important;
+          radial-gradient(560px 145px at 50% -18%, rgba(59,130,246,.11), transparent 72%),
+          linear-gradient(180deg,rgba(15,26,46,.99),rgba(14,22,36,.965)) !important;
+        border-bottom:1px solid rgba(96,165,250,.10) !important;
+        box-shadow:0 4px 16px rgba(0,0,0,.23), inset 0 -1px 0 rgba(96,165,250,.04) !important;
         backdrop-filter:blur(14px) !important;
         -webkit-backdrop-filter:blur(14px) !important;
       }
       body.home-calendar-polish-v5 .filter-bar {
-        background:linear-gradient(180deg,rgba(17,19,25,.92),rgba(15,18,25,.88)) !important;
+        background:linear-gradient(180deg,rgba(14,22,36,.94),rgba(15,18,25,.88)) !important;
         border-bottom:1px solid rgba(255,255,255,.055) !important;
         padding-top:9px !important;
         padding-bottom:7px !important;
@@ -148,19 +148,19 @@
         z-index:3 !important;
       }
 
-      /* Keep the Home glass/amber language for the hamburger menu. */
+      /* Keep orange control accents on top of the new blue header. */
       body.home-calendar-polish-v5 .app-header .nav-btn {
         width:36px !important;
         height:36px !important;
         border-radius:10px !important;
-        background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.024)) !important;
-        border:1px solid rgba(251,146,60,.12) !important;
+        background:linear-gradient(180deg,rgba(30,41,59,.72),rgba(15,23,42,.76)) !important;
+        border:1px solid rgba(251,146,60,.16) !important;
         color:#E8E3DD !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.024),0 4px 14px rgba(0,0,0,.13) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 4px 14px rgba(0,0,0,.16) !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-btn:hover {
-        background:rgba(251,146,60,.070) !important;
-        border-color:rgba(251,146,60,.22) !important;
+        background:rgba(251,146,60,.075) !important;
+        border-color:rgba(251,146,60,.26) !important;
         color:#FDBA74 !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu {
@@ -193,55 +193,52 @@
         display:none !important;
       }
 
-      /* Compact notification on/off switch in the original filter-bar slot. */
-      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
+      /* Budget-style notification switch, fixed into the header near its divider. */
+      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
         display:block !important;
         visibility:visible !important;
         opacity:1 !important;
-        flex:0 0 38px !important;
-        align-self:flex-end !important;
-        margin-left:auto !important;
-        margin-right:0 !important;
-        margin-bottom:-3px !important;
-        transform:none !important;
-        position:relative !important;
-        z-index:5 !important;
-        width:38px !important;
-        min-width:38px !important;
-        max-width:38px !important;
-        height:20px !important;
-        min-height:20px !important;
+        position:absolute !important;
+        left:24px !important;
+        bottom:7px !important;
+        z-index:4 !important;
+        width:40px !important;
+        min-width:40px !important;
+        max-width:40px !important;
+        height:22px !important;
+        min-height:22px !important;
+        margin:0 !important;
         padding:0 !important;
         border-radius:999px !important;
-        border:1px solid rgba(255,255,255,.16) !important;
-        background:rgba(255,255,255,.095) !important;
-        box-shadow:inset 0 1px 2px rgba(0,0,0,.24),0 1px 3px rgba(0,0,0,.16) !important;
+        border:1px solid rgba(148,163,184,.30) !important;
+        background:rgba(15,23,42,.92) !important;
+        box-shadow:inset 0 1px 3px rgba(0,0,0,.34),0 1px 3px rgba(0,0,0,.18) !important;
         cursor:pointer !important;
         font-size:0 !important;
         line-height:0 !important;
         transition:background .18s ease,border-color .18s ease,box-shadow .18s ease !important;
       }
-      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
+      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
         position:absolute;
         left:2px;
         top:2px;
-        width:14px;
-        height:14px;
+        width:16px;
+        height:16px;
         border-radius:50%;
-        background:#A1A9B4;
-        box-shadow:0 1px 3px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.28);
+        background:#94A3B8;
+        box-shadow:0 1px 3px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.25);
         transform:translateX(0);
         transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
       }
-      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on {
-        background:rgba(251,146,60,.24) !important;
-        border-color:rgba(251,146,60,.55) !important;
-        box-shadow:inset 0 0 0 1px rgba(251,146,60,.045),0 0 11px rgba(251,146,60,.055) !important;
+      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on {
+        background:rgba(251,146,60,.20) !important;
+        border-color:rgba(251,146,60,.50) !important;
+        box-shadow:inset 0 0 0 1px rgba(251,146,60,.04),0 0 10px rgba(251,146,60,.075) !important;
       }
-      body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
+      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
         transform:translateX(18px);
-        background:#FDBA74;
-        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 8px rgba(251,146,60,.16);
+        background:#FBBF24;
+        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 8px rgba(251,191,36,.17);
       }
 
       /* One compact calendar toolbar: week left, month controls right. */
@@ -285,24 +282,24 @@
         text-shadow:0 1px 7px rgba(251,146,60,.07) !important;
       }
 
-      /* Smaller, dark floating add control so it no longer dominates cards. */
+      /* Keep the current dark FAB treatment, only a little larger with more amber glow. */
       body.home-calendar-polish-v5.calendar-ui-v2 .fab,
       body.home-calendar-polish-v5 .fab {
-        width:46px !important;
-        height:46px !important;
-        min-width:46px !important;
-        min-height:46px !important;
+        width:50px !important;
+        height:50px !important;
+        min-width:50px !important;
+        min-height:50px !important;
         background:rgba(18,22,30,.97) !important;
         color:#FBBF24 !important;
-        border:1px solid rgba(251,191,36,.38) !important;
-        font-size:23px !important;
-        box-shadow:0 8px 20px rgba(0,0,0,.26),0 0 12px rgba(251,146,60,.035) !important;
+        border:1px solid rgba(251,191,36,.42) !important;
+        font-size:24px !important;
+        box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 22px rgba(251,146,60,.13) !important;
       }
       body.home-calendar-polish-v5.calendar-ui-v2 .fab:hover,
       body.home-calendar-polish-v5 .fab:hover {
-        background:rgba(251,146,60,.085) !important;
-        border-color:rgba(251,191,36,.52) !important;
-        box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 14px rgba(251,146,60,.055) !important;
+        background:rgba(251,146,60,.090) !important;
+        border-color:rgba(251,191,36,.58) !important;
+        box-shadow:0 10px 24px rgba(0,0,0,.30),0 0 26px rgba(251,146,60,.18) !important;
       }
 
       @media (max-width:768px) {
@@ -324,20 +321,20 @@
         body.home-calendar-polish-v5 .filter-bar {
           padding-bottom:6px !important;
         }
-        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 {
-          flex-basis:36px !important;
-          width:36px !important;
-          min-width:36px !important;
-          max-width:36px !important;
-          height:19px !important;
-          min-height:19px !important;
-          margin-bottom:-2px !important;
+        body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
+          left:16px !important;
+          bottom:7px !important;
+          width:38px !important;
+          min-width:38px !important;
+          max-width:38px !important;
+          height:21px !important;
+          min-height:21px !important;
         }
-        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
-          width:13px;
-          height:13px;
+        body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
+          width:15px;
+          height:15px;
         }
-        body.home-calendar-polish-v5 .filter-bar .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
+        body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
           transform:translateX(17px);
         }
         body.home-calendar-polish-v5 .main-layout {
@@ -370,11 +367,12 @@
         }
         body.home-calendar-polish-v5.calendar-ui-v2 .fab,
         body.home-calendar-polish-v5 .fab {
-          width:44px !important;
-          height:44px !important;
-          min-width:44px !important;
-          min-height:44px !important;
-          font-size:22px !important;
+          width:48px !important;
+          height:48px !important;
+          min-width:48px !important;
+          min-height:48px !important;
+          font-size:23px !important;
+          box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 24px rgba(251,146,60,.15) !important;
         }
       }
 
@@ -440,7 +438,7 @@
   }
 
   function syncNotificationSwitch() {
-    var button = document.querySelector('.filter-bar .home-notif-switch-v7');
+    var button = document.querySelector('.app-header .home-notif-switch-v7');
     if (!button) return;
     var checkbox = document.getElementById('notif-enabled');
     var enabled = checkbox ? !!checkbox.checked : storedNotificationEnabled();
@@ -450,17 +448,18 @@
   }
 
   function setupNotificationSwitch() {
-    var filter = document.querySelector('.filter-bar');
-    if (!filter) return;
+    var header = document.querySelector('.app-header');
+    if (!header) return;
 
-    var button = filter.querySelector('.btn-notif.home-notif-switch-v7') || document.querySelector('.btn-notif');
+    var button = header.querySelector('.btn-notif.home-notif-switch-v7') ||
+      document.querySelector('.filter-bar .btn-notif') ||
+      document.querySelector('.btn-notif');
     if (!button) {
       button = document.createElement('button');
       button.className = 'btn-notif';
-      filter.appendChild(button);
     }
 
-    document.querySelectorAll('.app-header .btn-notif').forEach(function (extra) {
+    document.querySelectorAll('.app-header .btn-notif, .filter-bar .btn-notif').forEach(function (extra) {
       if (extra !== button) extra.remove();
     });
 
@@ -474,7 +473,7 @@
     if (!button.querySelector('.home-notif-knob-v7')) {
       button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"></span>';
     }
-    if (button.parentElement !== filter) filter.appendChild(button);
+    if (button.parentElement !== header) header.appendChild(button);
 
     if (!button.__homeNotifSwitchV7Bound) {
       button.__homeNotifSwitchV7Bound = true;
