@@ -22,20 +22,97 @@
     var style = document.createElement('style');
     style.id = 'exercise-session-ux-v20-style';
     style.textContent = `
-      /* Rounded moving cap on the five-second start timer. */
+      /* Finance-inspired visual theme for the main exercise page. */
+      html,
+      body {
+        background:
+          radial-gradient(900px 380px at 50% -110px,rgba(34,211,238,.105),transparent 67%),
+          radial-gradient(620px 300px at 92% 42%,rgba(251,146,60,.025),transparent 72%),
+          #0F1219 !important;
+      }
+      body::before {
+        content:'' !important;
+        display:block !important;
+        position:fixed !important;
+        inset:0 !important;
+        pointer-events:none !important;
+        z-index:0 !important;
+        background:linear-gradient(180deg,rgba(255,255,255,.008),transparent 28%) !important;
+      }
+      .app-wrap {
+        position:relative !important;
+        z-index:1 !important;
+      }
+      .app-header {
+        background:linear-gradient(180deg,rgba(13,17,23,.985),rgba(34,211,238,.055)) !important;
+        border-bottom:1px solid rgba(34,211,238,.20) !important;
+        box-shadow:0 7px 26px rgba(0,0,0,.42),0 1px 24px rgba(34,211,238,.07) !important;
+        backdrop-filter:blur(20px) !important;
+        -webkit-backdrop-filter:blur(20px) !important;
+      }
+      .stat-card,
+      .goal-card,
+      .chart-card {
+        background:linear-gradient(180deg,rgba(255,255,255,.046),rgba(255,255,255,.024)) !important;
+        border-color:rgba(34,211,238,.105) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 28px rgba(0,0,0,.18) !important;
+      }
+      .stat-card:hover,
+      .goal-card:hover,
+      .chart-card:hover {
+        border-color:rgba(34,211,238,.20) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 32px rgba(0,0,0,.24),0 0 22px rgba(34,211,238,.035) !important;
+      }
+      .week-day {
+        background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.022)) !important;
+        border-color:rgba(255,255,255,.085) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.018) !important;
+      }
+      .week-day:hover:not(.today) {
+        background:rgba(34,211,238,.045) !important;
+        border-color:rgba(34,211,238,.18) !important;
+      }
+      .week-day.today {
+        background:linear-gradient(180deg,rgba(34,211,238,.13),rgba(34,211,238,.055)) !important;
+        border-color:rgba(34,211,238,.48) !important;
+        box-shadow:inset 0 0 0 1px rgba(34,211,238,.045),0 0 20px rgba(34,211,238,.045) !important;
+      }
+      .section-hdr h2::before {
+        opacity:1 !important;
+        box-shadow:0 0 10px rgba(34,211,238,.34) !important;
+      }
+      .nav-btn,
+      .week-nav-btn,
+      .btn-ghost {
+        background:rgba(255,255,255,.045) !important;
+        border-color:rgba(34,211,238,.14) !important;
+      }
+      .nav-btn:hover,
+      .week-nav-btn:hover,
+      .btn-ghost:hover {
+        background:rgba(34,211,238,.08) !important;
+        border-color:rgba(34,211,238,.26) !important;
+      }
+      .chart-card h3 {
+        color:#CFFAFE !important;
+        text-shadow:0 2px 10px rgba(34,211,238,.08);
+      }
+
+      /* The ring itself stays flat. Only the leading edge gets a semicircular
+         cap, like a progress stroke with a rounded line-cap. */
       #session-pre-timer-ring::after {
         content:'';
         position:absolute;
         left:50%;
         top:50%;
-        width:18px;
-        height:18px;
-        margin:-9px 0 0 -9px;
-        border-radius:50%;
+        width:10px;
+        height:10px;
+        margin:-5px 0 0 -5px;
+        border-radius:0 6px 6px 0;
         background:#FB923C;
-        box-shadow:0 0 10px rgba(251,146,60,.58);
-        transform:rotate(var(--pre-progress,0deg)) translateY(-86px);
-        transform-origin:9px 9px;
+        box-shadow:0 0 7px rgba(251,146,60,.42);
+        transform:rotate(var(--pre-progress,0deg)) translateY(-81px);
+        transform-origin:5px 5px;
         pointer-events:none;
         z-index:3;
       }
@@ -76,11 +153,12 @@
 
       @media(max-width:600px) {
         #session-pre-timer-ring::after {
-          width:16px;
-          height:16px;
-          margin:-8px 0 0 -8px;
-          transform:rotate(var(--pre-progress,0deg)) translateY(-79px);
-          transform-origin:8px 8px;
+          width:10px;
+          height:10px;
+          margin:-5px 0 0 -5px;
+          border-radius:0 6px 6px 0;
+          transform:rotate(var(--pre-progress,0deg)) translateY(-74px);
+          transform-origin:5px 5px;
         }
         #session-between-overlay-v2 .bs-start-next-v20 {
           min-height:48px;
