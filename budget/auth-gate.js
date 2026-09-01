@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260828-session-shell-v19';
+  var exerciseAssetsVersion = '20260901-session-ux-v20';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260901-creation-push-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -137,7 +137,7 @@
   if (isExercisePage) {
     /* HR presentation loads first so its final cardio/strength range chart is
        ready during the same initial frame as the base charts. Session behavior
-       remains ordered, while V19 is the single final geometry/paint owner. */
+       remains ordered, with V20 loaded last for final Hype UX behavior. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
@@ -160,7 +160,8 @@
       ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
       ['exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6'],
       ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7'],
-      ['exercise-session-shell-v19.js', 'data-exercise-session-shell-v19']
+      ['exercise-session-shell-v19.js', 'data-exercise-session-shell-v19'],
+      ['exercise-session-ux-v20.js', 'data-exercise-session-ux-v20']
     ];
 
     (function loadExerciseAt(index) {
