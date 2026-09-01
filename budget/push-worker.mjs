@@ -5,6 +5,9 @@ import { getDatabase } from 'firebase-admin/database';
 import { getMessaging } from 'firebase-admin/messaging';
 
 const LOOKBACK_MINUTES = 20;
+const CREATION_LOOKBACK_MINUTES = 20;
+const DEFAULT_REMINDER_MINUTES = 1440;
+const CREATION_NOTIFICATIONS_FROM_MS = Date.parse('2026-09-01T06:55:00Z');
 const WEB_APP_BASE_URL = 'https://strickertmarkus.github.io/budget/';
 const MEMBER_LABELS = {
   markus: 'Markus',
@@ -39,6 +42,12 @@ function dateKey(date) {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+function shortDateLabel(iso) {
+  const parts = String(iso || '').split('-');
+  if (parts.length !== 3) return String(iso || '');
+  return `${Number(parts[2])}/${Number(parts[1])}`;
 }
 
 function addDays(date, amount) {
@@ -79,6 +88,14 @@ function eventOccursOn(ev, targetDate) {
   return false;
 }
 
+function reminderMinutesForEvent(ev) {
+  if (!ev || ev.reminderMinutes === null || ev.reminderMinutes === undefined || ev.reminderMinutes === '') {
+    return DEFAULT_REMINDER_MINUTES;
+  }
+  const value = Number(ev.reminderMinutes);
+  return Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 function reminderLabel(minutes) {
   if (minutes === 0) return 'Nu';
   if (minutes === 15) return 'Om 15 min';
@@ -97,6 +114,22 @@ function reminderId(ev, occurrenceDate, minutes) {
     .update(`${ev.id || ev.title}|${occurrenceDate}|${minutes}`)
     .digest('hex')
     .slice(0, 32);
+}
+
+function creationId(ev) {
+  return crypto
+    .createHash('sha256')
+    .update(`created|${ev.id || ev.title}`)
+    .digest('hex')
+    .slice(0, 32);
+}
+
+function eventCreatedAtMs(ev) {
+  const raw = String(ev && ev.id || '');
+  if (!/^\d{12,16}$/.test(raw)) return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return null;
+  return value;
 }
 
 function deviceAccepts(device, member) {
@@ -210,22 +243,69 @@ async function processQueue(devices) {
   }
 }
 
+async function processCreatedEvents(events, devices) {
+  const now = Date.now();
+  const oldest = now - CREATION_LOOKBACK_MINUTES * 60000;
+
+  for (const ev of events) {
+    if (!ev || !ev.id || !ev.title) continue;
+    const createdAt = eventCreatedAtMs(ev);
+    if (!createdAt) continue;
+    if (createdAt < CREATION_NOTIFICATIONS_FROM_MS || createdAt <= oldest || createdAt > now + 60000) continue;
+
+    const key = creationId(ev);
+    const sentRef = db.ref(`pushSent/${key}`);
+    const alreadySent = await sentRef.get();
+    if (alreadySent.exists()) continue;
+
+    const member = ev.member || 'family';
+    const targets = Object.entries(devices).filter(([, device]) => deviceAccepts(device, member));
+    if (!targets.length) {
+      console.log(`[push] created ${ev.title}: no enabled device subscribed to ${member}`);
+      continue;
+    }
+
+    const memberLabel = MEMBER_LABELS[member] || 'Familjen';
+    const eventLabel = `${ev.emoji ? `${ev.emoji} ` : ''}${ev.title}`;
+    const whenParts = [];
+    if (ev.date) whenParts.push(shortDateLabel(ev.date));
+    if (ev.time) whenParts.push(ev.time);
+    whenParts.push(memberLabel);
+
+    const result = await sendToDevices(targets, {
+      title: '📅 Ny kalenderhändelse',
+      body: `${eventLabel} · ${whenParts.join(' · ')}`,
+      url: `home.html?date=${encodeURIComponent(ev.date || '')}&event=${encodeURIComponent(ev.id)}`,
+      tag: `calendar-created-${key}`
+    });
+
+    if (result.success > 0) {
+      await sentRef.set({
+        type: 'created',
+        eventId: String(ev.id),
+        sentAt: Date.now(),
+        sentCount: result.success
+      });
+    }
+    console.log(`[push] created ${ev.id}: ${result.success} sent, ${result.failed} failed`);
+  }
+}
+
 async function processReminders(events, devices) {
   const now = new Date();
   const oldestDue = new Date(now.getTime() - LOOKBACK_MINUTES * 60000);
   const maxReminder = events.reduce((max, ev) => {
-    const value = Number(ev && ev.reminderMinutes);
-    return Number.isFinite(value) && value >= 0 ? Math.max(max, value) : max;
-  }, 1440);
+    const value = reminderMinutesForEvent(ev);
+    return value !== null ? Math.max(max, value) : max;
+  }, DEFAULT_REMINDER_MINUTES);
   const daysForward = Math.max(1, Math.ceil(maxReminder / 1440) + 1);
   const candidateDates = [];
   for (let i = 0; i <= daysForward; i += 1) candidateDates.push(dateKey(addDays(now, i)));
 
   for (const ev of events) {
     if (!ev || !ev.id || !ev.date || !ev.time) continue;
-    if (ev.reminderMinutes === null || ev.reminderMinutes === undefined || ev.reminderMinutes === '') continue;
-    const minutes = Number(ev.reminderMinutes);
-    if (!Number.isFinite(minutes) || minutes < 0) continue;
+    const minutes = reminderMinutesForEvent(ev);
+    if (minutes === null) continue;
 
     for (const occurrenceDate of candidateDates) {
       if (!eventOccursOn(ev, occurrenceDate)) continue;
@@ -283,6 +363,7 @@ try {
 
   console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
   await processQueue(devices);
+  await processCreatedEvents(events, devices);
   await processReminders(events, devices);
   console.log('[push] worker complete');
 } finally {
