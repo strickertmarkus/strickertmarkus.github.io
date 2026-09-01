@@ -7,6 +7,8 @@
 
   var overviewMode = false;
   var sessionToken = null;
+  var transitionVisualUntil = 0;
+  var customStartKey = '';
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
@@ -171,6 +173,7 @@
     button.className = 'session-view-toggle';
     button.addEventListener('click',function () {
       overviewMode = !overviewMode;
+      transitionVisualUntil = 0;
       applyViewState();
       try { if (typeof window.renderSessionMode === 'function') window.renderSessionMode(); } catch (_) {}
     });
@@ -183,10 +186,36 @@
     if (token && token !== sessionToken) {
       sessionToken = token;
       overviewMode = false;
+      transitionVisualUntil = 0;
+      customStartKey = '';
     } else if (!state) {
       sessionToken = null;
       overviewMode = false;
+      transitionVisualUntil = 0;
+      customStartKey = '';
     }
+  }
+
+  function pretimerVisible() {
+    var pre = document.getElementById('session-pre-timer');
+    return !!(pre && pre.classList.contains('show'));
+  }
+
+  function restVisible() {
+    var rest = document.getElementById('session-between-overlay-v2');
+    return !!(rest && rest.classList.contains('show'));
+  }
+
+  function customWaiting(state) {
+    var ex = currentExercise(state);
+    return !!(state && state.__betweenCustomRuntimeV3 && ex && ex.__betweenCustomV3 && !state.setRunning && !state.awaitingDecision);
+  }
+
+  function markTransitionVisual() {
+    transitionVisualUntil = Date.now() + 7000;
+    var modal = document.getElementById('session-modal');
+    if (!modal || modal.classList.contains('session-overview-mode')) return;
+    modal.classList.add('persistent-hype','hype-focus','hype-mode');
   }
 
   function applyViewState() {
@@ -197,10 +226,22 @@
     resetForSession(state);
     var active = !!state;
     var training = active && !overviewMode;
+    var running = !!(state && state.setRunning);
+    var ex = currentExercise(state);
+    var preStarting = pretimerVisible();
+    var customStarting = customWaiting(state);
+
+    if (!training || restVisible()) transitionVisualUntil = 0;
+    if (running) transitionVisualUntil = 0;
+
+    var starting = training && !restVisible() && (preStarting || customStarting || Date.now() < transitionVisualUntil);
+    var timedCardio = !!(training && running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
 
     modal.classList.toggle('persistent-hype',training);
     modal.classList.toggle('hype-focus',training);
     modal.classList.toggle('session-overview-mode',active && overviewMode);
+    modal.classList.toggle('hype-mode',training && (running || starting));
+    modal.classList.toggle('cardio-countdown-active',timedCardio);
 
     var button = ensureToggleButton();
     if (button) {
@@ -321,12 +362,44 @@
     });
   }
 
+  function maybeStartCustomExercise() {
+    var state = getState();
+    var ex = currentExercise(state);
+    var waiting = !!(state && state.__betweenCustomRuntimeV3 && ex && ex.__betweenCustomV3 && !state.setRunning && !state.awaitingDecision);
+    if (!waiting) {
+      if (!(state && state.__betweenCustomRuntimeV3)) customStartKey = '';
+      return;
+    }
+
+    var runtime = state.__betweenCustomRuntimeV3;
+    var key = [state.passStartedAt || '',runtime.index || 0,runtime.originalCurrentSet || 1,runtime.transition || '',ex.name || ''].join('|');
+    if (key === customStartKey) return;
+    customStartKey = key;
+    markTransitionVisual();
+    applyViewState();
+
+    setTimeout(function () {
+      var currentState = getState();
+      var currentEx = currentExercise(currentState);
+      if (!currentState || !currentState.__betweenCustomRuntimeV3 || !currentEx || !currentEx.__betweenCustomV3 || currentState.setRunning || currentState.awaitingDecision) return;
+      try { if (typeof window.startCurrentSet === 'function') window.startCurrentSet(); } catch (_) {}
+    },0);
+  }
+
+  function primeRestSkip(event) {
+    var target = event && event.target;
+    var overlay = target && target.closest ? target.closest('#session-between-overlay-v2.show') : null;
+    if (!overlay) return;
+    markTransitionVisual();
+  }
+
   function syncUi() {
     ensureCompatibilityAnchor();
     ensureLogSection();
     ensureToggleButton();
     ensurePauseHint();
     bindRing();
+    maybeStartCustomExercise();
     applyViewState();
     renderPauseState();
   }
@@ -350,6 +423,9 @@
     ensureLogSection();
     ensureToggleButton();
 
+    document.addEventListener('pointerdown',primeRestSkip,true);
+    document.addEventListener('click',primeRestSkip,true);
+
     var attempts = 0;
     (function bindWhenReady() {
       attempts += 1;
@@ -365,6 +441,8 @@
       wrapAfter('stopSessionMode',function () {
         overviewMode = false;
         sessionToken = null;
+        transitionVisualUntil = 0;
+        customStartKey = '';
         syncUi();
       },function () { clearPauseState(getState()); });
 
