@@ -60,7 +60,7 @@
 
   var exerciseAssetsVersion = '20260828-session-shell-v19';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260827-2105-home-type-scale-v9';
+  var calendarAssetsVersion = '20260901-creation-push-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
@@ -197,7 +197,9 @@
     loadCalendarScript('calendar-ui-v2.js', 'data-calendar-ui-v2', function () {
       loadCalendarScript('calendar-picker-fix-v3.js', 'data-calendar-picker-fix-v3', function () {
         loadCalendarScript('calendar-followups-v4.js', 'data-calendar-followups-v4', function () {
-          if (isHomePage) loadCalendarScript('home-calendar-polish-v5.js', 'data-home-calendar-polish-v5');
+          loadCalendarScript('calendar-notification-enhancements-v1.js', 'data-calendar-notification-enhancements-v1', function () {
+            if (isHomePage) loadCalendarScript('home-calendar-polish-v5.js', 'data-home-calendar-polish-v5');
+          });
         });
       });
     });
