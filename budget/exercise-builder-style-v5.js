@@ -3,6 +3,31 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
+  function syncUnitLabels() {
+    var modal = document.getElementById('day-workout-modal');
+    if (!modal || !modal.classList.contains('show')) return;
+
+    var list = document.getElementById('day-workout-ex-list');
+    var group = list && (list.closest('.form-group') || list.parentElement);
+    var label = group && group.querySelector(':scope > label');
+    if (label) {
+      label.textContent = 'Övningar (Set/Reps/kg · Distans km / Tid min · Vila/mellanövning sek)';
+    }
+
+    var globalSeconds = document.querySelector('#between-exercise-global-editor-v7 [data-global-seconds-v7]');
+    if (globalSeconds) {
+      var field = globalSeconds.closest('div');
+      var fieldLabel = field && field.querySelector('label');
+      if (fieldLabel) fieldLabel.textContent = 'Tid (sek)';
+      globalSeconds.setAttribute('aria-label', 'Tid mellan övningar i sekunder');
+    }
+
+    document.querySelectorAll('#day-workout-ex-list [data-per-set-seconds-v7]').forEach(function (input) {
+      input.setAttribute('aria-label', 'Tid mellan set i sekunder');
+      input.setAttribute('title', 'sekunder');
+    });
+  }
+
   function install() {
     if (document.getElementById('exercise-builder-style-v5')) return;
 
@@ -94,6 +119,9 @@
       }
     `;
     document.head.appendChild(style);
+
+    syncUnitLabels();
+    setInterval(syncUnitLabels, 250);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
