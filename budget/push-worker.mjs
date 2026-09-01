@@ -363,7 +363,6 @@ try {
 
   console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
   await processQueue(devices);
-  await processCreatedEvents(events, devices);
   await processReminders(events, devices);
   console.log('[push] worker complete');
 } finally {
