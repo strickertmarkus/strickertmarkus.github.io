@@ -7,13 +7,12 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isHome = lowerPath.endsWith('/budget/home.html') || lowerPath.endsWith('/home.html');
 
-  /* Home is used as an installed iOS web app. Keep the browser/status-bar
-     surface in the same warm charcoal as the top of the Home header so the
-     header begins at the physical top of the screen instead of below a hard
-     dark strip. Do this in <head>, before the page paints. */
+  /* Home uses the exact same dark/orange top palette as the orange finance
+     (family budget) view. This runs synchronously in <head> so the old blue
+     Home base never gets a chance to become the visible first-paint layer. */
   if (isHome) {
-    var homeTopColor = '#1F1D1E';
-    document.documentElement.classList.add('home-status-integrated-v2');
+    var homeTopColor = '#0D1117';
+    document.documentElement.classList.add('home-finance-orange-v3');
     document.documentElement.style.setProperty('background-color', homeTopColor, 'important');
 
     var themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -61,15 +60,39 @@
       'transform:translate3d(0,0,0) scale(1)!important;' +
       'transition-delay:var(--nav-expand-delay,24ms)!important' +
     '}' +
-    'html.home-status-integrated-v2{' +
-      'background:#1F1D1E!important;' +
-      'background-color:#1F1D1E!important' +
+
+    /* Exact family-finance background: orange radial glow over #0F1219. */
+    'html.home-finance-orange-v3,' +
+    'html.home-finance-orange-v3 body{' +
+      'background:radial-gradient(900px 380px at 50% -110px,rgba(251,146,60,.085),transparent 67%),#0F1219!important;' +
+      'background-color:#0F1219!important' +
     '}' +
-    'html.home-status-integrated-v2 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7{' +
+
+    /* Retire the older Home pseudo-background entirely. It contained the
+       remaining cyan/blue radial layer that could show through around header. */
+    'html.home-finance-orange-v3 body::before{' +
+      'content:none!important;' +
+      'display:none!important;' +
+      'background:none!important' +
+    '}' +
+
+    /* Exact orange family-finance header surface. Higher specificity keeps
+       later Home polish layers from replacing it with the older warm/blue mix. */
+    'html.home-finance-orange-v3 body .app-header,' +
+    'html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header{' +
+      'background:linear-gradient(180deg,rgba(13,17,23,.985),rgba(251,146,60,.06))!important;' +
+      'border-bottom:1px solid rgba(251,146,60,.20)!important;' +
+      'box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 24px rgba(251,146,60,.075)!important;' +
+      'backdrop-filter:blur(20px)!important;' +
+      '-webkit-backdrop-filter:blur(20px)!important' +
+    '}' +
+
+    /* Brighter notification bell while enabled. */
+    'html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7{' +
       'color:#FFF0AE!important;' +
       'filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(251,191,36,.72))!important' +
     '}' +
-    'html.home-status-integrated-v2 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-bell-v8{' +
+    'html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-bell-v8{' +
       'stroke-width:2.35!important;' +
       'opacity:1!important' +
     '}' +
