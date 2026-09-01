@@ -24,23 +24,36 @@
           radial-gradient(700px 320px at 12% 44%, rgba(56,189,248,.035), transparent 72%) !important;
       }
 
-      /* Budget-inspired deep blue header while the page keeps its amber accents. */
+      /* Lighter warm-charcoal header with a slightly mottled gradient. */
       body.home-calendar-polish-v5 .app-header {
         justify-content:center !important;
         text-align:center !important;
         min-height:82px !important;
         position:sticky !important;
         background:
-          radial-gradient(560px 145px at 50% -18%, rgba(59,130,246,.11), transparent 72%),
-          linear-gradient(180deg,rgba(15,26,46,.99),rgba(14,22,36,.965)) !important;
-        border-bottom:1px solid rgba(96,165,250,.10) !important;
-        box-shadow:0 4px 16px rgba(0,0,0,.23), inset 0 -1px 0 rgba(96,165,250,.04) !important;
+          radial-gradient(360px 150px at 18% 4%, rgba(251,191,36,.055), transparent 70%),
+          radial-gradient(300px 150px at 72% 0%, rgba(255,255,255,.040), transparent 72%),
+          radial-gradient(240px 120px at 42% 112%, rgba(251,146,60,.038), transparent 74%),
+          linear-gradient(180deg,rgba(31,29,30,.985),rgba(21,22,26,.955)) !important;
+        border-bottom:0 !important;
+        box-shadow:0 4px 16px rgba(0,0,0,.19), inset 0 -1px 0 rgba(255,255,255,.015) !important;
         backdrop-filter:blur(14px) !important;
         -webkit-backdrop-filter:blur(14px) !important;
       }
+      body.home-calendar-polish-v5 .app-header::after {
+        content:'';
+        position:absolute;
+        left:5%;
+        right:5%;
+        bottom:0;
+        height:1px;
+        pointer-events:none;
+        background:linear-gradient(90deg,transparent,rgba(251,146,60,.055) 24%,rgba(255,255,255,.065) 50%,rgba(251,146,60,.055) 76%,transparent);
+        opacity:.72;
+      }
       body.home-calendar-polish-v5 .filter-bar {
-        background:linear-gradient(180deg,rgba(14,22,36,.94),rgba(15,18,25,.88)) !important;
-        border-bottom:1px solid rgba(255,255,255,.055) !important;
+        background:linear-gradient(180deg,rgba(21,22,26,.92),rgba(15,18,25,.88)) !important;
+        border-bottom:1px solid rgba(255,255,255,.050) !important;
         padding-top:9px !important;
         padding-bottom:7px !important;
         backdrop-filter:blur(12px);
@@ -53,7 +66,6 @@
         text-shadow:0 2px 10px rgba(251,191,36,.16);
       }
 
-      /* Let the content cards sit back slightly so the information wins. */
       body.home-calendar-polish-v5 .sidebar-section,
       body.home-calendar-polish-v5 .widget {
         background:linear-gradient(180deg, rgba(255,255,255,.040), rgba(255,255,255,.022)) !important;
@@ -76,7 +88,6 @@
         background:linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.028)) !important;
       }
 
-      /* Quieter calendar grid: today is the one clear amber focal point. */
       body.home-calendar-polish-v5 .cal-cell {
         background:rgba(255,255,255,.024) !important;
         border-color:rgba(255,255,255,.055) !important;
@@ -148,15 +159,14 @@
         z-index:3 !important;
       }
 
-      /* Keep orange control accents on top of the new blue header. */
       body.home-calendar-polish-v5 .app-header .nav-btn {
         width:36px !important;
         height:36px !important;
         border-radius:10px !important;
-        background:linear-gradient(180deg,rgba(30,41,59,.72),rgba(15,23,42,.76)) !important;
+        background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.026)) !important;
         border:1px solid rgba(251,146,60,.16) !important;
         color:#E8E3DD !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 4px 14px rgba(0,0,0,.16) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 4px 14px rgba(0,0,0,.14) !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-btn:hover {
         background:rgba(251,146,60,.075) !important;
@@ -187,13 +197,12 @@
         border-top-color:rgba(251,146,60,.10) !important;
       }
 
-      /* The old notification settings panel and mobile bell are no longer UI. */
       body.home-calendar-polish-v5 #notif-panel,
       body.home-calendar-polish-v5 #push-mobile-bell {
         display:none !important;
       }
 
-      /* Budget-style notification switch, fixed into the header near its divider. */
+      /* The bell itself is the moving object in the notification switch. */
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
         display:block !important;
         visibility:visible !important;
@@ -202,17 +211,17 @@
         left:24px !important;
         bottom:7px !important;
         z-index:4 !important;
-        width:40px !important;
-        min-width:40px !important;
-        max-width:40px !important;
+        width:42px !important;
+        min-width:42px !important;
+        max-width:42px !important;
         height:22px !important;
         min-height:22px !important;
         margin:0 !important;
         padding:0 !important;
         border-radius:999px !important;
-        border:1px solid rgba(148,163,184,.30) !important;
-        background:rgba(15,23,42,.92) !important;
-        box-shadow:inset 0 1px 3px rgba(0,0,0,.34),0 1px 3px rgba(0,0,0,.18) !important;
+        border:1px solid rgba(255,255,255,.18) !important;
+        background:rgba(255,255,255,.060) !important;
+        box-shadow:inset 0 1px 3px rgba(0,0,0,.30),0 1px 3px rgba(0,0,0,.15) !important;
         cursor:pointer !important;
         font-size:0 !important;
         line-height:0 !important;
@@ -220,28 +229,36 @@
       }
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
         position:absolute;
-        left:2px;
-        top:2px;
-        width:16px;
-        height:16px;
-        border-radius:50%;
-        background:#94A3B8;
-        box-shadow:0 1px 3px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.25);
+        left:1px;
+        top:1px;
+        width:18px;
+        height:18px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#A7AFBA;
+        background:transparent;
+        box-shadow:none;
         transform:translateX(0);
-        transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
+        transition:transform .18s cubic-bezier(.2,.8,.2,1),color .18s ease,filter .18s ease;
+      }
+      body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-bell-v8 {
+        width:14px;
+        height:14px;
+        display:block;
+        stroke:currentColor;
       }
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on {
-        background:rgba(251,146,60,.20) !important;
-        border-color:rgba(251,146,60,.50) !important;
-        box-shadow:inset 0 0 0 1px rgba(251,146,60,.04),0 0 10px rgba(251,146,60,.075) !important;
+        background:rgba(251,146,60,.18) !important;
+        border-color:rgba(251,146,60,.48) !important;
+        box-shadow:inset 0 0 0 1px rgba(251,146,60,.035),0 0 10px rgba(251,146,60,.070) !important;
       }
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
-        transform:translateX(18px);
-        background:#FBBF24;
-        box-shadow:0 1px 4px rgba(0,0,0,.34),0 0 8px rgba(251,191,36,.17);
+        transform:translateX(20px);
+        color:#FBBF24;
+        filter:drop-shadow(0 0 4px rgba(251,191,36,.32));
       }
 
-      /* One compact calendar toolbar: week left, month controls right. */
       body.home-calendar-polish-v5 .main-layout {
         padding-top:1.15rem !important;
       }
@@ -282,7 +299,6 @@
         text-shadow:0 1px 7px rgba(251,146,60,.07) !important;
       }
 
-      /* Keep the current dark FAB treatment, only a little larger with more amber glow. */
       body.home-calendar-polish-v5.calendar-ui-v2 .fab,
       body.home-calendar-polish-v5 .fab {
         width:50px !important;
@@ -324,18 +340,22 @@
         body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
           left:16px !important;
           bottom:7px !important;
-          width:38px !important;
-          min-width:38px !important;
-          max-width:38px !important;
+          width:40px !important;
+          min-width:40px !important;
+          max-width:40px !important;
           height:21px !important;
           min-height:21px !important;
         }
         body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-knob-v7 {
-          width:15px;
-          height:15px;
+          width:17px;
+          height:17px;
+        }
+        body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 .home-notif-bell-v8 {
+          width:13px;
+          height:13px;
         }
         body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
-          transform:translateX(17px);
+          transform:translateX(19px);
         }
         body.home-calendar-polish-v5 .main-layout {
           padding-top:1rem !important;
@@ -470,8 +490,8 @@
     button.setAttribute('role','switch');
     button.setAttribute('aria-label','Notiser');
     button.setAttribute('aria-expanded','false');
-    if (!button.querySelector('.home-notif-knob-v7')) {
-      button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"></span>';
+    if (!button.querySelector('.home-notif-bell-v8')) {
+      button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"><svg class="home-notif-bell-v8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
     }
     if (button.parentElement !== header) header.appendChild(button);
 
