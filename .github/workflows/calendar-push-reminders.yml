@@ -1,14 +1,7 @@
 name: Calendar push reminders
 
 on:
-  schedule:
-    - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/calendar-push-reminders.yml'
-      - 'budget/push-worker.mjs'
 
 permissions:
   contents: read
@@ -22,9 +15,6 @@ jobs:
       TZ: Europe/Stockholm
 
     steps:
-      - name: Show trigger
-        run: echo "trigger=${{ github.event_name }} utc=$(date -u +%FT%TZ)"
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
