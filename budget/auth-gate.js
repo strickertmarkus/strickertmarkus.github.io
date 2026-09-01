@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260901-session-runtime-core-v21';
+  var exerciseAssetsVersion = '20260901-session-v22';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260901-creation-push-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -67,6 +67,19 @@
     var exerciseCritical = document.createElement('style');
     exerciseCritical.id = 'exercise-profile-critical-v12';
     exerciseCritical.textContent =
+      'html,body{background:radial-gradient(900px 380px at 50% -110px,rgba(34,211,238,.105),transparent 67%),radial-gradient(620px 300px at 92% 42%,rgba(251,146,60,.025),transparent 72%),#0F1219!important}' +
+      'body::before{content:""!important;display:block!important;position:fixed!important;inset:0!important;pointer-events:none!important;z-index:0!important;background:linear-gradient(180deg,rgba(255,255,255,.008),transparent 28%)!important}' +
+      '.app-wrap{position:relative!important;z-index:1!important}' +
+      '.app-header{background:linear-gradient(180deg,rgba(13,17,23,.985),rgba(34,211,238,.055))!important;border-bottom:1px solid rgba(34,211,238,.20)!important;box-shadow:0 7px 26px rgba(0,0,0,.42),0 1px 24px rgba(34,211,238,.07)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important}' +
+      '.stat-card,.goal-card,.chart-card{background:linear-gradient(180deg,rgba(255,255,255,.046),rgba(255,255,255,.024))!important;border-color:rgba(34,211,238,.105)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 28px rgba(0,0,0,.18)!important}' +
+      '.stat-card:hover,.goal-card:hover,.chart-card:hover{border-color:rgba(34,211,238,.20)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 32px rgba(0,0,0,.24),0 0 22px rgba(34,211,238,.035)!important}' +
+      '.week-day{background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.022))!important;border-color:rgba(255,255,255,.085)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.018)!important}' +
+      '.week-day:hover:not(.today){background:rgba(34,211,238,.045)!important;border-color:rgba(34,211,238,.18)!important}' +
+      '.week-day.today{background:linear-gradient(180deg,rgba(34,211,238,.13),rgba(34,211,238,.055))!important;border-color:rgba(34,211,238,.48)!important;box-shadow:inset 0 0 0 1px rgba(34,211,238,.045),0 0 20px rgba(34,211,238,.045)!important}' +
+      '.section-hdr h2::before{opacity:1!important;box-shadow:0 0 10px rgba(34,211,238,.34)!important}' +
+      '.nav-btn,.week-nav-btn,.btn-ghost{background:rgba(255,255,255,.045)!important;border-color:rgba(34,211,238,.14)!important}' +
+      '.nav-btn:hover,.week-nav-btn:hover,.btn-ghost:hover{background:rgba(34,211,238,.08)!important;border-color:rgba(34,211,238,.26)!important}' +
+      '.chart-card h3{color:#CFFAFE!important;text-shadow:0 2px 10px rgba(34,211,238,.08)!important}' +
       '.exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}' +
       '.exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}';
     document.head.appendChild(exerciseCritical);
@@ -135,8 +148,8 @@
   }
 
   if (isExercisePage) {
-    /* Keep the established Hype theme, but replace the two older render-heavy
-       focus/persistent patches with one small runtime core. V20 still loads last. */
+    /* Keep the established Hype theme, but replace the older render-heavy
+       session state patches with the runtime core. V20 remains the final UX layer. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
