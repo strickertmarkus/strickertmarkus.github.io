@@ -7,7 +7,7 @@ import { getMessaging } from 'firebase-admin/messaging';
 const LOOKBACK_MINUTES = 20;
 const CREATION_LOOKBACK_MINUTES = 20;
 const DEFAULT_REMINDER_MINUTES = 1440;
-const CREATION_NOTIFICATIONS_FROM_MS = Date.parse('2026-09-01T06:55:00Z');
+const CREATION_NOTIFICATIONS_FROM_MS = Date.parse('2026-09-01T07:30:00Z');
 const WEB_APP_BASE_URL = 'https://strickertmarkus.github.io/budget/';
 const MEMBER_LABELS = {
   markus: 'Markus',
@@ -44,10 +44,10 @@ function dateKey(date) {
   return `${y}-${m}-${d}`;
 }
 
-function shortDateLabel(iso) {
+function fullDateLabel(iso) {
   const parts = String(iso || '').split('-');
   if (parts.length !== 3) return String(iso || '');
-  return `${Number(parts[2])}/${Number(parts[1])}`;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
 function addDays(date, amount) {
@@ -171,21 +171,11 @@ async function sendToDevices(deviceEntries, payload) {
     try {
       await fcm.send({
         token: device.token,
-        notification: {
-          title,
-          body
-        },
-        data: {
-          title,
-          body,
-          url,
-          tag
-        },
+        notification: { title, body },
+        data: { title, body, url, tag },
         webpush: {
           headers: { Urgency: 'high' },
-          fcmOptions: {
-            link: absoluteWebAppUrl(url)
-          }
+          fcmOptions: { link: absoluteWebAppUrl(url) }
         }
       });
       success += 1;
@@ -248,7 +238,7 @@ async function processCreatedEvents(events, devices) {
   const oldest = now - CREATION_LOOKBACK_MINUTES * 60000;
 
   for (const ev of events) {
-    if (!ev || !ev.id || !ev.title) continue;
+    if (!ev || !ev.id || !ev.title || !ev.date) continue;
     const createdAt = eventCreatedAtMs(ev);
     if (!createdAt) continue;
     if (createdAt < CREATION_NOTIFICATIONS_FROM_MS || createdAt <= oldest || createdAt > now + 60000) continue;
@@ -265,17 +255,14 @@ async function processCreatedEvents(events, devices) {
       continue;
     }
 
-    const memberLabel = MEMBER_LABELS[member] || 'Familjen';
-    const eventLabel = `${ev.emoji ? `${ev.emoji} ` : ''}${ev.title}`;
-    const whenParts = [];
-    if (ev.date) whenParts.push(shortDateLabel(ev.date));
-    if (ev.time) whenParts.push(ev.time);
-    whenParts.push(memberLabel);
+    const body = ev.time
+      ? `En ny kalenderpåminnelse har lagts in den ${fullDateLabel(ev.date)} kl: ${ev.time}.`
+      : `En ny kalenderpåminnelse har lagts in den ${fullDateLabel(ev.date)}.`;
 
     const result = await sendToDevices(targets, {
-      title: '📅 Ny kalenderhändelse',
-      body: `${eventLabel} · ${whenParts.join(' · ')}`,
-      url: `home.html?date=${encodeURIComponent(ev.date || '')}&event=${encodeURIComponent(ev.id)}`,
+      title: 'Ny kalenderpåminnelse',
+      body,
+      url: `calendar.html?date=${encodeURIComponent(ev.date)}&event=${encodeURIComponent(ev.id)}`,
       tag: `calendar-created-${key}`
     });
 
@@ -333,7 +320,7 @@ async function processReminders(events, devices) {
       const result = await sendToDevices(targets, {
         title,
         body,
-        url: `home.html?date=${encodeURIComponent(occurrenceDate)}&event=${encodeURIComponent(ev.id)}`,
+        url: `calendar.html?date=${encodeURIComponent(occurrenceDate)}&event=${encodeURIComponent(ev.id)}`,
         tag: `calendar-${key}`
       });
 
@@ -363,6 +350,7 @@ try {
 
   console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
   await processQueue(devices);
+  await processCreatedEvents(events, devices);
   await processReminders(events, devices);
   console.log('[push] worker complete');
 } finally {
