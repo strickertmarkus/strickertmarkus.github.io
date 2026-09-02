@@ -10,15 +10,18 @@
   var dataKey = isMaja ? 'budgetTracker_maja' : 'budgetTracker';
   var snapshotKey = 'budget-navigation-snapshot-v1';
 
-  function writeLocal(key, value) {
-    try { localStorage.setItem(key, value); } catch (_) {}
-    try {
-      if (typeof window.fallbackSetItem === 'function') window.fallbackSetItem(key, value);
-    } catch (_) {}
+  function refreshCurrentBudget() {
+    try { if (typeof window.loadLocal === 'function') window.loadLocal(); } catch (_) {}
+    try { if (typeof window.updateMonthDisplay === 'function') window.updateMonthDisplay(); } catch (_) {}
+    try { if (typeof window.renderSections === 'function') window.renderSections(); } catch (_) {}
+    try { if (typeof window.renderKPIs === 'function') window.renderKPIs(); } catch (_) {}
+    try { if (typeof window.updateCharts === 'function') window.updateCharts(); } catch (_) {}
+    try { if (typeof window.saveSelectedMonth === 'function') window.saveSelectedMonth(); } catch (_) {}
   }
 
   function saveSnapshot() {
-    try { if (typeof window.saveLocal === 'function') window.saveLocal(); } catch (_) {}
+    // Snapshot only what is already persisted. Do not call saveLocal() on pagehide:
+    // the in-memory model may still be older than a just-received Firebase value.
     try {
       var value = localStorage.getItem(dataKey);
       if (!value) return;
@@ -28,67 +31,29 @@
 
   window.addEventListener('pagehide', saveSnapshot, { capture: true });
 
-  var snapshot = null;
-  try {
-    var raw = sessionStorage.getItem(snapshotKey);
-    snapshot = raw ? JSON.parse(raw) : null;
-  } catch (_) {}
+  // Firebase performs its initial remote -> local hydration asynchronously. The inline
+  // budget renderer can therefore run before the fresh value reaches localStorage.
+  // Re-read persisted data a few times during startup so refresh never leaves stale
+  // zero-values on screen.
+  [350, 900, 1800, 3200, 5200].forEach(function (delay) {
+    setTimeout(refreshCurrentBudget, delay);
+  });
 
-  if (!snapshot || !snapshot.key || typeof snapshot.value !== 'string' ||
-      Date.now() - Number(snapshot.at || 0) > 15000) {
-    try { sessionStorage.removeItem(snapshotKey); } catch (_) {}
-    return;
-  }
+  window.addEventListener('firebase-sync', function (event) {
+    if (!event || !event.detail || event.detail.key !== dataKey) return;
+    setTimeout(refreshCurrentBudget, 0);
+  });
 
-  var started = Date.now();
-  var synced = false;
+  window.addEventListener('pageshow', function () {
+    setTimeout(refreshCurrentBudget, 0);
+    setTimeout(refreshCurrentBudget, 600);
+  });
 
-  function refreshCurrentBudget() {
-    if (snapshot.key !== dataKey) return;
-    try { if (typeof window.loadLocal === 'function') window.loadLocal(); } catch (_) {}
-    try { if (typeof window.updateMonthDisplay === 'function') window.updateMonthDisplay(); } catch (_) {}
-    try { if (typeof window.renderSections === 'function') window.renderSections(); } catch (_) {}
-    try { if (typeof window.renderKPIs === 'function') window.renderKPIs(); } catch (_) {}
-    try { if (typeof window.updateCharts === 'function') window.updateCharts(); } catch (_) {}
-    try { if (typeof window.saveSelectedMonth === 'function') window.saveSelectedMonth(); } catch (_) {}
-  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) setTimeout(refreshCurrentBudget, 0);
+  });
 
-  function syncSnapshot() {
-    if (synced) return;
-    try {
-      if (typeof window.isFirebaseConnected === 'function' &&
-          window.isFirebaseConnected() &&
-          typeof window.syncToFirebase === 'function') {
-        window.syncToFirebase(snapshot.key, snapshot.value);
-        synced = true;
-      }
-    } catch (_) {}
-  }
-
-  function protect() {
-    var changed = false;
-    try {
-      if (localStorage.getItem(snapshot.key) !== snapshot.value) {
-        writeLocal(snapshot.key, snapshot.value);
-        changed = true;
-      }
-    } catch (_) {}
-
-    if (changed) refreshCurrentBudget();
-    syncSnapshot();
-
-    if (Date.now() - started < 5000) {
-      setTimeout(protect, 80);
-      return;
-    }
-
-    if (!synced) {
-      try {
-        if (typeof window.syncToFirebase === 'function') window.syncToFirebase(snapshot.key, snapshot.value);
-      } catch (_) {}
-    }
-    try { sessionStorage.removeItem(snapshotKey); } catch (_) {}
-  }
-
-  setTimeout(protect, 0);
+  // The previous guard restored a recent session snapshot over newer Firebase data
+  // and pushed that snapshot back to Firebase. Retire any such snapshot instead.
+  try { sessionStorage.removeItem(snapshotKey); } catch (_) {}
 })();
