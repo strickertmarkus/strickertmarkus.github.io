@@ -12,9 +12,45 @@
     month: { accent:'#FB923C', soft:'#FDBA74', rgb:'251,146,60' }
   };
   var BLUE_THEME_KEY = 'home-blue-theme-config-v1';
-  var BRIGHTNESS_KEY = 'home-brightness-v1';
-  var BRIGHTNESS_MIN = 70;
-  var BRIGHTNESS_MAX = 130;
+  var CUSTOM_THEME_KEY = 'home-custom-theme-color-v1';
+
+  function normalizeHex(value) {
+    var hex = String(value || '').trim().replace(/^#/,'');
+    if (/^[0-9a-f]{3}$/i.test(hex)) hex = hex.split('').map(function (c) { return c + c; }).join('');
+    return /^[0-9a-f]{6}$/i.test(hex) ? '#' + hex.toUpperCase() : '';
+  }
+
+  function rgbParts(value) {
+    var hex = normalizeHex(value);
+    if (!hex) return [251,146,60];
+    return [1,3,5].map(function (offset) { return parseInt(hex.slice(offset,offset + 2),16); });
+  }
+
+  function mixHex(base, tint, amount) {
+    var a = rgbParts(base);
+    var b = rgbParts(tint);
+    var t = Math.max(0,Math.min(1,Number(amount) || 0));
+    return '#' + a.map(function (channel,index) {
+      return Math.round(channel * (1 - t) + b[index] * t).toString(16).padStart(2,'0');
+    }).join('').toUpperCase();
+  }
+
+  function paletteFromColor(value) {
+    var accent = normalizeHex(value) || palettes.month.accent;
+    var rgb = rgbParts(accent).join(',');
+    return { accent:accent, soft:mixHex(accent,'#FFFFFF',.34), rgb:rgb };
+  }
+
+  function customSurfacePalette(value) {
+    var color = normalizeHex(value) || palettes.month.accent;
+    var rgb = rgbParts(color).join(',');
+    return {
+      page:mixHex('#0F1219',color,.10),
+      panel:mixHex('#141922',color,.12),
+      strong:mixHex('#1B222D',color,.16),
+      rgb:rgb
+    };
+  }
 
   function migrateThemeChoice() {
     try {
@@ -22,6 +58,7 @@
         localStorage.setItem(BLUE_THEME_KEY, localStorage.getItem('home-theme-choice-v1') === 'blue' ? '1' : '0');
       }
       localStorage.removeItem('home-theme-choice-v1');
+      localStorage.removeItem('home-brightness-v1');
     } catch (_) {}
   }
 
@@ -30,62 +67,9 @@
     catch (_) { return false; }
   }
 
-  function clampBrightness(value) {
-    return Math.max(BRIGHTNESS_MIN, Math.min(BRIGHTNESS_MAX, Math.round(Number(value) || 100)));
-  }
-
-  function brightnessValue() {
-    try { return clampBrightness(localStorage.getItem(BRIGHTNESS_KEY) || 100); }
-    catch (_) { return 100; }
-  }
-
-  function brightnessEffect(value) {
-    var level = clampBrightness(value);
-    if (level < 100) {
-      var darkAlpha = ((100 - level) / (100 - BRIGHTNESS_MIN)) * .24;
-      return { css:'rgba(0,0,0,' + darkAlpha.toFixed(3) + ')', rgb:[0,0,0], alpha:darkAlpha };
-    }
-    if (level > 100) {
-      var lightAlpha = ((level - 100) / (BRIGHTNESS_MAX - 100)) * .13;
-      return { css:'rgba(255,247,237,' + lightAlpha.toFixed(3) + ')', rgb:[255,247,237], alpha:lightAlpha };
-    }
-    return { css:'rgba(0,0,0,0)', rgb:[0,0,0], alpha:0 };
-  }
-
-  function compositeHex(baseHex, effect) {
-    var hex = String(baseHex || '#0F1219').replace('#','');
-    if (hex.length === 3) hex = hex.split('').map(function (c) { return c + c; }).join('');
-    var base = [0,2,4].map(function (offset) { return parseInt(hex.slice(offset,offset + 2),16); });
-    var alpha = effect.alpha || 0;
-    var out = base.map(function (channel,index) {
-      return Math.round(channel * (1 - alpha) + effect.rgb[index] * alpha);
-    });
-    return '#' + out.map(function (channel) { return channel.toString(16).padStart(2,'0'); }).join('').toUpperCase();
-  }
-
-  function updateBrightnessControl(value) {
-    var level = clampBrightness(value);
-    var input = document.getElementById('home-brightness-range-v1');
-    var output = document.getElementById('home-brightness-output-v1');
-    if (input && Number(input.value) !== level) input.value = String(level);
-    if (output) output.textContent = level + '%';
-    document.documentElement.style.setProperty(
-      '--home-brightness-progress',
-      (((level - BRIGHTNESS_MIN) / (BRIGHTNESS_MAX - BRIGHTNESS_MIN)) * 100).toFixed(2) + '%',
-      'important'
-    );
-  }
-
-  function applyBrightness(value, persist) {
-    var level = clampBrightness(value);
-    if (persist) {
-      try { localStorage.setItem(BRIGHTNESS_KEY,String(level)); } catch (_) {}
-    }
-    var root = document.documentElement;
-    root.dataset.homeBrightness = String(level);
-    root.style.setProperty('--home-brightness-overlay',brightnessEffect(level).css,'important');
-    updateBrightnessControl(level);
-    syncStatusSurface(blueThemeEnabled(),level);
+  function customThemeColor() {
+    try { return normalizeHex(localStorage.getItem(CUSTOM_THEME_KEY)); }
+    catch (_) { return ''; }
   }
 
   function currentView() {
@@ -110,46 +94,57 @@
     s.setProperty('--accent-bg', 'rgba(' + p.rgb + ',.055)', 'important');
   }
 
-  function clearBlueSurfaceVars(node) {
+  function clearSurfaceVars(node) {
     if (!node) return;
     ['--home-theme-page','--home-theme-panel','--home-theme-strong','--bg','--bg2','--bg3','--card','--surface','--surface-h','--border'].forEach(function (name) {
       node.style.removeProperty(name);
     });
   }
 
-  function setBlueSurfaceVars(node) {
-    if (!node) return;
+  function setSurfaceVars(node, surface) {
+    if (!node || !surface) return;
     var s = node.style;
-    s.setProperty('--home-theme-page','#0B1320','important');
-    s.setProperty('--home-theme-panel','#111B2A','important');
-    s.setProperty('--home-theme-strong','#18253A','important');
-    s.setProperty('--bg','#0B1320','important');
-    s.setProperty('--bg2','#111B2A','important');
-    s.setProperty('--bg3','#18253A','important');
-    s.setProperty('--card','#111B2A','important');
-    s.setProperty('--surface','rgba(96,165,250,.045)','important');
-    s.setProperty('--surface-h','rgba(96,165,250,.085)','important');
-    s.setProperty('--border','rgba(96,165,250,.135)','important');
+    s.setProperty('--home-theme-page',surface.page,'important');
+    s.setProperty('--home-theme-panel',surface.panel,'important');
+    s.setProperty('--home-theme-strong',surface.strong,'important');
+    s.setProperty('--bg',surface.page,'important');
+    s.setProperty('--bg2',surface.panel,'important');
+    s.setProperty('--bg3',surface.strong,'important');
+    s.setProperty('--card',surface.panel,'important');
+    s.setProperty('--surface','rgba(' + surface.rgb + ',.045)','important');
+    s.setProperty('--surface-h','rgba(' + surface.rgb + ',.085)','important');
+    s.setProperty('--border','rgba(' + surface.rgb + ',.145)','important');
+  }
+
+  function blueSurfacePalette() {
+    return { page:'#0B1320', panel:'#111B2A', strong:'#18253A', rgb:'96,165,250' };
   }
 
   function updateBlueThemeConfig() {
     var button = document.getElementById('home-blue-theme-config-v1');
     if (!button) return;
-    var enabled = blueThemeEnabled();
+    var enabled = blueThemeEnabled() && !customThemeColor();
     button.classList.toggle('is-on', enabled);
     button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     var check = button.querySelector('.home-blue-theme-check-v1');
     if (check) check.textContent = enabled ? '✓' : '';
   }
 
-  function syncStatusSurface(blue, brightness) {
+  function updateColorWheelControl() {
+    var input = document.getElementById('home-color-wheel-input-v1');
+    var control = document.getElementById('home-color-wheel-v1');
+    var color = customThemeColor() || (blueThemeEnabled() ? palettes.day.accent : palettes[currentView()].accent);
+    if (input && input.value.toUpperCase() !== color.toUpperCase()) input.value = color;
+    if (control) control.style.setProperty('--home-color-wheel-current',color);
+  }
+
+  function syncStatusSurface(topColor) {
     var root = document.documentElement;
-    var topColor = blue ? '#111B2A' : '#0F1219';
-    var statusColor = compositeHex(topColor,brightnessEffect(brightness == null ? brightnessValue() : brightness));
+    var surface = normalizeHex(topColor) || '#0F1219';
     root.classList.add('home-finance-orange-v3','home-status-integrated-v3');
-    root.style.setProperty('--home-status-surface',topColor,'important');
-    root.style.setProperty('background',topColor,'important');
-    root.style.setProperty('background-color',topColor,'important');
+    root.style.setProperty('--home-status-surface',surface,'important');
+    root.style.setProperty('background',surface,'important');
+    root.style.setProperty('background-color',surface,'important');
 
     var meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) {
@@ -157,42 +152,55 @@
       meta.setAttribute('name','theme-color');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content',statusColor);
+    meta.setAttribute('content',surface);
   }
 
   function applyPalette() {
     var view = currentView();
     var blue = blueThemeEnabled();
-    var p = blue ? palettes.day : palettes[view];
+    var custom = customThemeColor();
+    var p = custom ? paletteFromColor(custom) : (blue ? palettes.day : palettes[view]);
+    var surface = custom ? customSurfacePalette(custom) : (blue ? blueSurfacePalette() : null);
     var root = document.documentElement;
     var body = document.body;
     root.dataset.homeCalendarView = view;
-    syncStatusSurface(blue,brightnessValue());
 
-    if (blue) {
+    if (surface) {
+      root.dataset.homeSurfaceTheme = 'true';
+      if (body && body.dataset) body.dataset.homeSurfaceTheme = 'true';
+      setSurfaceVars(root,surface);
+      setSurfaceVars(body,surface);
+    } else {
+      delete root.dataset.homeSurfaceTheme;
+      if (body && body.dataset) delete body.dataset.homeSurfaceTheme;
+      clearSurfaceVars(root);
+      clearSurfaceVars(body);
+    }
+
+    if (blue && !custom) {
       root.dataset.homeBlueTheme = 'true';
       if (body && body.dataset) body.dataset.homeBlueTheme = 'true';
-      setBlueSurfaceVars(root);
-      setBlueSurfaceVars(body);
     } else {
       delete root.dataset.homeBlueTheme;
       if (body && body.dataset) delete body.dataset.homeBlueTheme;
-      clearBlueSurfaceVars(root);
-      clearBlueSurfaceVars(body);
     }
 
+    if (custom) {
+      root.dataset.homeCustomTheme = 'true';
+      if (body && body.dataset) body.dataset.homeCustomTheme = 'true';
+    } else {
+      delete root.dataset.homeCustomTheme;
+      if (body && body.dataset) delete body.dataset.homeCustomTheme;
+    }
+
+    syncStatusSurface(surface ? surface.panel : '#0F1219');
     setVars(root, p);
     setVars(body, p);
     updateBlueThemeConfig();
-    applyBrightness(brightnessValue(),false);
+    updateColorWheelControl();
   }
 
-  function setBlueTheme(enabled) {
-    try { localStorage.setItem(BLUE_THEME_KEY, enabled ? '1' : '0'); } catch (_) {}
-    var commit = function () {
-      applyPalette();
-      window.dispatchEvent(new CustomEvent('home-blue-theme-change', { detail:{ enabled:enabled } }));
-    };
+  function runThemeTransition(commit) {
     var reduced = false;
     try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
     if (!reduced && typeof document.startViewTransition === 'function') {
@@ -203,148 +211,174 @@
     }
   }
 
+  function setBlueTheme(enabled) {
+    try {
+      localStorage.setItem(BLUE_THEME_KEY, enabled ? '1' : '0');
+      if (enabled) localStorage.removeItem(CUSTOM_THEME_KEY);
+    } catch (_) {}
+    runThemeTransition(function () {
+      applyPalette();
+      window.dispatchEvent(new CustomEvent('home-blue-theme-change', { detail:{ enabled:enabled } }));
+    });
+  }
+
+  function setCustomThemeColor(value, animate) {
+    var color = normalizeHex(value);
+    if (!color) return;
+    try {
+      localStorage.setItem(CUSTOM_THEME_KEY,color);
+      localStorage.setItem(BLUE_THEME_KEY,'0');
+    } catch (_) {}
+    var commit = function () {
+      applyPalette();
+      window.dispatchEvent(new CustomEvent('home-custom-theme-change', { detail:{ color:color } }));
+    };
+    if (animate === false) commit();
+    else runThemeTransition(commit);
+  }
+
   function addOverrideStyles() {
     if (document.getElementById('home-theme-controller-v1-style')) return;
     var style = document.createElement('style');
     style.id = 'home-theme-controller-v1-style';
     style.textContent = `
-      html[data-home-blue-theme="true"],
-      html[data-home-blue-theme="true"] body.home-calendar-polish-v5 {
+      html[data-home-surface-theme="true"],
+      html[data-home-surface-theme="true"] body.home-calendar-polish-v5 {
         background:
           radial-gradient(920px 390px at 50% -115px,rgba(var(--home-view-rgb),.145),transparent 68%),
           radial-gradient(720px 420px at 105% 55%,rgba(var(--home-view-rgb),.045),transparent 72%),
           var(--home-theme-page) !important;
         background-color:var(--home-theme-page) !important;
       }
-      html[data-home-blue-theme="true"] body.home-calendar-polish-v5::before {
+      html[data-home-surface-theme="true"] body.home-calendar-polish-v5::before {
         background:
           radial-gradient(ellipse 90% 52% at 50% -10%,rgba(var(--home-view-rgb),.11),transparent 65%),
           linear-gradient(180deg,rgba(255,255,255,.008),transparent 32%) !important;
       }
 
-      html[data-home-blue-theme="true"] body .filter-bar {
+      html[data-home-surface-theme="true"] body .filter-bar {
         background:linear-gradient(180deg,rgba(var(--home-view-rgb),.07),rgba(var(--home-view-rgb),.025)) !important;
         border-bottom-color:rgba(var(--home-view-rgb),.16) !important;
       }
-      html[data-home-blue-theme="true"] body .nav-dropdown-menu,
-      html[data-home-blue-theme="true"] body .notif-panel,
-      html[data-home-blue-theme="true"] body .day-panel,
-      html[data-home-blue-theme="true"] body .sidebar-section,
-      html[data-home-blue-theme="true"] body .widget {
+      html[data-home-surface-theme="true"] body .nav-dropdown-menu,
+      html[data-home-surface-theme="true"] body .notif-panel,
+      html[data-home-surface-theme="true"] body .day-panel,
+      html[data-home-surface-theme="true"] body .sidebar-section,
+      html[data-home-surface-theme="true"] body .widget {
         background:
           radial-gradient(420px 150px at 50% -55px,rgba(var(--home-view-rgb),.075),transparent 72%),
           linear-gradient(180deg,var(--home-theme-panel),var(--home-theme-page)) !important;
         border-color:rgba(var(--home-view-rgb),.15) !important;
         box-shadow:0 8px 24px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.025) !important;
       }
-      html[data-home-blue-theme="true"] body .widget:hover,
-      html[data-home-blue-theme="true"] body .sidebar-section:hover {
+      html[data-home-surface-theme="true"] body .widget:hover,
+      html[data-home-surface-theme="true"] body .sidebar-section:hover {
         border-color:rgba(var(--home-view-rgb),.25) !important;
         box-shadow:0 12px 28px rgba(0,0,0,.28),0 0 18px rgba(var(--home-view-rgb),.045) !important;
       }
-      html[data-home-blue-theme="true"] body .cal-cell {
+      html[data-home-surface-theme="true"] body .cal-cell {
         background:linear-gradient(180deg,rgba(var(--home-view-rgb),.05),rgba(var(--home-view-rgb),.018)) !important;
         border-color:rgba(var(--home-view-rgb),.115) !important;
       }
-      html[data-home-blue-theme="true"] body .cal-cell.empty {
+      html[data-home-surface-theme="true"] body .cal-cell.empty {
         background:transparent !important;
         border-color:transparent !important;
       }
-      html[data-home-blue-theme="true"] body .cal-cell.selected {
+      html[data-home-surface-theme="true"] body .cal-cell.selected {
         border-color:var(--home-view-accent) !important;
         box-shadow:0 0 0 2px rgba(var(--home-view-rgb),.20),0 0 18px rgba(var(--home-view-rgb),.08) !important;
       }
-      html[data-home-blue-theme="true"] body .btn,
-      html[data-home-blue-theme="true"] body .btn-xs,
-      html[data-home-blue-theme="true"] body .badge {
+      html[data-home-surface-theme="true"] body .btn,
+      html[data-home-surface-theme="true"] body .btn-xs,
+      html[data-home-surface-theme="true"] body .badge {
         border-color:rgba(var(--home-view-rgb),.38) !important;
         background:rgba(var(--home-view-rgb),.09) !important;
         color:var(--home-view-accent-soft) !important;
       }
-      html[data-home-blue-theme="true"] body .btn:hover,
-      html[data-home-blue-theme="true"] body .btn-xs:hover {
+      html[data-home-surface-theme="true"] body .btn:hover,
+      html[data-home-surface-theme="true"] body .btn-xs:hover {
         border-color:rgba(var(--home-view-rgb),.60) !important;
         background:rgba(var(--home-view-rgb),.16) !important;
         color:var(--home-view-accent-soft) !important;
         box-shadow:0 7px 18px rgba(var(--home-view-rgb),.10) !important;
       }
-      html[data-home-blue-theme="true"] body .shopping-input,
-      html[data-home-blue-theme="true"] body .todo-input,
-      html[data-home-blue-theme="true"] body .todo-member-sel {
+      html[data-home-surface-theme="true"] body .shopping-input,
+      html[data-home-surface-theme="true"] body .todo-input,
+      html[data-home-surface-theme="true"] body .todo-member-sel {
         background:rgba(var(--home-view-rgb),.028) !important;
         border-color:rgba(var(--home-view-rgb),.15) !important;
       }
-      html[data-home-blue-theme="true"] body .shopping-input:focus,
-      html[data-home-blue-theme="true"] body .todo-input:focus,
-      html[data-home-blue-theme="true"] body .todo-member-sel:focus {
+      html[data-home-surface-theme="true"] body .shopping-input:focus,
+      html[data-home-surface-theme="true"] body .todo-input:focus,
+      html[data-home-surface-theme="true"] body .todo-member-sel:focus {
         border-color:rgba(var(--home-view-rgb),.55) !important;
         box-shadow:0 0 0 2px rgba(var(--home-view-rgb),.11) !important;
       }
-      html[data-home-blue-theme="true"] body .toggle input:checked + .toggle-slider {
+      html[data-home-surface-theme="true"] body .toggle input:checked + .toggle-slider {
         background:rgba(var(--home-view-rgb),.22) !important;
         border-color:rgba(var(--home-view-rgb),.55) !important;
       }
-      html[data-home-blue-theme="true"] body .toggle input:checked + .toggle-slider::before {
+      html[data-home-surface-theme="true"] body .toggle input:checked + .toggle-slider::before {
         background:var(--home-view-accent) !important;
         box-shadow:0 0 8px rgba(var(--home-view-rgb),.40) !important;
       }
-      html[data-home-blue-theme="true"] body input[type="checkbox"],
-      html[data-home-blue-theme="true"] body input[type="radio"],
-      html[data-home-blue-theme="true"] body input[type="range"] {
+      html[data-home-surface-theme="true"] body input[type="checkbox"],
+      html[data-home-surface-theme="true"] body input[type="radio"],
+      html[data-home-surface-theme="true"] body input[type="range"] {
         accent-color:var(--home-view-accent) !important;
       }
 
-      html[data-home-blue-theme="true"] body .transfer-popup-shell,
-      html[data-home-blue-theme="true"] body .month-popup-shell,
-      html[data-home-blue-theme="true"] body .transfer-person-card,
-      html[data-home-blue-theme="true"] body .month-expense-section {
+      html[data-home-surface-theme="true"] body .transfer-popup-shell,
+      html[data-home-surface-theme="true"] body .month-popup-shell,
+      html[data-home-surface-theme="true"] body .transfer-person-card,
+      html[data-home-surface-theme="true"] body .month-expense-section {
         background:
           radial-gradient(360px 130px at 50% 0,rgba(var(--home-view-rgb),.075),transparent 72%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-panel)) !important;
         border-color:rgba(var(--home-view-rgb),.17) !important;
       }
-      html[data-home-blue-theme="true"] body .transfer-row,
-      html[data-home-blue-theme="true"] body .shopping-item,
-      html[data-home-blue-theme="true"] body .event-item,
-      html[data-home-blue-theme="true"] body .notif-row {
+      html[data-home-surface-theme="true"] body .transfer-row,
+      html[data-home-surface-theme="true"] body .shopping-item,
+      html[data-home-surface-theme="true"] body .event-item,
+      html[data-home-surface-theme="true"] body .notif-row {
         border-color:rgba(var(--home-view-rgb),.105) !important;
       }
 
-      html[data-home-blue-theme="true"] body .modal {
+      html[data-home-surface-theme="true"] body .modal {
         background:
           radial-gradient(620px 220px at 50% -45px,rgba(var(--home-view-rgb),.13),transparent 70%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
         border-color:rgba(var(--home-view-rgb),.30) !important;
         box-shadow:0 26px 72px rgba(0,0,0,.58),0 0 38px rgba(var(--home-view-rgb),.09),inset 0 1px 0 rgba(255,255,255,.035) !important;
       }
-      html[data-home-blue-theme="true"] body .form-group input,
-      html[data-home-blue-theme="true"] body .form-group select,
-      html[data-home-blue-theme="true"] body .form-group textarea,
-      html[data-home-blue-theme="true"] body #event-end-panel-v2,
-      html[data-home-blue-theme="true"] body .event-end-toggle-v2 {
+      html[data-home-surface-theme="true"] body .form-group input,
+      html[data-home-surface-theme="true"] body .form-group select,
+      html[data-home-surface-theme="true"] body .form-group textarea,
+      html[data-home-surface-theme="true"] body #event-end-panel-v2,
+      html[data-home-surface-theme="true"] body .event-end-toggle-v2 {
         background-color:rgba(var(--home-view-rgb),.035) !important;
         border-color:rgba(var(--home-view-rgb),.14) !important;
       }
-      html[data-home-blue-theme="true"] body .form-group input:focus,
-      html[data-home-blue-theme="true"] body .form-group select:focus,
-      html[data-home-blue-theme="true"] body .form-group textarea:focus {
+      html[data-home-surface-theme="true"] body .form-group input:focus,
+      html[data-home-surface-theme="true"] body .form-group select:focus,
+      html[data-home-surface-theme="true"] body .form-group textarea:focus {
         background-color:rgba(var(--home-view-rgb),.065) !important;
         border-color:rgba(var(--home-view-rgb),.58) !important;
         box-shadow:0 0 0 2px rgba(var(--home-view-rgb),.13) !important;
       }
-      html[data-home-blue-theme="true"] body .modal-close,
-      html[data-home-blue-theme="true"] body .transfer-close {
+      html[data-home-surface-theme="true"] body .modal-close,
+      html[data-home-surface-theme="true"] body .transfer-close {
         background:rgba(var(--home-view-rgb),.045) !important;
         border-color:rgba(var(--home-view-rgb),.16) !important;
       }
-      html[data-home-blue-theme="true"] body .modal-close:hover,
-      html[data-home-blue-theme="true"] body .transfer-close:hover {
+      html[data-home-surface-theme="true"] body .modal-close:hover,
+      html[data-home-surface-theme="true"] body .transfer-close:hover {
         color:var(--home-view-accent-soft) !important;
         background:rgba(var(--home-view-rgb),.11) !important;
         border-color:rgba(var(--home-view-rgb),.34) !important;
       }
-      html[data-home-blue-theme="true"] body .flatpickr-calendar,
-      html[data-home-blue-theme="true"] body .home-day-popover {
+      html[data-home-surface-theme="true"] body .flatpickr-calendar,
+      html[data-home-surface-theme="true"] body .home-day-popover {
         background:
           radial-gradient(480px 170px at 50% 0,rgba(var(--home-view-rgb),.10),transparent 72%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
@@ -353,25 +387,25 @@
       }
 
 
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 .app-header,
-      html[data-home-blue-theme="true"] body .app-header {
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .app-header,
+      html[data-home-surface-theme="true"] body .app-header {
         background:
           radial-gradient(560px 185px at 50% 108%,rgba(96,165,250,.13),transparent 70%),
           linear-gradient(180deg,var(--home-status-surface,#111B2A) 0,var(--home-status-surface,#111B2A) 3px,var(--home-theme-page) 100%) !important;
         border-bottom-color:rgba(96,165,250,.24) !important;
       }
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 #event-modal .modal,
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 .flatpickr-calendar,
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 .home-day-popover {
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 #event-modal .modal,
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .flatpickr-calendar,
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .home-day-popover {
         background:
           radial-gradient(560px 190px at 50% -30px,rgba(96,165,250,.13),transparent 70%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
         border-color:rgba(96,165,250,.30) !important;
       }
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 #event-modal input[data-picker="date"] {
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 #event-modal input[data-picker="date"] {
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important;
       }
-      html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 #event-modal input[data-picker="time"] {
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 #event-modal input[data-picker="time"] {
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important;
       }
 
@@ -401,130 +435,54 @@
         font-weight:900;
       }
 
-      html.home-finance-orange-v3 body::after {
-        content:"";
-        display:block;
-        position:fixed;
-        inset:0;
-        z-index:2147483600;
-        pointer-events:none;
-        background:var(--home-brightness-overlay,rgba(0,0,0,0));
-        transition:background .08s linear;
-      }
-      .home-brightness-control-v1 {
-        padding:11px 14px 13px;
-        border-top:1px solid rgba(255,255,255,.035);
-        background:rgba(var(--home-view-rgb),.018);
-      }
-      html body .app-header > .home-brightness-control-v1.home-brightness-header-v1 {
+      .home-color-wheel-v1 {
+        --home-color-wheel-current:#FB923C;
         position:absolute !important;
-        left:50% !important;
-        right:auto !important;
-        top:auto !important;
-        bottom:9px !important;
-        transform:translateX(-50%) !important;
-        width:122px !important;
-        height:35px !important;
-        padding:4px 8px !important;
-        border:1px solid rgba(255,255,255,.22) !important;
-        border-radius:18px !important;
-        background:rgba(255,255,255,.075) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 4px 16px rgba(0,0,0,.12),0 0 12px rgba(var(--home-view-rgb),.055) !important;
-        backdrop-filter:blur(9px);
-        -webkit-backdrop-filter:blur(9px);
-        z-index:6 !important;
-      }
-      html body .app-header > .home-brightness-control-v1 .home-brightness-head-v1 {
-        position:absolute !important;
-        width:1px !important;
-        height:1px !important;
+        left:10px !important;
+        top:10px !important;
+        width:42px !important;
+        height:42px !important;
+        margin:0 !important;
         padding:0 !important;
-        margin:-1px !important;
-        overflow:hidden !important;
-        clip:rect(0,0,0,0) !important;
-        white-space:nowrap !important;
-        border:0 !important;
-      }
-      html body .app-header > .home-brightness-control-v1 .home-brightness-row-v1 {
-        height:100%;
-        grid-template-columns:13px minmax(0,1fr) 15px;
-        gap:5px;
-        color:var(--home-view-accent-soft);
-        font-size:12px;
-      }
-      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1 {
-        height:4px;
-        margin:0;
-      }
-      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1::-webkit-slider-thumb {
-        width:17px;
-        height:17px;
-      }
-      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1::-moz-range-thumb {
-        width:14px;
-        height:14px;
-      }
-      @media(max-width:420px) {
-        html body .app-header > .home-brightness-control-v1.home-brightness-header-v1 {
-          width:112px !important;
-          padding-left:7px !important;
-          padding-right:7px !important;
-        }
-      }
-      .home-brightness-head-v1 {
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:10px;
-        margin-bottom:9px;
-        color:#C9D1DC;
-        font:700 11px/1.2 'Inter',sans-serif;
-      }
-      .home-brightness-output-v1 {
-        color:var(--home-view-accent-soft);
-        font-size:10px;
-        font-variant-numeric:tabular-nums;
-      }
-      .home-brightness-row-v1 {
-        display:grid;
-        grid-template-columns:18px minmax(0,1fr) 20px;
-        align-items:center;
-        gap:8px;
-        color:var(--text-sec,#8B949E);
-        font-size:14px;
-      }
-      .home-brightness-range-v1 {
-        --range-rest:rgba(255,255,255,.13);
-        width:100%;
-        height:6px;
-        margin:7px 0;
-        padding:0;
-        border:0;
-        border-radius:999px;
-        appearance:none;
-        -webkit-appearance:none;
-        outline:none;
+        border:1px solid rgba(255,255,255,.24) !important;
+        border-radius:12px !important;
+        overflow:hidden;
         cursor:pointer;
-        background:linear-gradient(90deg,var(--home-view-accent) 0 var(--home-brightness-progress,50%),var(--range-rest) var(--home-brightness-progress,50%) 100%);
-        box-shadow:inset 0 1px 2px rgba(0,0,0,.45),0 0 10px rgba(var(--home-view-rgb),.055);
+        z-index:8 !important;
+        background:conic-gradient(#FF4D4D,#FFD84D,#55E67A,#42DDE7,#4D7DFF,#C75CFF,#FF4D9D,#FF4D4D) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 5px 18px rgba(0,0,0,.28),0 0 13px rgba(var(--home-view-rgb),.10) !important;
+        -webkit-tap-highlight-color:transparent;
       }
-      .home-brightness-range-v1::-webkit-slider-thumb {
-        width:21px;
-        height:21px;
-        border:2px solid rgba(var(--home-view-rgb),.68);
-        border-radius:50%;
-        appearance:none;
-        -webkit-appearance:none;
-        background:#FFF8E9;
-        box-shadow:0 1px 4px rgba(0,0,0,.42),0 0 8px rgba(var(--home-view-rgb),.42);
+      .home-color-wheel-v1::after {
+        content:"";
+        position:absolute;
+        inset:8px;
+        border:2px solid rgba(15,18,25,.82);
+        border-radius:7px;
+        background:var(--home-color-wheel-current) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 7px rgba(0,0,0,.42);
+        pointer-events:none;
       }
-      .home-brightness-range-v1::-moz-range-thumb {
-        width:18px;
-        height:18px;
-        border:2px solid rgba(var(--home-view-rgb),.68);
-        border-radius:50%;
-        background:#FFF8E9;
-        box-shadow:0 1px 4px rgba(0,0,0,.42),0 0 8px rgba(var(--home-view-rgb),.42);
+      .home-color-wheel-v1:active {
+        transform:scale(.95);
+      }
+      .home-color-wheel-v1 input[type="color"] {
+        position:absolute;
+        inset:-4px;
+        width:calc(100% + 8px);
+        height:calc(100% + 8px);
+        margin:0;
+        padding:0;
+        opacity:.001;
+        cursor:pointer;
+        z-index:2;
+      }
+      @media(max-width:600px) {
+        .home-color-wheel-v1 {
+          width:40px !important;
+          height:40px !important;
+        }
+        .home-color-wheel-v1::after { inset:8px; }
       }
 
       html body .home-day-popover {
@@ -535,7 +493,7 @@
         border-radius:10px !important;
         box-shadow:0 8px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
       }
-      html[data-home-blue-theme="true"] body .home-day-popover {
+      html[data-home-surface-theme="true"] body .home-day-popover {
         background:
           linear-gradient(180deg,rgba(var(--home-view-rgb),.065),rgba(var(--home-view-rgb),.018)),
           var(--home-theme-page) !important;
@@ -639,51 +597,41 @@
     updateBlueThemeConfig();
   }
 
-  function installBrightnessControl() {
+  function installColorWheelControl() {
     var header = document.querySelector('.app-header');
-    var menu = document.getElementById('nav-menu');
-    var panel = document.getElementById('home-brightness-control-v1');
-    if (!header && !menu) return;
+    if (!header) return;
 
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'home-brightness-control-v1';
-      panel.className = 'home-brightness-control-v1';
-      panel.innerHTML =
-        '<div class="home-brightness-head-v1"><span>Ljusstyrka</span><output class="home-brightness-output-v1" id="home-brightness-output-v1">100%</output></div>' +
-        '<div class="home-brightness-row-v1"><span aria-hidden="true">☾</span><input class="home-brightness-range-v1" id="home-brightness-range-v1" type="range" min="' + BRIGHTNESS_MIN + '" max="' + BRIGHTNESS_MAX + '" step="1" value="100" aria-label="Justera sidans ljusstyrka"><span aria-hidden="true">☀</span></div>';
+    var staleBrightness = document.getElementById('home-brightness-control-v1');
+    if (staleBrightness) staleBrightness.remove();
+
+    var control = document.getElementById('home-color-wheel-v1');
+    if (!control) {
+      control = document.createElement('label');
+      control.id = 'home-color-wheel-v1';
+      control.className = 'home-color-wheel-v1';
+      control.title = 'Välj temafärg';
+      control.innerHTML = '<input id="home-color-wheel-input-v1" type="color" value="#FB923C" aria-label="Välj färg för hela Home-temat">';
+      header.appendChild(control);
+    } else if (control.parentNode !== header) {
+      header.appendChild(control);
     }
 
-    if (header) {
-      panel.classList.add('home-brightness-header-v1');
-      if (panel.parentNode !== header) header.appendChild(panel);
-    } else if (panel.parentNode !== menu) {
-      menu.appendChild(panel);
+    var input = control.querySelector('input[type="color"]');
+    if (input && input.dataset.homeColorBound !== '1') {
+      input.dataset.homeColorBound = '1';
+      input.addEventListener('input',function () { setCustomThemeColor(input.value,false); });
+      input.addEventListener('change',function () { setCustomThemeColor(input.value); });
     }
-
-    if (panel.dataset.homeBrightnessBound !== '1') {
-      panel.dataset.homeBrightnessBound = '1';
-      ['click','pointerdown','touchstart'].forEach(function (type) {
-        panel.addEventListener(type,function (event) { event.stopPropagation(); }, { passive:type === 'touchstart' });
-      });
-
-      var input = panel.querySelector('input[type="range"]');
-      if (input) {
-        input.addEventListener('input',function () { applyBrightness(input.value,true); });
-        input.addEventListener('change',function () { applyBrightness(input.value,true); });
-      }
-    }
-
-    updateBrightnessControl(brightnessValue());
+    updateColorWheelControl();
   }
 
   window.__homeBlueThemeConfigV1 = {
     enabled:blueThemeEnabled,
     setEnabled:setBlueTheme
   };
-  window.__homeBrightnessV1 = {
-    value:brightnessValue,
-    setValue:function (value) { applyBrightness(value,true); }
+  window.__homeColorThemeV1 = {
+    color:customThemeColor,
+    setColor:function (value) { setCustomThemeColor(value,true); }
   };
 
   /* This is the sole Home theme/status authority. No legacy Home patch loads it. */
@@ -697,7 +645,7 @@
     addOverrideStyles();
     applyPalette();
     installBlueThemeConfig();
-    installBrightnessControl();
+    installColorWheelControl();
     if (document.body) {
       new MutationObserver(function (mutations) {
         for (var i = 0; i < mutations.length; i++) {
