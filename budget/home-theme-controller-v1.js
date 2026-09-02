@@ -416,6 +416,61 @@
         border-top:1px solid rgba(255,255,255,.035);
         background:rgba(var(--home-view-rgb),.018);
       }
+      html body .app-header > .home-brightness-control-v1.home-brightness-header-v1 {
+        position:absolute !important;
+        left:50% !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:9px !important;
+        transform:translateX(-50%) !important;
+        width:122px !important;
+        height:35px !important;
+        padding:4px 8px !important;
+        border:1px solid rgba(255,255,255,.22) !important;
+        border-radius:18px !important;
+        background:rgba(255,255,255,.075) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 4px 16px rgba(0,0,0,.12),0 0 12px rgba(var(--home-view-rgb),.055) !important;
+        backdrop-filter:blur(9px);
+        -webkit-backdrop-filter:blur(9px);
+        z-index:6 !important;
+      }
+      html body .app-header > .home-brightness-control-v1 .home-brightness-head-v1 {
+        position:absolute !important;
+        width:1px !important;
+        height:1px !important;
+        padding:0 !important;
+        margin:-1px !important;
+        overflow:hidden !important;
+        clip:rect(0,0,0,0) !important;
+        white-space:nowrap !important;
+        border:0 !important;
+      }
+      html body .app-header > .home-brightness-control-v1 .home-brightness-row-v1 {
+        height:100%;
+        grid-template-columns:13px minmax(0,1fr) 15px;
+        gap:5px;
+        color:var(--home-view-accent-soft);
+        font-size:12px;
+      }
+      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1 {
+        height:4px;
+        margin:0;
+      }
+      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1::-webkit-slider-thumb {
+        width:17px;
+        height:17px;
+      }
+      html body .app-header > .home-brightness-control-v1 .home-brightness-range-v1::-moz-range-thumb {
+        width:14px;
+        height:14px;
+      }
+      @media(max-width:420px) {
+        html body .app-header > .home-brightness-control-v1.home-brightness-header-v1 {
+          width:112px !important;
+          padding-left:7px !important;
+          padding-right:7px !important;
+        }
+      }
       .home-brightness-head-v1 {
         display:flex;
         align-items:center;
@@ -585,29 +640,40 @@
   }
 
   function installBrightnessControl() {
+    var header = document.querySelector('.app-header');
     var menu = document.getElementById('nav-menu');
-    var existing = document.getElementById('home-brightness-control-v1');
-    if (!menu || existing) {
-      updateBrightnessControl(brightnessValue());
-      return;
+    var panel = document.getElementById('home-brightness-control-v1');
+    if (!header && !menu) return;
+
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'home-brightness-control-v1';
+      panel.className = 'home-brightness-control-v1';
+      panel.innerHTML =
+        '<div class="home-brightness-head-v1"><span>Ljusstyrka</span><output class="home-brightness-output-v1" id="home-brightness-output-v1">100%</output></div>' +
+        '<div class="home-brightness-row-v1"><span aria-hidden="true">☾</span><input class="home-brightness-range-v1" id="home-brightness-range-v1" type="range" min="' + BRIGHTNESS_MIN + '" max="' + BRIGHTNESS_MAX + '" step="1" value="100" aria-label="Justera sidans ljusstyrka"><span aria-hidden="true">☀</span></div>';
     }
 
-    var panel = document.createElement('div');
-    panel.id = 'home-brightness-control-v1';
-    panel.className = 'home-brightness-control-v1';
-    panel.innerHTML =
-      '<div class="home-brightness-head-v1"><span>Ljusstyrka</span><output class="home-brightness-output-v1" id="home-brightness-output-v1">100%</output></div>' +
-      '<div class="home-brightness-row-v1"><span aria-hidden="true">☾</span><input class="home-brightness-range-v1" id="home-brightness-range-v1" type="range" min="' + BRIGHTNESS_MIN + '" max="' + BRIGHTNESS_MAX + '" step="1" value="100" aria-label="Justera sidans ljusstyrka"><span aria-hidden="true">☀</span></div>';
+    if (header) {
+      panel.classList.add('home-brightness-header-v1');
+      if (panel.parentNode !== header) header.appendChild(panel);
+    } else if (panel.parentNode !== menu) {
+      menu.appendChild(panel);
+    }
 
-    ['click','pointerdown','touchstart'].forEach(function (type) {
-      panel.addEventListener(type,function (event) { event.stopPropagation(); }, { passive:type === 'touchstart' });
-    });
+    if (panel.dataset.homeBrightnessBound !== '1') {
+      panel.dataset.homeBrightnessBound = '1';
+      ['click','pointerdown','touchstart'].forEach(function (type) {
+        panel.addEventListener(type,function (event) { event.stopPropagation(); }, { passive:type === 'touchstart' });
+      });
 
-    var input = panel.querySelector('input[type="range"]');
-    input.addEventListener('input',function () { applyBrightness(input.value,true); });
-    input.addEventListener('change',function () { applyBrightness(input.value,true); });
+      var input = panel.querySelector('input[type="range"]');
+      if (input) {
+        input.addEventListener('input',function () { applyBrightness(input.value,true); });
+        input.addEventListener('change',function () { applyBrightness(input.value,true); });
+      }
+    }
 
-    menu.appendChild(panel);
     updateBrightnessControl(brightnessValue());
   }
 
