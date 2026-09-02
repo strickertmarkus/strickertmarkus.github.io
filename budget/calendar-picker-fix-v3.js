@@ -10,6 +10,7 @@
   var MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
   var activeMonthMenu = null;
   var activeMonthAnchor = null;
+  var suppressOverlayCloseUntil = 0;
 
   function addStyles() {
     if (document.getElementById('calendar-picker-fix-v3-style')) return;
@@ -72,6 +73,14 @@
     if (activeMonthMenu && activeMonthMenu.parentNode) activeMonthMenu.parentNode.removeChild(activeMonthMenu);
     activeMonthMenu = null;
     activeMonthAnchor = null;
+  }
+
+  function hasOpenPicker() {
+    for (var i = 0; i < DATE_IDS.length; i++) {
+      var el = document.getElementById(DATE_IDS[i]);
+      if (el && el._flatpickr && el._flatpickr.isOpen) return true;
+    }
+    return false;
   }
 
   function closeAllPickers(except) {
@@ -262,7 +271,23 @@
           break;
         }
       }
-      if (!clickedDateInput) closeAllPickers(null);
+      if (!clickedDateInput) {
+        if (hasOpenPicker()) suppressOverlayCloseUntil = Date.now() + 700;
+        closeAllPickers(null);
+      }
+    }, true);
+
+    /* Flatpickr is appended outside the event modal. When an outside press
+       closes an open picker, consume the following overlay click so it does
+       not also close the entire event editor. A later deliberate overlay
+       click still closes the modal normally. */
+    document.addEventListener('click', function (event) {
+      if (Date.now() > suppressOverlayCloseUntil) return;
+      var target = event.target;
+      if (!target || !target.classList || !target.classList.contains('modal-overlay')) return;
+      suppressOverlayCloseUntil = 0;
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }, true);
 
     document.addEventListener('click', function (event) {
