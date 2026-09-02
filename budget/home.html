@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260902-home-picker-regression-v2"></script>
+<script src="auth-gate.js?v=20260902-native-multiday-v3"></script>
   <script src="firebase-sync.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1171,35 +1171,88 @@ function todayISO() { return new Date().toISOString().slice(0,10); }
 
 function isEventVisible(ev) { return visibleMembers[ev.member] !== false; }
 
+function addCalendarDaysISO(iso, delta) {
+  var parts = String(iso || '').split('-').map(Number);
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return '';
+  var date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + delta));
+  return date.toISOString().slice(0,10);
+}
+
+function calendarDayDistance(startISO, endISO) {
+  var start = String(startISO || '').split('-').map(Number);
+  var end = String(endISO || '').split('-').map(Number);
+  if (start.length !== 3 || end.length !== 3 || !start[0] || !end[0]) return 0;
+  return Math.max(0, Math.round((
+    Date.UTC(end[0], end[1] - 1, end[2]) -
+    Date.UTC(start[0], start[1] - 1, start[2])
+  ) / 86400000));
+}
+
+function eventOccurrenceAtDate(ev, dateISO, occurrenceId) {
+  var clone = Object.assign({}, ev, {
+    date: dateISO,
+    id: occurrenceId,
+    __sourceEventId: ev.__sourceEventId || ev.id
+  });
+  var durationDays = calendarDayDistance(ev.date, ev.endDate);
+  if (durationDays > 0) clone.endDate = addCalendarDaysISO(dateISO, durationDays);
+  return clone;
+}
+
+function expandEventDateRanges(events) {
+  var expanded = [];
+  events.forEach(function(ev) {
+    expanded.push(ev);
+    if (!ev || ev.__rangeContinuation || !ev.date || !ev.endDate || ev.endDate <= ev.date) return;
+    var cursor = ev.date;
+    var guard = 0;
+    while (cursor < ev.endDate && guard < 370) {
+      guard++;
+      cursor = addCalendarDaysISO(cursor, 1);
+      if (!cursor || cursor > ev.endDate) break;
+      expanded.push(Object.assign({}, ev, {
+        date: cursor,
+        __rangeContinuation: true,
+        __rangeStart: ev.__rangeStart || ev.date,
+        __sourceEventId: ev.__sourceEventId || ev.id
+      }));
+    }
+  });
+  return expanded;
+}
+
 function expandRepeating(events, year, month) {
   var result = [];
   events.forEach(function(ev) {
     result.push(ev);
-    var until = ev.repeatUntil ? new Date(ev.repeatUntil + 'T23:59:59') : null;
+    var repeatUntil = ev.repeatUntil || '';
     if (ev.repeat === 'weekly') {
       for (var w=1; w<=52; w++) {
-        var d = new Date(ev.date);
-        d.setDate(d.getDate() + w*7);
-        if (until && d > until) break;
-        if (d.getFullYear() === year && d.getMonth() === month) {
-          result.push(Object.assign({}, ev, { date: d.toISOString().slice(0,10), id: ev.id + '_w' + w }));
+        var weeklyISO = addCalendarDaysISO(ev.date, w * 7);
+        if (!weeklyISO || (repeatUntil && weeklyISO > repeatUntil)) break;
+        var wp = weeklyISO.split('-').map(Number);
+        if (wp[0] === year && wp[1] - 1 === month) {
+          result.push(eventOccurrenceAtDate(ev, weeklyISO, ev.id + '_w' + w));
         }
       }
     }
     if (ev.repeat === 'monthly') {
-      for (var m=1; m<=60; m++) {
-        var base = new Date(ev.date);
-        var rep = new Date(base);
-        rep.setMonth(rep.getMonth() + m);
-        if (until && rep > until) break;
-        if (rep.getFullYear() === year && rep.getMonth() === month) {
-          result.push(Object.assign({}, ev, { date: rep.toISOString().slice(0,10), id: ev.id + '_m' + m }));
+      var bp = String(ev.date || '').split('-').map(Number);
+      if (bp.length === 3 && bp[0] && bp[1] && bp[2]) {
+        for (var m=1; m<=60; m++) {
+          var monthlyDate = new Date(Date.UTC(bp[0], bp[1] - 1 + m, bp[2]));
+          var monthlyISO = monthlyDate.toISOString().slice(0,10);
+          if (repeatUntil && monthlyISO > repeatUntil) break;
+          if (monthlyDate.getUTCFullYear() === year && monthlyDate.getUTCMonth() === month) {
+            result.push(eventOccurrenceAtDate(ev, monthlyISO, ev.id + '_m' + m));
+          }
         }
       }
     }
   });
-  return result;
+  return expandEventDateRanges(result);
 }
+expandRepeating.__nativeRangeExpansion = true;
 
 function formatEventTimeRange(ev) {
   var start = ev.time || '';
