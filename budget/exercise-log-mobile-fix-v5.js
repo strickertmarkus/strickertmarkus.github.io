@@ -295,27 +295,46 @@
     return /^(kondition|cardio|löpning|löpband|cykling|rodd|intervaller?|promenad)$/.test(normalizeLabel(value));
   }
 
-  function decorateLog() {
+  var structureSyncQueued = false;
+
+  function setClassState(node, className, enabled) {
+    if (!node) return;
+    if (node.classList.contains(className) !== enabled) node.classList.toggle(className,enabled);
+  }
+
+  function syncOpenState() {
+    setClassState(document.body,'exercise-log-detail-open-v6',!!document.querySelector('.log-detail.show'));
+  }
+
+  function decorateLogStructure() {
+    structureSyncQueued = false;
+
     document.querySelectorAll('.log-main-row').forEach(function (row) {
       var tag = row.querySelector('.log-tag');
-      row.classList.toggle('log-pass-cardio-v6',!!(tag && isCardioTitle(tag.textContent)));
+      setClassState(row,'log-pass-cardio-v6',!!(tag && isCardioTitle(tag.textContent)));
     });
 
     document.querySelectorAll('.log-detail-box .form-group').forEach(function (group) {
-      var label = group.querySelector(':scope > label');
-      if (!label || normalizeLabel(label.textContent) !== 'tid per övning') return;
-      group.classList.add('exercise-timing-group-v6');
+      var label = group.firstElementChild;
+      if (!label || label.tagName !== 'LABEL' || normalizeLabel(label.textContent) !== 'tid per övning') return;
+      if (!group.classList.contains('exercise-timing-group-v6')) group.classList.add('exercise-timing-group-v6');
       var list = label.nextElementSibling;
       if (!list) return;
-      list.classList.add('exercise-timing-list-v6');
+      if (!list.classList.contains('exercise-timing-list-v6')) list.classList.add('exercise-timing-list-v6');
       Array.from(list.children).forEach(function (item) {
-        item.classList.add('exercise-timing-item-v6');
-        item.removeAttribute('style');
+        if (!item.classList.contains('exercise-timing-item-v6')) item.classList.add('exercise-timing-item-v6');
+        if (item.hasAttribute('style')) item.removeAttribute('style');
       });
-      list.removeAttribute('style');
+      if (list.hasAttribute('style')) list.removeAttribute('style');
     });
 
-    document.body.classList.toggle('exercise-log-detail-open-v6',!!document.querySelector('.log-detail.show'));
+    syncOpenState();
+  }
+
+  function scheduleStructureSync() {
+    if (structureSyncQueued) return;
+    structureSyncQueued = true;
+    window.requestAnimationFrame(decorateLogStructure);
   }
 
   function renameHeading() {
@@ -327,17 +346,19 @@
   function install() {
     addStyles();
     renameHeading();
-    decorateLog();
+    decorateLogStructure();
 
     var body = document.getElementById('log-body');
     if (body) {
-      new MutationObserver(function () { decorateLog(); }).observe(body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+      /* Only rendered content changes are observed. Watching class attributes here
+         fed the open/close class back into our own synchronizer on mobile Safari. */
+      new MutationObserver(scheduleStructureSync).observe(body,{childList:true,subtree:true});
     }
     document.addEventListener('click',function (event) {
-      if (event.target && event.target.closest && event.target.closest('.log-main-row')) setTimeout(decorateLog,0);
+      if (event.target && event.target.closest && event.target.closest('.log-main-row')) setTimeout(syncOpenState,0);
     },false);
-    window.addEventListener('firebase-sync',function () { setTimeout(decorateLog,0); });
-    window.__exerciseLogCompactV6 = { sync:decorateLog };
+    window.addEventListener('firebase-sync',scheduleStructureSync);
+    window.__exerciseLogCompactV6 = { sync:scheduleStructureSync };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
