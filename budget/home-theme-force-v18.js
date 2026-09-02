@@ -112,6 +112,10 @@
     document.head.appendChild(style);
   }
 
+  /* Critical palette CSS and root variables must exist before first paint. */
+  addOverrideStyles();
+  applyPalette();
+
   function start() {
     addOverrideStyles();
     applyPalette();
