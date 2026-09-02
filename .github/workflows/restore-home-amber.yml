@@ -1,0 +1,56 @@
+name: Restore Home calendar theme with amber
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/restore-home-amber.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore-home-amber:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore previous view mapping
+        shell: bash
+        run: |
+          git checkout 8babc466d7b27f383cca1dfa975695a6916f736b -- budget/home-calendar-theme-v12.js budget/nav-menu-motion.js
+
+      - name: Shift orange view toward Calendar amber
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const themePath = 'budget/home-calendar-theme-v12.js';
+          let theme = fs.readFileSync(themePath, 'utf8');
+          theme = theme
+            .replaceAll('FB923C', 'FBBF24')
+            .replaceAll('FDBA74', 'FCD34D')
+            .replaceAll('251,146,60', '251,191,36');
+          fs.writeFileSync(themePath, theme);
+
+          const navPath = 'budget/nav-menu-motion.js';
+          let nav = fs.readFileSync(navPath, 'utf8');
+          nav = nav.replace(
+            'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v12',
+            'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v14-amber'
+          );
+          fs.writeFileSync(navPath, nav);
+          NODE
+
+      - name: Commit restored Home theme
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/home-calendar-theme-v12.js budget/nav-menu-motion.js
+          git diff --cached --check
+          git commit -m "Restore Home view colors with Calendar amber"
+          git push origin main
