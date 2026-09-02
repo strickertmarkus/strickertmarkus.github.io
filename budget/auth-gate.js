@@ -60,7 +60,7 @@
 
   var exerciseAssetsVersion = '20260901-session-v25';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
-  var calendarAssetsVersion = '20260902-picker-outside-v2';
+  var calendarAssetsVersion = '20260902-native-multiday-v3';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
