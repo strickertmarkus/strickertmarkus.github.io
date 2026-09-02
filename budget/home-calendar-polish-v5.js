@@ -260,7 +260,7 @@
       }
 
       body.home-calendar-polish-v5 .main-layout {
-        padding-top:.65rem !important;
+        padding-top:.25rem !important;
       }
       body.home-calendar-polish-v5 .cal-section {
         padding-top:40px !important;
@@ -358,7 +358,7 @@
           transform:translateX(19px);
         }
         body.home-calendar-polish-v5 .main-layout {
-          padding-top:.55rem !important;
+          padding-top:.15rem !important;
         }
         body.home-calendar-polish-v5 .cal-section {
           padding-top:38px !important;
