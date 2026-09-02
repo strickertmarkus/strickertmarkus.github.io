@@ -292,7 +292,7 @@
   function loadHomeCalendarTheme() {
     if (!isHome || document.querySelector('script[data-home-calendar-theme-v12]')) return;
     var script = document.createElement('script');
-    script.src = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v15-orange-amber';
+    script.src = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v16-amber-return';
     script.async = false;
     script.setAttribute('data-home-calendar-theme-v12', 'true');
     document.head.appendChild(script);

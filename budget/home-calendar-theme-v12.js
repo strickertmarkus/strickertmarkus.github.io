@@ -28,9 +28,9 @@
     style.textContent = `
       html.home-finance-orange-v3,
       html.home-finance-orange-v3 body.home-calendar-polish-v5 {
-        --home-view-accent:#FBA930;
-        --home-view-accent-soft:#FDC761;
-        --home-view-rgb:251,169,48;
+        --home-view-accent:#FBBF24;
+        --home-view-accent-soft:#FCD34D;
+        --home-view-rgb:251,191,36;
         --accent:var(--home-view-accent);
         --accent-dim:rgba(var(--home-view-rgb),.10);
         --accent-glow:rgba(var(--home-view-rgb),.25);
@@ -51,9 +51,9 @@
       }
       html.home-finance-orange-v3[data-home-calendar-view="month"],
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] {
-        --home-view-accent:#FBA930;
-        --home-view-accent-soft:#FDC761;
-        --home-view-rgb:251,169,48;
+        --home-view-accent:#FBBF24;
+        --home-view-accent-soft:#FCD34D;
+        --home-view-rgb:251,191,36;
       }
 
       html.home-finance-orange-v3,
@@ -264,10 +264,10 @@
       /* Theme the date/time glyphs in the editor as well. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBA930' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBA930' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
 
       /* Flatpickr is rendered outside the modal, so theme it at page level. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .flatpickr-calendar {
