@@ -337,8 +337,18 @@
 
   function syncRestFlow() {
     var overlay = document.getElementById('session-between-overlay-v2');
-    var visible = !!(overlay && overlay.classList.contains('show'));
+    var overlayVisible = !!(overlay && overlay.classList.contains('show'));
+    var visible = !!(overlayVisible && overlay.dataset.betweenType === 'rest');
     var state = getState();
+
+    /* The automatic continuation belongs exclusively to real rest. A custom
+       between exercise returns to an explicit Start button and keeps the
+       normal pre-timer/cardio timer path. */
+    if ((overlayVisible && !visible) || (state && (state.__betweenCustomRuntimeV3 || state.__betweenCustomManualStartV4))) {
+      restSequence = null;
+      restWasVisible = false;
+      return;
+    }
 
     if (visible) {
       ensureRestButton();
