@@ -133,6 +133,7 @@
     if (!originalExercise || !Array.isArray(originalLogs)) return false;
 
     ensureSummary(state, config);
+    state.__betweenCustomManualStartV4 = null;
     state.__betweenCustomRuntimeV3 = {
       index: index,
       transition: transition,
@@ -195,8 +196,38 @@
       state.currentSet = 1;
     }
 
+    state.__betweenCustomManualStartV4 = {
+      kind: runtime.transition === 'finish' ? 'exercise' : 'set',
+      exerciseIndex: state.exerciseIndex,
+      currentSet: state.currentSet
+    };
+
     try { if (typeof window.renderSessionMode === 'function') window.renderSessionMode(); } catch (e) {}
+    syncManualStartUi();
     syncSummaryUi();
+  }
+
+  function syncManualStartUi() {
+    var state = getState();
+    var gate = state && state.__betweenCustomManualStartV4;
+    if (!gate) return;
+
+    if (state.setRunning) {
+      state.__betweenCustomManualStartV4 = null;
+      return;
+    }
+    if (state.awaitingDecision) return;
+
+    var controls = document.getElementById('session-controls');
+    if (!controls) return;
+    var buttons = Array.prototype.slice.call(controls.querySelectorAll('button'));
+    var start = buttons.find(function (button) {
+      return /^starta set$/i.test(String(button.textContent || '').trim());
+    });
+    if (start) {
+      start.textContent = gate.kind === 'exercise' ? 'Starta nästa övning' : 'Starta nästa set';
+      start.setAttribute('data-between-custom-manual-start-v4','true');
+    }
   }
 
   function maybeFinishCustom() {
@@ -335,6 +366,7 @@
   function sync() {
     ensureBuilderHint();
     maybeFinishCustom();
+    syncManualStartUi();
     syncSummaryUi();
   }
 
