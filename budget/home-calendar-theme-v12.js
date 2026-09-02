@@ -28,9 +28,9 @@
     style.textContent = `
       html.home-finance-orange-v3,
       html.home-finance-orange-v3 body.home-calendar-polish-v5 {
-        --home-view-accent:#FB923C;
-        --home-view-accent-soft:#FDBA74;
-        --home-view-rgb:251,146,60;
+        --home-view-accent:#60A5FA;
+        --home-view-accent-soft:#93C5FD;
+        --home-view-rgb:96,165,250;
         --accent:var(--home-view-accent);
         --accent-dim:rgba(var(--home-view-rgb),.10);
         --accent-glow:rgba(var(--home-view-rgb),.25);
@@ -39,9 +39,9 @@
       }
       html.home-finance-orange-v3[data-home-calendar-view="day"],
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] {
-        --home-view-accent:#60A5FA;
-        --home-view-accent-soft:#93C5FD;
-        --home-view-rgb:96,165,250;
+        --home-view-accent:#FB923C;
+        --home-view-accent-soft:#FDBA74;
+        --home-view-rgb:251,146,60;
       }
       html.home-finance-orange-v3[data-home-calendar-view="week"],
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] {
@@ -51,9 +51,9 @@
       }
       html.home-finance-orange-v3[data-home-calendar-view="month"],
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] {
-        --home-view-accent:#FB923C;
-        --home-view-accent-soft:#FDBA74;
-        --home-view-rgb:251,146,60;
+        --home-view-accent:#60A5FA;
+        --home-view-accent-soft:#93C5FD;
+        --home-view-rgb:96,165,250;
       }
 
       html.home-finance-orange-v3,
@@ -96,6 +96,11 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .header-time {
         color:var(--home-view-accent) !important;
         text-shadow:0 2px 10px rgba(var(--home-view-rgb),.20) !important;
+      }
+      html.home-finance-orange-v3[data-home-calendar-view="month"] body.home-calendar-polish-v5 .header-time,
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] .header-time {
+        color:#FB923C !important;
+        text-shadow:0 2px 10px rgba(251,146,60,.22) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .header-date {
         color:var(--home-view-accent-soft) !important;
@@ -262,12 +267,12 @@
       }
 
       /* Theme the date/time glyphs in the editor as well. */
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
 
       /* Flatpickr is rendered outside the modal, so theme it at page level. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .flatpickr-calendar {
