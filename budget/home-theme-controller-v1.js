@@ -12,6 +12,9 @@
     month: { accent:'#FB923C', soft:'#FDBA74', rgb:'251,146,60' }
   };
   var BLUE_THEME_KEY = 'home-blue-theme-config-v1';
+  var BRIGHTNESS_KEY = 'home-brightness-v1';
+  var BRIGHTNESS_MIN = 70;
+  var BRIGHTNESS_MAX = 130;
 
   function migrateThemeChoice() {
     try {
@@ -25,6 +28,64 @@
   function blueThemeEnabled() {
     try { return localStorage.getItem(BLUE_THEME_KEY) === '1'; }
     catch (_) { return false; }
+  }
+
+  function clampBrightness(value) {
+    return Math.max(BRIGHTNESS_MIN, Math.min(BRIGHTNESS_MAX, Math.round(Number(value) || 100)));
+  }
+
+  function brightnessValue() {
+    try { return clampBrightness(localStorage.getItem(BRIGHTNESS_KEY) || 100); }
+    catch (_) { return 100; }
+  }
+
+  function brightnessEffect(value) {
+    var level = clampBrightness(value);
+    if (level < 100) {
+      var darkAlpha = ((100 - level) / (100 - BRIGHTNESS_MIN)) * .24;
+      return { css:'rgba(0,0,0,' + darkAlpha.toFixed(3) + ')', rgb:[0,0,0], alpha:darkAlpha };
+    }
+    if (level > 100) {
+      var lightAlpha = ((level - 100) / (BRIGHTNESS_MAX - 100)) * .13;
+      return { css:'rgba(255,247,237,' + lightAlpha.toFixed(3) + ')', rgb:[255,247,237], alpha:lightAlpha };
+    }
+    return { css:'rgba(0,0,0,0)', rgb:[0,0,0], alpha:0 };
+  }
+
+  function compositeHex(baseHex, effect) {
+    var hex = String(baseHex || '#0F1219').replace('#','');
+    if (hex.length === 3) hex = hex.split('').map(function (c) { return c + c; }).join('');
+    var base = [0,2,4].map(function (offset) { return parseInt(hex.slice(offset,offset + 2),16); });
+    var alpha = effect.alpha || 0;
+    var out = base.map(function (channel,index) {
+      return Math.round(channel * (1 - alpha) + effect.rgb[index] * alpha);
+    });
+    return '#' + out.map(function (channel) { return channel.toString(16).padStart(2,'0'); }).join('').toUpperCase();
+  }
+
+  function updateBrightnessControl(value) {
+    var level = clampBrightness(value);
+    var input = document.getElementById('home-brightness-range-v1');
+    var output = document.getElementById('home-brightness-output-v1');
+    if (input && Number(input.value) !== level) input.value = String(level);
+    if (output) output.textContent = level + '%';
+    document.documentElement.style.setProperty(
+      '--home-brightness-progress',
+      (((level - BRIGHTNESS_MIN) / (BRIGHTNESS_MAX - BRIGHTNESS_MIN)) * 100).toFixed(2) + '%',
+      'important'
+    );
+  }
+
+  function applyBrightness(value, persist) {
+    var level = clampBrightness(value);
+    if (persist) {
+      try { localStorage.setItem(BRIGHTNESS_KEY,String(level)); } catch (_) {}
+    }
+    var root = document.documentElement;
+    root.dataset.homeBrightness = String(level);
+    root.style.setProperty('--home-brightness-overlay',brightnessEffect(level).css,'important');
+    updateBrightnessControl(level);
+    syncStatusSurface(blueThemeEnabled(),level);
   }
 
   function currentView() {
@@ -81,9 +142,10 @@
     if (check) check.textContent = enabled ? '✓' : '';
   }
 
-  function syncStatusSurface(blue) {
+  function syncStatusSurface(blue, brightness) {
     var root = document.documentElement;
     var topColor = blue ? '#111B2A' : '#0F1219';
+    var statusColor = compositeHex(topColor,brightnessEffect(brightness == null ? brightnessValue() : brightness));
     root.classList.add('home-finance-orange-v3','home-status-integrated-v3');
     root.style.setProperty('--home-status-surface',topColor,'important');
     root.style.setProperty('background',topColor,'important');
@@ -95,7 +157,7 @@
       meta.setAttribute('name','theme-color');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content',topColor);
+    meta.setAttribute('content',statusColor);
   }
 
   function applyPalette() {
@@ -105,7 +167,7 @@
     var root = document.documentElement;
     var body = document.body;
     root.dataset.homeCalendarView = view;
-    syncStatusSurface(blue);
+    syncStatusSurface(blue,brightnessValue());
 
     if (blue) {
       root.dataset.homeBlueTheme = 'true';
@@ -122,6 +184,7 @@
     setVars(root, p);
     setVars(body, p);
     updateBlueThemeConfig();
+    applyBrightness(brightnessValue(),false);
   }
 
   function setBlueTheme(enabled) {
@@ -338,6 +401,97 @@
         font-weight:900;
       }
 
+      html.home-finance-orange-v3 body::after {
+        content:"";
+        display:block;
+        position:fixed;
+        inset:0;
+        z-index:2147483600;
+        pointer-events:none;
+        background:var(--home-brightness-overlay,rgba(0,0,0,0));
+        transition:background .08s linear;
+      }
+      .home-brightness-control-v1 {
+        padding:11px 14px 13px;
+        border-top:1px solid rgba(255,255,255,.035);
+        background:rgba(var(--home-view-rgb),.018);
+      }
+      .home-brightness-head-v1 {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        margin-bottom:9px;
+        color:#C9D1DC;
+        font:700 11px/1.2 'Inter',sans-serif;
+      }
+      .home-brightness-output-v1 {
+        color:var(--home-view-accent-soft);
+        font-size:10px;
+        font-variant-numeric:tabular-nums;
+      }
+      .home-brightness-row-v1 {
+        display:grid;
+        grid-template-columns:18px minmax(0,1fr) 20px;
+        align-items:center;
+        gap:8px;
+        color:var(--text-sec,#8B949E);
+        font-size:14px;
+      }
+      .home-brightness-range-v1 {
+        --range-rest:rgba(255,255,255,.13);
+        width:100%;
+        height:6px;
+        margin:7px 0;
+        padding:0;
+        border:0;
+        border-radius:999px;
+        appearance:none;
+        -webkit-appearance:none;
+        outline:none;
+        cursor:pointer;
+        background:linear-gradient(90deg,var(--home-view-accent) 0 var(--home-brightness-progress,50%),var(--range-rest) var(--home-brightness-progress,50%) 100%);
+        box-shadow:inset 0 1px 2px rgba(0,0,0,.45),0 0 10px rgba(var(--home-view-rgb),.055);
+      }
+      .home-brightness-range-v1::-webkit-slider-thumb {
+        width:21px;
+        height:21px;
+        border:2px solid rgba(var(--home-view-rgb),.68);
+        border-radius:50%;
+        appearance:none;
+        -webkit-appearance:none;
+        background:#FFF8E9;
+        box-shadow:0 1px 4px rgba(0,0,0,.42),0 0 8px rgba(var(--home-view-rgb),.42);
+      }
+      .home-brightness-range-v1::-moz-range-thumb {
+        width:18px;
+        height:18px;
+        border:2px solid rgba(var(--home-view-rgb),.68);
+        border-radius:50%;
+        background:#FFF8E9;
+        box-shadow:0 1px 4px rgba(0,0,0,.42),0 0 8px rgba(var(--home-view-rgb),.42);
+      }
+
+      html body .home-day-popover {
+        background:
+          linear-gradient(180deg,rgba(var(--home-view-rgb),.05),rgba(var(--home-view-rgb),.014)),
+          rgba(15,18,25,.985) !important;
+        border-color:rgba(var(--home-view-rgb),.26) !important;
+        border-radius:10px !important;
+        box-shadow:0 8px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
+      }
+      html[data-home-blue-theme="true"] body .home-day-popover {
+        background:
+          linear-gradient(180deg,rgba(var(--home-view-rgb),.065),rgba(var(--home-view-rgb),.018)),
+          var(--home-theme-page) !important;
+      }
+      html body .home-day-popover-week,
+      html body .day-panel-week {
+        color:var(--home-view-accent-soft) !important;
+        border-color:rgba(var(--home-view-rgb),.28) !important;
+        background:rgba(var(--home-view-rgb),.075) !important;
+      }
+
       html body .header-time {
         color:var(--home-view-accent) !important;
         text-shadow:0 2px 10px rgba(var(--home-view-rgb),.20) !important;
@@ -430,9 +584,40 @@
     updateBlueThemeConfig();
   }
 
+  function installBrightnessControl() {
+    var menu = document.getElementById('nav-menu');
+    var existing = document.getElementById('home-brightness-control-v1');
+    if (!menu || existing) {
+      updateBrightnessControl(brightnessValue());
+      return;
+    }
+
+    var panel = document.createElement('div');
+    panel.id = 'home-brightness-control-v1';
+    panel.className = 'home-brightness-control-v1';
+    panel.innerHTML =
+      '<div class="home-brightness-head-v1"><span>Ljusstyrka</span><output class="home-brightness-output-v1" id="home-brightness-output-v1">100%</output></div>' +
+      '<div class="home-brightness-row-v1"><span aria-hidden="true">☾</span><input class="home-brightness-range-v1" id="home-brightness-range-v1" type="range" min="' + BRIGHTNESS_MIN + '" max="' + BRIGHTNESS_MAX + '" step="1" value="100" aria-label="Justera sidans ljusstyrka"><span aria-hidden="true">☀</span></div>';
+
+    ['click','pointerdown','touchstart'].forEach(function (type) {
+      panel.addEventListener(type,function (event) { event.stopPropagation(); }, { passive:type === 'touchstart' });
+    });
+
+    var input = panel.querySelector('input[type="range"]');
+    input.addEventListener('input',function () { applyBrightness(input.value,true); });
+    input.addEventListener('change',function () { applyBrightness(input.value,true); });
+
+    menu.appendChild(panel);
+    updateBrightnessControl(brightnessValue());
+  }
+
   window.__homeBlueThemeConfigV1 = {
     enabled:blueThemeEnabled,
     setEnabled:setBlueTheme
+  };
+  window.__homeBrightnessV1 = {
+    value:brightnessValue,
+    setValue:function (value) { applyBrightness(value,true); }
   };
 
   /* This is the sole Home theme/status authority. No legacy Home patch loads it. */
@@ -446,6 +631,7 @@
     addOverrideStyles();
     applyPalette();
     installBlueThemeConfig();
+    installBrightnessControl();
     if (document.body) {
       new MutationObserver(function (mutations) {
         for (var i = 0; i < mutations.length; i++) {
