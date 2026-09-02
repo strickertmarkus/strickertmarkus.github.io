@@ -83,8 +83,9 @@
 
   function syncStatusSurface(blue) {
     var root = document.documentElement;
-    var topColor = blue ? '#111B2A' : '#0D1117';
+    var topColor = blue ? '#111B2A' : '#0F1219';
     root.classList.add('home-finance-orange-v3','home-status-integrated-v3');
+    root.style.setProperty('--home-status-surface',topColor,'important');
     root.style.setProperty('background',topColor,'important');
     root.style.setProperty('background-color',topColor,'important');
 
@@ -293,7 +294,7 @@
       html[data-home-blue-theme="true"] body .app-header {
         background:
           radial-gradient(560px 185px at 50% 108%,rgba(96,165,250,.13),transparent 70%),
-          linear-gradient(180deg,var(--home-theme-panel),var(--home-theme-page)) !important;
+          linear-gradient(180deg,var(--home-status-surface,#111B2A) 0,var(--home-status-surface,#111B2A) 3px,var(--home-theme-page) 100%) !important;
         border-bottom-color:rgba(96,165,250,.24) !important;
       }
       html.home-finance-orange-v3[data-home-blue-theme="true"] body.home-calendar-polish-v5 #event-modal .modal,
@@ -355,7 +356,7 @@
       html body .app-header {
         background:
           radial-gradient(560px 185px at 50% 108%,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,rgba(13,17,23,.988),rgba(var(--home-view-rgb),.052)) !important;
+          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(var(--home-view-rgb),.052) 100%) !important;
         border-bottom-color:rgba(var(--home-view-rgb),.22) !important;
         box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(var(--home-view-rgb),.075) !important;
       }
