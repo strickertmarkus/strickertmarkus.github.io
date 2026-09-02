@@ -2,7 +2,8 @@ name: Patch Home calendar view colors
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - '.github/workflows/patch-home-view-colors.yml'
 
@@ -10,98 +11,19 @@ permissions:
   contents: write
 
 jobs:
-  patch:
+  patch-home-colors:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Patch Home colors
-        shell: bash
-        run: |
-          python3 <<'PY'
-          from pathlib import Path
+        run: node budget/patch-home-view-colors.mjs
 
-          theme_path = Path('budget/home-calendar-theme-v12.js')
-          theme = theme_path.read_text()
-
-          base_old = '''        --home-view-accent:#FB923C;
-        --home-view-accent-soft:#FDBA74;
-        --home-view-rgb:251,146,60;'''
-          base_new = '''        --home-view-accent:#60A5FA;
-        --home-view-accent-soft:#93C5FD;
-        --home-view-rgb:96,165,250;'''
-          if base_old not in theme:
-              raise SystemExit('Default theme block not found')
-          theme = theme.replace(base_old, base_new, 1)
-
-          day_old = '''      html.home-finance-orange-v3[data-home-calendar-view="day"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] {
-        --home-view-accent:#60A5FA;
-        --home-view-accent-soft:#93C5FD;
-        --home-view-rgb:96,165,250;
-      }'''
-          day_new = '''      html.home-finance-orange-v3[data-home-calendar-view="day"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] {
-        --home-view-accent:#FB923C;
-        --home-view-accent-soft:#FDBA74;
-        --home-view-rgb:251,146,60;
-      }'''
-          if day_old not in theme:
-              raise SystemExit('Day theme block not found')
-          theme = theme.replace(day_old, day_new, 1)
-
-          month_old = '''      html.home-finance-orange-v3[data-home-calendar-view="month"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] {
-        --home-view-accent:#FB923C;
-        --home-view-accent-soft:#FDBA74;
-        --home-view-rgb:251,146,60;
-      }'''
-          month_new = '''      html.home-finance-orange-v3[data-home-calendar-view="month"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] {
-        --home-view-accent:#60A5FA;
-        --home-view-accent-soft:#93C5FD;
-        --home-view-rgb:96,165,250;
-      }'''
-          if month_old not in theme:
-              raise SystemExit('Month theme block not found')
-          theme = theme.replace(month_old, month_new, 1)
-
-          time_old = '''      html.home-finance-orange-v3 body.home-calendar-polish-v5 .header-time {
-        color:var(--home-view-accent) !important;
-        text-shadow:0 2px 10px rgba(var(--home-view-rgb),.20) !important;
-      }'''
-          time_new = time_old + '''
-      html.home-finance-orange-v3[data-home-calendar-view="month"] body.home-calendar-polish-v5 .header-time,
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] .header-time {
-        color:#FB923C !important;
-        text-shadow:0 2px 10px rgba(251,146,60,.22) !important;
-      }'''
-          if time_old not in theme:
-              raise SystemExit('Header time block not found')
-          theme = theme.replace(time_old, time_new, 1)
-
-          lines = []
-          for line in theme.splitlines(True):
-              if 'data-home-calendar-view="day"' in line and 'input[data-picker=' in line:
-                  line = line.replace('%2360A5FA', '%23FB923C')
-              elif 'data-home-calendar-view="month"' in line and 'input[data-picker=' in line:
-                  line = line.replace('%23FB923C', '%2360A5FA')
-              lines.append(line)
-          theme_path.write_text(''.join(lines))
-
-          nav_path = Path('budget/nav-menu-motion.js')
-          nav = nav_path.read_text()
-          old_query = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v12'
-          new_query = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v13-view-colors'
-          if old_query not in nav:
-              raise SystemExit('Theme cache-bust query not found')
-          nav_path.write_text(nav.replace(old_query, new_query, 1))
-          PY
-
-      - name: Commit patched Home theme
-        shell: bash
+      - name: Commit Home colors
         run: |
           git config user.name "strickertmarkus"
           git config user.email "markus.strickert@sigmatechnology.com"
