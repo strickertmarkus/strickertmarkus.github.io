@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260902-custom-manual-start-v26';
+  var exerciseAssetsVersion = '20260902-builder-between-orange-v27';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260902-native-multiday-v3';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
