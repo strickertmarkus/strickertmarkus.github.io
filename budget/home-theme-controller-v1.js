@@ -59,6 +59,7 @@
       }
       localStorage.removeItem('home-theme-choice-v1');
       localStorage.removeItem('home-brightness-v1');
+      localStorage.removeItem(CUSTOM_THEME_KEY);
     } catch (_) {}
   }
 
@@ -625,6 +626,13 @@
     updateColorWheelControl();
   }
 
+  function suppressColorWheelControl() {
+    var control = document.getElementById('home-color-wheel-v1');
+    if (control) control.remove();
+    var staleBrightness = document.getElementById('home-brightness-control-v1');
+    if (staleBrightness) staleBrightness.remove();
+  }
+
   window.__homeBlueThemeConfigV1 = {
     enabled:blueThemeEnabled,
     setEnabled:setBlueTheme
@@ -645,7 +653,7 @@
     addOverrideStyles();
     applyPalette();
     installBlueThemeConfig();
-    installColorWheelControl();
+    suppressColorWheelControl();
     if (document.body) {
       new MutationObserver(function (mutations) {
         for (var i = 0; i < mutations.length; i++) {
