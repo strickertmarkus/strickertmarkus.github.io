@@ -89,7 +89,7 @@
         line-height:1.2 !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 {
-        top:62px !important;
+        top:65px !important;
       }
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
@@ -365,7 +365,7 @@
           font-size:10px !important;
         }
         html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 {
-          top:60px !important;
+          top:63px !important;
         }
       }
 
@@ -446,7 +446,7 @@
       position:absolute !important;
       left:50% !important;
       right:auto !important;
-      top:54px !important;
+      top:57px !important;
       bottom:auto !important;
       transform:translateX(-50%) !important;
       height:40px !important;
