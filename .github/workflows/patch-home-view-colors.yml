@@ -2,8 +2,7 @@ name: Patch Home calendar view colors
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - '.github/workflows/patch-home-view-colors.yml'
 
@@ -11,16 +10,17 @@ permissions:
   contents: write
 
 jobs:
-  patch-home-view-colors:
+  patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Swap day/month themes and set month clock orange
-        shell: python
+      - name: Patch Home colors
+        shell: bash
         run: |
+          python3 <<'PY'
           from pathlib import Path
 
           theme_path = Path('budget/home-calendar-theme-v12.js')
@@ -89,16 +89,16 @@ jobs:
               elif 'data-home-calendar-view="month"' in line and 'input[data-picker=' in line:
                   line = line.replace('%23FB923C', '%2360A5FA')
               lines.append(line)
-          theme = ''.join(lines)
-          theme_path.write_text(theme)
+          theme_path.write_text(''.join(lines))
 
           nav_path = Path('budget/nav-menu-motion.js')
           nav = nav_path.read_text()
-          old_query = "home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v12"
-          new_query = "home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v13-view-colors"
+          old_query = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v12'
+          new_query = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v13-view-colors'
           if old_query not in nav:
               raise SystemExit('Theme cache-bust query not found')
           nav_path.write_text(nav.replace(old_query, new_query, 1))
+          PY
 
       - name: Commit patched Home theme
         shell: bash
