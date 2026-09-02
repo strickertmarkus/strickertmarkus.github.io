@@ -484,7 +484,12 @@
       startedAt:Date.now()
     };
 
-    try { button.click(); }
+    try {
+      button.click();
+      /* The custom-between module owns this transition. Do not let the
+         generic auto-transition skip its Start button or pre-timer. */
+      if (state.__betweenCustomRuntimeV3) autoPending = null;
+    }
     catch (e) { autoPending = null; }
   }
 
@@ -492,6 +497,10 @@
     if (!autoPending) return;
     var state = getState();
     if (!state) { autoPending = null; return; }
+    if (state.__betweenCustomRuntimeV3 || state.__betweenCustomManualStartV4) {
+      autoPending = null;
+      return;
+    }
 
     if (autoPending.kind === 'next') {
       var advanced = Number(state.exerciseIndex) === autoPending.exerciseIndex && Number(state.currentSet) > autoPending.currentSet;
@@ -526,6 +535,11 @@
   }
 
   function syncAutoPretimer() {
+    var state = getState();
+    if (state && (state.__betweenCustomRuntimeV3 || state.__betweenCustomManualStartV4)) {
+      autoPending = null;
+      return;
+    }
     if (!autoPending || autoPending.kind !== 'next') return;
     if (skipPretimerIfNeeded(true)) {
       setTimeout(settleAutoTransition,0);
