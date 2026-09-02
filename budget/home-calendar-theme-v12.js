@@ -95,7 +95,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
         background:
           radial-gradient(560px 185px at 50% 108%,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,rgba(13,17,23,.988),rgba(var(--home-view-rgb),.052)) !important;
+          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(var(--home-view-rgb),.052) 100%) !important;
         border-bottom-color:rgba(var(--home-view-rgb),.22) !important;
         box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(var(--home-view-rgb),.075) !important;
       }
@@ -384,7 +384,7 @@
       padding:0 !important;
       overflow:visible !important;
       text-align:center !important;
-      background:linear-gradient(180deg,rgba(13,17,23,.985),rgba(251,146,60,.06)) !important;
+      background:linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(251,146,60,.06) 100%) !important;
       border-bottom:1px solid rgba(251,146,60,.20) !important;
       box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 24px rgba(251,146,60,.075) !important;
       backdrop-filter:blur(20px) !important;
