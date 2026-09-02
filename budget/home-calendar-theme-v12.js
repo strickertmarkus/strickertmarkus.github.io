@@ -37,20 +37,20 @@
         --border-a:rgba(var(--home-view-rgb),.30);
         --accent-bg:rgba(var(--home-view-rgb),.055);
       }
-      html.home-finance-orange-v3[data-home-theme="blue"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="blue"] {
+      html.home-finance-orange-v3[data-home-calendar-view="day"],
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] {
         --home-view-accent:#60A5FA;
         --home-view-accent-soft:#93C5FD;
         --home-view-rgb:96,165,250;
       }
-      html.home-finance-orange-v3[data-home-theme="amber"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="amber"] {
-        --home-view-accent:#FBBF24;
-        --home-view-accent-soft:#FCD34D;
-        --home-view-rgb:251,191,36;
+      html.home-finance-orange-v3[data-home-calendar-view="week"],
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] {
+        --home-view-accent:#4ADE80;
+        --home-view-accent-soft:#86EFAC;
+        --home-view-rgb:74,222,128;
       }
-      html.home-finance-orange-v3[data-home-theme="orange"],
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="orange"] {
+      html.home-finance-orange-v3[data-home-calendar-view="month"],
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] {
         --home-view-accent:#FB923C;
         --home-view-accent-soft:#FDBA74;
         --home-view-rgb:251,146,60;
@@ -60,8 +60,8 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 {
         background:
           radial-gradient(900px 380px at 50% -110px,rgba(var(--home-view-rgb),.105),transparent 67%),
-          var(--home-theme-page,#0F1219) !important;
-        background-color:var(--home-theme-page,#0F1219) !important;
+          #0F1219 !important;
+        background-color:#0F1219 !important;
       }
 
       /* Keep the Budget-page vertical rhythm: title -> meta is tight,
@@ -86,7 +86,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
         background:
           radial-gradient(560px 185px at 50% 108%,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,var(--home-theme-panel,#111820),var(--home-theme-page,#0F1219)) !important;
+          linear-gradient(180deg,rgba(13,17,23,.988),rgba(var(--home-view-rgb),.052)) !important;
         border-bottom-color:rgba(var(--home-view-rgb),.22) !important;
         box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(var(--home-view-rgb),.075) !important;
       }
@@ -189,7 +189,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover {
         background:
           radial-gradient(360px 120px at 50% 0,rgba(var(--home-view-rgb),.07),transparent 72%),
-          linear-gradient(180deg,var(--home-theme-strong,#18191D),var(--home-theme-page,#0F1219)) !important;
+          linear-gradient(180deg,rgba(24,25,29,.99),rgba(15,18,25,.99)) !important;
         border-color:rgba(var(--home-view-rgb),.34) !important;
         box-shadow:0 16px 34px rgba(0,0,0,.42),0 0 24px rgba(var(--home-view-rgb),.055) !important;
       }
@@ -206,7 +206,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .modal {
         background:
           radial-gradient(560px 190px at 50% -30px,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,var(--home-theme-strong,#19191C),var(--home-theme-page,#0F1219)) !important;
+          linear-gradient(180deg,rgba(25,25,28,.995),rgba(15,18,25,.995)) !important;
         border-color:rgba(var(--home-view-rgb),.28) !important;
         box-shadow:0 26px 72px rgba(0,0,0,.58),0 0 34px rgba(var(--home-view-rgb),.075),inset 0 1px 0 rgba(255,255,255,.035) !important;
       }
@@ -262,12 +262,12 @@
       }
 
       /* Theme the date/time glyphs in the editor as well. */
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="blue"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="amber"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="orange"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="blue"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="amber"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
-      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-theme="orange"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="date"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
       /* Prevent the themed SVG picker icon from tiling across iOS inputs. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal input[data-picker="date"],
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal input[data-picker="time"] {
@@ -299,7 +299,7 @@
 
       /* Flatpickr is rendered outside the modal, so theme it at page level. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .flatpickr-calendar {
-        background:linear-gradient(180deg,var(--home-theme-strong,#19191C),var(--home-theme-page,#0F1219)) !important;
+        background:linear-gradient(180deg,rgba(25,25,28,.995),rgba(15,18,25,.995)) !important;
         border:1px solid rgba(var(--home-view-rgb),.24) !important;
         box-shadow:0 18px 48px rgba(0,0,0,.55),0 0 28px rgba(var(--home-view-rgb),.07) !important;
       }
