@@ -92,3 +92,5 @@ jobs:
           git diff --cached --check
           git commit -m "Fix Home event modal picker icons"
           git push origin main
+
+# Trigger after workflow exists on main.
