@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260902-home-color-logcompact-v28';
+  var exerciseAssetsVersion = '20260902-log-open-freeze-fix-v29';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260902-home-color-wheel-v5';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
