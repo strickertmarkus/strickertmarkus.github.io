@@ -345,7 +345,10 @@
     if (overlayTimer) clearInterval(overlayTimer);
     overlayTimer = null;
     var overlay = document.getElementById('session-between-overlay-v2');
-    if (overlay) overlay.classList.remove('show');
+    if (overlay) {
+      overlay.classList.remove('show');
+      overlay.removeAttribute('data-between-type');
+    }
 
     var button = pendingButton;
     pendingButton = null;
@@ -367,6 +370,7 @@
     var deadline = Date.now() + totalMs;
     var heading = document.getElementById('bs-overlay-heading');
     if (heading) heading.textContent = config.type === 'custom' ? (config.name || 'Valfri övning') : 'Vila';
+    overlay.dataset.betweenType = config.type;
     overlay.classList.add('show');
 
     function tick() {
