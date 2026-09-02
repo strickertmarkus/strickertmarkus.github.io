@@ -268,6 +268,32 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="day"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360A5FA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="week"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ADE80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
       html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-calendar-view="month"] #event-modal input[data-picker="time"] { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB923C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E") !important; }
+      /* Prevent the themed SVG picker icon from tiling across iOS inputs. */
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal input[data-picker="date"],
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal input[data-picker="time"] {
+        background-repeat:no-repeat !important;
+        background-position:right 12px center !important;
+        background-size:18px 18px !important;
+        padding-right:42px !important;
+      }
+
+      /* Neutral switch off-state; active view color when enabled. */
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-switch-v2 {
+        background:rgba(255,255,255,.045) !important;
+        border-color:rgba(var(--home-view-rgb),.22) !important;
+      }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-switch-v2::after {
+        background:#7C8798 !important;
+        box-shadow:none !important;
+      }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-switch-v2[aria-pressed="true"] {
+        background:rgba(var(--home-view-rgb),.18) !important;
+        border-color:rgba(var(--home-view-rgb),.48) !important;
+      }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-switch-v2[aria-pressed="true"]::after {
+        background:var(--home-view-accent) !important;
+        box-shadow:0 0 8px rgba(var(--home-view-rgb),.42) !important;
+      }
 
       /* Flatpickr is rendered outside the modal, so theme it at page level. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .flatpickr-calendar {
