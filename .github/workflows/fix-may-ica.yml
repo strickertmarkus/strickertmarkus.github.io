@@ -1,0 +1,32 @@
+name: One-off May ICA correction
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/fix-may-ica.yml'
+      - 'budget/fix-may-ica.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  fix-may-ica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Firebase Admin SDK
+        run: npm install --no-save --no-package-lock firebase-admin@13
+
+      - name: Correct May ICA value
+        run: node budget/fix-may-ica.mjs
