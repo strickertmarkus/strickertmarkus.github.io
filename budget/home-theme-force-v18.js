@@ -310,11 +310,12 @@
         background:rgba(var(--home-view-rgb),.12) !important;
         box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 13px rgba(var(--home-view-rgb),.18) !important;
       }
-      html body #event-modal .modal {
+      html.home-finance-orange-v3[data-home-theme] body.home-calendar-polish-v5 #event-modal .modal,
+      html[data-home-theme] body #event-modal .modal {
         background:
-          radial-gradient(560px 190px at 50% -30px,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,rgba(25,25,28,.995),rgba(15,18,25,.995)) !important;
-        border-color:rgba(var(--home-view-rgb),.28) !important;
+          radial-gradient(560px 190px at 50% -30px,rgba(var(--home-view-rgb),.13),transparent 70%),
+          linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
+        border-color:rgba(var(--home-view-rgb),.30) !important;
       }
       html body #event-modal .form-group input:focus,
       html body #event-modal .form-group select:focus,
