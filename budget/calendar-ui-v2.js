@@ -428,7 +428,9 @@
   }
 
   function bindRangeExpansion() {
-    if (typeof window.expandRepeating !== 'function' || window.expandRepeating.__calendarUiV2Wrapped) return;
+    if (typeof window.expandRepeating !== 'function' ||
+        window.expandRepeating.__calendarUiV2Wrapped ||
+        window.expandRepeating.__nativeRangeExpansion) return;
     var originalExpand = window.expandRepeating;
     var wrappedExpand = function () {
       var base = originalExpand.apply(this, arguments) || [];
