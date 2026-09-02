@@ -375,15 +375,12 @@
     var key = [state.passStartedAt || '',runtime.index || 0,runtime.originalCurrentSet || 1,runtime.transition || '',ex.name || ''].join('|');
     if (key === customStartKey) return;
     customStartKey = key;
-    markTransitionVisual();
-    applyViewState();
 
-    setTimeout(function () {
-      var currentState = getState();
-      var currentEx = currentExercise(currentState);
-      if (!currentState || !currentState.__betweenCustomRuntimeV3 || !currentEx || !currentEx.__betweenCustomV3 || currentState.setRunning || currentState.awaitingDecision) return;
-      try { if (typeof window.startCurrentSet === 'function') window.startCurrentSet(); } catch (_) {}
-    },0);
+    /* A custom between exercise is a real exercise step. Keep it waiting on
+       the ordinary Starta set button so the configured pre-timer and the
+       active cardio timer are both shown. Only a rest transition may start
+       the following set automatically. */
+    applyViewState();
   }
 
   function primeRestSkip(event) {
