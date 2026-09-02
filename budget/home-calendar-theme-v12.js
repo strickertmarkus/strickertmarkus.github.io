@@ -230,7 +230,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .form-group textarea,
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal #event-end-panel-v2,
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-toggle-v2 {
-        background:rgba(255,255,255,.038) !important;
+        background-color:rgba(255,255,255,.038) !important;
         border-color:rgba(255,255,255,.09) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .form-group input:focus,
@@ -238,7 +238,7 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .form-group textarea:focus {
         border-color:rgba(var(--home-view-rgb),.58) !important;
         box-shadow:0 0 0 2px rgba(var(--home-view-rgb),.13) !important;
-        background:rgba(var(--home-view-rgb),.035) !important;
+        background-color:rgba(var(--home-view-rgb),.035) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 #event-modal .event-end-switch-v2[aria-pressed="true"] {
         background:rgba(var(--home-view-rgb),.18) !important;
@@ -274,6 +274,8 @@
         background-repeat:no-repeat !important;
         background-position:right 12px center !important;
         background-size:18px 18px !important;
+        -webkit-background-size:18px 18px !important;
+        background-origin:padding-box !important;
         padding-right:42px !important;
       }
 
@@ -362,6 +364,10 @@
     `;
     document.head.appendChild(style);
   }
+
+  /* Inject the final theme while the document is still in <head>. This avoids
+     painting the legacy base theme before DOMContentLoaded. */
+  addStyles();
 
   function install() {
     if (!document.body) {
