@@ -271,9 +271,18 @@
   function loadHomeCalendarViews() {
     if (!isHome || document.querySelector('script[data-home-calendar-views-v11]')) return;
     var script = document.createElement('script');
-    script.src = 'home-calendar-views-v11.js?v=20260901-home-calendar-views-v11';
+    script.src = 'home-calendar-views-v11.js?v=20260902-home-calendar-views-v11-theme';
     script.async = false;
     script.setAttribute('data-home-calendar-views-v11', 'true');
+    document.head.appendChild(script);
+  }
+
+  function loadHomeCalendarTheme() {
+    if (!isHome || document.querySelector('script[data-home-calendar-theme-v12]')) return;
+    var script = document.createElement('script');
+    script.src = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v12';
+    script.async = false;
+    script.setAttribute('data-home-calendar-theme-v12', 'true');
     document.head.appendChild(script);
   }
 
@@ -281,6 +290,7 @@
     requestAnimationFrame(indexMenus);
     if (!isHome) return;
     loadHomeCalendarViews();
+    loadHomeCalendarTheme();
     [0, 60, 180, 450, 950, 1500].forEach(function (delay) {
       setTimeout(placeHomeMonthNav, delay);
     });
