@@ -11,7 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260902-home-themes-v4"></script>
+<script src="auth-gate.js?v=20260902-home-controls-v5"></script>
   <script src="firebase-sync.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -105,7 +105,7 @@
     .btn-notif:hover { background: var(--surface-h); }
 
     /* ── MAIN LAYOUT ── */
-    .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 0; max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
+    .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 0; max-width: 1200px; margin: 0 auto; padding: .65rem 1.5rem 5rem; }
 
     /* ── CALENDAR ── */
     .cal-section { padding-right: 1.5rem; position: relative; }
@@ -726,23 +726,26 @@
       position: absolute;
       min-width: 250px;
       max-width: 320px;
-      background: linear-gradient(180deg, rgba(26,31,46,.98), rgba(15,18,25,.98));
+      background: linear-gradient(180deg, rgba(251,146,60,.045), rgba(251,146,60,.012)), rgba(15,18,25,.985);
       border: 1px solid rgba(251,191,36,.32);
       border-radius: 12px;
-      box-shadow: 0 16px 34px rgba(0,0,0,.42);
+      box-shadow: 0 8px 20px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.025);
       padding: 10px;
       opacity: 0;
-      transform: translateY(-6px) scale(.9);
+      transform: translateY(-4px);
       transform-origin: var(--origin-x, 50%) var(--origin-y, 0%);
       pointer-events: none;
-      transition: opacity .22s ease, transform .28s cubic-bezier(.22,1,.36,1);
+      transition: opacity .18s ease, transform .18s ease;
       z-index: 10;
     }
-    .home-day-popover.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .home-day-popover.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .home-day-popover[aria-hidden="true"] { display: none; }
     .home-day-popover-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 7px; }
     .home-day-popover-title { font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: #FBBF24; font-weight: 800; }
-    .home-day-popover-date { margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--text); }
+    .home-day-popover-date-row { display:flex; align-items:center; gap:7px; margin-top:3px; }
+    .home-day-popover-date { font-size: 13px; font-weight: 700; color: var(--text); }
+    .home-day-popover-week, .day-panel-week { display:inline-flex; align-items:center; min-height:20px; padding:2px 7px; border:1px solid rgba(var(--home-view-rgb,251,146,60),.28); border-radius:999px; background:rgba(var(--home-view-rgb,251,146,60),.075); color:var(--home-view-accent-soft,#FDBA74); font-size:9px; font-weight:800; letter-spacing:.35px; text-transform:uppercase; box-shadow:inset 0 1px 0 rgba(255,255,255,.025); }
+    .day-panel-date-wrap { display:flex; align-items:center; gap:8px; min-width:0; }
     .home-day-popover-close { width: 22px; height: 22px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text-sec); font-size: 12px; line-height: 1; cursor: pointer; flex: 0 0 auto; }
     .home-day-popover-close:hover { color: var(--text); border-color: rgba(255,255,255,.24); background: rgba(255,255,255,.08); }
     .home-day-popover-item { display: grid; grid-template-columns: 4px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
@@ -762,7 +765,7 @@
       .brand { width: 100%; }
       .month-nav { display: flex; position: static; transform: none; left: auto; top: auto; margin: 0 auto; order: 2; }
       .nav-dropdown-wrapper { position: static; transform: none; right: auto; top: auto; margin: 0 0 0 auto; order: 3; }
-      .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
+      .main-layout { grid-template-columns: 1fr; padding: .55rem 1rem 5rem; }
       .cal-section { padding-right: 0; margin-bottom: 16px; }
       .sidebar { padding-top: 0; }
       .fab {
@@ -789,9 +792,9 @@
     }
   </style>
 <script src="home-calendar-views-v11.js?v=20260902-home-shell-v23" data-home-calendar-views-v11="true"></script>
-<script src="home-calendar-theme-v12.js?v=20260902-home-shell-v25-header-fade" data-home-calendar-theme-v12="true"></script>
+<script src="home-calendar-theme-v12.js?v=20260902-home-shell-v26-preview" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
-<script src="home-theme-controller-v1.js?v=20260902-status-integrated-v2"></script>
+<script src="home-theme-controller-v1.js?v=20260902-status-integrated-v3-brightness"></script>
 </head>
 <body class="home-calendar-polish-v5">
 <div class="app-wrap">
@@ -861,7 +864,7 @@
       <div class="cal-grid" id="cal-grid"></div>
       <div class="day-panel" id="day-panel">
         <div class="day-panel-title">
-          <span id="day-panel-date">Händelser</span>
+          <div class="day-panel-date-wrap"><span id="day-panel-date">Händelser</span><span class="day-panel-week" id="day-panel-week">Vecka -</span></div>
           <div style="display:flex;gap:6px;align-items:center;">
             <button class="btn-xs" onclick="openEventModal()">+ Lägg till</button>
             <button class="btn-xs" style="background:transparent;border-color:rgba(255,255,255,.15);color:var(--text-sec);" onclick="document.getElementById('day-panel').classList.remove('show');selectedDate=null;renderMonth();">✕</button>
@@ -873,7 +876,7 @@
         <div class="home-day-popover-head">
           <div>
             <div class="home-day-popover-title">Kalenderdag</div>
-            <div class="home-day-popover-date" id="home-day-popover-date">-</div>
+            <div class="home-day-popover-date-row"><div class="home-day-popover-date" id="home-day-popover-date">-</div><div class="home-day-popover-week" id="home-day-popover-week">Vecka -</div></div>
           </div>
           <button type="button" class="home-day-popover-close" id="home-day-popover-close" aria-label="Stäng">✕</button>
         </div>
@@ -1171,6 +1174,16 @@ function getMemberColor(m) { return MEMBER_COLORS[m] || '#FBBF24'; }
 
 function todayISO() { return new Date().toISOString().slice(0,10); }
 
+function getISOWeekNumber(value) {
+  var source = value instanceof Date ? value : new Date(String(value || '') + 'T12:00:00');
+  if (isNaN(source.getTime())) return '-';
+  var date = new Date(Date.UTC(source.getFullYear(), source.getMonth(), source.getDate()));
+  var dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
 function isEventVisible(ev) { return visibleMembers[ev.member] !== false; }
 
 function addCalendarDaysISO(iso, delta) {
@@ -1276,14 +1289,7 @@ function renderMonth() {
   var today = todayISO();
   var events = expandRepeating(getEvents(), year, month);
 
-  var isoWeekNumber = function(d) {
-    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    var dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-  };
-  if (weekEl) weekEl.textContent = 'Vecka ' + isoWeekNumber(new Date());
+  if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(new Date());
 
   var grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
@@ -1342,6 +1348,8 @@ function selectDay(dateISO) {
   document.getElementById('day-panel').classList.add('show');
   var parts = dateISO.split('-');
   document.getElementById('day-panel-date').textContent = parts[2]+'/'+parts[1]+'/'+parts[0];
+  var dayPanelWeek = document.getElementById('day-panel-week');
+  if (dayPanelWeek) dayPanelWeek.textContent = 'Vecka ' + getISOWeekNumber(dateISO);
   document.getElementById('ev-date').value = dateISO;
   renderDayEvents(dateISO);
   renderMonth();
@@ -1392,10 +1400,12 @@ function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
   var widget = document.querySelector('.cal-section');
   var pop = document.getElementById('home-day-popover');
   var dateEl = document.getElementById('home-day-popover-date');
+  var weekEl = document.getElementById('home-day-popover-week');
   var listEl = document.getElementById('home-day-popover-list');
   if (!widget || !pop || !dateEl || !listEl || !anchorEl) return;
 
   dateEl.textContent = dayISO.split('-').reverse().join('/');
+  if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(dayISO);
   if (!dayEvents.length) {
     listEl.innerHTML = '<div class="home-day-popover-empty">Inga händelser denna dag.</div>';
   } else {
