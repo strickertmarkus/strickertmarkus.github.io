@@ -581,7 +581,8 @@
     }
     syncViewTheme();
     addStyles();
-    [0, 60, 180, 450, 950, 1500].forEach(function (delay) {
+    placeHomeMonthNav();
+    [60, 180, 450, 950, 1500].forEach(function (delay) {
       setTimeout(placeHomeMonthNav, delay);
     });
 
