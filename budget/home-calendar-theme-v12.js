@@ -197,13 +197,22 @@
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover {
         background:
-          radial-gradient(360px 120px at 50% 0,rgba(var(--home-view-rgb),.07),transparent 72%),
-          linear-gradient(180deg,rgba(24,25,29,.99),rgba(15,18,25,.99)) !important;
-        border-color:rgba(var(--home-view-rgb),.34) !important;
-        box-shadow:0 16px 34px rgba(0,0,0,.42),0 0 24px rgba(var(--home-view-rgb),.055) !important;
+          linear-gradient(180deg,rgba(var(--home-view-rgb),.05),rgba(var(--home-view-rgb),.014)),
+          rgba(15,18,25,.985) !important;
+        border-color:rgba(var(--home-view-rgb),.26) !important;
+        border-radius:10px !important;
+        box-shadow:0 8px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
+        backdrop-filter:blur(12px) !important;
+        -webkit-backdrop-filter:blur(12px) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover-title {
         color:var(--home-view-accent) !important;
+      }
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover-week,
+      html.home-finance-orange-v3 body.home-calendar-polish-v5 .day-panel-week {
+        color:var(--home-view-accent-soft) !important;
+        border-color:rgba(var(--home-view-rgb),.28) !important;
+        background:rgba(var(--home-view-rgb),.075) !important;
       }
 
       /* Event editor: retire the old blue modal surface and let it follow the active view. */
