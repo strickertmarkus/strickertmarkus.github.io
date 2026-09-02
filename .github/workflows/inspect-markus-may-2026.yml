@@ -1,0 +1,49 @@
+name: Inspect Markus May 2026 budget
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.event.head_commit.message == 'Inspect Markus May 2026 budget'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Firebase Admin SDK
+        run: npm install --no-save --no-package-lock firebase-admin@13
+      - name: Inspect Markus May 2026
+        shell: bash
+        run: |
+          node <<'NODE'
+          const admin = require('firebase-admin');
+          const rawCredential = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+          if (!rawCredential) throw new Error('Missing FIREBASE_SERVICE_ACCOUNT_JSON');
+          const credential = JSON.parse(rawCredential);
+          admin.initializeApp({
+            credential: admin.credential.cert(credential),
+            databaseURL: 'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'
+          });
+          (async () => {
+            const snap = await admin.database().ref('budgetTracker').get();
+            if (!snap.exists()) throw new Error('budgetTracker missing');
+            const raw = snap.val();
+            const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            const may = data?.monthlyData?.['2026-05'];
+            if (!may?.sections) throw new Error('2026-05 missing in budgetTracker');
+            console.log(JSON.stringify(may.sections.map(s => ({
+              key:s.key,
+              name:s.name,
+              items:(s.items || []).map(i => ({name:i.name,budget:i.budget,actual:i.actual}))
+            })), null, 2));
+            await admin.app().delete();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
