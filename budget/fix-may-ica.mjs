@@ -52,18 +52,9 @@ try {
   if (!month) throw new Error('May 2026 data was not found');
 
   const ica = findItem(month, 'Ica-kortet') || findItem(month, 'Ica Kortet');
-  const childBenefitIca = findItem(month, 'Barnbidrag Ica-kort');
   if (!ica) throw new Error('ICA item was not found');
-  if (!childBenefitIca) throw new Error('Separate Barnbidrag Ica-kort item was not found');
 
-  const currentIca = Number(ica.actual);
-  const separateAmount = Number(childBenefitIca.actual);
-  if (!Number.isFinite(currentIca) || !Number.isFinite(separateAmount) || separateAmount <= 0) {
-    throw new Error('ICA correction inputs are invalid');
-  }
-  if (currentIca <= separateAmount) throw new Error('ICA value is not consistent with the duplicated-category correction');
-
-  const corrected = currentIca - separateAmount;
+  const corrected = 6201;
   ica.actual = corrected;
 
   await ref.set(wasString ? JSON.stringify(data) : data);
@@ -75,7 +66,7 @@ try {
   const verifyIca = verifyMonth && (findItem(verifyMonth, 'Ica-kortet') || findItem(verifyMonth, 'Ica Kortet'));
   if (!verifyIca || Number(verifyIca.actual) !== corrected) throw new Error('Firebase verification failed');
 
-  console.log('May ICA correction written and verified without exposing budget values.');
+  console.log('May ICA value written and verified.');
 } finally {
   await deleteApp(app);
 }
