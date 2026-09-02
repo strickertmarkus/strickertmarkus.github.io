@@ -1,0 +1,67 @@
+name: Home amber restore
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/home-amber-revert.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore-home-amber:
+    if: github.event.head_commit.message == 'Prepare Home amber restore'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore amber and bust Home cache
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const themePath = 'budget/home-calendar-theme-v12.js';
+          let theme = fs.readFileSync(themePath, 'utf8');
+          const replacements = [
+            ['FBA930', 'FBBF24'],
+            ['FDC761', 'FCD34D'],
+            ['251,169,48', '251,191,36']
+          ];
+          for (const [from, to] of replacements) {
+            if (!theme.includes(from)) throw new Error(`Expected ${from} in ${themePath}`);
+            theme = theme.replaceAll(from, to);
+          }
+          fs.writeFileSync(themePath, theme);
+
+          const navPath = 'budget/nav-menu-motion.js';
+          let nav = fs.readFileSync(navPath, 'utf8');
+          const oldThemeVersion = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v15-orange-amber';
+          const newThemeVersion = 'home-calendar-theme-v12.js?v=20260902-home-calendar-theme-v16-amber-return';
+          if (!nav.includes(oldThemeVersion)) throw new Error(`Expected current theme version in ${navPath}`);
+          nav = nav.replace(oldThemeVersion, newThemeVersion);
+          fs.writeFileSync(navPath, nav);
+
+          const homePath = 'budget/home.html';
+          let home = fs.readFileSync(homePath, 'utf8');
+          const oldNavVersion = 'nav-menu-motion.js?v=20260831-nav-motion-v1';
+          const newNavVersion = 'nav-menu-motion.js?v=20260902-nav-motion-v16-amber-return';
+          if (!home.includes(oldNavVersion)) throw new Error(`Expected current nav version in ${homePath}`);
+          home = home.replace(oldNavVersion, newNavVersion);
+          fs.writeFileSync(homePath, home);
+          NODE
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/home-amber-revert.yml
+
+      - name: Commit restore
+        shell: bash
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/home-calendar-theme-v12.js budget/nav-menu-motion.js budget/home.html .github/workflows/home-amber-revert.yml
+          git diff --cached --check
+          git commit -m "Restore Home amber theme"
+          git push origin main
