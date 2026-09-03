@@ -196,26 +196,26 @@
     }
     .run-distance-scale-v36 input:not([readonly]):focus{border-bottom-color:#F87171 !important;}
     .progress-marker{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#EF4444;border:2px solid #FEE2E2;border-radius:50%;box-shadow:0 0 4px rgba(239,68,68,.5)}
-    #g3-marker{background:#10B981 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(16,185,129,.5) !important;}
+    #g3-marker{background:#059669 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(5,150,105,.5) !important;}
     .goal-card-vo2-v37{
-      border-color:rgba(16,185,129,.20) !important;
+      border-color:rgba(5,150,105,.20) !important;
       background:
-        radial-gradient(420px 180px at 88% 0,rgba(16,185,129,.085),transparent 72%),
+        radial-gradient(420px 180px at 88% 0,rgba(5,150,105,.085),transparent 72%),
         linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.022)) !important;
     }
-    .goal-card-vo2-v37:hover{border-color:rgba(16,185,129,.34) !important;}
-    .goal-card-vo2-v37 .goal-lbl{color:#6EE7B7;}
+    .goal-card-vo2-v37:hover{border-color:rgba(5,150,105,.34) !important;}
+    .goal-card-vo2-v37 .goal-lbl{color:#059669;}
     .goal-card-vo2-v37 .progress-wrap{background:rgba(5,150,105,.25);}
     .vo2-goal-stats-v37{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 9px;}
-    .vo2-goal-stat-v37{padding:7px 8px;border-left:2px solid rgba(16,185,129,.62);background:rgba(16,185,129,.045);}
+    .vo2-goal-stat-v37{padding:7px 8px;border-left:2px solid rgba(5,150,105,.62);background:rgba(5,150,105,.045);}
     .vo2-goal-stat-v37 span{display:block;color:#8F9AAA;font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.45px;}
-    .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#6EE7B7;font-size:12px;font-variant-numeric:tabular-nums;}
+    .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#059669;font-size:12px;font-variant-numeric:tabular-nums;}
     .vo2-distance-scale-v37{
       display:grid;
       grid-template-columns:1fr 1fr 1fr;
       align-items:center;
       margin:-1px 0 7px;
-      color:#6BAA98;
+      color:#059669;
       font-size:8.5px;
       font-weight:800;
       font-variant-numeric:tabular-nums;
@@ -229,14 +229,14 @@
       border:0 !important;
       border-bottom:1px solid transparent !important;
       background:transparent !important;
-      color:#6EE7B7 !important;
-      -webkit-text-fill-color:#6EE7B7 !important;
+      color:#059669 !important;
+      -webkit-text-fill-color:#059669 !important;
       font:800 8.5px/1.2 'Inter',sans-serif !important;
       text-align:inherit;
     }
-    .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#10B981 !important;}
-    .vo2-chart-v37{margin-top:9px;padding-top:8px;border-top:1px solid rgba(16,185,129,.12);}
-    .vo2-chart-title-v37{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#6BAA98;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
+    .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#059669 !important;}
+    .vo2-chart-v37{margin-top:9px;padding-top:8px;border-top:1px solid rgba(5,150,105,.12);}
+    .vo2-chart-title-v37{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#059669;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
     .vo2-chart-area-v37{height:116px;position:relative;width:100%;min-width:0;overflow:hidden;}
     .goal-card-vo2-v37 .goal-history{max-height:178px;border-color:rgba(16,185,129,.16);background:rgba(5,20,15,.28);}
     .goal-card-vo2-v37 .goal-history table{min-width:280px;font-variant-numeric:tabular-nums;}
@@ -555,13 +555,12 @@
       </div>
       <div class="goal-card goal-card-vo2-v37">
         <div class="goal-lbl">Högsta VO₂ (ml/kg/min)</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#10B981"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#059669"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
         <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
           <span>40</span>
           <span><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
           <span><label><input type="number" id="g3-goal" step=".1" value="50" min="20" max="80" aria-label="VO2-mål"></label></span>
         </div>
-        <div class="goal-sub">Längsta löptid: <span id="g3-time">-</span></div>
         <div class="vo2-goal-stats-v37">
           <div class="vo2-goal-stat-v37"><span>Högsta VO₂</span><strong id="g3-max-vo2">— ml/kg/min</strong></div>
           <div class="vo2-goal-stat-v37"><span>Längsta löptid</span><strong id="g3-longest-run">— min</strong></div>
@@ -1511,6 +1510,12 @@ function renderWeekGrid(){
 }
 
 // ══ GOALS ════════════════════════════════════════════════════════
+function getVo2Timeline(){
+  var byDate={};
+  (DB.get('vo2')||[]).forEach(function(e){var v=Number(e&&e.score)||0; if(e&&e.date&&v>0)byDate[e.date]=v;});
+  getWorkouts().forEach(function(w){var v=Number(w.vo2)||0; if(v>0&&w.date)byDate[w.date]=v;});
+  return Object.keys(byDate).sort().map(function(d){return {date:d,score:byDate[d]};});
+}
 function refreshGoals(){
   var goals=getGoals(), wks=getWorkouts(), ws=weekStartISO();
   var thisWk=wks.filter(function(w){return w.date>=ws;});
@@ -1566,12 +1571,19 @@ function refreshGoals(){
   }
   renderRunPaceChart(runEntries);
 
-  var vo2Data=DB.get('vo2')||[], curKond=vo2Data.length?vo2Data[vo2Data.length-1].score:0;
+  var vo2Timeline=getVo2Timeline();
+  var curKond=vo2Timeline.length?Math.max.apply(null,vo2Timeline.map(function(e){return e.score;})):0;
   document.getElementById('g3-cur').value=curKond||0;
   var kondGoal=goals.vo2Goal||45, kondP=kondGoal>0?Math.min(100,(curKond/kondGoal)*100):0;
   document.getElementById('g3-bar').style.width=kondP+'%';
   var markerG3=document.getElementById('g3-marker');
   if(markerG3){markerG3.style.left=kondP+'%';markerG3.style.display=curKond>0?'block':'none';}
+  var longestRunTime=0;
+  wks.forEach(function(w){var m=workoutRunMetrics(w); if(m.time>longestRunTime)longestRunTime=m.time;});
+  var maxVo2El=document.getElementById('g3-max-vo2');
+  if(maxVo2El)maxVo2El.textContent=curKond?String(+curKond.toFixed(1)).replace(/\.0$/,'')+' ml/kg/min':'— ml/kg/min';
+  var longestRunEl=document.getElementById('g3-longest-run');
+  if(longestRunEl)longestRunEl.textContent=longestRunTime?String(+longestRunTime.toFixed(1)).replace(/\.0$/,'')+' min':'— min';
 }
 function saveGoals(){
   DB.set('goals',{
@@ -2006,7 +2018,7 @@ function renderCharts(){
   if(existingVO2)existingVO2.destroy();
   if(chartVO2&&chartVO2!==existingVO2){try{chartVO2.destroy();}catch(_vo2DestroyError){}}
   chartVO2=null;
-  var vo2Data=(DB.get('vo2')||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-14);
+  var vo2Data=getVo2Timeline().slice(-14);
   var goals=getGoals(), goalVal=goals.vo2Goal||45;
   var vo2Labels=vo2Data.length?vo2Data.map(function(e){return fmtDate(e.date);}):['—'];
   var vo2Vals=vo2Data.length?vo2Data.map(function(e){return Number(e.score)||null;}):[null];
@@ -2015,12 +2027,10 @@ function renderCharts(){
     var metrics=workoutRunMetrics(workout);
     if(metrics.time>0)runTimeByDate[workout.date]=(runTimeByDate[workout.date]||0)+metrics.time;
   });
-  var runTimeVals=vo2Data.length?vo2Data.map(function(entry){return runTimeByDate[entry.date]||null;}):[null];
-  var goalVals=vo2Data.length?vo2Data.map(function(){return goalVal;}):[goalVal];
   chartVO2=new Chart(bwCtx,{
     type:'line',
     data:{labels:vo2Labels,datasets:[
-      {label:'VO₂ max',data:vo2Vals,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,.15)',pointBackgroundColor:'#6EE7B7',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
+      {label:'VO₂ max',data:vo2Vals,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.15)',pointBackgroundColor:'#059669',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
     ]},
     options:{
       responsive:true,
@@ -2038,7 +2048,7 @@ function renderCharts(){
       },
       scales:{
         x:{ticks:{color:'#6B7280',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
-        y:{position:'left',min:40,max:55,ticks:{stepSize:5,color:'#859D75',font:{family:'Inter',size:8}},grid:{color:'rgba(16,185,129,.08)'}}
+        y:{position:'left',ticks:{color:'#059669',font:{family:'Inter',size:8}},grid:{color:'rgba(5,150,105,.08)'}}
       }
     }
   });

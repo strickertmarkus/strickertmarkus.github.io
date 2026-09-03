@@ -98,90 +98,6 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     document.head.appendChild(style);
   }
 
-  function earlyGoalValue() {
-    try {
-      if (typeof window.getGoals === 'function') {
-        var goals = window.getGoals() || {};
-        var value = Number(goals.vo2Goal);
-        if (isFinite(value)) return value;
-      }
-    } catch (_) {}
-    var legacy = document.getElementById('g3-goal');
-    var fallback = Number(legacy && legacy.value);
-    return isFinite(fallback) ? fallback : 45;
-  }
-
-  function earlyWorkoutVo2Data() {
-    var workouts = [];
-    try {
-      if (typeof window.getWorkouts === 'function') workouts = window.getWorkouts() || [];
-      else if (window.DB && typeof window.DB.get === 'function') workouts = window.DB.get('wk') || [];
-    } catch (_) { workouts = []; }
-
-    return (Array.isArray(workouts) ? workouts : [])
-      .filter(function (workout) {
-        var value = Number(workout && workout.vo2);
-        return workout && workout.date && isFinite(value) && value >= 10 && value <= 100;
-      })
-      .map(function (workout) { return {date:String(workout.date), score:Number(workout.vo2)}; })
-      .sort(function (a,b) { return a.date.localeCompare(b.date); });
-  }
-
-  function installEarlyVo2Source() {
-    if (window.__exerciseVo2SourceWrappedV13) return true;
-    if (typeof window.renderCharts !== 'function' || !window.DB || typeof window.DB.get !== 'function') return false;
-    var originalRender = window.renderCharts;
-    window.__exerciseVo2SourceWrappedV13 = true;
-    window.renderCharts = function () {
-      var db = window.DB;
-      var originalGet = db.get;
-      db.get = function (key) {
-        if (key === 'vo2') return earlyWorkoutVo2Data();
-        return originalGet.call(db,key);
-      };
-      try { return originalRender.apply(this,arguments); }
-      finally { db.get = originalGet; }
-    };
-    return true;
-  }
-
-  function installEarlyGoalPlugin() {
-    if (window.__exerciseVo2GoalLineV13Registered || !window.Chart) return;
-    window.__exerciseVo2GoalLineV13Registered = true;
-    window.Chart.register({
-      id:'exerciseVo2GoalLineV13',
-      afterDatasetsDraw:function (chart) {
-        if (!chart || !chart.canvas || chart.canvas.id !== 'chart-bw') return;
-        var area = chart.chartArea;
-        var yScale = chart.scales && chart.scales.y;
-        if (!area || !yScale) return;
-        var value = earlyGoalValue();
-        var y = yScale.getPixelForValue(value);
-        if (!isFinite(y) || y < area.top || y > area.bottom) return;
-        var ctx = chart.ctx;
-        ctx.save();
-        ctx.strokeStyle = '#FBBF24';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([7,5]);
-        ctx.beginPath();
-        ctx.moveTo(area.left,Math.round(y)+.5);
-        ctx.lineTo(area.right,Math.round(y)+.5);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        var label = 'Mål ' + (Math.round(value*10)/10).toString().replace('.',',');
-        ctx.font = '700 9px Inter, sans-serif';
-        var width = ctx.measureText(label).width;
-        var x = Math.max(area.left+4,area.right-width-5);
-        var labelY = Math.max(area.top+10,y-5);
-        ctx.fillStyle = 'rgba(22,27,34,.88)';
-        ctx.fillRect(x-3,labelY-9,width+6,12);
-        ctx.fillStyle = '#FBBF24';
-        ctx.fillText(label,x,labelY);
-        ctx.restore();
-      }
-    });
-  }
-
   function arrangeCriticalDom() {
     var toolbar = document.querySelector('.week-toolbar');
     if (toolbar) {
@@ -223,8 +139,6 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   document.addEventListener('DOMContentLoaded', function () {
     arrangeCriticalDom();
-    installEarlyVo2Source();
-    installEarlyGoalPlugin();
 
     try {
       if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();

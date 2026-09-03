@@ -14,7 +14,7 @@
       .week-inline-actions-v13{display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto}
       .week-inline-actions-v13 .btn-sm{white-space:nowrap}
 
-      html body .goals-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+      html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
       html body .goals-grid>.goal-card.goal-pass-week-legacy-v13{display:none!important}
       html body .goals-grid>.goal-card.vo2-goal-source-v13{display:block!important}
       html body .goals-grid>.goal-vo2-chart-v13{display:none!important}
