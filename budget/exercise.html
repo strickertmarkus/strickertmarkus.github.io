@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-scale-vo2-table-v39"></script>
+<script src="auth-gate.js?v=20260903-exercise-chart-polish-v40"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -199,6 +199,20 @@
       text-align:inherit;
     }
     .run-distance-scale-v36 input:not([readonly]):focus{border-bottom-color:#F87171 !important;}
+    .run-distance-scale-v36 input[type="number"],
+    .vo2-distance-scale-v37 input[type="number"]{
+      appearance:textfield;
+      -moz-appearance:textfield;
+      cursor:text;
+    }
+    .run-distance-scale-v36 input[type="number"]::-webkit-inner-spin-button,
+    .run-distance-scale-v36 input[type="number"]::-webkit-outer-spin-button,
+    .vo2-distance-scale-v37 input[type="number"]::-webkit-inner-spin-button,
+    .vo2-distance-scale-v37 input[type="number"]::-webkit-outer-spin-button{
+      -webkit-appearance:none;
+      appearance:none;
+      margin:0;
+    }
     .progress-marker{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#EF4444;border:2px solid #FEE2E2;border-radius:50%;box-shadow:0 0 4px rgba(239,68,68,.5)}
     #g3-marker{background:#059669 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(5,150,105,.5) !important;}
     .goal-card-vo2-v37{
@@ -251,8 +265,8 @@
     .goal-card-vo2-v37 .goal-history th{color:#6BAA98;background:rgba(16,185,129,.05);}
     .goal-card-vo2-v37 .goal-history td:nth-child(2),
     .goal-card-vo2-v37 .goal-history td:nth-child(3),
-    .goal-card-vo2-v37 .goal-history td:nth-child(4),
     .goal-card-vo2-v37 .goal-history td:nth-child(5){color:#A7F3D0;}
+    .goal-card-vo2-v37 .goal-history td:nth-child(4){color:var(--text);}
     .goal-card-vo2-v37 .goal-history{margin-top:9px;display:block;}
     @media(max-width:480px){
       .goal-card-vo2-v37{padding:18px 14px;}
@@ -580,7 +594,7 @@
         </div>
         <div class="goal-history">
           <table>
-            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Snittpuls/pass</th><th>Mål</th></tr></thead>
+            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Snittpuls</th><th>Mål</th></tr></thead>
             <tbody id="vo2-history-body"></tbody>
           </table>
         </div>
@@ -2026,7 +2040,7 @@ function renderCharts(){
   if(note)note.textContent='Totalt pass: '+wks.length;
   var sessionsCtx=document.getElementById('chart-sessions').getContext('2d');
   if(chartSessions)chartSessions.destroy();
-  chartSessions=new Chart(sessionsCtx,{type:'line',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.15)',pointBackgroundColor:'#ECFEFF',pointBorderColor:'#22D3EE',pointRadius:4,pointHoverRadius:6,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:2},{label:'Medel pass / vecka',data:avgVals.length?avgVals:[0],borderColor:'#EF4444',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+  chartSessions=new Chart(sessionsCtx,{type:'line',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.15)',pointBackgroundColor:'#ECFEFF',pointBorderColor:'#22D3EE',pointRadius:4,pointHoverRadius:6,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:2},{label:'Medel pass / vecka',data:avgVals.length?avgVals:[0],borderColor:'#EF4444',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2.5,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
   var existingVO2=typeof Chart.getChart==='function'?Chart.getChart(bwCtx.canvas):null;
   if(existingVO2)existingVO2.destroy();
@@ -2106,7 +2120,7 @@ function renderCharts(){
   if(chartHR)chartHR.destroy();
   var hrLabels=hrData.map(function(w){return fmtDate(w.date);});
   var hrVals=hrData.map(function(w){return w.hrAvg;});
-  chartHR=new Chart(hrCtx,{type:'line',data:{labels:hrLabels.length?hrLabels:['—'],datasets:[{label:'Medelpuls (bpm)',data:hrVals.length?hrVals:[0],borderColor:'#FB923C',backgroundColor:'rgba(251,146,60,.16)',pointBackgroundColor:'#FB923C',pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#FB923C',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:40,max:230}}}});
+  chartHR=new Chart(hrCtx,{type:'line',data:{labels:hrLabels.length?hrLabels:['—'],datasets:[{label:'Medelpuls (bpm)',data:hrVals.length?hrVals:[0],borderColor:'#FB923C',backgroundColor:'rgba(251,146,60,.16)',pointBackgroundColor:'#FFF7ED',pointBorderColor:'#FB923C',pointBorderWidth:2,pointRadius:4,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#FB923C',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:40,max:230}}}});
 }
 
 // ══ VO₂-MAX ══════════════════════════════════════════════════════
