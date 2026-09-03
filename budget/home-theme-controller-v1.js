@@ -121,6 +121,10 @@
     return { page:'#0B1320', panel:'#111B2A', strong:'#18253A', rgb:'96,165,250' };
   }
 
+  function orangeSurfacePalette() {
+    return { page:'#15120F', panel:'#1C1713', strong:'#261E18', rgb:'251,146,60' };
+  }
+
   function updateBlueThemeConfig() {
     var button = document.getElementById('home-blue-theme-config-v1');
     if (!button) return;
@@ -161,7 +165,7 @@
     var blue = blueThemeEnabled();
     var custom = customThemeColor();
     var p = custom ? paletteFromColor(custom) : (blue ? palettes.day : palettes[view]);
-    var surface = custom ? customSurfacePalette(custom) : (blue ? blueSurfacePalette() : null);
+    var surface = custom ? customSurfacePalette(custom) : (blue ? blueSurfacePalette() : orangeSurfacePalette());
     var root = document.documentElement;
     var body = document.body;
     root.dataset.homeCalendarView = view;
