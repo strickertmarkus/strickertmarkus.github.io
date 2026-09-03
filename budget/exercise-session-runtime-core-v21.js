@@ -246,7 +246,7 @@
     var button = ensureToggleButton();
     if (button) {
       button.style.display = active ? '' : 'none';
-      button.textContent = overviewMode ? 'Till Träningsläge' : 'Visa översikt';
+      button.textContent = overviewMode ? 'Träningsläge' : 'Översikt';
       button.setAttribute('aria-pressed',overviewMode ? 'true' : 'false');
     }
   }

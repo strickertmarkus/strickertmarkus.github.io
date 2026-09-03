@@ -11,7 +11,6 @@
   var liveFrame = 0;
   var lastPaintAt = 0;
   var unifiedPretimer = null;
-  var pendingRestTransition = null;
 
   function addStyles() {
     if (document.getElementById('exercise-hype-timer-layout-v1-style')) return;
@@ -28,6 +27,26 @@
         width:100% !important;
         min-width:0 !important;
         gap:10px !important;
+      }
+      #session-modal.show .session-top {
+        display:grid !important;
+        grid-template-columns:minmax(104px,1fr) auto auto auto !important;
+        align-items:center !important;
+        gap:7px !important;
+      }
+      #session-modal.show .session-top > div:first-child {
+        min-width:0 !important;
+      }
+      #session-modal.show .session-title,
+      #session-modal.show #session-subtitle {
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        white-space:nowrap !important;
+      }
+      #session-modal.show .session-view-toggle,
+      #session-modal.show .session-top > .session-cta {
+        min-width:0 !important;
+        white-space:nowrap !important;
       }
       #session-modal.show .session-timers .timer-box {
         box-sizing:border-box !important;
@@ -274,6 +293,22 @@
       }
 
       @media(max-width:600px) {
+        #session-modal.show .session-top {
+          grid-template-columns:minmax(94px,1fr) auto auto auto !important;
+          gap:5px !important;
+          padding-left:12px !important;
+          padding-right:12px !important;
+        }
+        #session-modal.show .session-top .session-view-toggle {
+          min-height:36px !important;
+          padding:7px 8px !important;
+          font-size:9px !important;
+        }
+        #session-modal.show .session-top > .session-cta {
+          min-height:36px !important;
+          padding:7px 10px !important;
+          font-size:11px !important;
+        }
         #session-modal.show .session-timers { gap:7px !important; }
         #session-modal.show .session-timers .timer-box {
           min-height:68px !important;
@@ -314,7 +349,14 @@
         #session-between-overlay-v2 .bs-copy { width:calc(100% - 46px) !important; }
       }
 
-      @media(max-width:340px) {
+      @media(max-width:360px) {
+        #session-modal.show .session-top {
+          grid-template-columns:minmax(0,1fr) auto auto !important;
+        }
+        #session-modal.show .session-top > div:first-child {
+          grid-column:1 / -1 !important;
+        }
+        #session-modal.show .session-pretimer-toggle-v2 { justify-self:start !important; }
         #session-pre-timer-ring {
           width:146px !important;
           height:146px !important;
@@ -374,27 +416,6 @@
     return true;
   }
 
-  function betweenConfigForDate(date) {
-    var raw = null;
-    try {
-      var plans = typeof window.getPlannedSessions === 'function' ? window.getPlannedSessions() : null;
-      raw = plans && plans[date] && plans[date].betweenSets;
-    } catch (_) {}
-    if (!raw) {
-      try {
-        var profile = (new URLSearchParams(window.location.search).get('user') || 'markus').toLowerCase();
-        var saved = localStorage.getItem('ex_between_set_v2_' + profile + '_' + date);
-        raw = saved ? JSON.parse(saved) : null;
-      } catch (_) {}
-    }
-    raw = raw || {};
-    return {
-      type: raw.type === 'rest' || raw.type === 'custom' ? raw.type : 'none',
-      seconds: Math.max(1, Math.round(Number(raw.seconds) || (raw.type === 'rest' ? 60 : 30))),
-      name: String(raw.name || '').trim()
-    };
-  }
-
   function syncSessionChrome() {
     var state = getState();
     var toggle = document.getElementById('session-pretimer-toggle-v2');
@@ -402,8 +423,12 @@
       toggle.style.display = state ? '' : 'none';
       if (state) {
         var enabled = timerEnabledForDate(state.date);
-        toggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-        toggle.textContent = enabled ? '5 s: På' : '5 s: Av';
+        if (typeof window.__renderSessionPretimerToggleV48 === 'function') {
+          window.__renderSessionPretimerToggleV48(toggle,enabled);
+        } else {
+          toggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+          toggle.textContent = enabled ? '5 s: På' : '5 s: Av';
+        }
       }
     }
     normalizeSegments();
@@ -524,7 +549,8 @@
     liveFrame = 0;
     lastPaintAt = 0;
     cancelUnifiedPretimer();
-    pendingRestTransition = null;
+    var state = getState();
+    if (state) delete state.__restTransitionPendingV48;
   }
 
   function ensurePretimerHandlers() {
@@ -592,14 +618,25 @@
   }
 
   function consumeRestTransition(state, kind) {
-    var pending = pendingRestTransition;
+    var pending = state && state.__restTransitionPendingV48;
     if (!pending || !state) return false;
     var matches = pending.kind === kind &&
       pending.passToken === String(state.passStartedAt || '') &&
       pending.exerciseIndex === Number(state.exerciseIndex) &&
       pending.currentSet === Number(state.currentSet);
-    if (matches) pendingRestTransition = null;
+    if (matches) delete state.__restTransitionPendingV48;
     return matches;
+  }
+
+  function armRestTransition(kind) {
+    var state = getState();
+    if (!state || (kind !== 'next' && kind !== 'finish')) return;
+    state.__restTransitionPendingV48 = {
+      passToken:String(state.passStartedAt || ''),
+      exerciseIndex:Number(state.exerciseIndex),
+      currentSet:Number(state.currentSet),
+      kind:kind
+    };
   }
 
   function startNextSetV46() {
@@ -640,43 +677,6 @@
     }
   }
 
-  function decisionButton(kind) {
-    var controls = document.getElementById('session-controls');
-    if (!controls) return null;
-    return Array.prototype.slice.call(controls.querySelectorAll('button')).find(function (button) {
-      var text = String(button.textContent || '').trim().toLowerCase();
-      return kind === 'next' ? text.indexOf('starta nästa set') === 0 : text.indexOf('övning klar') === 0;
-    }) || null;
-  }
-
-  function routeConfiguredBetween(state, exercise) {
-    if (!state || !exercise || exercise.__betweenCustomV3) return;
-    var plannedSets = Math.max(1, Number(exercise.plannedSets) || 1);
-    var kind = Number(state.currentSet) < plannedSets
-      ? 'next'
-      : (Number(state.exerciseIndex) + 1 < state.exercises.length ? 'finish' : '');
-    if (!kind) return;
-    var config = betweenConfigForDate(state.date);
-    if (config.type === 'none' || (config.type === 'custom' && !config.name)) return;
-    var token = {
-      passToken: String(state.passStartedAt || ''),
-      exerciseIndex: Number(state.exerciseIndex),
-      currentSet: Number(state.currentSet),
-      kind: kind
-    };
-    Promise.resolve().then(function () {
-      var latest = getState();
-      if (!latest || !latest.awaitingDecision || latest.setRunning ||
-          String(latest.passStartedAt || '') !== token.passToken ||
-          Number(latest.exerciseIndex) !== token.exerciseIndex ||
-          Number(latest.currentSet) !== token.currentSet) return;
-      var button = decisionButton(kind);
-      if (!button) return;
-      if (config.type === 'rest') pendingRestTransition = token;
-      button.click();
-    });
-  }
-
   function completeCurrentSetV46() {
     var state = getState();
     var exercise = currentExercise(state);
@@ -707,7 +707,6 @@
     state.__hypePaused = false;
     state.__hypePausedAt = null;
     renderStable();
-    routeConfiguredBetween(state, exercise);
   }
 
   function installController() {
@@ -723,7 +722,8 @@
     window.__exerciseSessionControllerV46 = {
       paint: paintLiveTimers,
       normalizeSegments: normalizeSegments,
-      cancelPretimer: cancelUnifiedPretimer
+      cancelPretimer: cancelUnifiedPretimer,
+      armRestTransition: armRestTransition
     };
 
     ensurePretimerHandlers();

@@ -423,6 +423,13 @@
       if (!startOverlay(config, button)) {
         bypassNextClick = true;
         button.click();
+      } else if (config.type === 'rest') {
+        var text = String(button.textContent || '').trim().toLowerCase();
+        var kind = text.indexOf('övning klar') === 0 ? 'finish' : 'next';
+        var controller = window.__exerciseSessionControllerV46;
+        if (controller && typeof controller.armRestTransition === 'function') {
+          controller.armRestTransition(kind);
+        }
       }
     } catch (e) {
       bypassNextClick = true;

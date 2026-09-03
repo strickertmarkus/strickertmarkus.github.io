@@ -354,13 +354,22 @@
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    beginCustomExercise(state, config, transition);
+    if (beginCustomExercise(state, config, transition)) {
+      /* The user's "Starta nästa set" click is also the explicit start of the
+         configured between exercise. Feed it straight into the normal start
+         gate so the 5-second timer is preserved without a second orange click. */
+      try {
+        if (typeof window.startCurrentSet === 'function') window.startCurrentSet();
+      } catch (_) {}
+    }
   }
 
   function handleBubble(event) {
     var button = event.target && event.target.closest ? event.target.closest('#session-controls button') : null;
     if (!button) return;
-    if (/klar med set/i.test(button.textContent || '')) setTimeout(maybeFinishCustom, 0);
+    /* Restore the original exercise before the browser paints the completed
+       custom state. The old zero-delay timeout exposed one blue frame. */
+    if (/klar med set/i.test(button.textContent || '')) maybeFinishCustom();
   }
 
   function sync() {
