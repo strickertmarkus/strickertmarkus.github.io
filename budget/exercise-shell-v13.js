@@ -14,10 +14,10 @@
       .week-inline-actions-v13{display:flex;align-items:center;gap:6px;margin-left:auto;flex:0 0 auto}
       .week-inline-actions-v13 .btn-sm{white-space:nowrap}
 
-      html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      html body .goals-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
       html body .goals-grid>.goal-card.goal-pass-week-legacy-v13{display:none!important}
-      html body .goals-grid>.goal-card.vo2-goal-source-v13{display:none!important}
-      html body .goals-grid>.goal-vo2-chart-v13{display:block!important;min-width:0;padding:18px;align-self:stretch}
+      html body .goals-grid>.goal-card.vo2-goal-source-v13{display:block!important}
+      html body .goals-grid>.goal-vo2-chart-v13{display:none!important}
       html body .goal-vo2-chart-v13 h3{margin-bottom:10px;color:#34D399}
       html body .goal-vo2-chart-v13 .bw-row{display:none!important}
       html body .goal-vo2-chart-v13 .chart-area{height:190px}
@@ -153,7 +153,11 @@
     if(g1Card)g1Card.classList.add('goal-pass-week-legacy-v13');
     var g3=document.getElementById('g3-goal');
     var g3Card=g3&&g3.closest?g3.closest('.goal-card'):null;
-    if(g3Card)g3Card.classList.add('vo2-goal-source-v13');
+    if(g3Card){
+      g3Card.classList.add('vo2-goal-source-v13');
+      g3Card.classList.add('goal-vo2-chart-v13');
+      g3Card.style.display='block';
+    }
 
     var canvas=document.getElementById('chart-bw');
     var card=canvas&&canvas.closest?canvas.closest('.chart-card'):null;
