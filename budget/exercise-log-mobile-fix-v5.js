@@ -50,7 +50,7 @@
       }
       .log-table tbody .log-main-row.log-pass-cardio-v7[aria-expanded="true"] td,
       .log-table tbody .log-main-row.log-pass-cardio-v7:hover td {
-        background:rgba(239,68,68,.035) !important;
+        background:rgba(255,255,255,.018) !important;
       }
       .log-table td.log-actions {
         display:table-cell !important;
@@ -108,7 +108,7 @@
         transform-origin:50% 0;
       }
       .log-main-row.log-pass-cardio-v7 + .log-detail .log-detail-box {
-        background:linear-gradient(180deg,rgba(239,68,68,.026),rgba(7,12,18,.08)) !important;
+        background:linear-gradient(180deg,rgba(34,211,238,.025),rgba(7,12,18,.08)) !important;
       }
       .log-detail.show .log-detail-box {
         animation:exercise-log-detail-in-v7 .34s cubic-bezier(.22,1,.36,1) both;
@@ -202,6 +202,53 @@
       .log-pulse-interval-v9.is-incomplete .pulse-cap-v9,
       .log-pulse-interval-v9.is-incomplete .pulse-edge-v9 {
         opacity:.28;
+      }
+      .log-vo2-goal-v36 {
+        display:inline-flex;
+        align-items:center;
+        width:92px;
+        height:30px;
+        color:#A78BFA;
+        white-space:nowrap;
+      }
+      .log-vo2-goal-v36 svg {
+        display:block;
+        width:92px;
+        height:30px;
+        overflow:visible;
+      }
+      .log-vo2-goal-v36 .vo2-track-v36 {
+        stroke:rgba(167,139,250,.58);
+        stroke-width:1.4;
+        stroke-linecap:round;
+      }
+      .log-vo2-goal-v36 .vo2-goal-cap-v36 {
+        stroke:#FBBF24;
+        stroke-width:1.3;
+        stroke-linecap:round;
+      }
+      .log-vo2-goal-v36 .vo2-value-dot-v36 {
+        fill:#A78BFA;
+        stroke:#EDE9FE;
+        stroke-width:1;
+        filter:drop-shadow(0 0 3px rgba(167,139,250,.58));
+      }
+      .log-vo2-goal-v36 .vo2-goal-dot-v36 {
+        fill:#FBBF24;
+        stroke:#FEF3C7;
+        stroke-width:.8;
+      }
+      .log-vo2-goal-v36 text {
+        fill:#8F86A5;
+        font:650 6.6px/1 'Inter',sans-serif;
+      }
+      .log-vo2-goal-v36 .vo2-value-label-v36 {
+        fill:#C4B5FD;
+        font-weight:850;
+      }
+      .log-vo2-goal-v36 .vo2-goal-label-v36 {
+        fill:#D6AE55;
+        font-weight:800;
       }
       .log-detail-actions-v8 {
         flex:none;
@@ -526,6 +573,7 @@
         .log-detail-copy-v8 { max-width:min(235px,58vw); }
         .log-detail-meta-v8 { gap:3px 6px; }
         .log-pulse-interval-v9,.log-pulse-interval-v9 svg { width:78px; }
+        .log-vo2-goal-v36,.log-vo2-goal-v36 svg { width:84px; }
         #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row {
           grid-template-columns:minmax(0,1fr) 48px 48px 54px !important;
           gap:4px !important;

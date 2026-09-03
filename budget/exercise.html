@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-running-goals-v35"></script>
+<script src="auth-gate.js?v=20260903-exercise-mobile-vo2-v36"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,7 +168,32 @@
     .run-goal-stat-v34 strong{display:block;margin-top:2px;color:#FCA5A5;font-size:12px;font-variant-numeric:tabular-nums;}
     .run-pace-chart-v34{margin-top:9px;padding-top:8px;border-top:1px solid rgba(248,113,113,.12);}
     .run-pace-chart-title-v34{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#C98B91;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
-    .run-pace-chart-area-v34{height:116px;position:relative;}
+    .run-pace-chart-area-v34{height:116px;position:relative;width:100%;min-width:0;overflow:hidden;}
+    .run-distance-scale-v36{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      align-items:center;
+      margin:-1px 0 7px;
+      color:#B9898E;
+      font-size:8.5px;
+      font-weight:800;
+      font-variant-numeric:tabular-nums;
+    }
+    .run-distance-scale-v36 > span:nth-child(2){text-align:center;}
+    .run-distance-scale-v36 > span:last-child{text-align:right;}
+    .run-distance-scale-v36 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
+    .run-distance-scale-v36 input{
+      width:28px !important;
+      padding:0 !important;
+      border:0 !important;
+      border-bottom:1px solid transparent !important;
+      background:transparent !important;
+      color:#FCA5A5 !important;
+      -webkit-text-fill-color:#FCA5A5 !important;
+      font:800 8.5px/1.2 'Inter',sans-serif !important;
+      text-align:inherit;
+    }
+    .run-distance-scale-v36 input:not([readonly]):focus{border-bottom-color:#F87171 !important;}
     .goal-card-run-v34 .goal-history{max-height:178px;border-color:rgba(248,113,113,.16);background:rgba(14,11,16,.28);}
     .goal-card-run-v34 .goal-history table{min-width:430px;font-variant-numeric:tabular-nums;}
     .goal-card-run-v34 .goal-history th{color:#B9898E;background:rgba(239,68,68,.035);}
@@ -180,6 +205,10 @@
       .goal-card-run-v34{padding:18px 14px;}
       .goal-card-run-v34 .goal-history{margin-left:-3px;margin-right:-3px;}
       .goal-card-run-v34 .goal-history th,.goal-card-run-v34 .goal-history td{padding:6px 7px;font-size:9px;}
+      .run-pace-chart-area-v34,.chart-card-vo2-v36 .chart-area{height:112px;}
+      .chart-card-vo2-v36{padding:17px 14px;}
+      .chart-card-vo2-v36 .bw-inp-wrap{padding:6px 8px;min-width:0;}
+      .chart-card-vo2-v36 .bw-inp-wrap input{width:45px;}
     }
 
     /* ── CHARTS ── */
@@ -187,7 +216,21 @@
     .chart-card{background:var(--bg2);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.28);border:1px solid var(--border);}
     .chart-card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:.4px;}
     .chart-note{margin:-8px 0 10px;font-size:11px;color:var(--text-sec);}
-    .chart-area{height:200px;position:relative;}
+    .chart-area{height:200px;position:relative;min-width:0;max-width:100%;overflow:hidden;}
+    .goal-card,.chart-card{min-width:0;}
+    .chart-card-vo2-v36{
+      border-color:rgba(167,139,250,.20) !important;
+      background:
+        radial-gradient(420px 180px at 88% 0,rgba(167,139,250,.085),transparent 72%),
+        linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.022)) !important;
+    }
+    .chart-card-vo2-v36 h3{color:#DDD6FE !important;text-shadow:0 2px 10px rgba(167,139,250,.10) !important;}
+    .chart-card-vo2-v36 .chart-area{height:116px;width:100%;min-width:0;overflow:hidden;}
+    .chart-card-vo2-v36 .bw-row{margin-bottom:7px;}
+    .vo2-run-note-v36{color:#9289A7;font-size:8.5px;line-height:1.3;}
+    .vo2-run-note-v36 .vo2-key-v36{color:#C4B5FD;}
+    .vo2-run-note-v36 .run-key-v36{color:#FCA5A5;}
+    .vo2-run-note-v36 .goal-key-v36{color:#FBBF24;}
     .bw-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
     .bw-inp-wrap{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;}
     .bw-inp-wrap input{background:transparent;border:none;color:var(--text);font-size:15px;font-weight:700;font-family:'Inter',sans-serif;width:55px;outline:none;}
@@ -427,7 +470,11 @@
       <div class="goal-card goal-card-run-v34">
         <div class="goal-lbl">Längsta löppass (km)</div>
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div></div></div>
-        <div class="goal-nums"><span><input type="number" id="g2-cur" value="0" readonly style="width:60px;font-size:18px"> / <input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" style="width:60px;font-size:13px;font-weight:600"></span><span style="color:#C98B91;font-size:11px">mål</span></div>
+        <div class="run-distance-scale-v36" aria-label="Löpdistans från noll till mål">
+          <span>0 km</span>
+          <span><input type="number" id="g2-cur" value="0" readonly aria-label="Aktuell längsta distans"> km</span>
+          <span><label><input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" aria-label="Distansmål"> km</label></span>
+        </div>
         <div class="goal-sub">Tid på längsta pass: <span id="g2-time">-</span></div>
         <div class="run-goal-stats-v34">
           <div class="run-goal-stat-v34"><span>Totaldistans</span><strong id="g2-total-distance">0 km</strong></div>
@@ -465,12 +512,13 @@
         <div class="chart-note" id="sessions-total-note">Totalt pass: 0</div>
         <div class="chart-area"><canvas id="chart-sessions"></canvas></div>
       </div>
-      <div class="chart-card">
-        <h3>VO2 max över tid</h3>
+      <div class="chart-card chart-card-vo2-v36">
+        <h3>VO₂ max över tid</h3>
         <div class="bw-row">
-          <div class="bw-inp-wrap"><label>VO2</label><input type="number" id="bw-inp" step=".1" placeholder="45.0"><label>ml/kg/min</label></div>
+          <div class="bw-inp-wrap"><label>VO₂</label><input type="number" id="bw-inp" step=".1" min="40" max="55" placeholder="45.0"><label>ml/kg/min</label></div>
           <button class="btn-sm" onclick="logVO2()">Logga</button>
         </div>
+        <div class="chart-note vo2-run-note-v36"><span class="vo2-key-v36">VO₂</span> · <span class="run-key-v36">löptid</span> · <span class="goal-key-v36">mål</span></div>
         <div class="chart-area"><canvas id="chart-bw"></canvas></div>
       </div>
       <div class="chart-card">
@@ -1194,6 +1242,34 @@ function workoutPulseIntervalMarkup(workout){
     +'<text x="76" y="22" text-anchor="end">'+maxLabel+'</text>'
     +'</svg></span>';
 }
+function workoutVo2GoalIntervalMarkup(workout){
+  workout=workout||{};
+  var value=Number(workout.vo2)||0;
+  if(!value&&workout.date){
+    var entry=(DB.get('vo2')||[]).find(function(item){return item&&item.date===workout.date;});
+    value=Number(entry&&entry.score)||0;
+  }
+  if(!value)return '';
+  var goal=Number(getGoals().vo2Goal)||45;
+  var floor=40;
+  var effectiveGoal=Math.max(floor+.1,goal);
+  var ratio=(value-floor)/(effectiveGoal-floor);
+  ratio=Math.max(0,Math.min(1,ratio));
+  var markerX=8+Math.min(70,ratio*70);
+  var valueLabel=String(+value.toFixed(1)).replace(/\.0$/,'');
+  var goalLabel=String(+goal.toFixed(1)).replace(/\.0$/,'');
+  var title='VO₂ '+valueLabel+', mål '+goalLabel;
+  return '<span class="log-vo2-goal-v36" role="img" aria-label="'+title+'" title="'+title+'">'
+    +'<svg viewBox="0 0 92 30" aria-hidden="true">'
+    +'<line class="vo2-track-v36" x1="8" y1="12" x2="84" y2="12"></line>'
+    +'<line class="vo2-goal-cap-v36" x1="84" y1="7" x2="84" y2="17"></line>'
+    +'<circle class="vo2-value-dot-v36" cx="'+markerX.toFixed(1)+'" cy="12" r="3.4"></circle>'
+    +'<circle class="vo2-goal-dot-v36" cx="84" cy="12" r="2.3"></circle>'
+    +'<text class="vo2-value-label-v36" x="'+markerX.toFixed(1)+'" y="5" text-anchor="middle">'+valueLabel+'</text>'
+    +'<text class="vo2-floor-label-v36" x="8" y="27" text-anchor="start">VO₂</text>'
+    +'<text class="vo2-goal-label-v36" x="84" y="27" text-anchor="end">'+goalLabel+' mål</text>'
+    +'</svg></span>';
+}
 function addExerciseTimingEditor(row,timing){
   if(!row)return;
   var editor=document.createElement('label');
@@ -1825,15 +1901,45 @@ function renderCharts(){
   if(existingVO2)existingVO2.destroy();
   if(chartVO2&&chartVO2!==existingVO2){try{chartVO2.destroy();}catch(_vo2DestroyError){}}
   chartVO2=null;
-  var vo2Data=(DB.get('vo2')||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var vo2Data=(DB.get('vo2')||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-14);
   var goals=getGoals(), goalVal=goals.vo2Goal||45;
-  var vo2Labels=vo2Data.slice(-40).map(function(e){return fmtDate(e.date);});
-  var vo2Vals=vo2Data.slice(-40).map(function(e){return e.score;});
-  var meanVals=[];
-  var running=0;
-  vo2Vals.forEach(function(v,i){running+=v;meanVals.push(+(running/(i+1)).toFixed(2));});
-  var goalVals=vo2Vals.map(function(){return goalVal;});
-  chartVO2=new Chart(bwCtx,{type:'line',data:{labels:vo2Labels.length?vo2Labels:['—'],datasets:[{label:'VO2',data:vo2Vals.length?vo2Vals:[0],borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.16)',pointBackgroundColor:'#60A5FA',pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true},{label:'Medel VO2',data:meanVals.length?meanVals:[0],borderColor:'#34D399',pointRadius:0,borderWidth:2,borderDash:[6,4],tension:.25,fill:false},{label:'Mål',data:goalVals.length?goalVals:[goalVal],borderColor:'#FBBF24',pointRadius:0,borderWidth:2,borderDash:[4,4],tension:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#60A5FA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:30,max:60}}}});
+  var vo2Labels=vo2Data.length?vo2Data.map(function(e){return fmtDate(e.date);}):['—'];
+  var vo2Vals=vo2Data.length?vo2Data.map(function(e){return Number(e.score)||null;}):[null];
+  var runTimeByDate={};
+  wks.forEach(function(workout){
+    var metrics=workoutRunMetrics(workout);
+    if(metrics.time>0)runTimeByDate[workout.date]=(runTimeByDate[workout.date]||0)+metrics.time;
+  });
+  var runTimeVals=vo2Data.length?vo2Data.map(function(entry){return runTimeByDate[entry.date]||null;}):[null];
+  var goalVals=vo2Data.length?vo2Data.map(function(){return goalVal;}):[goalVal];
+  chartVO2=new Chart(bwCtx,{
+    type:'line',
+    data:{labels:vo2Labels,datasets:[
+      {label:'VO₂ max',data:vo2Vals,borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,.13)',pointBackgroundColor:'#C4B5FD',pointBorderColor:'#6D28D9',pointRadius:3,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1},
+      {label:'Löptid',type:'bar',data:runTimeVals,backgroundColor:'rgba(248,113,113,.18)',borderColor:'rgba(248,113,113,.62)',borderWidth:1,borderRadius:4,yAxisID:'yRun',order:3},
+      {label:'Mål',data:goalVals,borderColor:'#FBBF24',backgroundColor:'transparent',pointRadius:0,pointHoverRadius:0,borderWidth:1.5,borderDash:[4,4],tension:0,fill:false,spanGaps:true,yAxisID:'y',order:0}
+    ]},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#161B22',titleColor:'#DDD6FE',bodyColor:'#C9D1DC',borderColor:'rgba(167,139,250,.20)',borderWidth:1,
+          callbacks:{label:function(context){
+            if(context.dataset.yAxisID==='yRun')return context.parsed.y===null?'Löptid: —':'Löptid: '+String(+Number(context.parsed.y).toFixed(1)).replace(/\.0$/,'')+' min';
+            return context.dataset.label+': '+(context.parsed.y===null?'—':String(+Number(context.parsed.y).toFixed(1)).replace(/\.0$/,''));
+          }}
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#81788F',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
+        y:{position:'left',min:40,max:55,ticks:{stepSize:5,color:'#A99FBC',font:{family:'Inter',size:8}},grid:{color:'rgba(167,139,250,.075)'}},
+        yRun:{position:'right',beginAtZero:true,ticks:{display:false},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
 
   var hrData=wks.filter(function(w){return (w.hrAvg||0)>0;}).slice().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-40);
   var hrCtx=document.getElementById('chart-hr').getContext('2d');
@@ -1927,9 +2033,9 @@ function renderLog(){
     var metaMarkup='<div class="log-detail-meta-v8">'
       +'<span class="log-meta-date-v8">'+fmtDate(w.date)+'</span>'
       +(w.duration?'<span class="log-meta-time-v8">'+w.duration+' min</span>':'')
-      +(w.vo2?'<span class="log-meta-vo2-v8">VO₂ '+w.vo2+'</span>':'')
       +(runMetrics.pace?'<span class="log-meta-pace-v34">Snittakt '+formatRunningPace(runMetrics.pace)+'</span>':'')
       +workoutPulseIntervalMarkup(w)
+      +workoutVo2GoalIntervalMarkup(w)
       +'</div>';
     html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
       +'<div class="log-detail-box">'
