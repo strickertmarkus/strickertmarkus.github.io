@@ -171,17 +171,18 @@
     .run-pace-chart-title-v34{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#C98B91;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
     .run-pace-chart-area-v34{height:116px;position:relative;width:100%;min-width:0;overflow:hidden;}
     .run-distance-scale-v36{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      position:relative;
+      display:flex;
+      justify-content:space-between;
       align-items:center;
       margin:-1px 0 7px;
+      min-height:12px;
       color:#B9898E;
       font-size:8.5px;
       font-weight:800;
       font-variant-numeric:tabular-nums;
     }
-    .run-distance-scale-v36 > span:nth-child(2){text-align:center;}
-    .run-distance-scale-v36 > span:last-child{text-align:right;}
+    .run-distance-scale-v36 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);white-space:nowrap;}
     .run-distance-scale-v36 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
     .run-distance-scale-v36 input{
       width:28px !important;
@@ -211,20 +212,21 @@
     .vo2-goal-stat-v37 span{display:block;color:#8F9AAA;font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.45px;}
     .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#059669;font-size:12px;font-variant-numeric:tabular-nums;}
     .vo2-distance-scale-v37{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      position:relative;
+      display:flex;
+      justify-content:space-between;
       align-items:center;
       margin:-1px 0 7px;
+      min-height:12px;
       color:#059669;
       font-size:8.5px;
       font-weight:800;
       font-variant-numeric:tabular-nums;
     }
-    .vo2-distance-scale-v37 > span:nth-child(2){text-align:center;}
-    .vo2-distance-scale-v37 > span:last-child{text-align:right;}
+    .vo2-distance-scale-v37 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);white-space:nowrap;}
     .vo2-distance-scale-v37 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
     .vo2-distance-scale-v37 input{
-      width:28px !important;
+      width:34px !important;
       padding:0 !important;
       border:0 !important;
       border-bottom:1px solid transparent !important;
@@ -534,10 +536,9 @@
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div><div class="progress-marker" id="g2-marker" style="left:0%;display:none"></div></div></div>
         <div class="run-distance-scale-v36" aria-label="Löpdistans från noll till mål">
           <span>0 km</span>
-          <span><input type="number" id="g2-cur" value="0" readonly aria-label="Aktuell längsta distans"> km</span>
+          <span class="scale-cur-v38" id="g2-cur-wrap"><input type="number" id="g2-cur" value="0" readonly aria-label="Aktuell längsta distans"> km</span>
           <span><label><input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" aria-label="Distansmål"> km</label></span>
         </div>
-        <div class="goal-sub">Tid på längsta pass: <span id="g2-time">-</span></div>
         <div class="run-goal-stats-v34">
           <div class="run-goal-stat-v34"><span>Totaldistans</span><strong id="g2-total-distance">0 km</strong></div>
           <div class="run-goal-stat-v34"><span>Bästa snittakt</span><strong id="g2-best-pace">—</strong></div>
@@ -558,7 +559,7 @@
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#059669"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
         <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
           <span>40</span>
-          <span><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
+          <span class="scale-cur-v38" id="g3-cur-wrap"><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
           <span><label><input type="number" id="g3-goal" step=".1" value="50" min="20" max="80" aria-label="VO2-mål"></label></span>
         </div>
         <div class="vo2-goal-stats-v37">
@@ -574,10 +575,6 @@
             <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Mål</th></tr></thead>
             <tbody id="vo2-history-body"></tbody>
           </table>
-        </div>
-        <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-          <input type="number" id="bw-inp" step=".1" min="40" max="55" placeholder="Logga score" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:6px 10px;outline:none" aria-label="VO₂ värde att logga">
-          <button class="btn-sm" onclick="logVO2()">Logga</button>
         </div>
       </div>
     </div>
@@ -1510,6 +1507,7 @@ function renderWeekGrid(){
 }
 
 // ══ GOALS ════════════════════════════════════════════════════════
+function clampScalePercent(percent){return Math.max(6,Math.min(94,percent));}
 function getVo2Timeline(){
   var byDate={};
   (DB.get('vo2')||[]).forEach(function(e){var v=Number(e&&e.score)||0; if(e&&e.date&&v>0)byDate[e.date]=v;});
@@ -1543,7 +1541,8 @@ function refreshGoals(){
   document.getElementById('g2-bar').style.width=barPercent+'%';
   var markerEl=document.getElementById('g2-marker');
   if(markerEl){markerEl.style.left=barPercent+'%';markerEl.style.display=longDist>0?'block':'none';}
-  document.getElementById('g2-time').textContent=longest&&longest.metrics.time?String(+longest.metrics.time.toFixed(1)).replace(/\.0$/,'')+' min':'-';
+  var g2CurWrap=document.getElementById('g2-cur-wrap');
+  if(g2CurWrap)g2CurWrap.style.left=clampScalePercent(barPercent)+'%';
   var totalEl=document.getElementById('g2-total-distance');
   if(totalEl)totalEl.textContent=String(+totalDistance.toFixed(1)).replace(/\.0$/,'')+' km';
   var bestPace=runEntries.reduce(function(best,entry){return entry.metrics.pace>0&&(!best||entry.metrics.pace<best)?entry.metrics.pace:best;},0);
@@ -1574,10 +1573,15 @@ function refreshGoals(){
   var vo2Timeline=getVo2Timeline();
   var curKond=vo2Timeline.length?Math.max.apply(null,vo2Timeline.map(function(e){return e.score;})):0;
   document.getElementById('g3-cur').value=curKond||0;
-  var kondGoal=goals.vo2Goal||45, kondP=kondGoal>0?Math.min(100,(curKond/kondGoal)*100):0;
+  var kondGoal=goals.vo2Goal||45;
+  var kondScaleMin=Math.min(40,kondGoal-1);
+  var kondRange=Math.max(1,kondGoal-kondScaleMin);
+  var kondP=curKond>0?Math.max(0,Math.min(100,((curKond-kondScaleMin)/kondRange)*100)):0;
   document.getElementById('g3-bar').style.width=kondP+'%';
   var markerG3=document.getElementById('g3-marker');
   if(markerG3){markerG3.style.left=kondP+'%';markerG3.style.display=curKond>0?'block':'none';}
+  var g3CurWrap=document.getElementById('g3-cur-wrap');
+  if(g3CurWrap)g3CurWrap.style.left=clampScalePercent(kondP)+'%';
   var longestRunTime=0;
   wks.forEach(function(w){var m=workoutRunMetrics(w); if(m.time>longestRunTime)longestRunTime=m.time;});
   var maxVo2El=document.getElementById('g3-max-vo2');
@@ -2012,7 +2016,7 @@ function renderCharts(){
   if(note)note.textContent='Totalt pass: '+wks.length;
   var sessionsCtx=document.getElementById('chart-sessions').getContext('2d');
   if(chartSessions)chartSessions.destroy();
-  chartSessions=new Chart(sessionsCtx,{type:'bar',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],backgroundColor:'rgba(34,211,238,.26)',borderColor:'#22D3EE',borderWidth:2,borderRadius:6,yAxisID:'y',order:2},{label:'Medel pass / vecka',type:'line',data:avgVals.length?avgVals:[0],borderColor:'#FB923C',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+  chartSessions=new Chart(sessionsCtx,{type:'line',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.15)',pointBackgroundColor:'#ECFEFF',pointBorderColor:'#22D3EE',pointRadius:4,pointHoverRadius:6,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:2},{label:'Medel pass / vecka',data:avgVals.length?avgVals:[0],borderColor:'#EF4444',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
   var existingVO2=typeof Chart.getChart==='function'?Chart.getChart(bwCtx.canvas):null;
   if(existingVO2)existingVO2.destroy();
@@ -2030,7 +2034,7 @@ function renderCharts(){
   chartVO2=new Chart(bwCtx,{
     type:'line',
     data:{labels:vo2Labels,datasets:[
-      {label:'VO₂ max',data:vo2Vals,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.15)',pointBackgroundColor:'#059669',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
+      {label:'VO₂ max',data:vo2Vals,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.15)',pointBackgroundColor:'#ECFDF5',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
     ]},
     options:{
       responsive:true,
