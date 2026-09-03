@@ -332,7 +332,7 @@
     if (toggle) toggle.setAttribute('aria-pressed',config.enabled ? 'true' : 'false');
     if (fields) fields.hidden = !config.enabled;
     if (type) type.value = config.type;
-    if (seconds) seconds.value = config.seconds;
+    if (seconds && document.activeElement !== seconds) seconds.value = config.seconds;
     if (name) { name.value = config.name; name.hidden = config.type !== 'custom'; }
   }
 
