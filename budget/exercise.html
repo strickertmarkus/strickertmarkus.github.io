@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-vo2-color-v37"></script>
+<script src="auth-gate.js?v=20260903-exercise-scale-vo2-table-v39"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,10 +182,13 @@
       font-weight:800;
       font-variant-numeric:tabular-nums;
     }
-    .run-distance-scale-v36 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);white-space:nowrap;}
-    .run-distance-scale-v36 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
+    .run-distance-scale-v36 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);display:inline-flex;align-items:baseline;gap:1px;white-space:nowrap;line-height:1;}
+    .run-distance-scale-v36 label{display:inline-flex;align-items:baseline;justify-content:flex-end;gap:1px;cursor:text;}
     .run-distance-scale-v36 input{
-      width:28px !important;
+      width:3ch;
+      min-width:1.7ch;
+      max-width:5ch;
+      field-sizing:content;
       padding:0 !important;
       border:0 !important;
       border-bottom:1px solid transparent !important;
@@ -223,10 +226,13 @@
       font-weight:800;
       font-variant-numeric:tabular-nums;
     }
-    .vo2-distance-scale-v37 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);white-space:nowrap;}
-    .vo2-distance-scale-v37 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
+    .vo2-distance-scale-v37 .scale-cur-v38{position:absolute;left:0%;transform:translateX(-50%);display:inline-flex;align-items:baseline;gap:1px;white-space:nowrap;line-height:1;}
+    .vo2-distance-scale-v37 label{display:inline-flex;align-items:baseline;justify-content:flex-end;gap:1px;cursor:text;}
     .vo2-distance-scale-v37 input{
-      width:34px !important;
+      width:3ch;
+      min-width:1.7ch;
+      max-width:5ch;
+      field-sizing:content;
       padding:0 !important;
       border:0 !important;
       border-bottom:1px solid transparent !important;
@@ -245,18 +251,20 @@
     .goal-card-vo2-v37 .goal-history th{color:#6BAA98;background:rgba(16,185,129,.05);}
     .goal-card-vo2-v37 .goal-history td:nth-child(2),
     .goal-card-vo2-v37 .goal-history td:nth-child(3),
-    .goal-card-vo2-v37 .goal-history td:nth-child(4){color:#A7F3D0;}
+    .goal-card-vo2-v37 .goal-history td:nth-child(4),
+    .goal-card-vo2-v37 .goal-history td:nth-child(5){color:#A7F3D0;}
     .goal-card-vo2-v37 .goal-history{margin-top:9px;display:block;}
     @media(max-width:480px){
       .goal-card-vo2-v37{padding:18px 14px;}
+      .goal-card-vo2-v37 .goal-history{margin-left:-3px;margin-right:-3px;}
+      .goal-card-vo2-v37 .goal-history th,.goal-card-vo2-v37 .goal-history td{padding:6px 4px;font-size:8.5px;white-space:nowrap;}
     }
     .goal-card-run-v34 .goal-history{max-height:178px;border-color:rgba(248,113,113,.16);background:rgba(14,11,16,.28);}
     .goal-card-run-v34 .goal-history table{min-width:430px;font-variant-numeric:tabular-nums;}
     .goal-card-run-v34 .goal-history th{color:#B9898E;background:rgba(239,68,68,.035);}
     .goal-card-run-v34 .goal-history td:nth-child(2),
     .goal-card-run-v34 .goal-history td:nth-child(3),
-    .goal-card-run-v34 .goal-history td:nth-child(5),
-    .goal-card-run-v34 .goal-history td:nth-child(6){color:#F3B0B4;}
+    .goal-card-run-v34 .goal-history td:nth-child(5){color:#F3B0B4;}
     @media(max-width:480px){
       .goal-card-run-v34{padding:18px 14px;}
       .goal-card-run-v34 .goal-history{margin-left:-3px;margin-right:-3px;}
@@ -536,8 +544,8 @@
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div><div class="progress-marker" id="g2-marker" style="left:0%;display:none"></div></div></div>
         <div class="run-distance-scale-v36" aria-label="Löpdistans från noll till mål">
           <span>0 km</span>
-          <span class="scale-cur-v38" id="g2-cur-wrap"><input type="number" id="g2-cur" value="0" readonly aria-label="Aktuell längsta distans"> km</span>
-          <span><label><input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" aria-label="Distansmål"> km</label></span>
+          <span class="scale-cur-v38" id="g2-cur-wrap"><span id="g2-cur">0</span><span>km</span></span>
+          <span><label><input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" aria-label="Distansmål" oninput="fitScaleNumberInput(this)"><span>km</span></label></span>
         </div>
         <div class="run-goal-stats-v34">
           <div class="run-goal-stat-v34"><span>Totaldistans</span><strong id="g2-total-distance">0 km</strong></div>
@@ -549,7 +557,7 @@
         </div>
         <div class="goal-history">
           <table>
-            <thead><tr><th>Datum</th><th>Distans</th><th>Tid</th><th>Snittakt</th><th>VO₂</th><th>Totalt</th></tr></thead>
+            <thead><tr><th>Datum</th><th>Distans</th><th>Tid</th><th>Snittakt</th><th>Totalt</th></tr></thead>
             <tbody id="run-history-body"></tbody>
           </table>
         </div>
@@ -559,8 +567,8 @@
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#059669"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
         <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
           <span>40</span>
-          <span class="scale-cur-v38" id="g3-cur-wrap"><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
-          <span><label><input type="number" id="g3-goal" step=".1" value="50" min="20" max="80" aria-label="VO2-mål"></label></span>
+          <span class="scale-cur-v38" id="g3-cur-wrap"><span id="g3-cur">0</span></span>
+          <span><label><input type="number" id="g3-goal" step=".1" value="50" min="20" max="80" aria-label="VO2-mål" oninput="fitScaleNumberInput(this)"></label></span>
         </div>
         <div class="vo2-goal-stats-v37">
           <div class="vo2-goal-stat-v37"><span>Högsta VO₂</span><strong id="g3-max-vo2">— ml/kg/min</strong></div>
@@ -572,7 +580,7 @@
         </div>
         <div class="goal-history">
           <table>
-            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Mål</th></tr></thead>
+            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Snittpuls/pass</th><th>Mål</th></tr></thead>
             <tbody id="vo2-history-body"></tbody>
           </table>
         </div>
@@ -1507,7 +1515,11 @@ function renderWeekGrid(){
 }
 
 // ══ GOALS ════════════════════════════════════════════════════════
-function clampScalePercent(percent){return Math.max(6,Math.min(94,percent));}
+function fitScaleNumberInput(input){
+  if(!input)return;
+  var chars=String(input.value==null?'':input.value).length;
+  input.style.setProperty('width',Math.max(1.8,Math.min(5.2,chars*.62+.75))+'em','important');
+}
 function getVo2Timeline(){
   var byDate={};
   (DB.get('vo2')||[]).forEach(function(e){var v=Number(e&&e.score)||0; if(e&&e.date&&v>0)byDate[e.date]=v;});
@@ -1517,8 +1529,6 @@ function getVo2Timeline(){
 function refreshGoals(){
   var goals=getGoals(), wks=getWorkouts(), ws=weekStartISO();
   var thisWk=wks.filter(function(w){return w.date>=ws;});
-  var vo2ByDate={};
-  (DB.get('vo2')||[]).forEach(function(entry){if(entry&&entry.date)vo2ByDate[entry.date]=Number(entry.score)||0;});
   var runEntries=wks.map(function(workout){
     return {workout:workout,metrics:workoutRunMetrics(workout),total:0};
   }).filter(function(entry){return entry.metrics.distance>0;}).sort(function(a,b){
@@ -1530,19 +1540,21 @@ function refreshGoals(){
   document.getElementById('g1-goal').value=goals.weeklyWk||4;
   document.getElementById('g2-goal').value=goals.runDistanceGoal||10;
   document.getElementById('g3-goal').value=goals.vo2Goal||45;
+  fitScaleNumberInput(document.getElementById('g2-goal'));
+  fitScaleNumberInput(document.getElementById('g3-goal'));
   var cw=thisWk.length;
   document.getElementById('g1-cur').value=cw;
   document.getElementById('g1-bar').style.width=Math.min(100,(cw/(goals.weeklyWk||4))*100)+'%';
   var g1nums=document.getElementById('g1-cur').closest('.goal-nums');
   if(g1nums){g1nums.classList.toggle('goal-hit',cw>=(goals.weeklyWk||4));}
   var longDist=longest?longest.metrics.distance:0;
-  document.getElementById('g2-cur').value=longDist?longDist.toFixed(1):0;
+  document.getElementById('g2-cur').textContent=longDist?String(+longDist.toFixed(1)).replace(/\.0$/,''):0;
   var barPercent=Math.min(100,(longDist/(goals.runDistanceGoal||10))*100);
   document.getElementById('g2-bar').style.width=barPercent+'%';
   var markerEl=document.getElementById('g2-marker');
   if(markerEl){markerEl.style.left=barPercent+'%';markerEl.style.display=longDist>0?'block':'none';}
   var g2CurWrap=document.getElementById('g2-cur-wrap');
-  if(g2CurWrap)g2CurWrap.style.left=clampScalePercent(barPercent)+'%';
+  if(g2CurWrap)g2CurWrap.style.left=barPercent+'%';
   var totalEl=document.getElementById('g2-total-distance');
   if(totalEl)totalEl.textContent=String(+totalDistance.toFixed(1)).replace(/\.0$/,'')+' km';
   var bestPace=runEntries.reduce(function(best,entry){return entry.metrics.pace>0&&(!best||entry.metrics.pace<best)?entry.metrics.pace:best;},0);
@@ -1553,26 +1565,24 @@ function refreshGoals(){
   historyBody.innerHTML='';
   runEntries.slice().reverse().slice(0,10).forEach(function(entry){
     var w=entry.workout,m=entry.metrics;
-    var workoutVo2=Number(w.vo2)||vo2ByDate[w.date]||0;
     var tr=document.createElement('tr');
     tr.innerHTML='<td>'+fmtDate(w.date)+'</td>'
       +'<td>'+String(+m.distance.toFixed(1)).replace(/\.0$/,'')+' km</td>'
       +'<td>'+(m.time?String(+m.time.toFixed(1)).replace(/\.0$/,'')+' min':'—')+'</td>'
       +'<td>'+formatRunningPace(m.pace)+'</td>'
-      +'<td>'+(workoutVo2?String(+workoutVo2.toFixed(1)).replace(/\.0$/,''):'—')+'</td>'
       +'<td>'+String(+entry.total.toFixed(1)).replace(/\.0$/,'')+' km</td>';
     historyBody.appendChild(tr);
   });
   if(!runEntries.length){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td colspan="6" style="color:var(--text-dim)">Ingen löpdata loggad.</td>';
+    tr.innerHTML='<td colspan="5" style="color:var(--text-dim)">Ingen löpdata loggad.</td>';
     historyBody.appendChild(tr);
   }
   renderRunPaceChart(runEntries);
 
   var vo2Timeline=getVo2Timeline();
   var curKond=vo2Timeline.length?Math.max.apply(null,vo2Timeline.map(function(e){return e.score;})):0;
-  document.getElementById('g3-cur').value=curKond||0;
+  document.getElementById('g3-cur').textContent=curKond?String(+curKond.toFixed(1)).replace(/\.0$/,''):0;
   var kondGoal=goals.vo2Goal||45;
   var kondScaleMin=Math.min(40,kondGoal-1);
   var kondRange=Math.max(1,kondGoal-kondScaleMin);
@@ -1581,7 +1591,7 @@ function refreshGoals(){
   var markerG3=document.getElementById('g3-marker');
   if(markerG3){markerG3.style.left=kondP+'%';markerG3.style.display=curKond>0?'block':'none';}
   var g3CurWrap=document.getElementById('g3-cur-wrap');
-  if(g3CurWrap)g3CurWrap.style.left=clampScalePercent(kondP)+'%';
+  if(g3CurWrap)g3CurWrap.style.left=kondP+'%';
   var longestRunTime=0;
   wks.forEach(function(w){var m=workoutRunMetrics(w); if(m.time>longestRunTime)longestRunTime=m.time;});
   var maxVo2El=document.getElementById('g3-max-vo2');
@@ -2026,10 +2036,14 @@ function renderCharts(){
   var goals=getGoals(), goalVal=goals.vo2Goal||45;
   var vo2Labels=vo2Data.length?vo2Data.map(function(e){return fmtDate(e.date);}):['—'];
   var vo2Vals=vo2Data.length?vo2Data.map(function(e){return Number(e.score)||null;}):[null];
-  var runTimeByDate={};
+  var runTimeByDate={},workoutsByDate={};
   wks.forEach(function(workout){
     var metrics=workoutRunMetrics(workout);
     if(metrics.time>0)runTimeByDate[workout.date]=(runTimeByDate[workout.date]||0)+metrics.time;
+    if(workout.date){
+      if(!workoutsByDate[workout.date])workoutsByDate[workout.date]=[];
+      workoutsByDate[workout.date].push(workout);
+    }
   });
   chartVO2=new Chart(bwCtx,{
     type:'line',
@@ -2062,16 +2076,27 @@ function renderCharts(){
     vo2Data.slice().reverse().slice(0,10).forEach(function(entry){
       var val=Number(entry.score)||0;
       var runTime=runTimeByDate[entry.date]||0;
+      var sameDateWorkouts=workoutsByDate[entry.date]||[];
+      var vo2SessionHeartRates=sameDateWorkouts.filter(function(workout){
+        return Number(workout.vo2)>0&&Number(workout.hrAvg)>0;
+      }).map(function(workout){return Number(workout.hrAvg);});
+      if(!vo2SessionHeartRates.length&&sameDateWorkouts.length===1&&Number(sameDateWorkouts[0].hrAvg)>0){
+        vo2SessionHeartRates=[Number(sameDateWorkouts[0].hrAvg)];
+      }
+      var avgHeartRate=vo2SessionHeartRates.length
+        ?Math.round(vo2SessionHeartRates.reduce(function(sum,heartRate){return sum+heartRate;},0)/vo2SessionHeartRates.length)
+        :0;
       var tr=document.createElement('tr');
       tr.innerHTML='<td>'+fmtDate(entry.date)+'</td>'
         +'<td>'+(val?String(+val.toFixed(1)).replace(/\.0$/,''):'—')+'</td>'
         +'<td>'+(runTime?String(+runTime.toFixed(1)).replace(/\.0$/,'')+' min':'—')+'</td>'
+        +'<td>'+(avgHeartRate?avgHeartRate+' bpm':'—')+'</td>'
         +'<td>'+String(+goalVal.toFixed(1)).replace(/\.0$/,'')+'</td>';
       vo2HistoryBody.appendChild(tr);
     });
     if(!vo2Data.length){
       var tr=document.createElement('tr');
-      tr.innerHTML='<td colspan="4" style="color:var(--text-dim)">Ingen VO₂-data loggad.</td>';
+      tr.innerHTML='<td colspan="5" style="color:var(--text-dim)">Ingen VO₂-data loggad.</td>';
       vo2HistoryBody.appendChild(tr);
     }
   }
