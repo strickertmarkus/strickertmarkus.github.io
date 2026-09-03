@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-log-detail-polish-v31"></script>
+<script src="auth-gate.js?v=20260903-exercise-interval-editor-v32"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1040,6 +1040,10 @@ function workoutTimingForExercise(workout,exercise,index,used){
   var found=-1;
   timings.some(function(timing,timingIndex){
     if(used[timingIndex])return false;
+    if(Number(timing&&timing.exerciseIndex)===index){
+      found=timingIndex;
+      return true;
+    }
     if(String(timing&&timing.name||'').trim().toLocaleLowerCase('sv-SE')===wanted){
       found=timingIndex;
       return true;
@@ -1055,19 +1059,26 @@ function exerciseDurationSeconds(value){
   var numeric=parseInt(value,10);
   return Number.isFinite(numeric)&&numeric>0?numeric:0;
 }
-function workoutPulseSparkline(workout){
+function workoutPulseIntervalMarkup(workout){
   var avg=Math.round(Number(workout&&workout.hrAvg)||0);
   var min=Math.round(Number(workout&&workout.hrMin)||0);
   var max=Math.round(Number(workout&&workout.hrMax)||0);
-  var spread=min&&max?Math.max(8,max-min):36;
-  var peak=Math.max(4,Math.min(7,4+spread/24));
-  var upper=(8-peak).toFixed(1);
-  var lower=(8+peak).toFixed(1);
-  var shoulderUp=(8-peak*.42).toFixed(1);
-  var shoulderDown=(8+peak*.42).toFixed(1);
-  var label=avg?avg+' bpm':'— bpm';
-  var title=avg?'Puls '+(min||'—')+' / '+avg+' / '+(max||'—'):'Ingen puls registrerad';
-  return '<span class="log-pulse-spark-v8'+(avg?'':' is-empty')+'" title="'+title+'"><span>'+label+'</span><svg viewBox="0 0 34 16" aria-hidden="true"><polyline points="0,8 6,8 9,'+shoulderUp+' 12,'+shoulderDown+' 16,'+upper+' 20,'+lower+' 24,8 34,8"></polyline></svg></span>';
+  var minLabel=min?String(min):'—';
+  var avgLabel=avg?String(avg):'—';
+  var maxLabel=max?String(max):'—';
+  var title=avg?'Puls min '+minLabel+', medel '+avgLabel+', max '+maxLabel:'Ingen puls registrerad';
+  return '<span class="log-pulse-interval-v9'+(min&&avg&&max?' has-range':' is-incomplete')+'" role="img" aria-label="'+title+'" title="'+title+'">'
+    +'<svg viewBox="0 0 84 25" aria-hidden="true">'
+    +'<line class="pulse-range-v9" x1="8" y1="7" x2="76" y2="7"></line>'
+    +'<line class="pulse-cap-v9" x1="8" y1="3" x2="8" y2="11"></line>'
+    +'<line class="pulse-cap-v9" x1="76" y1="3" x2="76" y2="11"></line>'
+    +'<circle class="pulse-edge-v9" cx="8" cy="7" r="2"></circle>'
+    +'<circle class="pulse-average-v9" cx="42" cy="7" r="3.2"></circle>'
+    +'<circle class="pulse-edge-v9" cx="76" cy="7" r="2"></circle>'
+    +'<text x="8" y="22" text-anchor="start">'+minLabel+'</text>'
+    +'<text class="pulse-average-label-v9" x="42" y="22" text-anchor="middle">'+avgLabel+'</text>'
+    +'<text x="76" y="22" text-anchor="end">'+maxLabel+'</text>'
+    +'</svg></span>';
 }
 function addExerciseTimingEditor(row,timing){
   if(!row)return;
@@ -1266,6 +1277,7 @@ function logKondition(){
 var editingDayKey=null, editingDayISO=null;
 var editingWorkoutId=null;
 var editingWorkoutTargetIndex=null;
+var singleExerciseEditState=null;
 var sessionState=null;
 var sessionTickHandle=null;
 function openDayConfig(key,label,iso){
@@ -1611,7 +1623,7 @@ function saveSessionWorkout(){
       var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
       exercises.push(normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight}));
     }
-    exerciseTimings.push({name:ex.name,durationSec:dur});
+    exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});
   });
   if(!exercises.length){showToast('Inga set loggade ännu.');return;}
   var hrAvg=parseInt(document.getElementById('session-hr').value,10)||null;
@@ -1772,7 +1784,7 @@ function renderLog(){
       +'<span class="log-meta-date-v8">'+fmtDate(w.date)+'</span>'
       +(w.duration?'<span class="log-meta-time-v8">'+w.duration+' min</span>':'')
       +(w.vo2?'<span class="log-meta-vo2-v8">VO2 '+w.vo2+'</span>':'')
-      +workoutPulseSparkline(w)
+      +workoutPulseIntervalMarkup(w)
       +'</div>';
     html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
       +'<div class="log-detail-box">'
@@ -1808,17 +1820,91 @@ function toggleWorkoutDetails(id){
   if(typeof window.runExerciseMorph==='function')window.runExerciseMorph('log',commit);
   else commit();
 }
-function editWorkoutExercise(id,index){
-  editingWorkoutTargetIndex=index;
-  editWorkout(id);
-  requestAnimationFrame(function(){
-    var rows=document.querySelectorAll('#ex-list .ex-row-item');
-    var row=rows[index];
-    if(!row)return;
-    row.classList.add('exercise-edit-focus-v7');
-    row.scrollIntoView({block:'center'});
-    setTimeout(function(){row.classList.remove('exercise-edit-focus-v7');},1100);
+function timingMatchForWorkoutExercise(workout,index){
+  var used={};
+  var timing=null;
+  for(var i=0;i<=index;i++){
+    timing=workoutTimingForExercise(workout,(workout.exercises||[])[i],i,used);
+  }
+  var timings=Array.isArray(workout&&workout.exerciseTimings)?workout.exerciseTimings:[];
+  return {timing:timing,index:timing?timings.indexOf(timing):-1};
+}
+function ensureSingleExerciseEditModal(){
+  var overlay=document.getElementById('exercise-edit-modal-v9');
+  if(overlay)return overlay;
+  overlay=document.createElement('div');
+  overlay.id='exercise-edit-modal-v9';
+  overlay.className='modal-overlay';
+  overlay.innerHTML='<div class="modal single-exercise-modal-v9">'
+    +'<button class="modal-close" type="button" onclick="closeSingleExerciseEdit()">✕</button>'
+    +'<div class="single-exercise-kicker-v9">Övning</div>'
+    +'<h2>Redigera övning</h2>'
+    +'<div class="single-exercise-context-v9" id="single-exercise-context-v9"></div>'
+    +'<div id="single-exercise-editor-v9"></div>'
+    +'<div class="modal-footer"><button class="btn-ghost" type="button" onclick="closeSingleExerciseEdit()">Avbryt</button>'
+    +'<button class="btn-primary" type="button" onclick="saveSingleExerciseEdit()">Spara övning</button></div>'
+    +'</div>';
+  overlay.addEventListener('click',function(event){
+    if(event.target===overlay)closeSingleExerciseEdit();
   });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+function closeSingleExerciseEdit(){
+  var overlay=document.getElementById('exercise-edit-modal-v9');
+  if(overlay)overlay.classList.remove('show');
+  singleExerciseEditState=null;
+}
+function editWorkoutExercise(id,index){
+  var workouts=getWorkouts();
+  var workout=workouts.find(function(item){return Number(item.id)===Number(id);});
+  var exercise=workout&&(workout.exercises||[])[index];
+  if(!workout||!exercise)return;
+  singleExerciseEditState={workoutId:workout.id,exerciseIndex:index};
+  var overlay=ensureSingleExerciseEditModal();
+  var context=document.getElementById('single-exercise-context-v9');
+  if(context)context.textContent=(workout.type||'Pass')+' · '+fmtDate(workout.date);
+  var editor=document.getElementById('single-exercise-editor-v9');
+  var row=document.createElement('div');
+  row.className='ex-row-item single-exercise-edit-row-v9 is-'+normalizeExercise(exercise).kind;
+  row.innerHTML=buildExerciseEditorRowHtml('single',exercise,'void 0');
+  var remove=row.querySelector('.ex-del');
+  if(remove)remove.remove();
+  var timingInfo=timingMatchForWorkoutExercise(workout,index);
+  addExerciseTimingEditor(row,timingInfo.timing);
+  editor.innerHTML='';
+  editor.appendChild(row);
+  overlay.classList.add('show');
+}
+function saveSingleExerciseEdit(){
+  var state=singleExerciseEditState;
+  if(!state)return;
+  var workouts=getWorkouts();
+  var workoutIndex=workouts.findIndex(function(item){return Number(item.id)===Number(state.workoutId);});
+  if(workoutIndex<0)return;
+  var workout=workouts[workoutIndex];
+  var row=document.querySelector('#single-exercise-editor-v9 .single-exercise-edit-row-v9');
+  var parsed=row&&parseExerciseRow(row,'single');
+  if(!parsed){showToast('Övningen behöver ett namn.');return;}
+  var exerciseIndex=Number(state.exerciseIndex);
+  var timingInfo=timingMatchForWorkoutExercise(workout,exerciseIndex);
+  var timings=Array.isArray(workout.exerciseTimings)?workout.exerciseTimings.slice():[];
+  var durationInput=row.querySelector('.ex-duration-seconds-v7');
+  var durationSec=exerciseDurationSeconds(durationInput&&durationInput.value);
+  workout.exercises=Array.isArray(workout.exercises)?workout.exercises.slice():[];
+  workout.exercises[exerciseIndex]=parsed;
+  if(timingInfo.index>=0){
+    if(durationSec)timings[timingInfo.index]={name:parsed.name,durationSec:durationSec,exerciseIndex:exerciseIndex};
+    else timings.splice(timingInfo.index,1);
+  }else if(durationSec){
+    timings.push({name:parsed.name,durationSec:durationSec,exerciseIndex:exerciseIndex});
+  }
+  workout.exerciseTimings=timings;
+  workouts[workoutIndex]=workout;
+  saveWorkouts(workouts);
+  closeSingleExerciseEdit();
+  refreshAll();
+  showToast('Övningen är uppdaterad.');
 }
 
 
@@ -1899,7 +1985,7 @@ function saveWorkout(){
     exercises.push(parsed);
     var timingInput=row.querySelector('.ex-duration-seconds-v7');
     var durationSec=exerciseDurationSeconds(timingInput&&timingInput.value);
-    if(durationSec)exerciseTimings.push({name:parsed.name,durationSec:durationSec});
+    if(durationSec)exerciseTimings.push({name:parsed.name,durationSec:durationSec,exerciseIndex:exercises.length-1});
   });
   var type=canonicalWorkoutType(typeRaw,exercises);
   var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes,exerciseTimings:exerciseTimings};

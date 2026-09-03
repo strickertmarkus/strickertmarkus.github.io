@@ -146,30 +146,51 @@
       .log-meta-date-v8 { color:#67E8F9;font-weight:800; }
       .log-meta-time-v8 { color:#FDBA74;font-weight:800; }
       .log-meta-vo2-v8 { color:#A78BFA;font-weight:750; }
-      .log-pulse-spark-v8 {
+      .log-pulse-interval-v9 {
         display:inline-flex;
         align-items:center;
-        gap:4px;
+        width:84px;
+        height:25px;
         color:#F87171;
-        font-size:8px;
-        font-weight:750;
         white-space:nowrap;
       }
-      .log-pulse-spark-v8 svg {
-        width:34px;
-        height:16px;
+      .log-pulse-interval-v9 svg {
+        display:block;
+        width:84px;
+        height:25px;
         overflow:visible;
       }
-      .log-pulse-spark-v8 polyline {
-        fill:none;
+      .log-pulse-interval-v9 .pulse-range-v9,
+      .log-pulse-interval-v9 .pulse-cap-v9 {
         stroke:#EF4444;
-        stroke-width:1.7;
+        stroke-width:1.35;
         stroke-linecap:round;
-        stroke-linejoin:round;
-        filter:drop-shadow(0 0 3px rgba(239,68,68,.42));
+        filter:drop-shadow(0 0 2px rgba(239,68,68,.34));
       }
-      .log-pulse-spark-v8.is-empty { color:#687485;opacity:.72; }
-      .log-pulse-spark-v8.is-empty polyline { stroke:#9B3D46;filter:none; }
+      .log-pulse-interval-v9 .pulse-edge-v9 {
+        fill:#7F1D1D;
+        stroke:#F87171;
+        stroke-width:1;
+      }
+      .log-pulse-interval-v9 .pulse-average-v9 {
+        fill:#F87171;
+        stroke:#FEE2E2;
+        stroke-width:1;
+        filter:drop-shadow(0 0 3px rgba(239,68,68,.55));
+      }
+      .log-pulse-interval-v9 text {
+        fill:#C98489;
+        font:650 7px/1 'Inter',sans-serif;
+      }
+      .log-pulse-interval-v9 .pulse-average-label-v9 {
+        fill:#F87171;
+        font-weight:850;
+      }
+      .log-pulse-interval-v9.is-incomplete .pulse-range-v9,
+      .log-pulse-interval-v9.is-incomplete .pulse-cap-v9,
+      .log-pulse-interval-v9.is-incomplete .pulse-edge-v9 {
+        opacity:.28;
+      }
       .log-detail-actions-v8 {
         flex:none;
         display:flex;
@@ -287,6 +308,7 @@
         color:#F87171;
       }
       .log-ex-row-v7.is-cardio .log-ex-target-v7 { color:#D99A9A; }
+      .log-ex-row-v7.is-strength .log-ex-time-v7 { color:#67E8F9; }
       .log-ex-empty-v7 {
         width:100%;
         min-height:42px;
@@ -306,7 +328,8 @@
       }
 
       /* Tid per övning redigeras i samma rad i popupen. */
-      #wk-modal .ex-duration-editor-v7 {
+      #wk-modal .ex-duration-editor-v7,
+      #exercise-edit-modal-v9 .ex-duration-editor-v7 {
         display:grid;
         grid-template-columns:auto 72px 20px;
         align-items:center;
@@ -317,7 +340,8 @@
         font-size:9px;
         font-weight:700;
       }
-      #wk-modal .ex-duration-editor-v7 input {
+      #wk-modal .ex-duration-editor-v7 input,
+      #exercise-edit-modal-v9 .ex-duration-editor-v7 input {
         width:72px;
         min-width:0;
         height:29px;
@@ -329,10 +353,56 @@
         font-size:10px;
         box-shadow:none;
       }
-      #wk-modal .ex-duration-editor-v7 small {
+      #wk-modal .ex-duration-editor-v7 small,
+      #exercise-edit-modal-v9 .ex-duration-editor-v7 small {
         color:#657181;
         font-size:8px;
         font-weight:700;
+      }
+      #exercise-edit-modal-v9 { z-index:2147483500; }
+      #exercise-edit-modal-v9 .single-exercise-modal-v9 {
+        width:min(520px,calc(100% - 28px));
+        max-width:520px;
+      }
+      .single-exercise-kicker-v9 {
+        margin-bottom:3px;
+        color:#67E8F9;
+        font-size:9px;
+        font-weight:850;
+        letter-spacing:.8px;
+        text-transform:uppercase;
+      }
+      .single-exercise-context-v9 {
+        margin:-7px 0 13px;
+        color:#7F8A99;
+        font-size:10px;
+      }
+      #single-exercise-editor-v9 {
+        border-top:1px solid rgba(148,163,184,.14);
+        border-bottom:1px solid rgba(148,163,184,.14);
+        padding:9px 0 10px;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 {
+        gap:8px;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row {
+        grid-template-columns:minmax(0,1fr) 58px 58px 66px !important;
+        gap:5px !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row {
+        grid-template-columns:minmax(0,1fr) 84px 84px !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-kind-btn.active {
+        border-color:rgba(248,113,113,.56) !important;
+        background:rgba(239,68,68,.12) !important;
+        color:#F87171 !important;
+        box-shadow:0 0 13px rgba(239,68,68,.11) !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row input {
+        border-color:rgba(248,113,113,.24) !important;
+        background-color:rgba(37,21,25,.88) !important;
+        color:#FDE7E7 !important;
+        -webkit-text-fill-color:#FDE7E7 !important;
       }
       #wk-modal .exercise-edit-focus-v7 {
         animation:exercise-edit-focus-v7 1.05s cubic-bezier(.22,1,.36,1);
@@ -374,9 +444,16 @@
         .log-table th:nth-child(6),.log-table td:nth-child(6){width:8% !important;}
         .log-tag { padding:3px 5px !important;font-size:9px !important;white-space:normal !important; }
         .log-detail-head-v7 { padding-left:3px;padding-right:3px; }
-        .log-detail-copy-v8 { max-width:min(210px,54vw); }
+        .log-detail-copy-v8 { max-width:min(235px,58vw); }
         .log-detail-meta-v8 { gap:3px 6px; }
-        .log-pulse-spark-v8 svg { width:30px; }
+        .log-pulse-interval-v9,.log-pulse-interval-v9 svg { width:78px; }
+        #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row {
+          grid-template-columns:minmax(0,1fr) 48px 48px 54px !important;
+          gap:4px !important;
+        }
+        #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row {
+          grid-template-columns:minmax(0,1fr) 70px 70px !important;
+        }
         .log-edit-pass-v7 { padding-left:8px;padding-right:8px; }
         .log-ex-target-v7 { font-size:10.5px; }
         .log-ex-time-v7 { font-size:11.5px; }
