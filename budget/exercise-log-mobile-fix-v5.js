@@ -223,7 +223,7 @@
         stroke-linecap:round;
       }
       .log-vo2-goal-v36 .vo2-goal-cap-v36 {
-        stroke:#FBBF24;
+        stroke:#7C3AED;
         stroke-width:1.3;
         stroke-linecap:round;
       }
@@ -234,8 +234,8 @@
         filter:drop-shadow(0 0 3px rgba(167,139,250,.58));
       }
       .log-vo2-goal-v36 .vo2-goal-dot-v36 {
-        fill:#FBBF24;
-        stroke:#FEF3C7;
+        fill:#7C3AED;
+        stroke:#EDE9FE;
         stroke-width:.8;
       }
       .log-vo2-goal-v36 text {
@@ -247,8 +247,49 @@
         font-weight:850;
       }
       .log-vo2-goal-v36 .vo2-goal-label-v36 {
-        fill:#D6AE55;
+        fill:#C4B5FD;
         font-weight:800;
+      }
+      .log-pace-interval-v37 {
+        display:inline-flex;
+        align-items:center;
+        margin-left:12px;
+        width:84px;
+        height:25px;
+        color:#10B981;
+        white-space:nowrap;
+      }
+      .log-pace-interval-v37 svg {
+        display:block;
+        width:84px;
+        height:25px;
+        overflow:visible;
+      }
+      .log-pace-interval-v37 .pace-range-v37,
+      .log-pace-interval-v37 .pace-cap-v37 {
+        stroke:#34D399;
+        stroke-width:1.35;
+        stroke-linecap:round;
+        filter:drop-shadow(0 0 2px rgba(52,211,153,.34));
+      }
+      .log-pace-interval-v37 .pace-edge-v37 {
+        fill:#047857;
+        stroke:#6EE7B7;
+        stroke-width:1;
+      }
+      .log-pace-interval-v37 .pace-average-v37 {
+        fill:#10B981;
+        stroke:#D1FAE5;
+        stroke-width:1;
+        filter:drop-shadow(0 0 3px rgba(16,185,129,.55));
+      }
+      .log-pace-interval-v37 text {
+        fill:#6EAD8B;
+        font:650 7px/1 'Inter',sans-serif;
+      }
+      .log-pace-interval-v37 .pace-average-label-v37 {
+        fill:#10B981;
+        font-weight:850;
       }
       .log-detail-actions-v8 {
         flex:none;

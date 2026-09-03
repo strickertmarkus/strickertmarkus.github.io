@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-mobile-vo2-v36"></script>
+<script src="auth-gate.js?v=20260903-exercise-vo2-color-v37"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,9 +139,10 @@
     .goal-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35);border-color:var(--border);}
     .goal-icon{font-size:22px;margin-bottom:8px;}
     .goal-lbl{font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
-    .progress-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+    .progress-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:visible;position:relative;}
     .progress-bar{height:100%;border-radius:3px;background:var(--accent);transition:width .6s cubic-bezier(.34,1.56,.64,1);}
-    .goal-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .progress-marker{position:absolute;top:50%;left:0;width:10px;height:10px;background:#fff;border:2px solid #EF4444;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 4px rgba(239,68,68,.5);}
+    .goal-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative;}
     .goal-nums{font-size:12px;color:var(--text-sec);display:flex;justify-content:space-between;}
     .goal-nums.goal-hit{color:var(--green);font-weight:700;}
     .goal-cur{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px;}
@@ -194,6 +195,55 @@
       text-align:inherit;
     }
     .run-distance-scale-v36 input:not([readonly]):focus{border-bottom-color:#F87171 !important;}
+    .progress-marker{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#EF4444;border:2px solid #FEE2E2;border-radius:50%;box-shadow:0 0 4px rgba(239,68,68,.5)}
+    .goal-card-vo2-v37{
+      border-color:rgba(16,185,129,.20) !important;
+      background:
+        radial-gradient(420px 180px at 88% 0,rgba(16,185,129,.085),transparent 72%),
+        linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.022)) !important;
+    }
+    .goal-card-vo2-v37:hover{border-color:rgba(16,185,129,.34) !important;}
+    .goal-card-vo2-v37 .goal-lbl{color:#6EE7B7;}
+    .goal-card-vo2-v37 .progress-wrap{background:rgba(5,150,105,.25);}
+    .vo2-goal-stats-v37{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 9px;}
+    .vo2-goal-stat-v37{padding:7px 8px;border-left:2px solid rgba(16,185,129,.62);background:rgba(16,185,129,.045);}
+    .vo2-goal-stat-v37 span{display:block;color:#8F9AAA;font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.45px;}
+    .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#6EE7B7;font-size:12px;font-variant-numeric:tabular-nums;}
+    .vo2-distance-scale-v37{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      align-items:center;
+      margin:-1px 0 7px;
+      color:#6BAA98;
+      font-size:8.5px;
+      font-weight:800;
+      font-variant-numeric:tabular-nums;
+    }
+    .vo2-distance-scale-v37 > span:nth-child(2){text-align:center;}
+    .vo2-distance-scale-v37 > span:last-child{text-align:right;}
+    .vo2-distance-scale-v37 label{display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;cursor:text;}
+    .vo2-distance-scale-v37 input{
+      width:28px !important;
+      padding:0 !important;
+      border:0 !important;
+      border-bottom:1px solid transparent !important;
+      background:transparent !important;
+      color:#6EE7B7 !important;
+      -webkit-text-fill-color:#6EE7B7 !important;
+      font:800 8.5px/1.2 'Inter',sans-serif !important;
+      text-align:inherit;
+    }
+    .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#10B981 !important;}
+    .goal-card-vo2-v37 .goal-history{max-height:178px;border-color:rgba(16,185,129,.16);background:rgba(5,20,15,.28);}
+    .goal-card-vo2-v37 .goal-history table{min-width:280px;font-variant-numeric:tabular-nums;}
+    .goal-card-vo2-v37 .goal-history th{color:#6BAA98;background:rgba(16,185,129,.05);}
+    .goal-card-vo2-v37 .goal-history td:nth-child(2),
+    .goal-card-vo2-v37 .goal-history td:nth-child(3),
+    .goal-card-vo2-v37 .goal-history td:nth-child(4){color:#A7F3D0;}
+    .goal-card-vo2-v37 .goal-history{display:none;}
+    @media(max-width:480px){
+      .goal-card-vo2-v37{padding:18px 14px;}
+    }
     .goal-card-run-v34 .goal-history{max-height:178px;border-color:rgba(248,113,113,.16);background:rgba(14,11,16,.28);}
     .goal-card-run-v34 .goal-history table{min-width:430px;font-variant-numeric:tabular-nums;}
     .goal-card-run-v34 .goal-history th{color:#B9898E;background:rgba(239,68,68,.035);}
@@ -209,6 +259,8 @@
       .chart-card-vo2-v36{padding:17px 14px;}
       .chart-card-vo2-v36 .bw-inp-wrap{padding:6px 8px;min-width:0;}
       .chart-card-vo2-v36 .bw-inp-wrap input{width:45px;}
+      .chart-card-vo2-v36 .goal-history{margin-left:-3px;margin-right:-3px;}
+      .chart-card-vo2-v36 .goal-history th,.chart-card-vo2-v36 .goal-history td{padding:6px 7px;font-size:9px;}
     }
 
     /* ── CHARTS ── */
@@ -229,8 +281,14 @@
     .chart-card-vo2-v36 .bw-row{margin-bottom:7px;}
     .vo2-run-note-v36{color:#9289A7;font-size:8.5px;line-height:1.3;}
     .vo2-run-note-v36 .vo2-key-v36{color:#C4B5FD;}
-    .vo2-run-note-v36 .run-key-v36{color:#FCA5A5;}
+    .vo2-run-note-v36 .run-key-v36{color:#FDBA74;}
     .vo2-run-note-v36 .goal-key-v36{color:#FBBF24;}
+    .chart-card-vo2-v36 .goal-history{margin-top:10px;max-height:150px;border-color:rgba(167,139,250,.18);background:rgba(19,14,26,.28);}
+    .chart-card-vo2-v36 .goal-history table{min-width:280px;font-variant-numeric:tabular-nums;}
+    .chart-card-vo2-v36 .goal-history th{color:#B9A6D9;background:rgba(167,139,250,.05);}
+    .chart-card-vo2-v36 .goal-history td:nth-child(2){color:#C4B5FD;}
+    .chart-card-vo2-v36 .goal-history td:nth-child(3){color:#FDBA74;}
+    .chart-card-vo2-v36 .goal-history td:nth-child(4){color:#D8B4FE;}
     .bw-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
     .bw-inp-wrap{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;}
     .bw-inp-wrap input{background:transparent;border:none;color:var(--text);font-size:15px;font-weight:700;font-family:'Inter',sans-serif;width:55px;outline:none;}
@@ -469,7 +527,7 @@
       </div>
       <div class="goal-card goal-card-run-v34">
         <div class="goal-lbl">Längsta löppass (km)</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div></div></div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div><div class="progress-marker" id="g2-marker" style="left:0%;display:none"></div></div></div>
         <div class="run-distance-scale-v36" aria-label="Löpdistans från noll till mål">
           <span>0 km</span>
           <span><input type="number" id="g2-cur" value="0" readonly aria-label="Aktuell längsta distans"> km</span>
@@ -491,10 +549,19 @@
           </table>
         </div>
       </div>
-      <div class="goal-card">
-        <div class="goal-lbl">VO2 max</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:var(--green)"></div></div></div>
-        <div class="goal-nums"><span>Nu: <input type="number" id="g3-cur" step=".1" value="0" readonly style="width:50px;font-size:16px;font-weight:700"> / <input type="number" id="g3-goal" step=".1" value="45" min="20" max="80" style="width:50px;font-size:13px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
+      <div class="goal-card goal-card-vo2-v37">
+        <div class="goal-lbl">Högsta VO₂ (ml/kg/min)</div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#10B981"></div></div></div>
+        <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
+          <span>40</span>
+          <span><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
+          <span><label><input type="number" id="g3-goal" step=".1" value="50" min="20" max="80" aria-label="VO2-mål"></label></span>
+        </div>
+        <div class="goal-sub">Längsta löptid: <span id="g3-time">-</span></div>
+        <div class="vo2-goal-stats-v37">
+          <div class="vo2-goal-stat-v37"><span>Högsta VO₂</span><strong id="g3-max-vo2">— ml/kg/min</strong></div>
+          <div class="vo2-goal-stat-v37"><span>Längsta löptid</span><strong id="g3-longest-run">— min</strong></div>
+        </div>
         <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
           <input type="number" id="kondition-inp" step=".1" min="10" max="100" placeholder="Logga score" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:6px 10px;outline:none">
           <button class="btn-sm" onclick="logKondition()">Logga</button>
@@ -520,6 +587,12 @@
         </div>
         <div class="chart-note vo2-run-note-v36"><span class="vo2-key-v36">VO₂</span> · <span class="run-key-v36">löptid</span> · <span class="goal-key-v36">mål</span></div>
         <div class="chart-area"><canvas id="chart-bw"></canvas></div>
+        <div class="goal-history">
+          <table>
+            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Mål</th></tr></thead>
+            <tbody id="vo2-history-body"></tbody>
+          </table>
+        </div>
       </div>
       <div class="chart-card">
         <h3>Medelpuls över tid</h3>
@@ -1270,6 +1343,34 @@ function workoutVo2GoalIntervalMarkup(workout){
     +'<text class="vo2-goal-label-v36" x="84" y="27" text-anchor="end">'+goalLabel+' mål</text>'
     +'</svg></span>';
 }
+function workoutPaceIntervalMarkup(workout){
+  workout=workout||{};
+  var metrics=workoutRunMetrics(workout);
+  var pace=metrics.pace||0;
+  if(pace<=0)return '';
+  var goal=4.0;
+  var floor=3.0;
+  var ceiling=7.0;
+  var ratio=(pace-floor)/(ceiling-floor);
+  ratio=Math.max(0,Math.min(1,ratio));
+  var markerX=8+Math.min(70,ratio*70);
+  var paceMin=Math.floor(pace);
+  var paceSec=Math.round((pace-paceMin)*60);
+  var paceStr=paceMin+':'+String(paceSec).padStart(2,'0');
+  var goalMin=Math.floor(goal);
+  var goalSec=Math.round((goal-goalMin)*60);
+  var goalStr=goalMin+':'+String(goalSec).padStart(2,'0');
+  var title='Löpact: '+paceStr+' min/km, mål '+goalStr+' min/km';
+  return '<span class="log-pace-interval-v37" role="img" aria-label="'+title+'" title="'+title+'">'
+    +'<svg viewBox="0 0 84 25" aria-hidden="true">'
+    +'<line class="pace-range-v37" x1="8" y1="10" x2="76" y2="10"></line>'
+    +'<line class="pace-cap-v37" x1="76" y1="6" x2="76" y2="14"></line>'
+    +'<circle class="pace-edge-v37" cx="8" cy="10" r="2"></circle>'
+    +'<circle class="pace-average-v37" cx="'+markerX.toFixed(1)+'" cy="10" r="2.2"></circle>'
+    +'<text class="pace-average-label-v37" x="'+markerX.toFixed(1)+'" y="4" text-anchor="middle">'+paceMin+'</text>'
+    +'<text class="pace-average-label-v37" x="'+markerX.toFixed(1)+'" y="21" text-anchor="middle">min/km</text>'
+    +'</svg></span>';
+}
 function addExerciseTimingEditor(row,timing){
   if(!row)return;
   var editor=document.createElement('label');
@@ -1434,7 +1535,10 @@ function refreshGoals(){
   if(g1nums){g1nums.classList.toggle('goal-hit',cw>=(goals.weeklyWk||4));}
   var longDist=longest?longest.metrics.distance:0;
   document.getElementById('g2-cur').value=longDist?longDist.toFixed(1):0;
-  document.getElementById('g2-bar').style.width=Math.min(100,(longDist/(goals.runDistanceGoal||10))*100)+'%';
+  var barPercent=Math.min(100,(longDist/(goals.runDistanceGoal||10))*100);
+  document.getElementById('g2-bar').style.width=barPercent+'%';
+  var markerEl=document.getElementById('g2-marker');
+  if(markerEl){markerEl.style.left=barPercent+'%';markerEl.style.display=longDist>0?'block':'none';}
   document.getElementById('g2-time').textContent=longest&&longest.metrics.time?String(+longest.metrics.time.toFixed(1)).replace(/\.0$/,'')+' min':'-';
   var totalEl=document.getElementById('g2-total-distance');
   if(totalEl)totalEl.textContent=String(+totalDistance.toFixed(1)).replace(/\.0$/,'')+' km';
@@ -1915,9 +2019,7 @@ function renderCharts(){
   chartVO2=new Chart(bwCtx,{
     type:'line',
     data:{labels:vo2Labels,datasets:[
-      {label:'VO₂ max',data:vo2Vals,borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,.13)',pointBackgroundColor:'#C4B5FD',pointBorderColor:'#6D28D9',pointRadius:3,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1},
-      {label:'Löptid',type:'bar',data:runTimeVals,backgroundColor:'rgba(248,113,113,.18)',borderColor:'rgba(248,113,113,.62)',borderWidth:1,borderRadius:4,yAxisID:'yRun',order:3},
-      {label:'Mål',data:goalVals,borderColor:'#FBBF24',backgroundColor:'transparent',pointRadius:0,pointHoverRadius:0,borderWidth:1.5,borderDash:[4,4],tension:0,fill:false,spanGaps:true,yAxisID:'y',order:0}
+      {label:'VO₂ max',data:vo2Vals,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,.15)',pointBackgroundColor:'#6EE7B7',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
     ]},
     options:{
       responsive:true,
@@ -1934,12 +2036,30 @@ function renderCharts(){
         }
       },
       scales:{
-        x:{ticks:{color:'#81788F',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
-        y:{position:'left',min:40,max:55,ticks:{stepSize:5,color:'#A99FBC',font:{family:'Inter',size:8}},grid:{color:'rgba(167,139,250,.075)'}},
-        yRun:{position:'right',beginAtZero:true,ticks:{display:false},grid:{display:false},border:{display:false}}
+        x:{ticks:{color:'#6B7280',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
+        y:{position:'left',min:40,max:55,ticks:{stepSize:5,color:'#859D75',font:{family:'Inter',size:8}},grid:{color:'rgba(16,185,129,.08)'}}
       }
     }
   });
+  var vo2HistoryBody=document.getElementById('vo2-history-body');
+  if(vo2HistoryBody){
+    vo2HistoryBody.innerHTML='';
+    vo2Data.slice().reverse().slice(0,10).forEach(function(entry){
+      var val=Number(entry.score)||0;
+      var runTime=runTimeByDate[entry.date]||0;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+fmtDate(entry.date)+'</td>'
+        +'<td>'+(val?String(+val.toFixed(1)).replace(/\.0$/,''):'—')+'</td>'
+        +'<td>'+(runTime?String(+runTime.toFixed(1)).replace(/\.0$/,'')+' min':'—')+'</td>'
+        +'<td>'+String(+goalVal.toFixed(1)).replace(/\.0$/,'')+'</td>';
+      vo2HistoryBody.appendChild(tr);
+    });
+    if(!vo2Data.length){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td colspan="4" style="color:var(--text-dim)">Ingen VO₂-data loggad.</td>';
+      vo2HistoryBody.appendChild(tr);
+    }
+  }
 
   var hrData=wks.filter(function(w){return (w.hrAvg||0)>0;}).slice().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-40);
   var hrCtx=document.getElementById('chart-hr').getContext('2d');
@@ -2036,6 +2156,7 @@ function renderLog(){
       +(runMetrics.pace?'<span class="log-meta-pace-v34">Snittakt '+formatRunningPace(runMetrics.pace)+'</span>':'')
       +workoutPulseIntervalMarkup(w)
       +workoutVo2GoalIntervalMarkup(w)
+      +workoutPaceIntervalMarkup(w)
       +'</div>';
     html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
       +'<div class="log-detail-box">'
