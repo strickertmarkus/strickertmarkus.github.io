@@ -580,6 +580,10 @@
   }
 
   function syncFast() {
+    /* The unified v46 controller owns live session transitions. Keep this
+       legacy poller dormant so it cannot auto-click or settle a newer state
+       a few frames after the user's action. */
+    if (window.__exerciseSessionControllerV46Installed) return;
     var state = getState();
     if (!state) {
       autoPending = null;

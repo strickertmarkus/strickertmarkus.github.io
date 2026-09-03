@@ -573,6 +573,7 @@
        seconds. Keeping them on separate cadences avoids 25 full DOM checks/s. */
     setInterval(function () {
       syncPretimerSound();
+      if (window.__exerciseSessionControllerV46Installed) return;
       syncRestFlow();
       ensureRestButton();
     }, 80);

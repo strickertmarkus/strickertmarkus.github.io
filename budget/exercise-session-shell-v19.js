@@ -241,6 +241,9 @@
   }
 
   function startSmoothProgress() {
+    /* v46 paints the timer from one requestAnimationFrame loop. Running the
+       old loop at the same time made the leading cap visibly jump on iOS. */
+    if (window.__exerciseSessionControllerV46Installed) return;
     if (!timerVisible()) return;
     if (smoothFrame) cancelAnimationFrame(smoothFrame);
     smoothStartedAt = performance.now();

@@ -251,6 +251,7 @@
     syncCountdown();
     bindPretimerTheme();
     setInterval(function () {
+      if (window.__exerciseSessionControllerV46Installed) return;
       syncCountdown();
       bindPretimerTheme();
     },100);

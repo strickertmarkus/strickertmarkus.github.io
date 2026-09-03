@@ -304,7 +304,7 @@
   function buildSegments() {
     var html = '';
     for (var i = 0; i < 60; i++) {
-      html += '<span class="bs-segment active" data-i="' + i + '" style="transform:rotate(' + (i * 6) + 'deg) translateY(-82px)"></span>';
+      html += '<span class="bs-segment active" data-i="' + i + '" style="--between-angle:' + (i * 6) + 'deg"></span>';
     }
     return html;
   }
