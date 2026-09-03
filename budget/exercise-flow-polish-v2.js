@@ -61,10 +61,31 @@
     var style = document.createElement('style');
     style.id = 'exercise-flow-polish-v2-style';
     style.textContent = `
-      /* Only the two meaningful set controls remain visible. Decision buttons
-         stay in the DOM so the original state machine can still be used. */
+      /* The retired auto-advance flow hid this entire row. The unified session
+         controller deliberately waits for the user when no rest is configured,
+         so the decision controls must remain visible and easy to hit. */
       #session-controls.decision-row {
-        display:none !important;
+        display:grid !important;
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:8px !important;
+        width:100% !important;
+      }
+      #session-controls.decision-row .session-cta.primary:first-child {
+        grid-column:1 / -1 !important;
+        min-height:52px !important;
+        font-size:13px !important;
+      }
+      #session-controls.decision-row .session-cta.warn,
+      #session-controls.decision-row .session-cta.success {
+        min-height:43px !important;
+      }
+      @media(max-width:380px) {
+        #session-controls.decision-row { gap:7px !important; }
+        #session-controls.decision-row .session-cta {
+          padding-left:5px !important;
+          padding-right:5px !important;
+          font-size:11px !important;
+        }
       }
 
       /* Stronger active-set contrast. */
