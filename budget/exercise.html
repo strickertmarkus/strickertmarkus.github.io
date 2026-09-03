@@ -196,6 +196,7 @@
     }
     .run-distance-scale-v36 input:not([readonly]):focus{border-bottom-color:#F87171 !important;}
     .progress-marker{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#EF4444;border:2px solid #FEE2E2;border-radius:50%;box-shadow:0 0 4px rgba(239,68,68,.5)}
+    #g3-marker{background:#10B981 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(16,185,129,.5) !important;}
     .goal-card-vo2-v37{
       border-color:rgba(16,185,129,.20) !important;
       background:
@@ -234,13 +235,16 @@
       text-align:inherit;
     }
     .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#10B981 !important;}
+    .vo2-chart-v37{margin-top:9px;padding-top:8px;border-top:1px solid rgba(16,185,129,.12);}
+    .vo2-chart-title-v37{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#6BAA98;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
+    .vo2-chart-area-v37{height:116px;position:relative;width:100%;min-width:0;overflow:hidden;}
     .goal-card-vo2-v37 .goal-history{max-height:178px;border-color:rgba(16,185,129,.16);background:rgba(5,20,15,.28);}
     .goal-card-vo2-v37 .goal-history table{min-width:280px;font-variant-numeric:tabular-nums;}
     .goal-card-vo2-v37 .goal-history th{color:#6BAA98;background:rgba(16,185,129,.05);}
     .goal-card-vo2-v37 .goal-history td:nth-child(2),
     .goal-card-vo2-v37 .goal-history td:nth-child(3),
     .goal-card-vo2-v37 .goal-history td:nth-child(4){color:#A7F3D0;}
-    .goal-card-vo2-v37 .goal-history{display:none;}
+    .goal-card-vo2-v37 .goal-history{margin-top:9px;display:block;}
     @media(max-width:480px){
       .goal-card-vo2-v37{padding:18px 14px;}
     }
@@ -551,7 +555,7 @@
       </div>
       <div class="goal-card goal-card-vo2-v37">
         <div class="goal-lbl">Högsta VO₂ (ml/kg/min)</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#10B981"></div></div></div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#10B981"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
         <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
           <span>40</span>
           <span><input type="number" id="g3-cur" step=".1" value="0" readonly aria-label="Aktuell högsta VO2"> </span>
@@ -562,9 +566,19 @@
           <div class="vo2-goal-stat-v37"><span>Högsta VO₂</span><strong id="g3-max-vo2">— ml/kg/min</strong></div>
           <div class="vo2-goal-stat-v37"><span>Längsta löptid</span><strong id="g3-longest-run">— min</strong></div>
         </div>
+        <div class="vo2-chart-v37">
+          <div class="vo2-chart-title-v37"><span>VO₂ över tid</span><span>ml/kg/min</span></div>
+          <div class="vo2-chart-area-v37"><canvas id="chart-bw"></canvas></div>
+        </div>
+        <div class="goal-history">
+          <table>
+            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Mål</th></tr></thead>
+            <tbody id="vo2-history-body"></tbody>
+          </table>
+        </div>
         <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-          <input type="number" id="kondition-inp" step=".1" min="10" max="100" placeholder="Logga score" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:6px 10px;outline:none">
-          <button class="btn-sm" onclick="logKondition()">Logga</button>
+          <input type="number" id="bw-inp" step=".1" min="40" max="55" placeholder="Logga score" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:'Inter',sans-serif;padding:6px 10px;outline:none" aria-label="VO₂ värde att logga">
+          <button class="btn-sm" onclick="logVO2()">Logga</button>
         </div>
       </div>
     </div>
@@ -578,21 +592,6 @@
         <h3>Träningspass per vecka</h3>
         <div class="chart-note" id="sessions-total-note">Totalt pass: 0</div>
         <div class="chart-area"><canvas id="chart-sessions"></canvas></div>
-      </div>
-      <div class="chart-card chart-card-vo2-v36">
-        <h3>VO₂ max över tid</h3>
-        <div class="bw-row">
-          <div class="bw-inp-wrap"><label>VO₂</label><input type="number" id="bw-inp" step=".1" min="40" max="55" placeholder="45.0"><label>ml/kg/min</label></div>
-          <button class="btn-sm" onclick="logVO2()">Logga</button>
-        </div>
-        <div class="chart-note vo2-run-note-v36"><span class="vo2-key-v36">VO₂</span> · <span class="run-key-v36">löptid</span> · <span class="goal-key-v36">mål</span></div>
-        <div class="chart-area"><canvas id="chart-bw"></canvas></div>
-        <div class="goal-history">
-          <table>
-            <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Mål</th></tr></thead>
-            <tbody id="vo2-history-body"></tbody>
-          </table>
-        </div>
       </div>
       <div class="chart-card">
         <h3>Medelpuls över tid</h3>
@@ -1571,6 +1570,8 @@ function refreshGoals(){
   document.getElementById('g3-cur').value=curKond||0;
   var kondGoal=goals.vo2Goal||45, kondP=kondGoal>0?Math.min(100,(curKond/kondGoal)*100):0;
   document.getElementById('g3-bar').style.width=kondP+'%';
+  var markerG3=document.getElementById('g3-marker');
+  if(markerG3){markerG3.style.left=kondP+'%';markerG3.style.display=curKond>0?'block':'none';}
 }
 function saveGoals(){
   DB.set('goals',{
