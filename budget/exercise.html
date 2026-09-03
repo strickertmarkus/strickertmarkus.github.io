@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260902-log-open-freeze-fix-v29"></script>
+<script src="auth-gate.js?v=20260903-exercise-log-table-morph-v30"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1004,6 +1004,65 @@ function canonicalWorkoutType(type, exercises){
   return onlyCardio?'Kondition':'Övrigt';
 }
 
+function workoutKindSummary(workout){
+  var cardio=false,strength=false;
+  (workout&&workout.exercises||[]).forEach(function(exercise){
+    var kind=normalizeExercise(exercise).kind;
+    if(kind==='cardio')cardio=true;
+    if(kind==='strength')strength=true;
+  });
+  var type=String(workout&&workout.type||'').trim().toLocaleLowerCase('sv-SE');
+  if(!cardio&&!strength){
+    if(/kondition|cardio|löp|jogg|intervall|cross[ -]?trainer|crosstrainer|ellipt|cyk|spinning|rodd|promenad/.test(type))cardio=true;
+    else if(/styrka|helkropp|överkropp|underkropp|bröst|rygg|axel|arm|biceps|triceps|ben/.test(type))strength=true;
+  }
+  return {cardio:cardio,strength:strength};
+}
+function isCardioWorkout(workout){
+  var kinds=workoutKindSummary(workout);
+  return kinds.cardio&&!kinds.strength;
+}
+function exerciseTargetText(exercise){
+  var ex=normalizeExercise(exercise);
+  if(ex.kind==='cardio'){
+    var cardioParts=[];
+    if(ex.distance)cardioParts.push(String(ex.distance).replace(/\.0$/,'')+' km');
+    if(ex.time)cardioParts.push(String(ex.time).replace(/\.0$/,'')+' min');
+    return cardioParts.join(' · ')||'Kondition';
+  }
+  var strengthParts=[String(ex.sets||1)+'×'+String(ex.reps||0)];
+  if(ex.weight||ex.weight===0)strengthParts.push(String(ex.weight).replace(/\.0$/,'')+' kg');
+  return strengthParts.join(' · ');
+}
+function workoutTimingForExercise(workout,exercise,index,used){
+  var timings=workout&&Array.isArray(workout.exerciseTimings)?workout.exerciseTimings:[];
+  var wanted=String(exercise&&exercise.name||'').trim().toLocaleLowerCase('sv-SE');
+  var found=-1;
+  timings.some(function(timing,timingIndex){
+    if(used[timingIndex])return false;
+    if(String(timing&&timing.name||'').trim().toLocaleLowerCase('sv-SE')===wanted){
+      found=timingIndex;
+      return true;
+    }
+    return false;
+  });
+  if(found<0&&timings[index]&&!used[index])found=index;
+  if(found<0)return null;
+  used[found]=true;
+  return timings[found];
+}
+function exerciseDurationSeconds(value){
+  var numeric=parseInt(value,10);
+  return Number.isFinite(numeric)&&numeric>0?numeric:0;
+}
+function addExerciseTimingEditor(row,timing){
+  if(!row)return;
+  var editor=document.createElement('label');
+  editor.className='ex-duration-editor-v7';
+  editor.innerHTML='<span>Tid för övningen</span><input type="number" min="0" step="1" inputmode="numeric" class="ex-duration-seconds-v7" placeholder="sek" value="'+(timing&&exerciseDurationSeconds(timing.durationSec)||'')+'"><small>sek</small>';
+  row.appendChild(editor);
+}
+
 function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
   var e=normalizeExercise(ex);
   var hasExplicitSets=ex&&Object.prototype.hasOwnProperty.call(ex,'sets');
@@ -1192,6 +1251,7 @@ function logKondition(){
 }
 var editingDayKey=null, editingDayISO=null;
 var editingWorkoutId=null;
+var editingWorkoutTargetIndex=null;
 var sessionState=null;
 var sessionTickHandle=null;
 function openDayConfig(key,label,iso){
@@ -1645,114 +1705,109 @@ function deletePR(){if(!editingPRName)return;var prs=getPRs();delete prs[editing
 
 // ══ WORKOUT LOG ══════════════════════════════════════════════════
 function renderLog(){
-  var wks=getWorkouts().slice().sort(function(a,b){return b.date.localeCompare(a.date);});
-  var tbody=document.getElementById('log-body'), empty=document.getElementById('log-empty');
+  var wks=getWorkouts().slice().sort(function(a,b){
+    return String(b.date||'').localeCompare(String(a.date||''))||Number(b.id||0)-Number(a.id||0);
+  });
+  var tbody=document.getElementById('log-body'),empty=document.getElementById('log-empty');
   if(!wks.length){tbody.innerHTML='';empty.style.display='';return;}
   empty.style.display='none';
+  var openIds={};
+  document.querySelectorAll('.log-detail.show').forEach(function(row){openIds[row.id]=true;});
   var html='';
   wks.forEach(function(w){
     var typeDisp=canonicalWorkoutType(w.type,w.exercises);
-    var isCardio=(w.exercises||[]).some(function(e){return normalizeExercise(e).kind==='cardio';}) || typeDisp==='Kondition';
-    var vol=calcVol(w);
-    var cardioDistance=(w.exercises||[]).reduce(function(sum,e){
-      var ex=normalizeExercise(e);
+    var cardioPass=isCardioWorkout(w);
+    var volume=calcVol(w);
+    var cardioDistance=(w.exercises||[]).reduce(function(sum,exercise){
+      var ex=normalizeExercise(exercise);
       return sum+(ex.kind==='cardio'?(parseFloat(ex.distance)||0):0);
     },0);
-    var exNames=(w.exercises||[]).map(function(e){return e.name;}).filter(Boolean);
-    var exDisp=exNames.slice(0,3).join(', ')+(exNames.length>3?' +'+(exNames.length-3):'');
-    var volDisp=isCardio
-      ? (cardioDistance>0 ? String(cardioDistance).replace(/\.0$/,'')+' km' : '—')
-      : (vol>0?Math.round(vol).toLocaleString('sv')+' kg':'—');
-    var durDisp=w.duration?w.duration+' min':'—';
-    var hrDisp=w.hrAvg?w.hrAvg+' bpm':'—';
-    var exRows='';
-    (w.exercises||[]).forEach(function(e){
-      exRows+='<div class="inline-ex-row ex-row-item is-'+normalizeExercise(e).kind+'">'+buildExerciseEditorRowHtml('in',e,'removeInlineExercise(this)')+'</div>';
-    });
-    if(!exRows)exRows='<div class="inline-ex-row ex-row-item is-strength">'+buildExerciseEditorRowHtml('in',null,'removeInlineExercise(this)')+'</div>';
-    html+='<tr class="log-main-row" onclick="toggleWorkoutDetails('+w.id+')"><td>'+fmtDate(w.date)+'</td><td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>';
-    html+='<td>'+volDisp+'</td><td>'+durDisp+'</td><td>'+hrDisp+'</td>';
-    html+='<td class="log-actions"><button class="log-del" onclick="event.stopPropagation();deleteWorkout('+w.id+')" title="Ta bort">X</button></td></tr>';
-    html+='<tr id="detail-'+w.id+'" class="log-detail"><td colspan="6"><div class="log-detail-box">';
-    html+='<div class="form-row log-detail-row">'
-      +'<div class="form-group"><label>Datum</label><input type="date" id="in-date-'+w.id+'" value="'+(w.date||'')+'"></div>'
-      +'<div class="form-group"><label>Typ</label><input type="text" id="in-type-'+w.id+'" list="type-suggestions" value="'+escHtml(typeDisp||'')+'" placeholder="Ex: Rygg + Triceps"></div>'
-    +'</div>';
-    html+='<div class="form-row">'
-      +'<div class="form-group"><label>Tid (min)</label><input type="number" id="in-dur-'+w.id+'" min="1" value="'+(w.duration||'')+'"></div>'
-      +'<div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="in-hr-'+w.id+'" min="40" max="230" value="'+(w.hrAvg||'')+'"></div>'
-    +'</div>';
-    html+='<div class="form-row">'
-      +'<div class="form-group"><label>VO2 max</label><input type="number" id="in-vo2-'+w.id+'" min="10" max="100" step="0.1" value="'+(w.vo2||'')+'"></div>'
-      +'<div class="form-group"><label>Passvolym</label><input type="text" value="'+volDisp+'" readonly></div>'
-    +'</div>';
-    html+='<div class="form-row">'
-      +'<div class="form-group"><label>Löpdistans (km)</label><input type="number" id="in-run-km-'+w.id+'" step="0.1" min="0" value="'+(w.runDistance||'')+'"></div>'
-      +'<div class="form-group"><label>Löptid (min)</label><input type="number" id="in-run-min-'+w.id+'" min="0" value="'+(w.runTime||'')+'"></div>'
-    +'</div>';
-    html+='<div class="form-group"><label>Anteckningar</label><textarea id="in-notes-'+w.id+'" rows="2">'+escHtml(w.notes||'')+'</textarea></div>';
-    html+='<div class="form-group"><label>Övningar</label><div class="ex-list" id="inline-ex-list-'+w.id+'">'+exRows+'</div><button class="btn-sm" type="button" onclick="addInlineExercise('+w.id+')">+ Lägg till övning</button></div>';
-    if((w.exerciseTimings||[]).length){
-      html+='<div class="form-group"><label>Tid per övning</label><div style="display:flex;flex-direction:column;gap:4px">';
-      (w.exerciseTimings||[]).forEach(function(ti){
-        html+='<div style="font-size:11px;color:var(--text-sec)">'+escHtml(ti.name||'Övning')+': '+fmtSec(ti.durationSec||0)+'</div>';
-      });
-      html+='</div></div>';
+    var volumeDisp=volume>0
+      ? Math.round(volume).toLocaleString('sv-SE')+' kg'
+      : (cardioDistance>0?String(+cardioDistance.toFixed(2)).replace(/\.0$/,'')+' km':'—');
+    var durationDisp=w.duration?w.duration+' min':'—';
+    var pulseDisp=w.hrAvg?w.hrAvg+' bpm':'—';
+    var detailId='detail-'+w.id;
+    var detailOpen=!!openIds[detailId];
+    var rowClass='log-main-row'+(cardioPass?' log-pass-cardio-v7':'');
+    html+='<tr class="'+rowClass+'" data-workout-id="'+w.id+'" aria-expanded="'+(detailOpen?'true':'false')+'" onclick="toggleWorkoutDetails('+w.id+')">'
+      +'<td>'+fmtDate(w.date)+'</td>'
+      +'<td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>'
+      +'<td>'+volumeDisp+'</td><td>'+durationDisp+'</td><td>'+pulseDisp+'</td>'
+      +'<td class="log-actions"><button class="log-del" type="button" onclick="event.stopPropagation();deleteWorkout('+w.id+')" aria-label="Ta bort pass" title="Ta bort">×</button></td>'
+      +'</tr>';
+
+    var usedTimings={};
+    var exerciseRows=(w.exercises||[]).map(function(exercise,index){
+      var ex=normalizeExercise(exercise);
+      var timing=workoutTimingForExercise(w,ex,index,usedTimings);
+      var duration=timing&&exerciseDurationSeconds(timing.durationSec)?fmtSec(timing.durationSec):'—';
+      return '<button type="button" class="log-ex-row-v7 is-'+ex.kind+'" role="row" onclick="event.stopPropagation();editWorkoutExercise('+w.id+','+index+')" aria-label="Redigera '+escHtml(ex.name||'övning')+'">'
+        +'<span class="log-ex-index-v7" role="cell">'+(index+1)+'</span>'
+        +'<strong class="log-ex-name-v7" role="cell">'+escHtml(ex.name||'Övning')+'</strong>'
+        +'<span class="log-ex-target-v7" role="cell">'+escHtml(exerciseTargetText(ex))+'</span>'
+        +'<time class="log-ex-time-v7" role="cell">'+duration+'</time>'
+        +'<span class="log-ex-chevron-v7" aria-hidden="true">›</span>'
+        +'</button>';
+    }).join('');
+    if(!exerciseRows){
+      exerciseRows='<button type="button" class="log-ex-empty-v7" onclick="event.stopPropagation();editWorkout('+w.id+')">Inga övningar sparade · tryck för att lägga till</button>';
     }
-    html+='<div class="modal-footer"><button class="btn-primary" type="button" onclick="saveInlineWorkout('+w.id+')">Spara ändringar</button></div>';
-    html+='</div></td></tr>';
+
+    var meta=[];
+    if(w.duration)meta.push(w.duration+' min');
+    if(w.hrMin||w.hrAvg||w.hrMax){
+      var pulse=[w.hrMin,w.hrAvg,w.hrMax].map(function(value){return value||'—';}).join(' / ');
+      meta.push('Puls '+pulse);
+    }
+    if(w.vo2)meta.push('VO2 '+w.vo2);
+    html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
+      +'<div class="log-detail-box">'
+      +'<div class="log-detail-head-v7"><div><strong>'+escHtml(typeDisp||'Pass')+'</strong><span>'+fmtDate(w.date)+(meta.length?' · '+escHtml(meta.join(' · ')):'')+'</span></div>'
+      +'<button type="button" class="log-edit-pass-v7" onclick="event.stopPropagation();editWorkout('+w.id+')">Redigera pass</button></div>'
+      +'<div class="log-ex-table-v7" role="table" aria-label="Övningar">'
+      +'<div class="log-ex-head-v7" role="row"><span role="columnheader">#</span><span role="columnheader">Övning</span><span role="columnheader">Resultat</span><span role="columnheader">Tid</span><span></span></div>'
+      +exerciseRows+'</div>'
+      +(w.notes?'<p class="log-note-v7">'+escHtml(w.notes)+'</p>':'')
+      +'</div></td></tr>';
   });
   tbody.innerHTML=html;
+  document.body.classList.toggle('exercise-log-detail-open-v7',!!document.querySelector('.log-detail.show'));
 }
 function toggleWorkoutDetails(id){
   var row=document.getElementById('detail-'+id);
-  if(row)row.classList.toggle('show');
+  if(!row)return;
+  var shouldOpen=!row.classList.contains('show');
+  var commit=function(){
+    document.querySelectorAll('.log-detail.show').forEach(function(openRow){
+      openRow.classList.remove('show');
+      var trigger=document.querySelector('.log-main-row[data-workout-id="'+openRow.dataset.workoutId+'"]');
+      if(trigger)trigger.setAttribute('aria-expanded','false');
+    });
+    if(shouldOpen){
+      row.classList.add('show');
+      var trigger=document.querySelector('.log-main-row[data-workout-id="'+id+'"]');
+      if(trigger)trigger.setAttribute('aria-expanded','true');
+    }
+    document.body.classList.toggle('exercise-log-detail-open-v7',shouldOpen);
+  };
+  if(typeof window.runExerciseMorph==='function')window.runExerciseMorph('log',commit);
+  else commit();
 }
-
-function removeInlineExercise(btn){
-  var row=btn.closest('.inline-ex-row');
-  if(row)row.remove();
-}
-
-function addInlineExercise(id){
-  var list=document.getElementById('inline-ex-list-'+id);
-  if(!list)return;
-  var row=document.createElement('div');
-  row.className='inline-ex-row ex-row-item is-strength';
-  row.innerHTML=buildExerciseEditorRowHtml('in',null,'removeInlineExercise(this)');
-  list.appendChild(row);
-}
-
-function saveInlineWorkout(id){
-  var wks=getWorkouts();
-  var idx=wks.findIndex(function(w){return w.id===id;});
-  if(idx===-1)return;
-  var wk=wks[idx];
-  wk.date=document.getElementById('in-date-'+id).value||wk.date;
-  wk.type=canonicalWorkoutType(document.getElementById('in-type-'+id).value||wk.type,wk.exercises);
-  wk.duration=parseInt(document.getElementById('in-dur-'+id).value)||null;
-  wk.hrAvg=parseInt(document.getElementById('in-hr-'+id).value)||null;
-  wk.vo2=parseFloat(document.getElementById('in-vo2-'+id).value)||null;
-  wk.runDistance=parseFloat(document.getElementById('in-run-km-'+id).value)||0;
-  wk.runTime=parseInt(document.getElementById('in-run-min-'+id).value)||null;
-  wk.notes=document.getElementById('in-notes-'+id).value.trim();
-
-  var exRows=document.querySelectorAll('#inline-ex-list-'+id+' .inline-ex-row');
-  var exercises=[];
-  exRows.forEach(function(row){
-    var parsed=parseExerciseRow(row,'in');
-    if(parsed)exercises.push(parsed);
+function editWorkoutExercise(id,index){
+  editingWorkoutTargetIndex=index;
+  editWorkout(id);
+  requestAnimationFrame(function(){
+    var rows=document.querySelectorAll('#ex-list .ex-row-item');
+    var row=rows[index];
+    if(!row)return;
+    row.classList.add('exercise-edit-focus-v7');
+    row.scrollIntoView({block:'center'});
+    setTimeout(function(){row.classList.remove('exercise-edit-focus-v7');},1100);
   });
-  wk.exercises=exercises;
-  wks[idx]=wk;
-  saveWorkouts(wks);
-  if(wk.vo2)upsertVO2ForDate(wk.date,wk.vo2);
-  refreshTypeSuggestions();
-  refreshAll();
-  var detail=document.getElementById('detail-'+id);
-  if(detail)detail.classList.add('show');
-  showToast('Pass uppdaterat.');
 }
+
+
 function deleteWorkout(id){var wks=getWorkouts().filter(function(w){return w.id!==id;});saveWorkouts(wks);refreshAll();showToast('Pass borttaget');}
 
 function editWorkout(id){
@@ -1760,7 +1815,9 @@ function editWorkout(id){
   var wk=wks.find(function(x){return x.id===id;});
   if(!wk)return;
   editingWorkoutId=id;
-  openWorkoutModal();
+  openWorkoutModal({editing:true,skipBlank:true});
+  var modalTitle=document.querySelector('#wk-modal .modal > h2');
+  if(modalTitle)modalTitle.textContent='Redigera pass';
   document.getElementById('wk-date').value=wk.date||todayISO();
   document.getElementById('wk-type').value=wk.type||'Övrigt';
   document.getElementById('wk-dur').value=wk.duration||'';
@@ -1771,15 +1828,20 @@ function editWorkout(id){
   document.getElementById('wk-notes').value=wk.notes||'';
   var list=document.getElementById('ex-list');
   list.innerHTML='';
-  (wk.exercises||[]).forEach(function(e){
-    addExRow(e);
-    var row=list.lastElementChild;
+  var usedTimings={};
+  (wk.exercises||[]).forEach(function(exercise,index){
+    addExRow(exercise,workoutTimingForExercise(wk,exercise,index,usedTimings));
   });
   if(!(wk.exercises||[]).length)addExRow();
 }
 
 // ══ WORKOUT MODAL ════════════════════════════════════════════════
-function openWorkoutModal(){
+function openWorkoutModal(options){
+  options=options||{};
+  if(!options.editing)editingWorkoutId=null;
+  editingWorkoutTargetIndex=null;
+  var modalTitle=document.querySelector('#wk-modal .modal > h2');
+  if(modalTitle)modalTitle.textContent=options.editing?'Redigera pass':'Logga träning';
   document.getElementById('wk-date').value=todayISO();
   document.getElementById('wk-type').value='Övrigt';
   document.getElementById('wk-dur').value='';
@@ -1789,16 +1851,21 @@ function openWorkoutModal(){
   document.getElementById('wk-vo2').value='';
   document.getElementById('wk-notes').value='';
   document.getElementById('ex-list').innerHTML='';
-  addExRow();
+  if(!options.skipBlank)addExRow();
   refreshTemplateSelectors();
   document.getElementById('wk-modal').classList.add('show');
 }
-function addExRow(ex){
+function addExRow(ex,timing){
   var list=document.getElementById('ex-list');
-  var row=document.createElement('div'); row.className='ex-row-item is-'+normalizeExercise(ex).kind;
+  var row=document.createElement('div');
+  row.className='ex-row-item is-'+normalizeExercise(ex).kind;
   row.innerHTML=buildExerciseEditorRowHtml('ex',ex,"this.closest('.ex-row-item').remove()");
+  addExerciseTimingEditor(row,timing);
   list.appendChild(row);
-  row.querySelector('.ex-name').focus();
+  if(!ex){
+    var nameInput=row.querySelector('.ex-name');
+    if(nameInput)nameInput.focus();
+  }
 }
 function saveWorkout(){
   var date=document.getElementById('wk-date').value;
@@ -1811,12 +1878,17 @@ function saveWorkout(){
   var notes=document.getElementById('wk-notes').value.trim();
   var rows=document.querySelectorAll('#ex-list .ex-row-item');
   var exercises=[];
+  var exerciseTimings=[];
   rows.forEach(function(row){
     var parsed=parseExerciseRow(row,'ex');
-    if(parsed)exercises.push(parsed);
+    if(!parsed)return;
+    exercises.push(parsed);
+    var timingInput=row.querySelector('.ex-duration-seconds-v7');
+    var durationSec=exerciseDurationSeconds(timingInput&&timingInput.value);
+    if(durationSec)exerciseTimings.push({name:parsed.name,durationSec:durationSec});
   });
   var type=canonicalWorkoutType(typeRaw,exercises);
-  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes};
+  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes,exerciseTimings:exerciseTimings};
   var wks=getWorkouts();
   if(editingWorkoutId){
     wks=wks.map(function(x){return x.id===editingWorkoutId?wk:x;});

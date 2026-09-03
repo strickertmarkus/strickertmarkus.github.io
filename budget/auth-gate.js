@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260902-log-open-freeze-fix-v29';
+  var exerciseAssetsVersion = '20260903-exercise-log-table-morph-v30';
   var homeAssetsVersion = '20260827-1230-shopping-groups-v1';
   var calendarAssetsVersion = '20260902-home-color-wheel-v5';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -149,8 +149,8 @@
   }
 
   if (isExercisePage) {
-    /* Keep the established Hype theme, but replace the older render-heavy
-       session state patches with the runtime core. V20 remains the final UX layer. */
+    /* One ordered exercise stack: runtime first, feature layers next and one
+       final morph/stability authority last. Obsolete inline-log patch is gone. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
@@ -168,21 +168,16 @@
       ['exercise-flow-polish-v2.js', 'data-exercise-flow-polish-v2'],
       ['exercise-builder-row-tools-v3.js', 'data-exercise-builder-row-tools-v3'],
       ['exercise-builder-style-v5.js', 'data-exercise-builder-style-v5'],
-      ['exercise-log-details-v4.js', 'data-exercise-log-details-v4'],
       ['exercise-log-mobile-fix-v5.js', 'data-exercise-log-mobile-fix-v5'],
       ['exercise-session-set-cards-v6.js', 'data-exercise-session-set-cards-v6'],
       ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7'],
       ['exercise-session-shell-v19.js', 'data-exercise-session-shell-v19'],
-      ['exercise-session-ux-v20.js', 'data-exercise-session-ux-v20']
+      ['exercise-session-ux-v20.js', 'data-exercise-session-ux-v20'],
+      ['exercise-motion-v1.js', 'data-exercise-motion-v1']
     ];
 
     (function loadExerciseAt(index) {
-      if (index >= exerciseScripts.length) {
-        try {
-          if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();
-        } catch (_) {}
-        return;
-      }
+      if (index >= exerciseScripts.length) return;
       var item = exerciseScripts[index];
       loadScriptOnce(item[0], item[1], function () { loadExerciseAt(index + 1); });
     })(0);

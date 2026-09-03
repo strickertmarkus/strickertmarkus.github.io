@@ -200,12 +200,16 @@
       .plan-preview-title-v7{margin-top:3px;color:#F0F6FC;font-size:18px;font-weight:850;line-height:1.2}
       .plan-preview-date-v7{margin-top:3px;color:#7C8A9B;font-size:10px}
       .plan-preview-close-v7{border:0;background:transparent;color:#64748B;font-size:20px;cursor:pointer;padding:2px 5px}
-      .plan-preview-list-v7{display:flex;flex-direction:column;gap:5px}
-      .plan-preview-row-v7{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 9px;border:1px solid rgba(255,255,255,.055);border-radius:9px;background:rgba(255,255,255,.018)}
+      .plan-preview-list-v7{display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(148,163,184,.14);border-bottom:1px solid rgba(148,163,184,.14)}
+      .plan-preview-row-v7{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 6px;border:0;border-bottom:1px solid rgba(148,163,184,.11);border-radius:0;background:transparent;transition:background .18s ease,transform .16s cubic-bezier(.22,1,.36,1)}
+      .plan-preview-row-v7:last-child{border-bottom:0}
       .plan-preview-num-v7{color:#64748B;font-size:9px;font-weight:800;text-align:center}
       .plan-preview-name-v7{color:#E6EDF5;font-size:11px;font-weight:750;overflow-wrap:anywhere}
       .plan-preview-target-v7{color:#8FA0B3;font-size:9px;text-align:right;white-space:nowrap}
       .plan-preview-between-v7{grid-column:2/-1;margin-top:-2px;color:#FDBA74;font-size:8px;font-weight:700}
+      .plan-preview-row-v7.is-cardio{background:linear-gradient(90deg,rgba(239,68,68,.055),transparent 44%)}
+      .plan-preview-row-v7.is-cardio .plan-preview-num-v7,.plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#F87171}
+      .plan-preview-row-v7.is-cardio .plan-preview-target-v7{color:#D99A9A}
       .plan-preview-global-v7{margin-top:9px;padding:8px 9px;border:1px solid rgba(251,146,60,.22);border-radius:9px;background:rgba(251,146,60,.055);color:#FDBA74;font-size:9px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
       .plan-preview-actions-v7{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}
       .plan-preview-actions-v7 button{min-height:36px;border-radius:8px;padding:7px 12px;font:750 10px/1 Inter,sans-serif;cursor:pointer}
@@ -499,7 +503,8 @@
     document.getElementById('plan-preview-date-v7').textContent=draft.date || '';
     document.getElementById('plan-preview-list-v7').innerHTML=draft.exercises.map(function (entry,index) {
       var between=configText(entry.betweenSets,'Mellan set');
-      return '<div class="plan-preview-row-v7"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7">'+esc(between)+'</div>':'')+'</div>';
+      var kindClass=entry.exercise&&entry.exercise.kind==='cardio'?' is-cardio':' is-strength';
+      return '<div class="plan-preview-row-v7'+kindClass+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7">'+esc(between)+'</div>':'')+'</div>';
     }).join('');
     var global=document.getElementById('plan-preview-global-v7');
     var globalText=configText(draft.betweenExercises,'Mellan övningar');

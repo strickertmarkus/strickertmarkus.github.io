@@ -312,12 +312,16 @@
 
   function rawStartCurrentSet(state) {
     if (!state || state.setRunning || state.awaitingDecision || !Array.isArray(state.exercises) || Number(state.exerciseIndex) >= state.exercises.length) return false;
-    state.setRunning = true;
-    state.awaitingDecision = false;
-    state.setStartedAt = Date.now();
-    state.__hypePaused = false;
-    state.__hypePausedAt = null;
-    try { if (typeof window.renderSessionMode === 'function') window.renderSessionMode(); } catch (_) {}
+    var commit = function () {
+      state.setRunning = true;
+      state.awaitingDecision = false;
+      state.setStartedAt = Date.now();
+      state.__hypePaused = false;
+      state.__hypePausedAt = null;
+      try { if (typeof window.renderSessionMode === 'function') window.renderSessionMode(); } catch (_) {}
+    };
+    if (typeof window.runExerciseMorph === 'function') window.runExerciseMorph('session',commit);
+    else commit();
     return true;
   }
 
@@ -490,9 +494,11 @@
     var inOverview = modal.classList.contains('session-overview-mode');
     if (!inOverview || !state.setRunning || !Array.isArray(state.exercises) || state.exerciseIndex >= state.exercises.length) {
       if (setLog.dataset.currentEditorV20 === 'true') {
+        /* renderSessionMode has already committed the stopped/decision state.
+           Clearing the editor marker is enough; a second legacy render here
+           caused the visible set/timer jump on iOS. */
         setLog.dataset.currentEditorV20 = '';
         setLog.dataset.currentEditorKeyV20 = '';
-        try { if (typeof window.renderSessionMode === 'function' && !state.setRunning) window.renderSessionMode(); } catch (_) {}
       }
       setLogHeading(null);
       return;
@@ -563,12 +569,14 @@
     document.addEventListener('touchstart', unlockAudio, true);
     document.addEventListener('keydown', unlockAudio, true);
 
+    /* Rest routing needs a quick guard, while the editor only displays whole
+       seconds. Keeping them on separate cadences avoids 25 full DOM checks/s. */
     setInterval(function () {
       syncPretimerSound();
       syncRestFlow();
-      syncCurrentSetEditor();
       ensureRestButton();
-    }, 40);
+    }, 80);
+    setInterval(syncCurrentSetEditor,250);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});

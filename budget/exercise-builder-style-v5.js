@@ -55,6 +55,49 @@
         text-align:left;
       }
 
+      /* Kondition styrs av radens data-kind och använder alltid röd semantik.
+         Detta gäller både passbyggaren, vanliga loggpopupen och dragkopian. */
+      #day-workout-ex-list .ex-row-item,
+      #wk-modal #ex-list .ex-row-item {
+        position:relative;
+        padding:7px 0 8px !important;
+        border-bottom:1px solid rgba(148,163,184,.10);
+        transition:background .20s ease,border-color .20s ease,transform .18s cubic-bezier(.22,1,.36,1);
+      }
+      #day-workout-ex-list .ex-row-item.is-cardio,
+      #wk-modal #ex-list .ex-row-item.is-cardio {
+        border-bottom-color:rgba(248,113,113,.24);
+        background:linear-gradient(90deg,rgba(239,68,68,.045),transparent 42%);
+      }
+      #day-workout-ex-list .ex-row-item.is-cardio .ex-kind-btn.active,
+      #wk-modal #ex-list .ex-row-item.is-cardio .ex-kind-btn.active,
+      .builder-row-floating-v4.is-cardio .ex-kind-btn.active {
+        border-color:rgba(248,113,113,.56) !important;
+        background:rgba(239,68,68,.12) !important;
+        color:#F87171 !important;
+        box-shadow:0 0 13px rgba(239,68,68,.11) !important;
+      }
+      #day-workout-ex-list .ex-row-item.is-cardio .ex-row input,
+      #wk-modal #ex-list .ex-row-item.is-cardio .ex-row input,
+      .builder-row-floating-v4.is-cardio .ex-row input {
+        border-color:rgba(248,113,113,.24) !important;
+        background-color:rgba(37,21,25,.88) !important;
+        color:#FDE7E7 !important;
+        -webkit-text-fill-color:#FDE7E7 !important;
+      }
+      #day-workout-ex-list .ex-row-item.is-cardio .ex-row input:focus,
+      #wk-modal #ex-list .ex-row-item.is-cardio .ex-row input:focus,
+      .builder-row-floating-v4.is-cardio .ex-row input:focus {
+        border-color:rgba(248,113,113,.62) !important;
+        box-shadow:0 0 0 2px rgba(239,68,68,.09) !important;
+      }
+      #day-workout-ex-list .ex-row-item.is-cardio .ex-row input::placeholder,
+      #wk-modal #ex-list .ex-row-item.is-cardio .ex-row input::placeholder,
+      .builder-row-floating-v4.is-cardio .ex-row input::placeholder {
+        color:#A9787D !important;
+        -webkit-text-fill-color:#A9787D !important;
+      }
+
       /* Floating drag clone lives under body instead of inside the modal.
          Explicitly preserve the same dark form styling while it is floating. */
       .builder-row-floating-v4 input,

@@ -108,27 +108,6 @@
     triple.appendChild(makeGroup('Maxpuls (bpm)', 'session-hr-max'));
   }
 
-  function ensureInlineFields() {
-    var workouts = getWorkoutsSafe();
-    document.querySelectorAll('[id^="in-hr-"]').forEach(function (avg) {
-      if (/^in-hr-(min|max)-/.test(avg.id)) return;
-      var id = Number(avg.id.replace('in-hr-', ''));
-      if (!Number.isFinite(id) || document.getElementById('in-hr-min-' + id)) return;
-      var row = avg.closest('.form-row');
-      if (!row || !row.parentNode) return;
-      var wk = workouts.find(function (w) { return Number(w.id) === id; }) || {};
-      var wrap = document.createElement('div');
-      wrap.className = 'hr-inline-range-v3';
-      var minGroup = makeGroup('Minpuls (bpm)', 'in-hr-min-' + id);
-      var maxGroup = makeGroup('Maxpuls (bpm)', 'in-hr-max-' + id);
-      minGroup.querySelector('input').value = wk.hrMin || '';
-      maxGroup.querySelector('input').value = wk.hrMax || '';
-      wrap.appendChild(minGroup);
-      wrap.appendChild(maxGroup);
-      row.insertAdjacentElement('afterend', wrap);
-    });
-  }
-
   function setValue(id, value) {
     var el = document.getElementById(id);
     if (el) el.value = value || '';
@@ -206,13 +185,6 @@
       maxEl = document.getElementById('wk-hr-max');
       avgEl = document.getElementById('wk-hr-avg');
       try { id = Number(window.editingWorkoutId || 0) || null; } catch (e) {}
-    } else if (onclick.indexOf('saveInlineWorkout(') >= 0) {
-      mode = 'inline';
-      var match = onclick.match(/saveInlineWorkout\((\d+)\)/);
-      id = match ? Number(match[1]) : null;
-      minEl = document.getElementById('in-hr-min-' + id);
-      maxEl = document.getElementById('in-hr-max-' + id);
-      avgEl = document.getElementById('in-hr-' + id);
     } else if (onclick.indexOf('saveSessionWorkout()') >= 0) {
       mode = 'session';
       minEl = document.getElementById('session-hr-min');
@@ -458,7 +430,6 @@
   function syncUi() {
     ensureWorkoutFields();
     ensureSessionFields();
-    ensureInlineFields();
     syncWorkoutModalValues();
     syncSessionValues();
   }
