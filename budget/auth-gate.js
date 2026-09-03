@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260903-exercise-log-intervals-v43';
+  var exerciseAssetsVersion = '20260903-exercise-hype-timer-v44';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -173,7 +173,8 @@
       ['exercise-builder-between-preview-v7.js', 'data-exercise-builder-between-preview-v7'],
       ['exercise-session-shell-v19.js', 'data-exercise-session-shell-v19'],
       ['exercise-session-ux-v20.js', 'data-exercise-session-ux-v20'],
-      ['exercise-motion-v1.js', 'data-exercise-motion-v1']
+      ['exercise-motion-v1.js', 'data-exercise-motion-v1'],
+      ['exercise-hype-timer-layout-v1.js', 'data-exercise-hype-timer-layout-v1']
     ];
 
     (function loadExerciseAt(index) {

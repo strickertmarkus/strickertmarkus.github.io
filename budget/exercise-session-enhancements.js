@@ -173,7 +173,10 @@
 
     var segments = '';
     for (var i = 0; i < 60; i++) {
-      segments += '<span class="session-countdown-segment active" data-segment="' + i + '" style="transform:rotate(' + (i * 6) + 'deg) translateY(-82px)"></span>';
+      /* The final timer-layout layer owns the radius. Keep only the angle on
+         each segment so the ring can shrink without pushing its ticks off
+         centre on narrow phones. */
+      segments += '<span class="session-countdown-segment active" data-segment="' + i + '" style="--countdown-angle:' + (i * 6) + 'deg"></span>';
     }
 
     wrap.innerHTML =
