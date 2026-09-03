@@ -55,77 +55,130 @@
         flex:0 0 34px !important;
       }
 
-      /* Three compact interval graphics on one row even on narrow phones. */
+      /* Hard mobile layout: row 1 is date + time, row 2 is always
+         pulse + VO2 + pace. The + action has its own fixed column. */
       @media(max-width:600px) {
         .log-detail-head-v7 {
-          align-items:flex-start !important;
-          gap:7px !important;
+          display:grid !important;
+          grid-template-columns:minmax(0,1fr) 34px !important;
+          align-items:start !important;
+          gap:8px !important;
         }
         .log-detail-copy-v8 {
-          flex:1 1 auto !important;
-          width:auto !important;
           min-width:0 !important;
+          width:100% !important;
+          display:block !important;
+        }
+        .log-detail-copy-v8 > strong {
+          display:block !important;
+          margin-bottom:6px !important;
+        }
+        .log-detail-actions-v8 {
+          width:34px !important;
+          min-width:34px !important;
+          display:flex !important;
+          justify-content:flex-end !important;
+          align-items:flex-start !important;
+          align-self:start !important;
+          justify-self:end !important;
+          gap:0 !important;
+        }
+        .log-add-workout-v8 {
+          width:34px !important;
+          height:34px !important;
+          flex:0 0 34px !important;
         }
         .log-detail-meta-v8 {
           display:grid !important;
-          grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-          grid-template-rows:auto auto !important;
+          grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+          grid-template-areas:
+            "date date date time time time"
+            "pulse pulse vo2 vo2 pace pace" !important;
           column-gap:4px !important;
-          row-gap:3px !important;
+          row-gap:4px !important;
           width:100% !important;
           min-width:0 !important;
-          align-items:center !important;
+          align-items:end !important;
         }
         .log-detail-meta-v8 .log-meta-date-v8 {
-          grid-column:1 / 2 !important;
-          grid-row:1 !important;
+          grid-area:date !important;
           min-width:0 !important;
+          white-space:nowrap !important;
         }
         .log-detail-meta-v8 .log-meta-time-v8 {
-          grid-column:2 / 4 !important;
-          grid-row:1 !important;
+          grid-area:time !important;
           min-width:0 !important;
+          white-space:nowrap !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 {
-          grid-column:1 !important;
-          grid-row:2 !important;
+          grid-area:pulse !important;
         }
         .log-detail-meta-v8 .log-vo2-goal-v36 {
-          grid-column:2 !important;
-          grid-row:2 !important;
+          grid-area:vo2 !important;
         }
         .log-detail-meta-v8 .log-pace-interval-v37 {
-          grid-column:3 !important;
-          grid-row:2 !important;
+          grid-area:pace !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9,
         .log-detail-meta-v8 .log-vo2-goal-v36,
         .log-detail-meta-v8 .log-pace-interval-v37 {
+          display:flex !important;
+          align-items:center !important;
+          justify-content:center !important;
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:27px !important;
+          height:26px !important;
           overflow:hidden !important;
-          justify-content:center !important;
+          margin:0 !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 svg,
         .log-detail-meta-v8 .log-vo2-goal-v36 svg,
         .log-detail-meta-v8 .log-pace-interval-v37 svg {
+          display:block !important;
           width:100% !important;
-          max-width:92px !important;
-          height:27px !important;
+          max-width:none !important;
+          height:26px !important;
           overflow:visible !important;
+        }
+        .log-detail-meta-v8 .log-pulse-interval-v9 text,
+        .log-detail-meta-v8 .log-vo2-goal-v36 text,
+        .log-detail-meta-v8 .log-pace-interval-v37 text {
+          font-size:6px !important;
         }
       }
 
-      @media(max-width:360px) {
-        .log-detail-box { padding-left:8px !important;padding-right:8px !important; }
-        .log-detail-head-v7 { gap:5px !important; }
-        .log-detail-meta-v8 { column-gap:2px !important; }
+      @media(max-width:380px) {
+        .log-detail-box {
+          padding-left:8px !important;
+          padding-right:8px !important;
+        }
+        .log-detail-head-v7 {
+          gap:6px !important;
+        }
+        .log-detail-meta-v8 {
+          column-gap:2px !important;
+          row-gap:3px !important;
+        }
         .log-add-workout-v8 {
           width:31px !important;
           height:31px !important;
           flex-basis:31px !important;
+        }
+        .log-detail-meta-v8 .log-pulse-interval-v9,
+        .log-detail-meta-v8 .log-vo2-goal-v36,
+        .log-detail-meta-v8 .log-pace-interval-v37 {
+          height:24px !important;
+        }
+        .log-detail-meta-v8 .log-pulse-interval-v9 svg,
+        .log-detail-meta-v8 .log-vo2-goal-v36 svg,
+        .log-detail-meta-v8 .log-pace-interval-v37 svg {
+          height:24px !important;
+        }
+        .log-detail-meta-v8 .log-pulse-interval-v9 text,
+        .log-detail-meta-v8 .log-vo2-goal-v36 text,
+        .log-detail-meta-v8 .log-pace-interval-v37 text {
+          font-size:5.5px !important;
         }
       }
     `;
