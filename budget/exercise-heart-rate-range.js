@@ -281,16 +281,17 @@
     });
   }
 
-  function avgDataset(label, data, color, fillColor, edgeColor, pointStyle, ranges) {
+  function avgDataset(label, data, color, pointFillColor, fillColor, edgeColor, pointStyle, ranges) {
     return {
       label:label,
       data:data,
       borderColor:color,
-      backgroundColor:color,
-      pointBackgroundColor:color,
+      backgroundColor:pointFillColor,
+      pointBackgroundColor:pointFillColor,
       pointBorderColor:color,
-      pointRadius:4,
-      pointHoverRadius:6,
+      pointBorderWidth:1,
+      pointRadius:3,
+      pointHoverRadius:5,
       pointStyle:pointStyle,
       borderWidth:2.5,
       tension:.28,
@@ -381,8 +382,8 @@
       data:{
         labels:labels,
         datasets:[
-          avgDataset('Kondition', averages('cardio'), '#EF4444', 'rgba(239,68,68,.14)', 'rgba(248,113,113,.82)', 'circle', rangesFor(entries,'cardio')),
-          avgDataset('Styrka', averages('strength'), '#22D3EE', 'rgba(34,211,238,.12)', 'rgba(103,232,249,.78)', 'rectRounded', rangesFor(entries,'strength'))
+          avgDataset('Kondition', averages('cardio'), '#EF4444', '#FCA5A5', 'rgba(239,68,68,.14)', 'rgba(248,113,113,.82)', 'circle', rangesFor(entries,'cardio')),
+          avgDataset('Styrka', averages('strength'), '#22D3EE', '#A5F3FC', 'rgba(34,211,238,.12)', 'rgba(103,232,249,.78)', 'rectRounded', rangesFor(entries,'strength'))
         ]
       },
       options:{
