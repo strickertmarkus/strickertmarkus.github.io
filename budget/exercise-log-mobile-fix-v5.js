@@ -125,16 +125,76 @@
         min-width:0;
         padding:1px 2px 9px;
       }
-      .log-detail-head-v7 > div { min-width:0;display:grid;gap:2px;text-align:left; }
+      .log-detail-copy-v8 { min-width:0;display:grid;gap:4px;text-align:left; }
       .log-detail-head-v7 strong {
         overflow:hidden;
         text-overflow:ellipsis;
         white-space:nowrap;
         color:#E8EDF4;
-        font-size:12px;
+        font-size:13px;
         line-height:1.2;
       }
-      .log-detail-head-v7 span { color:#7F8A99;font-size:9px;line-height:1.25; }
+      .log-detail-meta-v8 {
+        min-width:0;
+        display:flex;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:4px 8px;
+        font-size:9px;
+        line-height:1.2;
+      }
+      .log-meta-date-v8 { color:#67E8F9;font-weight:800; }
+      .log-meta-time-v8 { color:#FDBA74;font-weight:800; }
+      .log-meta-vo2-v8 { color:#A78BFA;font-weight:750; }
+      .log-pulse-spark-v8 {
+        display:inline-flex;
+        align-items:center;
+        gap:4px;
+        color:#F87171;
+        font-size:8px;
+        font-weight:750;
+        white-space:nowrap;
+      }
+      .log-pulse-spark-v8 svg {
+        width:34px;
+        height:16px;
+        overflow:visible;
+      }
+      .log-pulse-spark-v8 polyline {
+        fill:none;
+        stroke:#EF4444;
+        stroke-width:1.7;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        filter:drop-shadow(0 0 3px rgba(239,68,68,.42));
+      }
+      .log-pulse-spark-v8.is-empty { color:#687485;opacity:.72; }
+      .log-pulse-spark-v8.is-empty polyline { stroke:#9B3D46;filter:none; }
+      .log-detail-actions-v8 {
+        flex:none;
+        display:flex;
+        align-items:center;
+        gap:7px;
+      }
+      .log-add-workout-v8 {
+        display:grid;
+        place-items:center;
+        width:32px;
+        height:32px;
+        padding:0;
+        border:1px solid rgba(34,211,238,.35);
+        border-radius:50%;
+        background:rgba(34,211,238,.085);
+        color:#67E8F9;
+        font:500 21px/1 'Inter',sans-serif;
+        cursor:pointer;
+        box-shadow:0 0 13px rgba(34,211,238,.10);
+      }
+      .log-add-workout-v8:hover {
+        border-color:rgba(34,211,238,.58);
+        background:rgba(34,211,238,.14);
+        box-shadow:0 0 18px rgba(34,211,238,.18);
+      }
       .log-edit-pass-v7 {
         flex:none;
         min-height:30px;
@@ -146,7 +206,8 @@
         font:750 9px/1 'Inter',sans-serif;
         cursor:pointer;
       }
-      .log-main-row.log-pass-cardio-v7 + .log-detail .log-edit-pass-v7 {
+      .log-main-row.log-pass-cardio-v7 + .log-detail .log-edit-pass-v7,
+      .log-main-row.log-pass-cardio-v7 + .log-detail .log-add-workout-v8 {
         border-color:rgba(248,113,113,.32);
         background:rgba(239,68,68,.065);
         color:#FCA5A5;
@@ -214,11 +275,11 @@
         overflow:hidden;
         text-overflow:ellipsis;
         white-space:nowrap;
-        color:#8996A6;
-        font-size:9px;
+        color:#AAB5C3;
         line-height:1.2;
       }
-      .log-ex-time-v7 { text-align:right;font-variant-numeric:tabular-nums; }
+      .log-ex-target-v7 { font-size:11px;font-weight:650; }
+      .log-ex-time-v7 { font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums; }
       .log-ex-chevron-v7 { color:#536071;font-size:15px;line-height:1;text-align:right; }
       .log-ex-row-v7.is-cardio .log-ex-index-v7,
       .log-ex-row-v7.is-cardio .log-ex-name-v7,
@@ -313,8 +374,12 @@
         .log-table th:nth-child(6),.log-table td:nth-child(6){width:8% !important;}
         .log-tag { padding:3px 5px !important;font-size:9px !important;white-space:normal !important; }
         .log-detail-head-v7 { padding-left:3px;padding-right:3px; }
-        .log-detail-head-v7 span { max-width:220px; }
-        .log-ex-target-v7 { font-size:8px; }
+        .log-detail-copy-v8 { max-width:min(210px,54vw); }
+        .log-detail-meta-v8 { gap:3px 6px; }
+        .log-pulse-spark-v8 svg { width:30px; }
+        .log-edit-pass-v7 { padding-left:8px;padding-right:8px; }
+        .log-ex-target-v7 { font-size:10.5px; }
+        .log-ex-time-v7 { font-size:11.5px; }
       }
       @media(prefers-reduced-motion:reduce) {
         .log-detail.show .log-detail-box,.log-ex-row-v7,#wk-modal .exercise-edit-focus-v7 { animation-duration:.001s !important;transition-duration:.001s !important; }

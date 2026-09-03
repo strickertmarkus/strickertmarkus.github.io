@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-log-table-morph-v30"></script>
+<script src="auth-gate.js?v=20260903-exercise-log-detail-polish-v31"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1055,6 +1055,20 @@ function exerciseDurationSeconds(value){
   var numeric=parseInt(value,10);
   return Number.isFinite(numeric)&&numeric>0?numeric:0;
 }
+function workoutPulseSparkline(workout){
+  var avg=Math.round(Number(workout&&workout.hrAvg)||0);
+  var min=Math.round(Number(workout&&workout.hrMin)||0);
+  var max=Math.round(Number(workout&&workout.hrMax)||0);
+  var spread=min&&max?Math.max(8,max-min):36;
+  var peak=Math.max(4,Math.min(7,4+spread/24));
+  var upper=(8-peak).toFixed(1);
+  var lower=(8+peak).toFixed(1);
+  var shoulderUp=(8-peak*.42).toFixed(1);
+  var shoulderDown=(8+peak*.42).toFixed(1);
+  var label=avg?avg+' bpm':'— bpm';
+  var title=avg?'Puls '+(min||'—')+' / '+avg+' / '+(max||'—'):'Ingen puls registrerad';
+  return '<span class="log-pulse-spark-v8'+(avg?'':' is-empty')+'" title="'+title+'"><span>'+label+'</span><svg viewBox="0 0 34 16" aria-hidden="true"><polyline points="0,8 6,8 9,'+shoulderUp+' 12,'+shoulderDown+' 16,'+upper+' 20,'+lower+' 24,8 34,8"></polyline></svg></span>';
+}
 function addExerciseTimingEditor(row,timing){
   if(!row)return;
   var editor=document.createElement('label');
@@ -1754,17 +1768,17 @@ function renderLog(){
       exerciseRows='<button type="button" class="log-ex-empty-v7" onclick="event.stopPropagation();editWorkout('+w.id+')">Inga övningar sparade · tryck för att lägga till</button>';
     }
 
-    var meta=[];
-    if(w.duration)meta.push(w.duration+' min');
-    if(w.hrMin||w.hrAvg||w.hrMax){
-      var pulse=[w.hrMin,w.hrAvg,w.hrMax].map(function(value){return value||'—';}).join(' / ');
-      meta.push('Puls '+pulse);
-    }
-    if(w.vo2)meta.push('VO2 '+w.vo2);
+    var metaMarkup='<div class="log-detail-meta-v8">'
+      +'<span class="log-meta-date-v8">'+fmtDate(w.date)+'</span>'
+      +(w.duration?'<span class="log-meta-time-v8">'+w.duration+' min</span>':'')
+      +(w.vo2?'<span class="log-meta-vo2-v8">VO2 '+w.vo2+'</span>':'')
+      +workoutPulseSparkline(w)
+      +'</div>';
     html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
       +'<div class="log-detail-box">'
-      +'<div class="log-detail-head-v7"><div><strong>'+escHtml(typeDisp||'Pass')+'</strong><span>'+fmtDate(w.date)+(meta.length?' · '+escHtml(meta.join(' · ')):'')+'</span></div>'
-      +'<button type="button" class="log-edit-pass-v7" onclick="event.stopPropagation();editWorkout('+w.id+')">Redigera pass</button></div>'
+      +'<div class="log-detail-head-v7"><div class="log-detail-copy-v8"><strong>'+escHtml(typeDisp||'Pass')+'</strong>'+metaMarkup+'</div>'
+      +'<div class="log-detail-actions-v8"><button type="button" class="log-add-workout-v8" onclick="event.stopPropagation();openWorkoutModal()" aria-label="Logga nytt pass" title="Logga nytt pass">+</button>'
+      +'<button type="button" class="log-edit-pass-v7" onclick="event.stopPropagation();editWorkout('+w.id+')">Redigera pass</button></div></div>'
       +'<div class="log-ex-table-v7" role="table" aria-label="Övningar">'
       +'<div class="log-ex-head-v7" role="row"><span role="columnheader">#</span><span role="columnheader">Övning</span><span role="columnheader">Resultat</span><span role="columnheader">Tid</span><span></span></div>'
       +exerciseRows+'</div>'
