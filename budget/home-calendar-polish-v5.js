@@ -20,7 +20,7 @@
       }
       body.home-calendar-polish-v5::before {
         background:
-          radial-gradient(900px 380px at 50% -110px, rgba(251,146,60,.13), transparent 67%),
+          radial-gradient(900px 380px at 50% -110px, rgba(253,186,116,.13), transparent 67%),
           radial-gradient(700px 320px at 12% 44%, rgba(56,189,248,.035), transparent 72%) !important;
       }
 
@@ -31,9 +31,9 @@
         min-height:82px !important;
         position:sticky !important;
         background:
-          radial-gradient(360px 150px at 18% 4%, rgba(251,146,60,.055), transparent 70%),
+          radial-gradient(360px 150px at 18% 4%, rgba(253,186,116,.055), transparent 70%),
           radial-gradient(300px 150px at 72% 0%, rgba(255,255,255,.040), transparent 72%),
-          radial-gradient(240px 120px at 42% 112%, rgba(251,146,60,.038), transparent 74%),
+          radial-gradient(240px 120px at 42% 112%, rgba(253,186,116,.038), transparent 74%),
           linear-gradient(180deg,rgba(31,29,30,.985),rgba(21,22,26,.955)) !important;
         border-bottom:0 !important;
         box-shadow:0 4px 16px rgba(0,0,0,.19), inset 0 -1px 0 rgba(255,255,255,.015) !important;
@@ -48,7 +48,7 @@
         bottom:0;
         height:1px;
         pointer-events:none;
-        background:linear-gradient(90deg,transparent,rgba(251,146,60,.055) 24%,rgba(255,255,255,.065) 50%,rgba(251,146,60,.055) 76%,transparent);
+        background:linear-gradient(90deg,transparent,rgba(253,186,116,.055) 24%,rgba(255,255,255,.065) 50%,rgba(253,186,116,.055) 76%,transparent);
         opacity:.72;
       }
       body.home-calendar-polish-v5 .filter-bar {
@@ -62,8 +62,8 @@
 
       body.home-calendar-polish-v5 #shopping-widget .widget-title,
       body.home-calendar-polish-v5 #transfer-widget .widget-title {
-        color:#FB923C !important;
-        text-shadow:0 2px 10px rgba(251,146,60,.16);
+        color:#FDBA74 !important;
+        text-shadow:0 2px 10px rgba(253,186,116,.16);
       }
 
       body.home-calendar-polish-v5 .sidebar-section,
@@ -77,8 +77,8 @@
         box-shadow:inset 0 1px 0 rgba(255,255,255,.020), 0 8px 22px rgba(0,0,0,.13), 0 0 18px rgba(74,222,128,.022);
       }
       body.home-calendar-polish-v5 #transfer-widget {
-        border-color:rgba(251,146,60,.14) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.020), 0 8px 22px rgba(0,0,0,.13), 0 0 18px rgba(251,146,60,.032);
+        border-color:rgba(253,186,116,.14) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.020), 0 8px 22px rgba(0,0,0,.13), 0 0 18px rgba(253,186,116,.032);
       }
       body.home-calendar-polish-v5 .link-card {
         transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease !important;
@@ -94,18 +94,18 @@
         box-shadow:none !important;
       }
       body.home-calendar-polish-v5 .cal-cell:hover {
-        border-color:rgba(251,146,60,.16) !important;
-        background:rgba(251,146,60,.030) !important;
+        border-color:rgba(253,186,116,.16) !important;
+        background:rgba(253,186,116,.030) !important;
       }
       body.home-calendar-polish-v5 .cal-cell.has-events:hover {
-        border-color:rgba(251,146,60,.34) !important;
-        background:rgba(251,146,60,.050) !important;
-        box-shadow:0 6px 16px rgba(0,0,0,.20), 0 0 12px rgba(251,146,60,.025) !important;
+        border-color:rgba(253,186,116,.34) !important;
+        background:rgba(253,186,116,.050) !important;
+        box-shadow:0 6px 16px rgba(0,0,0,.20), 0 0 12px rgba(253,186,116,.025) !important;
       }
       body.home-calendar-polish-v5 .cal-cell.today {
-        border-color:rgba(251,146,60,.62) !important;
-        background:linear-gradient(180deg, rgba(251,146,60,.090), rgba(251,146,60,.035)) !important;
-        box-shadow:inset 0 0 0 1px rgba(251,146,60,.055), 0 0 13px rgba(251,146,60,.030) !important;
+        border-color:rgba(253,186,116,.62) !important;
+        background:linear-gradient(180deg, rgba(253,186,116,.090), rgba(253,186,116,.035)) !important;
+        box-shadow:inset 0 0 0 1px rgba(253,186,116,.055), 0 0 13px rgba(253,186,116,.030) !important;
       }
       body.home-calendar-polish-v5 .cal-wd {
         color:#8F97A3 !important;
@@ -113,12 +113,12 @@
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button,
       body.home-calendar-polish-v5 .btn-xs {
         background:rgba(255,255,255,.040) !important;
-        border-color:rgba(251,146,60,.14) !important;
+        border-color:rgba(253,186,116,.14) !important;
       }
       body.home-calendar-polish-v5 .calendar-toolbar-v2 .month-nav button:hover,
       body.home-calendar-polish-v5 .btn-xs:hover {
-        background:rgba(251,146,60,.075) !important;
-        border-color:rgba(251,146,60,.24) !important;
+        background:rgba(253,186,116,.075) !important;
+        border-color:rgba(253,186,116,.24) !important;
       }
 
       body.home-calendar-polish-v5 .brand {
@@ -164,21 +164,21 @@
         height:36px !important;
         border-radius:10px !important;
         background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.026)) !important;
-        border:1px solid rgba(251,146,60,.16) !important;
+        border:1px solid rgba(253,186,116,.16) !important;
         color:#E8E3DD !important;
         box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 4px 14px rgba(0,0,0,.14) !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-btn:hover {
-        background:rgba(251,146,60,.075) !important;
-        border-color:rgba(251,146,60,.26) !important;
+        background:rgba(253,186,116,.075) !important;
+        border-color:rgba(253,186,116,.26) !important;
         color:#FDBA74 !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu {
         top:calc(100% + 10px) !important;
         background:linear-gradient(180deg,rgba(20,23,30,.98),rgba(15,18,25,.985)) !important;
-        border:1px solid rgba(251,146,60,.16) !important;
+        border:1px solid rgba(253,186,116,.16) !important;
         border-radius:14px !important;
-        box-shadow:0 18px 46px rgba(0,0,0,.46),0 0 28px rgba(251,146,60,.035),inset 0 1px 0 rgba(255,255,255,.025) !important;
+        box-shadow:0 18px 46px rgba(0,0,0,.46),0 0 28px rgba(253,186,116,.035),inset 0 1px 0 rgba(255,255,255,.025) !important;
         backdrop-filter:blur(18px) !important;
         -webkit-backdrop-filter:blur(18px) !important;
         overflow:hidden !important;
@@ -190,11 +190,11 @@
       }
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu a:hover,
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu a.active {
-        background:linear-gradient(90deg,rgba(251,146,60,.11),rgba(251,146,60,.035)) !important;
+        background:linear-gradient(90deg,rgba(253,186,116,.11),rgba(253,186,116,.035)) !important;
         color:#FDBA74 !important;
       }
       body.home-calendar-polish-v5 .app-header .nav-dropdown-menu .nav-sep {
-        border-top-color:rgba(251,146,60,.10) !important;
+        border-top-color:rgba(253,186,116,.10) !important;
       }
 
       body.home-calendar-polish-v5 #notif-panel,
@@ -249,14 +249,14 @@
         stroke:currentColor;
       }
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on {
-        background:rgba(251,146,60,.18) !important;
-        border-color:rgba(251,146,60,.48) !important;
-        box-shadow:inset 0 0 0 1px rgba(251,146,60,.035),0 0 10px rgba(251,146,60,.070) !important;
+        background:rgba(253,186,116,.18) !important;
+        border-color:rgba(253,186,116,.48) !important;
+        box-shadow:inset 0 0 0 1px rgba(253,186,116,.035),0 0 10px rgba(253,186,116,.070) !important;
       }
       body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
         transform:translateX(20px);
-        color:#FB923C;
-        filter:drop-shadow(0 0 4px rgba(251,146,60,.32));
+        color:#FDBA74;
+        filter:drop-shadow(0 0 4px rgba(253,186,116,.32));
       }
 
       body.home-calendar-polish-v5 .main-layout {
@@ -296,7 +296,7 @@
         font-size:12px !important;
         padding:0 6px !important;
         color:#FDBA74 !important;
-        text-shadow:0 1px 7px rgba(251,146,60,.07) !important;
+        text-shadow:0 1px 7px rgba(253,186,116,.07) !important;
       }
 
       body.home-calendar-polish-v5.calendar-ui-v2 .fab,
@@ -306,16 +306,16 @@
         min-width:50px !important;
         min-height:50px !important;
         background:rgba(18,22,30,.97) !important;
-        color:#FB923C !important;
-        border:1px solid rgba(251,146,60,.42) !important;
+        color:#FDBA74 !important;
+        border:1px solid rgba(253,186,116,.42) !important;
         font-size:24px !important;
-        box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 22px rgba(251,146,60,.13) !important;
+        box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 22px rgba(253,186,116,.13) !important;
       }
       body.home-calendar-polish-v5.calendar-ui-v2 .fab:hover,
       body.home-calendar-polish-v5 .fab:hover {
-        background:rgba(251,146,60,.090) !important;
-        border-color:rgba(251,146,60,.58) !important;
-        box-shadow:0 10px 24px rgba(0,0,0,.30),0 0 26px rgba(251,146,60,.18) !important;
+        background:rgba(253,186,116,.090) !important;
+        border-color:rgba(253,186,116,.58) !important;
+        box-shadow:0 10px 24px rgba(0,0,0,.30),0 0 26px rgba(253,186,116,.18) !important;
       }
 
       @media (max-width:768px) {
@@ -392,7 +392,7 @@
           min-width:48px !important;
           min-height:48px !important;
           font-size:23px !important;
-          box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 24px rgba(251,146,60,.15) !important;
+          box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 24px rgba(253,186,116,.15) !important;
         }
       }
 

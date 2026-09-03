@@ -22,7 +22,7 @@
         list-style: none;
         margin: 7px 2px 1px;
         padding: 7px 5px 4px;
-        border-bottom: 1px solid rgba(251,146,60,.18);
+        border-bottom: 1px solid rgba(253,186,116,.18);
         color: var(--accent);
         font-size: 10px;
         line-height: 1.15;

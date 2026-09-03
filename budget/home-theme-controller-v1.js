@@ -9,7 +9,7 @@
   var palettes = {
     day:   { accent:'#60A5FA', soft:'#93C5FD', rgb:'96,165,250' },
     week:  { accent:'#4ADE80', soft:'#86EFAC', rgb:'74,222,128' },
-    month: { accent:'#FB923C', soft:'#FDBA74', rgb:'251,146,60' }
+    month: { accent:'#FDBA74', soft:'#FDBA74', rgb:'253,186,116' }
   };
   var BLUE_THEME_KEY = 'home-blue-theme-config-v1';
   var CUSTOM_THEME_KEY = 'home-custom-theme-color-v1';
@@ -22,7 +22,7 @@
 
   function rgbParts(value) {
     var hex = normalizeHex(value);
-    if (!hex) return [251,146,60];
+    if (!hex) return [253,186,116];
     return [1,3,5].map(function (offset) { return parseInt(hex.slice(offset,offset + 2),16); });
   }
 
@@ -121,10 +121,6 @@
     return { page:'#0B1320', panel:'#111B2A', strong:'#18253A', rgb:'96,165,250' };
   }
 
-  function orangeSurfacePalette() {
-    return { page:'#15120F', panel:'#1C1713', strong:'#261E18', rgb:'251,146,60' };
-  }
-
   function updateBlueThemeConfig() {
     var button = document.getElementById('home-blue-theme-config-v1');
     if (!button) return;
@@ -165,7 +161,7 @@
     var blue = blueThemeEnabled();
     var custom = customThemeColor();
     var p = custom ? paletteFromColor(custom) : (blue ? palettes.day : palettes[view]);
-    var surface = custom ? customSurfacePalette(custom) : (blue ? blueSurfacePalette() : orangeSurfacePalette());
+    var surface = custom ? customSurfacePalette(custom) : (blue ? blueSurfacePalette() : null);
     var root = document.documentElement;
     var body = document.body;
     root.dataset.homeCalendarView = view;
@@ -441,7 +437,7 @@
       }
 
       .home-color-wheel-v1 {
-        --home-color-wheel-current:#FB923C;
+        --home-color-wheel-current:#FDBA74;
         position:absolute !important;
         left:10px !important;
         top:10px !important;
@@ -615,7 +611,7 @@
       control.id = 'home-color-wheel-v1';
       control.className = 'home-color-wheel-v1';
       control.title = 'Välj temafärg';
-      control.innerHTML = '<input id="home-color-wheel-input-v1" type="color" value="#FB923C" aria-label="Välj färg för hela Home-temat">';
+      control.innerHTML = '<input id="home-color-wheel-input-v1" type="color" value="#FDBA74" aria-label="Välj färg för hela Home-temat">';
       header.appendChild(control);
     } else if (control.parentNode !== header) {
       header.appendChild(control);
