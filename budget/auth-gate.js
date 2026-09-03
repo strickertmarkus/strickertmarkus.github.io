@@ -59,8 +59,8 @@
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
   var exerciseAssetsVersion = '20260903-exercise-log-intervals-v43';
-  var homeAssetsVersion = '20260903-home-orange-accent-v9';
-  var calendarAssetsVersion = '20260903-home-orange-accent-v9';
+  var homeAssetsVersion = '20260903-home-day-timeline-v10';
+  var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {

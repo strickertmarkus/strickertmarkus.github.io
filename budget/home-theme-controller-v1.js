@@ -507,8 +507,8 @@
       }
 
       html body .header-time {
-        color:var(--home-view-accent) !important;
-        text-shadow:0 2px 10px rgba(var(--home-view-rgb),.20) !important;
+        color:#FB923C !important;
+        text-shadow:0 2px 10px rgba(251,146,60,.20) !important;
       }
       html body .header-date {
         color:#93C5FD !important;
@@ -516,17 +516,25 @@
       }
       html body .app-header > .month-nav.home-header-month-v10 button,
       html body .app-header > .month-nav.home-header-month-v10 #month-label {
-        color:var(--home-view-accent-soft) !important;
+        color:#FDBA74 !important;
       }
       html body .app-header > .month-nav.home-header-month-v10 button {
-        border-color:rgba(var(--home-view-rgb),.28) !important;
+        border-color:rgba(251,146,60,.28) !important;
       }
       html body .app-header {
         background:
-          radial-gradient(560px 185px at 50% 108%,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(var(--home-view-rgb),.052) 100%) !important;
-        border-bottom-color:rgba(var(--home-view-rgb),.22) !important;
-        box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(var(--home-view-rgb),.075) !important;
+          radial-gradient(560px 185px at 50% 108%,rgba(251,146,60,.105),transparent 70%),
+          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(251,146,60,.052) 100%) !important;
+        border-bottom-color:rgba(251,146,60,.22) !important;
+        box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(251,146,60,.075) !important;
+      }
+      html body .app-header .nav-btn {
+        border-color:rgba(251,146,60,.18) !important;
+      }
+      html body .app-header .nav-btn:hover {
+        background:rgba(251,146,60,.08) !important;
+        border-color:rgba(251,146,60,.30) !important;
+        color:#FDBA74 !important;
       }
       html body .cal-week-number,
       html body .calendar-week-number-v2,
@@ -549,9 +557,9 @@
         box-shadow:0 9px 22px rgba(0,0,0,.28),0 0 24px rgba(var(--home-view-rgb),.16) !important;
       }
       html body .app-header .btn-notif.home-notif-switch-v7.is-on {
-        border-color:rgba(var(--home-view-rgb),.46) !important;
-        background:rgba(var(--home-view-rgb),.12) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 13px rgba(var(--home-view-rgb),.18) !important;
+        border-color:rgba(251,146,60,.46) !important;
+        background:rgba(251,146,60,.12) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 13px rgba(251,146,60,.18) !important;
       }
       html body #event-modal .modal {
         background:

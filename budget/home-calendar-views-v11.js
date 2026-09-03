@@ -107,21 +107,53 @@
     if (input) input.value = dayIso;
   }
 
+  function eventStartHour(event) {
+    var match = String(event && event.time || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return -1;
+    var hour = Number(match[1]);
+    var minute = Number(match[2]);
+    return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 ? hour : -1;
+  }
+
+  function dayHourMarkup(hour, dayIso, events) {
+    var label = String(hour).padStart(2, '0') + ':00';
+    var hourEvents = events.filter(function (event) { return eventStartHour(event) === hour; });
+    var isCurrent = dayIso === iso(new Date()) && hour === new Date().getHours();
+    return '<div class="home-cal-day-hour-v12' + (isCurrent ? ' is-current' : '') + '" data-hour="' + hour + '" data-add-hour="' + label + '" data-add-date="' + dayIso + '">' +
+      '<time class="home-cal-day-hour-label-v12" datetime="' + label + '">' + label + '</time>' +
+      '<div class="home-cal-day-hour-track-v12">' +
+        (hourEvents.length ? hourEvents.map(function (event) { return eventMarkup(event, true); }).join('') : '<span class="home-cal-day-hour-empty-v12" aria-hidden="true"></span>') +
+      '</div>' +
+    '</div>';
+  }
+
   function renderDay(stageAlt) {
     var date = anchorDate();
     var dayIso = iso(date);
     var events = eventsForDate(date);
     var title = date.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long' });
     title = title.charAt(0).toUpperCase() + title.slice(1);
+    var untimed = events.filter(function (event) { return eventStartHour(event) < 0; });
+    var timed = events.filter(function (event) { return eventStartHour(event) >= 0; });
+    var hours = [];
+    for (var hour = 0; hour < 24; hour++) hours.push(dayHourMarkup(hour, dayIso, timed));
     stageAlt.innerHTML =
       '<section class="home-cal-day-v11" data-date="' + dayIso + '">' +
         '<div class="home-cal-alt-head-v11"><div><span>Dagvy</span><strong>' + esc(title) + '</strong></div>' +
         '<button type="button" class="home-cal-add-v11" data-add-date="' + dayIso + '">+ Händelse</button></div>' +
-        '<div class="home-cal-day-events-v11">' +
-          (events.length ? events.map(function (ev) { return eventMarkup(ev, false); }).join('') : '<div class="home-cal-empty-v11">Inga händelser denna dag.</div>') +
+        (untimed.length ? '<div class="home-cal-day-all-day-v12"><span>Hela dagen</span><div>' + untimed.map(function (event) { return eventMarkup(event, true); }).join('') + '</div></div>' : '') +
+        '<div class="home-cal-day-hours-v12" aria-label="Tidslinje för ' + esc(title) + '">' +
+          hours.join('') +
         '</div>' +
       '</section>';
     setSelectedDay(dayIso);
+    requestAnimationFrame(function () {
+      var scroller = stageAlt.querySelector('.home-cal-day-hours-v12');
+      if (!scroller) return;
+      var targetHour = timed.length ? Math.max(0, eventStartHour(timed[0]) - 1) : (dayIso === iso(new Date()) ? Math.max(0, new Date().getHours() - 1) : 7);
+      var target = scroller.querySelector('[data-hour="' + targetHour + '"]');
+      if (target) scroller.scrollTop = Math.max(0, target.offsetTop - scroller.offsetTop - 8);
+    });
   }
 
   function renderWeek(stageAlt) {
@@ -277,6 +309,10 @@
         event.stopPropagation();
         setSelectedDay(add.dataset.addDate);
         if (typeof window.openEventModal === 'function') window.openEventModal(add.dataset.addDate);
+        if (add.dataset.addHour) {
+          var timeInput = document.getElementById('ev-time');
+          if (timeInput) timeInput.value = add.dataset.addHour;
+        }
         return;
       }
       var pick = event.target.closest('[data-pick-date]');
@@ -332,7 +368,7 @@
       .home-calendar-view-v11 button[data-calendar-view="month"] { color:#FDBA74; }
       .home-calendar-view-v11 button[data-calendar-view="day"].active { opacity:1;background:rgba(96,165,250,.16) !important;box-shadow:inset 0 0 0 1px rgba(96,165,250,.52),0 0 12px rgba(96,165,250,.28),0 0 22px rgba(59,130,246,.10) !important; }
       .home-calendar-view-v11 button[data-calendar-view="week"].active { opacity:1;background:rgba(74,222,128,.14) !important;box-shadow:inset 0 0 0 1px rgba(74,222,128,.48),0 0 12px rgba(74,222,128,.25),0 0 22px rgba(34,197,94,.09) !important; }
-      .home-calendar-view-v11 button[data-calendar-view="month"].active { opacity:1;background:rgba(253,186,116,.15) !important;box-shadow:inset 0 0 0 1px rgba(253,186,116,.50),0 0 12px rgba(253,186,116,.27),0 0 22px rgba(249,115,22,.09) !important; }
+      .home-calendar-view-v11 button[data-calendar-view="month"].active { opacity:1;background:rgba(251,146,60,.15) !important;box-shadow:inset 0 0 0 1px rgba(251,146,60,.50),0 0 12px rgba(251,146,60,.27),0 0 22px rgba(249,115,22,.09) !important; }
 
       #home-calendar-view-stage-v11 { view-transition-name:home-calendar-surface-v11; min-height:1px; transform-origin:50% 0; }
       ::view-transition-group(home-calendar-surface-v11) { animation-duration:.42s; animation-timing-function:cubic-bezier(.22,1,.36,1); }
@@ -352,7 +388,20 @@
       .home-cal-add-v11:active { transform:scale(.97); }
 
       .home-cal-day-v11 { min-height:270px; }
-      .home-cal-day-events-v11 { display:grid;gap:8px; }
+      .home-cal-day-all-day-v12 { display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:start;margin-bottom:8px;padding:8px;border:1px solid rgba(255,255,255,.075);border-radius:11px;background:rgba(255,255,255,.02); }
+      .home-cal-day-all-day-v12 > span { color:#7B8797;font-size:9px;font-weight:800;line-height:1.25;text-transform:uppercase;letter-spacing:.45px;padding-top:8px; }
+      .home-cal-day-all-day-v12 > div { display:grid;gap:5px;min-width:0; }
+      .home-cal-day-hours-v12 { max-height:510px;overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(255,255,255,.075);border-radius:13px;background:rgba(255,255,255,.012);scrollbar-width:thin;scrollbar-color:rgba(253,186,116,.34) transparent; }
+      .home-cal-day-hour-v12 { position:relative;display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;min-height:54px;padding:5px 7px 5px 0;cursor:pointer; }
+      .home-cal-day-hour-v12 + .home-cal-day-hour-v12 { border-top:1px solid rgba(255,255,255,.055); }
+      .home-cal-day-hour-v12:hover { background:rgba(96,165,250,.028); }
+      .home-cal-day-hour-v12.is-current { background:linear-gradient(90deg,rgba(253,186,116,.055),transparent 76%); }
+      .home-cal-day-hour-v12.is-current::after { content:'';position:absolute;left:44px;right:8px;top:50%;height:1px;background:linear-gradient(90deg,rgba(253,186,116,.72),rgba(253,186,116,.08));pointer-events:none;z-index:0; }
+      .home-cal-day-hour-label-v12 { position:relative;z-index:1;color:#758194;font-size:10px;font-weight:700;line-height:1;padding:5px 7px 0 0;text-align:right;font-variant-numeric:tabular-nums; }
+      .home-cal-day-hour-v12.is-current .home-cal-day-hour-label-v12 { color:#FDBA74; }
+      .home-cal-day-hour-track-v12 { position:relative;z-index:1;display:grid;gap:5px;align-content:start;min-width:0; }
+      .home-cal-day-hour-empty-v12 { min-height:42px; }
+      .home-cal-day-hour-v12 .home-cal-event-v11 { background:linear-gradient(180deg,color-mix(in srgb,var(--event-color) 10%,#161B22),rgba(255,255,255,.022));border-color:color-mix(in srgb,var(--event-color) 28%,rgba(255,255,255,.075)); }
       .home-cal-event-v11 { width:100%;display:grid;grid-template-columns:4px minmax(0,1fr);gap:10px;text-align:left;padding:10px 11px;border:1px solid rgba(255,255,255,.085);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.022));color:#F0F6FC;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.018); }
       .home-cal-event-v11.compact { padding:7px 9px;border-radius:9px; }
       .home-cal-event-v11:active { transform:scale(.99); }

@@ -94,54 +94,54 @@
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
         background:
-          radial-gradient(560px 185px at 50% 108%,rgba(var(--home-view-rgb),.105),transparent 70%),
-          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(var(--home-view-rgb),.052) 100%) !important;
-        border-bottom-color:rgba(var(--home-view-rgb),.22) !important;
-        box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(var(--home-view-rgb),.075) !important;
+          radial-gradient(560px 185px at 50% 108%,rgba(251,146,60,.105),transparent 70%),
+          linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(251,146,60,.052) 100%) !important;
+        border-bottom-color:rgba(251,146,60,.22) !important;
+        box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 25px rgba(251,146,60,.075) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header::after {
-        background:linear-gradient(90deg,transparent,rgba(var(--home-view-rgb),.10) 24%,rgba(255,255,255,.06) 50%,rgba(var(--home-view-rgb),.10) 76%,transparent) !important;
+        background:linear-gradient(90deg,transparent,rgba(251,146,60,.10) 24%,rgba(255,255,255,.06) 50%,rgba(251,146,60,.10) 76%,transparent) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .header-time {
-        color:var(--home-view-accent) !important;
-        text-shadow:0 2px 10px rgba(var(--home-view-rgb),.20) !important;
+        color:#FB923C !important;
+        text-shadow:0 2px 10px rgba(251,146,60,.20) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .header-date {
-        color:var(--home-view-accent-soft) !important;
+        color:#93C5FD !important;
       }
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 button {
         color:var(--home-view-accent-soft) !important;
-        border-color:rgba(var(--home-view-rgb),.22) !important;
-        box-shadow:0 0 13px rgba(var(--home-view-rgb),.045) !important;
+        border-color:rgba(251,146,60,.22) !important;
+        box-shadow:0 0 13px rgba(251,146,60,.045) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 button:hover {
-        background:rgba(var(--home-view-rgb),.10) !important;
-        border-color:rgba(var(--home-view-rgb),.40) !important;
+        background:rgba(251,146,60,.10) !important;
+        border-color:rgba(251,146,60,.40) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 #month-label {
         color:var(--home-view-accent-soft) !important;
-        text-shadow:0 2px 11px rgba(var(--home-view-rgb),.16) !important;
+        text-shadow:0 2px 11px rgba(251,146,60,.16) !important;
       }
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .nav-btn {
-        border-color:rgba(var(--home-view-rgb),.18) !important;
+        border-color:rgba(251,146,60,.18) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .nav-btn:hover {
-        background:rgba(var(--home-view-rgb),.08) !important;
-        border-color:rgba(var(--home-view-rgb),.30) !important;
-        color:var(--home-view-accent-soft) !important;
+        background:rgba(251,146,60,.08) !important;
+        border-color:rgba(251,146,60,.30) !important;
+        color:#FDBA74 !important;
       }
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on {
-        border-color:rgba(var(--home-view-rgb),.46) !important;
-        background:rgba(var(--home-view-rgb),.12) !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 13px rgba(var(--home-view-rgb),.18) !important;
+        border-color:rgba(251,146,60,.46) !important;
+        background:rgba(251,146,60,.12) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 13px rgba(251,146,60,.18) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
         color:#FFF8E9 !important;
-        background:rgba(var(--home-view-rgb),.18) !important;
-        filter:drop-shadow(0 0 2px rgba(255,255,255,.98)) drop-shadow(0 0 8px rgba(var(--home-view-rgb),.82)) !important;
+        background:rgba(251,146,60,.18) !important;
+        filter:drop-shadow(0 0 2px rgba(255,255,255,.98)) drop-shadow(0 0 8px rgba(251,146,60,.82)) !important;
       }
 
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-week-number,
@@ -393,9 +393,9 @@
       padding:0 !important;
       overflow:visible !important;
       text-align:center !important;
-      background:linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(253,186,116,.06) 100%) !important;
-      border-bottom:1px solid rgba(253,186,116,.20) !important;
-      box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 24px rgba(253,186,116,.075) !important;
+      background:linear-gradient(180deg,var(--home-status-surface,#0F1219) 0,var(--home-status-surface,#0F1219) 3px,rgba(251,146,60,.06) 100%) !important;
+      border-bottom:1px solid rgba(251,146,60,.20) !important;
+      box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 24px rgba(251,146,60,.075) !important;
       backdrop-filter:blur(20px) !important;
       -webkit-backdrop-filter:blur(20px) !important;
     }
@@ -472,8 +472,8 @@
       line-height:1 !important;
       color:#FDBA74 !important;
       background:rgba(255,255,255,.035) !important;
-      border:1px solid rgba(253,186,116,.18) !important;
-      box-shadow:0 0 12px rgba(253,186,116,.025) !important;
+      border:1px solid rgba(251,146,60,.18) !important;
+      box-shadow:0 0 12px rgba(251,146,60,.025) !important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header > .month-nav.home-header-month-v10 #month-label {
       min-width:150px !important;
@@ -485,7 +485,7 @@
       white-space:nowrap !important;
       text-align:center !important;
       color:#FDBA74 !important;
-      text-shadow:0 2px 10px rgba(253,186,116,.14) !important;
+      text-shadow:0 2px 10px rgba(251,146,60,.14) !important;
     }
 
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7 {
@@ -527,15 +527,15 @@
       height:15px !important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on {
-      border-color:rgba(253,186,116,.42) !important;
-      background:rgba(253,186,116,.11) !important;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(253,186,116,.15) !important;
+      border-color:rgba(251,146,60,.42) !important;
+      background:rgba(251,146,60,.11) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 12px rgba(251,146,60,.15) !important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.is-on .home-notif-knob-v7 {
       transform:translateX(17px) !important;
       color:#FFF0AE !important;
-      background:rgba(253,186,116,.16) !important;
-      filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(253,186,116,.72)) !important;
+      background:rgba(251,146,60,.16) !important;
+      filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(251,146,60,.72)) !important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.home-notif-switch-v7.is-on .home-notif-knob-v7 {
       transform:translateX(29px) !important;
