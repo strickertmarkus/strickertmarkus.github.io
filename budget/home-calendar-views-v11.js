@@ -364,11 +364,11 @@
 
       .home-cal-week-list-v11 { display:grid;gap:6px; }
       .home-cal-week-day-v11 { display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;padding:7px;border:1px solid rgba(255,255,255,.075);border-radius:12px;background:rgba(255,255,255,.022); }
-      .home-cal-week-day-v11.today { border-color:rgba(251,191,36,.34);background:linear-gradient(90deg,rgba(251,191,36,.055),rgba(255,255,255,.02)); }
+      .home-cal-week-day-v11.today { border-color:rgba(251,146,60,.34);background:linear-gradient(90deg,rgba(251,146,60,.055),rgba(255,255,255,.02)); }
       .home-cal-week-date-v11 { border:0;background:transparent;color:#94A3B8;display:grid;align-content:center;justify-items:start;padding:2px 4px;cursor:pointer;text-align:left; }
       .home-cal-week-date-v11 span { font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.55px; }
       .home-cal-week-date-v11 strong { color:#F0F6FC;font-size:13px;white-space:nowrap; }
-      .home-cal-week-day-v11.today .home-cal-week-date-v11 strong { color:#FBBF24; }
+      .home-cal-week-day-v11.today .home-cal-week-date-v11 strong { color:#FB923C; }
       .home-cal-week-events-v11 { min-width:0;display:grid;gap:5px; }
       .home-cal-week-empty-v11 { align-self:center;color:#4A5568;font-size:10px;padding:6px 8px; }
 

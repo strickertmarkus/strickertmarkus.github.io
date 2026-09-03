@@ -535,7 +535,7 @@
       transform:translateX(17px) !important;
       color:#FFF0AE !important;
       background:rgba(251,146,60,.16) !important;
-      filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(251,191,36,.72)) !important;
+      filter:drop-shadow(0 0 2px rgba(255,250,220,.95)) drop-shadow(0 0 7px rgba(251,146,60,.72)) !important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .btn-notif.home-notif-switch-v7.home-notif-switch-v7.is-on .home-notif-knob-v7 {
       transform:translateX(29px) !important;
