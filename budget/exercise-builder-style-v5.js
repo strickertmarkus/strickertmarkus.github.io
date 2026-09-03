@@ -11,7 +11,7 @@
     var group = list && (list.closest('.form-group') || list.parentElement);
     var label = group && group.querySelector(':scope > label');
     if (label) {
-      label.textContent = 'Övningar (Set/Reps/kg · Distans km / Tid min · Vila/mellanövning sek)';
+      label.textContent = 'Övningar';
     }
 
     var globalSeconds = document.querySelector('#between-exercise-global-editor-v7 [data-global-seconds-v7]');
@@ -42,8 +42,24 @@
       #day-workout-ex-list .ex-row-item.is-cardio .ex-row {
         grid-template-columns:minmax(0,1fr) 92px 92px 26px !important;
       }
-      #day-workout-ex-list .ex-row input {
+      #day-workout-ex-list .ex-row,
+      .builder-row-floating-v4 .ex-row {
+        width:100% !important;
         min-width:0 !important;
+        box-sizing:border-box !important;
+      }
+      #day-workout-ex-list .ex-row input {
+        width:100% !important;
+        min-width:0 !important;
+        height:36px !important;
+        box-sizing:border-box !important;
+        line-height:20px !important;
+      }
+      #day-workout-ex-list .ex-row .ex-del {
+        width:24px !important;
+        min-width:24px !important;
+        padding:0 !important;
+        text-align:center !important;
       }
       #day-workout-ex-list .ex-row .ex-name {
         padding-left:10px !important;
@@ -60,9 +76,13 @@
       #day-workout-ex-list .ex-row-item,
       #wk-modal #ex-list .ex-row-item {
         position:relative;
-        padding:7px 0 8px !important;
+        box-sizing:border-box !important;
+        padding:8px 10px 9px !important;
         border-bottom:1px solid rgba(148,163,184,.10);
         transition:background .20s ease,border-color .20s ease,transform .18s cubic-bezier(.22,1,.36,1);
+      }
+      #day-workout-ex-list .ex-row-item.builder-row-enhanced-v3 {
+        border-color:rgba(34,211,238,.095) !important;
       }
       #day-workout-ex-list .ex-row-item.is-cardio,
       #wk-modal #ex-list .ex-row-item.is-cardio {
@@ -153,12 +173,12 @@
       @media(max-width:480px) {
         #day-workout-ex-list .ex-row,
         .builder-row-floating-v4 .ex-row {
-          grid-template-columns:minmax(0,1fr) 44px 44px 50px 22px !important;
+          grid-template-columns:minmax(0,1fr) 42px 42px 48px 24px !important;
           gap:4px !important;
         }
         #day-workout-ex-list .ex-row-item.is-cardio .ex-row,
         .builder-row-floating-v4.is-cardio .ex-row {
-          grid-template-columns:minmax(0,1fr) 68px 68px 22px !important;
+          grid-template-columns:minmax(0,1fr) 64px 64px 24px !important;
         }
         #day-workout-ex-list .ex-row input,
         .builder-row-floating-v4 .ex-row input {

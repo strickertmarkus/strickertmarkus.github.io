@@ -146,6 +146,17 @@
       .log-meta-date-v8 { color:#67E8F9;font-weight:800; }
       .log-meta-time-v8 { color:#FDBA74;font-weight:800; }
       .log-meta-vo2-v8 { color:#A78BFA;font-weight:750; }
+      .log-meta-pace-v34 { color:#FCA5A5;font-weight:800; }
+      .log-volume-v34 > span { display:block; }
+      .log-main-pace-v34 {
+        display:block;
+        margin-top:2px;
+        color:#F87171;
+        font-size:7.5px;
+        font-weight:800;
+        line-height:1;
+        white-space:nowrap;
+      }
       .log-pulse-interval-v9 {
         display:inline-flex;
         align-items:center;
@@ -332,26 +343,39 @@
       #wk-modal .ex-duration-editor-v7,
       #exercise-edit-modal-v9 .ex-duration-editor-v7 {
         display:grid;
-        grid-template-columns:auto 72px 20px;
+        grid-template-columns:minmax(0,1fr) 76px auto;
         align-items:center;
-        justify-content:end;
-        gap:5px;
-        margin-top:1px;
-        color:#7F8A99;
+        width:100%;
+        box-sizing:border-box;
+        gap:6px;
+        margin-top:8px;
+        padding-top:8px;
+        border-top:1px solid rgba(148,163,184,.11);
+        color:#8D99A8;
         font-size:9px;
         font-weight:700;
       }
+      #wk-modal .ex-duration-editor-v7 > span,
+      #exercise-edit-modal-v9 .ex-duration-editor-v7 > span {
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
       #wk-modal .ex-duration-editor-v7 input,
       #exercise-edit-modal-v9 .ex-duration-editor-v7 input {
-        width:72px;
+        width:76px;
         min-width:0;
-        height:29px;
-        padding:4px 7px;
-        border:1px solid rgba(148,163,184,.17);
-        border-radius:7px;
-        background:#171E27;
-        color:#DCE4EE;
-        font-size:10px;
+        height:34px !important;
+        box-sizing:border-box;
+        padding:6px 8px;
+        border:1px solid rgba(34,211,238,.18);
+        border-radius:8px;
+        background:#171E27 !important;
+        color:#DCE4EE !important;
+        -webkit-text-fill-color:#DCE4EE !important;
+        font-size:11px;
+        line-height:20px;
         box-shadow:none;
       }
       #wk-modal .ex-duration-editor-v7 small,
@@ -360,10 +384,59 @@
         font-size:8px;
         font-weight:700;
       }
-      #exercise-edit-modal-v9 { z-index:2147483500; }
+      #exercise-edit-modal-v9 { z-index:2147483500;color-scheme:dark; }
       #exercise-edit-modal-v9 .single-exercise-modal-v9 {
         width:min(520px,calc(100% - 28px));
         max-width:520px;
+        background:
+          radial-gradient(420px 190px at 88% 0,rgba(34,211,238,.075),transparent 72%),
+          linear-gradient(180deg,#18212B,#121922) !important;
+        border-color:rgba(34,211,238,.22) !important;
+        box-shadow:0 26px 72px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.035) !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9,
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row,
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row-head {
+        width:100%;
+        min-width:0;
+        box-sizing:border-box;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 input,
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 select,
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 textarea {
+        width:100% !important;
+        min-width:0 !important;
+        height:38px;
+        box-sizing:border-box !important;
+        padding:8px 10px !important;
+        border:1px solid rgba(34,211,238,.16) !important;
+        border-radius:8px !important;
+        background:#171E27 !important;
+        background-color:#171E27 !important;
+        color:#E6EDF5 !important;
+        -webkit-text-fill-color:#E6EDF5 !important;
+        caret-color:#67E8F9 !important;
+        font:600 12px/20px 'Inter',sans-serif !important;
+        box-shadow:none !important;
+        opacity:1 !important;
+        -webkit-appearance:none !important;
+        appearance:none !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 input::placeholder {
+        color:#718093 !important;
+        -webkit-text-fill-color:#718093 !important;
+        opacity:1 !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 input:focus {
+        border-color:rgba(34,211,238,.48) !important;
+        box-shadow:0 0 0 2px rgba(34,211,238,.07) !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-kind-btn {
+        min-height:25px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:4px 10px;
       }
       .single-exercise-kicker-v9 {
         margin-bottom:3px;
@@ -400,10 +473,15 @@
         box-shadow:0 0 13px rgba(239,68,68,.11) !important;
       }
       #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row input {
-        border-color:rgba(248,113,113,.24) !important;
-        background-color:rgba(37,21,25,.88) !important;
+        border-color:rgba(248,113,113,.38) !important;
+        background:rgba(37,21,25,.94) !important;
+        background-color:rgba(37,21,25,.94) !important;
         color:#FDE7E7 !important;
         -webkit-text-fill-color:#FDE7E7 !important;
+      }
+      #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row input:focus {
+        border-color:rgba(248,113,113,.68) !important;
+        box-shadow:0 0 0 2px rgba(239,68,68,.09) !important;
       }
       #wk-modal .exercise-edit-focus-v7 {
         animation:exercise-edit-focus-v7 1.05s cubic-bezier(.22,1,.36,1);

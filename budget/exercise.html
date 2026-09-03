@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-pulse-offset-v33"></script>
+<script src="auth-gate.js?v=20260903-exercise-running-goals-v34"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -153,6 +153,34 @@
     .goal-history th,.goal-history td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;}
     .goal-history th{color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
     .goal-history tr:last-child td{border-bottom:none;}
+    .goal-card-run-v34{
+      border-color:rgba(248,113,113,.22) !important;
+      background:
+        radial-gradient(420px 180px at 88% 0,rgba(239,68,68,.085),transparent 72%),
+        linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.022)) !important;
+    }
+    .goal-card-run-v34:hover{border-color:rgba(248,113,113,.34) !important;}
+    .goal-card-run-v34 .goal-lbl{color:#FCA5A5;}
+    .goal-card-run-v34 .progress-wrap{background:rgba(127,29,29,.34);}
+    .run-goal-stats-v34{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 9px;}
+    .run-goal-stat-v34{padding:7px 8px;border-left:2px solid rgba(248,113,113,.62);background:rgba(239,68,68,.045);}
+    .run-goal-stat-v34 span{display:block;color:#8F9AAA;font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.45px;}
+    .run-goal-stat-v34 strong{display:block;margin-top:2px;color:#FCA5A5;font-size:12px;font-variant-numeric:tabular-nums;}
+    .run-pace-chart-v34{margin-top:9px;padding-top:8px;border-top:1px solid rgba(248,113,113,.12);}
+    .run-pace-chart-title-v34{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#C98B91;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
+    .run-pace-chart-area-v34{height:116px;position:relative;}
+    .goal-card-run-v34 .goal-history{max-height:178px;border-color:rgba(248,113,113,.16);background:rgba(14,11,16,.28);}
+    .goal-card-run-v34 .goal-history table{min-width:430px;font-variant-numeric:tabular-nums;}
+    .goal-card-run-v34 .goal-history th{color:#B9898E;background:rgba(239,68,68,.035);}
+    .goal-card-run-v34 .goal-history td:nth-child(2),
+    .goal-card-run-v34 .goal-history td:nth-child(3),
+    .goal-card-run-v34 .goal-history td:nth-child(5),
+    .goal-card-run-v34 .goal-history td:nth-child(6){color:#F3B0B4;}
+    @media(max-width:480px){
+      .goal-card-run-v34{padding:18px 14px;}
+      .goal-card-run-v34 .goal-history{margin-left:-3px;margin-right:-3px;}
+      .goal-card-run-v34 .goal-history th,.goal-card-run-v34 .goal-history td{padding:6px 7px;font-size:9px;}
+    }
 
     /* ── CHARTS ── */
     .charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
@@ -396,14 +424,22 @@
         <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g1-bar" style="width:0%"></div></div></div>
         <div class="goal-nums"><span><input type="number" id="g1-cur" value="0" readonly style="width:40px;font-size:20px"> / <input type="number" id="g1-goal" value="4" min="1" max="14" style="width:40px;font-size:16px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
       </div>
-      <div class="goal-card">
+      <div class="goal-card goal-card-run-v34">
         <div class="goal-lbl">Längsta löppass (km)</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:var(--purple)"></div></div></div>
-        <div class="goal-nums"><span><input type="number" id="g2-cur" value="0" readonly style="width:60px;font-size:18px"> / <input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" style="width:60px;font-size:13px;font-weight:600"></span><span style="color:var(--text-dim);font-size:11px">mål</span></div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g2-bar" style="width:0%;background:#EF4444"></div></div></div>
+        <div class="goal-nums"><span><input type="number" id="g2-cur" value="0" readonly style="width:60px;font-size:18px"> / <input type="number" id="g2-goal" value="10" min="1" max="100" step="0.1" style="width:60px;font-size:13px;font-weight:600"></span><span style="color:#C98B91;font-size:11px">mål</span></div>
         <div class="goal-sub">Tid på längsta pass: <span id="g2-time">-</span></div>
+        <div class="run-goal-stats-v34">
+          <div class="run-goal-stat-v34"><span>Totaldistans</span><strong id="g2-total-distance">0 km</strong></div>
+          <div class="run-goal-stat-v34"><span>Bästa snittakt</span><strong id="g2-best-pace">—</strong></div>
+        </div>
+        <div class="run-pace-chart-v34">
+          <div class="run-pace-chart-title-v34"><span>Snittakt över tid</span><span>min/km</span></div>
+          <div class="run-pace-chart-area-v34"><canvas id="chart-run-pace"></canvas></div>
+        </div>
         <div class="goal-history">
           <table>
-            <thead><tr><th>Datum</th><th>Distans</th><th>Tid</th></tr></thead>
+            <thead><tr><th>Datum</th><th>Distans</th><th>Tid</th><th>Snittakt</th><th>VO₂</th><th>Totalt</th></tr></thead>
             <tbody id="run-history-body"></tbody>
           </table>
         </div>
@@ -489,14 +525,14 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label>Löpdistans (km)</label><input type="number" id="wk-run-km" placeholder="10" step="0.1" min="0"></div>
-      <div class="form-group"><label>Löptid (min)</label><input type="number" id="wk-run-min" placeholder="50" min="0"></div>
+      <div class="form-group"><label>Löptid (min)</label><input type="number" id="wk-run-min" placeholder="50" min="0" step="0.1"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="wk-hr-avg" placeholder="145" min="40" max="230"></div>
       <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="wk-vo2" placeholder="45" min="10" max="100" step="0.1"></div>
     </div>
     <div class="form-group">
-      <label>Övningar &nbsp;<span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(Typ · Namn · Set/Reps/kg eller Distans/Tid)</span></label>
+      <label>Övningar</label>
       <div class="ex-list" id="ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" onclick="addExRow()">+ Lägg till övning</button>
     </div>
@@ -653,7 +689,7 @@
       <input type="text" id="day-workout-type" list="type-suggestions" placeholder="Ex: Ben + Axlar">
     </div>
     <div class="form-group">
-      <label>Övningar (Typ · Namn · Set/Reps/kg eller Distans/Tid)</label>
+      <label>Övningar</label>
       <div class="ex-list" id="day-workout-ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
     </div>
@@ -982,6 +1018,84 @@ function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Da
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtSec(sec){sec=Math.max(0,Math.floor(sec||0));var m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
 function formatCardioTime(min){return min?min+' min':'—';}
+function isRunningLabel(value){
+  return /(^|[^a-zåäö])(löp|jogg|running|run|treadmill|löpband)/i.test(String(value||''));
+}
+function workoutRunMetrics(workout){
+  workout=workout||{};
+  var explicitDistance=Number(workout.runDistance)||0;
+  var explicitTime=Number(workout.runTime)||0;
+  var typeIsRunning=isRunningLabel(workout.type);
+  var exerciseDistance=0,exerciseTime=0;
+  (workout.exercises||[]).forEach(function(exercise){
+    var ex=normalizeExercise(exercise);
+    if(ex.kind!=='cardio'||(!typeIsRunning&&!isRunningLabel(ex.name)))return;
+    exerciseDistance+=Number(ex.distance)||0;
+    exerciseTime+=Number(ex.time)||0;
+  });
+  var distance=explicitDistance>0?explicitDistance:exerciseDistance;
+  var time=explicitTime>0?explicitTime:exerciseTime;
+  var pace=distance>0&&time>0?time/distance:(Number(workout.avgPaceKm)||0);
+  return {
+    distance:+Math.max(0,distance).toFixed(2),
+    time:+Math.max(0,time).toFixed(2),
+    pace:pace>0?+pace.toFixed(4):0
+  };
+}
+function formatRunningPace(minutesPerKm){
+  var value=Number(minutesPerKm);
+  if(!(value>0)||!Number.isFinite(value))return '—';
+  var totalSeconds=Math.round(value*60);
+  return Math.floor(totalSeconds/60)+':'+String(totalSeconds%60).padStart(2,'0')+' /km';
+}
+function renderRunPaceChart(entries){
+  if(typeof window.Chart!=='function')return;
+  var canvas=document.getElementById('chart-run-pace');
+  if(!canvas)return;
+  var existing=typeof Chart.getChart==='function'?Chart.getChart(canvas):null;
+  if(existing)existing.destroy();
+  if(chartRunPace&&chartRunPace!==existing){try{chartRunPace.destroy();}catch(_e){}}
+  var paced=(entries||[]).filter(function(entry){return entry.metrics.pace>0;}).slice(-14);
+  var labels=paced.length?paced.map(function(entry){return fmtDate(entry.workout.date);}):['—'];
+  var values=paced.length?paced.map(function(entry){return entry.metrics.pace;}):[null];
+  chartRunPace=new Chart(canvas.getContext('2d'),{
+    type:'line',
+    data:{labels:labels,datasets:[{
+      label:'Snittakt',
+      data:values,
+      borderColor:'#F87171',
+      backgroundColor:'rgba(239,68,68,.12)',
+      pointBackgroundColor:'#FCA5A5',
+      pointBorderColor:'#7F1D1D',
+      pointRadius:3,
+      pointHoverRadius:5,
+      borderWidth:2,
+      tension:.3,
+      fill:true,
+      spanGaps:true
+    }]},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#161B22',
+          titleColor:'#FCA5A5',
+          bodyColor:'#E5E7EB',
+          borderColor:'rgba(248,113,113,.22)',
+          borderWidth:1,
+          callbacks:{label:function(context){return 'Snittakt: '+formatRunningPace(context.parsed.y);}}
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#7F8A99',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
+        y:{reverse:true,ticks:{color:'#B9898E',font:{family:'Inter',size:8},callback:function(value){return formatRunningPace(value).replace(' /km','');}},grid:{color:'rgba(248,113,113,.07)'}}
+      }
+    }
+  });
+}
 
 function canonicalWorkoutType(type, exercises){
   var raw=(type||'').trim();
@@ -1084,7 +1198,7 @@ function addExerciseTimingEditor(row,timing){
   if(!row)return;
   var editor=document.createElement('label');
   editor.className='ex-duration-editor-v7';
-  editor.innerHTML='<span>Tid för övningen</span><input type="number" min="0" step="1" inputmode="numeric" class="ex-duration-seconds-v7" placeholder="sek" value="'+(timing&&exerciseDurationSeconds(timing.durationSec)||'')+'"><small>sek</small>';
+  editor.innerHTML='<span>Tid för övningen</span><input type="number" min="0" step="1" inputmode="numeric" class="ex-duration-seconds-v7" placeholder="0" value="'+(timing&&exerciseDurationSeconds(timing.durationSec)||'')+'"><small>sek</small>';
   row.appendChild(editor);
 }
 
@@ -1102,7 +1216,7 @@ function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
     +'<div class="ex-row">'
       +'<input type="text" class="'+prefix+'-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
       +'<input type="number" class="'+prefix+'-metric1" data-role="'+(e.kind==='cardio'?'distance':'sets')+'" placeholder="'+(e.kind==='cardio'?'Distans':'Sets')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.distance||''):(hasExplicitSets?(ex.sets||''):''))+'">'
-      +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="1" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
+      +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
       +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
       +'<button class="ex-del" type="button" onclick="'+removeHandler+'">✕</button>'
     +'</div>';
@@ -1120,7 +1234,7 @@ function setExerciseKind(el,kind){
   var metric2=wrap.querySelector('[class*="-metric2"]');
   var metric3=wrap.querySelector('[class*="-metric3"]');
   if(metric1){metric1.dataset.role=kind==='cardio'?'distance':'sets';metric1.placeholder=kind==='cardio'?'Distans':'Sets';metric1.step=kind==='cardio'?'0.1':'1';metric1.value='';}
-  if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.value='';}
+  if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.step=kind==='cardio'?'0.1':'1';metric2.value='';}
   if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');}
   if(metric3)metric3.value='';
 }
@@ -1224,8 +1338,16 @@ function renderWeekGrid(){
 function refreshGoals(){
   var goals=getGoals(), wks=getWorkouts(), ws=weekStartISO();
   var thisWk=wks.filter(function(w){return w.date>=ws;});
-  var runWks=wks.filter(function(w){return (w.runDistance||0)>0;}).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
-  var longest=runWks.reduce(function(best,w){return (w.runDistance||0)>(best.runDistance||0)?w:best;},{runDistance:0,runTime:null});
+  var vo2ByDate={};
+  (DB.get('vo2')||[]).forEach(function(entry){if(entry&&entry.date)vo2ByDate[entry.date]=Number(entry.score)||0;});
+  var runEntries=wks.map(function(workout){
+    return {workout:workout,metrics:workoutRunMetrics(workout),total:0};
+  }).filter(function(entry){return entry.metrics.distance>0;}).sort(function(a,b){
+    return String(a.workout.date||'').localeCompare(String(b.workout.date||''))||Number(a.workout.id||0)-Number(b.workout.id||0);
+  });
+  var totalDistance=0;
+  runEntries.forEach(function(entry){totalDistance+=entry.metrics.distance;entry.total=+totalDistance.toFixed(2);});
+  var longest=runEntries.reduce(function(best,entry){return entry.metrics.distance>(best&&best.metrics.distance||0)?entry:best;},null);
   document.getElementById('g1-goal').value=goals.weeklyWk||4;
   document.getElementById('g2-goal').value=goals.runDistanceGoal||10;
   document.getElementById('g3-goal').value=goals.vo2Goal||45;
@@ -1233,24 +1355,37 @@ function refreshGoals(){
   document.getElementById('g1-cur').value=cw;
   document.getElementById('g1-bar').style.width=Math.min(100,(cw/(goals.weeklyWk||4))*100)+'%';
   var g1nums=document.getElementById('g1-cur').closest('.goal-nums');
-  if(g1nums){g1nums.classList.toggle('goal-hit', cw>=(goals.weeklyWk||4));}
-  var longDist=+(longest.runDistance||0);
+  if(g1nums){g1nums.classList.toggle('goal-hit',cw>=(goals.weeklyWk||4));}
+  var longDist=longest?longest.metrics.distance:0;
   document.getElementById('g2-cur').value=longDist?longDist.toFixed(1):0;
   document.getElementById('g2-bar').style.width=Math.min(100,(longDist/(goals.runDistanceGoal||10))*100)+'%';
-  document.getElementById('g2-time').textContent=longest.runTime?longest.runTime+' min':'-';
+  document.getElementById('g2-time').textContent=longest&&longest.metrics.time?String(+longest.metrics.time.toFixed(1)).replace(/\.0$/,'')+' min':'-';
+  var totalEl=document.getElementById('g2-total-distance');
+  if(totalEl)totalEl.textContent=String(+totalDistance.toFixed(1)).replace(/\.0$/,'')+' km';
+  var bestPace=runEntries.reduce(function(best,entry){return entry.metrics.pace>0&&(!best||entry.metrics.pace<best)?entry.metrics.pace:best;},0);
+  var bestPaceEl=document.getElementById('g2-best-pace');
+  if(bestPaceEl)bestPaceEl.textContent=formatRunningPace(bestPace);
 
   var historyBody=document.getElementById('run-history-body');
   historyBody.innerHTML='';
-  runWks.slice(0,8).forEach(function(w){
+  runEntries.slice().reverse().slice(0,10).forEach(function(entry){
+    var w=entry.workout,m=entry.metrics;
+    var workoutVo2=Number(w.vo2)||vo2ByDate[w.date]||0;
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+fmtDate(w.date)+'</td><td>'+Number(w.runDistance).toFixed(1)+' km</td><td>'+(w.runTime?w.runTime+' min':'-')+'</td>';
+    tr.innerHTML='<td>'+fmtDate(w.date)+'</td>'
+      +'<td>'+String(+m.distance.toFixed(1)).replace(/\.0$/,'')+' km</td>'
+      +'<td>'+(m.time?String(+m.time.toFixed(1)).replace(/\.0$/,'')+' min':'—')+'</td>'
+      +'<td>'+formatRunningPace(m.pace)+'</td>'
+      +'<td>'+(workoutVo2?String(+workoutVo2.toFixed(1)).replace(/\.0$/,''):'—')+'</td>'
+      +'<td>'+String(+entry.total.toFixed(1)).replace(/\.0$/,'')+' km</td>';
     historyBody.appendChild(tr);
   });
-  if(!runWks.length){
+  if(!runEntries.length){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td colspan="3" style="color:var(--text-dim)">Ingen löpdata loggad.</td>';
+    tr.innerHTML='<td colspan="6" style="color:var(--text-dim)">Ingen löpdata loggad.</td>';
     historyBody.appendChild(tr);
   }
+  renderRunPaceChart(runEntries);
 
   var vo2Data=DB.get('vo2')||[], curKond=vo2Data.length?vo2Data[vo2Data.length-1].score:0;
   document.getElementById('g3-cur').value=curKond||0;
@@ -1508,7 +1643,7 @@ function renderSessionMode(){
       row.innerHTML=ex.kind==='cardio'
         ? '<div class="set-tag">Runda '+l.setNo+'</div>'
           +'<input type="number" value="'+(l.actualDistance||0)+'" min="0" step="0.1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualDistance\',this.value)">'
-          +'<input type="number" value="'+(l.actualTime||0)+'" min="0" step="1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualTime\',this.value)">'
+          +'<input type="number" value="'+(l.actualTime||0)+'" min="0" step="0.1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualTime\',this.value)">'
           +'<input type="text" value="'+fmtSec(l.durationSec)+'" readonly>'
         : '<div class="set-tag">Set '+l.setNo+'</div>'
           +'<input type="number" value="'+l.actualReps+'" min="0" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualReps\',this.value)">'
@@ -1534,7 +1669,7 @@ function renderSessionMode(){
 
 function updateSetLog(exIdx,logIdx,key,val){
   if(!sessionState||!sessionState.logs[exIdx]||!sessionState.logs[exIdx][logIdx])return;
-  var n=key==='actualWeight'?parseFloat(val):parseInt(val,10);
+  var n=(key==='actualWeight'||key==='actualDistance'||key==='actualTime')?parseFloat(val):parseInt(val,10);
   sessionState.logs[exIdx][logIdx][key]=isNaN(n)?0:n;
 }
 
@@ -1554,7 +1689,7 @@ function completeCurrentSet(){
   sessionState.logs[sessionState.exerciseIndex].push(ex.kind==='cardio' ? {
     setNo:sessionState.currentSet,
     actualDistance:ex.distance||0,
-    actualTime:ex.time||Math.round(dur/60),
+    actualTime:ex.time||+(dur/60).toFixed(2),
     durationSec:dur
   } : {
     setNo:sessionState.currentSet,
@@ -1630,6 +1765,7 @@ function saveSessionWorkout(){
   var vo2=parseFloat(document.getElementById('session-vo2').value);
   vo2=isNaN(vo2)?null:vo2;
   var sessionType=canonicalWorkoutType(sessionState.type,sessionState.exercises);
+  var sessionRunMetrics=workoutRunMetrics({type:sessionType,exercises:exercises});
   var wk={
     id:Date.now(),
     date:sessionState.date,
@@ -1638,8 +1774,10 @@ function saveSessionWorkout(){
     duration:Math.round(totalSec/60),
     hrAvg:hrAvg,
     vo2:vo2,
-    runDistance:0,
-    runTime:null,
+    runDistance:sessionRunMetrics.distance||0,
+    runTime:sessionRunMetrics.time||null,
+    avgPaceKm:sessionRunMetrics.pace||null,
+    runMetricsDerived:sessionRunMetrics.distance>0,
     notes:'Skapad i passläge',
     exerciseTimings:exerciseTimings
   };
@@ -1654,7 +1792,7 @@ function saveSessionWorkout(){
 }
 
 // ══ CHARTS ══════════════════════════════════════════════════════
-var chartSessions, chartVO2, chartHR;
+var chartSessions, chartVO2, chartHR, chartRunPace;
 function getWeekNum(d){var d2=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));d2.setUTCDate(d2.getUTCDate()+4-(d2.getUTCDay()||7));var ys=new Date(Date.UTC(d2.getUTCFullYear(),0,1));return Math.ceil(((d2-ys)/86400000+1)/7);}
 function renderCharts(){
   var wks=getWorkouts();
@@ -1683,7 +1821,10 @@ function renderCharts(){
   if(chartSessions)chartSessions.destroy();
   chartSessions=new Chart(sessionsCtx,{type:'bar',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],backgroundColor:'rgba(34,211,238,.26)',borderColor:'#22D3EE',borderWidth:2,borderRadius:6,yAxisID:'y',order:2},{label:'Medel pass / vecka',type:'line',data:avgVals.length?avgVals:[0],borderColor:'#FB923C',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
-  if(chartVO2)chartVO2.destroy();
+  var existingVO2=typeof Chart.getChart==='function'?Chart.getChart(bwCtx.canvas):null;
+  if(existingVO2)existingVO2.destroy();
+  if(chartVO2&&chartVO2!==existingVO2){try{chartVO2.destroy();}catch(_vo2DestroyError){}}
+  chartVO2=null;
   var vo2Data=(DB.get('vo2')||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   var goals=getGoals(), goalVal=goals.vo2Goal||45;
   var vo2Labels=vo2Data.slice(-40).map(function(e){return fmtDate(e.date);});
@@ -1692,7 +1833,7 @@ function renderCharts(){
   var running=0;
   vo2Vals.forEach(function(v,i){running+=v;meanVals.push(+(running/(i+1)).toFixed(2));});
   var goalVals=vo2Vals.map(function(){return goalVal;});
-  chartVO2=new Chart(bwCtx,{type:'line',data:{labels:vo2Labels.length?vo2Labels:['—'],datasets:[{label:'VO2',data:vo2Vals.length?vo2Vals:[0],borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.16)',pointBackgroundColor:'#60A5FA',pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true},{label:'Medel VO2',data:meanVals.length?meanVals:[0],borderColor:'#34D399',pointRadius:0,borderWidth:2,borderDash:[6,4],tension:.25,fill:false},{label:'Mål',data:goalVals.length?goalVals:[goalVal],borderColor:'#FBBF24',pointRadius:0,borderWidth:2,borderDash:[4,4],tension:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#60A5FA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:10,max:100}}}});
+  chartVO2=new Chart(bwCtx,{type:'line',data:{labels:vo2Labels.length?vo2Labels:['—'],datasets:[{label:'VO2',data:vo2Vals.length?vo2Vals:[0],borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.16)',pointBackgroundColor:'#60A5FA',pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.3,fill:true},{label:'Medel VO2',data:meanVals.length?meanVals:[0],borderColor:'#34D399',pointRadius:0,borderWidth:2,borderDash:[6,4],tension:.25,fill:false},{label:'Mål',data:goalVals.length?goalVals:[goalVal],borderColor:'#FBBF24',pointRadius:0,borderWidth:2,borderDash:[4,4],tension:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#60A5FA',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},min:30,max:60}}}});
 
   var hrData=wks.filter(function(w){return (w.hrAvg||0)>0;}).slice().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-40);
   var hrCtx=document.getElementById('chart-hr').getContext('2d');
@@ -1743,14 +1884,17 @@ function renderLog(){
   wks.forEach(function(w){
     var typeDisp=canonicalWorkoutType(w.type,w.exercises);
     var cardioPass=isCardioWorkout(w);
+    var runMetrics=workoutRunMetrics(w);
     var volume=calcVol(w);
     var cardioDistance=(w.exercises||[]).reduce(function(sum,exercise){
       var ex=normalizeExercise(exercise);
       return sum+(ex.kind==='cardio'?(parseFloat(ex.distance)||0):0);
     },0);
+    var distanceForDisplay=cardioDistance>0?cardioDistance:runMetrics.distance;
     var volumeDisp=volume>0
       ? Math.round(volume).toLocaleString('sv-SE')+' kg'
-      : (cardioDistance>0?String(+cardioDistance.toFixed(2)).replace(/\.0$/,'')+' km':'—');
+      : (distanceForDisplay>0?String(+distanceForDisplay.toFixed(2)).replace(/\.0$/,'')+' km':'—');
+    var volumeMarkup='<span>'+volumeDisp+'</span>'+(runMetrics.pace?'<small class="log-main-pace-v34">'+formatRunningPace(runMetrics.pace)+'</small>':'');
     var durationDisp=w.duration?w.duration+' min':'—';
     var pulseDisp=w.hrAvg?w.hrAvg+' bpm':'—';
     var detailId='detail-'+w.id;
@@ -1759,7 +1903,7 @@ function renderLog(){
     html+='<tr class="'+rowClass+'" data-workout-id="'+w.id+'" aria-expanded="'+(detailOpen?'true':'false')+'" onclick="toggleWorkoutDetails('+w.id+')">'
       +'<td>'+fmtDate(w.date)+'</td>'
       +'<td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>'
-      +'<td>'+volumeDisp+'</td><td>'+durationDisp+'</td><td>'+pulseDisp+'</td>'
+      +'<td class="log-volume-v34">'+volumeMarkup+'</td><td>'+durationDisp+'</td><td>'+pulseDisp+'</td>'
       +'<td class="log-actions"><button class="log-del" type="button" onclick="event.stopPropagation();deleteWorkout('+w.id+')" aria-label="Ta bort pass" title="Ta bort">×</button></td>'
       +'</tr>';
 
@@ -1783,7 +1927,8 @@ function renderLog(){
     var metaMarkup='<div class="log-detail-meta-v8">'
       +'<span class="log-meta-date-v8">'+fmtDate(w.date)+'</span>'
       +(w.duration?'<span class="log-meta-time-v8">'+w.duration+' min</span>':'')
-      +(w.vo2?'<span class="log-meta-vo2-v8">VO2 '+w.vo2+'</span>':'')
+      +(w.vo2?'<span class="log-meta-vo2-v8">VO₂ '+w.vo2+'</span>':'')
+      +(runMetrics.pace?'<span class="log-meta-pace-v34">Snittakt '+formatRunningPace(runMetrics.pace)+'</span>':'')
       +workoutPulseIntervalMarkup(w)
       +'</div>';
     html+='<tr id="'+detailId+'" class="log-detail'+(detailOpen?' show':'')+'" data-workout-id="'+w.id+'"><td colspan="6">'
@@ -1893,6 +2038,15 @@ function saveSingleExerciseEdit(){
   var durationSec=exerciseDurationSeconds(durationInput&&durationInput.value);
   workout.exercises=Array.isArray(workout.exercises)?workout.exercises.slice():[];
   workout.exercises[exerciseIndex]=parsed;
+  if(workout.runMetricsDerived){
+    workout.runDistance=0;
+    workout.runTime=null;
+    workout.avgPaceKm=null;
+    var updatedRunMetrics=workoutRunMetrics(workout);
+    workout.runDistance=updatedRunMetrics.distance||0;
+    workout.runTime=updatedRunMetrics.time||null;
+    workout.avgPaceKm=updatedRunMetrics.pace||null;
+  }
   if(timingInfo.index>=0){
     if(durationSec)timings[timingInfo.index]={name:parsed.name,durationSec:durationSec,exerciseIndex:exerciseIndex};
     else timings.splice(timingInfo.index,1);
@@ -1974,7 +2128,7 @@ function saveWorkout(){
   var hrAvg=parseInt(document.getElementById('wk-hr-avg').value)||null;
   var vo2=parseFloat(document.getElementById('wk-vo2').value)||null;
   var runKm=parseFloat(document.getElementById('wk-run-km').value)||0;
-  var runMin=parseInt(document.getElementById('wk-run-min').value)||null;
+  var runMin=parseFloat(document.getElementById('wk-run-min').value)||null;
   var notes=document.getElementById('wk-notes').value.trim();
   var rows=document.querySelectorAll('#ex-list .ex-row-item');
   var exercises=[];
@@ -1988,7 +2142,11 @@ function saveWorkout(){
     if(durationSec)exerciseTimings.push({name:parsed.name,durationSec:durationSec,exerciseIndex:exercises.length-1});
   });
   var type=canonicalWorkoutType(typeRaw,exercises);
-  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:runKm,runTime:runMin,notes:notes,exerciseTimings:exerciseTimings};
+  var exerciseRunMetrics=workoutRunMetrics({type:type,exercises:exercises});
+  var finalRunKm=runKm>0?runKm:exerciseRunMetrics.distance;
+  var finalRunMin=runMin>0?runMin:exerciseRunMetrics.time;
+  var finalRunPace=finalRunKm>0&&finalRunMin>0?+(finalRunMin/finalRunKm).toFixed(4):null;
+  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:finalRunKm||0,runTime:finalRunMin||null,avgPaceKm:finalRunPace,runMetricsDerived:!(runKm>0)&&exerciseRunMetrics.distance>0,notes:notes,exerciseTimings:exerciseTimings};
   var wks=getWorkouts();
   if(editingWorkoutId){
     wks=wks.map(function(x){return x.id===editingWorkoutId?wk:x;});

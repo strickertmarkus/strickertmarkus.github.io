@@ -101,7 +101,7 @@
         min-width:0;
         min-height:58px;
         padding:8px 9px;
-        border:1px solid rgba(251,146,60,.34);
+        border:1px solid rgba(251,146,60,.46);
         border-radius:10px;
         background:
           radial-gradient(circle at 84% 50%,rgba(251,146,60,.16),transparent 44%),
@@ -117,7 +117,7 @@
       .between-toggle-copy-v7 span{display:block;margin-top:2px;color:#A58B77;font-size:8px;line-height:1.25}
       .between-switch-v7{
         width:43px;height:24px;padding:3px;flex:0 0 auto;
-        border:1px solid rgba(251,146,60,.32);border-radius:999px;
+        border:1px solid rgba(251,146,60,.44);border-radius:999px;
         background:linear-gradient(180deg,rgba(251,146,60,.085),rgba(251,146,60,.035));
         box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 0 10px rgba(251,146,60,.045);
         cursor:pointer;
@@ -143,7 +143,7 @@
 
       #between-exercise-global-editor-v7{
         margin-top:8px;padding:9px 10px;
-        border:1px solid rgba(251,146,60,.28);border-radius:10px;
+        border:1px solid rgba(251,146,60,.40);border-radius:10px;
         background:
           radial-gradient(360px 110px at 86% 0,rgba(251,146,60,.09),transparent 72%),
           rgba(251,146,60,.035);
@@ -158,13 +158,13 @@
       .between-fields-v7 label{display:block;margin-bottom:3px;color:#A58B77;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
       .between-fields-v7 select,.between-fields-v7 input{
         width:100%;height:34px;min-width:0;padding:5px 7px;
-        border:1px solid rgba(251,146,60,.18);border-radius:7px;
+        border:1px solid rgba(251,146,60,.30);border-radius:7px;
         background:#211E1C;color:#F0F6FC;outline:none;font:600 11px/1 Inter,sans-serif;
       }
       .between-fields-v7 select:focus,.between-fields-v7 input:focus{border-color:rgba(251,146,60,.62);box-shadow:0 0 0 2px rgba(251,146,60,.09),0 0 12px rgba(251,146,60,.09)}
 
       .per-set-v7{
-        margin-top:6px;padding-top:6px;border-top:1px solid rgba(251,146,60,.12);
+        margin-top:7px;padding-top:7px;border-top:1px solid rgba(251,146,60,.24);
         display:flex;align-items:center;gap:7px;min-height:29px;
       }
       .per-set-v7[hidden]{display:none!important}
@@ -178,7 +178,7 @@
       .per-set-fields-v7 .per-set-name-v7[hidden]{display:none!important}
       .per-set-fields-v7 select,.per-set-fields-v7 input{
         width:100%;min-width:0;height:28px;padding:3px 6px;
-        border:1px solid rgba(251,146,60,.16);border-radius:6px;
+        border:1px solid rgba(251,146,60,.28);border-radius:6px;
         background:rgba(251,146,60,.026);color:#DCE7F3;outline:none;
         font:600 9px/1 Inter,sans-serif;
       }
@@ -417,8 +417,14 @@
     var seconds = panel.querySelector('[data-per-set-seconds-v7]');
     var name = panel.querySelector('[data-per-set-name-v7]');
     cfg.type = type.value;
-    cfg.seconds = Math.max(1,Math.round(Number(seconds.value) || (cfg.type === 'rest' ? 60 : 30)));
+    var secondsRaw=String(seconds.value||'').trim();
     cfg.name = cfg.type === 'custom' ? String(name.value || '').trim() : '';
+    if(target.matches('[data-per-set-seconds-v7]')){
+      if(secondsRaw!=='')cfg.seconds=Math.max(1,Math.round(Number(secondsRaw)||1));
+      row.dataset.betweenSetsV7=JSON.stringify(cfg);
+      return;
+    }
+    cfg.seconds = secondsRaw===''?(cfg.type === 'rest' ? 60 : 30):Math.max(1,Math.round(Number(secondsRaw)||1));
     setRowConfig(row,cfg);
   }
 

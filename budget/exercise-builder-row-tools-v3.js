@@ -53,6 +53,20 @@
       .builder-row-drag-handle-v3:active {
         cursor:grabbing; background:rgba(34,211,238,.10); border-color:rgba(34,211,238,.34); color:#67E8F9;
       }
+      .builder-drag-bars-v34 {
+        width:16px;
+        display:grid;
+        gap:2.5px;
+        pointer-events:none;
+      }
+      .builder-drag-bars-v34 i {
+        display:block;
+        width:16px;
+        height:2px;
+        border-radius:999px;
+        background:currentColor;
+        box-shadow:0 0 5px rgba(148,163,184,.16);
+      }
 
       .builder-row-floating-v4 {
         position:fixed !important; left:0 !important; top:0 !important; margin:0 !important;
@@ -157,7 +171,7 @@
     var tools = document.createElement('div');
     tools.className = 'builder-row-tools-v3';
     tools.innerHTML = '<button type="button" class="builder-row-plus-v3" aria-label="Kopiera övningsrad" title="Kopiera rad">+</button>' +
-      '<button type="button" class="builder-row-drag-handle-v3" aria-label="Dra för att flytta övningsrad" title="Dra för att ändra ordning">⋮⋮</button>';
+      '<button type="button" class="builder-row-drag-handle-v3" aria-label="Dra för att flytta övningsrad" title="Dra för att ändra ordning"><span class="builder-drag-bars-v34" aria-hidden="true"><i></i><i></i><i></i></span></button>';
     head.appendChild(tools);
   }
 
