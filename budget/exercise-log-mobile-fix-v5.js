@@ -149,6 +149,7 @@
       .log-pulse-interval-v9 {
         display:inline-flex;
         align-items:center;
+        margin-left:16px;
         width:84px;
         height:25px;
         color:#F87171;
