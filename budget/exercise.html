@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260903-exercise-heart-points-v42"></script>
+<script src="auth-gate.js?v=20260903-exercise-log-intervals-v43"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -214,20 +214,20 @@
       margin:0;
     }
     .progress-marker{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#EF4444;border:2px solid #FEE2E2;border-radius:50%;box-shadow:0 0 4px rgba(239,68,68,.5)}
-    #g3-marker{background:#059669 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(5,150,105,.5) !important;}
+    #g3-marker{background:#10B981 !important;border-color:#D1FAE5 !important;box-shadow:0 0 4px rgba(16,185,129,.5) !important;}
     .goal-card-vo2-v37{
-      border-color:rgba(5,150,105,.20) !important;
+      border-color:rgba(16,185,129,.20) !important;
       background:
-        radial-gradient(420px 180px at 88% 0,rgba(5,150,105,.085),transparent 72%),
+        radial-gradient(420px 180px at 88% 0,rgba(16,185,129,.085),transparent 72%),
         linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.022)) !important;
     }
-    .goal-card-vo2-v37:hover{border-color:rgba(5,150,105,.34) !important;}
-    .goal-card-vo2-v37 .goal-lbl{color:#059669;}
-    .goal-card-vo2-v37 .progress-wrap{background:rgba(5,150,105,.25);}
+    .goal-card-vo2-v37:hover{border-color:rgba(16,185,129,.34) !important;}
+    .goal-card-vo2-v37 .goal-lbl{color:#10B981;}
+    .goal-card-vo2-v37 .progress-wrap{background:rgba(16,185,129,.25);}
     .vo2-goal-stats-v37{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 9px;}
-    .vo2-goal-stat-v37{padding:7px 8px;border-left:2px solid rgba(5,150,105,.62);background:rgba(5,150,105,.045);}
+    .vo2-goal-stat-v37{padding:7px 8px;border-left:2px solid rgba(16,185,129,.62);background:rgba(16,185,129,.045);}
     .vo2-goal-stat-v37 span{display:block;color:#8F9AAA;font-size:8px;font-weight:750;text-transform:uppercase;letter-spacing:.45px;}
-    .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#059669;font-size:12px;font-variant-numeric:tabular-nums;}
+    .vo2-goal-stat-v37 strong{display:block;margin-top:2px;color:#10B981;font-size:12px;font-variant-numeric:tabular-nums;}
     .vo2-distance-scale-v37{
       position:relative;
       display:flex;
@@ -235,7 +235,7 @@
       align-items:center;
       margin:-1px 0 7px;
       min-height:12px;
-      color:#059669;
+      color:#10B981;
       font-size:8.5px;
       font-weight:800;
       font-variant-numeric:tabular-nums;
@@ -251,14 +251,14 @@
       border:0 !important;
       border-bottom:1px solid transparent !important;
       background:transparent !important;
-      color:#059669 !important;
-      -webkit-text-fill-color:#059669 !important;
+      color:#10B981 !important;
+      -webkit-text-fill-color:#10B981 !important;
       font:800 8.5px/1.2 'Inter',sans-serif !important;
       text-align:inherit;
     }
-    .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#059669 !important;}
-    .vo2-chart-v37{margin-top:9px;padding-top:8px;border-top:1px solid rgba(5,150,105,.12);}
-    .vo2-chart-title-v37{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#059669;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
+    .vo2-distance-scale-v37 input:not([readonly]):focus{border-bottom-color:#10B981 !important;}
+    .vo2-chart-v37{margin-top:9px;padding-top:8px;border-top:1px solid rgba(16,185,129,.12);}
+    .vo2-chart-title-v37{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;color:#10B981;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.48px;}
     .vo2-chart-area-v37{height:116px;position:relative;width:100%;min-width:0;overflow:hidden;}
     .goal-card-vo2-v37 .goal-history{max-height:178px;border-color:rgba(16,185,129,.16);background:rgba(5,20,15,.28);}
     .goal-card-vo2-v37 .goal-history table{min-width:280px;font-variant-numeric:tabular-nums;}
@@ -578,7 +578,7 @@
       </div>
       <div class="goal-card goal-card-vo2-v37">
         <div class="goal-lbl">Högsta VO₂ (ml/kg/min)</div>
-        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#059669"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
+        <div class="goal-row"><div class="progress-wrap"><div class="progress-bar" id="g3-bar" style="width:0%;background:#10B981"></div><div class="progress-marker" id="g3-marker" style="left:0%;display:none"></div></div></div>
         <div class="vo2-distance-scale-v37" aria-label="VO2 från noll till mål">
           <span>40</span>
           <span class="scale-cur-v38" id="g3-cur-wrap"><span id="g3-cur">0</span></span>
@@ -1370,7 +1370,7 @@ function workoutPaceIntervalMarkup(workout){
   var ceiling=7.0;
   var ratio=(pace-floor)/(ceiling-floor);
   ratio=Math.max(0,Math.min(1,ratio));
-  var markerX=8+Math.min(70,ratio*70);
+  var markerX=76-Math.min(68,ratio*68);
   var paceMin=Math.floor(pace);
   var paceSec=Math.round((pace-paceMin)*60);
   var paceStr=paceMin+':'+String(paceSec).padStart(2,'0');
@@ -2062,7 +2062,7 @@ function renderCharts(){
   chartVO2=new Chart(bwCtx,{
     type:'line',
     data:{labels:vo2Labels,datasets:[
-      {label:'VO₂ max',data:vo2Vals,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.15)',pointBackgroundColor:'#ECFDF5',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
+      {label:'VO₂ max',data:vo2Vals,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,.15)',pointBackgroundColor:'#ECFDF5',pointBorderColor:'#047857',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:1}
     ]},
     options:{
       responsive:true,
@@ -2080,7 +2080,7 @@ function renderCharts(){
       },
       scales:{
         x:{ticks:{color:'#6B7280',font:{family:'Inter',size:8},maxRotation:0},grid:{display:false}},
-        y:{position:'left',ticks:{color:'#059669',font:{family:'Inter',size:8}},grid:{color:'rgba(5,150,105,.08)'}}
+        y:{position:'left',ticks:{color:'#10B981',font:{family:'Inter',size:8}},grid:{color:'rgba(16,185,129,.08)'}}
       }
     }
   });
@@ -2207,7 +2207,6 @@ function renderLog(){
     var metaMarkup='<div class="log-detail-meta-v8">'
       +'<span class="log-meta-date-v8">'+fmtDate(w.date)+'</span>'
       +(w.duration?'<span class="log-meta-time-v8">'+w.duration+' min</span>':'')
-      +(runMetrics.pace?'<span class="log-meta-pace-v34">Snittakt '+formatRunningPace(runMetrics.pace)+'</span>':'')
       +workoutPulseIntervalMarkup(w)
       +workoutVo2GoalIntervalMarkup(w)
       +workoutPaceIntervalMarkup(w)

@@ -382,7 +382,7 @@
       data:{
         labels:labels,
         datasets:[
-          avgDataset('Kondition', averages('cardio'), '#EF4444', '#FCA5A5', 'rgba(239,68,68,.14)', 'rgba(248,113,113,.82)', 'circle', rangesFor(entries,'cardio')),
+          avgDataset('Kondition', averages('cardio'), '#F87171', '#FCA5A5', 'rgba(239,68,68,.14)', 'rgba(248,113,113,.82)', 'circle', rangesFor(entries,'cardio')),
           avgDataset('Styrka', averages('strength'), '#22D3EE', '#A5F3FC', 'rgba(34,211,238,.12)', 'rgba(103,232,249,.78)', 'rectRounded', rangesFor(entries,'strength'))
         ]
       },

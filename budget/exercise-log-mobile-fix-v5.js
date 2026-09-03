@@ -160,7 +160,7 @@
       .log-pulse-interval-v9 {
         display:inline-flex;
         align-items:center;
-        margin-left:16px;
+        margin-left:0;
         width:84px;
         height:25px;
         color:#F87171;
@@ -253,7 +253,7 @@
       .log-pace-interval-v37 {
         display:inline-flex;
         align-items:center;
-        margin-left:12px;
+        margin-left:0;
         width:84px;
         height:25px;
         color:#10B981;
