@@ -64,6 +64,7 @@
   function loadSessionStability() {
     loadScriptOnce('exercise-session-stability-v55.js?v=20260904-1418-session-stable','data-exercise-session-stability-v55');
     loadScriptOnce('exercise-custom-transition-atomic-v56.js?v=20260904-1432-atomic-custom','data-exercise-custom-transition-atomic-v56');
+    loadScriptOnce('exercise-session-compact-cardio-v57.js?v=20260904-1458-compact-cardio','data-exercise-session-compact-cardio-v57');
   }
 
   function loadLogLayers() {
