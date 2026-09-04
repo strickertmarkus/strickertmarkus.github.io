@@ -61,7 +61,7 @@
   function loadLogLayoutV50() {
     if (document.querySelector('script[data-exercise-log-layout-v50]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-log-layout-v50.js?v=20260904-1025';
+    script.src = 'exercise-log-layout-v50.js?v=20260904-1041';
     script.async = false;
     script.setAttribute('data-exercise-log-layout-v50','true');
     document.head.appendChild(script);
