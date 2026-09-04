@@ -12,6 +12,7 @@
       html body .log-pulse-interval-v9 .pulse-unit-label-v49 {
         fill:#FCA5A5 !important;
         font-weight:850 !important;
+        font-size:6.4px !important;
         letter-spacing:.08px !important;
       }
       html body .log-pace-interval-v37 .pace-goal-label-v49 {
@@ -55,7 +56,8 @@
           width:100% !important;
           max-width:none !important;
           min-width:0 !important;
-          align-items:center !important;
+          align-items:start !important;
+          padding-top:1px !important;
           overflow:visible !important;
         }
         html body .log-detail-meta-v8 .log-meta-date-v8 {
@@ -102,7 +104,7 @@
         html body .log-detail-meta-v8 .log-vo2-goal-v36,
         html body .log-detail-meta-v8 .log-pace-interval-v37 {
           display:flex !important;
-          align-items:center !important;
+          align-items:flex-start !important;
           justify-content:center !important;
           width:100% !important;
           min-width:0 !important;
@@ -121,10 +123,20 @@
           height:48px !important;
           overflow:visible !important;
         }
+        html body .log-detail-meta-v8 .log-pulse-interval-v9 svg,
+        html body .log-detail-meta-v8 .log-pace-interval-v37 svg {
+          transform:translateY(0) !important;
+        }
+        html body .log-detail-meta-v8 .log-vo2-goal-v36 svg {
+          transform:translateY(-4px) !important;
+        }
         html body .log-detail-meta-v8 .log-pulse-interval-v9 text,
         html body .log-detail-meta-v8 .log-vo2-goal-v36 text,
         html body .log-detail-meta-v8 .log-pace-interval-v37 text {
           font-size:7.5px !important;
+        }
+        html body .log-detail-meta-v8 .log-pulse-interval-v9 .pulse-unit-label-v49 {
+          font-size:6.4px !important;
         }
         html body .log-detail-actions-v8 {
           width:32px !important;
@@ -167,10 +179,16 @@
         html body .log-detail-meta-v8 .log-pace-interval-v37 svg {
           height:43px !important;
         }
+        html body .log-detail-meta-v8 .log-vo2-goal-v36 svg {
+          transform:translateY(-3px) !important;
+        }
         html body .log-detail-meta-v8 .log-pulse-interval-v9 text,
         html body .log-detail-meta-v8 .log-vo2-goal-v36 text,
         html body .log-detail-meta-v8 .log-pace-interval-v37 text {
           font-size:6.7px !important;
+        }
+        html body .log-detail-meta-v8 .log-pulse-interval-v9 .pulse-unit-label-v49 {
+          font-size:5.8px !important;
         }
       }
     `;
@@ -203,7 +221,7 @@
   function syncGraphLabels() {
     document.querySelectorAll('.log-pulse-interval-v9 svg').forEach(function (svg) {
       ensureSvgRoom(svg);
-      upsertSvgText(svg,'pulse-unit-label-v49',42,4.8,'middle','bpm');
+      upsertSvgText(svg,'pulse-unit-label-v49',42,2.6,'middle','bpm');
     });
     document.querySelectorAll('.log-pace-interval-v37 svg').forEach(function (svg) {
       ensureSvgRoom(svg);
