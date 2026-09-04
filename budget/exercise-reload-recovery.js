@@ -67,12 +67,26 @@
     document.head.appendChild(script);
   }
 
+  function loadLogPrThemeV53() {
+    if (document.querySelector('script[data-exercise-log-pr-theme-v53]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-log-pr-theme-v53.js?v=20260904-1308-theme';
+    script.async = false;
+    script.setAttribute('data-exercise-log-pr-theme-v53','true');
+    document.head.appendChild(script);
+  }
+
   function loadLogPrV52() {
-    if (document.querySelector('script[data-exercise-log-pr-v52]')) return;
+    var existing = document.querySelector('script[data-exercise-log-pr-v52]');
+    if (existing) {
+      loadLogPrThemeV53();
+      return;
+    }
     var script = document.createElement('script');
     script.src = 'exercise-log-pr-v52.js?v=20260904-1302-logstyle';
     script.async = false;
     script.setAttribute('data-exercise-log-pr-v52','true');
+    script.addEventListener('load', loadLogPrThemeV53, { once:true });
     document.head.appendChild(script);
   }
 
