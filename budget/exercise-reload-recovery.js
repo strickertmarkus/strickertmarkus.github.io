@@ -67,12 +67,12 @@
     document.head.appendChild(script);
   }
 
-  function loadLogPrV51() {
-    if (document.querySelector('script[data-exercise-log-pr-v51]')) return;
+  function loadLogPrV52() {
+    if (document.querySelector('script[data-exercise-log-pr-v52]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-log-pr-v51.js?v=20260904-1234-groups';
+    script.src = 'exercise-log-pr-v52.js?v=20260904-1302-logstyle';
     script.async = false;
-    script.setAttribute('data-exercise-log-pr-v51','true');
+    script.setAttribute('data-exercise-log-pr-v52','true');
     document.head.appendChild(script);
   }
 
@@ -132,7 +132,7 @@
   function install() {
     emergencyResetOnBoot();
     loadLogLayoutV50();
-    loadLogPrV51();
+    loadLogPrV52();
 
     document.addEventListener('pointerdown', function () {
       bootInteraction = true;
