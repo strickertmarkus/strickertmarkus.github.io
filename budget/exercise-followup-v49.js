@@ -67,6 +67,7 @@
         .log-detail-copy-v8 {
           min-width:0 !important;
           width:100% !important;
+          max-width:none !important;
           display:block !important;
         }
         .log-detail-copy-v8 > strong {
@@ -92,12 +93,13 @@
           display:grid !important;
           grid-template-columns:36px 42px repeat(3,minmax(0,1fr)) !important;
           grid-template-areas:"date time pulse vo2 pace" !important;
-          column-gap:3px !important;
+          column-gap:4px !important;
           row-gap:0 !important;
           width:100% !important;
+          max-width:none !important;
           min-width:0 !important;
           align-items:center !important;
-          overflow:hidden !important;
+          overflow:visible !important;
         }
         .log-detail-meta-v8 .log-meta-date-v8 {
           grid-area:date !important;
@@ -123,12 +125,12 @@
         .log-detail-meta-v8 .log-pace-interval-v37 {
           display:flex !important;
           align-items:center !important;
-          justify-content:center !important;
+          justify-content:stretch !important;
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:25px !important;
-          overflow:hidden !important;
+          height:31px !important;
+          overflow:visible !important;
           margin:0 !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 svg,
@@ -138,13 +140,13 @@
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:25px !important;
+          height:31px !important;
           overflow:visible !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:5.5px !important;
+          font-size:6.4px !important;
         }
       }
 
@@ -173,12 +175,12 @@
         .log-detail-meta-v8 .log-pulse-interval-v9 svg,
         .log-detail-meta-v8 .log-vo2-goal-v36 svg,
         .log-detail-meta-v8 .log-pace-interval-v37 svg {
-          height:23px !important;
+          height:28px !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:5px !important;
+          font-size:5.8px !important;
         }
       }
     `;
