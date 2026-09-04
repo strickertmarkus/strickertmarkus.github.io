@@ -8,6 +8,7 @@
   var SESSION_KEY = 'ex_reload_session_' + profile;
   var SUSPENDED_KEY = SESSION_KEY + '_suspended_20260826';
   var exitIntentUntil = 0;
+  var bootInteraction = false;
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
@@ -32,12 +33,23 @@
     } catch (e) {}
   }
 
+  function clearStaleModalOverlays() {
+    document.querySelectorAll('.modal-overlay.show').forEach(function (overlay) {
+      overlay.classList.remove('show');
+    });
+
+    try { delete document.documentElement.dataset.exerciseMorph; } catch (e) {}
+    document.querySelectorAll('.exercise-morph-fallback-v1').forEach(function (el) {
+      el.classList.remove('exercise-morph-fallback-v1');
+    });
+  }
+
   function hideTransientSessionUi() {
-    ['session-pre-timer','session-between-overlay'].forEach(function (id) {
+    ['session-pre-timer','session-between-overlay','session-between-overlay-v2'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) {
         el.classList.remove('show');
-        if (id === 'session-between-overlay') el.remove();
+        if (id === 'session-between-overlay' || id === 'session-between-overlay-v2') el.remove();
       }
     });
     var modal = document.getElementById('session-modal');
@@ -50,6 +62,7 @@
     archiveAndClearOldCheckpoint();
     setState(null);
     hideTransientSessionUi();
+    clearStaleModalOverlays();
   }
 
   function saveSessionCheckpoint() {
@@ -83,6 +96,7 @@
     markExitIntent();
     setState(null);
     hideTransientSessionUi();
+    clearStaleModalOverlays();
   };
 
   function wrapAfter(name) {
@@ -99,6 +113,28 @@
 
   function install() {
     emergencyResetOnBoot();
+
+    document.addEventListener('pointerdown', function () {
+      bootInteraction = true;
+    }, { once:true, capture:true });
+
+    [0, 80, 250, 700].forEach(function (delay) {
+      setTimeout(function () {
+        if (!bootInteraction) {
+          hideTransientSessionUi();
+          clearStaleModalOverlays();
+        }
+      }, delay);
+    });
+
+    window.addEventListener('pageshow', function (event) {
+      if (event && event.persisted) {
+        bootInteraction = false;
+        setState(null);
+        hideTransientSessionUi();
+        clearStaleModalOverlays();
+      }
+    });
 
     var attempts = 0;
     function ready() {
