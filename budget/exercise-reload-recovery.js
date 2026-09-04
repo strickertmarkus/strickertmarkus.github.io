@@ -69,7 +69,7 @@
 
   function loadLogLayers() {
     loadScriptOnce('exercise-log-layout-v50.js?v=20260904-1151-align','data-exercise-log-layout-v50');
-    loadScriptOnce('exercise-log-pr-v52.js?v=20260904-1302-logstyle','data-exercise-log-pr-v52',function () {
+    loadScriptOnce('exercise-log-pr-v52.js?v=20260904-1544-collapsed-default','data-exercise-log-pr-v52',function () {
       loadScriptOnce('exercise-log-pr-theme-v53.js?v=20260904-1344-open-table','data-exercise-log-pr-theme-v53');
     });
   }
