@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260904-exercise-pulse-flow-v58';
+  var exerciseAssetsVersion = '20260904-exercise-stack-clean-v59';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -175,7 +175,8 @@
       ['exercise-session-ux-v20.js', 'data-exercise-session-ux-v20'],
       ['exercise-motion-v1.js', 'data-exercise-motion-v1'],
       ['exercise-hype-timer-layout-v1.js', 'data-exercise-hype-timer-layout-v1'],
-      ['exercise-followup-v49.js', 'data-exercise-followup-v49'],
+      ['exercise-session-stability-v55.js', 'data-exercise-session-stability-v55'],
+      ['exercise-custom-transition-atomic-v56.js', 'data-exercise-custom-transition-atomic-v56'],
       ['exercise-pulse-flow-v58.js', 'data-exercise-pulse-flow-v58']
     ];
 

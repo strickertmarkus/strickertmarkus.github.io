@@ -622,6 +622,14 @@
       }
 
       @media(max-width:600px) {
+        #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main {
+          min-height:0 !important;
+          height:auto !important;
+        }
+        #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown {
+          margin:3px auto 5px !important;
+          padding:2px 0 4px !important;
+        }
         #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-grid {
           padding:8px 10px max(18px,env(safe-area-inset-bottom)) !important;
           gap:10px !important;

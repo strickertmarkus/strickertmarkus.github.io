@@ -61,12 +61,6 @@
     document.head.appendChild(script);
   }
 
-  function loadSessionStability() {
-    loadScriptOnce('exercise-session-stability-v55.js?v=20260904-1418-session-stable','data-exercise-session-stability-v55');
-    loadScriptOnce('exercise-custom-transition-atomic-v56.js?v=20260904-1432-atomic-custom','data-exercise-custom-transition-atomic-v56');
-    loadScriptOnce('exercise-session-compact-cardio-v57.js?v=20260904-1512-timer-only','data-exercise-session-compact-cardio-v57');
-  }
-
   function loadLogLayers() {
     loadScriptOnce('exercise-log-layout-v50.js?v=20260904-1151-align','data-exercise-log-layout-v50');
     loadScriptOnce('exercise-log-pr-v52.js?v=20260904-1544-collapsed-default','data-exercise-log-pr-v52',function () {
@@ -90,7 +84,6 @@
 
   function install() {
     resetOnlyAtBoot();
-    loadSessionStability();
     loadLogLayers();
 
     document.addEventListener('pointerdown', function () {
