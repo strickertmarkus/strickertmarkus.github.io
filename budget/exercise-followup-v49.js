@@ -55,14 +55,14 @@
         flex:0 0 34px !important;
       }
 
-      /* Hard mobile layout: row 1 is date + time, row 2 is always
-         pulse + VO2 + pace. The + action has its own fixed column. */
+      /* Hard mobile layout: one single metadata row under the workout title:
+         date | time | pulse | VO2 | pace. The + action owns a separate column. */
       @media(max-width:600px) {
         .log-detail-head-v7 {
           display:grid !important;
           grid-template-columns:minmax(0,1fr) 34px !important;
           align-items:start !important;
-          gap:8px !important;
+          gap:7px !important;
         }
         .log-detail-copy-v8 {
           min-width:0 !important;
@@ -71,7 +71,7 @@
         }
         .log-detail-copy-v8 > strong {
           display:block !important;
-          margin-bottom:6px !important;
+          margin-bottom:5px !important;
         }
         .log-detail-actions-v8 {
           width:34px !important;
@@ -90,35 +90,34 @@
         }
         .log-detail-meta-v8 {
           display:grid !important;
-          grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-          grid-template-areas:
-            "date date date time time time"
-            "pulse pulse vo2 vo2 pace pace" !important;
-          column-gap:4px !important;
-          row-gap:4px !important;
+          grid-template-columns:36px 42px repeat(3,minmax(0,1fr)) !important;
+          grid-template-areas:"date time pulse vo2 pace" !important;
+          column-gap:3px !important;
+          row-gap:0 !important;
           width:100% !important;
           min-width:0 !important;
-          align-items:end !important;
+          align-items:center !important;
+          overflow:hidden !important;
         }
         .log-detail-meta-v8 .log-meta-date-v8 {
           grid-area:date !important;
           min-width:0 !important;
           white-space:nowrap !important;
+          font-size:8px !important;
+          line-height:1 !important;
+          text-align:left !important;
         }
         .log-detail-meta-v8 .log-meta-time-v8 {
           grid-area:time !important;
           min-width:0 !important;
           white-space:nowrap !important;
+          font-size:8px !important;
+          line-height:1 !important;
+          text-align:left !important;
         }
-        .log-detail-meta-v8 .log-pulse-interval-v9 {
-          grid-area:pulse !important;
-        }
-        .log-detail-meta-v8 .log-vo2-goal-v36 {
-          grid-area:vo2 !important;
-        }
-        .log-detail-meta-v8 .log-pace-interval-v37 {
-          grid-area:pace !important;
-        }
+        .log-detail-meta-v8 .log-pulse-interval-v9 { grid-area:pulse !important; }
+        .log-detail-meta-v8 .log-vo2-goal-v36 { grid-area:vo2 !important; }
+        .log-detail-meta-v8 .log-pace-interval-v37 { grid-area:pace !important; }
         .log-detail-meta-v8 .log-pulse-interval-v9,
         .log-detail-meta-v8 .log-vo2-goal-v36,
         .log-detail-meta-v8 .log-pace-interval-v37 {
@@ -128,7 +127,7 @@
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:26px !important;
+          height:25px !important;
           overflow:hidden !important;
           margin:0 !important;
         }
@@ -137,28 +136,31 @@
         .log-detail-meta-v8 .log-pace-interval-v37 svg {
           display:block !important;
           width:100% !important;
+          min-width:0 !important;
           max-width:none !important;
-          height:26px !important;
+          height:25px !important;
           overflow:visible !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:6px !important;
+          font-size:5.5px !important;
         }
       }
 
       @media(max-width:380px) {
         .log-detail-box {
-          padding-left:8px !important;
-          padding-right:8px !important;
+          padding-left:7px !important;
+          padding-right:7px !important;
         }
-        .log-detail-head-v7 {
-          gap:6px !important;
-        }
+        .log-detail-head-v7 { gap:5px !important; }
         .log-detail-meta-v8 {
+          grid-template-columns:32px 37px repeat(3,minmax(0,1fr)) !important;
           column-gap:2px !important;
-          row-gap:3px !important;
+        }
+        .log-detail-meta-v8 .log-meta-date-v8,
+        .log-detail-meta-v8 .log-meta-time-v8 {
+          font-size:7.2px !important;
         }
         .log-add-workout-v8 {
           width:31px !important;
@@ -167,18 +169,16 @@
         }
         .log-detail-meta-v8 .log-pulse-interval-v9,
         .log-detail-meta-v8 .log-vo2-goal-v36,
-        .log-detail-meta-v8 .log-pace-interval-v37 {
-          height:24px !important;
-        }
+        .log-detail-meta-v8 .log-pace-interval-v37,
         .log-detail-meta-v8 .log-pulse-interval-v9 svg,
         .log-detail-meta-v8 .log-vo2-goal-v36 svg,
         .log-detail-meta-v8 .log-pace-interval-v37 svg {
-          height:24px !important;
+          height:23px !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:5.5px !important;
+          font-size:5px !important;
         }
       }
     `;
