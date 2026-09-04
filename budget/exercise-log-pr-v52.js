@@ -148,7 +148,7 @@
   }
 
   var collapsedGroups=Object.create(null);
-  var sectionCollapsed=false;
+  var sectionCollapsed=true;
   var lastSignature='';
 
   function sessionOpen(){ var modal=document.getElementById('session-modal'); return !!(modal&&modal.classList.contains('show')); }
