@@ -70,7 +70,7 @@
   function loadLogPrV51() {
     if (document.querySelector('script[data-exercise-log-pr-v51]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-log-pr-v51.js?v=20260904-1218-stable';
+    script.src = 'exercise-log-pr-v51.js?v=20260904-1234-groups';
     script.async = false;
     script.setAttribute('data-exercise-log-pr-v51','true');
     document.head.appendChild(script);
