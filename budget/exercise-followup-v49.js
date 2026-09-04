@@ -66,9 +66,9 @@
         letter-spacing:.05px !important;
       }
 
-      /* Hard mobile layout: one single metadata row under the workout title:
-         date | time | pulse | VO2 | pace. Date/time stay deliberately compact
-         so the three interval graphics can use almost all remaining width. */
+      /* Mobile detail header:
+         row 1 = workout title | date | time
+         row 2 = pulse | VO2 | pace, each with equal width. */
       @media(max-width:600px) {
         .log-detail-head-v7 {
           display:grid !important;
@@ -80,11 +80,41 @@
           min-width:0 !important;
           width:100% !important;
           max-width:none !important;
-          display:block !important;
+          display:grid !important;
+          grid-template-columns:minmax(0,1fr) auto auto !important;
+          grid-template-areas:
+            "title date time"
+            "meta meta meta" !important;
+          column-gap:8px !important;
+          row-gap:5px !important;
+          align-items:center !important;
         }
         .log-detail-copy-v8 > strong {
+          grid-area:title !important;
           display:block !important;
-          margin-bottom:4px !important;
+          min-width:0 !important;
+          margin:0 !important;
+          overflow:hidden !important;
+          text-overflow:ellipsis !important;
+          white-space:nowrap !important;
+        }
+        .log-detail-copy-v8::before {
+          content:attr(data-log-date-v49);
+          grid-area:date !important;
+          color:#67E8F9 !important;
+          font-size:9px !important;
+          font-weight:850 !important;
+          line-height:1 !important;
+          white-space:nowrap !important;
+        }
+        .log-detail-copy-v8::after {
+          content:attr(data-log-time-v49);
+          grid-area:time !important;
+          color:#FDBA74 !important;
+          font-size:9px !important;
+          font-weight:850 !important;
+          line-height:1 !important;
+          white-space:nowrap !important;
         }
         .log-detail-actions-v8 {
           width:32px !important;
@@ -102,10 +132,10 @@
           flex:0 0 32px !important;
         }
         .log-detail-meta-v8 {
+          grid-area:meta !important;
           display:grid !important;
-          grid-template-columns:32px 36px repeat(3,minmax(0,1fr)) !important;
-          grid-template-areas:"date time pulse vo2 pace" !important;
-          column-gap:2px !important;
+          grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+          column-gap:9px !important;
           row-gap:0 !important;
           width:100% !important;
           max-width:none !important;
@@ -113,27 +143,10 @@
           align-items:center !important;
           overflow:visible !important;
         }
-        .log-detail-meta-v8 .log-meta-date-v8 {
-          grid-area:date !important;
-          min-width:0 !important;
-          white-space:nowrap !important;
-          font-size:9px !important;
-          font-weight:850 !important;
-          line-height:1 !important;
-          text-align:left !important;
-        }
+        .log-detail-meta-v8 .log-meta-date-v8,
         .log-detail-meta-v8 .log-meta-time-v8 {
-          grid-area:time !important;
-          min-width:0 !important;
-          white-space:nowrap !important;
-          font-size:9px !important;
-          font-weight:850 !important;
-          line-height:1 !important;
-          text-align:left !important;
+          display:none !important;
         }
-        .log-detail-meta-v8 .log-pulse-interval-v9 { grid-area:pulse !important; }
-        .log-detail-meta-v8 .log-vo2-goal-v36 { grid-area:vo2 !important; }
-        .log-detail-meta-v8 .log-pace-interval-v37 { grid-area:pace !important; }
         .log-detail-meta-v8 .log-pulse-interval-v9,
         .log-detail-meta-v8 .log-vo2-goal-v36,
         .log-detail-meta-v8 .log-pace-interval-v37 {
@@ -143,7 +156,7 @@
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:36px !important;
+          height:44px !important;
           overflow:visible !important;
           margin:0 !important;
         }
@@ -154,13 +167,13 @@
           width:100% !important;
           min-width:0 !important;
           max-width:none !important;
-          height:36px !important;
+          height:44px !important;
           overflow:visible !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:7.1px !important;
+          font-size:7.5px !important;
         }
       }
 
@@ -170,13 +183,16 @@
           padding-right:7px !important;
         }
         .log-detail-head-v7 { gap:3px !important; }
-        .log-detail-meta-v8 {
-          grid-template-columns:30px 34px repeat(3,minmax(0,1fr)) !important;
-          column-gap:1px !important;
+        .log-detail-copy-v8 {
+          column-gap:6px !important;
+          row-gap:4px !important;
         }
-        .log-detail-meta-v8 .log-meta-date-v8,
-        .log-detail-meta-v8 .log-meta-time-v8 {
+        .log-detail-copy-v8::before,
+        .log-detail-copy-v8::after {
           font-size:8px !important;
+        }
+        .log-detail-meta-v8 {
+          column-gap:7px !important;
         }
         .log-add-workout-v8 {
           width:30px !important;
@@ -189,12 +205,12 @@
         .log-detail-meta-v8 .log-pulse-interval-v9 svg,
         .log-detail-meta-v8 .log-vo2-goal-v36 svg,
         .log-detail-meta-v8 .log-pace-interval-v37 svg {
-          height:33px !important;
+          height:40px !important;
         }
         .log-detail-meta-v8 .log-pulse-interval-v9 text,
         .log-detail-meta-v8 .log-vo2-goal-v36 text,
         .log-detail-meta-v8 .log-pace-interval-v37 text {
-          font-size:6.3px !important;
+          font-size:6.7px !important;
         }
       }
     `;
@@ -252,23 +268,39 @@
     });
   }
 
+  function syncLogHeaderMeta() {
+    document.querySelectorAll('.log-detail-copy-v8').forEach(function (copy) {
+      var meta = copy.querySelector('.log-detail-meta-v8');
+      if (!meta) return;
+      var date = meta.querySelector('.log-meta-date-v8');
+      var time = meta.querySelector('.log-meta-time-v8');
+      copy.setAttribute('data-log-date-v49',date ? String(date.textContent || '').trim() : '');
+      copy.setAttribute('data-log-time-v49',time ? String(time.textContent || '').trim() : '');
+    });
+  }
+
   function ensureSvgText(svg,className,x,y,anchor,text) {
-    if (!svg || svg.querySelector('.' + className)) return;
-    var node = document.createElementNS('http://www.w3.org/2000/svg','text');
-    node.setAttribute('class',className);
+    if (!svg) return;
+    var node = svg.querySelector('.' + className);
+    if (!node) {
+      node = document.createElementNS('http://www.w3.org/2000/svg','text');
+      node.setAttribute('class',className);
+      svg.appendChild(node);
+    }
     node.setAttribute('x',String(x));
     node.setAttribute('y',String(y));
     node.setAttribute('text-anchor',anchor || 'middle');
     node.textContent = text;
-    svg.appendChild(node);
   }
 
   function syncLogIntervalAnnotations() {
     document.querySelectorAll('.log-pulse-interval-v9 svg').forEach(function (svg) {
-      ensureSvgText(svg,'pulse-unit-label-v49',42,4.6,'middle','bpm');
+      if (svg.getAttribute('viewBox') === '0 0 84 25') svg.setAttribute('viewBox','0 0 84 31');
+      ensureSvgText(svg,'pulse-unit-label-v49',42,29,'middle','bpm');
     });
     document.querySelectorAll('.log-pace-interval-v37 svg').forEach(function (svg) {
-      ensureSvgText(svg,'pace-goal-label-v49',76,4.6,'end','4 mål');
+      if (svg.getAttribute('viewBox') === '0 0 84 25') svg.setAttribute('viewBox','0 0 84 31');
+      ensureSvgText(svg,'pace-goal-label-v49',76,29,'end','4 mål');
     });
   }
 
@@ -319,17 +351,20 @@
   function scheduleSync() {
     syncSessionControls();
     syncLogActions(document);
+    syncLogHeaderMeta();
     syncLogIntervalAnnotations();
     syncHeartRateChart();
     if (typeof queueMicrotask === 'function') queueMicrotask(function () {
       syncSessionControls();
       syncLogActions(document);
+      syncLogHeaderMeta();
       syncLogIntervalAnnotations();
       syncHeartRateChart();
     });
     requestAnimationFrame(function () {
       syncSessionControls();
       syncLogActions(document);
+      syncLogHeaderMeta();
       syncLogIntervalAnnotations();
       syncHeartRateChart();
     });
