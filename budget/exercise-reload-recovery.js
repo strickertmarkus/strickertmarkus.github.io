@@ -67,6 +67,15 @@
     document.head.appendChild(script);
   }
 
+  function loadLogPrV51() {
+    if (document.querySelector('script[data-exercise-log-pr-v51]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-log-pr-v51.js?v=20260904-1206';
+    script.async = false;
+    script.setAttribute('data-exercise-log-pr-v51','true');
+    document.head.appendChild(script);
+  }
+
   function emergencyResetOnBoot() {
     archiveAndClearOldCheckpoint();
     setState(null);
@@ -123,6 +132,7 @@
   function install() {
     emergencyResetOnBoot();
     loadLogLayoutV50();
+    loadLogPrV51();
 
     document.addEventListener('pointerdown', function () {
       bootInteraction = true;
