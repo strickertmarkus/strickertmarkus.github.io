@@ -36,10 +36,12 @@
         }
         html body .log-detail-copy-v8 > strong {
           display:block !important;
+          width:max-content !important;
+          max-width:100% !important;
           min-width:0 !important;
           min-height:16px !important;
           margin:0 0 6px !important;
-          padding-right:94px !important;
+          padding-right:0 !important;
           overflow:hidden !important;
           text-overflow:ellipsis !important;
           white-space:nowrap !important;
@@ -59,7 +61,7 @@
         html body .log-detail-meta-v8 .log-meta-date-v8 {
           position:absolute !important;
           top:2px !important;
-          right:48px !important;
+          right:auto !important;
           width:auto !important;
           min-width:0 !important;
           margin:0 !important;
@@ -68,12 +70,12 @@
           font-size:10px !important;
           font-weight:850 !important;
           line-height:1 !important;
-          text-align:right !important;
+          text-align:left !important;
         }
         html body .log-detail-meta-v8 .log-meta-time-v8 {
           position:absolute !important;
           top:2px !important;
-          right:0 !important;
+          right:auto !important;
           width:auto !important;
           min-width:0 !important;
           margin:0 !important;
@@ -82,7 +84,7 @@
           font-size:10px !important;
           font-weight:850 !important;
           line-height:1 !important;
-          text-align:right !important;
+          text-align:left !important;
         }
         html body .log-detail-meta-v8 .log-pulse-interval-v9 {
           grid-column:1 !important;
@@ -147,17 +149,13 @@
           padding-right:7px !important;
         }
         html body .log-detail-copy-v8 > strong {
-          padding-right:86px !important;
           margin-bottom:5px !important;
         }
         html body .log-detail-meta-v8 {
           grid-template-rows:43px !important;
           column-gap:6px !important;
         }
-        html body .log-detail-meta-v8 .log-meta-date-v8 {
-          right:44px !important;
-          font-size:8.5px !important;
-        }
+        html body .log-detail-meta-v8 .log-meta-date-v8,
         html body .log-detail-meta-v8 .log-meta-time-v8 {
           font-size:8.5px !important;
         }
@@ -205,11 +203,38 @@
   function syncGraphLabels() {
     document.querySelectorAll('.log-pulse-interval-v9 svg').forEach(function (svg) {
       ensureSvgRoom(svg);
-      upsertSvgText(svg,'pulse-unit-label-v49',42,31.5,'middle','bpm');
+      upsertSvgText(svg,'pulse-unit-label-v49',42,4.8,'middle','bpm');
     });
     document.querySelectorAll('.log-pace-interval-v37 svg').forEach(function (svg) {
       ensureSvgRoom(svg);
       upsertSvgText(svg,'pace-goal-label-v49',76,31.5,'end','4 mål');
+    });
+  }
+
+  function syncHeaderMetaPositions() {
+    if (!window.matchMedia || !window.matchMedia('(max-width:600px)').matches) return;
+    document.querySelectorAll('.log-detail-copy-v8').forEach(function (copy) {
+      var title = copy.querySelector(':scope > strong');
+      var date = copy.querySelector('.log-meta-date-v8');
+      var time = copy.querySelector('.log-meta-time-v8');
+      if (!title || !date || !time) return;
+
+      var copyRect = copy.getBoundingClientRect();
+      var dateWidth = date.getBoundingClientRect().width || 34;
+      var timeWidth = time.getBoundingClientRect().width || 40;
+      var reserved = dateWidth + timeWidth + 26;
+      var maxTitleWidth = Math.max(70, copyRect.width - reserved);
+      title.style.setProperty('max-width', maxTitleWidth + 'px', 'important');
+
+      var titleRect = title.getBoundingClientRect();
+      var dateLeft = Math.max(0, titleRect.right - copyRect.left + 10);
+      date.style.setProperty('left', dateLeft + 'px', 'important');
+      date.style.setProperty('right', 'auto', 'important');
+
+      var dateRect = date.getBoundingClientRect();
+      var timeLeft = Math.max(dateLeft + dateWidth + 8, dateRect.right - copyRect.left + 8);
+      time.style.setProperty('left', timeLeft + 'px', 'important');
+      time.style.setProperty('right', 'auto', 'important');
     });
   }
 
@@ -220,6 +245,7 @@
     requestAnimationFrame(function () {
       scheduled = false;
       syncGraphLabels();
+      syncHeaderMetaPositions();
     });
   }
 
@@ -234,6 +260,7 @@
       var observer = new MutationObserver(scheduleSync);
       observer.observe(root,{subtree:true,childList:true});
     }
+    window.addEventListener('resize',scheduleSync);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
