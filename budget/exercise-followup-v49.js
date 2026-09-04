@@ -24,10 +24,15 @@
         min-height:43px !important;
       }
 
+      /* Do not tween a CTA from the previous cyan state into orange. That
+         background transition was visible as a brief blue Starta set button. */
       #session-modal.show #session-controls .session-cta {
         transition:transform .12s cubic-bezier(.22,1,.36,1),opacity .12s ease !important;
       }
 
+      /* Session View Transitions retain a screenshot of the previous DOM.
+         For live set changes that old snapshot can flash behind the new state.
+         Keep morphing elsewhere, but make the session snapshot hand-off atomic. */
       ::view-transition-group(exercise-session-surface-v1),
       ::view-transition-old(exercise-session-surface-v1),
       ::view-transition-new(exercise-session-surface-v1) {
@@ -35,10 +40,13 @@
         animation-delay:0s !important;
       }
 
+      /* Individual live controls should not fade over stale controls. */
       #session-modal.show #session-controls > * {
         animation-duration:.001s !important;
       }
 
+      /* The full-pass edit button is redundant: rows edit individual exercises,
+         and + now adds an exercise to this exact logged workout. */
       .log-edit-pass-v7 { display:none !important; }
       .log-detail-actions-v8 { gap:0 !important; }
       .log-add-workout-v8 {
@@ -58,6 +66,9 @@
         letter-spacing:.05px !important;
       }
 
+      /* Hard mobile layout: one single metadata row under the workout title:
+         date | time | pulse | VO2 | pace. Date/time stay deliberately compact
+         so the three interval graphics can use almost all remaining width. */
       @media(max-width:600px) {
         .log-detail-head-v7 {
           display:grid !important;
@@ -210,12 +221,16 @@
       return /^starta/i.test(String(button.textContent || '').trim());
     });
 
+    /* flow-polish-v2 deliberately hid warn. Restore it only in the final
+       exercise decision state so Extra set sits beside Övning klar again. */
     if (extra) {
       var completedDecision = !!success && !primary;
       extra.style.setProperty('display', completedDecision ? 'flex' : 'none', 'important');
       extra.setAttribute('aria-hidden', completedDecision ? 'false' : 'true');
     }
 
+    /* Stabilize the colour before paint as well as through CSS. The state class
+       can be one microtask behind a render during pretimer/custom transitions. */
     var modal = document.getElementById('session-modal');
     var pre = document.getElementById('session-pre-timer');
     var state = sessionStateSafe();
