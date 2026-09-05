@@ -59,6 +59,7 @@
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
   var exerciseAssetsVersion = '20260904-exercise-stack-clean-v59';
+  var exerciseConceptVersion = '20260905-exercise-concept-lab-v1';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -149,6 +150,19 @@
   }
 
   if (isExercisePage) {
+    var exerciseConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
+    var exerciseConcepts = ['interval-track','uhd-athlete','pulse-home'];
+    if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
+      document.documentElement.classList.add('exercise-concept-booting-v1','exercise-concept-' + exerciseConcept + '-v1');
+      var conceptCritical = document.createElement('style');
+      conceptCritical.id = 'exercise-concept-critical-v1';
+      conceptCritical.textContent =
+        'html.exercise-concept-booting-v1 body .app-wrap{visibility:hidden!important}' +
+        'html.exercise-concept-ready-v1 body .app-wrap{animation:exerciseConceptRevealV1 .28s cubic-bezier(.16,1,.3,1) both}' +
+        '@keyframes exerciseConceptRevealV1{from{opacity:.16;transform:translateY(4px)}to{opacity:1;transform:none}}' +
+        '@media(prefers-reduced-motion:reduce){html.exercise-concept-ready-v1 body .app-wrap{animation:none!important}}';
+      document.head.appendChild(conceptCritical);
+    }
     /* One ordered exercise stack: runtime first, feature layers next and one
        final morph/stability authority last. Obsolete inline-log patch is gone. */
     var exerciseScripts = [
@@ -181,7 +195,19 @@
     ];
 
     (function loadExerciseAt(index) {
-      if (index >= exerciseScripts.length) return;
+      if (index >= exerciseScripts.length) {
+        if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
+          var conceptScript = document.createElement('script');
+          conceptScript.src = 'exercise-concept-lab-v1.js?v=' + exerciseConceptVersion;
+          conceptScript.async = false;
+          conceptScript.setAttribute('data-exercise-concept-lab-v1','true');
+          conceptScript.onerror = function () {
+            document.documentElement.classList.remove('exercise-concept-booting-v1');
+          };
+          document.head.appendChild(conceptScript);
+        }
+        return;
+      }
       var item = exerciseScripts[index];
       loadScriptOnce(item[0], item[1], function () { loadExerciseAt(index + 1); });
     })(0);
