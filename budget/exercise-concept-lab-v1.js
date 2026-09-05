@@ -467,6 +467,180 @@
       .concept-pulse-front-v1 path { fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:120 480;animation:conceptPulseSweepV1 2.2s linear infinite; }
       @keyframes conceptPulseSweepV1 { to { stroke-dashoffset:-600; } }
 
+      /* Pulse Flow session: the plan is available only through the dedicated
+         overview button. Keeping it out of the live flow prevents the cardio
+         timer and primary action from ever covering plan rows on mobile. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-grid > .session-card:nth-child(2) {
+        display:none !important;
+      }
+
+      /* Primary clocks use the same restrained surfaces and live accent as
+         the front-page cards. Strength, cardio and recovery still select the
+         colour through Pulse Flow's existing state variables. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-timers {
+        gap:8px !important;
+        padding:0 0 3px !important;
+        border-bottom:0 !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-timers::after {
+        content:none !important;
+        display:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-box {
+        position:relative !important;
+        min-height:62px !important;
+        padding:9px 12px !important;
+        overflow:hidden !important;
+        border:1px solid rgba(var(--pf-rgb),.13) !important;
+        border-radius:13px !important;
+        background:linear-gradient(145deg,rgba(var(--pf-rgb),.075),rgba(255,255,255,.014) 68%) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-box::after {
+        content:'';
+        position:absolute;
+        left:12px;
+        right:12px;
+        bottom:0;
+        height:1px;
+        background:linear-gradient(90deg,transparent,rgba(var(--pf-rgb),.62),transparent);
+        opacity:.42;
+      }
+
+      /* Header 5-second switch follows the current Pulse Flow tone instead
+         of falling back to the older orange hype styling. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2 {
+        border-color:rgba(var(--pf-rgb),.22) !important;
+        background:linear-gradient(135deg,rgba(var(--pf-rgb),.065),rgba(255,255,255,.018)) !important;
+        color:#748296 !important;
+        box-shadow:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] {
+        border-color:rgba(var(--pf-rgb),.46) !important;
+        background:rgba(var(--pf-rgb),.105) !important;
+        color:var(--pf-soft) !important;
+        box-shadow:0 0 18px rgba(var(--pf-rgb),.08) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2 .session-timer-track-v48 {
+        background:rgba(100,116,139,.24) !important;
+        box-shadow:inset 0 0 0 1px rgba(148,163,184,.16) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
+        background:rgba(var(--pf-rgb),.24) !important;
+        box-shadow:inset 0 0 0 1px rgba(var(--pf-rgb),.28),0 0 10px rgba(var(--pf-rgb),.13) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
+        background:var(--pf-soft) !important;
+        box-shadow:0 0 8px rgba(var(--pf-rgb),.62) !important;
+      }
+
+      /* Timed cardio ring uses the active exercise tone. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment {
+        --countdown-segment-color:rgba(var(--pf-rgb),.10) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment.active {
+        --countdown-segment-color:var(--pf-accent) !important;
+        filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.54)) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment.inactive {
+        --countdown-segment-color:rgba(var(--pf-rgb),.10) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring .session-countdown-core {
+        border-color:rgba(var(--pf-rgb),.14) !important;
+        background:#0A1119 !important;
+        box-shadow:inset 0 0 28px rgba(var(--pf-rgb),.025) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-value {
+        color:var(--pf-soft) !important;
+        text-shadow:0 0 18px rgba(var(--pf-rgb),.13) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-pause-hint,
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .session-countdown-label {
+        color:#718095 !important;
+      }
+
+      /* The full-screen five-second timer lives outside the session modal, so
+         it receives a small concept-local palette. :has keeps the exercise
+         tone in sync without changing timer state or controller code. */
+      html.exercise-concept-pulse-home-v1 #session-pre-timer {
+        --concept-timer-accent:#67E8F9;
+        --concept-timer-soft:#CFFAFE;
+        --concept-timer-rgb:34,211,238;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal.pulse-flow-strength-v58) #session-pre-timer {
+        --concept-timer-accent:#FB923C;
+        --concept-timer-soft:#FED7AA;
+        --concept-timer-rgb:251,146,60;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal.pulse-flow-cardio-v58) #session-pre-timer {
+        --concept-timer-accent:#EF4444;
+        --concept-timer-soft:#FCA5A5;
+        --concept-timer-rgb:239,68,68;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer.show {
+        background:
+          radial-gradient(460px 300px at 50% 50%,rgba(var(--concept-timer-rgb),.09),transparent 68%),
+          rgba(8,13,20,.975) !important;
+        backdrop-filter:blur(14px) !important;
+        -webkit-backdrop-filter:blur(14px) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer-ring {
+        background:conic-gradient(var(--concept-timer-accent) var(--pre-smooth-progress,0deg),rgba(var(--concept-timer-rgb),.10) 0deg) !important;
+        box-shadow:0 0 34px rgba(var(--concept-timer-rgb),.11) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::before {
+        background:#0A1119 !important;
+        border-color:rgba(var(--concept-timer-rgb),.14) !important;
+        box-shadow:inset 0 0 26px rgba(var(--concept-timer-rgb),.025) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::after {
+        width:9px !important;
+        height:9px !important;
+        margin:-4.5px 0 0 -4.5px !important;
+        border:1px solid var(--concept-timer-accent) !important;
+        border-radius:50% !important;
+        background:var(--concept-timer-soft) !important;
+        box-shadow:0 0 10px rgba(var(--concept-timer-rgb),.62) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer-value {
+        color:var(--concept-timer-soft) !important;
+        text-shadow:0 0 18px rgba(var(--concept-timer-rgb),.13) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-pre-timer .session-pre-label {
+        color:var(--concept-timer-accent) !important;
+      }
+
+      /* Rest keeps its calm cyan identity and the slower Pulse Flow ribbon. */
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 {
+        background:
+          radial-gradient(470px 310px at 50% 48%,rgba(var(--pf-rgb),.075),transparent 68%),
+          rgba(8,13,20,.975) !important;
+        backdrop-filter:blur(14px) !important;
+        -webkit-backdrop-filter:blur(14px) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-segment {
+        --between-segment-color:rgba(var(--pf-rgb),.10) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-segment.active {
+        --between-segment-color:var(--pf-accent) !important;
+        filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.50)) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-core {
+        background:#0A1119 !important;
+        border-color:rgba(var(--pf-rgb),.14) !important;
+        box-shadow:inset 0 0 28px rgba(var(--pf-rgb),.025) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-value {
+        color:var(--pf-soft) !important;
+        text-shadow:0 0 18px rgba(var(--pf-rgb),.13) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-label {
+        color:var(--pf-accent) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58 .bs-skip {
+        color:#718095 !important;
+      }
+
       @media(max-width:760px) {
         html[class*="exercise-concept-"] .exercise-concept-bar-v1 { grid-template-columns:1fr;gap:11px;margin-bottom:18px;padding:14px 13px; }
         html[class*="exercise-concept-"] .exercise-concept-tabs-v1 { justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:1px;scrollbar-width:none; }
