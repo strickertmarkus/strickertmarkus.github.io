@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260904-exercise-stack-clean-v59';
+  var exerciseAssetsVersion = '20260905-exercise-pulse-home-fix-v60';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
@@ -101,7 +101,7 @@
       '.cal-section{padding-top:40px!important;}\n' +
       '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;min-height:34px!important;padding:0!important;margin:0!important;}\n' +
       '.calendar-toolbar-v2 .cal-week-number,.calendar-toolbar-v2 .calendar-week-number-v2{font-size:12px!important;letter-spacing:.6px!important;}\n' +
-      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;gap:5px!important;}\n' +
+      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;gap:5px!important;padding-bottom:1px;scrollbar-width:none;}\n' +
       '.calendar-toolbar-v2 .month-nav button{width:30px!important;height:30px!important;font-size:14px!important;}\n' +
       '.calendar-toolbar-v2 #month-label{font-size:12px!important;padding:0 6px!important;}\n' +
       '#trip-section{display:none!important;}\n' +
