@@ -220,7 +220,7 @@
     var concept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
     if (concept !== 'pulse-home' || document.querySelector('script[data-exercise-pulse-flow-timeline-v61]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260905-1947-pulse-flow-timeline-v61';
+    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260905-2151-pulse-flow-timeline-fix-v61';
     script.async = false;
     script.setAttribute('data-exercise-pulse-flow-timeline-v61','true');
     document.head.appendChild(script);
