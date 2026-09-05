@@ -209,6 +209,26 @@
         pointer-events:none !important;
       }
 
+      /* Pulse Flow timer typography: calmer, lighter and closer to the front-page theme. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-box {
+        min-height:58px !important;
+        padding:8px 12px !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-lbl {
+        color:#718095 !important;
+        font-size:8px !important;
+        font-weight:650 !important;
+        letter-spacing:1.1px !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-val {
+        color:var(--pf-soft) !important;
+        font-size:clamp(22px,4.5vw,28px) !important;
+        line-height:1 !important;
+        font-weight:700 !important;
+        letter-spacing:-.6px !important;
+        text-shadow:0 0 14px rgba(var(--pf-rgb),.10) !important;
+      }
+
       /* The live cardio timer must use the current Pulse Flow state colour,
          not the older hard-coded orange fallback. */
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment {
@@ -226,13 +246,32 @@
       }
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-value {
         color:var(--pf-soft) !important;
-        text-shadow:0 0 18px rgba(var(--pf-rgb),.15) !important;
+        font-size:30px !important;
+        font-weight:700 !important;
+        letter-spacing:-.7px !important;
+        text-shadow:0 0 16px rgba(var(--pf-rgb),.13) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .session-countdown-label,
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-pause-hint {
+        font-weight:600 !important;
+        letter-spacing:.85px !important;
       }
 
-      /* Rest is a focused Pulse Flow timer, not a second overview screen. */
+      /* Full-screen 5 s timer follows the same restrained typography. */
+      html.exercise-concept-pulse-home-v1 body #session-pre-timer #session-pre-timer-value {
+        font-size:clamp(42px,12vw,56px) !important;
+        font-weight:700 !important;
+        letter-spacing:-1.4px !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-pre-timer .session-pre-label {
+        font-weight:700 !important;
+        letter-spacing:1px !important;
+      }
+
+      /* Rest is a focused Pulse Flow timer with a lightweight themed overview. */
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.show {
         background:
-          radial-gradient(430px 290px at 50% 43%,rgba(34,211,238,.075),transparent 70%),
+          radial-gradient(430px 290px at 50% 38%,rgba(34,211,238,.075),transparent 70%),
           #080D14 !important;
         backdrop-filter:blur(18px) !important;
         -webkit-backdrop-filter:blur(18px) !important;
@@ -243,67 +282,128 @@
         display:none !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-overlay-wrap {
-        width:min(360px,calc(100vw - 32px)) !important;
+        width:min(430px,calc(100vw - 32px)) !important;
         display:flex !important;
         flex-direction:column !important;
         align-items:center !important;
         justify-content:center !important;
         text-align:center !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview {
-        display:none !important;
-        visibility:hidden !important;
-      }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-heading {
-        margin:0 0 16px !important;
+        margin:0 0 14px !important;
         color:#CFFAFE !important;
-        font-size:14px !important;
-        font-weight:850 !important;
-        letter-spacing:.02em !important;
-        text-shadow:0 0 16px rgba(34,211,238,.10) !important;
+        font-size:13px !important;
+        font-weight:700 !important;
+        letter-spacing:.04em !important;
+        text-shadow:0 0 14px rgba(34,211,238,.09) !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring {
-        width:min(170px,46vw) !important;
-        height:min(170px,46vw) !important;
+        width:min(164px,44vw) !important;
+        height:min(164px,44vw) !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-segment {
-        background:rgba(34,211,238,.10) !important;
+        background:rgba(34,211,238,.09) !important;
         box-shadow:none !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-segment.active {
         background:#22D3EE !important;
-        box-shadow:0 0 7px rgba(34,211,238,.52) !important;
+        box-shadow:0 0 6px rgba(34,211,238,.46) !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-core {
         background:#0A1119 !important;
-        border-color:rgba(34,211,238,.15) !important;
-        box-shadow:inset 0 0 28px rgba(34,211,238,.025) !important;
+        border-color:rgba(34,211,238,.14) !important;
+        box-shadow:inset 0 0 24px rgba(34,211,238,.022) !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-value {
         color:#CFFAFE !important;
-        font-size:36px !important;
-        letter-spacing:-1px !important;
-        text-shadow:0 0 18px rgba(34,211,238,.14) !important;
+        font-size:31px !important;
+        line-height:1 !important;
+        font-weight:700 !important;
+        letter-spacing:-.7px !important;
+        text-shadow:0 0 15px rgba(34,211,238,.12) !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-label {
+        margin-top:7px !important;
         color:#718095 !important;
         font-size:9px !important;
+        font-weight:600 !important;
         letter-spacing:1px !important;
       }
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-skip {
-        margin-top:20px !important;
+        margin-top:16px !important;
         color:#617086 !important;
         font-size:9px !important;
+        font-weight:600 !important;
         letter-spacing:.65px !important;
       }
 
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview {
+        display:block !important;
+        visibility:visible !important;
+        width:100% !important;
+        margin:22px 0 0 !important;
+        padding:0 !important;
+        border:0 !important;
+        border-top:1px solid rgba(34,211,238,.13) !important;
+        border-bottom:1px solid rgba(34,211,238,.09) !important;
+        border-radius:0 !important;
+        background:transparent !important;
+        box-shadow:none !important;
+        text-align:left !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview-title {
+        margin:0 !important;
+        padding:10px 2px 8px !important;
+        color:#67E8F9 !important;
+        font-size:8px !important;
+        font-weight:750 !important;
+        letter-spacing:1.15px !important;
+        text-transform:uppercase !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview-row {
+        display:grid !important;
+        grid-template-columns:minmax(0,1fr) auto !important;
+        gap:12px !important;
+        align-items:center !important;
+        min-height:34px !important;
+        padding:7px 2px !important;
+        border-top:1px solid rgba(148,163,184,.09) !important;
+        background:transparent !important;
+        font-size:10px !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-name {
+        color:#7D8A9C !important;
+        font-weight:560 !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-progress {
+        color:#5EDCF2 !important;
+        font-weight:650 !important;
+        font-variant-numeric:tabular-nums !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview-row.current {
+        background:linear-gradient(90deg,rgba(34,211,238,.055),transparent 72%) !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview-row.current .bs-rest-name {
+        color:#E2F8FC !important;
+        font-weight:700 !important;
+      }
+
       @media(max-width:600px) {
+        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .timer-val {
+          font-size:24px !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-overlay-wrap {
+          width:min(390px,calc(100vw - 28px)) !important;
+        }
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring {
-          width:min(158px,43vw) !important;
-          height:min(158px,43vw) !important;
+          width:min(152px,41vw) !important;
+          height:min(152px,41vw) !important;
         }
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-value {
-          font-size:34px !important;
+          font-size:29px !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-rest-overview {
+          margin-top:18px !important;
         }
       }
     `;
