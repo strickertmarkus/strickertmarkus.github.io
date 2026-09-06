@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260906-exercise-pulse-flow-pre-timer-v63';
+  var exerciseAssetsVersion = '20260906-exercise-pulse-flow-motion-v67';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
@@ -191,7 +191,8 @@
       ['exercise-hype-timer-layout-v1.js', 'data-exercise-hype-timer-layout-v1'],
       ['exercise-session-stability-v55.js', 'data-exercise-session-stability-v55'],
       ['exercise-custom-transition-atomic-v56.js', 'data-exercise-custom-transition-atomic-v56'],
-      ['exercise-pulse-flow-v58.js', 'data-exercise-pulse-flow-v58']
+      ['exercise-pulse-flow-v58.js', 'data-exercise-pulse-flow-v58'],
+      ['exercise-pulse-flow-motion-v67.js', 'data-exercise-pulse-flow-motion-v67']
     ];
 
     (function loadExerciseAt(index) {
@@ -240,7 +241,7 @@
           });
         });
       });
-    });
+    })(0);
   }
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
