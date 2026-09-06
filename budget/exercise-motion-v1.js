@@ -277,12 +277,25 @@
     })();
   }
 
+  function loadPulseFlowMarkersV66() {
+    if (document.querySelector('script[data-exercise-pulse-flow-markers-v66]')) return;
+    var marker = document.createElement('script');
+    marker.src = 'exercise-pulse-flow-markers-v66.js?v=20260906-1002-pulse-flow-markers-v66';
+    marker.async = false;
+    marker.setAttribute('data-exercise-pulse-flow-markers-v66','true');
+    document.head.appendChild(marker);
+  }
+
   function loadPulseFlowSmoothV64() {
-    if (document.querySelector('script[data-exercise-pulse-flow-smooth-v64]')) return;
+    if (document.querySelector('script[data-exercise-pulse-flow-smooth-v64]')) {
+      loadPulseFlowMarkersV66();
+      return;
+    }
     var smooth = document.createElement('script');
-    smooth.src = 'exercise-pulse-flow-smooth-v64.js?v=20260906-0815-pulse-flow-smooth-v64';
+    smooth.src = 'exercise-pulse-flow-smooth-v64.js?v=20260906-1002-pulse-flow-markers-v66';
     smooth.async = false;
     smooth.setAttribute('data-exercise-pulse-flow-smooth-v64','true');
+    smooth.addEventListener('load',loadPulseFlowMarkersV66,{once:true});
     document.head.appendChild(smooth);
   }
 
@@ -290,7 +303,7 @@
     var concept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
     if (concept !== 'pulse-home' || document.querySelector('script[data-exercise-pulse-flow-timeline-v61]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-0815-pulse-flow-smooth-v64';
+    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-1002-pulse-flow-markers-v66';
     script.async = false;
     script.setAttribute('data-exercise-pulse-flow-timeline-v61','true');
     script.addEventListener('load',function () {
