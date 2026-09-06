@@ -216,13 +216,77 @@
     document.head.appendChild(style);
   }
 
+  function promotePulseFlowTimerStyles() {
+    var attempts = 0;
+    (function waitForConceptReady() {
+      attempts += 1;
+      var root = document.documentElement;
+      var timerStyle = document.getElementById('exercise-pulse-flow-timers-v62-style');
+      if (root.classList.contains('exercise-concept-ready-v1') && timerStyle) {
+        /* Moving an existing style node to the end makes the dedicated Pulse
+           Flow timer layer the final visual authority after concept-lab. */
+        document.head.appendChild(timerStyle);
+
+        var finalStyle = document.getElementById('exercise-pulse-flow-pre-timer-final-v63-style');
+        if (!finalStyle) {
+          finalStyle = document.createElement('style');
+          finalStyle.id = 'exercise-pulse-flow-pre-timer-final-v63-style';
+          finalStyle.textContent = `
+            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring {
+              background:transparent !important;
+              background-image:none !important;
+              -webkit-mask:none !important;
+              mask:none !important;
+              clip-path:none !important;
+              aspect-ratio:auto !important;
+              width:min(310px,82vw) !important;
+              height:auto !important;
+              min-height:0 !important;
+              max-height:none !important;
+              padding:0 !important;
+              border:0 !important;
+              border-radius:0 !important;
+              box-shadow:none !important;
+              filter:none !important;
+              transform:none !important;
+              overflow:visible !important;
+            }
+            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::before,
+            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::after {
+              content:none !important;
+              display:none !important;
+              background:none !important;
+              background-image:none !important;
+              -webkit-mask:none !important;
+              mask:none !important;
+              box-shadow:none !important;
+              filter:none !important;
+              animation:none !important;
+            }
+            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring .session-pre-copy {
+              position:static !important;
+              inset:auto !important;
+              transform:none !important;
+            }
+          `;
+          document.head.appendChild(finalStyle);
+        } else {
+          document.head.appendChild(finalStyle);
+        }
+        return;
+      }
+      if (attempts < 240) setTimeout(waitForConceptReady,25);
+    })();
+  }
+
   function loadPulseFlowTimelineExperiment() {
     var concept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
     if (concept !== 'pulse-home' || document.querySelector('script[data-exercise-pulse-flow-timeline-v61]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260905-2218-pulse-flow-timers-v62';
+    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-0802-pulse-flow-pre-timer-v63';
     script.async = false;
     script.setAttribute('data-exercise-pulse-flow-timeline-v61','true');
+    script.addEventListener('load',promotePulseFlowTimerStyles,{once:true});
     document.head.appendChild(script);
   }
 
