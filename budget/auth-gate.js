@@ -241,7 +241,7 @@
           });
         });
       });
-    })(0);
+    });
   }
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
