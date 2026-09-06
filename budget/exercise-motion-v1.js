@@ -223,8 +223,6 @@
       var root = document.documentElement;
       var timerStyle = document.getElementById('exercise-pulse-flow-timers-v62-style');
       if (root.classList.contains('exercise-concept-ready-v1') && timerStyle) {
-        /* Moving an existing style node to the end makes the dedicated Pulse
-           Flow timer layer the final visual authority after concept-lab. */
         document.head.appendChild(timerStyle);
 
         var finalStyle = document.getElementById('exercise-pulse-flow-pre-timer-final-v63-style');
@@ -279,14 +277,26 @@
     })();
   }
 
+  function loadPulseFlowSmoothV64() {
+    if (document.querySelector('script[data-exercise-pulse-flow-smooth-v64]')) return;
+    var smooth = document.createElement('script');
+    smooth.src = 'exercise-pulse-flow-smooth-v64.js?v=20260906-0815-pulse-flow-smooth-v64';
+    smooth.async = false;
+    smooth.setAttribute('data-exercise-pulse-flow-smooth-v64','true');
+    document.head.appendChild(smooth);
+  }
+
   function loadPulseFlowTimelineExperiment() {
     var concept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
     if (concept !== 'pulse-home' || document.querySelector('script[data-exercise-pulse-flow-timeline-v61]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-0802-pulse-flow-pre-timer-v63';
+    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-0815-pulse-flow-smooth-v64';
     script.async = false;
     script.setAttribute('data-exercise-pulse-flow-timeline-v61','true');
-    script.addEventListener('load',promotePulseFlowTimerStyles,{once:true});
+    script.addEventListener('load',function () {
+      promotePulseFlowTimerStyles();
+      loadPulseFlowSmoothV64();
+    },{once:true});
     document.head.appendChild(script);
   }
 
@@ -299,9 +309,6 @@
     ['shiftDayWorkoutWeek','onDayWorkoutDateChange','setExerciseKind','shiftViewedWeek']
       .forEach(function (name) { wrap(name,'builder'); });
 
-    /* Modal openings are animated by their final surface itself. Keeping these
-       functions synchronous is important because editWorkout fills fields
-       immediately after openWorkoutModal returns. */
     wrap('toggleNavMenu','nav');
 
     window.__exerciseMotionV1 = {run:runExerciseMorph};
