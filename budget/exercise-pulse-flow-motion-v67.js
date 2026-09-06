@@ -3,8 +3,8 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
   if (String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase() !== 'pulse-home') return;
-  if (window.__exercisePulseFlowMotionV72FinalInstalled) return;
-  window.__exercisePulseFlowMotionV72FinalInstalled = true;
+  if (window.__exercisePulseFlowMotionV73FinalInstalled) return;
+  window.__exercisePulseFlowMotionV73FinalInstalled = true;
 
   var reduced = false;
   var rafId = 0;
@@ -81,19 +81,19 @@
   }
 
   function installStyles() {
-    ['exercise-pulse-flow-motion-v70-final-style','exercise-pulse-flow-motion-v71-final-style'].forEach(function (id) {
+    ['exercise-pulse-flow-motion-v70-final-style','exercise-pulse-flow-motion-v71-final-style','exercise-pulse-flow-motion-v72-final-style'].forEach(function (id) {
       var old = document.getElementById(id);
       if (old) old.remove();
     });
 
-    var style = document.getElementById('exercise-pulse-flow-motion-v72-final-style');
+    var style = document.getElementById('exercise-pulse-flow-motion-v73-final-style');
     if (style) {
       if (style !== document.head.lastElementChild) document.head.appendChild(style);
       return;
     }
 
     style = document.createElement('style');
-    style.id = 'exercise-pulse-flow-motion-v72-final-style';
+    style.id = 'exercise-pulse-flow-motion-v73-final-style';
     style.textContent = `
       html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment {
         position:relative !important;display:grid !important;place-items:center !important;
@@ -105,26 +105,26 @@
         content:none !important;display:none !important;width:0 !important;height:0 !important;background:none !important;
         border:0 !important;outline:0 !important;box-shadow:none !important;filter:none !important;animation:none !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .pf-progress-dot-v73 {
         display:block !important;width:6px !important;height:6px !important;flex:0 0 6px !important;border:0 !important;outline:0 !important;
         border-radius:50% !important;background:#252D37 !important;box-shadow:none !important;filter:none !important;opacity:.72 !important;
         transform:none !important;animation:none !important;
         transition:width .16s ease,height .16s ease,background .16s ease,box-shadow .18s ease,opacity .16s ease !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.done.strength > .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.done.strength > .pf-progress-dot-v73 {
         background:#FB923C !important;opacity:1 !important;box-shadow:0 0 4px rgba(251,146,60,.82),0 0 9px rgba(251,146,60,.26) !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.done.cardio > .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.done.cardio > .pf-progress-dot-v73 {
         background:#EF4444 !important;opacity:1 !important;box-shadow:0 0 4px rgba(239,68,68,.84),0 0 9px rgba(239,68,68,.27) !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current > .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current > .pf-progress-dot-v73 {
         width:10px !important;height:10px !important;flex-basis:10px !important;opacity:1 !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current.strength > .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current.strength > .pf-progress-dot-v73 {
         background:radial-gradient(circle,#FFF2DE 0 8%,#FDBA74 20%,#FB923C 46%,rgba(251,146,60,.54) 66%,rgba(251,146,60,.10) 82%,transparent 100%) !important;
         box-shadow:0 0 6px rgba(251,146,60,.92),0 0 14px rgba(251,146,60,.42) !important;
       }
-      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current.cardio > .pf-progress-dot-v72 {
+      html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current.cardio > .pf-progress-dot-v73 {
         background:radial-gradient(circle,#FFE4E6 0 8%,#FCA5A5 20%,#EF4444 46%,rgba(239,68,68,.54) 66%,rgba(239,68,68,.10) 82%,transparent 100%) !important;
         box-shadow:0 0 6px rgba(239,68,68,.94),0 0 14px rgba(239,68,68,.43) !important;
       }
@@ -146,40 +146,44 @@
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2#session-between-overlay-v2 .bs-core,
       html.exercise-concept-pulse-home-v1 body .pf-arc-svg-v70,
       html.exercise-concept-pulse-home-v1 body .pf-arc-svg-v71,
+      html.exercise-concept-pulse-home-v1 body .pf-arc-svg-v72,
       html.exercise-concept-pulse-home-v1 body .pf-arc-trail-v69,
       html.exercise-concept-pulse-home-v1 body .pf-arc-marker-v69 {
         display:none !important;visibility:hidden !important;opacity:0 !important;animation:none !important;
       }
 
-      .pf-arc-svg-v72 {position:absolute !important;inset:0 !important;z-index:1 !important;width:100% !important;height:100% !important;overflow:visible !important;pointer-events:none !important;}
-      .pf-arc-svg-v72 path {fill:none !important;vector-effect:non-scaling-stroke !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
-      #session-modal.pulse-flow-v58 .pf-arc-track-v72 {stroke:rgba(var(--pf-rgb),.085) !important;stroke-width:2.7 !important;}
-      #session-modal.pulse-flow-v58 .pf-arc-progress-v72 {stroke:rgba(var(--pf-rgb),.64) !important;stroke-width:2.7 !important;filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.28)) !important;}
-      #session-modal.pulse-flow-v58 .pf-arc-tail-soft-v72 {stroke:rgba(var(--pf-rgb),.34) !important;stroke-width:4.5 !important;filter:drop-shadow(0 0 5px rgba(var(--pf-rgb),.30)) !important;}
-      #session-modal.pulse-flow-v58 .pf-arc-tail-bright-v72 {stroke:var(--pf-accent) !important;stroke-width:3.2 !important;filter:drop-shadow(0 0 5px rgba(var(--pf-rgb),.74)) drop-shadow(0 0 10px rgba(var(--pf-rgb),.30)) !important;}
-      #session-modal.pulse-flow-v58 .pf-arc-marker-v72 {fill:var(--pf-accent) !important;stroke:none !important;filter:drop-shadow(0 0 2px var(--pf-accent)) drop-shadow(0 0 6px rgba(var(--pf-rgb),.84)) !important;}
+      .pf-arc-svg-v73 {position:absolute !important;inset:0 !important;z-index:1 !important;width:100% !important;height:100% !important;overflow:visible !important;pointer-events:none !important;}
+      .pf-arc-svg-v73 path {fill:none !important;vector-effect:non-scaling-stroke !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+      #session-modal.pulse-flow-v58 .pf-arc-track-v73 {stroke:rgba(var(--pf-rgb),.085) !important;stroke-width:2.7 !important;}
+      #session-modal.pulse-flow-v58 .pf-arc-progress-v73 {stroke:rgba(var(--pf-rgb),.68) !important;stroke-width:2.7 !important;filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.28)) !important;}
+      #session-modal.pulse-flow-v58 .pf-arc-marker-v73 {fill:var(--pf-accent) !important;stroke:none !important;filter:drop-shadow(0 0 2px var(--pf-accent)) drop-shadow(0 0 5px rgba(var(--pf-rgb),.98)) drop-shadow(0 0 11px rgba(var(--pf-rgb),.56)) !important;}
 
       #session-between-overlay-v2 {--pf-between-accent:#22D3EE;--pf-between-rgb:34,211,238;}
       #session-between-overlay-v2[data-between-type="custom"] {--pf-between-accent:#EF4444;--pf-between-rgb:239,68,68;}
-      #session-between-overlay-v2 .pf-arc-track-v72 {stroke:rgba(var(--pf-between-rgb),.085) !important;stroke-width:2.7 !important;}
-      #session-between-overlay-v2 .pf-arc-progress-v72 {stroke:rgba(var(--pf-between-rgb),.64) !important;stroke-width:2.7 !important;filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.28)) !important;}
-      #session-between-overlay-v2 .pf-arc-tail-soft-v72 {stroke:rgba(var(--pf-between-rgb),.34) !important;stroke-width:4.5 !important;filter:drop-shadow(0 0 5px rgba(var(--pf-between-rgb),.30)) !important;}
-      #session-between-overlay-v2 .pf-arc-tail-bright-v72 {stroke:var(--pf-between-accent) !important;stroke-width:3.2 !important;filter:drop-shadow(0 0 5px rgba(var(--pf-between-rgb),.74)) drop-shadow(0 0 10px rgba(var(--pf-between-rgb),.30)) !important;}
-      #session-between-overlay-v2 .pf-arc-marker-v72 {fill:var(--pf-between-accent) !important;stroke:none !important;filter:drop-shadow(0 0 2px var(--pf-between-accent)) drop-shadow(0 0 6px rgba(var(--pf-between-rgb),.84)) !important;}
+      #session-between-overlay-v2 .pf-arc-track-v73 {stroke:rgba(var(--pf-between-rgb),.085) !important;stroke-width:2.7 !important;}
+      #session-between-overlay-v2 .pf-arc-progress-v73 {stroke:rgba(var(--pf-between-rgb),.68) !important;stroke-width:2.7 !important;filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.28)) !important;}
+      #session-between-overlay-v2 .pf-arc-marker-v73 {fill:var(--pf-between-accent) !important;stroke:none !important;filter:drop-shadow(0 0 2px var(--pf-between-accent)) drop-shadow(0 0 5px rgba(var(--pf-between-rgb),.98)) drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.56)) !important;}
 
       html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-timer-signal-v62,
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-timer-signal-v62 {
         display:none !important;visibility:hidden !important;opacity:0 !important;animation:none !important;
       }
-      .pf-ecg-v72 {display:block !important;position:relative !important;width:48px !important;min-width:48px !important;height:10px !important;min-height:10px !important;margin:5px auto 2px !important;flex:0 0 10px !important;overflow:visible !important;opacity:1 !important;visibility:visible !important;animation:none !important;transform:none !important;}
-      .pf-ecg-v72 svg {display:block !important;width:100% !important;height:100% !important;overflow:visible !important;}
-      .pf-ecg-v72 .pf-ecg-base-v72,.pf-ecg-v72 .pf-ecg-sweep-v72 {fill:none !important;stroke:currentColor !important;stroke-linecap:round !important;stroke-linejoin:round !important;vector-effect:non-scaling-stroke !important;}
-      .pf-ecg-v72 .pf-ecg-base-v72 {stroke-width:1.05 !important;opacity:.24 !important;}
-      .pf-ecg-v72 .pf-ecg-sweep-v72 {stroke-width:1.65 !important;opacity:.92 !important;filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 4px currentColor) !important;}
-      .pf-ecg-v72 .pf-ecg-marker-v72 {fill:currentColor !important;stroke:none !important;opacity:1 !important;filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 3px currentColor) !important;}
-      #session-countdown-ring .pf-ecg-v72 {color:var(--pf-accent) !important;}
-      #session-between-overlay-v2 .pf-ecg-v72 {color:var(--pf-between-accent) !important;}
-      @media(prefers-reduced-motion:reduce){.pf-ecg-v72 .pf-ecg-sweep-v72{opacity:.48 !important;}}
+      .pf-ecg-v73 {display:block !important;position:relative !important;width:48px !important;min-width:48px !important;height:10px !important;min-height:10px !important;margin:5px auto 2px !important;flex:0 0 10px !important;overflow:visible !important;opacity:1 !important;visibility:visible !important;animation:none !important;transform:none !important;}
+      .pf-ecg-v73 svg {display:block !important;width:100% !important;height:100% !important;overflow:visible !important;}
+      .pf-ecg-v73 .pf-ecg-base-v73,.pf-ecg-v73 .pf-ecg-sweep-v73 {fill:none !important;stroke:currentColor !important;stroke-linecap:round !important;stroke-linejoin:round !important;vector-effect:non-scaling-stroke !important;}
+      .pf-ecg-v73 .pf-ecg-base-v73 {stroke-width:1.05 !important;opacity:.24 !important;}
+      .pf-ecg-v73 .pf-ecg-sweep-v73 {stroke-width:1.65 !important;opacity:.92 !important;filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 4px currentColor) !important;}
+      .pf-ecg-v73 .pf-ecg-marker-v73 {fill:currentColor !important;stroke:none !important;opacity:1 !important;filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 3px currentColor) !important;}
+      #session-countdown-ring .pf-ecg-v73 {color:var(--pf-accent) !important;}
+      #session-between-overlay-v2 .pf-ecg-v73 {color:var(--pf-between-accent) !important;}
+
+      /* 5 s pre-timer: same visual, marker reduced to 75% of the v65 size. */
+      html.exercise-concept-pulse-home-v1 #session-pre-timer .pf-pre-line-dot-v62 {
+        width:15px !important;height:15px !important;top:.5px !important;
+        filter:drop-shadow(0 0 6px rgba(var(--concept-timer-rgb),.45)) !important;
+      }
+
+      @media(prefers-reduced-motion:reduce){.pf-ecg-v73 .pf-ecg-sweep-v73{opacity:.48 !important;}}
     `;
     document.head.appendChild(style);
   }
@@ -194,11 +198,11 @@
       segment.style.setProperty('box-shadow', 'none', 'important');
       segment.style.setProperty('filter', 'none', 'important');
       segment.style.setProperty('border-radius', '0', 'important');
-      segment.querySelectorAll(':scope > .pf-progress-dot-v70,:scope > .pf-progress-dot-v71').forEach(function (node) { node.remove(); });
-      var dot = segment.querySelector(':scope > .pf-progress-dot-v72');
+      segment.querySelectorAll(':scope > .pf-progress-dot-v70,:scope > .pf-progress-dot-v71,:scope > .pf-progress-dot-v72').forEach(function (node) { node.remove(); });
+      var dot = segment.querySelector(':scope > .pf-progress-dot-v73');
       if (!dot) {
         dot = document.createElement('span');
-        dot.className = 'pf-progress-dot-v72';
+        dot.className = 'pf-progress-dot-v73';
         dot.setAttribute('aria-hidden', 'true');
         segment.appendChild(dot);
       }
@@ -206,22 +210,20 @@
   }
 
   function arcMarkup() {
-    return '<svg class="pf-arc-svg-v72" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
-      '<path class="pf-arc-track-v72" d="' + arcPath(0, 1) + '"></path>' +
-      '<path class="pf-arc-progress-v72"></path>' +
-      '<path class="pf-arc-tail-soft-v72"></path>' +
-      '<path class="pf-arc-tail-bright-v72"></path>' +
-      '<circle class="pf-arc-marker-v72" r="1.45"></circle>' +
+    return '<svg class="pf-arc-svg-v73" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+      '<path class="pf-arc-track-v73" d="' + arcPath(0, 1) + '"></path>' +
+      '<path class="pf-arc-progress-v73"></path>' +
+      '<circle class="pf-arc-marker-v73" r="1.45"></circle>' +
       '</svg>';
   }
 
   function ensureArc(ring) {
     if (!ring) return null;
-    ring.querySelectorAll(':scope > .pf-arc-svg-v70,:scope > .pf-arc-svg-v71,.pf-arc-trail-v69,.pf-arc-marker-v69').forEach(function (node) { node.remove(); });
-    var svg = ring.querySelector(':scope > .pf-arc-svg-v72');
+    ring.querySelectorAll(':scope > .pf-arc-svg-v70,:scope > .pf-arc-svg-v71,:scope > .pf-arc-svg-v72,.pf-arc-trail-v69,.pf-arc-marker-v69').forEach(function (node) { node.remove(); });
+    var svg = ring.querySelector(':scope > .pf-arc-svg-v73');
     if (!svg) {
       ring.insertAdjacentHTML('afterbegin', arcMarkup());
-      svg = ring.querySelector(':scope > .pf-arc-svg-v72');
+      svg = ring.querySelector(':scope > .pf-arc-svg-v73');
     }
     return svg;
   }
@@ -230,13 +232,9 @@
     var svg = ensureArc(ring);
     if (!svg) return;
     ratio = Math.max(0, Math.min(1, Number(ratio) || 0));
-    var progress = svg.querySelector('.pf-arc-progress-v72');
-    var tailSoft = svg.querySelector('.pf-arc-tail-soft-v72');
-    var tailBright = svg.querySelector('.pf-arc-tail-bright-v72');
-    var marker = svg.querySelector('.pf-arc-marker-v72');
+    var progress = svg.querySelector('.pf-arc-progress-v73');
+    var marker = svg.querySelector('.pf-arc-marker-v73');
     if (progress) progress.setAttribute('d', arcPath(0, ratio));
-    if (tailSoft) tailSoft.setAttribute('d', arcPath(Math.max(0, ratio - .14), ratio));
-    if (tailBright) tailBright.setAttribute('d', arcPath(Math.max(0, ratio - .055), ratio));
     if (marker) {
       var point = arcPoint(ratio);
       marker.setAttribute('cx', point.x.toFixed(3));
@@ -247,21 +245,21 @@
 
   function ensureEcg(copy) {
     if (!copy) return null;
-    copy.querySelectorAll('.pf-timer-signal-v62').forEach(function (node) {
+    copy.querySelectorAll('.pf-timer-signal-v62,.pf-ecg-v72').forEach(function (node) {
       node.style.setProperty('display', 'none', 'important');
       node.style.setProperty('visibility', 'hidden', 'important');
       node.style.setProperty('opacity', '0', 'important');
     });
-    var signal = copy.querySelector(':scope > .pf-ecg-v72');
+    var signal = copy.querySelector(':scope > .pf-ecg-v73');
     if (!signal) {
       signal = document.createElement('span');
-      signal.className = 'pf-ecg-v72';
+      signal.className = 'pf-ecg-v73';
       signal.setAttribute('aria-hidden', 'true');
       signal.innerHTML = '<svg viewBox="0 0 42 9" focusable="false" aria-hidden="true">' +
-        '<path class="pf-ecg-guide-v72" d="' + ECG_D + '" fill="none" stroke="none"></path>' +
-        '<path class="pf-ecg-base-v72" d="' + ECG_D + '"></path>' +
-        '<path class="pf-ecg-sweep-v72"></path>' +
-        '<circle class="pf-ecg-marker-v72" cx="0" cy="5" r=".68"></circle>' +
+        '<path class="pf-ecg-guide-v73" d="' + ECG_D + '" fill="none" stroke="none"></path>' +
+        '<path class="pf-ecg-base-v73" d="' + ECG_D + '"></path>' +
+        '<path class="pf-ecg-sweep-v73"></path>' +
+        '<circle class="pf-ecg-marker-v73" cx="0" cy="5" r=".68"></circle>' +
         '</svg>';
       var label = copy.querySelector('.session-countdown-label,.bs-label');
       if (label) copy.insertBefore(signal, label);
@@ -286,9 +284,9 @@
   function animateEcg(signal, now) {
     if (!signal) return;
     var svg = signal.querySelector('svg');
-    var guide = svg && svg.querySelector('.pf-ecg-guide-v72');
-    var sweep = svg && svg.querySelector('.pf-ecg-sweep-v72');
-    var marker = svg && svg.querySelector('.pf-ecg-marker-v72');
+    var guide = svg && svg.querySelector('.pf-ecg-guide-v73');
+    var sweep = svg && svg.querySelector('.pf-ecg-sweep-v73');
+    var marker = svg && svg.querySelector('.pf-ecg-marker-v73');
     if (!guide || !sweep || !marker || typeof guide.getTotalLength !== 'function') return;
     var overlay = signal.closest('#session-between-overlay-v2');
     var isRest = !!(overlay && overlay.dataset.betweenType !== 'custom');
@@ -357,7 +355,7 @@
     var nowEpoch = Date.now();
     if (now - lastSurfaceSync > 90) {lastSurfaceSync = now;syncSurfaces();}
     if (!reduced) {paintCardio(nowEpoch);paintBetween(nowEpoch);}
-    document.querySelectorAll('.pf-ecg-v72').forEach(function (signal) { animateEcg(signal, now); });
+    document.querySelectorAll('.pf-ecg-v73').forEach(function (signal) { animateEcg(signal, now); });
     rafId = requestAnimationFrame(animate);
   }
 
