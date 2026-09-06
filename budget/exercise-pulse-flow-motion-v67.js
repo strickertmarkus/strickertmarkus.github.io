@@ -3,145 +3,282 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
   if (String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase() !== 'pulse-home') return;
-  if (window.__exercisePulseFlowMotionV67FinalInstalled) return;
-  window.__exercisePulseFlowMotionV67FinalInstalled = true;
+  if (window.__exercisePulseFlowMotionV68FinalInstalled) return;
+  window.__exercisePulseFlowMotionV68FinalInstalled = true;
 
   var reduced = false;
   var rafId = 0;
   var lastSignalSync = 0;
-  try { reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (_) {}
+  var restWasVisible = false;
+  var restStartedAt = 0;
+  var restTotalMs = 0;
+
+  try {
+    reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  } catch (_) {}
+
+  function getState() {
+    try { return typeof sessionState !== 'undefined' ? sessionState : null; }
+    catch (_) { return null; }
+  }
+
+  function currentExercise(state) {
+    if (!state || !Array.isArray(state.exercises)) return null;
+    var index = Math.max(0, Number(state.exerciseIndex) || 0);
+    return index < state.exercises.length ? state.exercises[index] : null;
+  }
+
+  function parseClock(text) {
+    var parts = String(text || '').trim().split(':');
+    if (parts.length !== 2) return 0;
+    var min = parseInt(parts[0],10);
+    var sec = parseInt(parts[1],10);
+    if (!Number.isFinite(min) || !Number.isFinite(sec)) return 0;
+    return Math.max(0,min * 60 + sec);
+  }
+
+  function configuredBetweenSeconds() {
+    var state = getState();
+    if (!state || !state.date) return 0;
+    try {
+      if (typeof window.getPlannedSessions !== 'function') return 0;
+      var planned = window.getPlannedSessions() || {};
+      var session = planned[state.date];
+      var cfg = session && session.betweenSets;
+      var seconds = Number(cfg && cfg.seconds) || 0;
+      return seconds > 0 ? seconds : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
 
   function installStyles() {
-    var style = document.getElementById('exercise-pulse-flow-motion-v67-final-style');
-    if (!style) {
-      style = document.createElement('style');
-      style.id = 'exercise-pulse-flow-motion-v67-final-style';
-      style.textContent = `
-        /* PASSFLÖDE — miniature version of the 5 s timer playhead. */
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment::after {
-          content:'' !important;
-          display:block !important;
-          position:relative !important;
-          z-index:3 !important;
-          width:7px !important;
-          height:7px !important;
-          border:0 !important;
-          outline:0 !important;
-          border-radius:50% !important;
-          box-shadow:none !important;
-          transform:none !important;
-          opacity:1 !important;
-          animation:none !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.strength::after {
-          background:radial-gradient(circle,#FED7AA 0 17%,#FB923C 30%,rgba(251,146,60,.88) 43%,rgba(251,146,60,.45) 61%,rgba(251,146,60,.13) 77%,transparent 100%) !important;
-          filter:drop-shadow(0 0 4px rgba(251,146,60,.50)) drop-shadow(0 0 8px rgba(251,146,60,.20)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.cardio::after {
-          background:radial-gradient(circle,#FCA5A5 0 17%,#EF4444 30%,rgba(239,68,68,.89) 43%,rgba(239,68,68,.46) 61%,rgba(239,68,68,.13) 77%,transparent 100%) !important;
-          filter:drop-shadow(0 0 4px rgba(239,68,68,.52)) drop-shadow(0 0 8px rgba(239,68,68,.21)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done::after {
-          width:8px !important;
-          height:8px !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.strength::after {
-          filter:drop-shadow(0 0 5px rgba(251,146,60,.72)) drop-shadow(0 0 11px rgba(251,146,60,.29)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.cardio::after {
-          filter:drop-shadow(0 0 5px rgba(239,68,68,.74)) drop-shadow(0 0 11px rgba(239,68,68,.30)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current::after {
-          width:10px !important;
-          height:10px !important;
-          border:0 !important;
-          outline:0 !important;
-          box-shadow:none !important;
-          animation:none !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current.strength::after {
-          filter:drop-shadow(0 0 6px rgba(251,146,60,.94)) drop-shadow(0 0 14px rgba(251,146,60,.39)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current.cardio::after {
-          filter:drop-shadow(0 0 6px rgba(239,68,68,.96)) drop-shadow(0 0 14px rgba(239,68,68,.41)) !important;
-        }
-
-        /* Continuous 1 s orbit. requestAnimationFrame updates only angle/radius. */
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring::after,
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-ring::after {
-          width:11px !important;
-          height:11px !important;
-          border:0 !important;
-          outline:0 !important;
-          border-radius:50% !important;
-          box-shadow:none !important;
-          animation:none !important;
-          will-change:transform !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring::after {
-          background:radial-gradient(circle,var(--pf-soft) 0 16%,var(--pf-accent) 30%,rgba(var(--pf-rgb),.88) 43%,rgba(var(--pf-rgb),.43) 61%,rgba(var(--pf-rgb),.11) 78%,transparent 100%) !important;
-          filter:drop-shadow(0 0 6px rgba(var(--pf-rgb),.74)) drop-shadow(0 0 12px rgba(var(--pf-rgb),.29)) !important;
-          transform:translate(-50%,-50%) rotate(var(--pf-orbit-angle-v67,0deg)) translateY(var(--pf-orbit-radius-v67,-64px)) !important;
-        }
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-ring::after {
-          color:#22D3EE !important;
-          background:radial-gradient(circle,#ECFEFF 0 15%,#67E8F9 28%,#22D3EE 41%,rgba(34,211,238,.44) 60%,rgba(34,211,238,.11) 78%,transparent 100%) !important;
-          filter:drop-shadow(0 0 6px rgba(34,211,238,.76)) drop-shadow(0 0 12px rgba(34,211,238,.31)) !important;
-          transform:translate(-50%,-50%) rotate(var(--pf-rest-orbit-angle-v67,0deg)) translateY(var(--pf-rest-orbit-radius-v67,-66px)) !important;
-        }
-
-        /* One full ECG sweep every second for cardio and rest. */
-        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 {
-          overflow:visible !important;
-          opacity:1 !important;
-          animation:none !important;
-          filter:none !important;
-          transform:none !important;
-        }
-        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 svg { overflow:visible !important; }
-        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-base-v67 {
-          fill:none !important;
-          stroke:currentColor !important;
-          stroke-width:1.15 !important;
-          opacity:.24 !important;
-          filter:none !important;
-        }
-        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-sweep-v67 {
-          fill:none !important;
-          stroke:currentColor !important;
-          stroke-width:1.75 !important;
-          stroke-linecap:round !important;
-          stroke-dasharray:18 82 !important;
-          opacity:.14;
-          animation:pfSignalSweepV67Final 1s linear infinite !important;
-          will-change:stroke-dashoffset,opacity,filter;
-        }
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-timer-signal-v62 { color:#22D3EE !important; }
-        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62.pf-timer-signal-tick-v62,
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-sweep-v65.pf-rest-sweep-run-v65 { animation:none !important; }
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-base-v65,
-        html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-sweep-v65 { display:none !important; }
-
-        @keyframes pfSignalSweepV67Final {
-          0% { stroke-dashoffset:18;opacity:.12;filter:drop-shadow(0 0 1px currentColor); }
-          38% { opacity:.58; }
-          50% { stroke-dashoffset:-32;opacity:1;filter:drop-shadow(0 0 2px currentColor) drop-shadow(0 0 7px currentColor) drop-shadow(0 0 13px currentColor); }
-          62% { opacity:.62; }
-          100% { stroke-dashoffset:-82;opacity:.12;filter:drop-shadow(0 0 1px currentColor); }
-        }
-
-        @media(prefers-reduced-motion:reduce) {
-          html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-sweep-v67 {
-            animation:none !important;
-            opacity:.55 !important;
-            stroke-dashoffset:-32 !important;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    } else {
-      document.head.appendChild(style);
+    var old = document.getElementById('exercise-pulse-flow-motion-v68-final-style');
+    if (old) {
+      document.head.appendChild(old);
+      return;
     }
+
+    var style = document.createElement('style');
+    style.id = 'exercise-pulse-flow-motion-v68-final-style';
+    style.textContent = `
+      /* PASSFLÖDE
+         Future = tiny/faded, current = slightly larger + bright,
+         done = stays illuminated. No border, dark ring or double marker. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment {
+        background:transparent !important;
+        border:0 !important;
+        box-shadow:none !important;
+        filter:none !important;
+        overflow:visible !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment::before {
+        display:none !important;
+        content:none !important;
+        border:0 !important;
+        background:none !important;
+        box-shadow:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment::after {
+        content:'' !important;
+        display:block !important;
+        position:relative !important;
+        z-index:3 !important;
+        width:5px !important;
+        height:5px !important;
+        border:0 !important;
+        outline:0 !important;
+        border-radius:50% !important;
+        background-image:none !important;
+        filter:none !important;
+        transform:none !important;
+        opacity:1 !important;
+        animation:none !important;
+        transition:width .16s ease,height .16s ease,background-color .16s ease,box-shadow .18s ease,opacity .16s ease !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.strength::after {
+        background:rgba(251,146,60,.34) !important;
+        box-shadow:0 0 4px rgba(251,146,60,.20),0 0 9px rgba(251,146,60,.08) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.cardio::after {
+        background:rgba(239,68,68,.34) !important;
+        box-shadow:0 0 4px rgba(239,68,68,.21),0 0 9px rgba(239,68,68,.08) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done::after {
+        width:6px !important;
+        height:6px !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.strength::after {
+        background:#FB923C !important;
+        box-shadow:0 0 5px rgba(251,146,60,.78),0 0 11px rgba(251,146,60,.32),0 0 18px rgba(251,146,60,.12) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.cardio::after {
+        background:#EF4444 !important;
+        box-shadow:0 0 5px rgba(239,68,68,.80),0 0 11px rgba(239,68,68,.33),0 0 18px rgba(239,68,68,.12) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current::after {
+        width:9px !important;
+        height:9px !important;
+        border:0 !important;
+        outline:0 !important;
+        filter:none !important;
+        animation:pfCurrentMarkerGlowV68 1.05s ease-in-out infinite !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current.strength::after {
+        background:#FB923C !important;
+        box-shadow:0 0 6px rgba(251,146,60,.96),0 0 14px rgba(251,146,60,.48),0 0 24px rgba(251,146,60,.18) !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current.cardio::after {
+        background:#EF4444 !important;
+        box-shadow:0 0 6px rgba(239,68,68,.98),0 0 14px rgba(239,68,68,.49),0 0 24px rgba(239,68,68,.18) !important;
+      }
+      @keyframes pfCurrentMarkerGlowV68 {
+        0%,100% { transform:scale(1); }
+        50% { transform:scale(1.08); }
+      }
+
+      /* Keep exercise grouping subtle: only the small spacing from v62 remains. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.pf-ex-start-v62:not(:first-child) {
+        margin-left:5px !important;
+      }
+
+      /* CARDIO TIMER — a filled 260° arc that continuously drains to zero.
+         No orbiting playhead. */
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring {
+        --pf-countdown-angle-v68:260deg;
+        position:relative !important;
+        overflow:visible !important;
+        border:0 !important;
+        background:radial-gradient(circle,rgba(var(--pf-rgb),.028) 0 48%,transparent 70%) !important;
+        box-shadow:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-segments,
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring .session-countdown-core {
+        display:none !important;
+        visibility:hidden !important;
+        opacity:0 !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring::before {
+        content:'' !important;
+        display:block !important;
+        position:absolute !important;
+        inset:5px !important;
+        border-radius:50% !important;
+        background:conic-gradient(
+          from 230deg,
+          var(--pf-accent) 0 var(--pf-countdown-angle-v68),
+          rgba(var(--pf-rgb),.105) var(--pf-countdown-angle-v68) 260deg,
+          transparent 260deg 360deg
+        ) !important;
+        -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3.4px),#000 calc(100% - 3px)) !important;
+        mask:radial-gradient(farthest-side,transparent calc(100% - 3.4px),#000 calc(100% - 3px)) !important;
+        filter:drop-shadow(0 0 5px rgba(var(--pf-rgb),.32)) !important;
+        pointer-events:none !important;
+        will-change:background !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 #session-countdown-ring::after {
+        content:none !important;
+        display:none !important;
+        animation:none !important;
+      }
+
+      /* REST TIMER — same draining 260° language in cyan. */
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-segments,
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-core {
+        display:none !important;
+        visibility:hidden !important;
+        opacity:0 !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-ring {
+        --pf-rest-countdown-angle-v68:260deg;
+        position:relative !important;
+        overflow:visible !important;
+        border:0 !important;
+        background:radial-gradient(circle,rgba(34,211,238,.028) 0 48%,transparent 70%) !important;
+        box-shadow:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-ring::before {
+        content:'' !important;
+        display:block !important;
+        position:absolute !important;
+        inset:5px !important;
+        border-radius:50% !important;
+        background:conic-gradient(
+          from 230deg,
+          #22D3EE 0 var(--pf-rest-countdown-angle-v68),
+          rgba(34,211,238,.105) var(--pf-rest-countdown-angle-v68) 260deg,
+          transparent 260deg 360deg
+        ) !important;
+        -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3.4px),#000 calc(100% - 3px)) !important;
+        mask:radial-gradient(farthest-side,transparent calc(100% - 3.4px),#000 calc(100% - 3px)) !important;
+        filter:drop-shadow(0 0 5px rgba(34,211,238,.30)) !important;
+        pointer-events:none !important;
+        will-change:background !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .bs-ring::after {
+        content:none !important;
+        display:none !important;
+        animation:none !important;
+      }
+
+      /* Keep the small ECG detail from v67: quiet base + one complete sweep/sec. */
+      html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 {
+        overflow:visible !important;
+        opacity:1 !important;
+        animation:none !important;
+        filter:none !important;
+        transform:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 svg {
+        overflow:visible !important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-base-v68 {
+        fill:none !important;
+        stroke:currentColor !important;
+        stroke-width:1.15 !important;
+        stroke-linecap:round !important;
+        stroke-linejoin:round !important;
+        opacity:.23 !important;
+        filter:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-sweep-v68 {
+        fill:none !important;
+        stroke:currentColor !important;
+        stroke-width:1.75 !important;
+        stroke-linecap:round !important;
+        stroke-linejoin:round !important;
+        stroke-dasharray:18 82 !important;
+        opacity:.12;
+        animation:pfSignalSweepV68 1s linear infinite !important;
+        will-change:stroke-dashoffset,opacity,filter;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-timer-signal-v62 {
+        color:#22D3EE !important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62.pf-timer-signal-tick-v62,
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-sweep-v65.pf-rest-sweep-run-v65 {
+        animation:none !important;
+      }
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-base-v65,
+      html.exercise-concept-pulse-home-v1 #session-between-overlay-v2 .pf-rest-sweep-v65 {
+        display:none !important;
+      }
+      @keyframes pfSignalSweepV68 {
+        0%   { stroke-dashoffset:18; opacity:.10; filter:drop-shadow(0 0 1px currentColor); }
+        38%  { opacity:.55; }
+        50%  { stroke-dashoffset:-32; opacity:1; filter:drop-shadow(0 0 2px currentColor) drop-shadow(0 0 7px currentColor) drop-shadow(0 0 13px currentColor); }
+        62%  { opacity:.60; }
+        100% { stroke-dashoffset:-82; opacity:.10; filter:drop-shadow(0 0 1px currentColor); }
+      }
+
+      @media(prefers-reduced-motion:reduce) {
+        html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current::after,
+        html.exercise-concept-pulse-home-v1 .pf-timer-signal-v62 .pf-signal-sweep-v68 {
+          animation:none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   function enhanceSignal(signal) {
@@ -149,21 +286,22 @@
     var svg = signal.querySelector('svg');
     if (!svg) return;
 
-    svg.querySelectorAll('.pf-rest-base-v65,.pf-rest-sweep-v65').forEach(function (node) { node.remove(); });
+    svg.querySelectorAll('.pf-rest-base-v65,.pf-rest-sweep-v65,.pf-signal-base-v67,.pf-signal-sweep-v67').forEach(function (node) {
+      node.remove();
+    });
 
-    var base = svg.querySelector('.pf-signal-base-v67');
-    if (!base) {
-      var source = svg.querySelector('path');
-      if (!source) return;
-      source.classList.add('pf-signal-base-v67');
+    var source = svg.querySelector('path');
+    if (!source) return;
+
+    if (!source.classList.contains('pf-signal-base-v68')) {
+      source.className.baseVal = '';
+      source.setAttribute('class','pf-signal-base-v68');
       source.setAttribute('pathLength','100');
-      base = source;
     }
 
-    if (!svg.querySelector('.pf-signal-sweep-v67')) {
-      var sweep = base.cloneNode(true);
-      sweep.classList.remove('pf-signal-base-v67');
-      sweep.classList.add('pf-signal-sweep-v67');
+    if (!svg.querySelector('.pf-signal-sweep-v68')) {
+      var sweep = source.cloneNode(true);
+      sweep.setAttribute('class','pf-signal-sweep-v68');
       sweep.setAttribute('pathLength','100');
       svg.appendChild(sweep);
     }
@@ -173,28 +311,67 @@
     document.querySelectorAll('.pf-timer-signal-v62').forEach(enhanceSignal);
   }
 
-  function setOrbit(ring, angle, angleProp, radiusProp) {
-    if (!ring) return;
-    ring.style.setProperty(angleProp,angle.toFixed(3) + 'deg');
-    var width = ring.getBoundingClientRect().width;
-    if (width > 0) ring.style.setProperty(radiusProp,(-Math.max(10,width / 2 - 5)).toFixed(2) + 'px');
+  function paintCardioArc(nowEpoch) {
+    var ring = document.getElementById('session-countdown-ring');
+    var state = getState();
+    var exercise = currentExercise(state);
+    if (!ring || !state || !exercise) return;
+
+    var timed = !!(state.setRunning && state.setStartedAt && exercise.kind === 'cardio' && Number(exercise.time) > 0);
+    if (!timed) {
+      ring.style.setProperty('--pf-countdown-angle-v68','260deg');
+      return;
+    }
+
+    var totalMs = Number(exercise.time) * 60000;
+    var end = state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : nowEpoch;
+    var elapsed = Math.max(0,end - Number(state.setStartedAt));
+    var ratio = totalMs > 0 ? Math.max(0,Math.min(1,(totalMs - elapsed) / totalMs)) : 0;
+    ring.style.setProperty('--pf-countdown-angle-v68',(ratio * 260).toFixed(3) + 'deg');
+  }
+
+  function paintRestArc(nowEpoch) {
+    var overlay = document.getElementById('session-between-overlay-v2');
+    var ring = overlay && overlay.querySelector('.bs-ring');
+    var visible = !!(overlay && overlay.classList.contains('show') && ring);
+
+    if (!visible) {
+      restWasVisible = false;
+      restStartedAt = 0;
+      restTotalMs = 0;
+      return;
+    }
+
+    if (!restWasVisible) {
+      restWasVisible = true;
+      restStartedAt = nowEpoch;
+      var configured = configuredBetweenSeconds();
+      var shown = parseClock(overlay.querySelector('.bs-value') && overlay.querySelector('.bs-value').textContent);
+      restTotalMs = Math.max(1000,(configured || shown || 60) * 1000);
+      ring.style.setProperty('--pf-rest-countdown-angle-v68','260deg');
+    }
+
+    var elapsed = Math.max(0,nowEpoch - restStartedAt);
+    var ratio = restTotalMs > 0 ? Math.max(0,Math.min(1,(restTotalMs - elapsed) / restTotalMs)) : 0;
+
+    var value = overlay.querySelector('.bs-value');
+    if (value && parseClock(value.textContent) <= 0) ratio = 0;
+
+    ring.style.setProperty('--pf-rest-countdown-angle-v68',(ratio * 260).toFixed(3) + 'deg');
   }
 
   function animate(now) {
-    var phase = (now % 1000) / 1000;
-    var angle = phase * 360;
+    var nowEpoch = Date.now();
 
     if (!reduced) {
-      var cardio = document.getElementById('session-countdown-ring');
-      if (cardio && cardio.offsetParent !== null) setOrbit(cardio,angle,'--pf-orbit-angle-v67','--pf-orbit-radius-v67');
-
-      var rest = document.querySelector('#session-between-overlay-v2 .bs-ring');
-      if (rest && rest.offsetParent !== null) setOrbit(rest,angle,'--pf-rest-orbit-angle-v67','--pf-rest-orbit-radius-v67');
+      paintCardioArc(nowEpoch);
+      paintRestArc(nowEpoch);
     }
 
-    if (now - lastSignalSync > 250) {
+    if (now - lastSignalSync > 220) {
       lastSignalSync = now;
       syncSignals();
+      installStyles();
     }
 
     rafId = requestAnimationFrame(animate);
@@ -204,16 +381,18 @@
     installStyles();
     syncSignals();
     if (!rafId) rafId = requestAnimationFrame(animate);
+
+    /* Re-promote after the older v61/v64/v65/v66 layers finish their first paint. */
     setTimeout(installStyles,180);
     setTimeout(installStyles,650);
+    setTimeout(installStyles,1400);
   }
 
   var attempts = 0;
   (function waitForConcept() {
     attempts += 1;
     if (document.documentElement.classList.contains('exercise-concept-ready-v1')) {
-      /* Let legacy v61/v65/v66 finish their first paint, then become final authority. */
-      setTimeout(activate,90);
+      setTimeout(activate,110);
       return;
     }
     if (attempts < 400) setTimeout(waitForConcept,20);
