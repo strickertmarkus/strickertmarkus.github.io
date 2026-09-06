@@ -9,6 +9,11 @@
   var rafId = 0;
   var lastPreValue = '';
   var reduced = false;
+  var preSampleRaw = -1;
+  var preSampleProgress = 0;
+  var preSampleAt = 0;
+  var preWasVisible = false;
+  var PRE_DURATION_MS = 5000;
   try { reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (_) {}
 
   function installStyles() {
@@ -30,10 +35,10 @@
         border:1px solid var(--concept-timer-soft) !important;
         background:var(--concept-timer-soft) !important;
         box-shadow:
-          0 0 0 3px rgba(var(--concept-timer-rgb),.14),
-          0 0 9px rgba(var(--concept-timer-rgb),.98),
-          0 0 20px rgba(var(--concept-timer-rgb),.58),
-          0 0 38px rgba(var(--concept-timer-rgb),.24) !important;
+          0 0 0 3px rgba(var(--concept-timer-rgb),.16),
+          0 0 9px rgba(var(--concept-timer-rgb),1),
+          0 0 21px rgba(var(--concept-timer-rgb),.62),
+          0 0 40px rgba(var(--concept-timer-rgb),.27) !important;
         will-change:left,transform,box-shadow;
       }
 
@@ -45,54 +50,54 @@
       }
       @keyframes pfHeartBeatV64 {
         0%   { transform:scale(1); filter:none; }
-        12%  { transform:scale(1.055); filter:drop-shadow(0 0 8px rgba(var(--concept-timer-rgb),.28)); }
-        23%  { transform:scale(.997); }
-        34%  { transform:scale(1.027); filter:drop-shadow(0 0 5px rgba(var(--concept-timer-rgb),.18)); }
-        52%,100% { transform:scale(1); filter:none; }
+        11%  { transform:scale(1.058); filter:drop-shadow(0 0 9px rgba(var(--concept-timer-rgb),.32)); }
+        22%  { transform:scale(.997); }
+        34%  { transform:scale(1.030); filter:drop-shadow(0 0 6px rgba(var(--concept-timer-rgb),.20)); }
+        53%,100% { transform:scale(1); filter:none; }
       }
 
       /* Pass flow markers: glow intensity inspired by enabled builder toggles. */
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.strength::after {
         box-shadow:
           0 0 0 2px #090E15,
-          0 0 8px rgba(251,146,60,.32),
-          0 0 16px rgba(251,146,60,.12) !important;
+          0 0 8px rgba(251,146,60,.38),
+          0 0 17px rgba(251,146,60,.15) !important;
       }
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.cardio::after {
         box-shadow:
           0 0 0 2px #090E15,
-          0 0 8px rgba(239,68,68,.34),
-          0 0 16px rgba(239,68,68,.13) !important;
+          0 0 8px rgba(239,68,68,.40),
+          0 0 17px rgba(239,68,68,.16) !important;
       }
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.strength::after {
         box-shadow:
-          0 0 0 3px rgba(251,146,60,.10),
-          0 0 9px rgba(251,146,60,.94),
-          0 0 19px rgba(251,146,60,.50),
-          0 0 34px rgba(251,146,60,.18) !important;
+          0 0 0 3px rgba(251,146,60,.12),
+          0 0 9px rgba(251,146,60,.98),
+          0 0 20px rgba(251,146,60,.56),
+          0 0 36px rgba(251,146,60,.21) !important;
       }
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.done.cardio::after {
         box-shadow:
-          0 0 0 3px rgba(239,68,68,.10),
-          0 0 9px rgba(239,68,68,.94),
-          0 0 19px rgba(239,68,68,.50),
-          0 0 34px rgba(239,68,68,.18) !important;
+          0 0 0 3px rgba(239,68,68,.12),
+          0 0 9px rgba(239,68,68,.98),
+          0 0 20px rgba(239,68,68,.56),
+          0 0 36px rgba(239,68,68,.21) !important;
       }
       html.exercise-concept-pulse-home-v1 #session-modal.pulse-flow-v58 .hype-progress-segment.current::after {
         box-shadow:
-          0 0 0 4px rgba(var(--pf-rgb),.18),
+          0 0 0 4px rgba(var(--pf-rgb),.20),
           0 0 10px rgba(var(--pf-rgb),1),
-          0 0 23px rgba(var(--pf-rgb),.66),
-          0 0 44px rgba(var(--pf-rgb),.28) !important;
+          0 0 24px rgba(var(--pf-rgb),.72),
+          0 0 46px rgba(var(--pf-rgb),.31) !important;
         animation:pfTimelineGlowV64 1.08s ease-in-out infinite !important;
       }
       @keyframes pfTimelineGlowV64 {
         50% {
           box-shadow:
-            0 0 0 7px rgba(var(--pf-rgb),.075),
+            0 0 0 7px rgba(var(--pf-rgb),.085),
             0 0 12px rgba(var(--pf-rgb),1),
-            0 0 28px rgba(var(--pf-rgb),.78),
-            0 0 52px rgba(var(--pf-rgb),.34);
+            0 0 30px rgba(var(--pf-rgb),.84),
+            0 0 55px rgba(var(--pf-rgb),.38);
         }
       }
 
@@ -114,13 +119,40 @@
     setTimeout(function () { valueNode.classList.remove('pf-heartbeat-v64'); },470);
   }
 
-  function frame() {
+  function resetPretimerInterpolation() {
+    preSampleRaw = -1;
+    preSampleProgress = 0;
+    preSampleAt = 0;
+    preWasVisible = false;
+  }
+
+  function frame(now) {
     var overlay = document.getElementById('session-pre-timer');
     var ring = document.getElementById('session-pre-timer-ring');
-    if (overlay && ring && overlay.classList.contains('show')) {
-      var raw = parseFloat(String(ring.style.getPropertyValue('--pre-smooth-progress') || '0').replace('deg','')) || 0;
-      var progress = Math.max(0,Math.min(1,raw / 360));
-      ring.style.setProperty('--pf-pre-progress',progress.toFixed(6));
+    var visible = !!(overlay && ring && overlay.classList.contains('show'));
+
+    if (visible) {
+      var rawDeg = parseFloat(String(ring.style.getPropertyValue('--pre-smooth-progress') || '0').replace('deg','')) || 0;
+      var rawProgress = Math.max(0,Math.min(1,rawDeg / 360));
+
+      /* The session controller currently samples its source timer at ~32 ms.
+         Treat each source value as a correction point, then interpolate at the
+         display's requestAnimationFrame cadence between samples. */
+      var sourceChanged = preSampleRaw < 0 || Math.abs(rawProgress - preSampleRaw) > 0.000001;
+      var sourceReset = preSampleRaw >= 0 && rawProgress + 0.02 < preSampleRaw;
+      if (!preWasVisible || sourceReset || sourceChanged) {
+        preSampleRaw = rawProgress;
+        preSampleProgress = rawProgress;
+        preSampleAt = now;
+      }
+      preWasVisible = true;
+
+      var smoothProgress = preSampleProgress;
+      if (!reduced && preSampleAt) {
+        smoothProgress += Math.max(0,now - preSampleAt) / PRE_DURATION_MS;
+      }
+      smoothProgress = Math.max(rawProgress,Math.min(1,smoothProgress));
+      ring.style.setProperty('--pf-pre-progress',smoothProgress.toFixed(6));
 
       var valueNode = document.getElementById('session-pre-timer-value');
       var currentValue = valueNode ? String(valueNode.textContent || '').trim() : '';
@@ -130,7 +162,9 @@
       }
     } else {
       lastPreValue = '';
+      resetPretimerInterpolation();
     }
+
     rafId = requestAnimationFrame(frame);
   }
 
