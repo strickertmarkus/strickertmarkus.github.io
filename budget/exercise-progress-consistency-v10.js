@@ -3,6 +3,9 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
+  var debugLog = [];
+  var lastDebugKey = '';
+
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
     catch (_) { return null; }
@@ -128,9 +131,26 @@
     return customKey({type:'custom',name:current.name,seconds:Math.round(Number(current.time || 0) * 60)});
   }
 
+  function runtimeState(state) {
+    var pre = document.getElementById('session-pre-timer');
+    var preVisible = !!(pre && pre.classList.contains('show'));
+    var active = !!(state && state.setRunning);
+    var startingFlag = !!(state && state.__unifiedStartingV46);
+    var starting = !!(!active && (startingFlag || preVisible));
+    return {
+      name: starting ? 'starting' : (active ? 'active' : 'ready'),
+      active: active,
+      starting: starting,
+      preVisible: preVisible,
+      startingFlag: startingFlag,
+      engaged: active || starting
+    };
+  }
+
   function calculate(state) {
     var plan = buildCanonicalPlan(state);
     var baseDone = Object.create(null);
+    var runtimeStateNow = runtimeState(state);
 
     plan.forEach(function (segment) {
       if (segment.type !== 'base') return;
@@ -154,7 +174,7 @@
 
         var runtime = runtimeFor(state);
         var isRuntimeIndex = runtime && Number(runtime.index) === segment.exIndex;
-        if (!segment.done && !isRuntimeIndex && Number(state.exerciseIndex) === segment.exIndex &&
+        if (runtimeStateNow.engaged && !segment.done && !isRuntimeIndex && Number(state.exerciseIndex) === segment.exIndex &&
             segment.setIndex === Math.max(0,(Number(state.currentSet) || 1) - 1)) {
           segment.current = true;
         }
@@ -166,13 +186,13 @@
         segment.done = true;
         customLeft[segment.key] = left - 1;
         completed++;
-      } else if (!activeCustomAssigned && activeCustomKey && segment.key === activeCustomKey) {
+      } else if (runtimeStateNow.engaged && !activeCustomAssigned && activeCustomKey && segment.key === activeCustomKey) {
         segment.current = true;
         activeCustomAssigned = true;
       }
     });
 
-    return {segments:plan,total:plan.length,completed:Math.min(plan.length,completed)};
+    return {segments:plan,total:plan.length,completed:Math.min(plan.length,completed),runtime:runtimeStateNow};
   }
 
   function ensureProgressShell() {
@@ -241,46 +261,44 @@
     else el.removeAttribute('data-progress-custom-v10');
   }
 
-  function clearRuntimeMarker(dot) {
-    if (!dot) return;
-    ['width','height','flex-basis','background','filter','box-shadow'].forEach(function (prop) {
-      dot.style.removeProperty(prop);
-    });
-  }
-
-  function applyRuntimeMarker(stateName) {
-    var segment = document.querySelector('#hype-progress-track .hype-progress-segment.current');
-    var dot = segment && segment.querySelector(':scope > .pf-progress-dot-v80');
-    if (!dot) return;
-    clearRuntimeMarker(dot);
-    if (stateName === 'ready') return;
-
-    var cardio = segment.classList.contains('cardio') && !segment.classList.contains('canonical-custom-v10');
-    var gradient = cardio
-      ? 'radial-gradient(circle,#FCA5A5 0 17%,#EF4444 28%,rgba(239,68,68,.90) 39%,rgba(239,68,68,.52) 54%,rgba(239,68,68,.20) 69%,rgba(239,68,68,.06) 80%,transparent 100%)'
-      : 'radial-gradient(circle,#FED7AA 0 17%,#FB923C 28%,rgba(251,146,60,.90) 39%,rgba(251,146,60,.52) 54%,rgba(251,146,60,.20) 69%,rgba(251,146,60,.06) 80%,transparent 100%)';
-    var glow = cardio ? 'drop-shadow(0 0 6px rgba(239,68,68,.45))' : 'drop-shadow(0 0 6px rgba(251,146,60,.45))';
-    dot.style.setProperty('width','15px','important');
-    dot.style.setProperty('height','15px','important');
-    dot.style.setProperty('flex-basis','15px','important');
-    dot.style.setProperty('background',gradient,'important');
-    dot.style.setProperty('filter',glow,'important');
-    dot.style.setProperty('box-shadow','none','important');
-  }
-
-  function syncPulseFlowRuntimeState(state) {
+  function syncPulseFlowRuntimeState(state,runtime) {
     var modal = document.getElementById('session-modal');
     var progress = document.getElementById('hype-workout-progress');
-    if (!modal) return;
-    var pre = document.getElementById('session-pre-timer');
-    var preVisible = !!(pre && pre.classList.contains('show'));
-    var active = !!(state && state.setRunning);
-    var starting = !!(preVisible && !active);
-    var stateName = starting ? 'starting' : (active ? 'active' : 'ready');
-    modal.classList.toggle('pulse-flow-active-v58',active);
-    modal.classList.toggle('pulse-flow-starting-v58',starting);
-    if (progress) progress.setAttribute('data-pf-set-state',stateName);
-    applyRuntimeMarker(stateName);
+    runtime = runtime || runtimeState(state);
+    if (!modal) return runtime;
+    modal.classList.toggle('pulse-flow-active-v58',runtime.active);
+    modal.classList.toggle('pulse-flow-starting-v58',runtime.starting);
+    if (progress) progress.setAttribute('data-pf-set-state',runtime.name);
+    return runtime;
+  }
+
+  function logTransition(state,result) {
+    var runtime = result && result.runtime ? result.runtime : runtimeState(state);
+    var currentSegment = document.querySelector('#hype-progress-track .hype-progress-segment.current');
+    var currentIndex = -1;
+    if (currentSegment && currentSegment.parentNode) currentIndex = Array.prototype.indexOf.call(currentSegment.parentNode.children,currentSegment);
+    var dot = currentSegment && currentSegment.querySelector(':scope > .pf-progress-dot-v80');
+    var computed = dot && typeof getComputedStyle === 'function' ? getComputedStyle(dot) : null;
+    var key = [runtime.name,Number(state && state.exerciseIndex)||0,Number(state && state.currentSet)||0,currentIndex].join('|');
+    if (key === lastDebugKey) return;
+    lastDebugKey = key;
+    var entry = {
+      at:new Date().toISOString(),
+      state:runtime.name,
+      setRunning:!!(state && state.setRunning),
+      unifiedStarting:!!(state && state.__unifiedStartingV46),
+      preVisible:runtime.preVisible,
+      exerciseIndex:Number(state && state.exerciseIndex)||0,
+      currentSet:Number(state && state.currentSet)||0,
+      currentSegmentIndex:currentIndex,
+      markerWidth:computed ? computed.width : null,
+      markerBackground:computed ? computed.backgroundImage || computed.backgroundColor : null,
+      markerFilter:computed ? computed.filter : null
+    };
+    debugLog.push(entry);
+    if (debugLog.length > 40) debugLog.shift();
+    window.__pulseFlowProgressDebugLog = debugLog;
+    try { console.info('[PulseFlow progress]',entry); } catch (_) {}
   }
 
   function renderCanonicalProgress() {
@@ -289,33 +307,36 @@
     var track = document.getElementById('hype-progress-track');
     var percentEl = document.getElementById('hype-progress-percent');
     var countEl = document.getElementById('hype-progress-count');
-    syncPulseFlowRuntimeState(state);
-    if (!state || !track || !percentEl || !countEl) return;
-
-    var result = calculate(state);
-    if (domMatches(result,percentEl,countEl,track)) return;
-
-    var percent = result.total ? Math.round(result.completed / result.total * 100) : 0;
-    percentEl.textContent = percent + '%';
-    countEl.textContent = result.completed + ' / ' + result.total + ' moment klara';
-
-    if (track.children.length === result.segments.length) {
-      result.segments.forEach(function (segment,index) {
-        updateExistingNode(track.children[index],segment);
-      });
+    if (!state || !track || !percentEl || !countEl) {
       syncPulseFlowRuntimeState(state);
       return;
     }
 
-    var fragment = document.createDocumentFragment();
-    result.segments.forEach(function (segment) {
-      var el = document.createElement('span');
-      el.className = classesFor(segment).join(' ');
-      if (segment.type === 'custom') el.setAttribute('data-progress-custom-v10','true');
-      fragment.appendChild(el);
-    });
-    track.replaceChildren(fragment);
-    syncPulseFlowRuntimeState(state);
+    var result = calculate(state);
+    syncPulseFlowRuntimeState(state,result.runtime);
+
+    if (!domMatches(result,percentEl,countEl,track)) {
+      var percent = result.total ? Math.round(result.completed / result.total * 100) : 0;
+      percentEl.textContent = percent + '%';
+      countEl.textContent = result.completed + ' / ' + result.total + ' moment klara';
+
+      if (track.children.length === result.segments.length) {
+        result.segments.forEach(function (segment,index) {
+          updateExistingNode(track.children[index],segment);
+        });
+      } else {
+        var fragment = document.createDocumentFragment();
+        result.segments.forEach(function (segment) {
+          var el = document.createElement('span');
+          el.className = classesFor(segment).join(' ');
+          if (segment.type === 'custom') el.setAttribute('data-progress-custom-v10','true');
+          fragment.appendChild(el);
+        });
+        track.replaceChildren(fragment);
+      }
+    }
+
+    logTransition(state,result);
   }
 
   function addStyles() {
@@ -349,12 +370,18 @@
   }
 
   function install() {
-    if (window.__exerciseProgressConsistencyV86Installed) return;
-    window.__exerciseProgressConsistencyV86Installed = true;
+    if (window.__exerciseProgressConsistencyV91Installed) return;
+    window.__exerciseProgressConsistencyV91Installed = true;
     addStyles();
     ensureProgressShell();
     requestAnimationFrame(loop);
-    window.__exerciseProgressConsistencyV10 = {calculate:calculate,render:renderCanonicalProgress,ensureShell:ensureProgressShell};
+    window.__exerciseProgressConsistencyV10 = {
+      calculate:calculate,
+      render:renderCanonicalProgress,
+      ensureShell:ensureProgressShell,
+      debugLog:debugLog,
+      runtimeState:function(){return runtimeState(getState());}
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
