@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v85';
+  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v86-single-progress-owner';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
@@ -192,7 +192,6 @@
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
       ['exercise-session-runtime-core-v21.js', 'data-exercise-session-runtime-core-v21'],
-      ['exercise-session-progress.js', 'data-exercise-session-progress'],
       ['exercise-session-theme-stability.js', 'data-exercise-session-theme-stability'],
       ['exercise-session-stable-details.js', 'data-exercise-session-stable-details'],
       ['exercise-reload-recovery.js', 'data-exercise-reload-recovery'],
