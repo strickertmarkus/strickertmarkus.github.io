@@ -294,8 +294,12 @@
     document.head.appendChild(style);
   }
 
-  function loop() {
-    renderCanonicalProgress();
+  var lastLoopRender = 0;
+  function loop(now) {
+    if (!lastLoopRender || now - lastLoopRender >= 120) {
+      lastLoopRender = now;
+      renderCanonicalProgress();
+    }
     requestAnimationFrame(loop);
   }
 
