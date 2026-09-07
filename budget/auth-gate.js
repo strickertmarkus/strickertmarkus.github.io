@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v83';
+  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v85';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
