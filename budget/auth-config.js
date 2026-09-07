@@ -165,7 +165,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-progress-consistency-v10]')) {
     var progressScript = document.createElement('script');
-    progressScript.src = 'exercise-progress-consistency-v10.js?v=20260828-1320-progress-consistency-v10';
+    progressScript.src = 'exercise-progress-consistency-v10.js?v=20260907-pulse-flow-v82-progress-stability';
     progressScript.async = false;
     progressScript.setAttribute('data-exercise-progress-consistency-v10','true');
     document.head.appendChild(progressScript);
