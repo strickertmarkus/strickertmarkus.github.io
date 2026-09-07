@@ -60,6 +60,25 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
+  var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
+  var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
+  if (pulseDefaultBoot) {
+    document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-pulse-booting-v82');
+    document.documentElement.style.backgroundColor = '#080D14';
+    if (!document.getElementById('exercise-pulse-preboot-v82')) {
+      var pulseStyle = document.createElement('style');
+      pulseStyle.id = 'exercise-pulse-preboot-v82';
+      pulseStyle.textContent =
+        'html.exercise-pulse-booting-v82,html.exercise-pulse-booting-v82 body{background:#080D14!important}' +
+        'html.exercise-pulse-booting-v82 body .app-wrap{visibility:hidden!important;opacity:0!important}' +
+        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1:not(.exercise-pulse-booting-v82) body .app-wrap{visibility:visible!important;opacity:1!important}';
+      document.head.appendChild(pulseStyle);
+    }
+    setTimeout(function () {
+      document.documentElement.classList.remove('exercise-pulse-booting-v82');
+    }, 5000);
+  }
+
   ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
     var href = src + '?v=20260828-1745-chart-sync-v16';
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
