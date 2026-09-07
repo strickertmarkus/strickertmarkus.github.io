@@ -5,115 +5,153 @@
 
   function loadBase(){
     var s=document.createElement('script');
-    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=75';
+    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=76';
     s.async=false;
-    s.onload=installV75;
+    s.onload=installV76;
     document.head.appendChild(s);
   }
 
-  function installV75(){
-    if(window.__exercisePulseFlowMarkerV75Installed) return;
-    window.__exercisePulseFlowMarkerV75Installed=true;
+  function installV76(){
+    if(window.__exercisePulseFlowMarkerV76Installed) return;
+    window.__exercisePulseFlowMarkerV76Installed=true;
 
-    var oldStyle=document.getElementById('exercise-pulse-flow-marker-v74-style');
-    if(oldStyle) oldStyle.remove();
-    document.querySelectorAll('.pf-arc-marker-core-v74,.pf-arc-marker-halo-v75').forEach(function(node){node.remove();});
+    ['exercise-pulse-flow-marker-v74-style','exercise-pulse-flow-marker-v75-style'].forEach(function(id){
+      var old=document.getElementById(id);
+      if(old) old.remove();
+    });
+    document.querySelectorAll('.pf-arc-marker-core-v74,.pf-arc-marker-core-v75,.pf-arc-marker-halo-v75,.pf-arc-marker-v76').forEach(function(node){node.remove();});
 
     var style=document.createElement('style');
-    style.id='exercise-pulse-flow-marker-v75-style';
+    style.id='exercise-pulse-flow-marker-v76-style';
     style.textContent=`
-      /* Endpoint marker = active Passflöde point: soft halo, coloured body, pale core. */
-      #session-modal.pulse-flow-v58 .pf-arc-marker-halo-v75{
-        fill:rgba(var(--pf-rgb),.20)!important;
-        stroke:none!important;
-        opacity:.92!important;
-        filter:blur(.82px) drop-shadow(0 0 5px rgba(var(--pf-rgb),.74)) drop-shadow(0 0 11px rgba(var(--pf-rgb),.34))!important;
+      /* Classic v69 endpoint appearance on top of the current exact SVG geometry. */
+      .pf-arc-marker-v73{
+        opacity:0!important;
+        filter:none!important;
       }
-      #session-modal.pulse-flow-v58 .pf-arc-marker-v73{
-        fill:var(--pf-accent)!important;
+      .pf-arc-marker-v76{
         stroke:none!important;
-        filter:drop-shadow(0 0 2px var(--pf-accent)) drop-shadow(0 0 7px rgba(var(--pf-rgb),.98)) drop-shadow(0 0 15px rgba(var(--pf-rgb),.58))!important;
+        pointer-events:none!important;
+        opacity:1;
       }
-      #session-modal.pulse-flow-v58 .pf-arc-marker-core-v75{
-        fill:#FFE4E6!important;
-        stroke:none!important;
-        opacity:.98!important;
-        filter:drop-shadow(0 0 2px rgba(255,228,230,.96)) drop-shadow(0 0 4px rgba(var(--pf-rgb),.42))!important;
+
+      #session-modal.pulse-flow-v58 .pf-arc-marker-v76{
+        filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.96)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.70)) drop-shadow(0 0 16px rgba(var(--pf-rgb),.32))!important;
       }
 
       #session-between-overlay-v2{
         --pf-between-accent:#22D3EE;
+        --pf-between-soft:#CFFAFE;
         --pf-between-rgb:34,211,238;
-        --pf-between-core:#ECFEFF;
       }
       #session-between-overlay-v2[data-between-type="custom"]{
         --pf-between-accent:#FB923C;
+        --pf-between-soft:#FDBA74;
         --pf-between-rgb:251,146,60;
-        --pf-between-core:#FFF2DE;
       }
-      #session-between-overlay-v2 .pf-arc-marker-halo-v75{
-        fill:rgba(var(--pf-between-rgb),.20)!important;
-        stroke:none!important;
-        opacity:.92!important;
-        filter:blur(.82px) drop-shadow(0 0 5px rgba(var(--pf-between-rgb),.74)) drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.34))!important;
+      #session-between-overlay-v2 .pf-arc-marker-v76{
+        filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.96)) drop-shadow(0 0 8px rgba(var(--pf-between-rgb),.70)) drop-shadow(0 0 16px rgba(var(--pf-between-rgb),.32))!important;
       }
-      #session-between-overlay-v2 .pf-arc-marker-v73{
-        fill:var(--pf-between-accent)!important;
-        stroke:none!important;
-        filter:drop-shadow(0 0 2px var(--pf-between-accent)) drop-shadow(0 0 7px rgba(var(--pf-between-rgb),.98)) drop-shadow(0 0 15px rgba(var(--pf-between-rgb),.58))!important;
-      }
-      #session-between-overlay-v2 .pf-arc-marker-core-v75{
-        fill:var(--pf-between-core)!important;
-        stroke:none!important;
-        opacity:.98!important;
-        filter:drop-shadow(0 0 2px var(--pf-between-core)) drop-shadow(0 0 4px rgba(var(--pf-between-rgb),.42))!important;
+
+      /* Keep the compact 5 s marker from the previous iteration. */
+      html.exercise-concept-pulse-home-v1 #session-pre-timer .pf-pre-line-dot-v62{
+        width:15px!important;
+        height:15px!important;
+        top:.5px!important;
       }
     `;
     document.head.appendChild(style);
 
     var NS='http://www.w3.org/2000/svg';
-    function ensureMarkerLayers(){
-      document.querySelectorAll('.pf-arc-svg-v73').forEach(function(svg){
-        var marker=svg.querySelector('.pf-arc-marker-v73');
-        if(!marker) return;
+    var uid=0;
 
-        /* Slightly larger than the base endpoint, but still compact. */
-        marker.setAttribute('r','1.72');
-
-        var halo=svg.querySelector('.pf-arc-marker-halo-v75');
-        if(!halo){
-          halo=document.createElementNS(NS,'circle');
-          halo.setAttribute('class','pf-arc-marker-halo-v75');
-          halo.setAttribute('r','3.05');
-          marker.parentNode.insertBefore(halo,marker);
+    function markerPalette(svg){
+      var overlay=svg.closest('#session-between-overlay-v2');
+      if(overlay){
+        if(String(overlay.dataset.betweenType||'rest')==='custom'){
+          return {white:'#FFFFFF',soft:'#FDBA74',accent:'#FB923C',rgb:'251,146,60'};
         }
+        return {white:'#FFFFFF',soft:'#CFFAFE',accent:'#22D3EE',rgb:'34,211,238'};
+      }
+      return {white:'#FFFFFF',soft:'#FCA5A5',accent:'#EF4444',rgb:'239,68,68'};
+    }
 
-        var core=svg.querySelector('.pf-arc-marker-core-v75');
-        if(!core){
-          core=document.createElementNS(NS,'circle');
-          core.setAttribute('class','pf-arc-marker-core-v75');
-          core.setAttribute('r','.62');
-          marker.insertAdjacentElement('afterend',core);
-        }
+    function ensureGradient(svg){
+      var id=svg.getAttribute('data-pf-marker-gradient-v76');
+      var gradient=id&&svg.querySelector('#'+id);
+      if(gradient) return gradient;
+
+      id='pf-endpoint-gradient-v76-'+(++uid);
+      svg.setAttribute('data-pf-marker-gradient-v76',id);
+
+      var defs=svg.querySelector(':scope > defs');
+      if(!defs){
+        defs=document.createElementNS(NS,'defs');
+        svg.insertBefore(defs,svg.firstChild);
+      }
+
+      gradient=document.createElementNS(NS,'radialGradient');
+      gradient.setAttribute('id',id);
+      gradient.setAttribute('cx','50%');
+      gradient.setAttribute('cy','50%');
+      gradient.setAttribute('r','50%');
+
+      [
+        ['0%','white','1'],
+        ['8%','white','1'],
+        ['20%','soft','1'],
+        ['43%','accent','1'],
+        ['68%','accent','.42'],
+        ['100%','accent','0']
+      ].forEach(function(spec){
+        var stop=document.createElementNS(NS,'stop');
+        stop.setAttribute('offset',spec[0]);
+        stop.setAttribute('data-pf-colour-key',spec[1]);
+        stop.setAttribute('stop-opacity',spec[2]);
+        gradient.appendChild(stop);
+      });
+      defs.appendChild(gradient);
+      return gradient;
+    }
+
+    function paintGradient(svg,gradient){
+      var palette=markerPalette(svg);
+      gradient.querySelectorAll('stop').forEach(function(stop){
+        var key=stop.getAttribute('data-pf-colour-key');
+        stop.setAttribute('stop-color',palette[key]||palette.accent);
       });
     }
 
+    function ensureMarker(svg){
+      var source=svg.querySelector('.pf-arc-marker-v73');
+      if(!source) return null;
+
+      var gradient=ensureGradient(svg);
+      paintGradient(svg,gradient);
+
+      var marker=svg.querySelector('.pf-arc-marker-v76');
+      if(!marker){
+        marker=document.createElementNS(NS,'circle');
+        marker.setAttribute('class','pf-arc-marker-v76');
+        marker.setAttribute('r','2.05');
+        source.insertAdjacentElement('afterend',marker);
+      }
+      marker.setAttribute('fill','url(#'+gradient.id+')');
+      return marker;
+    }
+
     function sync(){
-      ensureMarkerLayers();
       document.querySelectorAll('.pf-arc-svg-v73').forEach(function(svg){
-        var marker=svg.querySelector('.pf-arc-marker-v73');
-        var halo=svg.querySelector('.pf-arc-marker-halo-v75');
-        var core=svg.querySelector('.pf-arc-marker-core-v75');
-        if(!marker) return;
-        var x=marker.getAttribute('cx')||'0';
-        var y=marker.getAttribute('cy')||'0';
-        var hidden=marker.style.opacity==='0';
-        [halo,core].forEach(function(node){
-          if(!node) return;
-          node.setAttribute('cx',x);
-          node.setAttribute('cy',y);
-          node.style.opacity=hidden?'0':'1';
-        });
+        var source=svg.querySelector('.pf-arc-marker-v73');
+        var marker=ensureMarker(svg);
+        if(!source||!marker) return;
+
+        marker.setAttribute('cx',source.getAttribute('cx')||'0');
+        marker.setAttribute('cy',source.getAttribute('cy')||'0');
+        marker.style.opacity=source.style.opacity==='0'?'0':'1';
+
+        var gradient=ensureGradient(svg);
+        paintGradient(svg,gradient);
       });
       requestAnimationFrame(sync);
     }
