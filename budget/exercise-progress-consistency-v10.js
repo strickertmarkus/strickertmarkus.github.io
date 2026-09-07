@@ -80,7 +80,6 @@
 
       for (var setIndex = 0; setIndex < sets; setIndex++) {
         segments.push({type:'base',kind:kind,exIndex:i,setIndex:setIndex});
-
         if (setIndex < sets - 1 && perSet.type === 'custom' && perSet.name) {
           segments.push({type:'custom',kind:'cardio',key:customKey(perSet),exIndex:i,transition:'next'});
         }
@@ -90,7 +89,6 @@
         segments.push({type:'custom',kind:'cardio',key:customKey(globalBetween),exIndex:i,transition:'finish'});
       }
     }
-
     return segments;
   }
 
@@ -115,7 +113,9 @@
     var runtime = runtimeFor(state);
     if (runtime && state && Array.isArray(state.logs) && Array.isArray(state.logs[runtime.index])) {
       var current = state.exercises && state.exercises[runtime.index];
-      if (current && current.__betweenCustomV3) add(current.name,Math.round(Number(current.time || 0) * 60),state.logs[runtime.index]);
+      if (current && current.__betweenCustomV3) {
+        add(current.name,Math.round(Number(current.time || 0) * 60),state.logs[runtime.index]);
+      }
     }
     return counts;
   }
@@ -175,6 +175,33 @@
     return {segments:plan,total:plan.length,completed:Math.min(plan.length,completed)};
   }
 
+  function ensureProgressShell() {
+    var existing = document.getElementById('hype-workout-progress');
+    if (existing) return existing;
+
+    var details = document.getElementById('hype-set-details');
+    if (!details || !details.parentNode) return null;
+
+    var wrap = document.createElement('div');
+    wrap.id = 'hype-workout-progress';
+    wrap.className = 'hype-workout-progress';
+    wrap.innerHTML =
+      '<div class="hype-progress-head">' +
+        '<div class="hype-progress-title">Passprogress</div>' +
+        '<div class="hype-progress-percent" id="hype-progress-percent">0%</div>' +
+      '</div>' +
+      '<div class="hype-progress-track" id="hype-progress-track"></div>' +
+      '<div class="hype-progress-meta">' +
+        '<div id="hype-progress-count">0 / 0 moment klara</div>' +
+        '<div class="hype-progress-legend">' +
+          '<span class="hype-progress-key"><span class="hype-progress-dot strength"></span>Styrka</span>' +
+          '<span class="hype-progress-key"><span class="hype-progress-dot cardio"></span>Kondition</span>' +
+        '</div>' +
+      '</div>';
+    details.insertAdjacentElement('afterend',wrap);
+    return wrap;
+  }
+
   function classesFor(segment) {
     var classes = ['hype-progress-segment',segment.kind === 'cardio' ? 'cardio' : 'strength'];
     if (segment.type === 'custom') classes.push('canonical-custom-v10');
@@ -215,6 +242,7 @@
   }
 
   function renderCanonicalProgress() {
+    if (!ensureProgressShell()) return;
     var state = getState();
     var track = document.getElementById('hype-progress-track');
     var percentEl = document.getElementById('hype-progress-percent');
@@ -250,18 +278,18 @@
     var style = document.createElement('style');
     style.id = 'exercise-progress-consistency-v10-style';
     style.textContent = `
-      html body #day-workout-modal #pretimer-builder-v2 {
-        display:none !important;
-        visibility:hidden !important;
-        height:0 !important;
-        min-height:0 !important;
-        margin:0 !important;
-        padding:0 !important;
-        border:0 !important;
-        overflow:hidden !important;
-      }
-      .hype-progress-segment.canonical-custom-v10 { background:#F59E0B; }
-      .hype-progress-segment.canonical-custom-v10.done { box-shadow:0 0 8px rgba(245,158,11,.34); }
+      html body #day-workout-modal #pretimer-builder-v2{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
+      .hype-workout-progress{display:none;width:min(820px,92%);margin:20px auto 8px}
+      #session-modal.hype-focus .hype-workout-progress{display:block}
+      .hype-progress-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:9px}
+      .hype-progress-title{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#A8A29E}
+      .hype-progress-percent{font-size:25px;line-height:1;font-weight:900;letter-spacing:-1px;color:#FDBA74;font-variant-numeric:tabular-nums}
+      .hype-progress-track{display:flex;width:100%;height:24px;gap:2px;padding:3px;border-radius:9px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075);overflow:hidden}
+      .hype-progress-segment{flex:1 1 0;min-width:2px;border-radius:4px;opacity:.22;transition:opacity .2s ease,box-shadow .2s ease,transform .2s ease}
+      .hype-progress-segment.strength{background:#FB923C}.hype-progress-segment.cardio{background:#22D3EE}.hype-progress-segment.done{opacity:1}.hype-progress-segment.strength.done{box-shadow:0 0 8px rgba(251,146,60,.34)}.hype-progress-segment.cardio.done{box-shadow:0 0 8px rgba(34,211,238,.32)}.hype-progress-segment.current{opacity:.55;transform:scaleY(1.08)}
+      .hype-progress-segment.canonical-custom-v10{background:#F59E0B}.hype-progress-segment.canonical-custom-v10.done{box-shadow:0 0 8px rgba(245,158,11,.34)}
+      .hype-progress-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;font-size:10px;color:#78716C}.hype-progress-legend{display:flex;gap:14px;flex-wrap:wrap}.hype-progress-key{display:inline-flex;align-items:center;gap:5px}.hype-progress-dot{width:8px;height:8px;border-radius:3px}.hype-progress-dot.strength{background:#FB923C}.hype-progress-dot.cardio{background:#22D3EE}
+      @media(max-width:600px){.hype-workout-progress{width:100%;margin:14px auto 5px}.hype-progress-track{height:27px;gap:1.5px;padding:3px}.hype-progress-percent{font-size:23px}.hype-progress-meta{align-items:flex-start;flex-direction:column;gap:5px}}
     `;
     document.head.appendChild(style);
   }
@@ -272,11 +300,12 @@
   }
 
   function install() {
-    if (window.__exerciseProgressConsistencyV10Installed) return;
-    window.__exerciseProgressConsistencyV10Installed = true;
+    if (window.__exerciseProgressConsistencyV86Installed) return;
+    window.__exerciseProgressConsistencyV86Installed = true;
     addStyles();
+    ensureProgressShell();
     requestAnimationFrame(loop);
-    window.__exerciseProgressConsistencyV10 = {calculate:calculate,render:renderCanonicalProgress};
+    window.__exerciseProgressConsistencyV10 = {calculate:calculate,render:renderCanonicalProgress,ensureShell:ensureProgressShell};
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
