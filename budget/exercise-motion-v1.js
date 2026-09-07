@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseMotionV1Installed) return;
-  window.__exerciseMotionV1Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseMotionV2Installed) return;
+  window.__exerciseMotionV2Installed = true;
 
   var activeTransition = null;
 
@@ -30,9 +30,9 @@
 
     if (reducedMotion() || typeof document.startViewTransition !== 'function' || activeTransition) {
       var stage = stageFor(scope);
-      if (stage && !reducedMotion()) stage.classList.add('exercise-morph-fallback-v1');
+      if (stage && !reducedMotion()) stage.classList.add('exercise-morph-fallback-v2');
       var fallbackResult = commit();
-      if (stage) setTimeout(function () { stage.classList.remove('exercise-morph-fallback-v1'); },430);
+      if (stage) setTimeout(function () { stage.classList.remove('exercise-morph-fallback-v2'); }, 430);
       return fallbackResult;
     }
 
@@ -56,72 +56,58 @@
   }
   window.runExerciseMorph = runExerciseMorph;
 
-  function wrap(name,scope) {
+  function wrap(name, scope) {
     var original = window[name];
-    if (typeof original !== 'function' || original.__exerciseMotionV1Wrapped) return;
+    if (typeof original !== 'function' || original.__exerciseMotionV2Wrapped) return;
     var wrapped = function () {
       var self = this;
       var args = arguments;
-      return runExerciseMorph(typeof scope === 'function' ? scope.apply(self,args) : scope,function () {
-        return original.apply(self,args);
+      return runExerciseMorph(typeof scope === 'function' ? scope.apply(self, args) : scope, function () {
+        return original.apply(self, args);
       });
     };
-    wrapped.__exerciseMotionV1Wrapped = true;
-    wrapped.__exerciseMotionV1Original = original;
+    wrapped.__exerciseMotionV2Wrapped = true;
+    wrapped.__exerciseMotionV2Original = original;
     window[name] = wrapped;
   }
 
   function addStyles() {
-    if (document.getElementById('exercise-motion-v1-style')) return;
+    if (document.getElementById('exercise-motion-v2-style')) return;
     var style = document.createElement('style');
-    style.id = 'exercise-motion-v1-style';
+    style.id = 'exercise-motion-v2-style';
     style.textContent = `
-      :root[data-exercise-morph="log"] .log-wrap { view-transition-name:exercise-log-surface-v1; }
-      :root[data-exercise-morph="session"] #session-modal .session-shell { view-transition-name:exercise-session-surface-v1; }
-      :root[data-exercise-morph="builder"] #day-workout-modal .modal { view-transition-name:exercise-builder-surface-v1; }
+      :root[data-exercise-morph="log"] .log-wrap { view-transition-name:exercise-log-surface-v2; }
+      :root[data-exercise-morph="session"] #session-modal .session-shell { view-transition-name:exercise-session-surface-v2; }
+      :root[data-exercise-morph="builder"] #day-workout-modal .modal { view-transition-name:exercise-builder-surface-v2; }
       :root[data-exercise-morph="modal"] .modal-overlay > .modal,
-      :root[data-exercise-morph="modal"] #session-modal > .session-shell { view-transition-name:exercise-modal-surface-v1; }
-      :root[data-exercise-morph="nav"] #nav-menu { view-transition-name:exercise-nav-surface-v1; }
+      :root[data-exercise-morph="modal"] #session-modal > .session-shell { view-transition-name:exercise-modal-surface-v2; }
+      :root[data-exercise-morph="nav"] #nav-menu { view-transition-name:exercise-nav-surface-v2; }
 
-      ::view-transition-group(exercise-log-surface-v1),
-      ::view-transition-group(exercise-session-surface-v1),
-      ::view-transition-group(exercise-builder-surface-v1),
-      ::view-transition-group(exercise-modal-surface-v1),
-      ::view-transition-group(exercise-nav-surface-v1) {
-        animation-duration:.42s;
-        animation-timing-function:cubic-bezier(.22,1,.36,1);
+      ::view-transition-group(exercise-log-surface-v2),
+      ::view-transition-group(exercise-session-surface-v2),
+      ::view-transition-group(exercise-builder-surface-v2),
+      ::view-transition-group(exercise-modal-surface-v2),
+      ::view-transition-group(exercise-nav-surface-v2) {
+        animation-duration:.42s;animation-timing-function:cubic-bezier(.22,1,.36,1);
       }
-      ::view-transition-old(exercise-log-surface-v1),
-      ::view-transition-old(exercise-session-surface-v1),
-      ::view-transition-old(exercise-builder-surface-v1),
-      ::view-transition-old(exercise-modal-surface-v1),
-      ::view-transition-old(exercise-nav-surface-v1) {
-        animation:exercise-morph-out-v1 .30s cubic-bezier(.4,0,.2,1) both;
-        mix-blend-mode:normal;
+      ::view-transition-old(exercise-log-surface-v2),
+      ::view-transition-old(exercise-session-surface-v2),
+      ::view-transition-old(exercise-builder-surface-v2),
+      ::view-transition-old(exercise-modal-surface-v2),
+      ::view-transition-old(exercise-nav-surface-v2) {
+        animation:exercise-morph-out-v2 .30s cubic-bezier(.4,0,.2,1) both;mix-blend-mode:normal;
       }
-      ::view-transition-new(exercise-log-surface-v1),
-      ::view-transition-new(exercise-session-surface-v1),
-      ::view-transition-new(exercise-builder-surface-v1),
-      ::view-transition-new(exercise-modal-surface-v1),
-      ::view-transition-new(exercise-nav-surface-v1) {
-        animation:exercise-morph-in-v1 .42s cubic-bezier(.22,1,.36,1) both;
-        mix-blend-mode:normal;
+      ::view-transition-new(exercise-log-surface-v2),
+      ::view-transition-new(exercise-session-surface-v2),
+      ::view-transition-new(exercise-builder-surface-v2),
+      ::view-transition-new(exercise-modal-surface-v2),
+      ::view-transition-new(exercise-nav-surface-v2) {
+        animation:exercise-morph-in-v2 .42s cubic-bezier(.22,1,.36,1) both;mix-blend-mode:normal;
       }
-      @keyframes exercise-morph-out-v1 {
-        to { opacity:0;transform:scale(.975) translateY(-5px);filter:blur(2px); }
-      }
-      @keyframes exercise-morph-in-v1 {
-        from { opacity:0;transform:scale(.965) translateY(7px);filter:blur(2px); }
-        to { opacity:1;transform:none;filter:none; }
-      }
-      .exercise-morph-fallback-v1 {
-        transform-origin:50% 0;
-        animation:exercise-morph-fallback-v1 .36s cubic-bezier(.22,1,.36,1) both !important;
-      }
-      @keyframes exercise-morph-fallback-v1 {
-        0% { opacity:.24;transform:scale(.975) translateY(4px);filter:blur(1.5px); }
-        100% { opacity:1;transform:none;filter:none; }
-      }
+      @keyframes exercise-morph-out-v2 { to { opacity:0;transform:scale(.975) translateY(-5px);filter:blur(2px); } }
+      @keyframes exercise-morph-in-v2 { from { opacity:0;transform:scale(.965) translateY(7px);filter:blur(2px); } to { opacity:1;transform:none;filter:none; } }
+      .exercise-morph-fallback-v2 { transform-origin:50% 0;animation:exercise-morph-fallback-v2 .36s cubic-bezier(.22,1,.36,1) both !important; }
+      @keyframes exercise-morph-fallback-v2 { 0% { opacity:.24;transform:scale(.975) translateY(4px);filter:blur(1.5px); } 100% { opacity:1;transform:none;filter:none; } }
 
       .modal-overlay.show > .modal,
       #session-modal.show > .session-shell,
@@ -129,203 +115,46 @@
       #session-between-overlay-v2.show .bs-overlay-wrap,
       #session-pre-timer.show,
       #nav-menu.show {
-        transform-origin:50% 18%;
-        animation:exercise-surface-open-v1 .42s cubic-bezier(.22,1,.36,1) both;
+        transform-origin:50% 18%;animation:exercise-surface-open-v2 .42s cubic-bezier(.22,1,.36,1) both;
       }
-      @keyframes exercise-surface-open-v1 {
-        from { opacity:0;transform:scale(.965) translateY(8px);filter:blur(2px); }
-        to { opacity:1;transform:none;filter:none; }
-      }
+      @keyframes exercise-surface-open-v2 { from { opacity:0;transform:scale(.965) translateY(8px);filter:blur(2px); } to { opacity:1;transform:none;filter:none; } }
 
-      body button,
-      body [role="button"],
-      .exercise-user-option {
+      body button,body [role="button"],.exercise-user-option {
         -webkit-tap-highlight-color:transparent;
         transition:transform .16s cubic-bezier(.22,1,.36,1),background-color .20s ease,border-color .20s ease,color .20s ease,box-shadow .22s ease,opacity .18s ease;
       }
-      body button:active,
-      body [role="button"]:active,
-      .exercise-user-option:active {
-        transform:scale(.965);
-      }
+      body button:active,body [role="button"]:active,.exercise-user-option:active { transform:scale(.965); }
 
-      #session-current-ex {
-        display:flex;
-        align-items:center;
-        min-height:29px;
-      }
+      #session-current-ex { display:flex;align-items:center;min-height:29px; }
       #session-current-target { min-height:19px; }
-      #session-controls {
-        min-height:50px;
-        align-content:start;
+      #session-controls { min-height:50px;align-content:start; }
+      #session-set-log { min-height:62px;contain:layout paint; }
+      #session-pass-timer,#session-set-timer,#session-pre-timer-value { min-width:5ch;font-variant-numeric:tabular-nums; }
+      #session-controls > *,#session-set-log > *,#session-complete-box.show,#session-between-overlay-v2.show .bs-start-next-v20 {
+        animation:exercise-control-in-v2 .30s cubic-bezier(.22,1,.36,1) both;
       }
-      #session-set-log {
-        min-height:62px;
-        contain:layout paint;
-      }
-      #session-pass-timer,
-      #session-set-timer,
-      #session-pre-timer-value {
-        min-width:5ch;
-        font-variant-numeric:tabular-nums;
-      }
-      #session-controls > *,
-      #session-set-log > *,
-      #session-complete-box.show,
-      #session-between-overlay-v2.show .bs-start-next-v20 {
-        animation:exercise-control-in-v1 .30s cubic-bezier(.22,1,.36,1) both;
-      }
-      @keyframes exercise-control-in-v1 {
-        from { opacity:0;transform:translateY(5px) scale(.985); }
-        to { opacity:1;transform:none; }
-      }
-      #session-modal .session-main {
-        overflow-anchor:none;
-      }
+      @keyframes exercise-control-in-v2 { from { opacity:0;transform:translateY(5px) scale(.985); } to { opacity:1;transform:none; } }
+      #session-modal .session-main { overflow-anchor:none; }
 
       @media(prefers-reduced-motion:reduce) {
-        ::view-transition-group(exercise-log-surface-v1),
-        ::view-transition-group(exercise-session-surface-v1),
-        ::view-transition-group(exercise-builder-surface-v1),
-        ::view-transition-group(exercise-modal-surface-v1),
-        ::view-transition-group(exercise-nav-surface-v1),
-        ::view-transition-old(exercise-log-surface-v1),
-        ::view-transition-old(exercise-session-surface-v1),
-        ::view-transition-old(exercise-builder-surface-v1),
-        ::view-transition-old(exercise-modal-surface-v1),
-        ::view-transition-old(exercise-nav-surface-v1),
-        ::view-transition-new(exercise-log-surface-v1),
-        ::view-transition-new(exercise-session-surface-v1),
-        ::view-transition-new(exercise-builder-surface-v1),
-        ::view-transition-new(exercise-modal-surface-v1),
-        ::view-transition-new(exercise-nav-surface-v1),
-        .exercise-morph-fallback-v1,
-        .modal-overlay.show > .modal,
-        #session-modal.show > .session-shell,
-        #exercise-plan-preview-v7.show .plan-preview-card-v7,
-        #session-between-overlay-v2.show .bs-overlay-wrap,
-        #session-pre-timer.show,
-        #nav-menu.show,
-        #session-controls > *,
-        #session-set-log > * {
-          animation-duration:.001s !important;
-          transition-duration:.001s !important;
+        .exercise-morph-fallback-v2,.modal-overlay.show > .modal,#session-modal.show > .session-shell,
+        #exercise-plan-preview-v7.show .plan-preview-card-v7,#session-between-overlay-v2.show .bs-overlay-wrap,
+        #session-pre-timer.show,#nav-menu.show,#session-controls > *,#session-set-log > * {
+          animation-duration:.001s !important;transition-duration:.001s !important;
         }
       }
     `;
     document.head.appendChild(style);
   }
 
-  function promotePulseFlowTimerStyles() {
-    var attempts = 0;
-    (function waitForConceptReady() {
-      attempts += 1;
-      var root = document.documentElement;
-      var timerStyle = document.getElementById('exercise-pulse-flow-timers-v62-style');
-      if (root.classList.contains('exercise-concept-ready-v1') && timerStyle) {
-        document.head.appendChild(timerStyle);
-
-        var finalStyle = document.getElementById('exercise-pulse-flow-pre-timer-final-v63-style');
-        if (!finalStyle) {
-          finalStyle = document.createElement('style');
-          finalStyle.id = 'exercise-pulse-flow-pre-timer-final-v63-style';
-          finalStyle.textContent = `
-            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring {
-              background:transparent !important;
-              background-image:none !important;
-              -webkit-mask:none !important;
-              mask:none !important;
-              clip-path:none !important;
-              aspect-ratio:auto !important;
-              width:min(310px,82vw) !important;
-              height:auto !important;
-              min-height:0 !important;
-              max-height:none !important;
-              padding:0 !important;
-              border:0 !important;
-              border-radius:0 !important;
-              box-shadow:none !important;
-              filter:none !important;
-              transform:none !important;
-              overflow:visible !important;
-            }
-            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::before,
-            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring::after {
-              content:none !important;
-              display:none !important;
-              background:none !important;
-              background-image:none !important;
-              -webkit-mask:none !important;
-              mask:none !important;
-              box-shadow:none !important;
-              filter:none !important;
-              animation:none !important;
-            }
-            html.exercise-concept-pulse-home-v1 #session-pre-timer-ring .session-pre-copy {
-              position:static !important;
-              inset:auto !important;
-              transform:none !important;
-            }
-          `;
-          document.head.appendChild(finalStyle);
-        } else {
-          document.head.appendChild(finalStyle);
-        }
-        return;
-      }
-      if (attempts < 240) setTimeout(waitForConceptReady,25);
-    })();
-  }
-
-  function loadPulseFlowMarkersV66() {
-    if (document.querySelector('script[data-exercise-pulse-flow-markers-v66]')) return;
-    var marker = document.createElement('script');
-    marker.src = 'exercise-pulse-flow-markers-v66.js?v=20260906-1002-pulse-flow-markers-v66';
-    marker.async = false;
-    marker.setAttribute('data-exercise-pulse-flow-markers-v66','true');
-    document.head.appendChild(marker);
-  }
-
-  function loadPulseFlowSmoothV64() {
-    if (document.querySelector('script[data-exercise-pulse-flow-smooth-v64]')) {
-      loadPulseFlowMarkersV66();
-      return;
-    }
-    var smooth = document.createElement('script');
-    smooth.src = 'exercise-pulse-flow-smooth-v64.js?v=20260906-1002-pulse-flow-markers-v66';
-    smooth.async = false;
-    smooth.setAttribute('data-exercise-pulse-flow-smooth-v64','true');
-    smooth.addEventListener('load',loadPulseFlowMarkersV66,{once:true});
-    document.head.appendChild(smooth);
-  }
-
-  function loadPulseFlowTimelineExperiment() {
-    var concept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
-    if (concept !== 'pulse-home' || document.querySelector('script[data-exercise-pulse-flow-timeline-v61]')) return;
-    var script = document.createElement('script');
-    script.src = 'exercise-pulse-flow-timeline-v61.js?v=20260906-1002-pulse-flow-markers-v66';
-    script.async = false;
-    script.setAttribute('data-exercise-pulse-flow-timeline-v61','true');
-    script.addEventListener('load',function () {
-      promotePulseFlowTimerStyles();
-      loadPulseFlowSmoothV64();
-    },{once:true});
-    document.head.appendChild(script);
-  }
-
   function install() {
     addStyles();
-
     ['startCurrentSet','completeCurrentSet','startNextSet','addExtraSet','finishCurrentExercise']
       .forEach(function (name) { wrap(name,'session'); });
-
     ['shiftDayWorkoutWeek','onDayWorkoutDateChange','setExerciseKind','shiftViewedWeek']
       .forEach(function (name) { wrap(name,'builder'); });
-
     wrap('toggleNavMenu','nav');
-
-    window.__exerciseMotionV1 = {run:runExerciseMorph};
-    loadPulseFlowTimelineExperiment();
+    window.__exerciseMotionV2 = {run:runExerciseMorph};
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
