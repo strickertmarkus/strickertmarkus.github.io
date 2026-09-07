@@ -58,11 +58,35 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v81';
+  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v82';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
+
+  var initialExerciseConcept = isExercisePage
+    ? String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase()
+    : '';
+  var pulseDefaultBoot = isExercisePage && ['interval-track','uhd-athlete'].indexOf(initialExerciseConcept) === -1;
+  if (pulseDefaultBoot) {
+    document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-pulse-booting-v82');
+    if (!document.getElementById('exercise-pulse-boot-critical-v82')) {
+      var pulseBoot = document.createElement('style');
+      pulseBoot.id = 'exercise-pulse-boot-critical-v82';
+      pulseBoot.textContent =
+        'html.exercise-pulse-booting-v82,html.exercise-pulse-booting-v82 body{background:#080D14!important}' +
+        'html.exercise-pulse-booting-v82 body .app-wrap{visibility:hidden!important;opacity:0!important}' +
+        'html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
+        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1 body .app-wrap{visibility:visible!important}' +
+        '@keyframes exercisePulseBootRevealV82{from{opacity:.18}to{opacity:1}}' +
+        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1:not(.exercise-pulse-booting-v82) body .app-wrap{animation:exercisePulseBootRevealV82 .18s ease-out both}' +
+        '@media(prefers-reduced-motion:reduce){html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1 body .app-wrap{animation:none!important}}';
+      document.head.appendChild(pulseBoot);
+    }
+    setTimeout(function () {
+      document.documentElement.classList.remove('exercise-pulse-booting-v82');
+    },5000);
+  }
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
     var exerciseCritical = document.createElement('style');
@@ -150,7 +174,7 @@
   }
 
   if (isExercisePage) {
-    var exerciseConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
+    var exerciseConcept = initialExerciseConcept;
     var exerciseConcepts = ['interval-track','uhd-athlete'];
     if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
       document.documentElement.classList.add('exercise-concept-booting-v1','exercise-concept-' + exerciseConcept + '-v1');
@@ -163,8 +187,6 @@
         '@media(prefers-reduced-motion:reduce){html.exercise-concept-ready-v1 body .app-wrap{animation:none!important}}';
       document.head.appendChild(conceptCritical);
     }
-    /* One ordered exercise stack: runtime first, feature layers next and one
-       final morph/stability authority last. Obsolete inline-log patch is gone. */
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
