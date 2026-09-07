@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v78';
+  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v80';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
@@ -151,7 +151,7 @@
 
   if (isExercisePage) {
     var exerciseConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
-    var exerciseConcepts = ['interval-track','uhd-athlete','pulse-home'];
+    var exerciseConcepts = ['interval-track','uhd-athlete'];
     if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
       document.documentElement.classList.add('exercise-concept-booting-v1','exercise-concept-' + exerciseConcept + '-v1');
       var conceptCritical = document.createElement('style');
