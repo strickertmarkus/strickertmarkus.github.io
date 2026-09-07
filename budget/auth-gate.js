@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v87-timer-marker-progress';
+  var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v88-active-marker-fast-boot';
   var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
@@ -69,23 +69,17 @@
     : '';
   var pulseDefaultBoot = isExercisePage && ['interval-track','uhd-athlete'].indexOf(initialExerciseConcept) === -1;
   if (pulseDefaultBoot) {
-    document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-pulse-booting-v82');
+    document.documentElement.classList.add('exercise-concept-pulse-home-v1');
+    document.documentElement.classList.remove('exercise-pulse-booting-v82');
     if (!document.getElementById('exercise-pulse-boot-critical-v82')) {
       var pulseBoot = document.createElement('style');
       pulseBoot.id = 'exercise-pulse-boot-critical-v82';
       pulseBoot.textContent =
-        'html.exercise-pulse-booting-v82,html.exercise-pulse-booting-v82 body{background:#080D14!important}' +
-        'html.exercise-pulse-booting-v82 body .app-wrap{visibility:hidden!important;opacity:0!important}' +
-        'html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
-        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1 body .app-wrap{visibility:visible!important}' +
-        '@keyframes exercisePulseBootRevealV82{from{opacity:.18}to{opacity:1}}' +
-        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1:not(.exercise-pulse-booting-v82) body .app-wrap{animation:exercisePulseBootRevealV82 .18s ease-out both}' +
-        '@media(prefers-reduced-motion:reduce){html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1 body .app-wrap{animation:none!important}}';
+        'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
+        'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
+        '@media(prefers-reduced-motion:reduce){html.exercise-concept-pulse-home-v1 body .app-wrap{animation:none!important}}';
       document.head.appendChild(pulseBoot);
     }
-    setTimeout(function () {
-      document.documentElement.classList.remove('exercise-pulse-booting-v82');
-    },5000);
   }
 
   if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
