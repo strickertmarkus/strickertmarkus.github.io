@@ -62,21 +62,30 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
+  var exerciseFastVersion = '20260907-exercise-pulse-flow-v88-active-marker-fast-boot';
   if (pulseDefaultBoot) {
-    document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-pulse-booting-v82');
+    document.documentElement.classList.add('exercise-concept-pulse-home-v1');
+    document.documentElement.classList.remove('exercise-pulse-booting-v82');
     document.documentElement.style.backgroundColor = '#080D14';
     if (!document.getElementById('exercise-pulse-preboot-v82')) {
       var pulseStyle = document.createElement('style');
       pulseStyle.id = 'exercise-pulse-preboot-v82';
       pulseStyle.textContent =
-        'html.exercise-pulse-booting-v82,html.exercise-pulse-booting-v82 body{background:#080D14!important}' +
-        'html.exercise-pulse-booting-v82 body .app-wrap{visibility:hidden!important;opacity:0!important}' +
-        'html.exercise-concept-pulse-home-v1.exercise-concept-ready-v1:not(.exercise-pulse-booting-v82) body .app-wrap{visibility:visible!important;opacity:1!important}';
+        'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
+        'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
+        'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}';
       document.head.appendChild(pulseStyle);
     }
-    setTimeout(function () {
-      document.documentElement.classList.remove('exercise-pulse-booting-v82');
-    }, 5000);
+
+    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js'].forEach(function (src) {
+      var href = src + '?v=' + exerciseFastVersion;
+      if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
+      var link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'script';
+      link.href = href;
+      document.head.appendChild(link);
+    });
   }
 
   ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
@@ -97,6 +106,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     style.id = 'exercise-shell-critical-v13';
     style.textContent =
       'html.exercise-shell-booting-v13 body .main-content,html.exercise-shell-booting-v13 body .fab{visibility:hidden!important}' +
+      'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}' +
       '.week-toolbar>button[onclick*="goToCurrentWeek"]{display:none!important}' +
       'html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}' +
       'html body .goals-grid>.goal-card:first-child{display:none!important}' +
@@ -184,7 +194,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-progress-consistency-v10]')) {
     var progressScript = document.createElement('script');
-    progressScript.src = 'exercise-progress-consistency-v10.js?v=20260907-pulse-flow-v86-single-progress-owner';
+    progressScript.src = 'exercise-progress-consistency-v10.js?v=' + exerciseFastVersion;
     progressScript.async = false;
     progressScript.setAttribute('data-exercise-progress-consistency-v10','true');
     document.head.appendChild(progressScript);
