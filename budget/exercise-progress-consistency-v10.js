@@ -79,32 +79,15 @@
       var perSet = normalizeBetween(plannedEx && plannedEx.betweenSets);
 
       for (var setIndex = 0; setIndex < sets; setIndex++) {
-        segments.push({
-          type:'base',
-          kind:kind,
-          exIndex:i,
-          setIndex:setIndex
-        });
+        segments.push({type:'base',kind:kind,exIndex:i,setIndex:setIndex});
 
         if (setIndex < sets - 1 && perSet.type === 'custom' && perSet.name) {
-          segments.push({
-            type:'custom',
-            kind:'cardio',
-            key:customKey(perSet),
-            exIndex:i,
-            transition:'next'
-          });
+          segments.push({type:'custom',kind:'cardio',key:customKey(perSet),exIndex:i,transition:'next'});
         }
       }
 
       if (i < baseCount - 1 && globalBetween.type === 'custom' && globalBetween.name) {
-        segments.push({
-          type:'custom',
-          kind:'cardio',
-          key:customKey(globalBetween),
-          exIndex:i,
-          transition:'finish'
-        });
+        segments.push({type:'custom',kind:'cardio',key:customKey(globalBetween),exIndex:i,transition:'finish'});
       }
     }
 
@@ -148,7 +131,6 @@
   function calculate(state) {
     var plan = buildCanonicalPlan(state);
     var baseDone = Object.create(null);
-    var baseCount = 0;
 
     plan.forEach(function (segment) {
       if (segment.type !== 'base') return;
@@ -198,7 +180,17 @@
     if (segment.type === 'custom') classes.push('canonical-custom-v10');
     if (segment.done) classes.push('done');
     else if (segment.current) classes.push('current');
-    return classes.join(' ');
+    return classes;
+  }
+
+  function canonicalClasses(el) {
+    return Array.from(el.classList).filter(function (name) {
+      return name.indexOf('pf-ex-') !== 0;
+    }).sort().join(' ');
+  }
+
+  function expectedClasses(segment) {
+    return classesFor(segment).slice().sort().join(' ');
   }
 
   function domMatches(result,percentEl,countEl,track) {
@@ -208,9 +200,18 @@
     if (countEl.textContent !== result.completed + ' / ' + result.total + ' moment klara') return false;
     if (track.children.length !== result.segments.length) return false;
     for (var i = 0; i < result.segments.length; i++) {
-      if (track.children[i].className !== classesFor(result.segments[i])) return false;
+      if (canonicalClasses(track.children[i]) !== expectedClasses(result.segments[i])) return false;
     }
     return true;
+  }
+
+  function updateExistingNode(el,segment) {
+    var desired = classesFor(segment);
+    ['hype-progress-segment','strength','cardio','canonical-custom-v10','done','current'].forEach(function (name) {
+      el.classList.toggle(name,desired.indexOf(name) !== -1);
+    });
+    if (segment.type === 'custom') el.setAttribute('data-progress-custom-v10','true');
+    else el.removeAttribute('data-progress-custom-v10');
   }
 
   function renderCanonicalProgress() {
@@ -227,15 +228,21 @@
     percentEl.textContent = percent + '%';
     countEl.textContent = result.completed + ' / ' + result.total + ' moment klara';
 
+    if (track.children.length === result.segments.length) {
+      result.segments.forEach(function (segment,index) {
+        updateExistingNode(track.children[index],segment);
+      });
+      return;
+    }
+
     var fragment = document.createDocumentFragment();
     result.segments.forEach(function (segment) {
       var el = document.createElement('span');
-      el.className = classesFor(segment);
+      el.className = classesFor(segment).join(' ');
       if (segment.type === 'custom') el.setAttribute('data-progress-custom-v10','true');
       fragment.appendChild(el);
     });
-    track.innerHTML = '';
-    track.appendChild(fragment);
+    track.replaceChildren(fragment);
   }
 
   function addStyles() {
@@ -243,8 +250,6 @@
     var style = document.createElement('style');
     style.id = 'exercise-progress-consistency-v10-style';
     style.textContent = `
-      /* The large builder 5-second panel is obsolete. The compact top toggle
-         is the only builder control; keep the source panel permanently hidden. */
       html body #day-workout-modal #pretimer-builder-v2 {
         display:none !important;
         visibility:hidden !important;
@@ -255,12 +260,8 @@
         border:0 !important;
         overflow:hidden !important;
       }
-      .hype-progress-segment.canonical-custom-v10 {
-        background:#F59E0B;
-      }
-      .hype-progress-segment.canonical-custom-v10.done {
-        box-shadow:0 0 8px rgba(245,158,11,.34);
-      }
+      .hype-progress-segment.canonical-custom-v10 { background:#F59E0B; }
+      .hype-progress-segment.canonical-custom-v10.done { box-shadow:0 0 8px rgba(245,158,11,.34); }
     `;
     document.head.appendChild(style);
   }
