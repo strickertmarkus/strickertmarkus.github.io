@@ -71,7 +71,7 @@
       border-width:2px!important;
       opacity:1!important;
       filter:none!important;
-      animation:pfProgressPulseV94 1.18s ease-in-out infinite!important;
+      animation:none!important;
     }
 
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current.strength > .pf-progress-dot-v80,
@@ -96,10 +96,20 @@
       box-shadow:0 0 0 4px rgba(251,146,60,.13),0 0 15px rgba(251,146,60,.86),0 0 31px rgba(251,146,60,.34)!important;
     }
 
-    @keyframes pfProgressPulseV94{
-      50%{
-        box-shadow:0 0 0 7px rgba(var(--pf-progress-live-rgb),.05),0 0 20px rgba(var(--pf-progress-live-rgb),.94),0 0 38px rgba(var(--pf-progress-live-rgb),.38)!important;
-      }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current > .pf-progress-dot-v80::after,
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.pf-progress-runtime-current-v94 > .pf-progress-dot-v80::after{
+      content:'';
+      position:absolute;
+      inset:-5px;
+      border-radius:50%;
+      border:1px solid rgba(var(--pf-progress-live-rgb),.42);
+      box-shadow:0 0 10px rgba(var(--pf-progress-live-rgb),.34);
+      pointer-events:none;
+      animation:pfProgressHaloV94 1.18s ease-in-out infinite;
+    }
+    @keyframes pfProgressHaloV94{
+      0%,100%{transform:scale(.76);opacity:.72;}
+      50%{transform:scale(1.36);opacity:.10;box-shadow:0 0 18px rgba(var(--pf-progress-live-rgb),.42);}
     }
 
     @media(max-width:600px){
@@ -117,9 +127,10 @@
     }
 
     @media(prefers-reduced-motion:reduce){
-      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current > .pf-progress-dot-v80,
-      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.pf-progress-runtime-current-v94 > .pf-progress-dot-v80{
+      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.current > .pf-progress-dot-v80::after,
+      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.pf-progress-runtime-current-v94 > .pf-progress-dot-v80::after{
         animation:none!important;
+        display:none!important;
       }
     }
   `;
