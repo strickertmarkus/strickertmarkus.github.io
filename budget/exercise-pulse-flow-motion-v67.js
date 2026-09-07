@@ -5,34 +5,36 @@
 
   function loadBase(){
     var s=document.createElement('script');
-    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=77';
+    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=78';
     s.async=false;
-    s.onload=installV77;
+    s.onload=installV78;
     document.head.appendChild(s);
   }
 
-  function installV77(){
-    if(window.__exercisePulseFlowMarkerV77Installed) return;
-    window.__exercisePulseFlowMarkerV77Installed=true;
+  function installV78(){
+    if(window.__exercisePulseFlowMarkerV78Installed) return;
+    window.__exercisePulseFlowMarkerV78Installed=true;
 
-    ['exercise-pulse-flow-marker-v74-style','exercise-pulse-flow-marker-v75-style','exercise-pulse-flow-marker-v76-style'].forEach(function(id){
+    ['exercise-pulse-flow-marker-v74-style','exercise-pulse-flow-marker-v75-style','exercise-pulse-flow-marker-v76-style','exercise-pulse-flow-marker-v77-style'].forEach(function(id){
       var old=document.getElementById(id);
       if(old) old.remove();
     });
 
+    /* Remove every historical extra endpoint layer. v78 uses the base v73 circle only. */
     document.querySelectorAll('.pf-arc-marker-core-v74,.pf-arc-marker-core-v75,.pf-arc-marker-halo-v75,.pf-arc-marker-v76').forEach(function(node){node.remove();});
     document.querySelectorAll('radialGradient[id^="pf-endpoint-gradient-v7"]').forEach(function(node){node.remove();});
     document.querySelectorAll('.pf-arc-svg-v73').forEach(function(svg){
       svg.removeAttribute('data-pf-marker-gradient-v76');
+      svg.removeAttribute('data-pf-marker-gradient-v77');
     });
 
     var style=document.createElement('style');
-    style.id='exercise-pulse-flow-marker-v77-style';
+    style.id='exercise-pulse-flow-marker-v78-style';
     style.textContent=`
-      /* One endpoint marker only: classic v69 appearance, current exact geometry. */
+      /* Single classic Pulse Flow endpoint marker on the exact current arc geometry. */
       #session-modal.pulse-flow-v58 .pf-arc-marker-v73{
         stroke:none!important;
-        filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.96)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.70)) drop-shadow(0 0 16px rgba(var(--pf-rgb),.32))!important;
+        filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),1)) drop-shadow(0 0 9px rgba(var(--pf-rgb),.74)) drop-shadow(0 0 18px rgba(var(--pf-rgb),.34))!important;
       }
 
       #session-between-overlay-v2{
@@ -47,9 +49,10 @@
       }
       #session-between-overlay-v2 .pf-arc-marker-v73{
         stroke:none!important;
-        filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.96)) drop-shadow(0 0 8px rgba(var(--pf-between-rgb),.70)) drop-shadow(0 0 16px rgba(var(--pf-between-rgb),.32))!important;
+        filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),1)) drop-shadow(0 0 9px rgba(var(--pf-between-rgb),.74)) drop-shadow(0 0 18px rgba(var(--pf-between-rgb),.34))!important;
       }
 
+      /* Keep the compact 5 s marker. */
       html.exercise-concept-pulse-home-v1 #session-pre-timer .pf-pre-line-dot-v62{
         width:15px!important;
         height:15px!important;
@@ -69,16 +72,17 @@
         }
         return {white:'#FFFFFF',soft:'#CFFAFE',accent:'#22D3EE'};
       }
+      /* Cardio / conditioning timer. */
       return {white:'#FFFFFF',soft:'#FCA5A5',accent:'#EF4444'};
     }
 
     function ensureGradient(svg){
-      var id=svg.getAttribute('data-pf-marker-gradient-v77');
+      var id=svg.getAttribute('data-pf-marker-gradient-v78');
       var gradient=id&&svg.querySelector('#'+id);
       if(gradient) return gradient;
 
-      id='pf-endpoint-gradient-v77-'+(++uid);
-      svg.setAttribute('data-pf-marker-gradient-v77',id);
+      id='pf-endpoint-gradient-v78-'+(++uid);
+      svg.setAttribute('data-pf-marker-gradient-v78',id);
 
       var defs=svg.querySelector(':scope > defs');
       if(!defs){
@@ -121,13 +125,59 @@
         stop.setAttribute('stop-color',palette[key]||palette.accent);
       });
 
-      /* Match the old ~9 px visual marker size on the current ring. */
-      marker.setAttribute('r','3.0');
+      /* About +2 px diameter compared with v77 on the rendered timer. */
+      marker.setAttribute('r','3.75');
       marker.style.setProperty('fill','url(#'+gradient.id+')','important');
     }
 
-    function sync(){
+    function sampledPath(path,startLength,endLength,steps){
+      if(!path||typeof path.getPointAtLength!=='function'||endLength<=startLength) return '';
+      steps=Math.max(2,steps||12);
+      var d='';
+      for(var i=0;i<=steps;i++){
+        var t=i/steps;
+        var len=startLength+(endLength-startLength)*t;
+        var p=path.getPointAtLength(len);
+        d+=(i===0?'M':' L')+p.x.toFixed(3)+' '+p.y.toFixed(3);
+      }
+      return d;
+    }
+
+    function paintWrappedEcg(signal,now){
+      var svg=signal&&signal.querySelector('svg');
+      var guide=svg&&svg.querySelector('.pf-ecg-guide-v73');
+      var sweep=svg&&svg.querySelector('.pf-ecg-sweep-v73');
+      var marker=svg&&svg.querySelector('.pf-ecg-marker-v73');
+      if(!guide||!sweep||!marker||typeof guide.getTotalLength!=='function') return;
+
+      var overlay=signal.closest('#session-between-overlay-v2');
+      var isRest=!!(overlay&&String(overlay.dataset.betweenType||'rest')!=='custom');
+      var cycle=isRest?2000:1000;
+      var phase=(now%cycle)/cycle;
+      var total=guide.getTotalLength();
+      var head=total*phase;
+      var span=total*.23;
+      var d='';
+
+      if(head>=span){
+        d=sampledPath(guide,head-span,head,12);
+      }else{
+        /* Seamless wrap: tail remains at the right while the head continues at the left. */
+        var wrappedStart=total-(span-head);
+        var rightPart=sampledPath(guide,wrappedStart,total,12);
+        var leftPart=head>0?sampledPath(guide,0,head,8):'';
+        d=rightPart+(rightPart&&leftPart?' ':'')+leftPart;
+      }
+
+      sweep.setAttribute('d',d);
+      var p=guide.getPointAtLength(head);
+      marker.setAttribute('cx',p.x.toFixed(3));
+      marker.setAttribute('cy',p.y.toFixed(3));
+    }
+
+    function sync(now){
       document.querySelectorAll('.pf-arc-svg-v73').forEach(paintMarker);
+      document.querySelectorAll('.pf-ecg-v73').forEach(function(signal){paintWrappedEcg(signal,now);});
       requestAnimationFrame(sync);
     }
     requestAnimationFrame(sync);
