@@ -5,33 +5,32 @@
 
   function loadBase(){
     var s=document.createElement('script');
-    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=78';
+    s.src='exercise-pulse-flow-motion-v67-base-v73.js?v=79';
     s.async=false;
-    s.onload=installV78;
+    s.onload=installV79;
     document.head.appendChild(s);
   }
 
-  function installV78(){
-    if(window.__exercisePulseFlowMarkerV78Installed) return;
-    window.__exercisePulseFlowMarkerV78Installed=true;
+  function installV79(){
+    if(window.__exercisePulseFlowMarkerV79Installed) return;
+    window.__exercisePulseFlowMarkerV79Installed=true;
 
-    ['exercise-pulse-flow-marker-v74-style','exercise-pulse-flow-marker-v75-style','exercise-pulse-flow-marker-v76-style','exercise-pulse-flow-marker-v77-style'].forEach(function(id){
+    ['exercise-pulse-flow-marker-v74-style','exercise-pulse-flow-marker-v75-style','exercise-pulse-flow-marker-v76-style','exercise-pulse-flow-marker-v77-style','exercise-pulse-flow-marker-v78-style'].forEach(function(id){
       var old=document.getElementById(id);
       if(old) old.remove();
     });
 
-    /* Remove every historical extra endpoint layer. v78 uses the base v73 circle only. */
     document.querySelectorAll('.pf-arc-marker-core-v74,.pf-arc-marker-core-v75,.pf-arc-marker-halo-v75,.pf-arc-marker-v76').forEach(function(node){node.remove();});
     document.querySelectorAll('radialGradient[id^="pf-endpoint-gradient-v7"]').forEach(function(node){node.remove();});
     document.querySelectorAll('.pf-arc-svg-v73').forEach(function(svg){
       svg.removeAttribute('data-pf-marker-gradient-v76');
       svg.removeAttribute('data-pf-marker-gradient-v77');
+      svg.removeAttribute('data-pf-marker-gradient-v78');
     });
 
     var style=document.createElement('style');
-    style.id='exercise-pulse-flow-marker-v78-style';
+    style.id='exercise-pulse-flow-marker-v79-style';
     style.textContent=`
-      /* Single classic Pulse Flow endpoint marker on the exact current arc geometry. */
       #session-modal.pulse-flow-v58 .pf-arc-marker-v73{
         stroke:none!important;
         filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),1)) drop-shadow(0 0 9px rgba(var(--pf-rgb),.74)) drop-shadow(0 0 18px rgba(var(--pf-rgb),.34))!important;
@@ -52,17 +51,71 @@
         filter:drop-shadow(0 0 3px rgba(var(--pf-between-rgb),1)) drop-shadow(0 0 9px rgba(var(--pf-between-rgb),.74)) drop-shadow(0 0 18px rgba(var(--pf-between-rgb),.34))!important;
       }
 
-      /* Keep the compact 5 s marker. */
       html.exercise-concept-pulse-home-v1 #session-pre-timer .pf-pre-line-dot-v62{
         width:15px!important;
         height:15px!important;
         top:.5px!important;
       }
+
+      /* v79 owns the visible ECG. Keep the base v73 engine hidden so the two RAF loops never fight. */
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v73{
+        display:none!important;
+        visibility:hidden!important;
+        opacity:0!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79{
+        display:block!important;
+        position:relative!important;
+        width:48px!important;
+        min-width:48px!important;
+        height:10px!important;
+        min-height:10px!important;
+        margin:5px auto 2px!important;
+        flex:0 0 10px!important;
+        overflow:visible!important;
+        opacity:1!important;
+        visibility:visible!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 svg{
+        display:block!important;
+        width:100%!important;
+        height:100%!important;
+        overflow:visible!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-base-v79,
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-sweep-a-v79,
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-sweep-b-v79{
+        fill:none!important;
+        stroke:currentColor!important;
+        stroke-linecap:round!important;
+        stroke-linejoin:round!important;
+        vector-effect:non-scaling-stroke!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-base-v79{
+        stroke-width:1.05!important;
+        opacity:.24!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-sweep-a-v79,
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-sweep-b-v79{
+        stroke-width:1.65!important;
+        opacity:.92!important;
+        filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 4px currentColor)!important;
+      }
+      html.exercise-concept-pulse-home-v1 .pf-ecg-v79 .pf-ecg-marker-v79{
+        fill:currentColor!important;
+        stroke:none!important;
+        opacity:1!important;
+        filter:drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 3px currentColor)!important;
+      }
+      #session-countdown-ring .pf-ecg-v79{color:var(--pf-accent)!important;}
+      #session-between-overlay-v2 .pf-ecg-v79{color:var(--pf-between-accent)!important;}
     `;
     document.head.appendChild(style);
 
     var NS='http://www.w3.org/2000/svg';
+    var ECG_D='M0 5 H10 L13 3.7 L16 6.1 L20 1 L24 8 L28 4.8 H42';
     var uid=0;
+    var lastSurfaceSync=0;
 
     function markerPalette(svg){
       var overlay=svg.closest('#session-between-overlay-v2');
@@ -72,17 +125,16 @@
         }
         return {white:'#FFFFFF',soft:'#CFFAFE',accent:'#22D3EE'};
       }
-      /* Cardio / conditioning timer. */
       return {white:'#FFFFFF',soft:'#FCA5A5',accent:'#EF4444'};
     }
 
     function ensureGradient(svg){
-      var id=svg.getAttribute('data-pf-marker-gradient-v78');
+      var id=svg.getAttribute('data-pf-marker-gradient-v79');
       var gradient=id&&svg.querySelector('#'+id);
       if(gradient) return gradient;
 
-      id='pf-endpoint-gradient-v78-'+(++uid);
-      svg.setAttribute('data-pf-marker-gradient-v78',id);
+      id='pf-endpoint-gradient-v79-'+(++uid);
+      svg.setAttribute('data-pf-marker-gradient-v79',id);
 
       var defs=svg.querySelector(':scope > defs');
       if(!defs){
@@ -125,9 +177,38 @@
         stop.setAttribute('stop-color',palette[key]||palette.accent);
       });
 
-      /* About +2 px diameter compared with v77 on the rendered timer. */
-      marker.setAttribute('r','3.75');
+      marker.setAttribute('r','4.5');
       marker.style.setProperty('fill','url(#'+gradient.id+')','important');
+    }
+
+    function ensureEcgV79(copy){
+      if(!copy) return null;
+      var signal=copy.querySelector(':scope > .pf-ecg-v79');
+      if(signal) return signal;
+
+      signal=document.createElement('span');
+      signal.className='pf-ecg-v79';
+      signal.setAttribute('aria-hidden','true');
+      signal.innerHTML='<svg viewBox="0 0 42 9" focusable="false" aria-hidden="true">'+
+        '<path class="pf-ecg-guide-v79" d="'+ECG_D+'" fill="none" stroke="none"></path>'+
+        '<path class="pf-ecg-base-v79" d="'+ECG_D+'"></path>'+
+        '<path class="pf-ecg-sweep-a-v79"></path>'+
+        '<path class="pf-ecg-sweep-b-v79"></path>'+
+        '<circle class="pf-ecg-marker-v79" cx="0" cy="5" r=".68"></circle>'+
+        '</svg>';
+
+      var label=copy.querySelector('.session-countdown-label,.bs-label');
+      if(label) copy.insertBefore(signal,label);
+      else copy.appendChild(signal);
+      return signal;
+    }
+
+    function syncEcgSurfaces(){
+      var cardio=document.querySelector('#session-countdown-ring .session-countdown-copy');
+      if(cardio) ensureEcgV79(cardio);
+      var overlay=document.getElementById('session-between-overlay-v2');
+      var between=overlay&&overlay.querySelector('.bs-copy');
+      if(between) ensureEcgV79(between);
     }
 
     function sampledPath(path,startLength,endLength,steps){
@@ -143,12 +224,13 @@
       return d;
     }
 
-    function paintWrappedEcg(signal,now){
+    function paintWrappedEcgV79(signal,now){
       var svg=signal&&signal.querySelector('svg');
-      var guide=svg&&svg.querySelector('.pf-ecg-guide-v73');
-      var sweep=svg&&svg.querySelector('.pf-ecg-sweep-v73');
-      var marker=svg&&svg.querySelector('.pf-ecg-marker-v73');
-      if(!guide||!sweep||!marker||typeof guide.getTotalLength!=='function') return;
+      var guide=svg&&svg.querySelector('.pf-ecg-guide-v79');
+      var sweepA=svg&&svg.querySelector('.pf-ecg-sweep-a-v79');
+      var sweepB=svg&&svg.querySelector('.pf-ecg-sweep-b-v79');
+      var marker=svg&&svg.querySelector('.pf-ecg-marker-v79');
+      if(!guide||!sweepA||!sweepB||!marker||typeof guide.getTotalLength!=='function') return;
 
       var overlay=signal.closest('#session-between-overlay-v2');
       var isRest=!!(overlay&&String(overlay.dataset.betweenType||'rest')!=='custom');
@@ -157,27 +239,29 @@
       var total=guide.getTotalLength();
       var head=total*phase;
       var span=total*.23;
-      var d='';
 
       if(head>=span){
-        d=sampledPath(guide,head-span,head,12);
+        sweepA.setAttribute('d',sampledPath(guide,head-span,head,14));
+        sweepB.setAttribute('d','');
       }else{
-        /* Seamless wrap: tail remains at the right while the head continues at the left. */
+        /* Snake-style toroidal wrap: right tail exits while left head enters at the same speed. */
         var wrappedStart=total-(span-head);
-        var rightPart=sampledPath(guide,wrappedStart,total,12);
-        var leftPart=head>0?sampledPath(guide,0,head,8):'';
-        d=rightPart+(rightPart&&leftPart?' ':'')+leftPart;
+        sweepA.setAttribute('d',sampledPath(guide,wrappedStart,total,14));
+        sweepB.setAttribute('d',head>0?sampledPath(guide,0,head,10):'');
       }
 
-      sweep.setAttribute('d',d);
       var p=guide.getPointAtLength(head);
       marker.setAttribute('cx',p.x.toFixed(3));
       marker.setAttribute('cy',p.y.toFixed(3));
     }
 
     function sync(now){
+      if(now-lastSurfaceSync>80){
+        lastSurfaceSync=now;
+        syncEcgSurfaces();
+      }
       document.querySelectorAll('.pf-arc-svg-v73').forEach(paintMarker);
-      document.querySelectorAll('.pf-ecg-v73').forEach(function(signal){paintWrappedEcg(signal,now);});
+      document.querySelectorAll('.pf-ecg-v79').forEach(function(signal){paintWrappedEcgV79(signal,now);});
       requestAnimationFrame(sync);
     }
     requestAnimationFrame(sync);
