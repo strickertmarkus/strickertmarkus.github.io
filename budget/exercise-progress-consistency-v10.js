@@ -241,12 +241,26 @@
     else el.removeAttribute('data-progress-custom-v10');
   }
 
+  function syncPulseFlowRuntimeState(state) {
+    var modal = document.getElementById('session-modal');
+    var progress = document.getElementById('hype-workout-progress');
+    if (!modal) return;
+    var pre = document.getElementById('session-pre-timer');
+    var preVisible = !!(pre && pre.classList.contains('show'));
+    var active = !!(state && state.setRunning);
+    var starting = !!(preVisible && !active);
+    modal.classList.toggle('pulse-flow-active-v58',active);
+    modal.classList.toggle('pulse-flow-starting-v58',starting);
+    if (progress) progress.setAttribute('data-pf-set-state',starting ? 'starting' : (active ? 'active' : 'ready'));
+  }
+
   function renderCanonicalProgress() {
     if (!ensureProgressShell()) return;
     var state = getState();
     var track = document.getElementById('hype-progress-track');
     var percentEl = document.getElementById('hype-progress-percent');
     var countEl = document.getElementById('hype-progress-count');
+    syncPulseFlowRuntimeState(state);
     if (!state || !track || !percentEl || !countEl) return;
 
     var result = calculate(state);
