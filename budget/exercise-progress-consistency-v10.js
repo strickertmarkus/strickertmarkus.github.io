@@ -241,6 +241,33 @@
     else el.removeAttribute('data-progress-custom-v10');
   }
 
+  function clearRuntimeMarker(dot) {
+    if (!dot) return;
+    ['width','height','flex-basis','background','filter','box-shadow'].forEach(function (prop) {
+      dot.style.removeProperty(prop);
+    });
+  }
+
+  function applyRuntimeMarker(stateName) {
+    var segment = document.querySelector('#hype-progress-track .hype-progress-segment.current');
+    var dot = segment && segment.querySelector(':scope > .pf-progress-dot-v80');
+    if (!dot) return;
+    clearRuntimeMarker(dot);
+    if (stateName === 'ready') return;
+
+    var cardio = segment.classList.contains('cardio') && !segment.classList.contains('canonical-custom-v10');
+    var gradient = cardio
+      ? 'radial-gradient(circle,#FCA5A5 0 17%,#EF4444 28%,rgba(239,68,68,.90) 39%,rgba(239,68,68,.52) 54%,rgba(239,68,68,.20) 69%,rgba(239,68,68,.06) 80%,transparent 100%)'
+      : 'radial-gradient(circle,#FED7AA 0 17%,#FB923C 28%,rgba(251,146,60,.90) 39%,rgba(251,146,60,.52) 54%,rgba(251,146,60,.20) 69%,rgba(251,146,60,.06) 80%,transparent 100%)';
+    var glow = cardio ? 'drop-shadow(0 0 6px rgba(239,68,68,.45))' : 'drop-shadow(0 0 6px rgba(251,146,60,.45))';
+    dot.style.setProperty('width','15px','important');
+    dot.style.setProperty('height','15px','important');
+    dot.style.setProperty('flex-basis','15px','important');
+    dot.style.setProperty('background',gradient,'important');
+    dot.style.setProperty('filter',glow,'important');
+    dot.style.setProperty('box-shadow','none','important');
+  }
+
   function syncPulseFlowRuntimeState(state) {
     var modal = document.getElementById('session-modal');
     var progress = document.getElementById('hype-workout-progress');
@@ -249,9 +276,11 @@
     var preVisible = !!(pre && pre.classList.contains('show'));
     var active = !!(state && state.setRunning);
     var starting = !!(preVisible && !active);
+    var stateName = starting ? 'starting' : (active ? 'active' : 'ready');
     modal.classList.toggle('pulse-flow-active-v58',active);
     modal.classList.toggle('pulse-flow-starting-v58',starting);
-    if (progress) progress.setAttribute('data-pf-set-state',starting ? 'starting' : (active ? 'active' : 'ready'));
+    if (progress) progress.setAttribute('data-pf-set-state',stateName);
+    applyRuntimeMarker(stateName);
   }
 
   function renderCanonicalProgress() {
@@ -274,6 +303,7 @@
       result.segments.forEach(function (segment,index) {
         updateExistingNode(track.children[index],segment);
       });
+      syncPulseFlowRuntimeState(state);
       return;
     }
 
@@ -285,6 +315,7 @@
       fragment.appendChild(el);
     });
     track.replaceChildren(fragment);
+    syncPulseFlowRuntimeState(state);
   }
 
   function addStyles() {
