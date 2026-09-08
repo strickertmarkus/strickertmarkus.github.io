@@ -1,14 +1,14 @@
 (function(){
   'use strict';
-  if(!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCompletedMarkerV102Installed) return;
-  window.__exercisePulseFlowCompletedMarkerV102Installed=true;
+  if(!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCompletedMarkerV103Installed) return;
+  window.__exercisePulseFlowCompletedMarkerV103Installed=true;
 
   var style=document.createElement('style');
-  style.id='exercise-pulse-flow-completed-marker-v102-style';
+  style.id='exercise-pulse-flow-completed-marker-v103-style';
   style.textContent=`
-    /* Completed Pulse Flow moments only: slightly smaller, with a restrained
-       colour gradient. Extra #hype-progress-track specificity keeps this rule
-       authoritative even when the main marker stylesheet moves itself last. */
+    /* Completed Pulse Flow moments only: compact and flatter than the live
+       marker. Keep a tiny centred pale core, but use transparent concentric
+       colour instead of the previous off-centre highlight/3D look. */
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #hype-progress-track .hype-progress-segment[data-pf-done-v98="true"]>.pf-progress-dot-v80{
       width:8px!important;
       height:8px!important;
@@ -20,13 +20,13 @@
     }
 
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #hype-progress-track .hype-progress-segment[data-pf-done-v98="true"][data-pf-kind-v98="strength"]>.pf-progress-dot-v80{
-      background:radial-gradient(circle at 42% 38%,rgba(254,215,170,.88) 0%,rgba(253,186,116,.96) 24%,rgba(251,146,60,.98) 55%,rgba(249,115,22,.92) 100%)!important;
-      box-shadow:0 0 4px rgba(251,146,60,.78),0 0 9px rgba(251,146,60,.22)!important;
+      background:radial-gradient(circle at 50% 50%,rgba(255,247,237,.78) 0%,rgba(254,215,170,.66) 17%,rgba(253,186,116,.72) 38%,rgba(251,146,60,.70) 66%,rgba(251,146,60,.40) 100%)!important;
+      box-shadow:0 0 4px rgba(251,146,60,.62),0 0 8px rgba(251,146,60,.17)!important;
     }
 
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #hype-progress-track .hype-progress-segment[data-pf-done-v98="true"][data-pf-kind-v98="cardio"]>.pf-progress-dot-v80{
-      background:radial-gradient(circle at 42% 38%,rgba(254,202,202,.88) 0%,rgba(248,113,113,.96) 27%,rgba(239,68,68,.98) 58%,rgba(220,38,38,.92) 100%)!important;
-      box-shadow:0 0 4px rgba(239,68,68,.80),0 0 9px rgba(239,68,68,.23)!important;
+      background:radial-gradient(circle at 50% 50%,rgba(255,241,242,.78) 0%,rgba(254,202,202,.66) 17%,rgba(248,113,113,.72) 38%,rgba(239,68,68,.70) 66%,rgba(239,68,68,.40) 100%)!important;
+      box-shadow:0 0 4px rgba(239,68,68,.64),0 0 8px rgba(239,68,68,.18)!important;
     }
   `;
   document.head.appendChild(style);
