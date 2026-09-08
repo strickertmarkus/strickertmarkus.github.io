@@ -62,7 +62,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260908-exercise-pulse-flow-v101-active-marker-size-pulse';
+  var exerciseFastVersion = '20260908-exercise-pulse-flow-v102-completed-gradient';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -77,7 +77,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       document.head.appendChild(pulseStyle);
     }
 
-    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js'].forEach(function (src) {
+    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js','exercise-pulse-flow-completed-marker-v102.js'].forEach(function (src) {
       var href = src + '?v=' + exerciseFastVersion;
       if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
       var link = document.createElement('link');
@@ -206,6 +206,14 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     markerScript.async = false;
     markerScript.setAttribute('data-exercise-pulse-flow-progress-marker-v92','true');
     document.head.appendChild(markerScript);
+  }
+
+  if (pulseDefaultBoot && !document.querySelector('script[data-exercise-pulse-flow-completed-marker-v102]')) {
+    var completedMarkerScript = document.createElement('script');
+    completedMarkerScript.src = 'exercise-pulse-flow-completed-marker-v102.js?v=' + exerciseFastVersion;
+    completedMarkerScript.async = false;
+    completedMarkerScript.setAttribute('data-exercise-pulse-flow-completed-marker-v102','true');
+    document.head.appendChild(completedMarkerScript);
   }
 })();
 
