@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionFlowV112Installed) return;
-  window.__exerciseSessionFlowV112Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionFlowV113Installed) return;
+  window.__exerciseSessionFlowV113Installed = true;
 
   var profile = String(new URLSearchParams(window.location.search).get('user') || 'markus').toLowerCase();
   var BETWEEN_KEY_PREFIX = 'ex_between_set_v2_' + profile + '_';
@@ -120,9 +120,11 @@
   }
 
   function ensureStyles() {
-    if (document.getElementById('exercise-session-flow-v112-style')) return;
+    var old = document.getElementById('exercise-session-flow-v112-style');
+    if (old) old.remove();
+    if (document.getElementById('exercise-session-flow-v113-style')) return;
     var style = document.createElement('style');
-    style.id = 'exercise-session-flow-v112-style';
+    style.id = 'exercise-session-flow-v113-style';
     style.textContent = `
       html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-set-log .set-log-item.session-log-cardio-fields-v112 {
         grid-template-columns:minmax(54px,.65fr) repeat(2,minmax(0,1fr)) !important;
@@ -130,8 +132,84 @@
       html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-set-log .set-log-item.session-log-strength-fields-v112 {
         grid-template-columns:minmax(54px,.65fr) repeat(3,minmax(0,1fr)) !important;
       }
+
+      /* The first screen of a fresh session uses the same calm green language
+         as the completed-session screen. As soon as the first set starts, the
+         normal strength/cardio colour takes over again. */
+      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-intro-v113 {
+        --pf-accent:#34D399 !important;
+        --pf-soft:#A7F3D0 !important;
+        --pf-rgb:52,211,153 !important;
+        --pf-speed:3.2s !important;
+      }
+
+      /* v80 grouped the progress track by raw planned-set count and therefore
+         ignored inserted custom/cardio moments. Neutralise that old boundary
+         and apply the gap only at canonical exercise starts. */
+      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58 .hype-progress-segment.pf-ex-start-v80:not(:first-child) {
+        margin-left:0 !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58 .hype-progress-segment.pf-ex-start-canonical-v113:not(:first-child) {
+        margin-left:4px !important;
+      }
     `;
     document.head.appendChild(style);
+  }
+
+  function syncProgressExerciseBoundaries() {
+    var state = getState();
+    var track = document.getElementById('hype-progress-track');
+    var api = window.__exerciseProgressConsistencyV10;
+    if (!state || !track || !api || typeof api.calculate !== 'function') return;
+
+    var nodes = Array.prototype.slice.call(track.querySelectorAll(':scope > .hype-progress-segment'));
+    if (!nodes.length) return;
+
+    var result = null;
+    try { result = api.calculate(state); }
+    catch (_) { return; }
+    if (!result || !Array.isArray(result.segments) || result.segments.length !== nodes.length) return;
+
+    var starts = Object.create(null);
+    var seenExercise = Object.create(null);
+    result.segments.forEach(function (segment,index) {
+      if (!segment || segment.type !== 'base') return;
+      var exIndex = Number(segment.exIndex);
+      if (!Number.isFinite(exIndex) || seenExercise[exIndex]) return;
+      seenExercise[exIndex] = true;
+      starts[index] = true;
+    });
+
+    nodes.forEach(function (node,index) {
+      node.classList.toggle('pf-ex-start-canonical-v113',!!starts[index]);
+    });
+  }
+
+  function hasLoggedMoment(state) {
+    if (!state || !Array.isArray(state.logs)) return false;
+    return state.logs.some(function (logs) { return Array.isArray(logs) && logs.length > 0; });
+  }
+
+  function syncIntroTheme() {
+    var state = getState();
+    var modal = document.getElementById('session-modal');
+    if (!modal) return;
+
+    var pre = document.getElementById('session-pre-timer');
+    var preVisible = !!(pre && pre.classList.contains('show'));
+    var intro = !!(
+      state &&
+      Array.isArray(state.exercises) && state.exercises.length > 0 &&
+      Number(state.exerciseIndex || 0) === 0 &&
+      Math.max(1,Number(state.currentSet) || 1) === 1 &&
+      !state.setRunning &&
+      !state.awaitingDecision &&
+      !preVisible &&
+      !hasLoggedMoment(state) &&
+      Number(state.exerciseIndex || 0) < state.exercises.length
+    );
+
+    modal.classList.toggle('pulse-flow-intro-v113',intro);
   }
 
   function syncLoggedSetFields() {
@@ -181,6 +259,13 @@
     logs[index][key] = Number.isFinite(value) ? value : 0;
   }
 
+  function syncSessionUi() {
+    ensureStyles();
+    syncIntroTheme();
+    syncProgressExerciseBoundaries();
+    syncLoggedSetFields();
+  }
+
   function handleClick(event) {
     var button = event.target && event.target.closest ? event.target.closest('#session-controls button') : null;
     if (!button) return;
@@ -189,7 +274,7 @@
       setTimeout(function () {
         autoRestKey = '';
         tryStartConfiguredRest(0);
-        syncLoggedSetFields();
+        syncSessionUi();
       },0);
     }
   }
@@ -202,18 +287,14 @@
       if (input) commitLogInput(input);
     },false);
 
-    var observer = new MutationObserver(function (records) {
+    var observer = new MutationObserver(function () {
       if (syncingLog) return;
-      var relevant = records.some(function (record) {
-        var target = record.target;
-        return target && (target.id === 'session-set-log' || (target.closest && target.closest('#session-set-log')));
-      });
-      if (relevant) requestAnimationFrame(syncLoggedSetFields);
+      requestAnimationFrame(syncSessionUi);
     });
     observer.observe(document.documentElement,{childList:true,subtree:true});
 
-    setInterval(syncLoggedSetFields,350);
-    setTimeout(syncLoggedSetFields,0);
+    setInterval(syncSessionUi,180);
+    setTimeout(syncSessionUi,0);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
