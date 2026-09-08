@@ -1,15 +1,18 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV105Installed) return;
-  window.__exercisePulseFlowEcgGlowV105Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV106Installed) return;
+  window.__exercisePulseFlowEcgGlowV106Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v105-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v106-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    var oldStyle = document.getElementById('exercise-pulse-flow-ecg-glow-v104-style');
-    if (oldStyle) oldStyle.remove();
+    var oldLargeStyle = document.getElementById('exercise-pulse-flow-ecg-glow-v104-style');
+    if (oldLargeStyle) oldLargeStyle.remove();
+
+    var oldSmallStyle = document.getElementById('exercise-pulse-flow-ecg-glow-v105-style');
+    if (oldSmallStyle) oldSmallStyle.remove();
 
     document.querySelectorAll('.pulse-flow-head-v104').forEach(function (node) {
       node.remove();
@@ -28,11 +31,12 @@
     style.id = STYLE_ID;
     style.textContent = `
       /* Only the tiny ECG inside the between-set / between-exercise timer.
-         The large ECG ribbon in the live workout keeps its original styling. */
+         Keep the resting trace extremely quiet, like the large Pulse Flow ECG,
+         so the travelling highlighted section has much stronger contrast. */
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-base-v80 {
         stroke:var(--pf-between-accent) !important;
-        stroke-width:1 !important;
-        opacity:.055 !important;
+        stroke-width:.9 !important;
+        opacity:.025 !important;
         filter:none !important;
       }
 
@@ -56,8 +60,7 @@
           drop-shadow(0 0 4.8px rgba(var(--pf-between-rgb),.78)) !important;
       }
 
-      /* Add the subtle glow from the approved timer mockup to the active
-         portion of the actual between-set / between-exercise timer arc. */
+      /* Keep the subtle glow on the active timer arc from v105. */
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
         stroke:rgba(var(--pf-between-rgb),.78) !important;
         filter:
