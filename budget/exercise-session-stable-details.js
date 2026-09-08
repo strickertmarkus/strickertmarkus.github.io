@@ -110,13 +110,13 @@
       cells = [
         ['Runda', String(state.currentSet || 1)],
         ['Distans', ex.distance ? ex.distance + ' km' : '—'],
-        ['Tid', ex.time ? ex.time + ' min' : '—']
+        ['Tid (min)', ex.time ? ex.time + ' min' : '—']
       ];
     } else {
       cells = [
         ['Set', (state.currentSet || 1) + ' / ' + (ex.plannedSets || 1)],
         ['Reps', String(ex.reps || 0)],
-        ['Vikt', (ex.weight || 0) + ' kg']
+        ['Vikt (kg)', (ex.weight || 0) + ' kg']
       ];
     }
 
