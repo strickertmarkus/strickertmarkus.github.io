@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV113Installed) return;
-  window.__exercisePulseFlowEcgGlowV113Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV114Installed) return;
+  window.__exercisePulseFlowEcgGlowV114Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v113-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v114-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -115,11 +115,11 @@
   }
 
   function loadSessionFlow() {
-    if (document.querySelector('script[data-exercise-session-flow-v113]')) return;
+    if (document.querySelector('script[data-exercise-session-flow-v114]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v113';
+    script.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v114';
     script.async = false;
-    script.setAttribute('data-exercise-session-flow-v113','true');
+    script.setAttribute('data-exercise-session-flow-v114','true');
     document.head.appendChild(script);
   }
 
