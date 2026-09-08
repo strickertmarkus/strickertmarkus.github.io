@@ -1,12 +1,25 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV104Installed) return;
-  window.__exercisePulseFlowEcgGlowV104Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV105Installed) return;
+  window.__exercisePulseFlowEcgGlowV105Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v104-style';
-  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v105-style';
   var scheduled = false;
+
+  function cleanPreviousLargeEcgChanges() {
+    var oldStyle = document.getElementById('exercise-pulse-flow-ecg-glow-v104-style');
+    if (oldStyle) oldStyle.remove();
+
+    document.querySelectorAll('.pulse-flow-head-v104').forEach(function (node) {
+      node.remove();
+    });
+
+    document.querySelectorAll('.pulse-flow-band-v58 svg defs filter feGaussianBlur[data-pf-v104="true"]').forEach(function (blur) {
+      blur.setAttribute('stdDeviation', '2.4');
+      blur.removeAttribute('data-pf-v104');
+    });
+  }
 
   function installStyle() {
     if (document.getElementById(STYLE_ID)) return;
@@ -14,101 +27,80 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Pulse Flow ECG: make the resting/non-pulsing trace much quieter so the
-         travelling pulse reads clearly, while keeping the geometry unchanged. */
-      html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-axis-v58 {
-        stroke:rgba(var(--pf-rgb),.045) !important;
+      /* Only the tiny ECG inside the between-set / between-exercise timer.
+         The large ECG ribbon in the live workout keeps its original styling. */
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-base-v80 {
+        stroke:var(--pf-between-accent) !important;
+        stroke-width:1 !important;
+        opacity:.055 !important;
+        filter:none !important;
       }
-      html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-ghost-v58 {
-        stroke:currentColor !important;
-        stroke-width:1.05 !important;
-        opacity:.075 !important;
-      }
-      html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58 {
-        stroke-width:2.55 !important;
+
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
+        stroke:color-mix(in srgb,var(--pf-between-accent) 82%,var(--pf-between-soft) 18%) !important;
+        stroke-width:1.8 !important;
         opacity:1 !important;
+        filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),.96))
+          drop-shadow(0 0 4.5px rgba(var(--pf-between-rgb),.50)) !important;
       }
 
-      /* Small bright marker at the leading edge of the animated ECG pulse.
-         It uses the same path and cadence as the trace, offset by the 175-unit
-         dash length so it stays at the front rather than following behind. */
-      html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-head-v104 {
-        fill:none !important;
-        vector-effect:non-scaling-stroke;
-        stroke:var(--pf-soft) !important;
-        stroke-width:4.6 !important;
-        stroke-linecap:round !important;
-        stroke-linejoin:round !important;
-        stroke-dasharray:.01 999.99;
-        stroke-dashoffset:-175;
-        opacity:.96 !important;
-        pointer-events:none;
-        animation:pulse-flow-head-sweep-v104 var(--pf-speed) linear infinite;
-        will-change:stroke-dashoffset;
-      }
-      @keyframes pulse-flow-head-sweep-v104 {
-        to { stroke-dashoffset:-1175; }
+      /* Small bright point at the leading edge of the tiny ECG sweep. */
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
+        fill:var(--pf-between-soft) !important;
+        stroke:none !important;
+        opacity:1 !important;
+        filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),1))
+          drop-shadow(0 0 4.8px rgba(var(--pf-between-rgb),.78)) !important;
       }
 
-      /* Slightly stronger glow on the active portion of the between-set timer.
-         The inactive ring is intentionally left untouched. */
-      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.pulse-flow-rest-v58 .bs-segment.active {
-        background:var(--pf-accent) !important;
-        box-shadow:
-          0 0 5px rgba(var(--pf-rgb),.76),
-          0 0 11px rgba(var(--pf-rgb),.28) !important;
-        filter:brightness(1.08) !important;
+      /* Add the subtle glow from the approved timer mockup to the active
+         portion of the actual between-set / between-exercise timer arc. */
+      html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
+        stroke:rgba(var(--pf-between-rgb),.78) !important;
+        filter:
+          drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.68))
+          drop-shadow(0 0 9px rgba(var(--pf-between-rgb),.28)) !important;
       }
 
       @media (prefers-reduced-motion:reduce) {
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-head-v104 {
-          animation:none !important;
-          opacity:0 !important;
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
+          opacity:.48 !important;
+          filter:none !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
+          opacity:.55 !important;
+          filter:none !important;
         }
       }
     `;
     document.head.appendChild(style);
   }
 
-  function ensurePulseHeads() {
+  function syncSmallEcgMarker() {
     installStyle();
-
-    document.querySelectorAll('.pulse-flow-band-v58 svg').forEach(function (svg) {
-      var trace = svg.querySelector('.pulse-flow-trace-v58');
-      if (!trace) return;
-
-      /* Increase only the active trace's existing SVG glow a little. */
-      var filterId = trace.getAttribute('filter');
-      if (filterId) {
-        var blur = svg.querySelector('defs filter feGaussianBlur');
-        if (blur && blur.getAttribute('data-pf-v104') !== 'true') {
-          blur.setAttribute('stdDeviation', '3.15');
-          blur.setAttribute('data-pf-v104', 'true');
-        }
-      }
-
-      if (svg.querySelector('.pulse-flow-head-v104')) return;
-
-      var head = trace.cloneNode(false);
-      head.setAttribute('class', 'pulse-flow-head-v104');
-      head.setAttribute('aria-hidden', 'true');
-      head.removeAttribute('stroke');
-      trace.insertAdjacentElement('afterend', head);
+    document.querySelectorAll('#session-between-overlay-v2 .pf-ecg-marker-v80').forEach(function (marker) {
+      if (marker.getAttribute('r') !== '.82') marker.setAttribute('r', '.82');
     });
   }
 
-  function scheduleEnsure() {
+  function scheduleSync() {
     if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(function () {
       scheduled = false;
-      ensurePulseHeads();
+      cleanPreviousLargeEcgChanges();
+      syncSmallEcgMarker();
     });
   }
 
+  cleanPreviousLargeEcgChanges();
   installStyle();
-  scheduleEnsure();
+  scheduleSync();
 
-  var observer = new MutationObserver(scheduleEnsure);
+  var observer = new MutationObserver(scheduleSync);
   observer.observe(document.documentElement, { childList:true, subtree:true });
 })();
