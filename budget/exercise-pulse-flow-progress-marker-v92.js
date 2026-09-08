@@ -84,7 +84,7 @@
           box-shadow:0 0 5px rgba(239,68,68,.90),0 0 12px rgba(239,68,68,.32)!important;
         }
 
-        /* Next set before Starta set: coloured and glowing, but smaller than running. */
+        /* Next set before Starta set: deliberately softer/faded than the running marker. */
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}>.pf-progress-dot-v80{
           width:10px!important;
           height:10px!important;
@@ -95,14 +95,14 @@
         }
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="strength"]>.pf-progress-dot-v80{
           --pf-dot-rgb:251,146,60;
-          background:radial-gradient(circle at 50% 50%,#FED7AA 0 20%,#FDBA74 21% 34%,#FB923C 35% 66%,rgba(251,146,60,.72) 67% 82%,rgba(251,146,60,.18) 83% 100%)!important;
-          box-shadow:0 0 0 1px rgba(251,146,60,.28),0 0 7px rgba(251,146,60,.76),0 0 16px rgba(251,146,60,.29)!important;
+          background:radial-gradient(circle at 50% 50%,rgba(254,215,170,.72) 0 18%,rgba(253,186,116,.58) 19% 34%,rgba(251,146,60,.42) 35% 66%,rgba(251,146,60,.18) 67% 82%,rgba(251,146,60,.05) 83% 100%)!important;
+          box-shadow:0 0 0 1px rgba(251,146,60,.14),0 0 5px rgba(251,146,60,.42),0 0 11px rgba(251,146,60,.15)!important;
           animation:pfDotReadyPulseV98 1.34s ease-in-out infinite!important;
         }
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="cardio"]>.pf-progress-dot-v80{
           --pf-dot-rgb:239,68,68;
-          background:radial-gradient(circle at 50% 50%,#FFD1D7 0 20%,#FCA5A5 21% 34%,#EF4444 35% 66%,rgba(239,68,68,.74) 67% 82%,rgba(239,68,68,.18) 83% 100%)!important;
-          box-shadow:0 0 0 1px rgba(239,68,68,.30),0 0 7px rgba(239,68,68,.80),0 0 16px rgba(239,68,68,.31)!important;
+          background:radial-gradient(circle at 50% 50%,rgba(255,209,215,.72) 0 18%,rgba(252,165,165,.58) 19% 34%,rgba(239,68,68,.44) 35% 66%,rgba(239,68,68,.19) 67% 82%,rgba(239,68,68,.05) 83% 100%)!important;
+          box-shadow:0 0 0 1px rgba(239,68,68,.15),0 0 5px rgba(239,68,68,.44),0 0 11px rgba(239,68,68,.16)!important;
           animation:pfDotReadyPulseV98 1.34s ease-in-out infinite!important;
         }
 
@@ -133,8 +133,8 @@
         }
 
         @keyframes pfDotReadyPulseV98{
-          0%,100%{box-shadow:0 0 0 1px rgba(var(--pf-dot-rgb),.28),0 0 7px rgba(var(--pf-dot-rgb),.72),0 0 15px rgba(var(--pf-dot-rgb),.27)}
-          50%{box-shadow:0 0 0 2px rgba(var(--pf-dot-rgb),.16),0 0 9px rgba(var(--pf-dot-rgb),.90),0 0 20px rgba(var(--pf-dot-rgb),.36)}
+          0%,100%{box-shadow:0 0 0 1px rgba(var(--pf-dot-rgb),.12),0 0 5px rgba(var(--pf-dot-rgb),.38),0 0 10px rgba(var(--pf-dot-rgb),.13)}
+          50%{box-shadow:0 0 0 2px rgba(var(--pf-dot-rgb),.08),0 0 7px rgba(var(--pf-dot-rgb),.50),0 0 14px rgba(var(--pf-dot-rgb),.18)}
         }
         @keyframes pfDotLivePulseV98{
           0%,100%{box-shadow:0 0 0 2px rgba(var(--pf-dot-rgb),.34),0 0 8px rgba(var(--pf-dot-rgb),.94),0 0 19px rgba(var(--pf-dot-rgb),.43)}
@@ -249,11 +249,22 @@
       if(targetIndex<0) targetIndex=segments.findIndex(function(seg){return seg.getAttribute('data-pf-done-v98')!=='true';});
     }
 
-    var liveKind=currentExerciseKind(state);
-    if(targetIndex>=0&&segments[targetIndex]&&liveKind){
-      /* Runtime exercise type is authoritative for the live marker. This fixes
-         cardio/custom transitions that previously inherited an orange class. */
-      segments[targetIndex].setAttribute('data-pf-kind-v98',liveKind);
+    if(targetIndex>=0&&segments[targetIndex]){
+      var engaged=modal.classList.contains('pulse-flow-active-v58')||modal.classList.contains('pulse-flow-starting-v58');
+      var liveKind='';
+
+      /* Before Starta set, the target segment itself is authoritative. That makes
+         the faded marker preview the colour of the set that is actually next.
+         Once starting/running, the runtime exercise remains authoritative. */
+      if(engaged){
+        liveKind=currentExerciseKind(state);
+      }else if(result&&result.segments[targetIndex]){
+        liveKind=result.segments[targetIndex].kind==='cardio'?'cardio':'strength';
+      }else{
+        liveKind=segments[targetIndex].getAttribute('data-pf-kind-v98')||currentExerciseKind(state);
+      }
+
+      if(liveKind) segments[targetIndex].setAttribute('data-pf-kind-v98',liveKind);
     }
 
     segments.forEach(function(seg,index){
