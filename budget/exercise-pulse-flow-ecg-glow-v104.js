@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV110Installed) return;
-  window.__exercisePulseFlowEcgGlowV110Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV111Installed) return;
+  window.__exercisePulseFlowEcgGlowV111Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v110-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v111-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -29,26 +29,25 @@
       style = document.createElement('style');
       style.id = STYLE_ID;
       style.textContent = `
-        /* Keep the geometry guide visible only as a quiet ECG baseline, matching
-           the low-contrast treatment used by the larger ECG graph. */
+        /* The guide is geometry only. Keep it hidden and use the dedicated base
+           path for the faint, static ECG trace. */
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-guide-v80 {
-          stroke:currentColor !important;
-          stroke-width:1.05 !important;
-          stroke-opacity:1 !important;
-          opacity:.24 !important;
-          filter:none !important;
-          visibility:visible !important;
-        }
-
-        /* The separate legacy base path remains absent so there is only one
-           transparent static ECG line beneath the moving sweep. */
-        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-base-v80 {
-          display:none !important;
-          visibility:hidden !important;
           stroke:none !important;
           stroke-width:0 !important;
           stroke-opacity:0 !important;
           opacity:0 !important;
+          filter:none !important;
+          visibility:hidden !important;
+        }
+
+        /* Very subtle static ECG baseline, inspired by the large ECG graph. */
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-base-v80 {
+          display:block !important;
+          visibility:visible !important;
+          stroke:currentColor !important;
+          stroke-width:.9 !important;
+          stroke-opacity:.14 !important;
+          opacity:1 !important;
           filter:none !important;
         }
 
