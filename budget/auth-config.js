@@ -62,21 +62,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260908-exercise-pulse-flow-v115-theme-toggle-off';
+  var exerciseFastVersion = '20260908-exercise-pulse-flow-v116-complete-green-performance';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
     document.documentElement.style.backgroundColor = '#080D14';
-
-    /* Temporarily disable the blue/green comparison control without touching
-       the other v114 session fixes. The v114 helper sees this inert sentinel
-       and therefore does not create or bind the visible toggle button. */
-    if (!document.getElementById('session-blue-green-toggle-v114')) {
-      var disabledThemeToggle = document.createElement('meta');
-      disabledThemeToggle.id = 'session-blue-green-toggle-v114';
-      disabledThemeToggle.setAttribute('data-pf-theme-toggle-disabled-v115','true');
-      document.head.appendChild(disabledThemeToggle);
-    }
 
     if (!document.getElementById('exercise-pulse-preboot-v82')) {
       var pulseStyle = document.createElement('style');
@@ -84,10 +74,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       pulseStyle.textContent =
         'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
         'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
-        'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}' +
-        'html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show .session-top.session-top{grid-template-columns:minmax(104px,1fr) auto auto auto!important;gap:7px!important}' +
-        '@media(max-width:600px){html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show .session-top.session-top{grid-template-columns:minmax(94px,1fr) auto auto auto!important;gap:5px!important;padding-left:12px!important;padding-right:12px!important}}' +
-        '@media(max-width:360px){html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show .session-top.session-top{grid-template-columns:minmax(0,1fr) auto auto!important}html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show .session-top.session-top>div:first-child{grid-column:1/-1!important}}';
+        'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}';
       document.head.appendChild(pulseStyle);
     }
 
