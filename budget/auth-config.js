@@ -62,7 +62,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260908-exercise-pulse-flow-v104-ecg-contrast';
+  var exerciseFastVersion = '20260908-exercise-pulse-flow-v105-small-timer-ecg';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -113,7 +113,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       'html body .goals-grid>.goal-card:nth-child(3):not(.goal-vo2-chart-v13){display:none!important}' +
       'html body .goals-grid>.goal-card.vo2-goal-source-v13{display:none!important}' +
       'html body .charts-row>.chart-card:nth-child(2) .bw-row{display:none!important}' +
-      'html body .goals-grid>.goal-vo2-chart-v13{display:block!important}' +
+      'html body .goals-grid>.goal-card.goal-vo2-chart-v13{display:block!important}' +
       'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
       'html.exercise-hr-booting-v14 body #chart-sessions,html.exercise-hr-booting-v14 body #chart-bw,html.exercise-hr-booting-v14 body #chart-hr,html.exercise-hr-booting-v14 body #chart-hr-combined{visibility:hidden!important}' +
       'html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
