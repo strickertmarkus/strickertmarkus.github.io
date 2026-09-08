@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV111Installed) return;
-  window.__exercisePulseFlowEcgGlowV111Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV112Installed) return;
+  window.__exercisePulseFlowEcgGlowV112Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v111-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v112-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -114,9 +114,19 @@
     });
   }
 
+  function loadSessionFlow() {
+    if (document.querySelector('script[data-exercise-session-flow-v112]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v112';
+    script.async = false;
+    script.setAttribute('data-exercise-session-flow-v112','true');
+    document.head.appendChild(script);
+  }
+
   cleanPreviousLargeEcgChanges();
   installStyle();
   scheduleSync();
+  loadSessionFlow();
 
   var observer = new MutationObserver(scheduleSync);
   observer.observe(document.documentElement, { childList:true, subtree:true });
