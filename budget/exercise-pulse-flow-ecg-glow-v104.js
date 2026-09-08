@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV107Installed) return;
-  window.__exercisePulseFlowEcgGlowV107Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV108Installed) return;
+  window.__exercisePulseFlowEcgGlowV108Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v107-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v108-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -29,14 +29,14 @@
       style = document.createElement('style');
       style.id = STYLE_ID;
       style.textContent = `
-        /* Tiny ECG in the rest / between-exercise timer only. The inactive
-           trace is forced through stroke-opacity as well as opacity so the
-           older generic .pf-ecg-base-v80 rule cannot keep it too bright. */
+        /* Isolation test: remove ONLY the static/inactive ECG baseline in the
+           small rest / between-exercise timer. The moving sweep stays intact. */
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-base-v80 {
-          stroke:var(--pf-between-accent) !important;
-          stroke-width:.82 !important;
-          stroke-opacity:.014 !important;
-          opacity:1 !important;
+          display:none !important;
+          visibility:hidden !important;
+          stroke:none !important;
+          stroke-opacity:0 !important;
+          opacity:0 !important;
           filter:none !important;
         }
 
@@ -81,8 +81,6 @@
       `;
       document.head.appendChild(style);
     } else if (style !== document.head.lastElementChild) {
-      /* Keep this override last so later Pulse Flow surface refreshes cannot
-         visually restore the generic, brighter base ECG styling. */
       document.head.appendChild(style);
     }
     return style;
