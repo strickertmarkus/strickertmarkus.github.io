@@ -112,19 +112,28 @@
     });
   }
 
-  function loadSessionFlow() {
-    if (document.querySelector('script[data-exercise-session-flow-v116]')) return;
-    var script = document.createElement('script');
-    script.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v116';
-    script.async = false;
-    script.setAttribute('data-exercise-session-flow-v116','true');
-    document.head.appendChild(script);
+  function loadSessionHelpers() {
+    if (!document.querySelector('script[data-exercise-session-flow-v116]')) {
+      var flow = document.createElement('script');
+      flow.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v116';
+      flow.async = false;
+      flow.setAttribute('data-exercise-session-flow-v116','true');
+      document.head.appendChild(flow);
+    }
+
+    if (!document.querySelector('script[data-exercise-session-unit-labels-v116]')) {
+      var units = document.createElement('script');
+      units.src = 'exercise-session-unit-labels-v116.js?v=20260908-session-units-v116';
+      units.async = false;
+      units.setAttribute('data-exercise-session-unit-labels-v116','true');
+      document.head.appendChild(units);
+    }
   }
 
   cleanPreviousLargeEcgChanges();
   installStyle();
   syncSmallEcgMarker();
-  loadSessionFlow();
+  loadSessionHelpers();
 
   var observer = new MutationObserver(function (mutations) {
     if (mutations.some(relevantInsertion)) scheduleSync();
