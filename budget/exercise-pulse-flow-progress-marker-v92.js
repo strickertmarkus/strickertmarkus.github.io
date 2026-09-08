@@ -106,8 +106,8 @@
           animation:pfDotReadyPulseV98 1.34s ease-in-out infinite!important;
         }
 
-        /* Running/starting: same red/orange luminous endpoint language as the timer,
-           without any white outer ring. Pulse only changes centered box-shadow. */
+        /* Starting/running keeps the same size. Only the actively running state
+           below gets the smoother toggle-like colour transition requested. */
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-active-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}>.pf-progress-dot-v80,
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-starting-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}>.pf-progress-dot-v80{
           width:12px!important;
@@ -117,18 +117,34 @@
           outline:0!important;
           transform:none!important;
         }
-        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-active-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="strength"]>.pf-progress-dot-v80,
+
+        /* Starting state remains unchanged. */
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-starting-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="strength"]>.pf-progress-dot-v80{
           --pf-dot-rgb:251,146,60;
           background:radial-gradient(circle at 50% 50%,#FFE4C4 0 18%,#FDBA74 19% 33%,#FB923C 34% 67%,rgba(251,146,60,.82) 68% 82%,rgba(251,146,60,.16) 83% 100%)!important;
           box-shadow:0 0 0 2px rgba(251,146,60,.34),0 0 8px rgba(251,146,60,.94),0 0 19px rgba(251,146,60,.43)!important;
           animation:pfDotLivePulseV98 1.18s ease-in-out infinite!important;
         }
-        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-active-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="cardio"]>.pf-progress-dot-v80,
         html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-starting-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="cardio"]>.pf-progress-dot-v80{
           --pf-dot-rgb:239,68,68;
           background:radial-gradient(circle at 50% 50%,#FFD1D7 0 18%,#FCA5A5 19% 33%,#EF4444 34% 67%,rgba(239,68,68,.84) 68% 82%,rgba(239,68,68,.16) 83% 100%)!important;
           box-shadow:0 0 0 2px rgba(239,68,68,.36),0 0 8px rgba(239,68,68,.98),0 0 19px rgba(239,68,68,.45)!important;
+          animation:pfDotLivePulseV98 1.18s ease-in-out infinite!important;
+        }
+
+        /* Active set only: smooth continuous radial colour scale. The edge stays
+           in the accent colour and dissolves directly into the centred glow, so
+           there is no visible hard ring between the dot and its pulse. */
+        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-active-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="strength"]>.pf-progress-dot-v80{
+          --pf-dot-rgb:251,146,60;
+          background:radial-gradient(circle at 50% 50%,rgba(255,247,237,.99) 0%,rgba(255,237,213,.98) 12%,rgba(254,215,170,.97) 25%,rgba(253,186,116,.94) 39%,rgba(251,146,60,.88) 55%,rgba(251,146,60,.73) 69%,rgba(251,146,60,.54) 81%,rgba(251,146,60,.36) 91%,rgba(251,146,60,.24) 100%)!important;
+          box-shadow:0 0 5px rgba(251,146,60,.96),0 0 11px rgba(251,146,60,.68),0 0 22px rgba(251,146,60,.34)!important;
+          animation:pfDotLivePulseV98 1.18s ease-in-out infinite!important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-active-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}[data-pf-kind-v98="cardio"]>.pf-progress-dot-v80{
+          --pf-dot-rgb:239,68,68;
+          background:radial-gradient(circle at 50% 50%,rgba(255,241,242,.99) 0%,rgba(255,228,230,.98) 12%,rgba(254,202,202,.97) 25%,rgba(252,165,165,.94) 39%,rgba(248,113,113,.90) 54%,rgba(239,68,68,.82) 68%,rgba(239,68,68,.61) 81%,rgba(239,68,68,.41) 91%,rgba(239,68,68,.26) 100%)!important;
+          box-shadow:0 0 5px rgba(239,68,68,.98),0 0 11px rgba(239,68,68,.70),0 0 22px rgba(239,68,68,.36)!important;
           animation:pfDotLivePulseV98 1.18s ease-in-out infinite!important;
         }
 
@@ -137,8 +153,8 @@
           50%{box-shadow:0 0 0 2px rgba(var(--pf-dot-rgb),.08),0 0 7px rgba(var(--pf-dot-rgb),.50),0 0 14px rgba(var(--pf-dot-rgb),.18)}
         }
         @keyframes pfDotLivePulseV98{
-          0%,100%{box-shadow:0 0 0 2px rgba(var(--pf-dot-rgb),.34),0 0 8px rgba(var(--pf-dot-rgb),.94),0 0 19px rgba(var(--pf-dot-rgb),.43)}
-          50%{box-shadow:0 0 0 4px rgba(var(--pf-dot-rgb),.12),0 0 11px rgba(var(--pf-dot-rgb),1),0 0 25px rgba(var(--pf-dot-rgb),.52)}
+          0%,100%{box-shadow:0 0 5px rgba(var(--pf-dot-rgb),.94),0 0 11px rgba(var(--pf-dot-rgb),.66),0 0 22px rgba(var(--pf-dot-rgb),.33)}
+          50%{box-shadow:0 0 7px rgba(var(--pf-dot-rgb),1),0 0 15px rgba(var(--pf-dot-rgb),.76),0 0 29px rgba(var(--pf-dot-rgb),.44)}
         }
 
         /* No pseudo halo from older versions; it caused the off-centre/white ring. */
