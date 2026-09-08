@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV108Installed) return;
-  window.__exercisePulseFlowEcgGlowV108Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV109Installed) return;
+  window.__exercisePulseFlowEcgGlowV109Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v108-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v109-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -29,12 +29,26 @@
       style = document.createElement('style');
       style.id = STYLE_ID;
       style.textContent = `
-        /* Isolation test: remove ONLY the static/inactive ECG baseline in the
-           small rest / between-exercise timer. The moving sweep stays intact. */
-        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-base-v80 {
+        /* The actual remaining static line was the hidden geometry guide.
+           exercise-pulse-flow-motion-v67.js has a broad .pf-ecg-v80 path rule
+           with stroke:currentColor!important, which made the guide visible even
+           though the SVG markup declares stroke="none". Keep the guide in the
+           DOM because the moving sweep samples its geometry, but never render it. */
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-guide-v80 {
+          stroke:none !important;
+          stroke-width:0 !important;
+          stroke-opacity:0 !important;
+          opacity:0 !important;
+          filter:none !important;
+          visibility:hidden !important;
+        }
+
+        /* The separate legacy base path must also remain visually absent. */
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-base-v80 {
           display:none !important;
           visibility:hidden !important;
           stroke:none !important;
+          stroke-width:0 !important;
           stroke-opacity:0 !important;
           opacity:0 !important;
           filter:none !important;
