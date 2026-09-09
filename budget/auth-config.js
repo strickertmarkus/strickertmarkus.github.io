@@ -62,7 +62,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260908-exercise-pulse-flow-v117-waiting-rest';
+  var exerciseFastVersion = '20260909-exercise-pulse-flow-v118-rest-clock-units';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
