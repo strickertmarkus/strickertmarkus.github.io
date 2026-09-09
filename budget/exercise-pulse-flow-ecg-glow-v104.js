@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV117Installed) return;
-  window.__exercisePulseFlowEcgGlowV117Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV118Installed) return;
+  window.__exercisePulseFlowEcgGlowV118Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v117-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v118-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -113,27 +113,27 @@
   }
 
   function loadSessionHelpers() {
-    if (!document.querySelector('script[data-exercise-session-flow-v117]')) {
+    if (!document.querySelector('script[data-exercise-session-flow-v118]')) {
       var flow = document.createElement('script');
-      flow.src = 'exercise-session-flow-v112.js?v=20260908-session-flow-v117';
+      flow.src = 'exercise-session-flow-v112.js?v=20260909-session-flow-v118';
       flow.async = false;
-      flow.setAttribute('data-exercise-session-flow-v117','true');
+      flow.setAttribute('data-exercise-session-flow-v118','true');
       document.head.appendChild(flow);
     }
 
-    if (!document.querySelector('script[data-exercise-session-unit-labels-v117]')) {
+    if (!document.querySelector('script[data-exercise-session-unit-labels-v118]')) {
       var units = document.createElement('script');
-      units.src = 'exercise-session-unit-labels-v116.js?v=20260908-session-units-v117';
+      units.src = 'exercise-session-unit-labels-v116.js?v=20260909-session-units-v118';
       units.async = false;
-      units.setAttribute('data-exercise-session-unit-labels-v117','true');
+      units.setAttribute('data-exercise-session-unit-labels-v118','true');
       document.head.appendChild(units);
     }
 
-    if (!document.querySelector('script[data-exercise-session-theme-rest-v117]')) {
+    if (!document.querySelector('script[data-exercise-session-theme-rest-v118]')) {
       var restTheme = document.createElement('script');
-      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260908-session-theme-rest-v117';
+      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260909-session-theme-rest-v118';
       restTheme.async = false;
-      restTheme.setAttribute('data-exercise-session-theme-rest-v117','true');
+      restTheme.setAttribute('data-exercise-session-theme-rest-v118','true');
       document.head.appendChild(restTheme);
     }
   }
