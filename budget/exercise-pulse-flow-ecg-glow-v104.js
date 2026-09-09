@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV120Installed) return;
-  window.__exercisePulseFlowEcgGlowV120Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV121Installed) return;
+  window.__exercisePulseFlowEcgGlowV121Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v120-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v121-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -28,6 +28,19 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
+      /* Slightly stronger, still soft, theme-coloured halo behind every 5 s
+         countdown. It follows the current palette automatically: green pass
+         start, orange strength and red cardio. */
+      html.exercise-concept-pulse-home-v1 body #session-pre-timer.show {
+        background:
+          radial-gradient(540px 360px at 50% 50%,
+            rgba(var(--concept-timer-rgb),.145) 0%,
+            rgba(var(--concept-timer-rgb),.075) 38%,
+            rgba(var(--concept-timer-rgb),.025) 58%,
+            transparent 74%),
+          rgba(8,13,20,.975) !important;
+      }
+
       html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-guide-v80 {
         stroke:none !important;
         stroke-width:0 !important;
