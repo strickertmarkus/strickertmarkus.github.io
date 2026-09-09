@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV130Installed) return;
-  window.__exercisePulseFlowCanvasGlowV130Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV132Installed) return;
+  window.__exercisePulseFlowCanvasGlowV132Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v130-style';
+  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v132-style';
   var mobileMq = window.matchMedia ? window.matchMedia('(max-width:600px)') : { matches:true };
   var rafId = 0;
   var modalObserver = null;
@@ -14,6 +14,9 @@
 
   function installStyle() {
     if (document.getElementById(STYLE_ID)) return;
+    var old = document.getElementById('exercise-pulse-flow-canvas-glow-v130-style');
+    if (old) old.remove();
+
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
@@ -25,6 +28,17 @@
       }
 
       @media (max-width:600px) {
+        /* The desktop-looking halo must be allowed to leave the narrow SVG
+           boxes. The old Pulse Flow band explicitly used overflow:hidden,
+           which clipped most of a 16-27px light falloff on phones. */
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58,
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
+        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80,
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring {
+          overflow:visible !important;
+        }
+
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127,
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-smooth-halo-outer-v129,
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-smooth-halo-mid-v129 {
@@ -47,19 +61,26 @@
 
         html.exercise-concept-pulse-home-v1 body .pf-canvas-glow-v130 {
           display:block;
+          opacity:1 !important;
+          filter:none !important;
+          -webkit-filter:none !important;
+          mix-blend-mode:screen !important;
         }
 
+        /* Give the Canvas enough transparent margin for the same approximate
+           7 / 16 / 27px halo radii used by the active 5s toggle knob. */
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > .pf-canvas-large-v130 {
-          inset:7px 0 1px 0 !important;
-          width:100% !important;
-          height:70px !important;
-          z-index:0 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > svg {
+          inset:-32px !important;
+          width:calc(100% + 64px) !important;
+          height:calc(100% + 64px) !important;
           z-index:1 !important;
         }
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > svg {
+          position:relative !important;
+          z-index:2 !important;
+        }
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-status-v58 {
-          z-index:3 !important;
+          z-index:4 !important;
         }
 
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
@@ -68,27 +89,32 @@
         }
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > .pf-canvas-mini-v130,
         html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > .pf-canvas-mini-v130 {
-          inset:-13px !important;
-          width:calc(100% + 26px) !important;
-          height:calc(100% + 26px) !important;
-          z-index:0 !important;
+          inset:-30px !important;
+          width:calc(100% + 60px) !important;
+          height:calc(100% + 60px) !important;
+          z-index:1 !important;
         }
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > svg,
         html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > svg {
           position:relative !important;
-          z-index:1 !important;
+          z-index:2 !important;
         }
 
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring > .pf-canvas-arc-v130,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring > .pf-canvas-arc-v130 {
-          inset:-20px !important;
-          width:calc(100% + 40px) !important;
-          height:calc(100% + 40px) !important;
-          z-index:0 !important;
+          inset:-38px !important;
+          width:calc(100% + 76px) !important;
+          height:calc(100% + 76px) !important;
+          z-index:1 !important;
         }
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring > .pf-arc-svg-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring > .pf-arc-svg-v80 {
-          z-index:1 !important;
+          position:relative !important;
+          z-index:2 !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .session-countdown-copy,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-copy {
+          z-index:4 !important;
         }
       }
     `;
@@ -191,14 +217,20 @@
     return true;
   }
 
-  function glowPass(ctx,points,rgb,width,blur,shadowAlpha,strokeAlpha,dash,dashOffset) {
+  function neonPass(ctx,points,rgb,width,blur,shadowAlpha,dash,dashOffset) {
     if (!buildPolyline(ctx,points)) return;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = width * DPR;
-    ctx.strokeStyle = rgba(rgb,strokeAlpha);
+
+    /* Full source alpha is intentional. Canvas shadowBlur derives its alpha
+       mask from the source stroke; the old 0.02-0.08 stroke alpha effectively
+       killed the halo on iOS. The canvas sits directly below the crisp SVG
+       core, so this source stroke is hidden by the real line while its light
+       remains visible around it. */
+    ctx.strokeStyle = rgba(rgb,1);
     ctx.shadowColor = rgba(rgb,shadowAlpha);
     ctx.shadowBlur = blur * DPR;
     ctx.shadowOffsetX = 0;
@@ -213,13 +245,25 @@
     ctx.restore();
   }
 
+  function drawToggleStrengthHalo(ctx,points,rgb,dash,dashOffset,compact) {
+    if (compact) {
+      neonPass(ctx,points,rgb,1.05,20,.22,dash,dashOffset);
+      neonPass(ctx,points,rgb,1.25,12,.50,dash,dashOffset);
+      neonPass(ctx,points,rgb,1.55,6,.96,dash,dashOffset);
+      return;
+    }
+
+    /* Match the visual hierarchy of the active toggle knob:
+       0 0 7px / .96, 0 0 16px / .50, 0 0 27px / .22. */
+    neonPass(ctx,points,rgb,1.15,27,.22,dash,dashOffset);
+    neonPass(ctx,points,rgb,1.4,16,.50,dash,dashOffset);
+    neonPass(ctx,points,rgb,1.75,7,.96,dash,dashOffset);
+  }
+
   function currentDashPhase(trace,now) {
     var offset = NaN;
     try { offset = parseFloat(getComputedStyle(trace).strokeDashoffset); } catch (_) {}
-    if (Number.isFinite(offset)) {
-      var phase = ((-offset % 1000) + 1000) % 1000 / 1000;
-      return phase;
-    }
+    if (Number.isFinite(offset)) return ((-offset % 1000) + 1000) % 1000 / 1000;
 
     var modal = trace.closest('#session-modal');
     var speed = 2.4;
@@ -238,6 +282,7 @@
       var svg = band.querySelector(':scope > svg');
       var trace = svg && svg.querySelector('.pulse-flow-trace-v58');
       if (!svg || !trace) return;
+
       var canvas = ensureCanvas(band,'pf-canvas-large-v130');
       var size = sizeCanvas(canvas);
       if (!size) return;
@@ -256,11 +301,7 @@
       var phase = currentDashPhase(trace,now);
       var total = cache.sampled.totalPx;
       var dash = [total*.175,total*.825];
-      var dashOffset = -phase * total;
-
-      glowPass(ctx,cache.sampled.points,rgb,.9,22,.30,.028,dash,dashOffset);
-      glowPass(ctx,cache.sampled.points,rgb,1.35,12,.48,.050,dash,dashOffset);
-      glowPass(ctx,cache.sampled.points,rgb,1.8,5.5,.70,.080,dash,dashOffset);
+      drawToggleStrengthHalo(ctx,cache.sampled.points,rgb,dash,-phase*total,false);
     });
   }
 
@@ -268,6 +309,7 @@
     if (!signal) return;
     var svg = signal.querySelector(':scope > svg');
     if (!svg) return;
+
     var canvas = ensureCanvas(signal,'pf-canvas-mini-v130');
     var size = sizeCanvas(canvas);
     if (!size) return;
@@ -277,11 +319,8 @@
     ['.pf-ecg-sweep-a-v80','.pf-ecg-sweep-b-v80','.pf-header-ecg-sweep-a-v80','.pf-header-ecg-sweep-b-v80'].forEach(function (selector) {
       var path = svg.querySelector(selector);
       if (!path || !path.getAttribute('d')) return;
-      var sampled = samplePath(path,size.rect,DPR,24);
-      if (!sampled) return;
-      glowPass(ctx,sampled.points,rgb,.9,11,.42,.025,null,0);
-      glowPass(ctx,sampled.points,rgb,1.25,6,.62,.055,null,0);
-      glowPass(ctx,sampled.points,rgb,1.6,2.8,.82,.085,null,0);
+      var sampled = samplePath(path,size.rect,DPR,28);
+      if (sampled) drawToggleStrengthHalo(ctx,sampled.points,rgb,null,0,true);
     });
   }
 
@@ -302,24 +341,22 @@
     var svg = ring.querySelector(':scope > .pf-arc-svg-v80');
     var path = svg && svg.querySelector('.pf-arc-progress-v80');
     if (!svg || !path || !path.getAttribute('d')) return;
+
     var canvas = ensureCanvas(ring,'pf-canvas-arc-v130');
     var size = sizeCanvas(canvas);
     if (!size) return;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    var sampled = samplePath(path,size.rect,DPR,72);
+
+    var sampled = samplePath(path,size.rect,DPR,88);
     if (!sampled) return;
-    var rgb = parseRgb(ring,varName,fallback);
-    glowPass(ctx,sampled.points,rgb,1.1,20,.32,.018,null,0);
-    glowPass(ctx,sampled.points,rgb,1.55,11,.50,.038,null,0);
-    glowPass(ctx,sampled.points,rgb,2.15,5,.72,.070,null,0);
+    drawToggleStrengthHalo(ctx,sampled.points,parseRgb(ring,varName,fallback),null,0,false);
   }
 
   function paintArcs() {
     paintArc(document.getElementById('session-countdown-ring'),'--pf-rgb',[239,68,68]);
     var overlay = document.getElementById('session-between-overlay-v2');
-    var ring = overlay && overlay.querySelector('.bs-ring');
-    paintArc(ring,'--pf-between-rgb',[34,211,238]);
+    paintArc(overlay && overlay.querySelector('.bs-ring'),'--pf-between-rgb',[34,211,238]);
   }
 
   function clearAll() {
