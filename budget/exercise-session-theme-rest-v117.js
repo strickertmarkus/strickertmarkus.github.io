@@ -1,11 +1,13 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionThemeRestV119Installed) return;
-  window.__exerciseSessionThemeRestV119Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionThemeRestV120Installed) return;
+  window.__exerciseSessionThemeRestV120Installed = true;
 
   var autoRest = null;
   var syncScheduled = false;
+  var passPretimerArmUntil = 0;
+  var passPretimerSeen = false;
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
@@ -126,8 +128,7 @@
   function beginAutoRest(state,kind,config) {
     if (!state || !kind || !config || config.type !== 'rest' || autoRest) return false;
     var overlay = ensureOverlayCapture();
-    if (!overlay) return false;
-    if (overlay.classList.contains('show')) return false;
+    if (!overlay || overlay.classList.contains('show')) return false;
 
     var controller = window.__exerciseSessionControllerV46;
     try {
@@ -191,17 +192,15 @@
   }
 
   function installStyle() {
-    if (document.getElementById('exercise-session-theme-rest-v119-style')) return;
-    ['exercise-session-theme-rest-v117-style','exercise-session-theme-rest-v118-style'].forEach(function (id) {
+    if (document.getElementById('exercise-session-theme-rest-v120-style')) return;
+    ['exercise-session-theme-rest-v117-style','exercise-session-theme-rest-v118-style','exercise-session-theme-rest-v119-style'].forEach(function (id) {
       var old = document.getElementById(id);
       if (old) old.remove();
     });
 
     var style = document.createElement('style');
-    style.id = 'exercise-session-theme-rest-v119-style';
+    style.id = 'exercise-session-theme-rest-v120-style';
     style.textContent = `
-      /* Waiting for the next training moment keeps that moment's identity.
-         Cyan is reserved for an actual rest overlay. */
       html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.pulse-flow-between-set-strength-v118 {
         --pf-accent:#FB923C !important;
         --pf-soft:#FED7AA !important;
@@ -239,32 +238,13 @@
         line-height:1 !important;
       }
 
-      /* The very first 5 s countdown belongs to the green Starta pass state. */
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 {
+      /* Only change the existing Pulse Flow palette. Geometry stays owned by
+         the normal five-second timer, so the green start countdown is identical
+         in shape and motion to the orange/red variants. */
+      html.exercise-concept-pulse-home-v1 body #session-pre-timer.pulse-flow-pass-start-v120 {
         --concept-timer-accent:#34D399 !important;
         --concept-timer-soft:#A7F3D0 !important;
         --concept-timer-rgb:52,211,153 !important;
-        background:
-          radial-gradient(460px 300px at 50% 50%,rgba(52,211,153,.10),transparent 68%),
-          rgba(8,13,20,.975) !important;
-      }
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring {
-        background:conic-gradient(#34D399 var(--pre-smooth-progress,0deg),rgba(52,211,153,.10) 0deg) !important;
-        box-shadow:0 0 34px rgba(52,211,153,.20) !important;
-      }
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring::before {
-        border-color:rgba(52,211,153,.22) !important;
-      }
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring::after {
-        background:#34D399 !important;
-        box-shadow:0 0 8px rgba(52,211,153,.68),0 0 17px rgba(52,211,153,.30) !important;
-      }
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-value {
-        color:#A7F3D0 !important;
-        text-shadow:0 0 18px rgba(52,211,153,.16) !important;
-      }
-      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 .session-pre-label {
-        color:#A7F3D0 !important;
       }
     `;
     document.head.appendChild(style);
@@ -332,34 +312,48 @@
     scheduleSync();
   }
 
-  function firstPretimerActive(state,pre) {
-    return !!(
-      state && pre && pre.classList.contains('show') &&
-      state.__passClockStartedV118 === true &&
-      Number(state.exerciseIndex || 0) === 0 &&
-      Math.max(1,Number(state.currentSet) || 1) === 1 &&
-      !state.setRunning && !state.awaitingDecision &&
-      !hasLoggedMoment(state)
-    );
+  function armPassPretimer() {
+    passPretimerArmUntil = Date.now() + 5000;
+    passPretimerSeen = false;
+    startPassClockIfNeeded();
+    scheduleSync();
+  }
+
+  function restorePretimerLabel(pre) {
+    if (!pre) return;
+    var label = pre.querySelector('.session-pre-label');
+    if (!label || !label.dataset.pfPassStartOriginalV120) return;
+    label.textContent = label.dataset.pfPassStartOriginalV120;
+    delete label.dataset.pfPassStartOriginalV120;
   }
 
   function syncFirstPretimer() {
     var state = getState();
     var pre = document.getElementById('session-pre-timer');
     if (!pre) return;
-    var active = firstPretimerActive(state,pre);
-    pre.classList.toggle('pulse-flow-pass-start-v119',active);
+
+    var visible = pre.classList.contains('show');
+    var armed = passPretimerArmUntil > Date.now();
+    var active = visible && armed;
+
+    pre.classList.remove('pulse-flow-pass-start-v119');
+    pre.classList.toggle('pulse-flow-pass-start-v120',active);
 
     var label = pre.querySelector('.session-pre-label');
-    if (!label) return;
-    if (active) {
-      if (!label.dataset.pfPassStartOriginalV119) {
-        label.dataset.pfPassStartOriginalV119 = String(label.textContent || 'Gör dig redo').trim() || 'Gör dig redo';
+    if (active && label) {
+      passPretimerSeen = true;
+      if (!label.dataset.pfPassStartOriginalV120) {
+        label.dataset.pfPassStartOriginalV120 = String(label.textContent || 'Startar Set').trim() || 'Startar Set';
       }
       if (label.textContent !== 'Startar Pass') label.textContent = 'Startar Pass';
-    } else if (label.dataset.pfPassStartOriginalV119) {
-      label.textContent = label.dataset.pfPassStartOriginalV119;
-      delete label.dataset.pfPassStartOriginalV119;
+      return;
+    }
+
+    restorePretimerLabel(pre);
+
+    if ((passPretimerSeen && !visible) || !armed || (!visible && state && state.setRunning)) {
+      passPretimerArmUntil = 0;
+      passPretimerSeen = false;
     }
   }
 
@@ -419,27 +413,27 @@
 
   function wrapBefore(name,before) {
     var original = window[name];
-    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV119Wrapped) return false;
+    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV120Wrapped) return false;
     var replacement = function () {
       try { before(); } catch (_) {}
       return original.apply(this,arguments);
     };
-    replacement.__exerciseSessionThemeRestV119Wrapped = true;
-    replacement.__exerciseSessionThemeRestV119Original = original;
+    replacement.__exerciseSessionThemeRestV120Wrapped = true;
+    replacement.__exerciseSessionThemeRestV120Original = original;
     window[name] = replacement;
     return true;
   }
 
   function wrapAfter(name,after) {
     var original = window[name];
-    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV119Wrapped) return false;
+    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV120Wrapped) return false;
     var replacement = function () {
       var result = original.apply(this,arguments);
       try { after(); } catch (_) {}
       return result;
     };
-    replacement.__exerciseSessionThemeRestV119Wrapped = true;
-    replacement.__exerciseSessionThemeRestV119Original = original;
+    replacement.__exerciseSessionThemeRestV120Wrapped = true;
+    replacement.__exerciseSessionThemeRestV120Original = original;
     window[name] = replacement;
     return true;
   }
@@ -482,13 +476,17 @@
   }
 
   function handleCapture(event) {
-    var button = event.target && event.target.closest ? event.target.closest('#session-controls button') : null;
+    var button = event.target && event.target.closest ? event.target.closest('button') : null;
     if (!button) return;
     var text = String(button.textContent || '').trim().toLocaleLowerCase('sv-SE');
     var onclick = String(button.getAttribute('onclick') || '');
     var state = getState();
 
-    if (state && freshIntroState(state) && (text === 'starta pass' || text.indexOf('starta set') === 0 || onclick.indexOf('startCurrentSet') >= 0)) {
+    /* The green one-shot belongs only to an explicit Starta pass action.
+       Starta set / Starta nästa set must never arm it. */
+    if (text === 'starta pass' && button.closest('#day-workout-modal,#session-modal,#session-controls')) {
+      armPassPretimer();
+    } else if (state && freshIntroState(state) && (text.indexOf('starta set') === 0 || onclick.indexOf('startCurrentSet') >= 0)) {
       startPassClockIfNeeded();
     }
 
