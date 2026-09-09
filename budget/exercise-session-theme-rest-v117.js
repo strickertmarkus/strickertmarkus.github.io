@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionThemeRestV118Installed) return;
-  window.__exerciseSessionThemeRestV118Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionThemeRestV119Installed) return;
+  window.__exerciseSessionThemeRestV119Installed = true;
 
   var autoRest = null;
   var syncScheduled = false;
@@ -191,12 +191,14 @@
   }
 
   function installStyle() {
-    if (document.getElementById('exercise-session-theme-rest-v118-style')) return;
-    var old = document.getElementById('exercise-session-theme-rest-v117-style');
-    if (old) old.remove();
+    if (document.getElementById('exercise-session-theme-rest-v119-style')) return;
+    ['exercise-session-theme-rest-v117-style','exercise-session-theme-rest-v118-style'].forEach(function (id) {
+      var old = document.getElementById(id);
+      if (old) old.remove();
+    });
 
     var style = document.createElement('style');
-    style.id = 'exercise-session-theme-rest-v118-style';
+    style.id = 'exercise-session-theme-rest-v119-style';
     style.textContent = `
       /* Waiting for the next training moment keeps that moment's identity.
          Cyan is reserved for an actual rest overlay. */
@@ -235,6 +237,34 @@
         font-weight:750 !important;
         letter-spacing:.1px !important;
         line-height:1 !important;
+      }
+
+      /* The very first 5 s countdown belongs to the green Starta pass state. */
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 {
+        --concept-timer-accent:#34D399 !important;
+        --concept-timer-soft:#A7F3D0 !important;
+        --concept-timer-rgb:52,211,153 !important;
+        background:
+          radial-gradient(460px 300px at 50% 50%,rgba(52,211,153,.10),transparent 68%),
+          rgba(8,13,20,.975) !important;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring {
+        background:conic-gradient(#34D399 var(--pre-smooth-progress,0deg),rgba(52,211,153,.10) 0deg) !important;
+        box-shadow:0 0 34px rgba(52,211,153,.20) !important;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring::before {
+        border-color:rgba(52,211,153,.22) !important;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-ring::after {
+        background:#34D399 !important;
+        box-shadow:0 0 8px rgba(52,211,153,.68),0 0 17px rgba(52,211,153,.30) !important;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 #session-pre-timer-value {
+        color:#A7F3D0 !important;
+        text-shadow:0 0 18px rgba(52,211,153,.16) !important;
+      }
+      html.exercise-concept-pulse-home-v1:has(#session-modal) body #session-pre-timer.pulse-flow-pass-start-v119 .session-pre-label {
+        color:#A7F3D0 !important;
       }
     `;
     document.head.appendChild(style);
@@ -299,6 +329,57 @@
     state.__passClockPreparedV118 = true;
     state.__passClockStartedV118 = true;
     state.passStartedAt = Date.now();
+    scheduleSync();
+  }
+
+  function firstPretimerActive(state,pre) {
+    return !!(
+      state && pre && pre.classList.contains('show') &&
+      state.__passClockStartedV118 === true &&
+      Number(state.exerciseIndex || 0) === 0 &&
+      Math.max(1,Number(state.currentSet) || 1) === 1 &&
+      !state.setRunning && !state.awaitingDecision &&
+      !hasLoggedMoment(state)
+    );
+  }
+
+  function syncFirstPretimer() {
+    var state = getState();
+    var pre = document.getElementById('session-pre-timer');
+    if (!pre) return;
+    var active = firstPretimerActive(state,pre);
+    pre.classList.toggle('pulse-flow-pass-start-v119',active);
+
+    var label = pre.querySelector('.session-pre-label');
+    if (!label) return;
+    if (active) {
+      if (!label.dataset.pfPassStartOriginalV119) {
+        label.dataset.pfPassStartOriginalV119 = String(label.textContent || 'Gör dig redo').trim() || 'Gör dig redo';
+      }
+      if (label.textContent !== 'Startar Pass') label.textContent = 'Startar Pass';
+    } else if (label.dataset.pfPassStartOriginalV119) {
+      label.textContent = label.dataset.pfPassStartOriginalV119;
+      delete label.dataset.pfPassStartOriginalV119;
+    }
+  }
+
+  function syncNextIndicator() {
+    var state = getState();
+    var next = document.getElementById('session-next-ex-inline');
+    var arrow = document.getElementById('session-next-ex-arrow');
+    if (!state || !next || !arrow || !Array.isArray(state.exercises)) return;
+
+    var nextIndex = (Number(state.exerciseIndex) || 0) + 1;
+    var nextExercise = nextIndex >= 0 && nextIndex < state.exercises.length ? state.exercises[nextIndex] : null;
+    if (!nextExercise) return;
+
+    var config = transitionConfig(state,'finish');
+    var name = config.type === 'rest' ? 'Vila' : String(nextExercise.name || '').trim();
+    if (!name) return;
+
+    arrow.hidden = false;
+    next.hidden = false;
+    if (next.textContent !== name) next.textContent = name;
   }
 
   function decorateLogUnits() {
@@ -324,6 +405,8 @@
     ensureOverlayCapture();
     syncPassClock();
     syncWaitingTheme();
+    syncFirstPretimer();
+    syncNextIndicator();
     decorateLogUnits();
     tryAutoRest();
   }
@@ -336,27 +419,27 @@
 
   function wrapBefore(name,before) {
     var original = window[name];
-    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV118Wrapped) return false;
+    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV119Wrapped) return false;
     var replacement = function () {
       try { before(); } catch (_) {}
       return original.apply(this,arguments);
     };
-    replacement.__exerciseSessionThemeRestV118Wrapped = true;
-    replacement.__exerciseSessionThemeRestV118Original = original;
+    replacement.__exerciseSessionThemeRestV119Wrapped = true;
+    replacement.__exerciseSessionThemeRestV119Original = original;
     window[name] = replacement;
     return true;
   }
 
   function wrapAfter(name,after) {
     var original = window[name];
-    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV118Wrapped) return false;
+    if (typeof original !== 'function' || original.__exerciseSessionThemeRestV119Wrapped) return false;
     var replacement = function () {
       var result = original.apply(this,arguments);
       try { after(); } catch (_) {}
       return result;
     };
-    replacement.__exerciseSessionThemeRestV118Wrapped = true;
-    replacement.__exerciseSessionThemeRestV118Original = original;
+    replacement.__exerciseSessionThemeRestV119Wrapped = true;
+    replacement.__exerciseSessionThemeRestV119Original = original;
     window[name] = replacement;
     return true;
   }
@@ -377,11 +460,11 @@
     var target = mutation.target && mutation.target.nodeType === 1 ? mutation.target : mutation.target && mutation.target.parentElement;
     if (!target) return false;
     if (target.closest && target.closest('#session-pass-timer,#session-set-timer,#session-countdown-value,#session-pre-timer-value,#bs-overlay-value,.pf-ecg-v80')) return false;
-    if (target.closest && target.closest('#session-controls,#session-set-log,#hype-progress-track')) return true;
+    if (target.closest && target.closest('#session-controls,#session-set-log,#hype-progress-track,#session-next-ex-inline,#session-next-ex-arrow')) return true;
     return Array.prototype.some.call(mutation.addedNodes || [],function (node) {
       if (!node || node.nodeType !== 1) return false;
-      return !!(node.matches && node.matches('#session-controls,#session-set-log,#hype-progress-track')) ||
-        !!(node.querySelector && node.querySelector('#session-controls,#session-set-log,#hype-progress-track'));
+      return !!(node.matches && node.matches('#session-controls,#session-set-log,#hype-progress-track,#session-next-ex-inline,#session-next-ex-arrow')) ||
+        !!(node.querySelector && node.querySelector('#session-controls,#session-set-log,#hype-progress-track,#session-next-ex-inline,#session-next-ex-arrow'));
     });
   }
 
@@ -390,10 +473,12 @@
     if (modal) {
       new MutationObserver(function (mutations) {
         if (mutations.some(relevantMutation)) scheduleSync();
-      }).observe(modal,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+      }).observe(modal,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
     }
     var rest = ensureOverlayCapture();
     if (rest) new MutationObserver(scheduleSync).observe(rest,{attributes:true,attributeFilter:['class','data-between-type']});
+    var pre = document.getElementById('session-pre-timer');
+    if (pre) new MutationObserver(scheduleSync).observe(pre,{attributes:true,attributeFilter:['class']});
   }
 
   function handleCapture(event) {
