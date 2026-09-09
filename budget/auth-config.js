@@ -62,7 +62,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260909-exercise-pulse-flow-v129-smooth-large-ecg-glow';
+  var exerciseFastVersion = '20260909-exercise-pulse-flow-v130-canvas-mobile-glow';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -78,7 +78,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       document.head.appendChild(pulseStyle);
     }
 
-    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js','exercise-pulse-flow-completed-marker-v102.js','exercise-pulse-flow-ecg-glow-v104.js','exercise-pulse-flow-smooth-glow-v129.js'].forEach(function (src) {
+    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js','exercise-pulse-flow-completed-marker-v102.js','exercise-pulse-flow-ecg-glow-v104.js','exercise-pulse-flow-smooth-glow-v129.js','exercise-pulse-flow-canvas-glow-v130.js'].forEach(function (src) {
       var href = src + '?v=' + exerciseFastVersion;
       if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
       var link = document.createElement('link');
@@ -246,6 +246,14 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     smoothGlowScript.async = false;
     smoothGlowScript.setAttribute('data-exercise-pulse-flow-smooth-glow-v129','true');
     document.head.appendChild(smoothGlowScript);
+  }
+
+  if (pulseDefaultBoot && !document.querySelector('script[data-exercise-pulse-flow-canvas-glow-v130]')) {
+    var canvasGlowScript = document.createElement('script');
+    canvasGlowScript.src = 'exercise-pulse-flow-canvas-glow-v130.js?v=' + exerciseFastVersion;
+    canvasGlowScript.async = false;
+    canvasGlowScript.setAttribute('data-exercise-pulse-flow-canvas-glow-v130','true');
+    document.head.appendChild(canvasGlowScript);
   }
 })();
 
