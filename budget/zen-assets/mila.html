@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vår älskade dotter Mila</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #181F2E;
+      color: #E8EDF5;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #2C1220 0%, #3E1E2C 100%);
+      color: white;
+      padding: 28px 24px 24px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.35);
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #F8FAFC;
+    }
+    .header-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── HAMBURGER / NAV — top-right, matches budget pages ── */
+    .nav-dropdown-wrapper {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: inline-block;
+      z-index: 1000;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #1A1F2E;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      min-width: 230px;
+      overflow: hidden;
+      animation: dropIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-dropdown-menu.show { display: block; }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .nav-dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: #C9D1DC;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      border-bottom: 1px solid rgba(255,255,255,0.035);
+    }
+    .nav-dropdown-menu a:last-child { border-bottom: none; }
+    .nav-dropdown-menu a:hover {
+      background: rgba(249, 168, 184, 0.09);
+      color: #F9A8B8;
+    }
+    .nav-sep { border-top: 1px solid rgba(255,255,255,0.07); margin: 4px 0; }
+    .nav-icon { font-size: 15px; flex-shrink: 0; }
+
+    /* ── MAIN CONTENT ── */
+    .page-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 2.5rem 5rem;
+    }
+
+    /* ── WELCOME CALLOUT ── */
+    .welcome-callout {
+      margin: 2.5rem 0 0;
+      padding: 14px 18px;
+      background: rgba(249, 168, 184, 0.09);
+      border-left: 2px solid rgba(249, 168, 184, 0.42);
+      border-radius: 0 8px 8px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: #B4C2D4;
+      transition: border-left-color 0.3s;
+    }
+    .welcome-callout:hover { border-left-color: rgba(249, 168, 184, 0.72); }
+    .welcome-callout .icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      animation: gentleFloat 5s ease-in-out infinite;
+    }
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-5px); }
+    }
+
+    /* ── SECTION TITLES ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #F9A8B8;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 3rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background: #F9A8B8;
+      border-radius: 2px;
+      opacity: 0.65;
+    }
+
+    /* ── HORIZONTAL RULE ── */
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249,168,184,0.28), transparent);
+      margin: 2.5rem 0;
+    }
+
+    /* ── PROFILE ── */
+    .profile-section {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .profile-photo {
+      width: 160px;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(249, 168, 184, 0.38);
+      flex-shrink: 0;
+      background: rgba(249, 168, 184, 0.09);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s;
+    }
+    .profile-photo:hover {
+      transform: scale(1.03) translateY(-4px);
+      box-shadow: 0 16px 40px rgba(249, 168, 184, 0.18);
+    }
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-fields { flex: 1; min-width: 240px; }
+    .profile-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.09);
+      font-size: 13px;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row .emoji { font-size: 13px; flex-shrink: 0; }
+    .profile-row .label {
+      color: #8C99AC;
+      min-width: 160px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .profile-row .value {
+      font-weight: 600;
+      color: #E2E8F0;
+      font-size: 13px;
+    }
+
+    /* ── CALLOUT / STORY ── */
+    .callout {
+      background: rgba(249, 168, 184, 0.08);
+      border-left: 2px solid rgba(249, 168, 184, 0.38);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 13px;
+      line-height: 1.85;
+      color: #B4C2D4;
+      font-style: normal;
+      transition: border-left-color 0.2s;
+    }
+    .callout:hover { border-left-color: rgba(249, 168, 184, 0.7); }
+    .callout .callout-icon { font-size: 16px; margin-bottom: 8px; display: block; }
+    .callout p { margin-bottom: 10px; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; margin: 0.75rem 0 0.5rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #F9A8B8;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid rgba(249, 168, 184, 0.35);
+      background: transparent;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      vertical-align: top;
+      color: #D8E2EE;
+    }
+    td:first-child {
+      color: #8294AA;
+      font-size: 12px;
+      white-space: nowrap;
+      width: 130px;
+    }
+    tbody tr {
+      transition: background 0.15s;
+    }
+    tbody tr:hover td {
+      background: rgba(249, 168, 184, 0.1);
+    }
+    tbody tr:hover td:first-child { color: #F9A8B8; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ── ADD ROW BUTTON ── */
+    .add-row-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px dashed rgba(249, 168, 184, 0.25);
+      border-radius: 7px;
+      color: rgba(249, 168, 184, 0.6);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+      font-family: 'Inter', sans-serif;
+    }
+    .add-row-btn:hover {
+      border-color: rgba(249, 168, 184, 0.55);
+      color: #F9A8B8;
+      background: rgba(249, 168, 184, 0.05);
+    }
+    .row-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(249, 168, 184, 0.3);
+      color: #E2E8F0;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      width: 100%;
+      padding: 2px 0;
+      outline: none;
+    }
+    .row-input:focus { border-bottom-color: #F9A8B8; }
+    .row-save-btn {
+      background: rgba(249, 168, 184, 0.12);
+      border: 1px solid rgba(249, 168, 184, 0.25);
+      color: #F9A8B8;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .row-save-btn:hover { background: rgba(249, 168, 184, 0.22); }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #4A5568;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── DAY-BY-DAY ENTRIES ── */
+    .day-entry {
+      margin: 1.5rem 0;
+      padding-left: 18px;
+      border-left: 1px solid rgba(249, 168, 184, 0.38);
+      transition: border-color 0.2s;
+    }
+    .day-entry:hover { border-left-color: rgba(249, 168, 184, 0.75); }
+    .day-entry .day-date {
+      font-size: 11px;
+      font-weight: 700;
+      color: #F9A8B8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .day-entry .day-text {
+      font-size: 13px;
+      line-height: 1.85;
+      color: #A0ACBE;
+      margin-bottom: 12px;
+    }
+    .day-entry .day-photo {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 10px;
+      border: 1px solid rgba(249, 168, 184, 0.28);
+      object-fit: cover;
+      display: block;
+      background: rgba(249, 168, 184, 0.07);
+    }
+    .day-entry .day-photo-placeholder {
+      width: 100%;
+      max-width: 420px;
+      height: 160px;
+      border-radius: 10px;
+      border: 1px dashed rgba(249, 168, 184, 0.38);
+      background: rgba(249, 168, 184, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4A5568;
+      font-size: 12px;
+    }
+
+    /* ── MEMORABLE MOMENTS ── */
+    .moments-callout {
+      background: rgba(249, 168, 184, 0.07);
+      border: 1px solid rgba(249, 168, 184, 0.22);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 12px 0;
+    }
+    .moments-callout .moments-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #F9A8B8;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .moment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: #A0ACBE;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: color 0.2s;
+    }
+    .moment-item:last-child { border-bottom: none; }
+    .moment-item:hover { color: #C9D1DC; }
+    .moment-item .heart { color: #F9A8B8; flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: linear-gradient(135deg, #2C1220 0%, #3E1E2C 100%);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── SCROLL FADE IN ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    /* ── CONTENTEDITABLE ── */
+    [contenteditable]:hover {
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset;
+      border-radius: 3px;
+    }
+    [contenteditable]:focus {
+      outline: none;
+      background: rgba(249,168,184,0.05);
+      box-shadow: 0 0 0 1px rgba(249,168,184,0.3) inset;
+      border-radius: 3px;
+    }
+
+    /* ── FIRSTS TWO-COLUMN GRID ── */
+    .firsts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 24px;
+      margin: 0.75rem 0 0.5rem;
+    }
+    .first-item {
+      display: flex;
+      gap: 8px;
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 12.5px;
+      align-items: flex-start;
+      transition: background 0.15s;
+      border-radius: 4px;
+    }
+    .first-item:hover { background: rgba(249,168,184,0.1); }
+    .first-date {
+      color: #8294AA;
+      font-size: 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 82px;
+      padding-top: 1px;
+    }
+    .first-event { color: #D8E2EE; flex: 1; }
+
+    /* ── GROWTH CHART ── */
+    .growth-chart-wrap {
+      margin: 1.5rem 0 0.5rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 16px 16px 8px;
+    }
+    .growth-chart-wrap canvas { max-height: 220px; }
+
+    @media (max-width: 600px) {
+      .page-header h1 { font-size: 18px; }
+      .profile-photo { width: 120px; height: 150px; }
+      .profile-row .label { min-width: 120px; }
+      td:first-child { width: 90px; }
+      .firsts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="nav-menu-motion.js?v=20260831-nav-motion-v1"></script>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1 style="cursor:pointer" onclick="location.href='home.html'">👶🏻 Vår älskade dotter Mila</h1>
+    <p class="header-sub">Milstolpar &amp; Minnen &middot; Familia Strickert</p>
+  <div class="nav-dropdown-wrapper">
+    <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
+    <div class="nav-dropdown-menu" id="nav-menu">
+        <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+        <div class="nav-sep"></div>
+        <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+        <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+        <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+        <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+        <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+        <a href="data.html"><span class="nav-icon">⚙️</span> Data & Formler</a>
+        <div class="nav-sep"></div>
+        <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+        <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+        <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+        <div class="nav-sep"></div>
+        <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
+        <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
+    </div>
+  </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Welcome callout -->
+    <div class="welcome-callout">
+      <span class="icon">🍼</span>
+      <span>Välkommen till Milas milstolperesa! Här samlar vi hennes tillväxt, de första gångerna och alla minnen från de första åren.</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PROFIL
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Milas profil 👶🏻</h2>
+
+    <div class="profile-section">
+
+      <!-- Profile photo — replace src with actual image path when available -->
+      <div class="profile-photo">
+        <img src="../Mila_bilder/IMG_0621.jpg" alt="Mila"
+             onerror="this.parentElement.innerHTML='👶🏻'">
+      </div>
+
+      <div class="profile-fields">
+        <div class="profile-row"><span class="emoji">👶🏻</span><span class="label">Namn</span><span class="value">Mila Eva Frick Strickert</span></div>
+        <div class="profile-row"><span class="emoji">🗓️</span><span class="label">Födelsedag</span><span class="value">25 januari 2024</span></div>
+        <div class="profile-row"><span class="emoji">⭐</span><span class="label">Personnummer</span><span class="value">20240125-5084</span></div>
+        <div class="profile-row"><span class="emoji">⏱️</span><span class="label">Födelsetid</span><span class="value">06:33</span></div>
+        <div class="profile-row"><span class="emoji">🩸</span><span class="label">Blodgrupp</span><span class="value">Rh+</span></div>
+        <div class="profile-row"><span class="emoji">⚖️</span><span class="label">Vikt vid födseln</span><span class="value">3 250 g</span></div>
+        <div class="profile-row"><span class="emoji">📏</span><span class="label">Längd vid födseln</span><span class="value">49,8 cm</span></div>
+        <div class="profile-row"><span class="emoji">📍</span><span class="label">Födelseort</span><span class="value">BB Linköping</span></div>
+        <div class="profile-row"><span class="emoji">🐣</span><span class="label">Förlossningssätt</span><span class="value">Vaginal</span></div>
+        <div class="profile-row"><span class="emoji">💯</span><span class="label">Apgar-poäng</span><span class="value">100/100</span></div>
+        <div class="profile-row"><span class="emoji">🧑🏻‍⚕️</span><span class="label">Barnläkare</span><span class="value">Anna</span></div>
+        <div class="profile-row"><span class="emoji">🤱🏼👨🏼‍🍼</span><span class="label">Gudfäder/gudmödrar</span><span class="value">Isabel & Filip</span></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         FÖRLOSSNINGSBERÄTTELSE
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Förlossningsberättelse: 24/1 – 25/1 🤰🏻</h2>
+
+    <div class="callout">
+      <span class="callout-icon">📖</span>
+      <p>Den 24/1 kl 22:30 väcks jag av att vi tror att Majas vatten har gått. Vi ringer till förlossningen och de tror samma sak. Maja börjar få mer regelbundna och intensiva värkar. Vid 01:00 ringer vi in igen då Maja har 3 regelbundna värkar på tio minuter. De säger att vi ska vänta tills värkarna är outhärdliga. Maja tar en alvedon och vi går in i duschen. Värkarna intensifierades och vid 03:15 ringer vi in till förlossningen igen. De säger att vi kan komma in. Jag går ut till bilen, skickar ett sms till familjen och vi åker till förlossningen vid 03:30. På förlossningen (ca 04:00) har Maja väldigt ont och regelbundna värkar. Undersköterskan vi träffar känns väldigt virrig och kan inte komma in på datorn för lösenordet är glömt. Strax efter kommer barnmorskan Anna in. Jag får föra Majas talan och berätta att Maja vill ha tydlighet i förlossningen, att de ska berätta var och när saker ska göras och att hon gärna vill bada. Maja blir undersökt och är hela 9 cm (!!) öppen när vi kommer in. Helt otroligt att hon var hemma så länge.</p>
+      <p>Det är för sent för bedövningen och Maja sätter sig i badet och får lustgas (vilket verkligen tycktes om). Maja utbrast flera gånger: "Hur länge ska det ta", "kan den bara komma ut nu" med lustgasen på 50&nbsp;% setting. Jag kommer främst ihåg ett ögonblick när lustgasmasken åkte ner i vattnet under en värk. Maja hade fruktansvärt ont. Vi tittade varandra intensivt in i ögonen. Maja går snart upp ur badet för värkarna är intensiva och hon är varm. På bädden där <strong>Mila</strong> snart föds lägger sig Maja instinktivt på sidan — såhär vill jag ligga när jag föder.</p>
+      <p>Maja börjar krysta. Krystfasen var otrolig. Maja och jag andades, fokuserade och pratade igenom krystningarna "Stäng munnen, fokusera skriken nedåt till bebisen, FOKUS, en värk närmare vårt barn…". Vad jag kommer ihåg hade Maja ca 3 krystningar under varje krystvärk och totalt var det ca 6–10 krystvärkar. Barnmorskan frågade Maja om hon ville ta emot Mila, men hon var så uppe i krystningarna att hon behövde fokusera. Efter ca 6:e krystvärken ber barnmorskan mig (Markus) att titta ner; jag såg först en bubbla som såg ut som en hinna som hade kommit ut. Sen helt plötsligt såg jag Milas lilla huvud och kroppen gled ur. Vad jag kommer ihåg låg Mila kvar i fosterhinnan precis när hon kom ut innan den sprack (<strong>Segerhuva</strong>). Mila kom upp på mammas bröst kl 06:33 och jag brast ut i glädjetårar.</p>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         TILLVÄXT
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">Tillväxt 📈</h2>
+    <p class="section-label">Milas vikt och längdkurva</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Datum</th><th>Vikt (g)</th><th>Längd (cm)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>25/1-2024</td><td>3 250</td><td>49,8</td></tr>
+          <tr><td>27/1-2024</td><td>3 150</td><td>—</td></tr>
+          <tr><td>30/1-2024</td><td>3 305</td><td>—</td></tr>
+          <tr><td>5/2-2024</td><td>3 390</td><td>—</td></tr>
+          <tr><td>15/2-2024</td><td>3 650</td><td>52</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="growth-chart-wrap fade-in">
+      <canvas id="growth-chart"></canvas>
+    </div>
+
+    <hr>
+
+    <!-- ══════════════════════════════════════════
+         THE FIRSTS
+    ══════════════════════════════════════════ -->
+    <h2 class="section-title">The Firsts 📷</h2>
+
+    <div class="callout">
+      <span class="callout-icon">💡</span>
+      <p>Milas "Första gångerna" — datum, milstolpar och speciella ögonblick som vi vill minnas för alltid.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="firsts-table">
+        <thead>
+          <tr><th>Datum</th><th>Milstolpe</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>25/1-2024</td><td>Första blöjan</td></tr>
+          <tr><td>26/1-2024</td><td>Första titta in i ögonen</td></tr>
+          <tr><td>28/1-2024</td><td>Första nackvändningen i groda</td></tr>
+          <tr><td>29/1-2024</td><td>Navelstumpen åkte av</td></tr>
+          <tr><td>31/1-2024</td><td>Första badet</td></tr>
+          <tr><td>2/2-2024</td><td>Första nackvändningen på rygg</td></tr>
+          <tr><td>7/2-2024</td><td>Första riktiga spyan</td></tr>
+          <tr><td>13/2-2024</td><td>Första rapen</td></tr>
+          <tr><td>15/2-2024</td><td>Första vändning från rygg till sidan</td></tr>
+          <tr><td>1/3-2024</td><td>Första riktiga leendet</td></tr>
+          <tr><td>28/3-2024</td><td>Första vändning från mage till rygg</td></tr>
+          <tr><td>11/5-2024</td><td>Första vändning från rygg till mage med nedförsbacke</td></tr>
+          <tr><td>19/5-2024</td><td>Första vändning från rygg till mage utan hjälp</td></tr>
+          <tr><td>28/5-2024</td><td>Första smakprovet, ärta och ostsås</td></tr>
+          <tr><td>28/6-2024</td><td>Börjat slå med saker</td></tr>
+          <tr><td>1/7-2024</td><td>Åt själv med sked (typ)</td></tr>
+          <tr><td>16/7-2024</td><td>Satt själv mer än 5 sekunder</td></tr>
+          <tr><td>18/7-2024</td><td>Första natten sovandes borta (i Sollefteå)</td></tr>
+          <tr><td>20/7-2024</td><td>Första doppet i Ångermanälven (fötterna)</td></tr>
+          <tr><td>21/7-2024</td><td>Första natten sovandes i spjälsängen</td></tr>
+          <tr><td>24/7-2024</td><td>Första resan i buss och tåg</td></tr>
+          <tr><td>25/7-2024</td><td>Första gången utomlands (Danmark)</td></tr>
+          <tr><td>30/7-2024</td><td>Första gången matning med nappflaska</td></tr>
+          <tr><td>31/7-2024</td><td>Första besöket på vårdcentralen</td></tr>
+          <tr><td>9/8-2024</td><td>Första gången smakade vatten</td></tr>
+          <tr><td>9/8-2024</td><td>Första gången somnade i pappas famn efter flaskmatning</td></tr>
+          <tr><td>10/8-2024</td><td>Första gången hon ljudade ordet "Mamma"</td></tr>
+          <tr><td>10/8-2024</td><td>Första båtturen</td></tr>
+          <tr><td>11/8-2024</td><td>Testade välling för första gången — gillar det 🍼</td></tr>
+          <tr><td>18/8-2024</td><td>Nattning med välling</td></tr>
+          <tr><td>17/8-2024</td><td>Första myggbettet</td></tr>
+          <tr><td>21/8-2024</td><td>Första ålningen</td></tr>
+          <tr><td>27/8–28/8-2024</td><td>Första natten utan amning</td></tr>
+          <tr><td>6/9-2024</td><td>Ställde sig på alla fyra själv</td></tr>
+          <tr><td>7/9-2024</td><td>Första febern</td></tr>
+          <tr><td>13/9-2024</td><td>Första gången stå själv och hålla i sig i bordet</td></tr>
+          <tr><td>13/9-2024</td><td>Första familjeparkeringen</td></tr>
+          <tr><td>17/9-2024</td><td>Första medvetna öppna/stänga vänster handen</td></tr>
+          <tr><td>21/9-2024</td><td>Första gången framåtvänd i vagnen</td></tr>
+          <tr><td>27/9-2024</td><td>Första krypsteget på händer och knän</td></tr>
+          <tr><td>29/9-2024</td><td>Första bajset på pottan med blöja</td></tr>
+          <tr><td>1/10-2024</td><td>Sov hela natten för första gången</td></tr>
+          <tr><td>2/10-2024</td><td>Första kisset på pottan utan blöja</td></tr>
+          <tr><td>5/10-2024</td><td>Börjar vinka på riktigt</td></tr>
+          <tr><td>6/10-2024</td><td>Första bajs på pottan utan blöja</td></tr>
+          <tr><td>6/10-2024</td><td>Första gången ställa sig upp från knä till fötter med stöd utan hjälp</td></tr>
+          <tr><td>6/10-2024</td><td>Första tanden poppade ut</td></tr>
+          <tr><td>7/10-2024</td><td>Andra tanden poppade ut</td></tr>
+          <tr><td>7/10-2024</td><td>Första gången ställa sig upp från mage till fötter med stöd utan hjälp</td></tr>
+          <tr><td>24/10-2024</td><td>Första riktiga krypsteget</td></tr>
+          <tr><td>26/10-2024</td><td>Kryper på riktigt</td></tr>
+          <tr><td>28/10-2024</td><td>Börjat vinka</td></tr>
+          <tr><td>20/11-2024</td><td>Första stegen utan hjälp med gåvagn</td></tr>
+          <tr><td>23/11-2024</td><td>Första gången utan mamma och pappa</td></tr>
+          <tr><td>25/11-2024</td><td>Första gången sittandes i kundvagn</td></tr>
+          <tr><td>27/11-2024</td><td>Första gången Mila förstod ett riktigt kommando</td></tr>
+          <tr><td>28/11-2024</td><td>Första gången klappade händerna</td></tr>
+          <tr><td>30/11-2024</td><td>Första gången på Liseberg</td></tr>
+          <tr><td>30/11-2024</td><td>Första karusellen (lisebergshjulet)</td></tr>
+          <tr><td>5/12-2024</td><td>Första flygresan (Riga)</td></tr>
+          <tr><td>14/12-2024</td><td>Första gången med barnvakt (mormor, 2 timmar)</td></tr>
+          <tr><td>14/12-2024</td><td>Första gången någon annan gav en hel måltid till Mila (mormor)</td></tr>
+          <tr><td>15/12-2024</td><td>Första hotellfrukosten</td></tr>
+          <tr><td>16/12-2024</td><td>Första gången stående själv i någon sekund</td></tr>
+          <tr><td>23/12-2024</td><td>Första pulkaåkningen</td></tr>
+          <tr><td>28/12-2024</td><td>Första klättringen upp till soffan</td></tr>
+          <tr><td>7/1-2025</td><td>Första gången på Leo's Lekland</td></tr>
+          <tr><td>29/1-2025</td><td>Första stegen!!! 🎉</td></tr>
+          <tr><td>8/5-2025</td><td>Första hoppet (lyfte från marken)</td></tr>
+          <tr><td>1/7-2025</td><td>Första badet i Varamon</td></tr>
+          <tr><td>4/7-2025</td><td>Första tandläkarbesöket</td></tr>
+          <tr><td>22/9-2025</td><td>Första natten sovandes i eget rum</td></tr>
+          <tr><td>9/10-2025</td><td>Första gången räkna till fem själv</td></tr>
+          <tr><td>23/11-2025</td><td>Sjöng hela "Blinka lilla stjärna" själv</td></tr>
+          <tr><td>24/12-2025</td><td>Första svordomen (mamma sa fan och härmade)</td></tr>
+          <tr><td>24/12-2025</td><td>Första gången att se på Kalle Anka</td></tr>
+          <tr><td>1–2/1-2026</td><td>Första gången sova borta utan mamma och pappa (hos farmor)</td></tr>
+          <tr><td>6/1-2026</td><td>Första barnvagnsturen tillsammans med lillebror</td></tr>
+          <tr><td>7/1-2026</td><td>Första bilturen tillsammans med lillebror</td></tr>
+          <tr><td>15/1-2026</td><td>Första gången spela fia med knuff</td></tr>
+          <tr><td>16/1-2026</td><td>Första gången sova i egen barnsäng</td></tr>
+          <tr><td>19/1-2026</td><td>Sa "Mila älskar Pappa" bara sådär 💕</td></tr>
+          <tr><td>31/1-2026</td><td>Lärde sig göra tummen upp själv</td></tr>
+          <tr><td>19/2-2026</td><td>Räknade till 14 utan att säga fel någon gång</td></tr>
+          <tr><td>21/2-2026</td><td>Åt glass, bulle och kakor för första gången</td></tr>
+          <tr><td>28/2-2026</td><td>Satt i selen på ryggen för första gången</td></tr>
+          <tr><td>13/3-2026</td><td>Första gången på Östgötapendeln (till Linköping)</td></tr>
+          <tr><td>19/3-2026</td><td>Gick själv till badrummet och bajsade på pottan utan att säga till</td></tr>
+          <tr><td>1/5-2026</td><td>Red häst och vagn för första gången</td></tr>
+          <tr><td>20/5-2026</td><td>Första vabbdagen för Markus</td></tr>
+          <tr><td>21/5-2026</td><td>Första blodprovet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /page-content -->
+
+  <footer class="page-footer">
+    ♥ Mila Eva Frick Strickert &mdash; Född 25 januari 2024
+  </footer>
+
+
+
+<script>
+// ── THREE.JS AMBIENT PARTICLES ─────────────────────────────────
+(function() {
+  if (typeof THREE === 'undefined') return;
+  const scene    = new THREE.Scene();
+  const camera   = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.z = 35;
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.domElement.style.cssText =
+    'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;';
+  document.body.appendChild(renderer.domElement);
+
+  // Circular particle texture via canvas
+  const circleCanvas = document.createElement('canvas');
+  circleCanvas.width = circleCanvas.height = 64;
+  const ctx = circleCanvas.getContext('2d');
+  const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0,   'rgba(255,255,255,1)');
+  grd.addColorStop(0.4, 'rgba(255,255,255,0.85)');
+  grd.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.arc(32, 32, 32, 0, Math.PI * 2); ctx.fill();
+  const circleTex = new THREE.CanvasTexture(circleCanvas);
+
+  const COUNT = 200;
+  const geo   = new THREE.BufferGeometry();
+  const pos   = new Float32Array(COUNT * 3);
+  const vel   = [];
+
+  for (let i = 0; i < COUNT; i++) {
+    pos[i*3]   = (Math.random() - 0.5) * 100;
+    pos[i*3+1] = (Math.random() - 0.5) * 70;
+    pos[i*3+2] = (Math.random() - 0.5) * 30;
+    vel.push((Math.random() - 0.5) * 0.014, (Math.random() - 0.5) * 0.009);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xF9A8B8,
+    map: circleTex,
+    size: 0.72,
+    transparent: true,
+    opacity: 0.45,
+    sizeAttenuation: true,
+    alphaTest: 0.01,
+  });
+
+  scene.add(new THREE.Points(geo, mat));
+
+  // ── BUBBLES ──────────────────────────────────────────────────
+  const bubbleTex = (function() {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const cx = c.getContext('2d');
+    const g = cx.createRadialGradient(64, 64, 6, 64, 64, 62);
+    g.addColorStop(0,    'rgba(255,255,255,0)');
+    g.addColorStop(0.65, 'rgba(255,255,255,0.05)');
+    g.addColorStop(0.88, 'rgba(255,255,255,0.24)');
+    g.addColorStop(1.0,  'rgba(255,255,255,0)');
+    cx.fillStyle = g; cx.beginPath(); cx.arc(64,64,64,0,Math.PI*2); cx.fill();
+    return new THREE.CanvasTexture(c);
+  })();
+  const bubbles = [];
+  for (let i = 0; i < 8; i++) {
+    const sz = 2.5 + Math.random() * 5.5;
+    const bm = new THREE.Mesh(
+      new THREE.PlaneGeometry(sz, sz),
+      new THREE.MeshBasicMaterial({ map: bubbleTex, transparent: true,
+        opacity: 0.28 + Math.random()*0.18, depthWrite: false })
+    );
+    bm.position.set((Math.random()-0.5)*90, (Math.random()-0.5)*55, (Math.random()-0.5)*10);
+    bm.userData.vx = (Math.random()-0.5)*0.007;
+    bm.userData.vy = 0.007 + Math.random()*0.011;
+    scene.add(bm); bubbles.push(bm);
+  }
+
+  // ── SHOOTING STARS ────────────────────────────────────────────
+  const shooters = [];
+  let shootTimer = 0;
+  function spawnShooter() {
+    const len = 3 + Math.random() * 5;
+    const ax = -55 + Math.random()*60, ay = 18 + Math.random()*14;
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(
+      new Float32Array([ax, ay, 5,  ax + 0.7*len, ay - 0.42*len, 5]), 3));
+    const sl = new THREE.Line(sg,
+      new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.88 }));
+    sl.userData.vx = 0.9 + Math.random()*0.7;
+    sl.userData.vy = -(0.5 + Math.random()*0.3);
+    sl.userData.fade = 0.015 + Math.random()*0.015;
+    scene.add(sl); shooters.push(sl);
+  }
+
+  // ── WIREFRAME GEMS ────────────────────────────────────────────
+  const ACCENT_COLOR = 0xF9A8B8;
+  const gems = [];
+  const gemGeoList = [
+    new THREE.OctahedronGeometry(1.1),
+    new THREE.TetrahedronGeometry(0.95),
+    new THREE.IcosahedronGeometry(0.85),
+    new THREE.OctahedronGeometry(0.75),
+    new THREE.TetrahedronGeometry(1.25),
+    new THREE.IcosahedronGeometry(1.0),
+  ];
+  for (let i = 0; i < 6; i++) {
+    const gm = new THREE.Mesh(
+      gemGeoList[i],
+      new THREE.MeshBasicMaterial({ color: ACCENT_COLOR, wireframe: true,
+        transparent: true, opacity: 0.22 })
+    );
+    gm.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*50, (Math.random()-0.5)*15);
+    gm.userData.rx = (Math.random()-0.5)*0.013;
+    gm.userData.ry = (Math.random()-0.5)*0.017;
+    gm.userData.vx = (Math.random()-0.5)*0.006;
+    gm.userData.vy = (Math.random()-0.5)*0.005;
+    scene.add(gm); gems.push(gm);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const p = geo.attributes.position.array;
+    for (let i = 0; i < COUNT; i++) {
+      p[i*3]   += vel[i*2];
+      p[i*3+1] += vel[i*2+1];
+      if (p[i*3]   >  50) p[i*3]   = -50;
+      if (p[i*3]   < -50) p[i*3]   =  50;
+      if (p[i*3+1] >  35) p[i*3+1] = -35;
+      if (p[i*3+1] < -35) p[i*3+1] =  35;
+    }
+    geo.attributes.position.needsUpdate = true;
+    // bubbles float upward
+    bubbles.forEach(b => {
+      b.position.y += b.userData.vy;
+      b.position.x += b.userData.vx;
+      if (b.position.y > 42) { b.position.y = -42; b.position.x = (Math.random()-0.5)*90; }
+    });
+    // shooting stars
+    shootTimer++;
+    if (shootTimer > 100 + Math.random()*150) { spawnShooter(); shootTimer = 0; }
+    for (let i = shooters.length-1; i >= 0; i--) {
+      const s = shooters[i];
+      s.position.x += s.userData.vx;
+      s.position.y += s.userData.vy;
+      s.material.opacity -= s.userData.fade;
+      if (s.material.opacity <= 0) { scene.remove(s); shooters.splice(i, 1); }
+    }
+    // wireframe gems drift + spin
+    gems.forEach(g => {
+      g.rotation.x += g.userData.rx;
+      g.rotation.y += g.userData.ry;
+      g.position.x += g.userData.vx;
+      g.position.y += g.userData.vy;
+      if (g.position.x >  50) g.position.x = -50;
+      if (g.position.x < -50) g.position.x =  50;
+      if (g.position.y >  35) g.position.y = -35;
+      if (g.position.y < -35) g.position.y =  35;
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ── NAV MENU ───────────────────────────────────────────────────
+function toggleNavMenu() {
+  document.getElementById('nav-menu').classList.toggle('show');
+}
+window.addEventListener('click', function(e) {
+  const w = document.querySelector('.nav-dropdown-wrapper');
+  if (w && !w.contains(e.target)) {
+    const m = document.getElementById('nav-menu');
+    if (m) m.classList.remove('show');
+  }
+});
+
+// ── FIRSTS GRID ────────────────────────────────────────────────
+function createFirstItem(date, event) {
+  const item = document.createElement('div');
+  item.className = 'first-item';
+  const ds = document.createElement('span');
+  ds.className = 'first-date'; ds.contentEditable = 'true'; ds.textContent = date;
+  const es = document.createElement('span');
+  es.className = 'first-event'; es.contentEditable = 'true'; es.innerHTML = event;
+  item.appendChild(ds); item.appendChild(es);
+  return item;
+}
+
+function initFirstsGrid() {
+  document.querySelectorAll('.firsts-table').forEach(table => {
+    const wrap = table.closest('.table-wrap');
+    if (!wrap) return;
+    const grid = document.createElement('div');
+    grid.className = 'firsts-grid';
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 2) return;
+      grid.appendChild(createFirstItem(cells[0].textContent.trim(), cells[1].innerHTML.trim()));
+    });
+    wrap.style.display = 'none';
+    wrap.insertAdjacentElement('afterend', grid);
+    const btn = document.createElement('button');
+    btn.className = 'add-row-btn';
+    btn.innerHTML = '+ Lägg till milstolpe';
+    btn.addEventListener('click', () => {
+      const item = createFirstItem('Datum', 'Milstolpe');
+      grid.appendChild(item);
+      item.querySelector('.first-date').focus();
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    grid.insertAdjacentElement('afterend', btn);
+  });
+}
+
+// ── PHOTO UPLOAD ───────────────────────────────────────────────
+function triggerPhotoUpload(target, type) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (type === 'profile') {
+      const img = target.querySelector('img');
+      if (img) img.src = url;
+      else target.innerHTML = `<img src="${url}" alt="Foto" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      const newImg = document.createElement('img');
+      newImg.className = 'day-photo'; newImg.src = url;
+      newImg.title = 'Klicka för att byta foto'; newImg.style.cursor = 'pointer';
+      newImg.addEventListener('click', () => triggerPhotoUpload(newImg, 'day'));
+      target.replaceWith(newImg);
+    }
+  };
+  inp.click();
+}
+
+function initPhotoUpload() {
+  document.querySelectorAll('.profile-photo').forEach(el => {
+    el.title = 'Klicka för att byta foto'; el.style.cursor = 'pointer';
+    el.addEventListener('click', () => triggerPhotoUpload(el, 'profile'));
+  });
+  document.querySelectorAll('.day-photo, .day-photo-placeholder').forEach(el => {
+    el.title = 'Klicka för att byta foto'; el.style.cursor = 'pointer';
+    el.addEventListener('click', () => triggerPhotoUpload(el, 'day'));
+  });
+}
+
+// ── GROWTH CHART ───────────────────────────────────────────────
+function initGrowthChart() {
+  const canvas = document.getElementById('growth-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: ['25/1', '27/1', '30/1', '5/2', '15/2'],
+      datasets: [{
+        label: 'Vikt (g)',
+        data: [3250, 3150, 3305, 3390, 3650],
+        borderColor: '#F9A8B8', backgroundColor: 'rgba(249,168,184,0.08)',
+        borderWidth: 2, pointBackgroundColor: '#F9A8B8', pointRadius: 5,
+        tension: 0.4, yAxisID: 'y', fill: true,
+      }, {
+        label: 'Längd (cm)',
+        data: [49.8, null, null, null, 52],
+        borderColor: '#FBBF24', backgroundColor: 'transparent',
+        borderWidth: 2, borderDash: [4, 3], pointBackgroundColor: '#FBBF24',
+        pointRadius: 5, tension: 0.3, yAxisID: 'y1', spanGaps: true, fill: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#94A3B8', font: { family: 'Inter', size: 11 }, padding: 16 } },
+        tooltip: {
+          backgroundColor: '#1A1F2E', titleColor: '#F9A8B8', bodyColor: '#C9D1DC',
+          borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.09)' },
+        },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Vikt (g)', color: '#F9A8B8', font: { family: 'Inter', size: 11 } },
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.09)' },
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'Längd (cm)', color: '#FBBF24', font: { family: 'Inter', size: 11 } },
+          ticks: { color: '#5A6478', font: { family: 'Inter', size: 11 } },
+          grid: { drawOnChartArea: false },
+        }
+      }
+    }
+  });
+}
+
+// ── CONTENTEDITABLE ────────────────────────────────────────────
+function initContentEditable() {
+  document.querySelectorAll('.table-wrap td').forEach(td => { td.contentEditable = 'true'; });
+  document.querySelectorAll('.profile-row .value, .profile-row .emoji').forEach(el => { el.contentEditable = 'true'; });
+  const wt = document.querySelector('.welcome-callout > span:last-child');
+  if (wt) wt.contentEditable = 'true';
+  document.querySelectorAll('.callout p').forEach(p => { p.contentEditable = 'true'; });
+  document.querySelectorAll('.day-entry .day-date, .day-entry .day-text').forEach(el => { el.contentEditable = 'true'; });
+  document.querySelectorAll('.moment-item span:last-child').forEach(el => { el.contentEditable = 'true'; });
+  document.querySelectorAll('.section-label').forEach(el => { el.contentEditable = 'true'; });
+}
+
+// ── ADD ROW ────────────────────────────────────────────────────
+function initAddRow() {
+  document.querySelectorAll('.table-wrap').forEach(wrap => {
+    const table = wrap.querySelector('table');
+    if (!table) return;
+    if (table.classList.contains('firsts-table')) return;
+    const headers = [...table.querySelectorAll('th')].map(th => th.textContent.trim());
+    if (headers.length === 0) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'add-row-btn';
+    btn.innerHTML = '+ Lägg till rad';
+    btn.addEventListener('click', function addRow() {
+      const tbody = table.querySelector('tbody');
+      const tr = document.createElement('tr');
+      headers.forEach((h, i) => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = h;
+        input.className = 'row-input';
+        td.appendChild(input);
+        if (i === headers.length - 1) {
+          td.insertAdjacentHTML('beforeend', ' ');
+          const saveBtn = document.createElement('button');
+          saveBtn.className = 'row-save-btn';
+          saveBtn.textContent = '✓ Spara';
+          saveBtn.addEventListener('click', () => {
+            tr.querySelectorAll('input').forEach(inp => {
+              inp.replaceWith(document.createTextNode(inp.value));
+            });
+            saveBtn.remove();
+            tr.classList.add('saved');
+          });
+          td.appendChild(saveBtn);
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+      tr.querySelector('input')?.focus();
+    });
+    wrap.insertAdjacentElement('afterend', btn);
+  });
+}
+
+// ── SCROLL FADE IN ─────────────────────────────────────────────
+function initFadeIn() {
+  const targets = document.querySelectorAll(
+    '.section-title, .callout, .profile-section, .welcome-callout, ' +
+    '.moments-callout, .day-entry, .table-wrap, .firsts-grid, .growth-chart-wrap'
+  );
+  targets.forEach(el => el.classList.add('fade-in'));
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+}
+
+initFirstsGrid();
+initPhotoUpload();
+initGrowthChart();
+initContentEditable();
+initAddRow();
+initFadeIn();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+SHOPPING.HTML CHECKLIST / BASELINE
+Recorded: 2026-08-28
+
+Original Familjeapp shopping-related items
+==========================================
+
+1. Home <-> Shopping category sync
+Status: FINISHED / VERIFIED
+- Home and shopping.html share shopping list/category data.
+- Home quick-add can target an existing category/store heading.
+- Home presentation later gained category headings while retaining shared Shopping data.
+
+2. Shopping button layout / consistent theme
+Status: FINISHED V9
+- Header controls stay on one compact row on desktop and mobile.
+- Hem, Mallar, Listor and Recept use compact matching controls.
+- Hamburger navigation remains separate at the far right.
+- Ångra is a clean custom SVG icon with no button box/background.
+- Ångra is physically and visually positioned immediately to the LEFT of Mallar, so DOM/tab order matches visual order.
+
+Shopping list engine V7
+=======================
+Status: ACTIVE / SINGLE-STATE MODEL
+
+- budget/shopping-list-engine-v7.js owns normal shopping item/category rendering and add/edit state.
+- No empty placeholder items are stored in sh_lists.
+- Category -> Enter saves the category and opens one item draft.
+- Item draft -> Enter saves exactly one item and opens exactly one new draft.
+- The same path is used for item 1, item 2, item 3, etc.
+- Existing item -> Enter saves the edit and opens a new draft after that item.
+- Blur saves non-empty drafts but does not create an extra row.
+- Escape cancels the active editor.
+- Draft text is mirrored to JS state on every input event.
+- Main item/category editing uses contenteditable to avoid iOS form-input zoom.
+- (Willys)/(Maxi) suffix routing is native in V7 for normal shopping items.
+- Unknown category suffixes follow Home behavior and move the cleaned item to uncategorized area.
+- Yellow Shopping accents and Home-derived row geometry are retained.
+
+Shopping rapid-interaction stability V8
+=======================================
+Status: ACTIVE
+
+- budget/shopping-list-stability-v8.js is loaded BEFORE the V7 engine so its capture-phase guards are registered first.
+- Late focusout events immediately following Enter are suppressed for a short transition window.
+- Repeated/held Enter events are ignored during the transition window.
+- Delete actions have a short 115 ms acceptance guard to prevent accidental cascading deletion as rows shift.
+- Local sh_lists firebase-sync echoes are ignored briefly after accepted local mutations to avoid redundant DOM churn.
+- Separator lines between normal items/add-item rows are removed.
+- Item rows are more compact while retaining the existing item text size.
+- "+ Lägg till artikel" matches "+ Lägg till rubrik" size.
+- Checkbox squares are slightly larger than before.
+
+Recipe persistence / linked headings V4 + link popup V5
+========================================================
+Status: ACTIVE / SVG-FIRST-PAINT V5C
+
+- budget/shopping-recipes-v4.js remains the authoritative recipe persistence/render layer.
+- Storage and Firebase continue using sh_recipes_v3 and preserve optional recipe URLs.
+- Each recipe stores: id, name, optional url, items.
+- The recipe heading opens its URL when a URL exists; chevron remains expand/collapse only.
+- Recipe ingredients still use V7 category-aware insertion, including (Willys)/(Maxi) suffix routing.
+- Recipe checkbox state is read against the V7 shopping engine.
+- budget/shopping-recipe-link-popup-v5.js adds the current link-management UI without replacing recipe persistence.
+- The legacy pencil glyph is permanently hidden; a chain-link SVG is rendered from CSS immediately instead of being injected after each recipe re-render.
+- The recipe chevron is also a real SVG, slightly larger than the old text glyph.
+- Critical recipe-icon CSS lives in shopping-toolbar-v9.js, which loads before shopping-recipes-v4.js, preventing pencil/old-chevron first-paint flashes.
+- Clicking a plain recipe heading is captured before the old edit-recipe handler and now expands/collapses the recipe instead of entering the legacy meta editor.
+- Link icon and recipe delete × are grouped at the far right of the recipe heading and have larger mobile touch targets.
+- Clicking the chain-link icon opens a compact modal popup for entering/editing/removing the recipe URL.
+- URL entry validates http/https and automatically prefixes https:// when needed.
+- Saving/removing a link updates the same local sh_recipes_v3 store and Firebase value, then re-renders recipes.
+- Existing inline recipe editing is name-only; link management has one dedicated popup path.
+- New recipe creation may still accept an optional URL at creation time.
+- Recipe delete stays an unboxed × symbol.
+- Mobile popup input is 16 px to avoid Safari focus zoom.
+
+Implementation
+==============
+Shopping list stability/compact layer: budget/shopping-list-stability-v8.js
+V8 stability commit: 5be569b774b8c0d97b1ea4b644219beb2eb7a78a
+Shopping list engine: budget/shopping-list-engine-v7.js
+V7 engine commit: 9336d0d59cf8761db9af469a02751cc59d2db869
+Shopping toolbar V9: budget/shopping-toolbar-v9.js
+Toolbar SVG-first-paint commit: c605fb01df0b14d88b6d808f195e4d0c592be9b0
+Recipe persistence/UI V4: budget/shopping-recipes-v4.js
+Recipe V4 commit: 3e10ddcbc59642354e23e181b4ef0814c412ec24
+Recipe link popup V5: budget/shopping-recipe-link-popup-v5.js
+No-flash / SVG chevron commit: b86b301a0baaa07555a42c3bdf77a50ad88a2e48
+Loader/cache commit: 2f02630c85015ffdc79f75c793fba1e61ae991c0
+Shopping asset version: 20260828-1250-recipe-icons-v5c
+
+Legacy files still present in repo but NOT loaded for current Shopping interaction:
+- shopping-ui-polish-v2.js
+- shopping-yellow-category-v5.js
+- shopping-draft-blur-v6.js
+- shopping-recipes-v3.js
+- shopping-recipe-category-bridge-v7.js
+
+SHOPPING.HTML STATUS: V9 + RECIPE LINK POPUP V5C ACTIVE / READY FOR VISUAL VERIFICATION
