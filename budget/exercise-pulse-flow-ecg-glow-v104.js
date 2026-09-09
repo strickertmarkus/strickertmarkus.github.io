@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV127Installed) return;
-  window.__exercisePulseFlowEcgGlowV127Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV128Installed) return;
+  window.__exercisePulseFlowEcgGlowV128Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v127-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v128-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style','exercise-pulse-flow-ecg-glow-v123-style','exercise-pulse-flow-ecg-glow-v124-style','exercise-pulse-flow-ecg-glow-v125-style','exercise-pulse-flow-ecg-glow-v126-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style','exercise-pulse-flow-ecg-glow-v123-style','exercise-pulse-flow-ecg-glow-v124-style','exercise-pulse-flow-ecg-glow-v125-style','exercise-pulse-flow-ecg-glow-v126-style','exercise-pulse-flow-ecg-glow-v127-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -28,7 +28,7 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Keep the circular 5 s halo exactly as before. */
+      /* Keep the approved circular 5 s halo unchanged. */
       html.exercise-concept-pulse-home-v1 body #session-pre-timer.show {
         background:rgba(8,13,20,.975) !important;
         isolation:isolate !important;
@@ -58,8 +58,8 @@
         44% { opacity:.88;transform:scale(1.008); }
       }
 
-      /* Desktop keeps a light fixed-pixel shadow. Use rgba instead of
-         color-mix so the filter is parsed consistently by WebKit. */
+      /* Wide ECG ribbon: fixed-pixel desktop glow plus the real-stroke iOS
+         fallback introduced in v127. */
       html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58 {
         filter:
           drop-shadow(0 0 1.25px rgba(var(--pf-rgb),.86))
@@ -68,10 +68,6 @@
           drop-shadow(0 0 1.25px rgba(var(--pf-rgb),.86))
           drop-shadow(0 0 3.8px rgba(var(--pf-rgb),.36)) !important;
       }
-
-      /* iOS/WebKit fallback: a real translucent SVG stroke behind the active
-         trace. This does not depend on CSS filter rendering and therefore stays
-         visibly luminous on the phone. It is hidden on larger screens. */
       html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127 {
         display:none;
         fill:none;
@@ -81,6 +77,7 @@
         pointer-events:none;
       }
 
+      /* Shared quiet ECG baseline. */
       html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-guide-v80 {
         stroke:none !important;
         stroke-width:0 !important;
@@ -89,7 +86,6 @@
         filter:none !important;
         visibility:hidden !important;
       }
-
       html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-base-v80 {
         display:block !important;
         visibility:visible !important;
@@ -98,11 +94,51 @@
         stroke-opacity:.14 !important;
         opacity:1 !important;
         filter:none !important;
+        -webkit-filter:none !important;
       }
 
+      /* The previous mobile override only hit the BETWEEN/REST overlay. The
+         live cardio ECG in the screenshot lives inside #session-countdown-ring.
+         Give that surface explicit rgba shadows as well; this avoids WebKit's
+         weak currentColor filter path and keeps desktop/mobile consistent. */
+      html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+      html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
+        stroke:var(--pf-accent) !important;
+        stroke-width:1.8 !important;
+        stroke-opacity:1 !important;
+        opacity:1 !important;
+        filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-rgb),.96))
+          drop-shadow(0 0 4.5px rgba(var(--pf-rgb),.50)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-rgb),.96))
+          drop-shadow(0 0 4.5px rgba(var(--pf-rgb),.50)) !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-marker-v80 {
+        fill:var(--pf-soft) !important;
+        stroke:none !important;
+        opacity:1 !important;
+        filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-rgb),1))
+          drop-shadow(0 0 4.8px rgba(var(--pf-rgb),.78)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-rgb),1))
+          drop-shadow(0 0 4.8px rgba(var(--pf-rgb),.78)) !important;
+      }
+      html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-arc-progress-v80 {
+        stroke:rgba(var(--pf-rgb),.78) !important;
+        filter:
+          drop-shadow(0 0 3px rgba(var(--pf-rgb),.68))
+          drop-shadow(0 0 9px rgba(var(--pf-rgb),.28)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 3px rgba(var(--pf-rgb),.68))
+          drop-shadow(0 0 9px rgba(var(--pf-rgb),.28)) !important;
+      }
+
+      /* BETWEEN/REST uses the corresponding between-state palette. */
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
-        stroke:color-mix(in srgb,var(--pf-between-accent) 82%,var(--pf-between-soft) 18%) !important;
+        stroke:var(--pf-between-accent) !important;
         stroke-width:1.8 !important;
         stroke-opacity:1 !important;
         opacity:1 !important;
@@ -113,7 +149,6 @@
           drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),.96))
           drop-shadow(0 0 4.5px rgba(var(--pf-between-rgb),.50)) !important;
       }
-
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
         fill:var(--pf-between-soft) !important;
         stroke:none !important;
@@ -125,7 +160,6 @@
           drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),1))
           drop-shadow(0 0 4.8px rgba(var(--pf-between-rgb),.78)) !important;
       }
-
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
         stroke:rgba(var(--pf-between-rgb),.78) !important;
         filter:
@@ -137,9 +171,7 @@
       }
 
       @media (max-width:600px) {
-        /* The screenshot showed WebKit rendering the animated SVG filter almost
-           flat. On mobile, use the stroke halo as the primary luminous layer
-           and leave only a very tight shadow on the core trace. */
+        /* Large ribbon fallback stays real-stroke based. */
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58 {
           filter:drop-shadow(0 0 1.8px rgba(var(--pf-rgb),.96)) !important;
           -webkit-filter:drop-shadow(0 0 1.8px rgba(var(--pf-rgb),.96)) !important;
@@ -154,28 +186,58 @@
           will-change:stroke-dashoffset;
         }
 
+        /* On iOS apply the glow to the tiny SVG as a composited unit. Safari
+           renders this more reliably than currentColor filters on animated
+           individual paths. The baseline is low-opacity so the moving sweep
+           remains the dominant luminous shape. */
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 svg {
+          filter:
+            drop-shadow(0 0 1.6px rgba(var(--pf-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-rgb),.55)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 1.6px rgba(var(--pf-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-rgb),.55)) !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-b-v80,
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-marker-v80 {
+          filter:none !important;
+          -webkit-filter:none !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
+          stroke-width:1.9 !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-arc-progress-v80 {
+          stroke:rgba(var(--pf-rgb),.82) !important;
+          filter:
+            drop-shadow(0 0 3.8px rgba(var(--pf-rgb),.80))
+            drop-shadow(0 0 11px rgba(var(--pf-rgb),.38)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 3.8px rgba(var(--pf-rgb),.80))
+            drop-shadow(0 0 11px rgba(var(--pf-rgb),.38)) !important;
+        }
+
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 svg {
+          filter:
+            drop-shadow(0 0 1.6px rgba(var(--pf-between-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-between-rgb),.55)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 1.6px rgba(var(--pf-between-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-between-rgb),.55)) !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
+          filter:none !important;
+          -webkit-filter:none !important;
+        }
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
-          filter:
-            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
-            drop-shadow(0 0 6.2px rgba(var(--pf-between-rgb),.68))
-            drop-shadow(0 0 10px rgba(var(--pf-between-rgb),.26)) !important;
-          -webkit-filter:
-            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
-            drop-shadow(0 0 6.2px rgba(var(--pf-between-rgb),.68))
-            drop-shadow(0 0 10px rgba(var(--pf-between-rgb),.26)) !important;
+          stroke-width:1.9 !important;
         }
-
-        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
-          filter:
-            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
-            drop-shadow(0 0 6.4px rgba(var(--pf-between-rgb),.88)) !important;
-          -webkit-filter:
-            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
-            drop-shadow(0 0 6.4px rgba(var(--pf-between-rgb),.88)) !important;
-        }
-
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
+          stroke:rgba(var(--pf-between-rgb),.82) !important;
           filter:
             drop-shadow(0 0 3.8px rgba(var(--pf-between-rgb),.80))
             drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.38)) !important;
@@ -184,13 +246,14 @@
             drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.38)) !important;
         }
 
-        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment.active {
+        /* Header mini ECG uses the same Safari-safe container filter. */
+        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 svg {
           filter:
-            drop-shadow(0 0 2px rgba(var(--pf-rgb),.96))
-            drop-shadow(0 0 6px rgba(var(--pf-rgb),.62)) !important;
+            drop-shadow(0 0 1.4px rgba(103,232,249,.88))
+            drop-shadow(0 0 5px rgba(103,232,249,.42)) !important;
           -webkit-filter:
-            drop-shadow(0 0 2px rgba(var(--pf-rgb),.96))
-            drop-shadow(0 0 6px rgba(var(--pf-rgb),.62)) !important;
+            drop-shadow(0 0 1.4px rgba(103,232,249,.88))
+            drop-shadow(0 0 5px rgba(103,232,249,.42)) !important;
         }
       }
 
@@ -204,12 +267,21 @@
           animation:none !important;
           opacity:.10 !important;
         }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 svg,
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 svg,
+        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 svg {
+          filter:none !important;
+          -webkit-filter:none !important;
+        }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-a-v80,
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-b-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
           opacity:.48 !important;
           filter:none !important;
           -webkit-filter:none !important;
         }
+        html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-marker-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
           opacity:.55 !important;
           filter:none !important;
@@ -221,7 +293,7 @@
   }
 
   function syncSmallEcgMarker() {
-    document.querySelectorAll('#session-between-overlay-v2 .pf-ecg-marker-v80').forEach(function (marker) {
+    document.querySelectorAll('#session-countdown-ring .pf-ecg-marker-v80,#session-between-overlay-v2 .pf-ecg-marker-v80').forEach(function (marker) {
       if (marker.getAttribute('r') !== '.82') marker.setAttribute('r','.82');
     });
   }
@@ -258,8 +330,8 @@
   function relevantInsertion(mutation) {
     return Array.prototype.some.call(mutation.addedNodes || [],function (node) {
       if (!node || node.nodeType !== 1) return false;
-      if (node.matches && node.matches('.pf-ecg-v80,#session-between-overlay-v2,.pulse-flow-band-v58')) return true;
-      return !!(node.querySelector && node.querySelector('.pf-ecg-v80,#session-between-overlay-v2,.pulse-flow-band-v58'));
+      if (node.matches && node.matches('.pf-ecg-v80,#session-countdown-ring,#session-between-overlay-v2,.pulse-flow-band-v58')) return true;
+      return !!(node.querySelector && node.querySelector('.pf-ecg-v80,#session-countdown-ring,#session-between-overlay-v2,.pulse-flow-band-v58'));
     });
   }
 
