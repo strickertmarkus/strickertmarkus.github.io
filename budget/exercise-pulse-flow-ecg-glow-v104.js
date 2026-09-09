@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV123Installed) return;
-  window.__exercisePulseFlowEcgGlowV123Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV124Installed) return;
+  window.__exercisePulseFlowEcgGlowV124Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v123-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v124-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style','exercise-pulse-flow-ecg-glow-v123-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -28,9 +28,8 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Compact theme-coloured 5 s halo centred on the countdown digit. The
-         pulse has a slightly wider opacity/scale swing than v122, while the
-         resting radius is smaller so the light stays concentrated. */
+      /* Truly circular 5 s halo. Keep v123 intensity/pulse, but use one radius
+         so the light has identical horizontal and vertical falloff. */
       html.exercise-concept-pulse-home-v1 body #session-pre-timer.show {
         background:rgba(8,13,20,.975) !important;
         isolation:isolate !important;
@@ -42,19 +41,19 @@
         z-index:0;
         pointer-events:none;
         background:
-          radial-gradient(430px 285px at 50% calc(50% - 18px),
+          radial-gradient(circle 320px at 50% calc(50% - 18px),
             rgba(var(--concept-timer-rgb),.115) 0%,
             rgba(var(--concept-timer-rgb),.058) 39%,
             rgba(var(--concept-timer-rgb),.018) 60%,
             transparent 75%);
         transform-origin:50% calc(50% - 18px);
-        animation:pfPretimerHaloPulseV123 1s cubic-bezier(.4,0,.2,1) infinite;
+        animation:pfPretimerHaloPulseV124 1s cubic-bezier(.4,0,.2,1) infinite;
         will-change:transform,opacity;
       }
       html.exercise-concept-pulse-home-v1 body #session-pre-timer.show #session-pre-timer-ring {
         z-index:1 !important;
       }
-      @keyframes pfPretimerHaloPulseV123 {
+      @keyframes pfPretimerHaloPulseV124 {
         0%,100% { opacity:.79;transform:scale(.976); }
         17% { opacity:1;transform:scale(1.035); }
         44% { opacity:.88;transform:scale(1.008); }
