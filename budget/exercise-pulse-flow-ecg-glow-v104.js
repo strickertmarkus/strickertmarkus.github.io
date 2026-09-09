@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV126Installed) return;
-  window.__exercisePulseFlowEcgGlowV126Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV127Installed) return;
+  window.__exercisePulseFlowEcgGlowV127Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v126-style';
+  var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v127-style';
   var scheduled = false;
 
   function cleanPreviousLargeEcgChanges() {
-    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style','exercise-pulse-flow-ecg-glow-v123-style','exercise-pulse-flow-ecg-glow-v124-style','exercise-pulse-flow-ecg-glow-v125-style'].forEach(function (id) {
+    ['exercise-pulse-flow-ecg-glow-v104-style','exercise-pulse-flow-ecg-glow-v105-style','exercise-pulse-flow-ecg-glow-v106-style','exercise-pulse-flow-ecg-glow-v107-style','exercise-pulse-flow-ecg-glow-v108-style','exercise-pulse-flow-ecg-glow-v109-style','exercise-pulse-flow-ecg-glow-v110-style','exercise-pulse-flow-ecg-glow-v111-style','exercise-pulse-flow-ecg-glow-v112-style','exercise-pulse-flow-ecg-glow-v113-style','exercise-pulse-flow-ecg-glow-v114-style','exercise-pulse-flow-ecg-glow-v116-style','exercise-pulse-flow-ecg-glow-v117-style','exercise-pulse-flow-ecg-glow-v118-style','exercise-pulse-flow-ecg-glow-v119-style','exercise-pulse-flow-ecg-glow-v120-style','exercise-pulse-flow-ecg-glow-v121-style','exercise-pulse-flow-ecg-glow-v122-style','exercise-pulse-flow-ecg-glow-v123-style','exercise-pulse-flow-ecg-glow-v124-style','exercise-pulse-flow-ecg-glow-v125-style','exercise-pulse-flow-ecg-glow-v126-style'].forEach(function (id) {
       var oldStyle = document.getElementById(id);
       if (oldStyle) oldStyle.remove();
     });
@@ -28,7 +28,7 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Truly circular 5 s halo. Keep the v124 geometry/pulse unchanged. */
+      /* Keep the circular 5 s halo exactly as before. */
       html.exercise-concept-pulse-home-v1 body #session-pre-timer.show {
         background:rgba(8,13,20,.975) !important;
         isolation:isolate !important;
@@ -58,15 +58,27 @@
         44% { opacity:.88;transform:scale(1.008); }
       }
 
-      /* The wide Pulse Flow ECG used an SVG Gaussian blur measured in SVG user
-         units. Because the 600-wide viewBox is stretched differently on phone
-         and desktop, that glow grew visually with the viewport. Override the
-         SVG filter with fixed-pixel CSS shadows so the apparent radius stays
-         stable across screen sizes. */
+      /* Desktop keeps a light fixed-pixel shadow. Use rgba instead of
+         color-mix so the filter is parsed consistently by WebKit. */
       html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58 {
         filter:
-          drop-shadow(0 0 1.25px color-mix(in srgb,currentColor 86%,transparent))
-          drop-shadow(0 0 3.8px color-mix(in srgb,currentColor 36%,transparent)) !important;
+          drop-shadow(0 0 1.25px rgba(var(--pf-rgb),.86))
+          drop-shadow(0 0 3.8px rgba(var(--pf-rgb),.36)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 1.25px rgba(var(--pf-rgb),.86))
+          drop-shadow(0 0 3.8px rgba(var(--pf-rgb),.36)) !important;
+      }
+
+      /* iOS/WebKit fallback: a real translucent SVG stroke behind the active
+         trace. This does not depend on CSS filter rendering and therefore stays
+         visibly luminous on the phone. It is hidden on larger screens. */
+      html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127 {
+        display:none;
+        fill:none;
+        vector-effect:non-scaling-stroke;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        pointer-events:none;
       }
 
       html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 .pf-ecg-guide-v80 {
@@ -97,6 +109,9 @@
         filter:
           drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),.96))
           drop-shadow(0 0 4.5px rgba(var(--pf-between-rgb),.50)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),.96))
+          drop-shadow(0 0 4.5px rgba(var(--pf-between-rgb),.50)) !important;
       }
 
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
@@ -106,6 +121,9 @@
         filter:
           drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),1))
           drop-shadow(0 0 4.8px rgba(var(--pf-between-rgb),.78)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 1.4px rgba(var(--pf-between-rgb),1))
+          drop-shadow(0 0 4.8px rgba(var(--pf-between-rgb),.78)) !important;
       }
 
       html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
@@ -113,35 +131,66 @@
         filter:
           drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.68))
           drop-shadow(0 0 9px rgba(var(--pf-between-rgb),.28)) !important;
+        -webkit-filter:
+          drop-shadow(0 0 3px rgba(var(--pf-between-rgb),.68))
+          drop-shadow(0 0 9px rgba(var(--pf-between-rgb),.28)) !important;
       }
 
-      /* Mobile Safari tends to render the same fixed-pixel filter slightly
-         tighter on a high-DPI display. Give only the luminous layer a modest
-         boost; geometry, stroke width and animation cadence remain identical. */
       @media (max-width:600px) {
+        /* The screenshot showed WebKit rendering the animated SVG filter almost
+           flat. On mobile, use the stroke halo as the primary luminous layer
+           and leave only a very tight shadow on the core trace. */
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58 {
-          filter:
-            drop-shadow(0 0 1.4px color-mix(in srgb,currentColor 92%,transparent))
-            drop-shadow(0 0 4.3px color-mix(in srgb,currentColor 43%,transparent)) !important;
+          filter:drop-shadow(0 0 1.8px rgba(var(--pf-rgb),.96)) !important;
+          -webkit-filter:drop-shadow(0 0 1.8px rgba(var(--pf-rgb),.96)) !important;
+        }
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127 {
+          display:block;
+          stroke-width:11px;
+          stroke-dasharray:175 825;
+          stroke-dashoffset:0;
+          opacity:.22;
+          animation:pulse-flow-sweep-v58 var(--pf-speed) linear infinite;
+          will-change:stroke-dashoffset;
         }
 
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
           filter:
-            drop-shadow(0 0 1.55px rgba(var(--pf-between-rgb),.98))
-            drop-shadow(0 0 5.05px rgba(var(--pf-between-rgb),.57)) !important;
+            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
+            drop-shadow(0 0 6.2px rgba(var(--pf-between-rgb),.68))
+            drop-shadow(0 0 10px rgba(var(--pf-between-rgb),.26)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
+            drop-shadow(0 0 6.2px rgba(var(--pf-between-rgb),.68))
+            drop-shadow(0 0 10px rgba(var(--pf-between-rgb),.26)) !important;
         }
 
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
           filter:
-            drop-shadow(0 0 1.55px rgba(var(--pf-between-rgb),1))
-            drop-shadow(0 0 5.35px rgba(var(--pf-between-rgb),.82)) !important;
+            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
+            drop-shadow(0 0 6.4px rgba(var(--pf-between-rgb),.88)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 1.8px rgba(var(--pf-between-rgb),1))
+            drop-shadow(0 0 6.4px rgba(var(--pf-between-rgb),.88)) !important;
         }
 
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80 {
           filter:
-            drop-shadow(0 0 3.3px rgba(var(--pf-between-rgb),.72))
-            drop-shadow(0 0 9.8px rgba(var(--pf-between-rgb),.32)) !important;
+            drop-shadow(0 0 3.8px rgba(var(--pf-between-rgb),.80))
+            drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.38)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 3.8px rgba(var(--pf-between-rgb),.80))
+            drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.38)) !important;
+        }
+
+        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58 #session-countdown-segments .session-countdown-segment.active {
+          filter:
+            drop-shadow(0 0 2px rgba(var(--pf-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-rgb),.62)) !important;
+          -webkit-filter:
+            drop-shadow(0 0 2px rgba(var(--pf-rgb),.96))
+            drop-shadow(0 0 6px rgba(var(--pf-rgb),.62)) !important;
         }
       }
 
@@ -151,14 +200,20 @@
           opacity:.91 !important;
           transform:none !important;
         }
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127 {
+          animation:none !important;
+          opacity:.10 !important;
+        }
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-b-v80 {
           opacity:.48 !important;
           filter:none !important;
+          -webkit-filter:none !important;
         }
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-marker-v80 {
           opacity:.55 !important;
           filter:none !important;
+          -webkit-filter:none !important;
         }
       }
     `;
@@ -172,9 +227,21 @@
   }
 
   function syncLargeEcgGlow() {
-    document.querySelectorAll('.pulse-flow-band-v58 .pulse-flow-trace-v58[filter]').forEach(function (trace) {
-      var value = String(trace.getAttribute('filter') || '');
-      if (value.indexOf('url(') === 0) trace.removeAttribute('filter');
+    document.querySelectorAll('.pulse-flow-band-v58 svg').forEach(function (svg) {
+      var trace = svg.querySelector('.pulse-flow-trace-v58');
+      if (!trace) return;
+
+      var attrFilter = String(trace.getAttribute('filter') || '');
+      if (attrFilter.indexOf('url(') === 0) trace.removeAttribute('filter');
+
+      if (!svg.querySelector('.pulse-flow-mobile-halo-v127')) {
+        var halo = trace.cloneNode(false);
+        halo.classList.remove('pulse-flow-trace-v58');
+        halo.classList.add('pulse-flow-mobile-halo-v127');
+        halo.removeAttribute('filter');
+        halo.setAttribute('aria-hidden','true');
+        trace.parentNode.insertBefore(halo,trace);
+      }
     });
   }
 
