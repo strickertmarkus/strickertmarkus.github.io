@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Familjekalender</title>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="indexeddb-fallback.js"></script>
+<script src="auth-config.js"></script>
+<script src="auth-gate.js?v=20260902-native-multiday-v3"></script>
+  <script src="firebase-sync.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <style>
+    :root {
+      --bg: #181F2E;
+      --bg2: #1E2638;
+      --bg3: #252D40;
+      --surface: rgba(255,255,255,0.04);
+      --surface-h: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --accent: #FBBF24;
+      --accent-dim: rgba(251,191,36,0.1);
+      --accent-glow: rgba(251,191,36,0.25);
+      --border-a: rgba(251,191,36,0.3);
+      --text: #F0F6FC;
+      --text-sec: #8B949E;
+      --text-dim: #4A5568;
+      --c-markus: #38BDF8;
+      --c-maja: #F9A8B8;
+      --c-mila: #F472B6;
+      --c-melker: #86EFAC;
+      --c-family: #FBBF24;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 90% 50% at 50% -10%, rgba(251,191,36,0.07) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+    .app-wrap { position: relative; z-index: 1; }
+    .ripple-host { position: relative; overflow: hidden; }
+    .ripple-wave { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.5s ease-out forwards; pointer-events: none; background: rgba(255,255,255,0.18); }
+    @keyframes ripple-anim { to { transform: scale(5); opacity: 0; } }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: rgba(24,31,46,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .brand-icon { width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid var(--border-a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .brand-text h1 { font-size: 15px; font-weight: 700; }
+    .brand-text p { font-size: 11px; color: var(--text-sec); }
+
+    .month-nav { display: flex; align-items: center; gap: 8px; }
+    .month-nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 14px; transition: background .2s; display: flex; align-items: center; justify-content: center; }
+    .month-nav button:hover { background: var(--surface-h); }
+    #month-label { font-size: 14px; font-weight: 700; min-width: 160px; text-align: center; }
+
+    .nav-dropdown-wrapper { position: relative; display: inline-block; z-index: 1000; }
+    .nav-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .nav-btn:hover { background: var(--surface-h); }
+    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.5); min-width: 230px; overflow: hidden; animation: dropIn .2s cubic-bezier(.16,1,.3,1); }
+    .nav-dropdown-menu.show { display: block; }
+    @keyframes dropIn { from { opacity:0; transform:translateY(-8px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 11px 16px; color: #C9D1DC; text-decoration: none; font-size: 13px; font-weight: 500; transition: background .15s, color .15s; border-bottom: 1px solid rgba(255,255,255,.035); }
+    .nav-dropdown-menu a:last-child { border-bottom: none; }
+    .nav-dropdown-menu a:hover { background: var(--accent-dim); color: var(--accent); }
+    .nav-sep { border-top: 1px solid var(--border); margin: 4px 0; }
+    .nav-icon { font-size: 15px; flex-shrink: 0; }
+
+    /* ── MEMBER FILTER BAR ── */
+    .filter-bar { display: flex; align-items: center; gap: 8px; padding: 10px 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; background: rgba(24,31,46,0.6); }
+    .filter-label { font-size: 11px; font-weight: 600; color: var(--text-sec); text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .member-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 1.5px solid transparent; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; user-select: none; opacity: .55; }
+    .member-chip.active { opacity: 1; }
+    .member-chip[data-member="markus"]  { border-color: var(--c-markus);  color: var(--c-markus);  background: rgba(56,189,248,.1); }
+    .member-chip[data-member="maja"]    { border-color: var(--c-maja);    color: var(--c-maja);    background: rgba(249,168,184,.1); }
+    .member-chip[data-member="mila"]    { border-color: var(--c-mila);    color: var(--c-mila);    background: rgba(244,114,182,.1); }
+    .member-chip[data-member="melker"]  { border-color: var(--c-melker);  color: var(--c-melker);  background: rgba(134,239,172,.1); }
+    .member-chip[data-member="family"]  { border-color: var(--c-family);  color: var(--c-family);  background: rgba(251,191,36,.1); }
+    .btn-notif { margin-left: auto; background: var(--surface); border: 1px solid var(--border); color: var(--text-sec); border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s; font-family: 'Inter', sans-serif; }
+    .btn-notif:hover { background: var(--surface-h); }
+
+    /* ── MAIN LAYOUT ── */
+    .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 0; max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
+
+    /* ── CALENDAR ── */
+    .cal-section { padding-right: 1.5rem; }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
+    .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+    .cal-cell:hover { background: var(--surface-h); border-color: rgba(255,255,255,.14); }
+    .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+    .cal-cell.today { border-color: var(--accent); background: rgba(251,191,36,.07); }
+    .cal-cell.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(251,191,36,.2); }
+    .cal-num { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .cal-cell.today .cal-num { color: var(--accent); }
+    .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
+    .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .cal-dot-more { font-size: 9px; color: var(--text-dim); align-self: center; }
+    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 2px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 5px; }
+    .cal-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+    .cal-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; flex: 1 1 auto; }
+    .cal-pill-more { font-size: 9px; font-weight: 700; opacity: .85; margin-left: auto; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { padding-left: 0; }
+    .sidebar-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+    .sidebar-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+    .btn-xs { background: var(--accent-dim); border: 1px solid var(--border-a); color: var(--accent); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background .2s; font-family: 'Inter', sans-serif; }
+    .btn-xs:hover { background: rgba(251,191,36,.2); }
+    .event-item { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; cursor: pointer; transition: background .15s; border-radius: 4px; }
+    .event-item:last-child { border-bottom: none; }
+    .event-item:hover { background: var(--surface-h); }
+    .event-bar { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
+    .event-info { flex: 1; min-width: 0; }
+    .event-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-meta { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+    .empty-sidebar { text-align: center; padding: 1.5rem 1rem; color: var(--text-dim); font-size: 12px; }
+
+    /* ── TODO LIST ── */
+    .todo-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .todo-item:last-child { border-bottom: none; }
+    .todo-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .todo-check.done { background: var(--accent); border-color: var(--accent); }
+    .todo-text { font-size: 13px; color: var(--text); flex: 1; transition: color .15s; }
+    .todo-text.done { text-decoration: line-through; color: var(--text-dim); }
+    .todo-del { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color .15s; }
+    .todo-del:hover { color: #F87171; }
+    .todo-add-row { display: flex; gap: 6px; margin-top: 8px; }
+    .todo-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; padding: 6px 10px; outline: none; }
+    .todo-input:focus { border-color: var(--border-a); }
+    .todo-member-sel { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; padding: 6px 8px; outline: none; }
+
+    /* ── NOTIFICATION PANEL ── */
+    .notif-panel { display: none; background: var(--bg2); border: 1px solid var(--border-a); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+    .notif-panel.show { display: block; }
+    .notif-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .notif-row:last-child { border-bottom: none; }
+    .toggle { position: relative; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--bg3); border-radius: 11px; cursor: pointer; transition: background .2s; border: 1px solid var(--border); }
+    .toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-sec); border-radius: 50%; transition: transform .2s, background .2s; }
+    .toggle input:checked + .toggle-slider { background: rgba(251,191,36,.2); border-color: var(--border-a); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent); }
+
+    /* ── DAY EVENTS PANEL ── */
+    .day-panel { display: none; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 12px; }
+    .day-panel.show { display: block; }
+    .day-panel-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); z-index: 9000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 18px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: slideUp .25s cubic-bezier(.16,1,.3,1); box-shadow: 0 24px 64px rgba(0,0,0,.5); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .modal h2 { font-size: 17px; font-weight: 800; margin-bottom: 18px; letter-spacing: -.3px; display: flex; align-items: center; gap: 8px; }
+    .modal-close { float: right; background: var(--surface); border: 1px solid var(--border); color: var(--text-sec); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+    .modal-close:hover { background: var(--surface-h); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif; padding: 9px 12px; outline: none; transition: border-color .22s ease, box-shadow .22s ease, background-color .22s ease; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-a); }
+    .form-group select option { background: var(--bg2); }
+    .form-group input[type="date"], .form-group input[type="time"], .todo-member-sel, .form-group select { color-scheme: dark; }
+    .form-group input[type="date"]:focus, .form-group input[type="time"]:focus { box-shadow: 0 0 0 2px rgba(251,191,36,.2); background: rgba(255,255,255,.05); }
+    .form-group input[type="date"], .form-group input[type="time"] { border-color: var(--border); border-radius: 10px; background: rgba(255,255,255,.03); accent-color: #FBBF24; }
+
+    .form-group input[data-picker="date"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3' ry='3'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .form-group input[data-picker="time"] {
+      cursor: pointer;
+      padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15 14'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px 16px;
+    }
+
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .form-group input[type="date"]:hover::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]:hover::-webkit-calendar-picker-indicator,
+    .form-group input[type="date"]:focus::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]:focus::-webkit-calendar-picker-indicator {
+      opacity: 0;
+    }
+
+    .flatpickr-calendar {
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0,0,0,.45);
+      color: #E2E8F0;
+    }
+
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year,
+    .flatpickr-weekdays,
+    span.flatpickr-weekday {
+      background: transparent;
+      color: #E2E8F0;
+      fill: #E2E8F0;
+    }
+
+    .flatpickr-current-month {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      overflow: visible;
+    }
+
+    .flatpickr-months,
+    .flatpickr-month {
+      overflow: visible;
+    }
+
+    .fp-my-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .fp-my-trigger {
+      background: none;
+      border: none;
+      color: #E2E8F0;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.1;
+      padding: 2px 1px;
+      min-height: 0;
+      cursor: pointer;
+      transition: color .18s;
+      font-family: 'Inter', sans-serif;
+      text-transform: lowercase;
+    }
+
+    .fp-my-trigger:hover,
+    .fp-my-trigger.open {
+      color: #FBBF24;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .fp-my-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(0,0,0,.45);
+      padding: 6px;
+      display: none;
+      z-index: 40;
+      max-height: 220px;
+      overflow: auto;
+      min-width: 132px;
+      pointer-events: auto;
+    }
+
+    .fp-my-menu.show { display: block; }
+    .fp-my-menu.month { left: 0; }
+    .fp-my-menu.year { right: 0; min-width: 96px; }
+
+    .fp-my-option {
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #E2E8F0;
+      border-radius: 7px;
+      text-align: left;
+      padding: 7px 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fp-my-option:hover {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.35);
+    }
+
+    .fp-my-option.active {
+      background: #FBBF24;
+      color: #181F2E;
+      font-weight: 700;
+    }
+
+    .fp-floating-menu {
+      position: fixed;
+      background: #1E2638;
+      border: 1px solid rgba(251,191,36,.32);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(0,0,0,.45);
+      padding: 6px;
+      z-index: 2147483000;
+      max-height: 220px;
+      overflow: auto;
+      min-width: 132px;
+      display: none;
+      touch-action: pan-y;
+    }
+
+    .fp-floating-menu.show { display: block; }
+
+    .fp-floating-menu.year {
+      min-width: 96px;
+    }
+
+    .flatpickr-day {
+      color: #E2E8F0;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+
+    .flatpickr-day:hover {
+      background: rgba(251,191,36,.14);
+      border-color: rgba(251,191,36,.35);
+    }
+
+    .flatpickr-day.today {
+      border-color: #FBBF24;
+      color: #FBBF24;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
+
+    .flatpickr-time input,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #E2E8F0;
+      background: transparent;
+    }
+
+    .flatpickr-time {
+      border-top: 1px solid rgba(251,191,36,.24);
+      background: rgba(255,255,255,.02);
+      border-radius: 0 0 12px 12px;
+    }
+
+    .flatpickr-time .flatpickr-time-separator,
+    .flatpickr-time .flatpickr-am-pm {
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper:hover,
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus {
+      background: rgba(251,191,36,.18);
+      color: #FBBF24;
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp:after,
+    .flatpickr-time .numInputWrapper span.arrowDown:after {
+      border-bottom-color: #FBBF24;
+      border-top-color: #FBBF24;
+    }
+
+    .fp-time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      padding: 8px;
+      border-top: 1px solid rgba(251,191,36,.24);
+      max-height: 164px;
+      overflow-y: auto;
+    }
+
+    .fp-time-chip {
+      border: 1px solid rgba(251,191,36,.26);
+      background: rgba(255,255,255,.03);
+      color: #E2E8F0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      padding: 7px 0;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .fp-time-chip:hover {
+      background: rgba(251,191,36,.2);
+      color: #FBBF24;
+    }
+
+    .fp-time-chip.active {
+      background: #FBBF24;
+      border-color: #FBBF24;
+      color: #181F2E;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .member-color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .mc-opt { padding: 5px 12px; border-radius: 20px; border: 1.5px solid transparent; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; opacity: .6; }
+    .mc-opt.selected { opacity: 1; transform: scale(1.04); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .btn-primary { background: var(--accent); color: #181F2E; border: none; border-radius: var(--radius-sm); padding: 9px 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s; font-family: 'Inter', sans-serif; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-sec); border-radius: var(--radius-sm); padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .15s; }
+    .btn-ghost:hover { background: var(--surface); }
+    .btn-danger { background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.3); color: #F87171; border-radius: var(--radius-sm); padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .15s; margin-right: auto; }
+    .btn-danger:hover { background: rgba(248,113,113,.25); }
+
+    /* ── FAB ── */
+    .fab { position: fixed; bottom: 28px; right: 28px; width: 54px; height: 54px; background: var(--accent); color: #181F2E; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px var(--accent-glow); display: flex; align-items: center; justify-content: center; z-index: 500; transition: transform .2s, box-shadow .2s; }
+    .fab:hover { transform: scale(1.1); box-shadow: 0 8px 30px var(--accent-glow); }
+    .fab:active { transform: scale(.96); }
+
+    /* ── TOOLTIP ── */
+    .day-tooltip { display: none; position: fixed; z-index: 5000; background: var(--bg2); border: 1px solid var(--border-a); border-radius: 10px; padding: 10px 12px; max-width: 220px; min-width: 160px; font-size: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: none; }
+    .day-tooltip.show { display: block; animation: tooltipFadeIn .15s ease; }
+    @keyframes tooltipFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .tt-date { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .tt-event { font-size: 12px; color: var(--text); padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .tt-event:last-of-type { border-bottom: none; }
+    .tt-empty { color: var(--text-dim); font-size: 11px; font-style: italic; }
+    .tt-hint { font-size: 10px; color: var(--text-dim); margin-top: 7px; border-top: 1px solid rgba(255,255,255,.04); padding-top: 5px; }
+    /* ── TRIP DISPLAY ── */
+    .trip-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .trip-dest { font-size: 12px; color: var(--text-sec); margin-bottom: 8px; }
+    .trip-countdown { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+    .trip-days { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
+    .trip-dates { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+    .trip-sched-item { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .trip-sched-item:last-child { border-bottom: none; }
+    .trip-sched-time { color: var(--accent); font-weight: 600; min-width: 52px; font-size: 11px; flex-shrink: 0; }
+    .trip-sched-text { color: var(--text-sec); }
+    .trip-in-past { font-size: 12px; color: var(--text-dim); font-style: italic; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .filter-bar { display: none; }
+      .app-header { flex-wrap: wrap; justify-content: center; gap: 8px; padding-bottom: 12px; }
+      .brand { width: 100%; justify-content: center; }
+      .month-nav { display: flex; width: 100%; justify-content: center; margin-top: 2px; }
+      .nav-dropdown-wrapper { margin-left: auto; }
+      .main-layout { grid-template-columns: 1fr; padding: 1rem 1rem 5rem; }
+      .cal-section { padding-right: 0; margin-bottom: 16px; }
+      .cal-cell { min-height: 56px; padding: 5px 4px; }
+      .cal-num { font-size: 12px; }
+      .form-group input[data-picker="date"],
+      .form-group input[data-picker="time"],
+      .form-group input[type="date"],
+      .form-group input[type="time"] { font-size: 16px; touch-action: manipulation; }
+    }
+    @media (max-width: 480px) {
+      .filter-bar { gap: 6px; }
+      .member-chip span { display: none; }
+    }
+  </style>
+<script src="nav-menu-motion.js?v=20260831-nav-motion-v1"></script>
+</head>
+<body>
+<div class="app-wrap">
+
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">📅</div>
+      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjekalender</h1><p>Familia Strickert</p></div>
+    </div>
+    <div class="month-nav">
+      <button onclick="prevMonth()">‹</button>
+      <span id="month-label">Maj 2026</span>
+      <button onclick="nextMonth()">›</button>
+    </div>
+    <div class="nav-dropdown-wrapper">
+      <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
+      <div class="nav-dropdown-menu" id="nav-menu">
+        <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+        <div class="nav-sep"></div>
+        <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+        <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+        <a href="budget_maja.html"><span class="nav-icon">💰</span> Majas Budget</a>
+        <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+        <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+        <a href="data.html"><span class="nav-icon">⚙️</span> Data &amp; Formler</a>
+        <div class="nav-sep"></div>
+        <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+        <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+        <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+        <div class="nav-sep"></div>
+        <a href="mila.html"><span class="nav-icon">👧🏻</span> Milas Milstolpar</a>
+        <a href="melker.html"><span class="nav-icon">👦🏼</span> Melkers Milstolpar</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <span class="filter-label">Visa:</span>
+    <div class="member-chip active" data-member="markus">🔵 <span>Markus</span></div>
+    <div class="member-chip active" data-member="maja">🩷 <span>Maja</span></div>
+    <div class="member-chip active" data-member="mila">💗 <span>Mila</span></div>
+    <div class="member-chip active" data-member="melker">🟢 <span>Melker</span></div>
+    <div class="member-chip active" data-member="family">⭐ <span>Familjen</span></div>
+    <button class="btn-notif" onclick="toggleNotifPanel()" aria-label="Notiser">🔔</button>
+  </div>
+
+  <!-- NOTIF PANEL -->
+  <div style="max-width:1200px;margin:0 auto;padding:0 1.5rem">
+    <div class="notif-panel" id="notif-panel">
+      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Notifikationsinställningar — sparas lokalt i webbläsaren</div>
+      <div class="notif-row"><span>Aktivera påminnelser</span><label class="toggle"><input type="checkbox" id="notif-enabled" onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+      <div class="notif-row"><span>Markus</span><label class="toggle"><input type="checkbox" id="notif-markus" checked onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+      <div class="notif-row"><span>Maja</span><label class="toggle"><input type="checkbox" id="notif-maja" checked onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+      <div class="notif-row"><span>Mila</span><label class="toggle"><input type="checkbox" id="notif-mila" checked onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+      <div class="notif-row"><span>Melker</span><label class="toggle"><input type="checkbox" id="notif-melker" checked onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+      <div class="notif-row"><span>Familjehändelser</span><label class="toggle"><input type="checkbox" id="notif-family" checked onchange="saveNotifSettings()"><span class="toggle-slider"></span></label></div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- CALENDAR -->
+    <div class="cal-section">
+      <div class="cal-weekdays">
+        <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
+        <div class="cal-wd">Tor</div><div class="cal-wd">Fre</div><div class="cal-wd">Lör</div><div class="cal-wd">Sön</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="day-panel" id="day-panel">
+        <div class="day-panel-title">
+          <span id="day-panel-date">Händelser</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn-xs" onclick="openEventModal()">+ Lägg till</button>
+            <button class="btn-xs" style="background:transparent;border-color:rgba(255,255,255,.15);color:var(--text-sec);" onclick="document.getElementById('day-panel').classList.remove('show');selectedDate=null;renderMonth();">✕</button>
+          </div>
+        </div>
+        <div id="day-events-list"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">
+          <span>📅 Kommande händelser</span>
+        </div>
+        <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">
+          <span>✅ Att göra</span>
+        </div>
+        <div id="todo-list"></div>
+        <div class="todo-add-row">
+          <input type="text" class="todo-input" id="todo-input" placeholder="Ny uppgift…" onkeydown="if(event.key==='Enter')addTodo()">
+          <select class="todo-member-sel" id="todo-member">
+            <option value="family">👨‍👩‍👧‍👦</option>
+            <option value="markus">🔵</option>
+            <option value="maja">🩷</option>
+            <option value="mila">💗</option>
+            <option value="melker">🟢</option>
+          </select>
+          <button class="btn-xs" onclick="addTodo()">+</button>
+        </div>
+      </div>
+      <div class="sidebar-section" id="trip-section">
+        <div class="sidebar-title">
+          <span>✈️ Kommande resa</span>
+          <button class="btn-xs" onclick="openTripModal()">+ Konfigurera</button>
+        </div>
+        <div id="trip-content"><div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="fab" onclick="openEventModal()" title="Ny händelse">+</button>
+
+<!-- TRIP MODAL -->
+<div class="modal-overlay" id="trip-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTripModal()">✕</button>
+    <h2>✈️ Reseplanering</h2>
+    <div class="form-group"><label>Resenamn</label><input type="text" id="trip-name-inp" placeholder="Mallorca 2026"></div>
+    <div class="form-group"><label>Destination</label><input type="text" id="trip-dest-inp" placeholder="Palma, Spanien"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Avresa</label><input type="text" id="trip-start-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
+      <div class="form-group"><label>Hemresa</label><input type="text" id="trip-end-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
+    </div>
+    <div class="form-group"><label>Anteckningar</label><textarea id="trip-notes-inp" rows="2" placeholder="Hotell, flyg, viktiga detaljer…"></textarea></div>
+    <div class="form-group">
+      <label>Schema <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(valfritt)</span></label>
+      <div id="trip-sched-list"></div>
+      <button class="btn-ghost" style="margin-top:8px;font-size:12px;padding:6px 12px" onclick="addTripSchedRow()">+ Dag/aktivitet</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="trip-del-btn" onclick="deleteTrip()">🗑 Ta bort</button>
+      <button class="btn-ghost" onclick="closeTripModal()">Avbryt</button>
+      <button class="btn-primary" onclick="saveTrip()">Spara resa</button>
+    </div>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEventModal()">✕</button>
+    <h2>📅 <span id="modal-title-text">Ny händelse</span></h2>
+    <input type="hidden" id="edit-event-id">
+    <div class="form-group">
+      <label>Titel</label>
+      <input type="text" id="ev-title" placeholder="Vad händer?">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Datum</label>
+        <input type="text" id="ev-date" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD">
+      </div>
+      <div class="form-group">
+        <label>Tid (valfri)</label>
+        <input type="text" id="ev-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sluttid (valfri)</label>
+        <input type="text" id="ev-end-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
+      </div>
+      <div class="form-group">
+        <label>Slutdatum för upprepning (valfritt)</label>
+        <input type="text" id="ev-repeat-until" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Familjemedlem</label>
+      <div class="member-color-row" id="member-color-row">
+        <div class="mc-opt selected" data-member="family" style="border-color:var(--c-family);color:var(--c-family);background:rgba(251,191,36,.1)">⭐ Familjen</div>
+        <div class="mc-opt" data-member="markus" style="border-color:var(--c-markus);color:var(--c-markus);background:rgba(56,189,248,.1)">🔵 Markus</div>
+        <div class="mc-opt" data-member="maja" style="border-color:var(--c-maja);color:var(--c-maja);background:rgba(249,168,184,.1)">🩷 Maja</div>
+        <div class="mc-opt" data-member="mila" style="border-color:var(--c-mila);color:var(--c-mila);background:rgba(244,114,182,.1)">💗 Mila</div>
+        <div class="mc-opt" data-member="melker" style="border-color:var(--c-melker);color:var(--c-melker);background:rgba(134,239,172,.1)">🟢 Melker</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Emoji (valfri)</label>
+      <input type="text" id="ev-emoji" placeholder="📅 🎂 🏥 ✈️" maxlength="4" style="max-width:80px">
+    </div>
+    <div class="form-group">
+      <label>Upprepning</label>
+      <select id="ev-repeat">
+        <option value="none">Ingen upprepning</option>
+        <option value="weekly">Varje vecka</option>
+        <option value="monthly">Varje månad</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Anteckningar</label>
+      <textarea id="ev-notes" rows="2" placeholder="Valfri info…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="delete-btn" style="display:none" onclick="deleteCurrentEvent()">🗑 Ta bort</button>
+      <button class="btn-ghost" onclick="closeEventModal()">Avbryt</button>
+      <button class="btn-primary" onclick="saveEvent()">Spara</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── THREE.JS ──────────────────────────────────────────────────
+(function() {
+  if (typeof THREE === 'undefined') return;
+  const canvas = document.getElementById('three-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 200);
+  camera.position.z = 35;
+
+  // Circular texture
+  const cc = document.createElement('canvas'); cc.width = cc.height = 64;
+  const cx = cc.getContext('2d');
+  const gr = cx.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.4,'rgba(255,255,255,.8)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+  cx.fillStyle = gr; cx.beginPath(); cx.arc(32,32,32,0,Math.PI*2); cx.fill();
+  const tex = new THREE.CanvasTexture(cc);
+
+  // Particles (amber + mixed family colors)
+  const pColors = [0xFBBF24, 0x38BDF8, 0xF9A8B8, 0x86EFAC, 0xF472B6];
+  const groups = pColors.map((col, ci) => {
+    const cnt = 30;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(cnt*3);
+    const vel = [];
+    for (let i=0;i<cnt;i++) {
+      pos[i*3]=(Math.random()-.5)*110; pos[i*3+1]=(Math.random()-.5)*70; pos[i*3+2]=(Math.random()-.5)*30;
+      vel.push((Math.random()-.5)*.012,(Math.random()-.5)*.008);
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const mat = new THREE.PointsMaterial({ color: col, map: tex, size: ci===0?.6:.45, transparent:true, opacity: ci===0?.38:.25, sizeAttenuation:true, alphaTest:.01 });
+    const pts = new THREE.Points(geo, mat);
+    scene.add(pts);
+    return { pts, geo, vel, cnt };
+  });
+
+  // Wireframe gems (family colors)
+  const gemGeos = [new THREE.OctahedronGeometry(.9), new THREE.TetrahedronGeometry(.85), new THREE.IcosahedronGeometry(.75)];
+  const gemColors2 = [0xFBBF24, 0x38BDF8, 0xF9A8B8, 0x86EFAC, 0xF472B6];
+  const gems = [];
+  for (let i=0;i<6;i++) {
+    const gm = new THREE.Mesh(gemGeos[i%3], new THREE.MeshBasicMaterial({ color: gemColors2[i%5], wireframe:true, transparent:true, opacity:.18 }));
+    gm.position.set((Math.random()-.5)*80,(Math.random()-.5)*50,(Math.random()-.5)*15);
+    gm.userData.rx=(Math.random()-.5)*.012; gm.userData.ry=(Math.random()-.5)*.016;
+    gm.userData.vx=(Math.random()-.5)*.005; gm.userData.vy=(Math.random()-.5)*.004;
+    scene.add(gm); gems.push(gm);
+  }
+
+  // Bubbles
+  const bc=document.createElement('canvas'); bc.width=bc.height=128;
+  const bx=bc.getContext('2d');
+  const bg=bx.createRadialGradient(64,64,6,64,64,62);
+  bg.addColorStop(0,'rgba(255,255,255,0)'); bg.addColorStop(.65,'rgba(255,255,255,.04)'); bg.addColorStop(.88,'rgba(255,255,255,.2)'); bg.addColorStop(1,'rgba(255,255,255,0)');
+  bx.fillStyle=bg; bx.beginPath(); bx.arc(64,64,64,0,Math.PI*2); bx.fill();
+  const btex=new THREE.CanvasTexture(bc);
+  const bubbles=[];
+  for(let i=0;i<6;i++){
+    const sz=2+Math.random()*5;
+    const bm=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:btex,transparent:true,opacity:.22+Math.random()*.15,depthWrite:false}));
+    bm.position.set((Math.random()-.5)*90,(Math.random()-.5)*55,(Math.random()-.5)*10);
+    bm.userData.vy=.006+Math.random()*.01; bm.userData.vx=(Math.random()-.5)*.005;
+    scene.add(bm); bubbles.push(bm);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    groups.forEach(g => {
+      const p=g.geo.attributes.position.array;
+      for(let i=0;i<g.cnt;i++){
+        p[i*3]+=g.vel[i*2]; p[i*3+1]+=g.vel[i*2+1];
+        if(p[i*3]>55)p[i*3]=-55; if(p[i*3]<-55)p[i*3]=55;
+        if(p[i*3+1]>35)p[i*3+1]=-35; if(p[i*3+1]<-35)p[i*3+1]=35;
+      }
+      g.geo.attributes.position.needsUpdate=true;
+    });
+    gems.forEach(g=>{
+      g.rotation.x+=g.userData.rx; g.rotation.y+=g.userData.ry;
+      g.position.x+=g.userData.vx; g.position.y+=g.userData.vy;
+      if(g.position.x>50)g.position.x=-50; if(g.position.x<-50)g.position.x=50;
+      if(g.position.y>35)g.position.y=-35; if(g.position.y<-35)g.position.y=35;
+    });
+    bubbles.forEach(b=>{
+      b.position.y+=b.userData.vy; b.position.x+=b.userData.vx;
+      if(b.position.y>42){b.position.y=-42;b.position.x=(Math.random()-.5)*90;}
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+  window.addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+})();
+
+// ── DATA ──────────────────────────────────────────────────────
+var DB = { get:function(k){return JSON.parse(localStorage.getItem('cal_'+k)||'null');}, set:function(k,v){localStorage.setItem('cal_'+k,JSON.stringify(v));} };
+function getEvents() { return DB.get('events') || []; }
+function getTodos()  { return DB.get('todos')  || []; }
+
+// ── STATE ─────────────────────────────────────────────────────
+var currentDate = new Date();
+var selectedDate = null;
+var selectedMember = 'family';
+var visibleMembers = { markus:true, maja:true, mila:true, melker:true, family:true };
+
+var MEMBER_COLORS = { markus:'#38BDF8', maja:'#F9A8B8', mila:'#F472B6', melker:'#86EFAC', family:'#FBBF24' };
+var MEMBER_LABELS = { markus:'Markus', maja:'Maja', mila:'Mila', melker:'Melker', family:'Familjen' };
+var MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+
+function getMemberColor(m) { return MEMBER_COLORS[m] || '#FBBF24'; }
+
+function todayISO() { return new Date().toISOString().slice(0,10); }
+
+function isEventVisible(ev) { return visibleMembers[ev.member] !== false; }
+
+function addCalendarDaysISO(iso, delta) {
+  var parts = String(iso || '').split('-').map(Number);
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return '';
+  var date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + delta));
+  return date.toISOString().slice(0,10);
+}
+
+function calendarDayDistance(startISO, endISO) {
+  var start = String(startISO || '').split('-').map(Number);
+  var end = String(endISO || '').split('-').map(Number);
+  if (start.length !== 3 || end.length !== 3 || !start[0] || !end[0]) return 0;
+  return Math.max(0, Math.round((
+    Date.UTC(end[0], end[1] - 1, end[2]) -
+    Date.UTC(start[0], start[1] - 1, start[2])
+  ) / 86400000));
+}
+
+function eventOccurrenceAtDate(ev, dateISO, occurrenceId) {
+  var clone = Object.assign({}, ev, {
+    date: dateISO,
+    id: occurrenceId,
+    __sourceEventId: ev.__sourceEventId || ev.id
+  });
+  var durationDays = calendarDayDistance(ev.date, ev.endDate);
+  if (durationDays > 0) clone.endDate = addCalendarDaysISO(dateISO, durationDays);
+  return clone;
+}
+
+function expandEventDateRanges(events) {
+  var expanded = [];
+  events.forEach(function(ev) {
+    expanded.push(ev);
+    if (!ev || ev.__rangeContinuation || !ev.date || !ev.endDate || ev.endDate <= ev.date) return;
+    var cursor = ev.date;
+    var guard = 0;
+    while (cursor < ev.endDate && guard < 370) {
+      guard++;
+      cursor = addCalendarDaysISO(cursor, 1);
+      if (!cursor || cursor > ev.endDate) break;
+      expanded.push(Object.assign({}, ev, {
+        date: cursor,
+        __rangeContinuation: true,
+        __rangeStart: ev.__rangeStart || ev.date,
+        __sourceEventId: ev.__sourceEventId || ev.id
+      }));
+    }
+  });
+  return expanded;
+}
+
+function expandRepeating(events, year, month) {
+  var result = [];
+  events.forEach(function(ev) {
+    result.push(ev);
+    var repeatUntil = ev.repeatUntil || '';
+    if (ev.repeat === 'weekly') {
+      for (var w=1; w<=52; w++) {
+        var weeklyISO = addCalendarDaysISO(ev.date, w * 7);
+        if (!weeklyISO || (repeatUntil && weeklyISO > repeatUntil)) break;
+        var wp = weeklyISO.split('-').map(Number);
+        if (wp[0] === year && wp[1] - 1 === month) {
+          result.push(eventOccurrenceAtDate(ev, weeklyISO, ev.id + '_w' + w));
+        }
+      }
+    }
+    if (ev.repeat === 'monthly') {
+      var bp = String(ev.date || '').split('-').map(Number);
+      if (bp.length === 3 && bp[0] && bp[1] && bp[2]) {
+        for (var m=1; m<=60; m++) {
+          var monthlyDate = new Date(Date.UTC(bp[0], bp[1] - 1 + m, bp[2]));
+          var monthlyISO = monthlyDate.toISOString().slice(0,10);
+          if (repeatUntil && monthlyISO > repeatUntil) break;
+          if (monthlyDate.getUTCFullYear() === year && monthlyDate.getUTCMonth() === month) {
+            result.push(eventOccurrenceAtDate(ev, monthlyISO, ev.id + '_m' + m));
+          }
+        }
+      }
+    }
+  });
+  return expandEventDateRanges(result);
+}
+expandRepeating.__nativeRangeExpansion = true;
+
+function formatEventTimeRange(ev) {
+  var start = ev.time || '';
+  var end = ev.endTime || '';
+  if (start && end) return start + ' - ' + end;
+  return start || end || '';
+}
+
+// ── RENDER MONTH ──────────────────────────────────────────────
+function renderMonth() {
+  var year = currentDate.getFullYear();
+  var month = currentDate.getMonth();
+  document.getElementById('month-label').textContent = MONTHS[month] + ' ' + year;
+
+  var daysInMonth = new Date(year, month+1, 0).getDate();
+  var rawFirst = new Date(year, month, 1).getDay();
+  var firstDay = rawFirst === 0 ? 6 : rawFirst - 1;
+  var today = todayISO();
+  var events = expandRepeating(getEvents(), year, month);
+
+  var grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  for (var e=0; e<firstDay; e++) {
+    var ec = document.createElement('div'); ec.className='cal-cell empty'; grid.appendChild(ec);
+  }
+
+  for (var d=1; d<=daysInMonth; d++) {
+    var mm = String(month+1).padStart(2,'0');
+    var dd = String(d).padStart(2,'0');
+    var dateISO = year+'-'+mm+'-'+dd;
+    var dayEvs = events.filter(function(ev){ return ev.date===dateISO && isEventVisible(ev); });
+    var isToday = dateISO===today;
+    var isSel = dateISO===selectedDate;
+
+    var cell = document.createElement('div');
+    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'');
+    cell.dataset.date = dateISO;
+
+    var html = '<div class="cal-num">'+d+'</div>';
+    if (dayEvs.length) {
+      var firstEvent = dayEvs[0];
+      var firstColor = getMemberColor(firstEvent.member);
+      html += '<div class="cal-event-pill" style="background:'+firstColor+'22;color:'+firstColor+'">'
+            + '<span class="cal-pill-dot" style="background:'+firstColor+'"></span>'
+            + '<span class="cal-pill-text">' + escHtml((firstEvent.emoji||'') + ' ' + firstEvent.title) + '</span>'
+            + (dayEvs.length > 1 ? '<span class="cal-pill-more">+' + (dayEvs.length - 1) + '</span>' : '')
+            + '</div>';
+    }
+    cell.innerHTML = html;
+    (function(iso, evs){
+      cell.addEventListener('click', function(){ selectDay(iso); });
+      cell.addEventListener('dblclick', function(e){ e.stopPropagation(); openEventModal(iso); });
+      cell.addEventListener('mouseenter', function(e){ showDayTooltip(iso, evs, e.currentTarget); });
+      cell.addEventListener('mouseleave', function(){ hideDayTooltip(); });
+    })(dateISO, dayEvs.slice(0,5));
+    grid.appendChild(cell);
+  }
+
+  renderUpcoming();
+}
+
+function selectDay(dateISO) {
+  selectedDate = dateISO;
+  document.getElementById('day-panel').classList.add('show');
+  var parts = dateISO.split('-');
+  document.getElementById('day-panel-date').textContent = parts[2]+'/'+parts[1]+'/'+parts[0];
+  document.getElementById('ev-date').value = dateISO;
+  renderDayEvents(dateISO);
+  renderMonth();
+}
+
+function renderDayEvents(dateISO) {
+  var events = expandRepeating(getEvents(), currentDate.getFullYear(), currentDate.getMonth());
+  var dayEvs = events.filter(function(ev){ return ev.date===dateISO && isEventVisible(ev); });
+  var list = document.getElementById('day-events-list');
+  if (!dayEvs.length) { list.innerHTML='<div class="empty-sidebar">Inga händelser. Tryck + för att lägga till.</div>'; return; }
+  var html='';
+  dayEvs.forEach(function(ev){
+    var col = getMemberColor(ev.member);
+    var timeLabel = formatEventTimeRange(ev);
+    html += '<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+escHtml(MEMBER_LABELS[ev.member]||'')+(timeLabel?' · '+timeLabel:'')+'</div></div></div>';
+  });
+  list.innerHTML=html;
+}
+
+function renderUpcoming() {
+  var today = todayISO();
+  var events = getEvents().filter(function(ev){ return ev.date >= today && isEventVisible(ev); });
+  events.sort(function(a,b){ return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''); });
+  var list = document.getElementById('upcoming-list');
+  if (!events.length) { list.innerHTML='<div class="empty-sidebar">Inga kommande händelser</div>'; return; }
+  var html='';
+  events.slice(0,8).forEach(function(ev){
+    var col=getMemberColor(ev.member);
+    var p=ev.date.split('-');
+    var dateStr=p[2]+'/'+p[1];
+    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(ev.time?' · '+ev.time:'')+'</div></div></div>';
+  });
+  list.innerHTML=html;
+}
+
+// ── MONTH NAV ─────────────────────────────────────────────────
+function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); renderMonth(); }
+function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); renderMonth(); }
+
+// Close day panel when tapping outside (mobile)
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('day-panel');
+  if (!panel || !panel.classList.contains('show')) return;
+  var calGrid = document.getElementById('cal-grid');
+  if (!panel.contains(e.target) && !calGrid.contains(e.target)) {
+    panel.classList.remove('show');
+    selectedDate = null;
+    renderMonth();
+  }
+});
+
+// ── EVENT MODAL ───────────────────────────────────────────────
+function openEventModal(dateOverride) {
+  document.getElementById('edit-event-id').value='';
+  document.getElementById('modal-title-text').textContent='Ny händelse';
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-date').value = dateOverride || selectedDate || todayISO();
+  document.getElementById('ev-time').value='';
+  document.getElementById('ev-end-time').value='';
+  document.getElementById('ev-repeat-until').value='';
+  document.getElementById('ev-emoji').value='';
+  document.getElementById('ev-notes').value='';
+  document.getElementById('ev-repeat').value='none';
+  document.getElementById('delete-btn').style.display='none';
+  setSelectedMember('family');
+  document.getElementById('event-modal').classList.add('show');
+  setTimeout(function(){ document.getElementById('ev-title').focus(); }, 200);
+}
+
+function editEvent(id) {
+  var events = getEvents();
+  var ev = events.find(function(e){ return e.id===id; });
+  if (!ev) { openEventModal(); return; }
+  document.getElementById('edit-event-id').value = id;
+  document.getElementById('modal-title-text').textContent = 'Redigera händelse';
+  document.getElementById('ev-title').value = ev.title;
+  document.getElementById('ev-date').value = ev.date;
+  document.getElementById('ev-time').value = ev.time||'';
+  document.getElementById('ev-end-time').value = ev.endTime||'';
+  document.getElementById('ev-repeat-until').value = ev.repeatUntil||'';
+  document.getElementById('ev-emoji').value = ev.emoji||'';
+  document.getElementById('ev-notes').value = ev.notes||'';
+  document.getElementById('ev-repeat').value = ev.repeat||'none';
+  document.getElementById('delete-btn').style.display='';
+  setSelectedMember(ev.member||'family');
+  document.getElementById('event-modal').classList.add('show');
+}
+
+function setSelectedMember(m) {
+  selectedMember = m;
+  document.querySelectorAll('.mc-opt').forEach(function(el){ el.classList.toggle('selected', el.dataset.member===m); });
+}
+
+document.querySelectorAll('.mc-opt').forEach(function(el){
+  el.addEventListener('click', function(){ setSelectedMember(el.dataset.member); });
+});
+
+function closeEventModal() { document.getElementById('event-modal').classList.remove('show'); }
+
+function saveEvent() {
+  var title = document.getElementById('ev-title').value.trim();
+  if (!title) { document.getElementById('ev-title').focus(); return; }
+  var events = getEvents();
+  var editId = document.getElementById('edit-event-id').value;
+  var ev = {
+    id: editId || String(Date.now()),
+    date: document.getElementById('ev-date').value,
+    title: title,
+    time: document.getElementById('ev-time').value||'',
+    endTime: document.getElementById('ev-end-time').value||'',
+    member: selectedMember,
+    emoji: document.getElementById('ev-emoji').value||'',
+    notes: document.getElementById('ev-notes').value.trim(),
+    repeat: document.getElementById('ev-repeat').value,
+    repeatUntil: document.getElementById('ev-repeat-until').value||'',
+    reminderMinutes: editId ? ((events.find(function(e){ return e.id===editId; }) || {}).reminderMinutes ?? null) : null,
+  };
+  if (editId) {
+    var idx = events.findIndex(function(e){ return e.id===editId; });
+    if (idx>=0) events[idx]=ev; else events.push(ev);
+  } else {
+    events.push(ev);
+  }
+  DB.set('events', events);
+  closeEventModal();
+  renderMonth();
+  if (selectedDate) renderDayEvents(selectedDate);
+  showToast('Händelse sparad! 📅');
+}
+
+function deleteCurrentEvent() {
+  var editId = document.getElementById('edit-event-id').value;
+  if (!editId) return;
+  var events = getEvents().filter(function(e){ return e.id!==editId; });
+  DB.set('events', events);
+  closeEventModal();
+  renderMonth();
+  if (selectedDate) renderDayEvents(selectedDate);
+  showToast('Händelse borttagen');
+}
+
+// ── TODOS ─────────────────────────────────────────────────────
+function renderTodos() {
+  var todos = getTodos();
+  var list = document.getElementById('todo-list');
+  if (!todos.length) { list.innerHTML=''; return; }
+  var html='';
+  todos.forEach(function(t,i){
+    var col=getMemberColor(t.member||'family');
+    html+='<div class="todo-item">';
+    html+='<div class="todo-check'+(t.done?' done':'')+'\" onclick="toggleTodo('+i+')" style="'+(t.done?'background:'+col+';border-color:'+col:'border-color:'+col)+'">'+(t.done?'✓':'')+'</div>';
+    html+='<div class="todo-text'+(t.done?' done':'')+'\" style="border-left:2px solid '+col+';padding-left:6px">'+escHtml(t.text)+'</div>';
+    html+='<button class="todo-del" onclick="deleteTodo('+i+')">✕</button>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
+
+function addTodo() {
+  var text = document.getElementById('todo-input').value.trim();
+  if (!text) return;
+  var member = document.getElementById('todo-member').value;
+  var todos = getTodos();
+  todos.push({ id: Date.now(), text: text, member: member, done: false });
+  DB.set('todos', todos);
+  document.getElementById('todo-input').value='';
+  renderTodos();
+}
+
+function toggleTodo(idx) {
+  var todos = getTodos();
+  if (todos[idx]) todos[idx].done = !todos[idx].done;
+  DB.set('todos', todos);
+  renderTodos();
+}
+
+function deleteTodo(idx) {
+  var todos = getTodos();
+  todos.splice(idx,1);
+  DB.set('todos', todos);
+  renderTodos();
+}
+
+function focusTodoInput() { document.getElementById('todo-input').focus(); }
+
+// ── MEMBER FILTER ─────────────────────────────────────────────
+document.querySelectorAll('.member-chip').forEach(function(chip){
+  chip.addEventListener('click', function(){
+    var m = chip.dataset.member;
+    visibleMembers[m] = !visibleMembers[m];
+    chip.classList.toggle('active', !!visibleMembers[m]);
+    renderMonth();
+  });
+});
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+function toggleNotifPanel() { document.getElementById('notif-panel').classList.toggle('show'); }
+function saveNotifSettings() {
+  var s = { enabled: document.getElementById('notif-enabled').checked };
+  ['markus','maja','mila','melker','family'].forEach(function(m){ s[m]=document.getElementById('notif-'+m).checked; });
+  DB.set('notif', s);
+}
+function loadNotifSettings() {
+  var s = DB.get('notif');
+  if (!s) return;
+  if (s.enabled !== undefined) document.getElementById('notif-enabled').checked=s.enabled;
+  ['markus','maja','mila','melker','family'].forEach(function(m){ if(s[m]!==undefined)document.getElementById('notif-'+m).checked=s[m]; });
+}
+
+// ── NAV ───────────────────────────────────────────────────────
+function toggleNavMenu() { document.getElementById('nav-menu').classList.toggle('show'); }
+window.addEventListener('click', function(e){
+  var w=document.querySelector('.nav-dropdown-wrapper');
+  if(w&&!w.contains(e.target)){ var m=document.getElementById('nav-menu'); if(m)m.classList.remove('show'); }
+});
+
+// ── MODAL OVERLAY CLOSE ───────────────────────────────────────
+document.getElementById('event-modal').addEventListener('click', function(e){ if(e.target===this)closeEventModal(); });
+
+// ── HELPERS ───────────────────────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function getTimePresetValues() {
+  var values = [];
+  for (var h = 6; h <= 23; h++) {
+    for (var m = 0; m < 60; m += 30) {
+      values.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
+    }
+  }
+  return values;
+}
+
+function attachTimePresetGrid(instance) {
+  if (!instance || !instance.calendarContainer) return;
+  var oldGrid = instance.calendarContainer.querySelector('.fp-time-grid');
+  if (oldGrid) oldGrid.remove();
+
+  var grid = document.createElement('div');
+  grid.className = 'fp-time-grid';
+  var selected = (instance.input && instance.input.value) ? instance.input.value : '';
+
+  getTimePresetValues().forEach(function(val) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'fp-time-chip' + (selected === val ? ' active' : '');
+    chip.textContent = val;
+    chip.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      instance.setDate(val, true, 'H:i');
+      instance.close();
+    });
+    grid.appendChild(chip);
+  });
+
+  instance.calendarContainer.appendChild(grid);
+}
+
+var FP_MONTHS_SV = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+
+function closeFloatingMonthYearMenu(instance) {
+  if (!instance) return;
+  if (instance._fpFloatingMenu && instance._fpFloatingMenu.parentNode) {
+    instance._fpFloatingMenu.parentNode.removeChild(instance._fpFloatingMenu);
+  }
+  instance._fpFloatingMenu = null;
+  if (instance.calendarContainer) {
+    instance.calendarContainer.querySelectorAll('.fp-my-trigger').forEach(function(btn){ btn.classList.remove('open'); });
+  }
+}
+
+function attachCustomMonthYearPicker(instance) {
+  if (!instance || !instance.calendarContainer) return;
+  var current = instance.calendarContainer.querySelector('.flatpickr-current-month');
+  if (!current) return;
+
+  function bindTapAndClick(el, handler) {
+    if (!el || !handler || el.dataset.fpBound === '1') return;
+    el.dataset.fpBound = '1';
+    el.addEventListener('touchstart', function(e) {
+      el.dataset.fpLastTouchAt = String(Date.now());
+      handler(e);
+    }, { passive: false });
+    el.addEventListener('click', function(e) {
+      var lastTouchAt = Number(el.dataset.fpLastTouchAt || 0);
+      if (lastTouchAt && (Date.now() - lastTouchAt) < 700) return;
+      handler(e);
+    });
+  }
+
+  function closeMenus() {
+    closeFloatingMonthYearMenu(instance);
+  }
+
+  function openFloatingMenu(kind, anchorButton) {
+    closeMenus();
+
+    var menu = document.createElement('div');
+    menu.className = 'fp-floating-menu' + (kind === 'year' ? ' year' : '');
+
+    function addOption(label, isActive, onPick) {
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'fp-my-option' + (isActive ? ' active' : '');
+      opt.textContent = label;
+      opt.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        onPick();
+        closeMenus();
+      });
+      menu.appendChild(opt);
+    }
+
+    if (kind === 'month') {
+      FP_MONTHS_SV.forEach(function(name, idx) {
+        addOption(name, idx === instance.currentMonth, function() {
+          instance.changeMonth(idx - instance.currentMonth);
+        });
+      });
+    } else {
+      for (var y = instance.currentYear - 12; y <= instance.currentYear + 12; y++) {
+        (function(targetYear) {
+          addOption(String(targetYear), targetYear === instance.currentYear, function() {
+            instance.changeYear(targetYear);
+          });
+        })(y);
+      }
+    }
+
+    document.body.appendChild(menu);
+    instance._fpFloatingMenu = menu;
+
+    var rect = anchorButton.getBoundingClientRect();
+    var menuWidth = kind === 'year' ? 96 : 132;
+    var left = kind === 'year' ? (rect.right - menuWidth) : rect.left;
+    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+    var top = rect.bottom + 8;
+    if (top + 220 > window.innerHeight) top = Math.max(8, rect.top - 220);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.classList.add('show');
+    anchorButton.classList.add('open');
+  }
+
+  var wrap = current.querySelector('.fp-my-wrap');
+  if (!wrap) {
+    current.innerHTML = '';
+    wrap = document.createElement('div');
+    wrap.className = 'fp-my-wrap';
+
+    var monthBtn = document.createElement('button');
+    monthBtn.type = 'button';
+    monthBtn.className = 'fp-my-trigger month';
+
+    var yearBtn = document.createElement('button');
+    yearBtn.type = 'button';
+    yearBtn.className = 'fp-my-trigger year';
+
+    bindTapAndClick(monthBtn, function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      openFloatingMenu('month', monthBtn);
+    });
+
+    bindTapAndClick(yearBtn, function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      openFloatingMenu('year', yearBtn);
+    });
+
+    wrap.appendChild(monthBtn);
+    wrap.appendChild(yearBtn);
+    current.appendChild(wrap);
+
+    if (!instance._fpMonthYearOutsideHandler) {
+      instance._fpMonthYearOutsideHandler = function(ev) {
+        var currentNode = instance.calendarContainer && instance.calendarContainer.querySelector('.flatpickr-current-month');
+        var insideCurrent = !!(currentNode && currentNode.contains(ev.target));
+        var insideFloating = !!(instance._fpFloatingMenu && instance._fpFloatingMenu.contains(ev.target));
+        if (!insideCurrent && !insideFloating) closeMenus();
+      };
+      document.addEventListener('touchstart', instance._fpMonthYearOutsideHandler);
+      document.addEventListener('click', instance._fpMonthYearOutsideHandler);
+    }
+
+    if (!instance._fpMonthYearRepositionHandler) {
+      instance._fpMonthYearRepositionHandler = function() {
+        closeMenus();
+      };
+      window.addEventListener('resize', instance._fpMonthYearRepositionHandler);
+      window.addEventListener('scroll', instance._fpMonthYearRepositionHandler, true);
+    }
+
+    if (!instance._fpMonthYearCleanupBound) {
+      instance._fpMonthYearCleanupBound = true;
+      var prevOnClose = instance.config.onClose;
+      instance.set('onClose', function(selectedDates, dateStr, inst) {
+        closeFloatingMonthYearMenu(inst);
+        if (Array.isArray(prevOnClose)) {
+          prevOnClose.forEach(function(fn){ if (typeof fn === 'function') fn(selectedDates, dateStr, inst); });
+        } else if (typeof prevOnClose === 'function') {
+          prevOnClose(selectedDates, dateStr, inst);
+        }
+      });
+    }
+  }
+
+  var monthButton = current.querySelector('.fp-my-trigger.month');
+  var yearButton = current.querySelector('.fp-my-trigger.year');
+
+  if (monthButton) monthButton.textContent = FP_MONTHS_SV[instance.currentMonth] || '';
+  if (yearButton) yearButton.textContent = String(instance.currentYear);
+}
+
+function initCalendarFlatpickr() {
+  if (typeof flatpickr === 'undefined') return;
+  if (flatpickr.l10ns && flatpickr.l10ns.sv) {
+    flatpickr.localize(flatpickr.l10ns.sv);
+  }
+
+  ['trip-start-inp','trip-end-inp','ev-date','ev-repeat-until'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    flatpickr(el, {
+      dateFormat: 'Y-m-d',
+      monthSelectorType: 'static',
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv',
+      onReady: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onOpen: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onMonthChange: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); },
+      onYearChange: function(selectedDates, dateStr, instance) { attachCustomMonthYearPicker(instance); }
+    });
+  });
+
+  var timeEl = document.getElementById('ev-time');
+  if (timeEl) {
+    flatpickr(timeEl, {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: 'H:i',
+      time_24hr: true,
+      minuteIncrement: 1,
+      defaultHour: 12,
+      defaultMinute: 0,
+      allowInput: true,
+      clickOpens: true,
+      disableMobile: true,
+      locale: 'sv',
+      onReady: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      },
+      onOpen: function(selectedDates, dateStr, instance) {
+        attachTimePresetGrid(instance);
+      }
+    });
+  }
+}
+
+function showToast(msg) {
+  var t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; Object.assign(t.style,{position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',background:'#1E2638',border:'1px solid rgba(251,191,36,.35)',color:'#FBBF24',padding:'10px 20px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'Inter,sans-serif'}); document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1'; clearTimeout(t._t); t._t=setTimeout(function(){t.style.opacity='0';},2600);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+// ── DAY TOOLTIP ────────────────────────────────────────────────
+function showDayTooltip(dateISO, evs, cell) {
+  var tt = document.getElementById('day-tooltip');
+  if (!tt) return;
+  var p = dateISO.split('-');
+  var html = '<div class="tt-date">📅 ' + p[2] + '/' + p[1] + '</div>';
+  if (!evs.length) {
+    html += '<div class="tt-empty">Inga händelser</div>';
+  } else {
+    evs.forEach(function(ev) {
+      var col = getMemberColor(ev.member);
+      html += '<div class="tt-event"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0"></span>' + escHtml((ev.emoji ? ev.emoji+' ' : '') + ev.title) + '</div>';
+    });
+  }
+  html += '<div class="tt-hint">Klicka • Dubbelklicka = ny händelse</div>';
+  tt.innerHTML = html;
+  var r = cell.getBoundingClientRect();
+  var ttW = 220, left = Math.max(4, Math.min(r.left, window.innerWidth - ttW - 8));
+  tt.style.left = left + 'px';
+  tt.style.top = (r.top + window.scrollY - 10) + 'px';
+  tt.style.transform = 'translateY(-100%)';
+  tt.classList.add('show');
+}
+function hideDayTooltip() {
+  var tt = document.getElementById('day-tooltip');
+  if (tt) tt.classList.remove('show');
+}
+// ── TRIPS ──────────────────────────────────────────────────────
+function getTrip() { return JSON.parse(localStorage.getItem('cal_trip') || 'null'); }
+function saveCalTrip(t) { localStorage.setItem('cal_trip', JSON.stringify(t)); }
+function renderTrip() {
+  var trip = getTrip(), content = document.getElementById('trip-content');
+  if (!trip) { content.innerHTML = '<div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div>'; return; }
+  var today = new Date(); today.setHours(0,0,0,0);
+  var start = new Date(trip.startDate), days = Math.round((start - today) / 86400000);
+  var end = trip.endDate ? new Date(trip.endDate) : null;
+  var countHtml;
+  if (days > 0) countHtml = '<div class="trip-countdown"><span class="trip-days">'+days+'</span> dagar kvar</div>';
+  else if (days === 0) countHtml = '<div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">🎉 Idag är det dags!</div>';
+  else if (end && end >= today) countHtml = '<div style="font-size:14px;font-weight:700;color:#34D399;margin-bottom:8px">✈️ Resan pågår!</div>';
+  else countHtml = '<div class="trip-in-past">Resan är avslutad</div>';
+  var schedHtml = '';
+  if (trip.schedule && trip.schedule.length) {
+    schedHtml = '<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Schema</div>';
+    trip.schedule.forEach(function(s) { schedHtml += '<div class="trip-sched-item"><span class="trip-sched-time">'+escHtml(s.time||'')+'</span><span class="trip-sched-text">'+escHtml(s.activity||'')+'</span></div>'; });
+  }
+  var s1=trip.startDate?trip.startDate.split('-'):null, s2=trip.endDate?trip.endDate.split('-'):null;
+  content.innerHTML =
+    '<div class="trip-name">' + (trip.emoji||'✈️') + ' ' + escHtml(trip.name||'') + '</div>' +
+    '<div class="trip-dest">📍 ' + escHtml(trip.destination||'') + '</div>' + countHtml +
+    '<div class="trip-dates">' + (s1?s1[2]+'/'+s1[1]+'/'+s1[0]:'—') + (s2?' — '+s2[2]+'/'+s2[1]+'/'+s2[0]:'') + '</div>' +
+    (trip.notes ? '<div style="font-size:11px;color:var(--text-sec);margin-bottom:6px;font-style:italic">'+escHtml(trip.notes)+'</div>' : '') + schedHtml;
+}
+function openTripModal() {
+  var trip = getTrip() || {};
+  document.getElementById('trip-name-inp').value = trip.name || '';
+  document.getElementById('trip-dest-inp').value = trip.destination || '';
+  document.getElementById('trip-start-inp').value = trip.startDate || '';
+  document.getElementById('trip-end-inp').value = trip.endDate || '';
+  document.getElementById('trip-notes-inp').value = trip.notes || '';
+  document.getElementById('trip-del-btn').style.display = trip.name ? '' : 'none';
+  renderTripSchedForm(trip.schedule || []);
+  document.getElementById('trip-modal').classList.add('show');
+}
+function closeTripModal() { document.getElementById('trip-modal').classList.remove('show'); }
+function renderTripSchedForm(sched) {
+  var list = document.getElementById('trip-sched-list'); list.innerHTML = '';
+  sched.forEach(function(s) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
+    row.innerHTML = '<input type="text" placeholder="Dag/tid" value="'+escHtml(s.time||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" value="'+escHtml(s.activity||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
+    list.appendChild(row);
+  });
+}
+function addTripSchedRow() {
+  var list = document.getElementById('trip-sched-list'), row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
+  row.innerHTML = '<input type="text" placeholder="Dag/tid" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
+  list.appendChild(row);
+}
+function saveTrip() {
+  var name = document.getElementById('trip-name-inp').value.trim();
+  if (!name) { document.getElementById('trip-name-inp').focus(); return; }
+  var schedule = [];
+  document.querySelectorAll('#trip-sched-list > div').forEach(function(row) {
+    var inputs = row.querySelectorAll('input'), t = inputs[0].value.trim(), a = inputs[1].value.trim();
+    if (t || a) schedule.push({ time: t, activity: a });
+  });
+  saveCalTrip({ name: name, destination: document.getElementById('trip-dest-inp').value.trim(), startDate: document.getElementById('trip-start-inp').value, endDate: document.getElementById('trip-end-inp').value, notes: document.getElementById('trip-notes-inp').value.trim(), schedule: schedule, emoji: '✈️' });
+  closeTripModal(); renderTrip(); showToast('Resa sparad! ✈️');
+}
+function deleteTrip() { if (!confirm('Ta bort resan? Den kan inte återskapas.')) return; saveCalTrip(null); closeTripModal(); renderTrip(); showToast('Resa borttagen'); }
+document.addEventListener('DOMContentLoaded', function() {
+  initCalendarFlatpickr();
+  loadNotifSettings();
+  renderMonth();
+  renderTodos();
+  renderTrip();
+});
+window.addEventListener('firebase-sync', function(event) {
+  var key = event.detail && event.detail.key;
+  if (!key) return;
+  if (key.indexOf('cal_') === 0) {
+    loadNotifSettings();
+    renderMonth();
+    renderTodos();
+    renderTrip();
+  }
+});
+// ── RIPPLE ─────────────────────────────────────────────────────
+(function(){
+  document.querySelectorAll('button, .cal-day, .member-chip').forEach(function(el){
+    el.classList.add('ripple-host');
+    el.addEventListener('click', function(e){
+      var r=el.getBoundingClientRect(), d=Math.max(el.clientWidth,el.clientHeight);
+      var rw=document.createElement('span'); rw.className='ripple-wave';
+      rw.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';
+      el.appendChild(rw); rw.addEventListener('animationend',function(){rw.remove();});
+    });
+  });
+})();
+</script>
+<div class="day-tooltip" id="day-tooltip"></div>
+</body>
+</html>

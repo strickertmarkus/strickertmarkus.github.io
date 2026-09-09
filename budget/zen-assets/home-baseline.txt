@@ -1,0 +1,109 @@
+Home page TODO tracking from original Familjeapp checklist.
+
+Recorded: 2026-08-27
+Current home.html blob SHA when tracking started: 1f44e31b31d9cc5ce0d72dc06abf69363e7e8b89
+
+HOME.HTML TODO
+==============
+
+1. Shopping quick-add category/store sync
+Status: FINISHED / VERIFIED IN CURRENT CODE
+- home.html parses entries in the form `Artikel (Kategori)` and places the item under the matching shopping-list category when that heading exists.
+- home.html reads the shared shopping-list category headings and associates each item with its active category.
+- the shared shopping data is kept consistent between home.html and shopping.html.
+
+2. Home calendar: optional end date/end time
+Status: FINISHED / SHARED CALENDAR UI V2
+- Existing endTime support is retained.
+- A new Slutdatum / sluttid toggle controls whether the end section is shown.
+- When enabled, the event editor shows both end date and end time in the same modal.
+- endDate is stored on the same event object as the existing date/time fields.
+- Legacy events containing only endTime remain compatible and automatically open with the toggle enabled.
+- Invalid ranges are blocked when end date is before start date, or when end time is earlier than start time on the same day.
+- Multi-day events are expanded visually across their intermediate calendar dates while editing/deleting still targets the original event.
+- Implemented consistently in both home.html and calendar.html.
+Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+
+3. Home calendar layout / month selector
+Status: FINISHED / SHARED CALENDAR UI V2 + HOME POLISH V5 + FIRST-PAINT V9
+- Calendar/page heading is larger.
+- Month navigation is moved out of the sticky page header and into a compact toolbar directly above the calendar.
+- Week number is on the left and the compact month selector/navigation is on the right.
+- Home V5 resets the old mobile `margin:0 auto` completely so the month navigation sits against the right edge and aligns with the Sunday/calendar-grid edge.
+- Home heading `Familjen Frick Strickert` plus its time/date meta block is centered as one block in the Home header.
+- The existing title/meta rhythm is retained, with the meta gap tightened slightly in V9.
+- Heading remains one line with responsive font sizes on narrow phones.
+- V9 increases the time/date meta size slightly and makes both week number and month selector slightly larger.
+- First-paint V9 injects the same final Home header/calendar-toolbar measurements directly from auth-gate.js while the document is still in `<head>` so no size/position jump is introduced on reload.
+- The raw HTML header month navigation is hidden before first paint, its final calendar-toolbar strip is reserved from the start, and the moved toolbar is absolutely positioned into that reserved strip.
+- Existing home week-number element is reused; calendar.html receives the shared toolbar structure.
+Feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Home type/toolbar polish V9 commit: 4c3a084587d5cf9b897eb02690dd622141209a06
+First-paint/cache V9 commit: 3698305ea9f352d80003ce0ed9432b54c11232dd
+
+4. Date picker year/month interaction
+Status: FINISHED / STABLE PICKER V3 + YEAR MENU V4
+- The original V2 native month-dropdown approach was replaced after it could block date/outside clicks, especially on Safari/iOS.
+- Flatpickr is restored to its stable static month header with closeOnSelect enabled.
+- Clicking the visible month name opens a separate compact month menu without covering the calendar day grid.
+- Clicking the visible year opens a matching scrollable year list centered on the current year.
+- The year list uses the same dark/accent styling as the month selector and supports touch scrolling on mobile.
+- Date selection explicitly synchronizes the input value and closes the picker.
+- Clicking outside explicitly closes open date pickers.
+- Applied consistently to home.html and calendar.html, including event/trip/end-date fields.
+Original calendar feature commit: fbfa02a7b6b3c9a25a020824f84a8a36e7c7c72f
+Stable picker fix commit: c5aabeb6ae41be3f60c5d60738d455f8a2f88ec1
+Year-menu follow-up commit: c738905ad2ae292fa42412420d5c52cf58d9f140
+
+5. Group shopping items under category headings on home.html
+Status: FINISHED / HOME PRESENTATION V1
+- Home shopping widget now visually groups items under their shared shopping-list category headings.
+- Item text is shown without redundant `(Kategori)` suffix when a visible heading already provides the category context.
+- Existing shared shopping data/category structure is reused; no home-only category model was introduced.
+- Add/edit/check/delete continue using the original Home shopping functions.
+- Current compact Home widget styling is preserved with small accent-colored category headings rather than copying the full shopping.html layout.
+- Responsive/mobile styling included.
+Feature commit: c83c3ff20eb10f822862e20e4f72094582610903
+Loader commits: d17376990802555b94a051700896fa7f1354f3b7, 0bb8ac0f205e8bc81720870c127723d7f56b1d90
+
+LATER HOME/CALENDAR FOLLOW-UPS
+==============================
+
+- Annual event recurrence
+  Status: FINISHED V4
+  - Upprepning includes `Årligen`.
+  - Annual occurrences are generated for the requested calendar month/year without changing existing weekly/monthly behavior.
+  - repeatUntil is respected.
+  - Multi-day annual events preserve their duration and continuation-day rendering.
+  Feature commit: c738905ad2ae292fa42412420d5c52cf58d9f140
+
+- Home floating new-event button
+  Status: FINISHED V4
+  - Home's orange + button stays fixed/floating on mobile instead of being changed to position:static by the old mobile CSS.
+  - Bottom position includes iOS safe-area inset.
+  - Desktop behavior remains floating as before.
+  Feature commit: c738905ad2ae292fa42412420d5c52cf58d9f140
+
+- Home empty-day single-click overview
+  Status: FINISHED V5
+  - The legacy day panel below the Home calendar is no longer shown.
+  - Populated dates retain the existing day-overview popover.
+  - Empty dates now use the exact same popover path and show `Inga händelser denna dag.` instead of opening the old add panel.
+  - The old day-panel DOM remains hidden rather than deleted so legacy month-navigation/close code can still access it safely.
+  - Existing double-click on any calendar day remains untouched and continues opening the event editor for that date.
+  Feature commit: 1541c4369578adad556ff9e7245305b084804e55
+
+- Remove Home upcoming-trip card
+  Status: FINISHED V8
+  - `#trip-section` / `Kommande resa` is hidden on home.html.
+  - Saved trip data and the existing trip modal/functions are left intact; only the Home sidebar presentation is removed.
+  Feature commit: 854fad675ddd2ef4d88efb8838ad02d4191bf38b
+
+Current shared calendar loader/cache commit: 3698305ea9f352d80003ce0ed9432b54c11232dd
+Current calendar asset version: 20260827-2105-home-type-scale-v9
+
+HOME.HTML CHECKLIST STATUS: COMPLETE / CLOSED FOR NOW
+Closed: 2026-08-27
+All current Home items from the original checklist plus later Home follow-ups are implemented and considered finished for the current round.
+Shared calendar items are implemented in both home.html and calendar.html; Home-only presentation/interaction polish is layered afterwards.
+Future home.html requests should be treated as new follow-up work rather than unfinished items from this checklist.

@@ -1,0 +1,2757 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Majas Budgetplanerare</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+<script src="indexeddb-fallback.js?v=20260830-finance-clean-v1"></script>
+<script src="auth-config.js?v=20260830-finance-clean-v1"></script>
+<script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
+<script src="firebase-sync.js"></script>
+<script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
+<script src="finance-ui.js?v=20260831-finance-theme-blue-v11-person-first-paint"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg: #F0F2F5;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-sec: #6B7280;
+    --border: #E5E7EB;
+    --income: #10B981;
+    --income-light: #D1FAE5;
+    --income-bg: #ECFDF5;
+    --house: #3B6DE0;
+    --house-light: #DBEAFE;
+    --house-bg: #EFF6FF;
+    --insurance: #A855F7;
+    --insurance-light: #EDE9FE;
+    --insurance-bg: #F5F3FF;
+    --subs: #E8590C;
+    --subs-light: #FED7AA;
+    --subs-bg: #FFF7ED;
+    --savings: #0EA5E9;
+    --savings-light: #BAE6FD;
+    --savings-bg: #F0F9FF;
+    --misc: #F472B6;
+    --misc-light: #FBCFE8;
+    --misc-bg: #FDF2F8;
+    --danger: #DC2626;
+    --warning: #F59E0B;
+}
+
+html.dark-mode {
+    --bg: #0F1219;
+    --card: #1A1F2E;
+    --text: #E2E8F0;
+    --text-sec: #94A3B8;
+    --border: #2A3041;
+    --income: #34D399;
+    --income-light: #065F46;
+    --income-bg: #0D2818;
+    --house: #60A5FA;
+    --house-light: #1E3A5F;
+    --house-bg: #0F1A2E;
+    --insurance: #A78BFA;
+    --insurance-light: #4C1D95;
+    --insurance-bg: #1A0F2E;
+    --subs: #E8590C;
+    --subs-light: #7C2D12;
+    --subs-bg: #1F1008;
+    --savings: #0EA5E9;
+    --savings-light: #155E75;
+    --savings-bg: #0A1A20;
+    --misc: #FBBF24;
+    --misc-light: #eec451;
+    --misc-bg: #1F0A18;
+    --danger: #F87171;
+    --warning: #FBBF24;
+}
+
+/* ── DARK MODE TRANSITIONS ──────────────────────── */
+body, .kpi-card, .chart-card, .section-card, .item-input, .btn, .add-btn {
+    transition: background-color 0.35s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── DARK MODE ELEMENT OVERRIDES ────────────────── */
+html.dark-mode .header {
+    background: linear-gradient(135deg, #0B0F1A 0%, #151C2C 100%);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+
+html.dark-mode .kpi-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+html.dark-mode .kpi-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+}
+
+html.dark-mode .kpi-remain .kpi-label,
+html.dark-mode .kpi-remain .kpi-value {
+    color: #60A5FA;
+}
+
+html.dark-mode .chart-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+html.dark-mode .section-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+html.dark-mode .items-table tbody td {
+    border-bottom-color: var(--border);
+}
+
+html.dark-mode .item-input {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--text);
+}
+html.dark-mode .item-input:focus {
+    background: rgba(255,255,255,0.07);
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+}
+html.dark-mode .item-input.has-value {
+    background: rgba(52,211,153,0.07);
+    border-color: rgba(52,211,153,0.25);
+}
+html.dark-mode .item-input.input-ok {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+html.dark-mode .item-input.input-warn {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+html.dark-mode .item-input.input-over {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: rgba(220, 38, 38, 0.4);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+html.dark-mode .item-input.input-sav-ok {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+html.dark-mode .item-input.input-sav-over {
+    background: rgba(14, 165, 233, 0.12);
+    border-color: rgba(14, 165, 233, 0.4);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+}
+html.dark-mode .item-input::placeholder {
+    color: #4A5568;
+}
+
+html.dark-mode .editable-field:hover {
+    background: rgba(255,255,255,0.07);
+}
+html.dark-mode .editable-input {
+    background: rgba(255,255,255,0.05);
+    border-color: #3B82F6;
+    color: var(--text);
+}
+
+html.dark-mode .add-btn {
+    border-color: var(--border);
+    color: var(--text-sec);
+}
+html.dark-mode .add-btn:hover {
+    border-color: #3B82F6;
+    color: #60A5FA;
+    background: rgba(59,130,246,0.1);
+}
+
+html.dark-mode .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+}
+html.dark-mode .btn-secondary:hover {
+    background: #1E2538;
+    border-color: #3A4255;
+}
+
+html.dark-mode .btn-danger {
+    background: var(--card);
+    color: var(--danger);
+    border-color: rgba(248,113,113,0.2);
+}
+html.dark-mode .btn-danger:hover {
+    background: rgba(248,113,113,0.07);
+}
+
+html.dark-mode .btn-export {
+    background: var(--card);
+    color: #60A5FA;
+    border-color: rgba(96, 165, 250, 0.2);
+}
+html.dark-mode .btn-export:hover {
+    background: rgba(96, 165, 250, 0.07);
+    border-color: rgba(96, 165, 250, 0.4);
+}
+
+html.dark-mode .btn-json-export {
+    background: var(--card);
+    color: #34D399;
+    border-color: rgba(52, 211, 153, 0.2);
+}
+html.dark-mode .btn-json-export:hover {
+    background: rgba(52, 211, 153, 0.07);
+    border-color: rgba(52, 211, 153, 0.4);
+}
+
+html.dark-mode .btn-json-import {
+    background: var(--card);
+    color: #A78BFA;
+    border-color: rgba(167, 139, 250, 0.2);
+}
+html.dark-mode .btn-json-import:hover {
+    background: rgba(167, 139, 250, 0.07);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+
+html.dark-mode .delete-btn {
+    color: #F87171;
+}
+html.dark-mode .delete-btn:hover {
+    color: #EF4444;
+}
+html.dark-mode .increment-btn {
+    color: #64748B;
+}
+html.dark-mode .increment-btn:hover {
+    color: #60A5FA;
+}
+
+html.dark-mode .section-header:hover {
+    filter: brightness(1.1);
+}
+
+#dark-mode-btn:hover {
+    background: rgba(255,255,255,0.25) !important;
+    transform: scale(1.08);
+}
+html.dark-mode #dark-mode-btn {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+}
+html.dark-mode #dark-mode-btn:hover {
+    background: rgba(255,255,255,0.2) !important;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+    color: white;
+    padding: 32px 0 28px;
+    text-align: center;
+    position: relative;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+.header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+.header p {
+    font-size: 13px;
+    color: #94A3B8;
+    font-weight: 400;
+}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 12px 80px;
+    display: block;
+}
+
+/* ── KPI CARDS ──────────────────────────────────── */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.kpi-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+}
+.kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+.kpi-sub {
+    font-size: 11px;
+    color: var(--text-sec);
+    margin-top: 4px;
+}
+.kpi-income .kpi-label { color: var(--income); }
+.kpi-income .kpi-value { color: var(--income); }
+.kpi-budget .kpi-label { color: var(--text-sec); }
+.kpi-budget .kpi-value { color: var(--text); }
+.kpi-spent .kpi-label { color: var(--danger); }
+.kpi-spent .kpi-value { color: var(--danger); }
+.kpi-remain .kpi-label { color: #2563EB; }
+.kpi-remain .kpi-value { color: #2563EB; }
+
+/* ── CHARTS ROW ─────────────────────────────────── */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+.chart-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+}
+.chart-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 294px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ── SECTION CARDS ──────────────────────────────── */
+.section-card {
+    background: var(--card);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+}
+.section-header {
+    padding: 18px 24px 18px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    user-select: none;
+    position: relative;
+}
+.section-header:hover { filter: brightness(0.97); }
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 150px;
+}
+.section-title .arrow {
+    font-size: 12px;
+    transition: transform 0.25s ease-in-out;
+    opacity: 0.7;
+}
+.section-header.collapsed .arrow { transform: rotate(-90deg); }
+.header-progress {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.section-body {
+    padding: 0 24px 20px;
+    overflow: visible;
+    transition: max-height 0.25s ease-in-out, padding 0.25s ease-in-out;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.section-body.hidden {
+    max-height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* ── PROGRESS BAR ───────────────────────────────── */
+.progress-container {
+    margin: 0;
+    flex: 1;
+}
+.header-progress .progress-container {
+    margin: 0;
+}
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 4px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+}
+.progress-bar {
+    width: 100%;
+    height: 24px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.7);
+    display: flex;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+.progress-segment {
+    height: 100%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-width: 0;
+    border-right: none;
+    opacity: 0.88;
+}
+.progress-segment:first-child { border-radius: 12px 0 0 12px; }
+.progress-segment:last-child { border-radius: 0 12px 12px 0; }
+.progress-segment:only-child { border-radius: 12px; }
+.progress-pct {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6), 0 -1px 0 rgba(0,0,0,0.3);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+/* ── ITEMS TABLE ────────────────────────────────── */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+.items-table {
+    table-layout: auto;
+}
+.items-table thead th {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-sec);
+    padding: 8px 6px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.items-table thead th:first-child {
+    width: auto;
+}
+.items-table thead th:nth-child(2) {
+    width: 45px;
+    padding-left: 4px;
+}
+.items-table thead th:nth-child(3) {
+    width: 55px;
+}
+.items-table thead th:nth-child(4) {
+    width: 35px;
+}
+.items-table thead th:nth-child(2),
+.items-table thead th:nth-child(3),
+.items-table thead th:nth-child(4) { text-align: right; }
+.items-table tbody tr {
+    height: 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.items-table tbody tr:last-child {
+    border-bottom: none;
+}
+html.dark-mode .items-table tbody tr {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.items-table tbody td {
+    padding: 10px 6px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+.items-table tbody td:first-child {
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    word-break: break-word;
+}
+.editable-field {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.editable-field:hover {
+    background: rgba(0,0,0,0.05);
+}
+.editable-input {
+    border: 2px solid #2563EB;
+    border-radius: 4px;
+    padding: 3px 5px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    width: auto;
+    min-width: 50px;
+    max-width: 90px;
+}
+.delete-btn {
+    background: none;
+    border: none;
+    color: #DC2626;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.items-table tbody tr:hover .delete-btn {
+    opacity: 1;
+}
+.delete-btn:hover {
+    color: #B91C1C;
+}
+.increment-btn {
+    background: none;
+    border: none;
+    color: var(--text-sec);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 8px;
+    line-height: 1;
+    transition: color 0.2s;
+    font-weight: 600;
+}
+.increment-btn:hover {
+    color: var(--accent);
+}
+.increment-btn:active {
+    transform: scale(0.9);
+}
+.section-title-editable {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.section-title-editable:hover {
+    background: rgba(255,255,255,0.15);
+}
+.items-table tbody td:nth-child(2) {
+    text-align: right;
+    color: var(--text-sec);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+.items-table tbody td:nth-child(3) { text-align: right; }
+.items-table tbody td:nth-child(4) {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+}
+
+.item-input {
+    width: 70px;
+    padding: 4px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: right;
+    background: #FAFAFA;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-variant-numeric: tabular-nums;
+    height: 28px;
+}
+.item-input:focus {
+    outline: none;
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+.item-input.has-value { background: white; border-color: #A7F3D0; }
+.item-input.input-ok { 
+    border-color: #A7F3D0; 
+    background: rgba(34, 197, 94, 0.08);
+}
+.item-input.input-warn { 
+    border-color: #F59E0B; 
+    background: rgba(245, 158, 11, 0.08);
+    box-shadow: 0 0 0 2px rgba(245,158,11,0.12); 
+}
+.item-input.input-over { 
+    border-color: #DC2626; 
+    background: rgba(220, 38, 38, 0.08);
+    box-shadow: 0 0 0 2px rgba(220,38,38,0.12); 
+}
+.item-input.input-sav-ok {
+    border-color: #A7F3D0;
+    background: rgba(34, 197, 94, 0.08);
+}
+.item-input.input-sav-over {
+    border-color: #0EA5E9;
+    background: rgba(14, 165, 233, 0.08);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.12);
+}
+
+.item-pct { font-size: 11px; }
+.item-pct.ok { color: var(--income); }
+.item-pct.warn { color: var(--warning); }
+.item-pct.over { color: var(--danger); font-weight: 700; }
+.item-pct.saving-ok { color: var(--income); }
+.item-pct.saving-positive { color: #0EA5E9; font-weight: 700; }
+
+.section-card[data-section-key="subscriptions"] .item-pct.warn { color: #DC2626; }
+html.dark-mode .section-card[data-section-key="subscriptions"] .item-pct.warn { color: #FCA5A5; }
+
+/* ── ADD / ACTIONS ──────────────────────────────── */
+.add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
+}
+.add-btn {
+    padding: 6px 14px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-sec);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.add-btn:hover {
+    border-color: #93C5FD;
+    color: #2563EB;
+    background: #EFF6FF;
+}
+
+/* ── FOOTER ─────────────────────────────────────── */
+.footer-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 32px;
+}
+.btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+.btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { background: #F9FAFB; border-color: #D1D5DB; }
+.btn-danger {
+    background: white;
+    color: var(--danger);
+    border: 1.5px solid #FECACA;
+}
+.btn-danger:hover { background: #FEF2F2; }
+.btn-export {
+    background: white;
+    color: #2563EB;
+    border: 1.5px solid #BFDBFE;
+}
+.btn-export:hover { background: #EFF6FF; border-color: #93C5FD; }
+.btn-json-export {
+    background: white;
+    color: #059669;
+    border: 1.5px solid #D1FAE5;
+}
+.btn-json-export:hover { background: #ECFDF5; border-color: #6EE7B7; }
+.btn-json-import {
+    background: white;
+    color: #7c3aed;
+    border: 1.5px solid #EDE9FE;
+}
+.btn-json-import:hover { background: #F5F3FF; border-color: #C4B5FD; }
+
+.draggable-row {
+    cursor: grab;
+    position: relative;
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.draggable-row:active {
+    cursor: grabbing;
+}
+.draggable-row.dragging {
+    opacity: 0.4;
+    background-color: rgba(100, 149, 237, 0.15);
+    cursor: grabbing;
+}
+.draggable-row.shift-down {
+    transform: translateY(var(--row-height, 44px));
+}
+.draggable-row.shift-up {
+    transform: translateY(calc(-1 * var(--row-height, 44px)));
+}
+.drag-placeholder {
+    background: rgba(37, 99, 235, 0.1);
+    border: 2px dashed #2563EB;
+    height: 44px;
+}
+.drag-placeholder td {
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* ── TABLE SCROLL WRAPPER ───────────────────────── */
+.table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ── SECTIONS GRID (moved from inline style) ───── */
+#sections-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (min-width: 1600px) {
+    .item-input { width: 140px; padding: 6px 8px; font-size: 13px; }
+    .items-table tbody td:nth-child(2),
+    .items-table tbody td:nth-child(3) { padding: 12px 8px; }
+}
+
+@media (max-width: 1200px) {
+    #sections-container { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 800px) {
+    .container { padding: 20px 12px 60px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .chart-card { padding: 16px; }
+    .chart-card h3 { font-size: 13px; }
+    .section-header { align-items: center; gap: 12px; padding: 14px 12px 14px 40px; }
+    .section-title { min-width: auto; font-size: 14px; }
+    .header-progress { flex: 0 0 auto; gap: 4px; }
+    .progress-info { font-size: 10px; margin-bottom: 4px; }
+    .progress-container { max-width: 150px; }
+    .progress-bar { height: 20px; }
+    .section-stats { flex-wrap: wrap; gap: 12px; }
+    .kpi-value { font-size: 20px; }
+    #sections-container { grid-template-columns: 1fr; gap: 16px; }
+    .items-table thead th {
+        font-size: 9px;
+        padding: 6px 4px;
+    }
+    .items-table tbody td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    .item-input { width: 62px; padding: 4px 5px; font-size: 11px; }
+    .items-table thead th:nth-child(4),
+    .items-table tbody td:nth-child(4) { 
+        min-width: 40px;
+    }
+    .header h1 { font-size: 22px; }
+    .header p { font-size: 12px; }
+    #month-nav { flex-wrap: wrap; gap: 8px; justify-content: center; }
+    #month-dropdown { min-width: 160px; font-size: 13px; padding: 8px 36px 8px 12px; }
+    .footer-actions { flex-wrap: wrap; gap: 8px; }
+    .btn { padding: 10px 18px; font-size: 13px; }
+    .section-card { min-height: auto; }
+    .section-body { overflow: visible; }\n    /* Header buttons reflow */
+    .header { padding: 20px 0 16px; }
+}
+
+@media (max-width: 480px) {
+    .container { padding: 12px 6px 50px; margin: 0 auto; max-width: 100%; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .kpi-card { padding: 14px 10px; }
+    .kpi-value { font-size: 17px; }
+    .kpi-label { font-size: 9px; }
+    .kpi-sub { font-size: 9px; }
+    .section-card { border-radius: 10px; }
+    .section-header { padding: 10px 8px 10px 32px; gap: 16px; align-items: center; }
+    .section-title { font-size: 12px; min-width: auto; }
+    .header-progress { flex: 1; gap: 3px; }
+    .progress-info { font-size: 9px; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 8px; }
+    .progress-bar { height: 16px; }
+    .progress-container { flex: 1; }
+    .section-body { padding: 0; overflow: visible; }
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+        margin: 0;
+    }
+    .add-row { padding: 0 8px; }
+    .items-table { font-size: 11px; min-width: 320px; }
+    .items-table thead th {
+        font-size: 8px;
+        padding: 5px 3px;
+        letter-spacing: 0.2px;
+    }
+    .items-table tbody td {
+        padding: 6px 3px;
+        font-size: 11px;
+    }
+    .items-table tbody td:first-child {
+        max-width: none;
+        overflow: visible;
+        text-overflow: unset;
+    }
+    .items-table thead th:nth-child(4),
+    .items-table tbody td:nth-child(4) { 
+        min-width: 36px;
+        text-align: center;
+    }
+    .item-input { width: 52px; padding: 3px 4px; font-size: 10px; }
+    .chart-wrap { height: 200px; }
+    .chart-card { padding: 12px 10px; }
+    .charts-row { gap: 10px; }
+    .header { padding: 16px 0 14px; }
+    .header h1 { font-size: 18px; }
+    .header p { font-size: 11px; }
+    #dark-mode-btn { position: absolute !important; top: 8px !important; left: 8px !important; right: auto !important; width: 32px !important; height: 32px !important; font-size: 14px !important; padding: 4px !important; }
+    .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; right: 8px !important; left: auto !important; }
+    #analytics-btn { display: none !important; }
+    #month-nav { gap: 6px !important; flex-wrap: wrap; align-items: center; justify-content: center; }
+    .custom-dropdown-wrapper { flex-basis: 100%; }
+    #month-nav > button,
+    #set-start-month-btn { font-size: 12px !important; padding: 7px 12px !important; }
+    #month-dropdown { min-width: 140px; font-size: 12px; }
+    .footer-actions { flex-direction: column; align-items: stretch; }
+    .btn { width: 100%; text-align: center; }
+    .add-btn { font-size: 11px; padding: 5px 10px; }
+    .progress-info { font-size: 10px; }
+    .progress-bar { height: 20px; }
+    .pie-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .pie-grid .chart-wrap { height: 180px; }
+    #sections-container { margin: 0 auto; }
+    .section-card { display: flex; flex-direction: column; }
+}
+
+/* ── MONTH DROPDOWN STYLING ────────────────────── */
+#month-display { display: none; }
+.custom-dropdown-wrapper { position: relative; display: inline-block; }
+#month-dropdown {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 40px 10px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-width: 200px;
+    text-align: center;
+    background-image: url("data:image/svg+xml,%3Csvg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    letter-spacing: 0.3px;
+}
+#month-dropdown:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    background-image: url("data:image/svg+xml,%3Csvg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 18px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-1px);
+}
+#month-dropdown:active {
+    outline: none;
+    border: 1.5px solid rgba(96, 165, 250, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+.custom-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    margin-top: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(87, 77, 34, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    display: none;
+    animation: dropdownSlide 0.15s ease-out;
+}
+.custom-dropdown-menu.active { display: block; }
+@keyframes dropdownSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.custom-dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    color: #4B5563;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.custom-dropdown-item:last-child { border-bottom: none; }
+.custom-dropdown-item:hover {
+    background: rgba(37, 99, 235, 0.1);
+    padding-left: 18px;
+    color: #2563EB;
+}
+.custom-dropdown-item.selected {
+    background: linear-gradient(135deg, rgba(156, 128, 3, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+    color: #434957;
+    font-weight: 700;
+    border-left: 3px solid #ffd900;
+    padding-left: 13px;
+}
+
+/* ── PIE CHART HOVER GLOW ───────────────────────────────────── */
+#pieChart {
+    cursor: pointer;
+}
+
+/* ── NAV DROPDOWN ───────────────────────────────── */
+.nav-dropdown-wrapper { position: relative; display: inline-block; }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; overflow: hidden; animation: navDropIn 0.2s ease; }
+.nav-dropdown-menu.show { display: block; }
+@keyframes navDropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.nav-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.15s; }
+.nav-dropdown-menu a:hover { background: rgba(59,109,224,0.08); }
+html.dark-mode .nav-dropdown-menu a:hover { background: rgba(96,165,250,0.1); }
+.nav-dropdown-menu a .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.nav-dropdown-menu a.active { background: rgba(59,109,224,0.08); color: var(--house); font-weight: 600; }
+html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
+
+
+</style>
+<script src="nav-menu-motion.js?v=20260831-nav-motion-v1"></script>
+</head>
+<body>
+
+<div class="header">
+    <h1 style="cursor:pointer" onclick="location.href='home.html'">Budgetplanerare</h1>
+    <p>Maja</p>
+    <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">🌙</button>
+    <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 62px;">
+        <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Navigation">☰</button>
+        <div class="nav-dropdown-menu" id="nav-menu">
+            <a href="home.html"><span class="nav-icon">🏡</span> Startsida</a>
+            <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+            <a href="budget.html"><span class="nav-icon">💰</span> Markus Budget</a>
+            <a href="analytics.html"><span class="nav-icon">📈</span> Markus Analys</a>
+            <a href="budget_maja.html" class="active"><span class="nav-icon">💰</span> Majas Budget</a>
+            <a href="analytics_maja.html"><span class="nav-icon">📈</span> Majas Analys</a>
+            <a href="familjebudget.html"><span class="nav-icon">🏠</span> Familjebudget</a>
+            <a href="data.html"><span class="nav-icon">⚙️</span> Data & Formler</a>
+            <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+            <a href="calendar.html"><span class="nav-icon">📅</span> Familjekalender</a>
+            <a href="exercise.html"><span class="nav-icon">💪</span> Träning</a>
+            <a href="shopping.html"><span class="nav-icon">🛒</span> Inköpslista</a>
+            <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+            <a href="mila.html"><span class="nav-icon">👶🏻</span> Milas Milstolpar</a>
+            <a href="melker.html"><span class="nav-icon">👶🏻</span> Melkers Milstolpar</a>
+        </div>
+    </div>
+    <div id="month-nav" style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <div class="custom-dropdown-wrapper">
+            <button id="month-dropdown" type="button" style="cursor: pointer; background: transparent; border: none;">Välj månad</button>
+            <div class="custom-dropdown-menu" id="month-dropdown-menu"></div>
+        </div>
+        <button id="set-start-month-btn" type="button" onclick="openSetStartMonth()" style="background: rgba(59,109,224,0.2); border: 1px solid rgba(59,109,224,0.4); color: #3B6DE0; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.2s;" title="Välj startmånad">Sätt start</button>
+        <button onclick="addNewMonth()" style="background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.4); color: #4CAF50; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.2s;">+ Ny månad</button>
+        <button onclick="deleteCurrentMonth()" style="background: rgba(220,38,38,0.2); border: 1px solid rgba(220,38,38,0.4); color: #DC2626; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.2s;">− Radera</button>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+        <div class="kpi-card kpi-income">
+            <div class="kpi-label">Totala inkomster</div>
+            <div class="kpi-value" id="kpi-income">0 kr</div>
+            <div class="kpi-sub">Mottaget denna månad</div>
+            <div id="kpi-savings-account-sub" style="font-size:12px;color:var(--text-sec);padding:4px 0 0;display:none"><span>varav från sparkonto</span> <span id="kpi-savings-account-amount" style="color:var(--savings);font-weight:600">0 kr</span></div>
+        </div>
+        <div class="kpi-card kpi-budget">
+            <div class="kpi-label">Totalt budgeterat</div>
+            <div class="kpi-value" id="kpi-budget">0 kr</div>
+            <div class="kpi-sub">Fördelat mellan avsnitt</div>
+        </div>
+        <div class="kpi-card kpi-spent">
+            <div class="kpi-label">Totalt utgifter</div>
+            <div class="kpi-value" id="kpi-spent">0 kr</div>
+            <div class="kpi-sub">Registrerade utgifter</div>
+            <div id="kpi-savings-sub" style="font-size:12px;color:var(--text-sec);padding:4px 0 0;display:none"><span>varav sparat</span> <span id="kpi-savings-amount" style="color:var(--savings);font-weight:600">0 kr</span></div>
+        </div>
+        <div class="kpi-card kpi-remain">
+            <div class="kpi-label">Återstår</div>
+            <div class="kpi-value" id="kpi-remain">0 kr</div>
+            <div class="kpi-sub">Inkomster &minus; Utgifter</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <h3>Utgiftsfördelning</h3>
+            <div class="pie-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                <div class="chart-wrap" style="aspect-ratio: 1; height: auto; max-height: 294px;">
+                    <canvas id="pieChart" style="display: block; max-width: 100%; max-height: 100%;"></canvas>
+                </div>
+                <div id="pie-legend" style="display: flex; flex-direction: column; gap: 12px; padding-top: 20px;"></div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Budget kontra utgifter</h3>
+            <div class="chart-wrap">
+                <canvas id="barChart" style="display: block; width: 100%; height: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px; margin-bottom: 12px;">
+        <button onclick="addNewSection()" style="background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.4); color: #4CAF50; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s;">+ Nytt avsnitt</button>
+    </div>
+    <div id="sections-container"></div>
+
+    <div class="footer-actions">
+        <button class="btn btn-export" onclick="exportXLSX()">Exportera till .xlsx</button>
+        <button class="btn btn-json-export" onclick="exportJSON()">Exportera JSON</button>
+        <button class="btn btn-json-import" onclick="document.getElementById('import-json-input').click()">Importera JSON</button>
+        <input type="file" id="import-json-input" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
+        <button class="btn btn-secondary" onclick="saveLocalWithFeedback()">Spara i webbläsare</button>
+        <button class="btn btn-danger" onclick="resetAll()">Återställ allt</button>
+    </div>
+</div>
+
+<script>
+// ── DATA MODEL ─────────────────────────────────────────────
+const SECTIONS = [
+    {
+        key: "income",
+        name: "Inkomster",
+        color: "#10B981",
+        light: "#D1FAE5",
+        bg: "#ECFDF5",
+        isIncome: true,
+        items: [
+            { name: "Lön (netto)", budget: 37488, actual: 0 },
+            { name: "Barnbidrag", budget: 1325, actual: 0 },
+            { name: "Övriga inkomster", budget: 0, actual: 0 },
+        ]
+    },
+    {
+        key: "house",
+        name: "Bostadskostnader",
+        color: "#3B6DE0",
+        light: "#DBEAFE",
+        bg: "#EFF6FF",
+        items: [
+            { name: "Lån", budget: 8500, actual: 0 },
+            { name: "Amortering", budget: 3000, actual: 0 },
+            { name: "HOA / Bostadsrättsavgift", budget: 4200, actual: 0 },
+            { name: "Hemförsäkring", budget: 350, actual: 0 },
+            { name: "Internet", budget: 399, actual: 0 },
+            { name: "Elektricitet", budget: 800, actual: 0 },
+            { name: "Vatten & avlopp", budget: 500, actual: 0 },
+            { name: "Huskonto", budget: 0, actual: 0 },
+        ]
+    },
+    {
+        key: "insurances",
+        name: "Försäkringar",
+        color: "#E85D5D",
+        light: "#F5C2C2",
+        bg: "#FDEAEA",
+        items: [
+            { name: "Sjukförsäkring", budget: 450, actual: 0 },
+            { name: "Bilförsäkring", budget: 600, actual: 0 },
+            { name: "Livförsäkring", budget: 300, actual: 0 },
+            { name: "Husdjursförsäkring", budget: 250, actual: 0 },
+        ]
+    },
+    {
+        key: "subscriptions",
+        name: "Prenumerationer",
+        color: "#ff9d4d",
+        light: "#FED7AA",
+        bg: "#FFF7ED",
+        items: [
+            { name: "Spotify", budget: 129, actual: 0 },
+            { name: "Netflix", budget: 169, actual: 0 },
+            { name: "Molnlagring", budget: 99, actual: 0 },
+            { name: "Gym", budget: 399, actual: 0 },
+            { name: "Nyheter / Tidningar", budget: 149, actual: 0 },
+        ]
+    },
+    {
+        key: "savings",
+        name: "Sparande",
+        color: "#005706",
+        light: "#D1FAE5",
+        bg: "#ECFDF5",
+        items: [
+            { name: "Nödfond", budget: 2000, actual: 0 },
+            { name: "Investeringar", budget: 3000, actual: 0 },
+            { name: "Semesterfond", budget: 1000, actual: 0 },
+            { name: "Pension (extra)", budget: 1500, actual: 0 },
+        ]
+    },
+    {
+        key: "misc",
+        name: "Övrigt",
+        color: "#FBBF24",
+        light: "#FEE2B3",
+        bg: "#FFF7ED",
+        items: [
+            { name: "Matinköp", budget: 5000, actual: 0 },
+            { name: "ICA-konto", budget: 0, actual: 0 },
+            { name: "Restaurang/café", budget: 1000, actual: 0 },
+            { name: "Transport", budget: 1200, actual: 0 },
+            { name: "Kläder", budget: 500, actual: 0 },
+            { name: "Underhållning", budget: 500, actual: 0 },
+            { name: "Personlig vård", budget: 300, actual: 0 },
+            { name: "Gåvor", budget: 300, actual: 0 },
+        ]
+    },
+];
+
+// ── TRANSFER DATA (from familjebudget.html) ────────────────
+const DEFAULT_TRANSFERS = [
+    { year:2025,month:"April",husutgifter:24696,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16042,icaMaja:5415,huskontoMarkus:8638,icaMarkus:2915 },
+    { year:2025,month:"Maj",husutgifter:24680,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16031,icaMaja:5415,huskontoMarkus:8632,icaMarkus:2915 },
+    { year:2025,month:"Juni",husutgifter:24664,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16021,icaMaja:5415,huskontoMarkus:8626,icaMarkus:2915 },
+    { year:2025,month:"Juli",husutgifter:24648,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16010,icaMaja:5415,huskontoMarkus:8621,icaMarkus:2915 },
+    { year:2025,month:"Augusti",husutgifter:24632,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8615,icaMarkus:2915 },
+    { year:2025,month:"September",husutgifter:24616,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8610,icaMarkus:2915 },
+    { year:2025,month:"Oktober",husutgifter:24600,ica:8331,majaAndel:0.416,markusAndel:0.584,huskontoMaja:10233,icaMaja:3465,huskontoMarkus:14366,icaMarkus:4865 },
+    { year:2025,month:"November",husutgifter:24584,ica:8331,majaAndel:0.454,markusAndel:0.546,huskontoMaja:11150,icaMaja:3778,huskontoMarkus:13432,icaMarkus:4552 },
+    { year:2025,month:"December",husutgifter:24568,ica:8331,majaAndel:0.435,markusAndel:0.565,huskontoMaja:10687,icaMaja:3623,huskontoMarkus:13880,icaMarkus:4707 },
+    { year:2026,month:"Januari",husutgifter:24552,ica:8331,majaAndel:0.460,markusAndel:0.540,huskontoMaja:11284,icaMaja:3828,huskontoMarkus:13267,icaMarkus:4502 },
+    { year:2026,month:"Februari",husutgifter:27235,ica:8331,majaAndel:0.246,markusAndel:0.754,huskontoMaja:6707,icaMaja:2051,huskontoMarkus:20527,icaMarkus:6279 },
+    { year:2026,month:"Mars",husutgifter:27219,ica:8331,majaAndel:0.253,markusAndel:0.747,huskontoMaja:6890,icaMaja:2109,huskontoMarkus:20328,icaMarkus:6221 },
+    { year:2026,month:"April",husutgifter:27203,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6953,icaMaja:2129,huskontoMarkus:20249,icaMarkus:6201 },
+    { year:2026,month:"Maj",husutgifter:27187,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7192,icaMaja:2204,huskontoMarkus:19994,icaMarkus:6126 },
+    { year:2026,month:"Juni",husutgifter:27171,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7188,icaMaja:2204,huskontoMarkus:19982,icaMarkus:6126 },
+    { year:2026,month:"Juli",husutgifter:27155,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6941,icaMaja:2129,huskontoMarkus:20213,icaMarkus:6201 },
+    { year:2026,month:"Augusti",husutgifter:27139,ica:8331,majaAndel:0.273,markusAndel:0.727,huskontoMaja:7417,icaMaja:2276,huskontoMarkus:19721,icaMarkus:6054 },
+    { year:2026,month:"September",husutgifter:27123,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6932,icaMaja:2129,huskontoMarkus:20190,icaMarkus:6201 },
+    { year:2026,month:"Oktober",husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
+    { year:2026,month:"November",husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
+    { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
+];
+
+// ── HELPERS ────────────────────────────────────────────────
+const fmt = (v) => {
+    const n = Math.round(v);
+    return n.toLocaleString("sv-SE");
+};
+const pct = (spent, budget) => budget > 0 ? Math.round((spent / budget) * 100) : 0;
+const isDarkMode = () => document.documentElement.classList.contains('dark-mode');
+const hexToRgb = (hex) => {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return `${r},${g},${b}`;
+};
+
+function shadeColor(hex, amount) {
+    let r = parseInt(hex.slice(1,3), 16);
+    let g = parseInt(hex.slice(3,5), 16);
+    let b = parseInt(hex.slice(5,7), 16);
+    
+    // Convert to HSL for better saturation control
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    
+    if (max === min) {
+        h = s = 0;
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+        }
+    }
+    
+    // Adjust saturation and lightness
+    s = Math.min(1, s + 0.2);
+    l = amount > 0 ? Math.min(1, l + 0.15) : Math.max(0.3, l - 0.15);
+    
+    // Convert back to RGB
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h * 6) % 2 - 1));
+    const m = l - c / 2;
+    let cr, cg, cb;
+    
+    if (h < 1/6) { cr = c; cg = x; cb = 0; }
+    else if (h < 2/6) { cr = x; cg = c; cb = 0; }
+    else if (h < 3/6) { cr = 0; cg = c; cb = x; }
+    else if (h < 4/6) { cr = 0; cg = x; cb = c; }
+    else if (h < 5/6) { cr = x; cg = 0; cb = c; }
+    else { cr = c; cg = 0; cb = x; }
+    
+    r = Math.round((cr + m) * 255);
+    g = Math.round((cg + m) * 255);
+    b = Math.round((cb + m) * 255);
+    
+    return `rgb(${r},${g},${b})`;
+}
+
+// ── MONTH MANAGEMENT ───────────────────────────────────────
+let currentMonth = new Date();
+let monthlyData = {}; // Format: "2026-01" -> { sections: [...] }
+
+function getMonthKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+}
+
+function getMonthDisplay(date) {
+    const months = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function getCurrentMonthSections() {
+    const key = getMonthKey(currentMonth);
+    if (!monthlyData[key]) {
+        monthlyData[key] = { sections: JSON.parse(JSON.stringify(SECTIONS)) };
+    }
+    return monthlyData[key].sections;
+}
+
+function saveSelectedMonth() {
+    // Save the selected month to localStorage so other pages can sync
+    localStorage.setItem("selectedBudgetMonth", getMonthKey(currentMonth));
+}
+
+function onMonthSelect() {
+    // Month is already set by the dropdown click handler
+    updateMonthDisplay();
+    saveSelectedMonth();
+    renderKPIs();
+    renderSections();
+    initCharts();
+    saveLocal();
+}
+
+
+// Finance UI API: switch month without depending on the legacy header dropdown.
+window.setBudgetMonthFromFinance = function(monthKey) {
+    if (!/^\d{4}-\d{2}$/.test(String(monthKey || '')) || !monthlyData[monthKey]) return false;
+    const [year, month] = monthKey.split('-').map(Number);
+    currentMonth = new Date(year, month - 1, 1);
+    onMonthSelect();
+    return true;
+};
+window.getBudgetMonthsForFinance = function() {
+    return Object.keys(monthlyData).sort();
+};
+
+function openSetStartMonth() {
+    // Allow user to select which month to use as the start/base month
+    const [currentYear, currentMonth_num] = getMonthKey(currentMonth).split('-').map(Number);
+    const selectedYear = prompt("Ange startår (ex: 2026):", currentYear.toString());
+    
+    if (selectedYear === null) return;  // User cancelled
+    const year = parseInt(selectedYear);
+    if (isNaN(year) || year < 1900 || year > 2100) {
+        alert("Ogiltigt år");
+        return;
+    }
+    
+    const months = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const monthName = prompt("Ange startmånad (ex: Mars):", months[currentMonth_num - 1]);
+    
+    if (monthName === null) return;  // User cancelled
+    const monthIdx = months.findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+    if (monthIdx === -1) {
+        alert("Ogiltig månad. Använd ett av: " + months.join(", "));
+        return;
+    }
+    
+    // Set as new start month
+    currentMonth = new Date(year, monthIdx, 1);
+    const newKey = getMonthKey(currentMonth);
+    
+    // Ensure this month exists in the data
+    if (!monthlyData[newKey]) {
+        monthlyData[newKey] = { sections: JSON.parse(JSON.stringify(SECTIONS)) };
+    }
+    
+    updateMonthDisplay();
+    saveSelectedMonth();
+    renderKPIs();
+    renderSections();
+    initCharts();
+    saveLocal();
+}
+
+function getTransferValuesForMonth(date, isMarkus = true) {
+    // Convert month to name format
+    const months = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // Find matching transfer record
+    const transfer = DEFAULT_TRANSFERS.find(t => t.year === year && t.month === monthName);
+    if (!transfer) return null;
+    
+    // Return values for Markus or Maja
+    if (isMarkus) {
+        return {
+            barnbidrag: 1325,
+            huskonto: transfer.huskontoMarkus,
+            ica: transfer.icaMarkus
+        };
+    } else {
+        return {
+            barnbidrag: 1325,
+            huskonto: transfer.huskontoMaja,
+            ica: transfer.icaMaja
+        };
+    }
+}
+
+function addNewMonth() {
+    // Find the next month that doesn't already exist
+    let nextDate = new Date(currentMonth);
+    nextDate.setDate(1);
+    
+    // Keep incrementing until we find a month that doesn't exist
+    let attempts = 0;
+    while (attempts < 12) {  // Safety limit to prevent infinite loop
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        const nextKey = getMonthKey(nextDate);
+        
+        if (!monthlyData[nextKey]) {
+            // Found a month that doesn't exist - create it
+            // Copy structure from previous month (item names and budgets, but zero actual values)
+            const prevDate = new Date(currentMonth);
+            prevDate.setMonth(prevDate.getMonth());
+            const prevKey = getMonthKey(prevDate);
+            
+            let newSections;
+            if (monthlyData[prevKey]) {
+                // Copy previous month's structure
+                newSections = JSON.parse(JSON.stringify(monthlyData[prevKey].sections));
+                // Zero out all actual values
+                newSections.forEach(section => {
+                    section.items.forEach(item => {
+                        item.actual = 0;
+                    });
+                });
+            } else {
+                // No previous month found, use default sections
+                newSections = JSON.parse(JSON.stringify(SECTIONS));
+            }
+            
+            // Populate transfer values from familjebudget
+            // Determine if this is a Markus or Maja budget (check document title)
+            const isMarkusBudget = document.title.includes("Markus");
+            const transferValues = getTransferValuesForMonth(nextDate, isMarkusBudget);
+            
+            if (transferValues) {
+                // Update Barnbidrag in income section
+                const incomeSection = newSections.find(s => s.key === "income");
+                if (incomeSection) {
+                    const barnbidragItem = incomeSection.items.find(i => i.name === "Barnbidrag");
+                    if (barnbidragItem) {
+                        barnbidragItem.budget = transferValues.barnbidrag;
+                    }
+                }
+                
+                // Update Huskonto in house section
+                const houseSection = newSections.find(s => s.key === "house");
+                if (houseSection) {
+                    const huskontoItem = houseSection.items.find(i => i.name === "Huskonto");
+                    if (huskontoItem) {
+                        huskontoItem.budget = transferValues.huskonto;
+                    }
+                }
+                
+                // Update ICA-konto in misc section
+                const miscSection = newSections.find(s => s.key === "misc");
+                if (miscSection) {
+                    const icaItem = miscSection.items.find(i => i.name === "ICA-konto");
+                    if (icaItem) {
+                        icaItem.budget = transferValues.ica;
+                    }
+                }
+            }
+            
+            monthlyData[nextKey] = { sections: newSections };
+            currentMonth = nextDate;
+            updateMonthDisplay();
+            saveSelectedMonth();
+            refresh();
+            saveLocal();
+            return;
+        }
+        attempts++;
+    }
+    
+    // Fallback (should rarely happen)
+    alert("Could not create a new month");
+}
+
+function deleteCurrentMonth() {
+    const currentKey = getMonthKey(currentMonth);
+    let allKeys = Object.keys(monthlyData).sort();
+    
+    // Can't delete if only one month left
+    if (allKeys.length <= 1) {
+        alert("Du måste ha minst en månad");
+        return;
+    }
+    
+    // Confirm deletion
+    if (!confirm(`Är du säker på att du vill radera ${getMonthDisplay(currentMonth)}?`)) {
+        return;
+    }
+    
+    // Find next month BEFORE deletion
+    const currentIndex = allKeys.indexOf(currentKey);
+    let nextKey;
+    if (currentIndex > 0) {
+        nextKey = allKeys[currentIndex - 1];
+    } else if (currentIndex < allKeys.length - 1) {
+        nextKey = allKeys[currentIndex + 1];
+    } else {
+        nextKey = allKeys[0];  // Fallback to first (should not happen if length > 1)
+    }
+    
+    // Now delete
+    delete monthlyData[currentKey];
+    
+    const [y, m] = nextKey.split('-').map(Number);
+    currentMonth = new Date(y, m - 1, 1);
+    updateMonthDisplay();
+    refresh();
+    saveLocal();
+}
+
+function updateMonthDisplay() {
+    // Update dropdown
+    const dropdown = document.getElementById("month-dropdown");
+    const dropdownMenu = document.getElementById("month-dropdown-menu");
+    dropdownMenu.innerHTML = "";
+    const sortedMonths = Object.keys(monthlyData).sort();
+    const selectedKey = getMonthKey(currentMonth);
+    let selectedLabel = "Välj månad";
+    
+    sortedMonths.forEach(key => {
+        const date = new Date(parseInt(key.split('-')[0]), parseInt(key.split('-')[1]) - 1, 1);
+        const label = getMonthDisplay(date);
+        if (key === selectedKey) selectedLabel = label;
+        
+        const item = document.createElement("div");
+        item.className = "custom-dropdown-item" + (key === selectedKey ? " selected" : "");
+        item.textContent = label;
+        item.onclick = () => {
+            currentMonth = date;
+            onMonthSelect();
+            dropdownMenu.classList.remove("active");
+        };
+        dropdownMenu.appendChild(item);
+    });
+    
+    dropdown.textContent = selectedLabel;
+}
+
+// ── COMPUTE TOTALS ─────────────────────────────────────────
+function computeTotals() {
+    let totalIncome = 0, totalBudget = 0, totalSpent = 0;
+    const sections = getCurrentMonthSections();
+    sections.forEach(s => {
+        if (s.isIncome) {
+            totalIncome = s.items.reduce((sum, it) => sum + (it.actual || 0), 0);
+        } else {
+            totalBudget += s.items.reduce((sum, it) => sum + it.budget, 0);
+            totalSpent += s.items.reduce((sum, it) => sum + it.actual, 0);
+        }
+    });
+    return { totalIncome, totalBudget, totalSpent, remaining: totalIncome - totalSpent };
+}
+
+// ── RENDER KPIs ────────────────────────────────────────────
+function renderKPIs() {
+    const t = computeTotals();
+    document.getElementById("kpi-income").textContent = fmt(t.totalIncome);
+    document.getElementById("kpi-budget").textContent = fmt(t.totalBudget);
+    document.getElementById("kpi-spent").textContent = fmt(t.totalSpent);
+    document.getElementById("kpi-remain").textContent = fmt(t.remaining);
+
+    // Calculate and display savings
+    const sections = getCurrentMonthSections();
+    const savingsSection = sections.find(s => s.key === "savings");
+    const totalSavings = savingsSection ? savingsSection.items.reduce((sum, it) => sum + (it.actual || 0), 0) : 0;
+    
+    const savingsSub = document.getElementById("kpi-savings-sub");
+    const savingsAmount = document.getElementById("kpi-savings-amount");
+    if (totalSavings > 0) {
+        savingsAmount.textContent = fmt(totalSavings) + " kr";
+        savingsSub.style.display = "block";
+    } else {
+        savingsSub.style.display = "none";
+    }
+
+    // Calculate and display "varav från sparkonto" (Nordea Privat)
+    let nordaePrivatAmount = 0;
+    sections.forEach(section => {
+        const item = section.items.find(it => it.name === "Nordea Privat");
+        if (item) {
+            nordaePrivatAmount = item.actual || item.budget || 0;
+        }
+    });
+    
+    const savingsAccountSub = document.getElementById("kpi-savings-account-sub");
+    const savingsAccountAmount = document.getElementById("kpi-savings-account-amount");
+    if (nordaePrivatAmount > 0) {
+        savingsAccountAmount.textContent = fmt(nordaePrivatAmount) + " kr";
+        savingsAccountSub.style.display = "block";
+    } else {
+        savingsAccountSub.style.display = "none";
+    }
+
+    const remainEl = document.getElementById("kpi-remain");
+    if (t.remaining < 0) {
+        remainEl.style.color = "var(--danger)";
+    } else {
+        remainEl.style.color = "#2563EB";
+    }
+}
+
+// ── RENDER SECTIONS ────────────────────────────────────────
+function renderSections() {
+    const container = document.getElementById("sections-container");
+    container.innerHTML = "";
+    
+    const sections = getCurrentMonthSections();
+    sections.forEach((section, sIdx) => {
+        const card = document.createElement("div");
+        card.className = "section-card";
+        card.setAttribute("data-section-key", section.key);
+
+        const sectionBudget = section.items.reduce((s, it) => s + it.budget, 0);
+        const sectionActual = section.items.reduce((s, it) => s + it.actual, 0);
+        const sectionPct = pct(sectionActual, sectionBudget);
+        const isIncome = section.isIncome;
+
+        // Header
+        const header = document.createElement("div");
+        header.className = "section-header";
+        header.style.background = `linear-gradient(135deg, ${section.color}, ${shadeColor(section.color, -30)})`;
+
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "section-title section-title-editable";
+        titleDiv.textContent = section.name;
+        titleDiv.onclick = () => editSectionName(titleDiv, sIdx);
+        header.appendChild(titleDiv);
+
+        // Delete button - absolutely positioned at top-left, outside flex flow
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.cssText = "position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:22px;background:none;border:none;color:rgba(255,255,255,0.65);cursor:pointer;padding:0 4px;line-height:1;transition:color 0.2s;z-index:1;";
+        deleteBtn.onmouseover = () => deleteBtn.style.color = "white";
+        deleteBtn.onmouseout = () => deleteBtn.style.color = "rgba(255,255,255,0.65)";
+        deleteBtn.onclick = () => deleteSection(sIdx);
+        header.appendChild(deleteBtn);
+
+        // Progress bar in header (expense sections only)
+        if (!isIncome) {
+            const progressDiv = document.createElement("div");
+            progressDiv.className = "header-progress";
+            const totalBudget = section.items.reduce((s, it) => s + it.budget, 0);
+            const totalActual = section.items.reduce((s, it) => s + it.actual, 0);
+            const pctDisplay = pct(totalActual, totalBudget);
+
+            let segmentsHTML = "";
+            if (totalBudget > 0 && totalActual > 0) {
+                const segPct = Math.min((totalActual / totalBudget) * 100, 100);
+                segmentsHTML = `
+                    <div class="progress-segment"
+                         style="width:${segPct}%; background:${section.light};"
+                         title="Total utgifter: ${fmt(totalActual)}">
+                    </div>
+                `;
+            }
+
+            const overBudget = totalActual > totalBudget;
+            const warningIcon = (overBudget && section.key !== 'savings') ? ' ⚠️' : '';
+
+            progressDiv.innerHTML = `
+                <div class="progress-info">
+                    <span>${fmt(totalActual)} av ${fmt(totalBudget)}</span>
+                    <span style="font-weight:700;">${pctDisplay}%${warningIcon}</span>
+                </div>
+                <div class="progress-bar" style="border-color: rgba(255,255,255,0.4)">
+                    ${segmentsHTML}
+                </div>
+            `;
+            header.appendChild(progressDiv);
+        }
+
+        card.appendChild(header);
+
+        // Body
+        const body = document.createElement("div");
+        body.className = "section-body";
+        body.style.background = isDarkMode()
+            ? `linear-gradient(180deg, rgba(${hexToRgb(section.color)}, 0.08) 0%, rgba(${hexToRgb(section.color)}, 0.03) 100%)`
+            : section.bg;
+
+        // Items table
+        const colActual = isIncome ? "Mottaget" : "Utgifter";
+        const colBudget = isIncome ? "Förväntat" : "Budget";
+        let tableHTML = `
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Utgift</th>
+                        <th>${colBudget}</th>
+                        <th>${colActual}</th>
+                        ${!isIncome ? '<th>%</th>' : ''}
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        section.items.forEach((item, iIdx) => {
+            const iPct = pct(item.actual, item.budget);
+            let pctClass = "ok";
+            
+            // Determine percentage class based on section type
+            if (section.key === 'savings' || isIncome) {
+                // For savings and income: use saving-ok or saving-positive
+                if (iPct >= 100) pctClass = "saving-positive";
+                else pctClass = "saving-ok";
+            } else {
+                // For expenses: blue at exactly 100%, orange 80-99%, red >100%, green <80%
+                if (iPct === 100) pctClass = "saving-positive";
+                else if (iPct > 100) pctClass = "over";
+                else if (iPct > 80) pctClass = "warn";
+                else pctClass = "ok";
+            }
+
+            tableHTML += `
+                <tr class="draggable-row" data-section="${sIdx}" data-item="${iIdx}">
+                    <td>
+                        <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
+                        <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
+                    </td>
+                    <td>
+                        <span class="editable-field" onclick="editBudget(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${fmt(item.budget)}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 2px; align-items: center;">
+                            <button class="increment-btn" onclick="incrementItem(${sIdx}, ${iIdx})" title="Lägg till värde">+</button>
+                            <input type="number" class="item-input ${item.actual > 0 ? 'has-value' : ''}"
+                                   value="${item.actual || ''}"
+                                   placeholder="0"
+                                   data-section="${sIdx}" data-item="${iIdx}"
+                                   oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
+                                   onchange="onActualChange(this)"
+                                   onfocus="this.select()">
+                        </div>
+                    </td>
+                    ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
+                </tr>
+            `;
+        });
+
+        tableHTML += `</tbody></table>`;
+        body.innerHTML += `<div class="table-scroll-wrapper">${tableHTML}</div>`;
+
+        // Add item button
+        body.innerHTML += `
+            <div class="add-row">
+                <button class="add-btn" onclick="addItem(${sIdx})">+ Lägg till ${isIncome ? 'inkomstkälla' : 'post'}</button>
+            </div>
+        `;
+
+        card.appendChild(body);
+        container.appendChild(card);
+    });
+
+    // Initialize input colors for all rendered inputs
+    document.querySelectorAll(".item-input").forEach(input => {
+        const sIdx = parseInt(input.dataset.section);
+        const iIdx = parseInt(input.dataset.item);
+        updateInputColor(input, sIdx, iIdx);
+    });
+}
+
+function buildProgressBar(section, sIdx) {
+    const totalBudget = section.items.reduce((s, it) => s + it.budget, 0);
+    const totalActual = section.items.reduce((s, it) => s + it.actual, 0);
+    const usedPct = totalBudget > 0 ? Math.min((totalActual / totalBudget) * 100, 100) : 0;
+    const overBudget = totalActual > totalBudget;
+
+    let segmentsHTML = "";
+    if (totalBudget > 0) {
+        section.items.forEach((item, i) => {
+            if (item.actual > 0) {
+                const segPct = (item.actual / totalBudget) * 100;
+                const shade = shadeColor(section.color, i * 18);
+                segmentsHTML += `
+                    <div class="progress-segment"
+                         style="width:${segPct}%; background:${shade};"
+                         title="${item.name}: ${fmt(item.actual)}">
+                    </div>
+                `;
+            }
+        });
+    }
+
+    const pctDisplay = pct(totalActual, totalBudget);
+    const barBorder = overBudget ? `border-color: ${section.color}` : `border-color: ${section.color}40`;
+
+    return `
+        <div class="progress-container">
+            <div class="progress-info">
+                <span>${fmt(totalActual)} av ${fmt(totalBudget)} använt</span>
+                <span style="color: ${overBudget ? 'var(--danger)' : section.color}; font-weight:700;">${pctDisplay}%</span>
+            </div>
+            <div class="progress-bar" style="${barBorder}">
+                ${segmentsHTML}
+            </div>
+        </div>
+    `;
+}
+
+// ── EVENT HANDLERS ─────────────────────────────────────────
+function updateInputColor(input, sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    const section = sections[sIdx];
+    const budget = section.items[iIdx].budget;
+    const val = parseFloat(input.value) || 0;
+    const p = budget > 0 ? Math.round((val / budget) * 100) : 0;
+    const isSavings = section.key === 'savings';
+    
+    // Remove all possible color classes from input
+    input.classList.remove('input-ok', 'input-warn', 'input-over', 'input-sav-ok', 'input-sav-over');
+    
+    // Find and update the percentage badge
+    const row = input.closest('tr');
+    const pctBadge = row?.querySelector('.item-pct');
+    if (pctBadge) {
+        pctBadge.classList.remove('ok', 'warn', 'over', 'saving-ok', 'saving-positive');
+        pctBadge.textContent = `${p}%`;
+    }
+    
+    // Only apply colors if value is greater than 0 and budget is greater than 0
+    if (val > 0 && budget > 0) {
+        const isIncome = section.isIncome;
+        if (isSavings || isIncome) {
+            // For savings and income: blue at 100%+, green otherwise
+            if (pctBadge) {
+                if (p >= 100) pctBadge.classList.add('saving-positive');
+                else pctBadge.classList.add('saving-ok');
+            }
+            if (p >= 100) input.classList.add('input-sav-over');
+            else input.classList.add('input-sav-ok');
+        } else {
+            // For expenses: blue at exactly 100%, orange 80-99%, red >100%, green <80%
+            if (pctBadge) {
+                if (p === 100) pctBadge.classList.add('saving-positive');
+                else if (p > 100) pctBadge.classList.add('over');
+                else if (p > 80) pctBadge.classList.add('warn');
+                else pctBadge.classList.add('ok');
+            }
+            if (p === 100) input.classList.add('input-sav-over');
+            else if (p > 100) input.classList.add('input-over');
+            else if (p > 80) input.classList.add('input-warn');
+            else input.classList.add('input-ok');
+        }
+    }
+}
+
+function onActualChange(input) {
+    const sIdx = parseInt(input.dataset.section);
+    const iIdx = parseInt(input.dataset.item);
+    const val = parseFloat(input.value) || 0;
+    const sections = getCurrentMonthSections();
+    sections[sIdx].items[iIdx].actual = val;
+    refresh();
+}
+
+function addItem(sIdx) {
+    const sections = getCurrentMonthSections();
+    sections[sIdx].items.push({ name: "Ny post", budget: 0, actual: 0 });
+    refresh();
+}
+
+function addNewSection() {
+    const currentMonthKey = getMonthKey(currentMonth);
+    const monthData = monthlyData[currentMonthKey];
+    if (!monthData) return;
+    
+    const sections = monthData.sections;
+    const customCount = sections.filter(s => s.key && s.key.startsWith('custom_')).length;
+    
+    const colorPalette = [
+        { color: "#8B5CF6", light: "#EDE9FE", bg: "#F5F3FF" },
+        { color: "#DB2777", light: "#FBCFE8", bg: "#FDF2F8" },
+        { color: "#059669", light: "#D1FAE5", bg: "#ECFDF5" },
+        { color: "#DC2626", light: "#FECACA", bg: "#FEE2E2" },
+        { color: "#7C3AED", light: "#F3E8FF", bg: "#FAF5FF" },
+        { color: "#0891B2", light: "#CFFAFE", bg: "#F0F9FF" },
+    ];
+    const colorSet = colorPalette[customCount % colorPalette.length];
+    
+    const newKey = `custom_${Date.now()}`;
+    const newSection = {
+        key: newKey,
+        name: "Nytt avsnitt",
+        color: colorSet.color,
+        light: colorSet.light,
+        bg: colorSet.bg,
+        isIncome: false,
+        items: [
+            { name: "Post 1", budget: 0, actual: 0 }
+        ]
+    };
+    sections.push(newSection);
+    SECTIONS.push(newSection);
+    refresh();
+    saveLocal();
+}
+
+function deleteSection(sIdx) {
+    if (confirm('Vill du ta bort detta avsnitt?')) {
+        const sections = getCurrentMonthSections();
+        const sectionToDelete = sections[sIdx];
+        sections.splice(sIdx, 1);
+        SECTIONS = SECTIONS.filter(s => s !== sectionToDelete);
+        refresh();
+    }
+}
+
+function editSectionName(element, sIdx) {
+    const sections = getCurrentMonthSections();
+    const currentName = sections[sIdx].name;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "editable-input";
+    input.value = currentName;
+    element.replaceWith(input);
+    input.focus();
+    input.select();
+    
+    function saveEdit() {
+        const newName = input.value.trim();
+        if (newName && newName !== currentName) {
+            sections[sIdx].name = newName;
+            refresh();
+        } else {
+            refresh();
+        }
+    }
+    
+    input.onblur = saveEdit;
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") saveEdit();
+        if (e.key === "Escape") refresh();
+    };
+}
+
+function editItemName(element, sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    const currentName = sections[sIdx].items[iIdx].name;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "editable-input";
+    input.value = currentName;
+    element.replaceWith(input);
+    input.focus();
+    input.select();
+    
+    function saveEdit() {
+        const newName = input.value.trim();
+        if (newName && newName !== currentName) {
+            sections[sIdx].items[iIdx].name = newName;
+        }
+        refresh();
+    }
+    
+    input.onblur = saveEdit;
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") saveEdit();
+        if (e.key === "Escape") refresh();
+    };
+}
+
+function editBudget(element, sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    const currentBudget = sections[sIdx].items[iIdx].budget;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.className = "editable-input";
+    input.value = currentBudget;
+    element.replaceWith(input);
+    input.focus();
+    input.select();
+    
+    function saveEdit() {
+        const newBudget = Math.max(0, parseFloat(input.value) || 0);
+        if (newBudget !== currentBudget) {
+            sections[sIdx].items[iIdx].budget = newBudget;
+        }
+        refresh();
+    }
+    
+    input.onblur = saveEdit;
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") saveEdit();
+        if (e.key === "Escape") refresh();
+    };
+}
+
+function incrementItem(sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    const item = sections[sIdx].items[iIdx];
+    const current = item.actual || 0;
+    const incrementAmount = prompt(`Lägg till värde på "${item.name}"\n(Aktuellt värde: ${current} kr)`, '');
+    
+    if (incrementAmount !== null) {
+        const amount = parseFloat(incrementAmount);
+        if (isNaN(amount)) {
+            alert('Vänligen ange ett giltigt tal');
+            return;
+        }
+        item.actual = current + amount;
+        refresh();
+    }
+}
+
+function deleteItem(sIdx, iIdx) {
+    const sections = getCurrentMonthSections();
+    if (confirm(`Ta bort "${sections[sIdx].items[iIdx].name}"?`)) {
+        sections[sIdx].items.splice(iIdx, 1);
+        refresh();
+    }
+}
+
+function refresh() {
+    renderKPIs();
+    renderSections();
+    updateCharts();
+    saveLocal();
+}
+
+// ── CHARTS ─────────────────────────────────────────────────
+let pieChart, barChart;
+let showComparisonMode = false;
+
+function initCharts() {
+    // Pre-populate legend to stabilize grid layout before chart animation
+    renderPieLegend();
+
+    // Use Chart.getChart to properly destroy any existing chart on these canvases
+    const exPie = Chart.getChart("pieChart");
+    if (exPie) exPie.destroy();
+    const exBar = Chart.getChart("barChart");
+    if (exBar) exBar.destroy();
+    pieChart = null;
+    barChart = null;
+    
+    const sections = getCurrentMonthSections();
+    const expenseSections = sections.filter(s => !s.isIncome);
+
+    // Pie / Doughnut chart
+    const pieCtx = document.getElementById("pieChart");
+    if (!pieCtx) {
+        console.error("pieChart canvas not found");
+        return;
+    }
+    
+    if (expenseSections.length === 0) {
+        console.warn("No expense sections to display in charts");
+        return;
+    }
+    
+    const realData = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
+
+    pieChart = new Chart(pieCtx, {
+        type: "doughnut",
+        data: {
+            labels: expenseSections.map(s => s.name),
+            datasets: [{
+                data: expenseSections.map(() => 0),
+                backgroundColor: expenseSections.map(s => s.color + 'A0'),
+                hoverBackgroundColor: expenseSections.map(s => s.color + 'A0'),
+                borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF",
+                borderWidth: isDarkMode() ? 3 : 4,
+                borderRadius: 6,
+                spacing: 1,
+                hoverBorderWidth: 0,
+                hoverBorderColor: 'transparent',
+                hoverOffset: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: "65%",
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a,b) => a + b, 0);
+                            const val = ctx.parsed;
+                            const p = total > 0 ? Math.round((val / total) * 100) : 0;
+                            return ` ${ctx.label}: ${fmt(val)} (${p}%)`;
+                        }
+                    },
+                    bodyFont: { family: "Inter" },
+                    padding: 10,
+                    cornerRadius: 8,
+                }
+            }
+        }
+    });
+
+    // Bar chart
+    const barCtx = document.getElementById("barChart");
+    if (!barCtx) {
+        console.error("barChart canvas not found");
+        return;
+    }
+    
+    // Get previous month data if available
+    const allKeys = Object.keys(monthlyData).sort();
+    const currentKey = getMonthKey(currentMonth);
+    const currentIndex = allKeys.indexOf(currentKey);
+    const previousKey = currentIndex > 0 ? allKeys[currentIndex - 1] : null;
+    
+    let previousExpenseData = [];
+    if (previousKey) {
+        const previousSections = monthlyData[previousKey].sections;
+        const previousExpenseSections = previousSections.filter(s => !s.isIncome);
+        previousExpenseData = expenseSections.map(sName => {
+            const prevSection = previousExpenseSections.find(ps => ps.name === sName.name);
+            return prevSection ? prevSection.items.reduce((sum, it) => sum + it.actual, 0) : 0;
+        });
+    }
+    
+    barChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+            labels: expenseSections.map(s => s.name),
+            datasets: [
+                {
+                    label: "Budget",
+                    data: expenseSections.map(s => s.items.reduce((sum, it) => sum + it.budget, 0)),
+                    backgroundColor: expenseSections.map(s => isDarkMode() ? s.color + '30' : s.light),
+                    borderColor: expenseSections.map(s => isDarkMode() ? s.color + '60' : s.color),
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    barPercentage: 0.65,
+                },
+                {
+                    label: "Utgifter",
+                    data: expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0)),
+                    backgroundColor: expenseSections.map(s => s.color),
+                    borderColor: expenseSections.map(s => shadeColor(s.color, -40)),
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    barPercentage: 0.75,
+                },
+                ...(previousKey ? [{
+                    label: "Föregående månad",
+                    data: previousExpenseData,
+                    backgroundColor: expenseSections.map(s => shadeColor(s.color, -15)),
+                    borderColor: expenseSections.map(s => shadeColor(s.color, -30)),
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    barPercentage: 0.65,
+                }] : [])
+            ]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11, family: "Inter", weight: "500" }, color: isDarkMode() ? "#94A3B8" : "#6B7280" }
+                },
+                y: {
+                    grid: { color: isDarkMode() ? "rgba(255,255,255,0.06)" : "#F3F4F6" },
+                    ticks: {
+                        font: { size: 11, family: "Inter" },
+                        color: isDarkMode() ? "#64748B" : "#9CA3AF",
+                        callback: (v) => v.toLocaleString("sv-SE")
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyleWidth: 10,
+                        font: { size: 11, family: "Inter", weight: "500" },
+                        color: isDarkMode() ? "#E2E8F0" : "#374151",
+                    }
+                },
+                tooltip: {
+                    callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` },
+                    bodyFont: { family: "Inter" },
+                    padding: 10,
+                    cornerRadius: 8,
+                }
+            }
+        }
+    });
+    
+    // Animate in the real data after chart has settled into the layout
+    setTimeout(() => {
+        if (!pieChart) return;
+        pieChart.data.datasets[0].data = realData;
+        pieChart.update();
+    }, 50);
+}
+
+// ── RENDER PIE LEGEND ──────────────────────────────────────
+function renderPieLegend() {
+    const sections = getCurrentMonthSections();
+    const expenseSections = sections.filter(s => !s.isIncome);
+    const legendContainer = document.getElementById("pie-legend");
+    if (!legendContainer) return;
+    
+    legendContainer.innerHTML = "";
+    expenseSections.forEach((section, idx) => {
+        const total = expenseSections
+            .reduce((sum, s) => sum + s.items.reduce((sum2, it) => sum2 + it.actual, 0), 0);
+        const sectionTotal = section.items.reduce((sum, it) => sum + it.actual, 0);
+        const pct = total > 0 ? Math.round((sectionTotal / total) * 100) : 0;
+        
+        const item = document.createElement("div");
+        item.style.cssText = `display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; color: ${isDarkMode() ? '#E2E8F0' : '#374151'};`;
+        item.innerHTML = `
+            <div style="width: 14px; height: 14px; border-radius: 50%; background: ${section.color}; flex-shrink: 0;"></div>
+            <span style="flex: 1;">${section.name}</span>
+            <span style="color: ${isDarkMode() ? '#94A3B8' : '#6B7280'}; font-size: 12px;">${pct}%</span>
+        `;
+        legendContainer.appendChild(item);
+    });
+}
+
+function updateCharts() {
+    // Skip if charts haven't been initialized yet
+    if (!pieChart || !barChart) return;
+    
+    const sections = getCurrentMonthSections();
+    const expenseSections = sections.filter(s => !s.isIncome);
+    pieChart.data.labels = expenseSections.map(s => s.name);
+    pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
+    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => s.color + 'A0');
+    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
+    pieChart.data.datasets[0].borderWidth = isDarkMode() ? 3 : 4;
+    pieChart.data.datasets[0].hoverBorderWidth = 0;
+    pieChart.data.datasets[0].hoverBorderColor = 'transparent';
+    pieChart.update({ animation: { duration: 800 } });
+    renderPieLegend();
+
+    barChart.data.labels = expenseSections.map(s => s.name);
+    barChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.budget, 0));
+    barChart.data.datasets[1].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
+    barChart.data.datasets[0].backgroundColor = expenseSections.map(s => isDarkMode() ? s.color + '30' : s.light);
+    barChart.data.datasets[0].borderColor = expenseSections.map(s => isDarkMode() ? s.color + '60' : s.color);
+    barChart.data.datasets[1].backgroundColor = expenseSections.map(s => s.color);
+    barChart.data.datasets[1].borderColor = expenseSections.map(s => shadeColor(s.color, -40));
+    
+    // Handle previous month data
+    const allKeys = Object.keys(monthlyData).sort();
+    const currentKey = getMonthKey(currentMonth);
+    const currentIndex = allKeys.indexOf(currentKey);
+    const previousKey = currentIndex > 0 ? allKeys[currentIndex - 1] : null;
+    
+    if (!previousKey && barChart.data.datasets.length > 2) {
+        // Remove third dataset if no previous month
+        barChart.data.datasets.pop();
+    } else if (previousKey) {
+        if (barChart.data.datasets.length === 2) {
+            // Add third dataset if it doesn't exist
+            const previousSections = monthlyData[previousKey].sections;
+            const previousExpenseSections = previousSections.filter(s => !s.isIncome);
+            barChart.data.datasets.push({
+                label: "Föregående månad",
+                data: expenseSections.map(sName => {
+                    const prevSection = previousExpenseSections.find(ps => ps.name === sName.name);
+                    return prevSection ? prevSection.items.reduce((sum, it) => sum + it.actual, 0) : 0;
+                }),
+                backgroundColor: expenseSections.map(s => shadeColor(s.color, -15)),
+                borderColor: expenseSections.map(s => shadeColor(s.color, -30)),
+            });
+        }
+    }
+    
+    barChart.update();
+}
+
+// ── PERSISTENCE ────────────────────────────────────────────
+function saveLocalWithFeedback() {
+    saveLocal();
+    const btn = document.querySelector('.btn-secondary');
+    const original = btn.textContent;
+    btn.textContent = '✓ Sparat!';
+    btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+    btn.style.borderColor = '#059669';
+    btn.style.color = 'white';
+    setTimeout(() => {
+        btn.textContent = original;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+    }, 2000);
+}
+
+function saveLocal() {
+    const data = {
+        currentMonth: currentMonth.toISOString(),
+        monthlyData: Object.keys(monthlyData).reduce((acc, key) => {
+            acc[key] = {
+                sections: monthlyData[key].sections.map(s => ({
+                    key: s.key,
+                    name: s.name,
+                    color: s.color,
+                    light: s.light,
+                    bg: s.bg,
+                    isIncome: s.isIncome,
+                    items: s.items.map(it => ({ name: it.name, budget: it.budget, actual: it.actual }))
+                }))
+            };
+            return acc;
+        }, {})
+    };
+    localStorage.setItem("budgetTracker_maja", JSON.stringify(data));
+}
+
+function loadLocal() {
+    const raw = localStorage.getItem("budgetTracker_maja");
+    if (!raw) return;
+    try {
+        const data = JSON.parse(raw);
+        
+        // Handle new format with months
+        if (data.monthlyData) {
+            Object.keys(data.monthlyData).forEach(monthKey => {
+                monthlyData[monthKey] = {
+                    sections: data.monthlyData[monthKey].sections.map(s => {
+                        // Use stored metadata if available, otherwise fall back to template
+                        const templateSection = SECTIONS.find(ts => ts.key === s.key);
+                        return {
+                            key: s.key,
+                            name: s.name || (templateSection?.name || "Okänd"),
+                            color: s.color || (templateSection?.color || "#999999"),
+                            light: s.light || (templateSection?.light || "#EEEEEE"),
+                            bg: s.bg || (templateSection?.bg || "#F9F9F9"),
+                            isIncome: s.isIncome !== undefined ? s.isIncome : (templateSection?.isIncome || false),
+                            items: s.items
+                        };
+                    })  
+                };
+            });
+            const selectedMonthKey = localStorage.getItem('selectedBudgetMonth');
+            if (/^\d{4}-\d{2}$/.test(selectedMonthKey || '') && monthlyData[selectedMonthKey]) {
+                const [y, m] = selectedMonthKey.split('-').map(Number);
+                currentMonth = new Date(y, m - 1, 1);
+            } else if (data.currentMonth) {
+                const tryMonth = new Date(data.currentMonth);
+                const tryKey = getMonthKey(tryMonth);
+                // Check if currentMonth still exists, if not use first available month
+                if (monthlyData[tryKey]) {
+                    currentMonth = tryMonth;
+                } else {
+                    const allKeys = Object.keys(monthlyData).sort();
+                    if (allKeys.length > 0) {
+                        const [y, m] = allKeys[0].split('-').map(Number);
+                        currentMonth = new Date(y, m - 1, 1);
+                    }
+                }
+            }
+        } else {
+            // Old format - convert to new format
+            const monthKey = getMonthKey(new Date());
+            monthlyData[monthKey] = {
+                sections: data.map(s => {
+                    const templateSection = SECTIONS.find(ts => ts.key === s.key);
+                    return {
+                        ...templateSection,
+                        items: s.items
+                    };
+                })
+            };
+        }
+        updateMonthDisplay();
+    } catch(e) { 
+        console.error("Failed to load data:", e);
+    }
+}
+
+function resetAll() {
+    if (!confirm("Vill du verkligen återställa all data? Alla värden kommer att sättas till 0.")) return;
+    const sections = getCurrentMonthSections();
+    sections.forEach(s => s.items.forEach(it => it.actual = 0));
+    saveLocal();
+    refresh();
+}
+
+// ── EXPORT TO XLSX ─────────────────────────────────────────
+function exportXLSX() {
+    const wb = XLSX.utils.book_new();
+    const t = computeTotals();
+
+    // Summary sheet
+    const summaryData = [
+        ["BUDGET TRACKER — MÅNADLIG SAMMANFATTNING"],
+        [],
+        ["Totala inkomster", t.totalIncome],
+        ["Totalt budgeterat", t.totalBudget],
+        ["Totalt utgifter", t.totalSpent],
+        ["Återstår", t.remaining],
+        [],
+        ["AVSNITT", "BUDGETERAT", "UTGIFTER", "ÅTERSTÅR", "% ANVÄNT"],
+    ];
+
+    const sections = getCurrentMonthSections();
+    sections.forEach(s => {
+        if (s.isIncome) return;
+        const b = s.items.reduce((sum, it) => sum + it.budget, 0);
+        const a = s.items.reduce((sum, it) => sum + it.actual, 0);
+        summaryData.push([s.name, b, a, b - a, b > 0 ? Math.round((a/b)*100) + "%" : "0%"]);
+    });
+
+    summaryData.push([]);
+    summaryData.push(["DETAILED BREAKDOWN"]);
+    summaryData.push([]);
+
+    sections.forEach(s => {
+        summaryData.push([s.name.toUpperCase()]);
+        summaryData.push(["Post", "Budget", s.isIncome ? "Mottaget" : "Utgifter", s.isIncome ? "" : "%"]);
+        s.items.forEach(it => {
+            const p = it.budget > 0 ? Math.round((it.actual / it.budget) * 100) + "%" : "0%";
+            summaryData.push([it.name, it.budget, it.actual, s.isIncome ? "" : p]);
+        });
+        summaryData.push([]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    ws["!cols"] = [{ wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
+    XLSX.utils.book_append_sheet(wb, ws, "Budget Summary");
+    XLSX.writeFile(wb, "budget_tracker.xlsx");
+}
+
+// ── DRAG & DROP REORDERING ──────────────────────
+let dragState = null;
+let dragHoldTimer = null;
+const DRAG_HOLD_DELAY = 600; // milliseconds to trigger drag mode
+
+function initDragAndDrop() {
+    document.addEventListener('pointerdown', onDragPointerDown);
+}
+
+function onDragPointerDown(e) {
+    // Don't interfere with inputs, buttons, or editable fields
+    if (e.target.closest('input') || e.target.closest('button') || e.target.closest('.editable-field')) return;
+    
+    const row = e.target.closest('.draggable-row');
+    if (!row) return;
+    
+    const tbody = row.closest('tbody');
+    if (!tbody) return;
+    
+    const sectionIdx = parseInt(row.dataset.section);
+    const itemIdx = parseInt(row.dataset.item);
+    const rows = Array.from(tbody.querySelectorAll('.draggable-row'));
+    const rowIndex = rows.indexOf(row);
+    
+    const rect = row.getBoundingClientRect();
+    const rowHeight = rect.height;
+    const startY = e.clientY;
+    
+    // Store initial positions of all rows
+    const rowRects = rows.map(r => r.getBoundingClientRect());
+    
+    dragState = {
+        row,
+        tbody,
+        sectionIdx,
+        itemIdx,
+        rowIndex,
+        currentIndex: rowIndex,
+        rows,
+        rowHeight,
+        rowRects,
+        startY,
+        offsetY: 0
+    };
+    
+    // Visually mark as dragging
+    row.classList.add('dragging');
+    row.setPointerCapture(e.pointerId);
+    
+    document.addEventListener('pointermove', onDragPointerMove);
+    document.addEventListener('pointerup', onDragPointerUp);
+    document.addEventListener('pointercancel', onDragPointerUp);
+}
+
+function onDragPointerMove(e) {
+    if (!dragState) return;
+    e.preventDefault();
+    
+    const { row, rows, rowIndex, rowHeight, startY, rowRects } = dragState;
+    const deltaY = e.clientY - startY;
+    
+    // Move the dragged row visually
+    row.style.transform = `translateY(${deltaY}px)`;
+    row.style.zIndex = '10';
+    row.style.position = 'relative';
+    
+    // Calculate which position the dragged row is now at
+    const draggedCenter = rowRects[rowIndex].top + rowRects[rowIndex].height / 2 + deltaY;
+    
+    // Find the new index based on where the dragged item center is
+    let newIndex = rowIndex;
+    for (let i = 0; i < rows.length; i++) {
+        if (i === rowIndex) continue;
+        const midPoint = rowRects[i].top + rowRects[i].height / 2;
+        if (rowIndex < i && draggedCenter > midPoint) {
+            newIndex = i;
+        } else if (rowIndex > i && draggedCenter < midPoint) {
+            newIndex = i;
+            break;
+        }
+    }
+    
+    // Shift other rows to make space
+    rows.forEach((r, i) => {
+        if (i === rowIndex) return;
+        r.classList.remove('shift-down', 'shift-up');
+        r.style.setProperty('--row-height', rowHeight + 'px');
+        
+        if (rowIndex < newIndex) {
+            // Dragging down: rows between old and new position shift up
+            if (i > rowIndex && i <= newIndex) {
+                r.classList.add('shift-up');
+            }
+        } else if (rowIndex > newIndex) {
+            // Dragging up: rows between new and old position shift down
+            if (i >= newIndex && i < rowIndex) {
+                r.classList.add('shift-down');
+            }
+        }
+    });
+    
+    dragState.currentIndex = newIndex;
+}
+
+function onDragPointerUp(e) {
+    if (!dragState) return;
+    
+    const { row, rows, sectionIdx, itemIdx, rowIndex, currentIndex } = dragState;
+    
+    // Clean up visual states
+    row.classList.remove('dragging');
+    row.style.transform = '';
+    row.style.zIndex = '';
+    row.style.position = '';
+    
+    rows.forEach(r => {
+        r.classList.remove('shift-down', 'shift-up');
+    });
+    
+    document.removeEventListener('pointermove', onDragPointerMove);
+    document.removeEventListener('pointerup', onDragPointerUp);
+    document.removeEventListener('pointercancel', onDragPointerUp);
+    
+    // Actually reorder the data if position changed
+    if (rowIndex !== currentIndex) {
+        const sections = getCurrentMonthSections();
+        const section = sections[sectionIdx];
+        if (section && section.items) {
+            const item = section.items.splice(rowIndex, 1)[0];
+            section.items.splice(currentIndex, 0, item);
+            
+            saveLocal();
+            renderSections();
+        }
+    }
+    
+    dragState = null;
+}
+
+// ── JSON EXPORT/IMPORT ──────────────────────────
+function exportJSON() {
+    const data = {
+        monthlyData: monthlyData,
+        sections: SECTIONS,
+        exportDate: new Date().toISOString()
+    };
+    
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `budget_data_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert(`✅ Budget exporterad som JSON!\n\nFil: ${link.download}\n\nKopiera denna fil till din telefon för att importera data där.`);
+}
+
+function handleJSONImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // Validate structure
+            if (!data.monthlyData || !data.sections) {
+                throw new Error("Ogiltig fil-format. Saknar monthlyData eller sections.");
+            }
+            
+            // Import data
+            monthlyData = data.monthlyData;
+            SECTIONS = data.sections;
+            saveLocal();
+            
+            alert(`✅ Budget importerad framgångsrikt!\n\nDatum för export: ${data.exportDate}`);
+            location.reload();
+        } catch (error) {
+            alert(`❌ Fel vid import: ${error.message}\n\nKontrollera att filen är en giltig budget-export.`);
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset input so same file can be imported again
+    event.target.value = '';
+}
+
+// ── NAV MENU ─────────────────────────────────────
+function toggleNavMenu() {
+    document.getElementById('nav-menu').classList.toggle('show');
+}
+document.addEventListener('click', function(e) {
+    const w = document.querySelector('.nav-dropdown-wrapper');
+    if (w && !w.contains(e.target)) document.getElementById('nav-menu').classList.remove('show');
+});
+
+// ── DARK MODE TOGGLE ─────────────────────────────
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const btn = document.getElementById('dark-mode-btn');
+    
+    html.classList.toggle('dark-mode');
+    
+    if (html.classList.contains('dark-mode')) {
+        btn.textContent = '☀️';
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        btn.textContent = '🌙';
+        localStorage.setItem('darkMode', 'disabled');
+    }
+    
+    // Re-render everything with dark-mode-aware colors
+    renderSections();
+    renderKPIs();
+    initCharts();
+    updateCharts();
+}
+
+// Initialize dark mode from localStorage
+function initDarkMode() {
+    const darkMode = localStorage.getItem('darkMode');
+    // Default to dark mode enabled
+    if (darkMode === null || darkMode === 'enabled') {
+        document.documentElement.classList.add('dark-mode');
+        document.getElementById('dark-mode-btn').textContent = '☀️';
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        document.getElementById('dark-mode-btn').textContent = '🌙';
+    }
+}
+
+// ── INIT ───────────────────────────────────────────────────
+initDarkMode();
+loadLocal();
+saveSelectedMonth();
+
+// Setup custom dropdown toggle
+const dropdownBtn = document.getElementById("month-dropdown");
+const dropdownMenu = document.getElementById("month-dropdown-menu");
+if (dropdownBtn && dropdownMenu) {
+    dropdownBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle("active");
+    });
+    document.addEventListener("click", () => {
+        dropdownMenu.classList.remove("active");
+    });
+}
+
+// Ensure current month has data
+const currentMonthKey = getMonthKey(currentMonth);
+if (!monthlyData[currentMonthKey]) {
+    monthlyData[currentMonthKey] = { sections: JSON.parse(JSON.stringify(SECTIONS)) };
+}
+updateMonthDisplay();
+renderKPIs();
+renderSections();
+// Only enable drag-and-drop on desktop (not on mobile)
+if (window.innerWidth > 800) {
+    initDragAndDrop();
+}
+
+// Handle window resize to enable/disable drag-and-drop
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 800 && !dragState) {
+        // If resized to desktop and drag-and-drop not initialized, initialize it
+        initDragAndDrop();
+    }
+});
+
+// Initialize charts once after the initial layout is committed.
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        try {
+            initCharts();
+        } catch (e) {
+            console.error("Error initializing charts:", e);
+        }
+    });
+});
+renderPieLegend();
+
+// Listen for month changes from familjebudget.html
+window.addEventListener('storage', (event) => {
+    if (event.key === 'selectedBudgetMonth' && event.newValue) {
+        // Month was changed in another page - sync it here
+        const [year, month] = event.newValue.split('-').map(Number);
+        const date = new Date(year, month - 1, 1);
+        const newKey = getMonthKey(date);
+        if (monthlyData[newKey]) {
+            currentMonth = date;
+            updateMonthDisplay();
+            renderKPIs();
+            renderSections();
+            updateCharts();
+        }
+    }
+});
+
+// ═══════════════════════════════════════════════════════
+// FIREBASE REAL-TIME SYNC
+// ═══════════════════════════════════════════════════════
+window.addEventListener('firebase-sync', (event) => {
+  const { key } = event.detail;
+  if (key === 'budgetTracker_maja') {
+    console.log('📡 Firebase sync received for budgetTracker_maja — reloading...');
+    loadLocal();
+    renderSections();
+    renderKPIs();
+    updateCharts();
+  }
+});
+</script>
+</body>
+</html>
