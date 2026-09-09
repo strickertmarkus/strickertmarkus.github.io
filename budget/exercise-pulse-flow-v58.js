@@ -785,7 +785,7 @@
     var starting = preVisible && !active;
     var waiting = !!(state && state.awaitingDecision);
     var cardio = !!(exercise && exercise.kind === 'cardio');
-    var strength = !!(exercise && exercise.kind !== 'cardio');
+    var strength = !!(exercise && exercise.kind === 'strength');
 
     setClass(modal, 'pulse-flow-active-v58', active);
     setClass(modal, 'pulse-flow-starting-v58', starting);
@@ -805,6 +805,7 @@
     }
     syncControls(state);
     syncRestState();
+    if(window.ExerciseCalm)window.ExerciseCalm.sync();
   }
 
   function syncRestState() {

@@ -106,7 +106,9 @@
 
     row.style.visibility = '';
     var cells;
-    if (ex.kind === 'cardio') {
+    if(isCalmExercise(ex)){
+      cells=[['Moment',String(state.currentSet||1)],['Fokus',exerciseKindLabel(ex.kind)],['Tid (min)',String(ex.time)+' min']];
+    } else if (ex.kind === 'cardio') {
       cells = [
         ['Runda', String(state.currentSet || 1)],
         ['Distans', ex.distance ? ex.distance + ' km' : '—'],

@@ -297,7 +297,7 @@
     modal.classList.toggle('pulse-flow-intro-v116',intro);
     modal.classList.toggle('pulse-flow-exercise-complete-v116',completedExercise);
     modal.classList.toggle('pulse-flow-ready-cardio-v116',ready && ex.kind === 'cardio');
-    modal.classList.toggle('pulse-flow-ready-strength-v116',ready && ex.kind !== 'cardio');
+    modal.classList.toggle('pulse-flow-ready-strength-v116',ready && ex.kind === 'strength');
     syncIntroButton(intro);
   }
 
@@ -310,7 +310,7 @@
 
     var ex = currentExercise(state);
     var logs = state.logs && state.logs[state.exerciseIndex];
-    if (!ex || !Array.isArray(logs) || !logs.length) return;
+    if (!ex || isCalmExercise(ex) || !Array.isArray(logs) || !logs.length) return;
 
     var rows = Array.prototype.slice.call(setLog.querySelectorAll(':scope > .set-log-item'));
     if (!rows.length) return;

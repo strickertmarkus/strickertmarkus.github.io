@@ -47,9 +47,9 @@
     var ex = state && Array.isArray(state.exercises) ? state.exercises[index] : null;
     if (ex && !ex.__betweenCustomV3 && !ex.__betweenCustomSavedV3 && !ex.__betweenCustomSavedV7) return ex;
     if (!planExercise) return ex || null;
-    var kind = planExercise.kind === 'cardio' ? 'cardio' : 'strength';
-    return kind === 'cardio'
-      ? {kind:'cardio',name:planExercise.name || '',plannedSets:1}
+    var kind = planExercise.kind || 'strength';
+    return kind !== 'strength'
+      ? {kind:kind,name:planExercise.name || '',plannedSets:1}
       : {kind:'strength',name:planExercise.name || '',plannedSets:Math.max(1,Number(planExercise.sets) || 1)};
   }
 
@@ -78,7 +78,7 @@
       var ex = baseExercise(state,i,plannedEx);
       if (!ex) continue;
       var sets = Math.max(1,Number(ex.plannedSets) || (plannedEx && Number(plannedEx.sets)) || 1);
-      var kind = ex.kind === 'cardio' ? 'cardio' : 'strength';
+      var kind = ex.kind || 'strength';
       var perSet = normalizeBetween(plannedEx && plannedEx.betweenSets);
 
       for (var setIndex = 0; setIndex < sets; setIndex++) {
@@ -223,7 +223,7 @@
   }
 
   function classesFor(segment) {
-    var classes = ['hype-progress-segment',segment.kind === 'cardio' ? 'cardio' : 'strength'];
+    var classes = ['hype-progress-segment',segment.kind || 'strength'];
     if (segment.type === 'custom') classes.push('canonical-custom-v10');
     if (segment.done) classes.push('done');
     else if (segment.current) classes.push('current');

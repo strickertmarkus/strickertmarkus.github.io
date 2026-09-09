@@ -21,7 +21,7 @@
 
     var label = row.querySelector('[data-detail-label="2"]');
     if (!label) return;
-    var wanted = ex.kind === 'cardio' ? 'Tid (min)' : 'Vikt (kg)';
+    var wanted = isTimedExercise(ex) ? 'Tid (min)' : 'Vikt (kg)';
     if (label.textContent !== wanted) label.textContent = wanted;
   }
 

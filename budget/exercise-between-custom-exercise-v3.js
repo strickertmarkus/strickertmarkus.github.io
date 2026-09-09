@@ -249,6 +249,7 @@
 
   function targetText(ex) {
     if (!ex) return '—';
+    if(isCalmExercise(ex))return exerciseTargetText(ex);
     if (ex.kind === 'cardio') {
       var parts = [];
       if (Number(ex.distance) > 0) parts.push(ex.distance + ' km');

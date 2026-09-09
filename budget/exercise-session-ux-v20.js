@@ -230,6 +230,8 @@
   }
 
   function syncPretimerSound() {
+    var calmState=getState();
+    if(calmState&&isCalmExercise(calmState.exercises[calmState.exerciseIndex]))return;
     bindPretimerGuard();
     var pre = pretimerElement();
     var visible = !!(pre && pre.classList.contains('show'));
@@ -524,7 +526,9 @@
     row.className = 'set-log-item current-set-v20';
     var setNo = Math.max(1, Number(state.currentSet) || 1);
 
-    if (ex.kind === 'cardio') {
+    if(isCalmExercise(ex)){
+      row.innerHTML='<div class="set-tag">Moment '+setNo+'</div><input aria-label="Tid i minuter" type="number" min="0.1" max="180" step="0.1" data-current-target-v20="time" value="'+ex.time+'"><input class="current-set-status-v20" type="text" readonly value="'+currentSetElapsed(state)+'">';
+    } else if (ex.kind === 'cardio') {
       row.innerHTML =
         '<div class="set-tag">Runda ' + setNo + '</div>' +
         '<input type="number" min="0" step="0.1" inputmode="decimal" data-current-target-v20="distance" value="' + (Number(ex.distance) || 0) + '">' +

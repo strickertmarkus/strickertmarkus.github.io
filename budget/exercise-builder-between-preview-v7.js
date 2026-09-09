@@ -75,7 +75,7 @@
 
   function isStrengthRow(row) {
     var hidden = row && row.querySelector('.dw-kind');
-    return !hidden || hidden.value !== 'cardio';
+    return !hidden || hidden.value === 'strength';
   }
 
   function addStyles() {
@@ -442,6 +442,7 @@
   }
 
   function captureDraft() {
+    if(typeof window.validateCalmDurations==='function'&&!window.validateCalmDurations('#day-workout-ex-list'))return null;
     var modal = document.getElementById('day-workout-modal');
     if (!modal) return null;
     var dateInput = document.getElementById('day-workout-date');
@@ -460,6 +461,7 @@
 
   function targetText(ex) {
     if (!ex) return '—';
+    if(isCalmExercise(ex))return exerciseTargetText(ex);
     if (ex.kind === 'cardio') {
       var p=[];
       if (Number(ex.distance)>0) p.push(ex.distance+' km');
@@ -509,7 +511,7 @@
     document.getElementById('plan-preview-date-v7').textContent=draft.date || '';
     document.getElementById('plan-preview-list-v7').innerHTML=draft.exercises.map(function (entry,index) {
       var between=configText(entry.betweenSets,'Mellan set');
-      var kindClass=entry.exercise&&entry.exercise.kind==='cardio'?' is-cardio':' is-strength';
+      var kindClass=' is-'+(entry.exercise.kind||'strength');
       return '<div class="plan-preview-row-v7'+kindClass+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7">'+esc(between)+'</div>':'')+'</div>';
     }).join('');
     var global=document.getElementById('plan-preview-global-v7');

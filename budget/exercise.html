@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Markus Träning</title>
+  <link rel="stylesheet" href="exercise-calm-v1.css?v=20260909-calm-v1">
+  <script defer src="exercise-calm-v1.js?v=20260909-calm-v1"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
-<script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20260905-exercise-concept-lab-v2"></script>
+<script src="auth-config.js?v=20260909-calm-v141"></script>
+<script src="auth-gate.js?v=20260909-calm-v141"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -833,6 +835,11 @@
     </div>
     <div class="form-group">
       <label>Övningar</label>
+      <div class="calm-builder-add" aria-label="Lägg till moment">
+        <button type="button" class="calm-add-stretch" onclick="ExerciseCalm.add('stretch')"><span>Stretch</span><small>Rörlighet & återhämtning</small></button>
+        <button type="button" class="calm-add-meditation" onclick="ExerciseCalm.add('meditation')"><span>Meditation</span><small>Andning & stillhet</small></button>
+      </div>
+      <p class="calm-builder-hint">Placera före eller efter övriga övningar, eller bygg ett eget lugnt pass.</p>
       <div class="ex-list" id="day-workout-ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
     </div>
@@ -1040,8 +1047,8 @@ function getPlan(){return DB.get('plan')||{mon:'Bröst + Triceps',tue:'Rygg + Bi
 
 var DAYS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 var DAY_KEYS=['mon','tue','wed','thu','fri','sat','sun'];
-var WORKOUT_TYPES=['Bröst + Triceps','Rygg + Biceps','Ben + Axlar','Helkropp','Kondition','Överkropp','Underkropp','Stretching / Rörlighet','Vila','Övrigt'];
-var EXERCISE_KINDS=[{value:'strength',label:'Styrka'},{value:'cardio',label:'Kondition'}];
+var WORKOUT_TYPES=['Bröst + Triceps','Rygg + Biceps','Ben + Axlar','Helkropp','Kondition','Överkropp','Underkropp','Stretch','Meditation','Stretching / Rörlighet','Vila','Övrigt'];
+var EXERCISE_KINDS=[{value:'strength',label:'Styrka'},{value:'cardio',label:'Kondition'},{value:'stretch',label:'Stretch'},{value:'meditation',label:'Meditation'}];
 
 function pad2(n){return (n<10?'0':'')+n;}
 function toISODate(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
@@ -1147,9 +1154,24 @@ function onPlanWeekDateChange(){
   planTargetMondayISO=mondayISOOf(el.value);
   syncPlanWeekUI();
 }
+function validateCalmDurations(selector){
+  var inputs=document.querySelectorAll(selector+' .is-stretch input[data-role="time"],'+selector+' .is-meditation input[data-role="time"]');
+  for(var i=0;i<inputs.length;i++){
+    inputs[i].setCustomValidity(Number.isFinite(Number(inputs[i].value))&&Number(inputs[i].value)>0?'':'Ange en tid större än noll.');
+    if(!inputs[i].reportValidity())return false;
+  }
+  return true;
+}
+function isCalmExercise(ex){return !!ex&&(ex.kind==='stretch'||ex.kind==='meditation');}
+function isTimedExercise(ex){return !!ex&&(ex.kind==='cardio'||isCalmExercise(ex));}
+function exerciseKindLabel(kind){return {strength:'Styrka',cardio:'Kondition',stretch:'Stretch',meditation:'Meditation'}[kind]||'Övning';}
 function normalizeExercise(ex){
   ex=ex||{};
   var kind=ex.kind||((ex.distance||ex.time)?'cardio':'strength');
+  if(kind==='stretch'||kind==='meditation'){
+    var minutes=Number(ex.time);
+    return {kind:kind,name:ex.name||'',time:Number.isFinite(minutes)&&minutes>0?minutes:(kind==='stretch'?1:5),guide:String(ex.guide||'').slice(0,500),breathing:ex.breathing==='off'?'off':'gentle'};
+  }
   if(kind==='cardio'){
     return {kind:'cardio',name:ex.name||'',distance:+ex.distance||0,time:+ex.time||0};
   }
@@ -1242,6 +1264,8 @@ function renderRunPaceChart(entries){
 
 function canonicalWorkoutType(type, exercises){
   var raw=(type||'').trim();
+  var kinds=Array.from(new Set((exercises||[]).map(function(ex){return normalizeExercise(ex).kind;})));
+  if(kinds.length===1&&(kinds[0]==='stretch'||kinds[0]==='meditation')&&(!raw||raw==='Övrigt'||raw==='Vila'))return exerciseKindLabel(kinds[0]);
   if(!raw)return 'Övrigt';
   if(raw.length>1)return raw;
   var map={
@@ -1269,7 +1293,7 @@ function workoutKindSummary(workout){
     if(kind==='strength')strength=true;
   });
   var type=String(workout&&workout.type||'').trim().toLocaleLowerCase('sv-SE');
-  if(!cardio&&!strength){
+  if(!cardio&&!strength&&!(workout&&workout.exercises||[]).some(isCalmExercise)){
     if(/kondition|cardio|löp|jogg|intervall|cross[ -]?trainer|crosstrainer|ellipt|cyk|spinning|rodd|promenad/.test(type))cardio=true;
     else if(/styrka|helkropp|överkropp|underkropp|bröst|rygg|axel|arm|biceps|triceps|ben/.test(type))strength=true;
   }
@@ -1277,10 +1301,11 @@ function workoutKindSummary(workout){
 }
 function isCardioWorkout(workout){
   var kinds=workoutKindSummary(workout);
-  return kinds.cardio&&!kinds.strength;
+  return kinds.cardio&&!kinds.strength&&!(workout.exercises||[]).some(isCalmExercise);
 }
 function exerciseTargetText(exercise){
   var ex=normalizeExercise(exercise);
+  if(isCalmExercise(ex))return exerciseKindLabel(ex.kind)+' · '+fmtSec(ex.time*60);
   if(ex.kind==='cardio'){
     var cardioParts=[];
     if(ex.distance)cardioParts.push(String(ex.distance).replace(/\.0$/,'')+' km');
@@ -1402,52 +1427,50 @@ function addExerciseTimingEditor(row,timing){
 }
 
 function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
-  var e=normalizeExercise(ex);
-  var hasExplicitSets=ex&&Object.prototype.hasOwnProperty.call(ex,'sets');
-  var hasExplicitReps=ex&&Object.prototype.hasOwnProperty.call(ex,'reps');
-  var hasExplicitWeight=ex&&Object.prototype.hasOwnProperty.call(ex,'weight');
-  var strengthCls=e.kind==='strength'?'':' ex-cell-hidden';
-  return '<div class="ex-row-head">'
-      +'<input type="hidden" class="'+prefix+'-kind" value="'+e.kind+'">'
-      +'<button class="ex-kind-btn'+(e.kind==='strength'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'strength\')">Styrka</button>'
-      +'<button class="ex-kind-btn'+(e.kind==='cardio'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'cardio\')">Kondition</button>'
-    +'</div>'
-    +'<div class="ex-row">'
-      +'<input type="text" class="'+prefix+'-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
-      +'<input type="number" class="'+prefix+'-metric1" data-role="'+(e.kind==='cardio'?'distance':'sets')+'" placeholder="'+(e.kind==='cardio'?'Distans':'Sets')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.distance||''):(hasExplicitSets?(ex.sets||''):''))+'">'
-      +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
-      +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
-      +'<button class="ex-del" type="button" onclick="'+removeHandler+'">✕</button>'
-    +'</div>';
+  var e=normalizeExercise(ex),calm=isCalmExercise(e),cardio=e.kind==='cardio';
+  var metric1=calm?'':(cardio?(e.distance||''):(ex&&ex.sets||''));
+  var metric2=calm?e.time:(cardio?(e.time||''):(ex&&ex.reps||''));
+  return '<div class="ex-row-head"><input type="hidden" class="'+prefix+'-kind" value="'+e.kind+'">'
+    +EXERCISE_KINDS.map(function(k){return '<button class="ex-kind-btn'+(e.kind===k.value?' active':'')+'" type="button" aria-pressed="'+(e.kind===k.value)+'" onclick="setExerciseKind(this,\''+k.value+'\')">'+k.label+'</button>';}).join('')
+    +'</div><div class="ex-row">'
+    +'<input type="text" aria-label="Övning" class="'+prefix+'-name" placeholder="Övning" value="'+escHtml(e.name)+'">'
+    +'<input type="number" class="'+prefix+'-metric1'+(calm?' ex-cell-hidden':'')+'" data-role="'+(cardio?'distance':'sets')+'" aria-label="'+(cardio?'Distans i km':'Antal set')+'" placeholder="'+(cardio?'Distans':'Sets')+'" min="0" step="'+(cardio?'0.1':'1')+'" value="'+metric1+'">'
+    +'<input type="number" class="'+prefix+'-metric2" data-role="'+(isTimedExercise(e)?'time':'reps')+'" aria-label="'+(isTimedExercise(e)?'Tid i minuter':'Repetitioner')+'" placeholder="'+(isTimedExercise(e)?'Minuter':'Reps')+'" min="'+(calm?'0.01':'0')+'" '+''+'step="'+(calm?'any':(cardio?'0.1':'1'))+'" value="'+metric2+'">'
+    +'<input type="number" class="'+prefix+'-metric3'+(e.kind!=='strength'?' ex-cell-hidden':'')+'" data-role="weight" aria-label="Vikt i kg" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'&&ex?ex.weight||'':'')+'">'
+    +'<button class="ex-del" aria-label="Ta bort övning" type="button" onclick="'+removeHandler+'">✕</button></div>'
+    +'<div class="calm-options" '+(calm?'':'hidden')+'><label class="calm-duration-caption">Tid i minuter · 0,5 = 30 sekunder</label>'
+    +'<label>Vägledning <input class="calm-guide" maxlength="500" placeholder="Valfri påminnelse under momentet" value="'+escHtml(e.guide||'')+'"></label>'
+    +'<label class="calm-breathing-label" '+(e.kind==='meditation'?'':'hidden')+'>Andningsrytm <select class="calm-breathing"><option value="gentle"'+(e.breathing!=='off'?' selected':'')+'>Mjuk · 4 s in / 6 s ut</option><option value="off"'+(e.breathing==='off'?' selected':'')+'>Egen rytm</option></select></label>'
+    +'<div class="calm-row-move"><button type="button" onclick="ExerciseCalm.moveRow(this,-1)" aria-label="Flytta moment upp">↑ Upp</button><button type="button" onclick="ExerciseCalm.moveRow(this,1)" aria-label="Flytta moment ned">↓ Ned</button></div></div>';
 }
 
 function setExerciseKind(el,kind){
   var wrap=el.closest('.inline-ex-row, .ex-row-wrap, .ex-row-item');
   if(!wrap)return;
   var hidden=wrap.querySelector('[class$="-kind"]');
-  if(hidden)hidden.value=kind;
-  wrap.classList.remove('is-strength','is-cardio');
+  if(!hidden||hidden.value===kind)return;
+  var prefix=hidden.className.replace(/-kind$/,''),name=wrap.querySelector('.'+prefix+'-name').value;
+  var oldRemove=wrap.querySelector('.ex-del'),remove=oldRemove?oldRemove.getAttribute('onclick'):'void 0';
+  var duration=wrap.querySelector('.ex-duration-seconds-v7'),seconds=duration?duration.value:null;
+  var e={kind:kind,name:name};
+  wrap.classList.remove('is-strength','is-cardio','is-stretch','is-meditation');
   wrap.classList.add('is-'+kind);
-  wrap.querySelectorAll('.ex-kind-btn').forEach(function(btn){btn.classList.toggle('active',btn===el);});
-  var metric1=wrap.querySelector('[class*="-metric1"]');
-  var metric2=wrap.querySelector('[class*="-metric2"]');
-  var metric3=wrap.querySelector('[class*="-metric3"]');
-  if(metric1){metric1.dataset.role=kind==='cardio'?'distance':'sets';metric1.placeholder=kind==='cardio'?'Distans':'Sets';metric1.step=kind==='cardio'?'0.1':'1';metric1.value='';}
-  if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.step=kind==='cardio'?'0.1':'1';metric2.value='';}
-  if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');}
-  if(metric3)metric3.value='';
+  wrap.innerHTML=buildExerciseEditorRowHtml(prefix,e,remove);
+  if(!oldRemove)wrap.querySelector('.ex-del').remove();
+  if(seconds!==null)addExerciseTimingEditor(wrap,{durationSec:Number(seconds)});
+  delete wrap.dataset.builderToolsV3;
+  wrap.dispatchEvent(new Event('change',{bubbles:true}));
 }
 
 function parseExerciseRow(row,prefix){
   var nameEl=row.querySelector('.'+prefix+'-name');
-  if(!nameEl)return null;
-  var name=nameEl.value.trim();
-  if(!name)return null;
-  var kindEl=row.querySelector('.'+prefix+'-kind');
-  var kind=kindEl?kindEl.value:'strength';
-  if(kind==='cardio'){
-    return normalizeExercise({kind:'cardio',name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0});
+  if(!nameEl||!nameEl.value.trim())return null;
+  var name=nameEl.value.trim(),kind=row.querySelector('.'+prefix+'-kind').value;
+  if(kind==='stretch'||kind==='meditation'){
+    var time=row.querySelector('.'+prefix+'-metric2');
+    return normalizeExercise({kind:kind,name:name,time:Number(time.value),guide:row.querySelector('.calm-guide').value,breathing:row.querySelector('.calm-breathing').value});
   }
+  if(kind==='cardio')return normalizeExercise({kind:kind,name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0});
   return normalizeExercise({kind:'strength',name:name,sets:+row.querySelector('.'+prefix+'-metric1').value||1,reps:+row.querySelector('.'+prefix+'-metric2').value||0,weight:+row.querySelector('.'+prefix+'-metric3').value||0});
 }
 
@@ -1726,6 +1749,7 @@ function saveDayWorkoutPlan(){
 }
 
 function persistDayWorkoutPlan(opts){
+  if(!validateCalmDurations('#day-workout-ex-list'))return false;
   opts=opts||{};
   var modal=document.getElementById('day-workout-modal');
   var date=modal.dataset.date;
@@ -1741,6 +1765,7 @@ function persistDayWorkoutPlan(opts){
   if(dateInput&&dateInput.value) date=dateInput.value;
   modal.dataset.date=date;
   var byDate=getPlannedSessions();
+  type=canonicalWorkoutType(type,ex);
   byDate[date]={type:type,exercises:ex};
   savePlannedSessions(byDate);
   var mondayISO=mondayISOOf(date);
@@ -1778,6 +1803,7 @@ function startWorkoutSessionForDate(iso){
     type:planned.type||'Övrigt',
     exercises:(planned.exercises||[]).map(function(ex){
       var norm=normalizeExercise(ex);
+      if(isCalmExercise(norm))return Object.assign({},norm,{plannedSets:1});
       return norm.kind==='cardio'
         ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,plannedSets:1}
         : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0};
@@ -1841,7 +1867,7 @@ function renderSessionMode(){
     var ex=sessionState.exercises[sessionState.exerciseIndex];
     var targetSets=ex.plannedSets;
     currentExEl.textContent=ex.name;
-    currentTargetEl.textContent=ex.kind==='cardio'
+    currentTargetEl.textContent=isCalmExercise(ex)?exerciseTargetText(ex):ex.kind==='cardio'
       ? 'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)
       : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps @ '+ex.weight+' kg';
 
@@ -1866,7 +1892,9 @@ function renderSessionMode(){
     logs.forEach(function(l,idx){
       var row=document.createElement('div');
       row.className='set-log-item';
-      row.innerHTML=ex.kind==='cardio'
+      row.innerHTML=isCalmExercise(ex)
+        ? '<div class="set-tag">Moment '+l.setNo+'</div><span>'+fmtSec(l.durationSec)+'</span>'
+        : ex.kind==='cardio'
         ? '<div class="set-tag">Runda '+l.setNo+'</div>'
           +'<input type="number" value="'+(l.actualDistance||0)+'" min="0" step="0.1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualDistance\',this.value)">'
           +'<input type="number" value="'+(l.actualTime||0)+'" min="0" step="0.1" onchange="updateSetLog('+sessionState.exerciseIndex+','+idx+',\'actualTime\',this.value)">'
@@ -1888,9 +1916,10 @@ function renderSessionMode(){
     var logs=sessionState.logs[i]||[];
     var dur=logs.reduce(function(s,x){return s+(x.durationSec||0);},0);
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+(ex.kind==='cardio'?((ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)):(ex.plannedSets+'x'+ex.reps+' @ '+ex.weight))+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
+    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+(isCalmExercise(ex)?escHtml(exerciseTargetText(ex)):(ex.kind==='cardio'?((ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)):(ex.plannedSets+'x'+ex.reps+' @ '+ex.weight)))+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
     tbody.appendChild(tr);
   });
+  if(window.ExerciseCalm)window.ExerciseCalm.sync();
 }
 
 function updateSetLog(exIdx,logIdx,key,val){
@@ -1912,7 +1941,7 @@ function completeCurrentSet(){
   if(!sessionState||!sessionState.setRunning)return;
   var ex=sessionState.exercises[sessionState.exerciseIndex];
   var dur=Math.max(1,Math.round((Date.now()-sessionState.setStartedAt)/1000));
-  sessionState.logs[sessionState.exerciseIndex].push(ex.kind==='cardio' ? {
+  sessionState.logs[sessionState.exerciseIndex].push(isCalmExercise(ex)?{setNo:sessionState.currentSet,actualTime:dur/60,durationSec:dur}:ex.kind==='cardio' ? {
     setNo:sessionState.currentSet,
     actualDistance:ex.distance||0,
     actualTime:ex.time||+(dur/60).toFixed(2),
@@ -1965,6 +1994,7 @@ function stopSessionMode(confirmClose){
   stopSessionTimerLoop();
   sessionState=null;
   closeModal('session-modal');
+  if(window.ExerciseCalm)window.ExerciseCalm.sync();
 }
 
 function saveSessionWorkout(){
@@ -1976,7 +2006,9 @@ function saveSessionWorkout(){
     var logs=sessionState.logs[i]||[];
     if(!logs.length)return;
     var dur=logs.reduce(function(s,l){return s+(l.durationSec||0);},0);
-    if(ex.kind==='cardio'){
+    if(isCalmExercise(ex)){
+      exercises.push(normalizeExercise(Object.assign({},ex,{time:dur/60})));
+    } else if(ex.kind==='cardio'){
       exercises.push(normalizeExercise({name:ex.name,kind:'cardio',distance:logs.reduce(function(s,l){return s+(l.actualDistance||0);},0),time:logs.reduce(function(s,l){return s+(l.actualTime||0);},0)}));
     } else {
       var sets=logs.length;
@@ -2184,7 +2216,8 @@ function renderLog(){
     var pulseDisp=w.hrAvg?w.hrAvg+' bpm':'—';
     var detailId='detail-'+w.id;
     var detailOpen=!!openIds[detailId];
-    var rowClass='log-main-row'+(cardioPass?' log-pass-cardio-v7':'');
+    var calmKinds=Array.from(new Set((w.exercises||[]).map(function(ex){return ex.kind;})));
+    var rowClass='log-main-row'+(cardioPass?' log-pass-cardio-v7':'')+(calmKinds.length===1&&isCalmExercise({kind:calmKinds[0]})?' is-'+calmKinds[0]:'');
     html+='<tr class="'+rowClass+'" data-workout-id="'+w.id+'" aria-expanded="'+(detailOpen?'true':'false')+'" onclick="toggleWorkoutDetails('+w.id+')">'
       +'<td>'+fmtDate(w.date)+'</td>'
       +'<td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>'
@@ -2307,6 +2340,7 @@ function editWorkoutExercise(id,index){
   overlay.classList.add('show');
 }
 function saveSingleExerciseEdit(){
+  if(!validateCalmDurations('#single-exercise-editor-v9'))return;
   var state=singleExerciseEditState;
   if(!state)return;
   var workouts=getWorkouts();
@@ -2407,6 +2441,7 @@ function addExRow(ex,timing){
   }
 }
 function saveWorkout(){
+  if(!validateCalmDurations('#ex-list'))return;
   var date=document.getElementById('wk-date').value;
   var typeRaw=document.getElementById('wk-type').value;
   var dur=parseInt(document.getElementById('wk-dur').value)||null;
@@ -2466,6 +2501,7 @@ function refreshTemplateSelectors(){
 }
 
 function saveCurrentAsTemplate(){
+  if(!validateCalmDurations('#ex-list'))return;
   var name=prompt('Namn på mallpass:', document.getElementById('wk-type').value||'Mallpass');
   if(!name)return;
   var rows=document.querySelectorAll('#ex-list .ex-row-item');

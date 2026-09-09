@@ -224,7 +224,7 @@
   function currentExerciseKind(state){
     if(!state||!Array.isArray(state.exercises)) return '';
     var ex=state.exercises[Math.max(0,Number(state.exerciseIndex)||0)];
-    return ex&&ex.kind==='cardio'?'cardio':(ex?'strength':'');
+    return ex?(ex.kind||'strength'):'';
   }
 
   function sync(){
@@ -248,7 +248,7 @@
       var done=seg.classList.contains('done');
       if(result&&result.segments[index]){
         var item=result.segments[index];
-        kind=item.kind==='cardio'?'cardio':'strength';
+        kind=item.kind||'strength';
         done=!!item.done;
         if(targetIndex<0&&item.current&&!item.done) targetIndex=index;
       }else{
@@ -283,7 +283,7 @@
       if(engaged){
         liveKind=currentExerciseKind(state);
       }else if(result&&result.segments[targetIndex]){
-        liveKind=result.segments[targetIndex].kind==='cardio'?'cardio':'strength';
+        liveKind=result.segments[targetIndex].kind||'strength';
       }else{
         liveKind=segments[targetIndex].getAttribute('data-pf-kind-v98')||currentExerciseKind(state);
       }

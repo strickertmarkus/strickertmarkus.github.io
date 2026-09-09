@@ -179,7 +179,7 @@
         var result = api.calculate(state);
         if (result && Array.isArray(result.segments)) {
           var next = result.segments.find(function (segment) { return segment && !segment.done; });
-          if (next && (next.kind === 'cardio' || next.kind === 'strength')) return next.kind;
+          if (next && (['strength','cardio','stretch','meditation'].indexOf(next.kind)!==-1)) return next.kind;
         }
       }
     } catch (_) {}
@@ -188,7 +188,7 @@
     var kind = transitionKind(state);
     var config = transitionConfig(state,kind);
     if (kind === 'next' && config.type === 'custom') return 'cardio';
-    return ex && ex.kind === 'cardio' ? 'cardio' : 'strength';
+    return ex ? ex.kind : 'strength';
   }
 
   function installStyle() {
@@ -268,7 +268,7 @@
 
     var nextKind = betweenSets ? nextPendingKind(state) : null;
     modal.classList.remove('pulse-flow-between-set-strength-v117','pulse-flow-between-set-cardio-v117');
-    modal.classList.toggle('pulse-flow-between-set-strength-v118',betweenSets && nextKind !== 'cardio');
+    modal.classList.toggle('pulse-flow-between-set-strength-v118',betweenSets && nextKind === 'strength');
     modal.classList.toggle('pulse-flow-between-set-cardio-v118',betweenSets && nextKind === 'cardio');
   }
 

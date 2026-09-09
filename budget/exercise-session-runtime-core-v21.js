@@ -235,7 +235,7 @@
     if (running) transitionVisualUntil = 0;
 
     var starting = training && !restVisible() && (preStarting || customStarting || Date.now() < transitionVisualUntil);
-    var timedCardio = !!(training && running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
+    var timedCardio = !!(training && running && ex && isTimedExercise(ex) && Number(ex.time) > 0);
 
     modal.classList.toggle('persistent-hype',training);
     modal.classList.toggle('hype-focus',training);
@@ -265,7 +265,7 @@
     if (ring) {
       ring.setAttribute('role','button');
       ring.setAttribute('tabindex','0');
-      ring.setAttribute('aria-label','Pausa eller fortsätt konditionstimern');
+      ring.setAttribute('aria-label','Pausa eller fortsätt timern');
     }
   }
 
@@ -309,7 +309,7 @@
     var hint = document.getElementById('session-countdown-pause-hint');
     if (hint) hint.textContent = paused ? 'Pausad · tryck för att fortsätta' : 'Tryck för att pausa';
 
-    var timedCardio = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0 && state.setStartedAt);
+    var timedCardio = !!(running && ex && isTimedExercise(ex) && Number(ex.time) > 0 && state.setStartedAt);
     if (!timedCardio) return;
 
     var totalSeconds = Number(ex.time) * 60;
@@ -337,7 +337,7 @@
   function toggleCardioPause() {
     var state = getState();
     var ex = currentExercise(state);
-    if (!state || !state.setRunning || !state.setStartedAt || !ex || ex.kind !== 'cardio' || Number(ex.time) <= 0) return;
+    if (!state || !state.setRunning || !state.setStartedAt || !ex || !isTimedExercise(ex) || Number(ex.time) <= 0) return;
 
     if (state.__hypePaused) {
       clearPauseState(state);

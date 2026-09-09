@@ -338,7 +338,7 @@
   function loadSessionHelpers() {
     if (!document.querySelector('script[data-exercise-session-flow-v118]')) {
       var flow = document.createElement('script');
-      flow.src = 'exercise-session-flow-v112.js?v=20260909-session-flow-v118';
+      flow.src = 'exercise-session-flow-v112.js?v=20260909-session-flow-calm-v141';
       flow.async = false;
       flow.setAttribute('data-exercise-session-flow-v118','true');
       document.head.appendChild(flow);
@@ -346,7 +346,7 @@
 
     if (!document.querySelector('script[data-exercise-session-unit-labels-v118]')) {
       var units = document.createElement('script');
-      units.src = 'exercise-session-unit-labels-v116.js?v=20260909-session-units-v118';
+      units.src = 'exercise-session-unit-labels-v116.js?v=20260909-session-units-calm-v141';
       units.async = false;
       units.setAttribute('data-exercise-session-unit-labels-v118','true');
       document.head.appendChild(units);
@@ -354,7 +354,7 @@
 
     if (!document.querySelector('script[data-exercise-session-theme-rest-v120]')) {
       var restTheme = document.createElement('script');
-      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260909-session-theme-rest-v120';
+      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260909-session-theme-rest-calm-v141';
       restTheme.async = false;
       restTheme.setAttribute('data-exercise-session-theme-rest-v120','true');
       document.head.appendChild(restTheme);

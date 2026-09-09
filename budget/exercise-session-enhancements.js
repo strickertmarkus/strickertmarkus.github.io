@@ -215,7 +215,7 @@
     var state = getState();
     var ex = currentExercise(state);
     var running = !!(state && state.setRunning && state.setStartedAt);
-    var timed = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
+    var timed = !!(running && ex && isTimedExercise(ex) && Number(ex.time) > 0);
     wrap.classList.toggle('show',timed);
     if (!timed) return;
 

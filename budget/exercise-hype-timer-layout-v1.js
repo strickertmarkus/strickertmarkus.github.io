@@ -458,7 +458,7 @@
     var exercise = currentExercise(state);
     var wrap = document.getElementById('session-cardio-countdown');
     if (!wrap) return;
-    var timed = !!(state && state.setRunning && state.setStartedAt && exercise && exercise.kind === 'cardio' && Number(exercise.time) > 0);
+    var timed = !!(state && state.setRunning && state.setStartedAt && exercise && isTimedExercise(exercise) && Number(exercise.time) > 0);
     wrap.classList.toggle('show', timed);
     if (!timed) {
       delete wrap.dataset.activeCountV46;
@@ -523,6 +523,7 @@
     paintPrimaryTimers(now);
     paintCardioTimer(now);
     paintPretimer(now);
+    if(window.ExerciseCalm)window.ExerciseCalm.tick(now);
   }
 
   function liveLoop(frameTime) {
@@ -681,14 +682,14 @@
     var state = getState();
     var exercise = currentExercise(state);
     if (!state || !exercise || !state.setRunning || !state.setStartedAt) return;
-    var endedAt = state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : Date.now();
+    var endedAt = state.__calmTimerEnd || (state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : Date.now());
     var duration = Math.max(1, Math.round((endedAt - Number(state.setStartedAt)) / 1000));
     var logs = state.logs && state.logs[state.exerciseIndex];
     if (!Array.isArray(logs)) {
       if (!Array.isArray(state.logs)) state.logs = [];
       logs = state.logs[state.exerciseIndex] = [];
     }
-    logs.push(exercise.kind === 'cardio' ? {
+    logs.push(isCalmExercise(exercise) ? {setNo:state.currentSet,actualTime:duration/60,durationSec:duration} : exercise.kind === 'cardio' ? {
       setNo: state.currentSet,
       actualDistance: Number(exercise.distance) || 0,
       actualTime: Number(exercise.time) || +(duration / 60).toFixed(2),

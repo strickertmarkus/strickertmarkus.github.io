@@ -273,7 +273,7 @@
 
   function exerciseKind(ex) {
     ex = ex || {};
-    if (ex.kind === 'cardio' || ex.kind === 'strength') return ex.kind;
+    if (['strength','cardio','stretch','meditation'].indexOf(ex.kind)!==-1) return ex.kind;
     return (Number(ex.distance) > 0 || Number(ex.time) > 0) ? 'cardio' : 'strength';
   }
 
@@ -288,7 +288,7 @@
       if (kind === 'strength') strength = true;
     });
 
-    if (!cardio && !strength) {
+    if (!cardio && !strength && !(w.exercises||[]).some(function(ex){return ex.kind==='stretch'||ex.kind==='meditation';})) {
       var type = String((w && w.type) || '').toLowerCase();
       if (/kondition|cardio|löp|running|jogg|cross\s*-?trainer|crosstrainer|ellipt|cyk|spinning|rodd/.test(type)) {
         cardio = true;
