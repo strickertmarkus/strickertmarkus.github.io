@@ -3,6 +3,203 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
+  /* -----------------------------------------------------------------------
+     Session performance mode v125
+
+     This file is intentionally first in auth-gate's sequential exercise
+     loader. Install the lightweight scheduler guard here so later legacy/
+     dashboard pollers can sleep while the full-screen training session owns
+     the screen. Live timers and Pulse Flow animation remain untouched.
+     --------------------------------------------------------------------- */
+  if (!window.__exercisePerformanceV125Installed) {
+    window.__exercisePerformanceV125Installed = true;
+
+    var perfNativeSetInterval = window.setInterval;
+    var perfRoot = document.documentElement;
+    var perfActive = false;
+    var perfModalObserver = null;
+    var perfBackgroundSources = [
+      'exercise-points-8-9.js',
+      'exercise-heart-rate-range.js',
+      'exercise-builder-style-v5.js',
+      'exercise-builder-row-tools-v3.js',
+      'exercise-builder-between-preview-v7.js',
+      'exercise-between-routing-v7.js',
+      'exercise-log-layout-v50.js'
+    ];
+
+    function perfSessionModal() {
+      return document.getElementById('session-modal');
+    }
+
+    function perfSessionActive() {
+      var modal = perfSessionModal();
+      return !!(modal && modal.classList.contains('show'));
+    }
+
+    function perfPretimerVisible() {
+      var pre = document.getElementById('session-pre-timer');
+      return !!(pre && pre.classList.contains('show'));
+    }
+
+    function perfSourceFromStack() {
+      var stack = '';
+      try { stack = String((new Error()).stack || ''); } catch (_) {}
+      var known = perfBackgroundSources.concat([
+        'exercise-flow-polish-v2.js',
+        'exercise-session-theme-rest-v117.js',
+        'exercise-between-sets.js',
+        'exercise-session-ux-v20.js'
+      ]);
+      for (var i = 0; i < known.length; i++) {
+        if (stack.indexOf(known[i]) >= 0) return known[i];
+      }
+      return '';
+    }
+
+    function perfIsBackgroundSource(source) {
+      return perfBackgroundSources.indexOf(source) >= 0;
+    }
+
+    function perfShouldSkip(source, requestedDelay) {
+      var active = perfSessionActive();
+
+      /* Dashboard/builder/history sync has no visible job while the session
+         overlay is open. Also avoid doing this work in a background tab. */
+      if (perfIsBackgroundSource(source) && (active || document.hidden)) return true;
+
+      /* The v46 controller owns transitions. The old 75 ms flow-polish loop is
+         intentionally dormant once that controller exists. The slower loop is
+         builder/rest-overview maintenance and can sleep during Pulse Flow. */
+      if (source === 'exercise-flow-polish-v2.js') {
+        if (requestedDelay <= 120 && window.__exerciseSessionControllerV46Installed) return true;
+        if (requestedDelay > 120 && active) return true;
+      }
+
+      /* session-ux has an 80 ms sound/rest guard. With v46 installed it only
+         needs to wake while the five-second pre-timer is actually visible.
+         Its 250 ms current-set editor only matters in explicit Overview mode. */
+      if (source === 'exercise-session-ux-v20.js') {
+        if (requestedDelay <= 120 && window.__exerciseSessionControllerV46Installed && !perfPretimerVisible()) return true;
+        if (requestedDelay >= 200) {
+          var modal = perfSessionModal();
+          var state = null;
+          try { state = typeof sessionState !== 'undefined' ? sessionState : null; } catch (_) {}
+          if (!modal || !modal.classList.contains('show') || !modal.classList.contains('session-overview-mode') || !(state && state.setRunning)) return true;
+        }
+      }
+
+      return false;
+    }
+
+    /* Keep native interval semantics, but gate expensive callbacks. Two visual
+       countdown loops are safely reduced from 10 Hz to 4 Hz: their displayed
+       text/60-segment ring only changes at whole-second-ish boundaries, while
+       the ECG animation remains CSS-smooth. */
+    window.setInterval = function (handler, delay) {
+      var source = perfSourceFromStack();
+      var requestedDelay = Math.max(0,Number(delay) || 0);
+      var actualDelay = requestedDelay;
+      var extraArgs = Array.prototype.slice.call(arguments,2);
+
+      if (source === 'exercise-flow-polish-v2.js' && requestedDelay > 0 && requestedDelay <= 120) actualDelay = 1000;
+      if ((source === 'exercise-session-theme-rest-v117.js' || source === 'exercise-between-sets.js') && requestedDelay >= 80 && requestedDelay <= 120) actualDelay = 250;
+
+      if (typeof handler !== 'function' || !source) {
+        return perfNativeSetInterval.apply(window,[handler,actualDelay].concat(extraArgs));
+      }
+
+      var wrapped = function () {
+        if (perfShouldSkip(source,requestedDelay)) return;
+        return handler.apply(this,arguments);
+      };
+      return perfNativeSetInterval.apply(window,[wrapped,actualDelay].concat(extraArgs));
+    };
+
+    function perfInstallStyle(moveLast) {
+      var style = document.getElementById('exercise-performance-v125-style');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'exercise-performance-v125-style';
+        style.textContent = `
+          /* The live session sits outside .app-wrap in exercise.html. Hiding
+             the covered dashboard preserves its layout/state but lets Safari
+             stop painting/compositing charts and cards underneath the modal. */
+          html.exercise-session-performance-v125 body .app-wrap {
+            visibility:hidden !important;
+            pointer-events:none !important;
+          }
+
+          /* Pulse Flow's header already has an 88% opaque surface. Eight pixels
+             retains the frosted depth while avoiding the much heavier 20 px
+             live backdrop blur on iOS. */
+          html.exercise-session-performance-v125 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top {
+            backdrop-filter:blur(8px) !important;
+            -webkit-backdrop-filter:blur(8px) !important;
+          }
+
+          /* Keep the marker pulse, but animate compositor-friendly scale and
+             opacity. The existing static glow remains; box-shadow is no longer
+             recalculated every animation frame. */
+          @keyframes pfDotActivePulseV101 {
+            0%,100% { scale:.965;opacity:.91; }
+            50% { scale:1.075;opacity:1; }
+          }
+          @keyframes pfDotReadyPulseV98 {
+            0%,100% { scale:.98;opacity:.86; }
+            50% { scale:1.045;opacity:1; }
+          }
+          @keyframes pfDotLivePulseV98 {
+            0%,100% { scale:.97;opacity:.92; }
+            50% { scale:1.065;opacity:1; }
+          }
+        `;
+        document.head.appendChild(style);
+      } else if (moveLast && style.parentNode) {
+        /* Marker styles load later in the chain. Moving this node to the end
+           when a session opens makes these optimized keyframes authoritative. */
+        style.parentNode.appendChild(style);
+      }
+    }
+
+    function perfDispatch(name,active) {
+      try {
+        document.dispatchEvent(new CustomEvent(name,{detail:{active:active}}));
+      } catch (_) {}
+    }
+
+    function perfSyncMode() {
+      var active = perfSessionActive();
+      if (active === perfActive) return;
+      perfActive = active;
+      window.__exerciseSessionPerformanceActive = active;
+      perfRoot.classList.toggle('exercise-session-performance-v125',active);
+      if (active) perfInstallStyle(true);
+      perfDispatch(active ? 'exercise:performance-suspend' : 'exercise:performance-resume',active);
+    }
+
+    function perfBindModal() {
+      var modal = perfSessionModal();
+      if (!modal) return false;
+      if (!perfModalObserver) {
+        perfModalObserver = new MutationObserver(perfSyncMode);
+        perfModalObserver.observe(modal,{attributes:true,attributeFilter:['class']});
+      }
+      perfSyncMode();
+      return true;
+    }
+
+    perfInstallStyle(false);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded',perfBindModal,{once:true});
+    } else {
+      perfBindModal();
+    }
+    document.addEventListener('visibilitychange',function () {
+      if (!document.hidden) perfSyncMode();
+    });
+  }
+
   var pulseChart = null;
   var lastSignature = '';
 
@@ -322,6 +519,7 @@
       setInterval(function () { sync(false); },1200);
       window.addEventListener('storage', function () { setTimeout(function () { sync(true); },0); });
       document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(true); });
+      document.addEventListener('exercise:performance-resume', function () { sync(true); });
     }
     ready();
   }
