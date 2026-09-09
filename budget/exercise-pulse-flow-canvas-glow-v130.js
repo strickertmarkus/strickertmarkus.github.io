@@ -1,21 +1,25 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV132Installed) return;
-  window.__exercisePulseFlowCanvasGlowV132Installed = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV140Installed) return;
+  window.__exercisePulseFlowCanvasGlowV140Installed = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v132-style';
+  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v140-style';
   var mobileMq = window.matchMedia ? window.matchMedia('(max-width:600px)') : { matches:true };
   var rafId = 0;
   var modalObserver = null;
   var installObserver = null;
-  var cachedLarge = new WeakMap();
   var DPR = Math.min(1.5, Math.max(1, Number(window.devicePixelRatio) || 1));
 
   function installStyle() {
+    [
+      'exercise-pulse-flow-canvas-glow-v130-style',
+      'exercise-pulse-flow-canvas-glow-v132-style'
+    ].forEach(function (id) {
+      var old = document.getElementById(id);
+      if (old) old.remove();
+    });
     if (document.getElementById(STYLE_ID)) return;
-    var old = document.getElementById('exercise-pulse-flow-canvas-glow-v130-style');
-    if (old) old.remove();
 
     var style = document.createElement('style');
     style.id = STYLE_ID;
@@ -28,10 +32,12 @@
       }
 
       @media (max-width:600px) {
-        /* The desktop-looking halo must be allowed to leave the narrow SVG
-           boxes. The old Pulse Flow band explicitly used overflow:hidden,
-           which clipped most of a 16-27px light falloff on phones. */
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58,
+        /* v140: keep the successful v132 Canvas glow only on the compact ECGs
+           and timer arcs. The large ECG is returned to its original v58 SVG
+           rendering, including its native gradient/filter and clipped band. */
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 {
+          overflow:hidden !important;
+        }
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
         html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring,
@@ -41,11 +47,11 @@
 
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-mobile-halo-v127,
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-smooth-halo-outer-v129,
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-smooth-halo-mid-v129 {
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-smooth-halo-mid-v129,
+        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > .pf-canvas-large-v130 {
           display:none !important;
         }
 
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-trace-v58,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-arc-progress-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 svg,
@@ -66,21 +72,8 @@
           -webkit-filter:none !important;
           mix-blend-mode:screen !important;
         }
-
-        /* Give the Canvas enough transparent margin for the same approximate
-           7 / 16 / 27px halo radii used by the active 5s toggle knob. */
         html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > .pf-canvas-large-v130 {
-          inset:-32px !important;
-          width:calc(100% + 64px) !important;
-          height:calc(100% + 64px) !important;
-          z-index:1 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > svg {
-          position:relative !important;
-          z-index:2 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-status-v58 {
-          z-index:4 !important;
+          display:none !important;
         }
 
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
@@ -217,172 +210,33 @@
     return true;
   }
 
-  function neonPass(ctx,points,rgb,width,blur,shadowAlpha,dash,dashOffset) {
+  function neonPass(ctx,points,rgb,width,blur,shadowAlpha) {
     if (!buildPolyline(ctx,points)) return;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = width * DPR;
-
-    /* Full source alpha is intentional. Canvas shadowBlur derives its alpha
-       mask from the source stroke; the old 0.02-0.08 stroke alpha effectively
-       killed the halo on iOS. The canvas sits directly below the crisp SVG
-       core, so this source stroke is hidden by the real line while its light
-       remains visible around it. */
     ctx.strokeStyle = rgba(rgb,1);
     ctx.shadowColor = rgba(rgb,shadowAlpha);
     ctx.shadowBlur = blur * DPR;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
-    if (dash && dash.length) {
-      ctx.setLineDash(dash);
-      ctx.lineDashOffset = dashOffset || 0;
-    } else {
-      ctx.setLineDash([]);
-    }
+    ctx.setLineDash([]);
     ctx.stroke();
     ctx.restore();
   }
 
-  function drawToggleStrengthHalo(ctx,points,rgb,dash,dashOffset,compact) {
+  function drawToggleStrengthHalo(ctx,points,rgb,compact) {
     if (compact) {
-      neonPass(ctx,points,rgb,1.05,20,.22,dash,dashOffset);
-      neonPass(ctx,points,rgb,1.25,12,.50,dash,dashOffset);
-      neonPass(ctx,points,rgb,1.55,6,.96,dash,dashOffset);
+      neonPass(ctx,points,rgb,1.05,20,.22);
+      neonPass(ctx,points,rgb,1.25,12,.50);
+      neonPass(ctx,points,rgb,1.55,6,.96);
       return;
     }
-
-    /* Match the visual hierarchy of the active toggle knob:
-       0 0 7px / .96, 0 0 16px / .50, 0 0 27px / .22. */
-    neonPass(ctx,points,rgb,1.15,27,.22,dash,dashOffset);
-    neonPass(ctx,points,rgb,1.4,16,.50,dash,dashOffset);
-    neonPass(ctx,points,rgb,1.75,7,.96,dash,dashOffset);
-  }
-
-  function pointAtPhase(points,phase) {
-    if (!points || !points.length) return null;
-    var p = ((phase % 1) + 1) % 1;
-    var scaled = p * (points.length - 1);
-    var i = Math.floor(scaled);
-    var t = scaled - i;
-    var a = points[i];
-    var b = points[Math.min(i + 1,points.length - 1)];
-    return {
-      x:a.x + (b.x-a.x)*t,
-      y:a.y + (b.y-a.y)*t
-    };
-  }
-
-  function centeredNeonPass(ctx,points,rgb,width,blur,shadowAlpha,dash,dashOffset,centerX,halfSpan) {
-    if (!buildPolyline(ctx,points)) return;
-    var gradient = ctx.createLinearGradient(centerX-halfSpan,0,centerX+halfSpan,0);
-    gradient.addColorStop(0,rgba(rgb,0));
-    gradient.addColorStop(.18,rgba(rgb,.12));
-    gradient.addColorStop(.36,rgba(rgb,.52));
-    gradient.addColorStop(.50,rgba(rgb,1));
-    gradient.addColorStop(.64,rgba(rgb,.52));
-    gradient.addColorStop(.82,rgba(rgb,.12));
-    gradient.addColorStop(1,rgba(rgb,0));
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = width * DPR;
-    ctx.strokeStyle = gradient;
-    ctx.shadowColor = rgba(rgb,shadowAlpha);
-    ctx.shadowBlur = blur * DPR;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.setLineDash(dash);
-    ctx.lineDashOffset = dashOffset || 0;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function eraseLargeGlowCore(ctx,points,dash,dashOffset) {
-    if (!buildPolyline(ctx,points)) return;
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 2.2 * DPR;
-    ctx.strokeStyle = 'rgba(0,0,0,1)';
-    ctx.shadowBlur = 0;
-    ctx.setLineDash(dash);
-    ctx.lineDashOffset = dashOffset || 0;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawCenteredLargeHalo(ctx,sampled,rgb,phase) {
-    var points = sampled.points;
-    if (!points || points.length < 2) return;
-
-    var total = sampled.totalPx;
-    var activeFraction = .175;
-    var dash = [total*activeFraction,total*(1-activeFraction)];
-    var dashOffset = -phase*total;
-    var center = pointAtPhase(points,(phase + activeFraction*.5) % 1);
-    if (!center) return;
-
-    var xSpan = Math.max(1,Math.abs(points[points.length-1].x-points[0].x));
-    var halfSpan = Math.max(24*DPR,xSpan*.105);
-
-    /* Same toggle-strength radii as v132, but the Canvas source itself now
-       fades symmetrically around the middle of the moving ECG dash. This keeps
-       the glow attached to the pulse instead of reading as a bright tail on
-       the left side of the animation. */
-    centeredNeonPass(ctx,points,rgb,1.15,27,.22,dash,dashOffset,center.x,halfSpan);
-    centeredNeonPass(ctx,points,rgb,1.4,16,.50,dash,dashOffset,center.x,halfSpan);
-    centeredNeonPass(ctx,points,rgb,1.75,7,.96,dash,dashOffset,center.x,halfSpan);
-
-    /* Remove only the Canvas source core after its shadows have been produced.
-       The real SVG trace stays above it and remains the sole crisp ECG line. */
-    eraseLargeGlowCore(ctx,points,dash,dashOffset);
-  }
-
-  function currentDashPhase(trace,now) {
-    var offset = NaN;
-    try { offset = parseFloat(getComputedStyle(trace).strokeDashoffset); } catch (_) {}
-    if (Number.isFinite(offset)) return ((-offset % 1000) + 1000) % 1000 / 1000;
-
-    var modal = trace.closest('#session-modal');
-    var speed = 2.4;
-    if (modal) {
-      if (modal.classList.contains('pulse-flow-active-v58') && modal.classList.contains('pulse-flow-cardio-v58')) speed = .72;
-      else if (modal.classList.contains('pulse-flow-active-v58')) speed = .92;
-      else if (modal.classList.contains('pulse-flow-starting-v58')) speed = 1.18;
-      else if (modal.classList.contains('pulse-flow-resting-v58')) speed = 2.8;
-      else if (modal.classList.contains('pulse-flow-complete-v58')) speed = 3.2;
-    }
-    return (now % (speed*1000)) / (speed*1000);
-  }
-
-  function paintLarge(now) {
-    document.querySelectorAll('#session-modal.show:not(.session-overview-mode) .pulse-flow-band-v58').forEach(function (band) {
-      var svg = band.querySelector(':scope > svg');
-      var trace = svg && svg.querySelector('.pulse-flow-trace-v58');
-      if (!svg || !trace) return;
-
-      var canvas = ensureCanvas(band,'pf-canvas-large-v130');
-      var size = sizeCanvas(canvas);
-      if (!size) return;
-      var ctx = canvas.getContext('2d');
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-
-      var key = Math.round(size.rect.width*10) + 'x' + Math.round(size.rect.height*10);
-      var cache = cachedLarge.get(trace);
-      if (!cache || cache.key !== key) {
-        cache = { key:key, sampled:samplePath(trace,size.rect,DPR,120) };
-        cachedLarge.set(trace,cache);
-      }
-      if (!cache.sampled) return;
-
-      var rgb = parseRgb(band.closest('#session-modal') || band,'--pf-rgb',[103,232,249]);
-      drawCenteredLargeHalo(ctx,cache.sampled,rgb,currentDashPhase(trace,now));
-    });
+    neonPass(ctx,points,rgb,1.15,27,.22);
+    neonPass(ctx,points,rgb,1.4,16,.50);
+    neonPass(ctx,points,rgb,1.75,7,.96);
   }
 
   function paintMini(signal,rgb) {
@@ -400,7 +254,7 @@
       var path = svg.querySelector(selector);
       if (!path || !path.getAttribute('d')) return;
       var sampled = samplePath(path,size.rect,DPR,28);
-      if (sampled) drawToggleStrengthHalo(ctx,sampled.points,rgb,null,0,true);
+      if (sampled) drawToggleStrengthHalo(ctx,sampled.points,rgb,true);
     });
   }
 
@@ -430,7 +284,7 @@
 
     var sampled = samplePath(path,size.rect,DPR,88);
     if (!sampled) return;
-    drawToggleStrengthHalo(ctx,sampled.points,parseRgb(ring,varName,fallback),null,0,false);
+    drawToggleStrengthHalo(ctx,sampled.points,parseRgb(ring,varName,fallback),false);
   }
 
   function paintArcs() {
@@ -443,19 +297,25 @@
     document.querySelectorAll('canvas.pf-canvas-glow-v130').forEach(clearCanvas);
   }
 
-  function frame(now) {
+  function removeLegacyLargeCanvas() {
+    document.querySelectorAll('canvas.pf-canvas-large-v130').forEach(function (canvas) {
+      canvas.remove();
+    });
+  }
+
+  function frame() {
     rafId = 0;
     if (!isSessionVisible()) {
       clearAll();
       return;
     }
-    paintLarge(now);
     paintMiniEcgs();
     paintArcs();
     rafId = requestAnimationFrame(frame);
   }
 
   function syncLoop() {
+    removeLegacyLargeCanvas();
     if (isSessionVisible()) {
       if (!rafId) rafId = requestAnimationFrame(frame);
     } else {
@@ -476,6 +336,7 @@
 
   function install() {
     installStyle();
+    removeLegacyLargeCanvas();
     if (!bindModal()) {
       installObserver = new MutationObserver(function () {
         if (bindModal()) {
@@ -489,7 +350,7 @@
     document.addEventListener('visibilitychange',syncLoop,{passive:true});
     if (mobileMq.addEventListener) mobileMq.addEventListener('change',syncLoop);
     else if (mobileMq.addListener) mobileMq.addListener(syncLoop);
-    window.addEventListener('resize',function () { cachedLarge = new WeakMap(); syncLoop(); },{passive:true});
+    window.addEventListener('resize',syncLoop,{passive:true});
     syncLoop();
   }
 
