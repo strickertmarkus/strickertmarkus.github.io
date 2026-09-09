@@ -62,7 +62,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
   var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
-  var exerciseFastVersion = '20260909-exercise-pulse-flow-v124-circular-pretimer-halo';
+  var exerciseFastVersion = '20260909-exercise-pulse-flow-v125-battery-performance';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -89,8 +89,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     });
   }
 
-  ['exercise-points-8-9.js','exercise-heart-rate-range.js'].forEach(function (src) {
-    var href = src + '?v=20260828-1745-chart-sync-v16';
+  [
+    ['exercise-points-8-9.js',exerciseFastVersion],
+    ['exercise-heart-rate-range.js','20260828-1745-chart-sync-v16']
+  ].forEach(function (item) {
+    var href = item[0] + '?v=' + item[1];
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
     var link = document.createElement('link');
     link.rel = 'preload';
@@ -98,6 +101,17 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     link.href = href;
     document.head.appendChild(link);
   });
+
+  /* exercise-points-8-9 is the first normal exercise asset. Load it here with
+     the fast cache key so its v125 scheduler guard is installed before the
+     sequential auth-gate exercise bundle starts registering legacy pollers. */
+  if (!document.querySelector('script[data-exercise-points-8-9]')) {
+    var performanceBootstrap = document.createElement('script');
+    performanceBootstrap.src = 'exercise-points-8-9.js?v=' + exerciseFastVersion;
+    performanceBootstrap.async = false;
+    performanceBootstrap.setAttribute('data-exercise-points-8-9','true');
+    document.head.appendChild(performanceBootstrap);
+  }
 
   document.documentElement.classList.add('exercise-shell-booting-v13');
   document.documentElement.classList.add('exercise-hr-booting-v14');
