@@ -1,0 +1,1 @@
+(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/strickertmarkus/strickertmarkus.github.io@feat/pulse-flow-zen-mode-lab/budget/exercise-zen-mode-lab-v1.js?v=20260909-zen-preview-v1';s.onload=function(){};document.head.appendChild(s);})();
