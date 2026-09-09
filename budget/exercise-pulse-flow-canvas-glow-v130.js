@@ -260,6 +260,89 @@
     neonPass(ctx,points,rgb,1.75,7,.96,dash,dashOffset);
   }
 
+  function pointAtPhase(points,phase) {
+    if (!points || !points.length) return null;
+    var p = ((phase % 1) + 1) % 1;
+    var scaled = p * (points.length - 1);
+    var i = Math.floor(scaled);
+    var t = scaled - i;
+    var a = points[i];
+    var b = points[Math.min(i + 1,points.length - 1)];
+    return {
+      x:a.x + (b.x-a.x)*t,
+      y:a.y + (b.y-a.y)*t
+    };
+  }
+
+  function centeredNeonPass(ctx,points,rgb,width,blur,shadowAlpha,dash,dashOffset,centerX,halfSpan) {
+    if (!buildPolyline(ctx,points)) return;
+    var gradient = ctx.createLinearGradient(centerX-halfSpan,0,centerX+halfSpan,0);
+    gradient.addColorStop(0,rgba(rgb,0));
+    gradient.addColorStop(.18,rgba(rgb,.12));
+    gradient.addColorStop(.36,rgba(rgb,.52));
+    gradient.addColorStop(.50,rgba(rgb,1));
+    gradient.addColorStop(.64,rgba(rgb,.52));
+    gradient.addColorStop(.82,rgba(rgb,.12));
+    gradient.addColorStop(1,rgba(rgb,0));
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = width * DPR;
+    ctx.strokeStyle = gradient;
+    ctx.shadowColor = rgba(rgb,shadowAlpha);
+    ctx.shadowBlur = blur * DPR;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.setLineDash(dash);
+    ctx.lineDashOffset = dashOffset || 0;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function eraseLargeGlowCore(ctx,points,dash,dashOffset) {
+    if (!buildPolyline(ctx,points)) return;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 2.2 * DPR;
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.shadowBlur = 0;
+    ctx.setLineDash(dash);
+    ctx.lineDashOffset = dashOffset || 0;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawCenteredLargeHalo(ctx,sampled,rgb,phase) {
+    var points = sampled.points;
+    if (!points || points.length < 2) return;
+
+    var total = sampled.totalPx;
+    var activeFraction = .175;
+    var dash = [total*activeFraction,total*(1-activeFraction)];
+    var dashOffset = -phase*total;
+    var center = pointAtPhase(points,(phase + activeFraction*.5) % 1);
+    if (!center) return;
+
+    var xSpan = Math.max(1,Math.abs(points[points.length-1].x-points[0].x));
+    var halfSpan = Math.max(24*DPR,xSpan*.105);
+
+    /* Same toggle-strength radii as v132, but the Canvas source itself now
+       fades symmetrically around the middle of the moving ECG dash. This keeps
+       the glow attached to the pulse instead of reading as a bright tail on
+       the left side of the animation. */
+    centeredNeonPass(ctx,points,rgb,1.15,27,.22,dash,dashOffset,center.x,halfSpan);
+    centeredNeonPass(ctx,points,rgb,1.4,16,.50,dash,dashOffset,center.x,halfSpan);
+    centeredNeonPass(ctx,points,rgb,1.75,7,.96,dash,dashOffset,center.x,halfSpan);
+
+    /* Remove only the Canvas source core after its shadows have been produced.
+       The real SVG trace stays above it and remains the sole crisp ECG line. */
+    eraseLargeGlowCore(ctx,points,dash,dashOffset);
+  }
+
   function currentDashPhase(trace,now) {
     var offset = NaN;
     try { offset = parseFloat(getComputedStyle(trace).strokeDashoffset); } catch (_) {}
@@ -298,10 +381,7 @@
       if (!cache.sampled) return;
 
       var rgb = parseRgb(band.closest('#session-modal') || band,'--pf-rgb',[103,232,249]);
-      var phase = currentDashPhase(trace,now);
-      var total = cache.sampled.totalPx;
-      var dash = [total*.175,total*.825];
-      drawToggleStrengthHalo(ctx,cache.sampled.points,rgb,dash,-phase*total,false);
+      drawCenteredLargeHalo(ctx,cache.sampled,rgb,currentDashPhase(trace,now));
     });
   }
 
