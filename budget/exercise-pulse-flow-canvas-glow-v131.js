@@ -1,40 +1,33 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV132LayerInstalled) return;
-  window.__exercisePulseFlowCanvasGlowV132LayerInstalled = true;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV140LayerInstalled) return;
+  window.__exercisePulseFlowCanvasGlowV140LayerInstalled = true;
 
-  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v132-layer-style';
+  var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v140-layer-style';
 
   function installStyle() {
+    [
+      'exercise-pulse-flow-canvas-glow-v131-style',
+      'exercise-pulse-flow-canvas-glow-v132-layer-style'
+    ].forEach(function (id) {
+      var old = document.getElementById(id);
+      if (old) old.remove();
+    });
     if (document.getElementById(STYLE_ID)) return;
-    var old = document.getElementById('exercise-pulse-flow-canvas-glow-v131-style');
-    if (old) old.remove();
 
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
       @media (max-width:600px) {
-        /* v132 now generates the halo at real toggle-like strength in Canvas.
-           Do not multiply it with the old 4.8x brightness hack. */
+        /* Keep the successful v132 Canvas layering only for the compact ECGs
+           and timer arcs. The large ECG is intentionally left to its original
+           v58 SVG presentation. */
         html.exercise-concept-pulse-home-v1 body canvas.pf-canvas-glow-v130 {
           opacity:1 !important;
           filter:none !important;
           -webkit-filter:none !important;
           mix-blend-mode:screen !important;
-        }
-
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > .pf-canvas-large-v130 {
-          z-index:1 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 > svg {
-          z-index:2 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58::after {
-          z-index:3 !important;
-        }
-        html.exercise-concept-pulse-home-v1 body .pulse-flow-band-v58 .pulse-flow-status-v58 {
-          z-index:4 !important;
         }
 
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > .pf-canvas-mini-v130,
