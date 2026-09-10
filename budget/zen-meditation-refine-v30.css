@@ -26,3 +26,23 @@ body[data-kind=meditation] .ritual-section,
 body[data-kind=meditation] .growth-section,
 body[data-kind=meditation] .collection-section,
 body[data-kind=meditation] .history-section{background:transparent}
+
+/* 5. Increase information contrast while retaining translucent jade surfaces. */
+body[data-kind=meditation] .ritual-description,
+body[data-kind=meditation] .ritual-time,
+body[data-kind=meditation] .day-label,
+body[data-kind=meditation] .day-minutes,
+body[data-kind=meditation] .week-label,
+body[data-kind=meditation] .week-summary>span,
+body[data-kind=meditation] .growth-stats>div>span:last-child,
+body[data-kind=meditation] .history-row p,
+body[data-kind=meditation] .history-row time,
+body[data-kind=meditation] .subtle-text{color:#294e44}
+body[data-kind=meditation] .ritual-choice{border-color:rgba(41,78,61,.40)}
+body[data-kind=meditation] .day-fill:not(.empty){
+  background:linear-gradient(to top,rgba(69,113,83,.60),rgba(181,193,126,.85) 25%,#efdea0 76%,#f5e7b4);
+  border-bottom:1px solid #4b7159;
+  box-shadow:0 0 17px rgba(245,223,160,.15),inset 0 1px 0 rgba(255,249,218,.50);
+}
+body[data-kind=meditation] .day-fill.empty{background:rgba(49,89,73,.35);box-shadow:none}
+body[data-kind=meditation] .day-track:after{border-bottom-color:rgba(41,78,61,.40)}
