@@ -1,0 +1,106 @@
+/* Zen v26: Meditation rock polish + robust Stretch light continuity. */
+
+/* Only v26 may render the current Meditation rock/waterfall composition. */
+body[data-kind=meditation] .zen-waterfall-v24,
+body[data-kind=meditation] .zen-waterfall-v25,
+body[data-kind=meditation] .zen-waterfall-v13,
+body[data-kind=meditation] .zen-waterfall-mouth-v16{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+.zen-waterfall-v26{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+/* Stretch v26: keep the broad light field, but prevent the first pass card
+   background from visually cutting it off. */
+body[data-kind=stretch] #home-view::before{
+  height:1560px!important;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 46%,rgba(0,0,0,.95) 59%,rgba(0,0,0,.72) 72%,rgba(0,0,0,.35) 86%,transparent 100%)!important;
+  mask-image:linear-gradient(to bottom,#000 0%,#000 46%,rgba(0,0,0,.95) 59%,rgba(0,0,0,.72) 72%,rgba(0,0,0,.35) 86%,transparent 100%)!important;
+}
+
+/* The light bridge now sits above the translucent card surface. */
+body[data-kind=stretch] .ritual-section{
+  position:relative;
+  isolation:isolate;
+  overflow:visible;
+}
+body[data-kind=stretch] .ritual-section::before{
+  content:''!important;
+  display:block!important;
+  position:absolute;
+  pointer-events:none;
+  z-index:3;
+  left:-8vw;
+  right:-8vw;
+  top:-165px;
+  height:560px;
+  background:
+    linear-gradient(105deg,
+      transparent 7%,
+      rgba(221,249,170,.025) 17%,
+      rgba(219,248,168,.14) 28%,
+      rgba(198,238,140,.085) 39%,
+      rgba(185,227,126,.035) 48%,
+      transparent 58%),
+    linear-gradient(100deg,
+      transparent 47%,
+      rgba(205,243,148,.055) 55%,
+      rgba(227,251,180,.10) 64%,
+      transparent 79%),
+    radial-gradient(ellipse at 28% 0%,rgba(225,250,176,.09),transparent 45%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.90) 24%,rgba(0,0,0,.70) 49%,rgba(0,0,0,.34) 75%,transparent 100%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.90) 24%,rgba(0,0,0,.70) 49%,rgba(0,0,0,.34) 75%,transparent 100%);
+  mix-blend-mode:screen;
+}
+body[data-kind=stretch] .ritual-section::after{display:none!important}
+
+/* Keep text/icons above the beam while card backgrounds remain below it. */
+body[data-kind=stretch] .ritual-section>.section-heading,
+body[data-kind=stretch] .ritual-card .ritual-top,
+body[data-kind=stretch] .ritual-card .ritual-choice>strong,
+body[data-kind=stretch] .ritual-card .ritual-description,
+body[data-kind=stretch] .ritual-card .ritual-tools{
+  position:relative;
+  z-index:4;
+}
+body[data-kind=stretch] .rituals{position:relative;z-index:2}
+body[data-kind=stretch] .ritual-card:first-child::after{display:none!important}
+
+@media(max-width:700px){
+  body[data-kind=stretch] #home-view::before{
+    height:1480px!important;
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 50%,rgba(0,0,0,.96) 62%,rgba(0,0,0,.74) 75%,rgba(0,0,0,.38) 88%,transparent 100%)!important;
+    mask-image:linear-gradient(to bottom,#000 0%,#000 50%,rgba(0,0,0,.96) 62%,rgba(0,0,0,.74) 75%,rgba(0,0,0,.38) 88%,transparent 100%)!important;
+  }
+  body[data-kind=stretch] .ritual-section::before{
+    left:-12vw;
+    right:-12vw;
+    top:-150px;
+    height:510px;
+    background:
+      linear-gradient(105deg,
+        transparent 5%,
+        rgba(222,250,172,.03) 15%,
+        rgba(220,249,169,.15) 27%,
+        rgba(198,238,139,.09) 39%,
+        rgba(186,228,127,.04) 49%,
+        transparent 59%),
+      linear-gradient(100deg,
+        transparent 46%,
+        rgba(207,244,150,.06) 55%,
+        rgba(228,251,181,.105) 65%,
+        transparent 80%),
+      radial-gradient(ellipse at 27% -3%,rgba(226,251,178,.095),transparent 46%);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-waterfall-v26{transition:none}
+}
