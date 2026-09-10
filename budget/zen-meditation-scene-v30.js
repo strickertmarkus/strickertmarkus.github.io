@@ -213,7 +213,8 @@
       g.addColorStop(0.60, 'rgba(190,199,143,' + (alpha * 0.84) + ')');
       g.addColorStop(1, 'rgba(49,93,74,' + (alpha * 0.82) + ')');
       stroke(ctx, x0, y0, x1, y1, g, w);
-      stroke(ctx, x0 + w * 0.18, y0, x1 + w * 0.18, y1, 'rgba(236,239,190,' + (alpha * 0.28) + ')', Math.max(0.6, w * 0.07));
+      const sunSide=x1<805?1:-1;
+      stroke(ctx, x0 + sunSide * w * 0.26, y0, x1 + sunSide * w * 0.26, y1, 'rgba(252,233,173,' + (alpha * 0.36) + ')', Math.max(0.6, w * 0.08));
 
       if (j < segments - 1) stroke(ctx, x1 - w * 0.55, y1, x1 + w * 0.55, y1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
 
@@ -372,6 +373,13 @@
     ctx.fillRect(0, WATER - 20, W, 120);
 
     drawWaterMotion(time);
+    ctx.save();ctx.globalCompositeOperation='screen';
+    for(let i=0;i<13;i++){
+      const x=715+i*24,y=WATER+15+(i%4)*13,m=reduced.matches?0:Math.sin(time*.42+i)*3;
+      ctx.strokeStyle='rgba(223,241,203,.075)';ctx.lineWidth=.7;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.bezierCurveTo(x+8,y-5+m,x+23,y+6-m,x+38,y+1);ctx.stroke();
+    }
+    ctx.restore();
     back.forEach(function (stalk) { drawRippleSet(waterCrossX(stalk, time, true), time, stalk[3], true); });
 
     front.forEach(function (stalk) { drawStem(stalk, time, false); });
