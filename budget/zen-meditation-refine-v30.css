@@ -46,3 +46,23 @@ body[data-kind=meditation] .day-fill:not(.empty){
 }
 body[data-kind=meditation] .day-fill.empty{background:rgba(49,89,73,.35);box-shadow:none}
 body[data-kind=meditation] .day-track:after{border-bottom-color:rgba(41,78,61,.40)}
+
+/* 8. An understated state marker and a short reflection on the selected edge.
+   Existing aria-pressed remains the accessible state; the check is decorative. */
+body[data-kind=meditation] .ritual-choice{position:relative}
+body[data-kind=meditation] .ritual-time{padding-right:20px}
+body[data-kind=meditation] .ritual-selection{
+  position:absolute;right:14px;top:18px;color:#294e44;font:14px/1 sans-serif;
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true] .ritual-selection{opacity:1}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
+  background:
+    linear-gradient(90deg,transparent,#f5e7b4,transparent) 18% 0/36% 1px no-repeat,
+    linear-gradient(120deg,#d6e6bf52,#9dbfad26);
+  border-color:rgba(41,78,61,.56);
+  box-shadow:inset 0 1px 0 rgba(255,242,189,.13),0 0 22px rgba(245,223,160,.045);
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-kind=meditation] .ritual-selection{transition:none}
+}
