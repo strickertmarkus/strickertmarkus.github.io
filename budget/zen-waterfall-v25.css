@@ -1,0 +1,116 @@
+/* Zen v25: restore layered Meditation rock/waterfall character + fix Stretch sunlight seam. */
+
+/* Only v25 may render the Meditation rock/waterfall composition. */
+body[data-kind=meditation] .zen-waterfall-v24,
+body[data-kind=meditation] .zen-waterfall-v13,
+body[data-kind=meditation] .zen-waterfall-mouth-v16{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+.zen-waterfall-v25{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+/* Stretch: use one continuous light field across hero -> Välj pass rather than
+   starting a second beam at the section boundary. */
+body[data-kind=stretch] #home-view{
+  position:relative;
+  isolation:isolate;
+}
+body[data-kind=stretch] #home-view::before{
+  content:'';
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  left:-8vw;
+  right:-8vw;
+  top:0;
+  height:1450px;
+  background:
+    linear-gradient(105deg,
+      transparent 9%,
+      rgba(219,249,168,.02) 18%,
+      rgba(216,247,164,.12) 28%,
+      rgba(195,236,136,.075) 39%,
+      transparent 53%),
+    linear-gradient(101deg,
+      transparent 46%,
+      rgba(202,241,145,.06) 55%,
+      rgba(224,249,176,.105) 64%,
+      transparent 78%),
+    radial-gradient(ellipse at 29% 8%,rgba(220,249,170,.085),transparent 43%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 44%,rgba(0,0,0,.92) 57%,rgba(0,0,0,.62) 70%,rgba(0,0,0,.24) 84%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 44%,rgba(0,0,0,.92) 57%,rgba(0,0,0,.62) 70%,rgba(0,0,0,.24) 84%,transparent 100%);
+  mix-blend-mode:screen;
+}
+body[data-kind=stretch] #home-view>*{
+  position:relative;
+  z-index:1;
+}
+
+/* Disable the older ritual-only bridge, which caused the visible seam/cut. */
+body[data-kind=stretch] .ritual-section::before,
+body[data-kind=stretch] .ritual-section::after{
+  display:none!important;
+}
+
+/* Continue a faint fragment *inside* the first pass card so the light does not
+   appear to stop on the card's translucent surface. */
+body[data-kind=stretch] .ritual-card:first-child{
+  position:relative;
+  overflow:hidden;
+}
+body[data-kind=stretch] .ritual-card:first-child::after{
+  content:'';
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  inset:-1px;
+  background:
+    linear-gradient(105deg,transparent 6%,rgba(221,249,171,.035) 20%,rgba(216,246,163,.10) 35%,rgba(194,235,136,.045) 48%,transparent 64%),
+    radial-gradient(ellipse at 30% -5%,rgba(225,250,177,.08),transparent 58%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.90),rgba(0,0,0,.48) 58%,transparent 100%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.90),rgba(0,0,0,.48) 58%,transparent 100%);
+  mix-blend-mode:screen;
+}
+body[data-kind=stretch] .ritual-card:first-child>*{
+  position:relative;
+  z-index:1;
+}
+
+@media(max-width:700px){
+  body[data-kind=stretch] #home-view::before{
+    left:-12vw;
+    right:-12vw;
+    height:1320px;
+    background:
+      linear-gradient(105deg,
+        transparent 7%,
+        rgba(220,249,169,.025) 17%,
+        rgba(217,248,165,.135) 28%,
+        rgba(195,236,137,.08) 40%,
+        transparent 54%),
+      linear-gradient(100deg,
+        transparent 45%,
+        rgba(202,241,144,.06) 55%,
+        rgba(226,250,178,.11) 64%,
+        transparent 79%),
+      radial-gradient(ellipse at 28% 6%,rgba(223,250,173,.09),transparent 44%);
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 48%,rgba(0,0,0,.93) 60%,rgba(0,0,0,.66) 72%,rgba(0,0,0,.27) 86%,transparent 100%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 48%,rgba(0,0,0,.93) 60%,rgba(0,0,0,.66) 72%,rgba(0,0,0,.27) 86%,transparent 100%);
+  }
+  body[data-kind=stretch] .ritual-card:first-child::after{
+    background:
+      linear-gradient(105deg,transparent 4%,rgba(222,250,173,.04) 18%,rgba(218,247,165,.115) 34%,rgba(195,236,137,.05) 50%,transparent 66%),
+      radial-gradient(ellipse at 28% -6%,rgba(224,250,175,.085),transparent 60%);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-waterfall-v25{transition:none}
+}
