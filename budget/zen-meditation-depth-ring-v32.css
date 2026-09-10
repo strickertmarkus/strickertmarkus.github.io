@@ -1,0 +1,137 @@
+/* Zen v32 — consistent Meditation depth, visible waterline, repaired start ring. */
+
+/* v30 waterfall is replaced by a rear/front split renderer. */
+.zen-waterfall-v30{display:none!important}
+.zen-waterfall-rear-v32,
+.zen-waterfall-front-v32{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .8s ease;
+}
+body[data-kind=meditation] .zen-waterfall-rear-v32,
+body[data-kind=meditation] .zen-waterfall-front-v32{opacity:1}
+
+/* Repair the Meditation CTA ring: one compact circle, internally laid out, no overlaps. */
+body[data-kind=meditation] .start-area{
+  width:174px;
+  max-width:174px;
+  margin-top:116px!important;
+  margin-left:4px;
+}
+body[data-kind=meditation] #start-button{
+  width:158px;
+  height:158px;
+  min-height:158px;
+  margin:0;
+  padding:22px 14px 18px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  overflow:visible;
+  background:
+    radial-gradient(circle at 43% 34%,rgba(255,249,217,.16),transparent 34%),
+    radial-gradient(circle at 50% 55%,rgba(76,121,104,.15),rgba(55,96,82,.10) 58%,rgba(42,80,69,.05) 74%,transparent 75%);
+  border:1px solid rgba(var(--sun-rgb),.55);
+  color:#214b40;
+  box-shadow:
+    0 0 16px rgba(var(--sun-rgb),.15),
+    0 0 36px rgba(var(--sun-rgb),.075),
+    inset 0 0 24px rgba(255,249,218,.075),
+    inset 0 0 1px rgba(255,255,255,.5);
+}
+body[data-kind=meditation] #start-button:before{
+  inset:9px;
+  border-color:rgba(var(--sun-rgb),.25);
+}
+body[data-kind=meditation] #start-button:after{
+  inset:-7px;
+  border-color:rgba(var(--sun-rgb),.17);
+  box-shadow:0 0 22px rgba(var(--sun-rgb),.11);
+}
+body[data-kind=meditation] #start-label{
+  position:static!important;
+  inset:auto!important;
+  order:1;
+  margin:0 0 5px;
+  width:auto;
+  font:600 8.5px/1 Manrope,var(--sans);
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:#4b6d62;
+  text-align:center;
+  white-space:nowrap;
+}
+body[data-kind=meditation] .start-ring-name{
+  position:static!important;
+  order:2;
+  display:block;
+  width:132px;
+  margin:0;
+  color:#1f463b;
+  font:500 19px/1.02 var(--serif);
+  letter-spacing:-.2px;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:0 0 14px rgba(var(--sun-rgb),.11);
+}
+body[data-kind=meditation] .start-ring-meta{
+  position:static!important;
+  inset:auto!important;
+  order:3;
+  display:block;
+  width:126px;
+  margin:1px 0 0;
+  color:#4a6c61;
+  font:500 8.5px/1.25 Manrope,var(--sans);
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body[data-kind=meditation] #start-button>span:last-child{
+  position:absolute;
+  right:17px;
+  bottom:14px;
+  font-size:15px;
+  color:#42685b;
+  opacity:.72;
+}
+body[data-kind=meditation] .start-area .quiet-line{
+  width:158px;
+  margin-top:12px;
+  color:#486c61;
+  font-size:9px;
+  line-height:1.4;
+}
+body[data-kind=meditation] #start-button:disabled{opacity:.9}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .start-area{
+    width:168px;
+    max-width:168px;
+    margin-top:112px!important;
+    margin-left:2px;
+  }
+  body[data-kind=meditation] #start-button{
+    width:154px;
+    height:154px;
+    min-height:154px;
+    padding:21px 12px 17px;
+  }
+  body[data-kind=meditation] .start-ring-name{width:128px;font-size:18.5px}
+  body[data-kind=meditation] .start-ring-meta{width:122px;font-size:8.2px}
+  body[data-kind=meditation] .start-area .quiet-line{width:154px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-waterfall-rear-v32,.zen-waterfall-front-v32{transition:none}
+}
