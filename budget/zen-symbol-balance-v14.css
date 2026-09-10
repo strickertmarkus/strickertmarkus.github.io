@@ -1,3 +1,4 @@
+@import url('zen-polish-v15.css?v=20260910-polish-v15');
 /* Zen meditation v14: optical balance for thin dotted-ring glyphs. */
 body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol,
 body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
