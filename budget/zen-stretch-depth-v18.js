@@ -190,7 +190,7 @@
     width=Math.max(1,b.width);height=Math.max(1,b.height);
     ratio=Math.min(window.devicePixelRatio||1,1.5,Math.sqrt(1450000/(width*height)));
     scale=Math.max(width/W,height/H);
-    left=(width-W*scale)*(width<600?.69:.5);
+    left=(width-W*scale)*(width < 600 ? 0.69 : 0.5);
     canvas.width=Math.round(width*ratio);
     canvas.height=Math.round(height*ratio);
     draw(reduced.matches?0:performance.now()/1000);
