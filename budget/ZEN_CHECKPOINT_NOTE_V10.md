@@ -1,1 +1,0 @@
-Checkpoint before v10 visual refinements: commit 34022df1e3af598718393ebf308b1f1d1bfdee95. Intended branch name: checkpoint/zen-before-symbol-waterfall-v10-20260910.
