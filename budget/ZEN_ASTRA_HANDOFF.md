@@ -2,7 +2,7 @@
 
 Senast uppdaterad: 2026-09-10
 
-## Viktig checkpoint
+## Viktiga checkpoints
 
 Före v4-demo/ljus/bambu-ändringarna:
 
@@ -10,7 +10,11 @@ Före v4-demo/ljus/bambu-ändringarna:
 - Commit: `3a9dfdb78d2129fc15faa3dc4b120922fb5c1284`
 - Message: `Use detailed Zen scenery v3`
 
-Checkpointen innehåller den fungerande v3-versionen efter den mer detaljerade skogen, organiska löven och den rikare meditationsbelysningen.
+Före v5-vatten/morgonsol-förfiningen:
+
+- Branch: `checkpoint/zen-before-water-sunlight-v5-20260910`
+- Commit: `3fc1cfa49272b813de61691b1fbbbac2a34b2255`
+- Message: `Add Astra handoff for Zen v4`
 
 ## Nuvarande arkitektur
 
@@ -29,13 +33,13 @@ Scenery:
 
 - `zen-scene-v3.js` – huvudrenderaren för skog och meditationsmiljö. Lämna denna som stabil fallback om du inte uttryckligen behöver ändra kärnscenen.
 - `zen-scene-v3.css` – v3-headingdetaljer.
-- `zen-scene-v4.js` – overlay ovanpå v3 för meditation: kontinuerliga bambustammar som går ut ur bild, vissa går genom vattenlinjen och får reflektion/ripples.
+- `zen-scene-v4.js` – overlay ovanpå v3 för meditation: kontinuerliga bambustammar som går ut ur bild, vissa går genom vattenlinjen, får reflektioner och nu även animerade vindripples över vattenytan.
 
 V4 UI/demo:
 
 - `zen-demo-v4.js` – read-only exempeldata. Den modifierar endast `ZenStore.entries`-gettern i minnet och skriver aldrig demo records till localStorage eller Firebase.
-- `zen-effects-v4.js` – dynamisk Zen-symbol, exempeldata-badge och ambient fireflies.
-- `zen-effects-v4.css` – fireflies, meditation-glow runt knappar/kort, dynamisk symbol och demo-badge.
+- `zen-effects-v4.js` – dynamisk Zen-symbol och exempeldata-badge. Extra lower-page fireflies har tagits bort.
+- `zen-effects-v4.css` – naturligt ljusgult meditation-glow runt knappar/kort, dynamisk symbol och demo-badge.
 
 ## Demo-data – viktigt
 
@@ -58,7 +62,7 @@ Om demo senare ska tas bort helt: ta bort `zen-demo-v4.js` från `zen.html` och 
 - Detaljerat procedurrenderat träd i Canvas.
 - Organiska spetsiga löv, barkfåror, knutar, mossa och varierat lövverk.
 - Löv rör sig subtilt i vind.
-- Fireflies finns i heading-scenen och v4 lägger dessutom subtila fireflies över resten av viewporten när `data-kind="stretch"`.
+- Fireflies finns endast i heading-scenen. Den extra firefly-overlayn över resten av sidan togs bort i v5.
 - Heading har ett grönt sekundärt textelement under `Stretch` via v3 CSS.
 
 Önskad riktning framåt: behåll det lugnt, vuxet och detaljerat. Undvik cartoon/barnsliga former och för stora partiklar.
@@ -69,10 +73,11 @@ Om demo senare ska tas bort helt: ta bort `zen-demo-v4.js` från `zen.html` och 
 - Stor varm ljuskälla i headingbakgrunden.
 - Procedurrenderade stenar, vatten, ripples, reflektioner och bambu.
 - v4 lägger ytterligare kontinuerliga foreground-bambu som går från vattenområdet och ut över canvas-toppen så att bambu inte upplevs abrupt avklippt.
-- Flera v4-bambu går genom vattenlinjen och får mjuka reflektioner/ripples.
-- UI-element har fler lokala ljuskällor: primary/secondary buttons, icon buttons, ritualkort och aktiv kategori får varm/jade glow.
+- Flera bambu går genom vattenlinjen och får mjuka reflektioner.
+- Vattenytan har från v5 ett subtilt vindfält av horisontella ripples plus expanderande ringar runt bambustammarna.
+- UI-elementens lokala ljus är från v5 ett diffust ljusgult/varmvitt glow inspirerat av morgonsol, inte gröna/jadefärgade punktljus.
 
-Önskad riktning framåt: mer ljus/reflektion och materialkänsla, men fortfarande lugnt och inte glassmorphism överallt.
+Önskad riktning framåt: mer naturligt ljus/reflektion och materialkänsla, men fortfarande lugnt och inte glassmorphism överallt.
 
 ## Dynamisk Zen-symbol
 
@@ -98,6 +103,8 @@ Ordningen är avsiktlig:
 9. `zen-effects-v4.js`
 
 Ändra inte ordningen utan anledning. Demo-lagret måste ligga efter store men före `zen.js`, eftersom `zen.js` använder `ZenStore.entries` när statistik/historik renderas.
+
+Aktuella cache-busters för vatten/ljus är `20260910-water-sunlight-v5` i `zen.html`.
 
 ## Guardrails
 
