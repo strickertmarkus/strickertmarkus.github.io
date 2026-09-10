@@ -1,50 +1,75 @@
-/* Zen v4 UI atmosphere: dynamic brand symbol, demo badge and natural meditation sunlight glow. */
+/* Zen atmosphere v6: dynamic brand symbol, demo badge and edge/symbol-based meditation sunlight glow. */
 .zen-brand>span:first-child{transition:color .55s ease,text-shadow .55s ease,transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .zen-brand>span:first-child.zen-brand-symbol-swap{transform:scale(.72) rotate(-12deg);opacity:.25}
-body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 24px rgba(255,244,196,.42),0 0 48px rgba(255,231,157,.18)}
+body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 18px rgba(255,245,202,.55),0 0 36px rgba(255,226,145,.22)}
 #zen-demo-badge-v4{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 10px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:999px;background:rgba(var(--accent-rgb),.055);color:var(--muted);font-size:9px;letter-spacing:.55px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #zen-demo-badge-v4:before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.38)}
 
+/* Meditation: light should read as sunlight catching an edge or a symbol, not as a halo around the whole object. */
 body[data-kind=meditation] .primary-button,
 body[data-kind=meditation] .secondary-button,
 body[data-kind=meditation] .icon-button,
 body[data-kind=meditation] .ritual-choice{position:relative;isolation:isolate;overflow:hidden}
 
-body[data-kind=meditation] .primary-button{
-  box-shadow:0 10px 30px rgba(45,79,65,.18),0 0 0 1px rgba(255,246,213,.24),0 0 34px rgba(255,231,163,.13),inset 0 1px 0 rgba(255,255,235,.42)
-}
+body[data-kind=meditation] .primary-button{box-shadow:0 9px 26px rgba(44,77,64,.14),inset 0 1px 0 rgba(255,251,224,.38)}
 body[data-kind=meditation] .secondary-button,
-body[data-kind=meditation] .icon-button{
-  box-shadow:0 8px 24px rgba(52,83,70,.10),0 0 22px rgba(255,232,170,.08),inset 0 1px 0 rgba(255,255,240,.22)
-}
-body[data-kind=meditation] .ritual-choice{
-  box-shadow:0 14px 34px rgba(47,90,72,.10),0 0 28px rgba(255,232,170,.07),inset 0 1px 0 rgba(255,255,239,.20)
-}
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
-  box-shadow:0 16px 40px rgba(49,91,73,.14),0 0 38px rgba(255,231,162,.13),inset 0 1px 0 rgba(255,255,238,.28)
-}
+body[data-kind=meditation] .icon-button{box-shadow:0 7px 20px rgba(49,80,67,.08),inset 0 1px 0 rgba(255,251,226,.20)}
+body[data-kind=meditation] .ritual-choice{box-shadow:0 12px 28px rgba(45,78,65,.07),inset 0 1px 0 rgba(255,252,229,.15)}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]{box-shadow:0 14px 32px rgba(45,78,65,.10),inset 0 1px 0 rgba(255,252,229,.22)}
 
+/* Local edge light: only a small part of each edge catches the warm light. */
 body[data-kind=meditation] .primary-button:before,
 body[data-kind=meditation] .secondary-button:before,
 body[data-kind=meditation] .icon-button:before,
 body[data-kind=meditation] .ritual-choice:before{
-  content:'';position:absolute;pointer-events:none;z-index:-1;border-radius:50%;filter:blur(18px);
-  background:radial-gradient(circle,rgba(255,248,211,.38) 0%,rgba(255,235,173,.20) 34%,rgba(255,226,147,.08) 55%,transparent 74%)
+  content:'';position:absolute;pointer-events:none;z-index:1;border-radius:999px;filter:blur(8px);
+  background:linear-gradient(90deg,transparent,rgba(255,252,220,.78),rgba(255,228,142,.42),transparent)
 }
-body[data-kind=meditation] .primary-button:before{width:170px;height:130px;right:-38px;top:-58px;opacity:.9}
-body[data-kind=meditation] .secondary-button:before{width:110px;height:94px;left:-30px;top:-40px;opacity:.58}
-body[data-kind=meditation] .icon-button:before{width:82px;height:82px;left:-18px;top:-22px;opacity:.48}
-body[data-kind=meditation] .ritual-choice:before{width:190px;height:150px;right:-52px;top:-68px;opacity:.52;transition:opacity .55s ease,transform .8s ease}
+body[data-kind=meditation] .primary-button:before{width:42%;height:2px;right:4%;top:0;opacity:.78}
+body[data-kind=meditation] .secondary-button:before{width:46%;height:1.5px;left:7%;top:0;opacity:.50}
+body[data-kind=meditation] .icon-button:before{width:23px;height:1.5px;left:10px;top:2px;opacity:.54}
+body[data-kind=meditation] .ritual-choice:before{width:38%;height:1.5px;right:7%;top:0;opacity:.46;transition:opacity .5s ease,transform .9s ease}
 body[data-kind=meditation] .ritual-choice:hover:before,
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]:before{opacity:.86;transform:translate(-10px,12px) scale(1.08)}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]:before{opacity:.82;transform:translateX(-16px)}
 
+/* A faint sun patch starts outside the card so only the corner/edge receives glow. */
 body[data-kind=meditation] .primary-button:after,
 body[data-kind=meditation] .ritual-choice:after{
-  content:'';position:absolute;pointer-events:none;z-index:-1;inset:-40% auto auto -6%;width:62%;height:165%;transform:rotate(17deg);filter:blur(11px);
-  background:linear-gradient(90deg,transparent,rgba(255,252,228,.15),rgba(255,234,173,.08),transparent);opacity:.72
+  content:'';position:absolute;pointer-events:none;z-index:0;width:74px;height:74px;border-radius:50%;filter:blur(18px);
+  background:radial-gradient(circle,rgba(255,242,185,.30),rgba(255,226,143,.10) 43%,transparent 72%)
 }
-body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:0 0 17px rgba(255,242,191,.36),0 0 32px rgba(255,226,151,.18)}
-body[data-kind=meditation] .section-heading h2{text-shadow:0 0 24px rgba(255,240,188,.12)}
+body[data-kind=meditation] .primary-button:after{right:-44px;top:-39px}
+body[data-kind=meditation] .ritual-choice:after{left:-48px;bottom:-50px;opacity:.55}
+
+/* Symbols carry the strongest glow, matching the Stretch treatment. */
+body[data-kind=meditation] .ritual-glyph,
+body[data-kind=meditation] .small-symbol,
+body[data-kind=meditation] .stat-symbol,
+body[data-kind=meditation] .primary-button>span:last-child,
+body[data-kind=meditation] .kind-switch button span,
+body[data-kind=meditation] .zen-footer>span{
+  text-shadow:0 0 10px rgba(255,247,203,.68),0 0 23px rgba(255,222,131,.30)
+}
+body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:none}
+body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after{box-shadow:0 0 10px rgba(255,230,157,.42)}
+
+/* Milestones: remove the full-ring halo. Use symbol glow + a small travelling edge arc instead. */
+body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol{
+  box-shadow:none!important;background:radial-gradient(circle,rgba(255,245,199,.035),transparent 62%);
+  border-color:rgba(76,111,92,.27);text-shadow:0 0 11px rgba(255,246,199,.72),0 0 24px rgba(255,220,125,.30)
+}
+body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol:after{
+  content:'';position:absolute;width:22px;height:9px;right:4px;top:5px;border-top:1.5px solid rgba(255,245,194,.92);border-radius:50%;
+  filter:drop-shadow(0 0 5px rgba(255,220,126,.65));transform:rotate(28deg);transform-origin:34px 34px;animation:zenSunArcV6 8s linear infinite
+}
+@keyframes zenSunArcV6{to{transform:rotate(388deg)}}
+
+body[data-kind=meditation] .section-heading h2{text-shadow:none}
 .landscape-v4-overlay{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
 body[data-kind=meditation] .landscape-v4-overlay{opacity:1}
-@media(prefers-reduced-motion:reduce){.zen-brand>span:first-child{transition:none}.ritual-choice:before,.primary-button:before,.secondary-button:before,.icon-button:before{transition:none!important}}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-brand>span:first-child{transition:none}
+  body[data-kind=meditation] .ritual-choice:before{transition:none!important}
+  body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol:after{animation:none!important}
+}
