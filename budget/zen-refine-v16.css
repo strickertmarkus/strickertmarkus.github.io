@@ -1,0 +1,41 @@
+/* Zen meditation v16: consistent thin-ring glyphs and cleaner subtitle. */
+
+/* Remove the translucent subtitle pill/veil; keep readability through type and compact glow only. */
+body[data-kind=meditation] .hero-copy h1::after{
+  background:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  border-radius:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+
+/* ◌ has much less filled area than the other glyphs. Balance it wherever that exact preset is used. */
+body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol,
+body[data-kind=meditation] .ritual-card:nth-child(3n+2) .ritual-glyph,
+body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+  color:#f7e2a3!important;
+  -webkit-text-stroke:.32px rgba(255,239,180,.88);
+  text-shadow:
+    0 0 4px rgba(255,248,215,.92),
+    0 0 9px rgba(245,223,160,.72),
+    0 0 19px rgba(245,223,160,.40)!important;
+  filter:drop-shadow(0 0 3px rgba(245,223,160,.28));
+}
+
+/* Preserve the ring itself on milestones; only the glyph is optically strengthened. */
+body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+  font-weight:560;
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol,
+  body[data-kind=meditation] .ritual-card:nth-child(3n+2) .ritual-glyph{
+    display:inline-block;
+    transform:scale(1.09);
+    transform-origin:center;
+  }
+  body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+    -webkit-text-stroke:.38px rgba(255,239,180,.90);
+  }
+}
