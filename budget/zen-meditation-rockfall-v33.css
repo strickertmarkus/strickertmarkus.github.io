@@ -1,0 +1,60 @@
+/* Zen v33 — restore the preferred v30 upper rock language, remove the backing monolith,
+   integrate the formation at the pond line, and add a sunrise-glow meditation glyph. */
+
+/* v32 depth canvases are replaced completely by the v33 integrated formation. */
+.zen-waterfall-rear-v32,
+.zen-waterfall-front-v32{display:none!important}
+
+.zen-waterfall-v33{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .8s ease;
+}
+body[data-kind=meditation] .zen-waterfall-v33{opacity:1}
+
+/* Ring polish: retain the repaired v32 layout and add one calm meditation symbol. */
+body[data-kind=meditation] .start-ring-symbol{
+  order:2;
+  display:block;
+  width:100%;
+  margin:0 0 2px;
+  color:#f5dfa0;
+  font:500 25px/.9 var(--serif);
+  text-align:center;
+  letter-spacing:1px;
+  text-shadow:
+    0 0 5px rgba(255,235,159,.82),
+    0 0 14px rgba(255,225,133,.44),
+    0 0 28px rgba(255,218,111,.20);
+  filter:drop-shadow(0 0 7px rgba(255,227,145,.24));
+}
+body[data-kind=meditation] .start-ring-name{order:3!important}
+body[data-kind=meditation] .start-ring-meta{order:4!important}
+body[data-kind=meditation] #start-label{order:1!important;margin-bottom:2px!important}
+
+/* A little more breathing room inside the ring after adding the symbol. */
+body[data-kind=meditation] #start-button{
+  padding-top:17px!important;
+  padding-bottom:15px!important;
+  gap:3px!important;
+}
+body[data-kind=meditation] .start-ring-name{
+  font-size:18px!important;
+  line-height:1!important;
+}
+body[data-kind=meditation] .start-ring-meta{
+  margin-top:2px!important;
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .start-ring-symbol{font-size:24px}
+  body[data-kind=meditation] #start-button{padding-top:16px!important;padding-bottom:14px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-waterfall-v33{transition:none}
+}
