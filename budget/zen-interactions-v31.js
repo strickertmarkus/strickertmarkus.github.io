@@ -63,8 +63,8 @@
     });
   }
 
-  /* zen.js selects the clicked card first. This listener was registered afterwards,
-     so the zero-delay callback opens the builder for the newly selected routine. */
+  /* Capture the card before zen.js replaces the rendered list. zen.js then selects
+     it during bubbling; the zero-delay callback opens the builder for that new selection. */
   routines.addEventListener('click',function(event){
     var card=event.target.closest('.ritual-choice[data-select]');
     if(!card)return;
@@ -72,7 +72,7 @@
       syncRing();
       configureSelected();
     },0);
-  });
+  },true);
 
   var selectedObserver=new MutationObserver(syncRing);
   selectedObserver.observe(selectedName,{childList:true,characterData:true,subtree:true});
