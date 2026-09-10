@@ -1,63 +1,72 @@
-/* Zen atmosphere v7: dynamic brand symbol, demo badge and integrated morning-sun edge/symbol glow. */
+/* Zen atmosphere v8: dynamic brand symbol, demo badge and Stretch-matched meditation flow. */
 .zen-brand>span:first-child{transition:color .55s ease,text-shadow .55s ease,transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .zen-brand>span:first-child.zen-brand-symbol-swap{transform:scale(.72) rotate(-12deg);opacity:.25}
-body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 18px rgba(255,245,202,.55),0 0 36px rgba(255,226,145,.22)}
+body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 18px rgba(255,239,166,.42)}
 #zen-demo-badge-v4{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 10px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:999px;background:rgba(var(--accent-rgb),.055);color:var(--muted);font-size:9px;letter-spacing:.55px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #zen-demo-badge-v4:before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.38)}
 
-/* Meditation follows the Stretch principle: the light belongs to edges and symbols, not floating halos. */
-body[data-kind=meditation] .primary-button,
-body[data-kind=meditation] .secondary-button,
-body[data-kind=meditation] .icon-button,
-body[data-kind=meditation] .ritual-choice{position:relative;isolation:isolate;overflow:hidden}
+/*
+  Meditation flow deliberately copies the Stretch formulas from zen.css.
+  Only the glow colour changes to warm morning sunlight.
+*/
+body[data-kind=meditation]{--sun:#f5dfa0;--sun-rgb:245,223,160}
 
-body[data-kind=meditation] .primary-button{box-shadow:0 9px 26px rgba(44,77,64,.14),inset 0 1px 0 rgba(255,251,224,.38)}
-body[data-kind=meditation] .secondary-button,
-body[data-kind=meditation] .icon-button{box-shadow:0 7px 20px rgba(49,80,67,.08),inset 0 1px 0 rgba(255,251,226,.20)}
-body[data-kind=meditation] .ritual-choice{box-shadow:0 12px 28px rgba(45,78,65,.07),inset 0 1px 0 rgba(255,252,229,.15)}
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]{box-shadow:0 14px 32px rgba(45,78,65,.10),inset 0 1px 0 rgba(255,252,229,.22)}
-
-/* A small section of the top edge catches warm morning light. */
+/* No extra pseudo-light objects. Keep surfaces clean. */
 body[data-kind=meditation] .primary-button:before,
+body[data-kind=meditation] .primary-button:after,
 body[data-kind=meditation] .secondary-button:before,
+body[data-kind=meditation] .secondary-button:after,
 body[data-kind=meditation] .icon-button:before,
-body[data-kind=meditation] .ritual-choice:before{
-  content:'';position:absolute;pointer-events:none;z-index:1;border-radius:999px;filter:blur(7px);
-  background:linear-gradient(90deg,transparent,rgba(255,252,220,.72),rgba(255,228,142,.34),transparent)
-}
-body[data-kind=meditation] .primary-button:before{width:42%;height:2px;right:4%;top:0;opacity:.70}
-body[data-kind=meditation] .secondary-button:before{width:42%;height:1.5px;left:7%;top:0;opacity:.44}
-body[data-kind=meditation] .icon-button:before{width:22px;height:1.5px;left:10px;top:2px;opacity:.46}
-body[data-kind=meditation] .ritual-choice:before{width:34%;height:1.5px;right:8%;top:0;opacity:.40;transition:opacity .5s ease,transform .9s ease}
-body[data-kind=meditation] .ritual-choice:hover:before,
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]:before{opacity:.72;transform:translateX(-12px)}
+body[data-kind=meditation] .icon-button:after,
+body[data-kind=meditation] .ritual-choice:before,
+body[data-kind=meditation] .ritual-choice:after,
+body[data-kind=meditation] .keepsake-symbol:before,
+body[data-kind=meditation] .keepsake-symbol:after{content:none!important;display:none!important;animation:none!important}
 
-/* Symbols carry the strongest warm glow, matching the visual hierarchy on Stretch. */
-body[data-kind=meditation] .ritual-glyph,
-body[data-kind=meditation] .small-symbol,
-body[data-kind=meditation] .stat-symbol,
-body[data-kind=meditation] .primary-button>span:last-child,
-body[data-kind=meditation] .kind-switch button span,
-body[data-kind=meditation] .zen-footer>span{
-  text-shadow:0 0 10px rgba(255,247,203,.64),0 0 22px rgba(255,222,131,.26)
+/* Same bar flow as Stretch: gradient in the bar + one soft halo. */
+body[data-kind=meditation] .day-fill{
+  background:linear-gradient(0deg,rgba(var(--sun-rgb),.15),var(--sun));
+  box-shadow:0 0 16px rgba(var(--sun-rgb),.35)
 }
-body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:none}
-body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after{box-shadow:0 0 10px rgba(255,230,157,.34)}
+body[data-kind=meditation] .day-fill.empty{background:var(--line);box-shadow:none}
+body[data-kind=meditation] .day-column.today .day-label{color:var(--accent)}
+body[data-kind=meditation] .day-column.today .day-label:after{background:var(--sun);box-shadow:0 0 8px var(--sun)}
 
-/* Milestones: no travelling/floating arcs. Warm light stays integrated in the symbol and one edge. */
+/* Same icon hierarchy as Stretch, only sunlight-coloured. */
+body[data-kind=meditation] .small-symbol{color:var(--accent);text-shadow:0 0 19px rgba(var(--sun-rgb),.70)}
+body[data-kind=meditation] .ritual-glyph{color:var(--accent);text-shadow:0 0 20px rgba(var(--sun-rgb),.70)}
+body[data-kind=meditation] .stat-symbol{color:var(--accent);text-shadow:0 0 18px rgba(var(--sun-rgb),.35)}
+body[data-kind=meditation] .zen-footer>span{color:var(--accent);text-shadow:0 0 18px rgba(var(--sun-rgb),.30)}
+body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:0 0 25px rgba(var(--sun-rgb),.40)}
+body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after{box-shadow:0 0 12px var(--sun)}
+
+/* Same unlocked milestone formula as Stretch. */
 body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol{
-  background:radial-gradient(circle at 38% 32%,rgba(255,246,201,.085),rgba(255,238,179,.025) 38%,transparent 64%);
-  border-color:rgba(80,114,95,.30);
-  text-shadow:0 0 11px rgba(255,246,199,.68),0 0 23px rgba(255,220,125,.26);
-  box-shadow:inset 1px 1px 0 rgba(255,248,207,.28),-3px -4px 17px rgba(255,226,145,.065),0 5px 18px rgba(56,83,72,.035)
+  color:var(--accent);
+  opacity:1;
+  background:radial-gradient(ellipse,rgba(var(--sun-rgb),.035),transparent);
+  border-color:rgba(var(--sun-rgb),.35);
+  text-shadow:0 0 17px var(--sun);
+  box-shadow:0 0 27px rgba(var(--sun-rgb),.13),inset 0 0 22px rgba(var(--sun-rgb),.08)
 }
-body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol:after{content:none!important;display:none!important;animation:none!important}
 
+/* Cards/buttons: retain their normal material; only use the same low-level outer glow principle. */
+body[data-kind=meditation] .ritual-choice{box-shadow:none}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
+  background:radial-gradient(ellipse at 15% 10%,rgba(var(--accent-rgb),.09),transparent 90%);
+  border-color:rgba(var(--accent-rgb),.5);
+  box-shadow:0 0 35px rgba(var(--sun-rgb),.04),inset 0 0 24px rgba(var(--sun-rgb),.025)
+}
+body[data-kind=meditation] .primary-button{
+  box-shadow:0 0 24px rgba(var(--sun-rgb),.15),0 8px 35px rgba(44,72,62,.12)
+}
+body[data-kind=meditation] .primary-button:hover{
+  box-shadow:0 0 45px rgba(var(--sun-rgb),.28),0 8px 35px rgba(44,72,62,.12)
+}
+body[data-kind=meditation] .secondary-button,
+body[data-kind=meditation] .icon-button{box-shadow:none}
 body[data-kind=meditation] .section-heading h2{text-shadow:none}
-.landscape-v4-overlay{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
-body[data-kind=meditation] .landscape-v4-overlay{opacity:1}
 
-@media(prefers-reduced-motion:reduce){
-  .zen-brand>span:first-child{transition:none}
-  body[data-kind=meditation] .ritual-choice:before{transition:none!important}
-}
+.landscape-v4-overlay{position:absolute;inset:0;opacity:0!important;visibility:hidden!important;pointer-events:none}
+
+@media(prefers-reduced-motion:reduce){.zen-brand>span:first-child{transition:none}}
