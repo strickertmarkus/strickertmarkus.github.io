@@ -1,0 +1,22 @@
+/* Zen v24: clean Meditation rock composition. Old waterfall layers are explicitly disabled. */
+body[data-kind=meditation] .zen-waterfall-v13,
+body[data-kind=meditation] .zen-waterfall-mouth-v16{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+.zen-waterfall-v24{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+@media(max-width:700px){
+  /* Let the renderer own scale/position so rock, opening and water never drift apart. */
+  body[data-kind=meditation] .zen-waterfall-v24{
+    transform:none!important;
+    transform-origin:center!important;
+  }
+}
