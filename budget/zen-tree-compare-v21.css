@@ -1,0 +1,62 @@
+/* Zen v21: temporary Stretch tree comparison toggle. */
+.tree-compare-v21{
+  position:absolute;
+  top:58px;
+  right:0;
+  z-index:8;
+  display:none;
+}
+body[data-kind=stretch] .tree-compare-v21{display:block}
+.tree-compare-v21 button{
+  min-height:30px;
+  padding:5px 10px;
+  border:1px solid rgba(201,238,165,.22);
+  border-radius:999px;
+  background:rgba(7,27,20,.52);
+  color:#cfe9b3;
+  font:500 10px/1.1 'DM Sans',system-ui,sans-serif;
+  letter-spacing:.25px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 5px 18px rgba(0,0,0,.12);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+.tree-compare-v21 button .tree-compare-state{
+  color:#eef8d9;
+  margin-left:4px;
+}
+.tree-compare-v21 button:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
+
+/* The original mode reveals the untouched v3 forest canvas underneath and
+   disables the later Stretch-only depth layers. Layout remains current. */
+body[data-kind=stretch][data-stretch-tree=original] .zen-stretch-depth-v18{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+body[data-kind=stretch][data-stretch-tree=original] .landscape-forest{
+  filter:none!important;
+  transform:none!important;
+}
+body[data-kind=stretch][data-stretch-tree=original] .landscape-shade::before,
+body[data-kind=stretch][data-stretch-tree=original] .landscape-shade::after,
+body[data-kind=stretch][data-stretch-tree=original] .sanctuary::before{
+  display:none!important;
+}
+
+@media(max-width:700px){
+  .tree-compare-v21{
+    top:51px;
+    right:0;
+  }
+  .tree-compare-v21 button{
+    min-height:28px;
+    padding:4px 9px;
+    font-size:9px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .tree-compare-v21 button{transition:none}
+}
