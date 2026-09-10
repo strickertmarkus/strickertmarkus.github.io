@@ -1,0 +1,6 @@
+/* Zen meditation v8: one visible renderer owns the complete meditation scenery. */
+.landscape-meditation-v8{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 1.25s ease;z-index:1}
+body[data-kind=meditation] .landscape-meditation-v8{opacity:1}
+body[data-kind=meditation] .landscape-garden,
+body[data-kind=meditation] .landscape-v4-overlay{opacity:0!important;visibility:hidden!important}
+body[data-kind=stretch] .landscape-meditation-v8{opacity:0}
