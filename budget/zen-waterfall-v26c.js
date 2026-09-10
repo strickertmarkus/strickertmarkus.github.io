@@ -78,9 +78,8 @@
     localRockPath(rx,ry,shape);
     ctx.fill();
 
-    /* Morning-light highlight from the same direction as the bamboo scene. */
     var sun=ctx.createLinearGradient(-rx*.90,-ry*.82,rx*.12,-ry*.05);
-    var sunA=kind==='rear'?.26:.15;
+    var sunA=kind==='rear' ? 0.26 : 0.15;
     sun.addColorStop(0,'rgba(255,240,188,'+sunA+')');
     sun.addColorStop(.48,'rgba(248,232,175,'+(sunA*.42)+')');
     sun.addColorStop(1,'rgba(255,255,255,0)');
@@ -121,7 +120,7 @@
       var y=-ry*.27+i*ry*.23;
       var x1=-rx*.55+i*rx*.045;
       var x2=rx*.42-i*rx*.035;
-      var base=warm?.118:.092;
+      var base=warm ? 0.118 : 0.092;
       var alpha=(base-i*.017)*pulse;
       if(warm)ctx.strokeStyle='rgba(255,243,196,'+alpha+')';
       else ctx.strokeStyle='rgba(226,244,236,'+alpha+')';
@@ -136,7 +135,6 @@
   }
 
   function bambooWaterReflections(time){
-    /* Very faint reflected cyan light on nearby submerged bamboo. */
     var stems=[
       {x:815,w:10,p:.2},
       {x:915,w:13,p:1.1},
@@ -172,9 +170,8 @@
   }
 
   function bank(fallX,lipY,impactY,mobile,time){
-    var s=mobile?.65:.78;
+    var s=mobile ? 0.65 : 0.78;
 
-    /* Shift rock mass right while keeping the waterfall source near the former focus point. */
     var rear={x:fallX-8*s,y:lipY+52*s,rx:95*s,ry:76*s,l:-.075,shape:'rear'};
     var front={x:fallX+47*s,y:lipY+75*s,rx:62*s,ry:51*s,l:.075,shape:'front'};
     var leftR={x:fallX-57*s,y:lipY+91*s,rx:30*s,ry:22*s,l:-.12,shape:'flat'};
@@ -185,13 +182,11 @@
     rock(leftR.x,leftR.y,leftR.rx,leftR.ry,leftR.l,'small',leftR.shape);
     rock(rightR.x,rightR.y,rightR.rx,rightR.ry,rightR.l,'small',rightR.shape);
 
-    /* Individual reflections instead of lines crossing the whole bank. */
     rockLines(rear.x,rear.y,rear.rx,rear.ry,rear.l,rear.shape,time,.2,true);
     rockLines(front.x,front.y,front.rx,front.ry,front.l,front.shape,time,1.2,false);
     rockLines(leftR.x,leftR.y,leftR.rx,leftR.ry,leftR.l,leftR.shape,time,2.1,true);
     rockLines(rightR.x,rightR.y,rightR.rx,rightR.ry,rightR.l,rightR.shape,time,2.9,false);
 
-    /* Narrow submerged shelf ties the rocks together without reading as another giant stone. */
     var shelf=ctx.createLinearGradient(fallX-94*s,lipY+80*s,fallX+115*s,impactY+38*s);
     shelf.addColorStop(0,'rgba(126,151,140,.76)');
     shelf.addColorStop(.58,'rgba(84,112,104,.87)');
@@ -207,7 +202,6 @@
     ctx.closePath();
     ctx.fill();
 
-    /* Source sits left-of-center within the front rock and lower under a real overhang. */
     var holeX=fallX+8*s;
     var holeY=lipY+77*s;
     var holeR=25*s;
@@ -221,7 +215,6 @@
     ctx.ellipse(holeX,holeY,holeR*1.18,holeR*.69,-.02,0,TAU);
     ctx.fill();
 
-    /* Water is visible inside the recess before it folds over the lip. */
     ctx.save();
     ctx.globalCompositeOperation='screen';
     for(var j=0;j<6;j++){
@@ -243,7 +236,6 @@
   function overhang(g){
     var s=g.s;
 
-    /* Dark underside first gives the lip actual thickness. */
     ctx.fillStyle='rgba(35,65,60,.48)';
     ctx.beginPath();
     ctx.moveTo(g.holeX-g.holeR*1.04,g.holeY-3*s);
@@ -274,15 +266,14 @@
     var s=g.s;
     var startY=g.holeY+6*s;
     var bendY=g.holeY+24*s;
-    var rearCount=mobile?11:14;
+    var rearCount=mobile ? 11 : 14;
     var topSpread=21*s;
     var bottomSpread=43*s;
 
-    /* Rear water layer: darker, thinner, more numerous. */
     ctx.save();
     ctx.globalCompositeOperation='screen';
     for(var i=0;i<rearCount;i++){
-      var t=rearCount===1?.5:i/(rearCount-1);
+      var t=rearCount===1 ? 0.5 : i/(rearCount-1);
       var sx=g.holeX-topSpread*.5+t*topSpread;
       var ex=g.holeX-bottomSpread*.5+t*bottomSpread;
       var sway=0;
@@ -299,7 +290,6 @@
       ctx.stroke();
     }
 
-    /* Three brighter front streams provide depth and a readable source. */
     var cores=[-.30,0,.28];
     for(var c=0;c<cores.length;c++){
       var ct=.5+cores[c];
@@ -316,7 +306,6 @@
       ctx.stroke();
     }
 
-    /* A few bright moving droplets just before impact. */
     if(!reduced.matches){
       for(var d=0;d<8;d++){
         var p=(time*.50+d*.123)%1;
@@ -330,10 +319,8 @@
     }
     ctx.restore();
 
-    /* Stone overhang is drawn after the water start, physically occluding it. */
     overhang(g);
 
-    /* Brighter contact point, lifted above the button area. */
     var mist=ctx.createRadialGradient(g.holeX,impactY+1,0,g.holeX,impactY+1,58*s);
     mist.addColorStop(0,'rgba(253,249,217,.30)');
     mist.addColorStop(.36,'rgba(229,246,236,.15)');
@@ -344,7 +331,7 @@
     ctx.save();
     ctx.globalCompositeOperation='screen';
     for(var k=0;k<10;k++){
-      var phase=reduced.matches?.36:(time*.73+k*.101)%1;
+      var phase=reduced.matches ? 0.36 : (time*.73+k*.101)%1;
       var dir=k%2===0?-1:1;
       var spread=(4+k*1.45)*s;
       var dx=g.holeX+dir*spread*phase;
@@ -356,16 +343,15 @@
     }
     ctx.restore();
 
-    /* Two stronger inner ripples, three softer outer rings. */
     for(var r=0;r<5;r++){
-      var rp=reduced.matches?.38:(time*.245+r/5)%1;
+      var rp=reduced.matches ? 0.38 : (time*.245+r/5)%1;
       var inner=r<2;
-      var alpha=(1-rp)*(inner?.38:.18);
-      var reach=inner?42:62;
+      var alpha=(1-rp)*(inner ? 0.38 : 0.18);
+      var reach=inner ? 42 : 62;
       ctx.strokeStyle='rgba(255,245,199,'+alpha+')';
-      ctx.lineWidth=inner?1.08:.78;
+      ctx.lineWidth=inner ? 1.08 : .78;
       ctx.beginPath();
-      ctx.ellipse(g.holeX,impactY+4,7+rp*reach*s,2+rp*(inner?7:9)*s,0,0,TAU);
+      ctx.ellipse(g.holeX,impactY+4,7+rp*reach*s,2+rp*(inner ? 7 : 9)*s,0,0,TAU);
       ctx.stroke();
     }
   }
@@ -377,10 +363,9 @@
     var mobile=width<700;
     bambooWaterReflections(time);
 
-    /* Rock mass moves right; waterfall source stays near the former visual focus. */
-    var fallX=mobile?896:972;
-    var lipY=mobile?426:478;
-    var impactY=mobile?520:574;
+    var fallX=mobile ? 896 : 972;
+    var lipY=mobile ? 426 : 478;
+    var impactY=mobile ? 520 : 574;
     var geometry=bank(fallX,lipY,impactY,mobile,time);
     waterfall(impactY,geometry,time,mobile);
   }
@@ -391,10 +376,10 @@
     height=Math.max(1,b.height);
     ratio=Math.min(window.devicePixelRatio||1,1.45,Math.sqrt(1050000/(width*height)));
     scale=Math.max(width/W,height/H);
-    left=(width-W*scale)*(width<600?.69:.5);
+    left=(width-W*scale)*(width<600 ? 0.69 : 0.5);
     canvas.width=Math.round(width*ratio);
     canvas.height=Math.round(height*ratio);
-    draw(reduced.matches?0:performance.now()/1000);
+    draw(reduced.matches ? 0 : performance.now()/1000);
     wake();
   }
 
@@ -415,7 +400,7 @@
 
   new ResizeObserver(resize).observe(host);
   new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;wake();}).observe(host);
-  new MutationObserver(function(){draw(reduced.matches?0:performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
+  new MutationObserver(function(){draw(reduced.matches ? 0 : performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
   document.addEventListener('visibilitychange',wake);
   if(reduced.addEventListener)reduced.addEventListener('change',wake);
   window.addEventListener('pagehide',function(){if(frame)cancelAnimationFrame(frame);frame=0;});
