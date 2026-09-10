@@ -1,0 +1,194 @@
+/* Zen v31: remove detached edit controls, make pass cards/config surfaces interactive,
+   restore the softer Meditation chart, and move Meditation start into a glowing ring. */
+
+/* No separate Anpassa button anywhere. JS removes it from the DOM; CSS prevents flash. */
+#selected-edit{display:none!important}
+.ritual-tools [data-edit]{display:none!important}
+
+/* The selected summary itself becomes an interaction surface in Stretch. */
+body[data-kind=stretch] .selected-routine{
+  cursor:pointer;
+  border-radius:12px;
+  transition:background .3s ease,box-shadow .3s ease;
+}
+body[data-kind=stretch] .selected-routine:hover,
+body[data-kind=stretch] .selected-routine:focus-visible{
+  background:rgba(var(--accent-rgb),.035);
+  box-shadow:0 0 24px rgba(var(--accent-rgb),.045);
+  outline:none;
+}
+
+/* Pass cards are now the configuration surface themselves. */
+.ritual-choice{cursor:pointer}
+body[data-kind=meditation] .ritual-choice{
+  border-color:rgba(43,84,72,.29);
+}
+
+/* Restore the pre-v30 graph treatment. Keep the page separation improvements, but
+   remove the extra dark baseline and high-contrast bar fill introduced in v30. */
+body[data-kind=meditation] .day-fill:not(.empty){
+  background:linear-gradient(0deg,rgba(var(--sun-rgb),.15),var(--sun));
+  border-bottom:0;
+  box-shadow:0 0 16px rgba(var(--sun-rgb),.35);
+}
+body[data-kind=meditation] .day-fill.empty{
+  background:var(--line);
+  box-shadow:none;
+}
+body[data-kind=meditation] .day-track:after{
+  border-bottom-color:var(--line);
+}
+body[data-kind=meditation] .day-minutes{color:var(--muted)}
+body[data-kind=meditation] .day-label{color:var(--faint)}
+body[data-kind=meditation] .week-label{color:var(--muted)}
+body[data-kind=meditation] .week-summary>span{
+  color:#3e6258;
+  text-shadow:0 0 11px rgba(var(--sun-rgb),.23),0 0 22px rgba(var(--sun-rgb),.09);
+}
+body[data-kind=meditation] .growth-stats>div>span:last-child{
+  color:#355e53;
+  text-shadow:0 0 9px rgba(var(--sun-rgb),.27),0 0 18px rgba(var(--sun-rgb),.10);
+}
+
+/* Meditation: selected pass moves inside a breathing-ring-inspired CTA.
+   The stone/waterfall remains a scene element at the right instead of sharing UI space. */
+body[data-kind=meditation] .selected-routine{display:none!important}
+body[data-kind=meditation] .start-area{
+  position:relative;
+  z-index:7;
+  max-width:205px;
+  width:205px;
+}
+body[data-kind=meditation] #start-button{
+  position:relative;
+  width:184px;
+  height:184px;
+  min-height:184px;
+  padding:0;
+  margin:0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  overflow:visible;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 42% 35%,rgba(255,249,218,.15),transparent 35%),
+    radial-gradient(circle at 50% 57%,rgba(81,126,105,.18),rgba(49,91,76,.12) 56%,rgba(44,83,72,.07) 72%,transparent 73%);
+  border:1px solid rgba(var(--sun-rgb),.52);
+  color:#214b40;
+  box-shadow:
+    0 0 18px rgba(var(--sun-rgb),.16),
+    0 0 42px rgba(var(--sun-rgb),.08),
+    inset 0 0 28px rgba(255,249,218,.09),
+    inset 0 0 1px rgba(255,255,255,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  transition:transform .35s ease,box-shadow .55s ease,border-color .45s ease;
+}
+body[data-kind=meditation] #start-button:before,
+body[data-kind=meditation] #start-button:after{
+  content:''!important;
+  display:block!important;
+  position:absolute;
+  pointer-events:none;
+  border-radius:50%;
+}
+body[data-kind=meditation] #start-button:before{
+  inset:10px;
+  border:1px solid rgba(var(--sun-rgb),.25);
+  box-shadow:inset 0 0 18px rgba(var(--sun-rgb),.07);
+}
+body[data-kind=meditation] #start-button:after{
+  inset:-9px;
+  border:1px solid rgba(var(--sun-rgb),.18);
+  box-shadow:0 0 28px rgba(var(--sun-rgb),.12);
+  opacity:.68;
+  animation:zenStartRingBreath 6.2s ease-in-out infinite;
+}
+body[data-kind=meditation] #start-button:hover{
+  transform:scale(1.018);
+  border-color:rgba(var(--sun-rgb),.68);
+  box-shadow:0 0 24px rgba(var(--sun-rgb),.23),0 0 48px rgba(var(--sun-rgb),.11),inset 0 0 30px rgba(255,249,218,.11);
+}
+body[data-kind=meditation] #start-button:disabled{
+  opacity:.86;
+}
+body[data-kind=meditation] #start-button>span{
+  position:relative;
+  z-index:2;
+}
+body[data-kind=meditation] #start-label{
+  position:absolute;
+  top:31px;
+  left:22px;
+  right:22px;
+  font:600 9px/1.2 Manrope,var(--sans);
+  letter-spacing:1.9px;
+  text-transform:uppercase;
+  color:#496b60;
+  text-align:center;
+}
+.start-ring-name,.start-ring-meta{display:none}
+body[data-kind=meditation] .start-ring-name{
+  display:block;
+  width:132px;
+  margin-top:-2px;
+  color:#1f463b;
+  font:500 23px/.98 var(--serif);
+  letter-spacing:-.35px;
+  text-align:center;
+  text-shadow:0 0 16px rgba(var(--sun-rgb),.13);
+}
+body[data-kind=meditation] .start-ring-meta{
+  display:block;
+  position:absolute!important;
+  left:24px;
+  right:24px;
+  bottom:34px;
+  color:#496b60;
+  font:500 9px/1.25 Manrope,var(--sans);
+  text-align:center;
+  letter-spacing:.2px;
+}
+body[data-kind=meditation] #start-button>span:last-child{
+  position:absolute;
+  right:26px;
+  bottom:19px;
+  font-size:16px;
+  color:#42685b;
+  opacity:.78;
+}
+body[data-kind=meditation] .start-area .quiet-line{
+  width:184px;
+  margin-top:14px;
+  color:#486c61;
+  font-size:9px;
+  line-height:1.45;
+}
+
+@keyframes zenStartRingBreath{
+  0%,100%{transform:scale(.985);opacity:.48}
+  50%{transform:scale(1.035);opacity:.82}
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .start-area{
+    width:194px;
+    max-width:194px;
+    margin-top:108px!important;
+  }
+  body[data-kind=meditation] #start-button{
+    width:174px;
+    height:174px;
+    min-height:174px;
+  }
+  body[data-kind=meditation] #start-label{top:29px}
+  body[data-kind=meditation] .start-ring-name{width:126px;font-size:22px}
+  body[data-kind=meditation] .start-ring-meta{bottom:32px}
+  body[data-kind=meditation] .start-area .quiet-line{width:174px;margin-top:12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-kind=meditation] #start-button:after{animation:none}
+  body[data-kind=meditation] #start-button{transition:none}
+}
