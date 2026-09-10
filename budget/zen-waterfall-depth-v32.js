@@ -84,14 +84,14 @@
     return {mobile:mobile,s:mobile?0.64:0.77,fallX:fallX,crestY:447,lipY:470,waterY:WATER};
   }
 
-  function prep(ctx,canvas){
+  function prep(ctx){
     ctx.setTransform(ratio,0,0,ratio,0,0);
     ctx.clearRect(0,0,width,height);
     ctx.translate(left,0);
     ctx.scale(scale,scale);
   }
 
-  function drawWaterline(ctx,g,time){
+  function drawWaterline(ctx,time){
     ctx.save();
     ctx.globalCompositeOperation='screen';
     var line=ctx.createLinearGradient(520,WATER,1165,WATER);
@@ -115,7 +115,7 @@
 
   function drawRear(g,time){
     var ctx=rctx,s=g.s,x=g.fallX;
-    drawWaterline(ctx,g,time);
+    drawWaterline(ctx,time);
 
     /* Rear shelf is one coherent bank behind every bamboo stalk. */
     rock(ctx,x+22*s,g.crestY+18*s,99*s,58*s,'back');
@@ -140,7 +140,7 @@
     ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';
     var count=g.mobile?15:18;
     for(var j=0;j<count;j++){
-      var t=count===1?.5:j/(count-1);
+      var t=count===1?0.5:j/(count-1);
       var sx=x-15*s+t*30*s;
       var spread=x-32*s+t*64*s;
       var sway=reduced.matches?0:Math.sin(time*.94+j*.67)*(1.5+(j%4)*.24)*s;
@@ -172,7 +172,8 @@
     ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';
     for(var i=0;i<6;i++){
       var o=(i-2.5)*3.1*s;
-      ctx.strokeStyle='rgba(245,249,229,'+(i===2||i===3?.30:.19)+')';
+      var alpha=(i===2||i===3)?0.30:0.19;
+      ctx.strokeStyle='rgba(245,249,229,'+alpha+')';
       ctx.lineWidth=(i===2||i===3?1.45:.9)*s;
       ctx.beginPath();
       ctx.moveTo(x-13*s+o*.24,g.lipY-4*s);
@@ -194,7 +195,7 @@
 
     ctx.save();ctx.globalCompositeOperation='screen';
     for(var d=0;d<8;d++){
-      var p=reduced.matches?.38:((time*.58+d*.113)%1);
+      var p=reduced.matches?0.38:((time*.58+d*.113)%1);
       var side=d%2===0?-1:1;
       var dx=x+side*(4+d*1.2)*s*p;
       var dy=WATER-3*s-(1-p)*(12+(d%3)*4)*s;
@@ -202,10 +203,10 @@
       ctx.beginPath();ctx.arc(dx,dy,(.65+(d%3)*.16)*s,0,TAU);ctx.fill();
     }
     for(var r=0;r<5;r++){
-      var rp=reduced.matches?.34:((time*.22+r*.19)%1);
+      var rp=reduced.matches?0.34:((time*.22+r*.19)%1);
       var inner=r<2;
       var reach=inner?45:69;
-      var alpha=(1-rp)*(inner?.36:.15);
+      var alpha=(1-rp)*(inner?0.36:0.15);
       ctx.strokeStyle='rgba(255,244,198,'+alpha+')';ctx.lineWidth=inner?1.08:.72;
       ctx.beginPath();ctx.ellipse(x,WATER+3*s,8+rp*reach*s,2+rp*(inner?7:10)*s,0,0,TAU);ctx.stroke();
     }
@@ -213,7 +214,7 @@
   }
 
   function draw(time){
-    prep(rctx,rear);prep(fctx,front);
+    prep(rctx);prep(fctx);
     if(document.body.dataset.kind!=='meditation')return;
     var g=geometry();
     drawRear(g,time);
@@ -225,7 +226,7 @@
     width=Math.max(1,b.width);height=Math.max(1,b.height);
     ratio=Math.min(window.devicePixelRatio||1,1.45,Math.sqrt(1180000/(width*height)));
     scale=Math.max(width/W,height/H);
-    left=(width-W*scale)*(width<600?.69:.5);
+    left=(width-W*scale)*(width<600?0.69:0.5);
     rear.width=Math.round(width*ratio);rear.height=Math.round(height*ratio);
     front.width=Math.round(width*ratio);front.height=Math.round(height*ratio);
     draw(reduced.matches?0:performance.now()/1000);wake();
