@@ -1,12 +1,8 @@
-/* Zen v18: lower start controls + stronger layered Stretch depth. */
+/* Zen v19 active polish: aligned mobile start controls + stronger Stretch depth. */
 
-/* Keep the v17 hero/title lift, but give the selected routine + start button more breathing room. */
-.sanctuary .start-area{
-  margin-top:36px;
-}
-
-/* v18 owns the extra Stretch depth canvas. */
+/* Existing v18 filename now carries the active v19 rules to avoid stacking old layers. */
 .zen-stretch-depth-v17{display:none!important;opacity:0!important;visibility:hidden!important}
+.zen-stretch-depth-v19{display:none!important;opacity:0!important;visibility:hidden!important}
 .zen-stretch-depth-v18{
   position:absolute;
   inset:0;
@@ -14,34 +10,39 @@
   height:100%;
   opacity:0;
   pointer-events:none;
-  transition:opacity 1s ease;
+  transition:opacity .9s ease;
 }
 body[data-kind=stretch] .zen-stretch-depth-v18{opacity:1}
 body[data-kind=meditation] .zen-stretch-depth-v18{opacity:0}
 
-/* Slightly stronger separation between distant forest, hero tree and near foliage. */
 body[data-kind=stretch] .landscape-forest{
-  filter:saturate(1.075) contrast(1.065);
+  filter:saturate(1.11) contrast(1.09);
 }
 body[data-kind=stretch] .landscape-shade::before{
-  opacity:.84;
-  filter:blur(5px);
-  transform:scale(1.085);
+  opacity:.94;
+  filter:blur(3.8px);
+  transform:scale(1.12);
 }
-body[data-kind=stretch] .landscape-shade::after{
-  opacity:.96;
-}
+body[data-kind=stretch] .landscape-shade::after{opacity:1}
 
 @media(max-width:700px){
-  /* Stretch and Meditation start controls now share the same vertical anchor. */
-  body[data-kind=stretch] .sanctuary .start-area,
-  body[data-kind=meditation] .sanctuary .start-area{
-    margin-top:154px;
+  /* The free vertical space, rather than a fixed margin, now absorbs the
+     different Stretch/Meditation title heights. Both start areas therefore
+     settle on the same bottom anchor. */
+  .sanctuary{
+    display:flex;
+    flex-direction:column;
+    min-height:744px;
+  }
+  .sanctuary .kind-switch{align-self:flex-start}
+  .sanctuary .start-area{
+    margin-top:auto!important;
+    width:100%;
   }
   body[data-kind=stretch] .landscape-shade::before{
-    opacity:.90;
-    filter:blur(4.5px);
-    transform:scale(1.10);
+    opacity:.98;
+    filter:blur(3.2px);
+    transform:scale(1.135);
   }
 }
 
