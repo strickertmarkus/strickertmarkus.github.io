@@ -1,18 +1,15 @@
-/* Zen atmosphere v9: Stretch-matched meditation flow, clearer sunlight symbols and subtle sun spill. */
+/* Zen atmosphere v10: Stretch-matched meditation flow across all symbols, clearer stats and subtle sun spill. */
 .zen-brand>span:first-child{transition:color .55s ease,text-shadow .55s ease,transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .zen-brand>span:first-child.zen-brand-symbol-swap{transform:scale(.72) rotate(-12deg);opacity:.25}
 body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 18px rgba(255,239,166,.42)}
 #zen-demo-badge-v4{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 10px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:999px;background:rgba(var(--accent-rgb),.055);color:var(--muted);font-size:9px;letter-spacing:.55px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #zen-demo-badge-v4:before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.38)}
 
-/*
-  Meditation flow deliberately copies the Stretch formulas from zen.css.
-  Only the glow colour changes to warm morning sunlight.
-*/
+/* Meditation deliberately copies the Stretch glow hierarchy. Only the light colour changes. */
 body{position:relative}
 body[data-kind=meditation]{--sun:#f5dfa0;--sun-rgb:245,223,160}
 
-/* No extra pseudo-light objects on controls/cards. Keep surfaces clean. */
+/* No detached pseudo-light objects on controls/cards. */
 body[data-kind=meditation] .primary-button:before,
 body[data-kind=meditation] .primary-button:after,
 body[data-kind=meditation] .secondary-button:before,
@@ -33,44 +30,51 @@ body[data-kind=meditation] .day-fill.empty{background:var(--line);box-shadow:non
 body[data-kind=meditation] .day-column.today .day-label{color:var(--accent)}
 body[data-kind=meditation] .day-column.today .day-label:after{background:var(--sun);box-shadow:0 0 8px var(--sun)}
 
-/* Same icon hierarchy as Stretch, only sunlight-coloured. */
-body[data-kind=meditation] .small-symbol{color:var(--accent);text-shadow:0 0 19px rgba(var(--sun-rgb),.70)}
-body[data-kind=meditation] .ritual-glyph{color:var(--accent);text-shadow:0 0 20px rgba(var(--sun-rgb),.70)}
-body[data-kind=meditation] .stat-symbol{
-  color:var(--sun);
-  text-shadow:0 0 18px rgba(var(--sun-rgb),.56),0 0 30px rgba(var(--sun-rgb),.22)
+/* Every meditation glyph now carries the same warm fill + glow used by the graph bars. */
+body[data-kind=meditation] .small-symbol,
+body[data-kind=meditation] .history-row .small-symbol,
+body[data-kind=meditation] .selected-routine .small-symbol,
+body[data-kind=meditation] .ritual-glyph,
+body[data-kind=meditation] .stat-symbol,
+body[data-kind=meditation] .zen-footer>span{
+  color:var(--sun)!important;
+  text-shadow:0 0 12px rgba(var(--sun-rgb),.92),0 0 24px rgba(var(--sun-rgb),.46)!important
 }
-body[data-kind=meditation] .zen-footer>span{color:var(--accent);text-shadow:0 0 18px rgba(var(--sun-rgb),.30)}
+body[data-kind=meditation] .ritual-glyph{ text-shadow:0 0 13px rgba(var(--sun-rgb),.96),0 0 27px rgba(var(--sun-rgb),.48)!important }
+body[data-kind=meditation] .history-row .small-symbol{ text-shadow:0 0 12px rgba(var(--sun-rgb),.92),0 0 25px rgba(var(--sun-rgb),.42)!important }
+body[data-kind=meditation] .stat-symbol{ text-shadow:0 0 12px rgba(var(--sun-rgb),.88),0 0 27px rgba(var(--sun-rgb),.40)!important }
+body[data-kind=meditation] .zen-footer>span{ text-shadow:0 0 12px rgba(var(--sun-rgb),.80),0 0 24px rgba(var(--sun-rgb),.34)!important }
+
 body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:0 0 25px rgba(var(--sun-rgb),.40)}
 body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after{box-shadow:0 0 12px var(--sun)}
 
-/* Statistics get a restrained sunlight lift so they read like the glowing graph without becoming yellow text blocks. */
+/* Statistics receive a restrained but clearly visible sunlight lift. */
 body[data-kind=meditation] .week-summary strong,
 body[data-kind=meditation] .growth-stats strong{
   color:#31594e;
-  text-shadow:0 0 14px rgba(var(--sun-rgb),.30),0 0 28px rgba(var(--sun-rgb),.11)
+  text-shadow:0 0 13px rgba(var(--sun-rgb),.40),0 0 27px rgba(var(--sun-rgb),.17)
 }
 body[data-kind=meditation] .week-summary small,
 body[data-kind=meditation] .growth-stats div>span:last-child{
   color:#42675c;
-  text-shadow:0 0 9px rgba(var(--sun-rgb),.17)
+  text-shadow:0 0 9px rgba(var(--sun-rgb),.27),0 0 18px rgba(var(--sun-rgb),.10)
 }
 body[data-kind=meditation] .week-summary>span{
   color:#49685f;
-  text-shadow:0 0 12px rgba(var(--sun-rgb),.15)
+  text-shadow:0 0 11px rgba(var(--sun-rgb),.23),0 0 22px rgba(var(--sun-rgb),.09)
 }
 
-/* Same unlocked milestone formula as Stretch; ring kept clean, symbol now carries the sunlight colour itself. */
+/* Same unlocked milestone formula as Stretch; ring stays clean, symbol itself glows. */
 body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol{
-  color:var(--sun);
+  color:var(--sun)!important;
   opacity:1;
   background:radial-gradient(ellipse,rgba(var(--sun-rgb),.035),transparent);
   border-color:rgba(var(--sun-rgb),.35);
-  text-shadow:0 0 12px rgba(var(--sun-rgb),.96),0 0 24px rgba(var(--sun-rgb),.52);
+  text-shadow:0 0 12px rgba(var(--sun-rgb),.98),0 0 25px rgba(var(--sun-rgb),.55)!important;
   box-shadow:0 0 27px rgba(var(--sun-rgb),.13),inset 0 0 22px rgba(var(--sun-rgb),.08)
 }
 
-/* Cards/buttons: retain their normal material; only use the same low-level outer glow principle. */
+/* Cards/buttons keep their material; selected state gets only Stretch-level integrated glow. */
 body[data-kind=meditation] .ritual-choice{box-shadow:none}
 body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
   background:radial-gradient(ellipse at 15% 10%,rgba(var(--accent-rgb),.09),transparent 90%);
@@ -87,12 +91,12 @@ body[data-kind=meditation] .secondary-button,
 body[data-kind=meditation] .icon-button{box-shadow:none}
 body[data-kind=meditation] .section-heading h2{text-shadow:none}
 
-/* Running water overlay sits above the meditation scene but below the heading shade/fade. */
+/* Waterfall is a scenery overlay, never a UI glow. */
 .zen-waterfall-v9{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 1.1s ease}
 body[data-kind=meditation] .zen-waterfall-v9{opacity:1}
 body[data-kind=stretch] .zen-waterfall-v9{opacity:0}
 
-/* Let a little of the heading's morning light continue into the first sections without moving the scenery itself. */
+/* Morning light continues below the heading without moving the scenery. */
 body[data-kind=meditation]::after{
   content:'';
   position:absolute;
