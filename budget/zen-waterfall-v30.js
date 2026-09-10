@@ -62,10 +62,14 @@
     ctx.restore();ctx.filter='none';
   }
 
-  function sceneGeometry(mobile){return {s:mobile?0.63:0.76,fallX:mobile?894:972,lipY:mobile?430:478,impactY:mobile?500:570};}
+  function sceneGeometry(mobile){return {s:mobile?0.63:0.76,fallX:mobile?894:972,lipY:mobile?405:407,impactY:590,waterY:575};}
 
   function drawBackBank(g,time){
     var s=g.s,fallX=g.fallX,lipY=g.lipY;
+    // Continuous backing reaches the bank, so the raised source is not a floating rock.
+    rock(fallX+37*s,(lipY+77*s+g.waterY)*.5,74*s,(g.waterY-(lipY+77*s))*.69/s*s,.035,'front','rear');
+    rock(fallX-42*s,(lipY+82*s+g.waterY)*.5,33*s,(g.waterY-(lipY+82*s))*.65,-.12,'small','ledge');
+    rock(fallX+43*s,g.waterY+5,68*s,19*s,.035,'small','flat');
     var rear={x:fallX+23*s,y:lipY+51*s,rx:94*s,ry:71*s,l:-.075,shape:'rear'};
     var backLeft={x:fallX-52*s,y:lipY+83*s,rx:34*s,ry:23*s,l:-.13,shape:'flat'};
     var backRight={x:fallX+102*s,y:lipY+79*s,rx:35*s,ry:26*s,l:.11,shape:'small'};
