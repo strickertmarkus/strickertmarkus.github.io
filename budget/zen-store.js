@@ -37,7 +37,7 @@
   function put(entry){if(!ready||!M.entryValid(entry))return false;entries=M.merge(M.merge(entries,read(key+'_entries',{})),{[entry.id]:entry});write(key+'_entries',entries);push(entry);emit();return true;}
   window.ZenStore={
     profile,get ready(){return ready;},get active(){return active;},get status(){return status();},
-    get description(){return blocked?'Molnsynk är inte tillgänglig för Zen på det här kontot just nu. Dina stunder sparas på den här enheten. Hämta gärna en säkerhetskopia.':status()+'. Zen synkar i en egen del av ditt konto, separat från träningen.';},
+    get description(){return blocked?'Molnsynk är inte tillgänglig för Zen på det här kontot just nu. Dina pass sparas på den här enheten. Hämta gärna en säkerhetskopia.':status()+'. Zen synkar i en egen del av ditt konto, separat från träningen.';},
     get entries(){return Object.values(entries).filter(e=>!e.deleted);},
     subscribe(fn){listeners.add(fn);fn();return()=>listeners.delete(fn);},
     put,

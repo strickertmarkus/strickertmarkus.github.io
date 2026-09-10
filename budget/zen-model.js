@@ -4,9 +4,9 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const poses=[
-    {id:'arrive',name:'Landa i kroppen',cue:'Stå bekvämt. Låt axlarna sjunka och känn fötterna mot marken.'},
-    {id:'neck',name:'Mjuka axlar',cue:'Rulla axlarna långsamt bakåt. Släpp ned dem mellan varje rörelse.'},
-    {id:'side-left',name:'Sidosträck · vänster',cue:'Sträck höger arm uppåt och luta mjukt åt vänster. Låt andningen få plats.'},
+    {id:'arrive',name:'Stående avslappning',cue:'Stå bekvämt. Låt axlarna sjunka och känn fötterna mot marken.'},
+    {id:'neck',name:'Axelrullningar',cue:'Rulla axlarna långsamt bakåt. Släpp ned dem mellan varje rörelse.'},
+    {id:'side-left',name:'Sidosträck · vänster',cue:'Sträck höger arm uppåt och luta mjukt åt vänster. Andas normalt.'},
     {id:'side-right',name:'Sidosträck · höger',cue:'Sträck vänster arm uppåt och luta mjukt åt höger. Håll axlarna avslappnade.'},
     {id:'cat',name:'Katt & ko',cue:'På alla fyra: runda ryggen långsamt, mjukna sedan åt andra hållet. Följ din egen takt.'},
     {id:'child',name:'Barnets position',cue:'Låt höfterna sjunka bakåt mot hälarna. Vila överkroppen där det känns bekvämt.'},
@@ -17,12 +17,12 @@
   ];
   const makeSteps=(ids,seconds)=>ids.map(id=>({...poses.find(p=>p.id===id),seconds}));
   const routines=[
-    {id:'forest',kind:'stretch',name:'Skogsgläntan',description:'Ett mjukt flöde för hela kroppen.',steps:makeSteps(['arrive','neck','side-left','side-right','cat','child','fold','rest'],60)},
-    {id:'shoulders',kind:'stretch',name:'Lätta axlar',description:'Släpp taget om dagens spänningar.',steps:makeSteps(['arrive','neck','side-left','side-right','child'],60)},
-    {id:'roots',kind:'stretch',name:'Djupa rötter',description:'Landa med höfter, rygg och stilla vila.',steps:makeSteps(['cat','child','hip-left','hip-right','fold','rest'],120)},
-    {id:'water',kind:'meditation',name:'Stilla vatten',description:'Följ mjuka vågor av andetag.',seconds:600,guidance:'breath'},
-    {id:'light',kind:'meditation',name:'Morgonljus',description:'En liten stund att börja om i.',seconds:300,guidance:'breath'},
-    {id:'silence',kind:'meditation',name:'Bara vara',description:'Öppen närvaro, i din egen takt.',seconds:900,guidance:'silent'}
+    {id:'forest',kind:'stretch',name:'Helkropp',description:'8 övningar för axlar, rygg och ben.',steps:makeSteps(['arrive','neck','side-left','side-right','cat','child','fold','rest'],60)},
+    {id:'shoulders',kind:'stretch',name:'Axlar & överkropp',description:'5 övningar med fokus på överkroppen.',steps:makeSteps(['arrive','neck','side-left','side-right','child'],60)},
+    {id:'roots',kind:'stretch',name:'Höfter & rygg',description:'6 övningar, 2 minuter per övning.',steps:makeSteps(['cat','child','hip-left','hip-right','fold','rest'],120)},
+    {id:'water',kind:'meditation',name:'Guidad andning',description:'10 minuter med andningsguide.',seconds:600,guidance:'breath'},
+    {id:'light',kind:'meditation',name:'Kort meditation',description:'5 minuter med andningsguide.',seconds:300,guidance:'breath'},
+    {id:'silence',kind:'meditation',name:'Utan guide',description:'15 minuter med timer och egen andning.',seconds:900,guidance:'silent'}
   ];
   const duration=r=>r.kind==='stretch'?r.steps.reduce((sum,s)=>sum+s.seconds,0):r.seconds;
   const clone=o=>JSON.parse(JSON.stringify(o));

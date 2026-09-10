@@ -10,11 +10,13 @@
 
 Du kan inspektera en checkpoint i en separat checkout med `git switch --detach <commit>`. Det skriver inte över den publicerade sidan. Återställning av publicerad kod görs med en ny commit från önskad checkpoint.
 
+- Zen före renderade scener och konkretare texter: **`bcf52bb2cc02acab1fba72442f38c83eadf207f1`**.
+
 ## Innehåll
 
-- Stretch: Skogsgläntan, Lätta axlar och Djupa rötter; egen byggare med ordning, rörelser och tider.
-- Meditation: Stilla vatten, Morgonljus och Bara vara; 1–60 minuter, andningsguide eller öppen närvaro.
-- En ritual åt gången, paus, återupptagning efter omladdning, valfri klang och möjlighet att avsluta tidigare.
+- Stretch: Helkropp, Axlar & överkropp och Höfter & rygg; egen byggare med ordning, rörelser och tider.
+- Meditation: Guidad andning, Kort meditation och Utan guide; 1–60 minuter, andningsguide eller öppen närvaro.
+- Ett pass åt gången, paus, återupptagning efter omladdning, valfri klang och möjlighet att avsluta tidigare.
 - Reflektioner, historik, veckominuter, dagar i följd och samlingar från verkliga sparade stunder, separat för varje kategori.
 - Anpassat för mobil, tangentbord och reducerad rörelse.
 
@@ -24,7 +26,8 @@ Du kan inspektera en checkpoint i en separat checkout med `git switch --detach <
 - `zen-store.js`: egen datalagring och befintlig Firebase-inloggning.
 - `zen.js`, `zen.css`, `zen.html`: det fristående gränssnittet.
 - `training-zen-nav.js/css`: delad headernavigation. Bevarar `?user=maja`.
-- `zen-assets/`: två optimerade WebP-miljöer, genererade för den här sidan.
+- `zen-scene.js`: två lokalt renderade Canvas-scener utan bildfiler. Förgrenat träd, lövverk, ljussken och eldflugor för stretch; bambu, sten, vattenflöde och reflektioner för meditation.
+- Scenerna uppdateras högst 25 gånger per sekund, pausar utanför vyn och i bakgrunden och visas utan rörelse vid reducerad rörelse. Upplösningen är begränsad för mobil.
 
 Sparade stunder och egna ritualer synkas till `zen_v1/<auth.uid>/<markus|maja>/entries/<id>` när kontots befintliga databasregler tillåter det. Inga databasregler ändras här. Om läsning eller skrivning nekas visar sidan att informationen sparas på enheten; export/import finns i menyn. Molnsynk har verifierats med simulerad Firebase, inte mot ett inloggat produktionskonto.
 
