@@ -1,4 +1,4 @@
-/* Zen waterfall v9: a visible running-water detail aligned to the meditation rock bank. */
+/* Zen waterfall v10: visible mobile-first cascade aligned to its own rock shelf. */
 (function () {
   'use strict';
 
@@ -35,12 +35,35 @@
     ctx.scale(scale, scale);
   }
 
-  function drawEllipse(x, y, rx, ry, alpha) {
-    ctx.strokeStyle = 'rgba(239,249,235,' + alpha + ')';
+  function strokeEllipse(x, y, rx, ry, alpha) {
+    ctx.strokeStyle = 'rgba(244,250,232,' + alpha + ')';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.ellipse(x, y, rx, ry, 0, 0, TAU);
     ctx.stroke();
+  }
+
+  function rock(x, y, size, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const g = ctx.createLinearGradient(x - size, y - size, x + size, y + size);
+    g.addColorStop(0, '#c7d1b9');
+    g.addColorStop(0.40, '#849a8e');
+    g.addColorStop(1, '#48675f');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x - size, y + size * 0.08);
+    ctx.bezierCurveTo(x - size * 0.92, y - size * 0.54, x - size * 0.38, y - size * 0.84, x + size * 0.05, y - size * 0.65);
+    ctx.bezierCurveTo(x + size * 0.50, y - size * 0.78, x + size * 0.82, y - size * 0.24, x + size, y + size * 0.05);
+    ctx.bezierCurveTo(x + size * 0.72, y + size * 0.27, x - size * 0.69, y + size * 0.29, x - size, y + size * 0.08);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,246,205,.28)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.62, y - size * 0.08);
+    ctx.quadraticCurveTo(x - size * 0.05, y - size * 0.50, x + size * 0.50, y - size * 0.26);
+    ctx.stroke();
+    ctx.restore();
   }
 
   function draw(time) {
@@ -48,51 +71,74 @@
     if (document.body.dataset.kind !== 'meditation') return;
 
     const mobile = width < 700;
-    const fallX = mobile ? 900 : 1045;
-    const topY = mobile ? 532 : 545;
-    const baseY = 700;
-    const strandCount = mobile ? 16 : 19;
+    /* This position stays well inside the mobile crop instead of at the far-right edge. */
+    const fallX = mobile ? 835 : 1010;
+    const lipY = mobile ? 492 : 510;
+    const waterY = 594;
+    const strandCount = mobile ? 20 : 22;
+
+    /* A small coherent rock shelf: the water begins at the lip instead of in empty space. */
+    rock(fallX - 60, lipY + 17, 46, 0.72);
+    rock(fallX - 18, lipY + 2, 58, 0.82);
+    rock(fallX + 35, lipY + 18, 48, 0.78);
+    rock(fallX + 72, lipY + 41, 42, 0.64);
+    rock(fallX - 83, lipY + 49, 38, 0.58);
+
+    /* Dark wet notch under the lip gives the cascade a physical origin. */
+    const notch = ctx.createRadialGradient(fallX + 10, lipY + 18, 2, fallX + 10, lipY + 18, 45);
+    notch.addColorStop(0, 'rgba(42,77,70,.38)');
+    notch.addColorStop(1, 'rgba(42,77,70,0)');
+    ctx.fillStyle = notch;
+    ctx.fillRect(fallX - 40, lipY - 5, 105, 65);
 
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
 
-    const mist = ctx.createRadialGradient(fallX + 20, baseY - 2, 0, fallX + 20, baseY - 2, 82);
-    mist.addColorStop(0, 'rgba(247,248,215,.16)');
-    mist.addColorStop(.45, 'rgba(225,245,230,.08)');
-    mist.addColorStop(1, 'rgba(225,245,230,0)');
+    const mist = ctx.createRadialGradient(fallX + 22, waterY, 0, fallX + 22, waterY, 88);
+    mist.addColorStop(0, 'rgba(247,249,219,.22)');
+    mist.addColorStop(0.42, 'rgba(227,246,232,.11)');
+    mist.addColorStop(1, 'rgba(227,246,232,0)');
     ctx.fillStyle = mist;
-    ctx.fillRect(fallX - 70, baseY - 65, 180, 130);
+    ctx.fillRect(fallX - 78, waterY - 65, 190, 135);
 
     for (let i = 0; i < strandCount; i++) {
-      const sx = fallX + i * 2.6;
-      const phase = i * 0.63;
-      const sway = reduced.matches ? 0 : Math.sin(time * 1.05 + phase) * (1.2 + (i % 3) * 0.35);
-      const shimmer = reduced.matches ? 0.16 : 0.12 + 0.13 * (Math.sin(time * 1.45 + phase) + 1) * 0.5;
-      const endX = sx + 17 + sway * 2.2;
+      const sx = fallX - 4 + i * 2.55;
+      const phase = i * 0.59;
+      const sway = reduced.matches ? 0 : Math.sin(time * 1.08 + phase) * (1.0 + (i % 4) * 0.32);
+      const shimmer = reduced.matches ? 0.22 : 0.18 + 0.18 * (Math.sin(time * 1.52 + phase) + 1) * 0.5;
+      const startY = lipY + 19 + (i % 3) * 1.3;
+      const endX = sx + 12 + sway * 1.8;
 
-      ctx.strokeStyle = 'rgba(232,248,231,' + shimmer + ')';
-      ctx.lineWidth = i % 4 === 0 ? 1.8 : 1;
+      ctx.strokeStyle = 'rgba(235,249,233,' + shimmer + ')';
+      ctx.lineWidth = i % 5 === 0 ? 2.05 : (i % 2 === 0 ? 1.25 : 0.9);
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(sx, topY + (i % 4) * 1.5);
-      ctx.bezierCurveTo(sx - 3 + sway, topY + 44, sx + 4 + sway, baseY - 48, endX, baseY);
+      ctx.moveTo(sx, startY);
+      ctx.bezierCurveTo(sx - 2 + sway, startY + 27, sx + 3 + sway, waterY - 31, endX, waterY);
       ctx.stroke();
 
       if (!reduced.matches && i % 2 === 0) {
-        const p = (time * 0.48 + i / strandCount) % 1;
-        ctx.fillStyle = 'rgba(255,245,195,' + (0.12 + (1 - p) * 0.18) + ')';
+        const p = (time * 0.52 + i / strandCount) % 1;
+        ctx.fillStyle = 'rgba(255,245,194,' + (0.15 + (1 - p) * 0.20) + ')';
         ctx.beginPath();
-        ctx.ellipse(sx + 17 * p * p, topY + (baseY - topY) * p, 0.8, 2.4, 0, 0, TAU);
+        ctx.ellipse(sx + 12 * p * p, startY + (waterY - startY) * p, 0.85, 2.55, 0, 0, TAU);
         ctx.fill();
       }
     }
 
+    /* Bright but soft water edge at the lip. */
+    ctx.strokeStyle = 'rgba(255,247,207,.28)';
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    ctx.moveTo(fallX - 9, lipY + 18);
+    ctx.bezierCurveTo(fallX + 6, lipY + 15, fallX + 28, lipY + 19, fallX + 47, lipY + 16);
+    ctx.stroke();
     ctx.restore();
 
     const rippleTime = reduced.matches ? 0.32 : time;
-    for (let i = 0; i < 4; i++) {
-      const p = reduced.matches ? 0.38 : (rippleTime * 0.22 + i / 4) % 1;
-      drawEllipse(fallX + 42, baseY + 4, 8 + p * 64, 2 + p * 10, (1 - p) * 0.28);
+    for (let i = 0; i < 5; i++) {
+      const p = reduced.matches ? 0.38 : (rippleTime * 0.24 + i / 5) % 1;
+      strokeEllipse(fallX + 23, waterY + 4, 9 + p * 70, 2.2 + p * 11, (1 - p) * 0.31);
     }
   }
 
