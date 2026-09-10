@@ -1,6 +1,6 @@
-/* Zen v26: Meditation rock polish + robust Stretch light continuity. */
+/* Zen v27: restore clean Stretch lighting + local first-card fade. Keep Meditation waterfall isolation. */
 
-/* Only v26 may render the current Meditation rock/waterfall composition. */
+/* Only the current waterfall canvas may render in Meditation. */
 body[data-kind=meditation] .zen-waterfall-v24,
 body[data-kind=meditation] .zen-waterfall-v25,
 body[data-kind=meditation] .zen-waterfall-v13,
@@ -17,87 +17,79 @@ body[data-kind=meditation] .zen-waterfall-mouth-v16{
   pointer-events:none;
 }
 
-/* Stretch v26: keep the broad light field, but prevent the first pass card
-   background from visually cutting it off. */
+/* ------------------------------------------------------------
+   Stretch: return to the clean pre-light-bridge appearance.
+   v23/v25/v26 had broad pseudo-elements that washed Välj pass.
+   Disable all of those here. The existing forest/scenery lighting remains.
+   ------------------------------------------------------------ */
 body[data-kind=stretch] #home-view::before{
-  height:1560px!important;
-  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 46%,rgba(0,0,0,.95) 59%,rgba(0,0,0,.72) 72%,rgba(0,0,0,.35) 86%,transparent 100%)!important;
-  mask-image:linear-gradient(to bottom,#000 0%,#000 46%,rgba(0,0,0,.95) 59%,rgba(0,0,0,.72) 72%,rgba(0,0,0,.35) 86%,transparent 100%)!important;
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+}
+body[data-kind=stretch] .ritual-section::before,
+body[data-kind=stretch] .ritual-section::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+  filter:none!important;
+}
+body[data-kind=stretch] .ritual-card:first-child::after{
+  content:none!important;
+  display:none!important;
 }
 
-/* The light bridge now sits above the translucent card surface. */
-body[data-kind=stretch] .ritual-section{
+/* Only the first Helkropp choice gets the tiny continuation the user marked.
+   It sits above the translucent panel fill but below all text/icons. */
+body[data-kind=stretch] .ritual-card:first-child .ritual-choice{
   position:relative;
   isolation:isolate;
-  overflow:visible;
+  overflow:hidden;
 }
-body[data-kind=stretch] .ritual-section::before{
-  content:''!important;
-  display:block!important;
+body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
+  content:'';
   position:absolute;
   pointer-events:none;
-  z-index:3;
-  left:-8vw;
-  right:-8vw;
-  top:-165px;
-  height:560px;
+  z-index:0;
+  top:-2px;
+  bottom:-2px;
+  left:-2px;
+  right:-2px;
   background:
-    linear-gradient(105deg,
-      transparent 7%,
-      rgba(221,249,170,.025) 17%,
-      rgba(219,248,168,.14) 28%,
-      rgba(198,238,140,.085) 39%,
-      rgba(185,227,126,.035) 48%,
-      transparent 58%),
-    linear-gradient(100deg,
-      transparent 47%,
-      rgba(205,243,148,.055) 55%,
-      rgba(227,251,180,.10) 64%,
-      transparent 79%),
-    radial-gradient(ellipse at 28% 0%,rgba(225,250,176,.09),transparent 45%);
-  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.90) 24%,rgba(0,0,0,.70) 49%,rgba(0,0,0,.34) 75%,transparent 100%);
-  mask-image:linear-gradient(to bottom,rgba(0,0,0,.96) 0%,rgba(0,0,0,.90) 24%,rgba(0,0,0,.70) 49%,rgba(0,0,0,.34) 75%,transparent 100%);
+    linear-gradient(106deg,
+      transparent 13%,
+      rgba(222,250,173,.018) 20%,
+      rgba(220,248,168,.095) 29%,
+      rgba(204,241,148,.065) 36%,
+      rgba(191,231,132,.025) 43%,
+      transparent 51%),
+    radial-gradient(ellipse at 30% -8%,rgba(226,251,178,.065),transparent 52%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.88) 0%,rgba(0,0,0,.64) 37%,rgba(0,0,0,.27) 67%,transparent 92%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.88) 0%,rgba(0,0,0,.64) 37%,rgba(0,0,0,.27) 67%,transparent 92%);
   mix-blend-mode:screen;
 }
-body[data-kind=stretch] .ritual-section::after{display:none!important}
-
-/* Keep text/icons above the beam while card backgrounds remain below it. */
-body[data-kind=stretch] .ritual-section>.section-heading,
-body[data-kind=stretch] .ritual-card .ritual-top,
-body[data-kind=stretch] .ritual-card .ritual-choice>strong,
-body[data-kind=stretch] .ritual-card .ritual-description,
-body[data-kind=stretch] .ritual-card .ritual-tools{
+body[data-kind=stretch] .ritual-card:first-child .ritual-choice>*{
   position:relative;
-  z-index:4;
+  z-index:1;
 }
-body[data-kind=stretch] .rituals{position:relative;z-index:2}
-body[data-kind=stretch] .ritual-card:first-child::after{display:none!important}
 
 @media(max-width:700px){
-  body[data-kind=stretch] #home-view::before{
-    height:1480px!important;
-    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 50%,rgba(0,0,0,.96) 62%,rgba(0,0,0,.74) 75%,rgba(0,0,0,.38) 88%,transparent 100%)!important;
-    mask-image:linear-gradient(to bottom,#000 0%,#000 50%,rgba(0,0,0,.96) 62%,rgba(0,0,0,.74) 75%,rgba(0,0,0,.38) 88%,transparent 100%)!important;
-  }
-  body[data-kind=stretch] .ritual-section::before{
-    left:-12vw;
-    right:-12vw;
-    top:-150px;
-    height:510px;
+  body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
     background:
       linear-gradient(105deg,
-        transparent 5%,
-        rgba(222,250,172,.03) 15%,
-        rgba(220,249,169,.15) 27%,
-        rgba(198,238,139,.09) 39%,
-        rgba(186,228,127,.04) 49%,
-        transparent 59%),
-      linear-gradient(100deg,
-        transparent 46%,
-        rgba(207,244,150,.06) 55%,
-        rgba(228,251,181,.105) 65%,
-        transparent 80%),
-      radial-gradient(ellipse at 27% -3%,rgba(226,251,178,.095),transparent 46%);
+        transparent 10%,
+        rgba(223,250,174,.018) 18%,
+        rgba(220,249,169,.105) 28%,
+        rgba(202,240,145,.068) 36%,
+        rgba(190,230,130,.024) 44%,
+        transparent 52%),
+      radial-gradient(ellipse at 29% -10%,rgba(226,251,178,.070),transparent 53%);
+    -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.90) 0%,rgba(0,0,0,.66) 35%,rgba(0,0,0,.28) 64%,transparent 90%);
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.90) 0%,rgba(0,0,0,.66) 35%,rgba(0,0,0,.28) 64%,transparent 90%);
   }
 }
 
