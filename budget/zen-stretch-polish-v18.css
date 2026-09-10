@@ -1,7 +1,6 @@
-/* Zen v19 active polish: aligned mobile start controls + stronger Stretch depth. */
+/* Zen v20 active polish: natural Stretch tree + shared mobile start anchor. */
 
-/* Existing v18 filename now carries the active v19 rules to avoid stacking old layers. */
-.zen-stretch-depth-v17{display:none!important;opacity:0!important;visibility:hidden!important}
+.zen-stretch-depth-v17,
 .zen-stretch-depth-v19{display:none!important;opacity:0!important;visibility:hidden!important}
 .zen-stretch-depth-v18{
   position:absolute;
@@ -26,19 +25,19 @@ body[data-kind=stretch] .landscape-shade::before{
 body[data-kind=stretch] .landscape-shade::after{opacity:1}
 
 @media(max-width:700px){
-  /* The free vertical space, rather than a fixed margin, now absorbs the
-     different Stretch/Meditation title heights. Both start areas therefore
-     settle on the same bottom anchor. */
+  /* Same bottom anchor in both Zen modes, but raised from v19 so controls sit
+     close to the lower edge of the meditation rock instead of browser chrome. */
   .sanctuary{
     display:flex;
     flex-direction:column;
-    min-height:744px;
+    min-height:690px;
   }
   .sanctuary .kind-switch{align-self:flex-start}
   .sanctuary .start-area{
     margin-top:auto!important;
     width:100%;
   }
+
   body[data-kind=stretch] .landscape-shade::before{
     opacity:.98;
     filter:blur(3.2px);
