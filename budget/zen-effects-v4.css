@@ -1,13 +1,56 @@
-/* Zen atmosphere v10: Stretch-matched meditation flow across all symbols, clearer stats and subtle sun spill. */
+/* Zen atmosphere v11: Stretch-matched meditation flow, calmer contrast, local glass veil and integrated sunlight. */
 .zen-brand>span:first-child{transition:color .55s ease,text-shadow .55s ease,transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .zen-brand>span:first-child.zen-brand-symbol-swap{transform:scale(.72) rotate(-12deg);opacity:.25}
 body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 18px rgba(255,239,166,.42)}
 #zen-demo-badge-v4{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 10px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:999px;background:rgba(var(--accent-rgb),.055);color:var(--muted);font-size:9px;letter-spacing:.55px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #zen-demo-badge-v4:before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.38)}
 
-/* Meditation deliberately copies the Stretch glow hierarchy. Only the light colour changes. */
 body{position:relative}
-body[data-kind=meditation]{--sun:#f5dfa0;--sun-rgb:245,223,160}
+body[data-kind=meditation]{
+  --sun:#f5dfa0;
+  --sun-rgb:245,223,160;
+  --text:#173b34;
+  --muted:#31584e;
+  --faint:#47695f;
+  --line:rgba(43,83,72,.22);
+  background:
+    radial-gradient(ellipse at 62% 4%,rgba(255,248,214,.10),transparent 34%),
+    linear-gradient(90deg,rgba(50,91,91,.055) 0%,rgba(50,91,91,.018) 14%,transparent 33%,transparent 72%,rgba(50,88,96,.055) 100%),
+    var(--bg);
+}
+
+/* Meditation subtitle mirrors Stretch, only with warm sunlight instead of green. */
+body[data-kind=meditation] .hero-copy h1::after{
+  content:'andning & närvaro.';
+  display:block;
+  margin-top:.12em;
+  color:var(--sun);
+  font:italic 400 .39em/1.05 var(--serif);
+  letter-spacing:-.8px;
+  text-shadow:0 0 24px rgba(var(--sun-rgb),.42),0 0 44px rgba(var(--sun-rgb),.17);
+}
+
+/* Slightly stronger side depth in the hero while keeping the center airy and sunlit. */
+body[data-kind=meditation] .landscape .landscape-shade{
+  background:
+    linear-gradient(180deg,rgba(167,195,189,.10),transparent 25%,rgba(167,195,189,0) 58%,var(--bg) 100%),
+    linear-gradient(90deg,rgba(50,89,88,.17) 0%,rgba(58,97,92,.075) 17%,transparent 42%,transparent 74%,rgba(54,91,98,.08) 100%);
+}
+
+/* A nearly invisible glass veil behind content: no cards, no box edges, just better separation. */
+body[data-kind=meditation] .page-section{
+  background:linear-gradient(90deg,transparent 0%,rgba(252,255,252,.025) 10%,rgba(251,255,252,.052) 46%,rgba(244,252,250,.030) 82%,transparent 100%);
+}
+body[data-kind=meditation] .ritual-choice{
+  background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(240,250,247,.018));
+  border-color:rgba(43,84,72,.24);
+}
+body[data-kind=meditation] .history-row{
+  background:linear-gradient(90deg,rgba(255,255,255,.018),rgba(255,255,255,.035) 44%,rgba(255,255,255,0));
+}
+body[data-kind=meditation] .section-heading h2,
+body[data-kind=meditation] .ritual-choice strong,
+body[data-kind=meditation] .history-row h3{color:var(--text)}
 
 /* No detached pseudo-light objects on controls/cards. */
 body[data-kind=meditation] .primary-button:before,
@@ -30,7 +73,7 @@ body[data-kind=meditation] .day-fill.empty{background:var(--line);box-shadow:non
 body[data-kind=meditation] .day-column.today .day-label{color:var(--accent)}
 body[data-kind=meditation] .day-column.today .day-label:after{background:var(--sun);box-shadow:0 0 8px var(--sun)}
 
-/* Every meditation glyph now carries the same warm fill + glow used by the graph bars. */
+/* Every meditation glyph carries the same warm fill + glow used by the graph bars. */
 body[data-kind=meditation] .small-symbol,
 body[data-kind=meditation] .history-row .small-symbol,
 body[data-kind=meditation] .selected-routine .small-symbol,
@@ -51,16 +94,16 @@ body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after{box-shad
 /* Statistics receive a restrained but clearly visible sunlight lift. */
 body[data-kind=meditation] .week-summary strong,
 body[data-kind=meditation] .growth-stats strong{
-  color:#31594e;
+  color:#294f46;
   text-shadow:0 0 13px rgba(var(--sun-rgb),.40),0 0 27px rgba(var(--sun-rgb),.17)
 }
 body[data-kind=meditation] .week-summary small,
 body[data-kind=meditation] .growth-stats div>span:last-child{
-  color:#42675c;
+  color:#355e53;
   text-shadow:0 0 9px rgba(var(--sun-rgb),.27),0 0 18px rgba(var(--sun-rgb),.10)
 }
 body[data-kind=meditation] .week-summary>span{
-  color:#49685f;
+  color:#3e6258;
   text-shadow:0 0 11px rgba(var(--sun-rgb),.23),0 0 22px rgba(var(--sun-rgb),.09)
 }
 
@@ -75,10 +118,9 @@ body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol{
 }
 
 /* Cards/buttons keep their material; selected state gets only Stretch-level integrated glow. */
-body[data-kind=meditation] .ritual-choice{box-shadow:none}
 body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
-  background:radial-gradient(ellipse at 15% 10%,rgba(var(--accent-rgb),.09),transparent 90%);
-  border-color:rgba(var(--accent-rgb),.5);
+  background:radial-gradient(ellipse at 15% 10%,rgba(var(--sun-rgb),.055),rgba(255,255,255,.028) 46%,transparent 92%);
+  border-color:rgba(var(--accent-rgb),.48);
   box-shadow:0 0 35px rgba(var(--sun-rgb),.04),inset 0 0 24px rgba(var(--sun-rgb),.025)
 }
 body[data-kind=meditation] .primary-button{
@@ -117,6 +159,7 @@ body[data-kind=meditation]::after{
 .landscape-v4-overlay{position:absolute;inset:0;opacity:0!important;visibility:hidden!important;pointer-events:none}
 
 @media(max-width:700px){
+  body[data-kind=meditation] .hero-copy h1::after{font-size:.34em;letter-spacing:-.35px;margin-top:.18em}
   body[data-kind=meditation]::after{top:735px;height:900px;opacity:.78;background:linear-gradient(110deg,transparent 9%,rgba(255,244,190,.10) 28%,rgba(255,235,168,.035) 42%,transparent 59%),linear-gradient(102deg,transparent 48%,rgba(255,247,209,.075) 58%,transparent 74%)}
 }
 
