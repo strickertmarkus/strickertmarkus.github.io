@@ -28,6 +28,7 @@
   let frame = 0;
   let lastFrame = -Infinity;
   let visible = true;
+  let copyZone = null;
 
   const back = [
     [585, 6, -28, 0.2, 0.40], [630, 7, 20, 0.8, 0.44], [675, 5, -14, 1.5, 0.34],
@@ -193,7 +194,7 @@
     const topY = -145;
     const topX = x + lean + sway;
     const total = baseY - topY;
-    const segments = 15;
+    const segments = 13 + Math.floor((stalk[3] * 7.3) % 5);
 
     for (let j = 0; j < segments; j++) {
       const t0 = j / segments;
@@ -216,13 +217,16 @@
 
       if (j < segments - 1) stroke(ctx, x1 - w * 0.55, y1, x1 + w * 0.55, y1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
 
-      if (!submerged && j > 1 && j < 12 && j % 2 === 0) {
+      if (!submerged && j > 1 && j < segments - 2 && Math.sin(j * 2.17 + stalk[3] * 4.3) > -0.12) {
         const dir = ((j + Math.round(x)) % 4) < 2 ? 1 : -1;
-        const branchLength = distant ? 27 : 39;
+        const branchLength = (distant ? 27 : 39) * (0.73 + (Math.sin(stalk[3] * 3 + j) + 1) * 0.22);
         const flutter = reduced.matches ? 0 : Math.sin(time * 0.82 + stalk[3] + j) * 5 * mobileBoost();
+        // Reserve a real text-shaped opening instead of covering the copy with a panel.
+        const edge = x1 + dir * (branchLength + 22 + Math.abs(flutter));
+        if (copyZone && Math.max(x1, edge) > copyZone.left && Math.min(x1, edge) < copyZone.right && y1 > copyZone.top && y1 - 42 < copyZone.bottom) continue;
         stroke(ctx, x1, y1, x1 + dir * (branchLength + flutter), y1 - 17, 'rgba(51,94,74,' + (alpha * 0.72) + ')', Math.max(0.9, w * 0.10));
         for (let k = 0; k < 3; k++) {
-          const len = (distant ? 22 : 29) - k;
+          const len = (distant ? 22 : 29) - k + Math.sin(stalk[3] + j + k) * 4;
           const leafWidth = distant ? 4.3 : 5.4;
           const leafAngle = dir * (0.18 + k * 0.16) + (reduced.matches ? 0 : Math.sin(time * 1.05 + stalk[3] + k) * 0.08 * mobileBoost());
           leaf(ctx, x1 + dir * (13 + k * 10) + dir * flutter * 0.5, y1 - 7 - k * 5, len, leafWidth, leafAngle, alpha * (distant ? 0.68 : 0.90));
@@ -391,6 +395,13 @@
     ctx.restore();
   }
 
+  function updateCopyZone() {
+    const text=document.querySelector('.hero-description');
+    if(!text){copyZone=null;return;}
+    const r=text.getBoundingClientRect(), b=host.getBoundingClientRect();
+    copyZone={left:(r.left-b.left-left)/scale-8,right:(r.right-b.left-left)/scale+8,top:(r.top-b.top)/scale-8,bottom:(r.bottom-b.top)/scale+8};
+  }
+
   function resize() {
     const box = host.getBoundingClientRect();
     width = Math.max(1, box.width);
@@ -398,6 +409,7 @@
     ratio = Math.min(window.devicePixelRatio || 1, 1.45, Math.sqrt(1450000 / (width * height)));
     scale = Math.max(width / W, height / H);
     left = (width - W * scale) * (width < 600 ? 0.69 : 0.5);
+    updateCopyZone();
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     draw(reduced.matches ? 0 : performance.now() / 1000);
@@ -431,6 +443,7 @@
     wake();
   }).observe(host);
   new MutationObserver(function () {
+    updateCopyZone();
     draw(reduced.matches ? 0 : performance.now() / 1000);
     wake();
   }).observe(document.body, { attributes: true, attributeFilter: ['data-kind'] });
@@ -443,5 +456,6 @@
   });
   window.addEventListener('pageshow', wake);
 
+  if(document.fonts)document.fonts.ready.then(function(){updateCopyZone();draw(reduced.matches?0:performance.now()/1000);});
   resize();
 })();
