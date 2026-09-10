@@ -1,0 +1,88 @@
+/* Zen v23: continue Stretch sunlight naturally into Välj pass instead of clipping at the scenery boundary. */
+body[data-kind=stretch] .ritual-section{
+  position:relative;
+  isolation:isolate;
+  overflow:visible;
+}
+body[data-kind=stretch] .ritual-section::before{
+  content:'';
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  left:-4vw;
+  right:-4vw;
+  top:-118px;
+  height:min(620px,78vh);
+  background:
+    linear-gradient(106deg,
+      transparent 17%,
+      rgba(216,247,166,.015) 23%,
+      rgba(215,246,164,.10) 31%,
+      rgba(198,238,139,.065) 38%,
+      transparent 49%),
+    linear-gradient(101deg,
+      transparent 48%,
+      rgba(199,239,143,.07) 56%,
+      rgba(222,249,173,.105) 63%,
+      transparent 74%),
+    radial-gradient(ellipse at 29% 5%,rgba(217,248,164,.08),transparent 41%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 19%,rgba(0,0,0,.78) 45%,rgba(0,0,0,.28) 72%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 19%,rgba(0,0,0,.78) 45%,rgba(0,0,0,.28) 72%,transparent 100%);
+  mix-blend-mode:screen;
+}
+body[data-kind=stretch] .ritual-section>.section-heading,
+body[data-kind=stretch] .ritual-section>.rituals{
+  position:relative;
+  z-index:1;
+}
+
+/* A tiny bridge across the exact hero/section seam prevents a visible horizontal cut. */
+body[data-kind=stretch] .ritual-section::after{
+  content:'';
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  top:-92px;
+  left:10%;
+  width:72%;
+  height:180px;
+  background:linear-gradient(106deg,transparent 4%,rgba(220,248,171,.075) 39%,rgba(195,234,137,.035) 61%,transparent 92%);
+  filter:blur(12px);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 94%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 94%);
+  mix-blend-mode:screen;
+}
+
+@media(max-width:700px){
+  body[data-kind=stretch] .ritual-section::before{
+    top:-105px;
+    left:-8vw;
+    right:-8vw;
+    height:520px;
+    background:
+      linear-gradient(105deg,
+        transparent 10%,
+        rgba(218,248,166,.02) 19%,
+        rgba(216,247,165,.115) 29%,
+        rgba(196,236,137,.07) 39%,
+        transparent 52%),
+      linear-gradient(100deg,
+        transparent 47%,
+        rgba(201,240,143,.055) 56%,
+        rgba(224,249,176,.09) 64%,
+        transparent 78%),
+      radial-gradient(ellipse at 27% 0%,rgba(220,249,169,.075),transparent 39%);
+  }
+  body[data-kind=stretch] .ritual-section::after{
+    top:-78px;
+    left:4%;
+    width:86%;
+    height:155px;
+    filter:blur(10px);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-kind=stretch] .ritual-section::before,
+  body[data-kind=stretch] .ritual-section::after{transition:none}
+}
