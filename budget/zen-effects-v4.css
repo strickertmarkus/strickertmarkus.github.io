@@ -1,32 +1,50 @@
-/* Zen v4 UI atmosphere: lower-page fireflies, dynamic brand symbol, demo badge and meditation light sources. */
-#zen-ambient-v4{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;mix-blend-mode:screen;transition:opacity .8s ease}
-#zen-ambient-v4 i{position:absolute;width:3px;height:3px;border-radius:50%;background:#dfff9e;box-shadow:0 0 8px 2px #b7ef755c,0 0 18px 6px #a7e66828;opacity:.22;animation:zenFireflyV4 var(--dur,10s) ease-in-out infinite alternate;animation-delay:var(--delay,0s);transform:translate3d(0,0,0)}
-body[data-kind=meditation] #zen-ambient-v4{opacity:0}
-@keyframes zenFireflyV4{0%{transform:translate3d(0,4px,0) scale(.8);opacity:.12}45%{opacity:.48}100%{transform:translate3d(var(--dx,12px),var(--dy,-18px),0) scale(1.12);opacity:.28}}
+/* Zen v4 UI atmosphere: dynamic brand symbol, demo badge and natural meditation sunlight glow. */
 .zen-brand>span:first-child{transition:color .55s ease,text-shadow .55s ease,transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .zen-brand>span:first-child.zen-brand-symbol-swap{transform:scale(.72) rotate(-12deg);opacity:.25}
-body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 26px #dff6cf8a,0 0 48px #fff2b13d}
+body[data-kind=meditation] .zen-brand>span:first-child{color:#4f806f;text-shadow:0 0 24px rgba(255,244,196,.42),0 0 48px rgba(255,231,157,.18)}
 #zen-demo-badge-v4{display:inline-flex;align-items:center;gap:7px;margin-top:15px;padding:6px 10px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:999px;background:rgba(var(--accent-rgb),.055);color:var(--muted);font-size:9px;letter-spacing:.55px;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 #zen-demo-badge-v4:before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.38)}
+
 body[data-kind=meditation] .primary-button,
 body[data-kind=meditation] .secondary-button,
 body[data-kind=meditation] .icon-button,
 body[data-kind=meditation] .ritual-choice{position:relative;isolation:isolate;overflow:hidden}
-body[data-kind=meditation] .primary-button{box-shadow:0 8px 30px #315b4930,0 0 28px #e8f2c33d,inset 0 1px 0 #f7fbe180}
+
+body[data-kind=meditation] .primary-button{
+  box-shadow:0 10px 30px rgba(45,79,65,.18),0 0 0 1px rgba(255,246,213,.24),0 0 34px rgba(255,231,163,.13),inset 0 1px 0 rgba(255,255,235,.42)
+}
+body[data-kind=meditation] .secondary-button,
+body[data-kind=meditation] .icon-button{
+  box-shadow:0 8px 24px rgba(52,83,70,.10),0 0 22px rgba(255,232,170,.08),inset 0 1px 0 rgba(255,255,240,.22)
+}
+body[data-kind=meditation] .ritual-choice{
+  box-shadow:0 14px 34px rgba(47,90,72,.10),0 0 28px rgba(255,232,170,.07),inset 0 1px 0 rgba(255,255,239,.20)
+}
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
+  box-shadow:0 16px 40px rgba(49,91,73,.14),0 0 38px rgba(255,231,162,.13),inset 0 1px 0 rgba(255,255,238,.28)
+}
+
 body[data-kind=meditation] .primary-button:before,
 body[data-kind=meditation] .secondary-button:before,
 body[data-kind=meditation] .icon-button:before,
-body[data-kind=meditation] .ritual-choice:before{content:'';position:absolute;pointer-events:none;z-index:-1;border-radius:50%;filter:blur(16px);background:radial-gradient(circle,rgba(255,244,185,.34),rgba(188,226,199,.18) 42%,transparent 72%)}
-body[data-kind=meditation] .primary-button:before{width:120px;height:120px;right:-25px;top:-52px}
-body[data-kind=meditation] .secondary-button:before{width:82px;height:82px;left:-28px;top:-36px;opacity:.72}
-body[data-kind=meditation] .icon-button:before{width:65px;height:65px;left:-12px;top:-18px;opacity:.62}
-body[data-kind=meditation] .ritual-choice:before{width:150px;height:150px;right:-45px;top:-65px;opacity:.65;transition:opacity .55s ease,transform .8s ease}
+body[data-kind=meditation] .ritual-choice:before{
+  content:'';position:absolute;pointer-events:none;z-index:-1;border-radius:50%;filter:blur(18px);
+  background:radial-gradient(circle,rgba(255,248,211,.38) 0%,rgba(255,235,173,.20) 34%,rgba(255,226,147,.08) 55%,transparent 74%)
+}
+body[data-kind=meditation] .primary-button:before{width:170px;height:130px;right:-38px;top:-58px;opacity:.9}
+body[data-kind=meditation] .secondary-button:before{width:110px;height:94px;left:-30px;top:-40px;opacity:.58}
+body[data-kind=meditation] .icon-button:before{width:82px;height:82px;left:-18px;top:-22px;opacity:.48}
+body[data-kind=meditation] .ritual-choice:before{width:190px;height:150px;right:-52px;top:-68px;opacity:.52;transition:opacity .55s ease,transform .8s ease}
 body[data-kind=meditation] .ritual-choice:hover:before,
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]:before{opacity:1;transform:translate(-12px,14px) scale(1.08)}
-body[data-kind=meditation] .ritual-choice{box-shadow:0 14px 34px #2f5a4820,inset 0 1px 0 #f6ffe03d}
-body[data-kind=meditation] .ritual-choice[aria-pressed=true]{box-shadow:0 16px 40px #315b4930,0 0 34px #e8f2c326,inset 0 1px 0 #f6ffe052}
-body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:0 0 18px #fff0b75c,0 0 34px #cae8c16b}
-body[data-kind=meditation] .section-heading h2{ text-shadow:0 0 24px #eef5c72e }
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]:before{opacity:.86;transform:translate(-10px,12px) scale(1.08)}
+
+body[data-kind=meditation] .primary-button:after,
+body[data-kind=meditation] .ritual-choice:after{
+  content:'';position:absolute;pointer-events:none;z-index:-1;inset:-40% auto auto -6%;width:62%;height:165%;transform:rotate(17deg);filter:blur(11px);
+  background:linear-gradient(90deg,transparent,rgba(255,252,228,.15),rgba(255,234,173,.08),transparent);opacity:.72
+}
+body[data-kind=meditation] .kind-switch button[aria-pressed=true]{text-shadow:0 0 17px rgba(255,242,191,.36),0 0 32px rgba(255,226,151,.18)}
+body[data-kind=meditation] .section-heading h2{text-shadow:0 0 24px rgba(255,240,188,.12)}
 .landscape-v4-overlay{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
 body[data-kind=meditation] .landscape-v4-overlay{opacity:1}
-@media(prefers-reduced-motion:reduce){#zen-ambient-v4 i{animation:none!important;opacity:.2}.zen-brand>span:first-child{transition:none}.ritual-choice:before,.primary-button:before,.secondary-button:before,.icon-button:before{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.zen-brand>span:first-child{transition:none}.ritual-choice:before,.primary-button:before,.secondary-button:before,.icon-button:before{transition:none!important}}
