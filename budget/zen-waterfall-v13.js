@@ -52,7 +52,7 @@
   }
 
   function drawBank(fallX,lipY,waterY,mobile){
-    const s=mobile?.79:.86;
+    const s=mobile ? 0.79 : 0.86;
     ctx.save();
     ctx.translate(fallX,lipY);
     ctx.scale(s,s);
@@ -103,7 +103,7 @@
   }
 
   function drawCascade(fallX,lipY,waterY,time,mobile){
-    const n=mobile?20:22;
+    const n=mobile ? 20 : 22;
     ctx.save();ctx.globalCompositeOperation='screen';
 
     const mist=ctx.createRadialGradient(fallX+14,waterY+1,0,fallX+14,waterY+1,72);
@@ -115,12 +115,12 @@
     for(let i=0;i<n;i++){
       const sx=fallX-5+i*2.2;
       const ph=i*.57;
-      const sw=reduced.matches?0:Math.sin(time*1.08+ph)*(1+(i%4)*.27);
-      const sh=reduced.matches?.24:.18+.19*(Math.sin(time*1.54+ph)+1)*.5;
+      const sw=reduced.matches ? 0 : Math.sin(time*1.08+ph)*(1+(i%4)*.27);
+      const sh=reduced.matches ? 0.24 : 0.18+0.19*(Math.sin(time*1.54+ph)+1)*0.5;
       const start=lipY+30+(i%3)*1.15;
       const end=sx+9+sw*1.65;
       ctx.strokeStyle='rgba(238,250,236,'+sh+')';
-      ctx.lineWidth=i%5===0?2.05:(i%2===0?1.25:.88);
+      ctx.lineWidth=i%5===0 ? 2.05 : (i%2===0 ? 1.25 : 0.88);
       ctx.lineCap='round';ctx.beginPath();ctx.moveTo(sx,start);
       ctx.bezierCurveTo(sx-2+sw,start+23,sx+3+sw,waterY-27,end,waterY);ctx.stroke();
 
@@ -136,7 +136,7 @@
     ctx.restore();
 
     for(let i=0;i<5;i++){
-      const p=reduced.matches?.38:(time*.25+i/5)%1;
+      const p=reduced.matches ? 0.38 : (time*.25+i/5)%1;
       ripple(fallX+13,waterY+4,7+p*62,2+p*9,(1-p)*.32,i%2===0);
     }
   }
@@ -146,9 +146,9 @@
     if(document.body.dataset.kind!=='meditation')return;
     const mobile=width<700;
     /* Higher and farther right: visible, but clear of the selected routine and start button. */
-    const fallX=mobile?875:955;
-    const lipY=mobile?455:485;
-    const waterY=mobile?565:595;
+    const fallX=mobile ? 875 : 955;
+    const lipY=mobile ? 455 : 485;
+    const waterY=mobile ? 565 : 595;
     drawBank(fallX,lipY,waterY,mobile);
     drawCascade(fallX,lipY,waterY,time,mobile);
   }
@@ -158,19 +158,19 @@
     width=Math.max(1,b.width);height=Math.max(1,b.height);
     ratio=Math.min(window.devicePixelRatio||1,1.45,Math.sqrt(1200000/(width*height)));
     scale=Math.max(width/W,height/H);
-    left=(width-W*scale)*(width<600?.69:.5);
+    left=(width-W*scale)*(width<600 ? 0.69 : 0.5);
     canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
-    draw(reduced.matches?0:performance.now()/1000);wake();
+    draw(reduced.matches ? 0 : performance.now()/1000);wake();
   }
   function loop(now){frame=0;if(document.hidden||!visible||reduced.matches)return;if(now-last>32){last=now;draw(now/1000);}frame=requestAnimationFrame(loop);}
   function wake(){if(frame)cancelAnimationFrame(frame);frame=0;if(document.hidden||!visible)return;if(reduced.matches){draw(0);return;}frame=requestAnimationFrame(loop);}
 
   new ResizeObserver(resize).observe(host);
-  new IntersectionObserver(e=>{visible=e[0].isIntersecting;wake();}).observe(host);
-  new MutationObserver(()=>{draw(reduced.matches?0:performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
+  new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;wake();}).observe(host);
+  new MutationObserver(function(){draw(reduced.matches ? 0 : performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
   document.addEventListener('visibilitychange',wake);
   reduced.addEventListener('change',wake);
-  window.addEventListener('pagehide',()=>{if(frame)cancelAnimationFrame(frame);frame=0;});
+  window.addEventListener('pagehide',function(){if(frame)cancelAnimationFrame(frame);frame=0;});
   window.addEventListener('pageshow',wake);
   resize();
 })();
