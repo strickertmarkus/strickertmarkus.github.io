@@ -10,3 +10,19 @@ body[data-kind=meditation] #selected-edit{
   position:absolute;left:44px;right:auto;bottom:calc(100% + 8px);top:auto;
   margin:0;min-height:32px;padding:4px 0;color:#254e43;
 }
+
+/* 4. Let lower-page light occupy the full width, without section-edge strips.
+   This begins below the hero; the pond/hero gradients remain untouched. */
+body[data-kind=meditation] #home-view::before{
+  background:
+    linear-gradient(108deg,transparent 3%,rgba(255,248,210,.11) 14%,rgba(255,233,168,.04) 24%,transparent 36%),
+    linear-gradient(102deg,transparent 37%,rgba(255,249,218,.095) 48%,rgba(255,232,166,.036) 57%,transparent 68%),
+    linear-gradient(112deg,transparent 67%,rgba(255,245,201,.08) 78%,transparent 90%),
+    radial-gradient(ellipse at 24% 32%,rgba(255,242,185,.072),transparent 29%),
+    radial-gradient(ellipse at 76% 64%,rgba(255,239,178,.066),transparent 31%);
+}
+body[data-kind=meditation] .page-section,
+body[data-kind=meditation] .ritual-section,
+body[data-kind=meditation] .growth-section,
+body[data-kind=meditation] .collection-section,
+body[data-kind=meditation] .history-section{background:transparent}
