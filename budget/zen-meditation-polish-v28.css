@@ -1,0 +1,92 @@
+/* Zen v28: Meditation contrast/occlusion polish. Keeps Stretch untouched. */
+
+body[data-kind=meditation] .zen-waterfall-v13,
+body[data-kind=meditation] .zen-waterfall-mouth-v16,
+body[data-kind=meditation] .zen-waterfall-v24,
+body[data-kind=meditation] .zen-waterfall-v25,
+body[data-kind=meditation] .zen-waterfall-v26{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+.zen-waterfall-v28{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .8s ease;
+}
+body[data-kind=meditation] .zen-waterfall-v28{opacity:1}
+body[data-kind=stretch] .zen-waterfall-v28{opacity:0}
+
+body[data-kind=meditation] #start-button{
+  background:linear-gradient(120deg,rgba(69,111,93,.96),rgba(48,83,70,.97));
+  border-color:rgba(132,171,150,.62);
+  color:#f6f8ec;
+  box-shadow:0 0 22px rgba(var(--sun-rgb),.10),0 9px 30px rgba(42,73,63,.20),inset 0 1px 0 rgba(255,255,255,.07);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+body[data-kind=meditation] #start-button:disabled{opacity:.76}
+body[data-kind=meditation] #start-button:hover{
+  box-shadow:0 0 34px rgba(var(--sun-rgb),.18),0 10px 32px rgba(42,73,63,.22),inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+body[data-kind=meditation] .hero-description{
+  position:relative;
+  z-index:1;
+  isolation:isolate;
+  text-shadow:0 1px 8px rgba(220,234,226,.18);
+}
+body[data-kind=meditation] .hero-description::before{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  left:-16px;
+  right:-18px;
+  top:-8px;
+  bottom:-8px;
+  background:linear-gradient(90deg,
+    rgba(188,211,200,.00) 0%,
+    rgba(188,211,200,.11) 10%,
+    rgba(188,211,200,.15) 36%,
+    rgba(188,211,200,.12) 68%,
+    rgba(188,211,200,.00) 100%);
+  filter:blur(7px);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 11%,#000 82%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 11%,#000 82%,transparent 100%);
+}
+
+body[data-kind=meditation] #selected-edit{
+  position:relative;
+  z-index:3;
+  text-shadow:0 1px 8px rgba(191,215,204,.30);
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] #start-button{
+    background:linear-gradient(120deg,rgba(69,111,93,.97),rgba(46,81,68,.98));
+    border-color:rgba(132,171,150,.66);
+  }
+  body[data-kind=meditation] #start-button:disabled{opacity:.78}
+  body[data-kind=meditation] .hero-description::before{
+    left:-12px;
+    right:-12px;
+    top:-7px;
+    bottom:-7px;
+    background:linear-gradient(90deg,
+      rgba(190,212,201,.00) 0%,
+      rgba(190,212,201,.12) 9%,
+      rgba(190,212,201,.17) 35%,
+      rgba(190,212,201,.13) 72%,
+      rgba(190,212,201,.00) 100%);
+    filter:blur(6px);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-waterfall-v28{transition:none}
+}
