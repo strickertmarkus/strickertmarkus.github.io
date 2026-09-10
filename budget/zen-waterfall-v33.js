@@ -123,7 +123,7 @@
       var y=-ry*.28+i*ry*.23;
       var x1=-rx*.56+i*rx*.05;
       var x2=rx*.40-i*rx*.04;
-      var base=warm?.18:.14;
+      var base=warm ? .18 : .14;
       var alpha=(base-i*.017)*pulse;
       ctx.strokeStyle=warm?'rgba(255,243,196,'+alpha+')':'rgba(222,244,237,'+alpha+')';
       ctx.lineWidth=.82;
@@ -139,15 +139,14 @@
   function geometry(){
     var mobile=width<700;
     var cropRight=(width-left)/scale;
-    var x=mobile?Math.min(846,cropRight-118):936;
-    return {mobile:mobile,s:mobile?.64:.76,x:x,crest:443,lip:500,water:WATER};
+    var x=mobile ? Math.min(846,cropRight-118) : 936;
+    return {mobile:mobile,s:mobile ? .64 : .76,x:x,crest:443,lip:500,water:WATER};
   }
 
   function drawFormation(g,time){
     var s=g.s;
     var x=g.x;
 
-    /* Reuse the preferred v30 upper-stone language only; no backing monolith. */
     var rear={x:x+19*s,y:g.crest+35*s,rx:86*s,ry:61*s,l:-.075,shape:'rear'};
     var left={x:x-51*s,y:g.crest+67*s,rx:32*s,ry:21*s,l:-.13,shape:'flat'};
     var right={x:x+93*s,y:g.crest+64*s,rx:33*s,ry:24*s,l:.11,shape:'small'};
@@ -158,7 +157,6 @@
     rockLines(left.x,left.y,left.rx,left.ry,left.l,left.shape,time,1.8,true);
     rockLines(right.x,right.y,right.rx,right.ry,right.l,right.shape,time,2.7,false);
 
-    /* A shallow channel between the upper stones. */
     var holeX=x-3*s;
     var holeY=g.crest+67*s;
     var cavity=ctx.createRadialGradient(holeX-4*s,holeY-4*s,2,holeX,holeY,22*s);
@@ -171,15 +169,14 @@
     ctx.ellipse(holeX,holeY,25*s,13*s,-.03,0,TAU);
     ctx.fill();
 
-    /* Water visibly travels across the stone surface before it falls. */
     ctx.save();
     ctx.globalCompositeOperation='screen';
     ctx.lineCap='round';
     for(var i=0;i<7;i++){
       var off=(i-3)*2.1*s;
-      var wobble=reduced.matches?0:Math.sin(time*.80+i*.82)*1.2*s;
+      var wobble=reduced.matches ? 0 : Math.sin(time*.80+i*.82)*1.2*s;
       ctx.strokeStyle='rgba(226,245,232,'+(0.11+(3-Math.abs(i-3))*.022)+')';
-      ctx.lineWidth=(i===3?1.45:.82)*s;
+      ctx.lineWidth=(i===3 ? 1.45 : .82)*s;
       ctx.beginPath();
       ctx.moveTo(x-55*s,g.crest+17*s+off);
       ctx.bezierCurveTo(x-34*s,g.crest+14*s+off+wobble,x-16*s,g.crest+42*s+off,holeX-6*s,holeY-4*s+off*.22);
@@ -187,30 +184,22 @@
     }
     ctx.restore();
 
-    /* Front lip stones sit on the ledge and mask the water source. */
     var lipLeft={x:holeX-35*s,y:holeY+19*s,rx:31*s,ry:22*s,l:-.10,shape:'ledge'};
     var lipRight={x:holeX+39*s,y:holeY+21*s,rx:36*s,ry:24*s,l:.08,shape:'ledge'};
-
-    /* Falling sheet first, then front stones mask its top edge. */
     drawWater(holeX,holeY+5*s,g.water,s,time,g.mobile);
-
     rock(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,'front',lipLeft.shape);
     rock(lipRight.x,lipRight.y,lipRight.rx,lipRight.ry,lipRight.l,'front',lipRight.shape);
     rockLines(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,lipLeft.shape,time,1.1,false);
     rockLines(lipRight.x,lipRight.y,lipRight.rx,lipRight.ry,lipRight.l,lipRight.shape,time,2.0,false);
 
-    /* Small stone feet touch the waterline so the group is grounded. */
     rock(x-60*s,g.water-5*s,27*s,14*s,-.08,'small','flat');
     rock(x+73*s,g.water-6*s,30*s,15*s,.07,'small','flat');
-
-    /* Waterline cuts across the lower stone feet, making them emerge from the pond. */
     var wash=ctx.createLinearGradient(0,g.water-8,0,g.water+28);
     wash.addColorStop(0,'rgba(169,209,199,0)');
     wash.addColorStop(.34,'rgba(180,219,208,.19)');
     wash.addColorStop(1,'rgba(153,204,198,.34)');
     ctx.fillStyle=wash;
     ctx.fillRect(x-125*s,g.water-8,250*s,36);
-
     drawImpact(holeX,g.water,s,time);
   }
 
@@ -218,12 +207,12 @@
     ctx.save();
     ctx.globalCompositeOperation='screen';
     ctx.lineCap='round';
-    var count=mobile?13:16;
+    var count=mobile ? 13 : 16;
     for(var i=0;i<count;i++){
-      var t=count===1?.5:i/(count-1);
+      var t=count===1 ? .5 : i/(count-1);
       var sx=x-14*s+t*28*s;
       var ex=x-25*s+t*50*s;
-      var sway=reduced.matches?0:Math.sin(time*.96+i*.61)*(1.3+(i%4)*.18)*s;
+      var sway=reduced.matches ? 0 : Math.sin(time*.96+i*.61)*(1.3+(i%4)*.18)*s;
       var center=1-Math.abs(t-.5)*2;
       ctx.strokeStyle='rgba(215,240,233,'+(0.075+center*.095)+')';
       ctx.lineWidth=(.50+center*.55)*s;
@@ -237,7 +226,7 @@
       var csx=x-14*s+ct*28*s;
       var cex=x-25*s+ct*50*s;
       ctx.strokeStyle=c===1?'rgba(250,252,237,.39)':'rgba(241,249,235,.29)';
-      ctx.lineWidth=(c===1?1.65:1.25)*s;
+      ctx.lineWidth=(c===1 ? 1.65 : 1.25)*s;
       ctx.beginPath();
       ctx.moveTo(csx,startY);
       ctx.bezierCurveTo(csx,startY+12*s,cex,waterY-32*s,cex,waterY-2*s);
@@ -246,7 +235,7 @@
     if(!reduced.matches){
       for(var d=0;d<8;d++){
         var p=(time*.52+d*.117)%1;
-        var side=d%2===0?-1:1;
+        var side=d%2===0 ? -1 : 1;
         var dx=x+side*(3+d*.8)*s*p;
         var dy=startY+(waterY-startY)*p;
         ctx.fillStyle='rgba(255,248,211,'+(.10+(1-p)*.18)+')';
@@ -269,22 +258,20 @@
     ctx.fillRect(x-58*s,waterY-30*s,116*s,60*s);
 
     for(var r=0;r<5;r++){
-      var p=reduced.matches?.34:((time*.22+r*.19)%1);
+      var p=reduced.matches ? .34 : ((time*.22+r*.19)%1);
       var inner=r<2;
-      var reach=inner?43:65;
-      var alpha=(1-p)*(inner?.31:.13);
+      var reach=inner ? 43 : 65;
+      var alpha=(1-p)*(inner ? .31 : .13);
       ctx.strokeStyle='rgba(255,244,198,'+alpha+')';
-      ctx.lineWidth=inner?1.05:.70;
+      ctx.lineWidth=inner ? 1.05 : .70;
       ctx.beginPath();
-      ctx.ellipse(x,waterY+3*s,7+p*reach*s,2+p*(inner?7:10)*s,0,0,TAU);
+      ctx.ellipse(x,waterY+3*s,7+p*reach*s,2+p*(inner ? 7 : 10)*s,0,0,TAU);
       ctx.stroke();
     }
     ctx.restore();
   }
 
   function maskBamboo(){
-    /* The underlying Meditation scene already contains all bamboo. Punch narrow holes
-       through this overlay so every stalk stays consistently in front of the rocks/water. */
     var stems=[585,630,675,720,770,815,860,905,950,995,1040,1090,1140,1185,650,735,825,915,1005,1095,1180];
     ctx.save();
     ctx.globalCompositeOperation='destination-out';
@@ -323,10 +310,10 @@
     height=Math.max(1,box.height);
     ratio=Math.min(window.devicePixelRatio||1,1.45,Math.sqrt(1180000/(width*height)));
     scale=Math.max(width/W,height/H);
-    left=(width-W*scale)*(width<600?.69:.5);
+    left=(width-W*scale)*(width<600 ? .69 : .5);
     canvas.width=Math.round(width*ratio);
     canvas.height=Math.round(height*ratio);
-    draw(reduced.matches?0:performance.now()/1000);
+    draw(reduced.matches ? 0 : performance.now()/1000);
     wake();
   }
 
@@ -347,7 +334,7 @@
 
   new ResizeObserver(resize).observe(host);
   new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;wake();}).observe(host);
-  new MutationObserver(function(){addMeditationSymbol();draw(reduced.matches?0:performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
+  new MutationObserver(function(){addMeditationSymbol();draw(reduced.matches ? 0 : performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
   document.addEventListener('visibilitychange',wake);
   if(reduced.addEventListener)reduced.addEventListener('change',wake);
   window.addEventListener('pagehide',function(){if(frame)cancelAnimationFrame(frame);frame=0;});
