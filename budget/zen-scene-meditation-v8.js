@@ -38,15 +38,11 @@
     const sky=b.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#a8c5be');sky.addColorStop(.22,'#bfd3c7');sky.addColorStop(.50,'#a9c9bc');sky.addColorStop(.69,'#8fb9ae');sky.addColorStop(1,'#6ea09a');b.fillStyle=sky;b.fillRect(0,0,W,H);
     glow(b,805,145,430,'255,242,184',.38);glow(b,720,245,260,'229,247,220',.18);
     ellipse(b,806,148,18,18,'rgba(255,248,211,.46)');
-    // distant foliage/hills
     b.fillStyle='rgba(102,148,129,.19)';b.beginPath();b.moveTo(0,390);for(let x=0;x<=W;x+=30)b.lineTo(x,390+Math.sin(x/145)*28+Math.sin(x/57)*9);b.lineTo(W,520);b.lineTo(0,520);b.closePath();b.fill();
     b.fillStyle='rgba(73,118,99,.24)';b.beginPath();b.moveTo(0,470);for(let x=0;x<=W;x+=30)b.lineTo(x,470+Math.sin(x/190+1)*20);b.lineTo(W,560);b.lineTo(0,560);b.closePath();b.fill();
-    // bank and rock fall on right
     for(let i=0;i<14;i++)rock(b,885+i*27,558+Math.sin(i*.77)*15,24+(i%4)*7);
     rock(b,1010,535,78);rock(b,1080,588,98);rock(b,1155,664,72);rock(b,1118,735,40);
-    // water base
     const wg=b.createLinearGradient(0,water,0,H);wg.addColorStop(0,'rgba(189,218,205,.64)');wg.addColorStop(.35,'rgba(159,203,193,.70)');wg.addColorStop(1,'rgba(116,174,169,.76)');b.fillStyle=wg;b.fillRect(0,water,W,H-water);
-    // soft horizon mist
     const mist=b.createLinearGradient(0,water-55,0,water+70);mist.addColorStop(0,'rgba(238,246,229,0)');mist.addColorStop(.5,'rgba(238,246,229,.20)');mist.addColorStop(1,'rgba(238,246,229,0)');b.fillStyle=mist;b.fillRect(0,water-55,W,130);
   }
   makeBackground();
@@ -78,13 +74,14 @@
 
   function drawRippleSet(x,time,phase,depth){
     if(reduce.matches){
-      for(let i=0;i<2;i++){c.strokeStyle=`rgba(251,248,218,${depth?.08:.13-i*.035})`;c.lineWidth=.9;c.beginPath();c.ellipse(x,water+i*.6,18+i*20,(18+i*20)*.18,0,0,TAU);c.stroke();}
+      for(let i=0;i<2;i++){const a=(depth?0.08:0.13)-i*.035;c.strokeStyle=`rgba(251,248,218,${a})`;c.lineWidth=.9;c.beginPath();c.ellipse(x,water+i*.6,18+i*20,(18+i*20)*.18,0,0,TAU);c.stroke();}
       return;
     }
     const count=depth?2:3;
     for(let i=0;i<count;i++){
-      const p=(time*(depth?.085:.115)+phase*.11+i*.28)%1,r=10+p*(depth?42:58)+i*5,a=Math.sin(p*Math.PI)*(depth?.10:.17-i*.025);
-      c.strokeStyle=`rgba(255,248,207,${Math.max(0,a)})`;c.lineWidth=depth?.8:1.05;c.beginPath();c.ellipse(x+Math.sin(time*.35+phase)*2.2,water+i*.65,r,r*.19,0,0,TAU);c.stroke();
+      const speed=depth?0.085:0.115;
+      const p=(time*speed+phase*.11+i*.28)%1,r=10+p*(depth?42:58)+i*5,a=Math.sin(p*Math.PI)*((depth?0.10:0.17)-i*.025);
+      c.strokeStyle=`rgba(255,248,207,${Math.max(0,a)})`;c.lineWidth=depth?0.8:1.05;c.beginPath();c.ellipse(x+Math.sin(time*.35+phase)*2.2,water+i*.65,r,r*.19,0,0,TAU);c.stroke();
     }
   }
 
@@ -95,7 +92,6 @@
       const y=water+12+(i*31)%295,travel=((time*(34+(i%5)*5)+i*73)%(W+220))-110,len=(50+(i%6)*18)*boost;
       c.strokeStyle=`rgba(247,248,221,${.040+(i%4)*.012})`;c.lineWidth=.85;c.lineCap='round';c.beginPath();c.moveTo(travel-len*.5,y);c.bezierCurveTo(travel-len*.18,y-2,travel+len*.17,y+2,travel+len*.5,y);c.stroke();
     }
-    // broad soft moving bands: visible like the waterfall, still calm
     if(!reduce.matches){
       for(let i=0;i<6;i++){
         const y=water+24+i*48+Math.sin(time*.35+i)*4,x=((time*(42+i*4)+i*161)%(W+360))-180,len=150+i%2*42;
@@ -108,13 +104,13 @@
   function drawWaterfall(time){
     c.save();c.globalCompositeOperation='screen';
     for(let i=0;i<18;i++){
-      const x=1050+i*3.0,shimmer=.13+.15*Math.sin(time*1.3+i*.7),drop=reduce.matches?.35:(time*.43+i/18)%1;
+      const x=1050+i*3.0,shimmer=.13+.15*Math.sin(time*1.3+i*.7),drop=reduce.matches ? 0.35 : (time*.43+i/18)%1;
       c.strokeStyle=`rgba(231,247,228,${shimmer})`;c.lineWidth=i%4===0?1.8:1;c.beginPath();c.moveTo(x,552);c.bezierCurveTo(x-3,590,x+8,630,x+25,688);c.stroke();
       ellipse(c,x+25*drop*drop,552+136*drop,.7,2.4,'rgba(255,246,199,.34)');
     }
     c.restore();
     for(let i=0;i<4;i++){
-      const p=reduce.matches?.35:(time*.22+i/4)%1;c.strokeStyle=`rgba(237,249,232,${(1-p)*.25})`;c.lineWidth=1;c.beginPath();c.ellipse(1080,694,7+p*62,2+p*10,0,0,TAU);c.stroke();
+      const p=reduce.matches ? 0.35 : (time*.22+i/4)%1;c.strokeStyle=`rgba(237,249,232,${(1-p)*.25})`;c.lineWidth=1;c.beginPath();c.ellipse(1080,694,7+p*62,2+p*10,0,0,TAU);c.stroke();
     }
   }
 
@@ -132,14 +128,12 @@
     c.drawImage(bg,0,0);
     drawSun(time);
     back.forEach(s=>drawStem(s,time,true));
-    // water sits in front of distant culms and makes them read as immersed, not clipped
     const haze=c.createLinearGradient(0,water-20,0,water+100);haze.addColorStop(0,'rgba(215,234,221,0)');haze.addColorStop(.45,'rgba(215,234,221,.16)');haze.addColorStop(1,'rgba(176,211,203,.07)');c.fillStyle=haze;c.fillRect(0,water-20,W,120);
     drawWaterMotion(time);
     back.forEach(s=>drawRippleSet(waterX(s,time),time,s.phase,true));
     front.forEach(s=>drawStem(s,time,false));
     front.forEach(s=>drawRippleSet(waterX(s,time),time,s.phase,false));
     drawWaterfall(time);
-    // thin warm reflections across the pond
     c.save();c.globalCompositeOperation='screen';for(let i=0;i<18;i++){const y=water+20+i*14,x=790+(reduce.matches?0:Math.sin(time*.32+i*.7)*16),w=20+(i%5)*13;c.strokeStyle=`rgba(255,239,177,${.045+(i%4)*.018})`;c.lineWidth=.9;c.beginPath();c.moveTo(x-w,y);c.lineTo(x+w,y+Math.sin(i)*1.5);c.stroke();}c.restore();
   }
 
