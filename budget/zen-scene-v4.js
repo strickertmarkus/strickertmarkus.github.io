@@ -1,4 +1,4 @@
-/* Zen scene v6 overlay: continuous bamboo, stronger visible breeze and wind-driven pond movement. */
+/* Zen scene v7 overlay: continuous bamboo, visible breeze, pond movement and background-stem immersion. */
 (function(){
   'use strict';
   const host=document.querySelector('.landscape');
@@ -40,6 +40,29 @@
   }
   function ripple(x,y,r,alpha,lineWidth=1.15){c.strokeStyle='rgba(248,250,229,'+alpha+')';c.lineWidth=lineWidth;c.beginPath();c.ellipse(x,y,r,r*.19,0,0,TAU);c.stroke();}
   function mobileBoost(){return width<700?1.42:1;}
+
+  /* Hide the hard lower endpoints of the older background bamboo behind a shallow mist/water layer. */
+  function drawBackgroundImmersion(time){
+    c.save();
+    c.beginPath();c.rect(500,485,700,175);c.clip();
+    const waterMist=c.createLinearGradient(0,485,0,660);
+    waterMist.addColorStop(0,'rgba(207,226,214,0)');
+    waterMist.addColorStop(.24,'rgba(205,228,217,.10)');
+    waterMist.addColorStop(.48,'rgba(190,219,210,.18)');
+    waterMist.addColorStop(.68,'rgba(177,211,204,.23)');
+    waterMist.addColorStop(1,'rgba(161,202,196,.08)');
+    c.fillStyle=waterMist;c.fillRect(500,485,700,175);
+
+    c.globalCompositeOperation='screen';
+    for(let i=0;i<15;i++){
+      const y=515+i*8.5;
+      const shift=motion.matches?0:Math.sin(time*.30+i*.63)*13;
+      c.strokeStyle='rgba(240,246,221,'+(0.025+(i%4)*.012)+')';
+      c.lineWidth=i%5===0?1.25:.75;c.lineCap='round';
+      c.beginPath();c.moveTo(535+shift,y);c.bezierCurveTo(705+shift,y-2,890-shift,y+2,1180-shift,y);c.stroke();
+    }
+    c.restore();
+  }
 
   function drawWindBands(time){
     if(motion.matches)return;
@@ -137,6 +160,7 @@
   function draw(time){
     prepare();
     if(document.body.dataset.kind!=='meditation')return;
+    drawBackgroundImmersion(time);
     const veil=c.createLinearGradient(0,530,0,775);veil.addColorStop(0,'rgba(179,209,193,0)');veil.addColorStop(.38,'rgba(246,244,207,.028)');veil.addColorStop(.68,'rgba(179,209,193,.055)');veil.addColorStop(1,'rgba(92,143,131,.09)');c.fillStyle=veil;c.fillRect(540,515,660,285);
     drawWindWater(time);
     stalks.forEach(s=>drawStalk(s,time));
