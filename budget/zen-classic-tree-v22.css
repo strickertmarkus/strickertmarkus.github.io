@@ -1,0 +1,87 @@
+/* Zen v22: original Stretch tree structure with newer depth/light, plus Meditation layout restore. */
+
+/* The v20 replacement tree is no longer the active structure. */
+.zen-stretch-depth-v18{display:none!important;opacity:0!important;visibility:hidden!important}
+
+/* New v22 overlay contains only foreground depth + larger fireflies, never a second tree trunk. */
+.zen-stretch-classic-effects-v22{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .9s ease;
+}
+body[data-kind=stretch] .zen-stretch-classic-effects-v22{opacity:1}
+body[data-kind=meditation] .zen-stretch-classic-effects-v22{opacity:0}
+
+/* Keep the original v3 tree geometry, but give the whole forest stronger tonal separation. */
+body[data-kind=stretch] .landscape-forest{
+  filter:saturate(1.12) contrast(1.16) brightness(.94);
+}
+
+/* More directional shading around the original tree without drawing over its structure. */
+body[data-kind=stretch] .landscape-shade::before{
+  opacity:.92;
+  filter:blur(4.8px);
+  transform:scale(1.10);
+  background:
+    radial-gradient(ellipse at 6% 35%,rgba(4,18,13,.54) 0 7%,transparent 19%),
+    radial-gradient(ellipse at 96% 26%,rgba(4,20,14,.52) 0 8%,transparent 20%),
+    radial-gradient(ellipse at 88% 69%,rgba(4,18,13,.34) 0 8%,transparent 22%),
+    radial-gradient(ellipse at 12% 70%,rgba(13,43,27,.30) 0 6%,transparent 18%);
+}
+body[data-kind=stretch] .landscape-shade::after{
+  opacity:1;
+  background:
+    linear-gradient(111deg,transparent 13%,rgba(215,246,168,.075) 27%,transparent 40%),
+    linear-gradient(103deg,transparent 45%,rgba(194,235,139,.105) 58%,transparent 71%),
+    radial-gradient(ellipse at 73% 50%,rgba(184,231,126,.115),transparent 27%),
+    radial-gradient(ellipse at 78% 67%,rgba(223,248,166,.060),transparent 18%);
+  mix-blend-mode:screen;
+}
+
+@media(max-width:700px){
+  /* Stretch keeps the current v20 anchor. */
+  body[data-kind=stretch] .sanctuary{
+    display:flex;
+    flex-direction:column;
+    min-height:690px;
+  }
+  body[data-kind=stretch] .sanctuary .kind-switch{align-self:flex-start}
+  body[data-kind=stretch] .sanctuary .start-area{
+    margin-top:auto!important;
+    width:100%;
+  }
+
+  /* Meditation returns to the pre button-height-experiment v17 rhythm. */
+  body[data-kind=meditation] .sanctuary{
+    display:block;
+    min-height:675px;
+  }
+  body[data-kind=meditation] .sanctuary .start-area{
+    margin-top:138px!important;
+    width:auto;
+  }
+
+  /* Keep stone, hole and waterfall together but make the composition less dominant. */
+  body[data-kind=meditation] .zen-waterfall-v13,
+  body[data-kind=meditation] .zen-waterfall-mouth-v16{
+    transform-origin:78% 54%;
+    transform:scale(.90);
+  }
+
+  body[data-kind=stretch] .landscape-forest{
+    filter:saturate(1.13) contrast(1.18) brightness(.93);
+  }
+  body[data-kind=stretch] .landscape-shade::before{
+    opacity:.96;
+    filter:blur(3.8px);
+    transform:scale(1.12);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .zen-stretch-classic-effects-v22{transition:none}
+}
