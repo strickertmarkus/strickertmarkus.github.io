@@ -1,0 +1,124 @@
+/* Zen meditation v12: stronger readable subtitle, lower-page contrast and sunlight continuity. */
+body[data-kind=meditation] .hero-copy h1::after{
+  color:#d4ad57;
+  font-weight:500;
+  letter-spacing:-.55px;
+  text-shadow:
+    0 1px 0 rgba(38,62,54,.42),
+    0 0 7px rgba(255,238,174,.92),
+    0 0 18px rgba(245,223,160,.52),
+    0 0 34px rgba(245,223,160,.20);
+}
+
+/* Give the content below the hero the same atmospheric depth without carrying the scenery itself. */
+body[data-kind=meditation] #home-view{
+  position:relative;
+  isolation:isolate;
+}
+body[data-kind=meditation] #home-view::before{
+  content:'';
+  position:absolute;
+  inset:720px 0 0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.82;
+  background:
+    linear-gradient(108deg,transparent 6%,rgba(255,247,205,.060) 16%,rgba(255,232,164,.025) 24%,transparent 35%),
+    linear-gradient(102deg,transparent 38%,rgba(255,248,215,.055) 47%,rgba(255,232,170,.022) 55%,transparent 65%),
+    linear-gradient(111deg,transparent 69%,rgba(255,244,197,.045) 77%,transparent 87%),
+    radial-gradient(ellipse at 27% 34%,rgba(255,242,185,.045),transparent 27%),
+    radial-gradient(ellipse at 73% 66%,rgba(255,239,178,.040),transparent 30%),
+    linear-gradient(90deg,rgba(47,87,91,.040),transparent 17%,transparent 81%,rgba(47,82,94,.045));
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.9),rgba(0,0,0,.72) 42%,rgba(0,0,0,.48) 74%,rgba(0,0,0,.24));
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.9),rgba(0,0,0,.72) 42%,rgba(0,0,0,.48) 74%,rgba(0,0,0,.24));
+}
+body[data-kind=meditation] #home-view>*{
+  position:relative;
+  z-index:1;
+}
+
+/* More separation than v11, still far from visible cards/boxes. */
+body[data-kind=meditation] .page-section{
+  background:
+    linear-gradient(90deg,transparent 0%,rgba(250,255,253,.050) 9%,rgba(253,255,253,.082) 46%,rgba(240,250,247,.046) 84%,transparent 100%);
+  border-top-color:rgba(37,76,68,.25);
+}
+body[data-kind=meditation] .page-section::before{
+  content:'';
+  position:absolute;
+  top:-1px;
+  left:11%;
+  width:27%;
+  height:1px;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,239,174,.38),rgba(255,248,211,.20),transparent);
+  box-shadow:0 0 8px rgba(245,223,160,.14);
+  opacity:.68;
+}
+body[data-kind=meditation] .page-section:nth-of-type(even)::before{
+  left:auto;
+  right:13%;
+  width:24%;
+}
+
+body[data-kind=meditation] .ritual-choice{
+  background:linear-gradient(135deg,rgba(255,255,255,.072),rgba(235,248,244,.030));
+  border-color:rgba(38,78,68,.28);
+}
+body[data-kind=meditation] .history-row{
+  background:linear-gradient(90deg,rgba(255,255,255,.028),rgba(255,255,255,.050) 43%,rgba(255,255,255,0));
+  border-top-color:rgba(42,80,70,.23);
+}
+body[data-kind=meditation] .collection-section,
+body[data-kind=meditation] .growth-section{
+  background:
+    radial-gradient(ellipse at 72% 22%,rgba(255,240,178,.036),transparent 31%),
+    linear-gradient(90deg,transparent 0%,rgba(251,255,253,.055) 9%,rgba(253,255,253,.086) 48%,rgba(240,250,247,.048) 85%,transparent 100%);
+}
+
+/* Tiny sunlight catches on existing borders; no moving rings or detached light objects. */
+body[data-kind=meditation] .ritual-choice[aria-pressed=true]{
+  border-color:rgba(84,116,88,.48);
+  box-shadow:0 0 22px rgba(245,223,160,.045),inset 0 1px 0 rgba(255,242,189,.16);
+}
+body[data-kind=meditation] .keepsake-symbol{
+  border-color:rgba(47,86,76,.24);
+}
+body[data-kind=meditation] .keepsake.unlocked .keepsake-symbol{
+  border-color:rgba(245,223,160,.38);
+  box-shadow:0 0 27px rgba(245,223,160,.13),inset 0 0 22px rgba(245,223,160,.08),inset 0 1px 0 rgba(255,247,208,.14);
+}
+body[data-kind=meditation] .day-track:after{
+  border-bottom-color:rgba(42,79,70,.23);
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .hero-copy h1::after{
+    font-size:.38em;
+    margin-top:.17em;
+    letter-spacing:-.2px;
+    text-shadow:
+      0 1px 0 rgba(38,62,54,.46),
+      0 0 7px rgba(255,238,174,.96),
+      0 0 17px rgba(245,223,160,.56),
+      0 0 30px rgba(245,223,160,.22);
+  }
+  body[data-kind=meditation] #home-view::before{
+    inset:700px 0 0;
+    opacity:.9;
+    background:
+      linear-gradient(109deg,transparent 2%,rgba(255,247,205,.072) 15%,rgba(255,232,164,.027) 25%,transparent 38%),
+      linear-gradient(101deg,transparent 39%,rgba(255,248,215,.064) 49%,rgba(255,232,170,.024) 58%,transparent 68%),
+      linear-gradient(112deg,transparent 68%,rgba(255,244,197,.052) 78%,transparent 90%),
+      radial-gradient(ellipse at 24% 35%,rgba(255,242,185,.052),transparent 28%),
+      radial-gradient(ellipse at 76% 68%,rgba(255,239,178,.045),transparent 30%),
+      linear-gradient(90deg,rgba(47,87,91,.045),transparent 17%,transparent 81%,rgba(47,82,94,.050));
+  }
+  body[data-kind=meditation] .page-section{
+    background:linear-gradient(90deg,rgba(247,253,251,.024),rgba(253,255,253,.078) 42%,rgba(241,250,247,.040));
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-kind=meditation] #home-view::before{opacity:.68}
+}
