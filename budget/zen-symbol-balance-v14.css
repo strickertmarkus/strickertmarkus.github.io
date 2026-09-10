@@ -1,0 +1,31 @@
+/* Zen meditation v14: optical balance for thin dotted-ring glyphs. */
+body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol,
+body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+  color:#f8e5a9!important;
+  -webkit-text-stroke:.42px rgba(255,239,177,.94);
+  text-shadow:
+    0 0 4px rgba(255,248,213,1),
+    0 0 10px rgba(245,223,160,.98),
+    0 0 22px rgba(245,223,160,.64),
+    0 0 36px rgba(245,223,160,.26)!important;
+  filter:drop-shadow(0 0 5px rgba(245,223,160,.45));
+}
+
+body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol{
+  display:inline-block;
+  transform:scale(1.13);
+  transform-origin:center;
+}
+
+body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+  font-weight:600;
+}
+
+@media(max-width:700px){
+  body[data-kind=meditation] .growth-stats>div:first-child .stat-symbol{
+    transform:scale(1.16);
+  }
+  body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol{
+    -webkit-text-stroke:.5px rgba(255,239,177,.96);
+  }
+}
