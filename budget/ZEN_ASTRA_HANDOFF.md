@@ -2,7 +2,7 @@
 
 Senast uppdaterad: 2026-09-10
 
-## Viktiga checkpoints
+## Viktiga checkpoints / referenspunkter
 
 Före v4-demo/ljus/bambu-ändringarna:
 
@@ -14,7 +14,11 @@ Före v5-vatten/morgonsol-förfiningen:
 
 - Branch: `checkpoint/zen-before-water-sunlight-v5-20260910`
 - Commit: `3fc1cfa49272b813de61691b1fbbbac2a34b2255`
-- Message: `Add Astra handoff for Zen v4`
+
+Senaste fungerande state före v7-bambu/glow-fixen:
+
+- Commit: `8d2f09d190478956b780f00409181af37300d01c`
+- Message: `Bust Zen cache for edge glow and stronger wind v6`
 
 ## Nuvarande arkitektur
 
@@ -33,13 +37,13 @@ Scenery:
 
 - `zen-scene-v3.js` – huvudrenderaren för skog och meditationsmiljö. Lämna denna som stabil fallback om du inte uttryckligen behöver ändra kärnscenen.
 - `zen-scene-v3.css` – v3-headingdetaljer.
-- `zen-scene-v4.js` – overlay ovanpå v3 för meditation: kontinuerliga bambustammar som går ut ur bild, vissa går genom vattenlinjen, får reflektioner och nu även animerade vindripples över vattenytan.
+- `zen-scene-v4.js` – overlay ovanpå v3 för meditation: kontinuerliga foreground-bambu, vattenreflektioner, tydligare vind/vattenrörelse och från v7 ett vatten-/dislager som visuellt sänker ned de äldre bakgrundsbambuns nedre ändar i dammen så de inte ser avklippta ut.
 
 V4 UI/demo:
 
 - `zen-demo-v4.js` – read-only exempeldata. Den modifierar endast `ZenStore.entries`-gettern i minnet och skriver aldrig demo records till localStorage eller Firebase.
-- `zen-effects-v4.js` – dynamisk Zen-symbol och exempeldata-badge. Extra lower-page fireflies har tagits bort.
-- `zen-effects-v4.css` – naturligt ljusgult meditation-glow runt knappar/kort, dynamisk symbol och demo-badge.
+- `zen-effects-v4.js` – dynamisk Zen-symbol och exempeldata-badge. Extra lower-page fireflies är borttagna.
+- `zen-effects-v4.css` – meditationens varma ljusgula morgonsolsglow, integrerat i symboler och kanter.
 
 ## Demo-data – viktigt
 
@@ -62,7 +66,7 @@ Om demo senare ska tas bort helt: ta bort `zen-demo-v4.js` från `zen.html` och 
 - Detaljerat procedurrenderat träd i Canvas.
 - Organiska spetsiga löv, barkfåror, knutar, mossa och varierat lövverk.
 - Löv rör sig subtilt i vind.
-- Fireflies finns endast i heading-scenen. Den extra firefly-overlayn över resten av sidan togs bort i v5.
+- Fireflies finns endast i heading-scenen. Den extra firefly-overlayn över resten av sidan är borttagen.
 - Heading har ett grönt sekundärt textelement under `Stretch` via v3 CSS.
 
 Önskad riktning framåt: behåll det lugnt, vuxet och detaljerat. Undvik cartoon/barnsliga former och för stora partiklar.
@@ -72,10 +76,12 @@ Om demo senare ska tas bort helt: ta bort `zen-demo-v4.js` från `zen.html` och 
 - Ljus jade/vatten-trädgård.
 - Stor varm ljuskälla i headingbakgrunden.
 - Procedurrenderade stenar, vatten, ripples, reflektioner och bambu.
-- v4 lägger ytterligare kontinuerliga foreground-bambu som går från vattenområdet och ut över canvas-toppen så att bambu inte upplevs abrupt avklippt.
-- Flera bambu går genom vattenlinjen och får mjuka reflektioner.
-- Vattenytan har från v5 ett subtilt vindfält av horisontella ripples plus expanderande ringar runt bambustammarna.
-- UI-elementens lokala ljus är från v5 ett diffust ljusgult/varmvitt glow inspirerat av morgonsol, inte gröna/jadefärgade punktljus.
+- Foreground-bambu går genom vattenlinjen och får reflektion/ripples.
+- V6 gjorde vind, lövrörelse och vattenrörelse tydligare på mobil.
+- V7 lägger ett semitransparent vatten-/dislager över området där de äldre bakgrundsbambustammarna tidigare slutade ovanför dammen. Syftet är att de visuellt ska fortsätta ner i/behind water i stället för att se kapade ut.
+- UI-glow följer samma princip som Stretch: ljuset sitter i symboler och korta delar av kanter. Färgen är varm ljusgul/morgonsol i stället för grön.
+- Den gamla animerade milestone-bågen (`zenSunArcV6`) är borttagen helt. Skapa inte separata gula bågar/ringar som flyter runt milestone-cirklarna.
+- Unlocked milestone-symboler får endast integrerat text-shadow + mycket subtilt riktat kantljus.
 
 Önskad riktning framåt: mer naturligt ljus/reflektion och materialkänsla, men fortfarande lugnt och inte glassmorphism överallt.
 
@@ -104,7 +110,7 @@ Ordningen är avsiktlig:
 
 Ändra inte ordningen utan anledning. Demo-lagret måste ligga efter store men före `zen.js`, eftersom `zen.js` använder `ZenStore.entries` när statistik/historik renderas.
 
-Aktuella cache-busters för vatten/ljus är `20260910-water-sunlight-v5` i `zen.html`.
+Aktuella cache-busters för scenery/glow är `20260910-bamboo-glow-v7` i `zen.html`.
 
 ## Guardrails
 
@@ -115,6 +121,7 @@ Aktuella cache-busters för vatten/ljus är `20260910-water-sunlight-v5` i `zen.
 - Bevara mobile Safari/iPhone som primärt mål.
 - Canvas-animationer ska pausa i bakgrunden/offscreen och hålla begränsad upplösning/fps.
 - Skapa checkpoint före större visuella omskrivningar.
+- Undvik separata dekorativa ljusobjekt som ser ut som flygande ringar; glow ska kännas förankrat i symboler, kanter, material och naturliga ljuskällor.
 
 ## När Astra fortsätter
 
