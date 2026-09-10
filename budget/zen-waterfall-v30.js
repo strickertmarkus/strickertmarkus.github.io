@@ -62,7 +62,7 @@
     ctx.restore();ctx.filter='none';
   }
 
-  function sceneGeometry(mobile){return {s:mobile?0.63:0.76,fallX:mobile?850:942,lipY:mobile?405:407,impactY:590,waterY:575};}
+  function sceneGeometry(mobile){var cropRight=(width-left)/scale;return {s:mobile?0.63:0.76,fallX:mobile?Math.min(850,cropRight-104):942,lipY:mobile?405:407,impactY:590,waterY:575};}
 
   function drawBackBank(g,time){
     var s=g.s,fallX=g.fallX,lipY=g.lipY;
