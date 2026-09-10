@@ -1,4 +1,4 @@
-/* Zen Stretch v19 active renderer: visibly stronger layered depth and a more organic cel-shaded hero tree. */
+/* Zen Stretch v20 active renderer: layered depth, larger fireflies and a naturally branching cel-shaded hero tree. */
 (function(){
   'use strict';
   var host=document.querySelector('.landscape');
@@ -68,68 +68,98 @@
   }
 
   function drawTree(time){
-    var sway=reduced.matches?0:(Math.sin(time*.27)*5+Math.sin(time*.09+1.3)*2.5);
+    var sway=0;
+    if(!reduced.matches)sway=Math.sin(time*.27)*5+Math.sin(time*.09+1.3)*2.5;
     ctx.save();
     ctx.translate(sway*.28,0);
 
-    /* Asymmetric silhouette with broad roots and uneven shoulders. */
+    /* Structural limbs are drawn first. Their bases are covered by the trunk,
+       so they read as growing out of the wood rather than sitting on top. */
+    bezier([846,432,808,392,759,363,698,346],'#0b271d',43,1);
+    bezier([846,432,812,396,766,369,705,351],'#50663a',27,.95);
+    bezier([874,423,911,382,951,343,1009,306],'#0b271d',41,1);
+    bezier([874,423,909,386,948,350,1004,313],'#52693c',25,.94);
+    bezier([856,401,847,359,836,315,817,260],'#0a281d',46,1);
+    bezier([856,401,849,361,839,319,822,266],'#566c3e',28,.94);
+    bezier([881,452,930,425,980,405,1048,402],'#0c2a1f',31,.98);
+    bezier([881,452,929,428,978,411,1042,407],'#4f663a',18,.90);
+    bezier([826,514,781,508,735,523,681,556],'#0d2b20',28,.98);
+    bezier([826,514,783,512,741,527,688,557],'#4e6538',16,.90);
+    bezier([904,555,948,545,994,557,1050,591],'#0d2a1f',29,.98);
+    bezier([904,555,947,548,989,560,1044,590],'#4c6438',16,.89);
+
+    /* Main trunk: broad, irregular shoulders with no pointed cut-off. */
     ctx.fillStyle='#102b20';
     ctx.beginPath();
-    ctx.moveTo(742,760);
-    ctx.bezierCurveTo(785,727,803,684,811,632);
-    ctx.bezierCurveTo(821,566,805,512,819,446);
-    ctx.bezierCurveTo(827,402,831,356,854,305);
-    ctx.bezierCurveTo(876,329,893,371,900,418);
-    ctx.bezierCurveTo(910,486,899,548,919,610);
-    ctx.bezierCurveTo(934,658,970,710,1015,747);
-    ctx.bezierCurveTo(963,754,921,757,888,760);
-    ctx.bezierCurveTo(843,754,799,754,742,760);
+    ctx.moveTo(738,762);
+    ctx.bezierCurveTo(781,728,801,683,810,632);
+    ctx.bezierCurveTo(821,571,808,521,820,466);
+    ctx.bezierCurveTo(829,425,834,399,842,378);
+    ctx.bezierCurveTo(850,395,863,407,878,420);
+    ctx.bezierCurveTo(893,446,895,491,902,531);
+    ctx.bezierCurveTo(909,577,917,622,933,661);
+    ctx.bezierCurveTo(951,704,981,736,1016,751);
+    ctx.bezierCurveTo(965,756,923,760,886,760);
+    ctx.bezierCurveTo(839,757,791,757,738,762);
     ctx.closePath();
     ctx.fill();
 
-    var bark=ctx.createLinearGradient(805,0,936,0);
-    bark.addColorStop(0,'#1d3b27');
-    bark.addColorStop(.27,'#355234');
-    bark.addColorStop(.52,'#5c6d3d');
-    bark.addColorStop(.70,'#435932');
-    bark.addColorStop(1,'#173424');
+    var bark=ctx.createLinearGradient(795,0,945,0);
+    bark.addColorStop(0,'#1d3c28');
+    bark.addColorStop(.24,'#344f33');
+    bark.addColorStop(.47,'#61713f');
+    bark.addColorStop(.68,'#465c34');
+    bark.addColorStop(1,'#173525');
     ctx.fillStyle=bark;
     ctx.beginPath();
-    ctx.moveTo(772,744);
-    ctx.bezierCurveTo(808,706,817,661,823,611);
-    ctx.bezierCurveTo(831,551,818,505,829,449);
-    ctx.bezierCurveTo(836,403,839,361,856,321);
-    ctx.bezierCurveTo(873,351,884,389,889,429);
-    ctx.bezierCurveTo(898,488,889,545,906,603);
-    ctx.bezierCurveTo(919,649,944,698,986,736);
-    ctx.bezierCurveTo(935,741,893,748,858,748);
-    ctx.bezierCurveTo(830,747,802,744,772,744);
+    ctx.moveTo(772,746);
+    ctx.bezierCurveTo(808,709,818,663,824,613);
+    ctx.bezierCurveTo(832,557,821,511,830,468);
+    ctx.bezierCurveTo(837,431,841,409,847,392);
+    ctx.bezierCurveTo(856,407,865,416,875,425);
+    ctx.bezierCurveTo(886,451,886,493,893,534);
+    ctx.bezierCurveTo(900,580,907,623,921,659);
+    ctx.bezierCurveTo(937,699,958,725,986,740);
+    ctx.bezierCurveTo(938,745,897,749,860,749);
+    ctx.bezierCurveTo(829,749,801,746,772,746);
     ctx.closePath();
     ctx.fill();
 
-    /* Broad cel-shaded planes that remain visible on a phone screen. */
-    ctx.fillStyle='rgba(190,205,111,.19)';
+    /* Rounded branch collars visually weld each limb into the trunk. */
+    var collars=[
+      [844,428,39,27,-.45],[874,423,35,25,.48],[824,514,31,23,-.20],[902,553,30,22,.18]
+    ];
+    for(var c=0;c<collars.length;c++){
+      var col=collars[c];
+      ctx.save();ctx.translate(col[0],col[1]);ctx.rotate(col[4]);
+      ctx.fillStyle='rgba(64,86,48,.96)';
+      ctx.beginPath();ctx.ellipse(0,0,col[2],col[3],0,0,TAU);ctx.fill();
+      ctx.fillStyle='rgba(126,145,75,.18)';
+      ctx.beginPath();ctx.ellipse(-5,-5,col[2]*.63,col[3]*.50,0,0,TAU);ctx.fill();
+      ctx.restore();
+    }
+
+    /* Broad cel-shaded planes keep the trunk readable at phone scale. */
+    ctx.fillStyle='rgba(195,208,113,.19)';
     ctx.beginPath();
-    ctx.moveTo(844,340);ctx.bezierCurveTo(867,389,858,466,869,531);ctx.bezierCurveTo(876,581,894,650,923,704);ctx.bezierCurveTo(900,682,881,644,867,593);ctx.bezierCurveTo(849,526,854,435,844,340);ctx.closePath();ctx.fill();
+    ctx.moveTo(848,405);ctx.bezierCurveTo(867,443,857,506,868,566);ctx.bezierCurveTo(877,617,894,662,921,704);ctx.bezierCurveTo(898,683,880,647,867,602);ctx.bezierCurveTo(851,544,855,469,848,405);ctx.closePath();ctx.fill();
 
     ctx.fillStyle='rgba(6,25,18,.35)';
     ctx.beginPath();
-    ctx.moveTo(808,639);ctx.bezierCurveTo(819,570,803,514,819,448);ctx.bezierCurveTo(827,407,833,367,850,326);ctx.bezierCurveTo(827,413,839,515,827,601);ctx.bezierCurveTo(820,653,800,699,772,738);ctx.closePath();ctx.fill();
+    ctx.moveTo(808,640);ctx.bezierCurveTo(819,575,807,523,820,466);ctx.bezierCurveTo(828,432,834,407,843,386);ctx.bezierCurveTo(827,451,835,528,827,601);ctx.bezierCurveTo(820,654,801,701,772,739);ctx.closePath();ctx.fill();
 
-    /* Major limbs break up the old generic Y-shape. */
-    bezier([845,420,806,391,763,365,704,346],'#0e2b20',36,1);
-    bezier([844,420,811,394,769,369,711,350],'#52663a',23,.94);
-    bezier([882,438,927,401,969,366,1045,349],'#0d2a1f',34,1);
-    bezier([881,438,925,405,966,374,1037,355],'#536b3d',21,.94);
-    bezier([830,520,783,510,743,523,687,555],'#0e2d20',27,.98);
-    bezier([830,520,785,512,747,526,693,556],'#4f6738',16,.92);
-    bezier([906,552,949,542,995,554,1052,590],'#0d2b1f',28,.98);
-    bezier([906,552,948,545,990,557,1046,590],'#4d6539',16,.90);
-
+    /* Bark channels continue through the branch-junction area rather than
+       stopping at an artificial top. */
     for(var i=0;i<14;i++){
-      var yy=392+i*22;
+      var yy=405+i*22;
       var side=Math.sin(i*1.67);
-      bezier([842+side*12,yy,850+side*10,yy+6,838-side*8,yy+13,848+side*5,yy+21],i%4===0?'rgba(205,213,119,.34)':'rgba(7,31,21,.60)',i%4===0?1.7:2.8,1);
+      var light=i%4===0;
+      bezier(
+        [842+side*12,yy,850+side*10,yy+6,838-side*8,yy+13,848+side*5,yy+21],
+        light?'rgba(205,213,119,.34)':'rgba(7,31,21,.60)',
+        light?1.7:2.8,
+        1
+      );
     }
 
     var knots=[[835,482,12,7,-.55],[878,547,14,8,.38],[842,615,10,6,-.18]];
@@ -150,29 +180,37 @@
   }
 
   function foliageCluster(cx,cy,scaleFactor,phase,time,depth){
-    var move=reduced.matches?0:(Math.sin(time*(depth?0.32:0.46)+phase)*(depth?5:12));
+    var speed=depth?0.32:0.46;
+    var range=depth?5:12;
+    var move=0;
+    if(!reduced.matches)move=Math.sin(time*speed+phase)*range;
     var colors=depth?['#173926','#20452b','#285032']:['#163b27','#23502f','#32643a','#487843','#5a884a'];
+    var alpha=depth?.68:.92;
+    var vein=depth?'rgba(180,209,135,.11)':'rgba(205,230,153,.20)';
     for(var i=0;i<16;i++){
       var a=i/16*TAU+phase;
       var radius=(34+(i%5)*11)*scaleFactor;
       var x=cx+Math.cos(a)*radius+move;
       var y=cy+Math.sin(a)*radius*.55+Math.sin(i*1.3+phase)*9*scaleFactor;
       var len=(35+(i%4)*7)*scaleFactor;
-      leaf(x,y,len,7.5*scaleFactor,a*.33+(i%2?-.22:.18),colors[i%colors.length],depth?.68:.92,depth?'rgba(180,209,135,.11)':'rgba(205,230,153,.20)');
+      leaf(x,y,len,7.5*scaleFactor,a*.33+(i%2?-.22:.18),colors[i%colors.length],alpha,vein);
     }
   }
 
   function drawLayers(time){
-    foliageCluster(705,346,1.08,.4,time,true);
-    foliageCluster(1034,350,1.12,1.2,time,true);
-    foliageCluster(690,557,.98,2.0,time,true);
+    /* Crown clusters now sit on the three visible leaders, hiding branch ends
+       and making the trunk flow naturally into foliage. */
+    foliageCluster(698,346,1.12,.4,time,true);
+    foliageCluster(818,260,1.14,.9,time,true);
+    foliageCluster(1008,307,1.16,1.25,time,true);
+    foliageCluster(684,558,.98,2.0,time,true);
     foliageCluster(1047,592,1.00,2.7,time,true);
 
     ctx.save();ctx.filter='blur(1.6px)';
-    foliageCluster(585,246,1.40,3.3,time,false);
-    foliageCluster(1100,258,1.50,4.0,time,false);
-    foliageCluster(575,695,1.44,4.7,time,false);
-    foliageCluster(1090,705,1.54,5.3,time,false);
+    foliageCluster(575,238,1.43,3.3,time,false);
+    foliageCluster(1092,245,1.54,4.0,time,false);
+    foliageCluster(566,695,1.46,4.7,time,false);
+    foliageCluster(1090,705,1.56,5.3,time,false);
     ctx.restore();
   }
 
@@ -188,8 +226,12 @@
     for(var i=0;i<flies.length;i++){
       var f=flies[i];
       var pulse=.42+.58*Math.pow((Math.sin(time*.82+f[2])+1)/2,2);
-      var x=f[0]+(reduced.matches?0:Math.sin(time*.24+f[2])*18);
-      var y=f[1]+(reduced.matches?0:Math.cos(time*.19+f[2])*11);
+      var x=f[0];
+      var y=f[1];
+      if(!reduced.matches){
+        x+=Math.sin(time*.24+f[2])*18;
+        y+=Math.cos(time*.19+f[2])*11;
+      }
       glow(x,y,34+f[3]*5.5,pulse*.64);
       ctx.fillStyle='rgba(244,255,190,'+Math.min(1,.76+pulse*.23)+')';
       ctx.beginPath();ctx.arc(x,y,f[3]*(.90+pulse*.24),0,TAU);ctx.fill();
