@@ -53,6 +53,15 @@
     document.head.appendChild(style);
   }
 
+  function loadCustomTransitionManualGuard() {
+    if (document.querySelector('script[data-exercise-custom-transition-manual-v144]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-custom-transition-manual-v144.js?v=20260911-custom-manual-v144';
+    script.async = false;
+    script.setAttribute('data-exercise-custom-transition-manual-v144','true');
+    document.head.appendChild(script);
+  }
+
   function loadTransitionStability() {
     if (document.querySelector('script[data-exercise-session-transition-stability-v142]')) return;
     var script = document.createElement('script');
@@ -73,6 +82,7 @@
 
   function install() {
     installStyle();
+    loadCustomTransitionManualGuard();
     loadTransitionStability();
     loadSessionPersistence();
   }
