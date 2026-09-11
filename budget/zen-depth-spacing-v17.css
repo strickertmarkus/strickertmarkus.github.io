@@ -57,7 +57,9 @@ body[data-kind=stretch] .landscape-shade::before{
   mix-blend-mode:multiply;
 }
 
-/* A nearer light plane separates the central tree from the distant woodland. */
+/* A nearer light plane separates the central tree from the distant woodland.
+   Fade the plane before the fixed landscape boundary so its screen light never
+   ends as a horizontal edge across the first pass card on mobile. */
 body[data-kind=stretch] .landscape-shade::after{
   content:'';
   position:absolute;
@@ -68,6 +70,8 @@ body[data-kind=stretch] .landscape-shade::after{
     linear-gradient(111deg,transparent 15%,rgba(203,239,157,.06) 28%,transparent 39%),
     linear-gradient(103deg,transparent 48%,rgba(190,232,135,.075) 58%,transparent 70%),
     radial-gradient(ellipse at 72% 49%,rgba(165,221,111,.075),transparent 28%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 80%,rgba(0,0,0,.92) 84%,rgba(0,0,0,.65) 90%,rgba(0,0,0,.28) 96%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 80%,rgba(0,0,0,.92) 84%,rgba(0,0,0,.65) 90%,rgba(0,0,0,.28) 96%,transparent 100%);
   mix-blend-mode:screen;
 }
 
