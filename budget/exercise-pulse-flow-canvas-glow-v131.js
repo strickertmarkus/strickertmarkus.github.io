@@ -65,7 +65,7 @@
   function loadSessionPersistence() {
     if (document.querySelector('script[data-exercise-session-persistence-v143]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-session-persistence-v143.js?v=20260911-session-persistence-v143';
+    script.src = 'exercise-session-persistence-v143.js?v=20260911-session-persistence-v143b';
     script.async = false;
     script.setAttribute('data-exercise-session-persistence-v143','true');
     document.head.appendChild(script);

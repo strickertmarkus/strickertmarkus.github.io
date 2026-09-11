@@ -34,6 +34,9 @@
     if (!previous || typeof previous !== 'object' || Array.isArray(previous)) return clone(incoming);
     if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return clone(incoming);
     var merged = Object.assign({}, clone(previous), clone(incoming));
+    if (Object.prototype.hasOwnProperty.call(incoming,'betweenExercises') && !Object.prototype.hasOwnProperty.call(incoming,'betweenSets')) {
+      delete merged.betweenSets;
+    }
     if (!Array.isArray(incoming.exercises)) return merged;
     var previousExercises = Array.isArray(previous.exercises) ? previous.exercises : [];
     var used = Object.create(null);
@@ -138,7 +141,6 @@
         candidate = workout;
         break;
       }
-      if (!candidate) candidate = workout;
     }
     if (!candidate) return;
     var changed = false;
