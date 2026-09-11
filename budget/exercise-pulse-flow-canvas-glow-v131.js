@@ -56,15 +56,25 @@
   function loadTransitionStability() {
     if (document.querySelector('script[data-exercise-session-transition-stability-v142]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-session-transition-stability-v142.js?v=20260911-training-flow-v142';
+    script.src = 'exercise-session-transition-stability-v142.js?v=20260911-training-flow-v142b';
     script.async = false;
     script.setAttribute('data-exercise-session-transition-stability-v142','true');
+    document.head.appendChild(script);
+  }
+
+  function loadSessionPersistence() {
+    if (document.querySelector('script[data-exercise-session-persistence-v143]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-session-persistence-v143.js?v=20260911-session-persistence-v143';
+    script.async = false;
+    script.setAttribute('data-exercise-session-persistence-v143','true');
     document.head.appendChild(script);
   }
 
   function install() {
     installStyle();
     loadTransitionStability();
+    loadSessionPersistence();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
