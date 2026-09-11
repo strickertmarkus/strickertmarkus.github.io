@@ -1,4 +1,4 @@
-/* Zen v34 — continuous pond stones and a short cascade, drawn before foreground bamboo. */
+/* Zen v35 polish — continuous pond stones and a short cascade, drawn before foreground bamboo. */
 (function(){
   'use strict';
 
@@ -105,11 +105,11 @@
       move=Math.sin(time*.66+phase)*2.0+Math.sin(time*.31+phase*1.7)*.85;
       pulse=.68+.18*(Math.sin(time*.82+phase)+1)*.5;
     }
-    for(var i=0;i<3;i++){
-      var y=-ry*.28+i*ry*.23;
+    for(var i=0;i<2;i++){
+      var y=-ry*.31+i*ry*.29;
       var x1=-rx*.56+i*rx*.05;
-      var x2=rx*.40-i*rx*.04;
-      var base=warm ? .18 : .14;
+      var x2=rx*(i===0 ? .18 : .37);
+      var base=warm ? .095 : .08;
       var alpha=(base-i*.017)*pulse;
       ctx.strokeStyle=warm?'rgba(255,243,196,'+alpha+')':'rgba(222,244,237,'+alpha+')';
       ctx.lineWidth=.82;
@@ -133,6 +133,13 @@
     var s=g.s;
     var x=g.x;
 
+    // A soft, local contact shadow anchors the feet in the water.
+    ctx.save();ctx.translate(x+15*s,g.water+2*s);ctx.scale(1,.16);
+    var contact=ctx.createRadialGradient(0,0,0,0,0,114*s);
+    contact.addColorStop(0,'rgba(46,85,74,.16)');
+    contact.addColorStop(.62,'rgba(46,85,74,.07)');
+    contact.addColorStop(1,'rgba(46,85,74,0)');
+    ctx.fillStyle=contact;ctx.fillRect(-114*s,-114*s,228*s,228*s);ctx.restore();
     // Interlocking smaller stones support the shelf all the way to the pond.
     rock(x+40*s,g.water-35*s,54*s,49*s,.12,'small','rear');
     rock(x-45*s,g.water-24*s,34*s,39*s,-.18,'small','ledge');
@@ -149,13 +156,16 @@
     var holeX=x+18*s;
     var holeY=g.crest+67*s;
     var cavity=ctx.createRadialGradient(holeX-4*s,holeY-4*s,2,holeX,holeY,22*s);
-    cavity.addColorStop(0,'rgba(29,56,52,.78)');
-    cavity.addColorStop(.50,'rgba(42,70,64,.60)');
-    cavity.addColorStop(.82,'rgba(75,101,89,.28)');
+    cavity.addColorStop(0,'rgba(42,70,62,.46)');
+    cavity.addColorStop(.50,'rgba(55,82,71,.32)');
+    cavity.addColorStop(.82,'rgba(75,101,89,.16)');
     cavity.addColorStop(1,'rgba(100,124,109,0)');
     ctx.fillStyle=cavity;
     ctx.beginPath();
-    ctx.ellipse(holeX,holeY,25*s,13*s,-.03,0,TAU);
+    ctx.moveTo(holeX-20*s,holeY-2*s);
+    ctx.bezierCurveTo(holeX-9*s,holeY-7*s,holeX+2*s,holeY-3*s,holeX+16*s,holeY-5*s);
+    ctx.lineTo(holeX+13*s,holeY+4*s);
+    ctx.quadraticCurveTo(holeX-4*s,holeY+7*s,holeX-20*s,holeY-2*s);ctx.closePath();
     ctx.fill();
 
     ctx.save();
@@ -175,7 +185,7 @@
 
     var lipLeft={x:holeX-35*s,y:holeY+19*s,rx:31*s,ry:22*s,l:-.10,shape:'ledge'};
     var lipRight={x:holeX+39*s,y:holeY+21*s,rx:36*s,ry:24*s,l:.08,shape:'ledge'};
-    drawWater(holeX,holeY+5*s,g.water,s,time,g.mobile);
+    drawWater(holeX,holeY+2*s,g.water,s,time,g.mobile);
     rock(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,'front',lipLeft.shape);
     rock(lipRight.x,lipRight.y,lipRight.rx,lipRight.ry,lipRight.l,'front',lipRight.shape);
     rockLines(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,lipLeft.shape,time,1.1,false);
@@ -196,14 +206,25 @@
     ctx.save();
     ctx.globalCompositeOperation='screen';
     ctx.lineCap='round';
-    var count=mobile ? 13 : 16;
+    // A translucent sheet carries the water; a few uneven strands add texture.
+    var sheet=ctx.createLinearGradient(0,startY,0,waterY);
+    sheet.addColorStop(0,'rgba(232,247,235,.24)');
+    sheet.addColorStop(.25,'rgba(232,247,235,.13)');
+    sheet.addColorStop(.78,'rgba(220,243,235,.20)');
+    sheet.addColorStop(1,'rgba(239,250,241,.30)');
+    ctx.fillStyle=sheet;ctx.beginPath();ctx.moveTo(x-10*s,startY);
+    ctx.bezierCurveTo(x-8*s,startY+16*s,x-14*s,waterY-12*s,x-20*s,waterY);
+    ctx.lineTo(x+21*s,waterY);
+    ctx.bezierCurveTo(x+14*s,waterY-15*s,x+8*s,startY+14*s,x+10*s,startY);
+    ctx.closePath();ctx.fill();
+    var count=mobile ? 7 : 9;
     for(var i=0;i<count;i++){
-      var t=count===1 ? .5 : i/(count-1);
+      var t=Math.pow(i/(count-1),1.17);
       var sx=x-14*s+t*28*s;
-      var ex=x-25*s+t*50*s;
+      var ex=x-20*s+t*40*s;
       var sway=reduced.matches ? 0 : Math.sin(time*.96+i*.61)*(1.3+(i%4)*.18)*s;
       var center=1-Math.abs(t-.5)*2;
-      ctx.strokeStyle='rgba(215,240,233,'+(0.16+center*.18)+')';
+      ctx.strokeStyle='rgba(215,240,233,'+(0.075+center*.10)+')';
       ctx.lineWidth=(.50+center*.55)*s;
       ctx.beginPath();
       ctx.moveTo(sx,startY);
@@ -211,10 +232,10 @@
       ctx.stroke();
     }
     for(var c=0;c<3;c++){
-      var ct=.28+c*.22;
+      var ct=.23+c*.21;
       var csx=x-14*s+ct*28*s;
-      var cex=x-25*s+ct*50*s;
-      ctx.strokeStyle=c===1?'rgba(250,252,237,.70)':'rgba(241,249,235,.49)';
+      var cex=x-20*s+ct*40*s;
+      ctx.strokeStyle=c===1?'rgba(244,252,243,.43)':'rgba(233,247,239,.25)';
       ctx.lineWidth=(c===1 ? 1.65 : 1.25)*s;
       ctx.beginPath();
       ctx.moveTo(csx,startY);
@@ -246,7 +267,13 @@
     ctx.fillStyle=mist;
     ctx.fillRect(x-58*s,waterY-30*s,116*s,60*s);
 
-    for(var r=0;r<5;r++){
+    // Fine white flecks stay at the actual point of impact, not along a ledge.
+    for(var k=0;k<5;k++){
+      var q=reduced.matches ? .45 : (time*.7+k*.21)%1;
+      ctx.fillStyle='rgba(239,252,244,'+((1-q)*.29)+')';
+      ctx.beginPath();ctx.ellipse(x+(k-2)*4*s*(.5+q),waterY-Math.sin(q*Math.PI)*5*s,.9*s,.55*s,0,0,TAU);ctx.fill();
+    }
+    for(var r=0;r<4;r++){
       var p=reduced.matches ? .34 : ((time*.22+r*.19)%1);
       var inner=r<2;
       var reach=inner ? 43 : 65;
