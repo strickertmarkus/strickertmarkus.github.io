@@ -180,6 +180,10 @@
     return stalk[0] + (topX - stalk[0]) * t;
   }
 
+  function suppressSubmergedReflection(stalk, distant) {
+    return (!distant && stalk[0] === 650) || (distant && stalk[0] === 815);
+  }
+
   function drawStem(stalk, time, distant) {
     const x = stalk[0];
     const widthStem = stalk[1];
@@ -191,7 +195,7 @@
     const topX = x + lean + sway;
     const total = baseY - topY;
     const segments = 13 + Math.floor((stalk[3] * 7.3) % 5);
-    const suppressSubmergedReflection = (!distant && x === 650) || (distant && x === 815);
+    const suppressReflection = suppressSubmergedReflection(stalk, distant);
 
     for (let j = 0; j < segments; j++) {
       // Stable uneven node heights; branches remain attached to the nodes.
@@ -205,13 +209,13 @@
       const w = widthStem * (1 - j / segments * 0.30);
       const submerged = y0 > WATER && y1 > WATER;
 
-      if (suppressSubmergedReflection && submerged) continue;
+      if (suppressReflection && submerged) continue;
 
       let drawX0 = x0;
       let drawY0 = y0;
       let drawX1 = x1;
       let drawY1 = y1;
-      if (suppressSubmergedReflection && ((y0 > WATER) !== (y1 > WATER))) {
+      if (suppressReflection && ((y0 > WATER) !== (y1 > WATER))) {
         const mix = (WATER - y0) / (y1 - y0);
         const waterX = x0 + (x1 - x0) * mix;
         if (y0 > WATER) {
@@ -225,7 +229,8 @@
 
       const alpha = alphaBase * (submerged ? 0.24 : 1);
 
-      const g = ctx.createLinearGradient(drawX0 - w, drawY0, drawX1 + w, drawY1);
+      // Keep the original cross-stem shading. A diagonal gradient creates moving light bands on mobile.
+      const g = ctx.createLinearGradient(drawX0 - w, drawY0, drawX0 + w, drawY0);
       g.addColorStop(0, 'rgba(42,84,70,' + (alpha * 0.78) + ')');
       g.addColorStop(0.38, 'rgba(116,159,122,' + alpha + ')');
       g.addColorStop(0.60, 'rgba(190,199,143,' + (alpha * 0.84) + ')');
@@ -234,7 +239,7 @@
       const sunSide=drawX1<805?1:-1;
       stroke(ctx, drawX0 + sunSide * w * 0.26, drawY0, drawX1 + sunSide * w * 0.26, drawY1, 'rgba(252,233,173,' + (alpha * 0.36) + ')', Math.max(0.6, w * 0.08));
 
-      if (j < segments - 1 && (!suppressSubmergedReflection || y1 <= WATER)) {
+      if (j < segments - 1 && (!suppressReflection || y1 <= WATER)) {
         stroke(ctx, drawX1 - w * 0.55, drawY1, drawX1 + w * 0.55, drawY1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
       }
 
@@ -400,12 +405,20 @@
       ctx.beginPath();ctx.moveTo(x,y);ctx.bezierCurveTo(x+8,y-5+m,x+23,y+6-m,x+38,y+1);ctx.stroke();
     }
     ctx.restore();
-    back.forEach(function (stalk) { drawRippleSet(waterCrossX(stalk, time, true), time, stalk[3], true); });
+    back.forEach(function (stalk) {
+      if (!suppressSubmergedReflection(stalk, true)) {
+        drawRippleSet(waterCrossX(stalk, time, true), time, stalk[3], true);
+      }
+    });
 
     if(window.ZenPondRocks)window.ZenPondRocks.draw(ctx,{width:width,left:left,scale:scale},time);
 
     front.forEach(function (stalk) { drawStem(stalk, time, false); });
-    front.forEach(function (stalk) { drawRippleSet(waterCrossX(stalk, time, false), time, stalk[3], false); });
+    front.forEach(function (stalk) {
+      if (!suppressSubmergedReflection(stalk, false)) {
+        drawRippleSet(waterCrossX(stalk, time, false), time, stalk[3], false);
+      }
+    });
 
     // Rocks/cascade share this canvas and the WATER=575 pond line.
 
