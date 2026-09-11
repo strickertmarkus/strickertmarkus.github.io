@@ -152,12 +152,12 @@ body.in-session[data-kind=meditation] .ring-1{
 body.in-session[data-kind=meditation] .ring-2{
   inset:12px;
   opacity:.40;
-  transform:scale(calc(var(--breath-scale) * 1.045));
+  transform:scale(calc(var(--breath-scale) + .045));
 }
 body.in-session[data-kind=meditation] .ring-3{
   inset:55px;
   opacity:.60;
-  transform:scale(calc(var(--breath-scale) * .965));
+  transform:scale(calc(var(--breath-scale) - .035));
   border-color:rgba(var(--session-sun-rgb),.29);
 }
 
