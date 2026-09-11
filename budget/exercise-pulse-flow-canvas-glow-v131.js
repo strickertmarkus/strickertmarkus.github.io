@@ -80,11 +80,21 @@
     document.head.appendChild(script);
   }
 
+  function loadTimerFocus() {
+    if (document.querySelector('script[data-exercise-timer-focus-v145]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-timer-focus-v145.js?v=20260911-timer-focus-v145';
+    script.async = false;
+    script.setAttribute('data-exercise-timer-focus-v145','true');
+    document.head.appendChild(script);
+  }
+
   function install() {
     installStyle();
     loadCustomTransitionManualGuard();
     loadTransitionStability();
     loadSessionPersistence();
+    loadTimerFocus();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
