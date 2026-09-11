@@ -21,18 +21,33 @@ test('session oasis assets are loaded after the core Zen session code',()=>{
 test('meditation runner has the complete oasis presentation system',()=>{
   hasAll(css,[
     'view-transition-name:meditation-orb',
+    '.session-view::before',
     '.breathing-field',
+    '.breathing-field::before',
+    '.breathing-field::after',
     '.breath-halo',
-    ".session-clock::before{\n  content:'≈'",
+    '.session-clock::before',
+    "content:'≈'",
     '.session-center::before',
-    ".session-cue::before{\n  content:'4 sek in · 6 sek ut'",
+    '.session-cue::before',
+    "content:'4 sek in · 6 sek ut'",
     '.next-step .text-button',
     '.free-breathing .breath-halo',
     '.oasis-exhale .session-view::after',
     '.session-progress>span::after',
     '.pause-button',
-    'left:-17px',
     '@media(prefers-reduced-motion:reduce)'
+  ]);
+});
+
+test('session focus well and morning light have deliberate contrast',()=>{
+  hasAll(css,[
+    'radial-gradient(circle at 64% 18%',
+    'rgba(255,236,160,.30)',
+    'backdrop-filter:blur(7px)',
+    'border-color:rgba(var(--session-sun-rgb),.72)',
+    'font-size:76px',
+    'color:#0f392f'
   ]);
 });
 
@@ -43,8 +58,8 @@ test('session controller reacts to core phase state without duplicating timer lo
     "phase==='Andas ut'",
     "body.classList.add('oasis-exhale')",
     'document.startViewTransition',
-    "wrapSessionEntry(startButton",
-    "wrapSessionEntry(resumeButton",
+    'wrapSessionEntry(startButton',
+    'wrapSessionEntry(resumeButton',
     "attributeFilter:['class','data-kind']"
   ]);
   assert.equal(js.includes('setInterval('),false,'presentation controller must not create a second session timer');
@@ -53,6 +68,11 @@ test('session controller reacts to core phase state without duplicating timer lo
 test('oasis styling is scoped to meditation session and preserves stretch runner',()=>{
   assert.ok(css.includes('body.in-session[data-kind=meditation]'));
   assert.equal(css.includes('body.in-session[data-kind=stretch]'),false);
+});
+
+test('mobile oasis keeps the breathing field offset and waterfall space',()=>{
+  assert.ok(/\.breathing-field\{width:\d+px;height:\d+px;left:-\d+px/.test(css));
+  assert.ok(css.includes('.session-view::after{left:78vw;top:63svh}'));
 });
 
 test('ring scaling avoids unsupported CSS multiplication and stays Safari-safe',()=>{
