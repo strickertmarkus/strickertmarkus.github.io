@@ -1,6 +1,6 @@
-/* Zen v40 — cliff garden polish over Astra's v38 cliff.
-   Keeps cliff/waterfall geometry untouched; adds pond-depth stones, a front lily pad,
-   grounded cap stones and small plants on the cliff top + wall. */
+/* Zen v41 — cliff garden polish over Astra's v38 cliff.
+   Keeps cliff/waterfall geometry untouched; places depth stones beside the cliff,
+   lays the lily flat on the pond surface, and keeps the cliff plants grounded. */
 (function(){
   'use strict';
 
@@ -84,20 +84,19 @@
 
   function drawRightDepthStones(ctx,g){
     var s=g.s;
+    /* Astra's cliff silhouette reaches roughly x + 120*s. Keep this group just
+       beyond that edge so it reads as a separate pond bank in the user's marked area. */
     var stones=[
-      {x:g.x+126*s,y:g.water-6,rx:21*s,ry:11*s,l:-.04,a:.38,w:false},
-      {x:g.x+154*s,y:g.water-7,rx:34*s,ry:17*s,l:-.07,a:.56,w:true},
-      {x:g.x+178*s,y:g.water-15,rx:16*s,ry:9*s,l:.05,a:.34,w:true},
-      {x:g.x+200*s,y:g.water-12,rx:27*s,ry:17*s,l:.09,a:.50,w:false},
-      {x:g.x+222*s,y:g.water-7,rx:14*s,ry:8*s,l:-.06,a:.31,w:true},
-      {x:g.x+236*s,y:g.water-4,rx:18*s,ry:10*s,l:-.10,a:.43,w:true},
-      {x:g.x+254*s,y:g.water-5,rx:12*s,ry:7*s,l:.03,a:.29,w:false},
-      {x:g.x+270*s,y:g.water-2,rx:13*s,ry:8*s,l:.06,a:.34,w:false}
+      {x:g.x+130*s,y:g.water-10,rx:20*s,ry:12*s,l:-.05,a:.43,w:false},
+      {x:g.x+149*s,y:g.water-18,rx:27*s,ry:18*s,l:-.09,a:.55,w:true},
+      {x:g.x+170*s,y:g.water-8,rx:17*s,ry:10*s,l:.04,a:.39,w:true},
+      {x:g.x+188*s,y:g.water-14,rx:23*s,ry:16*s,l:.08,a:.49,w:false},
+      {x:g.x+207*s,y:g.water-5,rx:15*s,ry:9*s,l:-.06,a:.36,w:true}
     ];
 
     for(var i=0;i<stones.length;i++){
       var st=stones[i];
-      drawReflection(ctx,st.x,g.water,st.rx,st.a*.55);
+      drawReflection(ctx,st.x,g.water,st.rx,st.a*.52);
       depthStone(ctx,st.x,st.y,st.rx,st.ry,st.l,st.a,st.w);
     }
   }
@@ -226,22 +225,31 @@
 
   function drawFrontLily(ctx,g,time){
     var s=g.s;
-    var x=g.x-145*s;
-    var y=g.water+24;
-    var bob=reduced.matches ? 0 : Math.sin(time*.72+.45)*1.1*s;
-    var r=20*s;
+    /* Place the lily in the foreground pond, below and slightly right of the cliff.
+       It is deliberately flattened in Y so it lies on the water plane. */
+    var x=g.x+54*s;
+    var y=g.water+54;
+    var bob=reduced.matches ? 0 : Math.sin(time*.72+.45)*.45*s;
+    var r=23*s;
+    var tilt=-.12;
 
     ctx.save();
     ctx.globalAlpha=.32;
-    ctx.fillStyle='rgba(82,128,110,.18)';
+    ctx.fillStyle='rgba(74,117,103,.20)';
     ctx.beginPath();
-    ctx.ellipse(x,y+9+bob,r*1.22,5*s,-.08,0,TAU);
+    ctx.ellipse(x,y+3+bob,r*1.15,r*.24,tilt,0,TAU);
     ctx.fill();
+    ctx.strokeStyle='rgba(248,232,178,.12)';
+    ctx.lineWidth=.65;
+    ctx.beginPath();
+    ctx.ellipse(x,y+1+bob,r*1.28,r*.31,tilt,0,TAU);
+    ctx.stroke();
     ctx.restore();
 
     ctx.save();
     ctx.translate(x,y+bob);
-    ctx.rotate(-.16);
+    ctx.rotate(tilt);
+    ctx.scale(1,.34);
     var pad=ctx.createRadialGradient(-r*.18,-r*.18,0,0,0,r);
     pad.addColorStop(0,'rgba(191,213,166,.96)');
     pad.addColorStop(.54,'rgba(137,172,124,.92)');
@@ -249,29 +257,32 @@
     ctx.fillStyle=pad;
     lilyPadPath(ctx,r);
     ctx.fill();
-    ctx.strokeStyle='rgba(48,85,68,.27)';
-    ctx.lineWidth=.8;
+    ctx.strokeStyle='rgba(48,85,68,.30)';
+    ctx.lineWidth=1.25;
     ctx.stroke();
-
-    ctx.strokeStyle='rgba(246,230,175,.18)';
-    ctx.lineWidth=.55;
+    ctx.strokeStyle='rgba(246,230,175,.20)';
+    ctx.lineWidth=.8;
     ctx.beginPath();
     ctx.moveTo(-r*.68,-r*.09);
     ctx.quadraticCurveTo(-r*.16,-r*.04,r*.43,-r*.18);
     ctx.stroke();
     ctx.restore();
 
-    /* A tiny warm blossom keeps the lily readable without competing with the waterfall. */
+    /* Low, side-view blossom sitting on the same water plane. */
     ctx.save();
     var bx=x+7*s;
-    var by=y-5+bob;
-    var bloom=ctx.createRadialGradient(bx,by,0,bx,by,7*s);
-    bloom.addColorStop(0,'rgba(255,247,218,.95)');
-    bloom.addColorStop(.38,'rgba(249,226,161,.60)');
-    bloom.addColorStop(1,'rgba(249,226,161,0)');
-    ctx.fillStyle=bloom;
+    var by=y-3+bob;
+    ctx.fillStyle='rgba(255,243,207,.76)';
     ctx.beginPath();
-    ctx.arc(bx,by,5*s,0,TAU);
+    ctx.ellipse(bx-2.5*s,by,4.6*s,1.55*s,-.20,0,TAU);
+    ctx.ellipse(bx+2.1*s,by-.3*s,4.4*s,1.45*s,.18,0,TAU);
+    ctx.fill();
+    var glow=ctx.createRadialGradient(bx,by,0,bx,by,8*s);
+    glow.addColorStop(0,'rgba(250,225,158,.24)');
+    glow.addColorStop(1,'rgba(250,225,158,0)');
+    ctx.fillStyle=glow;
+    ctx.beginPath();
+    ctx.ellipse(bx,by,8*s,3*s,0,0,TAU);
     ctx.fill();
     ctx.restore();
   }
@@ -294,13 +305,13 @@
 
   function install(){
     var pond=window.ZenPondRocks;
-    if(!pond||typeof pond.draw!=='function'||pond.__cliffDetailV40)return false;
+    if(!pond||typeof pond.draw!=='function'||pond.__cliffDetailV41)return false;
     var original=pond.draw;
     pond.draw=function(context,viewport,time){
       original(context,viewport,time);
       drawDetails(context,viewport,time||0);
     };
-    pond.__cliffDetailV40=true;
+    pond.__cliffDetailV41=true;
     return true;
   }
 
