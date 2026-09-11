@@ -1,0 +1,28 @@
+name: Zen regression tests
+
+on:
+  push:
+    paths:
+      - 'budget/zen*.js'
+      - 'budget/zen*.css'
+      - 'budget/zen.html'
+      - 'budget/tests/zen*.cjs'
+      - '.github/workflows/zen-tests.yml'
+  pull_request:
+    paths:
+      - 'budget/zen*.js'
+      - 'budget/zen*.css'
+      - 'budget/zen.html'
+      - 'budget/tests/zen*.cjs'
+      - '.github/workflows/zen-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Zen tests
+        run: node --test budget/tests/zen.test.cjs budget/tests/zen-session-oasis.test.cjs
