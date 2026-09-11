@@ -53,6 +53,20 @@
     document.head.appendChild(style);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',installStyle,{once:true});
-  else installStyle();
+  function loadTransitionStability() {
+    if (document.querySelector('script[data-exercise-session-transition-stability-v142]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-session-transition-stability-v142.js?v=20260911-training-flow-v142';
+    script.async = false;
+    script.setAttribute('data-exercise-session-transition-stability-v142','true');
+    document.head.appendChild(script);
+  }
+
+  function install() {
+    installStyle();
+    loadTransitionStability();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
 })();
