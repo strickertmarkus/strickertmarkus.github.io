@@ -1,6 +1,6 @@
-/* Zen v42 — cliff garden polish over Astra's v38 cliff.
+/* Zen v43 — cliff garden polish over Astra's v38 cliff.
    Keeps cliff/waterfall geometry untouched; deepens the right pond stones,
-   grounds two lily pads into the water surface, and removes the waterfall wall plant. */
+   grounds two lily pads into the water surface, and adds clearer surface ripples. */
 (function(){
   'use strict';
 
@@ -84,8 +84,6 @@
 
   function drawRightDepthStones(ctx,g){
     var s=g.s;
-    /* The larger circled stone is now a rear layer, tucked behind the brighter
-       right-hand stone. Draw order is intentional: rear stones first, front stone last. */
     var rear=[
       {x:g.x+130*s,y:g.water-10,rx:20*s,ry:12*s,l:-.05,a:.40,w:false},
       {x:g.x+149*s,y:g.water-18,rx:27*s,ry:18*s,l:-.09,a:.50,w:true},
@@ -191,15 +189,16 @@
   }
 
   function waterRipple(ctx,x,y,rx,ry,alpha,time,phase){
-    var breathe=reduced.matches ? 1 : .93+.07*Math.sin(time*.72+phase);
+    var breathe=reduced.matches ? 1 : .90+.10*Math.sin(time*.72+phase);
     ctx.save();
     ctx.globalCompositeOperation='screen';
     ctx.strokeStyle='rgba(244,236,190,'+(alpha*breathe)+')';
-    ctx.lineWidth=.65;
+    ctx.lineWidth=.78;
     ctx.beginPath();
     ctx.ellipse(x,y,rx,ry,0,0,TAU);
     ctx.stroke();
-    ctx.strokeStyle='rgba(205,236,227,'+(alpha*.72*breathe)+')';
+    ctx.strokeStyle='rgba(205,236,227,'+(alpha*.74*breathe)+')';
+    ctx.lineWidth=.64;
     ctx.beginPath();
     ctx.ellipse(x,y+1.5,rx*1.28,ry*1.32,0,0,TAU);
     ctx.stroke();
@@ -239,8 +238,6 @@
     ctx.stroke();
     ctx.restore();
 
-    /* A translucent foreground water wash partially covers the near edge so the pad
-       feels seated in the pond rather than pasted on top of it. */
     ctx.save();
     var wash=ctx.createLinearGradient(0,y-1,0,y+8);
     wash.addColorStop(0,'rgba(183,222,216,0)');
@@ -290,15 +287,18 @@
     var bob=reduced.matches ? 0 : Math.sin(time*.72+.45)*.45*s;
     var bob2=reduced.matches ? 0 : Math.sin(time*.66+1.35)*.32*s;
 
-    waterRipple(ctx,x,y+1,31*s,5.2*s,.16,time,.4);
-    waterRipple(ctx,x+29*s,y+5,20*s,3.8*s,.11,time,1.2);
+    /* v43: three small, visible surface rings around the main pad plus one around
+       the secondary pad. They stay close to the leaves and breathe with the pond. */
+    waterRipple(ctx,x,y+1,32*s,5.4*s,.22,time,.4);
+    waterRipple(ctx,x,y+1,40*s,6.6*s,.13,time,1.0);
+    waterRipple(ctx,x,y+1,47*s,7.8*s,.075,time,1.55);
+    waterRipple(ctx,x+29*s,y+5,23*s,4.2*s,.15,time,1.2);
 
     drawPad(ctx,x,y,27*s,-.11,bob,1);
     drawPad(ctx,x+29*s,y+6,17*s,.10,bob2,.92);
 
     drawLilyFlower(ctx,x+7*s,y-2,s,bob);
 
-    /* Soft reflected highlight between the pads links them to the moving surface. */
     ctx.save();
     ctx.globalCompositeOperation='screen';
     var sheen=ctx.createLinearGradient(x-30*s,0,x+48*s,0);
@@ -320,25 +320,22 @@
 
     drawRightDepthStones(ctx,g);
 
-    /* Astra's two cap stones keep their shapes, but gain contact shadows so their
-       lower edges read as resting in the cliff rather than hovering above it. */
     contactSeam(ctx,g.x-61*g.s,g.top+23,18*g.s,-.14);
     contactSeam(ctx,g.x+72*g.s,g.top+17,17*g.s,.12);
 
     drawCliffPlant(ctx,g,time||0);
-    /* The smaller wall plant that sat in the waterfall is intentionally removed. */
     drawFrontLily(ctx,g,time||0);
   }
 
   function install(){
     var pond=window.ZenPondRocks;
-    if(!pond||typeof pond.draw!=='function'||pond.__cliffDetailV42)return false;
+    if(!pond||typeof pond.draw!=='function'||pond.__cliffDetailV43)return false;
     var original=pond.draw;
     pond.draw=function(context,viewport,time){
       original(context,viewport,time);
       drawDetails(context,viewport,time||0);
     };
-    pond.__cliffDetailV42=true;
+    pond.__cliffDetailV43=true;
     return true;
   }
 
