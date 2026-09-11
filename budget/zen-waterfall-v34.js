@@ -1,4 +1,4 @@
-/* Zen v35 polish — continuous pond stones and a short cascade, drawn before foreground bamboo. */
+/* Zen v43 polish — continuous pond stones and a short cascade, drawn before foreground bamboo. */
 (function(){
   'use strict';
 
@@ -178,13 +178,19 @@
     rock(x-61*s,top+11,24*s,16*s,-.14,'rear','flat');
     rock(x+72*s,top+3,22*s,18*s,.12,'rear','small');
     rock(x-93*s,base-22,28*s,31*s,-.12,'small','ledge');
-    rock(x+98*s,base-29,25*s,36*s,.14,'small','rear');
+    // v43: move the tall right stone into a true rear layer. It now sits slightly
+    // farther right and lower, with reduced opacity, so the front waterline stone
+    // occludes it instead of the tall stone dominating the silhouette.
+    ctx.save();
+    ctx.globalAlpha=.46;
+    rock(x+116*s,base-18,21*s,28*s,.10,'rear','small');
+    ctx.restore();
     drawWater(outlet,top+14,base,s*2.05,time,g.mobile);
     // Foreground feet occlude the edges of the falling sheet and meet the pond.
     rock(outlet-35*s,base-8,37*s,22*s,-.09,'front','ledge');
     rock(outlet+40*s,base-12,36*s,30*s,.12,'front','small');
     rock(x-94*s,base-3,25*s,14*s,-.06,'small','flat');
-    rock(x+109*s,base-2,21*s,12*s,.08,'small','flat');
+    rock(x+109*s,base-2,21*s,12*s,.08,'front','flat');
     // A narrow wet contact edge makes the waterline explicit.
     ctx.strokeStyle='rgba(38,75,66,.25)';ctx.lineWidth=1.2;ctx.beginPath();
     ctx.moveTo(x-105*s,base-.8);ctx.lineTo(outlet-19*s,base-.8);
