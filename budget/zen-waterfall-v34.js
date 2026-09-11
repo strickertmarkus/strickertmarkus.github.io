@@ -126,85 +126,69 @@
     var mobile=width<700;
     var cropRight=(width-left)/scale;
     var x=mobile ? Math.min(846,cropRight-118) : 936;
-    return {mobile:mobile,s:mobile ? .64 : .76,x:x,crest:477,lip:520,water:WATER};
+    return {mobile:mobile,s:mobile ? .64 : .76,x:x,crest:430,lip:445,water:WATER};
   }
 
   function drawFormation(g,time){
-    var s=g.s;
-    var x=g.x;
-
-    // A soft, local contact shadow anchors the feet in the water.
-    ctx.save();ctx.translate(x+15*s,g.water+2*s);ctx.scale(1,.16);
-    var contact=ctx.createRadialGradient(0,0,0,0,0,114*s);
-    contact.addColorStop(0,'rgba(46,85,74,.24)');
-    contact.addColorStop(.62,'rgba(46,85,74,.07)');
-    contact.addColorStop(1,'rgba(46,85,74,0)');
-    ctx.fillStyle=contact;ctx.fillRect(-114*s,-114*s,228*s,228*s);ctx.restore();
-    // Interlocking smaller stones support the shelf all the way to the pond.
-    rock(x+40*s,g.water-35*s,61*s,43*s,.12,'small','rear');
-    rock(x-45*s,g.water-24*s,39*s,35*s,-.18,'small','ledge');
-    var rear={x:x+19*s,y:g.crest+35*s,rx:86*s,ry:52*s,l:-.075,shape:'rear'};
-    var left={x:x-51*s,y:g.crest+67*s,rx:32*s,ry:21*s,l:-.13,shape:'flat'};
-    var right={x:x+93*s,y:g.crest+64*s,rx:33*s,ry:24*s,l:.11,shape:'small'};
-    rock(rear.x,rear.y,rear.rx,rear.ry,rear.l,'rear',rear.shape);
-    rock(left.x,left.y,left.rx,left.ry,left.l,'small',left.shape);
-    rock(right.x,right.y,right.rx,right.ry,right.l,'small',right.shape);
-    rockLines(rear.x,rear.y,rear.rx,rear.ry,rear.l,rear.shape,time,.2,true);
-    rockLines(left.x,left.y,left.rx,left.ry,left.l,left.shape,time,1.8,true);
-    rockLines(right.x,right.y,right.rx,right.ry,right.l,right.shape,time,2.7,false);
-
-    var holeX=x+18*s;
-    var holeY=g.crest+67*s;
-    var cavity=ctx.createRadialGradient(holeX-4*s,holeY-4*s,2,holeX,holeY,22*s);
-    cavity.addColorStop(0,'rgba(42,70,62,.46)');
-    cavity.addColorStop(.50,'rgba(55,82,71,.32)');
-    cavity.addColorStop(.82,'rgba(75,101,89,.16)');
-    cavity.addColorStop(1,'rgba(100,124,109,0)');
-    ctx.fillStyle=cavity;
-    ctx.beginPath();
-    ctx.moveTo(holeX-20*s,holeY-2*s);
-    ctx.bezierCurveTo(holeX-9*s,holeY-7*s,holeX+2*s,holeY-3*s,holeX+16*s,holeY-5*s);
-    ctx.lineTo(holeX+13*s,holeY+4*s);
-    ctx.quadraticCurveTo(holeX-4*s,holeY+7*s,holeX-20*s,holeY-2*s);ctx.closePath();
-    ctx.fill();
-
-    ctx.save();
-    ctx.globalCompositeOperation='screen';
-    ctx.lineCap='round';
-    for(var i=0;i<7;i++){
-      var off=(i-3)*2.1*s;
-      var wobble=reduced.matches ? 0 : Math.sin(time*.80+i*.82)*1.2*s;
-      ctx.strokeStyle='rgba(226,245,232,'+(0.11+(3-Math.abs(i-3))*.022)+')';
-      ctx.lineWidth=(i===3 ? 1.45 : .82)*s;
-      ctx.beginPath();
-      ctx.moveTo(x-55*s,g.crest+17*s+off);
-      ctx.bezierCurveTo(x-34*s,g.crest+14*s+off+wobble,x-16*s,g.crest+42*s+off,holeX-6*s,holeY-4*s+off*.22);
+    var s=g.s,x=g.x,top=g.crest,base=g.water;
+    var outlet=x+18*s;
+    // One unbroken outcrop. Its silhouette continues below the pond plane.
+    ctx.save();ctx.beginPath();
+    ctx.moveTo(x-109*s,base+12);
+    ctx.lineTo(x-106*s,top+88);ctx.lineTo(x-89*s,top+63);
+    ctx.lineTo(x-85*s,top+28);ctx.lineTo(x-64*s,top+9);
+    ctx.lineTo(x-38*s,top+15);ctx.lineTo(x-19*s,top+3);
+    ctx.lineTo(x+16*s,top+13);ctx.lineTo(x+42*s,top+8);
+    ctx.lineTo(x+62*s,top-6);ctx.lineTo(x+83*s,top+1);
+    ctx.lineTo(x+101*s,top+24);ctx.lineTo(x+98*s,top+52);
+    ctx.lineTo(x+116*s,top+75);ctx.lineTo(x+108*s,base-21);
+    ctx.lineTo(x+120*s,base+12);ctx.closePath();
+    var face=ctx.createLinearGradient(x-90*s,top,x+90*s,base);
+    face.addColorStop(0,'#c4cfb8');face.addColorStop(.31,'#a8b9a8');
+    face.addColorStop(.66,'#7e998b');face.addColorStop(1,'#587a70');
+    ctx.fillStyle=face;ctx.fill();ctx.clip();
+    // Broad facets establish volume; finer seams remain inside the rock.
+    var facets=[[-91,27,-53,18,-43,95,-88,130],[-32,13,8,16,-2,142,-41,154],[54,5,85,12,76,117,42,151]];
+    facets.forEach(function(p,i){
+      ctx.fillStyle=i===1?'rgba(37,67,58,.15)':'rgba(238,239,198,.12)';
+      ctx.beginPath();ctx.moveTo(x+p[0]*s,top+p[1]);
+      for(var j=2;j<p.length;j+=2)ctx.lineTo(x+p[j]*s,top+p[j+1]);
+      ctx.closePath();ctx.fill();
+    });
+    for(var n=0;n<12;n++){
+      var y=top+11+n*12.1+Math.sin(n*2.7)*4,phase=n*2.17;
+      ctx.strokeStyle=n%3===0?'rgba(48,77,63,.18)':'rgba(224,233,195,.12)';
+      ctx.lineWidth=n%3===0?.75:1.0;ctx.beginPath();
+      var begin=x+(-112+(n%4)*13)*s;
+      ctx.moveTo(begin,y);
+      ctx.bezierCurveTo(x-42*s,y-7+Math.sin(phase)*4,x+21*s,y+6,x+(28+(n%4)*19)*s,y-3);
       ctx.stroke();
     }
+    for(var k=0;k<8;k++){
+      var cx=x+(-91+k*28)*s,cy=top+17+(k%3)*26;
+      ctx.strokeStyle='rgba(42,69,59,.19)';ctx.lineWidth=.8;ctx.beginPath();
+      ctx.moveTo(cx,cy);ctx.lineTo(cx+6*s,cy+14);ctx.lineTo(cx-3*s,cy+32);ctx.lineTo(cx+2*s,cy+49);ctx.stroke();
+    }
+    // Darker wet channel, open at the top rather than a hole in the face.
+    var wet=ctx.createLinearGradient(outlet-24*s,0,outlet+24*s,0);
+    wet.addColorStop(0,'rgba(30,67,60,0)');wet.addColorStop(.5,'rgba(30,67,60,.20)');wet.addColorStop(1,'rgba(30,67,60,0)');
+    ctx.fillStyle=wet;ctx.fillRect(outlet-24*s,top+12,48*s,base-top);
     ctx.restore();
-
-    ctx.save();ctx.translate(x+24*s,holeY+14*s);ctx.scale(1,.22);
-    var seam=ctx.createRadialGradient(0,0,0,0,0,66*s);
-    seam.addColorStop(0,'rgba(32,64,55,.18)');seam.addColorStop(1,'rgba(32,64,55,0)');
-    ctx.fillStyle=seam;ctx.fillRect(-66*s,-66*s,132*s,132*s);ctx.restore();
-    var lipLeft={x:holeX-35*s,y:holeY+19*s,rx:31*s,ry:22*s,l:-.10,shape:'ledge'};
-    var lipRight={x:holeX+39*s,y:holeY+21*s,rx:36*s,ry:24*s,l:.08,shape:'ledge'};
-    drawWater(holeX,holeY+2*s,g.water,s,time,g.mobile);
-    rock(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,'front',lipLeft.shape);
-    rock(lipRight.x,lipRight.y,lipRight.rx,lipRight.ry,lipRight.l,'front',lipRight.shape);
-    rockLines(lipLeft.x,lipLeft.y,lipLeft.rx,lipLeft.ry,lipLeft.l,lipLeft.shape,time,1.1,false);
-    rockLines(lipRight.x,lipRight.y,lipRight.rx,lipRight.ry,lipRight.l,lipRight.shape,time,2.0,false);
-
-    rock(x-60*s,g.water-5*s,27*s,14*s,-.08,'small','flat');
-    rock(x+73*s,g.water-6*s,30*s,15*s,.07,'small','flat');
-    var wash=ctx.createRadialGradient(x,g.water+8,0,x,g.water+8,100*s);
-    wash.addColorStop(0,'rgba(180,219,208,.18)');
-    wash.addColorStop(.55,'rgba(180,219,208,.09)');
-    wash.addColorStop(1,'rgba(153,204,198,0)');
-    ctx.fillStyle=wash;
-    ctx.fillRect(x-125*s,g.water-8,250*s,36);
-    // Impact is drawn in the live scene after the mirrored surface.
-
+    // Small cap stones sit on the connected shelf.
+    rock(x-61*s,top+11,24*s,16*s,-.14,'rear','flat');
+    rock(x+72*s,top+3,22*s,18*s,.12,'rear','small');
+    rock(x-93*s,base-22,28*s,31*s,-.12,'small','ledge');
+    rock(x+98*s,base-29,25*s,36*s,.14,'small','rear');
+    drawWater(outlet,top+14,base,s*2.05,time,g.mobile);
+    // Foreground feet occlude the edges of the falling sheet and meet the pond.
+    rock(outlet-35*s,base-8,37*s,22*s,-.09,'front','ledge');
+    rock(outlet+40*s,base-12,36*s,30*s,.12,'front','small');
+    rock(x-94*s,base-3,25*s,14*s,-.06,'small','flat');
+    rock(x+109*s,base-2,21*s,12*s,.08,'small','flat');
+    // A narrow wet contact edge makes the waterline explicit.
+    ctx.strokeStyle='rgba(38,75,66,.25)';ctx.lineWidth=1.2;ctx.beginPath();
+    ctx.moveTo(x-105*s,base-.8);ctx.lineTo(outlet-19*s,base-.8);
+    ctx.moveTo(outlet+24*s,base-.8);ctx.lineTo(x+118*s,base-.8);ctx.stroke();
   }
 
   function drawWater(x,startY,waterY,s,time,mobile){

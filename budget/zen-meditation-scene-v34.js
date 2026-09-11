@@ -142,11 +142,7 @@
     bg.closePath();
     bg.fill();
 
-    for (let i = 0; i < 14; i++) rock(bg, 885 + i * 27, 558 + Math.sin(i * 0.77) * 15, 24 + (i % 4) * 7);
-    rock(bg, 1010, 535, 78);
-    rock(bg, 1080, 588, 98);
-    rock(bg, 1155, 664, 72);
-    rock(bg, 1118, 735, 40);
+    // v38: the cliff renderer owns ALL stone geometry and its reflection.
 
     const water = bg.createLinearGradient(0, WATER, 0, H);
     water.addColorStop(0, 'rgba(189,218,205,.64)');
