@@ -24,5 +24,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check Zen JavaScript syntax
+        run: |
+          node --check budget/zen.js
+          node --check budget/zen-session-oasis-v54.js
       - name: Run Zen tests
         run: node --test budget/tests/zen.test.cjs budget/tests/zen-session-oasis.test.cjs
