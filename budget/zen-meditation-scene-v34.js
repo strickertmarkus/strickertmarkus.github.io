@@ -191,6 +191,14 @@
     const topX = x + lean + sway;
     const total = baseY - topY;
     const segments = 13 + Math.floor((stalk[3] * 7.3) % 5);
+    const clipAtWater = (distant && x === 1040) || (!distant && x === 735);
+
+    if (clipAtWater) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, -200, W, WATER + 0.5);
+      ctx.clip();
+    }
 
     for (let j = 0; j < segments; j++) {
       // Stable uneven node heights; branches remain attached to the nodes.
@@ -232,6 +240,8 @@
         }
       }
     }
+
+    if (clipAtWater) ctx.restore();
   }
 
   function drawRippleSet(x, time, phase, distant) {
