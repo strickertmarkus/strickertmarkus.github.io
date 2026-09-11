@@ -55,6 +55,12 @@ test('oasis styling is scoped to meditation session and preserves stretch runner
   assert.equal(css.includes('body.in-session[data-kind=stretch]'),false);
 });
 
+test('ring scaling avoids unsupported CSS multiplication and stays Safari-safe',()=>{
+  assert.equal(css.includes('var(--breath-scale) *'),false,'do not multiply CSS custom properties inside calc()');
+  assert.ok(css.includes('transform:scale(calc(var(--breath-scale) + .045))'));
+  assert.ok(css.includes('transform:scale(calc(var(--breath-scale) - .035))'));
+});
+
 test('CSS structure is balanced',()=>{
   const stripped=css.replace(/\/\*[\s\S]*?\*\//g,'');
   let depth=0;
