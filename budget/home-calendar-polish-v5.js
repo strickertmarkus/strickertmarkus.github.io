@@ -68,25 +68,33 @@
       return originalCloseDayEventsPopup.apply(this, arguments);
     };
 
+    // Capture outside clicks so the preview closes even when another control
+    // inside the calendar stops propagation. Keep the active day itself open
+    // long enough for a second click to be interpreted as an edit action.
+    document.addEventListener('click', function (event) {
+      var pop = document.getElementById('home-day-popover');
+      if (!pop || pop.getAttribute('aria-hidden') === 'true' || pop.contains(event.target)) return;
+
+      var cell = event.target.closest ? event.target.closest('.cal-cell') : null;
+      if (cell && cell.dataset && cell.dataset.date === activeDayISO) return;
+
+      window.closeDayEventsPopup();
+    }, true);
+
     document.addEventListener('click', function (event) {
       var pop = document.getElementById('home-day-popover');
       if (!pop || pop.getAttribute('aria-hidden') === 'true') return;
 
       var item = event.target.closest ? event.target.closest('.home-day-popover-item[data-home-preview-index]') : null;
-      if (item && pop.contains(item)) {
-        var index = Number(item.getAttribute('data-home-preview-index'));
-        var ev = Number.isFinite(index) ? activeEvents[index] : null;
-        if (ev) {
-          event.preventDefault();
-          event.stopPropagation();
-          editPreviewEvent(ev);
-        }
-        return;
-      }
+      if (!item || !pop.contains(item)) return;
 
-      if (!pop.contains(event.target)) {
-        window.closeDayEventsPopup();
-      }
+      var index = Number(item.getAttribute('data-home-preview-index'));
+      var ev = Number.isFinite(index) ? activeEvents[index] : null;
+      if (!ev) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      editPreviewEvent(ev);
     });
 
     document.addEventListener('keydown', function (event) {
