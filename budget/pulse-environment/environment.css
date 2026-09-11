@@ -1,23 +1,26 @@
-/* Pulse Environment owns only the overview. The existing session is untouched. */
+/* Isolated overview and editor presentation. Session styles remain in the shared runtime. */
 #pulse-document:not(:has(#session-modal.show)),
 #pulse-page:not(:has(#session-modal.show)){background:#08090e!important;color-scheme:dark}
 #pulse-page:not(:has(#session-modal.show))::before{display:none!important}
-#pulse-page{--pf-red:#ff4a62;--pf-line:rgba(255,116,133,.2);--pf-muted:#a2a7b8;--pf-panel:rgba(12,15,23,.87)}
+#pulse-page{--pf-red:#ff4a62;--pf-line:rgba(255,116,133,.2)}
 #pulse-environment{position:absolute;top:0;left:0;width:100%;height:1280px;pointer-events:none;z-index:0;opacity:.88;mask-image:linear-gradient(#000 0%,#000 72%,transparent);-webkit-mask-image:linear-gradient(#000 0%,#000 72%,transparent)}
 #pulse-page:has(#session-modal.show) #pulse-environment{display:none}
 #pulse-header{position:relative!important;width:min(1420px,92%)!important;margin:auto!important;padding:25px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:16px!important}
 #pulse-header .brand-text h1{font-size:18px!important;line-height:1!important;letter-spacing:2px!important;font-weight:850!important;color:#fff!important;display:flex;gap:8px;align-items:center}
+#pulse-header .pf-header-ecg-v80{color:#ff7189!important}
 #pulse-header .pulse-brand-flow{color:#ff6c7e;font-weight:400;letter-spacing:3px}
 #pulse-header .brand-text p{font-size:12px!important;margin-top:8px!important;color:#9399aa!important;letter-spacing:.6px}
-#pulse-header .wellness-nav{margin-left:auto;background:rgba(16,18,27,.7);border-color:rgba(255,150,166,.15);box-shadow:none}
+#pulse-header .wellness-nav{width:auto!important;flex-basis:auto!important;margin-left:auto;background:rgba(16,18,27,.7);border-color:rgba(255,150,166,.15);box-shadow:none}
 #pulse-header .wellness-nav a{font-size:13px;color:#b8bdcc}
 #pulse-header .wellness-nav a[aria-current=page]{color:#ffe7ec;background:rgba(255,75,102,.12);border-color:rgba(255,104,128,.22);box-shadow:inset 0 1px 0 #ff8e9d26}
 #pulse-header .wellness-symbol{color:#ff7e91}
 #pulse-header .nav-btn{background:transparent!important;border:1px solid rgba(255,255,255,.12)!important;color:#d3d6e0!important;min-width:42px;min-height:42px;border-radius:50%!important}
 #pulse-header .streak-badge{background:transparent!important;border:0!important;color:#ffbbc5!important;box-shadow:none!important}
-#pulse-header .nav-dropdown-menu{background:#11131e!important;border-color:var(--pf-line)!important;box-shadow:0 20px 70px #0009!important;border-radius:14px!important;z-index:1200}
+#pulse-header .nav-dropdown-menu{background:#11131e!important;border-color:var(--pf-line)!important;box-shadow:0 20px 70px #0009!important;border-radius:14px!important;z-index:1200;max-height:calc(100vh - 140px);max-height:calc(100dvh - 140px);overflow-y:auto;overscroll-behavior:contain}
 #pulse-header .nav-dropdown-menu a{min-height:42px;color:#dce0ea!important;font-size:13px!important}
 #pulse-header .nav-dropdown-menu a:hover{background:#ff4a6215!important;color:#fff!important}
+#pulse-header .exercise-user-toggle{margin:10px;padding:5px;background:#ffffff04;border-color:#c0c8dd26;border-radius:7px;gap:5px}
+#pulse-header .exercise-user-option{flex:1;min-height:38px;padding:8px 15px;font-size:12px}
 #pulse-header .exercise-user-option.active{box-shadow:inset 0 0 0 1px #ff809455!important}
 #pulse-home{position:relative;max-width:1320px!important;width:92%!important;padding:24px 0 120px!important;margin:0 auto!important}
 #pulse-home .pulse-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:20px 0 32px;min-height:140px}
@@ -52,13 +55,13 @@
 #pulse-home .week-day{min-height:112px!important;padding:15px 10px!important;border:1px solid #a1aabd14!important;border-radius:5px!important;background:rgba(9,13,21,.57)!important;box-shadow:none!important;transition:border-color .3s,background .3s,transform .3s!important}
 #pulse-home .week-day:hover{border-color:#ff82904d!important;background:#191621!important;transform:translateY(-3px)}
 #pulse-home .week-day.today{border-color:#ff708b66!important;background:linear-gradient(165deg,#ff597225,#0b0e18 85%)!important;box-shadow:inset 0 2px 0 #ff5e7b,0 0 26px #ff456915!important}
-#pulse-home .week-day .day-name{color:#b5bbcb!important;font-size:12px!important;letter-spacing:.5px!important}
-#pulse-home .week-day .day-num{font-size:22px!important;font-weight:550!important}
-#pulse-home .week-day .day-type{font-size:12px!important;white-space:normal!important;overflow-wrap:anywhere}
+#pulse-home .week-day .wd-name{color:#b5bbcb!important;font-size:12px!important;letter-spacing:.5px!important}
+#pulse-home .week-day .wd-date{font-size:22px!important;font-weight:550!important}
+#pulse-home .week-day .wd-type{font-size:12px!important;white-space:normal!important;overflow-wrap:anywhere}
 #pulse-home .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important}
 #pulse-home .goal-card,#pulse-home .chart-card{position:relative;border:1px solid #a6b3cf24!important;border-radius:3px!important;background:linear-gradient(135deg,rgba(17,21,31,.94),rgba(9,12,20,.88))!important;box-shadow:0 12px 40px #0002!important;padding:27px!important;overflow:hidden!important;min-width:0}
 #pulse-home .goal-card-run-v34{border-top-color:#ef627477!important}
-#pulse-home .goal-card-vo2-v37{border-top-color:#6adaaf55!important}
+#pulse-home .vo2-goal-source-v13{border-top-color:#6adaaf55!important}
 #pulse-home .goal-lbl,#pulse-home .chart-card h3{color:#dce0eb!important;font-size:15px!important;font-weight:550!important;text-transform:none!important;letter-spacing:0!important;margin-bottom:20px!important}
 #pulse-home .charts-row{grid-template-columns:1fr 1fr!important;gap:24px!important}
 #pulse-home .chart-area{height:240px!important}
@@ -79,9 +82,14 @@
 #pulse-page:has(#session-modal.show) #pulse-log-button{display:none!important}
 #pulse-home :focus-visible,#pulse-header :focus-visible,#pulse-log-button:focus-visible{outline:2px solid #ff9daf!important;outline-offset:4px}
 @media(max-width:760px){
- #pulse-header{width:90%!important;padding:22px 0 14px!important;gap:10px!important;flex-wrap:wrap}
+ #pulse-header{width:90%!important;padding:22px 0 14px!important;gap:18px 10px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto}
+ #pulse-header .brand{grid-column:1;grid-row:1}
+ #pulse-header .nav-dropdown-wrapper{grid-column:2;grid-row:1;justify-self:end}
+ #pulse-header .wellness-nav{grid-column:1;grid-row:2;justify-self:start;margin-left:0}
+ #pulse-header .streak-badge{grid-column:2;grid-row:2;justify-self:end;font-size:13px!important}
  #pulse-header .brand-text h1{font-size:15px!important;gap:5px;letter-spacing:1px!important}
- #pulse-header .pulse-brand-flow{letter-spacing:1.3px}
+ #pulse-header .pf-header-ecg-v80{color:#ff7189!important}
+#pulse-header .pulse-brand-flow{letter-spacing:1.3px}
  #pulse-header .wellness-nav a{font-size:12px;padding:0 9px;gap:5px}
  #pulse-header .wellness-symbol{font-size:17px}
  #pulse-home{width:90%!important;padding-top:8px!important}
@@ -111,3 +119,94 @@
  #pulse-log-button{height:46px!important;font-size:13px!important}
 }
 @media(prefers-reduced-motion:reduce){#pulse-home *,#pulse-header *,#pulse-log-button{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* The same materials continue through every overview dialog, including dynamic previews. */
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7){
+ --accent:#ff7890;--accent-dim:rgba(255,90,119,.1);--border-a:rgba(255,112,139,.4);
+ --bg2:#11141e;--bg3:#090d16;--text:#f0f1f7;--text-sec:#b2b8c9;--text-dim:#949db2;
+ --border:rgba(180,190,214,.17);--surface:rgba(255,255,255,.035);--surface-h:rgba(255,106,136,.07);
+ color:var(--text);color-scheme:dark;
+ background:radial-gradient(ellipse at 70% 10%,rgba(153,27,58,.13),transparent 55%),rgba(4,6,12,.8)!important;
+ backdrop-filter:blur(15px)!important;-webkit-backdrop-filter:blur(15px)!important;
+ padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom))!important;
+}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal,.plan-preview-card-v7){
+ width:100%!important;max-width:660px!important;max-height:88vh!important;max-height:88dvh!important;
+ padding:30px!important;border:1px solid rgba(255,120,146,.27)!important;border-radius:4px 20px 4px 20px!important;
+ background:radial-gradient(ellipse at 95% 0%,rgba(135,34,60,.16),transparent 50%),linear-gradient(155deg,#181823,#0d111b 70%)!important;
+ box-shadow:0 35px 100px #000a,inset 0 1px 0 #ffafc035,0 0 60px #fb36540a!important;
+ overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#864956 #10141e;
+}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal h2,.plan-preview-title-v7){font-size:27px!important;font-weight:550!important;line-height:1.2!important;letter-spacing:-.8px!important;color:#faf8fb!important;margin:0 44px 27px 0!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-close,.plan-preview-close-v7){width:40px!important;height:40px!important;flex:0 0 40px;display:grid;place-items:center;border:1px solid #bdc5dd29!important;border-radius:50%!important;color:#dce0ec!important;background:#ffffff04!important;font-size:17px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .form-group{min-width:0;margin-bottom:22px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.form-group label,.between-fields-v7 label){font-size:12px!important;line-height:1.4!important;font-weight:550!important;color:#afb6c9!important;text-transform:none!important;letter-spacing:.15px!important;margin-bottom:8px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input:not([type=hidden]):not([type=checkbox]),select,textarea){min-width:0;max-width:100%;min-height:42px!important;height:auto!important;padding:10px 11px!important;background:#090d16!important;border:1px solid #a3b2cf33!important;border-radius:5px!important;color:#eef0f8!important;-webkit-text-fill-color:#eef0f8!important;caret-color:#ff9bb1!important;font:400 16px/1.35 Inter,sans-serif!important;box-shadow:inset 0 1px 3px #0003!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input,textarea)::placeholder{color:#8993aa!important;-webkit-text-fill-color:#8993aa!important;opacity:1!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input,select,textarea):focus{outline:none!important;border-color:#ff7c9caa!important;box-shadow:0 0 0 3px #ff597814!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) select option{background:#10141f!important;color:#f1f2f8!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) input[type=checkbox]{accent-color:#ff5b7a}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-sm,.btn-ghost,.btn-primary,.btn-danger,.plan-preview-back-v7,.plan-preview-save-v7){min-height:42px!important;padding:10px 15px!important;border-radius:6px!important;font:550 13px/1.35 Inter,sans-serif!important;letter-spacing:0!important;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-sm,.btn-ghost,.plan-preview-back-v7){background:#ffffff04!important;border:1px solid #a3b2ce30!important;color:#dce0ed!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-primary,.plan-preview-save-v7){background:linear-gradient(120deg,#dc3152,#f35b74)!important;border:1px solid #ff93aa88!important;color:white!important;box-shadow:0 0 22px #ff496324,inset 0 1px 0 #ffc5d033!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-primary,.plan-preview-save-v7):hover{background:linear-gradient(120deg,#ef4265,#ff6e86)!important;box-shadow:0 0 28px #ff49633a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .btn-danger{background:#f14e6210!important;border-color:#f7687940!important;color:#ff9aa9!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-footer,.plan-preview-actions-v7){gap:10px!important;flex-wrap:wrap;margin-top:26px!important;padding-top:20px!important;border-top:1px solid #d8dff21a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.week-nav-label,.plan-preview-date-v7){font-size:14px!important;color:#dfe2ed!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .week-nav-sub{font-size:12px!important;color:#8f9ab2!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .week-nav-btn{min-width:38px!important;min-height:38px!important;background:#ff6c8310!important;border:1px solid #ff779033!important;color:#ffabbc!important;border-radius:50%!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-item,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{padding:16px!important;border:1px solid #a4aec626!important;border-radius:6px!important;background:linear-gradient(120deg,#ffffff04,#ffffff01)!important;box-shadow:none!important;gap:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-list{gap:14px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-head{gap:7px!important;margin-bottom:2px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-kind-btn{min-height:34px!important;padding:7px 12px!important;border-radius:5px!important;font-size:12px!important;color:#a6b0c5!important;background:transparent!important;border-color:#a3b2ce26!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-kind-btn.active{color:#c4d6fc!important;background:#6496ea16!important;border-color:#85adfb50!important;box-shadow:0 0 15px #6299f610!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-kind-btn.active,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-kind-btn.active{color:#ffbcc7!important;background:#ff576d16!important;border-color:#ff889e50!important;box-shadow:0 0 15px #ff5b7610!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row{grid-template-columns:minmax(0,1fr) 65px 65px 74px 36px!important;gap:7px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 95px 95px 36px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(.ex-del,.builder-row-plus-v3,.builder-row-drag-handle-v3){width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;display:grid;place-items:center;border:1px solid #abb8d22a!important;border-radius:5px!important;color:#bcc6dc!important;background:#ffffff05!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-del{color:#fd9baa!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-row-plus-v3{color:#ffafbf!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-drag-bars-v34{color:#b3c0d6!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.builder-toggle-label-v13,.per-set-label-v7){font-size:11px!important;line-height:1.35!important;color:#adb6cb!important;font-weight:550!important;text-transform:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-toggle-unit-v13{gap:8px!important;min-width:66px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch){background:#1b2230!important;border-color:#8e9bb444!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch)[aria-pressed=true]{background:#ff5e7d33!important;border-color:#ff91a480!important;box-shadow:0 0 16px #ff648533!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch)[aria-pressed=true]::after{background:#ffb7c5!important;box-shadow:0 0 10px #ff71897a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(#between-exercise-global-editor-v7,.plan-preview-global-v7){background:#ff6c8110!important;border:1px solid #ff859732!important;border-radius:5px!important;padding:13px!important;box-shadow:none!important;color:#ffc1cf!important;font-size:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-global-title-v7 strong,.plan-preview-kicker-v7,.single-exercise-kicker-v9){font-size:11px!important;color:#ffb0c2!important;letter-spacing:.8px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-global-title-v7 span,.single-exercise-context-v9){font-size:12px!important;color:#a3adc1!important;line-height:1.5}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-v7{flex-wrap:wrap!important;border-color:#d3dced1c!important;margin-top:12px!important;padding-top:12px!important;gap:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-fields-v7{grid-template-columns:minmax(0,1fr) 80px!important;flex-basis:100%!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-name-v7{grid-column:1/-1}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-row-v7{padding:16px 4px!important;gap:10px!important;border-color:#bbc5dc1c!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-name-v7{font-size:15px!important;font-weight:550!important;color:#e4e8f3!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#ffb7c7!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.plan-preview-target-v7,.plan-preview-num-v7){font-size:12px!important;color:#a6b1c8!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-between-v7{font-size:12px!important;color:#ffb8c9!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .log-add-summary-v52{border-color:#ff789526!important;background:#ff6b8610!important;color:#b6bfd1!important;padding:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(:focus-visible){outline:2px solid #ff9daf!important;outline-offset:3px}
+#pulse-page:not(:has(#session-modal.show)) #toast{background:#171723!important;border-color:#ff7c9b55!important;color:#ffd3df!important;box-shadow:0 15px 40px #0007!important;border-radius:8px!important;max-width:90vw;text-align:center}
+#pulse-page #day-modal.pulse-editor .modal{max-width:460px!important}
+#pulse-page #day-modal.pulse-editor .modal-footer{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#pulse-page #wk-modal.pulse-editor #wk-template-select{min-width:0;flex-basis:100%!important}
+#pulse-page #wk-modal.pulse-editor .form-group:has(#wk-template-select)>div{flex-wrap:wrap}
+@media(max-width:600px){
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7){padding:12px!important;align-items:center!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal,.plan-preview-card-v7){padding:22px 17px!important;max-height:90vh!important;max-height:90dvh!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal h2,.plan-preview-title-v7){font-size:24px!important;margin-bottom:24px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .form-group{margin-bottom:19px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-item,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{padding:13px 10px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-row{grid-template-columns:repeat(3,minmax(0,1fr)) 36px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=text]{grid-column:1/4;grid-row:1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>.ex-del{grid-column:4;grid-row:1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=number]{grid-row:2;padding-left:8px!important;padding-right:7px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row-head{flex-wrap:wrap!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-week-between-v7{grid-template-columns:1fr!important;gap:17px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{grid-column:1!important;justify-content:flex-start!important;gap:24px!important;margin-top:6px}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-fields-v7{grid-template-columns:minmax(0,1fr) 80px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-name-v7{grid-column:1/-1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-target-v7{white-space:normal!important;max-width:110px;line-height:1.45}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-footer,.plan-preview-actions-v7){gap:8px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .modal-footer>button{flex:1 1 auto}
+}
+@media(prefers-reduced-motion:reduce){#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) *,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

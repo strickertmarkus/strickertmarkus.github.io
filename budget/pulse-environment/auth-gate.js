@@ -324,7 +324,7 @@
     }
     if (!user) {
       var current = window.location.pathname + window.location.search + window.location.hash;
-      window.location.replace('login.html?next=' + encodeURIComponent(current));
+      window.location.replace(new URL('login.html?next=' + encodeURIComponent(current), document.baseURI).href);
     }
   });
 })();

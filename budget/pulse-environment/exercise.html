@@ -496,8 +496,6 @@
 <body id="pulse-page">
 <canvas id="pulse-environment" aria-hidden="true"></canvas>
 <div class="app-wrap">
-<div class="bg-orb bg-orb-1"></div>
-<div class="bg-orb bg-orb-2"></div>
 
   <header class="app-header" id="pulse-header">
     <div class="brand">
@@ -659,7 +657,7 @@
 <button class="fab" id="pulse-log-button" onclick="openWorkoutModal()" title="Logga träning"><span aria-hidden="true">+</span> Logga pass</button>
 
 <!-- ── WORKOUT MODAL ── -->
-<div class="modal-overlay" id="wk-modal">
+<div class="modal-overlay pulse-editor" id="wk-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('wk-modal')">✕</button>
     <h2>Logga träning</h2>
@@ -701,7 +699,7 @@
 </div>
 
 <!-- ── TEMPLATE MODAL ── -->
-<div class="modal-overlay" id="template-modal">
+<div class="modal-overlay pulse-editor" id="template-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('template-modal')">✕</button>
     <h2>Mallpass</h2>
@@ -744,7 +742,7 @@
 </div>
 
 <!-- ── WEEK TEMPLATE EDITOR MODAL ── -->
-<div class="modal-overlay" id="week-template-modal">
+<div class="modal-overlay pulse-editor" id="week-template-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('week-template-modal')">✕</button>
     <h2>Skapa veckomall</h2>
@@ -777,7 +775,7 @@
 </div>
 
 <!-- ── PLAN MODAL ── -->
-<div class="modal-overlay" id="plan-modal">
+<div class="modal-overlay pulse-editor" id="plan-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('plan-modal')">✕</button>
     <h2>Veckoplan</h2>
@@ -804,7 +802,7 @@
 </div>
 
 <!-- ── DAY CONFIG MODAL ── -->
-<div class="modal-overlay" id="day-modal">
+<div class="modal-overlay pulse-editor" id="day-modal">
   <div class="modal" style="max-width:340px">
     <button class="modal-close" onclick="closeModal('day-modal')">✕</button>
     <h2 id="day-modal-title">Måndag</h2>
@@ -822,7 +820,7 @@
 </div>
 
 <!-- ── DAY WORKOUT BUILDER ── -->
-<div class="modal-overlay" id="day-workout-modal">
+<div class="modal-overlay pulse-editor" id="day-workout-modal">
   <div class="modal" style="max-width:620px">
     <button class="modal-close" onclick="closeModal('day-workout-modal')">✕</button>
     <h2 id="day-workout-title">Passupplägg</h2>
@@ -905,7 +903,7 @@
 <datalist id="type-suggestions"></datalist>
 
 <!-- ── PR MODAL ── -->
-<div class="modal-overlay" id="pr-modal">
+<div class="modal-overlay pulse-editor" id="pr-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('pr-modal')">✕</button>
     <h2>Uppdatera PR</h2>
