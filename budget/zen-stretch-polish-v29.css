@@ -16,27 +16,28 @@ body[data-kind=stretch] #start-button:disabled{
   opacity:.93;
 }
 
-/* One continuous local light field for the first Helkropp card.
-   The vertical radius deliberately extends beyond the card so the light
-   cannot fade to zero halfway through the button on mobile Safari. */
+/* v27's diagonal card beam could expose a hard edge. Remove it completely. */
 body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
   content:''!important;
   display:block!important;
   position:absolute;
   pointer-events:none;
   z-index:0;
-  inset:-14% -7% -30% -7%;
-  background:radial-gradient(
-    ellipse 104% 225% at 27% -22%,
-    rgba(226,251,178,.110) 0%,
-    rgba(218,248,165,.082) 25%,
-    rgba(207,242,151,.052) 50%,
-    rgba(197,233,138,.026) 75%,
-    transparent 100%
-  );
+  inset:-8% -5% -10% -5%;
+  background:
+    radial-gradient(ellipse 92% 130% at 26% -8%,
+      rgba(226,251,178,.105) 0%,
+      rgba(218,248,165,.078) 18%,
+      rgba(207,242,151,.050) 34%,
+      rgba(197,233,138,.022) 50%,
+      transparent 70%),
+    radial-gradient(ellipse 58% 95% at 15% 18%,
+      rgba(221,250,170,.040) 0%,
+      rgba(208,240,150,.016) 48%,
+      transparent 76%);
   -webkit-mask-image:none!important;
   mask-image:none!important;
-  filter:blur(6px);
+  filter:blur(5px);
   mix-blend-mode:screen;
   opacity:.92;
 }
@@ -60,7 +61,18 @@ body[data-kind=stretch] .ritual-card:first-child .ritual-choice>*{
   }
 
   body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
-    inset:-16% -8% -34% -8%;
+    inset:-10% -7% -12% -7%;
+    background:
+      radial-gradient(ellipse 98% 142% at 27% -10%,
+        rgba(226,251,178,.115) 0%,
+        rgba(218,248,165,.080) 18%,
+        rgba(207,242,151,.048) 35%,
+        rgba(197,233,138,.018) 52%,
+        transparent 72%),
+      radial-gradient(ellipse 62% 98% at 14% 20%,
+        rgba(221,250,170,.038) 0%,
+        rgba(208,240,150,.014) 50%,
+        transparent 78%);
     filter:blur(6px);
   }
 }
