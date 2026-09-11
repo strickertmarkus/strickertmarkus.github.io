@@ -191,14 +191,7 @@
     const topX = x + lean + sway;
     const total = baseY - topY;
     const segments = 13 + Math.floor((stalk[3] * 7.3) % 5);
-    const clipAtWater = (distant && x === 1040) || (!distant && x === 735);
-
-    if (clipAtWater) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, -200, W, WATER + 0.5);
-      ctx.clip();
-    }
+    const suppressSubmergedReflection = (!distant && x === 650) || (distant && x === 815);
 
     for (let j = 0; j < segments; j++) {
       // Stable uneven node heights; branches remain attached to the nodes.
@@ -211,20 +204,41 @@
       const x1 = x + (topX - x) * t1;
       const w = widthStem * (1 - j / segments * 0.30);
       const submerged = y0 > WATER && y1 > WATER;
+
+      if (suppressSubmergedReflection && submerged) continue;
+
+      let drawX0 = x0;
+      let drawY0 = y0;
+      let drawX1 = x1;
+      let drawY1 = y1;
+      if (suppressSubmergedReflection && ((y0 > WATER) !== (y1 > WATER))) {
+        const mix = (WATER - y0) / (y1 - y0);
+        const waterX = x0 + (x1 - x0) * mix;
+        if (y0 > WATER) {
+          drawX0 = waterX;
+          drawY0 = WATER;
+        } else {
+          drawX1 = waterX;
+          drawY1 = WATER;
+        }
+      }
+
       const alpha = alphaBase * (submerged ? 0.24 : 1);
 
-      const g = ctx.createLinearGradient(x0 - w, y0, x0 + w, y0);
+      const g = ctx.createLinearGradient(drawX0 - w, drawY0, drawX1 + w, drawY1);
       g.addColorStop(0, 'rgba(42,84,70,' + (alpha * 0.78) + ')');
       g.addColorStop(0.38, 'rgba(116,159,122,' + alpha + ')');
       g.addColorStop(0.60, 'rgba(190,199,143,' + (alpha * 0.84) + ')');
       g.addColorStop(1, 'rgba(49,93,74,' + (alpha * 0.82) + ')');
-      stroke(ctx, x0, y0, x1, y1, g, w);
-      const sunSide=x1<805?1:-1;
-      stroke(ctx, x0 + sunSide * w * 0.26, y0, x1 + sunSide * w * 0.26, y1, 'rgba(252,233,173,' + (alpha * 0.36) + ')', Math.max(0.6, w * 0.08));
+      stroke(ctx, drawX0, drawY0, drawX1, drawY1, g, w);
+      const sunSide=drawX1<805?1:-1;
+      stroke(ctx, drawX0 + sunSide * w * 0.26, drawY0, drawX1 + sunSide * w * 0.26, drawY1, 'rgba(252,233,173,' + (alpha * 0.36) + ')', Math.max(0.6, w * 0.08));
 
-      if (j < segments - 1) stroke(ctx, x1 - w * 0.55, y1, x1 + w * 0.55, y1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
+      if (j < segments - 1 && (!suppressSubmergedReflection || y1 <= WATER)) {
+        stroke(ctx, drawX1 - w * 0.55, drawY1, drawX1 + w * 0.55, drawY1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
+      }
 
-      if (!submerged && j > 1 && j < segments - 2 && Math.sin(j * 2.17 + stalk[3] * 4.3) > (distant ? .08 : .24)) {
+      if (!submerged && y1 <= WATER + 0.5 && j > 1 && j < segments - 2 && Math.sin(j * 2.17 + stalk[3] * 4.3) > (distant ? .08 : .24)) {
         const dir = ((j + Math.round(x)) % 4) < 2 ? 1 : -1;
         const branchLength = (distant ? 27 : 39) * (0.73 + (Math.sin(stalk[3] * 3 + j) + 1) * 0.22);
         const flutter = reduced.matches ? 0 : Math.sin(time * 0.82 + stalk[3] + j) * 5 * mobileBoost();
@@ -240,8 +254,6 @@
         }
       }
     }
-
-    if (clipAtWater) ctx.restore();
   }
 
   function drawRippleSet(x, time, phase, distant) {
