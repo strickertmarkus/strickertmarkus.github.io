@@ -28,7 +28,7 @@
   let frame = 0;
   let lastFrame = -Infinity;
   let visible = true;
-  let copyZone = null;
+  let copyZones = [];
 
   const back = [
     [585, 6, -28, 0.2, 0.40], [630, 7, 20, 0.8, 0.44], [675, 5, -14, 1.5, 0.34],
@@ -39,7 +39,7 @@
   ];
 
   const front = [
-    [650, 10, -34, 0.4, 0.76], [735, 13, 26, 1.4, 0.88], [825, 9, -22, 2.4, 0.78],
+    [650, 10, -34, 0.4, 0.76], [735, 13, 26, 1.4, 0.88], [790, 9, -22, 2.4, 0.78],
     [915, 15, 34, 3.5, 0.92], [1005, 11, -27, 4.5, 0.84], [1095, 14, 24, 5.6, 0.90],
     [1180, 10, -20, 6.7, 0.80]
   ];
@@ -197,8 +197,10 @@
     const segments = 13 + Math.floor((stalk[3] * 7.3) % 5);
 
     for (let j = 0; j < segments; j++) {
-      const t0 = j / segments;
-      const t1 = (j + 1) / segments;
+      // Stable uneven node heights; branches remain attached to the nodes.
+      const node = n => n===0?0:n===segments?1:(n+Math.sin(n*2.31+stalk[3]*3.7)*.23)/segments;
+      const t0 = node(j);
+      const t1 = node(j + 1);
       const y0 = baseY - total * t0;
       const y1 = baseY - total * t1;
       const x0 = x + (topX - x) * t0;
@@ -218,13 +220,13 @@
 
       if (j < segments - 1) stroke(ctx, x1 - w * 0.55, y1, x1 + w * 0.55, y1, 'rgba(49,82,65,' + (alpha * 0.70) + ')', Math.max(0.9, w * 0.12));
 
-      if (!submerged && j > 1 && j < segments - 2 && Math.sin(j * 2.17 + stalk[3] * 4.3) > -0.12) {
+      if (!submerged && j > 1 && j < segments - 2 && Math.sin(j * 2.17 + stalk[3] * 4.3) > (distant ? .08 : .24)) {
         const dir = ((j + Math.round(x)) % 4) < 2 ? 1 : -1;
         const branchLength = (distant ? 27 : 39) * (0.73 + (Math.sin(stalk[3] * 3 + j) + 1) * 0.22);
         const flutter = reduced.matches ? 0 : Math.sin(time * 0.82 + stalk[3] + j) * 5 * mobileBoost();
         // Reserve a real text-shaped opening instead of covering the copy with a panel.
         const edge = x1 + dir * (branchLength + 22 + Math.abs(flutter));
-        if (copyZone && Math.max(x1, edge) > copyZone.left && Math.min(x1, edge) < copyZone.right && y1 > copyZone.top && y1 - 42 < copyZone.bottom) continue;
+        if (copyZones.some(zone => Math.max(x1, edge) > zone.left && Math.min(x1, edge) < zone.right && y1+12 > zone.top && y1-50 < zone.bottom)) continue;
         stroke(ctx, x1, y1, x1 + dir * (branchLength + flutter), y1 - 17, 'rgba(51,94,74,' + (alpha * 0.72) + ')', Math.max(0.9, w * 0.10));
         for (let k = 0; k < 3; k++) {
           const len = (distant ? 22 : 29) - k + Math.sin(stalk[3] + j + k) * 4;
@@ -406,10 +408,11 @@
   }
 
   function updateCopyZone() {
-    const text=document.querySelector('.hero-description');
-    if(!text){copyZone=null;return;}
-    const r=text.getBoundingClientRect(), b=host.getBoundingClientRect();
-    copyZone={left:(r.left-b.left-left)/scale-8,right:(r.right-b.left-left)/scale+8,top:(r.top-b.top)/scale-8,bottom:(r.bottom-b.top)/scale+8};
+    const b=host.getBoundingClientRect();
+    copyZones=['.hero-description','.hero-copy h1','.kind-switch'].map(selector=>document.querySelector(selector)).filter(Boolean).map(text=>{
+      const r=text.getBoundingClientRect();
+      return {left:(r.left-b.left-left)/scale-10,right:(r.right-b.left-left)/scale+10,top:(r.top-b.top)/scale-8,bottom:(r.bottom-b.top)/scale+8};
+    });
   }
 
   function resize() {

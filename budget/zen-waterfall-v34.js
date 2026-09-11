@@ -37,8 +37,8 @@
     if(kind==='rear'){
       g.addColorStop(0,'#d4dbc8');
       g.addColorStop(.28,'#b4c2b2');
-      g.addColorStop(.66,'#7b9087');
-      g.addColorStop(1,'#566f68');
+      g.addColorStop(.66,'#97aba0');
+      g.addColorStop(1,'#7f988d');
     }else if(kind==='front'){
       g.addColorStop(0,'#bac7b5');
       g.addColorStop(.30,'#93a59a');
@@ -133,6 +133,16 @@
     var s=g.s;
     var x=g.x;
 
+    // Broken reflection of the same stone shapes, faded into the pond.
+    ctx.save();ctx.beginPath();
+    for(var band=0;band<10;band++)ctx.rect(x-110*s,g.water+4+band*5,235*s,2.5);
+    ctx.clip();ctx.globalAlpha=.13;
+    ctx.translate(reduced.matches?0:Math.sin(time*.48)*1.7,g.water*1.45);
+    ctx.scale(1,-.45);
+    rock(x+40*s,g.water-35*s,61*s,43*s,.12,'small','rear');
+    rock(x-45*s,g.water-24*s,39*s,35*s,-.18,'small','ledge');
+    rock(x+19*s,g.crest+35*s,86*s,52*s,-.075,'rear','rear');
+    ctx.restore();
     // A soft, local contact shadow anchors the feet in the water.
     ctx.save();ctx.translate(x+15*s,g.water+2*s);ctx.scale(1,.16);
     var contact=ctx.createRadialGradient(0,0,0,0,0,114*s);
@@ -141,9 +151,9 @@
     contact.addColorStop(1,'rgba(46,85,74,0)');
     ctx.fillStyle=contact;ctx.fillRect(-114*s,-114*s,228*s,228*s);ctx.restore();
     // Interlocking smaller stones support the shelf all the way to the pond.
-    rock(x+40*s,g.water-35*s,54*s,49*s,.12,'small','rear');
-    rock(x-45*s,g.water-24*s,34*s,39*s,-.18,'small','ledge');
-    var rear={x:x+19*s,y:g.crest+35*s,rx:86*s,ry:61*s,l:-.075,shape:'rear'};
+    rock(x+40*s,g.water-35*s,61*s,43*s,.12,'small','rear');
+    rock(x-45*s,g.water-24*s,39*s,35*s,-.18,'small','ledge');
+    var rear={x:x+19*s,y:g.crest+35*s,rx:86*s,ry:52*s,l:-.075,shape:'rear'};
     var left={x:x-51*s,y:g.crest+67*s,rx:32*s,ry:21*s,l:-.13,shape:'flat'};
     var right={x:x+93*s,y:g.crest+64*s,rx:33*s,ry:24*s,l:.11,shape:'small'};
     rock(rear.x,rear.y,rear.rx,rear.ry,rear.l,'rear',rear.shape);
@@ -183,6 +193,10 @@
     }
     ctx.restore();
 
+    ctx.save();ctx.translate(x+24*s,holeY+14*s);ctx.scale(1,.22);
+    var seam=ctx.createRadialGradient(0,0,0,0,0,66*s);
+    seam.addColorStop(0,'rgba(32,64,55,.18)');seam.addColorStop(1,'rgba(32,64,55,0)');
+    ctx.fillStyle=seam;ctx.fillRect(-66*s,-66*s,132*s,132*s);ctx.restore();
     var lipLeft={x:holeX-35*s,y:holeY+19*s,rx:31*s,ry:22*s,l:-.10,shape:'ledge'};
     var lipRight={x:holeX+39*s,y:holeY+21*s,rx:36*s,ry:24*s,l:.08,shape:'ledge'};
     drawWater(holeX,holeY+2*s,g.water,s,time,g.mobile);
