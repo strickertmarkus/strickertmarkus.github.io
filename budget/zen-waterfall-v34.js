@@ -133,20 +133,10 @@
     var s=g.s;
     var x=g.x;
 
-    // Broken reflection of the same stone shapes, faded into the pond.
-    ctx.save();ctx.beginPath();
-    for(var band=0;band<10;band++)ctx.rect(x-110*s,g.water+4+band*5,235*s,2.5);
-    ctx.clip();ctx.globalAlpha=.13;
-    ctx.translate(reduced.matches?0:Math.sin(time*.48)*1.7,g.water*1.45);
-    ctx.scale(1,-.45);
-    rock(x+40*s,g.water-35*s,61*s,43*s,.12,'small','rear');
-    rock(x-45*s,g.water-24*s,39*s,35*s,-.18,'small','ledge');
-    rock(x+19*s,g.crest+35*s,86*s,52*s,-.075,'rear','rear');
-    ctx.restore();
     // A soft, local contact shadow anchors the feet in the water.
     ctx.save();ctx.translate(x+15*s,g.water+2*s);ctx.scale(1,.16);
     var contact=ctx.createRadialGradient(0,0,0,0,0,114*s);
-    contact.addColorStop(0,'rgba(46,85,74,.16)');
+    contact.addColorStop(0,'rgba(46,85,74,.24)');
     contact.addColorStop(.62,'rgba(46,85,74,.07)');
     contact.addColorStop(1,'rgba(46,85,74,0)');
     ctx.fillStyle=contact;ctx.fillRect(-114*s,-114*s,228*s,228*s);ctx.restore();
@@ -213,7 +203,8 @@
     wash.addColorStop(1,'rgba(153,204,198,0)');
     ctx.fillStyle=wash;
     ctx.fillRect(x-125*s,g.water-8,250*s,36);
-    drawImpact(holeX,g.water,s,time);
+    // Impact is drawn in the live scene after the mirrored surface.
+
   }
 
   function drawWater(x,startY,waterY,s,time,mobile){
@@ -313,11 +304,33 @@
     if(name)button.insertBefore(symbol,name);else button.appendChild(symbol);
   }
 
+  // One bounded offscreen source for both the formation and its exact reflection.
+  var source=document.createElement('canvas');source.width=1200;source.height=640;
+  var sourceContext=source.getContext('2d');
   window.ZenPondRocks={
     draw:function(context,viewport,time){
-      ctx=context;width=viewport.width;left=viewport.left;scale=viewport.scale;
-      ctx.save();
-      drawFormation(geometry(),time);
+      width=viewport.width;left=viewport.left;scale=viewport.scale;
+      var g=geometry();
+      ctx=sourceContext;ctx.clearRect(0,0,source.width,source.height);
+      ctx.save();ctx.beginPath();ctx.rect(0,0,1200,g.water);ctx.clip();
+      drawFormation(g,time);ctx.restore();
+      ctx=context;ctx.save();
+      var sx=g.x-130*g.s,sw=260*g.s,compression=.58;
+      var depth=(g.water-(g.crest-35*g.s))*compression;
+      // Each strip samples the SAME source pixels in reverse vertical order.
+      // Wave displacement grows away from the contact line, so the base stays attached.
+      for(var y=0;y<depth;y+=1.5){
+        var p=y/depth;
+        var wave=(Math.sin(y*.27-time*1.45)+Math.sin(y*.13+time*.71)*.55)*(.35+p*3.7);
+        if(reduced.matches)wave=Math.sin(y*.27)*(.35+p*2.2);
+        ctx.globalAlpha=.27*Math.pow(1-p,1.6);
+        var sy=g.water-(y+1.5)/compression;
+        ctx.drawImage(source,sx,sy,sw,1.5/compression,sx+wave,g.water+y,sw,1.6);
+      }
+      ctx.globalAlpha=1;
+      ctx.drawImage(source,0,0);
+      // Fine water highlights break the reflection at its point of contact.
+      drawImpact(g.x+18*g.s,g.water,g.s,time);
       ctx.restore();
     }
   };

@@ -120,9 +120,9 @@
     bg.fillStyle = sky;
     bg.fillRect(0, 0, W, H);
 
-    glow(bg, 805, 145, 430, '255,242,184', 0.38);
+    glow(bg, 805, 145, 430, '255,224,145', 0.40);
     glow(bg, 720, 245, 260, '229,247,220', 0.18);
-    ellipse(bg, 806, 148, 18, 18, 'rgba(255,248,211,.46)');
+    ellipse(bg, 806, 148, 18, 18, 'rgba(255,235,161,.62)');
 
     bg.fillStyle = 'rgba(102,148,129,.19)';
     bg.beginPath();
@@ -335,8 +335,8 @@
     for (let i = 0; i < 4; i++) {
       const sx = 750 + i * 47 + (reduced.matches ? 0 : Math.sin(time * 0.08 + i) * 10);
       const beam = ctx.createLinearGradient(sx, 60, sx - 170, 690);
-      beam.addColorStop(0, 'rgba(255,246,198,.15)');
-      beam.addColorStop(0.50, 'rgba(245,245,211,.065)');
+      beam.addColorStop(0, 'rgba(255,223,141,.18)');
+      beam.addColorStop(0.50, 'rgba(255,231,167,.085)');
       beam.addColorStop(1, 'rgba(238,247,225,0)');
       ctx.fillStyle = beam;
       ctx.beginPath();
@@ -347,7 +347,7 @@
       ctx.closePath();
       ctx.fill();
     }
-    glow(ctx, 805 + (reduced.matches ? 0 : Math.sin(time * 0.11) * 7), 150, 125, '255,246,198', 0.17);
+    glow(ctx, 805 + (reduced.matches ? 0 : Math.sin(time * 0.11) * 7), 150, 125, '255,223,139', 0.21);
     ctx.restore();
   }
 

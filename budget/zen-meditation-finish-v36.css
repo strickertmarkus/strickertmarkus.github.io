@@ -7,3 +7,16 @@ body[data-kind=meditation] #start-label{
 body[data-kind=meditation] #start-button>span:last-child{
   right:25px;bottom:23px;
 }
+
+/* v37: sunrise color is local to the sun, subtitle and start control. */
+body[data-kind=meditation] .hero-copy h1::after{
+  color:#f5d98e!important;
+  text-shadow:0 1px 2px rgba(82,89,52,.50),0 0 12px rgba(255,226,139,.36),0 0 25px rgba(255,231,164,.20)!important;
+}
+body[data-kind=meditation] #start-label{
+  text-shadow:0 1px 2px rgba(51,83,65,.44),0 0 6px rgba(255,232,159,.85),0 0 15px rgba(255,221,129,.62),0 0 29px rgba(255,218,119,.30);
+}
+body[data-kind=meditation] #start-button,
+body[data-kind=meditation] #start-button:hover{
+  box-shadow:0 0 18px rgba(255,224,143,.25),0 0 43px rgba(255,220,129,.15),0 0 68px rgba(255,226,151,.065),inset 0 0 26px rgba(255,241,184,.12),inset 0 0 1px rgba(255,248,217,.62);
+}
