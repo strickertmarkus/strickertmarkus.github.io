@@ -144,7 +144,7 @@
 
     var overlay = document.getElementById('session-between-overlay-v2');
     if (!overlay || overlay.dataset.transitionStabilityRestV142 !== 'true') {
-      cancelRest(false);
+      cancelRest(true);
       return;
     }
 
@@ -170,9 +170,13 @@
 
     var overlay = document.getElementById('session-between-overlay-v2');
     if (!overlay) return;
-    if (hideOverlay) overlay.classList.remove('show');
+    var owned = overlay.dataset.transitionStabilityRestV142 === 'true';
+    if (hideOverlay && owned) {
+      overlay.classList.remove('show');
+      overlay.removeAttribute('data-between-type');
+    }
     overlay.removeAttribute('data-transition-stability-rest-v142');
-    if (overlay.dataset.autoRestV118 === 'true') overlay.removeAttribute('data-auto-rest-v118');
+    if (overlay.dataset.autoRestV118 === 'true' && owned) overlay.removeAttribute('data-auto-rest-v118');
   }
 
   function finishRest() {
@@ -262,7 +266,6 @@
       var onclick = String(button.getAttribute('onclick') || '');
       if (kind === 'next') {
         return text.indexOf('starta nästa set') === 0 ||
-          text === 'extra set' ||
           onclick.indexOf('startNextSet') >= 0;
       }
       return text.indexOf('övning klar') === 0 ||
