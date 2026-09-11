@@ -9,8 +9,8 @@
   function geometry(viewport){
     var mobile=viewport.width<700;
     var cropRight=(viewport.width-viewport.left)/viewport.scale;
-    var x=mobile?Math.min(846,cropRight-118):936;
-    return {x:x,s:mobile?.64:.76,top:430,water:WATER};
+    var x=mobile ? Math.min(846,cropRight-118) : 936;
+    return {x:x,s:mobile ? .64 : .76,top:430,water:WATER};
   }
 
   function contactSeam(ctx,cx,cy,rx,lean){
@@ -29,7 +29,7 @@
   }
 
   function drawCliffPlant(ctx,g,time){
-    var s=g.s,px=g.x+45*s,py=g.top+12,sway=reduced.matches?0:Math.sin(time*.55)*2.2*s;
+    var s=g.s,px=g.x+45*s,py=g.top+12,sway=reduced.matches ? 0 : Math.sin(time*.55)*2.2*s;
     ctx.save();var moss=ctx.createRadialGradient(px,py+3,0,px,py+3,18*s);moss.addColorStop(0,'rgba(54,96,68,.42)');moss.addColorStop(.62,'rgba(67,108,74,.20)');moss.addColorStop(1,'rgba(67,108,74,0)');
     ctx.fillStyle=moss;ctx.beginPath();ctx.ellipse(px,py+3,18*s,5*s,0,0,TAU);ctx.fill();
     ctx.strokeStyle='rgba(49,91,63,.78)';ctx.lineWidth=1.15*s;ctx.lineCap='round';ctx.beginPath();
@@ -42,7 +42,7 @@
   function lilyPadPath(ctx,r){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,.20*Math.PI,1.88*Math.PI,false);ctx.closePath();}
 
   function waterRipple(ctx,x,y,rx,ry,alpha,time,phase){
-    var breathe=reduced.matches?1:.90+.10*Math.sin(time*.72+phase);
+    var breathe=reduced.matches ? 1 : .90+.10*Math.sin(time*.72+phase);
     ctx.save();ctx.globalCompositeOperation='screen';ctx.strokeStyle='rgba(244,236,190,'+(alpha*breathe)+')';ctx.lineWidth=.78;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,TAU);ctx.stroke();
     ctx.strokeStyle='rgba(205,236,227,'+(alpha*.74*breathe)+')';ctx.lineWidth=.64;ctx.beginPath();ctx.ellipse(x,y+1.5,rx*1.28,ry*1.32,0,0,TAU);ctx.stroke();ctx.restore();
   }
@@ -66,7 +66,7 @@
   }
 
   function drawFrontLily(ctx,g,time){
-    var s=g.s,x=g.x+50*s,y=g.water+55,bob=reduced.matches?0:Math.sin(time*.72+.45)*.45*s,bob2=reduced.matches?0:Math.sin(time*.66+1.35)*.32*s;
+    var s=g.s,x=g.x+50*s,y=g.water+55,bob=reduced.matches ? 0 : Math.sin(time*.72+.45)*.45*s,bob2=reduced.matches ? 0 : Math.sin(time*.66+1.35)*.32*s;
     waterRipple(ctx,x,y+1,32*s,5.4*s,.22,time,.4);waterRipple(ctx,x,y+1,40*s,6.6*s,.13,time,1);waterRipple(ctx,x,y+1,47*s,7.8*s,.075,time,1.55);waterRipple(ctx,x+29*s,y+5,23*s,4.2*s,.15,time,1.2);
     drawPad(ctx,x,y,27*s,-.11,bob,1);drawPad(ctx,x+29*s,y+6,17*s,.10,bob2,.92);drawLilyFlower(ctx,x+7*s,y-2,s,bob);
     ctx.save();ctx.globalCompositeOperation='screen';var sheen=ctx.createLinearGradient(x-30*s,0,x+48*s,0);sheen.addColorStop(0,'rgba(255,244,197,0)');sheen.addColorStop(.48,'rgba(255,244,197,.12)');sheen.addColorStop(1,'rgba(255,244,197,0)');ctx.strokeStyle=sheen;ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(x-27*s,y+5);ctx.quadraticCurveTo(x+5*s,y+3,x+45*s,y+7);ctx.stroke();ctx.restore();
