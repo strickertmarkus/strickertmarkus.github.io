@@ -1,4 +1,4 @@
-/* Zen v27: restore clean Stretch lighting. Keep Meditation waterfall isolation. */
+/* Zen v27: restore clean Stretch lighting + local first-card fade. Keep Meditation waterfall isolation. */
 
 /* Only the current waterfall canvas may render in Meditation. */
 body[data-kind=meditation] .zen-waterfall-v24,
@@ -43,16 +43,54 @@ body[data-kind=stretch] .ritual-card:first-child::after{
   display:none!important;
 }
 
-/* The first card is only a positioning/clipping context here.
-   Its single light continuation is owned by zen-stretch-polish-v29.css. */
+/* Only the first Helkropp choice gets the tiny continuation the user marked.
+   It sits above the translucent panel fill but below all text/icons. */
 body[data-kind=stretch] .ritual-card:first-child .ritual-choice{
   position:relative;
   isolation:isolate;
   overflow:hidden;
 }
+body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
+  content:'';
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+  top:-2px;
+  bottom:-2px;
+  left:-2px;
+  right:-2px;
+  background:
+    linear-gradient(106deg,
+      transparent 13%,
+      rgba(222,250,173,.018) 20%,
+      rgba(220,248,168,.095) 29%,
+      rgba(204,241,148,.065) 36%,
+      rgba(191,231,132,.025) 43%,
+      transparent 51%),
+    radial-gradient(ellipse at 30% -8%,rgba(226,251,178,.065),transparent 52%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.88) 0%,rgba(0,0,0,.64) 37%,rgba(0,0,0,.27) 67%,transparent 92%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.88) 0%,rgba(0,0,0,.64) 37%,rgba(0,0,0,.27) 67%,transparent 92%);
+  mix-blend-mode:screen;
+}
 body[data-kind=stretch] .ritual-card:first-child .ritual-choice>*{
   position:relative;
   z-index:1;
+}
+
+@media(max-width:700px){
+  body[data-kind=stretch] .ritual-card:first-child .ritual-choice::after{
+    background:
+      linear-gradient(105deg,
+        transparent 10%,
+        rgba(223,250,174,.018) 18%,
+        rgba(220,249,169,.105) 28%,
+        rgba(202,240,145,.068) 36%,
+        rgba(190,230,130,.024) 44%,
+        transparent 52%),
+      radial-gradient(ellipse at 29% -10%,rgba(226,251,178,.070),transparent 53%);
+    -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.90) 0%,rgba(0,0,0,.66) 35%,rgba(0,0,0,.28) 64%,transparent 90%);
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.90) 0%,rgba(0,0,0,.66) 35%,rgba(0,0,0,.28) 64%,transparent 90%);
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
