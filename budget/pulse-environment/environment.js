@@ -52,6 +52,45 @@
     if (node && node.textContent !== value) node.textContent = value;
   }
 
+  function workoutList() {
+    return typeof window.getWorkouts === 'function' ? window.getWorkouts() : [];
+  }
+
+  function latestWorkout() {
+    return workoutList()
+      .filter(workout => workout && workout.date)
+      .sort((a, b) => String(b.date).localeCompare(String(a.date)) || Number(b.id || 0) - Number(a.id || 0))[0] || null;
+  }
+
+  function workoutKind(plan, exercises) {
+    const type = String(plan && plan.type || '').toLowerCase();
+    if (exercises.length && exercises.every(exercise => exercise && exercise.kind === 'cardio')) return 'cardio';
+    if (exercises.some(exercise => exercise && exercise.kind === 'cardio') || /kond|cardio|löp|run|intervall/.test(type)) return 'cardio';
+    return 'strength';
+  }
+
+  function syncContext() {
+    const workouts = workoutList();
+    const weekStart = typeof window.weekStartISO === 'function' ? window.weekStartISO() : '';
+    const weekWorkouts = weekStart ? workouts.filter(workout => workout && workout.date >= weekStart) : [];
+    const goals = typeof window.getGoals === 'function' ? window.getGoals() : { weeklyWk: 4 };
+    const weeklyGoal = Number(goals && goals.weeklyWk) || 4;
+    const weekMinutes = Math.round(weekWorkouts.reduce((total, workout) => total + (Number(workout && workout.duration) || 0), 0));
+    setText('observatory-progress', `${weekWorkouts.length} av ${weeklyGoal} pass · ${weekMinutes} min denna vecka`);
+
+    const latest = latestWorkout();
+    if (!latest) {
+      setText('observatory-last', 'Senast genomfört · —');
+      return;
+    }
+    const date = window.parseISODate ? window.parseISODate(latest.date) : new Date(latest.date + 'T12:00:00');
+    const dateLabel = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'short' }).format(date);
+    const type = typeof window.canonicalWorkoutType === 'function'
+      ? window.canonicalWorkoutType(latest.type, latest.exercises)
+      : (latest.type || 'Pass');
+    setText('observatory-last', `Senast genomfört · ${dateLabel} · ${type}`);
+  }
+
   function syncReactor() {
     if (typeof window.getViewedMondayISO !== 'function') return;
     const monday = window.getViewedMondayISO();
@@ -82,6 +121,9 @@
     setText('reactor-date', dateLabel);
     setText('reactor-title', title);
     setText('reactor-summary', summary);
+    const core = document.getElementById('reactor-core');
+    core.dataset.workoutKind = workoutKind(plan, exercises);
+    syncContext();
     setText('reactor-action', hasPlan ? 'Starta pass' : 'Bygg pass');
     const start = document.getElementById('reactor-start');
     start.disabled = false;
@@ -125,6 +167,25 @@
     document.querySelectorAll('[data-reactor-scroll]').forEach(button => {
       button.addEventListener('click', () => document.getElementById(button.dataset.reactorScroll).scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth' }));
     });
+    const jumpButtons = Array.from(document.querySelectorAll('[data-reactor-scroll]'));
+    const jumpTargets = jumpButtons
+      .map(button => document.getElementById(button.dataset.reactorScroll))
+      .filter(Boolean);
+    function markActiveJump(id) {
+      jumpButtons.forEach(button => {
+        const active = button.dataset.reactorScroll === id;
+        if (active) button.setAttribute('aria-current', 'true');
+        else button.removeAttribute('aria-current');
+      });
+    }
+    markActiveJump(jumpTargets[0] && jumpTargets[0].id);
+    if (jumpTargets.length) {
+      const jumpObserver = new IntersectionObserver(entries => {
+        const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) markActiveJump(visible.target.id);
+      }, { rootMargin: '-18% 0px -58% 0px', threshold: [0, .25, .5] });
+      jumpTargets.forEach(target => jumpObserver.observe(target));
+    }
     const grid = document.getElementById('week-grid');
     grid.addEventListener('click', function (event) {
       const day = event.target.closest('.week-day');
@@ -147,6 +208,7 @@
     document.getElementById('reactor-configure').addEventListener('click', openSelectedBuilder);
     new MutationObserver(syncReactor).observe(grid, { childList: true });
     syncReactor();
+    window.addEventListener('firebase-sync', syncReactor);
     const log = document.getElementById('log-body');
     function decorateLog() {
       log.closest('table').setAttribute('role','table');

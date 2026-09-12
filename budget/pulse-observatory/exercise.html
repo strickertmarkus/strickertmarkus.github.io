@@ -491,8 +491,8 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260910">
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
-<link rel="stylesheet" href="pulse-observatory/observatory.css?v=motion-2">
-<script defer src="pulse-environment/environment.js?v=motion-2"></script>
+<link rel="stylesheet" href="pulse-observatory/observatory.css?v=start-screen-1">
+<script defer src="pulse-environment/environment.js?v=start-screen-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -565,6 +565,8 @@
         <strong id="reactor-title">Laddar pass</strong>
         <span id="reactor-summary"></span>
         <span class="observatory-action"><svg class="observatory-action-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
+        <span class="observatory-progress" id="observatory-progress" aria-live="polite"></span>
+        <span class="observatory-last" id="observatory-last" aria-live="polite"></span>
       </button>
       <button class="observatory-configure" id="reactor-configure" type="button" hidden>Redigera upplägg <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></button>
     </div>
@@ -592,7 +594,10 @@
         </div>
         <button type="button" class="week-nav-btn" onclick="shiftViewedWeek(1)" aria-label="Nästa vecka">›</button>
       </div>
-      <button type="button" class="btn-sm" onclick="goToCurrentWeek()">Denna vecka</button>
+      <div class="observatory-week-actions">
+        <button type="button" class="btn-sm" onclick="goToCurrentWeek()">Denna vecka</button>
+        <button type="button" class="observatory-add" onclick="openWorkoutModal()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Lägg till pass</span></button>
+      </div>
     </div>
 
 

@@ -18,6 +18,8 @@ A separate training overview with a crimson horizon, fine orbital traces, glowin
 - `checkpoint/pulse-reactor-core` — `bce6c71`: state before Observatory.
 - `checkpoint/pulse-observatory-core` — `8f09660`: Observatory composition and shared data/editor theme.
 - `checkpoint/pulse-observatory-v1`: completed, verified preview.
+- `checkpoint/pulse-observatory-motion-v2` — `dcd151c`: moving scene, tighter mobile hero and isolated Observatory motion state.
+- `checkpoint/pulse-observatory-start-screen-v3`: start-screen context update (progress, latest workout, workout-reactive atmosphere, active data rail and contextual add-pass action).
 
 ## Verification
 
@@ -37,7 +39,13 @@ The horizon highlight and orbiting spark reuse their SVG geometry through `<use>
 
 Three hero arrows are native SVGs, avoiding iOS emoji substitution. The mobile composition keeps the scene visible while moving the next-workout action into the first screen and reducing unused vertical space. The metrics transition follows immediately after the action.
 
-Verified in Chromium: moving dash offsets and glow opacity, pause offscreen, simulated hidden-document pause, workout pause/resume, static reduced-motion view, unchanged stored workouts, and no horizontal overflow at 320/390/768/1440 px. No new console errors beyond the known shared chart error. Before this change: `checkpoint/pulse-observatory-v1` (`3fa6447`). New checkpoint: `checkpoint/pulse-observatory-motion-v2` (`3fa6447` before this update).
+Verified in Chromium: moving dash offsets and glow opacity, pause offscreen, simulated hidden-document pause, workout pause/resume, static reduced-motion view, unchanged stored workouts, and no horizontal overflow at 320/390/768/1440 px. No new console errors beyond the known shared chart error. Before the motion update: `checkpoint/pulse-observatory-v1` (`3fa6447`). The published motion checkpoint is `checkpoint/pulse-observatory-motion-v2` (`dcd151c`).
+
+## Start-screen context (v3)
+
+The next-workout module now keeps the primary action high in the composition, with a compact data line for weekly progress and a data-driven latest-workout line below it. The atmosphere and action tint respond to the selected plan's workout type (`strength` or `cardio`) without changing the underlying plan data. The three hero symbols act as a visual navigation rail and follow the section currently in view. The weekly-plan toolbar includes the contextual `Lägg till pass` action; the older fixed log button is hidden on this isolated preview so there is only one competing entry point.
+
+The v3 QA checklist covers all five changes, mobile widths 320/390/768 px, desktop width 1440 px, no overflow, reduced motion, offscreen/hidden/session pauses, unchanged workout storage, native SVG arrows, original page controls/runtime/auth preservation and the known shared chart baseline error only.
 
 ### Legacy cleanup still outstanding
 
