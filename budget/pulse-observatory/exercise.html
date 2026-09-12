@@ -491,8 +491,8 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260910">
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
-<link rel="stylesheet" href="pulse-observatory/observatory.css?v=1">
-<script defer src="pulse-environment/environment.js?v=observatory-1"></script>
+<link rel="stylesheet" href="pulse-observatory/observatory.css?v=motion-2">
+<script defer src="pulse-environment/environment.js?v=motion-2"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -544,23 +544,29 @@
     <div class="observatory-scene" aria-hidden="true">
       <div class="observatory-rays"></div>
       <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" fill="none">
-        <defs><linearGradient id="observatory-edge"><stop stop-color="#fb4a72" stop-opacity="0"/><stop offset=".48" stop-color="#ffbdc8"/><stop offset="1" stop-color="#fb4a72" stop-opacity="0"/></linearGradient></defs>
-        <ellipse class="observatory-orbit" cx="530" cy="372" rx="350" ry="98" transform="rotate(-23 530 372)"/>
+        <defs>
+          <linearGradient id="observatory-edge"><stop stop-color="#fb4a72" stop-opacity="0"/><stop offset=".48" stop-color="#ffbdc8"/><stop offset="1" stop-color="#fb4a72" stop-opacity="0"/></linearGradient>
+          <path id="observatory-horizon-path" d="M-80 595 Q450 82 1000 595" pathLength="100"/>
+          <ellipse id="observatory-orbit-path" cx="530" cy="372" rx="350" ry="98" transform="rotate(-23 530 372)" pathLength="100"/>
+        </defs>
+        <use class="observatory-orbit" href="#observatory-orbit-path"/>
+        <use class="observatory-orbit-light" href="#observatory-orbit-path"/>
         <ellipse class="observatory-orbit faint" cx="530" cy="372" rx="320" ry="160" transform="rotate(21 530 372)"/>
-        <path class="observatory-horizon" d="M-80 595 Q450 82 1000 595"/>
+        <use class="observatory-horizon" href="#observatory-horizon-path"/>
+        <use class="observatory-horizon-light" href="#observatory-horizon-path"/>
         <path class="observatory-contour" d="M-80 620 Q450 170 1000 620M-80 658 Q450 250 1000 658"/>
         <g class="observatory-stars"><circle cx="258" cy="170" r="2"/><circle cx="720" cy="200" r="2.5"/><circle cx="600" cy="105" r="1.5"/><circle cx="165" cy="349" r="2"/><circle cx="781" cy="418" r="2"/><path d="M524 179V193M517 186H531M679 288V300M673 294H685"/></g>
       </svg>
     </div>
     <div class="observatory-next">
-      <span class="observatory-next-label">NÄSTA PASS <span aria-hidden="true">↗</span></span>
+      <span class="observatory-next-label">NÄSTA PASS <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
       <button type="button" class="observatory-start" id="reactor-start" disabled>
         <span id="reactor-date">DITT PASS</span>
         <strong id="reactor-title">Laddar pass</strong>
         <span id="reactor-summary"></span>
-        <span class="observatory-action"><svg viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><span aria-hidden="true">↗</span></span>
+        <span class="observatory-action"><svg class="observatory-action-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
       </button>
-      <button class="observatory-configure" id="reactor-configure" type="button" hidden>Redigera upplägg ↗</button>
+      <button class="observatory-configure" id="reactor-configure" type="button" hidden>Redigera upplägg <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></button>
     </div>
   </div>
 </section>
@@ -2695,6 +2701,7 @@ window.addEventListener('firebase-sync',function(event){
 // ══ RIPPLE ═════════════════════════════════════════════════════════
 (function(){
   document.querySelectorAll('button,.stat-card,.pr-card,.week-day').forEach(function(el){
+    if (el.closest('.observatory-stage')) return;
     el.classList.add('ripple-host');
     el.addEventListener('click',function(e){
       var r=el.getBoundingClientRect(), d=Math.max(el.clientWidth,el.clientHeight);

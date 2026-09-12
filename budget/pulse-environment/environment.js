@@ -170,11 +170,13 @@
     const session = document.getElementById('session-modal');
     function syncMotion() {
       const paused = document.hidden || !onScreen || session.classList.contains('show');
-      core.querySelectorAll('.reactor-orbiter,.reactor-atmosphere,.observatory-rays').forEach(el => { el.style.animationPlayState = paused ? 'paused' : 'running'; });
+      core.style.setProperty('--pulse-scene-motion', paused ? 'paused' : 'running');
+      core.querySelectorAll('.reactor-orbiter,.reactor-atmosphere').forEach(el => { el.style.animationPlayState = paused ? 'paused' : 'running'; });
     }
     new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
     new MutationObserver(syncMotion).observe(session, { attributes: true, attributeFilter: ['class'] });
     document.addEventListener('visibilitychange', syncMotion);
+    syncMotion();
   }
   if (document.readyState !== 'complete') document.addEventListener('DOMContentLoaded', install, { once: true });
   else install();
