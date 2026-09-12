@@ -27,8 +27,6 @@
 #pulse-home .reactor-eyebrow>span{font-size:22px;color:#ff9cba;text-shadow:0 0 16px #ff648f}
 #pulse-home .reactor-intro h2{font-size:clamp(37px,4.7vw,60px);font-weight:350;line-height:1.09;letter-spacing:-2px;color:#fbebf1;margin:17px 0 19px;max-width:350px}
 #pulse-home .reactor-intro em{font-style:normal;color:#ff9bb3;text-shadow:0 0 35px #ff759049}
-#pulse-home .pulse-original{font-size:11px;color:#ab95a8;text-decoration:none;padding:8px 0;display:inline-block;border-bottom:1px solid #d3aec127}
-#pulse-home .pulse-original:hover{color:#ffe3ec;border-color:#ff8eaf}
 /* The orbit is the actual weekly plan. The existing day handlers remain attached. */
 #pulse-home .reactor-core{grid-area:core;position:relative;aspect-ratio:1;width:100%;max-width:640px;margin:auto;isolation:isolate}
 #pulse-home .reactor-atmosphere{position:absolute;inset:4%;border-radius:50%;pointer-events:none;z-index:-1;background:radial-gradient(circle,transparent 37%,#ff54740a 47%,#ff4f7421 55%,#fc76981c 60%,#b92c5b0b 70%,transparent 74%);filter:blur(9px);animation:reactorLuminance 7s ease-in-out infinite}
@@ -45,14 +43,14 @@
 #pulse-home .reactor-comet-trail{stroke:#ff8ba730;stroke-width:1.3}
 #pulse-home .reactor-orbiter{transform-origin:250px 250px;animation:reactorOrbit 24s linear infinite}
 #pulse-home .reactor-orbiter-slow{animation-duration:39s;animation-direction:reverse;opacity:.7}
-#pulse-home #week-grid{display:block!important;position:absolute;inset:0;margin:0!important;padding:0!important;overflow:visible!important;pointer-events:none}
-#pulse-home #week-grid .week-day{position:absolute!important;left:var(--orbit-x);top:var(--orbit-y);transform:translate(-50%,-50%)!important;width:53px!important;height:53px!important;min-height:53px!important;padding:7px 3px!important;border-radius:50%!important;border:1px solid #da9ab52d!important;background:#130e17!important;box-shadow:0 0 17px #f7618310!important;display:flex!important;justify-content:center;gap:2px!important;pointer-events:auto;transition:background .3s,border-color .3s,box-shadow .3s!important}
-#pulse-home #week-grid .week-day:hover,#pulse-home #week-grid .week-day.is-selected{border-color:#ffb2cc94!important;background:radial-gradient(circle at 30% 25%,#472333,#1c131f 80%)!important;box-shadow:0 0 20px #ff5f8a3b,inset 0 0 16px #ff95b519!important}
-#pulse-home #week-grid .week-day.today{border-color:#ff8aaa62!important}
-#pulse-home #week-grid .week-day.done::after{content:'';position:absolute;right:4px;top:3px;width:5px;height:5px;background:#ffc2d4;border-radius:50%;box-shadow:0 0 8px #ff597e}
-#pulse-home #week-grid .wd-name{font-size:9px!important;font-weight:450!important;letter-spacing:.5px!important;color:#bfa7b9!important}
-#pulse-home #week-grid .wd-date{font-size:17px!important;font-weight:500!important;line-height:1!important;color:#f4dce8!important}
-#pulse-home #week-grid :is(.wd-type,.wd-week,.wd-status){display:none!important}
+#pulse-home .reactor-core #week-grid{display:block!important;position:absolute;inset:0;margin:0!important;padding:0!important;overflow:visible!important;pointer-events:none}
+#pulse-home .reactor-core #week-grid .week-day{position:absolute!important;left:var(--orbit-x);top:var(--orbit-y);transform:translate(-50%,-50%)!important;width:53px!important;height:53px!important;min-height:53px!important;padding:7px 3px!important;border-radius:50%!important;border:1px solid #da9ab52d!important;background:#130e17!important;box-shadow:0 0 17px #f7618310!important;display:flex!important;justify-content:center;gap:2px!important;pointer-events:auto;transition:background .3s,border-color .3s,box-shadow .3s!important}
+#pulse-home .reactor-core #week-grid .week-day:hover,#pulse-home .reactor-core #week-grid .week-day.is-selected{border-color:#ffb2cc94!important;background:radial-gradient(circle at 30% 25%,#472333,#1c131f 80%)!important;box-shadow:0 0 20px #ff5f8a3b,inset 0 0 16px #ff95b519!important}
+#pulse-home .reactor-core #week-grid .week-day.today{border-color:#ff8aaa62!important}
+#pulse-home .reactor-core #week-grid .week-day.done::after{content:'';position:absolute;right:4px;top:3px;width:5px;height:5px;background:#ffc2d4;border-radius:50%;box-shadow:0 0 8px #ff597e}
+#pulse-home .reactor-core #week-grid .wd-name{font-size:9px!important;font-weight:450!important;letter-spacing:.5px!important;color:#bfa7b9!important}
+#pulse-home .reactor-core #week-grid .wd-date{font-size:17px!important;font-weight:500!important;line-height:1!important;color:#f4dce8!important}
+#pulse-home .reactor-core #week-grid :is(.wd-type,.wd-week,.wd-status){display:none!important}
 #pulse-home .reactor-start{position:absolute;inset:20%;width:60%;height:60%;padding:24px 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;cursor:pointer;border-radius:50%;border:1px solid #ffacc219;background:radial-gradient(ellipse at 45% 18%,#f57e9b0d,#190f1b1a 70%);color:#ffe6ee;font-family:inherit;text-align:center;box-shadow:inset 0 0 50px #fd4c7010,0 0 55px #f6476f0a;transition:background .4s,box-shadow .4s,border-color .4s}
 #pulse-home .reactor-start:hover{border-color:#ffc2d949;background:radial-gradient(ellipse at 45% 18%,#f57e9b20,#190f1b28 70%);box-shadow:inset 0 0 45px #ff648519,0 0 65px #ff617422}
 #pulse-home .reactor-start:active{transform:scale(.98)}
@@ -60,7 +58,7 @@
 #pulse-home .reactor-date{font-size:10px;font-weight:450;letter-spacing:1.3px;color:#c8a7ba;line-height:1.3;text-transform:uppercase}
 #pulse-home .reactor-pulse-symbol{width:56px;min-height:24px;height:24px;flex-shrink:0;color:#ffadca;filter:drop-shadow(0 0 5px #ff759b) drop-shadow(0 0 16px #ff4e7955)}
 #pulse-home .reactor-pulse-symbol path{stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
-#pulse-home #reactor-title{font-size:clamp(23px,2.5vw,32px);font-weight:400;letter-spacing:-.8px;line-height:1.16;overflow-wrap:anywhere;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#pulse-home .reactor-core #reactor-title{font-size:clamp(23px,2.5vw,32px);font-weight:400;letter-spacing:-.8px;line-height:1.16;overflow-wrap:anywhere;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #pulse-home .reactor-summary{font-size:12px;line-height:1.4;color:#b6a0b2;max-width:100%}
 #pulse-home .reactor-action{display:flex;align-items:center;gap:12px;margin-top:6px;font-size:12px;letter-spacing:.5px;color:#ffc9db;text-shadow:0 0 13px #ff799b60}
 #pulse-home .reactor-action>span:last-child{font-size:21px;font-weight:300}
@@ -100,6 +98,78 @@
 #pulse-home .chart-note{color:#a08b9f!important;font-size:12px!important}
 #pulse-home .chart-area{height:240px!important}
 #pulse-home :is(.run-pace-chart-area-v34,.vo2-chart-area-v37){height:190px!important}
+/* Overview data uses the same light and materials as the environment. */
+#pulse-home .progress-wrap{background:#eeb9d016!important;box-shadow:none!important;height:4px!important;border-radius:5px!important;overflow:visible!important}
+#pulse-home .progress-bar{background:linear-gradient(90deg,#ab3b67,#ffb4cd)!important;box-shadow:0 0 16px #ff6b9344!important;border-radius:5px!important}
+#pulse-home .progress-marker{background:#ffe3ef!important;box-shadow:0 0 10px #ff6c98!important}
+#pulse-home :is(.run-distance-scale-v37,.vo2-distance-scale-v37,.run-distance-scale-v38){color:#bfa4b8!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37){border-color:#f1b6d023!important;background:transparent!important;box-shadow:none!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37) strong{color:#efc1d6!important;font-weight:450!important}
+#pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){color:#c0a4b9!important}
+#pulse-home .goal-history{border-color:#f2b8d120!important;background:transparent!important}
+#pulse-home .goal-history :is(th,td){background:transparent!important;border-color:#edb4d017!important;color:#baa4b7!important}
+#pulse-home .goal-history th{color:#e4bfd2!important}
+#pulse-home .goal-history tr:hover td{background:#ff8fb008!important}
+#pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}
+#pulse-home :is(.record-group-v52,.pr-card){border:1px solid #e8acce26!important;border-radius:18px!important;background:radial-gradient(ellipse at 0 0,#f5699620,transparent 65%),#180f191f!important;box-shadow:inset 0 1px 0 #ffd0e30a!important;overflow:hidden}
+#pulse-home .record-group-toggle-v52{padding:18px 20px!important;background:transparent!important;color:#edc6da!important;min-height:56px!important;font-weight:450!important;letter-spacing:.3px!important}
+#pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#ffc3de;text-shadow:0 0 13px #ff638d;margin-right:12px;font-size:20px}
+#pulse-home :is(.record-group-count-v52,.record-chevron-v52,.records-master-toggle-v52){color:#c09aaf!important;border-color:#e9a5c135!important;background:transparent!important}
+#pulse-home .record-row-v52{border-color:#f7b9d21a!important;background:transparent!important;padding:16px 20px!important;gap:15px!important;grid-template-columns:minmax(0,1fr) 90px 135px!important}
+#pulse-home .record-name-v52{font-size:13px!important;font-weight:400!important;color:#cbb3c4!important;line-height:1.5!important}
+#pulse-home .record-max-v52{font-size:19px!important;font-weight:450!important;color:#ffe0eb!important;letter-spacing:-.5px}
+#pulse-home .record-progress-copy-v52{color:#b89bab!important}
+#pulse-home .record-gain-v52{color:#a3e0ca!important;background:#a3e0ca09!important}
+#pulse-home :is(.record-flat-v52,.record-spark-empty-v52){color:#a0869a!important}
+#pulse-home .record-spark-v52{color:#ff9fbe!important;overflow:visible;filter:drop-shadow(0 0 5px #ff5e9044)}
+#pulse-home .record-spark-v52 polyline{stroke:#ff9fbe!important}
+#pulse-home .record-spark-v52 circle{fill:#ffcadb!important}
+#pulse-home .pr-weight{color:#ffc2d8!important;text-shadow:0 0 20px #ff5f8b22}
+#pulse-home :is(.pr-name,.pr-label){color:#bd9eb1!important}
+/* Retain the live table and its controls; the rows become readable log entries. */
+#pulse-home .log-wrap{overflow:visible!important}
+#pulse-home .log-table{display:block;border:0!important;width:100%!important}
+#pulse-home .log-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#pulse-home #log-body{display:block}
+#pulse-home .log-main-row{display:grid!important;grid-template-columns:90px minmax(0,1fr) 100px 85px 95px 44px;align-items:center;gap:14px;margin:12px 0 0;padding:18px 20px;border:1px solid #e9a3c12b;border-radius:18px;background:linear-gradient(110deg,#f77ca00a,#25152133);box-shadow:inset 0 1px 0 #ffd6e608;transition:border-color .2s,background .2s}
+#pulse-home .log-main-row:hover,#pulse-home .log-main-row[aria-expanded=true]{border-color:#ff9dbb63;background:linear-gradient(110deg,#f77ca018,#25152150);box-shadow:0 0 25px #f5568110}
+#pulse-home .log-main-row>td{display:block!important;width:auto!important;max-width:none!important;min-width:0;height:auto!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important;color:#c3aebe!important;font-size:12px!important;white-space:normal!important;text-align:left!important}
+#pulse-home .log-main-row>td:nth-child(1){font-size:11px!important;color:#b597ac!important}
+#pulse-home .log-tag{display:block!important;padding:0!important;border:0!important;background:none!important;color:#edd5e7!important;white-space:normal!important;font-size:14px!important;font-weight:450!important;line-height:1.4!important;overflow-wrap:anywhere}
+#pulse-home .log-pass-cardio-v7 .log-tag{color:#ffb0c3!important}
+#pulse-home .log-main-row>td:nth-child(3)::before{content:'VOLYM';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-main-row>td:nth-child(4)::before{content:'TID';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-main-row>td:nth-child(5)::before{content:'PULS';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-del{width:36px!important;height:36px!important;border:1px solid #f4b1ca2c!important;border-radius:50%!important;background:#ff89ab05!important;color:#ca9bb2!important;font-size:18px!important}
+#pulse-home .log-detail>td{display:block!important;padding:0!important;border:0!important;width:100%!important}
+#pulse-home .log-detail.show{display:block!important}
+#pulse-home .log-detail-box{padding:22px 18px!important;background:linear-gradient(160deg,#28172588,#120e18)!important;border:1px solid #f9b3cf26!important;border-top:0!important;border-radius:0 0 18px 18px!important;box-shadow:0 15px 30px #0002!important}
+#pulse-home .log-detail-copy-v8>strong{color:#e8c8dc!important;font-weight:450!important}
+#pulse-home :is(.log-meta-date-v8,.log-meta-time-v8){color:#c4a7bc!important}
+#pulse-home :is(.log-edit-pass-v7,.log-add-workout-v8){background:#ff8bac09!important;border-color:#f6aac533!important;color:#deb6cc!important;border-radius:99px!important;min-height:38px!important}
+#pulse-home .log-ex-row-v7{min-height:52px!important;border-color:#eab9cf17!important;background:transparent!important}
+#pulse-home .log-ex-row-v7:hover{background:#ff8ca811!important}
+#pulse-home :is(.log-ex-name-v7,.log-ex-target-v7){color:#ccb4c5!important}
+#pulse-home .log-ex-row-v7.is-cardio .log-ex-name-v7{color:#ffafc4!important}
+#pulse-home .log-ex-row-v7 .log-ex-time-v7{color:#dab7e9!important}
+#pulse-home :is(.log-ex-index-v7,.log-ex-chevron-v7,.log-ex-head-v7){color:#aa849d!important}
+#pulse-home .empty-state{color:#b496aa!important;border-color:#edb0ca22!important;background:radial-gradient(ellipse at 50% 0,#ff658715,transparent 70%)!important;padding:45px 20px!important}
+#pulse-home .empty-icon{color:#ffb1ce!important;text-shadow:0 0 25px #ff6181!important}
+@media(max-width:760px){
+ #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 74px!important;padding:16px!important;gap:8px 15px!important}
+ #pulse-home .record-progress-v52{grid-column:1/-1;justify-content:space-between!important}
+ #pulse-home .record-group-toggle-v52{padding:16px!important}
+ #pulse-home .log-main-row{grid-template-columns:repeat(3,minmax(0,1fr)) 36px;padding:16px!important;gap:13px 10px;border-radius:16px}
+ #pulse-home .log-main-row>td:nth-child(1){grid-column:1/4;grid-row:1}
+ #pulse-home .log-main-row>td:nth-child(2){grid-column:1/4;grid-row:2}
+ #pulse-home .log-main-row>td:nth-child(3){grid-column:1;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(4){grid-column:2;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(5){grid-column:3/5;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(6){grid-column:4;grid-row:1/3;align-self:start}
+ #pulse-home .log-detail-box{padding:18px 8px!important}
+ #pulse-home .record-max-v52{font-size:18px!important}
+}
+
 #pulse-home .exercise-concept-bar-v1{display:none!important}
 #pulse-log-button{width:48px!important;height:48px!important;padding:0!important;border-radius:50%!important;border:1px solid #ffb1cd69!important;background:radial-gradient(circle at 35% 25%,#682c49,#231122)!important;color:#ffcade!important;box-shadow:0 0 26px #fa5d9030,inset 0 0 17px #ff9fc91a!important;bottom:max(22px,env(safe-area-inset-bottom))!important;right:5%!important;font-size:0!important}
 #pulse-log-button>span{font-size:27px;font-weight:300;line-height:1}
@@ -112,7 +182,7 @@
  #pulse-header{gap:12px!important}
  #pulse-home .reactor-stage{column-gap:15px;grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr)}
  #pulse-home .reactor-intro h2{font-size:44px}
- #pulse-home #reactor-title{font-size:24px}
+ #pulse-home .reactor-core #reactor-title{font-size:24px}
 }
 @media(max-width:760px){
  #pulse-header{padding:22px 0 12px!important;display:grid!important;grid-template-columns:1fr auto;gap:17px 10px!important}
@@ -127,13 +197,12 @@
  #pulse-home .reactor-intro{padding-bottom:6px}
  #pulse-home .reactor-eyebrow{font-size:9px;letter-spacing:2px}
  #pulse-home .reactor-intro h2{font-size:35px;letter-spacing:-1.3px;max-width:none;margin:12px 0 4px}
- #pulse-home .pulse-original{position:absolute;right:0;top:0;font-size:10px}
  #pulse-home .reactor-core{width:calc(100% + 6vw);max-width:480px;margin:10px -3vw 20px}
- #pulse-home #week-grid .week-day{width:44px!important;height:44px!important;min-height:44px!important;padding:4px 2px!important}
- #pulse-home #week-grid .wd-name{font-size:9px!important}
- #pulse-home #week-grid .wd-date{font-size:15px!important}
+ #pulse-home .reactor-core #week-grid .week-day{width:44px!important;height:44px!important;min-height:44px!important;padding:4px 2px!important}
+ #pulse-home .reactor-core #week-grid .wd-name{font-size:9px!important}
+ #pulse-home .reactor-core #week-grid .wd-date{font-size:15px!important}
  #pulse-home .reactor-start{gap:6px;padding:12px 10px}
- #pulse-home #reactor-title{font-size:24px;letter-spacing:-.6px}
+ #pulse-home .reactor-core #reactor-title{font-size:24px;letter-spacing:-.6px}
  #pulse-home .reactor-date{font-size:9px;letter-spacing:.7px}
  #pulse-home .reactor-summary{font-size:11px}
  #pulse-home .reactor-pulse-symbol{width:43px;height:20px;min-height:20px}
@@ -163,7 +232,7 @@
 }
 @media(min-width:510px) and (max-width:760px){#pulse-home .reactor-core{justify-self:center;margin:10px auto 20px}}
 @media(max-width:360px){
- #pulse-home #reactor-title{font-size:20px}
+ #pulse-home .reactor-core #reactor-title{font-size:20px}
  #pulse-home .reactor-summary{font-size:10px}
  #pulse-home .reactor-start{gap:5px}
  #pulse-home .week-toolbar{grid-template-columns:1fr;gap:9px!important}
@@ -221,6 +290,9 @@
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-row-plus-v3{color:#ffafbf!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-drag-bars-v34{color:#b3c0d6!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.builder-toggle-label-v13,.per-set-label-v7){font-size:11px!important;line-height:1.35!important;color:#adb6cb!important;font-weight:550!important;text-transform:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7{background:#ff79900b!important;border-color:#f29ab82f!important;box-shadow:none!important;color:#e9bbcd!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-toggle-copy-v7 strong{color:#e9bbcd!important;font-size:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-toggle-copy-v7 span{color:#ac93a8!important;font-size:11px!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-toggle-unit-v13{gap:8px!important;min-width:66px!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch){background:#1b2230!important;border-color:#8e9bb444!important;box-shadow:none!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch)[aria-pressed=true]{background:#ff5e7d33!important;border-color:#ff91a480!important;box-shadow:0 0 16px #ff648533!important}
@@ -255,7 +327,7 @@
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=number]{grid-row:2;padding-left:8px!important;padding-right:7px!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row-head{flex-wrap:wrap!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-week-between-v7{grid-template-columns:1fr!important;gap:17px!important}
- #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{grid-column:1!important;justify-content:flex-start!important;gap:24px!important;margin-top:6px}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7{grid-column:1!important;justify-content:flex-start!important;gap:24px!important;margin-top:6px}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-fields-v7{grid-template-columns:minmax(0,1fr) 80px!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-name-v7{grid-column:1/-1}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-target-v7{white-space:normal!important;max-width:110px;line-height:1.45}

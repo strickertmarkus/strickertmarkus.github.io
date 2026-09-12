@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pulse Flow · Reactor</title>
+  <title>Pulse Flow · Observatory</title>
   <base href="../">
   <meta name="theme-color" content="#08090e">
   <meta name="description" content="Träningsplan, framsteg och träningslogg i Pulse Flow.">
@@ -491,9 +491,10 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260910">
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
+<link rel="stylesheet" href="pulse-observatory/observatory.css?v=1">
 <script defer src="pulse-environment/environment.js?v=observatory-1"></script>
 </head>
-<body id="pulse-page">
+<body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
 
   <header class="app-header" id="pulse-header">
@@ -529,34 +530,51 @@
   </header>
 
   <main class="main-content" id="pulse-home">
-<section class="reactor-stage" aria-label="Träning och veckoplan">
-  <div class="reactor-intro">
-    <span class="reactor-eyebrow"><span aria-hidden="true">◈</span> PULSE REACTOR</span>
-    <h2>Ditt nästa <em>pass.</em></h2>
+<section class="observatory-stage" aria-label="Pulse Observatory">
+  <div class="observatory-heading">
+    <span class="observatory-kicker"><span aria-hidden="true">✧</span> PULSE / OBSERVATORY</span>
+    <h2>Din träning.<br><em>I ett nytt ljus.</em></h2>
+    <nav class="observatory-jumps" aria-label="Träningsdata">
+      <button type="button" data-reactor-scroll="pulse-progress"><span aria-hidden="true">⌁</span> Framsteg</button>
+      <button type="button" data-reactor-scroll="pulse-records"><span aria-hidden="true">✧</span> Rekord</button>
+      <button type="button" data-reactor-scroll="pulse-log"><span aria-hidden="true">◌</span> Träningslogg</button>
+    </nav>
   </div>
-  <div class="reactor-core" id="reactor-core">
-    <div class="reactor-atmosphere" aria-hidden="true"></div>
-    <svg class="reactor-geometry" viewBox="0 0 500 500" fill="none" aria-hidden="true">
-      <circle class="reactor-faint-ring" cx="250" cy="250" r="236"/>
-      <circle class="reactor-ticks" cx="250" cy="250" r="192"/>
-      <circle class="reactor-inner-ring" cx="250" cy="250" r="174"/>
-      <circle class="reactor-inner-ring reactor-ring-secondary" cx="250" cy="250" r="158"/>
-      <path class="reactor-week-arc" data-day-arc="0" d="M179.68 45.77 A216 216 0 0 1 320.32 45.77"/><path class="reactor-week-arc" data-day-arc="1" d="M365.83 67.68 A216 216 0 0 1 453.52 177.64"/><path class="reactor-week-arc" data-day-arc="2" d="M464.76 226.89 A216 216 0 0 1 433.46 364.01"/><path class="reactor-week-arc" data-day-arc="3" d="M401.97 403.49 A216 216 0 0 1 275.25 464.52"/><path class="reactor-week-arc" data-day-arc="4" d="M224.75 464.52 A216 216 0 0 1 98.03 403.49"/><path class="reactor-week-arc" data-day-arc="5" d="M66.54 364.01 A216 216 0 0 1 35.24 226.89"/><path class="reactor-week-arc" data-day-arc="6" d="M46.48 177.64 A216 216 0 0 1 134.17 67.68"/>
-      <g class="reactor-orbiter"><path d="M250 76 A174 174 0 0 1 414 192" class="reactor-comet-trail"/><circle cx="414" cy="192" r="3" class="reactor-comet"/></g>
-      <g class="reactor-orbiter reactor-orbiter-slow"><circle cx="250" cy="92" r="2" class="reactor-comet"/></g>
-      <path class="reactor-axis" d="M245 14H255M250 9V19M245 486H255M250 481V491M9 250H19M14 245V255M481 250H491M486 245V255"/>
-    </svg>
-    <div class="week-grid" id="week-grid" aria-label="Välj dag i veckoplanen"></div>
-    <button type="button" class="reactor-start" id="reactor-start" disabled>
-      <span class="reactor-date" id="reactor-date">DITT PASS</span>
-      <svg class="reactor-pulse-symbol" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg>
-      <strong id="reactor-title">Laddar pass</strong>
-      <span class="reactor-summary" id="reactor-summary"></span>
-      <span class="reactor-action"><span id="reactor-action">Starta pass</span><span aria-hidden="true">↗</span></span>
-    </button>
-    <button class="reactor-configure" id="reactor-configure" type="button" hidden>Redigera upplägg <span aria-hidden="true">↗</span></button>
+  <div class="observatory-field" id="reactor-core">
+    <div class="observatory-scene" aria-hidden="true">
+      <div class="observatory-rays"></div>
+      <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" fill="none">
+        <defs><linearGradient id="observatory-edge"><stop stop-color="#fb4a72" stop-opacity="0"/><stop offset=".48" stop-color="#ffbdc8"/><stop offset="1" stop-color="#fb4a72" stop-opacity="0"/></linearGradient></defs>
+        <ellipse class="observatory-orbit" cx="530" cy="372" rx="350" ry="98" transform="rotate(-23 530 372)"/>
+        <ellipse class="observatory-orbit faint" cx="530" cy="372" rx="320" ry="160" transform="rotate(21 530 372)"/>
+        <path class="observatory-horizon" d="M-80 595 Q450 82 1000 595"/>
+        <path class="observatory-contour" d="M-80 620 Q450 170 1000 620M-80 658 Q450 250 1000 658"/>
+        <g class="observatory-stars"><circle cx="258" cy="170" r="2"/><circle cx="720" cy="200" r="2.5"/><circle cx="600" cy="105" r="1.5"/><circle cx="165" cy="349" r="2"/><circle cx="781" cy="418" r="2"/><path d="M524 179V193M517 186H531M679 288V300M673 294H685"/></g>
+      </svg>
+    </div>
+    <div class="observatory-next">
+      <span class="observatory-next-label">NÄSTA PASS <span aria-hidden="true">↗</span></span>
+      <button type="button" class="observatory-start" id="reactor-start" disabled>
+        <span id="reactor-date">DITT PASS</span>
+        <strong id="reactor-title">Laddar pass</strong>
+        <span id="reactor-summary"></span>
+        <span class="observatory-action"><svg viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><span aria-hidden="true">↗</span></span>
+      </button>
+      <button class="observatory-configure" id="reactor-configure" type="button" hidden>Redigera upplägg ↗</button>
+    </div>
   </div>
-  <section class="reactor-week" id="pulse-week">
+</section>
+<section class="observatory-metrics" aria-label="Träningsöversikt">
+<!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
+      <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
+      <div class="stat-card stat-duration fade-in"><div class="stat-label">Tid vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
+      <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
+    </div>
+
+    </section>
+<section class="observatory-week" id="pulse-week">
 <!-- WEEKLY PLAN -->
     <div class="section-hdr fade-in"><h2>Veckoplan</h2><div style="display:flex;gap:8px"><button class="btn-sm" onclick="openPlanModal()">Redigera</button><button class="btn-sm" onclick="openTemplateModal()">Mallpass</button></div></div>
     <div class="week-toolbar fade-in">
@@ -572,22 +590,7 @@
     </div>
 
 
-    </section>
-<section class="pulse-overview" aria-label="Träningsöversikt">
-<!-- STATS -->
-    <div class="stats-row">
-      <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
-      <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
-      <div class="stat-card stat-duration fade-in"><div class="stat-label">Tid vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
-      <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
-    </div>
-
-    </section>
-  <nav class="reactor-jumps" aria-label="Träningsdata">
-    <button type="button" data-reactor-scroll="pulse-progress"><span aria-hidden="true">⌁</span> Framsteg</button>
-    <button type="button" data-reactor-scroll="pulse-log"><span aria-hidden="true">◌</span> Träningslogg</button>
-  </nav>
-</section>
+    <div class="week-grid" id="week-grid" aria-label="Välj dag i veckoplanen"></div></section>
 <section class="pulse-section pulse-goals" id="pulse-goals">
     <!-- GOALS -->
     <div class="section-hdr fade-in"><h2>Mål</h2><button class="btn-sm" onclick="saveGoals()">Spara mål</button></div>
@@ -670,7 +673,7 @@
     </section>
 <section class="pulse-section pulse-log" id="pulse-log">
     <!-- LOG -->
-    <div class="section-hdr fade-in"><h2>Träningslog</h2></div>
+    <div class="section-hdr fade-in"><h2>Träningslogg</h2></div>
     <div class="log-wrap fade-in">
       <table class="log-table">
         <thead><tr><th>Datum</th><th>Typ</th><th>Volym</th><th>Tid</th><th>Puls</th><th></th></tr></thead>
