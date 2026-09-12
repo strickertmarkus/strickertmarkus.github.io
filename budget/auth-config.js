@@ -60,8 +60,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
   if (!isExercise) return;
 
-  var requestedConcept = String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase();
-  var pulseDefaultBoot = ['interval-track','uhd-athlete'].indexOf(requestedConcept) === -1;
+  var pulseDefaultBoot = true;
   var exerciseFastVersion = '20260909-exercise-pulse-flow-v140-original-large-ecg-compact-glow';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');

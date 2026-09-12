@@ -59,15 +59,11 @@
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
   var exerciseAssetsVersion = '20260907-exercise-pulse-flow-v88-active-marker-fast-boot';
-  var exerciseConceptVersion = '20260905-exercise-concept-lab-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
-  var initialExerciseConcept = isExercisePage
-    ? String(new URLSearchParams(window.location.search).get('concept') || '').toLowerCase()
-    : '';
-  var pulseDefaultBoot = isExercisePage && ['interval-track','uhd-athlete'].indexOf(initialExerciseConcept) === -1;
+  var pulseDefaultBoot = isExercisePage;
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -168,19 +164,6 @@
   }
 
   if (isExercisePage) {
-    var exerciseConcept = initialExerciseConcept;
-    var exerciseConcepts = ['interval-track','uhd-athlete'];
-    if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
-      document.documentElement.classList.add('exercise-concept-booting-v1','exercise-concept-' + exerciseConcept + '-v1');
-      var conceptCritical = document.createElement('style');
-      conceptCritical.id = 'exercise-concept-critical-v1';
-      conceptCritical.textContent =
-        'html.exercise-concept-booting-v1 body .app-wrap{visibility:hidden!important}' +
-        'html.exercise-concept-ready-v1 body .app-wrap{animation:exerciseConceptRevealV1 .28s cubic-bezier(.16,1,.3,1) both}' +
-        '@keyframes exerciseConceptRevealV1{from{opacity:.16;transform:translateY(4px)}to{opacity:1;transform:none}}' +
-        '@media(prefers-reduced-motion:reduce){html.exercise-concept-ready-v1 body .app-wrap{animation:none!important}}';
-      document.head.appendChild(conceptCritical);
-    }
     var exerciseScripts = [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
@@ -211,19 +194,7 @@
     ];
 
     (function loadExerciseAt(index) {
-      if (index >= exerciseScripts.length) {
-        if (exerciseConcepts.indexOf(exerciseConcept) !== -1) {
-          var conceptScript = document.createElement('script');
-          conceptScript.src = 'exercise-concept-lab-v1.js?v=' + exerciseConceptVersion;
-          conceptScript.async = false;
-          conceptScript.setAttribute('data-exercise-concept-lab-v1','true');
-          conceptScript.onerror = function () {
-            document.documentElement.classList.remove('exercise-concept-booting-v1');
-          };
-          document.head.appendChild(conceptScript);
-        }
-        return;
-      }
+      if (index >= exerciseScripts.length) return;
       var item = exerciseScripts[index];
       loadScriptOnce(item[0], item[1], function () { loadExerciseAt(index + 1); });
     })(0);
