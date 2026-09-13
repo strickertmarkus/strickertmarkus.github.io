@@ -260,7 +260,6 @@
       if(sessionButton&&/avsluta|spara/i.test(String(sessionButton.textContent||'').toLowerCase()))setTimeout(function(){renderStrengthRecords(false);},500);
     },true);
     window.addEventListener('firebase-sync',function(){setTimeout(function(){renderStrengthRecords(false);},60);});
-    document.addEventListener('firebase-sync',function(){setTimeout(function(){renderStrengthRecords(false);},60);});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
