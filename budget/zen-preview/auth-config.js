@@ -77,7 +77,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       document.head.appendChild(pulseStyle);
     }
 
-    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js','exercise-pulse-flow-completed-marker-v102.js','exercise-pulse-flow-ecg-glow-v104.js','exercise-pulse-flow-canvas-glow-v130.js','exercise-pulse-flow-canvas-glow-v131.js'].forEach(function (src) {
+    ['exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-pulse-flow-progress-marker-v92.js','../exercise-pulse-flow-completed-marker-v102.js','exercise-pulse-flow-ecg-glow-v104.js','../exercise-pulse-flow-canvas-glow-v130.js','exercise-pulse-flow-canvas-glow-v131.js'].forEach(function (src) {
       var href = src + '?v=' + exerciseFastVersion;
       if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
       var link = document.createElement('link');
@@ -194,7 +194,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-shell-v13]')) {
     var shellScript = document.createElement('script');
-    shellScript.src = 'exercise-shell-v13.js?v=20260828-1615-shell-v13';
+    shellScript.src = '../exercise-shell-v13.js?v=20260828-1615-shell-v13';
     shellScript.async = false;
     shellScript.setAttribute('data-exercise-shell-v13','true');
     document.head.appendChild(shellScript);
@@ -202,7 +202,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
-    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1745-chart-sync-v16';
+    hrPaintScript.src = '../exercise-hr-first-paint-v14.js?v=20260828-1745-chart-sync-v16';
     hrPaintScript.async = false;
     hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
     document.head.appendChild(hrPaintScript);
@@ -226,7 +226,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (pulseDefaultBoot && !document.querySelector('script[data-exercise-pulse-flow-completed-marker-v102]')) {
     var completedMarkerScript = document.createElement('script');
-    completedMarkerScript.src = 'exercise-pulse-flow-completed-marker-v102.js?v=' + exerciseFastVersion;
+    completedMarkerScript.src = '../exercise-pulse-flow-completed-marker-v102.js?v=' + exerciseFastVersion;
     completedMarkerScript.async = false;
     completedMarkerScript.setAttribute('data-exercise-pulse-flow-completed-marker-v102','true');
     document.head.appendChild(completedMarkerScript);
@@ -242,7 +242,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (pulseDefaultBoot && !document.querySelector('script[data-exercise-pulse-flow-canvas-glow-v130]')) {
     var canvasGlowScript = document.createElement('script');
-    canvasGlowScript.src = 'exercise-pulse-flow-canvas-glow-v130.js?v=' + exerciseFastVersion;
+    canvasGlowScript.src = '../exercise-pulse-flow-canvas-glow-v130.js?v=' + exerciseFastVersion;
     canvasGlowScript.async = false;
     canvasGlowScript.setAttribute('data-exercise-pulse-flow-canvas-glow-v130','true');
     document.head.appendChild(canvasGlowScript);

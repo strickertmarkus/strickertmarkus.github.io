@@ -170,7 +170,6 @@
  #pulse-home .record-max-v52{font-size:18px!important}
 }
 
-#pulse-home .exercise-concept-bar-v1{display:none!important}
 #pulse-log-button{width:48px!important;height:48px!important;padding:0!important;border-radius:50%!important;border:1px solid #ffb1cd69!important;background:radial-gradient(circle at 35% 25%,#682c49,#231122)!important;color:#ffcade!important;box-shadow:0 0 26px #fa5d9030,inset 0 0 17px #ff9fc91a!important;bottom:max(22px,env(safe-area-inset-bottom))!important;right:5%!important;font-size:0!important}
 #pulse-log-button>span{font-size:27px;font-weight:300;line-height:1}
 #pulse-page:has(#session-modal.show) #pulse-log-button{display:none!important}

@@ -37,7 +37,7 @@
     $('collection').innerHTML=milestones.map(([symbol,name,desc,value,goal])=>'<article class="keepsake '+(value>=goal?'unlocked':'')+'"><span class="keepsake-symbol" aria-hidden="true">'+symbol+'</span><h3>'+name+'</h3><p>'+desc+'</p><small>'+(value>=goal?'Uppnått':Math.min(value,goal)+' / '+goal)+'</small></article>').join('');
     const history=records().filter(r=>r.kind===kind).sort((a,b)=>b.completedAt-a.completedAt);$('history-more').hidden=history.length<=5;$('history-more').textContent=allHistory?'Visa färre':'Visa alla ('+history.length+')';
     $('history').innerHTML=history.length?(allHistory?history:history.slice(0,5)).map(r=>'<article class="history-row"><span class="small-symbol" aria-hidden="true">'+copy[kind].symbol+'</span><div><h3>'+escape(r.name)+'</h3><time datetime="'+new Date(r.completedAt).toISOString()+'">'+new Date(r.completedAt).toLocaleString('sv-SE',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</time>'+(r.feeling?'<p>'+escape(feelingLabel(r.feeling))+'</p>':'')+(r.note?'<p class="history-note">'+escape(r.note)+'</p>':'')+'</div><span class="history-length">'+mins(r.seconds)+' min</span><button class="text-button" data-delete="'+escape(r.id)+'" aria-label="Ta bort '+escape(r.name)+'">×</button></article>').join(''):'<p class="history-empty">Inga sparade pass ännu.</p>';
-    $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;
+    $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
   function showView(next){view=next;for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
@@ -116,6 +116,6 @@
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();});
   window.addEventListener('pagehide',()=>{if(session)S.setActive(session);});
   $('profile-name').textContent=(S.profile==='maja'?'Maja':'Markus');
-  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);}if(view==='home')renderHome();});
+  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);}if(view==='home')renderHome();});
   setKind(kind);setInterval(()=>{if(!document.hidden)tick();},200);
 })();

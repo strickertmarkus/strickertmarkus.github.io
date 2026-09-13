@@ -57,7 +57,9 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
 (function () {
   var path = window.location.pathname.toLowerCase();
-  var isExercise = path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html');
+  /* Nested Pulse/Zen preview shells provide their own asset manifests. */
+  var isNestedExerciseShell = path.indexOf('/pulse-environment/') !== -1 || path.indexOf('/pulse-observatory/') !== -1 || path.indexOf('/zen-preview/') !== -1;
+  var isExercise = (path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html')) && !isNestedExerciseShell;
   if (!isExercise) return;
 
   var pulseDefaultBoot = true;

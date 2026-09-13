@@ -12,8 +12,6 @@
     badge.textContent='Visar exempeldata · sparas inte';
     heroCopy.appendChild(badge);
   }
-  const oldAmbient=document.getElementById('zen-ambient-v4');
-  if(oldAmbient)oldAmbient.remove();
   let lastKind='';
   function sync(){
     const kind=body.dataset.kind==='meditation'?'meditation':'stretch';
@@ -34,9 +32,6 @@
       btn.setAttribute('aria-hidden','true');
     });
   }
-  const observer=new MutationObserver(sync);
-  observer.observe(body,{attributes:true,attributeFilter:['data-kind'],subtree:false});
-  const main=document.getElementById('zen-main');
-  if(main)observer.observe(main,{childList:true,subtree:true});
+  document.addEventListener('zen:home-rendered',sync);
   sync();
 })();

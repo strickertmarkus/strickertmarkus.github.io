@@ -165,13 +165,13 @@
 
   if (isExercisePage) {
     var exerciseScripts = [
-      ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
-      ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
+      ['pulse-environment/exercise-points-8-9.js', 'data-exercise-points-8-9'],
+      ['pulse-environment/exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
       ['exercise-session-runtime-core-v21.js', 'data-exercise-session-runtime-core-v21'],
       ['exercise-session-theme-stability.js', 'data-exercise-session-theme-stability'],
       ['exercise-session-stable-details.js', 'data-exercise-session-stable-details'],
-      ['exercise-reload-recovery.js', 'data-exercise-reload-recovery'],
+      ['pulse-environment/recovery.js', 'data-exercise-reload-recovery'],
       ['exercise-points-3-6-7.js', 'data-exercise-points-3-6-7'],
       ['exercise-between-routing-v7.js', 'data-exercise-between-routing-v7'],
       ['exercise-between-custom-exercise-v3.js', 'data-exercise-between-custom-exercise-v3'],
