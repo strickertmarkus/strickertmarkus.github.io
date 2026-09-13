@@ -200,8 +200,6 @@
     });
   }
 
-  var pulseChart = null;
-  var lastSignature = '';
 
   function addStyles() {
     if (document.getElementById('exercise-points-8-9-style')) return;
@@ -222,9 +220,6 @@
         letter-spacing:0;
       }
 
-      #chart-hr-legacy-card { display:none !important; }
-      #hr-card-cardio,
-      #hr-card-strength { display:none !important; }
       #hr-card-combined .chart-area { height:230px; }
       #hr-card-combined .chart-note {
         min-height:16px;
@@ -353,163 +348,15 @@
     if (sub.innerHTML !== html) sub.innerHTML = html;
   }
 
-  function formatDate(iso) {
-    try { if (typeof window.fmtDate === 'function') return window.fmtDate(iso); } catch (e) {}
-    if (!validDate(iso)) return iso || '—';
-    var p = iso.split('-');
-    return p[2] + '/' + p[1];
-  }
-
-  function ensurePulseCard() {
-    if (typeof window.Chart !== 'function') return false;
-    var oldCanvas = document.getElementById('chart-hr');
-    if (!oldCanvas) return false;
-    var oldCard = oldCanvas.closest('.chart-card');
-    var row = oldCard && oldCard.parentElement;
-    if (!oldCard || !row) return false;
-
-    oldCard.id = 'chart-hr-legacy-card';
-    oldCard.setAttribute('aria-hidden','true');
-
-    ['hr-card-cardio','hr-card-strength'].forEach(function (id) {
-      var old = document.getElementById(id);
-      if (old) old.remove();
-    });
-
-    if (!document.getElementById('hr-card-combined')) {
-      var card = document.createElement('div');
-      card.className = 'chart-card';
-      card.id = 'hr-card-combined';
-      card.innerHTML =
-        '<h3>Medelpuls över tid</h3>' +
-        '<div class="chart-note" id="hr-combined-note"></div>' +
-        '<div class="chart-area"><canvas id="chart-hr-combined"></canvas></div>';
-      row.appendChild(card);
-    }
-    return true;
-  }
-
-  function pulseEntries(wks) {
-    return performedWorkouts(wks)
-      .filter(function (w) {
-        if (!(Number(w.hrAvg) > 0)) return false;
-        var kinds = workoutKinds(w);
-        return kinds.cardio || kinds.strength;
-      })
-      .sort(function (a,b) {
-        var byDate = String(a.date).localeCompare(String(b.date));
-        return byDate || Number(a.id || 0) - Number(b.id || 0);
-      })
-      .slice(-50);
-  }
-
-  function dataset(label, values, color, pointStyle) {
-    return {
-      label:label,
-      data:values,
-      borderColor:color,
-      backgroundColor:color,
-      pointBackgroundColor:color,
-      pointBorderColor:color,
-      pointRadius:4,
-      pointHoverRadius:6,
-      pointStyle:pointStyle,
-      borderWidth:2.5,
-      tension:.28,
-      fill:false,
-      spanGaps:true
-    };
-  }
-
-  function updatePulseChart(wks) {
-    if (!ensurePulseCard()) return;
-    var entries = pulseEntries(wks);
-    var canvas = document.getElementById('chart-hr-combined');
-    if (!canvas) return;
-    if (pulseChart) pulseChart.destroy();
-
-    var labels = entries.length ? entries.map(function (w) { return formatDate(w.date); }) : ['—'];
-    var cardio = entries.length ? entries.map(function (w) {
-      return workoutKinds(w).cardio ? Number(w.hrAvg) : null;
-    }) : [];
-    var strength = entries.length ? entries.map(function (w) {
-      return workoutKinds(w).strength ? Number(w.hrAvg) : null;
-    }) : [];
-
-    pulseChart = new Chart(canvas.getContext('2d'), {
-      type:'line',
-      data:{
-        labels:labels,
-        datasets:[
-          dataset('Kondition', cardio, '#EF4444', 'circle'),
-          dataset('Styrka', strength, '#22D3EE', 'rectRounded')
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        interaction:{mode:'nearest',intersect:false},
-        plugins:{
-          legend:{
-            display:true,
-            labels:{color:'#8B949E',font:{family:'Inter',size:11},usePointStyle:true,boxWidth:9}
-          },
-          tooltip:{
-            backgroundColor:'#161B22',
-            titleColor:'#F0F6FC',
-            bodyColor:'#C9D1DC',
-            borderColor:'rgba(255,255,255,.08)',
-            borderWidth:1
-          }
-        },
-        scales:{
-          x:{ticks:{color:'#8B949E',font:{family:'Inter',size:10},maxRotation:45,minRotation:0},grid:{color:'rgba(255,255,255,.05)'}},
-          y:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'},suggestedMin:40,suggestedMax:190}
-        }
-      }
-    });
-
-    var cardioCount = entries.filter(function (w) { return workoutKinds(w).cardio; }).length;
-    var strengthCount = entries.filter(function (w) { return workoutKinds(w).strength; }).length;
-    var note = document.getElementById('hr-combined-note');
-    if (note) {
-      note.textContent = entries.length
-        ? 'Kondition: ' + cardioCount + ' pass · Styrka: ' + strengthCount + ' pass'
-        : 'Ingen registrerad puls ännu';
-      note.classList.toggle('hr-empty-note', !entries.length);
-    }
-  }
-
-  function signatureFor(wks) {
-    return JSON.stringify((wks || []).map(function (w) {
-      return {
-        id:w && w.id,
-        date:w && w.date,
-        type:w && w.type,
-        hrAvg:w && w.hrAvg,
-        exercises:Array.isArray(w && w.exercises) ? w.exercises.map(function (ex) {
-          return {kind:exerciseKind(ex),name:ex && ex.name,distance:ex && ex.distance,time:ex && ex.time};
-        }) : []
-      };
-    }));
-  }
-
-  function sync(force) {
-    var wks = getWorkoutsSafe();
-    updateLatestWorkoutCard(wks);
-    var signature = signatureFor(wks);
-    if (force || signature !== lastSignature || !document.getElementById('hr-card-combined')) {
-      lastSignature = signature;
-      updatePulseChart(wks);
-    }
-  }
+  // The range chart module owns HR rendering.
+  function sync() { updateLatestWorkoutCard(getWorkoutsSafe()); }
 
   function install() {
     addStyles();
     var attempts = 0;
     function ready() {
       attempts++;
-      if (typeof window.getWorkouts !== 'function' || typeof window.Chart !== 'function' || !document.getElementById('last-d') || !document.getElementById('chart-hr')) {
+      if (typeof window.getWorkouts !== 'function' || !document.getElementById('last-d')) {
         if (attempts < 100) setTimeout(ready,100);
         return;
       }

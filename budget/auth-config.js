@@ -63,7 +63,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   if (!isExercise) return;
 
   var pulseDefaultBoot = true;
-  var exerciseFastVersion = '20260909-exercise-pulse-flow-v140-original-large-ecg-compact-glow';
+  var exerciseFastVersion = '20260913-training-cleanup-chart';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -92,7 +92,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   [
     ['exercise-points-8-9.js',exerciseFastVersion],
-    ['exercise-heart-rate-range.js','20260828-1745-chart-sync-v16']
+    ['exercise-heart-rate-range.js','20260913-training-cleanup-chart']
   ].forEach(function (item) {
     var href = item[0] + '?v=' + item[1];
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
@@ -131,7 +131,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       'html body .goals-grid>.goal-card.vo2-goal-source-v13{display:none!important}' +
       'html body .goals-grid>.goal-vo2-chart-v13{display:block!important}' +
       'html body .goal-vo2-chart-v13 .bw-row{display:none!important}' +
-      'html.exercise-hr-booting-v14 body #chart-sessions,html.exercise-hr-booting-v14 body #chart-bw,html.exercise-hr-booting-v14 body #chart-hr,html.exercise-hr-booting-v14 body #chart-hr-combined{visibility:hidden!important}' +
+      'html.exercise-hr-booting-v14 body #chart-sessions,html.exercise-hr-booting-v14 body #chart-bw,html.exercise-hr-booting-v14 body #chart-hr-combined{visibility:hidden!important}' +
       'html.exercise-hr-booting-v14 body #hr-card-combined .chart-note{visibility:hidden!important}' +
       'html.exercise-shell-ready-v13 body .main-content{animation:exerciseShellRevealV15 .34s cubic-bezier(.16,1,.3,1) both}' +
       'html.exercise-shell-ready-v13 body .fab{animation:exerciseFabRevealV15 .3s cubic-bezier(.16,1,.3,1) .06s both}' +
@@ -202,7 +202,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
-    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260828-1745-chart-sync-v16';
+    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260913-training-cleanup-chart';
     hrPaintScript.async = false;
     hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
     document.head.appendChild(hrPaintScript);
