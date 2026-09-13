@@ -6,9 +6,6 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var TIMER_PREFIX = 'ex_pretimer_v2_' + profile + '_';
-  var autoPending = null;
-  var lastDecisionKey = '';
-  var fastTimer = null;
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (e) { return null; }
@@ -551,80 +548,6 @@
     renderSessionTimerToggle(button,enabled);
   }
 
-  function findDecisionButton(kind) {
-    var controls = document.getElementById('session-controls');
-    if (!controls) return null;
-    var buttons = Array.prototype.slice.call(controls.querySelectorAll('button'));
-    return buttons.find(function (button) {
-      var text = (button.textContent || '').trim().toLowerCase();
-      return kind === 'next' ? text.indexOf('starta nästa set') === 0 : text.indexOf('övning klar') === 0;
-    }) || null;
-  }
-
-  function decisionKey(state) {
-    if (!state) return '';
-    var logs = Array.isArray(state.logs && state.logs[state.exerciseIndex]) ? state.logs[state.exerciseIndex].length : 0;
-    return [state.passStartedAt || '',state.exerciseIndex,state.currentSet,logs].join('|');
-  }
-
-  function autoAdvanceDecision() {
-    var state = getState();
-    if (!state || state.setRunning || !state.awaitingDecision || autoPending) return;
-    var key = decisionKey(state);
-    if (!key || key === lastDecisionKey) return;
-
-    var ex = Array.isArray(state.exercises) ? state.exercises[state.exerciseIndex] : null;
-    if (!ex) return;
-    var plannedSets = Math.max(1,Number(ex.plannedSets) || 1);
-    var kind = Number(state.currentSet) < plannedSets ? 'next' : 'finish';
-    var button = findDecisionButton(kind);
-    if (!button) return;
-
-    lastDecisionKey = key;
-    autoPending = {
-      kind:kind,
-      exerciseIndex:Number(state.exerciseIndex),
-      currentSet:Number(state.currentSet),
-      button:button,
-      startedAt:Date.now()
-    };
-
-    try {
-      button.click();
-      /* The custom-between module owns this transition. Do not let the
-         generic auto-transition skip its Start button or pre-timer. */
-      if (state.__betweenCustomRuntimeV3) autoPending = null;
-    }
-    catch (e) { autoPending = null; }
-  }
-
-  function settleAutoTransition() {
-    if (!autoPending) return;
-    var state = getState();
-    if (!state) { autoPending = null; return; }
-    if (state.__betweenCustomRuntimeV3 || state.__betweenCustomManualStartV4) {
-      autoPending = null;
-      return;
-    }
-
-    if (autoPending.kind === 'next') {
-      var advanced = Number(state.exerciseIndex) === autoPending.exerciseIndex && Number(state.currentSet) > autoPending.currentSet;
-      if (!advanced) return;
-      if (state.setRunning) {
-        state.setRunning = false;
-        state.setStartedAt = null;
-        state.awaitingDecision = false;
-        try { if (typeof window.renderSessionMode === 'function') window.renderSessionMode(); } catch (e) {}
-      }
-      autoPending = null;
-      return;
-    }
-
-    if (Number(state.exerciseIndex) > autoPending.exerciseIndex || !state.awaitingDecision) {
-      autoPending = null;
-    }
-  }
-
   function skipPretimerIfNeeded(forAutoTransition) {
     var pre = document.getElementById('session-pre-timer');
     if (!pre || !pre.classList.contains('show')) return false;
@@ -636,18 +559,6 @@
       return true;
     } catch (e) {
       return false;
-    }
-  }
-
-  function syncAutoPretimer() {
-    var state = getState();
-    if (state && (state.__betweenCustomRuntimeV3 || state.__betweenCustomManualStartV4)) {
-      autoPending = null;
-      return;
-    }
-    if (!autoPending || autoPending.kind !== 'next') return;
-    if (skipPretimerIfNeeded(true)) {
-      setTimeout(settleAutoTransition,0);
     }
   }
 
@@ -684,27 +595,6 @@
     }
   }
 
-  function syncFast() {
-    /* The unified v46 controller owns live session transitions. Keep this
-       legacy poller dormant so it cannot auto-click or settle a newer state
-       a few frames after the user's action. */
-    if (window.__exerciseSessionControllerV46Installed) return;
-    var state = getState();
-    if (!state) {
-      autoPending = null;
-      lastDecisionKey = '';
-      syncSessionTimerToggle();
-      return;
-    }
-
-    syncSessionTimerToggle();
-    renderRestOverview();
-    autoAdvanceDecision();
-    syncAutoPretimer();
-    if (!autoPending) skipPretimerIfNeeded(false);
-    settleAutoTransition();
-  }
-
   function syncSlow() {
     ensureBuilderTimerToggle();
     syncBuilderTimerToggle(false);
@@ -717,7 +607,6 @@
     ensureSessionTimerToggle();
     relocateWeekActions();
     setTimeout(syncSlow,0);
-    fastTimer = setInterval(syncFast,75);
     setInterval(syncSlow,450);
 
     document.addEventListener('change',function (event) {
@@ -739,7 +628,7 @@
     window.__exerciseFlowPolishV2 = {
       timerEnabledForDate:timerEnabledForDate,
       setTimerEnabled:function (date,enabled) { persistTimer(date,enabled); },
-      sync:function () { syncFast(); syncSlow(); }
+      sync:function () { syncSessionTimerToggle(); syncSlow(); }
     };
   }
 

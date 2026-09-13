@@ -7,8 +7,6 @@
   var activeRest = null;
   var syncQueued = false;
   var installed = false;
-  var lastCustomKey = '';
-  var lastPositionKey = '';
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; }
@@ -150,12 +148,16 @@
 
     var remain = Math.max(0,activeRest.deadline - Date.now());
     var value = document.getElementById('bs-overlay-value');
-    if (value) value.textContent = formatTime(remain / 1000);
+    var label = formatTime(remain / 1000);
+    if (value && value.textContent !== label) value.textContent = label;
 
     var activeCount = Math.max(0,Math.min(60,Math.ceil(60 * remain / activeRest.totalMs)));
-    overlay.querySelectorAll('.bs-segment').forEach(function (segment,index) {
-      segment.classList.toggle('active',index < activeCount);
-    });
+    if (activeRest.activeCount !== activeCount) {
+      activeRest.activeCount = activeCount;
+      overlay.querySelectorAll('.bs-segment').forEach(function (segment,index) {
+        segment.classList.toggle('active',index < activeCount);
+      });
+    }
 
     if (remain <= 0) {
       finishRest();
@@ -257,50 +259,9 @@
     return true;
   }
 
-  function findTransitionButton(kind) {
-    var controls = document.getElementById('session-controls');
-    if (!controls) return null;
-
-    return Array.prototype.slice.call(controls.querySelectorAll('button')).find(function (button) {
-      var text = String(button.textContent || '').trim().toLocaleLowerCase('sv-SE');
-      var onclick = String(button.getAttribute('onclick') || '');
-      if (kind === 'next') {
-        return text.indexOf('starta nästa set') === 0 ||
-          onclick.indexOf('startNextSet') >= 0;
-      }
-      return text.indexOf('övning klar') === 0 ||
-        text.indexOf('starta nästa övning') === 0 ||
-        onclick.indexOf('finishCurrentExercise') >= 0;
-    }) || null;
-  }
-
-  function startCustomTransition(state,kind,config) {
-    if (!state || !config || config.type !== 'custom' || !config.name) return false;
-    var key = positionKey(state,kind);
-    if (lastCustomKey === key) return true;
-
-    var button = findTransitionButton(kind);
-    if (!button) return false;
-
-    /* Use the existing routing/custom transition handlers deliberately. They
-       own log preservation and the temporary cardio exercise. Triggering the
-       already-rendered transition button makes the configured between exercise
-       enter the normal 5 s pre-timer path without requiring a second user tap. */
-    lastCustomKey = key;
-    try {
-      button.click();
-      return true;
-    } catch (_) {
-      lastCustomKey = '';
-      return false;
-    }
-  }
-
   function syncTransition() {
     var state = getState();
     if (!state) {
-      lastCustomKey = '';
-      lastPositionKey = '';
       cancelRest(true);
       return;
     }
@@ -326,12 +287,6 @@
     var kind = expectedTransition(state);
     if (!kind) return;
 
-    var key = positionKey(state,kind);
-    if (lastPositionKey !== key) {
-      lastPositionKey = key;
-      if (lastCustomKey !== key) lastCustomKey = '';
-    }
-
     var config = transitionConfig(state,kind);
 
     if (config.type === 'rest') {
@@ -339,11 +294,7 @@
       return;
     }
 
-    if (config.type === 'custom' && config.name) {
-      if (!startCustomTransition(state,kind,config)) {
-        setTimeout(syncTransition,35);
-      }
-    }
+    // Custom between exercises start only from the user's transition button.
   }
 
   function scheduleSync() {
@@ -362,15 +313,10 @@
     var wrapped = function () {
       var result = fn.apply(this,arguments);
 
-      /* completeCurrentSet has already committed awaitingDecision when it
-         returns. Run synchronously so older auto-rest layers see our overlay
-         and stand down instead of racing us. */
+      // Start rest after the set log is committed; coalesce render updates.
       if (name === 'completeCurrentSet') syncTransition();
       else scheduleSync();
 
-      setTimeout(syncTransition,0);
-      setTimeout(syncTransition,45);
-      setTimeout(syncTransition,140);
       return result;
     };
     wrapped.__transitionStabilityV142Wrapped = true;

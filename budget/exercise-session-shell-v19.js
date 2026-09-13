@@ -99,9 +99,7 @@
         pointer-events:auto !important;
       }
 
-      /* The legacy timer still updates --pre-progress every 50 ms for its
-         internal clock. The visible ring deliberately ignores that stepped
-         value and uses the requestAnimationFrame-driven variable below. */
+      /* The session controller owns the clock and smooth ring progress. */
       #session-pre-timer-ring {
         background:conic-gradient(#FB923C var(--pre-smooth-progress,0deg),rgba(251,146,60,.13) 0deg) !important;
         will-change:background;
@@ -216,67 +214,6 @@
     document.head.appendChild(style);
   }
 
-  var smoothFrame = 0;
-  var smoothStartedAt = 0;
-  var smoothObserved = false;
-
-  function timerVisible() {
-    var pre = document.getElementById('session-pre-timer');
-    return !!(pre && pre.classList.contains('show'));
-  }
-
-  function paintSmoothProgress(now) {
-    if (!timerVisible()) {
-      smoothFrame = 0;
-      smoothStartedAt = 0;
-      return;
-    }
-    if (!smoothStartedAt) smoothStartedAt = now;
-    var elapsed = Math.max(0,Math.min(5000,now - smoothStartedAt));
-    var degrees = (elapsed / 5000) * 360;
-    var ring = document.getElementById('session-pre-timer-ring');
-    if (ring) ring.style.setProperty('--pre-smooth-progress',degrees.toFixed(3) + 'deg');
-    if (elapsed < 5000 && timerVisible()) smoothFrame = requestAnimationFrame(paintSmoothProgress);
-    else smoothFrame = 0;
-  }
-
-  function startSmoothProgress() {
-    /* v46 paints the timer from one requestAnimationFrame loop. Running the
-       old loop at the same time made the leading cap visibly jump on iOS. */
-    if (window.__exerciseSessionControllerV46Installed) return;
-    if (!timerVisible()) return;
-    if (smoothFrame) cancelAnimationFrame(smoothFrame);
-    smoothStartedAt = performance.now();
-    var ring = document.getElementById('session-pre-timer-ring');
-    if (ring) ring.style.setProperty('--pre-smooth-progress','0deg');
-    smoothFrame = requestAnimationFrame(paintSmoothProgress);
-  }
-
-  function stopSmoothProgress() {
-    if (smoothFrame) cancelAnimationFrame(smoothFrame);
-    smoothFrame = 0;
-    smoothStartedAt = 0;
-  }
-
-  function observePretimer() {
-    var pre = document.getElementById('session-pre-timer');
-    if (!pre) return false;
-    if (pre.dataset.smoothPretimerV23 === 'true') return true;
-    pre.dataset.smoothPretimerV23 = 'true';
-    var observer = new MutationObserver(function (mutations) {
-      for (var i = 0; i < mutations.length; i++) {
-        if (mutations[i].attributeName !== 'class') continue;
-        if (timerVisible()) startSmoothProgress();
-        else stopSmoothProgress();
-        break;
-      }
-    });
-    observer.observe(pre,{attributes:true,attributeFilter:['class']});
-    if (timerVisible()) startSmoothProgress();
-    smoothObserved = true;
-    return true;
-  }
-
   function install() {
     addStyles();
 
@@ -284,19 +221,6 @@
     document.documentElement.classList.remove('exercise-pretimer-active-v19','exercise-session-open-v19');
     if (document.body) document.body.classList.remove('exercise-session-open-v19');
 
-    if (!observePretimer()) {
-      var attempts = 0;
-      var retry = setInterval(function () {
-        attempts += 1;
-        if (observePretimer() || attempts >= 80) clearInterval(retry);
-      },50);
-    }
-
-    window.__exerciseSessionShellV19 = {
-      sync:function () {
-        if (!smoothObserved) observePretimer();
-      }
-    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});

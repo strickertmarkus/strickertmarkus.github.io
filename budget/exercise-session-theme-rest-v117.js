@@ -4,7 +4,6 @@
   if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionThemeRestV120Installed) return;
   window.__exerciseSessionThemeRestV120Installed = true;
 
-  var autoRest = null;
   var syncScheduled = false;
   var passPretimerArmUntil = 0;
   var passPretimerSeen = false;
@@ -63,113 +62,6 @@
       return normalizeBetween((plannedExercise && plannedExercise.betweenSets) || plan.betweenSets);
     }
     return normalizeBetween(null);
-  }
-
-  function formatTime(seconds) {
-    seconds = Math.max(0,Math.ceil(Number(seconds) || 0));
-    return String(Math.floor(seconds / 60)).padStart(2,'0') + ':' + String(seconds % 60).padStart(2,'0');
-  }
-
-  function ensureOverlayCapture() {
-    var overlay = document.getElementById('session-between-overlay-v2');
-    if (!overlay || overlay.dataset.autoRestCaptureV118 === 'true') return overlay;
-    overlay.dataset.autoRestCaptureV118 = 'true';
-    overlay.addEventListener('click',function (event) {
-      if (!autoRest || overlay.dataset.autoRestV118 !== 'true') return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      finishAutoRest();
-    },true);
-    overlay.addEventListener('keydown',function (event) {
-      if (!autoRest || overlay.dataset.autoRestV118 !== 'true' || (event.key !== 'Enter' && event.key !== ' ')) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      finishAutoRest();
-    },true);
-    return overlay;
-  }
-
-  function paintAutoRest() {
-    if (!autoRest) return;
-    var overlay = document.getElementById('session-between-overlay-v2');
-    if (!overlay) return;
-    var remain = Math.max(0,autoRest.deadline - Date.now());
-    var value = document.getElementById('bs-overlay-value');
-    if (value) value.textContent = formatTime(remain / 1000);
-    var activeCount = Math.max(0,Math.min(60,Math.ceil(60 * remain / autoRest.totalMs)));
-    overlay.querySelectorAll('.bs-segment').forEach(function (segment,index) {
-      segment.classList.toggle('active',index < activeCount);
-    });
-    if (remain <= 0) finishAutoRest();
-  }
-
-  function finishAutoRest() {
-    if (!autoRest) return;
-    var pending = autoRest;
-    autoRest = null;
-    if (pending.timer) clearInterval(pending.timer);
-
-    var overlay = document.getElementById('session-between-overlay-v2');
-    if (overlay) {
-      overlay.classList.remove('show');
-      overlay.removeAttribute('data-between-type');
-      overlay.removeAttribute('data-auto-rest-v118');
-    }
-
-    requestAnimationFrame(function () {
-      try {
-        if (pending.kind === 'next' && typeof window.startNextSet === 'function') window.startNextSet();
-        else if (pending.kind === 'finish' && typeof window.finishCurrentExercise === 'function') window.finishCurrentExercise();
-      } catch (_) {}
-      scheduleSync();
-    });
-  }
-
-  function beginAutoRest(state,kind,config) {
-    if (!state || !kind || !config || config.type !== 'rest' || autoRest) return false;
-    var overlay = ensureOverlayCapture();
-    if (!overlay || overlay.classList.contains('show')) return false;
-
-    var controller = window.__exerciseSessionControllerV46;
-    try {
-      if (controller && typeof controller.armRestTransition === 'function') controller.armRestTransition(kind);
-    } catch (_) {}
-
-    var heading = document.getElementById('bs-overlay-heading');
-    if (heading) heading.textContent = 'Vila';
-    var label = overlay.querySelector('.bs-label');
-    if (label) label.textContent = kind === 'finish' ? 'Mellan övningar' : 'Mellan set';
-
-    var totalMs = Math.max(1000,Math.round(Number(config.seconds) || 60) * 1000);
-    autoRest = {
-      kind:kind,
-      passToken:String(state.passStartedAt || ''),
-      exerciseIndex:Number(state.exerciseIndex) || 0,
-      currentSet:Number(state.currentSet) || 1,
-      totalMs:totalMs,
-      deadline:Date.now() + totalMs,
-      timer:null
-    };
-
-    overlay.dataset.betweenType = 'rest';
-    overlay.dataset.autoRestV118 = 'true';
-    overlay.classList.add('show');
-    paintAutoRest();
-    autoRest.timer = setInterval(paintAutoRest,100);
-    return true;
-  }
-
-  function tryAutoRest() {
-    var state = getState();
-    if (!state || state.setRunning || !state.awaitingDecision || autoRest) return false;
-    var kind = transitionKind(state);
-    if (!kind) return false;
-    var config = transitionConfig(state,kind);
-    if (config.type !== 'rest') return false;
-
-    var overlay = document.getElementById('session-between-overlay-v2');
-    if (overlay && overlay.classList.contains('show')) return true;
-    return beginAutoRest(state,kind,config);
   }
 
   function nextPendingKind(state) {
@@ -396,13 +288,11 @@
   function syncAll() {
     syncScheduled = false;
     installStyle();
-    ensureOverlayCapture();
     syncPassClock();
     syncWaitingTheme();
     syncFirstPretimer();
     syncNextIndicator();
     decorateLogUnits();
-    tryAutoRest();
   }
 
   function scheduleSync() {
@@ -443,11 +333,7 @@
     ['renderSessionMode','startNextSet','addExtraSet','finishCurrentExercise'].forEach(function (name) {
       wrapAfter(name,scheduleSync);
     });
-    wrapAfter('completeCurrentSet',function () {
-      scheduleSync();
-      requestAnimationFrame(tryAutoRest);
-      setTimeout(tryAutoRest,40);
-    });
+    wrapAfter('completeCurrentSet',scheduleSync);
   }
 
   function relevantMutation(mutation) {
@@ -469,7 +355,7 @@
         if (mutations.some(relevantMutation)) scheduleSync();
       }).observe(modal,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
     }
-    var rest = ensureOverlayCapture();
+    var rest = document.getElementById('session-between-overlay-v2');
     if (rest) new MutationObserver(scheduleSync).observe(rest,{attributes:true,attributeFilter:['class','data-between-type']});
     var pre = document.getElementById('session-pre-timer');
     if (pre) new MutationObserver(scheduleSync).observe(pre,{attributes:true,attributeFilter:['class']});
@@ -490,11 +376,6 @@
       startPassClockIfNeeded();
     }
 
-    if (/^klar med set/.test(text)) {
-      requestAnimationFrame(tryAutoRest);
-      setTimeout(tryAutoRest,40);
-      setTimeout(tryAutoRest,120);
-    }
     scheduleSync();
   }
 

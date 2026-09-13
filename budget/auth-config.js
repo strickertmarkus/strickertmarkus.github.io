@@ -63,7 +63,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   if (!isExercise) return;
 
   var pulseDefaultBoot = true;
-  var exerciseFastVersion = '20260913-training-cleanup-chart';
+  var exerciseFastVersion = '20260913-training-cleanup-timers';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -92,7 +92,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   [
     ['exercise-points-8-9.js',exerciseFastVersion],
-    ['exercise-heart-rate-range.js','20260913-training-cleanup-chart']
+    ['exercise-heart-rate-range.js','20260913-training-cleanup-timers']
   ].forEach(function (item) {
     var href = item[0] + '?v=' + item[1];
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
@@ -202,7 +202,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-hr-first-paint-v14]')) {
     var hrPaintScript = document.createElement('script');
-    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260913-training-cleanup-chart';
+    hrPaintScript.src = 'exercise-hr-first-paint-v14.js?v=20260913-training-cleanup-timers';
     hrPaintScript.async = false;
     hrPaintScript.setAttribute('data-exercise-hr-first-paint-v14','true');
     document.head.appendChild(hrPaintScript);

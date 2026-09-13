@@ -354,7 +354,7 @@
 
     if (!document.querySelector('script[data-exercise-session-theme-rest-v120]')) {
       var restTheme = document.createElement('script');
-      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260909-session-theme-rest-v120';
+      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20260913-training-cleanup-timers';
       restTheme.async = false;
       restTheme.setAttribute('data-exercise-session-theme-rest-v120','true');
       document.head.appendChild(restTheme);

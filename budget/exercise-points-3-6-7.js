@@ -3,15 +3,7 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
-  var pretimerActive = false;
-  var pretimerTimer = null;
-  var pretimerDeadline = 0;
-  var pretimerDone = null;
   var internalSave = false;
-
-  function getState() {
-    try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (e) { return null; }
-  }
 
   function addStyles() {
     if (document.getElementById('exercise-points-3-6-7-style')) return;
@@ -107,61 +99,8 @@
         '<div class="session-pre-label">Gör dig redo</div>' +
         '<div class="session-pre-skip">Tryck för att hoppa över</div>' +
       '</div></div>';
-    el.addEventListener('click', finishPretimer);
-    el.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); finishPretimer(); }
-    });
     shell.appendChild(el);
     return el;
-  }
-
-  function updatePretimer() {
-    if (!pretimerActive) return;
-    var remain = Math.max(0, pretimerDeadline - Date.now());
-    var sec = Math.max(1, Math.ceil(remain / 1000));
-    var value = document.getElementById('session-pre-timer-value');
-    var ring = document.getElementById('session-pre-timer-ring');
-    if (value) value.textContent = String(sec);
-    if (ring) {
-      var elapsed = Math.max(0, Math.min(5000, 5000 - remain));
-      ring.style.setProperty('--pre-progress', ((elapsed / 5000) * 360) + 'deg');
-    }
-    if (remain <= 0) finishPretimer();
-  }
-
-  function startPretimer(done) {
-    if (pretimerActive) return;
-    var state = getState();
-    if (!state || state.setRunning) { done(); return; }
-    var el = ensurePretimer();
-    if (!el) { done(); return; }
-    pretimerActive = true;
-    pretimerDone = done;
-    pretimerDeadline = Date.now() + 5000;
-    el.classList.add('show');
-    updatePretimer();
-    pretimerTimer = setInterval(updatePretimer, 50);
-  }
-
-  function finishPretimer() {
-    if (!pretimerActive) return;
-    pretimerActive = false;
-    if (pretimerTimer) clearInterval(pretimerTimer);
-    pretimerTimer = null;
-    var el = document.getElementById('session-pre-timer');
-    if (el) el.classList.remove('show');
-    var done = pretimerDone;
-    pretimerDone = null;
-    if (typeof done === 'function') done();
-  }
-
-  function cancelPretimer() {
-    pretimerDone = null;
-    pretimerActive = false;
-    if (pretimerTimer) clearInterval(pretimerTimer);
-    pretimerTimer = null;
-    var el = document.getElementById('session-pre-timer');
-    if (el) el.classList.remove('show');
   }
 
   function textOf(obj) {
@@ -304,23 +243,8 @@
       if (window.__exercisePoints367Installed) return;
       window.__exercisePoints367Installed = true;
 
-      var previousStart = window.startCurrentSet;
-      var previousNext = window.startNextSet;
       var previousRender = window.renderSessionMode;
-      var previousStop = window.stopSessionMode;
       var previousSaveWorkouts = window.saveWorkouts;
-
-      window.startCurrentSet = function () {
-        var self = this, args = arguments;
-        if (pretimerActive) return;
-        startPretimer(function () { previousStart.apply(self, args); });
-      };
-
-      window.startNextSet = function () {
-        var self = this, args = arguments;
-        if (pretimerActive) return;
-        startPretimer(function () { previousNext.apply(self, args); });
-      };
 
       window.renderSessionMode = function () {
         var result = previousRender.apply(this, arguments);
@@ -329,13 +253,6 @@
         updateVolumeUi();
         return result;
       };
-
-      if (typeof previousStop === 'function') {
-        window.stopSessionMode = function () {
-          cancelPretimer();
-          return previousStop.apply(this, arguments);
-        };
-      }
 
       if (typeof previousSaveWorkouts === 'function') {
         window.saveWorkouts = function (workouts) {
