@@ -12,7 +12,7 @@
 
   var W=1200,H=900,TAU=Math.PI*2;
   var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  var width=1,height=1,ratio=1,scale=1,left=0,frame=0,last=-Infinity,visible=true;
+  var width=1,height=1,ratio=1,scale=1,left=0;
   var flies=[
     [590,240,.2,2.7],[655,315,.9,3.1],[722,244,1.6,2.6],[790,322,2.1,3.5],
     [905,267,2.8,3.0],[635,465,3.4,3.2],[714,548,4.0,2.8],[806,482,4.7,3.5],
@@ -110,29 +110,7 @@
     canvas.width=Math.round(width*ratio);
     canvas.height=Math.round(height*ratio);
     draw(reduced.matches?0:performance.now()/1000);
-    wake();
   }
 
-  function loop(now){
-    frame=0;
-    if(document.hidden||!visible||reduced.matches)return;
-    if(now-last>=36){last=now;draw(now/1000);}
-    frame=requestAnimationFrame(loop);
-  }
-  function wake(){
-    if(frame)cancelAnimationFrame(frame);
-    frame=0;
-    if(document.hidden||!visible)return;
-    if(reduced.matches){draw(0);return;}
-    frame=requestAnimationFrame(loop);
-  }
-
-  new ResizeObserver(resize).observe(host);
-  new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;wake();}).observe(host);
-  new MutationObserver(function(){draw(reduced.matches?0:performance.now()/1000);wake();}).observe(document.body,{attributes:true,attributeFilter:['data-kind']});
-  document.addEventListener('visibilitychange',wake);
-  if(reduced.addEventListener)reduced.addEventListener('change',wake);
-  window.addEventListener('pagehide',function(){if(frame)cancelAnimationFrame(frame);frame=0;});
-  window.addEventListener('pageshow',wake);
-  resize();
+  window.ZenSceneRuntime.register({kind:'stretch',interval:36,draw:draw,resize:resize});
 })();

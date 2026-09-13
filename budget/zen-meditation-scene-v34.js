@@ -25,9 +25,6 @@
   let ratio = 1;
   let scale = 1;
   let left = 0;
-  let frame = 0;
-  let lastFrame = -Infinity;
-  let visible = true;
   let copyZones = [];
 
   const back = [
@@ -457,50 +454,8 @@
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     draw(reduced.matches ? 0 : performance.now() / 1000);
-    wake();
   }
 
-  function loop(now) {
-    frame = 0;
-    if (document.hidden || !visible || reduced.matches) return;
-    if (now - lastFrame > 32) {
-      lastFrame = now;
-      draw(now / 1000);
-    }
-    frame = requestAnimationFrame(loop);
-  }
-
-  function wake() {
-    if (frame) cancelAnimationFrame(frame);
-    frame = 0;
-    if (document.hidden || !visible) return;
-    if (reduced.matches) {
-      draw(0);
-      return;
-    }
-    frame = requestAnimationFrame(loop);
-  }
-
-  new ResizeObserver(resize).observe(host);
-  new IntersectionObserver(function (entries) {
-    visible = entries[0].isIntersecting;
-    wake();
-  }).observe(host);
-  new MutationObserver(function () {
-    updateCopyZone();
-    draw(reduced.matches ? 0 : performance.now() / 1000);
-    wake();
-  }).observe(document.body, { attributes: true, attributeFilter: ['data-kind'] });
-
-  document.addEventListener('visibilitychange', wake);
-  reduced.addEventListener('change', wake);
-  window.addEventListener('pagehide', function () {
-    if (frame) cancelAnimationFrame(frame);
-    frame = 0;
-  });
-  window.addEventListener('pageshow', wake);
-
-  if(document.fonts)document.fonts.ready.then(function(){updateCopyZone();draw(reduced.matches?0:performance.now()/1000);});
-  window.addEventListener('zen-pond-ready',function(){draw(reduced.matches?0:performance.now()/1000);});
-  resize();
+  window.ZenSceneRuntime.register({kind:'meditation',interval:32,draw,resize,onModeChange:updateCopyZone});
+  if(document.fonts)document.fonts.ready.then(function(){updateCopyZone();window.ZenSceneRuntime.invalidate();});
 })();
