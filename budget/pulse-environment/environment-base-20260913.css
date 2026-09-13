@@ -1,0 +1,336 @@
+/* Pulse Reactor: one isolated presentation layer for the preview, never the session. */
+#pulse-document:not(:has(#session-modal.show)),
+#pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
+#pulse-page:not(:has(#session-modal.show))::before{display:none!important}
+#pulse-page{--reactor-red:#ff5b78;--reactor-light:#ffbccb;--reactor-line:#e29db92b;--reactor-muted:#aea2b6}
+#pulse-header{position:relative!important;width:90%!important;max-width:1300px;margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
+#pulse-header .brand-text h1{display:flex;align-items:center;gap:8px;font-size:17px!important;font-weight:650!important;letter-spacing:2px!important;color:#f9e9ef!important}
+#pulse-header .pulse-brand-flow{color:#ff8ca8;font-weight:350}
+#pulse-header .brand-text p{font-size:11px!important;color:#a99aac!important;letter-spacing:.5px;margin-top:5px}
+#pulse-header .pf-header-ecg-v80{color:#ff7897!important}
+#pulse-header .wellness-nav{width:auto!important;flex-basis:auto!important;margin-left:auto;border-color:#fc9db526;background:linear-gradient(120deg,#ff839211,#e690dc05);box-shadow:inset 0 1px 0 #ffe8f30c,0 0 35px #f6578a08}
+#pulse-header .wellness-nav a{color:#bdacbd}
+#pulse-header .wellness-nav a[aria-current=page]{color:#ffe0eb;background:linear-gradient(120deg,#ff607c29,#fd7daf0b);border-color:#ff8fab44;box-shadow:0 0 20px #fd5f8a15}
+#pulse-header .wellness-symbol{color:#ff9fb8;text-shadow:0 0 15px #ff6593}
+#pulse-header .nav-btn{width:42px;height:42px;background:transparent!important;border:1px solid #fbc5dc22!important;border-radius:50%!important;color:#eed0df!important;box-shadow:none!important}
+#pulse-header .streak-badge{background:transparent!important;border:0!important;color:#d4b8c8!important;box-shadow:none!important}
+#pulse-header .nav-dropdown-menu{background:linear-gradient(145deg,#22141ff7,#120e18fc)!important;border:1px solid #ff94b53b!important;border-radius:18px!important;box-shadow:0 25px 70px #000a,0 0 45px #d5367410!important;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
+#pulse-header .nav-dropdown-menu a{min-height:42px;font-size:13px!important;color:#dbcbd9!important}
+#pulse-header .nav-dropdown-menu a:hover{color:#fff!important;background:#ff7c9d12!important}
+#pulse-header .exercise-user-toggle{margin:12px;padding:5px;border-color:#f6a7c333;border-radius:99px;background:#ff91b00a}
+#pulse-header .exercise-user-option{min-height:38px;flex:1;font-size:12px;border-radius:99px}
+#pulse-home{position:relative;width:90%!important;max-width:1240px!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home .reactor-stage{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);grid-template-areas:'intro core' 'stats core' 'week core' 'jumps core';align-items:center;column-gap:40px;position:relative;margin:0 0 65px;padding:30px 0 25px;isolation:isolate}
+#pulse-home .reactor-stage::before{content:'';position:absolute;inset:-60px -5vw -90px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 77% 42%,#ed315819,transparent 62%)}
+#pulse-home .reactor-intro{grid-area:intro;position:relative;padding-bottom:26px}
+#pulse-home .reactor-eyebrow{display:flex;align-items:center;gap:10px;color:#bfa0b1;font-size:10px;font-weight:550;letter-spacing:2.5px}
+#pulse-home .reactor-eyebrow>span{font-size:22px;color:#ff9cba;text-shadow:0 0 16px #ff648f}
+#pulse-home .reactor-intro h2{font-size:clamp(37px,4.7vw,60px);font-weight:350;line-height:1.09;letter-spacing:-2px;color:#fbebf1;margin:17px 0 19px;max-width:350px}
+#pulse-home .reactor-intro em{font-style:normal;color:#ff9bb3;text-shadow:0 0 35px #ff759049}
+/* The orbit is the actual weekly plan. The existing day handlers remain attached. */
+#pulse-home .reactor-core{grid-area:core;position:relative;aspect-ratio:1;width:100%;max-width:640px;margin:auto;isolation:isolate}
+#pulse-home .reactor-atmosphere{position:absolute;inset:4%;border-radius:50%;pointer-events:none;z-index:-1;background:radial-gradient(circle,transparent 37%,#ff54740a 47%,#ff4f7421 55%,#fc76981c 60%,#b92c5b0b 70%,transparent 74%);filter:blur(9px);animation:reactorLuminance 7s ease-in-out infinite}
+#pulse-home .reactor-geometry{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#pulse-home .reactor-faint-ring{stroke:#e497b31a;stroke-width:.6}
+#pulse-home .reactor-ticks{stroke:#ffabc137;stroke-width:2;stroke-dasharray:.65 6;transform:rotate(-90deg);transform-origin:center}
+#pulse-home .reactor-inner-ring{stroke:#ff779671;stroke-width:1;filter:drop-shadow(0 0 3px #ff5c86) drop-shadow(0 0 13px #ff426d77)}
+#pulse-home .reactor-ring-secondary{stroke:#faafce33;stroke-width:.6}
+#pulse-home .reactor-week-arc{stroke:#e690ad27;stroke-width:1.2;stroke-linecap:round;transition:stroke .4s,filter .4s}
+#pulse-home .reactor-week-arc.is-done{stroke:#ff719087;filter:drop-shadow(0 0 5px #ff477560)}
+#pulse-home .reactor-week-arc.is-selected{stroke:#ffc5d5;stroke-width:1.8;filter:drop-shadow(0 0 5px #ff638c) drop-shadow(0 0 13px #ff52715c)}
+#pulse-home .reactor-axis{stroke:#df9fb83b;stroke-width:.7}
+#pulse-home .reactor-comet{fill:#ffe1eb;filter:drop-shadow(0 0 3px #ff99b8) drop-shadow(0 0 8px #ff4d7d)}
+#pulse-home .reactor-comet-trail{stroke:#ff8ba730;stroke-width:1.3}
+#pulse-home .reactor-orbiter{transform-origin:250px 250px;animation:reactorOrbit 24s linear infinite}
+#pulse-home .reactor-orbiter-slow{animation-duration:39s;animation-direction:reverse;opacity:.7}
+#pulse-home .reactor-core #week-grid{display:block!important;position:absolute;inset:0;margin:0!important;padding:0!important;overflow:visible!important;pointer-events:none}
+#pulse-home .reactor-core #week-grid .week-day{position:absolute!important;left:var(--orbit-x);top:var(--orbit-y);transform:translate(-50%,-50%)!important;width:53px!important;height:53px!important;min-height:53px!important;padding:7px 3px!important;border-radius:50%!important;border:1px solid #da9ab52d!important;background:#130e17!important;box-shadow:0 0 17px #f7618310!important;display:flex!important;justify-content:center;gap:2px!important;pointer-events:auto;transition:background .3s,border-color .3s,box-shadow .3s!important}
+#pulse-home .reactor-core #week-grid .week-day:hover,#pulse-home .reactor-core #week-grid .week-day.is-selected{border-color:#ffb2cc94!important;background:radial-gradient(circle at 30% 25%,#472333,#1c131f 80%)!important;box-shadow:0 0 20px #ff5f8a3b,inset 0 0 16px #ff95b519!important}
+#pulse-home .reactor-core #week-grid .week-day.today{border-color:#ff8aaa62!important}
+#pulse-home .reactor-core #week-grid .week-day.done::after{content:'';position:absolute;right:4px;top:3px;width:5px;height:5px;background:#ffc2d4;border-radius:50%;box-shadow:0 0 8px #ff597e}
+#pulse-home .reactor-core #week-grid .wd-name{font-size:9px!important;font-weight:450!important;letter-spacing:.5px!important;color:#bfa7b9!important}
+#pulse-home .reactor-core #week-grid .wd-date{font-size:17px!important;font-weight:500!important;line-height:1!important;color:#f4dce8!important}
+#pulse-home .reactor-core #week-grid :is(.wd-type,.wd-week,.wd-status){display:none!important}
+#pulse-home .reactor-start{position:absolute;inset:20%;width:60%;height:60%;padding:24px 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;cursor:pointer;border-radius:50%;border:1px solid #ffacc219;background:radial-gradient(ellipse at 45% 18%,#f57e9b0d,#190f1b1a 70%);color:#ffe6ee;font-family:inherit;text-align:center;box-shadow:inset 0 0 50px #fd4c7010,0 0 55px #f6476f0a;transition:background .4s,box-shadow .4s,border-color .4s}
+#pulse-home .reactor-start:hover{border-color:#ffc2d949;background:radial-gradient(ellipse at 45% 18%,#f57e9b20,#190f1b28 70%);box-shadow:inset 0 0 45px #ff648519,0 0 65px #ff617422}
+#pulse-home .reactor-start:active{transform:scale(.98)}
+#pulse-home .reactor-start:disabled{cursor:wait;opacity:.65}
+#pulse-home .reactor-date{font-size:10px;font-weight:450;letter-spacing:1.3px;color:#c8a7ba;line-height:1.3;text-transform:uppercase}
+#pulse-home .reactor-pulse-symbol{width:56px;min-height:24px;height:24px;flex-shrink:0;color:#ffadca;filter:drop-shadow(0 0 5px #ff759b) drop-shadow(0 0 16px #ff4e7955)}
+#pulse-home .reactor-pulse-symbol path{stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+#pulse-home .reactor-core #reactor-title{font-size:clamp(23px,2.5vw,32px);font-weight:400;letter-spacing:-.8px;line-height:1.16;overflow-wrap:anywhere;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#pulse-home .reactor-summary{font-size:12px;line-height:1.4;color:#b6a0b2;max-width:100%}
+#pulse-home .reactor-action{display:flex;align-items:center;gap:12px;margin-top:6px;font-size:12px;letter-spacing:.5px;color:#ffc9db;text-shadow:0 0 13px #ff799b60}
+#pulse-home .reactor-action>span:last-child{font-size:21px;font-weight:300}
+#pulse-home .reactor-configure{position:absolute;left:50%;bottom:1%;transform:translateX(-50%);padding:9px 12px;border:0;background:#0c090fe0;border-radius:30px;color:#c0a4b7;min-height:36px;font:400 11px Inter,sans-serif;white-space:nowrap;cursor:pointer}
+#pulse-home .reactor-configure[hidden]{display:none}
+/* Open metrics and controls surround the core, instead of repeating cards. */
+#pulse-home .pulse-overview{grid-area:stats;margin:0 0 24px}
+#pulse-home .stats-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px 16px!important;margin:0!important}
+#pulse-home .stat-card{padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;min-width:0;overflow:visible!important}
+#pulse-home .stat-card::before,#pulse-home .stat-card::after{display:none!important}
+#pulse-home .stat-label{font-size:11px!important;letter-spacing:0!important;text-transform:none!important;color:#ac94a8!important}
+#pulse-home .stat-val{font-size:34px!important;font-weight:350!important;letter-spacing:-1.5px!important;line-height:1.3!important;color:#f5dce7!important;margin:4px 0!important}
+#pulse-home .stat-week .stat-val{color:#ffadc2!important;text-shadow:0 0 20px #ff6c8955}
+#pulse-home .stat-val small{font-size:13px!important;letter-spacing:0;margin-left:5px}
+#pulse-home .stat-sub{font-size:10px!important;color:#b19cae!important;line-height:1.45}
+#pulse-home .reactor-week{grid-area:week;min-width:0;padding-top:18px;border-top:1px solid #efb2ca22}
+#pulse-home .reactor-week .section-hdr{margin-bottom:12px!important}
+#pulse-home .reactor-week .section-hdr h2{font-size:13px!important;color:#baa2b5!important;letter-spacing:.3px!important}
+#pulse-home .week-toolbar{display:flex!important;flex-wrap:wrap!important;gap:12px!important;margin-bottom:0!important}
+#pulse-home .week-nav{flex:1 1 100%!important;gap:10px!important;max-width:100%}
+#pulse-home .week-nav-label{font-size:13px!important;color:#f0d9e6!important}
+#pulse-home .week-nav-sub{font-size:11px!important;color:#aa91a5!important}
+#pulse-home .week-nav-btn{min-width:36px!important;min-height:36px!important;border-radius:50%!important;background:#f2a4b909!important;border:1px solid #f2a4b929!important;color:#ffc2d3!important;box-shadow:none!important}
+#pulse-home .week-inline-actions-v13{margin-left:0;gap:8px}
+#pulse-home .reactor-jumps{grid-area:jumps;display:flex;gap:22px;margin-top:25px}
+#pulse-home .reactor-jumps button{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#cdb5c8;font:400 11px Inter,sans-serif;cursor:pointer;min-height:40px}
+#pulse-home .reactor-jumps span{font-size:27px;color:#ffc5da;text-shadow:0 0 18px #ff6ca3;font-weight:300}
+#pulse-home .pulse-section{position:relative;margin-top:45px;padding-top:30px;border-top:1px solid #efb2ca22;scroll-margin-top:20px}
+#pulse-home .section-hdr{display:flex;align-items:center!important;gap:15px;margin:0 0 25px!important}
+#pulse-home .section-hdr h2{font-size:26px!important;font-weight:400!important;letter-spacing:-.7px!important;color:#f6dfe9!important}
+#pulse-home .section-hdr h2::before{display:none!important}
+#pulse-home :is(.btn-sm,.btn-ghost){min-height:37px!important;padding:8px 14px!important;border-radius:99px!important;background:#f7a1b407!important;border:1px solid #f4a2bd30!important;color:#dab7ca!important;font:450 12px/1.3 Inter,sans-serif!important;box-shadow:none!important}
+#pulse-home :is(.btn-sm,.btn-ghost):hover{background:#ff809916!important;border-color:#ffbed04d!important}
+#pulse-home .goals-grid,#pulse-home .charts-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:36px!important}
+#pulse-home :is(.goal-card,.chart-card){min-width:0!important;border:0!important;border-radius:0!important;padding:22px 0!important;box-shadow:none!important;background:transparent!important}
+#pulse-home :is(.goal-lbl,.chart-card h3){font-size:15px!important;letter-spacing:0!important;font-weight:450!important;text-transform:none!important;color:#dcc4d4!important}
+#pulse-home .chart-note{color:#a08b9f!important;font-size:12px!important}
+#pulse-home .chart-area{height:240px!important}
+#pulse-home :is(.run-pace-chart-area-v34,.vo2-chart-area-v37){height:190px!important}
+/* Overview data uses the same light and materials as the environment. */
+#pulse-home .progress-wrap{background:#eeb9d016!important;box-shadow:none!important;height:4px!important;border-radius:5px!important;overflow:visible!important}
+#pulse-home .progress-bar{background:linear-gradient(90deg,#ab3b67,#ffb4cd)!important;box-shadow:0 0 16px #ff6b9344!important;border-radius:5px!important}
+#pulse-home .progress-marker{background:#ffe3ef!important;box-shadow:0 0 10px #ff6c98!important}
+#pulse-home :is(.run-distance-scale-v37,.vo2-distance-scale-v37,.run-distance-scale-v38){color:#bfa4b8!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37){border-color:#f1b6d023!important;background:transparent!important;box-shadow:none!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37) strong{color:#efc1d6!important;font-weight:450!important}
+#pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){color:#c0a4b9!important}
+#pulse-home .goal-history{border-color:#f2b8d120!important;background:transparent!important}
+#pulse-home .goal-history :is(th,td){background:transparent!important;border-color:#edb4d017!important;color:#baa4b7!important}
+#pulse-home .goal-history th{color:#e4bfd2!important}
+#pulse-home .goal-history tr:hover td{background:#ff8fb008!important}
+#pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}
+#pulse-home :is(.record-group-v52,.pr-card){border:1px solid #e8acce26!important;border-radius:18px!important;background:radial-gradient(ellipse at 0 0,#f5699620,transparent 65%),#180f191f!important;box-shadow:inset 0 1px 0 #ffd0e30a!important;overflow:hidden}
+#pulse-home .record-group-toggle-v52{padding:18px 20px!important;background:transparent!important;color:#edc6da!important;min-height:56px!important;font-weight:450!important;letter-spacing:.3px!important}
+#pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#ffc3de;text-shadow:0 0 13px #ff638d;margin-right:12px;font-size:20px}
+#pulse-home :is(.record-group-count-v52,.record-chevron-v52,.records-master-toggle-v52){color:#c09aaf!important;border-color:#e9a5c135!important;background:transparent!important}
+#pulse-home .record-row-v52{border-color:#f7b9d21a!important;background:transparent!important;padding:16px 20px!important;gap:15px!important;grid-template-columns:minmax(0,1fr) 90px 135px!important}
+#pulse-home .record-name-v52{font-size:13px!important;font-weight:400!important;color:#cbb3c4!important;line-height:1.5!important}
+#pulse-home .record-max-v52{font-size:19px!important;font-weight:450!important;color:#ffe0eb!important;letter-spacing:-.5px}
+#pulse-home .record-progress-copy-v52{color:#b89bab!important}
+#pulse-home .record-gain-v52{color:#a3e0ca!important;background:#a3e0ca09!important}
+#pulse-home :is(.record-flat-v52,.record-spark-empty-v52){color:#a0869a!important}
+#pulse-home .record-spark-v52{color:#ff9fbe!important;overflow:visible;filter:drop-shadow(0 0 5px #ff5e9044)}
+#pulse-home .record-spark-v52 polyline{stroke:#ff9fbe!important}
+#pulse-home .record-spark-v52 circle{fill:#ffcadb!important}
+#pulse-home .pr-weight{color:#ffc2d8!important;text-shadow:0 0 20px #ff5f8b22}
+#pulse-home :is(.pr-name,.pr-label){color:#bd9eb1!important}
+/* Retain the live table and its controls; the rows become readable log entries. */
+#pulse-home .log-wrap{overflow:visible!important}
+#pulse-home .log-table{display:block;border:0!important;width:100%!important}
+#pulse-home .log-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#pulse-home #log-body{display:block}
+#pulse-home .log-main-row{display:grid!important;grid-template-columns:90px minmax(0,1fr) 100px 85px 95px 44px;align-items:center;gap:14px;margin:12px 0 0;padding:18px 20px;border:1px solid #e9a3c12b;border-radius:18px;background:linear-gradient(110deg,#f77ca00a,#25152133);box-shadow:inset 0 1px 0 #ffd6e608;transition:border-color .2s,background .2s}
+#pulse-home .log-main-row:hover,#pulse-home .log-main-row[aria-expanded=true]{border-color:#ff9dbb63;background:linear-gradient(110deg,#f77ca018,#25152150);box-shadow:0 0 25px #f5568110}
+#pulse-home .log-main-row>td{display:block!important;width:auto!important;max-width:none!important;min-width:0;height:auto!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important;color:#c3aebe!important;font-size:12px!important;white-space:normal!important;text-align:left!important}
+#pulse-home .log-main-row>td:nth-child(1){font-size:11px!important;color:#b597ac!important}
+#pulse-home .log-tag{display:block!important;padding:0!important;border:0!important;background:none!important;color:#edd5e7!important;white-space:normal!important;font-size:14px!important;font-weight:450!important;line-height:1.4!important;overflow-wrap:anywhere}
+#pulse-home .log-pass-cardio-v7 .log-tag{color:#ffb0c3!important}
+#pulse-home .log-main-row>td:nth-child(3)::before{content:'VOLYM';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-main-row>td:nth-child(4)::before{content:'TID';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-main-row>td:nth-child(5)::before{content:'PULS';display:block;color:#a58c9f;font-size:8px;letter-spacing:1px;margin-bottom:5px}
+#pulse-home .log-del{width:36px!important;height:36px!important;border:1px solid #f4b1ca2c!important;border-radius:50%!important;background:#ff89ab05!important;color:#ca9bb2!important;font-size:18px!important}
+#pulse-home .log-detail>td{display:block!important;padding:0!important;border:0!important;width:100%!important}
+#pulse-home .log-detail.show{display:block!important}
+#pulse-home .log-detail-box{padding:22px 18px!important;background:linear-gradient(160deg,#28172588,#120e18)!important;border:1px solid #f9b3cf26!important;border-top:0!important;border-radius:0 0 18px 18px!important;box-shadow:0 15px 30px #0002!important}
+#pulse-home .log-detail-copy-v8>strong{color:#e8c8dc!important;font-weight:450!important}
+#pulse-home :is(.log-meta-date-v8,.log-meta-time-v8){color:#c4a7bc!important}
+#pulse-home :is(.log-edit-pass-v7,.log-add-workout-v8){background:#ff8bac09!important;border-color:#f6aac533!important;color:#deb6cc!important;border-radius:99px!important;min-height:38px!important}
+#pulse-home .log-ex-row-v7{min-height:52px!important;border-color:#eab9cf17!important;background:transparent!important}
+#pulse-home .log-ex-row-v7:hover{background:#ff8ca811!important}
+#pulse-home :is(.log-ex-name-v7,.log-ex-target-v7){color:#ccb4c5!important}
+#pulse-home .log-ex-row-v7.is-cardio .log-ex-name-v7{color:#ffafc4!important}
+#pulse-home .log-ex-row-v7 .log-ex-time-v7{color:#dab7e9!important}
+#pulse-home :is(.log-ex-index-v7,.log-ex-chevron-v7,.log-ex-head-v7){color:#aa849d!important}
+#pulse-home .empty-state{color:#b496aa!important;border-color:#edb0ca22!important;background:radial-gradient(ellipse at 50% 0,#ff658715,transparent 70%)!important;padding:45px 20px!important}
+#pulse-home .empty-icon{color:#ffb1ce!important;text-shadow:0 0 25px #ff6181!important}
+@media(max-width:760px){
+ #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 74px!important;padding:16px!important;gap:8px 15px!important}
+ #pulse-home .record-progress-v52{grid-column:1/-1;justify-content:space-between!important}
+ #pulse-home .record-group-toggle-v52{padding:16px!important}
+ #pulse-home .log-main-row{grid-template-columns:repeat(3,minmax(0,1fr)) 36px;padding:16px!important;gap:13px 10px;border-radius:16px}
+ #pulse-home .log-main-row>td:nth-child(1){grid-column:1/4;grid-row:1}
+ #pulse-home .log-main-row>td:nth-child(2){grid-column:1/4;grid-row:2}
+ #pulse-home .log-main-row>td:nth-child(3){grid-column:1;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(4){grid-column:2;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(5){grid-column:3/5;grid-row:3}
+ #pulse-home .log-main-row>td:nth-child(6){grid-column:4;grid-row:1/3;align-self:start}
+ #pulse-home .log-detail-box{padding:18px 8px!important}
+ #pulse-home .record-max-v52{font-size:18px!important}
+}
+
+#pulse-log-button{width:48px!important;height:48px!important;padding:0!important;border-radius:50%!important;border:1px solid #ffb1cd69!important;background:radial-gradient(circle at 35% 25%,#682c49,#231122)!important;color:#ffcade!important;box-shadow:0 0 26px #fa5d9030,inset 0 0 17px #ff9fc91a!important;bottom:max(22px,env(safe-area-inset-bottom))!important;right:5%!important;font-size:0!important}
+#pulse-log-button>span{font-size:27px;font-weight:300;line-height:1}
+#pulse-page:has(#session-modal.show) #pulse-log-button{display:none!important}
+#pulse-page:has(#session-modal.show) .reactor-orbiter,#pulse-page:has(#session-modal.show) .reactor-atmosphere{animation-play-state:paused}
+#pulse-home :focus-visible,#pulse-header :focus-visible,#pulse-log-button:focus-visible{outline:2px solid #ffc3df!important;outline-offset:4px}
+@keyframes reactorOrbit{to{transform:rotate(360deg)}}
+@keyframes reactorLuminance{0%,100%{opacity:.65;transform:scale(.98)}50%{opacity:1;transform:scale(1.04)}}
+@media(max-width:960px){
+ #pulse-header{gap:12px!important}
+ #pulse-home .reactor-stage{column-gap:15px;grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr)}
+ #pulse-home .reactor-intro h2{font-size:44px}
+ #pulse-home .reactor-core #reactor-title{font-size:24px}
+}
+@media(max-width:760px){
+ #pulse-header{padding:22px 0 12px!important;display:grid!important;grid-template-columns:1fr auto;gap:17px 10px!important}
+ #pulse-header .brand{grid-column:1;grid-row:1}
+ #pulse-header .nav-dropdown-wrapper{grid-column:2;grid-row:1;justify-self:end}
+ #pulse-header .wellness-nav{grid-column:1;grid-row:2;justify-self:start;margin-left:0}
+ #pulse-header .streak-badge{grid-column:2;grid-row:2;justify-self:end;font-size:12px!important}
+ #pulse-header .wellness-nav a{font-size:11px;padding:0 10px;gap:7px}
+ #pulse-header .wellness-symbol{font-size:18px}
+ #pulse-home{width:90%!important;padding-top:0!important}
+ #pulse-home .reactor-stage{grid-template-columns:1fr;grid-template-areas:'intro' 'core' 'week' 'stats' 'jumps';padding-top:25px;row-gap:0;margin-bottom:40px}
+ #pulse-home .reactor-intro{padding-bottom:6px}
+ #pulse-home .reactor-eyebrow{font-size:9px;letter-spacing:2px}
+ #pulse-home .reactor-intro h2{font-size:35px;letter-spacing:-1.3px;max-width:none;margin:12px 0 4px}
+ #pulse-home .reactor-core{width:calc(100% + 6vw);max-width:480px;margin:10px -3vw 20px}
+ #pulse-home .reactor-core #week-grid .week-day{width:44px!important;height:44px!important;min-height:44px!important;padding:4px 2px!important}
+ #pulse-home .reactor-core #week-grid .wd-name{font-size:9px!important}
+ #pulse-home .reactor-core #week-grid .wd-date{font-size:15px!important}
+ #pulse-home .reactor-start{gap:6px;padding:12px 10px}
+ #pulse-home .reactor-core #reactor-title{font-size:24px;letter-spacing:-.6px}
+ #pulse-home .reactor-date{font-size:9px;letter-spacing:.7px}
+ #pulse-home .reactor-summary{font-size:11px}
+ #pulse-home .reactor-pulse-symbol{width:43px;height:20px;min-height:20px}
+ #pulse-home .reactor-action{font-size:11px;margin-top:3px;gap:8px}
+ #pulse-home .reactor-configure{bottom:-1%;font-size:10px}
+ #pulse-home .reactor-week{border-top:0;padding-top:5px;margin-bottom:23px}
+ #pulse-home .reactor-week .section-hdr{display:none!important}
+ #pulse-home .week-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:10px!important;align-items:center}
+ #pulse-home .week-nav{width:100%!important;gap:6px!important}
+ #pulse-home .week-inline-actions-v13{gap:6px!important}
+ #pulse-home .week-inline-actions-v13 .btn-sm{font-size:10px!important;padding:7px 10px!important;min-height:34px!important}
+ #pulse-home .week-nav-btn{min-width:31px!important;min-height:34px!important}
+ #pulse-home .week-nav-label{font-size:12px!important}
+ #pulse-home .week-nav-sub{font-size:10px!important}
+ #pulse-home .pulse-overview{padding-top:22px;border-top:1px solid #efb2ca22;margin:0}
+ #pulse-home .stats-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:13px!important}
+ #pulse-home .stat-val{font-size:27px!important}
+ #pulse-home .stat-label{font-size:10px!important;min-height:25px}
+ #pulse-home .stat-sub{font-size:9px!important}
+ #pulse-home .stat-val small{font-size:10px!important;display:block;margin:0;letter-spacing:0;line-height:1.2}
+ #pulse-home .reactor-jumps{justify-content:center;margin-top:22px}
+ #pulse-home .pulse-section{margin-top:30px;padding-top:24px}
+ #pulse-home .section-hdr h2{font-size:24px!important}
+ #pulse-home .goals-grid,#pulse-home .charts-row{grid-template-columns:minmax(0,1fr)!important;gap:17px!important}
+ #pulse-home .chart-area{height:225px!important}
+ #pulse-home :is(.run-pace-chart-area-v34,.vo2-chart-area-v37){height:185px!important}
+}
+@media(min-width:510px) and (max-width:760px){#pulse-home .reactor-core{justify-self:center;margin:10px auto 20px}}
+@media(max-width:360px){
+ #pulse-home .reactor-core #reactor-title{font-size:20px}
+ #pulse-home .reactor-summary{font-size:10px}
+ #pulse-home .reactor-start{gap:5px}
+ #pulse-home .week-toolbar{grid-template-columns:1fr;gap:9px!important}
+ #pulse-home .week-inline-actions-v13{justify-content:center}
+ #pulse-home .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
+ #pulse-home .stat-label{min-height:0}
+ #pulse-home .stat-val small{display:inline;margin-left:5px}
+}
+@media(prefers-reduced-motion:reduce){#pulse-home *,#pulse-home *::before,#pulse-home *::after,#pulse-header *,#pulse-log-button{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* The same materials continue through every overview dialog, including dynamic previews. */
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7){
+ --accent:#ff7890;--accent-dim:rgba(255,90,119,.1);--border-a:rgba(255,112,139,.4);
+ --bg2:#11141e;--bg3:#090d16;--text:#f0f1f7;--text-sec:#b2b8c9;--text-dim:#949db2;
+ --border:rgba(180,190,214,.17);--surface:rgba(255,255,255,.035);--surface-h:rgba(255,106,136,.07);
+ color:var(--text);color-scheme:dark;
+ background:radial-gradient(ellipse at 70% 10%,rgba(153,27,58,.13),transparent 55%),rgba(4,6,12,.8)!important;
+ backdrop-filter:blur(15px)!important;-webkit-backdrop-filter:blur(15px)!important;
+ padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom))!important;
+}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal,.plan-preview-card-v7){
+ width:100%!important;max-width:660px!important;max-height:88vh!important;max-height:88dvh!important;
+ padding:30px!important;border:1px solid rgba(255,120,146,.27)!important;border-radius:4px 20px 4px 20px!important;
+ background:radial-gradient(ellipse at 95% 0%,rgba(135,34,60,.16),transparent 50%),linear-gradient(155deg,#181823,#0d111b 70%)!important;
+ box-shadow:0 35px 100px #000a,inset 0 1px 0 #ffafc035,0 0 60px #fb36540a!important;
+ overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#864956 #10141e;
+}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal h2,.plan-preview-title-v7){font-size:27px!important;font-weight:550!important;line-height:1.2!important;letter-spacing:-.8px!important;color:#faf8fb!important;margin:0 44px 27px 0!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-close,.plan-preview-close-v7){width:40px!important;height:40px!important;flex:0 0 40px;display:grid;place-items:center;border:1px solid #bdc5dd29!important;border-radius:50%!important;color:#dce0ec!important;background:#ffffff04!important;font-size:17px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .form-group{min-width:0;margin-bottom:22px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.form-group label,.between-fields-v7 label){font-size:12px!important;line-height:1.4!important;font-weight:550!important;color:#afb6c9!important;text-transform:none!important;letter-spacing:.15px!important;margin-bottom:8px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input:not([type=hidden]):not([type=checkbox]),select,textarea){min-width:0;max-width:100%;min-height:42px!important;height:auto!important;padding:10px 11px!important;background:#090d16!important;border:1px solid #a3b2cf33!important;border-radius:5px!important;color:#eef0f8!important;-webkit-text-fill-color:#eef0f8!important;caret-color:#ff9bb1!important;font:400 16px/1.35 Inter,sans-serif!important;box-shadow:inset 0 1px 3px #0003!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input,textarea)::placeholder{color:#8993aa!important;-webkit-text-fill-color:#8993aa!important;opacity:1!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(input,select,textarea):focus{outline:none!important;border-color:#ff7c9caa!important;box-shadow:0 0 0 3px #ff597814!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) select option{background:#10141f!important;color:#f1f2f8!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) input[type=checkbox]{accent-color:#ff5b7a}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-sm,.btn-ghost,.btn-primary,.btn-danger,.plan-preview-back-v7,.plan-preview-save-v7){min-height:42px!important;padding:10px 15px!important;border-radius:6px!important;font:550 13px/1.35 Inter,sans-serif!important;letter-spacing:0!important;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-sm,.btn-ghost,.plan-preview-back-v7){background:#ffffff04!important;border:1px solid #a3b2ce30!important;color:#dce0ed!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-primary,.plan-preview-save-v7){background:linear-gradient(120deg,#dc3152,#f35b74)!important;border:1px solid #ff93aa88!important;color:white!important;box-shadow:0 0 22px #ff496324,inset 0 1px 0 #ffc5d033!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.btn-primary,.plan-preview-save-v7):hover{background:linear-gradient(120deg,#ef4265,#ff6e86)!important;box-shadow:0 0 28px #ff49633a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .btn-danger{background:#f14e6210!important;border-color:#f7687940!important;color:#ff9aa9!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-footer,.plan-preview-actions-v7){gap:10px!important;flex-wrap:wrap;margin-top:26px!important;padding-top:20px!important;border-top:1px solid #d8dff21a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.week-nav-label,.plan-preview-date-v7){font-size:14px!important;color:#dfe2ed!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .week-nav-sub{font-size:12px!important;color:#8f9ab2!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .week-nav-btn{min-width:38px!important;min-height:38px!important;background:#ff6c8310!important;border:1px solid #ff779033!important;color:#ffabbc!important;border-radius:50%!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-item,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{padding:16px!important;border:1px solid #a4aec626!important;border-radius:6px!important;background:linear-gradient(120deg,#ffffff04,#ffffff01)!important;box-shadow:none!important;gap:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-list{gap:14px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-head{gap:7px!important;margin-bottom:2px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-kind-btn{min-height:34px!important;padding:7px 12px!important;border-radius:5px!important;font-size:12px!important;color:#a6b0c5!important;background:transparent!important;border-color:#a3b2ce26!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-kind-btn.active{color:#c4d6fc!important;background:#6496ea16!important;border-color:#85adfb50!important;box-shadow:0 0 15px #6299f610!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-kind-btn.active,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-kind-btn.active{color:#ffbcc7!important;background:#ff576d16!important;border-color:#ff889e50!important;box-shadow:0 0 15px #ff5b7610!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row{grid-template-columns:minmax(0,1fr) 65px 65px 74px 36px!important;gap:7px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 95px 95px 36px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) :is(.ex-del,.builder-row-plus-v3,.builder-row-drag-handle-v3){width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;display:grid;place-items:center;border:1px solid #abb8d22a!important;border-radius:5px!important;color:#bcc6dc!important;background:#ffffff05!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-del{color:#fd9baa!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-row-plus-v3{color:#ffafbf!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .builder-drag-bars-v34{color:#b3c0d6!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.builder-toggle-label-v13,.per-set-label-v7){font-size:11px!important;line-height:1.35!important;color:#adb6cb!important;font-weight:550!important;text-transform:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7{background:#ff79900b!important;border-color:#f29ab82f!important;box-shadow:none!important;color:#e9bbcd!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-toggle-copy-v7 strong{color:#e9bbcd!important;font-size:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-toggle-copy-v7 span{color:#ac93a8!important;font-size:11px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-toggle-unit-v13{gap:8px!important;min-width:66px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch){background:#1b2230!important;border-color:#8e9bb444!important;box-shadow:none!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch)[aria-pressed=true]{background:#ff5e7d33!important;border-color:#ff91a480!important;box-shadow:0 0 16px #ff648533!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-switch-v7,.pretimer-switch)[aria-pressed=true]::after{background:#ffb7c5!important;box-shadow:0 0 10px #ff71897a!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(#between-exercise-global-editor-v7,.plan-preview-global-v7){background:#ff6c8110!important;border:1px solid #ff859732!important;border-radius:5px!important;padding:13px!important;box-shadow:none!important;color:#ffc1cf!important;font-size:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-global-title-v7 strong,.plan-preview-kicker-v7,.single-exercise-kicker-v9){font-size:11px!important;color:#ffb0c2!important;letter-spacing:.8px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.between-global-title-v7 span,.single-exercise-context-v9){font-size:12px!important;color:#a3adc1!important;line-height:1.5}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-v7{flex-wrap:wrap!important;border-color:#d3dced1c!important;margin-top:12px!important;padding-top:12px!important;gap:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-fields-v7{grid-template-columns:minmax(0,1fr) 80px!important;flex-basis:100%!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .per-set-name-v7{grid-column:1/-1}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-row-v7{padding:16px 4px!important;gap:10px!important;border-color:#bbc5dc1c!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-name-v7{font-size:15px!important;font-weight:550!important;color:#e4e8f3!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#ffb7c7!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.plan-preview-target-v7,.plan-preview-num-v7){font-size:12px!important;color:#a6b1c8!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-between-v7{font-size:12px!important;color:#ffb8c9!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .log-add-summary-v52{border-color:#ff789526!important;background:#ff6b8610!important;color:#b6bfd1!important;padding:12px!important}
+#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(:focus-visible){outline:2px solid #ff9daf!important;outline-offset:3px}
+#pulse-page:not(:has(#session-modal.show)) #toast{background:#171723!important;border-color:#ff7c9b55!important;color:#ffd3df!important;box-shadow:0 15px 40px #0007!important;border-radius:8px!important;max-width:90vw;text-align:center}
+#pulse-page #day-modal.pulse-editor .modal{max-width:460px!important}
+#pulse-page #day-modal.pulse-editor .modal-footer{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#pulse-page #wk-modal.pulse-editor #wk-template-select{min-width:0;flex-basis:100%!important}
+#pulse-page #wk-modal.pulse-editor .form-group:has(#wk-template-select)>div{flex-wrap:wrap}
+@media(max-width:600px){
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7){padding:12px!important;align-items:center!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal,.plan-preview-card-v7){padding:22px 17px!important;max-height:90vh!important;max-height:90dvh!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal h2,.plan-preview-title-v7){font-size:24px!important;margin-bottom:24px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .form-group{margin-bottom:19px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-item,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{padding:13px 10px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-row{grid-template-columns:repeat(3,minmax(0,1fr)) 36px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=text]{grid-column:1/4;grid-row:1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>.ex-del{grid-column:4;grid-row:1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=number]{grid-row:2;padding-left:8px!important;padding-right:7px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row-head{flex-wrap:wrap!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-week-between-v7{grid-template-columns:1fr!important;gap:17px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) #between-exercise-toggle-panel-v7{grid-column:1!important;justify-content:flex-start!important;gap:24px!important;margin-top:6px}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-fields-v7{grid-template-columns:minmax(0,1fr) 80px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .between-name-v7{grid-column:1/-1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-target-v7{white-space:normal!important;max-width:110px;line-height:1.45}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.modal-footer,.plan-preview-actions-v7){gap:8px!important}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .modal-footer>button{flex:1 1 auto}
+}
+@media(prefers-reduced-motion:reduce){#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) *,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
