@@ -11,9 +11,11 @@ The HTML uses `dashboard.js` and the shared session runtime. `<base href="../">`
 
 ## Reactor training mode
 
-Only this route loads `training.css` and `training.js`. Sessions open in Reactor design: concentric orbital rings around the existing clock, peach strength accents, rose cardio accents and lavender rest. The session header's Reactor / Original buttons switch presentation without restarting the session. The choice lasts for the current page visit.
+Reactor and Observatory share `training.css` and `training.js` for their session layout and presentation state. This route declares `data-training-theme="reactor"` and opens with concentric orbital rings around the existing clock, peach strength accents, rose cardio accents and lavender rest. The session header's Reactor / Original buttons switch presentation without restarting the session. The choice lasts for the current page visit.
 
-The shared runtime still owns timers, progress, pause, set logging, transitions and saving. The adapter observes session classes to label the decorative core and pause its orbit; it never wraps workout handlers or writes training data. The stylesheet is scoped to the Reactor document and its active design attribute. Original uses the shared presentation; Observatory and the regular training route do not load these assets. Reduced-motion settings disable the decorative orbit.
+The shared runtime still owns timers, progress, pause, set logging, transitions and saving. The adapter observes session/pause classes to label the decorative core and pause its motion; it ignores native clock text and SVG updates, never wraps workout handlers and never writes training data. Styles require an active preview design attribute. Original uses the native presentation; the regular training route does not load these assets. Reduced-motion settings disable the decorative orbit, and hidden tabs pause it.
+
+The active themed training view fits the available viewport without scrolling. A flexible grid gives the timer the space remaining after the heading, set details and controls; CSS container sizes scale its artwork and digits. Dynamic viewport units and safe-area padding account for mobile browser chrome. Landscape uses two columns. Logged sets remain editable in **Översikt**; the overview and completion form retain normal scrolling. No clocks are cloned or moved, and no runtime changes are needed when the viewport resizes.
 
 ## Checkpoints
 
@@ -28,6 +30,8 @@ The shared runtime still owns timers, progress, pause, set logging, transitions 
 The overview previews were rendered in Chromium at 320, 390, 768 and 1440 px with synthetic training fixtures and stubbed Firebase. No page-level horizontal overflow; graph values and explicit scale settings match the original. Builder, log editor and session launch work, and unsaved review actions preserve stored workouts.
 
 The Reactor training design was checked at the same widths with local synthetic workouts and all remote data connections stubbed. No session-level horizontal overflow. Switching designs preserves the serialized session state; strength start and logging, cardio countdown and pause/resume, completion form visibility and reduced-motion behavior were checked. The native clock elements and controls are retained.
+
+The mobile-fit update additionally checks 320×480, 320×568, 375×548, 390×664, 390×844, 844×390 and 1440×900 viewports. Long exercise names, a 20-set log, the end-of-exercise decision controls and cardio were checked for both scroll axes and timer/control bounds. The shared layout is used by Observatory as well.
 
 Overview switching was also checked. A configured rest interval was skipped by the shared runtime in both Reactor and Original modes in the fixture; that existing transition behavior is outside this presentation change. The rest skin was therefore inspected separately using the native rest-overlay markup. No claim of an end-to-end rest-transition fix is made here.
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv" id="pulse-document">
+<html lang="sv" id="pulse-document" data-training-theme="observatory">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,6 +26,9 @@
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
 <link rel="stylesheet" href="pulse-observatory/observatory.css?v=start-screen-1">
 <script defer src="pulse-environment/environment.js?v=start-screen-1"></script>
+<link rel="stylesheet" href="pulse-environment/training.css?v=training-fit-2">
+<link rel="stylesheet" href="pulse-observatory/training.css?v=observatory-training-1">
+<script defer src="pulse-environment/training.js?v=training-fit-2"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -435,6 +438,13 @@
 <div class="modal-overlay session-overlay" id="session-modal">
   <div class="session-shell">
     <div class="session-top">
+      <div class="training-design-bar">
+        <span class="training-design-brand">PULSE <b>OBSERVATORY</b></span>
+        <div class="training-design-options" role="group" aria-label="Träningsdesign">
+          <button type="button" data-training-design="observatory" aria-pressed="true">Observatory</button>
+          <button type="button" data-training-design="original" aria-pressed="false">Original</button>
+        </div>
+      </div>
       <div>
         <div class="session-title">Passläge</div>
         <div id="session-subtitle" style="font-size:12px;color:var(--text-sec)">-</div>
@@ -443,6 +453,27 @@
     </div>
     <div class="session-grid">
       <div class="session-main session-card">
+        <div class="pulse-training-core observatory-training-sky" aria-hidden="true">
+          <svg viewBox="0 0 520 320" focusable="false">
+            <defs>
+              <radialGradient id="training-observatory-atmosphere"><stop stop-color="currentColor" stop-opacity=".25"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
+              <linearGradient id="training-observatory-edge"><stop stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
+            </defs>
+            <ellipse class="observatory-training-atmosphere" cx="260" cy="230" rx="245" ry="140" fill="url(#training-observatory-atmosphere)"/>
+            <g class="observatory-training-coordinates">
+              <ellipse cx="260" cy="175" rx="196" ry="128"/>
+              <ellipse cx="260" cy="175" rx="122" ry="128"/>
+              <path d="M260 35V302 M52 175H468 M102 94Q260 144 418 94 M102 256Q260 206 418 256"/>
+              <ellipse cx="260" cy="180" rx="237" ry="57" transform="rotate(-20 260 180)"/>
+            </g>
+            <path class="observatory-training-planet" d="M-20 300Q260 185 540 300V340H-20Z"/>
+            <path id="training-observatory-horizon" class="observatory-training-horizon" d="M-20 300Q260 185 540 300" pathLength="100"/>
+            <use class="observatory-training-sweep" href="#training-observatory-horizon"/>
+            <g class="observatory-training-stars"><circle cx="114" cy="71" r="1.7"/><circle cx="381" cy="53" r="1.2"/><circle cx="438" cy="145" r="1.5"/><circle cx="78" cy="201" r="1"/><circle cx="348" cy="116" r=".9"/><path d="M260 44V60 M252 52H268"/></g>
+          </svg>
+          <span class="training-core-phase">REDO FÖR START</span>
+          <span class="training-core-caption">ETT SET I TAGET</span>
+        </div>
         <div class="session-timers">
           <div class="timer-box"><div class="timer-lbl">Passets tid</div><div class="timer-val" id="session-pass-timer">00:00</div></div>
           <div class="timer-box"><div class="timer-lbl">Nuvarande set</div><div class="timer-val" id="session-set-timer">00:00</div></div>
@@ -450,7 +481,7 @@
         <div id="session-current-ex" style="font-size:20px;font-weight:800;letter-spacing:-.4px">-</div>
         <div class="session-nextset" id="session-current-target">-</div>
         <div class="session-cta-row" id="session-controls"></div>
-        <div>
+        <div class="training-session-log">
           <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Loggade set (redigerbara)</div>
           <div id="session-set-log"></div>
         </div>

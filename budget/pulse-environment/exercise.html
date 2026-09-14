@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv" id="pulse-document">
+<html lang="sv" id="pulse-document" data-training-theme="reactor">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,8 +25,8 @@
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
 <script defer src="pulse-environment/environment.js?v=observatory-1"></script>
-<link rel="stylesheet" href="pulse-environment/training.css?v=reactor-training-1">
-<script defer src="pulse-environment/training.js?v=reactor-training-1"></script>
+<link rel="stylesheet" href="pulse-environment/training.css?v=training-fit-2">
+<script defer src="pulse-environment/training.js?v=training-fit-2"></script>
 </head>
 <body id="pulse-page">
 <div class="app-wrap">
@@ -423,9 +423,9 @@
 <div class="modal-overlay session-overlay" id="session-modal">
   <div class="session-shell">
     <div class="session-top">
-      <div class="reactor-design-bar">
-        <span class="reactor-design-brand">PULSE <b>REACTOR</b></span>
-        <div class="reactor-design-options" role="group" aria-label="Träningsdesign">
+      <div class="training-design-bar">
+        <span class="training-design-brand">PULSE <b>REACTOR</b></span>
+        <div class="training-design-options" role="group" aria-label="Träningsdesign">
           <button type="button" data-training-design="reactor" aria-pressed="true">Reactor</button>
           <button type="button" data-training-design="original" aria-pressed="false">Original</button>
         </div>
@@ -438,7 +438,7 @@
     </div>
     <div class="session-grid">
       <div class="session-main session-card">
-        <div class="reactor-session-core" aria-hidden="true">
+        <div class="pulse-training-core" aria-hidden="true">
           <svg viewBox="0 0 320 320" focusable="false">
             <circle class="reactor-orbit-guide" cx="160" cy="160" r="150" />
             <circle class="reactor-orbit-guide" cx="160" cy="160" r="132" />
@@ -446,8 +446,8 @@
             <g class="reactor-orbit-spin"><circle class="reactor-orbit-arc" cx="160" cy="160" r="150" /><circle class="reactor-orbit-dot" cx="160" cy="10" r="3.5" /></g>
             <g class="reactor-orbit-spin reactor-orbit-reverse"><circle class="reactor-orbit-arc" cx="160" cy="160" r="132" /><circle class="reactor-orbit-dot" cx="160" cy="28" r="2" /></g>
           </svg>
-          <span class="reactor-core-phase">REDO FÖR START</span>
-          <span class="reactor-core-caption">ETT SET I TAGET</span>
+          <span class="training-core-phase">REDO FÖR START</span>
+          <span class="training-core-caption">ETT SET I TAGET</span>
         </div>
         <div class="session-timers">
           <div class="timer-box"><div class="timer-lbl">Passets tid</div><div class="timer-val" id="session-pass-timer">00:00</div></div>
@@ -456,7 +456,7 @@
         <div id="session-current-ex" style="font-size:20px;font-weight:800;letter-spacing:-.4px">-</div>
         <div class="session-nextset" id="session-current-target">-</div>
         <div class="session-cta-row" id="session-controls"></div>
-        <div>
+        <div class="training-session-log">
           <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Loggade set (redigerbara)</div>
           <div id="session-set-log"></div>
         </div>
