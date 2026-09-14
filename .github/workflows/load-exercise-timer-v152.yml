@@ -1,0 +1,42 @@
+name: Load exercise timer v152
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Load visible native timer
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('budget/exercise.html')
+          s = p.read_text()
+          s = s.replace('20260914-timer-focus-v151b-stackfix', '20260914-timer-focus-v152-visible')
+          s = s.replace('exercise-timer-focus-v151.js?v=20260914-timer-focus-v152-visible', 'exercise-timer-focus-v152.js?v=20260914-timer-focus-v152-visible')
+          p.write_text(s)
+          for name in ['budget/auth-config.js','budget/auth-gate.js']:
+              p = Path(name)
+              s = p.read_text().replace('20260914-timer-focus-v151b-stackfix','20260914-timer-focus-v152-visible')
+              p.write_text(s)
+          PY
+          node --check budget/exercise-timer-focus-v152.js
+          grep -q 'exercise-timer-focus-v152.js?v=20260914-timer-focus-v152-visible' budget/exercise.html
+      - name: Commit loader and remove one-shot workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/load-exercise-timer-v152.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js .github/workflows/load-exercise-timer-v152.yml
+          git commit -m 'Show live cardio timer in focus mode'
+          git push
