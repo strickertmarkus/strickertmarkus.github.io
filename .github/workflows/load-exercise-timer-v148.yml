@@ -1,0 +1,46 @@
+name: Load exercise timer v148
+on:
+  push:
+    branches: [main]
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Load canvas timer directly
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('budget/exercise.html')
+          s = html.read_text()
+          s = s.replace('20260914-timer-focus-v147-glow','20260914-timer-focus-v148-canvas')
+          tag = '  <script defer src="exercise-timer-focus-v148.js?v=20260914-timer-focus-v148-canvas"></script>'
+          if 'exercise-timer-focus-v148.js' not in s:
+              needle = '  <script defer src="exercise-timer-focus-v147.js?v=20260914-timer-focus-v148-canvas"></script>'
+              if needle not in s:
+                  needle = '  <script defer src="exercise-timer-focus-v147.js?v=20260914-timer-focus-v147-glow"></script>'
+              s = s.replace(needle, needle + '\n' + tag)
+          html.write_text(s)
+
+          for name, var in [('budget/auth-config.js','exerciseFastVersion'),('budget/auth-gate.js','exerciseAssetsVersion')]:
+              p = Path(name)
+              t = p.read_text()
+              t = re.sub(r"(var\s+"+var+r"\s*=\s*')[^']+(';)", r"\g<1>20260914-timer-focus-v148-canvas\2", t, count=1)
+              p.write_text(t)
+          PY
+          node --check budget/exercise-timer-focus-v148.js
+      - name: Commit loader and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js
+          git rm .github/workflows/load-exercise-timer-v148.yml
+          git commit -m 'Force-load canvas cardio timer' || exit 0
+          git push
