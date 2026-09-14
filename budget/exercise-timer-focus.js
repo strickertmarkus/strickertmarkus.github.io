@@ -148,6 +148,14 @@
       html.cardio-focus-dragging .cardio-desktop-toggle {
         display:none!important;
       }
+      html.cardio-focus-dragging canvas.pf-canvas-glow-v130 {
+        display:none!important;
+        opacity:0!important;
+      }
+      html.cardio-focus-dragging #session-countdown-ring .pf-arc-progress-v80 {
+        filter:drop-shadow(0 0 3.5px rgba(239,68,68,.78)) drop-shadow(0 0 10px rgba(239,68,68,.30))!important;
+        -webkit-filter:drop-shadow(0 0 3.5px rgba(239,68,68,.78)) drop-shadow(0 0 10px rgba(239,68,68,.30))!important;
+      }
 
       /* Optical centering of the compact numeric value only; ring geometry is untouched. */
       html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
@@ -507,9 +515,15 @@
     if (root.classList.contains('cardio-focus-active') || root.classList.contains('cardio-focus-dragging')) return null;
     var rect = ring.getBoundingClientRect();
     if (!rect || rect.width < 20 || rect.height < 20) return null;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
     var large = focusTargetRect();
-    /* Reject anything that already looks like the expanded timer. */
+    var centerX = rect.left + rect.width / 2;
+    /* Reject expanded, off-screen or non-centered geometry. The compact Pulse
+       Flow timer is always centered in its normal row. */
     if (rect.width > large.width * 0.72 || rect.height > large.height * 0.72) return null;
+    if (Math.abs(centerX - vw / 2) > Math.max(26, vw * 0.18)) return null;
+    if (rect.bottom <= 0 || rect.top >= vh) return null;
     lastCompactRect = {
       left:rect.left,
       top:rect.top,
@@ -524,9 +538,7 @@
   function savedCompactRect() {
     if (!lastCompactRect) return null;
     var vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    if (Math.abs((lastCompactRect.viewportWidth || 0) - vw) >= 3 ||
-        Math.abs((lastCompactRect.viewportHeight || 0) - vh) >= 3) return null;
+    if (Math.abs((lastCompactRect.viewportWidth || 0) - vw) >= 3) return null;
     return {
       left:lastCompactRect.left,
       top:lastCompactRect.top,
@@ -591,13 +603,12 @@
 
     var small = gesture.smallRect;
     var large = gesture.largeRect;
-    var source = gesture.sourceRect;
     var targetLeft = mix(small.left,large.left,progress);
     var targetTop = mix(small.top,large.top,progress);
     var targetSize = mix(small.width,large.width,progress);
-    var tx = targetLeft - source.left;
-    var ty = targetTop - source.top;
-    var scale = targetSize / Math.max(1,source.width);
+    var tx = targetLeft - small.left;
+    var ty = targetTop - small.top;
+    var scale = targetSize / Math.max(1,small.width);
     var bgProgress = smoothstep(progress);
     var chromeProgress = smoothstep(clamp01((progress - 0.72) / 0.28));
     var contentProgress = 1 - smoothstep(clamp01(progress / 0.72));
@@ -615,34 +626,16 @@
   function beginInteractiveDrag(ring,startExpanded) {
     if (!gesture || gesture.engaged || !ring) return;
 
-    /* Only real compact-state geometry is allowed as the collapse target.
-       Never re-measure/toggle focus classes while the large timer is active. */
-    var measuredRaw = ring.getBoundingClientRect();
-    var measuredRect = {
-      left:measuredRaw.left, top:measuredRaw.top,
-      width:measuredRaw.width, height:measuredRaw.height
-    };
-    var largeRect = focusTargetRect();
-    var sourceRect;
-    var smallRect;
-    if (startExpanded) {
-      smallRect = savedCompactRect();
-      if (!smallRect) {
-        /* No trustworthy compact anchor: abort instead of animating to garbage. */
-        gesture.engaged = false;
-        return;
-      }
-      sourceRect = {left:largeRect.left,top:largeRect.top,width:largeRect.width,height:largeRect.height};
-    } else {
-      sourceRect = measuredRect;
-      smallRect = {left:sourceRect.left,top:sourceRect.top,width:sourceRect.width,height:sourceRect.height};
-      rememberCompactRect(ring);
+    var smallRect = startExpanded ? savedCompactRect() : rememberCompactRect(ring);
+    if (!smallRect) {
+      gesture.engaged = false;
+      return;
     }
+    var largeRect = focusTargetRect();
 
     gesture.engaged = true;
     gesture.startExpanded = !!startExpanded;
     gesture.ring = ring;
-    gesture.sourceRect = sourceRect;
     gesture.smallRect = smallRect;
     gesture.largeRect = largeRect;
     gesture.progress = startExpanded ? 1 : 0;
@@ -660,10 +653,16 @@
       }
     }
 
-    document.documentElement.classList.add('cardio-focus-dragging');
+    var root = document.documentElement;
+    root.classList.add('cardio-focus-dragging');
+    /* The settled focus rules include fixed positioning and translate(-50%).
+       Remove them for both directions; drag now has one geometry authority. */
+    root.classList.remove('cardio-focus-active');
+
     var dragOverlay = ensureFocusChrome();
     if (dragOverlay) dragOverlay.classList.add('show');
-    applyDragBase(ring,sourceRect);
+
+    applyDragBase(ring,smallRect);
     applyDragProgress(gesture.progress);
   }
 
@@ -717,7 +716,7 @@
     var overlay = ensureFocusChrome();
     var root = document.documentElement;
     if (visible && !root.classList.contains('cardio-focus-active') && !root.classList.contains('cardio-focus-dragging')) {
-      rememberCompactRect(document.getElementById('session-countdown-ring'));
+      if (!rememberCompactRect(document.getElementById('session-countdown-ring'))) return false;
     }
     root.classList.toggle('cardio-focus-active',!!visible);
     if (overlay) {

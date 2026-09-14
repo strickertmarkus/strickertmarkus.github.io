@@ -306,6 +306,7 @@
   function frame() {
     rafId = 0;
     if (document.documentElement.classList.contains('cardio-focus-dragging')) {
+      clearAll();
       rafId = requestAnimationFrame(frame);
       return;
     }
