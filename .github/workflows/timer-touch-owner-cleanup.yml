@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/timer-touch-owner-cleanup.yml'
+      - '.github/scripts/timer_touch_owner_cleanup.py'
+      - '.github/scripts/test_timer_touch_cycles.mjs'
 jobs:
   patch-and-test:
     runs-on: ubuntu-latest
