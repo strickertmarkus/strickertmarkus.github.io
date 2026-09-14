@@ -1,0 +1,40 @@
+name: Load exercise timer v151b
+
+on:
+  push:
+    paths:
+      - '.github/workflows/load-exercise-timer-v151b.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Bump focus timer cache
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          old = '20260914-timer-focus-v151-native'
+          new = '20260914-timer-focus-v151b-stackfix'
+          for name in ['budget/exercise.html','budget/auth-config.js','budget/auth-gate.js']:
+              p = Path(name)
+              s = p.read_text()
+              if old not in s:
+                  raise SystemExit(f'{old} not found in {name}')
+              p.write_text(s.replace(old,new))
+          PY
+          node --check budget/exercise-timer-focus-v151.js
+      - name: Commit cache bump and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/load-exercise-timer-v151b.yml
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js
+          git commit -m 'Fix cardio focus timer visibility'
+          git push origin main
