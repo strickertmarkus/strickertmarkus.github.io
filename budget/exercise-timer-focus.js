@@ -170,7 +170,7 @@
       .cardio-focus-title {
         position:fixed;
         left:50%;
-        top:25dvh;
+        top:calc(59dvh - min(162px,41vw) - 94px);
         z-index:3;
         width:min(430px,86vw);
         transform:translateX(-50%);
@@ -312,7 +312,7 @@
       }
 
       @media(max-width:390px) {
-        .cardio-focus-title { top:24dvh;gap:10px; }
+        .cardio-focus-title { top:calc(59dvh - min(150px,40vw) - 88px);gap:10px; }
         html.cardio-focus-active #session-modal.show #session-countdown-ring {
           width:min(300px,80vw)!important;
           height:min(300px,80vw)!important;
@@ -327,7 +327,7 @@
         }
       }
       @media(max-height:700px) {
-        .cardio-focus-title { top:20dvh; }
+        .cardio-focus-title { top:calc(58dvh - min(150px,40vw) - 82px); }
         html.cardio-focus-active #session-modal.show #session-countdown-ring { top:58dvh!important; }
       }
     `;
