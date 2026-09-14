@@ -179,8 +179,10 @@
         opacity:var(--cf-content-opacity)!important;
         pointer-events:none!important;
       }
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show {
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show,
+      html.cardio-focus-source-hidden body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show {
         visibility:hidden!important;
+        opacity:0!important;
         pointer-events:none!important;
       }
 
@@ -232,6 +234,33 @@
       }
       #cardio-timer-morph-proxy #session-countdown-ring .cardio-desktop-toggle {
         display:none!important;
+      }
+      html.cardio-focus-dragging #cardio-timer-morph-proxy,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy * {
+        transition:none!important;
+      }
+      /* Canvas glow is screen-coordinate based. During a compositor transform it can
+         redraw against the old geometry and appear as a second arc. Keep the SVG as
+         the single drag renderer; native Canvas glow resumes immediately at rest. */
+      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-canvas-glow-v130 {
+        display:none!important;
+        opacity:0!important;
+      }
+      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-arc-progress-v80 {
+        filter:drop-shadow(0 0 2.5px rgba(var(--pf-rgb),.88)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.42))!important;
+        -webkit-filter:drop-shadow(0 0 2.5px rgba(var(--pf-rgb),.88)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.42))!important;
+      }
+      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-ecg-v80 svg {
+        filter:drop-shadow(0 0 2px rgba(var(--pf-rgb),.62))!important;
+        -webkit-filter:drop-shadow(0 0 2px rgba(var(--pf-rgb),.62))!important;
+      }
+      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .session-countdown-copy,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .session-countdown-core,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .pf-ecg-v80,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-value,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy .session-countdown-label,
+      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-pause-hint {
+        transform:none!important;
       }
 
       /* Optical centering of the compact numeric value only; ring geometry is untouched. */
@@ -599,6 +628,22 @@
     return proxy;
   }
 
+  function syncProxyThemeFromRing(ring) {
+    var proxy = ensureMorphProxy();
+    if (!proxy || !ring) return;
+    var cs = null;
+    try { cs = getComputedStyle(ring); } catch (_) {}
+    ['--pf','--pf-soft','--pf-rgb'].forEach(function (name) {
+      var value = cs ? String(cs.getPropertyValue(name) || '').trim() : '';
+      if (value) proxy.style.setProperty(name,value);
+    });
+    /* Timed cardio is always the red Pulse Flow family. These fallbacks stop
+       detached proxy inheritance from drifting to strength/rest colours. */
+    if (!proxy.style.getPropertyValue('--pf')) proxy.style.setProperty('--pf','#EF4444');
+    if (!proxy.style.getPropertyValue('--pf-soft')) proxy.style.setProperty('--pf-soft','#FCA5A5');
+    if (!proxy.style.getPropertyValue('--pf-rgb')) proxy.style.setProperty('--pf-rgb','239,68,68');
+  }
+
   function mountMorphRing(ring) {
     if (!ring || !ring.parentNode) return false;
     var proxy = ensureMorphProxy();
@@ -641,9 +686,9 @@
     /* Background can begin early, but pass content is fully gone before the
        focus title appears. That prevents the duplicate Hopp-rep/title state
        visible in the previous intermediate frames. */
-    var background = smoothstep(clamp01((progress - 0.04) / 0.82));
-    var contentFade = smoothstep(clamp01(progress / 0.70));
-    var chrome = smoothstep(clamp01((progress - 0.78) / 0.22));
+    var background = smoothstep(clamp01((progress - 0.06) / 0.78));
+    var contentFade = smoothstep(clamp01(progress / 0.58));
+    var chrome = smoothstep(clamp01((progress - 0.88) / 0.12));
 
     setDragVar('--cf-progress',String(progress));
     setDragVar('--cf-bg-progress',background.toFixed(4));
@@ -674,12 +719,15 @@
     var overlay = ensureFocusChrome();
     if (overlay) overlay.classList.add('show');
 
+    syncProxyThemeFromRing(ring);
     if (!mountMorphRing(ring)) {
+      root.classList.remove('cardio-focus-source-hidden');
       root.classList.remove('cardio-focus-dragging');
       if (startExpanded) root.classList.add('cardio-focus-active');
       gesture.engaged = false;
       return;
     }
+    root.classList.add('cardio-focus-source-hidden');
     applyDragProgress(gesture.progress);
   }
 
@@ -709,6 +757,7 @@
       /* Restore the one real timer before swapping CSS end states. All of this
          happens synchronously in one frame, so source/proxy/target never overlap. */
       restoreMorphRing();
+      document.documentElement.classList.remove('cardio-focus-source-hidden');
       document.documentElement.classList.remove('cardio-focus-dragging');
       clearDragVars();
       setFocus(targetExpanded);
