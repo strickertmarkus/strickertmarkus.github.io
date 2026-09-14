@@ -54,6 +54,7 @@ ring.getBoundingClientRect = () => {
 };
 host.getBoundingClientRect = () => ({left:0,top:492,width:390,height:148,right:390,bottom:640});
 window.eval(source);
+if (document.readyState === 'loading') document.dispatchEvent(new window.Event('DOMContentLoaded',{bubbles:true}));
 
 function touch(identifier,x,y){ return {identifier,clientX:x,clientY:y}; }
 function dispatch(type,target,touches,changedTouches){
