@@ -25,6 +25,8 @@
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link rel="stylesheet" href="pulse-environment/environment.css?v=observatory-1">
 <script defer src="pulse-environment/environment.js?v=observatory-1"></script>
+<link rel="stylesheet" href="pulse-environment/training.css?v=reactor-training-1">
+<script defer src="pulse-environment/training.js?v=reactor-training-1"></script>
 </head>
 <body id="pulse-page">
 <div class="app-wrap">
@@ -421,6 +423,13 @@
 <div class="modal-overlay session-overlay" id="session-modal">
   <div class="session-shell">
     <div class="session-top">
+      <div class="reactor-design-bar">
+        <span class="reactor-design-brand">PULSE <b>REACTOR</b></span>
+        <div class="reactor-design-options" role="group" aria-label="Träningsdesign">
+          <button type="button" data-training-design="reactor" aria-pressed="true">Reactor</button>
+          <button type="button" data-training-design="original" aria-pressed="false">Original</button>
+        </div>
+      </div>
       <div>
         <div class="session-title">Passläge</div>
         <div id="session-subtitle" style="font-size:12px;color:var(--text-sec)">-</div>
@@ -429,6 +438,17 @@
     </div>
     <div class="session-grid">
       <div class="session-main session-card">
+        <div class="reactor-session-core" aria-hidden="true">
+          <svg viewBox="0 0 320 320" focusable="false">
+            <circle class="reactor-orbit-guide" cx="160" cy="160" r="150" />
+            <circle class="reactor-orbit-guide" cx="160" cy="160" r="132" />
+            <circle class="reactor-orbit-inner" cx="160" cy="160" r="113" />
+            <g class="reactor-orbit-spin"><circle class="reactor-orbit-arc" cx="160" cy="160" r="150" /><circle class="reactor-orbit-dot" cx="160" cy="10" r="3.5" /></g>
+            <g class="reactor-orbit-spin reactor-orbit-reverse"><circle class="reactor-orbit-arc" cx="160" cy="160" r="132" /><circle class="reactor-orbit-dot" cx="160" cy="28" r="2" /></g>
+          </svg>
+          <span class="reactor-core-phase">REDO FÖR START</span>
+          <span class="reactor-core-caption">ETT SET I TAGET</span>
+        </div>
         <div class="session-timers">
           <div class="timer-box"><div class="timer-lbl">Passets tid</div><div class="timer-val" id="session-pass-timer">00:00</div></div>
           <div class="timer-box"><div class="timer-lbl">Nuvarande set</div><div class="timer-val" id="session-set-timer">00:00</div></div>
