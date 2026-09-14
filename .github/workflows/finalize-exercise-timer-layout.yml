@@ -1,0 +1,33 @@
+name: Finalize exercise timer layout
+on:
+  push:
+    paths:
+      - '.github/workflows/finalize-exercise-timer-layout.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Finalize focus spacing and cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i 's/top:25dvh;/top:calc(59dvh - min(162px,41vw) - 94px);/' budget/exercise-timer-focus.js
+          sed -i 's/\.cardio-focus-title { top:24dvh;gap:10px; }/.cardio-focus-title { top:calc(59dvh - min(150px,40vw) - 88px);gap:10px; }/' budget/exercise-timer-focus.js
+          sed -i 's/\.cardio-focus-title { top:20dvh; }/.cardio-focus-title { top:calc(58dvh - min(150px,40vw) - 82px); }/' budget/exercise-timer-focus.js
+          sed -i 's/20260914-timer-focus-final/20260914-timer-focus-final2/g' budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          node --check budget/exercise-timer-focus.js
+          node --check budget/exercise-pulse-flow-canvas-glow-v131.js
+          grep -q 'exercise-timer-focus.js?v=20260914-timer-focus-final2' budget/exercise.html
+      - name: Commit final timer layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/finalize-exercise-timer-layout.yml
+          git add budget/exercise-timer-focus.js budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          git commit -m 'Finalize cardio focus spacing'
+          git push
