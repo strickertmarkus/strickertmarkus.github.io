@@ -452,7 +452,6 @@
     var state = getState();
     var exercise = currentExercise(state);
     if (!isTimedCardio(state,exercise)) return;
-    lastManualToggleAt = Date.now();
     if (document.documentElement.classList.contains('cardio-focus-active')) collapseFocus();
     else expandFocus();
   }
