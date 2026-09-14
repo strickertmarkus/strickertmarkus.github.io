@@ -63,7 +63,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   if (!isExercise) return;
 
   var pulseDefaultBoot = true;
-  var exerciseFastVersion = '20260914-timer-focus-v148-canvas';
+  var exerciseFastVersion = '20260914-timer-focus-v149-live';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
