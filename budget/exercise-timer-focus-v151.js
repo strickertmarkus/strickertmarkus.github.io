@@ -5,8 +5,6 @@
   window.__exerciseTimerFocusV151Installed = true;
 
   function install() {
-    /* Remove the transform-scaling experiment if an older cached bundle
-       happened to execute first. */
     var stale = document.getElementById('exercise-timer-focus-v150-style');
     if (stale) stale.remove();
 
@@ -14,9 +12,9 @@
     var style = document.createElement('style');
     style.id = 'exercise-timer-focus-v151-style';
     style.textContent = `
-      /* v151b: the opaque focus background is the session modal itself.
-         This avoids putting a pseudo-element stacking context above the live
-         countdown. The live compact timer is still the only timer rendered. */
+      /* v151c: exact live compact timer, enlarged by native layout size.
+         Never hide an ancestor of the live timer: Mobile Safari can keep a
+         visibility:hidden ancestor composited even when a child overrides it. */
       html:has(#cardio-focus-v145.show) #session-modal.show {
         z-index:2147483500 !important;
         pointer-events:none !important;
@@ -26,33 +24,42 @@
           radial-gradient(circle at 50% 110%,rgba(127,29,29,.18),transparent 42%),
           linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%) !important;
       }
-
-      /* Explicitly kill the old backdrop pseudo-element from v151a. */
       html:has(#cardio-focus-v145.show) #session-modal.show::before,
       html:has(#cardio-focus-v145.show) #session-modal.show::after {
         content:none !important;
         display:none !important;
       }
-
-      /* Hide the normal workout presentation without changing its DOM or
-         runtime state. visibility can be restored on the countdown subtree,
-         unlike opacity/display on an ancestor. */
       html:has(#cardio-focus-v145.show) #session-modal.show .session-shell {
-        visibility:hidden !important;
+        visibility:visible !important;
         background:transparent !important;
         transform:none !important;
         filter:none !important;
+        overflow:visible !important;
       }
 
-      html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown.show,
-      html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown.show * {
-        visibility:visible !important;
+      /* Hide normal workout UI element-by-element instead of hiding the
+         session-shell ancestor. Opacity on siblings cannot suppress the live
+         countdown compositing layer. */
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-top,
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-grid > .session-card:not(.session-main),
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-main > *:not(#session-cardio-countdown) {
+        opacity:0 !important;
+        pointer-events:none !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-grid,
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-main {
+        overflow:visible !important;
+        background:transparent !important;
+        border-color:transparent !important;
+        box-shadow:none !important;
       }
 
       html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown.show {
+        opacity:1 !important;
+        visibility:visible !important;
         position:fixed !important;
         inset:0 !important;
-        z-index:20 !important;
+        z-index:2147483550 !important;
         width:100vw !important;
         height:100dvh !important;
         min-height:100svh !important;
@@ -63,11 +70,16 @@
         pointer-events:none !important;
         background:transparent !important;
       }
-
-      /* Native-resolution enlargement. No scale() is applied to the ring, so
-         its SVG and Canvas glow layers repaint at the large layout size. */
-      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring {
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown.show * {
         visibility:visible !important;
+      }
+
+      /* Native-resolution enlargement. No CSS scale(). The same Pulse Flow
+         SVG/canvas layers are laid out at the large size and repaint sharply. */
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring {
+        opacity:1 !important;
+        visibility:visible !important;
+        display:grid !important;
         position:fixed !important;
         left:50% !important;
         top:55% !important;
@@ -75,25 +87,28 @@
         bottom:auto !important;
         width:min(324px,82vw) !important;
         height:min(324px,82vw) !important;
+        min-width:0 !important;
+        min-height:0 !important;
         flex:0 0 min(324px,82vw) !important;
         flex-basis:min(324px,82vw) !important;
         aspect-ratio:1 !important;
         margin:0 !important;
         transform:translate(-50%,-50%) !important;
         transform-origin:50% 50% !important;
-        z-index:21 !important;
+        z-index:2147483551 !important;
         overflow:visible !important;
         pointer-events:auto !important;
         will-change:auto !important;
       }
-
       html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-core {
         inset:44px !important;
       }
       html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-copy {
+        opacity:1 !important;
         width:calc(100% - 128px) !important;
       }
       html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-value {
+        opacity:1 !important;
         font-size:66px !important;
         line-height:1 !important;
         letter-spacing:-2.4px !important;
@@ -104,6 +119,7 @@
         letter-spacing:1.15px !important;
       }
       html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .pf-ecg-v80 {
+        opacity:1 !important;
         width:104px !important;
         height:29px !important;
         margin-top:9px !important;
@@ -121,7 +137,7 @@
         display:none !important;
       }
 
-      /* v145 remains the interaction/title layer only. */
+      /* v145 remains only the title/close control layer. */
       #cardio-focus-v145.show {
         z-index:2147483600 !important;
         background:transparent !important;
