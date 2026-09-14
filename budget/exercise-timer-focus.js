@@ -524,13 +524,15 @@
     if (rect.width > large.width * 0.72 || rect.height > large.height * 0.72) return null;
     if (Math.abs(centerX - vw / 2) > Math.max(26, vw * 0.18)) return null;
     if (rect.bottom <= 0 || rect.top >= vh) return null;
+    var compactParent = ring.parentElement;
+    var compactParentRect = compactParent ? compactParent.getBoundingClientRect() : null;
     lastCompactRect = {
       left:rect.left,
       top:rect.top,
       width:rect.width,
       height:rect.height,
-      viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0,
-      viewportHeight:window.innerHeight || document.documentElement.clientHeight || 0
+      parentHeight:compactParentRect && compactParentRect.height > 0 ? compactParentRect.height : rect.height + 8,
+      viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
     };
     return lastCompactRect;
   }
@@ -543,7 +545,8 @@
       left:lastCompactRect.left,
       top:lastCompactRect.top,
       width:lastCompactRect.width,
-      height:lastCompactRect.height
+      height:lastCompactRect.height,
+      parentHeight:lastCompactRect.parentHeight
     };
   }
 
@@ -647,9 +650,10 @@
       gesture.parent = parent;
       gesture.parentMinHeight = parent.style.getPropertyValue('min-height');
       gesture.parentMinHeightPriority = parent.style.getPropertyPriority('min-height');
-      var parentRect = parent.getBoundingClientRect();
-      if (!startExpanded && parentRect.height > 0) {
-        parent.style.setProperty('min-height',parentRect.height.toFixed(2) + 'px','important');
+      var reservedHeight = Math.max(Number(smallRect.parentHeight) || 0, Number(smallRect.height) + 8);
+      if (reservedHeight > 0) {
+        parent.style.setProperty('min-height',reservedHeight.toFixed(2) + 'px','important');
+        gesture.reservedParentHeight = reservedHeight;
       }
     }
 
@@ -686,7 +690,8 @@
   }
 
   function finishInteractiveDrag(targetExpanded) {
-    if (!gesture || !gesture.engaged) return;
+    if (!gesture || !gesture.engaged || gesture.finishing) return;
+    gesture.finishing = true;
     if (dragAnimationFrame) cancelAnimationFrame(dragAnimationFrame);
     var from = gesture.progress;
     var to = targetExpanded ? 1 : 0;
@@ -929,12 +934,14 @@
         lastAt:performance.now(),
         startExpanded:startsExpanded,
         engaged:false,
+        finishing:false,
         progress:startsExpanded ? 1 : 0
       };
+      try { if (ring.setPointerCapture) ring.setPointerCapture(event.pointerId); } catch (_) {}
     },true);
 
     document.addEventListener('pointermove',function (event) {
-      if (!gesture || event.pointerId !== gesture.pointerId) return;
+      if (!gesture || gesture.finishing || event.pointerId !== gesture.pointerId) return;
       var dx = event.clientX - gesture.startX;
       var dy = event.clientY - gesture.startY;
       gesture.lastX = event.clientX;
@@ -967,6 +974,13 @@
       if (!gesture || event.pointerId !== gesture.pointerId) return;
       if (gesture.engaged) finishInteractiveDrag(gesture.startExpanded);
       else gesture = null;
+    },true);
+
+    document.addEventListener('lostpointercapture',function (event) {
+      if (!gesture || gesture.finishing || event.pointerId !== gesture.pointerId) return;
+      if (!gesture.engaged) { gesture = null; return; }
+      suppressTimerClickUntil = Date.now() + 650;
+      finishInteractiveDrag(gesture.progress >= 0.5);
     },true);
 
     document.addEventListener('click',function (event) {
