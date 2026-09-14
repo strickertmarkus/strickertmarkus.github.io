@@ -1,0 +1,26 @@
+name: Timer drag final cleanup
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/timer-drag-final-cleanup.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply final timer morph cleanup
+        run: python3 .github/scripts/timer_drag_final_cleanup.py
+      - name: Validate timer script
+        run: node --check budget/exercise-timer-focus.js
+      - name: Commit final timer fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise-timer-focus.js budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          git diff --cached --quiet || git commit -m 'Clean up cardio timer morph transition'
+          git push
