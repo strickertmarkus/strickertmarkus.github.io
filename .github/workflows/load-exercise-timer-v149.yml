@@ -1,0 +1,50 @@
+name: Load exercise timer v149
+on:
+  push:
+    paths:
+      - '.github/workflows/load-exercise-timer-v149.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Load exact live timer directly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          version_old = '20260914-timer-focus-v148-canvas'
+          version_new = '20260914-timer-focus-v149-live'
+
+          p = Path('budget/exercise.html')
+          s = p.read_text()
+          s = s.replace(version_old, version_new)
+          marker = '  <script defer src="exercise-timer-focus-v148.js?v=' + version_new + '"></script>'
+          insert = marker + '\n  <script defer src="exercise-timer-focus-v149.js?v=' + version_new + '"></script>'
+          if 'exercise-timer-focus-v149.js' not in s:
+              if marker not in s:
+                  raise SystemExit('Could not find v148 script marker in exercise.html')
+              s = s.replace(marker, insert, 1)
+          p.write_text(s)
+
+          for name in ['budget/auth-config.js', 'budget/auth-gate.js']:
+              p = Path(name)
+              s = p.read_text().replace(version_old, version_new)
+              p.write_text(s)
+          PY
+          node --check budget/exercise-timer-focus-v149.js
+          grep -q 'exercise-timer-focus-v149.js?v=20260914-timer-focus-v149-live' budget/exercise.html
+          grep -q "20260914-timer-focus-v149-live" budget/auth-config.js
+          grep -q "20260914-timer-focus-v149-live" budget/auth-gate.js
+      - name: Commit loader and remove one-shot workflow
+        run: |
+          rm .github/workflows/load-exercise-timer-v149.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js .github/workflows/load-exercise-timer-v149.yml
+          git commit -m 'Force-load exact live cardio timer'
+          git push
