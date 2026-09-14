@@ -93,7 +93,7 @@
     if (overlay.parentNode !== modal) {
       try { modal.appendChild(overlay); } catch (_) {}
     }
-    overlay.classList.add('cardio-focus-live-v149');
+    if (!overlay.classList.contains('cardio-focus-live-v149')) overlay.classList.add('cardio-focus-live-v149');
 
     if (!slot || !slot.isConnected) {
       slot = overlay.querySelector('.cardio-focus-live-slot-v149');
@@ -260,7 +260,12 @@
   }
 
   function sync() {
-    if (!ensureStructure()) return;
+    /* The observer watches overlay.class. Do not write that same attribute
+       from its callback: Safari can otherwise enter a self-triggering
+       MutationObserver loop and starve page initialization. */
+    if (!overlay || !overlay.isConnected) {
+      if (!ensureStructure()) return;
+    }
     var visible = isVisible();
     if (visible && !promoted && !closing) {
       requestAnimationFrame(function () { requestAnimationFrame(promote); });
