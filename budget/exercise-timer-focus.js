@@ -128,7 +128,17 @@
       .cardio-desktop-toggle svg {width:16px;height:16px;display:block;}
       html.cardio-focus-active #session-countdown-ring .cardio-desktop-toggle {top:7px;right:7px;}
       @media (hover:none),(pointer:coarse) {
-        #session-countdown-ring {touch-action:none;}
+        #session-cardio-countdown.show,
+        #session-cardio-countdown.show #session-countdown-ring,
+        #session-cardio-countdown.show #session-countdown-ring * {
+          touch-action:none!important;
+          -webkit-user-select:none!important;
+          user-select:none!important;
+        }
+        #session-countdown-ring > .pf-canvas-arc-v130,
+        #session-countdown-ring > .pf-arc-svg-v80 {
+          pointer-events:none!important;
+        }
         .cardio-desktop-toggle {display:none!important;}
       }
       @media (hover:hover) and (pointer:fine) {.cardio-focus-close {display:none!important;}}
@@ -493,6 +503,36 @@
 
   function clamp01(value) {
     return Math.max(0,Math.min(1,Number(value) || 0));
+  }
+
+  function pointInsideRect(x,y,rect,pad) {
+    if (!rect) return false;
+    pad = Number(pad) || 0;
+    return x >= rect.left - pad && x <= rect.left + rect.width + pad &&
+           y >= rect.top - pad && y <= rect.top + rect.height + pad;
+  }
+
+  function resolveGestureRing(event) {
+    var direct = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
+    if (direct) return direct;
+
+    var ring = document.getElementById('session-countdown-ring');
+    if (!ring) return null;
+    var x = Number(event.clientX), y = Number(event.clientY);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+
+    var liveRect = null;
+    try { liveRect = ring.getBoundingClientRect(); } catch (_) {}
+    if (pointInsideRect(x,y,liveRect,18)) return ring;
+
+    if (!document.documentElement.classList.contains('cardio-focus-active')) {
+      var compact = savedCompactRect();
+      if (pointInsideRect(x,y,compact,24)) return ring;
+    }
+
+    var host = document.getElementById('session-cardio-countdown');
+    if (host && event.target && host.contains(event.target)) return ring;
+    return null;
   }
 
   function mix(a,b,t) {
@@ -931,7 +971,7 @@
         else gesture = null;
       }
       if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame || gesture) return;
-      var ring = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
+      var ring = resolveGestureRing(event);
       if (!ring || (event.target && event.target.closest && event.target.closest('.cardio-desktop-toggle'))) return;
       var startsExpanded = document.documentElement.classList.contains('cardio-focus-active');
       if (!startsExpanded) rememberCompactRect(ring);
@@ -949,6 +989,11 @@
         progress:startsExpanded ? 1 : 0
       };
     },true);
+
+    document.addEventListener('touchmove',function (event) {
+      if (!gesture || gesture.finishing) return;
+      if (event.cancelable) event.preventDefault();
+    },{capture:true,passive:false});
 
     document.addEventListener('pointermove',function (event) {
       if (!gesture || gesture.finishing || event.pointerId !== gesture.pointerId) return;
