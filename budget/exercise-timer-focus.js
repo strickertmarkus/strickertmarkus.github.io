@@ -501,22 +501,38 @@
     return {left:(vw - size) / 2,top:centerY - size / 2,width:size,height:size};
   }
 
-  function measureSmallRing(ring) {
+  function rememberCompactRect(ring) {
+    if (!ring) return null;
     var root = document.documentElement;
-    var overlay = ensureFocusChrome();
-    var wasExpanded = root.classList.contains('cardio-focus-active');
-    var overlayWasShown = !!(overlay && overlay.classList.contains('show'));
-    if (wasExpanded) {
-      root.classList.remove('cardio-focus-active');
-      if (overlay) overlay.classList.remove('show');
-    }
+    if (root.classList.contains('cardio-focus-active') || root.classList.contains('cardio-focus-dragging')) return null;
     var rect = ring.getBoundingClientRect();
-    var measured = {left:rect.left,top:rect.top,width:rect.width,height:rect.height};
-    if (wasExpanded) {
-      root.classList.add('cardio-focus-active');
-      if (overlay && overlayWasShown) overlay.classList.add('show');
-    }
-    return measured;
+    if (!rect || rect.width < 20 || rect.height < 20) return null;
+    var large = focusTargetRect();
+    /* Reject anything that already looks like the expanded timer. */
+    if (rect.width > large.width * 0.72 || rect.height > large.height * 0.72) return null;
+    lastCompactRect = {
+      left:rect.left,
+      top:rect.top,
+      width:rect.width,
+      height:rect.height,
+      viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0,
+      viewportHeight:window.innerHeight || document.documentElement.clientHeight || 0
+    };
+    return lastCompactRect;
+  }
+
+  function savedCompactRect() {
+    if (!lastCompactRect) return null;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    if (Math.abs((lastCompactRect.viewportWidth || 0) - vw) >= 3 ||
+        Math.abs((lastCompactRect.viewportHeight || 0) - vh) >= 3) return null;
+    return {
+      left:lastCompactRect.left,
+      top:lastCompactRect.top,
+      width:lastCompactRect.width,
+      height:lastCompactRect.height
+    };
   }
 
   var DRAG_STYLE_PROPS = [
@@ -599,30 +615,29 @@
   function beginInteractiveDrag(ring,startExpanded) {
     if (!gesture || gesture.engaged || !ring) return;
 
-    /* The collapsed source is measured live. The expanded source is deterministic:
-       Safari can report a transient rect for the fixed + translated large timer
-       during pointer capture, which previously made reverse drag jump off-screen. */
+    /* Only real compact-state geometry is allowed as the collapse target.
+       Never re-measure/toggle focus classes while the large timer is active. */
     var measuredRaw = ring.getBoundingClientRect();
     var measuredRect = {
       left:measuredRaw.left, top:measuredRaw.top,
       width:measuredRaw.width, height:measuredRaw.height
     };
     var largeRect = focusTargetRect();
-    var sourceRect = startExpanded
-      ? {left:largeRect.left,top:largeRect.top,width:largeRect.width,height:largeRect.height}
-      : measuredRect;
-    if (!startExpanded) {
-      lastCompactRect = {
-        left:sourceRect.left, top:sourceRect.top,
-        width:sourceRect.width, height:sourceRect.height,
-        viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
-      };
+    var sourceRect;
+    var smallRect;
+    if (startExpanded) {
+      smallRect = savedCompactRect();
+      if (!smallRect) {
+        /* No trustworthy compact anchor: abort instead of animating to garbage. */
+        gesture.engaged = false;
+        return;
+      }
+      sourceRect = {left:largeRect.left,top:largeRect.top,width:largeRect.width,height:largeRect.height};
+    } else {
+      sourceRect = measuredRect;
+      smallRect = {left:sourceRect.left,top:sourceRect.top,width:sourceRect.width,height:sourceRect.height};
+      rememberCompactRect(ring);
     }
-    var cachedCompact = startExpanded && lastCompactRect &&
-      Math.abs((lastCompactRect.viewportWidth || 0) - (window.innerWidth || document.documentElement.clientWidth || 0)) < 3
-      ? {left:lastCompactRect.left,top:lastCompactRect.top,width:lastCompactRect.width,height:lastCompactRect.height}
-      : null;
-    var smallRect = startExpanded ? (cachedCompact || measureSmallRing(ring)) : sourceRect;
 
     gesture.engaged = true;
     gesture.startExpanded = !!startExpanded;
@@ -700,7 +715,11 @@
 
   function setFocus(visible) {
     var overlay = ensureFocusChrome();
-    document.documentElement.classList.toggle('cardio-focus-active',!!visible);
+    var root = document.documentElement;
+    if (visible && !root.classList.contains('cardio-focus-active') && !root.classList.contains('cardio-focus-dragging')) {
+      rememberCompactRect(document.getElementById('session-countdown-ring'));
+    }
+    root.classList.toggle('cardio-focus-active',!!visible);
     if (overlay) {
       overlay.classList.toggle('show',!!visible);
       overlay.setAttribute('aria-hidden',visible ? 'false' : 'true');
@@ -833,21 +852,6 @@
 
     if (desktopToggle) { desktopToggle.hidden = false; ensureDesktopToggle(); }
 
-    if (!document.documentElement.classList.contains('cardio-focus-active') &&
-        !document.documentElement.classList.contains('cardio-focus-dragging')) {
-      var compactRing = document.getElementById('session-countdown-ring');
-      if (compactRing) {
-        var compactRect = compactRing.getBoundingClientRect();
-        if (compactRect.width > 20 && compactRect.height > 20) {
-          lastCompactRect = {
-            left:compactRect.left, top:compactRect.top,
-            width:compactRect.width, height:compactRect.height,
-            viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
-          };
-        }
-      }
-    }
-
     var token = cardioToken(state,exercise);
     if (token !== lastCardioToken) {
       lastCardioToken = token;
@@ -914,6 +918,8 @@
       if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame) return;
       var ring = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
       if (!ring || (event.target && event.target.closest && event.target.closest('.cardio-desktop-toggle'))) return;
+      var startsExpanded = document.documentElement.classList.contains('cardio-focus-active');
+      if (!startsExpanded) rememberCompactRect(ring);
       gesture = {
         pointerId:event.pointerId,
         ring:ring,
@@ -922,9 +928,9 @@
         lastX:event.clientX,
         lastY:event.clientY,
         lastAt:performance.now(),
-        startExpanded:document.documentElement.classList.contains('cardio-focus-active'),
+        startExpanded:startsExpanded,
         engaged:false,
-        progress:document.documentElement.classList.contains('cardio-focus-active') ? 1 : 0
+        progress:startsExpanded ? 1 : 0
       };
     },true);
 
@@ -990,9 +996,7 @@
   }
 
   function install() {
-    document.documentElement.classList.remove('cardio-focus-source-hidden','cardio-focus-dragging');
-    var staleProxy = document.getElementById('cardio-timer-morph-proxy');
-    if (staleProxy) staleProxy.remove();
+    document.documentElement.classList.remove('cardio-focus-dragging');
     ensureStyle();
     ensureFocusChrome();
     ensureInlinePlus();
