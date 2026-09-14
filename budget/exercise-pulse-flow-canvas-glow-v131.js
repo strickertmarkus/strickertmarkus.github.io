@@ -74,9 +74,18 @@
   function loadTimerFocus() {
     if (document.querySelector('script[data-exercise-timer-focus-v145]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-timer-focus-v145.js?v=20260911-timer-focus-v145';
+    script.src = 'exercise-timer-focus-v145.js?v=20260914-timer-focus-v145b';
     script.async = false;
     script.setAttribute('data-exercise-timer-focus-v145','true');
+    document.head.appendChild(script);
+  }
+
+  function loadTimerFocusFix() {
+    if (document.querySelector('script[data-exercise-timer-focus-v146]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-timer-focus-v146.js?v=20260914-timer-focus-v146';
+    script.async = false;
+    script.setAttribute('data-exercise-timer-focus-v146','true');
     document.head.appendChild(script);
   }
 
@@ -85,6 +94,7 @@
     loadTransitionStability();
     loadSessionPersistence();
     loadTimerFocus();
+    loadTimerFocusFix();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
