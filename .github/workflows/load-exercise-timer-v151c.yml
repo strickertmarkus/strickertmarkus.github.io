@@ -1,0 +1,31 @@
+name: Load exercise timer v151c
+on:
+  push:
+    paths:
+      - '.github/workflows/load-exercise-timer-v151c.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump focus timer cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          old='20260914-timer-focus-v151b-stackfix'
+          new='20260914-timer-focus-v151c-safari'
+          sed -i "s/${old}/${new}/g" budget/exercise.html budget/auth-config.js budget/auth-gate.js
+          node --check budget/exercise-timer-focus-v151.js
+          grep -q "exercise-timer-focus-v151.js?v=${new}" budget/exercise.html
+      - name: Commit cache bump and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/load-exercise-timer-v151c.yml
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js
+          git commit -m 'Fix Safari cardio focus timer visibility'
+          git push
