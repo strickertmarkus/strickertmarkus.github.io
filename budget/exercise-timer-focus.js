@@ -392,6 +392,15 @@
       html.cardio-focus-dragging .cardio-focus-close {
         opacity:var(--cf-drag-chrome,0)!important;
       }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) {
+        background:transparent!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-top,
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-grid > .session-card:not(.session-main),
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main > *:not(#session-cardio-countdown) {
+        opacity:var(--cf-drag-content,1)!important;
+        pointer-events:none!important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -575,8 +584,10 @@
     var scale = targetSize / Math.max(1,source.width);
     var bgProgress = smoothstep(progress);
     var chromeProgress = smoothstep(clamp01((progress - 0.72) / 0.28));
+    var contentProgress = 1 - smoothstep(clamp01(progress / 0.72));
     document.documentElement.style.setProperty('--cf-drag-bg',bgProgress.toFixed(4));
     document.documentElement.style.setProperty('--cf-drag-chrome',chromeProgress.toFixed(4));
+    document.documentElement.style.setProperty('--cf-drag-content',contentProgress.toFixed(4));
 
     gesture.ring.style.setProperty(
       'transform',
@@ -588,12 +599,18 @@
   function beginInteractiveDrag(ring,startExpanded) {
     if (!gesture || gesture.engaged || !ring) return;
 
-    /* Capture the visible source before measuring the opposite state. */
-    var sourceRectRaw = ring.getBoundingClientRect();
-    var sourceRect = {
-      left:sourceRectRaw.left, top:sourceRectRaw.top,
-      width:sourceRectRaw.width, height:sourceRectRaw.height
+    /* The collapsed source is measured live. The expanded source is deterministic:
+       Safari can report a transient rect for the fixed + translated large timer
+       during pointer capture, which previously made reverse drag jump off-screen. */
+    var measuredRaw = ring.getBoundingClientRect();
+    var measuredRect = {
+      left:measuredRaw.left, top:measuredRaw.top,
+      width:measuredRaw.width, height:measuredRaw.height
     };
+    var largeRect = focusTargetRect();
+    var sourceRect = startExpanded
+      ? {left:largeRect.left,top:largeRect.top,width:largeRect.width,height:largeRect.height}
+      : measuredRect;
     if (!startExpanded) {
       lastCompactRect = {
         left:sourceRect.left, top:sourceRect.top,
@@ -606,7 +623,6 @@
       ? {left:lastCompactRect.left,top:lastCompactRect.top,width:lastCompactRect.width,height:lastCompactRect.height}
       : null;
     var smallRect = startExpanded ? (cachedCompact || measureSmallRing(ring)) : sourceRect;
-    var largeRect = startExpanded ? sourceRect : focusTargetRect();
 
     gesture.engaged = true;
     gesture.startExpanded = !!startExpanded;
@@ -647,6 +663,7 @@
     document.documentElement.classList.remove('cardio-focus-dragging');
     document.documentElement.style.removeProperty('--cf-drag-bg');
     document.documentElement.style.removeProperty('--cf-drag-chrome');
+    document.documentElement.style.removeProperty('--cf-drag-content');
     setFocus(!!targetExpanded);
     gesture = null;
     requestAnimationFrame(function () {
