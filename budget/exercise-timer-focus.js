@@ -673,6 +673,7 @@
   function cleanupInteractiveDrag(targetExpanded) {
     if (!gesture) return;
     var ring = gesture.ring;
+    dragAnimationFrame = 0;
     restoreDragInline(ring,gesture.inlineBackup);
     if (gesture.parent) {
       if (gesture.parentMinHeight) gesture.parent.style.setProperty('min-height',gesture.parentMinHeight,gesture.parentMinHeightPriority || '');
@@ -683,8 +684,13 @@
     document.documentElement.style.removeProperty('--cf-drag-chrome');
     document.documentElement.style.removeProperty('--cf-drag-content');
     setFocus(!!targetExpanded);
+    var rearmCompact = !targetExpanded;
     gesture = null;
     requestAnimationFrame(function () {
+      if (rearmCompact && !document.documentElement.classList.contains('cardio-focus-active') &&
+          !document.documentElement.classList.contains('cardio-focus-dragging')) {
+        rememberCompactRect(ring);
+      }
       try { window.dispatchEvent(new Event('resize')); } catch (_) {}
     });
   }
@@ -919,7 +925,12 @@
 
   function installTimerGestures() {
     document.addEventListener('pointerdown',function (event) {
-      if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame) return;
+      if (dragAnimationFrame && !gesture) dragAnimationFrame = 0;
+      if (gesture && !dragAnimationFrame) {
+        if (gesture.engaged) cleanupInteractiveDrag(gesture.startExpanded);
+        else gesture = null;
+      }
+      if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame || gesture) return;
       var ring = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
       if (!ring || (event.target && event.target.closest && event.target.closest('.cardio-desktop-toggle'))) return;
       var startsExpanded = document.documentElement.classList.contains('cardio-focus-active');
@@ -937,7 +948,6 @@
         finishing:false,
         progress:startsExpanded ? 1 : 0
       };
-      try { if (ring.setPointerCapture) ring.setPointerCapture(event.pointerId); } catch (_) {}
     },true);
 
     document.addEventListener('pointermove',function (event) {
@@ -974,13 +984,6 @@
       if (!gesture || event.pointerId !== gesture.pointerId) return;
       if (gesture.engaged) finishInteractiveDrag(gesture.startExpanded);
       else gesture = null;
-    },true);
-
-    document.addEventListener('lostpointercapture',function (event) {
-      if (!gesture || gesture.finishing || event.pointerId !== gesture.pointerId) return;
-      if (!gesture.engaged) { gesture = null; return; }
-      suppressTimerClickUntil = Date.now() + 650;
-      finishInteractiveDrag(gesture.progress >= 0.5);
     },true);
 
     document.addEventListener('click',function (event) {
