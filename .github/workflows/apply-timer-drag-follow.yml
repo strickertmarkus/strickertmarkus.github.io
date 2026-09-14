@@ -1,0 +1,28 @@
+name: Apply timer drag follow
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-timer-drag-follow.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply drag-follow timer patch
+        run: |
+          python3 .github/scripts/apply-timer-drag-follow.py
+          node --check budget/exercise-timer-focus.js
+      - name: Commit drag-follow timer
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/scripts/apply-timer-drag-follow.py
+          rm -f .github/workflows/apply-timer-drag-follow.yml
+          rm -f .github/workflows/timer-swipe-desktop-toggle.yml
+          rm -f .github/workflows/timer-swipe-desktop-toggle-v2.yml
+          rm -f .github/workflows/timer-swipe-final-fix.yml
+          git add -A
+          git commit -m 'Animate cardio timer with swipe drag'
+          git push
