@@ -1,0 +1,67 @@
+name: Fix exercise timer cache
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-exercise-timer-cache.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch regular exercise timer loading
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          old = '20260913-timer-morph-v86'
+          new = '20260914-timer-focus-v146c'
+
+          for name in ['budget/exercise.html', 'budget/auth-config.js', 'budget/auth-gate.js']:
+              p = Path(name)
+              text = p.read_text()
+              text = text.replace(old, new)
+              p.write_text(text)
+
+          exercise = Path('budget/exercise.html')
+          text = exercise.read_text()
+          direct = '<script defer src="exercise-timer-focus-v146.js?v=20260914-timer-focus-v146c"></script>'
+          anchor = '<script src="firebase-sync.js"></script>'
+          if direct not in text:
+              if anchor not in text:
+                  raise SystemExit('firebase-sync anchor not found in exercise.html')
+              text = text.replace(anchor, direct + '\n  ' + anchor, 1)
+          exercise.write_text(text)
+
+          loader = Path('budget/exercise-pulse-flow-canvas-glow-v131.js')
+          text = loader.read_text()
+          text = text.replace('exercise-timer-focus-v146.js?v=20260914-timer-focus-v146',
+                              'exercise-timer-focus-v146.js?v=20260914-timer-focus-v146c')
+          text = text.replace('exercise-timer-focus-v145.js?v=20260914-timer-focus-v145b',
+                              'exercise-timer-focus-v145.js?v=20260914-timer-focus-v145c')
+          loader.write_text(text)
+          PY
+
+          git diff --check
+          grep -F 'exercise-timer-focus-v146.js?v=20260914-timer-focus-v146c' budget/exercise.html
+          grep -F "exerciseFastVersion = '20260914-timer-focus-v146c'" budget/auth-config.js
+          grep -F "exerciseAssetsVersion = '20260914-timer-focus-v146c'" budget/auth-gate.js
+
+      - name: Commit timer cache fix and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/fix-exercise-timer-cache.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          git commit -m 'Force-load compact exercise timer fix'
+          git push origin HEAD:main
