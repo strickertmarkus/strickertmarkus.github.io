@@ -1,0 +1,185 @@
+(function () {
+  'use strict';
+
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseTimerFocusV151Installed) return;
+  window.__exerciseTimerFocusV151Installed = true;
+
+  function install() {
+    /* v150 used transform scaling on the live timer. Remove that styling if a
+       cached copy was loaded before this file. */
+    var stale = document.getElementById('exercise-timer-focus-v150-style');
+    if (stale) stale.remove();
+
+    if (document.getElementById('exercise-timer-focus-v151-style')) return;
+    var style = document.createElement('style');
+    style.id = 'exercise-timer-focus-v151-style';
+    style.textContent = `
+      /* v151: keep the real compact timer in its original DOM, but render it
+         at a larger native layout size. No scale() is used, so SVG, text and
+         the Pulse Flow canvases are repainted at focus resolution. */
+
+      html:has(#cardio-focus-v145.show) #session-modal.show {
+        z-index:2147483500 !important;
+        background:transparent !important;
+        pointer-events:none !important;
+        isolation:isolate !important;
+      }
+
+      /* Opaque focus backdrop lives inside the session stacking context. It
+         covers every normal workout row, log and metric without changing or
+         hiding their DOM state. */
+      html:has(#cardio-focus-v145.show) #session-modal.show::before {
+        content:'' !important;
+        display:block !important;
+        position:fixed !important;
+        inset:0 !important;
+        z-index:2147483501 !important;
+        pointer-events:none !important;
+        background:
+          radial-gradient(circle at 50% 42%,rgba(239,68,68,.20),transparent 34%),
+          radial-gradient(circle at 50% 110%,rgba(127,29,29,.18),transparent 42%),
+          linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%) !important;
+      }
+
+      html:has(#cardio-focus-v145.show) #session-modal.show .session-shell {
+        background:transparent !important;
+      }
+
+      /* The original countdown becomes the only session surface above the
+         backdrop. All other session content stays underneath it. */
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown.show {
+        position:fixed !important;
+        inset:0 !important;
+        z-index:2147483503 !important;
+        width:100vw !important;
+        height:100dvh !important;
+        min-height:100svh !important;
+        margin:0 !important;
+        padding:0 !important;
+        display:block !important;
+        overflow:visible !important;
+        pointer-events:none !important;
+        background:transparent !important;
+      }
+
+      /* Native-resolution enlargement of the exact compact ring. The compact
+         mobile timer is 132px; 324px preserves its proportions at ~2.45x. */
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring {
+        position:fixed !important;
+        left:50% !important;
+        top:55% !important;
+        right:auto !important;
+        bottom:auto !important;
+        width:min(324px,82vw) !important;
+        height:min(324px,82vw) !important;
+        flex:0 0 min(324px,82vw) !important;
+        flex-basis:min(324px,82vw) !important;
+        aspect-ratio:1 !important;
+        margin:0 !important;
+        transform:translate(-50%,-50%) !important;
+        transform-origin:50% 50% !important;
+        z-index:2147483504 !important;
+        overflow:visible !important;
+        pointer-events:none !important;
+        will-change:auto !important;
+      }
+
+      /* Scale the compact timer's internal geometry by layout values rather
+         than raster scaling. Pulse Flow's SVG/canvas layers continue to use
+         the same selectors and therefore redraw against these dimensions. */
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-core {
+        inset:44px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-copy {
+        width:calc(100% - 128px) !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-value {
+        font-size:66px !important;
+        line-height:1 !important;
+        letter-spacing:-2.4px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-label {
+        margin-top:12px !important;
+        font-size:12px !important;
+        letter-spacing:1.15px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .pf-ecg-v80 {
+        width:104px !important;
+        height:29px !important;
+        margin-top:9px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring #cardio-inline-plus-v145 {
+        margin-top:10px !important;
+        font-size:14px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring #cardio-inline-plus-v145 .plus-word-v145 {
+        margin-left:6px !important;
+        font-size:10px !important;
+        letter-spacing:1px !important;
+      }
+      html:has(#cardio-focus-v145.show) #session-modal.show #session-cardio-countdown .cardio-focus-expand-v145 {
+        display:none !important;
+      }
+
+      /* v145 still owns focus open/close, title and exercise name. It is moved
+         above the timer as a transparent control/title layer only. */
+      #cardio-focus-v145.show {
+        z-index:2147483600 !important;
+        background:transparent !important;
+        pointer-events:none !important;
+      }
+      #cardio-focus-v145.show::before { display:none !important; }
+      #cardio-focus-v145.show .cardio-focus-ring-v145 { display:none !important; }
+      #cardio-focus-v145.show .cardio-focus-shell-v145 {
+        position:fixed !important;
+        inset:0 !important;
+        z-index:2 !important;
+        width:100% !important;
+        max-width:none !important;
+        padding:0 !important;
+        display:block !important;
+        pointer-events:none !important;
+      }
+      #cardio-focus-v145.show .cardio-focus-kicker-v145,
+      #cardio-focus-v145.show .cardio-focus-name-v145 {
+        position:absolute !important;
+        left:50% !important;
+        transform:translateX(-50%) !important;
+        width:min(430px,86vw) !important;
+        text-align:center !important;
+      }
+      #cardio-focus-v145.show .cardio-focus-kicker-v145 {
+        top:25.5vh !important;
+      }
+      #cardio-focus-v145.show .cardio-focus-name-v145 {
+        top:calc(25.5vh + 30px) !important;
+        margin:0 !important;
+      }
+      #cardio-focus-v145.show .cardio-focus-close-v145 {
+        z-index:5 !important;
+        pointer-events:auto !important;
+      }
+
+      @media(max-width:390px) {
+        html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring {
+          width:min(300px,80vw) !important;
+          height:min(300px,80vw) !important;
+          flex-basis:min(300px,80vw) !important;
+          top:55.5% !important;
+        }
+        html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-ring .session-countdown-core {
+          inset:41px !important;
+        }
+        html:has(#cardio-focus-v145.show) #session-modal.show #session-countdown-value {
+          font-size:61px !important;
+        }
+        #cardio-focus-v145.show .cardio-focus-kicker-v145 { top:25vh !important; }
+        #cardio-focus-v145.show .cardio-focus-name-v145 { top:calc(25vh + 29px) !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+})();
