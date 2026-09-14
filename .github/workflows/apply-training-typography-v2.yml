@@ -1,0 +1,33 @@
+name: Apply training typography v2
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-training-typography-v2.yml'
+      - '.github/scripts/apply_training_typography_v2.py'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply typography authority
+        run: python3 .github/scripts/apply_training_typography_v2.py
+      - name: Validate JavaScript and bundle order
+        run: |
+          node --check budget/exercise-session-typography.js
+          node --check budget/exercise-hype-timer-layout-v1.js
+          node --check budget/auth-gate.js
+          grep -q "session-typography-v2-all" budget/exercise.html
+          grep -q "exercise-session-typography.js" budget/auth-gate.js
+          ! grep -q "Match the typography profile used by the Reactor" budget/exercise-hype-timer-layout-v1.js
+      - name: Commit tested typography authority
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/exercise-session-typography.js budget/exercise-hype-timer-layout-v1.js budget/auth-gate.js budget/auth-config.js budget/exercise.html
+          git diff --cached --quiet || git commit -m 'Apply Pulse typography across training mode'
+          git push
