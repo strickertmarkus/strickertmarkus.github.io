@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260914-session-typography-v1';
+  var exerciseAssetsVersion = '20260914-session-typography-v2-all';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -190,7 +190,8 @@
       ['exercise-session-stability-v55.js', 'data-exercise-session-stability-v55'],
       ['exercise-custom-transition-atomic-v56.js', 'data-exercise-custom-transition-atomic-v56'],
       ['exercise-pulse-flow-v58.js', 'data-exercise-pulse-flow-v58'],
-      ['exercise-pulse-flow-motion-v67.js', 'data-exercise-pulse-flow-motion-v67']
+      ['exercise-pulse-flow-motion-v67.js', 'data-exercise-pulse-flow-motion-v67'],
+      ['exercise-session-typography.js', 'data-exercise-session-typography']
     ];
 
     (function loadExerciseAt(index) {
