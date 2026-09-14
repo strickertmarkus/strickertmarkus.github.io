@@ -166,6 +166,16 @@
         transform:translateX(1px)!important;
       }
 
+      /* Compact optical alignment. Keep the numeric value untouched; the ECG artwork
+         is visually right-heavy, while the two captions only need a 1px nudge. */
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .pf-ecg-v80 {
+        transform:translateX(-7px)!important;
+      }
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-label,
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-pause-hint {
+        transform:translateX(-1px)!important;
+      }
+
       .cardio-inline-plus {
         display:none;
         margin-top:5px;
@@ -1076,6 +1086,27 @@
     },true);
   }
 
+  function installImmediateFocusSync() {
+    if (!window.MutationObserver || !document.body) {
+      syncCardio(Date.now());
+      return;
+    }
+    var observer = new MutationObserver(function (mutations) {
+      var relevant = false;
+      for (var i = 0; i < mutations.length; i++) {
+        var target = mutations[i] && mutations[i].target;
+        if (target && (target.id === 'session-modal' || target.id === 'session-pre-timer')) {
+          relevant = true;
+          break;
+        }
+      }
+      if (relevant) syncCardio(Date.now());
+    });
+    observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+    /* Do not wait for the 80 ms maintenance loop on initial/returning cardio state. */
+    syncCardio(Date.now());
+  }
+
   function frame(now) {
     if (!lastFrameAt || now - lastFrameAt >= 80) {
       lastFrameAt = now;
@@ -1098,6 +1129,7 @@
     ensureInlinePlus();
     installAudioUnlock();
     installTimerGestures();
+    installImmediateFocusSync();
     requestAnimationFrame(frame);
     window.__exerciseTimerFocus = {
       expand:expandFocus,
