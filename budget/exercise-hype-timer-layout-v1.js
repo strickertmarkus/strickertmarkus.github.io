@@ -72,6 +72,61 @@
         letter-spacing:-.6px !important;
       }
 
+      /* Match the typography profile used by the Reactor / Observatory training
+         modes. All pages already load Inter; the visible difference is their
+         lighter weight and tighter spacing hierarchy. Keep geometry untouched. */
+      #session-modal.show,
+      #session-modal.show button,
+      #session-modal.show input,
+      #session-modal.show select,
+      #session-modal.show textarea {
+        font-family:'Inter',sans-serif !important;
+      }
+      #session-modal.show .session-title {
+        font-weight:500 !important;
+        letter-spacing:.4px !important;
+      }
+      #session-modal.show #session-subtitle {
+        font-weight:400 !important;
+      }
+      #session-modal.show .session-timers .timer-lbl {
+        font-weight:500 !important;
+        letter-spacing:1.35px !important;
+      }
+      #session-modal.show .session-timers .timer-val {
+        font-weight:500 !important;
+        letter-spacing:.1px !important;
+      }
+      #session-modal.show #session-set-timer {
+        font-weight:300 !important;
+        letter-spacing:-1.2px !important;
+      }
+      #session-modal.show #session-current-ex {
+        font-weight:500 !important;
+        letter-spacing:-1px !important;
+      }
+      #session-modal.show #session-current-target,
+      #session-modal.show #session-next-ex-inline {
+        font-weight:400 !important;
+      }
+      #session-modal.show .stable-detail-label {
+        font-weight:500 !important;
+        letter-spacing:1.5px !important;
+      }
+      #session-modal.show .stable-detail-value {
+        font-weight:400 !important;
+      }
+      #session-modal.show #session-countdown-value {
+        font-weight:300 !important;
+        letter-spacing:-2px !important;
+      }
+      #session-modal.show .session-cta,
+      #session-modal.show .session-view-toggle,
+      #session-modal.show .session-pretimer-toggle-v2 {
+        font-family:'Inter',sans-serif !important;
+        font-weight:600 !important;
+      }
+
       #session-cardio-countdown {
         box-sizing:border-box !important;
         width:100% !important;
