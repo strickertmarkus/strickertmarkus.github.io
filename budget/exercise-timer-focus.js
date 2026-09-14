@@ -14,9 +14,6 @@
   var gesture = null;
   var suppressTimerClickUntil = 0;
   var dragAnimationFrame = 0;
-  var morphProxy = null;
-  var morphMarker = null;
-  var morphHome = null;
   var beeped = Object.create(null);
 
   function getState() {
@@ -135,132 +132,20 @@
       }
       @media (hover:hover) and (pointer:fine) {.cardio-focus-close {display:none!important;}}
 
-      /* Mobile drag preview: move the one real live timer into a fixed proxy.
-         Source and destination never render simultaneously, so there is no ghost ring,
-         duplicate copy or competing Canvas/SVG geometry in intermediate states. */
-      html.cardio-focus-dragging {
-        --cf-progress:0;
-        --cf-bg-progress:0;
-        --cf-chrome-progress:0;
-        --cf-content-opacity:1;
-      }
-      html.cardio-focus-dragging #cardio-focus {
-        display:block!important;
-        opacity:1!important;
-      }
-      html.cardio-focus-dragging .cardio-focus-title,
-      html.cardio-focus-dragging .cardio-focus-close {
-        opacity:var(--cf-chrome-progress)!important;
-      }
-      html.cardio-focus-dragging .cardio-focus-title {
-        transform:translateX(-50%) translateY(var(--cf-title-shift,14px))!important;
-      }
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) {
-        z-index:2147483500!important;
-        pointer-events:none!important;
-        isolation:isolate!important;
-      }
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode)::after {
-        content:''!important;
-        display:block!important;
-        position:fixed!important;
-        inset:0!important;
-        z-index:2147483501!important;
-        pointer-events:none!important;
-        opacity:var(--cf-bg-progress)!important;
-        background:
-          radial-gradient(circle at 50% 45%,rgba(239,68,68,.20),transparent 35%),
-          radial-gradient(circle at 50% 112%,rgba(127,29,29,.17),transparent 43%),
-          linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%)!important;
-      }
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-top,
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-grid > .session-card:not(.session-main),
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main > * {
-        opacity:var(--cf-content-opacity)!important;
-        pointer-events:none!important;
-      }
-      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show,
-      html.cardio-focus-source-hidden body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show {
-        visibility:hidden!important;
-        opacity:0!important;
-        pointer-events:none!important;
-      }
-
-      #cardio-timer-morph-proxy {
-        display:none;
-        position:fixed;
-        left:0;
-        top:0;
-        width:var(--cf-base-size,1px);
-        height:var(--cf-base-size,1px);
-        z-index:2147483590;
-        pointer-events:none;
-        overflow:visible;
-        transform-origin:0 0;
-        --pf:#EF4444;
-        --pf-soft:#FCA5A5;
-        --pf-rgb:239,68,68;
-      }
-      html.cardio-focus-dragging #cardio-timer-morph-proxy {
-        display:block!important;
-        transform:translate3d(var(--cf-left,0px),var(--cf-top,0px),0) scale(var(--cf-scale,1));
-        will-change:transform;
-        backface-visibility:hidden;
-        -webkit-backface-visibility:hidden;
-      }
-      #cardio-timer-morph-proxy #session-countdown-ring {
-        display:grid!important;
-        position:absolute!important;
-        inset:0!important;
-        left:0!important;
-        top:0!important;
-        right:auto!important;
-        bottom:auto!important;
-        width:100%!important;
-        height:100%!important;
-        min-width:0!important;
-        min-height:0!important;
-        flex:none!important;
-        flex-basis:auto!important;
-        aspect-ratio:1!important;
-        margin:0!important;
-        transform:none!important;
-        transform-origin:50% 50%!important;
-        opacity:1!important;
-        visibility:visible!important;
-        overflow:visible!important;
-        pointer-events:none!important;
-        will-change:auto!important;
-      }
-      #cardio-timer-morph-proxy #session-countdown-ring .cardio-desktop-toggle {
-        display:none!important;
-      }
-      html.cardio-focus-dragging #cardio-timer-morph-proxy,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy * {
+      /* Mobile drag preview: transform the existing live timer in place.
+         No proxy, no reparenting, no duplicate render tree. The timer keeps its
+         current native internal layout while the whole ring follows the finger. */
+      html.cardio-focus-dragging #session-countdown-ring,
+      html.cardio-focus-dragging #session-countdown-ring * {
         transition:none!important;
       }
-      /* Canvas glow is screen-coordinate based. During a compositor transform it can
-         redraw against the old geometry and appear as a second arc. Keep the SVG as
-         the single drag renderer; native Canvas glow resumes immediately at rest. */
-      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-canvas-glow-v130 {
+      html.cardio-focus-dragging #session-countdown-ring {
+        will-change:transform!important;
+        backface-visibility:hidden!important;
+        -webkit-backface-visibility:hidden!important;
+      }
+      html.cardio-focus-dragging .cardio-desktop-toggle {
         display:none!important;
-        opacity:0!important;
-      }
-      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-arc-progress-v80 {
-        filter:drop-shadow(0 0 2.5px rgba(var(--pf-rgb),.88)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.42))!important;
-        -webkit-filter:drop-shadow(0 0 2.5px rgba(var(--pf-rgb),.88)) drop-shadow(0 0 8px rgba(var(--pf-rgb),.42))!important;
-      }
-      html.cardio-focus-dragging #cardio-timer-morph-proxy .pf-ecg-v80 svg {
-        filter:drop-shadow(0 0 2px rgba(var(--pf-rgb),.62))!important;
-        -webkit-filter:drop-shadow(0 0 2px rgba(var(--pf-rgb),.62))!important;
-      }
-      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .session-countdown-copy,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .session-countdown-core,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-ring .pf-ecg-v80,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-value,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy .session-countdown-label,
-      html.cardio-focus-dragging #cardio-timer-morph-proxy #session-countdown-pause-hint {
-        transform:none!important;
       }
 
       /* Optical centering of the compact numeric value only; ring geometry is untouched. */
@@ -600,135 +485,129 @@
     return measured;
   }
 
-  function setDragVar(name,value) {
-    document.documentElement.style.setProperty(name,value);
-  }
+  var DRAG_STYLE_PROPS = [
+    'position','left','top','right','bottom','width','height','min-width','min-height',
+    'margin','flex','flex-basis','transform','transform-origin','z-index','overflow',
+    'pointer-events','will-change','backface-visibility','-webkit-backface-visibility'
+  ];
 
-  function clearDragVars() {
-    [
-      '--cf-progress','--cf-bg-progress','--cf-chrome-progress','--cf-content-opacity',
-      '--cf-base-size','--cf-left','--cf-top','--cf-scale','--cf-title-shift'
-    ].forEach(function (name) { document.documentElement.style.removeProperty(name); });
-  }
-
-  function smoothstep(value) {
-    value = clamp01(value);
-    return value * value * (3 - 2 * value);
-  }
-
-  function ensureMorphProxy() {
-    var proxy = document.getElementById('cardio-timer-morph-proxy');
-    if (!proxy) {
-      proxy = document.createElement('div');
-      proxy.id = 'cardio-timer-morph-proxy';
-      proxy.setAttribute('aria-hidden','true');
-      document.body.appendChild(proxy);
-    }
-    morphProxy = proxy;
-    return proxy;
-  }
-
-  function syncProxyThemeFromRing(ring) {
-    var proxy = ensureMorphProxy();
-    if (!proxy || !ring) return;
-    var cs = null;
-    try { cs = getComputedStyle(ring); } catch (_) {}
-    ['--pf','--pf-soft','--pf-rgb'].forEach(function (name) {
-      var value = cs ? String(cs.getPropertyValue(name) || '').trim() : '';
-      if (value) proxy.style.setProperty(name,value);
+  function captureDragInline(ring) {
+    var saved = {};
+    DRAG_STYLE_PROPS.forEach(function (name) {
+      saved[name] = {
+        value:ring.style.getPropertyValue(name),
+        priority:ring.style.getPropertyPriority(name)
+      };
     });
-    /* Timed cardio is always the red Pulse Flow family. These fallbacks stop
-       detached proxy inheritance from drifting to strength/rest colours. */
-    if (!proxy.style.getPropertyValue('--pf')) proxy.style.setProperty('--pf','#EF4444');
-    if (!proxy.style.getPropertyValue('--pf-soft')) proxy.style.setProperty('--pf-soft','#FCA5A5');
-    if (!proxy.style.getPropertyValue('--pf-rgb')) proxy.style.setProperty('--pf-rgb','239,68,68');
+    return saved;
   }
 
-  function mountMorphRing(ring) {
-    if (!ring || !ring.parentNode) return false;
-    var proxy = ensureMorphProxy();
-    if (morphMarker && morphMarker.parentNode) morphMarker.remove();
-    morphHome = ring.parentNode;
-    morphMarker = document.createComment('cardio-timer-morph-home');
-    morphHome.insertBefore(morphMarker,ring);
-    proxy.appendChild(ring);
-    return true;
+  function restoreDragInline(ring,saved) {
+    if (!ring || !saved) return;
+    DRAG_STYLE_PROPS.forEach(function (name) {
+      var item = saved[name];
+      if (item && item.value) ring.style.setProperty(name,item.value,item.priority || '');
+      else ring.style.removeProperty(name);
+    });
   }
 
-  function restoreMorphRing() {
-    var ring = document.getElementById('session-countdown-ring');
-    if (ring) {
-      if (morphMarker && morphMarker.parentNode) {
-        morphMarker.parentNode.insertBefore(ring,morphMarker);
-      } else {
-        var fallback = morphHome && morphHome.isConnected ? morphHome : document.getElementById('session-cardio-countdown');
-        if (fallback) fallback.appendChild(ring);
-      }
-    }
-    if (morphMarker && morphMarker.parentNode) morphMarker.remove();
-    morphMarker = null;
-    morphHome = null;
-    if (morphProxy) morphProxy.removeAttribute('style');
+  function applyDragBase(ring,source) {
+    if (!ring || !source) return;
+    ring.style.setProperty('position','fixed','important');
+    ring.style.setProperty('left',source.left.toFixed(2) + 'px','important');
+    ring.style.setProperty('top',source.top.toFixed(2) + 'px','important');
+    ring.style.setProperty('right','auto','important');
+    ring.style.setProperty('bottom','auto','important');
+    ring.style.setProperty('width',source.width.toFixed(2) + 'px','important');
+    ring.style.setProperty('height',source.height.toFixed(2) + 'px','important');
+    ring.style.setProperty('min-width','0','important');
+    ring.style.setProperty('min-height','0','important');
+    ring.style.setProperty('margin','0','important');
+    ring.style.setProperty('flex','none','important');
+    ring.style.setProperty('flex-basis','auto','important');
+    ring.style.setProperty('transform-origin','0 0','important');
+    ring.style.setProperty('z-index','2147483590','important');
+    ring.style.setProperty('overflow','visible','important');
+    ring.style.setProperty('pointer-events','auto','important');
+    ring.style.setProperty('will-change','transform','important');
+    ring.style.setProperty('backface-visibility','hidden','important');
+    ring.style.setProperty('-webkit-backface-visibility','hidden','important');
   }
 
   function applyDragProgress(progress) {
-    if (!gesture || !gesture.engaged) return;
+    if (!gesture || !gesture.engaged || !gesture.ring) return;
     progress = clamp01(progress);
     gesture.progress = progress;
 
     var small = gesture.smallRect;
     var large = gesture.largeRect;
-    var ratio = Math.max(1,large.width / Math.max(1,small.width));
-    var scale = mix(1,ratio,progress);
-    var left = mix(small.left,large.left,progress);
-    var top = mix(small.top,large.top,progress);
+    var source = gesture.sourceRect;
+    var targetLeft = mix(small.left,large.left,progress);
+    var targetTop = mix(small.top,large.top,progress);
+    var targetSize = mix(small.width,large.width,progress);
+    var tx = targetLeft - source.left;
+    var ty = targetTop - source.top;
+    var scale = targetSize / Math.max(1,source.width);
 
-    /* Background can begin early, but pass content is fully gone before the
-       focus title appears. That prevents the duplicate Hopp-rep/title state
-       visible in the previous intermediate frames. */
-    var background = smoothstep(clamp01((progress - 0.06) / 0.78));
-    var contentFade = smoothstep(clamp01(progress / 0.58));
-    var chrome = smoothstep(clamp01((progress - 0.88) / 0.12));
-
-    setDragVar('--cf-progress',String(progress));
-    setDragVar('--cf-bg-progress',background.toFixed(4));
-    setDragVar('--cf-chrome-progress',chrome.toFixed(4));
-    setDragVar('--cf-content-opacity',(1 - contentFade).toFixed(4));
-    setDragVar('--cf-base-size',small.width.toFixed(2) + 'px');
-    setDragVar('--cf-left',left.toFixed(2) + 'px');
-    setDragVar('--cf-top',top.toFixed(2) + 'px');
-    setDragVar('--cf-scale',scale.toFixed(5));
-    setDragVar('--cf-title-shift',mix(14,0,chrome).toFixed(2) + 'px');
+    gesture.ring.style.setProperty(
+      'transform',
+      'translate3d(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px,0) scale(' + scale.toFixed(5) + ')',
+      'important'
+    );
   }
 
   function beginInteractiveDrag(ring,startExpanded) {
-    if (!gesture || gesture.engaged) return;
-    var smallRect = measureSmallRing(ring);
-    var largeRect = focusTargetRect();
+    if (!gesture || gesture.engaged || !ring) return;
+
+    /* Capture the visible source before measuring the opposite state. */
+    var sourceRectRaw = ring.getBoundingClientRect();
+    var sourceRect = {
+      left:sourceRectRaw.left, top:sourceRectRaw.top,
+      width:sourceRectRaw.width, height:sourceRectRaw.height
+    };
+    var smallRect = startExpanded ? measureSmallRing(ring) : sourceRect;
+    var largeRect = startExpanded ? sourceRect : focusTargetRect();
 
     gesture.engaged = true;
     gesture.startExpanded = !!startExpanded;
+    gesture.ring = ring;
+    gesture.sourceRect = sourceRect;
     gesture.smallRect = smallRect;
     gesture.largeRect = largeRect;
     gesture.progress = startExpanded ? 1 : 0;
     gesture.startedAt = performance.now();
+    gesture.inlineBackup = captureDragInline(ring);
 
-    var root = document.documentElement;
-    root.classList.add('cardio-focus-dragging');
-    root.classList.remove('cardio-focus-active');
-    var overlay = ensureFocusChrome();
-    if (overlay) overlay.classList.add('show');
-
-    syncProxyThemeFromRing(ring);
-    if (!mountMorphRing(ring)) {
-      root.classList.remove('cardio-focus-source-hidden');
-      root.classList.remove('cardio-focus-dragging');
-      if (startExpanded) root.classList.add('cardio-focus-active');
-      gesture.engaged = false;
-      return;
+    var parent = ring.parentElement;
+    if (parent) {
+      gesture.parent = parent;
+      gesture.parentMinHeight = parent.style.getPropertyValue('min-height');
+      gesture.parentMinHeightPriority = parent.style.getPropertyPriority('min-height');
+      var parentRect = parent.getBoundingClientRect();
+      if (!startExpanded && parentRect.height > 0) {
+        parent.style.setProperty('min-height',parentRect.height.toFixed(2) + 'px','important');
+      }
     }
-    root.classList.add('cardio-focus-source-hidden');
+
+    document.documentElement.classList.add('cardio-focus-dragging');
+    applyDragBase(ring,sourceRect);
     applyDragProgress(gesture.progress);
+  }
+
+  function cleanupInteractiveDrag(targetExpanded) {
+    if (!gesture) return;
+    var ring = gesture.ring;
+    restoreDragInline(ring,gesture.inlineBackup);
+    if (gesture.parent) {
+      if (gesture.parentMinHeight) gesture.parent.style.setProperty('min-height',gesture.parentMinHeight,gesture.parentMinHeightPriority || '');
+      else gesture.parent.style.removeProperty('min-height');
+    }
+    document.documentElement.classList.remove('cardio-focus-dragging');
+    setFocus(!!targetExpanded);
+    gesture = null;
+    requestAnimationFrame(function () {
+      try { window.dispatchEvent(new Event('resize')); } catch (_) {}
+    });
   }
 
   function finishInteractiveDrag(targetExpanded) {
@@ -737,7 +616,7 @@
     var from = gesture.progress;
     var to = targetExpanded ? 1 : 0;
     var distance = Math.abs(to - from);
-    var duration = Math.max(120,Math.min(230,115 + distance * 145));
+    var duration = Math.max(105,Math.min(190,95 + distance * 110));
     var started = performance.now();
 
     function step(now) {
@@ -753,19 +632,7 @@
       dragAnimationFrame = 0;
       if (targetExpanded) collapsedCardioToken = '';
       else if (lastCardioToken) collapsedCardioToken = lastCardioToken;
-
-      /* Restore the one real timer before swapping CSS end states. All of this
-         happens synchronously in one frame, so source/proxy/target never overlap. */
-      restoreMorphRing();
-      document.documentElement.classList.remove('cardio-focus-source-hidden');
-      document.documentElement.classList.remove('cardio-focus-dragging');
-      clearDragVars();
-      setFocus(targetExpanded);
-      gesture = null;
-
-      requestAnimationFrame(function () {
-        try { window.dispatchEvent(new Event('resize')); } catch (_) {}
-      });
+      cleanupInteractiveDrag(targetExpanded);
     }
     dragAnimationFrame = requestAnimationFrame(step);
   }
@@ -1047,6 +914,9 @@
   }
 
   function install() {
+    document.documentElement.classList.remove('cardio-focus-source-hidden','cardio-focus-dragging');
+    var staleProxy = document.getElementById('cardio-timer-morph-proxy');
+    if (staleProxy) staleProxy.remove();
     ensureStyle();
     ensureFocusChrome();
     ensureInlinePlus();

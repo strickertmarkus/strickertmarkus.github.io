@@ -75,7 +75,7 @@
     if (document.querySelector("script[data-exercise-timer-focus-final]")) return;
     if (window.__exerciseTimerFocusInstalled) return;
     var script = document.createElement("script");
-    script.src = "exercise-timer-focus.js?v=20260914-timer-focus-final10-cleanmorph";
+    script.src = "exercise-timer-focus.js?v=20260914-timer-focus-final11-inplace";
     script.async = false;
     script.setAttribute("data-exercise-timer-focus-final","true");
     document.head.appendChild(script);
