@@ -1,0 +1,32 @@
+name: Final timer swipe cleanup
+on:
+  push:
+    paths:
+      - '.github/workflows/timer-swipe-final-fix.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove stale double tap state reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i '/lastManualToggleAt = Date.now();/d' budget/exercise-timer-focus.js
+          sed -i 's/20260914-timer-focus-final4-swipe/20260914-timer-focus-final5-swipe/g' budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          node --check budget/exercise-timer-focus.js
+          ! grep -q 'lastManualToggleAt' budget/exercise-timer-focus.js
+          ! grep -q 'installDoubleTap' budget/exercise-timer-focus.js
+          grep -q 'installTimerGestures' budget/exercise-timer-focus.js
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/timer-swipe-final-fix.yml
+          git add budget/exercise-timer-focus.js budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          git commit -m 'Finalize swipe timer interaction'
+          git push
