@@ -14,6 +14,7 @@
   var gesture = null;
   var suppressTimerClickUntil = 0;
   var dragAnimationFrame = 0;
+  var lastCompactRect = null;
   var beeped = Object.create(null);
 
   function getState() {
@@ -367,6 +368,30 @@
         .cardio-focus-title { top:calc(58dvh - min(150px,40vw) - 82px); }
         html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring { top:58dvh!important; }
       }
+
+      /* Interactive backdrop follows the same 0..1 progress as the ring. This
+         rule intentionally comes after the settled focus rules so it also owns
+         ::after while dragging from the expanded state back down. */
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode)::after {
+        content:''!important;
+        display:block!important;
+        position:fixed!important;
+        inset:0!important;
+        z-index:2147483580!important;
+        pointer-events:none!important;
+        opacity:var(--cf-drag-bg,0)!important;
+        background:
+          radial-gradient(circle at 50% 45%,rgba(239,68,68,.20),transparent 35%),
+          radial-gradient(circle at 50% 112%,rgba(127,29,29,.17),transparent 43%),
+          linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%)!important;
+      }
+      html.cardio-focus-dragging #cardio-focus {
+        display:block!important;
+      }
+      html.cardio-focus-dragging .cardio-focus-title,
+      html.cardio-focus-dragging .cardio-focus-close {
+        opacity:var(--cf-drag-chrome,0)!important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -548,6 +573,10 @@
     var tx = targetLeft - source.left;
     var ty = targetTop - source.top;
     var scale = targetSize / Math.max(1,source.width);
+    var bgProgress = smoothstep(progress);
+    var chromeProgress = smoothstep(clamp01((progress - 0.72) / 0.28));
+    document.documentElement.style.setProperty('--cf-drag-bg',bgProgress.toFixed(4));
+    document.documentElement.style.setProperty('--cf-drag-chrome',chromeProgress.toFixed(4));
 
     gesture.ring.style.setProperty(
       'transform',
@@ -565,7 +594,18 @@
       left:sourceRectRaw.left, top:sourceRectRaw.top,
       width:sourceRectRaw.width, height:sourceRectRaw.height
     };
-    var smallRect = startExpanded ? measureSmallRing(ring) : sourceRect;
+    if (!startExpanded) {
+      lastCompactRect = {
+        left:sourceRect.left, top:sourceRect.top,
+        width:sourceRect.width, height:sourceRect.height,
+        viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
+      };
+    }
+    var cachedCompact = startExpanded && lastCompactRect &&
+      Math.abs((lastCompactRect.viewportWidth || 0) - (window.innerWidth || document.documentElement.clientWidth || 0)) < 3
+      ? {left:lastCompactRect.left,top:lastCompactRect.top,width:lastCompactRect.width,height:lastCompactRect.height}
+      : null;
+    var smallRect = startExpanded ? (cachedCompact || measureSmallRing(ring)) : sourceRect;
     var largeRect = startExpanded ? sourceRect : focusTargetRect();
 
     gesture.engaged = true;
@@ -590,6 +630,8 @@
     }
 
     document.documentElement.classList.add('cardio-focus-dragging');
+    var dragOverlay = ensureFocusChrome();
+    if (dragOverlay) dragOverlay.classList.add('show');
     applyDragBase(ring,sourceRect);
     applyDragProgress(gesture.progress);
   }
@@ -603,6 +645,8 @@
       else gesture.parent.style.removeProperty('min-height');
     }
     document.documentElement.classList.remove('cardio-focus-dragging');
+    document.documentElement.style.removeProperty('--cf-drag-bg');
+    document.documentElement.style.removeProperty('--cf-drag-chrome');
     setFocus(!!targetExpanded);
     gesture = null;
     requestAnimationFrame(function () {
@@ -771,6 +815,21 @@
     }
 
     if (desktopToggle) { desktopToggle.hidden = false; ensureDesktopToggle(); }
+
+    if (!document.documentElement.classList.contains('cardio-focus-active') &&
+        !document.documentElement.classList.contains('cardio-focus-dragging')) {
+      var compactRing = document.getElementById('session-countdown-ring');
+      if (compactRing) {
+        var compactRect = compactRing.getBoundingClientRect();
+        if (compactRect.width > 20 && compactRect.height > 20) {
+          lastCompactRect = {
+            left:compactRect.left, top:compactRect.top,
+            width:compactRect.width, height:compactRect.height,
+            viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
+          };
+        }
+      }
+    }
 
     var token = cardioToken(state,exercise);
     if (token !== lastCardioToken) {
