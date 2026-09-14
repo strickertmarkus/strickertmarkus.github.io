@@ -4,6 +4,14 @@ ROOT = Path('.')
 focus = ROOT / 'budget/exercise-timer-focus.js'
 s = focus.read_text(encoding='utf-8')
 
+# The consolidated drag renderer already calls smoothstep(), but the helper was
+# accidentally removed in an earlier cleanup. Add it next to clamp01 so drag
+# progress can never abort with a ReferenceError and leave stale gesture state.
+if 'function smoothstep(value)' not in s:
+    anchor = """  function clamp01(value) {\n    return Math.max(0,Math.min(1,Number(value) || 0));\n  }\n"""
+    assert anchor in s, 'clamp01 anchor missing'
+    s = s.replace(anchor, anchor + """\n  function smoothstep(value) {\n    var t = clamp01(value);\n    return t * t * (3 - 2 * t);\n  }\n""", 1)
+
 # Remove stale runtime cleanup for deleted v145-v151 timer experiments.
 old = """    /* Remove stale styles if an old cached bundle happened to execute first. */\n    [145,146,147,148,149,150,151].forEach(function (version) {\n      var old = document.getElementById('exercise-timer-focus-v' + version + '-style');\n      if (old) old.remove();\n    });\n\n"""
 assert old in s, 'stale style cleanup block missing'
@@ -176,6 +184,7 @@ assert "cardio-focus-v145" not in final
 assert "cardio-focus-expand-v145" not in final
 assert "cardio-inline-plus-v145" not in final
 assert "exercise-timer-focus-v145" not in final
+assert "function smoothstep(value)" in final
 assert "document.addEventListener('touchstart'" in final
 assert "document.addEventListener('touchmove'" in final
 assert "document.addEventListener('touchend'" in final
