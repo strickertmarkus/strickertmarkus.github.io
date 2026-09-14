@@ -13,6 +13,7 @@
   var lastFrameAt = 0;
   var gesture = null;
   var suppressTimerClickUntil = 0;
+  var dragAnimationFrame = 0;
   var beeped = Object.create(null);
 
   function getState() {
@@ -130,6 +131,104 @@
         .cardio-desktop-toggle {display:none!important;}
       }
       @media (hover:hover) and (pointer:fine) {.cardio-focus-close {display:none!important;}}
+
+      /* Mobile drag preview: the real live timer is resized/repositioned frame-by-frame. */
+      html.cardio-focus-dragging { --cf-progress:0; }
+      html.cardio-focus-dragging #cardio-focus {
+        display:block!important;
+        opacity:var(--cf-progress)!important;
+      }
+      html.cardio-focus-dragging .cardio-focus-title,
+      html.cardio-focus-dragging .cardio-focus-close {
+        opacity:var(--cf-progress)!important;
+      }
+      html.cardio-focus-dragging .cardio-focus-title {
+        transform:translateX(-50%) translateY(var(--cf-title-shift,18px))!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) {
+        z-index:2147483500!important;
+        pointer-events:none!important;
+        isolation:isolate!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode)::after {
+        content:''!important;
+        display:block!important;
+        position:fixed!important;
+        inset:0!important;
+        z-index:2147483501!important;
+        pointer-events:none!important;
+        opacity:var(--cf-progress)!important;
+        background:
+          radial-gradient(circle at 50% 45%,rgba(239,68,68,.20),transparent 35%),
+          radial-gradient(circle at 50% 112%,rgba(127,29,29,.17),transparent 43%),
+          linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%)!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-top,
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-grid > .session-card:not(.session-main),
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main > *:not(#session-cardio-countdown) {
+        opacity:var(--cf-content-opacity)!important;
+        pointer-events:none!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show {
+        opacity:1!important;
+        visibility:visible!important;
+        position:fixed!important;
+        inset:0!important;
+        z-index:2147483550!important;
+        width:100vw!important;
+        height:100dvh!important;
+        min-height:100svh!important;
+        margin:0!important;
+        padding:0!important;
+        display:block!important;
+        overflow:visible!important;
+        pointer-events:none!important;
+        background:transparent!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring {
+        opacity:1!important;
+        visibility:visible!important;
+        display:grid!important;
+        position:fixed!important;
+        left:var(--cf-left)!important;
+        top:var(--cf-top)!important;
+        right:auto!important;
+        bottom:auto!important;
+        width:var(--cf-size)!important;
+        height:var(--cf-size)!important;
+        min-width:0!important;
+        min-height:0!important;
+        flex:0 0 var(--cf-size)!important;
+        flex-basis:var(--cf-size)!important;
+        aspect-ratio:1!important;
+        margin:0!important;
+        transform:none!important;
+        z-index:2147483551!important;
+        overflow:visible!important;
+        pointer-events:auto!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-core {
+        inset:var(--cf-core-inset)!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
+        font-size:var(--cf-font-size)!important;
+        line-height:1!important;
+        letter-spacing:var(--cf-letter-spacing)!important;
+        transform:translateX(var(--cf-time-x))!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-copy {
+        width:var(--cf-copy-width)!important;
+      }
+      html.cardio-focus-dragging body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .pf-ecg-v80 {
+        width:var(--cf-ecg-width)!important;
+        height:var(--cf-ecg-height)!important;
+      }
+
+      /* Optical centering of the compact numeric value only; ring geometry is untouched. */
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
+        transform:translateX(1px)!important;
+      }
+
       .cardio-inline-plus {
         display:none;
         margin-top:5px;
@@ -426,6 +525,132 @@
     return button;
   }
 
+  function clamp01(value) {
+    return Math.max(0,Math.min(1,Number(value) || 0));
+  }
+
+  function mix(a,b,t) {
+    return Number(a) + (Number(b) - Number(a)) * t;
+  }
+
+  function focusTargetRect() {
+    var vw = Math.max(1,window.innerWidth || document.documentElement.clientWidth || 1);
+    var vh = Math.max(1,window.innerHeight || document.documentElement.clientHeight || 1);
+    var compact = vw <= 390;
+    var short = vh <= 700;
+    var size = compact ? Math.min(300,vw * 0.80) : Math.min(324,vw * 0.82);
+    var centerY = vh * (short ? 0.58 : 0.59);
+    return {left:(vw - size) / 2,top:centerY - size / 2,width:size,height:size};
+  }
+
+  function measureSmallRing(ring) {
+    var root = document.documentElement;
+    var overlay = ensureFocusChrome();
+    var wasExpanded = root.classList.contains('cardio-focus-active');
+    var overlayWasShown = !!(overlay && overlay.classList.contains('show'));
+    if (wasExpanded) {
+      root.classList.remove('cardio-focus-active');
+      if (overlay) overlay.classList.remove('show');
+    }
+    var rect = ring.getBoundingClientRect();
+    var measured = {left:rect.left,top:rect.top,width:rect.width,height:rect.height};
+    if (wasExpanded) {
+      root.classList.add('cardio-focus-active');
+      if (overlay && overlayWasShown) overlay.classList.add('show');
+    }
+    return measured;
+  }
+
+  function setDragVar(name,value) {
+    document.documentElement.style.setProperty(name,value);
+  }
+
+  function clearDragVars() {
+    [
+      '--cf-progress','--cf-content-opacity','--cf-left','--cf-top','--cf-size',
+      '--cf-core-inset','--cf-font-size','--cf-letter-spacing','--cf-copy-width',
+      '--cf-ecg-width','--cf-ecg-height','--cf-time-x','--cf-title-shift'
+    ].forEach(function (name) { document.documentElement.style.removeProperty(name); });
+  }
+
+  function applyDragProgress(progress) {
+    if (!gesture || !gesture.engaged) return;
+    progress = clamp01(progress);
+    gesture.progress = progress;
+    var small = gesture.smallRect;
+    var large = gesture.largeRect;
+    var size = mix(small.width,large.width,progress);
+    setDragVar('--cf-progress',String(progress));
+    setDragVar('--cf-content-opacity',String(1 - progress));
+    setDragVar('--cf-left',mix(small.left,large.left,progress).toFixed(2) + 'px');
+    setDragVar('--cf-top',mix(small.top,large.top,progress).toFixed(2) + 'px');
+    setDragVar('--cf-size',size.toFixed(2) + 'px');
+    setDragVar('--cf-core-inset',mix(18,gesture.largeCoreInset,progress).toFixed(2) + 'px');
+    setDragVar('--cf-font-size',mix(27,gesture.largeFontSize,progress).toFixed(2) + 'px');
+    setDragVar('--cf-letter-spacing',mix(-0.6,-2.4,progress).toFixed(2) + 'px');
+    setDragVar('--cf-copy-width','calc(100% - ' + mix(52,128,progress).toFixed(2) + 'px)');
+    setDragVar('--cf-ecg-width',mix(gesture.smallEcgWidth,104,progress).toFixed(2) + 'px');
+    setDragVar('--cf-ecg-height',mix(gesture.smallEcgHeight,29,progress).toFixed(2) + 'px');
+    setDragVar('--cf-time-x',mix(1,0,progress).toFixed(2) + 'px');
+    setDragVar('--cf-title-shift',mix(18,0,progress).toFixed(2) + 'px');
+  }
+
+  function beginInteractiveDrag(ring,startExpanded) {
+    if (!gesture || gesture.engaged) return;
+    var smallRect = measureSmallRing(ring);
+    var largeRect = focusTargetRect();
+    var ecg = ring.querySelector('.pf-ecg-v80');
+    var ecgRect = ecg ? ecg.getBoundingClientRect() : null;
+    gesture.engaged = true;
+    gesture.startExpanded = !!startExpanded;
+    gesture.smallRect = smallRect;
+    gesture.largeRect = largeRect;
+    gesture.progress = startExpanded ? 1 : 0;
+    gesture.largeCoreInset = window.innerWidth <= 390 ? 41 : 44;
+    gesture.largeFontSize = window.innerWidth <= 390 ? 61 : 66;
+    gesture.smallEcgWidth = ecgRect && ecgRect.width ? ecgRect.width : 58;
+    gesture.smallEcgHeight = ecgRect && ecgRect.height ? ecgRect.height : 18;
+    gesture.startedAt = performance.now();
+    var root = document.documentElement;
+    root.classList.add('cardio-focus-dragging');
+    root.classList.remove('cardio-focus-active');
+    var overlay = ensureFocusChrome();
+    if (overlay) overlay.classList.add('show');
+    applyDragProgress(gesture.progress);
+  }
+
+  function finishInteractiveDrag(targetExpanded) {
+    if (!gesture || !gesture.engaged) return;
+    if (dragAnimationFrame) cancelAnimationFrame(dragAnimationFrame);
+    var from = gesture.progress;
+    var to = targetExpanded ? 1 : 0;
+    var distance = Math.abs(to - from);
+    var duration = Math.max(120,Math.min(240,120 + distance * 120));
+    var started = performance.now();
+    function step(now) {
+      if (!gesture || !gesture.engaged) return;
+      var t = Math.min(1,(now - started) / duration);
+      var eased = 1 - Math.pow(1 - t,3);
+      applyDragProgress(from + (to - from) * eased);
+      if (t < 1) {
+        dragAnimationFrame = requestAnimationFrame(step);
+        return;
+      }
+      dragAnimationFrame = 0;
+      document.documentElement.classList.remove('cardio-focus-dragging');
+      clearDragVars();
+      if (targetExpanded) {
+        collapsedCardioToken = '';
+        setFocus(true);
+      } else {
+        if (lastCardioToken) collapsedCardioToken = lastCardioToken;
+        setFocus(false);
+      }
+      gesture = null;
+    }
+    dragAnimationFrame = requestAnimationFrame(step);
+  }
+
   function setFocus(visible) {
     var overlay = ensureFocusChrome();
     document.documentElement.classList.toggle('cardio-focus-active',!!visible);
@@ -588,7 +813,7 @@
     var blockedByOverview = !!(modal && modal.classList.contains('session-overview-mode'));
     var blockedByPretimer = !!(pre && pre.classList.contains('show'));
     var shouldShow = collapsedCardioToken !== token && !blockedByOverview && !blockedByPretimer;
-    setFocus(shouldShow);
+    if (!document.documentElement.classList.contains('cardio-focus-dragging')) setFocus(shouldShow);
   }
 
   function restSecondsFromDom() {
@@ -623,43 +848,67 @@
   }
 
   function installTimerGestures() {
-    document.addEventListener('pointerdown',function(event){
-      if(!isTouchLike() || event.isPrimary===false) return;
-      var target=event.target&&event.target.closest?event.target.closest('#session-countdown-ring'):null;
-      if(!target || (event.target&&event.target.closest&&event.target.closest('.cardio-desktop-toggle'))) return;
-      gesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
+    document.addEventListener('pointerdown',function (event) {
+      if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame) return;
+      var ring = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
+      if (!ring || (event.target && event.target.closest && event.target.closest('.cardio-desktop-toggle'))) return;
+      gesture = {
+        pointerId:event.pointerId,
+        ring:ring,
+        startX:event.clientX,
+        startY:event.clientY,
+        lastX:event.clientX,
+        lastY:event.clientY,
+        lastAt:performance.now(),
+        startExpanded:document.documentElement.classList.contains('cardio-focus-active'),
+        engaged:false,
+        progress:document.documentElement.classList.contains('cardio-focus-active') ? 1 : 0
+      };
     },true);
 
-    document.addEventListener('pointermove',function(event){
-      if(!gesture || event.pointerId!==gesture.pointerId) return;
-      gesture.lastX=event.clientX;gesture.lastY=event.clientY;
-      var dx=gesture.lastX-gesture.startX,dy=gesture.lastY-gesture.startY;
-      if(Math.abs(dy)>10 && Math.abs(dy)>Math.abs(dx)*1.15 && event.cancelable) event.preventDefault();
+    document.addEventListener('pointermove',function (event) {
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+      var dx = event.clientX - gesture.startX;
+      var dy = event.clientY - gesture.startY;
+      gesture.lastX = event.clientX;
+      gesture.lastY = event.clientY;
+      gesture.lastAt = performance.now();
+      var verticalIntent = Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.12;
+      var intendedDirection = gesture.startExpanded ? dy > 0 : dy < 0;
+      if (!gesture.engaged && verticalIntent && intendedDirection) beginInteractiveDrag(gesture.ring,gesture.startExpanded);
+      if (!gesture || !gesture.engaged) return;
+      if (event.cancelable) event.preventDefault();
+      var travel = Math.max(150,Math.min(220,window.innerHeight * 0.24));
+      var progress = gesture.startExpanded ? 1 - Math.max(0,dy) / travel : Math.max(0,-dy) / travel;
+      applyDragProgress(progress);
     },{capture:true,passive:false});
 
-    document.addEventListener('pointerup',function(event){
-      if(!gesture || event.pointerId!==gesture.pointerId) return;
-      var dx=event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
-      var vertical=Math.abs(dy)>=42 && Math.abs(dy)>Math.abs(dx)*1.25;
-      var expanded=document.documentElement.classList.contains('cardio-focus-active');
-      var handled=vertical && ((!expanded&&dy<0)||(expanded&&dy>0));
-      gesture=null;
-      if(!handled) return;
-      suppressTimerClickUntil=Date.now()+650;
-      if(event.cancelable) event.preventDefault();
+    document.addEventListener('pointerup',function (event) {
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+      if (!gesture.engaged) {
+        gesture = null;
+        return;
+      }
+      if (event.cancelable) event.preventDefault();
       event.stopImmediatePropagation();
-      if(expanded) collapseFocus(); else expandFocus();
+      suppressTimerClickUntil = Date.now() + 650;
+      var targetExpanded = gesture.progress >= 0.5;
+      finishInteractiveDrag(targetExpanded);
     },true);
 
-    document.addEventListener('pointercancel',function(event){
-      if(gesture&&event.pointerId===gesture.pointerId) gesture=null;
+    document.addEventListener('pointercancel',function (event) {
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+      if (gesture.engaged) finishInteractiveDrag(gesture.startExpanded);
+      else gesture = null;
     },true);
 
-    document.addEventListener('click',function(event){
-      if(Date.now()>suppressTimerClickUntil) return;
-      var target=event.target&&event.target.closest?event.target.closest('#session-countdown-ring'):null;
-      if(!target) return;
-      event.preventDefault();event.stopImmediatePropagation();suppressTimerClickUntil=0;
+    document.addEventListener('click',function (event) {
+      if (Date.now() > suppressTimerClickUntil) return;
+      var ring = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
+      if (!ring) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      suppressTimerClickUntil = 0;
     },true);
   }
 
