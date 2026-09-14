@@ -11,8 +11,8 @@
   var collapsedCardioToken = '';
   var lastRestKey = '';
   var lastFrameAt = 0;
-  var lastTapAt = 0;
-  var lastManualToggleAt = 0;
+  var gesture = null;
+  var suppressTimerClickUntil = 0;
   var beeped = Object.create(null);
 
   function getState() {
@@ -116,6 +116,20 @@
         touch-action:manipulation;
         -webkit-tap-highlight-color:transparent;
       }
+      .cardio-desktop-toggle {
+        appearance:none;position:absolute;top:-7px;right:-7px;z-index:30;width:30px;height:30px;display:grid;place-items:center;padding:0;
+        border:1px solid rgba(248,113,113,.28);border-radius:10px;background:rgba(13,9,13,.84);color:#FCA5A5;
+        box-shadow:0 5px 18px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035);cursor:pointer;-webkit-tap-highlight-color:transparent;
+      }
+      .cardio-desktop-toggle:hover {border-color:rgba(248,113,113,.52);background:rgba(49,17,24,.92);box-shadow:0 0 18px rgba(239,68,68,.14),inset 0 1px rgba(255,255,255,.045);}
+      .cardio-desktop-toggle:active {transform:scale(.94);}
+      .cardio-desktop-toggle svg {width:16px;height:16px;display:block;}
+      html.cardio-focus-active #session-countdown-ring .cardio-desktop-toggle {top:7px;right:7px;}
+      @media (hover:none),(pointer:coarse) {
+        #session-countdown-ring {touch-action:none;}
+        .cardio-desktop-toggle {display:none!important;}
+      }
+      @media (hover:hover) and (pointer:fine) {.cardio-focus-close {display:none!important;}}
       .cardio-inline-plus {
         display:none;
         margin-top:5px;
@@ -379,6 +393,39 @@
     return plus;
   }
 
+  function isTouchLike() {
+    try { return !!((window.matchMedia && window.matchMedia('(pointer:coarse)').matches) || Number(navigator.maxTouchPoints) > 0); }
+    catch (_) { return Number(navigator.maxTouchPoints) > 0; }
+  }
+
+  function desktopIcon(expanded) {
+    if (expanded) return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3"></path><path d="M15 3v6h6"></path><path d="M9 21v-6H3"></path><path d="M15 21v-6h6"></path><path d="M9 9 4 4M15 9l5-5M9 15l-5 5M15 15l5 5"></path></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9H3V3"></path><path d="M15 9h6V3"></path><path d="M9 15H3v6"></path><path d="M15 15h6v6"></path><path d="M9 9 3 3M15 9l6-6M9 15l-6 6M15 15l6 6"></path></svg>';
+  }
+
+  function ensureDesktopToggle() {
+    var ring=document.getElementById('session-countdown-ring');
+    if(!ring) return null;
+    var button=ring.querySelector('.cardio-desktop-toggle');
+    if(!button){
+      button=document.createElement('button');
+      button.type='button';
+      button.className='cardio-desktop-toggle';
+      button.addEventListener('pointerdown',function(event){event.stopPropagation();});
+      button.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();toggleFocus();});
+      ring.appendChild(button);
+    }
+    var expanded=document.documentElement.classList.contains('cardio-focus-active');
+    var state=expanded?'collapse':'expand';
+    if(button.dataset.state!==state){
+      button.dataset.state=state;
+      button.innerHTML=desktopIcon(expanded);
+      button.setAttribute('aria-label',expanded?'Minska timer':'Förstora timer');
+      button.title=expanded?'Minska timer':'Förstora timer';
+    }
+    return button;
+  }
+
   function setFocus(visible) {
     var overlay = ensureFocusChrome();
     document.documentElement.classList.toggle('cardio-focus-active',!!visible);
@@ -502,14 +549,18 @@
     var timed = isTimedCardio(state,exercise);
     var overlay = ensureFocusChrome();
     var plus = ensureInlinePlus();
+    var desktopToggle = ensureDesktopToggle();
 
     if (!timed) {
       lastCardioToken = '';
       collapsedCardioToken = '';
       if (plus) plus.classList.remove('show');
+      if (desktopToggle) desktopToggle.hidden = true;
       setFocus(false);
       return;
     }
+
+    if (desktopToggle) { desktopToggle.hidden = false; ensureDesktopToggle(); }
 
     var token = cardioToken(state,exercise);
     if (token !== lastCardioToken) {
@@ -572,25 +623,44 @@
     if (seconds >= 1 && seconds <= 5) beepOnce(key,seconds);
   }
 
-  function installDoubleTap() {
-    document.addEventListener('pointerup',function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
-      if (!target) return;
-      var now = Date.now();
-      if (now - lastTapAt > 0 && now - lastTapAt <= 360) {
-        lastTapAt = 0;
-        toggleFocus();
-      } else {
-        lastTapAt = now;
-      }
+  function installTimerGestures() {
+    document.addEventListener('pointerdown',function(event){
+      if(!isTouchLike() || event.isPrimary===false) return;
+      var target=event.target&&event.target.closest?event.target.closest('#session-countdown-ring'):null;
+      if(!target || (event.target&&event.target.closest&&event.target.closest('.cardio-desktop-toggle'))) return;
+      gesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
     },true);
 
-    /* Desktop/mouse fallback. Ignore it when the pointer double-tap handler
-       already performed the same toggle. */
-    document.addEventListener('dblclick',function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('#session-countdown-ring') : null;
-      if (!target || Date.now() - lastManualToggleAt < 450) return;
-      toggleFocus();
+    document.addEventListener('pointermove',function(event){
+      if(!gesture || event.pointerId!==gesture.pointerId) return;
+      gesture.lastX=event.clientX;gesture.lastY=event.clientY;
+      var dx=gesture.lastX-gesture.startX,dy=gesture.lastY-gesture.startY;
+      if(Math.abs(dy)>10 && Math.abs(dy)>Math.abs(dx)*1.15 && event.cancelable) event.preventDefault();
+    },{capture:true,passive:false});
+
+    document.addEventListener('pointerup',function(event){
+      if(!gesture || event.pointerId!==gesture.pointerId) return;
+      var dx=event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
+      var vertical=Math.abs(dy)>=42 && Math.abs(dy)>Math.abs(dx)*1.25;
+      var expanded=document.documentElement.classList.contains('cardio-focus-active');
+      var handled=vertical && ((!expanded&&dy<0)||(expanded&&dy>0));
+      gesture=null;
+      if(!handled) return;
+      suppressTimerClickUntil=Date.now()+650;
+      if(event.cancelable) event.preventDefault();
+      event.stopImmediatePropagation();
+      if(expanded) collapseFocus(); else expandFocus();
+    },true);
+
+    document.addEventListener('pointercancel',function(event){
+      if(gesture&&event.pointerId===gesture.pointerId) gesture=null;
+    },true);
+
+    document.addEventListener('click',function(event){
+      if(Date.now()>suppressTimerClickUntil) return;
+      var target=event.target&&event.target.closest?event.target.closest('#session-countdown-ring'):null;
+      if(!target) return;
+      event.preventDefault();event.stopImmediatePropagation();suppressTimerClickUntil=0;
     },true);
   }
 
@@ -614,7 +684,7 @@
     ensureFocusChrome();
     ensureInlinePlus();
     installAudioUnlock();
-    installDoubleTap();
+    installTimerGestures();
     requestAnimationFrame(frame);
     window.__exerciseTimerFocus = {
       expand:expandFocus,
