@@ -71,21 +71,11 @@
     document.head.appendChild(script);
   }
 
-  function loadTimerFocus() {
-    if (document.querySelector("script[data-exercise-timer-focus-final]")) return;
-    if (window.__exerciseTimerFocusInstalled) return;
-    var script = document.createElement("script");
-    script.src = "exercise-timer-focus.js?v=20260914-timer-focus-final18-hitarea";
-    script.async = false;
-    script.setAttribute("data-exercise-timer-focus-final","true");
-    document.head.appendChild(script);
-  }
 
   function install() {
     installStyle();
     loadTransitionStability();
     loadSessionPersistence();
-    loadTimerFocus();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});

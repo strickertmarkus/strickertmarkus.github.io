@@ -49,12 +49,6 @@
   function ensureStyle() {
     if (document.getElementById('exercise-timer-focus-style')) return;
 
-    /* Remove stale styles if an old cached bundle happened to execute first. */
-    [145,146,147,148,149,150,151].forEach(function (version) {
-      var old = document.getElementById('exercise-timer-focus-v' + version + '-style');
-      if (old) old.remove();
-    });
-
     var style = document.createElement('style');
     style.id = 'exercise-timer-focus-style';
     style.textContent = `
@@ -424,9 +418,6 @@
   }
 
   function ensureFocusChrome() {
-    var legacy = document.getElementById('cardio-focus-v145');
-    if (legacy) legacy.remove();
-
     var overlay = document.getElementById('cardio-focus');
     if (overlay) return overlay;
     overlay = document.createElement('div');
@@ -451,11 +442,6 @@
   function ensureInlinePlus() {
     var copy = document.querySelector('#session-countdown-ring .session-countdown-copy');
     if (!copy) return null;
-
-    /* Remove the old explicit focus button and legacy plus element. */
-    document.querySelectorAll('.cardio-focus-expand-v145').forEach(function (button) { button.remove(); });
-    var legacy = document.getElementById('cardio-inline-plus-v145');
-    if (legacy) legacy.remove();
 
     var plus = document.getElementById('cardio-inline-plus');
     if (!plus) {
@@ -503,6 +489,11 @@
 
   function clamp01(value) {
     return Math.max(0,Math.min(1,Number(value) || 0));
+  }
+
+  function smoothstep(value) {
+    var t = clamp01(value);
+    return t * t * (3 - 2 * t);
   }
 
   function pointInsideRect(x,y,rect,pad) {
@@ -669,7 +660,7 @@
   function beginInteractiveDrag(ring,startExpanded) {
     if (!gesture || gesture.engaged || !ring) return;
 
-    var smallRect = startExpanded ? savedCompactRect() : rememberCompactRect(ring);
+    var smallRect = gesture.compactRect || (startExpanded ? savedCompactRect() : rememberCompactRect(ring));
     if (!smallRect) {
       gesture.engaged = false;
       return;
@@ -963,73 +954,117 @@
     if (seconds >= 1 && seconds <= 5) beepOnce(key,seconds);
   }
 
+  function touchByIdentifier(list,id) {
+    if (!list) return null;
+    for (var i = 0; i < list.length; i++) {
+      if (Number(list[i].identifier) === Number(id)) return list[i];
+    }
+    return null;
+  }
+
+  function rawCompactRect(ring) {
+    if (!ring) return null;
+    var rect = null;
+    try { rect = ring.getBoundingClientRect(); } catch (_) {}
+    if (!rect || rect.width < 20 || rect.height < 20) return null;
+    var parent = ring.parentElement;
+    var parentRect = null;
+    try { parentRect = parent ? parent.getBoundingClientRect() : null; } catch (_) {}
+    return {
+      left:rect.left,
+      top:rect.top,
+      width:rect.width,
+      height:rect.height,
+      parentHeight:parentRect && parentRect.height > 0 ? parentRect.height : rect.height + 8,
+      viewportWidth:window.innerWidth || document.documentElement.clientWidth || 0
+    };
+  }
+
   function installTimerGestures() {
-    document.addEventListener('pointerdown',function (event) {
+    if (!isTouchLike()) return;
+
+    document.addEventListener('touchstart',function (event) {
+      if (!event.touches || event.touches.length !== 1) return;
       if (dragAnimationFrame && !gesture) dragAnimationFrame = 0;
       if (gesture && !dragAnimationFrame) {
         if (gesture.engaged) cleanupInteractiveDrag(gesture.startExpanded);
         else gesture = null;
       }
-      if (!isTouchLike() || event.isPrimary === false || dragAnimationFrame || gesture) return;
-      var ring = resolveGestureRing(event);
+      if (dragAnimationFrame || gesture) return;
+
+      var touch = event.changedTouches && event.changedTouches[0] ? event.changedTouches[0] : event.touches[0];
+      var probe = {target:event.target,clientX:touch.clientX,clientY:touch.clientY};
+      var ring = resolveGestureRing(probe);
       if (!ring || (event.target && event.target.closest && event.target.closest('.cardio-desktop-toggle'))) return;
+
       var startsExpanded = document.documentElement.classList.contains('cardio-focus-active');
-      if (!startsExpanded) rememberCompactRect(ring);
+      var compactRect = null;
+      if (!startsExpanded) compactRect = rememberCompactRect(ring) || savedCompactRect() || rawCompactRect(ring);
+      else compactRect = savedCompactRect();
+      if (!compactRect) return;
+
       gesture = {
-        pointerId:event.pointerId,
+        touchId:touch.identifier,
         ring:ring,
-        startX:event.clientX,
-        startY:event.clientY,
-        lastX:event.clientX,
-        lastY:event.clientY,
+        compactRect:compactRect,
+        startX:touch.clientX,
+        startY:touch.clientY,
+        lastX:touch.clientX,
+        lastY:touch.clientY,
         lastAt:performance.now(),
         startExpanded:startsExpanded,
         engaged:false,
         finishing:false,
         progress:startsExpanded ? 1 : 0
       };
-    },true);
+    },{capture:true,passive:true});
 
     document.addEventListener('touchmove',function (event) {
       if (!gesture || gesture.finishing) return;
-      if (event.cancelable) event.preventDefault();
-    },{capture:true,passive:false});
+      var touch = touchByIdentifier(event.touches,gesture.touchId);
+      if (!touch) return;
 
-    document.addEventListener('pointermove',function (event) {
-      if (!gesture || gesture.finishing || event.pointerId !== gesture.pointerId) return;
-      var dx = event.clientX - gesture.startX;
-      var dy = event.clientY - gesture.startY;
-      gesture.lastX = event.clientX;
-      gesture.lastY = event.clientY;
+      var dx = touch.clientX - gesture.startX;
+      var dy = touch.clientY - gesture.startY;
+      gesture.lastX = touch.clientX;
+      gesture.lastY = touch.clientY;
       gesture.lastAt = performance.now();
-      var verticalIntent = Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.12;
+
+      var mostlyVertical = Math.abs(dy) > Math.abs(dx) * 0.9;
+      if (mostlyVertical && Math.abs(dy) > 3 && event.cancelable) event.preventDefault();
+
+      var verticalIntent = Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.08;
       var intendedDirection = gesture.startExpanded ? dy > 0 : dy < 0;
       if (!gesture.engaged && verticalIntent && intendedDirection) beginInteractiveDrag(gesture.ring,gesture.startExpanded);
       if (!gesture || !gesture.engaged) return;
+
       if (event.cancelable) event.preventDefault();
       var travel = Math.max(150,Math.min(220,window.innerHeight * 0.24));
       var progress = gesture.startExpanded ? 1 - Math.max(0,dy) / travel : Math.max(0,-dy) / travel;
       applyDragProgress(progress);
     },{capture:true,passive:false});
 
-    document.addEventListener('pointerup',function (event) {
-      if (!gesture || event.pointerId !== gesture.pointerId) return;
+    document.addEventListener('touchend',function (event) {
+      if (!gesture) return;
+      var touch = touchByIdentifier(event.changedTouches,gesture.touchId);
+      if (!touch) return;
       if (!gesture.engaged) {
         gesture = null;
         return;
       }
       if (event.cancelable) event.preventDefault();
-      event.stopImmediatePropagation();
+      event.stopPropagation();
       suppressTimerClickUntil = Date.now() + 650;
-      var targetExpanded = gesture.progress >= 0.5;
-      finishInteractiveDrag(targetExpanded);
-    },true);
+      finishInteractiveDrag(gesture.progress >= 0.5);
+    },{capture:true,passive:false});
 
-    document.addEventListener('pointercancel',function (event) {
-      if (!gesture || event.pointerId !== gesture.pointerId) return;
+    document.addEventListener('touchcancel',function (event) {
+      if (!gesture) return;
+      var touch = touchByIdentifier(event.changedTouches,gesture.touchId);
+      if (!touch) return;
       if (gesture.engaged) finishInteractiveDrag(gesture.startExpanded);
       else gesture = null;
-    },true);
+    },{capture:true,passive:false});
 
     document.addEventListener('click',function (event) {
       if (Date.now() > suppressTimerClickUntil) return;
