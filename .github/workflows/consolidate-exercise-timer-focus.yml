@@ -1,0 +1,93 @@
+name: Consolidate exercise timer focus
+on:
+  push:
+    paths:
+      - '.github/workflows/consolidate-exercise-timer-focus.yml'
+permissions:
+  contents: write
+jobs:
+  consolidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consolidate timer focus implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          version = '20260914-timer-focus-final'
+
+          # exercise.html: replace the experimental direct stack with one stable file.
+          p = Path('budget/exercise.html')
+          s = p.read_text()
+          old = '''<script src="auth-config.js?v=20260914-timer-focus-v151c-safari"></script>
+          <script src="auth-gate.js?v=20260914-timer-focus-v151c-safari"></script>
+            <script defer src="exercise-timer-focus-v146.js?v=20260914-timer-focus-v151c-safari"></script>
+            <script defer src="exercise-timer-focus-v147.js?v=20260914-timer-focus-v151c-safari"></script>
+            <script defer src="exercise-timer-focus-v148.js?v=20260914-timer-focus-v151c-safari"></script>
+            <script defer src="exercise-timer-focus-v151.js?v=20260914-timer-focus-v151c-safari"></script>'''
+          new = f'''<script src="auth-config.js?v={version}"></script>
+          <script src="auth-gate.js?v={version}"></script>
+            <script defer src="exercise-timer-focus.js?v={version}"></script>'''
+          if old not in s:
+              raise SystemExit('expected timer script block not found in exercise.html')
+          p.write_text(s.replace(old,new,1))
+
+          # Parent asset cache keys.
+          for name in ['budget/auth-config.js','budget/auth-gate.js']:
+              p = Path(name)
+              s = p.read_text()
+              s2 = s.replace('20260914-timer-focus-v151c-safari', version)
+              if s2 == s:
+                  raise SystemExit(f'cache version not found in {name}')
+              p.write_text(s2)
+
+          # Canvas/glow loader: keep transition + persistence, but only one timer loader.
+          p = Path('budget/exercise-pulse-flow-canvas-glow-v131.js')
+          s = p.read_text()
+          start = s.index('  function loadTimerFocus() {')
+          end = s.index('\n  function install() {', start)
+          replacement = f'''  function loadTimerFocus() {{
+            if (document.querySelector('script[data-exercise-timer-focus-final]')) return;
+            if (window.__exerciseTimerFocusInstalled) return;
+            var script = document.createElement('script');
+            script.src = 'exercise-timer-focus.js?v={version}';
+            script.async = false;
+            script.setAttribute('data-exercise-timer-focus-final','true');
+            document.head.appendChild(script);
+          }}
+'''
+          s = s[:start] + replacement + s[end:]
+          s = s.replace('    loadTimerFocus();\n    loadTimerFocusFix();\n    loadTimerFocusPolish();', '    loadTimerFocus();')
+          p.write_text(s)
+          PY
+
+          # Remove every superseded timer-focus experiment.
+          git rm -f \
+            budget/exercise-timer-focus-v145.js \
+            budget/exercise-timer-focus-v146.js \
+            budget/exercise-timer-focus-v147.js \
+            budget/exercise-timer-focus-v148.js \
+            budget/exercise-timer-focus-v149.js \
+            budget/exercise-timer-focus-v150.js \
+            budget/exercise-timer-focus-v151.js
+
+          node --check budget/exercise-timer-focus.js
+          node --check budget/exercise-pulse-flow-canvas-glow-v131.js
+          grep -q 'exercise-timer-focus.js?v=20260914-timer-focus-final' budget/exercise.html
+          ! grep -q 'exercise-timer-focus-v1' budget/exercise.html
+          ! grep -q 'loadTimerFocusFix' budget/exercise-pulse-flow-canvas-glow-v131.js
+          ! grep -q 'loadTimerFocusPolish' budget/exercise-pulse-flow-canvas-glow-v131.js
+
+      - name: Commit consolidated timer focus
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/consolidate-exercise-timer-focus.yml
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js budget/exercise-timer-focus.js
+          git commit -m 'Consolidate cardio focus timer and add double tap'
+          git push
