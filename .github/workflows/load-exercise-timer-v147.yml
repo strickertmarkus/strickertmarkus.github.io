@@ -1,0 +1,53 @@
+name: Load exercise timer v147
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/load-exercise-timer-v147.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Load v147 directly and bust exercise caches
+        shell: python
+        run: |
+          from pathlib import Path
+
+          html = Path('budget/exercise.html')
+          s = html.read_text()
+          old = '<script defer src="exercise-timer-focus-v146.js?v=20260914-timer-focus-v146c"></script>'
+          new = '<script defer src="exercise-timer-focus-v146.js?v=20260914-timer-focus-v147-glow"></script>\n  <script defer src="exercise-timer-focus-v147.js?v=20260914-timer-focus-v147-glow"></script>'
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif 'exercise-timer-focus-v147.js' not in s:
+              marker = '<script src="firebase-sync.js"></script>'
+              s = s.replace(marker, '  <script defer src="exercise-timer-focus-v147.js?v=20260914-timer-focus-v147-glow"></script>\n  ' + marker, 1)
+          s = s.replace('20260914-timer-focus-v146c', '20260914-timer-focus-v147-glow')
+          html.write_text(s)
+
+          for name in ['budget/auth-config.js','budget/auth-gate.js']:
+              p = Path(name)
+              t = p.read_text().replace('20260914-timer-focus-v146c','20260914-timer-focus-v147-glow')
+              p.write_text(t)
+
+          loader = Path('budget/exercise-pulse-flow-canvas-glow-v131.js')
+          t = loader.read_text()
+          if 'data-exercise-timer-focus-v147' not in t:
+              needle = "  function install() {\n    installStyle();\n    loadTransitionStability();\n    loadSessionPersistence();\n    loadTimerFocus();\n    loadTimerFocusFix();\n  }"
+              replacement = "  function loadTimerFocusPolish() {\n    if (document.querySelector('script[data-exercise-timer-focus-v147]')) return;\n    var script = document.createElement('script');\n    script.src = 'exercise-timer-focus-v147.js?v=20260914-timer-focus-v147-glow';\n    script.async = false;\n    script.setAttribute('data-exercise-timer-focus-v147','true');\n    document.head.appendChild(script);\n  }\n\n  function install() {\n    installStyle();\n    loadTransitionStability();\n    loadSessionPersistence();\n    loadTimerFocus();\n    loadTimerFocusFix();\n    loadTimerFocusPolish();\n  }"
+              if needle in t:
+                  t = t.replace(needle,replacement,1)
+          loader.write_text(t)
+      - name: Commit v147 loader and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/load-exercise-timer-v147.yml
+          git add budget/exercise.html budget/auth-config.js budget/auth-gate.js budget/exercise-pulse-flow-canvas-glow-v131.js
+          git commit -m 'Force-load exercise timer glow polish'
+          git push
