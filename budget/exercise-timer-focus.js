@@ -198,7 +198,7 @@
 
       /* Focus background is the existing session modal. No ancestor is hidden:
          Safari can otherwise suppress the composited timer canvas. */
-      html.cardio-focus-active #session-modal.show {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) {
         z-index:2147483500!important;
         pointer-events:none!important;
         isolation:isolate!important;
@@ -207,32 +207,32 @@
           radial-gradient(circle at 50% 112%,rgba(127,29,29,.17),transparent 43%),
           linear-gradient(180deg,#16090C 0%,#10070A 48%,#09070A 100%)!important;
       }
-      html.cardio-focus-active #session-modal.show::before,
-      html.cardio-focus-active #session-modal.show::after {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode)::before,
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode)::after {
         content:none!important;
         display:none!important;
       }
-      html.cardio-focus-active #session-modal.show .session-shell {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-shell {
         visibility:visible!important;
         background:transparent!important;
         transform:none!important;
         filter:none!important;
         overflow:visible!important;
       }
-      html.cardio-focus-active #session-modal.show .session-top,
-      html.cardio-focus-active #session-modal.show .session-grid > .session-card:not(.session-main),
-      html.cardio-focus-active #session-modal.show .session-main > *:not(#session-cardio-countdown) {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-top,
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-grid > .session-card:not(.session-main),
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main > *:not(#session-cardio-countdown) {
         opacity:0!important;
         pointer-events:none!important;
       }
-      html.cardio-focus-active #session-modal.show .session-grid,
-      html.cardio-focus-active #session-modal.show .session-main {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-grid,
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) .session-main {
         overflow:visible!important;
         background:transparent!important;
         border-color:transparent!important;
         box-shadow:none!important;
       }
-      html.cardio-focus-active #session-modal.show #session-cardio-countdown.show {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show {
         opacity:1!important;
         visibility:visible!important;
         position:fixed!important;
@@ -248,12 +248,12 @@
         pointer-events:none!important;
         background:transparent!important;
       }
-      html.cardio-focus-active #session-modal.show #session-cardio-countdown.show * {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-cardio-countdown.show * {
         visibility:visible!important;
       }
 
       /* Native-size enlargement: no scale() and no duplicate timer. */
-      html.cardio-focus-active #session-modal.show #session-countdown-ring {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring {
         opacity:1!important;
         visibility:visible!important;
         display:grid!important;
@@ -277,35 +277,35 @@
         pointer-events:auto!important;
         will-change:auto!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .session-countdown-core {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-core {
         inset:44px!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .session-countdown-copy {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-copy {
         opacity:1!important;
         width:calc(100% - 128px)!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-value {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
         opacity:1!important;
         font-size:66px!important;
         line-height:1!important;
         letter-spacing:-2.4px!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .session-countdown-label {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-label {
         margin-top:12px!important;
         font-size:12px!important;
         letter-spacing:1.15px!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .pf-ecg-v80 {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .pf-ecg-v80 {
         opacity:1!important;
         width:104px!important;
         height:29px!important;
         margin-top:9px!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .cardio-inline-plus {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .cardio-inline-plus {
         margin-top:10px!important;
         font-size:14px!important;
       }
-      html.cardio-focus-active #session-modal.show #session-countdown-ring .cardio-inline-plus .plus-word {
+      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .cardio-inline-plus .plus-word {
         margin-left:6px!important;
         font-size:10px!important;
         letter-spacing:1px!important;
@@ -313,22 +313,22 @@
 
       @media(max-width:390px) {
         .cardio-focus-title { top:calc(59dvh - min(150px,40vw) - 88px);gap:10px; }
-        html.cardio-focus-active #session-modal.show #session-countdown-ring {
+        html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring {
           width:min(300px,80vw)!important;
           height:min(300px,80vw)!important;
           flex-basis:min(300px,80vw)!important;
           top:59dvh!important;
         }
-        html.cardio-focus-active #session-modal.show #session-countdown-ring .session-countdown-core {
+        html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-core {
           inset:41px!important;
         }
-        html.cardio-focus-active #session-modal.show #session-countdown-value {
+        html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
           font-size:61px!important;
         }
       }
       @media(max-height:700px) {
         .cardio-focus-title { top:calc(58dvh - min(150px,40vw) - 82px); }
-        html.cardio-focus-active #session-modal.show #session-countdown-ring { top:58dvh!important; }
+        html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring { top:58dvh!important; }
       }
     `;
     document.head.appendChild(style);
