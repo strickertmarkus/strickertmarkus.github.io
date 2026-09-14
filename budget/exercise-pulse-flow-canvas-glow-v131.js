@@ -89,12 +89,22 @@
     document.head.appendChild(script);
   }
 
+  function loadTimerFocusPolish() {
+    if (document.querySelector('script[data-exercise-timer-focus-v147]')) return;
+    var script = document.createElement('script');
+    script.src = 'exercise-timer-focus-v147.js?v=20260914-timer-focus-v147-glow';
+    script.async = false;
+    script.setAttribute('data-exercise-timer-focus-v147','true');
+    document.head.appendChild(script);
+  }
+
   function install() {
     installStyle();
     loadTransitionStability();
     loadSessionPersistence();
     loadTimerFocus();
     loadTimerFocusFix();
+    loadTimerFocusPolish();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
