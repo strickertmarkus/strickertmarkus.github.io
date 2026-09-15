@@ -94,6 +94,16 @@
         letter-spacing:.1px !important;
       }
 
+      /* Compact cardio timer optical centering. The settled small ring is visually
+         left-weighted by its arc endpoint, so keep the ring geometry untouched and
+         nudge only the time/ECG artwork. Focus and interactive drag remain unchanged. */
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-value {
+        transform:translateX(-3px) !important;
+      }
+      html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .pf-ecg-v80 {
+        transform:translateX(-10px) !important;
+      }
+
       /* Secondary copy and metrics. */
       html body #session-modal#session-modal#session-modal.show #session-subtitle,
       html body #session-modal#session-modal#session-modal.show #session-current-target,
