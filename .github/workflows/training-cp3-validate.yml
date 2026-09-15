@@ -1,0 +1,28 @@
+name: Training checkpoint 3 validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/exercise.html'
+      - 'budget/training-overview-mode.js'
+      - 'budget/pulse-environment/environment.js'
+      - 'budget/auth-config.js'
+      - 'budget/exercise-pulse-flow-canvas-glow-v131.js'
+      - 'budget/tests/training-shared-session.test.cjs'
+      - '.github/workflows/training-cp3-validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify single shared training runtime
+        run: node --test budget/tests/training-shared-session.test.cjs
