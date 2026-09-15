@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: '22'
       - name: Implement checkpoint 5
-        run: python3 .github/cp5_observatory_identity.py
+        run: |
+          python3 .github/cp5_fix.py
+          python3 .github/cp5_observatory_identity.py
       - name: Syntax and regression tests
         run: |
           node --check budget/pulse-environment/environment.js
@@ -41,7 +43,7 @@ jobs:
         run: |
           git config user.name "strickertmarkus"
           git config user.email "markus.strickert@sigmatechnology.com"
-          git rm .github/workflows/training-cp5-observatory-identity.yml .github/cp5_observatory_identity.py
+          git rm .github/workflows/training-cp5-observatory-identity.yml .github/cp5_observatory_identity.py .github/cp5_fix.py
           git add -A
           git commit -m "Implement Observatory checkpoint 5 identity and next action"
           git push origin HEAD:main
