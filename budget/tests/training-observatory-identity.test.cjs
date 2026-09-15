@@ -16,8 +16,9 @@ const authConfig = read('auth-config.js');
 const authGate = read('auth-gate.js');
 const starPath = 'M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z';
 
-test('one native Observatory star geometry owns kicker, sticky header identity and next cue', () => {
-  assert.equal((html.match(new RegExp(starPath, 'g')) || []).length, 3);
+test('one native Observatory star geometry owns kicker, sticky header identity, next cue and weekly orbit centre', () => {
+  assert.equal((html.match(new RegExp(starPath, 'g')) || []).length, 4);
+  assert.match(html, /week-orbit-center-symbol/);
   assert.match(html, /observatory-only observatory-brand-lockup[^>]*>PULSE[\s\S]*observatory-header-star/);
   assert.match(html, /observatory-kicker[^>]*><svg class="observatory-star-glyph"/);
   assert.match(html, /observatory-next-cue/);
