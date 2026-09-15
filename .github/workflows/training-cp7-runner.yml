@@ -19,7 +19,18 @@ jobs:
         with:
           node-version: 22
       - name: Implement CP7 semantic state hierarchy
-        run: python3 .github/cp7_migrate.py
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.github/cp7_migrate.py')
+          source = path.read_text()
+          old = "obs = replace_once(obs, metric_anchor, metric_state, 'metric and goal semantic styling')"
+          new = """if metric_anchor not in obs:\n    raise SystemExit('metric and goal semantic styling: desktop anchor missing')\nobs = obs.replace(metric_anchor, metric_state, 1)"""
+          if source.count(old) != 1:
+              raise SystemExit('CP7 metric migration patch did not match exactly once')
+          path.write_text(source.replace(old, new, 1))
+          PY
+          python3 .github/cp7_migrate.py
       - name: Syntax and training regression tests
         run: |
           node --check budget/pulse-environment/environment.js
