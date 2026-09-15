@@ -239,19 +239,26 @@ Goal: eliminate the current full-page navigation between `exercise.html` and `ze
 
 Current `training-zen-nav.js` is ordinary `<a href>` navigation. V1 target is a single wellness shell transition.
 
-- [ ] Do not implement this by iframe or by maintaining two hidden full documents.
-- [ ] Design a shared `wellness` shell/controller with explicit `training` and `zen` surfaces.
-- [ ] Keep Zen's data/storage model isolated from exercise data as it is today.
-- [ ] Extract/make Zen's main surface mountable without requiring a full page reload.
-- [ ] Lazy-load Zen-only heavy assets on first switch if this materially improves training startup.
-- [ ] Training overview remains mounted or can be restored without recomputing/reloading all training assets.
-- [ ] Use `document.startViewTransition()` where supported, with a CSS morph fallback matching Stretch ↔ Meditation language.
-- [ ] Preserve `?user=maja` / profile state through in-page switching.
-- [ ] Define behavior if a live workout or live Zen session is active; do not silently destroy active state.
-- [ ] Avoid duplicate headers/navigation after mounting Zen inside the shared shell.
-- [ ] Browser history/back behavior should be intentional even though there is no full document reload.
-- [ ] Reduced-motion fallback must remain immediate and usable.
-- [ ] Verify Zen's existing tests after extraction/mounting.
+- [x] Do not implement this by iframe or by maintaining two hidden full documents.
+- [x] Design a shared `wellness` shell/controller with explicit `training` and `zen` surfaces.
+- [x] Keep Zen's data/storage model isolated from exercise data as it is today.
+- [x] Extract/make Zen's main surface mountable without requiring a full page reload.
+- [x] Lazy-load Zen-only heavy assets on first switch if this materially improves training startup.
+- [x] Training overview remains mounted or can be restored without recomputing/reloading all training assets.
+- [x] Use `document.startViewTransition()` where supported, with a CSS morph fallback matching Stretch ↔ Meditation language.
+- [x] Preserve `?user=maja` / profile state through in-page switching.
+- [x] Define behavior if a live workout or live Zen session is active; do not silently destroy active state.
+- [x] Avoid duplicate headers/navigation after mounting Zen inside the shared shell.
+- [x] Browser history/back behavior should be intentional even though there is no full document reload.
+- [x] Reduced-motion fallback must remain immediate and usable.
+- [x] Verify Zen's existing tests after extraction/mounting.
+
+Implementation checkpoint: `training-zen-nav.js` is now the shared wellness-shell controller on the canonical `exercise.html` route. Training remains mounted; Zen is fetched from the existing `zen.html` source only on first use, its main/landscape/dialog surface is imported without the standalone Zen header, and only Zen-local CSS/JS assets are lazy-loaded. The shared training header owns the Training/Zen navigation plus Zen profile/settings tools, so the mounted surface does not create a second header. Live Training or live Zen sessions block a mode change with a non-destructive status message.
+
+History policy: `?wellness=zen` represents the Zen surface; Training is the canonical URL without that parameter. `history.pushState` is used for user switches and `popstate` restores the corresponding mounted surface. Existing query parameters, including `?user=maja` and overview selection, are preserved. The controller uses `document.startViewTransition()` where available and a CSS entrance morph otherwise; reduced-motion switches immediately.
+
+Verification: controller syntax, all `budget/tests/training-*.test.cjs` plus existing `budget/tests/zen*.test.cjs`, lazy Zen-only asset filtering, no iframe/second full-document mount, one shared header, active-session guards, profile/history preservation, current cache keys and `git diff --check`.
+
 
 **Checkpoint exit condition:** Training ↔ Zen feels like changing mode inside one application, not opening another page, while each domain retains one data/runtime owner.
 
