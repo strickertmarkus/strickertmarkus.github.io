@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "strickertmarkus"
           git config user.email "markus.strickert@sigmatechnology.com"
-          git rm .github/workflows/training-cp5-observatory-identity.yml .github/cp5_observatory_identity.py .github/cp5_fix.py
+          git rm -f .github/workflows/training-cp5-observatory-identity.yml .github/cp5_observatory_identity.py .github/cp5_fix.py
           git add -A
           git commit -m "Implement Observatory checkpoint 5 identity and next action"
           git push origin HEAD:main
