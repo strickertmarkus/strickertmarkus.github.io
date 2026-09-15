@@ -18,18 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run stored CP7 migration
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          source = Path('.github/workflows/training-cp7-state-hierarchy.yml').read_text()
-          marker = "          python3 - <<'PY'\n"
-          start = source.index(marker) + len(marker)
-          end = source.index("\n          PY", start)
-          raw = source[start:end]
-          code = '\n'.join(line[10:] if line.startswith('          ') else line for line in raw.splitlines())
-          exec(compile(code, 'cp7-migration.py', 'exec'))
-          PY
+      - name: Implement CP7 semantic state hierarchy
+        run: python3 .github/cp7_migrate.py
       - name: Syntax and training regression tests
         run: |
           node --check budget/pulse-environment/environment.js
@@ -42,11 +32,11 @@ jobs:
           ! grep -Eq 'week-day\.(is-selected|done|today|pending)::before' budget/training-week-orbit.css
           grep -q -- '--obs-achieved-glow:0 0 18px' budget/pulse-observatory/observatory.css
           grep -q '20260915-main-cp7-state-1' budget/exercise.html
-      - name: Commit CP7 and remove temporary workflows
+      - name: Commit CP7 and remove temporary migration files
         run: |
-          rm .github/workflows/training-cp7-state-hierarchy.yml .github/workflows/training-cp7-runner.yml
+          rm .github/workflows/training-cp7-state-hierarchy.yml .github/workflows/training-cp7-runner.yml .github/cp7_migrate.py
           git config user.name "strickertmarkus"
           git config user.email "markus.strickert@sigmatechnology.com"
-          git add budget .github/workflows/training-cp7-state-hierarchy.yml .github/workflows/training-cp7-runner.yml
+          git add budget .github/workflows/training-cp7-state-hierarchy.yml .github/workflows/training-cp7-runner.yml .github/cp7_migrate.py
           git commit -m "Unify Observatory semantic state hierarchy"
           git push origin HEAD:main
