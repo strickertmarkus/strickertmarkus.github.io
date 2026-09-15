@@ -1,0 +1,32 @@
+name: Training first paint v2
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/training-first-paint-v2.yml
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply patch
+        run: python3 budget/tools/training_first_paint_v1.py
+      - name: Validate
+        run: |
+          node --check budget/auth-config.js
+          node --check budget/auth-gate.js
+          grep -q 'exercise-first-paint-loading-v1' budget/auth-config.js
+          grep -q 'exercise:bundle-ready-v1' budget/auth-gate.js
+          grep -q '20260915-first-paint-v1' budget/exercise.html
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add budget/auth-config.js budget/auth-gate.js budget/exercise.html
+          git diff --cached --quiet || git commit -m 'Hide legacy exercise first paint until bundle ready'
+          git push
