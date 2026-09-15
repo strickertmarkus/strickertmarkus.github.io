@@ -225,6 +225,8 @@ Goal: adopt the successful Zen visual rule: attained/active states feel luminous
 
 Implementation checkpoint: `pulse-environment/environment.js` derives presentation-only semantic state from the canonical workout/goal DOM and existing truth (`done`, today/selected, progress width and metric values). `pulse-observatory/observatory.css` owns the four state token families. The collapsed week, metrics, Next Workout cue and goal accents consume those tokens, while `training-week-orbit.css` consumes the same variables instead of maintaining per-class glow constants. Pending changes decoration only; readable text opacity is not reduced.
 
+Visual refinement: `current`/cyan is reserved for active context (selected/today day and the planned Next Workout action). Partial goal/week progress stays `pending` until achieved, while accumulated completed activity uses `completed`; this keeps cyan intentional instead of appearing across unrelated progress values.
+
 Verification: Node syntax, all `budget/tests/training-*.test.cjs`, semantic state vocabulary and ownership, no new storage/data namespace, no legacy per-state orbit glow blocks, shared progress/marker tokens, bounded 12/14/18 px current/completed/achieved glow radii for dark mobile/OLED, current cache keys and `git diff --check`.
 
 **Checkpoint exit condition:** state is visually consistent across Observatory without labels or a second data/state owner.

@@ -61,7 +61,7 @@ test('CP5 cache keys force Safari to receive the retired-header ownership change
   assert.match(html, /auth-config\.js\?v=20260915-cp5-identity/);
   assert.match(html, /auth-gate\.js\?v=20260915-cp5-identity/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-1/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-2/);
   assert.match(authConfig, /exerciseFastVersion = '20260915-cp5-identity'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260915-cp5-identity'/);
 });

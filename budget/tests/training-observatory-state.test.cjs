@@ -26,6 +26,14 @@ test('semantic state maps existing truth without owning workout persistence', ()
   assert.doesNotMatch(environment, /localStorage\.setItem|firebase\.database\(\)\.ref/);
 });
 
+test('cyan current state is reserved for active context rather than partial progress', () => {
+  assert.doesNotMatch(environment, /value > 0\) return 'current'/);
+  assert.doesNotMatch(environment, /weekCount > 0 \? 'current'/);
+  assert.match(environment, /stat-duration'\), duration > 0 \? 'completed' : 'pending'/);
+  assert.match(environment, /is-selected'\) \|\| day\.classList\.contains\('today'\)[\s\S]*\? 'current'[\s\S]*day\.classList\.contains\('done'\)[\s\S]*\? 'completed'/);
+  assert.match(environment, /start, start\.dataset\.planState === 'planned' \? 'current' : 'pending'/);
+});
+
 test('pending dims decoration rather than readable text', () => {
   assert.match(observatoryCss, /--obs-pending-decoration:\.38/);
   assert.match(observatoryCss, /--obs-pending-glow:0 0 0 transparent/);
@@ -53,5 +61,5 @@ test('production cache-busts every modified CP7 presentation owner', () => {
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-state-1/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp7-state-1/);
   assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-1/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-2/);
 });

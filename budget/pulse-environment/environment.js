@@ -81,7 +81,6 @@
     if (!bar) return 'pending';
     const value = Number.parseFloat(String(bar.style.width || '0').replace('%', ''));
     if (Number.isFinite(value) && value >= 99.5) return 'goal-achieved';
-    if (Number.isFinite(value) && value > 0) return 'current';
     return 'pending';
   }
 
@@ -94,18 +93,18 @@
     const last = document.getElementById('last-d');
     const hasLast = !!(last && String(last.textContent || '').trim() && String(last.textContent).trim() !== '—');
 
-    setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-total'), total > 0 ? 'completed' : 'pending');
-    setObservatoryState(document.querySelector('.observatory-metrics .stat-duration'), duration > 0 ? 'current' : 'pending');
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-duration'), duration > 0 ? 'completed' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-last'), hasLast ? 'completed' : 'pending');
-    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');
+    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');
     setObservatoryState(document.getElementById('observatory-last'), hasLast ? 'completed' : 'pending');
 
     document.querySelectorAll('#week-grid .week-day').forEach(day => {
-      const state = day.classList.contains('done')
-        ? 'completed'
-        : (day.classList.contains('is-selected') || day.classList.contains('today'))
-          ? 'current'
+      const state = (day.classList.contains('is-selected') || day.classList.contains('today'))
+        ? 'current'
+        : day.classList.contains('done')
+          ? 'completed'
           : 'pending';
       setObservatoryState(day, state);
     });
