@@ -22,6 +22,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           def replace_once(text, old, new, label):
               count = text.count(old)
@@ -29,21 +30,15 @@ jobs:
                   raise SystemExit(f"{label}: expected 1 match, got {count}")
               return text.replace(old, new, 1)
 
+          def sub_once(text, pattern, replacement, label):
+              updated, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected 1 match, got {count}")
+              return updated
+
           env_path = Path('budget/pulse-environment/environment.js')
           env = env_path.read_text()
-          env = replace_once(env, """  function progressState(bar) {
-            if (!bar) return 'pending';
-            const value = Number.parseFloat(String(bar.style.width || '0').replace('%', ''));
-            if (Number.isFinite(value) && value >= 99.5) return 'goal-achieved';
-            if (Number.isFinite(value) && value > 0) return 'current';
-            return 'pending';
-          }
-          """, """  function progressState(bar) {
-            if (!bar) return 'pending';
-            const value = Number.parseFloat(String(bar.style.width || '0').replace('%', ''));
-            return Number.isFinite(value) && value >= 99.5 ? 'goal-achieved' : 'pending';
-          }
-          """, 'partial goal progress mapping')
+          env = sub_once(env, r"^\s*if \(Number\.isFinite\(value\) && value > 0\) return 'current';\n", '', 'partial goal progress mapping')
           env = replace_once(env,
             "    setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');",
             "    setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');",
@@ -56,17 +51,10 @@ jobs:
             "    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');",
             "    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');",
             'overview progress mapping')
-          env = replace_once(env, """      const state = day.classList.contains('done')
-                ? 'completed'
-                : (day.classList.contains('is-selected') || day.classList.contains('today'))
-                  ? 'current'
-                  : 'pending';
-          """, """      const state = (day.classList.contains('is-selected') || day.classList.contains('today'))
-                ? 'current'
-                : day.classList.contains('done')
-                  ? 'completed'
-                  : 'pending';
-          """, 'active day precedence')
+          env = sub_once(env,
+            r"      const state = day\.classList\.contains\('done'\)\n\s*\? 'completed'\n\s*: \(day\.classList\.contains\('is-selected'\) \|\| day\.classList\.contains\('today'\)\)\n\s*\? 'current'\n\s*: 'pending';",
+            "      const state = (day.classList.contains('is-selected') || day.classList.contains('today'))\n        ? 'current'\n        : day.classList.contains('done')\n          ? 'completed'\n          : 'pending';",
+            'active day precedence')
           env_path.write_text(env)
 
           html_path = Path('budget/exercise.html')
@@ -79,18 +67,17 @@ jobs:
 
           test_path = Path('budget/tests/training-observatory-state.test.cjs')
           test = test_path.read_text()
-          marker = """test('pending dims decoration rather than readable text', () => {
-          """
+          marker = "test('pending dims decoration rather than readable text', () => {\n"
           extra = """test('cyan current state is reserved for active context rather than partial progress', () => {
-            assert.doesNotMatch(environment, /value > 0\) return 'current'/);
-            assert.doesNotMatch(environment, /weekCount > 0 \? 'current'/);
-            assert.match(environment, /stat-duration'\), duration > 0 \? 'completed' : 'pending'/);
-            assert.match(environment, /is-selected'\) \|\| day\.classList\.contains\('today'\)[\s\S]*\? 'current'[\s\S]*day\.classList\.contains\('done'\)[\s\S]*\? 'completed'/);
-            assert.match(environment, /start, start\.dataset\.planState === 'planned' \? 'current' : 'pending'/);
+            assert.doesNotMatch(environment, /value > 0\\) return 'current'/);
+            assert.doesNotMatch(environment, /weekCount > 0 \\? 'current'/);
+            assert.match(environment, /stat-duration'\\), duration > 0 \\? 'completed' : 'pending'/);
+            assert.match(environment, /is-selected'\\) \\|\\| day\\.classList\\.contains\\('today'\\)[\\s\\S]*\\? 'current'[\\s\\S]*day\\.classList\\.contains\\('done'\\)[\\s\\S]*\\? 'completed'/);
+            assert.match(environment, /start, start\\.dataset\\.planState === 'planned' \\? 'current' : 'pending'/);
           });
 
-          """ + marker
-          test = replace_once(test, marker, extra, 'active cyan regression test')
+          """
+          test = replace_once(test, marker, extra + marker, 'active cyan regression test')
           test = replace_once(test,
             "assert.match(html, /pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-1/);",
             "assert.match(html, /pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-2/);",
