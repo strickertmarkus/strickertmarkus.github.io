@@ -1,6 +1,6 @@
 /* Observatory composition. Shared overview, records, log and editor materials live in environment.css. */
 #pulse-home .observatory-stage{display:grid;grid-template-columns:1fr 1.15fr;position:relative;isolation:isolate;min-height:540px;align-items:center;margin:0 0 35px}
-#pulse-home .observatory-stage::before{content:'';position:absolute;inset:-60px -7vw -35px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 66% 68%,#ffafbb22 0%,#ff446a24 12%,#a9194421 32%,transparent 66%);animation:observatoryAtmosphere 10s ease-in-out infinite}
+#pulse-home .observatory-stage::before{content:'';position:absolute;inset:-70px -10vw -150px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 68% 58% at 62% 55%,#ffafbb18 0%,#ff446a1b 18%,#a9194414 42%,transparent 76%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 8%,#000 70%,rgba(0,0,0,.7) 82%,rgba(0,0,0,.25) 92%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,#000 8%,#000 70%,rgba(0,0,0,.7) 82%,rgba(0,0,0,.25) 92%,transparent 100%);animation:observatoryAtmosphere 10s ease-in-out infinite}
 #pulse-home .observatory-heading{position:relative;z-index:2;padding:45px 0;pointer-events:none}
 #pulse-home .observatory-kicker{display:flex;align-items:center;gap:13px;font-size:10px;letter-spacing:2.6px;color:#c49eae}
 #pulse-home .observatory-kicker>span{font-size:28px;color:#ffd1dc;text-shadow:0 0 22px #ff628e}
@@ -68,10 +68,10 @@
 #pulse-home .observatory-week .wd-type{font-size:10px!important;font-weight:400!important;line-height:1.3;color:#b19aad!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pulse-home .observatory-week :is(.wd-week,.wd-status){display:none!important}
 #pulse-page.pulse-observatory #pulse-log-button{display:none!important}
-#pulse-home .observatory-stage[data-workout-kind="cardio"]::before{background:radial-gradient(ellipse at 66% 68%,#ffb9c52b 0%,#ff3f6d30 14%,#b51b4a23 38%,transparent 68%)}
+#pulse-home .observatory-stage[data-workout-kind="cardio"]::before{background:radial-gradient(ellipse 68% 58% at 62% 55%,#ffb9c51d 0%,#ff3f6d20 18%,#b51b4a15 42%,transparent 76%)}
 #pulse-home #reactor-core[data-workout-kind="cardio"] .observatory-action{border-color:#ffb3c878;background:linear-gradient(110deg,#ff3f6d3d,#fb789a1a);color:#ffe0e8}
 #pulse-home #reactor-core[data-workout-kind="cardio"] .observatory-action-ecg{stroke:#fff0f4}
-#pulse-home .observatory-stage[data-workout-kind="strength"]::before{background:radial-gradient(ellipse at 64% 68%,#ffb39d28 0%,#ff516f28 16%,#93183f20 40%,transparent 70%)}
+#pulse-home .observatory-stage[data-workout-kind="strength"]::before{background:radial-gradient(ellipse 68% 58% at 62% 55%,#ffb39d1b 0%,#ff516f1d 18%,#93183f14 42%,transparent 76%)}
 #pulse-home #reactor-core[data-workout-kind="strength"] .observatory-action{border-color:#ff9e9f70;background:linear-gradient(110deg,#f0526938,#ff9b7218)}
 #pulse-home .observatory-stage::before,#pulse-home .observatory-scene *,#pulse-home .observatory-action::before{animation-play-state:var(--pulse-scene-motion,running)}
 @keyframes observatoryHorizonSweep{from{stroke-dashoffset:100;opacity:.85}to{stroke-dashoffset:0;opacity:.85}}

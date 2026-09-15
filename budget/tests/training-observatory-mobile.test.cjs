@@ -69,15 +69,18 @@ test('Observatory metrics have no separator owner at base level', () => {
   assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border-left:/);
 });
 
-test('hero atmosphere is owned by the whole Observatory stage, not the pass field', () => {
+test('hero atmosphere is owned by the whole Observatory stage and fades before its paint box ends', () => {
   assert.match(css, /observatory-stage::before\{[^}]*radial-gradient/);
+  assert.match(css, /observatory-stage::before\{[^}]*inset:-70px -10vw -150px/);
+  assert.match(css, /observatory-stage::before\{[^}]*-webkit-mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
+  assert.match(css, /observatory-stage::before\{[^}]*mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
   assert.doesNotMatch(css, /observatory-scene::before\{/);
   assert.match(css, /observatory-stage\[data-workout-kind="cardio"\]::before/);
   assert.match(environment, /stage\.dataset\.workoutKind = kind/);
 });
 
-test('production page cache-busts the structural Observatory assets', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp4-structural-1/);
+test('production page cache-busts the current Observatory composition', () => {
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp4-glow-fade-1/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp4-structural-1/);
   assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp4-structural-1/);
 });
