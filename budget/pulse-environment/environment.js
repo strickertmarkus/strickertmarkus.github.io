@@ -5,7 +5,7 @@
   if (window.Chart) Chart.register({
     id: 'pulseOverviewTheme',
     beforeUpdate(chart) {
-      if (!chart.canvas.closest('#pulse-home')) return;
+      if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
       const palettes = { 'chart-bw':['#9ae0cb','#fbbd9f','#ff749b'], 'chart-sessions':['#ff648b','#c1acf0'] };
       const colors = palettes[chart.canvas.id] || ['#ff88aa','#c5aff2','#a6e0d4'];
       chart.data.datasets.forEach((dataset,index) => {
@@ -36,13 +36,23 @@
       });
     },
     beforeDatasetDraw(chart) {
-      if (!chart.canvas.closest('#pulse-home')) return;
+      if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
       chart.ctx.save(); chart.ctx.shadowColor='#fa5f8d55'; chart.ctx.shadowBlur=9;
     },
-    afterDatasetDraw(chart) { if (chart.canvas.closest('#pulse-home')) chart.ctx.restore(); }
+    afterDatasetDraw(chart) { if (pulseOverviewActive() && chart.canvas.closest('#pulse-home')) chart.ctx.restore(); }
   });
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function overviewMode() {
+    const explicit = document.documentElement.dataset.trainingOverview;
+    if (explicit) return explicit;
+    const theme = document.documentElement.dataset.trainingTheme;
+    if (theme === 'observatory' || (document.body && document.body.classList.contains('pulse-observatory'))) return 'observatory';
+    return 'reactor';
+  }
+
+  function pulseOverviewActive() { return overviewMode() !== 'compact'; }
   let selectedDate = '';
   let shownWeek = '';
   let hasPlan = false;
@@ -231,13 +241,14 @@
     let onScreen = true;
     const session = document.getElementById('session-modal');
     function syncMotion() {
-      const paused = document.hidden || !onScreen || session.classList.contains('show');
+      const paused = !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
       core.style.setProperty('--pulse-scene-motion', paused ? 'paused' : 'running');
       core.querySelectorAll('.reactor-orbiter,.reactor-atmosphere').forEach(el => { el.style.animationPlayState = paused ? 'paused' : 'running'; });
     }
     new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
     new MutationObserver(syncMotion).observe(session, { attributes: true, attributeFilter: ['class'] });
     document.addEventListener('visibilitychange', syncMotion);
+    window.addEventListener('training-overview-change', function () { syncReactor(); syncMotion(); });
     syncMotion();
   }
   if (document.readyState !== 'complete') document.addEventListener('DOMContentLoaded', install, { once: true });

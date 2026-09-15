@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" id="pulse-document" data-training-overview="observatory">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -460,6 +460,10 @@
       .ex-row{grid-template-columns:minmax(0,1fr) 62px 62px 68px 28px;}
       .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 84px 84px 28px;}
     }
+    /* Canonical overview modes share the same dashboard DOM. */
+    html[data-training-overview="observatory"] .compact-only,
+    html[data-training-overview="compact"] .observatory-only{display:none!important;}
+
     @media(max-width:430px){
       .log-table{table-layout:fixed;font-size:11px;}
       .log-table th,.log-table td{padding:8px 6px;}
@@ -488,15 +492,19 @@
 <script src="nav-menu-motion.js?v=20260831-nav-motion-v1"></script>
 <link rel="stylesheet" href="training-zen-nav.css?v=20260910">
 <script defer src="training-zen-nav.js?v=20260910"></script>
+<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260915-main-cp1">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260915-main-cp1">
+<script defer src="training-overview-mode.js?v=20260915-main-cp1"></script>
+<script defer src="pulse-environment/environment.js?v=20260915-main-cp1"></script>
 </head>
-<body>
+<body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
 <div class="bg-orb bg-orb-1"></div>
 <div class="bg-orb bg-orb-2"></div>
 
-  <header class="app-header">
+  <header class="app-header" id="pulse-header">
     <div class="brand">
-      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Träning</h1><p>Markus Strickert</p></div>
+      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'"><span class="compact-only">Träning</span><span class="observatory-only">PULSE<span class="pulse-brand-flow">FLOW</span></span></h1><p>Markus Strickert</p></div>
     </div>
     <div class="streak-badge"><span id="streak-count">0</span>&nbsp;<span style="font-size:11px;font-weight:500;opacity:.7">dagar</span></div>
     <div class="nav-dropdown-wrapper">
@@ -525,8 +533,50 @@
     </div>
   </header>
 
-  <main class="main-content">
-
+  <main class="main-content" id="pulse-home">
+<section class="observatory-stage observatory-only" aria-label="Pulse Observatory">
+  <div class="observatory-heading">
+    <span class="observatory-kicker"><span aria-hidden="true">✧</span> PULSE / OBSERVATORY</span>
+    <h2>Din träning.<br><em>I ett nytt ljus.</em></h2>
+    <nav class="observatory-jumps" aria-label="Träningsdata">
+      <button type="button" data-reactor-scroll="pulse-progress"><span aria-hidden="true">⌁</span> Framsteg</button>
+      <button type="button" data-reactor-scroll="pulse-records"><span aria-hidden="true">✧</span> Rekord</button>
+      <button type="button" data-reactor-scroll="pulse-log"><span aria-hidden="true">◌</span> Träningslogg</button>
+    </nav>
+  </div>
+  <div class="observatory-field" id="reactor-core">
+    <div class="observatory-scene" aria-hidden="true">
+      <div class="observatory-rays"></div>
+      <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" fill="none">
+        <defs>
+          <linearGradient id="observatory-edge"><stop stop-color="#fb4a72" stop-opacity="0"/><stop offset=".48" stop-color="#ffbdc8"/><stop offset="1" stop-color="#fb4a72" stop-opacity="0"/></linearGradient>
+          <path id="observatory-horizon-path" d="M-80 595 Q450 82 1000 595" pathLength="100"/>
+          <ellipse id="observatory-orbit-path" cx="530" cy="372" rx="350" ry="98" transform="rotate(-23 530 372)" pathLength="100"/>
+        </defs>
+        <use class="observatory-orbit" href="#observatory-orbit-path"/>
+        <use class="observatory-orbit-light" href="#observatory-orbit-path"/>
+        <ellipse class="observatory-orbit faint" cx="530" cy="372" rx="320" ry="160" transform="rotate(21 530 372)"/>
+        <use class="observatory-horizon" href="#observatory-horizon-path"/>
+        <use class="observatory-horizon-light" href="#observatory-horizon-path"/>
+        <path class="observatory-contour" d="M-80 620 Q450 170 1000 620M-80 658 Q450 250 1000 658"/>
+        <g class="observatory-stars"><circle cx="258" cy="170" r="2"/><circle cx="720" cy="200" r="2.5"/><circle cx="600" cy="105" r="1.5"/><circle cx="165" cy="349" r="2"/><circle cx="781" cy="418" r="2"/><path d="M524 179V193M517 186H531M679 288V300M673 294H685"/></g>
+      </svg>
+    </div>
+    <div class="observatory-next">
+      <span class="observatory-next-label">NÄSTA PASS <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
+      <button type="button" class="observatory-start" id="reactor-start" disabled>
+        <span id="reactor-date">DITT PASS</span>
+        <strong id="reactor-title">Laddar pass</strong>
+        <span id="reactor-summary"></span>
+        <span class="observatory-action"><svg class="observatory-action-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
+        <span class="observatory-progress" id="observatory-progress" aria-live="polite"></span>
+        <span class="observatory-last" id="observatory-last" aria-live="polite"></span>
+      </button>
+      <button class="observatory-configure" id="reactor-configure" type="button" hidden>Redigera upplägg <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></button>
+    </div>
+  </div>
+</section>
+<section class="observatory-metrics" aria-label="Träningsöversikt">
     <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
@@ -534,7 +584,8 @@
       <div class="stat-card stat-duration fade-in"><div class="stat-label">Tid vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
       <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
     </div>
-
+    </section>
+<section class="observatory-week" id="pulse-week">
     <!-- WEEKLY PLAN -->
     <div class="section-hdr fade-in"><h2>Veckoplan</h2><div style="display:flex;gap:8px"><button class="btn-sm" onclick="openPlanModal()">Redigera</button><button class="btn-sm" onclick="openTemplateModal()">Mallpass</button></div></div>
     <div class="week-toolbar fade-in">
@@ -546,12 +597,15 @@
         </div>
         <button type="button" class="week-nav-btn" onclick="shiftViewedWeek(1)" aria-label="Nästa vecka">›</button>
       </div>
-      <button type="button" class="btn-sm" onclick="goToCurrentWeek()">Denna vecka</button>
+      <div class="observatory-week-actions">
+        <button type="button" class="btn-sm" onclick="goToCurrentWeek()">Denna vecka</button>
+      </div>
     </div>
-    <div class="week-grid fade-in" id="week-grid"></div>
+    <div class="week-grid fade-in" id="week-grid" aria-label="Välj dag i veckoplanen"></div>
+</section>
 
-    <hr class="rule">
-
+    <hr class="rule compact-only">
+<section class="pulse-section pulse-goals" id="pulse-goals">
     <!-- GOALS -->
     <div class="section-hdr fade-in"><h2>Mål</h2><button class="btn-sm" onclick="saveGoals()">Spara mål</button></div>
     <div class="goals-grid fade-in">
@@ -608,8 +662,9 @@
       </div>
     </div>
 
-    <hr class="rule">
-
+    </section>
+    <hr class="rule compact-only">
+<section class="pulse-section pulse-progress" id="pulse-progress">
     <!-- CHARTS -->
     <div class="section-hdr fade-in"><h2>Framsteg</h2></div>
     <div class="charts-row fade-in">
@@ -625,14 +680,16 @@
       </div>
     </div>
 
-    <hr class="rule">
-
+    </section>
+    <hr class="rule compact-only">
+<section class="pulse-section pulse-records" id="pulse-records">
     <!-- PRs -->
     <div class="section-hdr fade-in"><h2>Personliga rekord</h2><button class="btn-sm" onclick="openPRModal()">Nytt PR</button></div>
     <div class="pr-grid fade-in" id="pr-grid"></div>
 
-    <hr class="rule">
-
+    </section>
+    <hr class="rule compact-only">
+<section class="pulse-section pulse-log" id="pulse-log">
     <!-- LOG -->
     <div class="section-hdr fade-in"><h2>Träningslog</h2></div>
     <div class="log-wrap fade-in">
@@ -643,13 +700,14 @@
       <div class="empty-state" id="log-empty"><div class="empty-icon">TR</div><p>Inga loggade pass ännu.<br>Tryck + för att logga ditt första träningspass.</p></div>
     </div>
 
+  </section>
   </main>
 </div>
 
-<button class="fab" onclick="openWorkoutModal()" title="Logga träning">+</button>
+<button class="fab" id="pulse-log-button" onclick="openWorkoutModal()" title="Logga träning">+</button>
 
 <!-- ── WORKOUT MODAL ── -->
-<div class="modal-overlay" id="wk-modal">
+<div class="modal-overlay pulse-editor" id="wk-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('wk-modal')">✕</button>
     <h2>Logga träning</h2>
@@ -691,7 +749,7 @@
 </div>
 
 <!-- ── TEMPLATE MODAL ── -->
-<div class="modal-overlay" id="template-modal">
+<div class="modal-overlay pulse-editor" id="template-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('template-modal')">✕</button>
     <h2>Mallpass</h2>
@@ -734,7 +792,7 @@
 </div>
 
 <!-- ── WEEK TEMPLATE EDITOR MODAL ── -->
-<div class="modal-overlay" id="week-template-modal">
+<div class="modal-overlay pulse-editor" id="week-template-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('week-template-modal')">✕</button>
     <h2>Skapa veckomall</h2>
@@ -767,7 +825,7 @@
 </div>
 
 <!-- ── PLAN MODAL ── -->
-<div class="modal-overlay" id="plan-modal">
+<div class="modal-overlay pulse-editor" id="plan-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('plan-modal')">✕</button>
     <h2>Veckoplan</h2>
@@ -794,7 +852,7 @@
 </div>
 
 <!-- ── DAY CONFIG MODAL ── -->
-<div class="modal-overlay" id="day-modal">
+<div class="modal-overlay pulse-editor" id="day-modal">
   <div class="modal" style="max-width:340px">
     <button class="modal-close" onclick="closeModal('day-modal')">✕</button>
     <h2 id="day-modal-title">Måndag</h2>
@@ -812,7 +870,7 @@
 </div>
 
 <!-- ── DAY WORKOUT BUILDER ── -->
-<div class="modal-overlay" id="day-workout-modal">
+<div class="modal-overlay pulse-editor" id="day-workout-modal">
   <div class="modal" style="max-width:620px">
     <button class="modal-close" onclick="closeModal('day-workout-modal')">✕</button>
     <h2 id="day-workout-title">Passupplägg</h2>
@@ -895,7 +953,7 @@
 <datalist id="type-suggestions"></datalist>
 
 <!-- ── PR MODAL ── -->
-<div class="modal-overlay" id="pr-modal">
+<div class="modal-overlay pulse-editor" id="pr-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('pr-modal')">✕</button>
     <h2>Uppdatera PR</h2>

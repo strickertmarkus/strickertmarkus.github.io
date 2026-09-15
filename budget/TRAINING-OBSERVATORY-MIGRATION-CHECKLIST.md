@@ -53,7 +53,7 @@ The Observatory/Compact choice should default to Observatory. Persistence of a u
 - [x] Confirm Reactor's seven orbit nodes represent the real weekly plan and can be used as an interaction reference.
 - [x] Record migration baseline commit: `dca8b945e0cdf18e46e35c68fbd241d1f0318ccd`.
 - [x] Keep `TRAINING-RELEASE-V1-PLAN.md` unchanged as the long-term consolidation plan.
-- [ ] Before the first implementation checkpoint, create/record a dedicated pre-migration checkpoint commit/tag if useful.
+- [x] Before the first implementation checkpoint, create/record a dedicated pre-migration checkpoint branch: `checkpoint/training-observatory-pre-migration-2026-09-15` -> `32d725f4fe201c3f53a080a980267a4ed8abe6d6`.
 - [ ] At the start of every later checkpoint, re-read this file and root `AGENTS.md` and inspect current `main` before editing.
 
 ### Baseline references
@@ -73,19 +73,21 @@ The Observatory/Compact choice should default to Observatory. Persistence of a u
 
 Goal: establish the structure before visual polishing. No duplicated dashboard/runtime.
 
-- [ ] Audit which Observatory elements are genuinely unique presentation and which are duplicates of existing `exercise.html` stats/week/graphs/logs.
-- [ ] Define one canonical set of IDs/data nodes for stats, weekly plan, charts, goals, records and log.
-- [ ] Promote Observatory's overview composition into `budget/exercise.html` as the default presentation.
-- [ ] Keep the existing Compact overview available in the **same document**.
-- [ ] Avoid two complete dashboard DOM trees where the same data is rendered twice.
-- [ ] Prefer one set of shared sections whose placement/material changes by `data-training-overview`.
-- [ ] If Observatory-only hero/decorative nodes are needed, keep them presentation-only and never give them data ownership.
-- [ ] Remove/retire duplicated preview-specific runtime code as soon as equivalent ownership is established on the main route.
-- [ ] Verify Markus/Maja profile selection still addresses the same stored data.
-- [ ] Verify no extra Firebase/storage namespace is introduced.
-- [ ] Verify no new periodic polling/render owner is introduced.
+- [x] Audit which Observatory elements are genuinely unique presentation and which are duplicates of existing `exercise.html` stats/week/graphs/logs.
+- [x] Define one canonical set of IDs/data nodes for stats, weekly plan, charts, goals, records and log.
+- [x] Promote Observatory's overview composition into `budget/exercise.html` as the default presentation.
+- [x] Keep the existing Compact overview available in the **same document**.
+- [x] Avoid two complete dashboard DOM trees where the same data is rendered twice.
+- [x] Prefer one set of shared sections whose placement/material changes by `data-training-overview`.
+- [x] If Observatory-only hero/decorative nodes are needed, keep them presentation-only and never give them data ownership.
+- [x] Remove/retire duplicated preview-specific runtime code as soon as equivalent ownership is established on the main route.
+- [x] Verify Markus/Maja profile selection still addresses the same stored data.
+- [x] Verify no extra Firebase/storage namespace is introduced.
+- [x] Verify no new periodic polling/render owner is introduced.
 
 **Checkpoint exit condition:** `exercise.html` can render Observatory as default and Compact as an alternate state without loading two independent copies of the training dashboard logic.
+
+Implementation checkpoint: Observatory is default via `data-training-overview="observatory"`; `?overview=compact` and `window.setTrainingOverviewMode('compact')` exercise the same DOM in Compact mode. The visible mode toggle/morph intentionally belongs to Checkpoint 2. No Observatory/Reactor `training.js` or training stylesheet is loaded on the production route.
 
 ---
 
