@@ -1,0 +1,41 @@
+name: Bump compact timer center cache
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bump-compact-timer-center-cache.yml'
+permissions:
+  contents: write
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump exercise cache keys
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          old = '20260914-session-typography-v2-all'
+          new = '20260915-compact-timer-center-v1'
+          for name in ['budget/auth-gate.js','budget/auth-config.js','budget/exercise.html']:
+              p = Path(name)
+              s = p.read_text()
+              if old not in s:
+                  raise SystemExit(f'missing old cache key in {name}')
+              p.write_text(s.replace(old,new))
+          PY
+      - name: Validate
+        run: |
+          node --check budget/exercise-session-typography.js
+          node --check budget/auth-gate.js
+          node --check budget/auth-config.js
+          grep -q '20260915-compact-timer-center-v1' budget/exercise.html
+      - name: Commit cache bump
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add budget/auth-gate.js budget/auth-config.js budget/exercise.html
+          git diff --cached --quiet || git commit -m 'Bust cache for compact timer centering'
+          git push
