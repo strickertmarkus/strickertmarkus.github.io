@@ -50,7 +50,7 @@ test('overview-mode controller is presentation-only and cannot own live session 
   assert.doesNotMatch(overview, /startWorkoutSessionForDate/);
   assert.doesNotMatch(overview, /session-modal/);
   assertContainsAll(overview, [
-    "data.trainingOverviewSwitch = 'true'",
+    "shell.dataset.trainingOverviewSwitch = 'true'",
     'setVisibility(mode)',
     'setAssetState(mode)'
   ], 'overview controller');
