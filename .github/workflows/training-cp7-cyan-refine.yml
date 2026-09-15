@@ -76,8 +76,8 @@ jobs:
             'environment cache key')
           html_path.write_text(html)
 
-          test_path = Path('budget/tests/training-observatory-state.test.cjs')
-          test = test_path.read_text()
+          state_test_path = Path('budget/tests/training-observatory-state.test.cjs')
+          state_test = state_test_path.read_text()
           marker = "test('pending dims decoration rather than readable text', () => {\n"
           extra = """test('cyan current state is reserved for active context rather than partial progress', () => {
             assert.doesNotMatch(environment, /value > 0\\) return 'current'/);
@@ -88,12 +88,21 @@ jobs:
           });
 
           """
-          test = replace_once(test, marker, extra + marker, 'active cyan regression test')
-          test = replace_once(test,
-            "assert.match(html, /pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-1/);",
-            "assert.match(html, /pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-2/);",
-            'environment cache test')
-          test_path.write_text(test)
+          state_test = replace_once(state_test, marker, extra + marker, 'active cyan regression test')
+          state_test_path.write_text(state_test)
+
+          cache_pattern = "pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-1"
+          cache_replacement = "pulse-environment\\/environment\\.js\\?v=20260915-main-cp7-state-2"
+          cache_updates = 0
+          for test_path in Path('budget/tests').glob('training-*.test.cjs'):
+              test = test_path.read_text()
+              if cache_pattern not in test:
+                  continue
+              count = test.count(cache_pattern)
+              test_path.write_text(test.replace(cache_pattern, cache_replacement))
+              cache_updates += count
+          if cache_updates != 3:
+              raise SystemExit(f'environment cache tests: expected 3 replacements, got {cache_updates}')
 
           checklist_path = Path('budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md')
           checklist = checklist_path.read_text()
@@ -119,6 +128,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/training-cp7-cyan-refine.yml
-          git add budget/pulse-environment/environment.js budget/exercise.html budget/tests/training-observatory-state.test.cjs budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git add budget/pulse-environment/environment.js budget/exercise.html budget/tests/training-observatory-state.test.cjs budget/tests/training-observatory-mobile.test.cjs budget/tests/training-observatory-identity.test.cjs budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
           git commit -m "Refine Observatory active cyan hierarchy"
           git push origin HEAD:main
