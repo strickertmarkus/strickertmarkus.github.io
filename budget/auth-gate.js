@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260915-first-paint-v1';
+  var exerciseAssetsVersion = '20260915-loader-v2';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -164,7 +164,12 @@
   }
 
   if (isExercisePage) {
-    var exerciseScripts = [
+    var exerciseManifestV2 = Array.isArray(window.__exerciseAssetManifestV2) && window.__exerciseAssetManifestV2.length
+      ? window.__exerciseAssetManifestV2
+      : null;
+    var exerciseScripts = exerciseManifestV2
+      ? exerciseManifestV2.map(function (item) { return [item.src,item.attr]; })
+      : [
       ['exercise-points-8-9.js', 'data-exercise-points-8-9'],
       ['exercise-heart-rate-range.js', 'data-exercise-heart-rate-range'],
       ['exercise-session-enhancements.js', 'data-exercise-session-enhancements'],
@@ -196,6 +201,11 @@
 
     (function loadExerciseAt(index) {
       if (index >= exerciseScripts.length) {
+        if (window.__exerciseLoaderMetricsV2) {
+          window.__exerciseLoaderMetricsV2.bundleReadyAt = (window.performance && performance.now) ? performance.now() : Date.now();
+          window.__exerciseLoaderMetricsV2.bundleMs = Math.round(window.__exerciseLoaderMetricsV2.bundleReadyAt - window.__exerciseLoaderMetricsV2.preloadStartedAt);
+          window.__exerciseLoaderMetricsV2.executionCount = exerciseScripts.length;
+        }
         window.__exerciseBundleReadyV1 = true;
         try {
           document.dispatchEvent(new CustomEvent('exercise:bundle-ready-v1', {detail:{count:exerciseScripts.length}}));
