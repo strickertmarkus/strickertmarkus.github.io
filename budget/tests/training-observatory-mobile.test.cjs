@@ -23,6 +23,7 @@ test('mobile Observatory summary is one four-column row', () => {
   assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important;gap:0!important/);
   assert.doesNotMatch(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2/);
   assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*min-width:0!important;[^}]*overflow:hidden!important/);
+  assert.doesNotMatch(mobile, /observatory-metrics \.stat-card\{[^}]*border-left:/);
   assert.match(mobile, /observatory-metrics \.stat-val\{[^}]*white-space:nowrap/);
 });
 
