@@ -7,9 +7,9 @@
   var MODES = { observatory:true, compact:true };
   var styleIds = ['training-observatory-environment','training-observatory-composition'];
   var CONTROL_STYLE_ID = 'training-overview-mode-style';
-  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260915-main-cp2';
-  var activeViewTransition = null;
-  var fallbackAnimation = null;
+  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260915-main-cp2-feedback1';
+  var activeAnimations = [];
+  var switchToken = 0;
 
   function resolveMode(value) {
     value = String(value || '').toLowerCase();
@@ -38,22 +38,10 @@
 
   var controlStyle = ensureControlStyles();
 
-  function compactIcon() {
-    return '<span class="training-overview-option-icon training-overview-option-icon--compact" aria-hidden="true">'
-      + '<svg viewBox="0 0 24 24"><path d="M12 3.1 20.9 12 12 20.9 3.1 12Z"/></svg></span>';
-  }
-
-  function observatoryIcon() {
-    // Normalised from the cross-shaped Observatory stars already used in the scene SVG.
-    return '<span class="training-overview-option-icon training-overview-option-icon--observatory" aria-hidden="true">'
-      + '<svg viewBox="0 0 24 24"><path d="M12 3V21M3 12H21"/></svg></span>';
-  }
-
-  function optionMarkup(mode, label, shortLabel, icon) {
+  function optionMarkup(mode, label, symbol) {
     return '<button class="training-overview-option" type="button" data-overview-mode="' + mode + '" aria-pressed="false" aria-label="' + label + '">'
-      + icon
-      + '<span class="training-overview-option-label-full">' + label + '</span>'
-      + '<span class="training-overview-option-label-short">' + shortLabel + '</span>'
+      + '<span class="training-overview-option-icon" aria-hidden="true">' + symbol + '</span>'
+      + '<span>' + label + '</span>'
       + '</button>';
   }
 
@@ -61,19 +49,19 @@
     var existing = document.querySelector('[data-training-overview-switch]');
     if (existing) return existing;
 
-    var header = document.getElementById('pulse-header') || document.querySelector('.app-header');
-    if (!header || !header.parentNode) return null;
+    var root = document.getElementById('pulse-home') || document.querySelector('.main-content');
+    if (!root) return null;
 
     var shell = document.createElement('div');
     shell.className = 'training-overview-switch-shell';
     shell.hidden = true;
     shell.dataset.trainingOverviewSwitch = 'true';
-    shell.innerHTML = '<div class="training-overview-switch" role="group" aria-label="Översiktsläge">'
-      + optionMarkup('compact', 'Compact', 'Compact', compactIcon())
-      + optionMarkup('observatory', 'Pulse Observatory', 'Observatory', observatoryIcon())
-      + '</div>';
+    shell.innerHTML = '<nav class="training-overview-switch" aria-label="Välj träningsöversikt">'
+      + optionMarkup('compact', 'Compact', '◆')
+      + optionMarkup('observatory', 'Pulse Observatory', '✧')
+      + '</nav>';
 
-    header.insertAdjacentElement('afterend', shell);
+    root.insertBefore(shell, root.firstChild);
 
     shell.addEventListener('click', function (event) {
       var button = event.target.closest('[data-overview-mode]');
@@ -92,9 +80,7 @@
 
   function updateControl(mode) {
     document.querySelectorAll('[data-training-overview-switch] [data-overview-mode]').forEach(function (button) {
-      var selected = button.dataset.overviewMode === mode;
-      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-      button.tabIndex = selected ? 0 : 0;
+      button.setAttribute('aria-pressed', button.dataset.overviewMode === mode ? 'true' : 'false');
     });
   }
 
@@ -115,46 +101,15 @@
     });
   }
 
-  function sharedScrollCandidates() {
-    var root = document.getElementById('pulse-home') || document.querySelector('.main-content');
-    if (!root) return [];
-    return Array.prototype.slice.call(root.querySelectorAll('.stats-row,#week-grid,.goals-grid,.charts-grid,#log-body,.section-hdr,[data-training-shared]')).filter(function (node) {
-      return !node.closest('.observatory-only,.compact-only') && node.getClientRects().length;
+  function renderChartsSoon() {
+    if (typeof window.renderCharts !== 'function') return;
+    requestAnimationFrame(function () {
+      try { window.renderCharts(); } catch (_) {}
     });
-  }
-
-  function captureScrollAnchor() {
-    var header = document.getElementById('pulse-header') || document.querySelector('.app-header');
-    var topEdge = header ? Math.max(0, header.getBoundingClientRect().bottom + 8) : 8;
-    var candidates = sharedScrollCandidates();
-    var best = null;
-    var bestDistance = Infinity;
-
-    candidates.forEach(function (node) {
-      var rect = node.getBoundingClientRect();
-      if (rect.bottom <= topEdge || rect.top >= window.innerHeight) return;
-      var distance = Math.abs(rect.top - topEdge);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        best = { node:node, top:rect.top, scrollY:window.scrollY };
-      }
-    });
-
-    return best || { node:null, top:0, scrollY:window.scrollY };
-  }
-
-  function restoreScrollAnchor(anchor) {
-    if (!anchor) return;
-    if (anchor.node && anchor.node.isConnected && anchor.node.getClientRects().length) {
-      var nextTop = anchor.node.getBoundingClientRect().top;
-      var delta = nextTop - anchor.top;
-      if (Math.abs(delta) > 0.5) window.scrollBy(0, delta);
-      return;
-    }
-    if (Math.abs(window.scrollY - anchor.scrollY) > 0.5) window.scrollTo(0, anchor.scrollY);
   }
 
   function applyMode(value, options) {
+    options = options || {};
     var mode = resolveMode(value);
     var previous = currentMode();
     document.documentElement.dataset.trainingOverview = mode;
@@ -163,74 +118,107 @@
     setVisibility(mode);
     updateControl(mode);
 
-    if (!options || !options.silent) {
+    if (!options.silent) {
       window.dispatchEvent(new CustomEvent('training-overview-change', {
         detail:{ mode:mode, previous:previous }
       }));
-      // Charts remain the original chart instances/data owner. This only reapplies active presentation.
-      if (typeof window.renderCharts === 'function') {
-        requestAnimationFrame(function () { try { window.renderCharts(); } catch (_) {} });
-      }
+      if (!options.deferCharts) renderChartsSoon();
     }
     return mode;
   }
 
-  function animateFallback(surface) {
-    if (!surface || typeof surface.animate !== 'function') return;
-    if (fallbackAnimation) {
-      try { fallbackAnimation.cancel(); } catch (_) {}
-    }
-    fallbackAnimation = surface.animate([
-      { opacity:.5, transform:'translateY(-3px) scale(.996)' },
-      { opacity:1, transform:'translateY(0) scale(1)' }
-    ], {
-      duration:420,
-      easing:'cubic-bezier(.16,1,.3,1)'
+  function cancelAnimations() {
+    activeAnimations.forEach(function (animation) {
+      try { animation.cancel(); } catch (_) {}
     });
-    fallbackAnimation.finished.catch(function () {}).then(function () {
-      fallbackAnimation = null;
+    activeAnimations = [];
+  }
+
+  function visibleContent(root) {
+    if (!root) return [];
+    var viewportTop = -80;
+    var viewportBottom = window.innerHeight + 120;
+    return Array.prototype.slice.call(root.children).filter(function (node) {
+      if (node.matches('[data-training-overview-switch]') || node.hidden || !node.getClientRects().length) return false;
+      var rect = node.getBoundingClientRect();
+      return rect.bottom > viewportTop && rect.top < viewportBottom;
     });
   }
 
-  function setModeWithTransition(value, options) {
+  function animateNodes(nodes, keyframes, options) {
+    if (!nodes.length || typeof nodes[0].animate !== 'function') return Promise.resolve();
+    var animations = nodes.map(function (node) { return node.animate(keyframes, options); });
+    activeAnimations = animations;
+    return Promise.all(animations.map(function (animation) {
+      return animation.finished.catch(function () {});
+    }));
+  }
+
+  function commitAtSameScroll(mode, options) {
+    var x = window.scrollX;
+    var y = window.scrollY;
+    var html = document.documentElement;
+    var previousBehavior = html.style.scrollBehavior;
+    var previousAnchor = html.style.overflowAnchor;
+
+    html.style.scrollBehavior = 'auto';
+    html.style.overflowAnchor = 'none';
+    applyMode(mode, options);
+    window.scrollTo(x, y);
+
+    requestAnimationFrame(function () {
+      window.scrollTo(x, y);
+      requestAnimationFrame(function () {
+        html.style.scrollBehavior = previousBehavior;
+        html.style.overflowAnchor = previousAnchor;
+      });
+    });
+  }
+
+  function setModeWithTransition(value) {
     var mode = resolveMode(value);
-    var previous = currentMode();
-    if (mode === previous) {
+    if (mode === currentMode()) {
       updateControl(mode);
       return mode;
     }
 
-    var anchor = captureScrollAnchor();
-    var update = function () {
-      applyMode(mode, options);
-      restoreScrollAnchor(anchor);
-    };
+    var token = ++switchToken;
+    var root = document.getElementById('pulse-home') || document.querySelector('.main-content');
+    cancelAnimations();
 
-    if (prefersReducedMotion()) {
-      update();
+    if (prefersReducedMotion() || !root || typeof Element.prototype.animate !== 'function') {
+      commitAtSameScroll(mode);
       return mode;
     }
 
-    if (typeof document.startViewTransition === 'function') {
-      if (activeViewTransition && typeof activeViewTransition.skipTransition === 'function') {
-        try { activeViewTransition.skipTransition(); } catch (_) {}
-      }
-      activeViewTransition = document.startViewTransition(update);
-      var thisTransition = activeViewTransition;
-      thisTransition.finished.catch(function () {}).then(function () {
-        if (activeViewTransition === thisTransition) activeViewTransition = null;
+    var outgoing = visibleContent(root);
+    animateNodes(outgoing, [
+      {opacity:1, transform:'translate3d(0,0,0)'},
+      {opacity:.58, transform:'translate3d(0,2px,0)'}
+    ], {duration:90, easing:'ease-out', fill:'both'}).then(function () {
+      if (token !== switchToken) return;
+      cancelAnimations();
+      commitAtSameScroll(mode, {deferCharts:true});
+
+      requestAnimationFrame(function () {
+        if (token !== switchToken) return;
+        var incoming = visibleContent(root);
+        animateNodes(incoming, [
+          {opacity:.52, transform:'translate3d(0,-3px,0)'},
+          {opacity:1, transform:'translate3d(0,0,0)'}
+        ], {duration:230, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).then(function () {
+          if (token !== switchToken) return;
+          cancelAnimations();
+          renderChartsSoon();
+        });
       });
-      return mode;
-    }
+    });
 
-    update();
-    animateFallback(document.getElementById('pulse-home') || document.querySelector('.main-content'));
     return mode;
   }
 
   function initialMode() {
     var requested = new URLSearchParams(window.location.search).get('overview');
-    // Checkpoint 2 deliberately does not persist manual Compact selection; Observatory remains default.
     return requested === 'compact' ? 'compact' : 'observatory';
   }
 
