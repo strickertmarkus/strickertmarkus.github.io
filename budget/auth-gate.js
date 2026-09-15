@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260915-compact-timer-center-v1';
+  var exerciseAssetsVersion = '20260915-first-paint-v1';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -195,7 +195,19 @@
     ];
 
     (function loadExerciseAt(index) {
-      if (index >= exerciseScripts.length) return;
+      if (index >= exerciseScripts.length) {
+        window.__exerciseBundleReadyV1 = true;
+        try {
+          document.dispatchEvent(new CustomEvent('exercise:bundle-ready-v1', {detail:{count:exerciseScripts.length}}));
+        } catch (_) {
+          try {
+            var readyEvent = document.createEvent('Event');
+            readyEvent.initEvent('exercise:bundle-ready-v1', true, false);
+            document.dispatchEvent(readyEvent);
+          } catch (_) {}
+        }
+        return;
+      }
       var item = exerciseScripts[index];
       loadScriptOnce(item[0], item[1], function () { loadExerciseAt(index + 1); });
     })(0);

@@ -62,8 +62,27 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   var isExercise = (path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html')) && !isNestedExerciseShell;
   if (!isExercise) return;
 
+  /* First-paint gate v1: exercise.html still contains the legacy dashboard as
+     its base markup. Keep that markup out of the visible first paint until the
+     normal exercise bundle has loaded and the DOM rearrangement pass has run. */
+  var exerciseFirstPaintRootV1 = document.documentElement;
+  exerciseFirstPaintRootV1.classList.add('exercise-first-paint-loading-v1');
+  if (!document.getElementById('exercise-first-paint-critical-v1')) {
+    var firstPaintStyleV1 = document.createElement('style');
+    firstPaintStyleV1.id = 'exercise-first-paint-critical-v1';
+    firstPaintStyleV1.textContent =
+      'html.exercise-first-paint-loading-v1,html.exercise-first-paint-loading-v1 body{background:#080D14!important}' +
+      'html.exercise-first-paint-loading-v1 body .app-wrap,html.exercise-first-paint-loading-v1 body>.fab{visibility:hidden!important;opacity:0!important;pointer-events:none!important}' +
+      'html.exercise-first-paint-loading-v1 body::after{content:""!important;display:block!important;position:fixed!important;left:50%!important;top:50%!important;width:44px!important;height:44px!important;margin:0!important;border-radius:50%!important;border:2px solid rgba(103,232,249,.13)!important;border-top-color:#67E8F9!important;border-right-color:rgba(103,232,249,.46)!important;box-shadow:0 0 24px rgba(34,211,238,.12)!important;z-index:2147483600!important;pointer-events:none!important;animation:exerciseFirstPaintSpinV1 .82s linear infinite!important}' +
+      'html.exercise-first-paint-ready-v1 body .app-wrap{animation:exerciseFirstPaintRevealV1 .20s cubic-bezier(.16,1,.3,1) both}' +
+      '@keyframes exerciseFirstPaintSpinV1{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}' +
+      '@keyframes exerciseFirstPaintRevealV1{from{opacity:0}to{opacity:1}}' +
+      '@media(prefers-reduced-motion:reduce){html.exercise-first-paint-loading-v1 body::after{animation:none!important}html.exercise-first-paint-ready-v1 body .app-wrap{animation:none!important}}';
+    document.head.appendChild(firstPaintStyleV1);
+  }
+
   var pulseDefaultBoot = true;
-  var exerciseFastVersion = '20260915-compact-timer-center-v1';
+  var exerciseFastVersion = '20260915-first-paint-v1';
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -75,7 +94,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       pulseStyle.textContent =
         'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
         'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
-        'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}';
+        'html.exercise-first-paint-loading-v1.exercise-concept-pulse-home-v1 body .app-wrap,html.exercise-first-paint-loading-v1.exercise-concept-pulse-home-v1 body>.fab{visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
       document.head.appendChild(pulseStyle);
     }
 
@@ -122,7 +141,6 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     style.id = 'exercise-shell-critical-v13';
     style.textContent =
       'html.exercise-shell-booting-v13 body .main-content,html.exercise-shell-booting-v13 body .fab{visibility:hidden!important}' +
-      'html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .main-content,html.exercise-concept-pulse-home-v1.exercise-shell-booting-v13 body .fab{visibility:visible!important;opacity:1!important}' +
       '.week-toolbar>button[onclick*="goToCurrentWeek"]{display:none!important}' +
       'html body .goals-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}' +
       'html body .goals-grid>.goal-card:first-child{display:none!important}' +
@@ -173,24 +191,50 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     }
   }
 
-  function revealFinalFrame() {
+  var exerciseDomReadyV1 = document.readyState !== 'loading';
+  var exerciseBundleReadyV1 = !!window.__exerciseBundleReadyV1;
+  var exerciseFirstPaintReleasedV1 = false;
+
+  function prepareExerciseFirstPaintDomV1() {
+    arrangeCriticalDom();
+    try {
+      if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();
+    } catch (_) {}
+  }
+
+  function releaseExerciseFirstPaintV1(force) {
+    if (exerciseFirstPaintReleasedV1) return;
+    if (!force && (!exerciseDomReadyV1 || !exerciseBundleReadyV1)) return;
+    exerciseFirstPaintReleasedV1 = true;
+    prepareExerciseFirstPaintDomV1();
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        document.documentElement.classList.remove('exercise-shell-booting-v13');
-        document.documentElement.classList.add('exercise-shell-ready-v13');
+        var root = document.documentElement;
+        root.classList.remove('exercise-shell-booting-v13');
+        root.classList.add('exercise-shell-ready-v13');
+        root.classList.remove('exercise-first-paint-loading-v1');
+        root.classList.add('exercise-first-paint-ready-v1');
+        setTimeout(function () { root.classList.remove('exercise-first-paint-ready-v1'); }, 420);
       });
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    arrangeCriticalDom();
+  function markExerciseDomReadyV1() {
+    exerciseDomReadyV1 = true;
+    prepareExerciseFirstPaintDomV1();
+    releaseExerciseFirstPaintV1(false);
+  }
 
-    try {
-      if (window.__exerciseShellV13 && typeof window.__exerciseShellV13.prepare === 'function') window.__exerciseShellV13.prepare();
-    } catch (_) {}
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', markExerciseDomReadyV1, {once:true});
+  else markExerciseDomReadyV1();
 
-    revealFinalFrame();
+  document.addEventListener('exercise:bundle-ready-v1', function () {
+    exerciseBundleReadyV1 = true;
+    releaseExerciseFirstPaintV1(false);
   }, {once:true});
+
+  /* Never leave the page hidden indefinitely if an optional legacy layer fails. */
+  setTimeout(function () { releaseExerciseFirstPaintV1(true); }, 12000);
 
   if (!document.querySelector('script[data-exercise-shell-v13]')) {
     var shellScript = document.createElement('script');
