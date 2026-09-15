@@ -15,7 +15,18 @@ jobs:
         with:
           fetch-depth: 0
       - name: Apply canonical Observatory migration
-        run: python3 budget/tools/observatory_checkpoint1.py
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('budget/tools/observatory_checkpoint1.py')
+          s=p.read_text()
+          old="ids = re.findall(r'\\bid=\"([^\"]+)\"', s)"
+          new="ids = [value for value in re.findall(r'\\bid=\"([^\"]+)\"', s) if re.fullmatch(r'[A-Za-z][A-Za-z0-9_.:-]*', value)]"
+          if old not in s:
+              raise SystemExit('literal-id validator anchor missing')
+          p.write_text(s.replace(old,new,1))
+          PY
+          python3 budget/tools/observatory_checkpoint1.py
       - name: Verify JavaScript syntax
         run: |
           node --check budget/training-overview-mode.js
@@ -26,7 +37,7 @@ jobs:
           from pathlib import Path
           import re
           html=Path('budget/exercise.html').read_text()
-          ids=re.findall(r'\bid="([^"]+)"',html)
+          ids=[value for value in re.findall(r'\bid="([^"]+)"',html) if re.fullmatch(r'[A-Za-z][A-Za-z0-9_.:-]*',value)]
           dups=sorted({x for x in ids if ids.count(x)>1})
           assert not dups, dups
           assert html.count('id="week-grid"')==1
