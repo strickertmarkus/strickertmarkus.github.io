@@ -1,0 +1,138 @@
+name: Training checkpoint 4 structural fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/training-cp4-structural-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply structural Observatory fixes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('budget/pulse-observatory/observatory.css')
+          css = css_path.read_text()
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, found {count}')
+              return text.replace(old, new, 1)
+
+          stage = '#pulse-home .observatory-stage{display:grid;grid-template-columns:1fr 1.15fr;position:relative;isolation:isolate;min-height:540px;align-items:center;margin:0 0 35px}'
+          stage_atmosphere = stage + '\n#pulse-home .observatory-stage::before{content:\'\';position:absolute;inset:-60px -7vw -35px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 66% 68%,#ffafbb22 0%,#ff446a24 12%,#a9194421 32%,transparent 66%);animation:observatoryAtmosphere 10s ease-in-out infinite}'
+          css = replace_once(css, stage, stage_atmosphere, 'stage atmosphere owner')
+
+          scene_atmosphere = '#pulse-home .observatory-scene::before{content:\'\';position:absolute;inset:0;background:radial-gradient(ellipse at 58% 60%,#ffafbb22 0%,#ff446a24 12%,#a9194421 32%,transparent 62%);animation:observatoryAtmosphere 10s ease-in-out infinite}\n'
+          css = replace_once(css, scene_atmosphere, '', 'remove field-scoped atmosphere')
+
+          css = replace_once(
+              css,
+              '#pulse-home .observatory-metrics .stat-card{padding-left:24px!important;border-left:1px solid #efb2ca20!important}',
+              '#pulse-home .observatory-metrics .stat-card{padding-left:24px!important;border:0!important}',
+              'base metric separators'
+          )
+          css = replace_once(
+              css,
+              '#pulse-home .observatory-metrics .stat-card:first-child{border:0!important;padding-left:0!important}',
+              '#pulse-home .observatory-metrics .stat-card:first-child{padding-left:0!important}',
+              'redundant first metric border reset'
+          )
+          css = replace_once(
+              css,
+              '#pulse-home #reactor-core[data-workout-kind="cardio"] .observatory-scene::before{background:radial-gradient(ellipse at 58% 60%,#ffb9c52b 0%,#ff3f6d30 14%,#b51b4a23 38%,transparent 66%)}',
+              '#pulse-home .observatory-stage[data-workout-kind="cardio"]::before{background:radial-gradient(ellipse at 66% 68%,#ffb9c52b 0%,#ff3f6d30 14%,#b51b4a23 38%,transparent 68%)}',
+              'cardio atmosphere state'
+          )
+          css = replace_once(
+              css,
+              '#pulse-home #reactor-core[data-workout-kind="strength"] .observatory-scene::before{background:radial-gradient(ellipse at 54% 60%,#ffb39d28 0%,#ff516f28 16%,#93183f20 40%,transparent 68%)}',
+              '#pulse-home .observatory-stage[data-workout-kind="strength"]::before{background:radial-gradient(ellipse at 64% 68%,#ffb39d28 0%,#ff516f28 16%,#93183f20 40%,transparent 70%)}',
+              'strength atmosphere state'
+          )
+          css = replace_once(
+              css,
+              '#pulse-home .observatory-scene *,#pulse-home .observatory-scene::before,#pulse-home .observatory-action::before{animation-play-state:var(--pulse-scene-motion,running)}',
+              '#pulse-home .observatory-stage::before,#pulse-home .observatory-scene *,#pulse-home .observatory-action::before{animation-play-state:var(--pulse-scene-motion,running)}',
+              'atmosphere motion owner'
+          )
+          css = replace_once(
+              css,
+              '#pulse-home .observatory-scene *,#pulse-home .observatory-scene::before,#pulse-home .observatory-action::before{animation:none!important}',
+              '#pulse-home .observatory-stage::before,#pulse-home .observatory-scene *,#pulse-home .observatory-action::before{animation:none!important}',
+              'reduced motion atmosphere owner'
+          )
+          css_path.write_text(css)
+
+          env_path = Path('budget/pulse-environment/environment.js')
+          env = env_path.read_text()
+          env = replace_once(
+              env,
+              "    const core = document.getElementById('reactor-core');\n    core.dataset.workoutKind = workoutKind(plan, exercises);",
+              "    const core = document.getElementById('reactor-core');\n    const kind = workoutKind(plan, exercises);\n    core.dataset.workoutKind = kind;\n    const stage = core.closest('.observatory-stage');\n    if (stage) stage.dataset.workoutKind = kind;",
+              'mirror workout kind to atmosphere owner'
+          )
+          env_path.write_text(env)
+
+          html_path = Path('budget/exercise.html')
+          html = html_path.read_text()
+          for asset in ('pulse-environment/environment.css', 'pulse-observatory/observatory.css', 'pulse-environment/environment.js'):
+              old = f'{asset}?v=20260915-main-cp1'
+              new = f'{asset}?v=20260915-main-cp4-structural-1'
+              html = replace_once(html, old, new, f'cache version {asset}')
+          html_path.write_text(html)
+
+          test_path = Path('budget/tests/training-observatory-mobile.test.cjs')
+          test = test_path.read_text()
+          marker = "test('Observatory CSS stays structurally balanced', () => {"
+          addition = r'''test('Observatory metrics have no separator owner at base level', () => {
+            const base = css.slice(0, css.indexOf('@media(max-width:760px){'));
+            assert.match(base, /observatory-metrics \.stat-card\{[^}]*border:0!important/);
+            assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border-left:/);
+          });
+
+          test('hero atmosphere is owned by the whole Observatory stage, not the pass field', () => {
+            assert.match(css, /observatory-stage::before\{[^}]*radial-gradient/);
+            assert.doesNotMatch(css, /observatory-scene::before\{/);
+            assert.match(css, /observatory-stage\[data-workout-kind="cardio"\]::before/);
+            assert.match(environment, /stage\.dataset\.workoutKind = kind/);
+          });
+
+          test('production page cache-busts the structural Observatory assets', () => {
+            assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp4-structural-1/);
+            assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp4-structural-1/);
+            assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp4-structural-1/);
+          });
+
+          '''
+          if marker not in test:
+              raise SystemExit('test insertion marker missing')
+          test = test.replace(marker, addition + marker, 1)
+          test_path.write_text(test)
+          PY
+      - name: Verify Observatory mobile composition
+        run: node --test budget/tests/training-observatory-mobile.test.cjs
+      - name: Re-run shared session contract
+        run: node --test budget/tests/training-shared-session.test.cjs
+      - name: Commit structural fix
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git add budget/pulse-observatory/observatory.css budget/pulse-environment/environment.js budget/exercise.html budget/tests/training-observatory-mobile.test.cjs
+          git diff --cached --check
+          git commit -m "Fix Observatory metric separators and hero atmosphere"
+          git push origin HEAD:main
