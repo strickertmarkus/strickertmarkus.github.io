@@ -26,7 +26,7 @@ test('semantic state maps existing truth without owning workout persistence', ()
   assert.doesNotMatch(environment, /localStorage\.setItem|firebase\.database\(\)\.ref/);
 });
 
-test('cyan current state is reserved for active context rather than partial progress', () => {
+test('current state is reserved for active context rather than partial progress', () => {
   assert.doesNotMatch(environment, /value > 0\) return 'current'/);
   assert.doesNotMatch(environment, /weekCount > 0 \? 'current'/);
   assert.match(environment, /stat-duration'\), duration > 0 \? 'completed' : 'pending'/);
@@ -47,19 +47,31 @@ test('active and achieved states use bounded OLED-friendly glow tokens', () => {
   assert.match(observatoryCss, /--obs-achieved-glow:0 0 18px/);
 });
 
+test('cyan is reserved for Observatory identity symbols while semantic data states stay pink', () => {
+  assert.match(observatoryCss, /--obs-current-accent:#ffb8cb/);
+  assert.doesNotMatch(observatoryCss, /--obs-current-accent:#9be4e9/);
+  assert.match(observatoryCss, /observatory-header-star\{[^}]*color:#9be4e9/);
+  assert.match(observatoryCss, /observatory-kicker>\.observatory-star-glyph\{[^}]*color:#9be4e9/);
+  assert.match(observatoryCss, /observatory-next-cue \.observatory-star-glyph\{[^}]*color:#9be4e9/);
+  assert.match(observatoryCss, /data-overview-mode=\"observatory\"\] \.training-overview-option-icon\{color:#9be4e9/);
+  assert.match(environmentCss, /record-group-toggle-v52>span:first-child::before\{[^}]*color:#9be4e9/);
+});
+
 test('metrics next action goals and both week geometries consume shared state tokens', () => {
   assert.match(observatoryCss, /observatory-metrics \.stat-card\[data-observatory-state\]::after/);
   assert.match(observatoryCss, /observatory-start\[data-observatory-state\] \.observatory-next-cue/);
   assert.match(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
-  assert.match(environmentCss, /progress-bar\{[^}]*var\(--obs-state-glow/);
-  assert.match(environmentCss, /progress-marker\{[^}]*var\(--obs-state-accent/);
+  assert.match(environmentCss, /progress-bar\{[^}]*linear-gradient\(90deg,#a73761,#ffb4cd\)/);
+  assert.match(environmentCss, /progress-marker\{[^}]*background:#ffe3ef/);
+  assert.doesNotMatch(environmentCss, /progress-bar\{[^}]*var\(--obs-state/);
+  assert.doesNotMatch(environmentCss, /progress-marker\{[^}]*var\(--obs-state/);
   assert.match(orbitCss, /week-orbit-layout \.week-day::before\{[\s\S]*var\(--obs-state-border/);
   assert.doesNotMatch(orbitCss, /week-day\.(?:is-selected|done|today|pending)::before/);
 });
 
 test('production cache-busts every modified CP7 presentation owner', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp7-state-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-symbol-cyan-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp7-symbol-cyan-1/);
   assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
   assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-2/);
 });

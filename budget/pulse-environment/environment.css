@@ -100,8 +100,8 @@
 #pulse-home :is(.run-pace-chart-area-v34,.vo2-chart-area-v37){height:190px!important}
 /* Overview data uses the same light and materials as the environment. */
 #pulse-home .progress-wrap{background:#eeb9d016!important;box-shadow:none!important;height:4px!important;border-radius:5px!important;overflow:visible!important}
-#pulse-home .progress-bar{background:linear-gradient(90deg,var(--obs-state-fill,#ab3b67),var(--obs-state-accent,#ffb4cd))!important;box-shadow:var(--obs-state-glow,0 0 16px #ff6b9344)!important;border-radius:5px!important;opacity:var(--obs-state-decoration,1)}
-#pulse-home .progress-marker{background:var(--obs-state-accent,#ffe3ef)!important;border-color:var(--obs-state-border,#ffb4cd)!important;box-shadow:var(--obs-state-glow,0 0 10px #ff6c98)!important;opacity:var(--obs-state-decoration,1)}
+#pulse-home .progress-bar{background:linear-gradient(90deg,#a73761,#ffb4cd)!important;box-shadow:0 0 16px #ff6b9344!important;border-radius:5px!important}
+#pulse-home .progress-marker{background:#ffe3ef!important;border-color:#ffb4cd!important;box-shadow:0 0 10px #ff6c98!important}
 #pulse-home :is(.run-distance-scale-v37,.vo2-distance-scale-v37,.run-distance-scale-v38){color:#bfa4b8!important}
 #pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37){border-color:#f1b6d023!important;background:transparent!important;box-shadow:none!important}
 #pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37) strong{color:#efc1d6!important;font-weight:450!important}
@@ -113,7 +113,7 @@
 #pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}
 #pulse-home :is(.record-group-v52,.pr-card){border:1px solid #e8acce26!important;border-radius:18px!important;background:radial-gradient(ellipse at 0 0,#f5699620,transparent 65%),#180f191f!important;box-shadow:inset 0 1px 0 #ffd0e30a!important;overflow:hidden}
 #pulse-home .record-group-toggle-v52{padding:18px 20px!important;background:transparent!important;color:#edc6da!important;min-height:56px!important;font-weight:450!important;letter-spacing:.3px!important}
-#pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#ffc3de;text-shadow:0 0 13px #ff638d;margin-right:12px;font-size:20px}
+#pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#9be4e9;text-shadow:0 0 13px #56d9e5;margin-right:12px;font-size:20px}
 #pulse-home :is(.record-group-count-v52,.record-chevron-v52,.records-master-toggle-v52){color:#c09aaf!important;border-color:#e9a5c135!important;background:transparent!important}
 #pulse-home .record-row-v52{border-color:#f7b9d21a!important;background:transparent!important;padding:16px 20px!important;gap:15px!important;grid-template-columns:minmax(0,1fr) 90px 135px!important}
 #pulse-home .record-name-v52{font-size:13px!important;font-weight:400!important;color:#cbb3c4!important;line-height:1.5!important}
