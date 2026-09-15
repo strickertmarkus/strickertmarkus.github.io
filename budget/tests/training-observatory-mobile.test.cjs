@@ -80,7 +80,7 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('production page cache-busts the current Observatory composition', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp5-identity-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp5-heartbeat-polish-1/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp4-structural-1/);
   assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp5-identity-1/);
 });

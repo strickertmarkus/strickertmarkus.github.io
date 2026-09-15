@@ -18,16 +18,19 @@ const starPath = 'M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 
 
 test('one native Observatory star geometry owns kicker, sticky header identity and next cue', () => {
   assert.equal((html.match(new RegExp(starPath, 'g')) || []).length, 3);
-  assert.match(html, /observatory-header-star observatory-only/);
+  assert.match(html, /observatory-only observatory-brand-lockup[^>]*>PULSE[\s\S]*observatory-header-star/);
   assert.match(html, /observatory-kicker[^>]*><svg class="observatory-star-glyph"/);
   assert.match(html, /observatory-next-cue/);
   assert.doesNotMatch(html, /observatory-kicker"><span aria-hidden="true">✧/);
 });
 
 test('header star uses heartbeat cadence and existing Observatory scheduler', () => {
-  assert.match(css, /@keyframes observatoryHeartbeat\{0%,16%,100%/);
-  assert.match(css, /3%\{transform:scale\(1\.18\)/);
-  assert.match(css, /9%\{transform:scale\(1\.09\)/);
+  assert.match(css, /animation:observatoryHeartbeat 2\.05s linear infinite/);
+  assert.match(css, /@keyframes observatoryHeartbeat\{0%,18%,100%/);
+  assert.match(css, /3%\{transform:translateY\(-\.2px\) scale\(1\.16\)/);
+  assert.match(css, /9%\{transform:translateY\(-\.1px\) scale\(1\.085\)/);
+  assert.match(css, /50%\{transform:translateY\(\.2px\) scale\(\.998\) rotate\(-\.2deg\)/);
+  assert.match(css, /observatory-header-star \.observatory-star-glyph path\{stroke-width:1\.7\}/);
   assert.match(css, /animation-play-state:var\(--observatory-identity-motion,paused\)/);
   assert.match(css, /prefers-reduced-motion:reduce[\s\S]*observatory-header-star \.observatory-star-glyph\{animation:none!important/);
   assert.match(environment, /const motionState = paused \? 'paused' : 'running'/);
@@ -56,7 +59,7 @@ test('Next Workout remains one real weekly-plan action with explicit cue and emp
 test('CP5 cache keys force Safari to receive the retired-header ownership change', () => {
   assert.match(html, /auth-config\.js\?v=20260915-cp5-identity/);
   assert.match(html, /auth-gate\.js\?v=20260915-cp5-identity/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp5-identity-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp5-heartbeat-polish-1/);
   assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp5-identity-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260915-cp5-identity'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260915-cp5-identity'/);
