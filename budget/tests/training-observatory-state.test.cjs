@@ -35,7 +35,7 @@ test('cyan current state is reserved for active context rather than partial prog
 });
 
 test('pending dims decoration rather than readable text', () => {
-  assert.match(observatoryCss, /--obs-pending-decoration:\.38/);
+  assert.match(observatoryCss, /--obs-pending-decoration:\.5/);
   assert.match(observatoryCss, /--obs-pending-glow:0 0 0 transparent/);
   assert.doesNotMatch(observatoryCss, /\[data-observatory-state="pending"\][^{]*\{[^}]*\bopacity:/);
   assert.match(observatoryCss, /week-day::after\{[^}]*opacity:var\(--obs-state-decoration/);
