@@ -51,10 +51,21 @@ jobs:
             "    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');",
             "    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');",
             'overview progress mapping')
-          env = sub_once(env,
-            r"      const state = day\.classList\.contains\('done'\)\n\s*\? 'completed'\n\s*: \(day\.classList\.contains\('is-selected'\) \|\| day\.classList\.contains\('today'\)\)\n\s*\? 'current'\n\s*: 'pending';",
-            "      const state = (day.classList.contains('is-selected') || day.classList.contains('today'))\n        ? 'current'\n        : day.classList.contains('done')\n          ? 'completed'\n          : 'pending';",
-            'active day precedence')
+          old_day = "\n".join([
+            "      const state = day.classList.contains('done')",
+            "        ? 'completed'",
+            "        : (day.classList.contains('is-selected') || day.classList.contains('today'))",
+            "          ? 'current'",
+            "          : 'pending';",
+          ])
+          new_day = "\n".join([
+            "      const state = (day.classList.contains('is-selected') || day.classList.contains('today'))",
+            "        ? 'current'",
+            "        : day.classList.contains('done')",
+            "          ? 'completed'",
+            "          : 'pending';",
+          ])
+          env = replace_once(env, old_day, new_day, 'active day precedence')
           env_path.write_text(env)
 
           html_path = Path('budget/exercise.html')
