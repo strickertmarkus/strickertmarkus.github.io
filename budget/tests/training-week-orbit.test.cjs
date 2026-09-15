@@ -51,10 +51,10 @@ test('week rerenders and overview switches cannot leave stale orbit layout', () 
 });
 
 test('orbit visual language preserves day semantics and uses the canonical Observatory star in the centre', () => {
-  assert.match(orbitCss, /week-day\.is-selected::before/);
-  assert.match(orbitCss, /week-day\.done::before/);
-  assert.match(orbitCss, /week-day\.today::before/);
-  assert.match(orbitCss, /week-day\.pending::before/);
+  assert.match(orbitCss, /var\(--obs-state-border/);
+  assert.match(orbitCss, /var\(--obs-state-fill/);
+  assert.match(orbitCss, /var\(--obs-state-glow/);
+  assert.doesNotMatch(orbitCss, /week-day\.(?:is-selected|done|today|pending)::before/);
   assert.match(orbitCss, /week-orbit-trace-secondary/);
   assert.match(orbitCss, /week-orbit-center-symbol/);
   assert.match(html, new RegExp(starPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
@@ -70,6 +70,6 @@ test('orbit stylesheet is Observatory-scoped and structurally balanced', () => {
 });
 
 test('production page loads the click-only CP6 assets with current cache keys', () => {
-  assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp6-click-2/);
+  assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
   assert.match(html, /training-week-orbit\.js\?v=20260915-main-cp6-click-2/);
 });

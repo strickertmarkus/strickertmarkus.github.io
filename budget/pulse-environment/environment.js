@@ -62,6 +62,64 @@
     if (node && node.textContent !== value) node.textContent = value;
   }
 
+  const observatoryStates = new Set(['pending', 'current', 'completed', 'goal-achieved']);
+
+  function setObservatoryState(node, state) {
+    if (!node || !observatoryStates.has(state)) return;
+    if (node.dataset.observatoryState !== state) node.dataset.observatoryState = state;
+  }
+
+  function numericNodeValue(id) {
+    const node = document.getElementById(id);
+    if (!node) return 0;
+    const source = ('value' in node && node.value !== '') ? node.value : node.textContent;
+    const value = Number.parseFloat(String(source || '').replace(',', '.'));
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function progressState(bar) {
+    if (!bar) return 'pending';
+    const value = Number.parseFloat(String(bar.style.width || '0').replace('%', ''));
+    if (Number.isFinite(value) && value >= 99.5) return 'goal-achieved';
+    if (Number.isFinite(value) && value > 0) return 'current';
+    return 'pending';
+  }
+
+  function syncObservatoryStates() {
+    const goals = typeof window.getGoals === 'function' ? window.getGoals() : { weeklyWk: 4 };
+    const weeklyGoal = Number(goals && goals.weeklyWk) || 4;
+    const weekCount = numericNodeValue('sw-cnt');
+    const duration = numericNodeValue('dur-wk');
+    const total = numericNodeValue('total-cnt');
+    const last = document.getElementById('last-d');
+    const hasLast = !!(last && String(last.textContent || '').trim() && String(last.textContent).trim() !== '—');
+
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-total'), total > 0 ? 'completed' : 'pending');
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-duration'), duration > 0 ? 'current' : 'pending');
+    setObservatoryState(document.querySelector('.observatory-metrics .stat-last'), hasLast ? 'completed' : 'pending');
+    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : weekCount > 0 ? 'current' : 'pending');
+    setObservatoryState(document.getElementById('observatory-last'), hasLast ? 'completed' : 'pending');
+
+    document.querySelectorAll('#week-grid .week-day').forEach(day => {
+      const state = day.classList.contains('done')
+        ? 'completed'
+        : (day.classList.contains('is-selected') || day.classList.contains('today'))
+          ? 'current'
+          : 'pending';
+      setObservatoryState(day, state);
+    });
+
+    document.querySelectorAll('#pulse-goals .goal-card').forEach(card => {
+      const state = progressState(card.querySelector('.progress-bar'));
+      setObservatoryState(card, state);
+      card.querySelectorAll('.progress-bar,.progress-marker,.goal-nums').forEach(node => setObservatoryState(node, state));
+    });
+
+    const start = document.getElementById('reactor-start');
+    if (start) setObservatoryState(start, start.dataset.planState === 'planned' ? 'current' : 'pending');
+  }
+
   function workoutList() {
     return typeof window.getWorkouts === 'function' ? window.getWorkouts() : [];
   }
@@ -162,6 +220,7 @@
         arc.classList.toggle('is-done', day.classList.contains('done'));
       }
     });
+    syncObservatoryStates();
   }
 
   function openSelectedBuilder() {
@@ -221,7 +280,13 @@
     });
     document.getElementById('reactor-configure').addEventListener('click', openSelectedBuilder);
     new MutationObserver(syncReactor).observe(grid, { childList: true });
+    const semanticObserver = new MutationObserver(syncObservatoryStates);
+    const metricRoot = document.querySelector('.observatory-metrics');
+    const goalRoot = document.getElementById('pulse-goals');
+    if (metricRoot) semanticObserver.observe(metricRoot, { subtree: true, childList: true, characterData: true });
+    if (goalRoot) semanticObserver.observe(goalRoot, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'style'] });
     syncReactor();
+    syncObservatoryStates();
     window.addEventListener('firebase-sync', syncReactor);
     const log = document.getElementById('log-body');
     function decorateLog() {

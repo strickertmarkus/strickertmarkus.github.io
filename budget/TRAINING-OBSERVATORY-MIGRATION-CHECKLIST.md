@@ -213,17 +213,21 @@ Verification: Node syntax + all `budget/tests/training-*.test.cjs`, one canonica
 
 Goal: adopt the successful Zen visual rule: attained/active states feel luminous; pending states recede.
 
-- [ ] Inventory Observatory symbols, metrics, week nodes, goal markers and progress indicators.
-- [ ] Define a shared Observatory semantic state vocabulary: `pending`, `current`, `completed`, `goal-achieved`.
-- [ ] Pending/unachieved symbols use more transparency and lower glow.
-- [ ] Current/active state gets focused glow without appearing completed.
-- [ ] Completed/achieved state gets stronger, crisp glow and slightly higher visual weight.
-- [ ] Avoid random per-component glow constants; use Observatory CSS variables/tokens.
-- [ ] Ensure contrast remains accessible and text does not become faint just because decoration is pending.
-- [ ] Apply the same language to collapsed and circular weekly-plan states.
-- [ ] Check dark OLED/mobile appearance for excessive bloom.
+- [x] Inventory Observatory symbols, metrics, week nodes, goal markers and progress indicators.
+- [x] Define a shared Observatory semantic state vocabulary: `pending`, `current`, `completed`, `goal-achieved`.
+- [x] Pending/unachieved symbols use more transparency and lower glow.
+- [x] Current/active state gets focused glow without appearing completed.
+- [x] Completed/achieved state gets stronger, crisp glow and slightly higher visual weight.
+- [x] Avoid random per-component glow constants; use Observatory CSS variables/tokens.
+- [x] Ensure contrast remains accessible and text does not become faint just because decoration is pending.
+- [x] Apply the same language to collapsed and circular weekly-plan states.
+- [x] Check dark OLED/mobile appearance for excessive bloom.
 
-**Checkpoint exit condition:** state can be understood visually without adding labels everywhere, and glow/transparency is consistent across Observatory.
+Implementation checkpoint: `pulse-environment/environment.js` derives presentation-only semantic state from the canonical workout/goal DOM and existing truth (`done`, today/selected, progress width and metric values). `pulse-observatory/observatory.css` owns the four state token families. The collapsed week, metrics, Next Workout cue and goal accents consume those tokens, while `training-week-orbit.css` consumes the same variables instead of maintaining per-class glow constants. Pending changes decoration only; readable text opacity is not reduced.
+
+Verification: Node syntax, all `budget/tests/training-*.test.cjs`, semantic state vocabulary and ownership, no new storage/data namespace, no legacy per-state orbit glow blocks, shared progress/marker tokens, bounded 12/14/18 px current/completed/achieved glow radii for dark mobile/OLED, current cache keys and `git diff --check`.
+
+**Checkpoint exit condition:** state is visually consistent across Observatory without labels or a second data/state owner.
 
 ---
 

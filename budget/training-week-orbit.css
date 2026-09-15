@@ -150,30 +150,12 @@ html[data-training-overview="observatory"] #pulse-home .observatory-week #week-g
   position:absolute;
   inset:-1px;
   border-radius:inherit;
-  border:1px solid #d88da52a;
-  background:radial-gradient(circle at 35% 28%,#ff9bb217,#2c172410 60%,transparent 78%);
-  box-shadow:0 0 18px #ff55750c,inset 0 0 14px #ffb0c408;
-  opacity:var(--week-orbit-node-progress,0);
+  border:1px solid var(--obs-state-border,var(--obs-pending-border));
+  background:radial-gradient(circle at 35% 28%,var(--obs-state-fill,var(--obs-pending-fill)),transparent 78%);
+  box-shadow:var(--obs-state-glow,var(--obs-pending-glow));
+  opacity:calc(var(--week-orbit-node-progress,0) * var(--obs-state-decoration,var(--obs-pending-decoration)));
   pointer-events:none;
   z-index:-1;
-}
-
-html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .week-day.is-selected::before{
-  border-color:#ffc1d58e;
-  box-shadow:0 0 19px #ff66843f,inset 0 0 15px #ffbad21a;
-  background:radial-gradient(circle at 35% 28%,#ffb0c525,#3a1c2c18 64%,transparent 80%);
-}
-html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .week-day.done::before{
-  border-color:#ff8ba758;
-  box-shadow:0 0 15px #ff4f7130,inset 0 0 12px #ff9bb012;
-}
-html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .week-day.today::before{
-  border-color:#8be1e978;
-  box-shadow:0 0 16px #53d8e838,inset 0 0 12px #83e8ec10;
-}
-html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .week-day.pending::before{
-  border-color:#c98ca41f;
-  box-shadow:0 0 10px #ff55750a;
 }
 
 html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .wd-week,
