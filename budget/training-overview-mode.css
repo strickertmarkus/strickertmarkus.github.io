@@ -1,0 +1,121 @@
+/* Shared Compact <-> Pulse Observatory overview switch. Owned by training-overview-mode.js. */
+.training-overview-switch-shell[hidden]{display:none!important}
+.training-overview-switch-shell{
+  width:min(1100px,100%);
+  margin:12px auto -8px;
+  padding:0 24px;
+  display:flex;
+  justify-content:flex-end;
+  position:relative;
+  z-index:24;
+}
+.training-overview-switch{
+  --overview-switch-accent:#ff89aa;
+  --overview-switch-glow:rgba(255,91,137,.28);
+  width:min(100%,300px);
+  min-height:38px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  position:relative;
+  padding:3px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:999px;
+  background:rgba(9,11,17,.72);
+  box-shadow:0 10px 30px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.035);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  isolation:isolate;
+}
+html[data-training-overview="compact"] .training-overview-switch{
+  --overview-switch-accent:#58d8ef;
+  --overview-switch-glow:rgba(34,211,238,.24);
+}
+.training-overview-switch::before{
+  content:'';
+  position:absolute;
+  z-index:0;
+  top:3px;
+  bottom:3px;
+  left:3px;
+  width:calc((100% - 6px)/2);
+  border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--overview-switch-accent) 42%,transparent);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--overview-switch-accent) 18%,transparent),rgba(255,255,255,.025));
+  box-shadow:0 0 22px var(--overview-switch-glow),inset 0 0 16px color-mix(in srgb,var(--overview-switch-accent) 8%,transparent);
+  transform:translateX(100%);
+  transition:transform .46s cubic-bezier(.16,1,.3,1),border-color .32s ease,background .32s ease,box-shadow .32s ease;
+}
+html[data-training-overview="compact"] .training-overview-switch::before{transform:translateX(0)}
+.training-overview-option{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  background:transparent;
+  color:rgba(226,232,240,.54);
+  border-radius:999px;
+  min-width:0;
+  min-height:32px;
+  padding:6px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  position:relative;
+  z-index:1;
+  cursor:pointer;
+  font:600 10px/1.15 Inter,system-ui,sans-serif;
+  letter-spacing:.15px;
+  white-space:nowrap;
+  transition:color .24s ease,text-shadow .24s ease,opacity .24s ease;
+}
+.training-overview-option:hover{color:rgba(248,250,252,.82)}
+.training-overview-option:focus-visible{outline:1px solid var(--overview-switch-accent);outline-offset:2px}
+.training-overview-option[aria-pressed="true"]{
+  color:#fff7fa;
+  text-shadow:0 0 14px var(--overview-switch-glow);
+}
+html[data-training-overview="compact"] .training-overview-option[aria-pressed="true"]{color:#e7fbff}
+.training-overview-option-icon{
+  width:15px;
+  height:15px;
+  flex:0 0 15px;
+  display:grid;
+  place-items:center;
+  color:currentColor;
+}
+.training-overview-option-icon svg{display:block;width:15px;height:15px;overflow:visible}
+.training-overview-option-icon--compact svg{fill:currentColor;filter:drop-shadow(0 0 6px currentColor)}
+.training-overview-option-icon--observatory svg{fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;filter:drop-shadow(0 0 5px currentColor)}
+.training-overview-option[aria-pressed="true"] .training-overview-option-icon--observatory svg{filter:drop-shadow(0 0 3px #ffd7e3) drop-shadow(0 0 8px #ff6e9b)}
+.training-overview-option[aria-pressed="true"] .training-overview-option-icon--compact svg{filter:drop-shadow(0 0 7px #5fe7ff)}
+.training-overview-option-label-short{display:none}
+
+/* The canonical dashboard remains one DOM tree; View Transition snapshots only its presentation. */
+@supports (view-transition-name:none){
+  #pulse-home{view-transition-name:training-overview-surface}
+  .training-overview-switch{view-transition-name:training-overview-switch}
+  ::view-transition-old(training-overview-surface){animation:overviewSurfaceOut .18s ease both}
+  ::view-transition-new(training-overview-surface){animation:overviewSurfaceIn .46s cubic-bezier(.16,1,.3,1) both}
+  ::view-transition-old(training-overview-switch),
+  ::view-transition-new(training-overview-switch){animation-duration:.28s}
+}
+@keyframes overviewSurfaceOut{to{opacity:.48;transform:translateY(3px) scale(.996)}}
+@keyframes overviewSurfaceIn{from{opacity:.46;transform:translateY(-3px) scale(.996)}to{opacity:1;transform:none}}
+
+@media(max-width:760px){
+  .training-overview-switch-shell{margin:8px auto -5px;padding:0 16px;justify-content:center}
+  .training-overview-switch{width:min(100%,286px)}
+  .training-overview-option{padding-inline:8px;font-size:9.5px}
+}
+@media(max-width:360px){
+  .training-overview-switch{width:min(100%,270px)}
+  .training-overview-option-label-full{display:none}
+  .training-overview-option-label-short{display:inline}
+}
+@media(prefers-reduced-motion:reduce){
+  .training-overview-switch::before,.training-overview-option{transition:none!important}
+  ::view-transition-old(training-overview-surface),
+  ::view-transition-new(training-overview-surface),
+  ::view-transition-old(training-overview-switch),
+  ::view-transition-new(training-overview-switch){animation:none!important}
+}
