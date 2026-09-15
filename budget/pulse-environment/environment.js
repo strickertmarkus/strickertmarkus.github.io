@@ -132,7 +132,10 @@
     setText('reactor-title', title);
     setText('reactor-summary', summary);
     const core = document.getElementById('reactor-core');
-    core.dataset.workoutKind = workoutKind(plan, exercises);
+    const kind = workoutKind(plan, exercises);
+    core.dataset.workoutKind = kind;
+    const stage = core.closest('.observatory-stage');
+    if (stage) stage.dataset.workoutKind = kind;
     syncContext();
     setText('reactor-action', hasPlan ? 'Starta pass' : 'Bygg pass');
     const start = document.getElementById('reactor-start');

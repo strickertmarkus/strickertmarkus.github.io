@@ -63,6 +63,25 @@ test('mobile preview cannot reintroduce the large Observatory add CTA', () => {
   assert.match(mobile, /observatory-add\{display:none!important\}/);
 });
 
+test('Observatory metrics have no separator owner at base level', () => {
+  const base = css.slice(0, css.indexOf('@media(max-width:760px){'));
+  assert.match(base, /observatory-metrics \.stat-card\{[^}]*border:0!important/);
+  assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border-left:/);
+});
+
+test('hero atmosphere is owned by the whole Observatory stage, not the pass field', () => {
+  assert.match(css, /observatory-stage::before\{[^}]*radial-gradient/);
+  assert.doesNotMatch(css, /observatory-scene::before\{/);
+  assert.match(css, /observatory-stage\[data-workout-kind="cardio"\]::before/);
+  assert.match(environment, /stage\.dataset\.workoutKind = kind/);
+});
+
+test('production page cache-busts the structural Observatory assets', () => {
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp4-structural-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp4-structural-1/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp4-structural-1/);
+});
+
 test('Observatory CSS stays structurally balanced', () => {
   const opens = (css.match(/\{/g) || []).length;
   const closes = (css.match(/\}/g) || []).length;
