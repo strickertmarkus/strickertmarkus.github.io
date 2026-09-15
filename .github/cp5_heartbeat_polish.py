@@ -81,6 +81,15 @@ test = replace_once(
     test,
     '  assert.match(html, /pulse-observatory\\/observatory\\.css\\?v=20260915-main-cp5-identity-1/);',
     '  assert.match(html, /pulse-observatory\\/observatory\\.css\\?v=20260915-main-cp5-heartbeat-polish-1/);',
-    'CSS cache test'
+    'identity CSS cache test'
 )
 write('tests/training-observatory-identity.test.cjs', test)
+
+mobile_test = read('tests/training-observatory-mobile.test.cjs')
+mobile_test = replace_once(
+    mobile_test,
+    'assert.match(html, /pulse-observatory\\/observatory\\.css\\?v=20260915-main-cp5-identity-1/);',
+    'assert.match(html, /pulse-observatory\\/observatory\\.css\\?v=20260915-main-cp5-heartbeat-polish-1/);',
+    'mobile CSS cache test'
+)
+write('tests/training-observatory-mobile.test.cjs', mobile_test)
