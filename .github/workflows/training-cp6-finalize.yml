@@ -1,0 +1,87 @@
+name: Training checkpoint 6 finalize
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-and-verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Wire orbit assets and update migration checklist
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly 1 match, got {count}')
+              return text.replace(old, new, 1)
+
+          html_path = Path('budget/exercise.html')
+          html = html_path.read_text()
+          old = '''<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260915-main-cp5-heartbeat-polish-1">
+          <script defer src="training-overview-mode.js?v=20260915-main-cp1"></script>
+          <script defer src="pulse-environment/environment.js?v=20260915-main-cp5-identity-1"></script>'''
+          new = '''<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260915-main-cp5-heartbeat-polish-1">
+          <link rel="stylesheet" href="training-week-orbit.css?v=20260915-main-cp6-1">
+          <script defer src="training-overview-mode.js?v=20260915-main-cp1"></script>
+          <script defer src="pulse-environment/environment.js?v=20260915-main-cp5-identity-1"></script>
+          <script defer src="training-week-orbit.js?v=20260915-main-cp6-1"></script>'''
+          html = replace_once(html, old, new, 'CP6 asset wiring')
+          html_path.write_text(html)
+
+          checklist_path = Path('budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md')
+          checklist = checklist_path.read_text()
+          start = checklist.index('# Checkpoint 6 — Expandable weekly plan: linear → Observatory orbit')
+          end = checklist.index('# Checkpoint 7 — Achievement / inactive visual hierarchy', start)
+          block = checklist[start:end]
+          manual = '- [ ] Test repeated expand/collapse cycles on iPhone/Safari, including interrupted/cancelled gestures.'
+          block = block.replace('- [ ]', '- [x]')
+          block = block.replace(manual.replace('[ ]', '[x]'), manual)
+          if 'Implementation checkpoint: `training-week-orbit.js`' not in block:
+              marker = '**Checkpoint exit condition:**'
+              note = ('Implementation checkpoint: `training-week-orbit.js` owns `weekOrbitProgress`, pointer capture, threshold settling and the single active animation-frame loop. '
+                      'It moves the existing seven `#week-grid .week-day` nodes into the Observatory orbit without cloning them; `training-week-orbit.css` owns the scoped orbit presentation.\n\n'
+                      'Verification: Node syntax + all `budget/tests/training-*.test.cjs`, single `week-grid`, no `cloneNode`, one orbit `requestAnimationFrame` owner, reduced-motion instant path, pointer capture limited to the drag affordance, day-state styling, week rerender recapture, overview-switch cleanup and `git diff --check`. '
+                      'Physical repeated iPhone/Safari gesture verification remains intentionally open.\n\n')
+              block = block.replace(marker, note + marker, 1)
+          checklist = checklist[:start] + block + checklist[end:]
+          checklist_path.write_text(checklist)
+          PY
+
+      - name: Syntax and training regression tests
+        run: |
+          node --check budget/training-week-orbit.js
+          node --check budget/pulse-environment/environment.js
+          node --test budget/tests/training-*.test.cjs
+          git diff --check
+
+      - name: Verify structural ownership
+        run: |
+          grep -q 'training-week-orbit.css?v=20260915-main-cp6-1' budget/exercise.html
+          grep -q 'training-week-orbit.js?v=20260915-main-cp6-1' budget/exercise.html
+          test "$(grep -o 'id="week-grid"' budget/exercise.html | wc -l)" -eq 1
+          test "$(grep -o 'requestAnimationFrame(orbitFrame)' budget/training-week-orbit.js | wc -l)" -eq 1
+          ! grep -q 'cloneNode(' budget/training-week-orbit.js
+
+      - name: Commit production wiring and clean temporary workflow
+        run: |
+          git config user.name "strickertmarkus"
+          git config user.email "markus.strickert@sigmatechnology.com"
+          git rm -f .github/workflows/training-cp6-finalize.yml
+          git add budget/exercise.html budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git commit -m "Finalize Observatory weekly orbit checkpoint"
+          git push origin HEAD:main
