@@ -1,4 +1,4 @@
-name: Observatory checkpoint 1
+name: Observatory checkpoint 1 final validation
 on:
   push:
     branches:
@@ -8,61 +8,63 @@ on:
 permissions:
   contents: write
 jobs:
-  migrate:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Apply canonical Observatory migration
+      - name: Restore complete migration plan and record checkpoint
         run: |
+          git show 6c5fb2ef98f1f37b13b3175b9d70fde94e0da70a:budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md > /tmp/observatory-checklist.md
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('budget/tools/observatory_checkpoint1.py')
+          p=Path('/tmp/observatory-checklist.md')
           s=p.read_text()
-          old="ids = re.findall(r'\\bid=\"([^\"]+)\"', s)"
-          new="ids = [value for value in re.findall(r'\\bid=\"([^\"]+)\"', s) if re.fullmatch(r'[A-Za-z][A-Za-z0-9_.:-]*', value)]"
-          if old not in s:
-              raise SystemExit('literal-id validator anchor missing')
-          p.write_text(s.replace(old,new,1))
+          marker="Implementation checkpoint: Observatory is default via `data-training-overview=\"observatory\"`; `?overview=compact` and `window.setTrainingOverviewMode('compact')` exercise the same DOM in Compact mode. The visible mode toggle/morph intentionally belongs to Checkpoint 2. No Observatory/Reactor `training.js` or training stylesheet is loaded on the production route."
+          note="\n\n**Checkpoint 1 implementation commit:** `6c5fb2ef98f1f37b13b3175b9d70fde94e0da70a`\n\nVerification: JavaScript syntax, literal duplicate-ID scan, one canonical `week-grid` / `log-body` / `session-modal`, one existing workout/planned-session data owner, absence of Observatory/Reactor session-training assets, default Observatory state, no new `setInterval` in the overview controller/adapter, and `git diff --check`."
+          if marker not in s:
+              raise SystemExit('checkpoint implementation marker missing')
+          s=s.replace(marker,marker+note,1)
+          Path('budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md').write_text(s)
           PY
-          python3 budget/tools/observatory_checkpoint1.py
-      - name: Verify JavaScript syntax
+      - name: Verify production structure and syntax
         run: |
           node --check budget/training-overview-mode.js
           node --check budget/pulse-environment/environment.js
-      - name: Verify canonical DOM and runtime boundaries
-        run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
           html=Path('budget/exercise.html').read_text()
-          ids=[value for value in re.findall(r'\bid="([^"]+)"',html) if re.fullmatch(r'[A-Za-z][A-Za-z0-9_.:-]*',value)]
+          ids=[v for v in re.findall(r'\bid="([^"]+)"',html) if re.fullmatch(r'[A-Za-z][A-Za-z0-9_.:-]*',v)]
           dups=sorted({x for x in ids if ids.count(x)>1})
           assert not dups, dups
-          assert html.count('id="week-grid"')==1
-          assert html.count('id="log-body"')==1
-          assert html.count('id="session-modal"')==1
+          for ident in ('week-grid','log-body','session-modal','sw-cnt','total-cnt','dur-wk','last-d','g1-bar','g2-bar','g3-bar','chart-sessions','chart-hr-combined','pr-grid','reactor-core','reactor-start'):
+              assert ids.count(ident)==1,(ident,ids.count(ident))
           assert html.count('function getWorkouts()')==1
           assert html.count('function getPlannedSessions()')==1
+          assert html.count('function startWorkoutSessionForDate')==1
           assert 'pulse-environment/training.js' not in html
           assert 'pulse-environment/training.css' not in html
           assert 'pulse-observatory/training.css' not in html
           assert 'data-training-overview="observatory"' in html
-          print('canonical DOM/runtime verification PASS')
+          assert 'training-overview-mode.js?v=20260915-main-cp1' in html
+          print('checkpoint 1 final structural validation PASS')
           PY
           ! grep -q 'setInterval(' budget/training-overview-mode.js
           ! grep -q 'setInterval(' budget/pulse-environment/environment.js
-      - name: Verify repository rules and checklist state
+      - name: Verify complete working plan was preserved
         run: |
           test -f AGENTS.md
-          grep -q 'checkpoint/training-observatory-pre-migration-2026-09-15' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
-          grep -q 'Implementation checkpoint: Observatory is default' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
-      - name: Commit checkpoint 1
+          grep -q '# Checkpoint 11 — Final regression / Release candidate gate' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          grep -q '# Implementation order' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          grep -q '# Embedded repository rules — copy of root `AGENTS.md`' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          grep -q '6c5fb2ef98f1f37b13b3175b9d70fde94e0da70a' budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+      - name: Commit restored checkpoint documentation
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add budget/exercise.html budget/training-overview-mode.js budget/pulse-environment/environment.js budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git add budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
           git diff --cached --check
-          git diff --cached --quiet || git commit -m 'Promote Observatory to canonical training overview'
+          git diff --cached --quiet || git commit -m 'Preserve full Observatory migration plan'
           git push
