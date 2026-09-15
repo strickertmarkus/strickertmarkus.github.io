@@ -19,13 +19,17 @@ Goal: keep the current Pulse/Observatory-derived training experience and all wor
 
 ## Checkpoint 2 — Loader inventory and ownership
 
-- [ ] Record every exercise-specific script loaded by `exercise.html`, `auth-config.js`, `auth-gate.js`, and nested loaders.
-- [ ] Mark each asset as `required`, `superseded`, `duplicate responsibility`, or `load only on demand`.
-- [ ] Identify scripts loaded directly and indirectly through another script.
-- [ ] Identify preloads that duplicate a subsequent sequential load without improving first paint.
-- [ ] Identify session-only assets that can be deferred until a workout starts.
-- [ ] Replace the current long sequential loader with explicit dependency groups where safe.
-- [ ] Measure request count before/after.
+Detailed audit: `TRAINING-LOADER-INVENTORY.md`
+
+- [x] Record every exercise-specific script loaded by `exercise.html`, `auth-config.js`, `auth-gate.js`, and nested loaders.
+- [x] Mark each asset as `required`, `superseded`, `duplicate responsibility`, or `load only on demand`/candidate.
+- [x] Identify scripts loaded directly and indirectly through another script.
+- [x] Identify preloads that duplicate a subsequent sequential load without improving first paint.
+- [x] Identify session-only assets that can be deferred until a workout starts.
+- [x] Replace the current long network waterfall with one ordered manifest and explicit ownership groups while preserving execution order.
+- [x] Measure request count before/after statically and add `window.__exerciseLoaderMetricsV2` for real-device bundle timing.
+
+Checkpoint-2 result: 27 auth-gate assets now start downloading concurrently from one manifest but still execute in the previous exact order. The mismatched heart-rate preload was removed. Static exercise-feature resource URLs go from 42 (41 real + 1 wasted preload URL) to 41 real URLs; the larger improvement is removal of the up-to-27-request network waterfall.
 
 ## Checkpoint 3 — Re-render / observer / timer cleanup
 
