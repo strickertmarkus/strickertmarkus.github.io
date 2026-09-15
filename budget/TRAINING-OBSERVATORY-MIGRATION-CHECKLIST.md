@@ -181,37 +181,34 @@ Implementation checkpoint: the sticky header now uses the same native four-point
 
 # Checkpoint 6 — Expandable weekly plan: linear → Observatory orbit
 
-Goal: the weekly plan can be dragged upward into a circular/orbital layout and collapsed again.
+Goal: the weekly plan expands from its normal linear layout into an Observatory orbit through one small explicit expand control, and collapses through the same control.
 
-This interaction should reuse the **real seven weekly-plan nodes**. Do not create a second interactive weekly plan that can drift out of sync.
+This interaction reuses the **real seven weekly-plan nodes**. There is no second interactive weekly plan and no drag/pointer-capture system.
 
-- [x] Define one owner/state: `weekOrbitProgress` from `0` (collapsed/linear) to `1` (expanded/orbit).
-- [x] Add an obvious but unobtrusive drag affordance to the weekly-plan surface.
-- [x] On mobile, upward drag should follow the finger continuously rather than only playing an animation after release.
-- [x] As drag progress increases, the weekly-plan container expands and the seven real day nodes interpolate from the existing linear layout into a circle.
-- [x] Use Reactor's orbit geometry as a mathematical/reference source, but **not** Reactor's visual theme.
-- [x] Apply Observatory's thin orbital traces, glowing nodes/star points, crimson/rose/cyan atmospheric language and transparency hierarchy.
-- [x] Planned/completed/current days must remain semantically distinguishable in both states.
-- [x] Release past threshold → settle expanded; below threshold → settle collapsed.
-- [x] Expanded state gets an explicit collapse affordance in addition to downward drag.
-- [x] Desktop gets an equivalent click/expand control; dragging may be optional there if it harms usability.
-- [x] Avoid cloning live interactive nodes. Prefer transforms/CSS custom properties/FLIP/View Transition on the same nodes.
-- [x] Use at most one animation-frame owner while the gesture is active; no permanent polling loop.
-- [x] Ensure pointer/touch handling does not cause page scroll while the orbit gesture is actively captured.
-- [x] Verify normal vertical page scrolling remains unaffected when the gesture is not active.
-- [x] Verify tapping a day still opens/selects the intended plan in both collapsed and orbit state.
-- [x] Verify week navigation and builder editing still operate on the same source data.
-- [ ] Test repeated expand/collapse cycles on iPhone/Safari, including interrupted/cancelled gestures.
-- [x] Respect reduced motion: allow state switching without the continuous orbital morph.
+- [x] Keep one owner/state: `weekOrbitProgress` from `0` (collapsed/linear) to `1` (expanded/orbit).
+- [x] Put one small expand-icon control at the left of the weekly-plan header, aligned with `Redigera` and `Mallpass`.
+- [x] Clicking the control animates the seven real day nodes between the linear layout and the orbit.
+- [x] The same control collapses the expanded orbit and updates its accessible label/state.
+- [x] Use Reactor's orbit geometry only as a mathematical/reference source, not Reactor's visual theme.
+- [x] Use Observatory thin orbital traces and rose/cyan atmospheric hierarchy.
+- [x] Replace decorative random dots/plus marks with the canonical Pulse Observatory star geometry in the orbit centre.
+- [x] Planned/completed/current days remain semantically distinguishable in both states.
+- [x] Avoid cloning live interactive nodes; the existing `#week-grid .week-day` nodes move in place.
+- [x] Keep at most one request-animation-frame owner during the click transition; no permanent polling loop.
+- [x] Remove drag, pointer capture, click-suppression and drag-affordance code completely.
+- [x] Normal vertical page scrolling remains untouched because the orbit has no gesture capture.
+- [x] Tapping a day still opens/selects the intended plan in both collapsed and orbit state.
+- [x] Week navigation and builder editing still operate on the same source data.
+- [ ] Test repeated expand/collapse cycles on a physical iPhone/Safari.
+- [x] Respect reduced motion: state switching is immediate without the continuous morph.
 
-Implementation checkpoint: `training-week-orbit.js` owns `weekOrbitProgress`, pointer capture, threshold settling and the single active animation-frame loop. It moves the existing seven `#week-grid .week-day` nodes into the Observatory orbit without cloning them; `training-week-orbit.css` owns the scoped orbit presentation.
+Implementation checkpoint: `training-week-orbit.js` owns only click expansion state, layout interpolation and one temporary animation-frame loop. `exercise.html` owns the small header control and the single static orbit shell around the canonical `week-grid`; `training-week-orbit.css` owns the scoped presentation. Drag/pointer infrastructure from the first CP6 iteration has been deleted.
 
-Verification: Node syntax + all `budget/tests/training-*.test.cjs`, single `week-grid`, no `cloneNode`, one orbit `requestAnimationFrame` owner, reduced-motion instant path, pointer capture limited to the drag affordance, day-state styling, week rerender recapture, overview-switch cleanup and `git diff --check`. Physical repeated iPhone/Safari gesture verification remains intentionally open.
+Verification: Node syntax + all `budget/tests/training-*.test.cjs`, one canonical `week-grid`, no `cloneNode`, no pointer-capture/drag listeners, one orbit `requestAnimationFrame` owner, reduced-motion instant path, day-state styling, week rerender recapture, overview-switch cleanup, current cache keys and `git diff --check`.
 
-**Checkpoint exit condition:** one weekly plan, two geometries, reversible gesture, no stale cloned state.
+**Checkpoint exit condition:** one weekly plan, two geometries, one compact click control, no stale cloned or gesture state.
 
 ---
-
 # Checkpoint 7 — Achievement / inactive visual hierarchy
 
 Goal: adopt the successful Zen visual rule: attained/active states feel luminous; pending states recede.

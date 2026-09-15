@@ -9,8 +9,9 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const orbit = read('training-week-orbit.js');
 const orbitCss = read('training-week-orbit.css');
 const html = read('exercise.html');
+const starPath = 'M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z';
 
-test('weekly orbit owns one progress state and one animation-frame owner', () => {
+test('weekly orbit keeps one progress state and one temporary animation-frame owner', () => {
   assert.match(orbit, /let weekOrbitProgress = 0;/);
   assert.match(orbit, /function orbitFrame\(now\)/);
   assert.equal((orbit.match(/requestAnimationFrame\(orbitFrame\)/g) || []).length, 1);
@@ -19,23 +20,26 @@ test('weekly orbit owns one progress state and one animation-frame owner', () =>
 
 test('orbit reuses the canonical week grid and never clones interactive day nodes', () => {
   assert.match(orbit, /const grid = document\.getElementById\('week-grid'\);/);
-  assert.match(orbit, /shell\.appendChild\(grid\)/);
   assert.match(orbit, /Array\.from\(grid\.querySelectorAll\('\.week-day'\)\)/);
   assert.doesNotMatch(orbit, /cloneNode\(/);
   assert.equal((html.match(/id="week-grid"/g) || []).length, 1);
+  assert.match(html, /data-week-orbit-shell/);
 });
 
-test('mobile drag follows pointer progress and captures scrolling only on the affordance', () => {
-  assert.match(orbit, /toggle\.setPointerCapture\(event\.pointerId\)/);
-  assert.match(orbit, /weekOrbitProgress = clamp01\(weekOrbitDrag\.startProgress \+ delta\)/);
-  assert.match(orbit, /event\.preventDefault\(\)/);
-  assert.match(orbitCss, /week-orbit-toggle\{[\s\S]*touch-action:none/);
-  assert.doesNotMatch(orbitCss, /week-orbit-shell\{[^}]*touch-action:none/);
+test('CP6 uses one small click-only expand control in the weekly header', () => {
+  const week = html.slice(html.indexOf('<section class="observatory-week"'), html.indexOf('<hr class="rule compact-only">'));
+  assert.match(week, /observatory-week-title-row/);
+  assert.match(week, /class="week-orbit-toggle observatory-only"/);
+  assert.match(week, /class="week-orbit-expand-symbol"/);
+  assert.ok(week.indexOf('week-orbit-toggle') < week.indexOf('<h2>Veckoplan</h2>'));
+  assert.match(orbit, /weekOrbitToggle\.addEventListener\('click'/);
+  assert.doesNotMatch(orbit, /pointerdown|pointermove|pointerup|pointercancel|setPointerCapture|releasePointerCapture|weekOrbitDrag|SuppressClick/);
+  assert.doesNotMatch(orbitCss, /touch-action:none|data-dragging|week-orbit-grip|week-orbit-chevron/);
 });
 
-test('expanded state has an explicit reversible control and reduced-motion instant path', () => {
+test('click animation remains reversible and reduced motion takes the instant path', () => {
+  assert.match(orbit, /settleOrbit\(weekOrbitProgress < \.5, false\)/);
   assert.match(orbit, /aria-expanded/);
-  assert.match(orbit, /Stäng orbit/);
   assert.match(orbit, /if \(immediate \|\| reduced\.matches\)/);
   assert.match(orbitCss, /@media \(prefers-reduced-motion:reduce\)/);
 });
@@ -46,24 +50,26 @@ test('week rerenders and overview switches cannot leave stale orbit layout', () 
   assert.match(orbit, /if \(!orbitAvailable\(\) && weekOrbitProgress > 0\) settleOrbit\(0, true\)/);
 });
 
-test('orbit visual language preserves selected, completed, current and pending day semantics', () => {
+test('orbit visual language preserves day semantics and uses the canonical Observatory star in the centre', () => {
   assert.match(orbitCss, /week-day\.is-selected::before/);
   assert.match(orbitCss, /week-day\.done::before/);
   assert.match(orbitCss, /week-day\.today::before/);
   assert.match(orbitCss, /week-day\.pending::before/);
   assert.match(orbitCss, /week-orbit-trace-secondary/);
-  assert.match(orbitCss, /week-orbit-stars/);
+  assert.match(orbitCss, /week-orbit-center-symbol/);
+  assert.match(html, new RegExp(starPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.doesNotMatch(html, /week-orbit-stars|week-orbit-axis/);
 });
 
 test('orbit stylesheet is Observatory-scoped and structurally balanced', () => {
   assert.match(orbitCss, /html\[data-training-overview="observatory"\]/);
-  assert.match(orbitCss, /html\[data-training-overview="compact"\] \.week-orbit-control/);
+  assert.match(orbitCss, /html\[data-training-overview="compact"\] \.week-orbit-toggle/);
   const opens = (orbitCss.match(/\{/g) || []).length;
   const closes = (orbitCss.match(/\}/g) || []).length;
   assert.equal(opens, closes);
 });
 
-test('production page loads the CP6 orbit assets with cache keys', () => {
-  assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp6-1/);
-  assert.match(html, /training-week-orbit\.js\?v=20260915-main-cp6-1/);
+test('production page loads the click-only CP6 assets with current cache keys', () => {
+  assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp6-click-2/);
+  assert.match(html, /training-week-orbit\.js\?v=20260915-main-cp6-click-2/);
 });
