@@ -22,12 +22,12 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import textwrap
           source = Path('.github/workflows/training-cp7-state-hierarchy.yml').read_text()
           marker = "          python3 - <<'PY'\n"
           start = source.index(marker) + len(marker)
           end = source.index("\n          PY", start)
-          code = textwrap.dedent(source[start:end])
+          raw = source[start:end]
+          code = '\n'.join(line[10:] if line.startswith('          ') else line for line in raw.splitlines())
           exec(compile(code, 'cp7-migration.py', 'exec'))
           PY
       - name: Syntax and training regression tests
