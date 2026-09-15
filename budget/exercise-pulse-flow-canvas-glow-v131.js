@@ -31,14 +31,12 @@
         }
 
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > .pf-canvas-mini-v130,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > .pf-canvas-mini-v130,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring > .pf-canvas-arc-v130,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring > .pf-canvas-arc-v130 {
           z-index:1 !important;
         }
 
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > svg,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > svg,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring > .pf-arc-svg-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring > .pf-arc-svg-v80 {
           z-index:2 !important;

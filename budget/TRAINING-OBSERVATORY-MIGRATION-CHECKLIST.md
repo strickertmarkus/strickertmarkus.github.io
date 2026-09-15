@@ -157,23 +157,25 @@ Goal: strengthen Observatory-specific interaction cues without new assets.
 
 ## Header symbol
 
-- [ ] Replace the small Observatory header ECG decoration with the Observatory star/diamond symbol.
-- [ ] Reuse the exact Observatory visual geometry/design language already present on the page.
-- [ ] Animate it as a clearly readable **heartbeat pulse**, not a generic constant breathing animation.
-- [ ] Heartbeat should have a strong but controlled glow peak and quiet recovery between beats.
-- [ ] Pause decorative animation when document is hidden/offscreen where applicable.
-- [ ] Respect reduced motion.
-- [ ] Do not introduce an additional JS animation loop if CSS animation or the existing presentation scheduler can own it.
+- [x] Replace the small Observatory header ECG decoration with the Observatory star/diamond symbol.
+- [x] Reuse the exact Observatory visual geometry/design language already present on the page.
+- [x] Animate it as a clearly readable **heartbeat pulse**, not a generic constant breathing animation.
+- [x] Heartbeat should have a strong but controlled glow peak and quiet recovery between beats.
+- [x] Pause decorative animation when document is hidden/offscreen where applicable.
+- [x] Respect reduced motion.
+- [x] Do not introduce an additional JS animation loop if CSS animation or the existing presentation scheduler can own it.
 
 ## Next workout
 
-- [ ] Replace the current visually weak/small-arrow treatment for `Nästa pass` with a dedicated action/symbol area.
-- [ ] Keep next-workout content driven by the real weekly plan.
-- [ ] Make the action obvious on mobile without competing with the mode toggle or weekly planner.
-- [ ] Use native SVG/CSS rather than emoji/image assets.
-- [ ] Preserve empty-state behavior when no next workout is planned.
+- [x] Replace the current visually weak/small-arrow treatment for `Nästa pass` with a dedicated action/symbol area.
+- [x] Keep next-workout content driven by the real weekly plan.
+- [x] Make the action obvious on mobile without competing with the mode toggle or weekly planner.
+- [x] Use native SVG/CSS rather than emoji/image assets.
+- [x] Preserve empty-state behavior when no next workout is planned.
 
 **Checkpoint exit condition:** Observatory's primary identity and next action are both immediately legible on the first screen.
+
+Implementation checkpoint: the sticky header now uses the same native four-point Observatory star geometry as the hero kicker and Next Workout cue. Its double-beat CSS pulse is governed by the existing Observatory visibility/session scheduler. The former header ECG ownership was removed from the Pulse Flow rAF/glow/canvas layers. `reactor-start` remains the sole Next Workout action and still reads the canonical weekly plan / empty state.
 
 ---
 

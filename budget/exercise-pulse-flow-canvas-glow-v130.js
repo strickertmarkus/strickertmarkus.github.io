@@ -39,7 +39,6 @@
           overflow:hidden !important;
         }
         html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .bs-ring {
           overflow:visible !important;
@@ -56,7 +55,6 @@
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-arc-progress-v80,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 svg,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 svg,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 svg,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-a-v80,
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 .pf-ecg-sweep-b-v80,
         html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 .pf-ecg-sweep-a-v80,
@@ -76,19 +74,16 @@
           display:none !important;
         }
 
-        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 {
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 {
           isolation:isolate;
         }
-        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > .pf-canvas-mini-v130,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > .pf-canvas-mini-v130 {
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > .pf-canvas-mini-v130 {
           inset:-30px !important;
           width:calc(100% + 60px) !important;
           height:calc(100% + 60px) !important;
           z-index:1 !important;
         }
-        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > svg,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 > svg {
+        html.exercise-concept-pulse-home-v1 body .pf-ecg-v80 > svg {
           position:relative !important;
           z-index:2 !important;
         }
@@ -250,7 +245,7 @@
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ['.pf-ecg-sweep-a-v80','.pf-ecg-sweep-b-v80','.pf-header-ecg-sweep-a-v80','.pf-header-ecg-sweep-b-v80'].forEach(function (selector) {
+    ['.pf-ecg-sweep-a-v80','.pf-ecg-sweep-b-v80'].forEach(function (selector) {
       var path = svg.querySelector(selector);
       if (!path || !path.getAttribute('d')) return;
       var sampled = samplePath(path,size.rect,DPR,28);
@@ -264,9 +259,6 @@
     });
     document.querySelectorAll('#session-between-overlay-v2 .pf-ecg-v80').forEach(function (signal) {
       paintMini(signal,parseRgb(signal.closest('#session-between-overlay-v2') || signal,'--pf-between-rgb',[34,211,238]));
-    });
-    document.querySelectorAll('.pf-header-ecg-v80').forEach(function (signal) {
-      paintMini(signal,[103,232,249]);
     });
   }
 

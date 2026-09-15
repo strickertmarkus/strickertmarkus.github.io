@@ -246,15 +246,6 @@
             drop-shadow(0 0 11px rgba(var(--pf-between-rgb),.38)) !important;
         }
 
-        /* Header mini ECG uses the same Safari-safe container filter. */
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 svg {
-          filter:
-            drop-shadow(0 0 1.4px rgba(103,232,249,.88))
-            drop-shadow(0 0 5px rgba(103,232,249,.42)) !important;
-          -webkit-filter:
-            drop-shadow(0 0 1.4px rgba(103,232,249,.88))
-            drop-shadow(0 0 5px rgba(103,232,249,.42)) !important;
-        }
       }
 
       @media (prefers-reduced-motion:reduce) {
@@ -268,8 +259,7 @@
           opacity:.10 !important;
         }
         html.exercise-concept-pulse-home-v1 body #session-countdown-ring .pf-ecg-v80 svg,
-        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 svg,
-        html.exercise-concept-pulse-home-v1 body .pf-header-ecg-v80 svg {
+        html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2 .pf-ecg-v80 svg {
           filter:none !important;
           -webkit-filter:none !important;
         }

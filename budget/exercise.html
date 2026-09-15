@@ -8,8 +8,8 @@
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
-<script src="auth-config.js?v=20260915-loader-v2"></script>
-<script src="auth-gate.js?v=20260915-loader-v2"></script>
+<script src="auth-config.js?v=20260915-cp5-identity"></script>
+<script src="auth-gate.js?v=20260915-cp5-identity"></script>
   <script defer src="exercise-timer-focus.js?v=20260915-loader-v2"></script>
   <script src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -493,9 +493,9 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260910">
 <script defer src="training-zen-nav.js?v=20260910"></script>
 <link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260915-main-cp4-structural-1">
-<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260915-main-cp4-glow-fade-1">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260915-main-cp5-identity-1">
 <script defer src="training-overview-mode.js?v=20260915-main-cp1"></script>
-<script defer src="pulse-environment/environment.js?v=20260915-main-cp4-structural-1"></script>
+<script defer src="pulse-environment/environment.js?v=20260915-main-cp5-identity-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -505,6 +505,7 @@
   <header class="app-header" id="pulse-header">
     <div class="brand">
       <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'"><span class="compact-only">Träning</span><span class="observatory-only">PULSE<span class="pulse-brand-flow">FLOW</span></span></h1><p>Markus Strickert</p></div>
+      <span class="observatory-header-star observatory-only" aria-hidden="true"><svg class="observatory-star-glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z"/></svg></span>
     </div>
     <div class="streak-badge"><span id="streak-count">0</span>&nbsp;<span style="font-size:11px;font-weight:500;opacity:.7">dagar</span></div>
     <div class="nav-dropdown-wrapper">
@@ -536,7 +537,7 @@
   <main class="main-content" id="pulse-home">
 <section class="observatory-stage observatory-only" aria-label="Pulse Observatory">
   <div class="observatory-heading">
-    <span class="observatory-kicker"><span aria-hidden="true">✧</span> PULSE / OBSERVATORY</span>
+    <span class="observatory-kicker"><svg class="observatory-star-glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z"/></svg> PULSE / OBSERVATORY</span>
     <h2>Din träning.<br><em>I ett nytt ljus.</em></h2>
     <nav class="observatory-jumps" aria-label="Träningsdata">
       <button type="button" data-reactor-scroll="pulse-progress"><span aria-hidden="true">⌁</span> Framsteg</button>
@@ -563,12 +564,20 @@
       </svg>
     </div>
     <div class="observatory-next">
-      <span class="observatory-next-label">NÄSTA PASS <svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
+      <span class="observatory-next-label"><span>NÄSTA PASS</span></span>
       <button type="button" class="observatory-start" id="reactor-start" disabled>
-        <span id="reactor-date">DITT PASS</span>
-        <strong id="reactor-title">Laddar pass</strong>
-        <span id="reactor-summary"></span>
-        <span class="observatory-action"><svg class="observatory-action-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span><svg class="observatory-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span>
+        <span class="observatory-next-main">
+          <span class="observatory-next-copy">
+            <span id="reactor-date">DITT PASS</span>
+            <strong id="reactor-title">Laddar pass</strong>
+            <span id="reactor-summary"></span>
+          </span>
+          <span class="observatory-next-cue" aria-hidden="true">
+            <svg class="observatory-star-glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z"/></svg>
+            <svg class="observatory-next-cue-arrow" viewBox="0 0 24 24" fill="none" focusable="false"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </span>
+        </span>
+        <span class="observatory-action"><svg class="observatory-action-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Starta pass</span></span>
         <span class="observatory-progress" id="observatory-progress" aria-live="polite"></span>
         <span class="observatory-last" id="observatory-last" aria-live="polite"></span>
       </button>

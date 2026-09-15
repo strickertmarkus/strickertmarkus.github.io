@@ -140,6 +140,7 @@
     setText('reactor-action', hasPlan ? 'Starta pass' : 'Bygg pass');
     const start = document.getElementById('reactor-start');
     start.disabled = false;
+    start.dataset.planState = hasPlan ? 'planned' : 'empty';
     start.setAttribute('aria-label', (hasPlan ? 'Starta ' : 'Bygg pass: ') + title + ', ' + dateLabel + ', ' + summary);
     document.getElementById('reactor-configure').hidden = !hasPlan;
     document.querySelectorAll('#week-grid .week-day').forEach(function (day, index) {
@@ -245,7 +246,9 @@
     const session = document.getElementById('session-modal');
     function syncMotion() {
       const paused = !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
-      core.style.setProperty('--pulse-scene-motion', paused ? 'paused' : 'running');
+      const motionState = paused ? 'paused' : 'running';
+      core.style.setProperty('--pulse-scene-motion', motionState);
+      document.documentElement.style.setProperty('--observatory-identity-motion', motionState);
       core.querySelectorAll('.reactor-orbiter,.reactor-atmosphere').forEach(el => { el.style.animationPlayState = paused ? 'paused' : 'running'; });
     }
     new IntersectionObserver(entries => { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
