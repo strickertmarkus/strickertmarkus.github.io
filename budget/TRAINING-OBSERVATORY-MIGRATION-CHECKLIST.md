@@ -89,6 +89,10 @@ Goal: establish the structure before visual polishing. No duplicated dashboard/r
 
 Implementation checkpoint: Observatory is default via `data-training-overview="observatory"`; `?overview=compact` and `window.setTrainingOverviewMode('compact')` exercise the same DOM in Compact mode. The visible mode toggle/morph intentionally belongs to Checkpoint 2. No Observatory/Reactor `training.js` or training stylesheet is loaded on the production route.
 
+**Checkpoint 1 implementation commit:** `6c5fb2ef98f1f37b13b3175b9d70fde94e0da70a`
+
+Verification completed in the checkpoint workflow: JavaScript syntax, literal duplicate-ID scan, one canonical `week-grid` / `log-body` / `session-modal`, one existing workout/planned-session data owner, absence of Observatory/Reactor session-training assets, default Observatory state, no new `setInterval` in the overview controller/adapter, and `git diff --check`.
+
 ---
 
 # Checkpoint 2 — Compact / Observatory top toggle + smooth morph
@@ -275,86 +279,55 @@ Goal: do not finish the visual migration and then preserve all historical patch 
 
 ---
 
-# Checkpoint 11 — Final regression / Release candidate gate
+# Checkpoint 11 — Full regression matrix
 
-## Overview / navigation
-
-- [ ] Cold mobile load opens Observatory directly with no legacy flash.
-- [ ] Warm mobile load opens Observatory directly.
-- [ ] Compact toggle works repeatedly without reload.
-- [ ] Observatory toggle works repeatedly without reload.
-- [ ] Training ↔ Zen morph works repeatedly without full document reload.
-- [ ] Browser back/forward behavior is intentional.
-- [ ] Markus/Maja state is preserved.
-
-## Weekly plan / data
-
-- [ ] Weekly plan shows correct dates/workouts in collapsed state.
-- [ ] Weekly plan shows the same data in expanded orbit state.
-- [ ] Drag follows finger smoothly and can reverse mid-gesture.
-- [ ] Repeated expand/collapse leaves no stuck state.
-- [ ] Day selection, builder open/edit/save and week navigation work.
-- [ ] No duplicate workout writes.
-
-## Live training
-
-- [ ] Strength session from Observatory.
-- [ ] Strength session from Compact.
-- [ ] Cardio session from Observatory.
-- [ ] Compact cardio timer pause/resume.
-- [ ] Compact timer swipe expand/collapse repeatedly.
-- [ ] Automatic rest timer.
-- [ ] 5-second pre-timer and sounds.
-- [ ] Custom between exercise remains manual.
-- [ ] Finish/save workout and return to correct overview.
-- [ ] Planned-session persistence survives reload/Firebase sync.
-
-## Layout / performance
-
-- [ ] 320 px mobile.
-- [ ] 375/390 px mobile.
-- [ ] iPhone Safari/PWA physical validation.
-- [ ] 768 px tablet.
-- [ ] 1440 px desktop.
-- [ ] Landscape mobile session.
-- [ ] No page-level horizontal overflow.
-- [ ] No duplicate render owners/listeners introduced by overview switching.
-- [ ] No permanent gesture RAF/poller when interaction is idle.
-- [ ] Compare script/request count and load timing against current loader-v2 baseline.
-- [ ] No new console errors.
-- [ ] Reduced-motion mode works.
-
-## Release documentation
-
-- [ ] Update `TRAINING-RELEASE-V1-PLAN.md` with final architecture.
-- [ ] Record final pre-V1 checkpoint.
-- [ ] Remove this working checklist only after its completed decisions are captured in permanent V1 documentation.
+- [ ] Observatory default load, no legacy-page flash.
+- [ ] Compact load/switch, no Observatory-specific styling leaks.
+- [ ] Repeated Compact ↔ Observatory switching.
+- [ ] Markus and Maja profile data.
+- [ ] Week navigation and current-week action.
+- [ ] Open/edit/delete planned workout.
+- [ ] Template/mallpass flow.
+- [ ] Add/log/edit/delete completed workout.
+- [ ] Goals and editable goal values.
+- [ ] Charts: values, labels, numeric bounds and no canvas reuse errors beyond any explicitly accepted baseline.
+- [ ] PR groups, expansion and editing.
+- [ ] Expanded training log and mobile table behavior.
+- [ ] Strength live session: start, 5 s timer, run set, complete set, rest, next set, extra set, exercise complete, save.
+- [ ] Cardio live session: compact timer, focus/large timer, drag interaction, pause/resume, complete/save.
+- [ ] Custom between exercise stays manual; configured rest stays automatic.
+- [ ] Planned-session layout persists after completed workout.
+- [ ] Return from session preserves overview mode.
+- [ ] Weekly plan linear mode.
+- [ ] Weekly plan orbit expand/drag/collapse.
+- [ ] Observatory achieved/pending glow language.
+- [ ] Training ↔ Zen in-page transition.
+- [ ] Stretch ↔ Meditation existing behavior unchanged.
+- [ ] No page-level horizontal overflow at 320 / 375 / 390 / 768 / 1440 px.
+- [ ] iPhone Safari / installed PWA: cold load, warm load, background/foreground, session timers, orbit gesture and mode morph.
+- [ ] Reduced motion.
+- [ ] No duplicate IDs, duplicate event owners or unintended persistent animation loops.
+- [ ] No new unexpected localStorage/Firebase keys.
 
 ---
 
-# Implementation order
+# Checkpoint 12 — Release candidate / cleanup
 
-Do **not** attempt the entire list in one task. Recommended working batches:
-
-1. Checkpoint 1 only — canonical one-page Observatory/Compact architecture.
-2. Checkpoints 2–3 — mode toggle + one shared current live training mode.
-3. Checkpoint 4 — mobile Observatory information hierarchy.
-4. Checkpoint 5 — header heartbeat star + dedicated Next Workout action.
-5. Checkpoint 6 — weekly-plan drag/orbit interaction (own checkpoint because gesture work is high-risk on iOS).
-6. Checkpoint 7 — glow/transparency semantic polish.
-7. Checkpoint 8 — Training ↔ Zen shared-shell morph (own checkpoint because it changes app-level navigation/lifecycle).
-8. Checkpoint 9 — retire standalone preview/page duplication.
-9. Checkpoints 10–11 — merge with V1 cleanup plan and full release-candidate regression.
-
-Every batch gets its own checkpoint commit and must remove obsolete logic introduced/superseded by that batch before moving on.
+- [ ] All working checkpoints above are complete.
+- [ ] Reconcile this file with `TRAINING-RELEASE-V1-PLAN.md`.
+- [ ] Delete this temporary working checklist only after its final decisions have been transferred to permanent release documentation.
+- [ ] Remove temporary/debug/test-only migration code and workflows.
+- [ ] Remove obsolete preview navigation/competing page entry points.
+- [ ] Remove superseded runtime/style files per the Release V1.0 consolidation plan.
+- [ ] Verify final script count against the V1.0 target.
+- [ ] Run full regression matrix.
+- [ ] Record final Release V1.0 commit/tag/checkpoint.
 
 ---
 
-# Embedded repository rules — copy of root `AGENTS.md`
+# Embedded repository rules snapshot
 
-Source at creation: `AGENTS.md`, blob `d9d8a25046d0ee123ad92923b5f6d3e07953c7b5`.
-
-If root `AGENTS.md` changes later, **root `AGENTS.md` is authoritative** and this embedded copy must be refreshed before continuing the migration.
+The root `AGENTS.md` remains authoritative. This snapshot is embedded here so every continuation of this migration has the rules in the same working document. If root `AGENTS.md` changes, refresh this section before continuing.
 
 ## Mandatory Repository Work Rules
 
