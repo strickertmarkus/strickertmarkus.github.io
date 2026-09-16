@@ -43,9 +43,12 @@
     if(message)window.setTimeout(function(){if(node.textContent===message){node.hidden=true;node.textContent='';}},4200);
   }
   function switchMarkup(){
-    return '<button type="button" data-wellness-destination="training" aria-pressed="false"><span aria-hidden="true">⌁</span> Träning</button>'+
+    return '<div class="wellness-kind-options">'+
+      '<button type="button" data-wellness-destination="training" aria-pressed="false"><span aria-hidden="true">⌁</span> Träning</button>'+
       '<button type="button" data-wellness-destination="stretch" aria-pressed="false"><span aria-hidden="true">✧</span> Stretch</button>'+
       '<button type="button" data-wellness-destination="meditation" aria-pressed="false"><span aria-hidden="true">≈</span> Meditation</button>'+
+      '</div>'+
+      '<span class="wellness-overview-slot"></span>'+
       '<span class="wellness-mode-notice" role="status" aria-live="polite" hidden></span>';
   }
   function ensureSharedSwitch(){
@@ -57,6 +60,9 @@
     nav.dataset.wellnessKindSwitch='true';
     nav.setAttribute('aria-label','Välj Träning, Stretch eller Meditation');
     nav.innerHTML=switchMarkup();
+    var overviewToggle=document.getElementById('training-overview-toggle');
+    var overviewSlot=nav.querySelector('.wellness-overview-slot');
+    if(overviewToggle&&overviewSlot)overviewSlot.appendChild(overviewToggle);
     header.insertAdjacentElement('afterend',nav);
     sharedSwitch=nav;
     nav.addEventListener('click',function(event){
@@ -253,6 +259,7 @@
   function finishSwitch(destination,options,token){
     if(token!==switchToken)return false;
     historyFor(destination,options.history||'push');
+    if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
     requestAnimationFrame(function(){window.scrollTo(0,scrollPositions[mode]||0);});
     window.dispatchEvent(new CustomEvent('wellness-mode-change',{detail:{mode:mode,destination:destination}}));
     return true;
@@ -261,19 +268,33 @@
     options=options||{};
     var destination=normalizeDestination(value);
     var nextMode=destination==='training'?'training':'zen';
+    var token=++switchToken;
     if(nextMode===mode&&!options.force){
       if(nextMode==='zen'&&destination!==zenKind){selectZenKind(destination);historyFor(destination,options.history||'push');}
       updateUnifiedSwitch(nextMode==='training'?'training':zenKind);
+      if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
       return Promise.resolve(true);
     }
-    if(!canLeave(nextMode))return Promise.resolve(false);
-    var token=++switchToken;
+    if(!canLeave(nextMode)){
+      updateUnifiedSwitch(mode==='zen'?zenKind:'training');
+      if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
+      return Promise.resolve(false);
+    }
+    updateUnifiedSwitch(destination);
+    if(sharedSwitch)sharedSwitch.setAttribute('aria-busy','true');
     var ready=nextMode==='zen'?ensureZenLoaded():Promise.resolve();
     return ready.then(function(){
       if(token!==switchToken)return false;
       if(nextMode==='zen')selectZenKind(destination);
       return swap(nextMode).then(function(){return finishSwitch(destination,options,token);});
-    }).catch(function(){setNotice('Läget kunde inte laddas. Försök igen.');return false;});
+    }).catch(function(){
+      if(token===switchToken){
+        if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
+        updateUnifiedSwitch(mode==='zen'?zenKind:'training');
+        setNotice('Läget kunde inte laddas. Försök igen.');
+      }
+      return false;
+    });
   }
 
   if(directZen&&!canonical){

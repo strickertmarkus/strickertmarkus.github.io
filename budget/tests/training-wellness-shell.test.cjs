@@ -88,6 +88,11 @@ test('Zen network assets warm without starting the Zen runtime',()=>{
 test('one persistent three-mode switch owns the same position in Training Stretch and Meditation',()=>{
   assert.match(shell,/function ensureSharedSwitch\(\)/);
   assert.match(shell,/header\.insertAdjacentElement\('afterend',nav\)/);
+  assert.match(shell,/class="wellness-kind-options"/);
+  assert.match(shell,/class="wellness-overview-slot"/);
+  assert.match(shell,/overviewSlot\.appendChild\(overviewToggle\)/);
+  assert.match(shellCss,/grid-template-columns:minmax\(0,1fr\) 42px/);
+  assert.match(shellCss,/\.wellness-overview-slot\{[^}]*width:42px[^}]*height:54px/);
   assert.match(shell,/data-wellness-destination="training"/);
   assert.match(shell,/data-wellness-destination="stretch"/);
   assert.match(shell,/data-wellness-destination="meditation"/);
@@ -101,7 +106,7 @@ test('one persistent three-mode switch owns the same position in Training Stretc
   assert.match(zen,/data-kind="meditation"/);
 });
 
-test('Compact uses one header symbol toggle and no dashboard mode switch',()=>{
+test('Compact uses one right-side wellness-row symbol and no dashboard mode switch',()=>{
   assert.match(exercise,/id="training-overview-toggle"/);
   assert.match(overview,/getElementById\('training-overview-toggle'\)/);
   assert.match(overview,/currentMode\(\) === 'compact' \? 'observatory' : 'compact'/);
@@ -109,6 +114,8 @@ test('Compact uses one header symbol toggle and no dashboard mode switch',()=>{
   assert.match(overviewCss,/#9be4e9/);
   assert.doesNotMatch(overview,/training-overview-switch-shell/);
   assert.doesNotMatch(overviewCss,/training-overview-switch-shell/);
+  assert.match(shell,/overviewSlot\.appendChild\(overviewToggle\)/);
+  assert.match(overviewCss,/html\[data-wellness-mode="zen"\] #training-overview-toggle\{display:none!important\}/);
 });
 
 test('Zen shared header restores the original transparent Zen composition',()=>{
@@ -138,6 +145,16 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
 });
 
+test('rapid Training and Zen requests cancel stale pending transitions',()=>{
+  const start=shell.indexOf('function requestDestination');
+  const end=shell.indexOf('\n\n  if(directZen',start);
+  const body=shell.slice(start,end);
+  assert.ok(body.indexOf('var token=++switchToken;')>=0);
+  assert.ok(body.indexOf('var token=++switchToken;')<body.indexOf('if(nextMode===mode&&!options.force)'));
+  assert.match(body,/sharedSwitch\.setAttribute\('aria-busy','true'\)/);
+  assert.match(body,/token===switchToken/);
+});
+
 test('profile query and intentional browser history survive unified switching',()=>{
   assert.match(shell,/url\.searchParams\.set\('wellness',destination\)/);
   assert.match(shell,/url\.searchParams\.delete\('wellness'\)/);
@@ -148,8 +165,8 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-shared-scene-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-shared-scene-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-toggle-align-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-toggle-align-1/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
