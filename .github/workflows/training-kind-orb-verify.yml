@@ -1,0 +1,47 @@
+name: Training Zen kind and Observatory orb verification
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-zen-kind-orb-work
+
+jobs:
+  migrate-test-clean:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-zen-kind-orb-work
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply structural changes
+        run: python3 .github/cp8-kind-orb-migrate.py
+      - name: JavaScript syntax checks
+        run: |
+          node --check budget/zen.js
+          node --check budget/training-zen-nav.js
+          node --check budget/pulse-environment/environment.js
+      - name: Run complete training regression suite
+        run: node --test budget/tests/training-*.test.cjs
+      - name: Run Zen regression suite
+        run: node --test budget/tests/zen.test.cjs budget/tests/zen-session-oasis.test.cjs
+      - name: Verify ownership and stale code
+        run: |
+          ! grep -R "observatory-next-cue" budget/exercise.html budget/pulse-observatory/observatory.css budget/tests/training-observatory-*.test.cjs
+          ! grep -R "view-transition-name\|::view-transition" budget/zen.js budget/zen.css
+          grep -q "zen-kind-surface-enter" budget/zen.js
+          grep -q "reactor-orb-meta" budget/pulse-environment/environment.js
+          git diff --check
+      - name: Commit verified implementation and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/training-kind-orb-verify.yml .github/cp8-kind-orb-migrate.py
+          git add budget
+          git commit -m "Unify Zen kind transitions and add Observatory start orb"
+          git push origin HEAD:checkpoint/training-observatory-zen-kind-orb-work
