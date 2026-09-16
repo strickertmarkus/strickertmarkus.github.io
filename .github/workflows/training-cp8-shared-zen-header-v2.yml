@@ -1,0 +1,53 @@
+name: Training CP8 shared Zen scene v2
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-cp8-shared-zen-header-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-cp8-shared-zen-header-work
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply corrected shared scene migration
+        run: python .github/training_cp8_shared_zen_v2.py
+      - name: JavaScript syntax checks
+        run: |
+          node --check budget/training-zen-nav.js
+          node --check budget/firebase-sync.js
+          node --check budget/auth-config.js
+          node --check budget/auth-gate.js
+          node --check budget/exercise-shell-v13.js
+          node --check budget/exercise-builder-between-preview-v7.js
+      - name: Run complete training regression suite
+        run: node --test budget/tests/training-*.test.cjs
+      - name: Verify structural ownership
+        run: |
+          test "$(grep -c "function ensureSharedSwitch" budget/training-zen-nav.js)" -eq 1
+          grep -Fq "header.insertAdjacentElement('afterend',nav)" budget/training-zen-nav.js
+          grep -Fq "wrap.insertBefore(zenBackdrop,wrap.firstChild)" budget/training-zen-nav.js
+          grep -Fq '#wellness-zen-surface .kind-switch{display:none!important}' budget/training-zen-nav.css
+          ! grep -Eq 'exercise-user-option\[data-user="(markus|maja)"\]\.active' budget/auth-gate.js budget/exercise-shell-v13.js budget/exercise-builder-between-preview-v7.js
+          grep -Fq '20260916-main-cp8-shared-scene-1' budget/exercise.html
+          grep -Fq '20260916-main-cp8-shared-scene-1' budget/zen.html
+          git diff --check
+      - name: Commit verified implementation and remove temporary files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/training_cp8_shared_zen_v2.py .github/workflows/training-cp8-shared-zen-header-v2.yml
+          git add -A
+          git diff --cached --check
+          git commit -m 'Unify wellness navigation over the Zen scene'
+          git push origin HEAD:checkpoint/training-observatory-cp8-shared-zen-header-work
