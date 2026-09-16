@@ -6,7 +6,8 @@ const root=path.join(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const shell=read('training-zen-nav.js');
 const shellCss=read('training-zen-nav.css');
-const overview=read('training-overview-mode.js');
+const overview=read('exercise-dashboard.js');
+const overviewShim=read('training-overview-mode.js');
 const overviewCss=read('training-overview-mode.css');
 const exercise=read('exercise.html');
 const zen=read('zen.html');
@@ -190,6 +191,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260916-main-cp8-header-toggle-1/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
   assert.match(zen,/zen\.css\?v=20260916-kind-enter-1/);
   assert.match(zen,/zen\.js\?v=20260916-kind-enter-1/);
 });
