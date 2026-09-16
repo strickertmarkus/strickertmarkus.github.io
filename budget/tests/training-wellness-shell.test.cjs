@@ -38,6 +38,18 @@ test('Training stays mounted while Zen is toggled and the shared header supplies
   assert.equal((shell.match(/createElement\('header'\)/g)||[]).length,0);
 });
 
+
+test('mobile Zen header retires the Training hamburger and uses one compact two-row composition',()=>{
+  assert.match(css,/html\[data-wellness-mode="zen"\] #pulse-header \.nav-dropdown-wrapper\{display:none!important\}/);
+  assert.doesNotMatch(css,/html\[data-wellness-mode="zen"\] \.nav-dropdown-wrapper\{opacity:/);
+  assert.match(css,/grid-template-columns:minmax\(0,1fr\) auto!important/);
+  assert.match(css,/grid-template-rows:auto auto!important/);
+  assert.match(css,/#pulse-header \.brand\{[\s\S]*position:static!important/);
+  assert.match(css,/#pulse-header>\.wellness-nav\{[\s\S]*grid-row:2!important/);
+  assert.match(css,/#pulse-header \.wellness-zen-tools\{[\s\S]*grid-row:1!important/);
+  assert.match(css,/padding:12px 16px 10px!important/);
+});
+
 test('live sessions cannot be silently destroyed by a wellness switch',()=>{
   assert.match(shell,/session-modal/);
   assert.match(shell,/classList\.contains\('show'\)/);
@@ -88,7 +100,7 @@ test('profile query and intentional browser history survive in-page switching',(
 
 test('production pages cache-bust the CP8 shared controller',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-wellness-fast-2/);
-    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-wellness-fast-2/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-wellness-header-3/);
+    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-wellness-header-3/);
   }
 });

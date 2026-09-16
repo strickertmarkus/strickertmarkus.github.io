@@ -261,6 +261,8 @@ Verification: controller syntax, all `budget/tests/training-*.test.cjs` plus exi
 
 Performance refinement (2026-09-16): the wellness morph is capped at 180–240 ms, full-surface blur was removed for mobile Safari, and Zen-local CSS/JS URLs are network-preloaded after initial idle or explicit Zen intent without executing the Zen runtime until the mode is actually opened.
 
+Mobile Zen header refinement (2026-09-16): the in-page Zen mode now follows the native Zen header hierarchy. The Training hamburger is not rendered in Zen mode; mobile uses one compact identity/profile row plus the Training↔Zen selector directly underneath, avoiding duplicate menu affordances and excess header height.
+
 
 **Checkpoint exit condition:** Training ↔ Zen feels like changing mode inside one application, not opening another page, while each domain retains one data/runtime owner.
 
