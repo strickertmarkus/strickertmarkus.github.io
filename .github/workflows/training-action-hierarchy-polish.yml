@@ -1,0 +1,43 @@
+name: Training Observatory action hierarchy polish
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-action-hierarchy-polish-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-action-hierarchy-polish-work
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply structural polish
+        run: python3 .github/training_action_hierarchy_polish.py
+      - name: JavaScript syntax
+        run: node --check budget/pulse-environment/environment.js
+      - name: Training and Zen regression suite
+        run: node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+      - name: Verify diff hygiene
+        run: |
+          git diff --check
+          test "$(grep -o 'id="reactor-start"' budget/exercise.html | wc -l)" -eq 1
+          grep -q 'data-plan-state="empty"' budget/pulse-observatory/observatory.css
+          grep -q 'data-plan-state="planned"' budget/pulse-observatory/observatory.css
+          grep -q 'core.dataset.planState' budget/pulse-environment/environment.js
+          ! grep -q "reactor-orb-meta', hasPlan ? summary : 'Inget planerat'" budget/pulse-environment/environment.js
+      - name: Commit verified implementation and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/training_action_hierarchy_polish.py .github/workflows/training-action-hierarchy-polish.yml
+          git add budget/exercise.html budget/pulse-observatory/observatory.css budget/pulse-environment/environment.js budget/tests/training-observatory-action-hierarchy.test.cjs
+          git commit -m "Polish Observatory action hierarchy"
+          git push origin HEAD:checkpoint/training-observatory-action-hierarchy-polish-work
