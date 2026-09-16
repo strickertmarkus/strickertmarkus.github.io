@@ -6,7 +6,7 @@ on:
 permissions:
   contents: write
 jobs:
-  migrate-test-clean:
+  verify-clean:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -17,30 +17,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply unified mode navigation
-        run: python .github/cp8_unified_tabs_migrate.py
       - name: Syntax and training regression tests
         run: |
           node --check budget/training-zen-nav.js
           node --check budget/training-overview-mode.js
           node --check budget/pulse-environment/environment.js
           node --test budget/tests/training-*.test.cjs
-      - name: Verify ownership cleanup
+      - name: Verify final ownership and cache refs
         run: |
           grep -q 'data-wellness-destination="training"' budget/zen.html
           grep -q 'data-kind="stretch"' budget/zen.html
           grep -q 'data-kind="meditation"' budget/zen.html
           grep -q 'id="training-overview-toggle"' budget/exercise.html
+          grep -q 'training-zen-nav.css?v=20260916-main-cp8-unified-tabs-1' budget/exercise.html
+          grep -q 'training-zen-nav.js?v=20260916-main-cp8-unified-tabs-1' budget/exercise.html
+          grep -q 'training-overview-mode.js?v=20260916-main-cp8-header-toggle-1' budget/exercise.html
           ! grep -q 'wellness-nav' budget/training-zen-nav.css
           ! grep -q 'nav-dropdown-wrapper' budget/exercise.html
+          ! grep -q 'toggleNavMenu' budget/exercise.html
+          ! grep -q 'nav-menu-motion.js' budget/exercise.html
           ! grep -q 'id="profile-name"' budget/zen.html
           ! grep -q 'training-overview-switch-shell' budget/training-overview-mode.js
-          git diff --check
-      - name: Commit tested migration and remove temporary files
+          git diff --check origin/main...HEAD
+      - name: Remove temporary verification workflow
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm -f .github/cp8_unified_tabs_migrate.py .github/workflows/training-cp8-unified-mode-tabs.yml
-          git add budget/exercise.html budget/zen.html budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md budget/training-zen-nav.js budget/training-zen-nav.css budget/training-overview-mode.js budget/training-overview-mode.css budget/tests/training-wellness-shell.test.cjs budget/tests/training-shared-session.test.cjs
-          git commit -m 'Unify Training Stretch Meditation navigation'
+          git rm -f .github/workflows/training-cp8-unified-mode-tabs.yml
+          git commit -m 'Finalize unified wellness navigation'
           git push origin HEAD:checkpoint/training-observatory-cp8-unified-mode-tabs-work
