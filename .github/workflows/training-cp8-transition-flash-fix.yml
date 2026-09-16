@@ -1,0 +1,50 @@
+name: Training CP8 transition flash fix
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-cp8-transition-flash-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-cp8-transition-flash-work
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply atomic wellness transition fix
+        run: python .github/training_cp8_transition_flash_fix.py
+      - name: JavaScript syntax checks
+        run: |
+          node --check budget/training-zen-nav.js
+          node --check budget/training-overview-mode.js
+          node --check budget/zen.js
+          node --check budget/zen-session-oasis-v54.js
+      - name: Run complete training regression suite
+        run: node --test budget/tests/training-*.test.cjs
+      - name: Run Zen regression suite
+        run: node --test budget/tests/zen.test.cjs budget/tests/zen-session-oasis.test.cjs
+      - name: Verify transition ownership and diff
+        run: |
+          ! grep -q "document.startViewTransition" budget/training-zen-nav.js
+          ! grep -q "view-transition-name\|::view-transition-\|wellnessSurfaceOld\|wellnessSurfaceNew" budget/training-zen-nav.css
+          grep -q "if(zenHost)zenHost.hidden=true" budget/training-zen-nav.js
+          grep -q "if(!zen)toggleZenStyles(false)" budget/training-zen-nav.js
+          grep -q "20260916-main-cp8-no-flash-1" budget/exercise.html
+          grep -q "20260916-main-cp8-no-flash-1" budget/zen.html
+          git diff --check
+      - name: Commit verified implementation and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/training_cp8_transition_flash_fix.py .github/workflows/training-cp8-transition-flash-fix.yml
+          git add budget/training-zen-nav.js budget/training-zen-nav.css budget/tests/training-wellness-shell.test.cjs budget/exercise.html budget/zen.html budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git commit -m "Remove wellness transition snapshot flicker"
+          git push origin HEAD:checkpoint/training-observatory-cp8-transition-flash-work
