@@ -18,6 +18,20 @@ jobs:
           fetch-depth: 0
       - name: Apply structural polish
         run: python3 budget/.action_hierarchy_polish.py
+      - name: Normalize mobile regression assertion
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('budget/tests/training-observatory-mobile.test.cjs')
+          text = path.read_text(encoding='utf-8')
+          old = "  assert.match(mobile, /observatory-build\\{width:min\\(210px,100%\\)/);"
+          new = "  assert.ok(mobile.includes('.observatory-build{width:min(210px,100%);'));"
+          if old not in text:
+              raise SystemExit('expected mobile build assertion was not generated')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
       - name: Verify intended file set
         shell: bash
         run: |
