@@ -1,0 +1,35 @@
+name: Training CP10 verification
+
+on:
+  push:
+    paths:
+      - 'budget/exercise-dashboard.js'
+      - 'budget/exercise-motion-v1.js'
+      - 'budget/training-overview-mode.js'
+      - 'budget/training-week-orbit.js'
+      - 'budget/pulse-environment/environment.js'
+      - 'budget/training-zen-nav.js'
+      - 'budget/tests/training-*.test.cjs'
+      - 'budget/tests/zen*.test.cjs'
+      - '.github/workflows/training-cp10-verification.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check CP10 JavaScript syntax
+        run: |
+          node --check budget/exercise-dashboard.js
+          node --check budget/exercise-motion-v1.js
+          node --check budget/training-overview-mode.js
+          node --check budget/pulse-environment/environment.js
+          node --check budget/training-week-orbit.js
+          node --check budget/training-zen-nav.js
+      - name: Run training regression tests
+        run: node --test budget/tests/training-*.test.cjs
+      - name: Run Zen regression tests
+        run: node --test budget/tests/zen*.test.cjs
