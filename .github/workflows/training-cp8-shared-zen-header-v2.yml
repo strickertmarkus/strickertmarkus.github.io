@@ -20,6 +20,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Correct temporary helper assertion label
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/training_cp8_shared_zen_v2.py')
+          s=p.read_text(encoding='utf-8')
+          old='s=one(s,"test(\'exercise profile toggle stays compact in Training and Zen\',()=>{","test(\'exercise profile toggle stays compact and follows the active page theme\',()=>{")'
+          new='s=one(s,"test(\'exercise profile toggle stays compact in Training and Zen\',()=>{","test(\'exercise profile toggle stays compact and follows the active page theme\',()=>{",\'profile test name\')'
+          if old not in s:
+              raise SystemExit('temporary helper target missing')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
       - name: Apply corrected shared scene migration
         run: python .github/training_cp8_shared_zen_v2.py
       - name: JavaScript syntax checks
