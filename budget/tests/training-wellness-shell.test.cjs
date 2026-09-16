@@ -37,8 +37,10 @@ test('Zen heavy assets are lazy loaded once and remain domain scoped',()=>{
 
 test('Training stays mounted while Zen uses one shared header and separate scene background',()=>{
   assert.match(shell,/trainingMain\.hidden=zen/);
-  assert.match(shell,/zenHost\.hidden=!zen/);
-  assert.match(shell,/zenBackdrop\.hidden=!zen/);
+  assert.match(shell,/if\(zenHost\)zenHost\.hidden=true/);
+  assert.match(shell,/if\(zenHost\)zenHost\.hidden=false/);
+  assert.match(shell,/if\(zenBackdrop\)zenBackdrop\.hidden=true/);
+  assert.match(shell,/if\(zenBackdrop\)zenBackdrop\.hidden=false/);
   assert.match(shell,/wellness-zen-tools/);
   assert.match(shell,/id="settings-open"/);
   assert.doesNotMatch(shell,/id="profile-name"/);
@@ -54,22 +56,27 @@ test('live sessions cannot be silently destroyed by a wellness switch',()=>{
   assert.match(shell,/Avsluta eller lämna Zen-passet/);
 });
 
-test('wellness switching has view transition, CSS fallback and reduced-motion path',()=>{
-  assert.match(shell,/document\.startViewTransition/);
+test('wellness switching atomically swaps surfaces without outgoing snapshots',()=>{
+  assert.doesNotMatch(shell,/document\.startViewTransition/);
   assert.match(shell,/wellness-shell-switching/);
   assert.match(shell,/prefers-reduced-motion: reduce/);
+  const apply=shell.slice(shell.indexOf('function applyMode'),shell.indexOf('function swap'));
+  assert.ok(apply.indexOf('if(zenHost)zenHost.hidden=true;')>=0);
+  assert.ok(apply.indexOf('if(zenHost)zenHost.hidden=true;')<apply.indexOf('if(!zen)toggleZenStyles(false);'));
+  assert.ok(apply.indexOf('if(zenBackdrop)zenBackdrop.hidden=true;')<apply.indexOf('if(!zen)toggleZenStyles(false);'));
   assert.match(shellCss,/wellnessSurfaceIn/);
-  assert.match(shellCss,/::view-transition-old\(wellness-surface\)/);
+  assert.doesNotMatch(shellCss,/::view-transition-/);
+  assert.doesNotMatch(shellCss,/view-transition-name/);
   assert.match(shellCss,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test('wellness morph stays short and avoids expensive full-surface blur',()=>{
-  assert.match(shellCss,/wellnessSurfaceIn \.22s/);
-  assert.match(shellCss,/wellnessSurfaceOld \.18s/);
-  assert.match(shellCss,/wellnessSurfaceNew \.24s/);
+test('wellness morph animates only the incoming surface and remains short',()=>{
+  assert.match(shellCss,/wellnessSurfaceIn \.18s/);
+  assert.doesNotMatch(shellCss,/wellnessSurfaceOld|wellnessSurfaceNew/);
   const morphCss=shellCss.slice(shellCss.indexOf('.wellness-surface-enter'),shellCss.indexOf('@media(max-width:760px)'));
   assert.doesNotMatch(morphCss,/filter:blur/);
-  assert.match(shell,/\},260\);\}\);/);
+  assert.match(shell,/target\.classList\.add\('wellness-surface-enter'\)/);
+  assert.match(shell,/\},200\);/);
 });
 
 test('Zen network assets warm without starting the Zen runtime',()=>{
@@ -165,8 +172,8 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-toggle-align-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-toggle-align-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-no-flash-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-no-flash-1/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);

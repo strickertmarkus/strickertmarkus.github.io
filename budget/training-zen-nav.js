@@ -221,16 +221,23 @@
   }
   function applyMode(nextMode){
     var zen=nextMode==='zen';
-    toggleZenStyles(zen);
+    if(zen)toggleZenStyles(true);
+    if(!zen){
+      if(zenHost)zenHost.hidden=true;
+      if(zenBackdrop)zenBackdrop.hidden=true;
+    }
     document.documentElement.dataset.wellnessMode=nextMode;
     document.body.classList.toggle('wellness-zen-active',zen);
     trainingMain.hidden=zen;
-    if(zenHost)zenHost.hidden=!zen;
-    if(zenBackdrop)zenBackdrop.hidden=!zen;
+    if(zen){
+      if(zenHost)zenHost.hidden=false;
+      if(zenBackdrop)zenBackdrop.hidden=false;
+    }
     if(zenTools)zenTools.hidden=!zen;
     if(zenBrand)zenBrand.hidden=!zen;
     var trainingBrand=header&&header.querySelector('.brand-text');if(trainingBrand)trainingBrand.hidden=zen;
     var streak=header&&header.querySelector('.streak-badge');if(streak)streak.hidden=zen;
+    if(!zen)toggleZenStyles(false);
     ensureThemeMeta().content=zen?(document.body.dataset.kind==='meditation'?'#a7c3bd':'#091d18'):trainingTheme;
     document.title=zen?'Zen · '+(zenKind==='meditation'?'Meditation':'Stretch'):trainingTitle;
     updateUnifiedSwitch(zen?zenKind:'training');
@@ -238,17 +245,22 @@
   }
   function swap(nextMode){
     scrollPositions[mode]=window.scrollY||0;
-    var apply=function(){applyMode(nextMode);};
-    if(reduced&&reduced.matches){apply();return Promise.resolve();}
-    if(typeof document.startViewTransition==='function'){
-      var transition=document.startViewTransition(apply);
-      return transition.finished.catch(function(){});
-    }
-    document.documentElement.classList.add('wellness-shell-switching');
-    apply();
+    applyMode(nextMode);
+    if(reduced&&reduced.matches)return Promise.resolve();
     var target=nextMode==='zen'?zenHost:trainingMain;
-    if(target)target.classList.add('wellness-surface-enter');
-    return new Promise(function(resolve){window.setTimeout(function(){document.documentElement.classList.remove('wellness-shell-switching');if(target)target.classList.remove('wellness-surface-enter');resolve();},260);});
+    if(!target)return Promise.resolve();
+    target.classList.remove('wellness-surface-enter');
+    document.documentElement.classList.add('wellness-shell-switching');
+    return new Promise(function(resolve){
+      requestAnimationFrame(function(){
+        target.classList.add('wellness-surface-enter');
+        window.setTimeout(function(){
+          document.documentElement.classList.remove('wellness-shell-switching');
+          target.classList.remove('wellness-surface-enter');
+          resolve();
+        },200);
+      });
+    });
   }
   function historyFor(destination,action){
     if(action==='none')return;

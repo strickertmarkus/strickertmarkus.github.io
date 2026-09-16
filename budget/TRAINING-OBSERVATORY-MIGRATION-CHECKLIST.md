@@ -271,6 +271,8 @@ Mobile Zen header refinement (2026-09-16): the in-page Zen mode now follows the 
 **CP8 navigation refinement (2026-09-16):** the temporary two-state `Träning / Zen` header pill has been retired. The user-facing mode control is one persistent three-state `Träning / Stretch / Meditation` switch shared by all three surfaces. The Compact/Observatory symbol remains owned by `training-overview-mode.js` but now sits in a reserved right-side slot on that same switch row; the slot remains present in Zen so the three mode buttons do not shift between Training, Stretch and Meditation. Rapid destination requests advance the shared switch token before same-mode handling so a stale pending Zen load cannot override a newer Training request. The training hamburger and `Din profil` placeholder remain removed.
 
 
+**CP8 transition refinement (2026-09-16):** cross-mode Training ↔ Zen switching no longer uses browser View Transition snapshots. The outgoing surface is hidden atomically before Zen-only styles are detached, and only the newly active surface receives the short CSS enter animation. This removes the visible re-render/flash of the previous Stretch or Meditation page on mobile Safari while retaining reduced-motion and stale-request cancellation.
+
 # Checkpoint 9 — Retire preview/page duplication
 
 Goal: once the main route has the approved Observatory/Compact architecture, remove the obsolete third-page architecture instead of keeping it forever.
