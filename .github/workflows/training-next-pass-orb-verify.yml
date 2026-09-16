@@ -1,0 +1,47 @@
+name: Training Observatory next-pass orb verification
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-next-pass-orb-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-next-pass-orb-work
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply structural changes
+        run: python3 .github/training_next_pass_orb_update.py
+      - name: JavaScript syntax checks
+        run: |
+          node --check budget/pulse-environment/environment.js
+          node --check budget/training-overview-mode.js
+      - name: Run training regression suite
+        run: node --test budget/tests/training-*.test.cjs
+      - name: Verify ownership and stale code
+        run: |
+          test "$(grep -o 'id="reactor-start"' budget/exercise.html | wc -l)" -eq 1
+          test "$(grep -o 'id="reactor-build"' budget/exercise.html | wc -l)" -eq 1
+          ! grep -q 'id="reactor-configure"' budget/exercise.html
+          ! grep -q 'reactor-configure' budget/pulse-environment/environment.js
+          ! grep -q 'observatory-action' budget/exercise.html
+          ! grep -q 'observatory-action' budget/pulse-observatory/observatory.css
+          git diff --check
+      - name: Commit verified implementation and remove temporary files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/training-next-pass-orb-verify.yml .github/training_next_pass_orb_update.py
+          git add budget/exercise.html budget/pulse-environment/environment.js budget/pulse-observatory/observatory.css budget/tests/training-observatory-identity.test.cjs budget/tests/training-observatory-state.test.cjs budget/tests/training-observatory-mobile.test.cjs
+          git commit -m 'Separate Observatory build and next-pass actions'
+          git push origin HEAD:checkpoint/training-observatory-next-pass-orb-work
