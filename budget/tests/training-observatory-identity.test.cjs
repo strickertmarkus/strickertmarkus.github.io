@@ -7,7 +7,8 @@ const root = path.join(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const html = read('exercise.html');
 const css = read('pulse-observatory/observatory.css');
-const environment = read('pulse-environment/environment.js');
+const dashboard = read('exercise-dashboard.js');
+const environmentShim = read('pulse-environment/environment.js');
 const motion = read('exercise-pulse-flow-motion-v67.js');
 const ecgGlow = read('exercise-pulse-flow-ecg-glow-v104.js');
 const canvas130 = read('exercise-pulse-flow-canvas-glow-v130.js');
@@ -34,9 +35,9 @@ test('header star uses heartbeat cadence and existing Observatory scheduler', ()
   assert.match(css, /observatory-header-star \.observatory-star-glyph path\{stroke-width:1\.7\}/);
   assert.match(css, /animation-play-state:var\(--observatory-identity-motion,paused\)/);
   assert.match(css, /prefers-reduced-motion:reduce[\s\S]*observatory-header-star \.observatory-star-glyph\{animation:none!important/);
-  assert.match(environment, /const motionState = paused \? 'paused' : 'running'/);
-  assert.match(environment, /document\.documentElement\.style\.setProperty\('--observatory-identity-motion', motionState\)/);
-  assert.match(environment, /document\.hidden \|\| !onScreen \|\| session\.classList\.contains\('show'\)/);
+  assert.match(dashboard, /motionState = paused \? 'paused' : 'running'/);
+  assert.match(dashboard, /document\.documentElement\.style\.setProperty\('--observatory-identity-motion', motionState\)/);
+  assert.match(dashboard, /document\.hidden \|\| !onScreen \|\| session\.classList\.contains\('show'\)/);
 });
 
 test('retired header ECG has no remaining runtime or glow owner', () => {
@@ -53,16 +54,16 @@ test('Next Workout has separate build and start actions with a true latent empty
   assert.match(nextBlock, /observatory-next-orb-label">STARTA NÄSTA PASS/);
   assert.match(nextBlock, /id="reactor-start-notice"[^>]*>Bygg ett pass först\./);
   assert.doesNotMatch(nextBlock, /id="reactor-configure"/);
-  assert.match(environment, /window\.getPlannedSessions\(\)/);
-  assert.match(environment, /setText\('reactor-action', 'Bygg pass'\)/);
-  assert.match(environment, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
-  assert.match(environment, /orbMeta\.hidden = !hasPlan/);
-  assert.match(environment, /setText\('reactor-orb-meta', hasPlan \? summary : ''\)/);
-  assert.doesNotMatch(environment, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
-  assert.match(environment, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
-  assert.match(environment, /showMissingPlanNotice\(\)/);
-  assert.match(environment, /getElementById\('reactor-build'\)\.addEventListener\('click', openSelectedBuilder\)/);
-  assert.doesNotMatch(environment, /else openSelectedBuilder\(\)/);
+  assert.match(dashboard, /window\.getPlannedSessions\(\)/);
+  assert.match(dashboard, /setText\('reactor-action', 'Bygg pass'\)/);
+  assert.match(dashboard, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
+  assert.match(dashboard, /orbMeta\.hidden = !hasPlan/);
+  assert.match(dashboard, /setText\('reactor-orb-meta', hasPlan \? summary : ''\)/);
+  assert.doesNotMatch(dashboard, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
+  assert.match(dashboard, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
+  assert.match(dashboard, /showMissingPlanNotice\(\)/);
+  assert.match(dashboard, /buildButton\.addEventListener\('click', openSelectedBuilder\)/);
+  assert.doesNotMatch(dashboard, /else openSelectedBuilder\(\)/);
   assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 108px;[^}]*gap:14px/);
   assert.match(css, /observatory-next-actions::before\{[^}]*inset:-28px -22px[^}]*rgba\(10,8,14,\.88\)/);
   assert.match(css, /observatory-next-orb\{[^}]*width:108px;height:108px[^}]*opacity:\.82/);
@@ -75,11 +76,11 @@ test('Next Workout has separate build and start actions with a true latent empty
   assert.match(css, /observatory-start-notice\{[^}]*position:absolute/);
 });
 
-test('boot cache keys keep the current shared wellness ownership fresh', () => {
+test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(html, /auth-gate\.js\?v=20260916-wellness-shell-3/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-pass-orb-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
 });
