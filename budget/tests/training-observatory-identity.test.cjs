@@ -45,7 +45,7 @@ test('retired header ECG has no remaining runtime or glow owner', () => {
   assert.match(motion, /document\.querySelectorAll\('\.pf-ecg-v80'\)/);
 });
 
-test('Next Workout has separate build and start actions without duplicating session ownership', () => {
+test('Next Workout has separate build and start actions with a true latent empty state', () => {
   const nextBlock = html.slice(html.indexOf('<div class="observatory-next">'), html.indexOf('<section class="observatory-metrics"'));
   assert.match(nextBlock, /class="observatory-next-label"><span>NÄSTA PASS<\/span><\/span>/);
   assert.equal((html.match(/id="reactor-start"/g) || []).length, 1);
@@ -55,17 +55,23 @@ test('Next Workout has separate build and start actions without duplicating sess
   assert.doesNotMatch(nextBlock, /id="reactor-configure"/);
   assert.match(environment, /window\.getPlannedSessions\(\)/);
   assert.match(environment, /setText\('reactor-action', 'Bygg pass'\)/);
-  assert.match(environment, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
+  assert.match(environment, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
+  assert.match(environment, /orbMeta\.hidden = !hasPlan/);
+  assert.match(environment, /setText\('reactor-orb-meta', hasPlan \? summary : ''\)/);
+  assert.doesNotMatch(environment, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
   assert.match(environment, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
   assert.match(environment, /showMissingPlanNotice\(\)/);
   assert.match(environment, /getElementById\('reactor-build'\)\.addEventListener\('click', openSelectedBuilder\)/);
   assert.doesNotMatch(environment, /else openSelectedBuilder\(\)/);
-  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 108px;[^}]*gap:16px/);
+  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 108px;[^}]*gap:14px/);
+  assert.match(css, /observatory-next-actions::before\{[^}]*inset:-28px -22px[^}]*rgba\(10,8,14,\.88\)/);
   assert.match(css, /observatory-next-orb\{[^}]*width:108px;height:108px[^}]*opacity:\.82/);
-  assert.match(css, /observatory-next-orb\[data-plan-state="empty"\]\{[^}]*opacity:\.58/);
-  assert.match(css, /observatory-next-orb\[data-plan-state="empty"\] \.observatory-next-orb-meta\{display:none\}/);
-  assert.match(css, /observatory-next-orb\[data-plan-state="planned"\]\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 3\.8s ease-in-out infinite/);
-  assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb\[data-plan-state="planned"\]\) \.observatory-build\{[^}]*opacity:\.64/);
+  assert.match(css, /observatory-next-orb-meta\[hidden\]\{display:none!important\}/);
+  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
+  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\) \.observatory-next-orb-meta\{display:none!important\}/);
+  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 3\.8s ease-in-out infinite/);
+  assert.match(css, /observatory-build\{[^}]*width:min\(205px,100%\)/);
+  assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\) \.observatory-build\{[^}]*opacity:\.62/);
   assert.match(css, /observatory-start-notice\{[^}]*position:absolute/);
 });
 
