@@ -9,3 +9,11 @@ if s.count(old) != 1:
     raise SystemExit(f'helper ordering fix: expected one match, found {s.count(old)}')
 p.write_text(s.replace(old, new, 1), encoding='utf-8')
 runpy.run_path(str(p), run_name='__main__')
+
+test_path = p.parents[1] / 'budget/tests/training-shared-session.test.cjs'
+test = test_path.read_text(encoding='utf-8')
+old_assert = "/if \\(hasPlan\\) window\\.startWorkoutSessionForDate\\(selectedDate\\);/"
+new_assert = "/if \\(hasPlan\\) \\{ window\\.startWorkoutSessionForDate\\(selectedDate\\); return; \\}/"
+if test.count(old_assert) != 1:
+    raise SystemExit(f'shared-session assertion update: expected one match, found {test.count(old_assert)}')
+test_path.write_text(test.replace(old_assert, new_assert, 1), encoding='utf-8')
