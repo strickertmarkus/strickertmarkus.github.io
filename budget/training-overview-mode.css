@@ -1,87 +1,47 @@
-/* Compact <-> Pulse Observatory switch. Visual language mirrors Zen Stretch <-> Meditation. */
-.training-overview-switch-shell[hidden]{display:none!important}
-.training-overview-switch-shell{
-  position:relative;
-  z-index:24;
-  display:block;
-  margin:0 0 35px;
-}
-.training-overview-switch{
-  --overview-accent:#ff9bb2;
-  --overview-accent-rgb:255,98,142;
-  display:inline-flex;
-  gap:28px;
-  border-bottom:1px solid rgba(255,184,208,.20);
-}
-html[data-training-overview="compact"] .training-overview-switch{
-  --overview-accent:#67ddec;
-  --overview-accent-rgb:34,211,238;
-  border-bottom-color:rgba(103,221,236,.18);
-}
-.training-overview-option{
-  position:relative;
+/* Compact <-> Pulse Observatory header icon. Compact is the only highlighted state. */
+#training-overview-toggle[hidden]{display:none!important}
+#training-overview-toggle{
   appearance:none;
   -webkit-appearance:none;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-height:44px;
-  padding:8px 3px 14px;
-  border:0;
-  border-radius:0;
-  background:none;
-  color:#a896a5;
-  font:500 13px/1.25 Inter,system-ui,sans-serif;
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid rgba(255,184,208,.16);
+  border-radius:50%;
+  background:rgba(255,255,255,.025);
+  color:#7f7280;
   cursor:pointer;
-  white-space:nowrap;
   touch-action:manipulation;
-  transition:color .4s,text-shadow .4s;
+  transition:color .24s ease,border-color .24s ease,background .24s ease,box-shadow .24s ease,transform .18s ease;
 }
-html[data-training-overview="compact"] .training-overview-option{color:#8b949e}
-.training-overview-option:hover{color:#eadde3}
-html[data-training-overview="compact"] .training-overview-option:hover{color:#c9dbe1}
-.training-overview-option:focus-visible{
-  outline:2px solid var(--overview-accent);
-  outline-offset:5px;
-}
-.training-overview-option-icon{
-  display:inline-block;
-  min-width:27px;
-  font-size:27px;
-  font-weight:400;
+#training-overview-toggle:hover{color:#c6b1c1;border-color:rgba(255,184,208,.28);background:rgba(255,255,255,.045)}
+#training-overview-toggle:active{transform:scale(.96)}
+#training-overview-toggle:focus-visible{outline:2px solid #9be4e9;outline-offset:4px}
+#training-overview-toggle .training-overview-toggle-icon{
+  display:block;
+  font-size:21px;
   line-height:1;
-  text-align:center;
+  transform:rotate(0deg);
+  text-shadow:none;
 }
-.training-overview-option[aria-pressed="true"]{
-  color:var(--overview-accent);
-  text-shadow:0 0 25px rgba(var(--overview-accent-rgb),.42);
+#training-overview-toggle[aria-pressed="true"]{
+  color:#9be4e9;
+  border-color:#8adfe76b;
+  background:#67dce914;
+  box-shadow:0 0 12px #56d9e532,inset 0 0 10px #67dce90d;
 }
-.training-overview-option::after{
-  content:'';
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:-1px;
-  height:1px;
-  background:var(--overview-accent);
-  box-shadow:0 0 12px var(--overview-accent);
-  transform:scaleX(0);
-  transform-origin:center;
-  transition:transform .65s cubic-bezier(.16,1,.3,1);
+#training-overview-toggle[aria-pressed="true"] .training-overview-toggle-icon{
+  text-shadow:0 0 13px #65deea9c;
 }
-.training-overview-option[aria-pressed="true"]::after{transform:scaleX(1)}
+html[data-wellness-mode="zen"] #training-overview-toggle{display:none!important}
 
 @media(max-width:760px){
-  .training-overview-switch-shell{margin-bottom:28px}
-  .training-overview-switch{gap:20px;max-width:100%}
-  .training-overview-option{gap:8px;font-size:12px}
-  .training-overview-option-icon{min-width:24px;font-size:24px}
-}
-@media(max-width:390px){
-  .training-overview-switch{gap:15px}
-  .training-overview-option{font-size:11px;padding-inline:1px}
-  .training-overview-option-icon{min-width:21px;font-size:21px}
+  #training-overview-toggle{width:40px;height:40px;flex-basis:40px}
+  #training-overview-toggle .training-overview-toggle-icon{font-size:20px}
 }
 @media(prefers-reduced-motion:reduce){
-  .training-overview-option,.training-overview-option::after{transition:none!important}
+  #training-overview-toggle{transition:none!important}
 }
