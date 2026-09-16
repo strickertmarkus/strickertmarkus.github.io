@@ -195,6 +195,8 @@
     if (stage) stage.dataset.workoutKind = kind;
     syncContext();
     setText('reactor-action', hasPlan ? 'Starta pass' : 'Bygg pass');
+    setText('reactor-orb-action', hasPlan ? 'STARTA PASS' : 'BYGG PASS');
+    setText('reactor-orb-meta', hasPlan ? summary : 'Skapa upplägg');
     const start = document.getElementById('reactor-start');
     start.disabled = false;
     start.dataset.planState = hasPlan ? 'planned' : 'empty';
