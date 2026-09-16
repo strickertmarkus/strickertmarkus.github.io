@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: '22'
       - name: Apply structural changes
-        run: python3 .github/training_next_pass_orb_update.py
+        run: python3 .github/training_next_pass_orb_update_v2.py
       - name: JavaScript syntax checks
         run: |
           node --check budget/pulse-environment/environment.js
@@ -41,7 +41,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm -f .github/workflows/training-next-pass-orb-verify.yml .github/training_next_pass_orb_update.py
+          git rm -f .github/workflows/training-next-pass-orb-verify.yml .github/training_next_pass_orb_update.py .github/training_next_pass_orb_update_v2.py
           git add budget/exercise.html budget/pulse-environment/environment.js budget/pulse-observatory/observatory.css budget/tests/training-observatory-identity.test.cjs budget/tests/training-observatory-state.test.cjs budget/tests/training-observatory-mobile.test.cjs
           git commit -m 'Separate Observatory build and next-pass actions'
           git push origin HEAD:checkpoint/training-observatory-next-pass-orb-work
