@@ -55,6 +55,29 @@ test('wellness switching has view transition, CSS fallback and reduced-motion pa
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
+
+test('wellness morph stays short and avoids expensive full-surface blur',()=>{
+  assert.match(css,/wellnessSurfaceIn \.22s/);
+  assert.match(css,/wellnessSurfaceOld \.18s/);
+  assert.match(css,/wellnessSurfaceNew \.24s/);
+  const morphCss=css.slice(css.indexOf('.wellness-surface-enter'),css.indexOf('@media(max-width:760px)'));
+  assert.doesNotMatch(morphCss,/filter:blur/);
+  assert.match(shell,/\},260\);\}\);/);
+});
+
+test('Zen network assets warm without starting the Zen runtime',()=>{
+  assert.equal((shell.match(/fetch\('zen\.html'/g)||[]).length,1,'Zen document should have one fetch owner');
+  assert.match(shell,/function getZenDocument\(\)/);
+  assert.match(shell,/function preloadZenAssets\(doc\)/);
+  assert.match(shell,/link\.rel='preload';link\.as='style'/);
+  assert.match(shell,/link\.rel='preload';link\.as='script'/);
+  assert.match(shell,/requestIdleCallback/);
+  assert.match(shell,/pointerenter/);
+  assert.match(shell,/touchstart/);
+  const preload=shell.slice(shell.indexOf('function preloadZenAssets'),shell.indexOf('function loadStyles'));
+  assert.doesNotMatch(preload,/createElement\('script'\)/,'prewarm must download only, not execute Zen');
+});
+
 test('profile query and intentional browser history survive in-page switching',()=>{
   assert.match(shell,/searchParams\.set\('wellness','zen'\)/);
   assert.match(shell,/searchParams\.delete\('wellness'\)/);
@@ -65,7 +88,7 @@ test('profile query and intentional browser history survive in-page switching',(
 
 test('production pages cache-bust the CP8 shared controller',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260915-main-cp8-wellness-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260915-main-cp8-wellness-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-wellness-fast-2/);
+    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-wellness-fast-2/);
   }
 });

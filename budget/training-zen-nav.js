@@ -8,7 +8,7 @@
   var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
   var trainingMain=document.getElementById('pulse-home');
   var header=document.querySelector('.app-header, .zen-header');
-  var zenHost=null,zenLoadPromise=null,zenStyleLinks=[],zenTools=null,zenBrand=null;
+  var zenHost=null,zenLoadPromise=null,zenDocumentPromise=null,zenPreloadStarted=false,zenStyleLinks=[],zenTools=null,zenBrand=null;
   var mode='training',switchToken=0;
   var scrollPositions={training:window.scrollY||0,zen:0};
   var trainingTitle=document.title;
@@ -74,6 +74,42 @@
     var anchor=header.querySelector('.streak-badge');
     header.insertBefore(zenTools,anchor||null);
   }
+  function getZenDocument(){
+    if(zenDocumentPromise)return zenDocumentPromise;
+    zenDocumentPromise=fetch('zen.html',{credentials:'same-origin'}).then(function(response){
+      if(!response.ok)throw new Error('Zen kunde inte laddas.');
+      return response.text();
+    }).then(function(html){return new DOMParser().parseFromString(html,'text/html');}).catch(function(error){zenDocumentPromise=null;throw error;});
+    return zenDocumentPromise;
+  }
+  function preloadZenAssets(doc){
+    if(zenPreloadStarted)return;
+    zenPreloadStarted=true;
+    Array.prototype.forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'),function(source){
+      var href=source.getAttribute('href')||'';
+      var absolute=new URL(href,location.href);
+      var file=absolute.pathname.split('/').pop();
+      if(!/^zen.*\.css$/i.test(file))return;
+      if(document.querySelector('link[data-wellness-preload="'+absolute.href.replace(/"/g,'')+'"]'))return;
+      var link=document.createElement('link');
+      link.rel='preload';link.as='style';link.href=absolute.href;link.dataset.wellnessPreload=absolute.href;
+      document.head.appendChild(link);
+    });
+    Array.prototype.forEach.call(doc.querySelectorAll('script[src]'),function(source){
+      var src=source.getAttribute('src')||'';
+      var absolute=new URL(src,location.href);
+      var file=absolute.pathname.split('/').pop().split('?')[0];
+      if(file!=='zen.js'&&!/^zen-.*\.js$/i.test(file))return;
+      if(document.querySelector('link[data-wellness-preload="'+absolute.href.replace(/"/g,'')+'"]'))return;
+      var link=document.createElement('link');
+      link.rel='preload';link.as='script';link.href=absolute.href;link.dataset.wellnessPreload=absolute.href;
+      document.head.appendChild(link);
+    });
+  }
+  function warmZenAssets(){
+    if(!canonical||zenLoadPromise)return;
+    getZenDocument().then(preloadZenAssets).catch(function(){zenPreloadStarted=false;});
+  }
   function loadStyles(doc){
     var promises=[];
     Array.prototype.forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'),function(source){
@@ -117,8 +153,8 @@
   }
   function ensureZenLoaded(){
     if(zenLoadPromise)return zenLoadPromise;
-    zenLoadPromise=fetch('zen.html',{credentials:'same-origin'}).then(function(response){if(!response.ok)throw new Error('Zen kunde inte laddas.');return response.text();}).then(function(html){
-      var doc=new DOMParser().parseFromString(html,'text/html');
+    zenLoadPromise=getZenDocument().then(function(doc){
+      preloadZenAssets(doc);
       zenHost=extractZenSurface(doc);
       ensureThemeMeta();
       document.body.dataset.kind=doc.body.dataset.kind||'stretch';
@@ -162,7 +198,7 @@
     apply();
     var target=next==='zen'?zenHost:trainingMain;
     if(target)target.classList.add('wellness-surface-enter');
-    return new Promise(function(resolve){window.setTimeout(function(){document.documentElement.classList.remove('wellness-shell-switching');if(target)target.classList.remove('wellness-surface-enter');resolve();},460);});
+    return new Promise(function(resolve){window.setTimeout(function(){document.documentElement.classList.remove('wellness-shell-switching');if(target)target.classList.remove('wellness-surface-enter');resolve();},260);});
   }
   function historyFor(next,action){
     if(action==='none')return;
@@ -194,6 +230,14 @@
   ensureSharedHeaderZenTools();
   document.documentElement.dataset.wellnessMode='training';
   updateNav('training');
+  var zenNavLink=nav&&nav.querySelector('[data-destination="zen"]');
+  if(zenNavLink){
+    zenNavLink.addEventListener('pointerenter',warmZenAssets,{once:true,passive:true});
+    zenNavLink.addEventListener('focus',warmZenAssets,{once:true});
+    zenNavLink.addEventListener('touchstart',warmZenAssets,{once:true,passive:true});
+  }
+  if('requestIdleCallback' in window)window.requestIdleCallback(warmZenAssets,{timeout:1200});
+  else window.setTimeout(warmZenAssets,1000);
   if(nav)nav.addEventListener('click',function(event){var link=event.target.closest('[data-destination]');if(!link||!nav.contains(link))return;event.preventDefault();requestMode(link.dataset.destination);});
   window.addEventListener('popstate',function(){var next=new URLSearchParams(location.search).get('wellness')==='zen'?'zen':'training';requestMode(next,{history:'none'});});
   window.setWellnessMode=function(next){return requestMode(next);};
