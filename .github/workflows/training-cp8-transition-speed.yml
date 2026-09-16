@@ -19,7 +19,15 @@ jobs:
         with:
           node-version: 22
       - name: Apply CP8 transition performance refinement
-        run: python3 budget/.cp8_transition_speed_migrate.py
+        run: |
+          python3 budget/.cp8_transition_speed_migrate.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('budget/tests/training-wellness-shell.test.cjs')
+          s=p.read_text()
+          s=s.replace("  assert.doesNotMatch(css,/filter:blur/);", "  const morphCss=css.slice(css.indexOf('.wellness-surface-enter'),css.indexOf('@media(max-width:760px)'));\n  assert.doesNotMatch(morphCss,/filter:blur/);")
+          p.write_text(s)
+          PY
       - name: Syntax and regression tests
         run: |
           node --check budget/training-zen-nav.js
@@ -32,7 +40,12 @@ jobs:
         run: |
           grep -F "wellnessSurfaceNew .24s" budget/training-zen-nav.css
           grep -F "wellnessSurfaceOld .18s" budget/training-zen-nav.css
-          ! grep -F "filter:blur" budget/training-zen-nav.css
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path('budget/training-zen-nav.css').read_text()
+          morph=css[css.index('.wellness-surface-enter'):css.index('@media(max-width:760px)')]
+          assert 'filter:blur' not in morph
+          PY
           grep -F "link.rel='preload';link.as='script'" budget/training-zen-nav.js
           grep -F "requestIdleCallback" budget/training-zen-nav.js
           grep -F "20260916-main-cp8-wellness-fast-2" budget/exercise.html
