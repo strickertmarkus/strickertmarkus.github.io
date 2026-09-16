@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
+const exists = relative => fs.existsSync(path.join(root, relative));
 const count = (text, pattern) => (text.match(pattern) || []).length;
 
 const html = read('exercise.html');
@@ -13,7 +14,8 @@ const overview = read('training-overview-mode.js');
 const environment = read('pulse-environment/environment.js');
 const authConfig = read('auth-config.js');
 const canvasLayer = read('exercise-pulse-flow-canvas-glow-v131.js');
-const previewTraining = read('pulse-environment/training.js');
+const reactorLegacyEntry = read('pulse-environment/exercise.html');
+const observatoryLegacyEntry = read('pulse-observatory/exercise.html');
 
 function assertContainsAll(text, values, label) {
   values.forEach(value => assert.ok(text.includes(value), `${label} is missing ${value}`));
@@ -81,14 +83,38 @@ test('approved timer, transition, audio/persistence and typography owners stay i
   ], 'nested session stability/persistence loader');
 });
 
-test('preview training adapter remains explicitly preview-only', () => {
-  assert.match(previewTraining, /Shared preview presentation only/);
-  assert.match(previewTraining, /training-design-bar/);
-  assert.match(previewTraining, /data-training-design/);
-  assert.doesNotMatch(html, /training-design-bar|data-training-design=/);
+test('Checkpoint 9 retires standalone preview runtimes while retaining canonical Observatory assets', () => {
+  const retired = [
+    'pulse-environment/auth-gate.js',
+    'pulse-environment/dashboard.css',
+    'pulse-environment/dashboard.js',
+    'pulse-environment/exercise-heart-rate-range.js',
+    'pulse-environment/exercise-points-8-9.js',
+    'pulse-environment/records.js',
+    'pulse-environment/recovery.js',
+    'pulse-environment/training.css',
+    'pulse-environment/training.js',
+    'pulse-observatory/training.css'
+  ];
+  retired.forEach(relative => assert.equal(exists(relative), false, `${relative} must be retired after CP9`));
+
+  assert.equal(exists('pulse-environment/environment.css'), true);
+  assert.equal(exists('pulse-environment/environment.js'), true);
+  assert.equal(exists('pulse-observatory/observatory.css'), true);
+  assert.match(html, /pulse-environment\/environment\.css\?v=/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=/);
 });
 
-test('checkpoint-3 JavaScript sources parse cleanly', () => {
+test('legacy Observatory and Reactor URLs are redirect-only aliases to the canonical training route', () => {
+  [reactorLegacyEntry, observatoryLegacyEntry].forEach(source => {
+    assert.match(source, /var target = '\.\.\/exercise\.html' \+ window\.location\.search \+ window\.location\.hash/);
+    assert.match(source, /window\.location\.replace\(target\)/);
+    assert.doesNotMatch(source, /firebase|chart\.js|session-modal|training-design-bar|dashboard\.js|environment\.js/i);
+  });
+});
+
+test('checkpoint-9 JavaScript sources parse cleanly', () => {
   new vm.Script(overview, { filename: 'training-overview-mode.js' });
   new vm.Script(environment, { filename: 'pulse-environment/environment.js' });
   new vm.Script(authConfig, { filename: 'auth-config.js' });
