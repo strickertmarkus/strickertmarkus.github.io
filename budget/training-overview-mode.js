@@ -7,7 +7,7 @@
   var MODES = { observatory:true, compact:true };
   var styleIds = ['training-observatory-environment','training-observatory-composition'];
   var CONTROL_STYLE_ID = 'training-overview-mode-style';
-  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260915-main-cp2-feedback1';
+  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260916-main-cp8-header-toggle-1';
   var activeAnimations = [];
   var switchToken = 0;
 
@@ -37,51 +37,32 @@
   }
 
   var controlStyle = ensureControlStyles();
-
-  function optionMarkup(mode, label, symbol) {
-    return '<button class="training-overview-option" type="button" data-overview-mode="' + mode + '" aria-pressed="false" aria-label="' + label + '">'
-      + '<span class="training-overview-option-icon" aria-hidden="true">' + symbol + '</span>'
-      + '<span>' + label + '</span>'
-      + '</button>';
-  }
+  var headerToggle = null;
 
   function createControl() {
-    var existing = document.querySelector('[data-training-overview-switch]');
-    if (existing) return existing;
-
-    var root = document.getElementById('pulse-home') || document.querySelector('.main-content');
-    if (!root) return null;
-
-    var shell = document.createElement('div');
-    shell.className = 'training-overview-switch-shell';
-    shell.hidden = true;
-    shell.dataset.trainingOverviewSwitch = 'true';
-    shell.innerHTML = '<nav class="training-overview-switch" aria-label="Välj träningsöversikt">'
-      + optionMarkup('compact', 'Compact', '◆')
-      + optionMarkup('observatory', 'Pulse Observatory', '✧')
-      + '</nav>';
-
-    root.insertBefore(shell, root.firstChild);
-
-    shell.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-overview-mode]');
-      if (!button || !shell.contains(button)) return;
-      setModeWithTransition(button.dataset.overviewMode);
+    headerToggle = document.getElementById('training-overview-toggle');
+    if (!headerToggle) return null;
+    if (headerToggle.dataset.overviewBound === 'true') return headerToggle;
+    headerToggle.dataset.overviewBound = 'true';
+    headerToggle.addEventListener('click', function () {
+      setModeWithTransition(currentMode() === 'compact' ? 'observatory' : 'compact');
     });
-
-    function reveal() { shell.hidden = false; }
+    function reveal() { headerToggle.hidden = false; }
     if (controlStyle.dataset.loaded === 'true' || controlStyle.sheet) reveal();
     else {
       controlStyle.addEventListener('load', reveal, {once:true});
       window.setTimeout(reveal, 1200);
     }
-    return shell;
+    return headerToggle;
   }
 
   function updateControl(mode) {
-    document.querySelectorAll('[data-training-overview-switch] [data-overview-mode]').forEach(function (button) {
-      button.setAttribute('aria-pressed', button.dataset.overviewMode === mode ? 'true' : 'false');
-    });
+    var button = headerToggle || document.getElementById('training-overview-toggle');
+    if (!button) return;
+    var compact = mode === 'compact';
+    button.setAttribute('aria-pressed', compact ? 'true' : 'false');
+    button.setAttribute('aria-label', compact ? 'Compact vy aktiv. Byt till Pulse Observatory' : 'Aktivera Compact vy');
+    button.title = compact ? 'Compact vy aktiv' : 'Compact vy';
   }
 
   function setAssetState(mode) {
@@ -139,7 +120,7 @@
     var viewportTop = -80;
     var viewportBottom = window.innerHeight + 120;
     return Array.prototype.slice.call(root.children).filter(function (node) {
-      if (node.matches('[data-training-overview-switch]') || node.hidden || !node.getClientRects().length) return false;
+      if (node.hidden || !node.getClientRects().length) return false;
       var rect = node.getBoundingClientRect();
       return rect.bottom > viewportTop && rect.top < viewportBottom;
     });
