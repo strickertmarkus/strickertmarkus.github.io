@@ -53,4 +53,6 @@ The old live-session comparison (`Original / Observatory / Reactor`) therefore h
 
 `budget/tests/training-shared-session.test.cjs` verifies that production has one session owner and no preview session assets. A CP9-specific retirement test verifies redirect-only legacy routes and absence of copied preview assets.
 
+A temporary GitHub Actions verification run (`35105235436`) checked the canonical JavaScript sources with `node --check` and ran every `budget/tests/training-*.test.cjs` test on Node 22. Final result: **53 passed, 0 failed**. The temporary workflow is removed after this successful verification and is not part of the production architecture.
+
 This checkpoint deliberately does not fold `environment.css/js` or `observatory.css` into final V1 owners; that belongs to Checkpoint 10.
