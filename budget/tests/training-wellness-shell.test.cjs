@@ -102,6 +102,11 @@ test('Compact uses one header symbol toggle and no dashboard mode switch',()=>{
   assert.doesNotMatch(overviewCss,/training-overview-switch-shell/);
 });
 
+test('Zen shared header removes the inherited Training divider',()=>{
+  assert.match(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*border-bottom:0!important/);
+  assert.doesNotMatch(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*border-bottom-color:/);
+});
+
 test('profile query and intentional browser history survive unified switching',()=>{
   assert.match(shell,/url\.searchParams\.set\('wellness',destination\)/);
   assert.match(shell,/url\.searchParams\.delete\('wellness'\)/);
@@ -112,7 +117,7 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the unified CP8 controller',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-unified-tabs-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-zen-border-2/);
     assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-unified-tabs-1/);
   }
   assert.match(exercise,/training-overview-mode\.js\?v=20260916-main-cp8-header-toggle-1/);
