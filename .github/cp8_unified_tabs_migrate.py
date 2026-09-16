@@ -38,6 +38,11 @@ header_end=s.find('  </header>',nav_start)
 if min(header_start,nav_start,header_end)<0: raise SystemExit('exercise header/nav block not found')
 compact='    <button id="training-overview-toggle" class="training-overview-toggle" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy" hidden><span class="training-overview-toggle-icon" aria-hidden="true">◆</span></button>\n'
 s=s[:nav_start]+compact+s[header_end:]
+# Remove the now-orphaned inline runtime that only owned the deleted hamburger/menu.
+nav_js_start=s.find('// ══ NAV ═')
+nav_js_end=s.find('// ══ TOAST ═',nav_js_start)
+if nav_js_start<0 or nav_js_end<0: raise SystemExit('exercise inline NAV runtime block not found')
+s=s[:nav_js_start]+s[nav_js_end:]
 reject_remaining(s,['nav-dropdown-wrapper','id="nav-menu"','toggleNavMenu()'],'exercise still contains retired hamburger ownership')
 write(rel,s)
 
