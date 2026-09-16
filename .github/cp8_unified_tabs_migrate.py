@@ -11,6 +11,16 @@ def replace_once(text,old,new,label):
         raise SystemExit(f'{label}: expected 1 match, got {count}')
     return text.replace(old,new,1)
 
+def reject_remaining(text,needles,label):
+    found=[]
+    for needle in needles:
+        pos=text.find(needle)
+        if pos>=0:
+            context=text[max(0,pos-160):pos+len(needle)+220].replace('\n','\\n')
+            found.append(f'{needle!r}: {context}')
+    if found:
+        raise SystemExit(label+'\n'+'\n'.join(found))
+
 # Canonical training page: retire hamburger/nav menu and install one Compact symbol owner.
 rel='budget/exercise.html'
 s=read(rel)
@@ -28,8 +38,7 @@ header_end=s.find('  </header>',nav_start)
 if min(header_start,nav_start,header_end)<0: raise SystemExit('exercise header/nav block not found')
 compact='    <button id="training-overview-toggle" class="training-overview-toggle" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy" hidden><span class="training-overview-toggle-icon" aria-hidden="true">◆</span></button>\n'
 s=s[:nav_start]+compact+s[header_end:]
-if 'nav-dropdown-wrapper' in s or 'id="nav-menu"' in s or 'toggleNavMenu()' in s:
-    raise SystemExit('exercise still contains retired hamburger ownership')
+reject_remaining(s,['nav-dropdown-wrapper','id="nav-menu"','toggleNavMenu()'],'exercise still contains retired hamburger ownership')
 write(rel,s)
 
 # Zen: the existing Stretch/Meditation control becomes the single three-mode switch.
