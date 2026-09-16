@@ -10,8 +10,10 @@ const exists = relative => fs.existsSync(path.join(root, relative));
 const count = (text, pattern) => (text.match(pattern) || []).length;
 
 const html = read('exercise.html');
-const overview = read('training-overview-mode.js');
-const environment = read('pulse-environment/environment.js');
+const dashboard = read('exercise-dashboard.js');
+const overviewShim = read('training-overview-mode.js');
+const environmentShim = read('pulse-environment/environment.js');
+const orbitShim = read('training-week-orbit.js');
 const authConfig = read('auth-config.js');
 const canvasLayer = read('exercise-pulse-flow-canvas-glow-v131.js');
 const reactorLegacyEntry = read('pulse-environment/exercise.html');
@@ -40,24 +42,35 @@ test('Compact and Observatory delegate to the same canonical start function', ()
     'Compact/day-plan start must use startWorkoutSessionForDate'
   );
   assert.match(
-    environment,
+    dashboard,
     /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/,
     'Observatory next-workout start must use the canonical startWorkoutSessionForDate function'
   );
-  assert.equal(count(environment, /startWorkoutSessionForDate/g), 1, 'overview adapter must not introduce another session entry implementation');
+  assert.equal(count(dashboard, /startWorkoutSessionForDate/g), 1, 'dashboard presentation must only delegate to the session entry point');
 });
 
-test('overview-mode controller is presentation-only and cannot own live session state', () => {
-  assert.doesNotMatch(overview, /sessionState/);
-  assert.doesNotMatch(overview, /startWorkoutSessionForDate/);
-  assert.doesNotMatch(overview, /session-modal/);
-  assertContainsAll(overview, [
+test('CP10 dashboard owner is presentation-only and cannot own live session state', () => {
+  assert.doesNotMatch(dashboard, /(?:var|let|const)\s+sessionState\b/);
+  assert.doesNotMatch(dashboard, /function startWorkoutSessionForDate\(/);
+  assertContainsAll(dashboard, [
     "document.getElementById('training-overview-toggle')",
     "currentMode() === 'compact' ? 'observatory' : 'compact'",
     'setVisibility(mode)',
-    'setAssetState(mode)'
-  ], 'overview controller');
-  assert.doesNotMatch(overview, /trainingOverviewSwitch|training-overview-switch-shell/);
+    'setAssetState(mode)',
+    'function syncObservatoryStates()',
+    'function renderOrbitProgress()'
+  ], 'exercise-dashboard owner');
+  assert.doesNotMatch(dashboard, /trainingOverviewSwitch|training-overview-switch-shell/);
+});
+
+test('CP10 historical dashboard entry files are non-owning compatibility loaders', () => {
+  assert.match(overviewShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(orbitShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.doesNotMatch(overviewShim, /function currentMode\(|function setModeWithTransition\(/);
+  assert.doesNotMatch(environmentShim, /function syncReactor\(|function syncObservatoryStates\(/);
+  assert.doesNotMatch(orbitShim, /weekOrbitProgress|function orbitFrame\(/);
+  assert.equal(count(dashboard, /window\.__trainingOverviewModeInstalled/g), 2, 'dashboard should guard the overview owner once and set it once');
 });
 
 test('approved timer, transition, audio/persistence and typography owners stay in the production load graph', () => {
@@ -83,7 +96,7 @@ test('approved timer, transition, audio/persistence and typography owners stay i
   ], 'nested session stability/persistence loader');
 });
 
-test('Checkpoint 9 retires standalone preview runtimes while retaining canonical Observatory assets', () => {
+test('Checkpoint 9 retires standalone preview runtimes while retaining canonical Observatory presentation assets', () => {
   const retired = [
     'pulse-environment/auth-gate.js',
     'pulse-environment/dashboard.css',
@@ -99,10 +112,9 @@ test('Checkpoint 9 retires standalone preview runtimes while retaining canonical
   retired.forEach(relative => assert.equal(exists(relative), false, `${relative} must be retired after CP9`));
 
   assert.equal(exists('pulse-environment/environment.css'), true);
-  assert.equal(exists('pulse-environment/environment.js'), true);
   assert.equal(exists('pulse-observatory/observatory.css'), true);
+  assert.equal(exists('exercise-dashboard.js'), true);
   assert.match(html, /pulse-environment\/environment\.css\?v=/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=/);
 });
 
@@ -114,9 +126,11 @@ test('legacy Observatory and Reactor URLs are redirect-only aliases to the canon
   });
 });
 
-test('checkpoint-9 JavaScript sources parse cleanly', () => {
-  new vm.Script(overview, { filename: 'training-overview-mode.js' });
-  new vm.Script(environment, { filename: 'pulse-environment/environment.js' });
+test('CP10 JavaScript owners and compatibility entries parse cleanly', () => {
+  new vm.Script(dashboard, { filename: 'exercise-dashboard.js' });
+  new vm.Script(overviewShim, { filename: 'training-overview-mode.js' });
+  new vm.Script(environmentShim, { filename: 'pulse-environment/environment.js' });
+  new vm.Script(orbitShim, { filename: 'training-week-orbit.js' });
   new vm.Script(authConfig, { filename: 'auth-config.js' });
   new vm.Script(canvasLayer, { filename: 'exercise-pulse-flow-canvas-glow-v131.js' });
 
