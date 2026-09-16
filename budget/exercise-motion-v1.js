@@ -71,6 +71,80 @@
     window[name] = wrapped;
   }
 
+  function navLink(href, icon, label) {
+    return '<a href="' + href + '" data-training-nav-link><span class="nav-icon" aria-hidden="true">' + icon + '</span><span>' + label + '</span></a>';
+  }
+
+  function ensureSharedNavMenu() {
+    var header = document.getElementById('pulse-header') || document.querySelector('.app-header');
+    if (!header) return null;
+    var existing = document.getElementById('nav-menu');
+    if (existing) return existing;
+
+    var profile = new URLSearchParams(window.location.search).get('user') === 'maja' ? '?user=maja' : '';
+    var wrapper = document.createElement('div');
+    wrapper.className = 'nav-dropdown-wrapper shared-training-nav';
+    wrapper.dataset.sharedTrainingNav = 'true';
+    wrapper.innerHTML =
+      '<button class="nav-btn" id="training-nav-toggle" type="button" aria-label="Öppna navigation" aria-controls="nav-menu" aria-expanded="false" title="Navigation">' +
+        '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M5 7.5h14M5 12h14M5 16.5h14"/></svg>' +
+      '</button>' +
+      '<nav class="nav-dropdown-menu" id="nav-menu" aria-label="Huvudnavigation" aria-hidden="true">' +
+        navLink('home.html','⌂','Startsida') +
+        '<div class="nav-sep" aria-hidden="true"></div>' +
+        navLink('budget.html','¤','Markus Budget') +
+        navLink('analytics.html','⌁','Markus Analys') +
+        navLink('budget_maja.html','¤','Majas Budget') +
+        navLink('analytics_maja.html','⌁','Majas Analys') +
+        navLink('familjebudget.html','◇','Familjebudget') +
+        navLink('data.html','⚙','Data &amp; Formler') +
+        '<div class="nav-sep" aria-hidden="true"></div>' +
+        navLink('calendar.html','□','Familjekalender') +
+        navLink('exercise.html' + profile,'◆','Träning') +
+        navLink('shopping.html','＋','Inköpslista') +
+        '<div class="nav-sep" aria-hidden="true"></div>' +
+        navLink('mila.html','○','Milas Milstolpar') +
+        navLink('melker.html','○','Melkers Milstolpar') +
+      '</nav>';
+    header.appendChild(wrapper);
+
+    var button = wrapper.querySelector('#training-nav-toggle');
+    var menu = wrapper.querySelector('#nav-menu');
+
+    function commitMenu(open) {
+      open = !!open;
+      menu.classList.toggle('show', open);
+      menu.setAttribute('aria-hidden', String(!open));
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', open ? 'Stäng navigation' : 'Öppna navigation');
+      return open;
+    }
+
+    window.toggleNavMenu = function (force) {
+      var open = typeof force === 'boolean' ? force : !menu.classList.contains('show');
+      return commitMenu(open);
+    };
+
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.toggleNavMenu();
+    });
+    menu.addEventListener('click', function (event) {
+      if (event.target.closest('[data-training-nav-link]')) commitMenu(false);
+    });
+    document.addEventListener('click', function (event) {
+      if (!wrapper.contains(event.target) && menu.classList.contains('show')) commitMenu(false);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || !menu.classList.contains('show')) return;
+      commitMenu(false);
+      button.focus();
+    });
+
+    return menu;
+  }
+
   function addStyles() {
     if (document.getElementById('exercise-motion-v2-style')) return;
     var style = document.createElement('style');
@@ -119,6 +193,25 @@
       }
       @keyframes exercise-surface-open-v2 { from { opacity:0;transform:scale(.965) translateY(8px);filter:blur(2px); } to { opacity:1;transform:none;filter:none; } }
 
+      .shared-training-nav{
+        --nav-bg:rgba(22,27,34,.97);--nav-border:rgba(255,255,255,.10);--nav-text:#c9d1d9;--nav-muted:#8b949e;--nav-accent:#22d3ee;--nav-hover:rgba(34,211,238,.10);
+        position:relative;display:inline-flex;align-items:center;flex:0 0 auto;z-index:1400;
+      }
+      .shared-training-nav .nav-btn{width:38px;height:38px;display:grid;place-items:center;padding:0;border:1px solid var(--nav-border);border-radius:10px;background:rgba(255,255,255,.035);color:var(--nav-text);cursor:pointer;box-shadow:none;}
+      .shared-training-nav .nav-btn:hover,.shared-training-nav .nav-btn[aria-expanded="true"]{color:var(--nav-accent);border-color:color-mix(in srgb,var(--nav-accent) 42%,transparent);background:var(--nav-hover);box-shadow:0 0 18px color-mix(in srgb,var(--nav-accent) 18%,transparent);}
+      .shared-training-nav .nav-btn svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;}
+      .shared-training-nav .nav-dropdown-menu{position:absolute;top:calc(100% + 10px);right:0;width:min(260px,calc(100vw - 24px));max-height:min(72vh,540px);overflow:auto;padding:7px;background:var(--nav-bg);border:1px solid var(--nav-border);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.45);opacity:0;visibility:hidden;pointer-events:none;transform:translate3d(4px,-5px,0) scale(.98);transform-origin:100% 0;transition:opacity .16s ease,transform .24s cubic-bezier(.22,1,.36,1),visibility 0s linear .24s;z-index:5000;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);}
+      .shared-training-nav .nav-dropdown-menu.show{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity .14s ease,transform .26s cubic-bezier(.22,1,.36,1),visibility 0s;}
+      .shared-training-nav .nav-dropdown-menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:9px 11px;border-radius:9px;color:var(--nav-text);text-decoration:none;font:500 12px/1.25 Inter,system-ui,sans-serif;transition:background-color .16s,color .16s;}
+      .shared-training-nav .nav-dropdown-menu a:hover,.shared-training-nav .nav-dropdown-menu a:focus-visible{background:var(--nav-hover);color:var(--nav-accent);outline:none;}
+      .shared-training-nav .nav-icon{display:grid;place-items:center;width:18px;flex:0 0 18px;color:var(--nav-muted);font-size:15px;line-height:1;}
+      .shared-training-nav .nav-dropdown-menu a:hover .nav-icon,.shared-training-nav .nav-dropdown-menu a:focus-visible .nav-icon{color:var(--nav-accent);}
+      .shared-training-nav .nav-sep{height:1px;margin:6px 5px;background:var(--nav-border);}
+      html[data-wellness-mode="zen"] body[data-kind="stretch"] .shared-training-nav{--nav-bg:rgba(11,35,28,.96);--nav-border:rgba(212,238,167,.23);--nav-text:#edf4dc;--nav-muted:#9fb29b;--nav-accent:#d4eea7;--nav-hover:rgba(212,238,167,.10);}
+      html[data-wellness-mode="zen"] body[data-kind="meditation"] .shared-training-nav{--nav-bg:rgba(205,224,216,.96);--nav-border:rgba(43,100,82,.24);--nav-text:#244739;--nav-muted:#5c716b;--nav-accent:#2b6452;--nav-hover:rgba(43,100,82,.10);}
+      html[data-wellness-mode="zen"] #pulse-header .shared-training-nav{margin-left:0;}
+      html[data-wellness-mode="zen"] #pulse-header .shared-training-nav .nav-btn{width:44px;height:44px;border-radius:50%;background:transparent;}
+
       body button,body [role="button"],.exercise-user-option {
         -webkit-tap-highlight-color:transparent;
         transition:transform .16s cubic-bezier(.22,1,.36,1),background-color .20s ease,border-color .20s ease,color .20s ease,box-shadow .22s ease,opacity .18s ease;
@@ -136,10 +229,15 @@
       @keyframes exercise-control-in-v2 { from { opacity:0;transform:translateY(5px) scale(.985); } to { opacity:1;transform:none; } }
       #session-modal .session-main { overflow-anchor:none; }
 
+      @media(max-width:760px){
+        html[data-wellness-mode="zen"] #pulse-header .shared-training-nav .nav-btn{width:36px;height:36px;border:0;}
+        .shared-training-nav .nav-dropdown-menu{right:-2px;top:calc(100% + 8px);}
+      }
       @media(prefers-reduced-motion:reduce) {
         .exercise-morph-fallback-v2,.modal-overlay.show > .modal,#session-modal.show > .session-shell,
         #exercise-plan-preview-v7.show .plan-preview-card-v7,#session-between-overlay-v2.show .bs-overlay-wrap,
-        #session-pre-timer.show,#nav-menu.show,#session-controls > *,#session-set-log > * {
+        #session-pre-timer.show,#nav-menu.show,#session-controls > *,#session-set-log > *,
+        .shared-training-nav .nav-dropdown-menu {
           animation-duration:.001s !important;transition-duration:.001s !important;
         }
       }
@@ -149,6 +247,7 @@
 
   function install() {
     addStyles();
+    ensureSharedNavMenu();
     ['startCurrentSet','completeCurrentSet','startNextSet','addExtraSet','finishCurrentExercise']
       .forEach(function (name) { wrap(name,'session'); });
     ['shiftDayWorkoutWeek','onDayWorkoutDateChange','setExerciseKind','shiftViewedWeek']
