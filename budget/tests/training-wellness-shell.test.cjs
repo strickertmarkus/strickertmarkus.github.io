@@ -10,6 +10,8 @@ const overview=read('training-overview-mode.js');
 const overviewCss=read('training-overview-mode.css');
 const exercise=read('exercise.html');
 const zen=read('zen.html');
+const zenRuntime=read('zen.js');
+const zenCss=read('zen.css');
 const store=read('zen-store.js');
 const firebase=read('firebase-sync.js');
 const authGate=read('auth-gate.js');
@@ -77,6 +79,16 @@ test('wellness morph animates only the incoming surface and remains short',()=>{
   assert.doesNotMatch(morphCss,/filter:blur/);
   assert.match(shell,/target\.classList\.add\('wellness-surface-enter'\)/);
   assert.match(shell,/\},200\);/);
+});
+
+test('Stretch and Meditation reuse the same incoming-only atomic transition model',()=>{
+  assert.match(zenRuntime,/function applyKind\(next\)/);
+  assert.match(zenRuntime,/home\.style\.visibility='hidden'/);
+  assert.match(zenRuntime,/home\.classList\.add\('zen-kind-surface-enter'\)/);
+  assert.match(zenRuntime,/prefers-reduced-motion: reduce/);
+  assert.match(zenCss,/\.zen-kind-surface-enter \{[\s\S]*zenKindSurfaceIn \.18s/);
+  assert.match(zenCss,/@keyframes zenKindSurfaceIn/);
+  assert.doesNotMatch(zenCss,/::view-transition-/);
 });
 
 test('Zen network assets warm without starting the Zen runtime',()=>{
@@ -178,4 +190,6 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260916-main-cp8-header-toggle-1/);
+  assert.match(zen,/zen\.css\?v=20260916-kind-enter-1/);
+  assert.match(zen,/zen\.js\?v=20260916-kind-enter-1/);
 });

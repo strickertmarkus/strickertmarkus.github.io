@@ -18,9 +18,24 @@
   function routines(){return [...M.routines,...S.entries.filter(e=>e.type==='routine').map(e=>e.routine)];}
   function chosen(){return routines().find(r=>r.id===selected[kind]&&r.kind===kind)||M.routines.find(r=>r.kind===kind);}
   function records(){return S.entries.filter(e=>e.type==='session');}
-  function setKind(next){kind=next;allHistory=false;document.body.dataset.kind=kind;document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#091d18':'#a7c3bd';const c=copy[kind];
+  function applyKind(next){kind=next;allHistory=false;document.body.dataset.kind=kind;document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#091d18':'#a7c3bd';const c=copy[kind];
     $('hero-eyebrow').textContent=c.eyebrow;$('hero-title').innerHTML=c.title;$('hero-description').innerHTML=c.description;$('selected-symbol').textContent=c.symbol;$('start-hint').textContent=c.hint;$('growth-title').textContent=c.growth;$('growth-eyebrow').textContent=c.growthEyebrow;$('collection-title').textContent=c.collection;$('leave-session').textContent=c.home;
     document.querySelectorAll('.kind-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===kind)));savePrefs();renderHome();
+  }
+  function setKind(next){
+    next=next==='meditation'?'meditation':'stretch';
+    const changed=next!==kind,home=$('home-view');
+    const animate=!!(changed&&view==='home'&&home);
+    if(animate){home.classList.remove('zen-kind-surface-enter');home.style.visibility='hidden';}
+    applyKind(next);
+    if(!animate)return;
+    home.style.visibility='';
+    const motionReduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if(motionReduced)return;
+    requestAnimationFrame(()=>{
+      home.classList.add('zen-kind-surface-enter');
+      setTimeout(()=>home.classList.remove('zen-kind-surface-enter'),200);
+    });
   }
   function renderHome(){
     const r=chosen();$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
