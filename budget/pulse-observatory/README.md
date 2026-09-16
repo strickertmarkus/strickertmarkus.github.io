@@ -1,66 +1,17 @@
-# Pulse Observatory
+# Pulse Observatory — canonical composition
 
-Preview: `/budget/pulse-observatory/exercise.html` (append `?user=maja` for Maja).
+`budget/exercise.html` is the only production training route and opens Pulse Observatory as its default overview presentation. Compact is an alternate presentation of the same dashboard/runtime in that document.
 
-A separate training overview with a crimson horizon, fine orbital traces, glowing symbols, a next-workout action and a horizontal seven-day timeline. PR groups, sparklines, the expanded training log, charts, and overview editors share the same theme. No snapshot link is displayed.
+## Production-owned file
 
-## Implementation
+- `observatory.css` — the Observatory composition and visual identity used directly by the canonical `budget/exercise.html` route.
 
-- `observatory.css` owns this page's environment and responsive composition. All imagery is rendered with CSS/SVG.
-- `../pulse-environment/environment.css` owns shared overview, record, log and editor materials; orbit positioning is scoped specifically to Reactor.
-- `../pulse-environment/environment.js` reads the existing plan, selects a day, invokes original builder/session handlers and styles overview Chart.js instances without changing their values, labels or numeric bounds.
-- `exercise.html` retains the original data/session runtime, control IDs and complete session markup. Its legacy ripple bootstrap excludes the Observatory hero, whose motion is owned by the scene CSS. The base URL resolves shared assets under `budget/`. The preview auth loader preserves its full route on sign-in.
-- Both previews use the existing profile-specific training data. They are presentation previews, not separate data stores. Editing a workout updates that profile's real records.
-- The regular training route, Stretch and Meditation files are unchanged.
+The shared overview adapter/material lives in `../pulse-environment/environment.js` and `../pulse-environment/environment.css`. Weekly orbit behavior is owned by the canonical `training-week-orbit.js/css` files on the main training route.
 
-## Checkpoints
+## Retired standalone preview
 
-- `checkpoint/pulse-reactor-core` — `bce6c71`: state before Observatory.
-- `checkpoint/pulse-observatory-core` — `8f09660`: Observatory composition and shared data/editor theme.
-- `checkpoint/pulse-observatory-v1`: completed, verified preview.
-- `checkpoint/pulse-observatory-motion-v2` — `dcd151c`: moving scene, tighter mobile hero and isolated Observatory motion state.
-- `checkpoint/pulse-observatory-start-screen-v3`: start-screen context update (progress, latest workout, workout-reactive atmosphere, active data rail and contextual add-pass action).
+`exercise.html` is now only a legacy redirect to `../exercise.html`, preserving query parameters such as `?user=maja` and hashes for old bookmarks.
 
-## Verification
+The standalone Observatory shell and the separate Observatory/Reactor live-session comparison skin were retired in Training Observatory migration Checkpoint 9. Git history/checkpoint refs remain the archive of those designs.
 
-- Chromium with local synthetic fixtures and stubbed Firebase; no real account data used.
-- 320, 390, 768 and 1440 px: no page-level horizontal overflow. History tables retain their own horizontal scrolling.
-- Chart datasets and explicit numeric scale settings compared with the original: identical.
-- Planned-workout builder, individual log exercise editor, record expansion, keyboard day selection, empty-day builder and original session launch checked.
-- Opening/editing views and leaving an unsaved session do not change stored workout data after the shared runtime's initial normalization.
-- CSS and JavaScript syntax checked; original controls and runtime preserved. Overview CSS is separate from the session skin described below.
-- Reduced motion disables decorative animation; decorative motion pauses offscreen, on hidden tabs and during sessions.
-
-Known baseline issue: leaving a session in the local Chromium fixture reproduces a `chart-hr-combined` canvas-reuse error in shared `exercise-points-8-9.js`. It occurs on the original page as well as both previews. This change leaves that training runtime untouched. Physical iPhone/Safari validation is still recommended before promoting the design.
-
-## Observatory training mode
-
-The route declares `data-training-theme="observatory"` and loads the shared `../pulse-environment/training.css` / `training.js`, followed by its own `training.css` skin. The shared adapter selects the route's design, updates decorative phase labels and observes session/pause classes only. Native timers, set logging, workout storage and transition handlers remain authoritative.
-
-The design places the clock above a crimson planetary horizon, with celestial coordinates, stars, a moving horizon highlight and a softly breathing atmosphere. Strength and cardio have distinct rose accents; rest is lavender and completion is pale gold. All graphics are SVG/CSS. Decorative motion pauses when the set is idle, paused, the tab is hidden or the session is closed, and is disabled with reduced motion.
-
-The **Observatory / Original** buttons compare designs without restarting or modifying the workout. **Original** keeps the native session layout, ECG ribbon, countdown arcs, timer morphs, controls and editable set history, with Observatory's Inter typography, rose accents, lavender recovery palette, pale-gold completion and translucent rounded surfaces. This material-only skin is scoped to Original on this route; the shared custom layout remains exclusive to the Observatory/Reactor designs. The themed active training screen fits the viewport: the timer resizes to the remaining height and controls remain visible. In landscape, the timer and details use two columns. Set history is available through **Översikt**; overview and completion retain scrolling for their longer content.
-
-Checked in local Chromium with synthetic workouts and stubbed Firebase: 320×480, 320×568, 375×548, 390×664, 390×844, 844×390 and 1440×900; long exercise names, a 20-set log, decision controls and cardio; no active-view overflow or out-of-viewport controls. Comparison preserves serialized session state. Logging, overview access, cardio pause and reduced motion were checked. No physical Safari test was performed.
-
-Original skin validation: all new rules are scoped to Observatory + Original and contain only font/material properties; existing custom-design rules, session markup, geometry and animation/runtime code are unchanged. CSS delimiter/declaration checks and the cache reference were reviewed. No browser or physical Safari was available for this material-only update.
-
-The existing shared-runtime rest-skipping issue documented in the Reactor README is unchanged; this is a presentation update.
-
-## Observatory motion (v2)
-
-The horizon highlight and orbiting spark reuse their SVG geometry through `<use>`; star shimmer, atmosphere and action glow are CSS animations. The shared presentation adapter's existing visibility/session observers set one inherited animation state. There is no added JavaScript frame loop or duplicate scene renderer. The hero is excluded from the old inline ripple bootstrap so it does not install competing click effects or clip the glow.
-
-Three hero arrows are native SVGs, avoiding iOS emoji substitution. The mobile composition keeps the scene visible while moving the next-workout action into the first screen and reducing unused vertical space. The metrics transition follows immediately after the action.
-
-Verified in Chromium: moving dash offsets and glow opacity, pause offscreen, simulated hidden-document pause, workout pause/resume, static reduced-motion view, unchanged stored workouts, and no horizontal overflow at 320/390/768/1440 px. No new console errors beyond the known shared chart error. Before the motion update: `checkpoint/pulse-observatory-v1` (`3fa6447`). The published motion checkpoint is `checkpoint/pulse-observatory-motion-v2` (`dcd151c`).
-
-## Start-screen context (v3)
-
-The next-workout module now keeps the primary action high in the composition, with a compact data line for weekly progress and a data-driven latest-workout line below it. The atmosphere and action tint respond to the selected plan's workout type (`strength` or `cardio`) without changing the underlying plan data. The three hero symbols act as a visual navigation rail and follow the section currently in view. The weekly-plan toolbar includes the contextual `Lägg till pass` action; the older fixed log button is hidden on this isolated preview so there is only one competing entry point.
-
-The v3 QA checklist covers all five changes, mobile widths 320/390/768 px, desktop width 1440 px, no overflow, reduced motion, offscreen/hidden/session pauses, unchanged workout storage, native SVG arrows, original page controls/runtime/auth preservation and the known shared chart baseline error only.
-
-### Legacy cleanup still outstanding
-
-The shared auth loader still brings in earlier visual/runtime modules. For example, `exercise-pulse-flow-motion-v67.js` mixes header rendering and session timer rendering in a continuous `requestAnimationFrame` loop. This update does not claim to remove that chain. Before promoting Observatory, separate overview presentation, data operations and active-session lifecycle, then remove superseded modules at their load/ownership boundary with regression checks. Do not hide or continually undo their effects in another observer.
+Do not rebuild an independent Observatory page or session runtime in this directory. Further asset consolidation belongs to the Release V1 cleanup plan.
