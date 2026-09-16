@@ -194,14 +194,12 @@
     const stage = core.closest('.observatory-stage');
     if (stage) stage.dataset.workoutKind = kind;
     syncContext();
-    setText('reactor-action', hasPlan ? 'Starta pass' : 'Bygg pass');
-    setText('reactor-orb-action', hasPlan ? 'STARTA PASS' : 'BYGG PASS');
-    setText('reactor-orb-meta', hasPlan ? summary : 'Skapa upplägg');
+    setText('reactor-action', 'Bygg pass');
+    setText('reactor-orb-meta', hasPlan ? summary : 'Inget planerat');
     const start = document.getElementById('reactor-start');
     start.disabled = false;
     start.dataset.planState = hasPlan ? 'planned' : 'empty';
-    start.setAttribute('aria-label', (hasPlan ? 'Starta ' : 'Bygg pass: ') + title + ', ' + dateLabel + ', ' + summary);
-    document.getElementById('reactor-configure').hidden = !hasPlan;
+    start.setAttribute('aria-label', hasPlan ? ('Starta nästa pass: ' + title + ', ' + dateLabel + ', ' + summary) : 'Starta nästa pass. Inget pass är byggt ännu.');
     document.querySelectorAll('#week-grid .week-day').forEach(function (day, index) {
       if (!dates[index]) return;
       const angle = (-90 + index * 360 / 7) * Math.PI / 180;
@@ -275,11 +273,24 @@
         day.click();
       }
     });
+    const startNotice = document.getElementById('reactor-start-notice');
+    let startNoticeTimer = 0;
+    function showMissingPlanNotice() {
+      if (!startNotice) return;
+      window.clearTimeout(startNoticeTimer);
+      startNotice.hidden = false;
+      startNotice.classList.remove('is-visible');
+      requestAnimationFrame(() => startNotice.classList.add('is-visible'));
+      startNoticeTimer = window.setTimeout(() => {
+        startNotice.classList.remove('is-visible');
+        window.setTimeout(() => { startNotice.hidden = true; }, reduced.matches ? 0 : 180);
+      }, 2200);
+    }
     document.getElementById('reactor-start').addEventListener('click', function () {
-      if (hasPlan) window.startWorkoutSessionForDate(selectedDate);
-      else openSelectedBuilder();
+      if (hasPlan) { window.startWorkoutSessionForDate(selectedDate); return; }
+      showMissingPlanNotice();
     });
-    document.getElementById('reactor-configure').addEventListener('click', openSelectedBuilder);
+    document.getElementById('reactor-build').addEventListener('click', openSelectedBuilder);
     new MutationObserver(syncReactor).observe(grid, { childList: true });
     const semanticObserver = new MutationObserver(syncObservatoryStates);
     const metricRoot = document.querySelector('.observatory-metrics');

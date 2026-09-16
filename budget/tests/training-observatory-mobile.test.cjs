@@ -46,6 +46,8 @@ test('weekly plan stays immediately after the compact summary and before goals',
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
   assert.match(mobile, /observatory-field\{min-height:252px/);
   assert.match(mobile, /observatory-week\{margin:16px 0 40px\}/);
+  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 110px;gap:14px/);
+  assert.match(mobile, /observatory-next-orb-wrap\{width:108px\}/);
 });
 
 test('large add-workout CTA is absent from production weekly planning while contextual editing remains', () => {
@@ -80,9 +82,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('production page cache-busts the current Observatory composition', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-orb-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-symbol-cyan-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-orb-1/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-pass-orb-2/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {

@@ -45,27 +45,31 @@ test('retired header ECG has no remaining runtime or glow owner', () => {
   assert.match(motion, /document\.querySelectorAll\('\.pf-ecg-v80'\)/);
 });
 
-test('Next Workout remains one real weekly-plan action with explicit cue and empty state', () => {
+test('Next Workout has separate build and start actions without duplicating session ownership', () => {
   const nextBlock = html.slice(html.indexOf('<div class="observatory-next">'), html.indexOf('<section class="observatory-metrics"'));
   assert.match(nextBlock, /class="observatory-next-label"><span>NÄSTA PASS<\/span><\/span>/);
-  assert.doesNotMatch(nextBlock.split('<button')[0], /observatory-arrow/);
   assert.equal((html.match(/id="reactor-start"/g) || []).length, 1);
+  assert.equal((html.match(/id="reactor-build"/g) || []).length, 1);
+  assert.match(nextBlock, /observatory-next-orb-label">STARTA NÄSTA PASS/);
+  assert.match(nextBlock, /id="reactor-start-notice"[^>]*>Bygg ett pass först\./);
+  assert.doesNotMatch(nextBlock, /id="reactor-configure"/);
   assert.match(environment, /window\.getPlannedSessions\(\)/);
-  assert.match(environment, /hasPlan \? \(plan\.type \|\| 'Planerat pass'\) : 'Planera ditt pass'/);
-  assert.match(environment, /setText\('reactor-action', hasPlan \? 'Starta pass' : 'Bygg pass'\)/);
-  assert.match(nextBlock, /id="reactor-orb-action"/);
-  assert.match(nextBlock, /id="reactor-orb-meta"/);
-  assert.match(environment, /setText\('reactor-orb-action', hasPlan \? 'STARTA PASS' : 'BYGG PASS'\)/);
-  assert.match(environment, /setText\('reactor-orb-meta', hasPlan \? summary : 'Skapa upplägg'\)/);
-  assert.match(environment, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
-  assert.match(environment, /if \(hasPlan\) window\.startWorkoutSessionForDate\(selectedDate\);/);
+  assert.match(environment, /setText\('reactor-action', 'Bygg pass'\)/);
+  assert.match(environment, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
+  assert.match(environment, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
+  assert.match(environment, /showMissingPlanNotice\(\)/);
+  assert.match(environment, /getElementById\('reactor-build'\)\.addEventListener\('click', openSelectedBuilder\)/);
+  assert.doesNotMatch(environment, /else openSelectedBuilder\(\)/);
+  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 126px;[^}]*align-items:center/);
+  assert.match(css, /observatory-next-orb\{[^}]*opacity:\.82/);
+  assert.match(css, /observatory-start-notice\{[^}]*position:absolute/);
 });
 
 test('boot cache keys keep the current shared wellness ownership fresh', () => {
   assert.match(html, /auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(html, /auth-gate\.js\?v=20260916-wellness-shell-3/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-orb-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-orb-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-pass-orb-2/);
   assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
 });
