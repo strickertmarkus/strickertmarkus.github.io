@@ -216,9 +216,6 @@
       .plan-preview-back-v7{border:1px solid rgba(148,163,184,.18);background:transparent;color:#A8B6C7}
       .plan-preview-save-v7{border:1px solid rgba(34,211,238,.42);background:#22D3EE;color:#06141A}
 
-      /* Exercise profile switch: Markus stays blue; Maja gets her own pink active state. */
-      .exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}
-      .exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}
       body.exercise-profile-maja-v7 .brand-text p{color:#F472B6!important}
       body.exercise-profile-markus-v7 .brand-text p{color:#38BDF8!important}
 

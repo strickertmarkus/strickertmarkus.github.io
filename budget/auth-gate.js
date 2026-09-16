@@ -58,7 +58,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20260915-cp5-identity';
+  var exerciseAssetsVersion = '20260916-wellness-shell-3';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
@@ -94,9 +94,7 @@
       '.section-hdr h2::before{opacity:1!important;box-shadow:0 0 10px rgba(34,211,238,.34)!important}' +
       '.nav-btn,.week-nav-btn,.btn-ghost{background:rgba(255,255,255,.045)!important;border-color:rgba(34,211,238,.14)!important}' +
       '.nav-btn:hover,.week-nav-btn:hover,.btn-ghost:hover{background:rgba(34,211,238,.08)!important;border-color:rgba(34,211,238,.26)!important}' +
-      '.chart-card h3{color:#CFFAFE!important;text-shadow:0 2px 10px rgba(34,211,238,.08)!important}' +
-      '.exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}' +
-      '.exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}';
+      '.chart-card h3{color:#CFFAFE!important;text-shadow:0 2px 10px rgba(34,211,238,.08)!important}';
     document.head.appendChild(exerciseCritical);
   }
 
