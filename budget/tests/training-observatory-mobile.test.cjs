@@ -46,8 +46,9 @@ test('weekly plan stays immediately after the compact summary and before goals',
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
   assert.match(mobile, /observatory-field\{min-height:252px/);
   assert.match(mobile, /observatory-week\{margin:16px 0 40px\}/);
-  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 110px;gap:14px/);
+  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 108px;gap:14px/);
   assert.match(mobile, /observatory-next-orb-wrap\{width:108px\}/);
+  assert.match(mobile, /observatory-next-orb\{width:108px;height:108px\}/);
 });
 
 test('large add-workout CTA is absent from production weekly planning while contextual editing remains', () => {
