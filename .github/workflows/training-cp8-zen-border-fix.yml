@@ -1,0 +1,74 @@
+name: Training CP8 Zen header border fix
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-cp8-zen-header-border-fix-work
+permissions:
+  contents: write
+jobs:
+  fix-test-clean:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: checkpoint/training-observatory-cp8-zen-header-border-fix-work
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Remove Zen header border and bump CSS cache
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          css = Path('budget/training-zen-nav.css')
+          text = css.read_text()
+          old = 'html[data-wellness-mode="zen"] #pulse-header{background:rgba(7,27,23,.86)!important;border-bottom-color:#b4df9b20!important;box-shadow:0 10px 32px #04100d35!important}'
+          new = 'html[data-wellness-mode="zen"] #pulse-header{background:rgba(7,27,23,.86)!important;border-bottom:0!important;box-shadow:0 10px 32px #04100d35!important}'
+          if old not in text:
+              raise SystemExit('Expected Zen header border owner not found')
+          css.write_text(text.replace(old, new, 1))
+
+          for name in ['budget/exercise.html','budget/zen.html']:
+              path = Path(name)
+              text = path.read_text()
+              old_ref = 'training-zen-nav.css?v=20260916-main-cp8-unified-tabs-1'
+              new_ref = 'training-zen-nav.css?v=20260916-main-cp8-zen-border-2'
+              if old_ref not in text:
+                  raise SystemExit(f'Expected CSS cache ref not found in {name}')
+              path.write_text(text.replace(old_ref, new_ref, 1))
+
+          test = Path('budget/tests/training-wellness-shell.test.cjs')
+          text = test.read_text()
+          old_assert = "assert.match(source,/training-zen-nav\\.css\\?v=20260916-main-cp8-unified-tabs-1/);"
+          new_assert = "assert.match(source,/training-zen-nav\\.css\\?v=20260916-main-cp8-zen-border-2/);"
+          if old_assert not in text:
+              raise SystemExit('Expected cache assertion not found')
+          text = text.replace(old_assert, new_assert, 1)
+          marker = "test('profile query and intentional browser history survive unified switching',()=>{"
+          extra = "test('Zen shared header removes the inherited Training divider',()=>{\n  assert.match(shellCss,/html\\[data-wellness-mode=\\\"zen\\\"\\] #pulse-header\\{[^}]*border-bottom:0!important/);\n  assert.doesNotMatch(shellCss,/html\\[data-wellness-mode=\\\"zen\\\"\\] #pulse-header\\{[^}]*border-bottom-color:/);\n});\n\n"
+          if marker not in text:
+              raise SystemExit('Test insertion marker not found')
+          test.write_text(text.replace(marker, extra + marker, 1))
+          PY
+      - name: Syntax and focused regression tests
+        run: |
+          node --check budget/training-zen-nav.js
+          node --test budget/tests/training-wellness-shell.test.cjs budget/tests/training-shared-session.test.cjs
+          git diff --check
+      - name: Verify border ownership and cache refs
+        run: |
+          grep -q 'html\[data-wellness-mode="zen"\] #pulse-header{background:rgba(7,27,23,.86)!important;border-bottom:0!important' budget/training-zen-nav.css
+          ! grep -q 'border-bottom-color:#b4df9b20' budget/training-zen-nav.css
+          grep -q 'training-zen-nav.css?v=20260916-main-cp8-zen-border-2' budget/exercise.html
+          grep -q 'training-zen-nav.css?v=20260916-main-cp8-zen-border-2' budget/zen.html
+      - name: Commit verified fix and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/training-cp8-zen-border-fix.yml
+          git add budget/training-zen-nav.css budget/exercise.html budget/zen.html budget/tests/training-wellness-shell.test.cjs
+          git commit -m 'Remove Zen header divider'
+          git push origin HEAD:checkpoint/training-observatory-cp8-zen-header-border-fix-work
