@@ -1,0 +1,46 @@
+name: Training CP8 transition speed
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-cp8-transition-speed-fix-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply CP8 transition performance refinement
+        run: python3 budget/.cp8_transition_speed_migrate.py
+      - name: Syntax and regression tests
+        run: |
+          node --check budget/training-zen-nav.js
+          node --check budget/zen.js
+          node --check budget/zen-store.js
+          node --check budget/zen-scene-runtime.js
+          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          git diff --check
+      - name: Verify performance ownership
+        run: |
+          grep -F "wellnessSurfaceNew .24s" budget/training-zen-nav.css
+          grep -F "wellnessSurfaceOld .18s" budget/training-zen-nav.css
+          ! grep -F "filter:blur" budget/training-zen-nav.css
+          grep -F "link.rel='preload';link.as='script'" budget/training-zen-nav.js
+          grep -F "requestIdleCallback" budget/training-zen-nav.js
+          grep -F "20260916-main-cp8-wellness-fast-2" budget/exercise.html
+      - name: Commit tested refinement and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm budget/.cp8_transition_speed_migrate.py .github/workflows/training-cp8-transition-speed.yml
+          git add budget/training-zen-nav.js budget/training-zen-nav.css budget/exercise.html budget/zen.html budget/tests/training-wellness-shell.test.cjs budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git commit -m "Speed up Training Zen wellness transition"
+          git push origin HEAD:checkpoint/training-observatory-cp8-transition-speed-fix-work
