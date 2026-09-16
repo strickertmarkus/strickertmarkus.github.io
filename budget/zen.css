@@ -262,26 +262,6 @@ body[data-kind=meditation] .landscape-forest {
   background: rgba(var(--accent-rgb),.1);
 }
 
-body[data-kind=meditation] .wellness-nav {
-  background: #b5cfc05c;
-  border-color: #627e6530;
-  box-shadow: 0 3px 24px #51674d0a;
-}
-
-body[data-kind=meditation] .wellness-nav a {
-  color: #5c716b;
-}
-
-body[data-kind=meditation] .wellness-nav a[data-destination=zen][aria-current=page] {
-  color: #244739;
-  background: linear-gradient(120deg,#accab84d,#d4e2cc4d);
-  border-color: #6b977c40;
-}
-
-.zen-header .wellness-nav {
-  flex-shrink: 0;
-}
-
 .sanctuary {
   position: relative;
   margin: auto;
