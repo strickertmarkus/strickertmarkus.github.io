@@ -8,7 +8,8 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 const html = read('exercise.html');
 const css = read('pulse-observatory/observatory.css');
-const environment = read('pulse-environment/environment.js');
+const dashboard = read('exercise-dashboard.js');
+const environmentShim = read('pulse-environment/environment.js');
 
 function between(text, start, end) {
   const from = text.indexOf(start);
@@ -28,7 +29,6 @@ test('mobile Observatory summary is one four-column row', () => {
 });
 
 test('320, 375 and 390 px widths keep four metric columns inside the Observatory content width', () => {
-  // environment.css gives #pulse-home width:90%; CP4 uses zero grid gap and minmax(0,1fr).
   [320, 375, 390].forEach(viewport => {
     const contentWidth = viewport * 0.90;
     const columnWidth = contentWidth / 4;
@@ -57,8 +57,8 @@ test('large add-workout CTA is absent from production weekly planning while cont
   assert.match(week, /onclick="openPlanModal\(\)"/);
   assert.match(week, /onclick="openTemplateModal\(\)"/);
   assert.match(week, /id="week-grid"/);
-  assert.match(environment, /grid\.addEventListener\('click'/);
-  assert.match(environment, /openSelectedBuilder/);
+  assert.match(dashboard, /grid\.addEventListener\('click'/);
+  assert.match(dashboard, /openSelectedBuilder/);
 });
 
 test('mobile preview cannot reintroduce the large Observatory add CTA', () => {
@@ -79,13 +79,13 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
   assert.match(css, /observatory-stage::before\{[^}]*mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
   assert.doesNotMatch(css, /observatory-scene::before\{/);
   assert.match(css, /observatory-stage\[data-workout-kind="cardio"\]::before/);
-  assert.match(environment, /stage\.dataset\.workoutKind = kind/);
+  assert.match(dashboard, /stage\.dataset\.workoutKind = kind/);
 });
 
-test('production page cache-busts the current Observatory composition', () => {
+test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-symbol-cyan-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-pass-orb-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {
