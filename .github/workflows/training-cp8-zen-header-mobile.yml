@@ -1,0 +1,45 @@
+name: Training CP8 Zen mobile header
+
+on:
+  push:
+    branches:
+      - checkpoint/training-observatory-cp8-zen-header-mobile-fix-work
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply Zen mobile header refinement
+        run: python3 budget/.cp8_zen_header_mobile_fix.py
+      - name: Syntax and regression tests
+        run: |
+          node --check budget/training-zen-nav.js
+          node --check budget/zen.js
+          node --check budget/zen-store.js
+          node --check budget/zen-scene-runtime.js
+          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          git diff --check
+      - name: Verify Zen header ownership
+        run: |
+          grep -F 'html[data-wellness-mode="zen"] #pulse-header .nav-dropdown-wrapper{display:none!important}' budget/training-zen-nav.css
+          grep -F 'grid-template-columns:minmax(0,1fr) auto!important' budget/training-zen-nav.css
+          grep -F 'grid-template-rows:auto auto!important' budget/training-zen-nav.css
+          grep -F '20260916-main-cp8-wellness-header-3' budget/exercise.html
+          grep -F '20260916-main-cp8-wellness-header-3' budget/zen.html
+      - name: Commit tested refinement and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm budget/.cp8_zen_header_mobile_fix.py .github/workflows/training-cp8-zen-header-mobile.yml
+          git add budget/training-zen-nav.css budget/exercise.html budget/zen.html budget/tests/training-wellness-shell.test.cjs budget/TRAINING-OBSERVATORY-MIGRATION-CHECKLIST.md
+          git commit -m "Fix Zen mobile wellness header composition"
+          git push origin HEAD:checkpoint/training-observatory-cp8-zen-header-mobile-fix-work
