@@ -81,9 +81,9 @@ test('Zen network assets warm without starting the Zen runtime',()=>{
 
 test('one three-mode switch replaces the old Training Zen pill',()=>{
   assert.match(shell,/function ensureTrainingSwitch\(\)/);
-  assert.match(shell,/data-wellness-destination=\\"training\\"/);
-  assert.match(shell,/data-wellness-destination=\\"stretch\\"/);
-  assert.match(shell,/data-wellness-destination=\\"meditation\\"/);
+  assert.match(shell,/data-wellness-destination="training"/);
+  assert.match(shell,/data-wellness-destination="stretch"/);
+  assert.match(shell,/data-wellness-destination="meditation"/);
   assert.match(shellCss,/\.wellness-kind-switch/);
   assert.doesNotMatch(shellCss,/\.wellness-nav\{/);
   assert.doesNotMatch(shell,/className='wellness-nav'/);
