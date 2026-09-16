@@ -195,10 +195,14 @@
     if (stage) stage.dataset.workoutKind = kind;
     syncContext();
     setText('reactor-action', 'Bygg pass');
-    setText('reactor-orb-meta', hasPlan ? summary : 'Inget planerat');
     const start = document.getElementById('reactor-start');
     start.disabled = false;
     start.dataset.planState = hasPlan ? 'planned' : 'empty';
+    const orbMeta = document.getElementById('reactor-orb-meta');
+    if (orbMeta) {
+      orbMeta.hidden = !hasPlan;
+      setText('reactor-orb-meta', hasPlan ? summary : '');
+    }
     start.setAttribute('aria-label', hasPlan ? ('Starta nästa pass: ' + title + ', ' + dateLabel + ', ' + summary) : 'Starta nästa pass. Inget pass är byggt ännu.');
     document.querySelectorAll('#week-grid .week-day').forEach(function (day, index) {
       if (!dates[index]) return;
