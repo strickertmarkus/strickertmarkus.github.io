@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0F1219">
+  <title>Minimal inköpslista · test</title>
+  <script>
+    (function(){
+      var target = 'shopping.html?layout=minimal';
+      if (location.hash) target += location.hash;
+      location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <p><a href="shopping.html?layout=minimal">Öppna minimal inköpslista</a></p>
+</body>
+</html>
