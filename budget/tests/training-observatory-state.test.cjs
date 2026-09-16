@@ -34,11 +34,14 @@ test('current state is reserved for active context rather than partial progress'
   assert.match(environment, /start, start\.dataset\.planState === 'planned' \? 'current' : 'pending'/);
 });
 
-test('pending dims decoration rather than readable text', () => {
+test('pending dims semantic decoration while the intentionally latent empty start orb may dim as a whole', () => {
   assert.match(observatoryCss, /--obs-pending-decoration:\.5/);
   assert.match(observatoryCss, /--obs-pending-glow:0 0 0 transparent/);
-  assert.doesNotMatch(observatoryCss, /\[data-observatory-state="pending"\][^{]*\{[^}]*\bopacity:/);
+  const genericPending = observatoryCss.match(/#pulse-home \[data-observatory-state="pending"\]\{[^}]*\}/);
+  assert.ok(genericPending, 'generic pending semantic token rule must exist');
+  assert.doesNotMatch(genericPending[0], /\bopacity:/);
   assert.match(observatoryCss, /week-day::after\{[^}]*opacity:var\(--obs-state-decoration/);
+  assert.match(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
 });
 
 test('active and achieved states use bounded OLED-friendly glow tokens', () => {
