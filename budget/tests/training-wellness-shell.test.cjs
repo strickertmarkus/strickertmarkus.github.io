@@ -12,12 +12,16 @@ const exercise=read('exercise.html');
 const zen=read('zen.html');
 const store=read('zen-store.js');
 const firebase=read('firebase-sync.js');
+const authGate=read('auth-gate.js');
+const shellV13=read('exercise-shell-v13.js');
+const builderV7=read('exercise-builder-between-preview-v7.js');
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
   assert.match(shell,/canonical=\/\\\/exercise\\\.html\$\//);
   assert.match(shell,/fetch\('zen\.html'/);
   assert.match(shell,/extractZenSurface\(doc\)/);
-  assert.match(shell,/\['\.landscape','#zen-main'\]/);
+  assert.match(shell,/zenBackdrop=document\.importNode\(landscape,true\)/);
+  assert.match(shell,/wrap\.insertBefore\(zenBackdrop,wrap\.firstChild\)/);
   assert.doesNotMatch(shell,/iframe|srcdoc/);
   assert.doesNotMatch(shell,/querySelector\('\.zen-header'\).*importNode/s);
 });
@@ -31,9 +35,10 @@ test('Zen heavy assets are lazy loaded once and remain domain scoped',()=>{
   assert.doesNotMatch(store,/weekPlans|plannedSessions|exerciseSessions/);
 });
 
-test('Training stays mounted while Zen is toggled and the shared header has one Zen settings control',()=>{
+test('Training stays mounted while Zen uses one shared header and separate scene background',()=>{
   assert.match(shell,/trainingMain\.hidden=zen/);
   assert.match(shell,/zenHost\.hidden=!zen/);
+  assert.match(shell,/zenBackdrop\.hidden=!zen/);
   assert.match(shell,/wellness-zen-tools/);
   assert.match(shell,/id="settings-open"/);
   assert.doesNotMatch(shell,/id="profile-name"/);
@@ -80,14 +85,17 @@ test('Zen network assets warm without starting the Zen runtime',()=>{
   assert.doesNotMatch(preload,/createElement\('script'\)/,'prewarm must download only, not execute Zen');
 });
 
-test('one three-mode switch replaces the old Training Zen pill',()=>{
-  assert.match(shell,/function ensureTrainingSwitch\(\)/);
+test('one persistent three-mode switch owns the same position in Training Stretch and Meditation',()=>{
+  assert.match(shell,/function ensureSharedSwitch\(\)/);
+  assert.match(shell,/header\.insertAdjacentElement\('afterend',nav\)/);
   assert.match(shell,/data-wellness-destination="training"/);
   assert.match(shell,/data-wellness-destination="stretch"/);
   assert.match(shell,/data-wellness-destination="meditation"/);
   assert.match(shellCss,/\.wellness-kind-switch/);
   assert.doesNotMatch(shellCss,/\.wellness-nav\{/);
   assert.doesNotMatch(shell,/className='wellness-nav'/);
+  assert.match(shellCss,/#wellness-zen-surface \.kind-switch\{display:none!important\}/);
+  assert.doesNotMatch(shell,/ensureTrainingSwitch|trainingSwitch/);
   assert.match(zen,/data-wellness-destination="training"/);
   assert.match(zen,/data-kind="stretch"/);
   assert.match(zen,/data-kind="meditation"/);
@@ -111,11 +119,23 @@ test('Zen shared header restores the original transparent Zen composition',()=>{
   assert.doesNotMatch(shellCss,/background:rgba\(7,27,23,\.86\)!important/);
 });
 
-test('exercise profile toggle stays compact in Training and Zen',()=>{
+test('Zen landscape begins at the app top behind header and shared toggle',()=>{
+  assert.match(shell,/zenBackdrop\.classList\.add\('wellness-zen-backdrop'\)/);
+  assert.match(shellCss,/\.wellness-zen-backdrop\{position:absolute!important;inset:0 0 auto!important/);
+  assert.match(shellCss,/html\[data-wellness-mode="zen"\] #pulse-header\{background:transparent!important/);
+  assert.match(shellCss,/html\[data-wellness-mode="zen"\] \.wellness-kind-switch\{z-index:30\}/);
+});
+
+test('exercise profile toggle stays compact and follows the active page theme',()=>{
   assert.match(firebase,/\.exercise-user-toggle \{[\s\S]*height:30px;[\s\S]*padding:2px;/);
   assert.match(firebase,/\.exercise-user-option \{[\s\S]*min-height:26px !important;[\s\S]*height:26px !important;/);
   assert.match(firebase,/@media\(max-width:430px\)[\s\S]*height:24px !important;/);
-  assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-toggle-compact-1/);
+  assert.match(firebase,/#exercise-user-toggle \.exercise-user-option\.active/);
+  assert.match(shellCss,/#exercise-user-toggle\{--profile-accent:#ff9bb2/);
+  assert.match(shellCss,/body\[data-kind="stretch"\] #exercise-user-toggle\{--profile-accent:#d4eea7/);
+  assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
+  for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
+  assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
 });
 
 test('profile query and intentional browser history survive unified switching',()=>{
@@ -126,10 +146,12 @@ test('profile query and intentional browser history survive unified switching',(
   assert.match(shell,/get\('user'\)===['"]maja['"]/);
 });
 
-test('production pages cache-bust the unified CP8 controller',()=>{
+test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-zen-header-restore-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-unified-tabs-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-shared-scene-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-shared-scene-1/);
   }
+  assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
+  assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260916-main-cp8-header-toggle-1/);
 });

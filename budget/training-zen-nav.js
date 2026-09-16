@@ -8,7 +8,7 @@
   var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
   var trainingMain=document.getElementById('pulse-home');
   var header=document.querySelector('.app-header, .zen-header');
-  var zenHost=null,zenLoadPromise=null,zenDocumentPromise=null,zenPreloadStarted=false,zenStyleLinks=[],zenTools=null,zenBrand=null,trainingSwitch=null;
+  var zenHost=null,zenBackdrop=null,zenLoadPromise=null,zenDocumentPromise=null,zenPreloadStarted=false,zenStyleLinks=[],zenTools=null,zenBrand=null,sharedSwitch=null;
   var mode='training',zenKind='stretch',switchToken=0;
   var scrollPositions={training:window.scrollY||0,zen:0};
   var trainingTitle=document.title;
@@ -48,17 +48,17 @@
       '<button type="button" data-wellness-destination="meditation" aria-pressed="false"><span aria-hidden="true">≈</span> Meditation</button>'+
       '<span class="wellness-mode-notice" role="status" aria-live="polite" hidden></span>';
   }
-  function ensureTrainingSwitch(){
-    if(!canonical||!trainingMain)return null;
-    var existing=trainingMain.querySelector('[data-wellness-kind-switch]');
-    if(existing){trainingSwitch=existing;return existing;}
+  function ensureSharedSwitch(){
+    if(!canonical||!trainingMain||!header)return null;
+    var existing=document.querySelector('[data-wellness-kind-switch="true"]');
+    if(existing){sharedSwitch=existing;return existing;}
     var nav=document.createElement('nav');
     nav.className='wellness-kind-switch';
     nav.dataset.wellnessKindSwitch='true';
     nav.setAttribute('aria-label','Välj Träning, Stretch eller Meditation');
     nav.innerHTML=switchMarkup();
-    trainingMain.insertBefore(nav,trainingMain.firstChild);
-    trainingSwitch=nav;
+    header.insertAdjacentElement('afterend',nav);
+    sharedSwitch=nav;
     nav.addEventListener('click',function(event){
       var button=event.target.closest('[data-wellness-destination]');
       if(!button||!nav.contains(button))return;
@@ -168,7 +168,17 @@
   function extractZenSurface(doc){
     var host=document.createElement('section');
     host.id='wellness-zen-surface';host.className='wellness-zen-surface';host.hidden=true;host.setAttribute('aria-label','Zen');
-    ['.landscape','#zen-main'].forEach(function(selector){var node=doc.querySelector(selector);if(node)host.appendChild(document.importNode(node,true));});
+    var landscape=doc.querySelector('.landscape');
+    if(landscape){
+      zenBackdrop=document.importNode(landscape,true);
+      zenBackdrop.classList.add('wellness-zen-backdrop');
+      zenBackdrop.hidden=true;
+      var wrap=header&&header.closest('.app-wrap');
+      if(wrap)wrap.insertBefore(zenBackdrop,wrap.firstChild);
+      else document.body.insertBefore(zenBackdrop,document.body.firstChild);
+    }
+    var main=doc.querySelector('#zen-main');
+    if(main)host.appendChild(document.importNode(main,true));
     Array.prototype.forEach.call(doc.querySelectorAll('dialog,#toast'),function(node){host.appendChild(document.importNode(node,true));});
     if(!host.querySelector('#zen-main'))throw new Error('Zen-ytan saknar huvudvyn.');
     trainingMain.insertAdjacentElement('afterend',host);
@@ -184,7 +194,7 @@
       ensureThemeMeta();
       document.body.dataset.kind=doc.body.dataset.kind||'stretch';
       return loadStyles(doc).then(function(){return loadScripts(doc);});
-    }).catch(function(error){zenLoadPromise=null;if(zenHost){zenHost.remove();zenHost=null;}throw error;});
+    }).catch(function(error){zenLoadPromise=null;if(zenHost){zenHost.remove();zenHost=null;}if(zenBackdrop){zenBackdrop.remove();zenBackdrop=null;}throw error;});
     return zenLoadPromise;
   }
   function selectZenKind(kind){
@@ -210,6 +220,7 @@
     document.body.classList.toggle('wellness-zen-active',zen);
     trainingMain.hidden=zen;
     if(zenHost)zenHost.hidden=!zen;
+    if(zenBackdrop)zenBackdrop.hidden=!zen;
     if(zenTools)zenTools.hidden=!zen;
     if(zenBrand)zenBrand.hidden=!zen;
     var trainingBrand=header&&header.querySelector('.brand-text');if(trainingBrand)trainingBrand.hidden=zen;
@@ -273,7 +284,7 @@
   }
   if(!canonical||!trainingMain||!header)return;
   ensureSharedHeaderZenTools();
-  var nav=ensureTrainingSwitch();
+  var nav=ensureSharedSwitch();
   document.documentElement.dataset.wellnessMode='training';
   updateUnifiedSwitch('training');
   if(nav){

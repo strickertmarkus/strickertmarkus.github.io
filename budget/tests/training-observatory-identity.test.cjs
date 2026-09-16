@@ -57,11 +57,11 @@ test('Next Workout remains one real weekly-plan action with explicit cue and emp
   assert.match(environment, /if \(hasPlan\) window\.startWorkoutSessionForDate\(selectedDate\);/);
 });
 
-test('CP5 cache keys force Safari to receive the retired-header ownership change', () => {
-  assert.match(html, /auth-config\.js\?v=20260915-cp5-identity/);
-  assert.match(html, /auth-gate\.js\?v=20260915-cp5-identity/);
+test('boot cache keys keep the current shared wellness ownership fresh', () => {
+  assert.match(html, /auth-config\.js\?v=20260916-wellness-shell-3/);
+  assert.match(html, /auth-gate\.js\?v=20260916-wellness-shell-3/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260915-main-cp7-symbol-cyan-1/);
   assert.match(html, /pulse-environment\/environment\.js\?v=20260915-main-cp7-state-2/);
-  assert.match(authConfig, /exerciseFastVersion = '20260915-cp5-identity'/);
-  assert.match(authGate, /exerciseAssetsVersion = '20260915-cp5-identity'/);
+  assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
+  assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
 });

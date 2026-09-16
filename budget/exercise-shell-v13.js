@@ -39,8 +39,6 @@
       #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13 .between-switch-v7[aria-pressed="true"]::after,
       #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13 .pretimer-switch[aria-pressed="true"]::after{transform:translateX(18px)!important}
 
-      .exercise-user-option[data-user="markus"].active{background:rgba(56,189,248,.14)!important;color:#38BDF8!important;box-shadow:inset 0 0 0 1px rgba(56,189,248,.42)!important}
-      .exercise-user-option[data-user="maja"].active{background:rgba(244,114,182,.15)!important;color:#F472B6!important;box-shadow:inset 0 0 0 1px rgba(244,114,182,.46)!important}
 
       @media(max-width:768px){
         html body .goals-grid{grid-template-columns:1fr!important}

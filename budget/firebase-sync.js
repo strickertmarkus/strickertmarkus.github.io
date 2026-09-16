@@ -349,7 +349,7 @@ function applyExerciseUserToggle() {
       max-height:30px;
       padding:2px;
       gap:1px;
-      border:1px solid var(--border);
+      border:1px solid var(--profile-border,var(--border));
       border-radius:9px;
       background:rgba(255,255,255,.035);
     }
@@ -363,17 +363,17 @@ function applyExerciseUserToggle() {
       margin:0 !important;
       border:0;
       background:transparent;
-      color:var(--text-sec);
+      color:var(--profile-muted,var(--text-sec));
       border-radius:7px;
       padding:0 8px !important;
       font:600 10px/1 'Inter',sans-serif;
       cursor:pointer;
-      transition:background .15s,color .15s;
+      transition:background .15s,color .15s,box-shadow .15s;
     }
-    .exercise-user-option.active {
-      background:var(--accent-dim);
-      color:var(--accent);
-      box-shadow:inset 0 0 0 1px var(--border-a);
+    #exercise-user-toggle .exercise-user-option.active {
+      background:var(--profile-soft,var(--accent-dim));
+      color:var(--profile-accent,var(--accent));
+      box-shadow:inset 0 0 0 1px var(--profile-border,var(--border-a)),0 0 12px var(--profile-glow,transparent);
     }
     @media(max-width:430px) {
       .app-header { gap:7px !important; padding-left:12px !important; padding-right:12px !important; }
