@@ -1,11 +1,13 @@
-.wellness-kind-switch{--wellness-accent:#ff9bb2;--wellness-accent-glow:rgba(255,98,142,.42);--wellness-muted:#a896a5;--wellness-line:rgba(255,184,208,.20);display:flex;align-items:center;gap:28px;width:min(90%,1100px);max-width:1100px;margin:0 auto;padding-top:18px;border-bottom:1px solid var(--wellness-line);font-family:Inter,system-ui,sans-serif;position:relative;z-index:24}
-.wellness-kind-switch button{position:relative;appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 3px 14px;border:0;border-radius:0;background:none;color:var(--wellness-muted);font:500 13px/1.25 Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:color .3s,text-shadow .3s}
-.wellness-kind-switch button span{font-size:27px;line-height:1;font-weight:400}
-.wellness-kind-switch button:hover{color:var(--wellness-accent)}
-.wellness-kind-switch button:focus-visible{outline:2px solid var(--wellness-accent);outline-offset:5px}
-.wellness-kind-switch button[aria-pressed="true"]{color:var(--wellness-accent);text-shadow:0 0 25px var(--wellness-accent-glow)}
-.wellness-kind-switch button:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--wellness-accent);box-shadow:0 0 12px var(--wellness-accent);transform:scaleX(0);transform-origin:center;transition:transform .55s cubic-bezier(.16,1,.3,1)}
-.wellness-kind-switch button[aria-pressed="true"]:after{transform:scaleX(1)}
+.wellness-kind-switch{--wellness-accent:#ff9bb2;--wellness-accent-glow:rgba(255,98,142,.42);--wellness-muted:#a896a5;--wellness-line:rgba(255,184,208,.20);display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:end;column-gap:14px;width:min(90%,1100px);max-width:1100px;margin:0 auto;padding-top:18px;border-bottom:1px solid var(--wellness-line);font-family:Inter,system-ui,sans-serif;position:relative;z-index:24}
+.wellness-kind-options{display:flex;align-items:center;gap:28px;min-width:0}
+.wellness-overview-slot{display:grid;place-items:center;width:42px;height:54px;padding-bottom:7px;justify-self:end;align-self:end}
+.wellness-kind-options button{position:relative;appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 3px 14px;border:0;border-radius:0;background:none;color:var(--wellness-muted);font:500 13px/1.25 Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:color .3s,text-shadow .3s}
+.wellness-kind-options button span{font-size:27px;line-height:1;font-weight:400}
+.wellness-kind-options button:hover{color:var(--wellness-accent)}
+.wellness-kind-options button:focus-visible{outline:2px solid var(--wellness-accent);outline-offset:5px}
+.wellness-kind-options button[aria-pressed="true"]{color:var(--wellness-accent);text-shadow:0 0 25px var(--wellness-accent-glow)}
+.wellness-kind-options button:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--wellness-accent);box-shadow:0 0 12px var(--wellness-accent);transform:scaleX(0);transform-origin:center;transition:transform .55s cubic-bezier(.16,1,.3,1)}
+.wellness-kind-options button[aria-pressed="true"]:after{transform:scaleX(1)}
 .wellness-mode-notice{position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%);width:max-content;max-width:min(330px,82vw);padding:8px 11px;border:1px solid #e8c7a22b;border-radius:10px;background:#161a1eea;color:#eadfd6;font-size:10px;font-weight:500;line-height:1.35;box-shadow:0 10px 28px #0007;z-index:1200}
 html[data-wellness-mode="zen"] body[data-kind="stretch"] .wellness-kind-switch{--wellness-accent:#d4eea7;--wellness-accent-glow:rgba(192,243,150,.38);--wellness-muted:#b4c6af;--wellness-line:#b2d69626}
 html[data-wellness-mode="zen"] body[data-kind="meditation"] .wellness-kind-switch{--wellness-accent:#244739;--wellness-accent-glow:rgba(43,100,82,.25);--wellness-muted:#5c716b;--wellness-line:#627e6530}
@@ -37,9 +39,11 @@ html[data-wellness-mode="zen"] .wellness-kind-switch{z-index:30}
 @keyframes wellnessSurfaceOld{to{opacity:0;transform:scale(.997) translateY(-3px)}}
 @keyframes wellnessSurfaceNew{from{opacity:0;transform:scale(.997) translateY(4px)}}
 @media(max-width:760px){
-  .wellness-kind-switch{gap:18px;width:88%;max-width:none;padding-top:14px}
-  .wellness-kind-switch button{gap:7px;font-size:12px;padding-inline:1px}
-  .wellness-kind-switch button span{font-size:23px}
+  .wellness-kind-switch{grid-template-columns:minmax(0,1fr) 40px;column-gap:12px;width:88%;max-width:none;padding-top:14px}
+  .wellness-kind-options{gap:18px}
+  .wellness-kind-options button{gap:7px;font-size:12px;padding-inline:1px}
+  .wellness-kind-options button span{font-size:23px}
+  .wellness-overview-slot{width:40px;height:52px;padding-bottom:6px}
   html[data-wellness-mode="zen"] #pulse-header{height:92px!important;min-height:92px!important;gap:12px!important;padding:0 6%!important}
   html[data-wellness-mode="zen"] #pulse-header .wellness-zen-brand{gap:6px;flex:0 1 auto;font-size:30px;line-height:1}
   html[data-wellness-mode="zen"] #pulse-header .wellness-zen-brand>span:first-child{font-size:35px}
@@ -48,14 +52,15 @@ html[data-wellness-mode="zen"] .wellness-kind-switch{z-index:30}
   html[data-wellness-mode="zen"] #pulse-header .wellness-zen-tools .icon-button{width:36px;height:36px;min-width:36px;min-height:36px;border:0;font-size:24px}
 }
 @media(max-width:390px){
-  .wellness-kind-switch{gap:11px;justify-content:space-between}
-  .wellness-kind-switch button{gap:5px;font-size:11px}
-  .wellness-kind-switch button span{font-size:21px}
+  .wellness-kind-switch{grid-template-columns:minmax(0,1fr) 40px;column-gap:8px;width:calc(100% - 24px)}
+  .wellness-kind-options{gap:7px;justify-content:space-between}
+  .wellness-kind-options button{gap:5px;font-size:11px}
+  .wellness-kind-options button span{font-size:21px}
   html[data-wellness-mode="zen"] #pulse-header{gap:8px!important;padding-inline:5.5%!important}
   html[data-wellness-mode="zen"] #pulse-header .wellness-zen-brand{font-size:28px}
   html[data-wellness-mode="zen"] #pulse-header .wellness-zen-brand>span:first-child{font-size:32px}
 }
 @media(prefers-reduced-motion:reduce){
-  .wellness-kind-switch button,.wellness-kind-switch button:after,.wellness-surface-enter{transition:none!important;animation:none!important}
+  .wellness-kind-options button,.wellness-kind-options button:after,.wellness-surface-enter{transition:none!important;animation:none!important}
   ::view-transition-old(wellness-surface),::view-transition-new(wellness-surface){animation:none!important}
 }
