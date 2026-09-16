@@ -50,10 +50,12 @@ test('overview-mode controller is presentation-only and cannot own live session 
   assert.doesNotMatch(overview, /startWorkoutSessionForDate/);
   assert.doesNotMatch(overview, /session-modal/);
   assertContainsAll(overview, [
-    "shell.dataset.trainingOverviewSwitch = 'true'",
+    "document.getElementById('training-overview-toggle')",
+    "currentMode() === 'compact' ? 'observatory' : 'compact'",
     'setVisibility(mode)',
     'setAssetState(mode)'
   ], 'overview controller');
+  assert.doesNotMatch(overview, /trainingOverviewSwitch|training-overview-switch-shell/);
 });
 
 test('approved timer, transition, audio/persistence and typography owners stay in the production load graph', () => {
