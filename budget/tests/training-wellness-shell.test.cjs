@@ -11,6 +11,7 @@ const overviewCss=read('training-overview-mode.css');
 const exercise=read('exercise.html');
 const zen=read('zen.html');
 const store=read('zen-store.js');
+const firebase=read('firebase-sync.js');
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
   assert.match(shell,/canonical=\/\\\/exercise\\\.html\$\//);
@@ -102,9 +103,19 @@ test('Compact uses one header symbol toggle and no dashboard mode switch',()=>{
   assert.doesNotMatch(overviewCss,/training-overview-switch-shell/);
 });
 
-test('Zen shared header removes the inherited Training divider',()=>{
-  assert.match(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*border-bottom:0!important/);
-  assert.doesNotMatch(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*border-bottom-color:/);
+test('Zen shared header restores the original transparent Zen composition',()=>{
+  assert.match(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*background:transparent!important[^}]*backdrop-filter:none!important[^}]*border:0!important[^}]*box-shadow:none!important[^}]*height:108px!important/);
+  assert.match(shellCss,/@media\(max-width:760px\)\{[\s\S]*#pulse-header\{height:92px!important;min-height:92px!important/);
+  assert.match(shellCss,/wellness-zen-brand>span:first-child\{[^}]*font-size:48px/);
+  assert.match(shellCss,/#pulse-header \.wellness-zen-brand small\{display:none\}/);
+  assert.doesNotMatch(shellCss,/background:rgba\(7,27,23,\.86\)!important/);
+});
+
+test('exercise profile toggle stays compact in Training and Zen',()=>{
+  assert.match(firebase,/\.exercise-user-toggle \{[\s\S]*height:30px;[\s\S]*padding:2px;/);
+  assert.match(firebase,/\.exercise-user-option \{[\s\S]*min-height:26px !important;[\s\S]*height:26px !important;/);
+  assert.match(firebase,/@media\(max-width:430px\)[\s\S]*height:24px !important;/);
+  assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-toggle-compact-1/);
 });
 
 test('profile query and intentional browser history survive unified switching',()=>{
@@ -117,7 +128,7 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the unified CP8 controller',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-zen-border-2/);
+    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-zen-header-restore-1/);
     assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-unified-tabs-1/);
   }
   assert.match(exercise,/training-overview-mode\.js\?v=20260916-main-cp8-header-toggle-1/);
