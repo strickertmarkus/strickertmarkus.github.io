@@ -6,20 +6,24 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
-const orbit = read('training-week-orbit.js');
+const dashboard = read('exercise-dashboard.js');
+const orbitShim = read('training-week-orbit.js');
 const orbitCss = read('training-week-orbit.css');
 const html = read('exercise.html');
 const starPath = 'M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z';
 
+const orbitStart = dashboard.indexOf('/* ── Canonical weekly plan: linear ↔ Observatory orbit');
+const orbit = dashboard.slice(orbitStart);
+
 test('weekly orbit keeps one progress state and one temporary animation-frame owner', () => {
-  assert.match(orbit, /let weekOrbitProgress = 0;/);
+  assert.match(orbit, /var weekOrbitProgress = 0;/);
   assert.match(orbit, /function orbitFrame\(now\)/);
   assert.equal((orbit.match(/requestAnimationFrame\(orbitFrame\)/g) || []).length, 1);
   assert.doesNotMatch(orbit, /setInterval\(/);
 });
 
 test('orbit reuses the canonical week grid and never clones interactive day nodes', () => {
-  assert.match(orbit, /const grid = document\.getElementById\('week-grid'\);/);
+  assert.match(orbit, /var grid = document\.getElementById\('week-grid'\);/);
   assert.match(orbit, /Array\.from\(grid\.querySelectorAll\('\.week-day'\)\)/);
   assert.doesNotMatch(orbit, /cloneNode\(/);
   assert.equal((html.match(/id="week-grid"/g) || []).length, 1);
@@ -69,7 +73,9 @@ test('orbit stylesheet is Observatory-scoped and structurally balanced', () => {
   assert.equal(opens, closes);
 });
 
-test('production page loads the click-only CP6 assets with current cache keys', () => {
+test('CP10 gives orbit behavior one canonical dashboard owner', () => {
+  assert.match(orbitShim, /ownership moved to exercise-dashboard\.js/);
+  assert.doesNotMatch(orbitShim, /weekOrbitProgress|function orbitFrame/);
+  assert.equal((dashboard.match(/function orbitFrame\(now\)/g) || []).length, 1);
   assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(html, /training-week-orbit\.js\?v=20260915-main-cp6-click-2/);
 });
