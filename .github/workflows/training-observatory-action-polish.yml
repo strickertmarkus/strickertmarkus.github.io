@@ -1,0 +1,52 @@
+name: Training Observatory action polish
+
+on:
+  push:
+    branches:
+      - work/training-observatory-action-hierarchy-polish-2026-09-16
+
+permissions:
+  contents: write
+
+jobs:
+  polish-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/training-observatory-action-hierarchy-polish-2026-09-16
+          fetch-depth: 0
+      - name: Apply structural polish
+        run: python3 budget/.action_hierarchy_polish.py
+      - name: Verify intended file set
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only | sort > /tmp/changed.txt
+          cat > /tmp/expected.txt <<'EOF'
+          budget/exercise.html
+          budget/pulse-environment/environment.js
+          budget/pulse-observatory/observatory.css
+          budget/tests/training-observatory-identity.test.cjs
+          budget/tests/training-observatory-mobile.test.cjs
+          EOF
+          sort -o /tmp/expected.txt /tmp/expected.txt
+          diff -u /tmp/expected.txt /tmp/changed.txt
+      - name: Syntax and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check budget/pulse-environment/environment.js
+          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          git diff --check
+      - name: Commit verified production changes and remove temporary files
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm budget/.action_hierarchy_polish.py
+          rm .github/workflows/training-observatory-action-polish.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Polish Observatory next-pass action hierarchy"
+          git push origin HEAD:work/training-observatory-action-hierarchy-polish-2026-09-16
