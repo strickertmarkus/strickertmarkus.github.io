@@ -18,6 +18,20 @@
     var style = document.createElement('style');
     style.id = 'home-shopping-groups-v1-style';
     style.textContent = `
+      /* iOS WebKit zooms focused editable controls whose computed text size is
+         below 16 CSS px. Keep Home inputs at the threshold without disabling
+         the user's normal pinch-to-zoom accessibility. */
+      @supports (-webkit-touch-callout: none) {
+        @media (hover: none) and (pointer: coarse) {
+          html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+          html body select,
+          html body textarea,
+          html body [contenteditable]:not([contenteditable="false"]) {
+            font-size: 16px !important;
+          }
+        }
+      }
+
       #shopping-items .shopping-category-heading {
         list-style: none;
         margin: 7px 2px 1px;
@@ -116,6 +130,10 @@
     window.renderShoppingWidget = groupedRender;
     groupedRender();
   }
+
+  /* Install the Home-wide iOS editable-control guard immediately when this
+     Home-only presentation module loads; shopping data may initialize later. */
+  addStyles();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', install, { once: true });
