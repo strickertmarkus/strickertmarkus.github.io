@@ -268,6 +268,9 @@ Mobile Zen header refinement (2026-09-16): the in-page Zen mode now follows the 
 
 ---
 
+**CP8 navigation refinement (2026-09-16):** the temporary two-state `Träning / Zen` header pill has been retired. The user-facing mode control is now one three-state `Träning / Stretch / Meditation` switch in the content position formerly owned by Zen's `Stretch / Meditation` switch. Compact/Observatory is no longer a second content-row toggle; Compact is a single header symbol owned by `training-overview-mode.js`, highlighted only while Compact is active. The training hamburger and `Din profil` placeholder were removed from this shell.
+
+
 # Checkpoint 9 — Retire preview/page duplication
 
 Goal: once the main route has the approved Observatory/Compact architecture, remove the obsolete third-page architecture instead of keeping it forever.
