@@ -39,7 +39,7 @@ test('Compact and Observatory delegate to the same canonical start function', ()
   );
   assert.match(
     environment,
-    /if \(hasPlan\) window\.startWorkoutSessionForDate\(selectedDate\);/,
+    /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/,
     'Observatory next-workout start must use the canonical startWorkoutSessionForDate function'
   );
   assert.equal(count(environment, /startWorkoutSessionForDate/g), 1, 'overview adapter must not introduce another session entry implementation');

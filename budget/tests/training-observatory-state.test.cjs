@@ -59,7 +59,7 @@ test('cyan is reserved for Observatory identity symbols while semantic data stat
 
 test('metrics next action goals and both week geometries consume shared state tokens', () => {
   assert.match(observatoryCss, /observatory-metrics \.stat-card\[data-observatory-state\]::after/);
-  assert.match(observatoryCss, /observatory-start\[data-observatory-state\] \.observatory-next-orb/);
+  assert.match(observatoryCss, /observatory-next-orb\[data-observatory-state\]/);
   assert.match(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
   assert.match(environmentCss, /progress-bar\{[^}]*linear-gradient\(90deg,#a73761,#ffb4cd\)/);
   assert.match(environmentCss, /progress-marker\{[^}]*background:#ffe3ef/);
@@ -71,7 +71,7 @@ test('metrics next action goals and both week geometries consume shared state to
 
 test('production cache-busts every modified CP7 presentation owner', () => {
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-symbol-cyan-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-orb-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
   assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-orb-1/);
+  assert.match(html, /pulse-environment\/environment\.js\?v=20260916-main-next-pass-orb-2/);
 });
