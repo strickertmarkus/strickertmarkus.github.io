@@ -60,8 +60,12 @@ test('Next Workout has separate build and start actions without duplicating sess
   assert.match(environment, /showMissingPlanNotice\(\)/);
   assert.match(environment, /getElementById\('reactor-build'\)\.addEventListener\('click', openSelectedBuilder\)/);
   assert.doesNotMatch(environment, /else openSelectedBuilder\(\)/);
-  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 126px;[^}]*align-items:center/);
-  assert.match(css, /observatory-next-orb\{[^}]*opacity:\.82/);
+  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 108px;[^}]*gap:16px/);
+  assert.match(css, /observatory-next-orb\{[^}]*width:108px;height:108px[^}]*opacity:\.82/);
+  assert.match(css, /observatory-next-orb\[data-plan-state="empty"\]\{[^}]*opacity:\.58/);
+  assert.match(css, /observatory-next-orb\[data-plan-state="empty"\] \.observatory-next-orb-meta\{display:none\}/);
+  assert.match(css, /observatory-next-orb\[data-plan-state="planned"\]\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 3\.8s ease-in-out infinite/);
+  assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb\[data-plan-state="planned"\]\) \.observatory-build\{[^}]*opacity:\.64/);
   assert.match(css, /observatory-start-notice\{[^}]*position:absolute/);
 });
 
