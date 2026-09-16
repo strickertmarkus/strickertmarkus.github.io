@@ -345,19 +345,28 @@ function applyExerciseUserToggle() {
       display:flex;
       align-items:center;
       flex-shrink:0;
-      padding:3px;
-      gap:2px;
+      height:30px;
+      max-height:30px;
+      padding:2px;
+      gap:1px;
       border:1px solid var(--border);
-      border-radius:10px;
+      border-radius:9px;
       background:rgba(255,255,255,.035);
     }
     .exercise-user-option {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:0 !important;
+      min-height:26px !important;
+      height:26px !important;
+      margin:0 !important;
       border:0;
       background:transparent;
       color:var(--text-sec);
       border-radius:7px;
-      padding:5px 9px;
-      font:600 11px/1.2 'Inter',sans-serif;
+      padding:0 8px !important;
+      font:600 10px/1 'Inter',sans-serif;
       cursor:pointer;
       transition:background .15s,color .15s;
     }
@@ -368,7 +377,7 @@ function applyExerciseUserToggle() {
     }
     @media(max-width:430px) {
       .app-header { gap:7px !important; padding-left:12px !important; padding-right:12px !important; }
-      .exercise-user-option { padding:5px 7px; font-size:10px; }
+      .exercise-user-option { min-height:24px !important; height:24px !important; padding:0 7px !important; font-size:9px !important; }
       .streak-badge { padding-left:8px !important; padding-right:8px !important; }
     }
   `;
