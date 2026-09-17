@@ -132,8 +132,11 @@ jobs:
             await openMenu(page, '.header-right-top .dropdown-wrapper:nth-of-type(3) .dropdown-btn', '#recipes-dropdown', 'recipes menu');
             await page.keyboard.press('Escape');
 
-            // Item add + checkbox + undo.
-            await page.locator('.add-item-line').first().click();
+            // Current V7 compact flow: tap an item, Enter opens the next draft row.
+            const milkRow = page.locator('.list-item[data-item-id="12"]');
+            await milkRow.locator('.item-text').click();
+            const milkEditor = page.locator('[data-editing-item="true"]');
+            await milkEditor.press('Enter');
             const draft = page.locator('.shopping-draft-editor');
             await draft.fill('Bröd');
             await draft.press('Enter');
