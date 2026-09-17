@@ -1,0 +1,222 @@
+name: Shopping mobile WebKit verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/shopping.html'
+      - 'budget/shopping-shell-v1.css'
+      - 'budget/shopping-core-v1.js'
+      - 'budget/shopping-list-engine-v7.js'
+      - 'budget/shopping-list-stability-v8.js'
+      - 'budget/shopping-toolbar-v9.js'
+      - 'budget/shopping-recipes-v4.js'
+      - 'budget/shopping-recipe-link-popup-v5.js'
+      - 'budget/tests/shopping-shell-v1.test.cjs'
+      - '.github/workflows/shopping-mobile-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static Shopping contract and syntax
+        run: |
+          node --test budget/tests/shopping-shell-v1.test.cjs
+          node --check budget/shopping-core-v1.js
+          node --check budget/shopping-list-engine-v7.js
+          node --check budget/shopping-list-stability-v8.js
+          node --check budget/shopping-toolbar-v9.js
+          node --check budget/shopping-recipes-v4.js
+          node --check budget/shopping-recipe-link-popup-v5.js
+      - name: Install WebKit browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+      - name: Serve Budget locally
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/shopping-http.log 2>&1 &
+          echo $! >/tmp/shopping-http.pid
+          sleep 2
+      - name: Exercise Shopping on iPhone-sized WebKit
+        run: |
+          cat > /tmp/shopping-mobile-e2e.cjs <<'EOF'
+          const { webkit } = require(process.cwd() + '/node_modules/playwright');
+          const assert = require('node:assert/strict');
+
+          const firebaseStub = `
+            (function(){
+              if (window.firebase) return;
+              var authObj = {
+                currentUser:{uid:'shopping-e2e'},
+                setPersistence:function(){return Promise.resolve();},
+                onAuthStateChanged:function(cb){setTimeout(function(){cb({uid:'shopping-e2e'});},0);return function(){};},
+                signInWithEmailAndPassword:function(){return Promise.resolve();},
+                createUserWithEmailAndPassword:function(){return Promise.resolve();}
+              };
+              function snapshot(){return {exists:function(){return false;},val:function(){return null;}};}
+              var dbObj = {ref:function(){return {set:function(){return Promise.resolve();},get:function(){return Promise.resolve(snapshot());},on:function(){},off:function(){}};}};
+              function auth(){return authObj;}
+              auth.Auth={Persistence:{LOCAL:'local'}};
+              window.firebase={
+                apps:[{}],
+                app:function(){return {};},
+                initializeApp:function(){return {};},
+                auth:auth,
+                database:function(){return dbObj;}
+              };
+            })();
+          `;
+
+          async function inside(page, selector, label, viewportHeight) {
+            const locator = page.locator(selector);
+            await locator.waitFor({state:'visible'});
+            await page.waitForTimeout(220);
+            const box = await locator.boundingBox();
+            assert.ok(box, label + ' has no bounding box');
+            const vp = page.viewportSize();
+            const height = viewportHeight || vp.height;
+            assert.ok(box.x >= -1, `${label} left overflow: ${box.x}`);
+            assert.ok(box.y >= -1, `${label} top overflow: ${box.y}`);
+            assert.ok(box.x + box.width <= vp.width + 1, `${label} right overflow: ${box.x + box.width} > ${vp.width}`);
+            assert.ok(box.y + Math.min(box.height, height) <= height + 1, `${label} bottom overflow: ${box.y + box.height} > ${height}`);
+          }
+
+          async function openMenu(page, buttonSelector, menuSelector, label) {
+            await page.locator(buttonSelector).click();
+            await inside(page, menuSelector, label);
+          }
+
+          (async()=>{
+            const browser = await webkit.launch();
+            const context = await browser.newContext({
+              viewport:{width:390,height:844},
+              userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+              isMobile:true,
+              hasTouch:true
+            });
+            const page = await context.newPage();
+
+            await page.route('https://www.gstatic.com/firebasejs/**', route => route.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
+            await page.route('https://fonts.googleapis.com/**', route => route.abort());
+            await page.route('https://fonts.gstatic.com/**', route => route.abort());
+            await page.route('**/firebase-sync.js', route => route.fulfill({status:200,contentType:'application/javascript',body:'/* e2e: sync disabled */'}));
+
+            await page.addInitScript(() => {
+              localStorage.setItem('sh_lists', JSON.stringify([{id:1,name:'Huvudlista',createdAt:'2026-09-17',items:[
+                {id:11,type:'category',text:'Mejeri'},
+                {id:12,type:'item',text:'Mjölk',checked:false}
+              ]}]));
+              localStorage.setItem('sh_saved_templates', JSON.stringify([]));
+              localStorage.removeItem('sh_active_template_id');
+              localStorage.setItem('sh_recipes_v3', JSON.stringify({version:4,updatedAt:1,recipes:[]}));
+            });
+
+            await page.goto('http://127.0.0.1:4173/budget/shopping.html', {waitUntil:'domcontentloaded'});
+            await page.waitForFunction(() => document.body.classList.contains('shopping-list-engine-v7'));
+            await page.waitForFunction(() => document.body.classList.contains('shopping-recipes-v4'));
+            await page.waitForFunction(() => window.__shoppingRecipeLinkPopupV5Installed === true);
+            assert.match(await page.locator('#items-list').innerText(), /Mjölk/);
+
+            await openMenu(page, '.nav-btn', '#nav-menu', 'hamburger menu');
+            await page.keyboard.press('Escape');
+            await openMenu(page, '#mallar-btn', '#templates-menu', 'templates menu');
+            await page.keyboard.press('Escape');
+            await openMenu(page, '.header-right-top .dropdown-wrapper:nth-of-type(2) .dropdown-btn', '#lists-menu', 'lists menu');
+            await page.keyboard.press('Escape');
+            await openMenu(page, '.header-right-top .dropdown-wrapper:nth-of-type(3) .dropdown-btn', '#recipes-dropdown', 'recipes menu');
+            await page.keyboard.press('Escape');
+
+            // Item add + checkbox + undo.
+            await page.locator('.add-item-line').first().click();
+            const draft = page.locator('.shopping-draft-editor');
+            await draft.fill('Bröd');
+            await draft.press('Enter');
+            assert.match(await page.locator('#items-list').innerText(), /Bröd/);
+            const breadRow = page.locator('.list-item', {hasText:'Bröd'});
+            await breadRow.locator('input[type="checkbox"]').check();
+            assert.ok(await breadRow.locator('input[type="checkbox"]').isChecked());
+            await page.locator('.undo-btn').click();
+            assert.ok(!(await page.locator('.list-item', {hasText:'Bröd'}).locator('input[type="checkbox"]').isChecked()));
+
+            // Create/delete list using native prompt/confirm.
+            await page.locator('.header-right-top .dropdown-wrapper:nth-of-type(2) .dropdown-btn').click();
+            page.once('dialog', dialog => dialog.accept('Mobiltest'));
+            await page.locator('#lists-menu .menu-action').click();
+            await page.waitForFunction(() => document.getElementById('shopping-current-list').textContent.includes('Mobiltest'));
+            await page.locator('.header-right-top .dropdown-wrapper:nth-of-type(2) .dropdown-btn').click();
+            page.once('dialog', dialog => dialog.accept());
+            await page.locator('#lists-menu .list-menu-row', {hasText:'Mobiltest'}).locator('.list-delete-btn').click();
+            await page.waitForFunction(() => document.getElementById('shopping-current-list').textContent.includes('Huvudlista'));
+
+            // Save/select/delete template.
+            await page.locator('#mallar-btn').click();
+            page.once('dialog', dialog => dialog.accept('Mobilmall'));
+            await page.locator('#templates-menu .menu-action').click();
+            await page.locator('#mallar-btn').click();
+            assert.match(await page.locator('#templates-menu').innerText(), /Mobilmall/);
+            await page.locator('#templates-menu .list-menu-row', {hasText:'Mobilmall'}).locator('.list-delete-btn').click();
+            await page.keyboard.press('Escape');
+
+            // Create recipe, ingredient and verify it is added to the Shopping list.
+            await page.locator('.new-recipe').click();
+            await page.locator('#new-recipe-name-v4').fill('Pastatest');
+            await page.locator('#new-recipe-name-v4').press('Enter');
+            await page.locator('#new-recipe-url-v4').press('Enter');
+            await page.waitForFunction(() => document.querySelector('#recipes-list .recipe-item'));
+            const recipe = page.locator('#recipes-list .recipe-item', {hasText:'Pastatest'});
+            await recipe.locator('.recipe-toggle').click();
+            const ingredient = recipe.locator('input[placeholder="+ Lägg till ingrediens"]');
+            await ingredient.fill('Pasta');
+            await ingredient.press('Enter');
+            assert.match(await page.locator('#items-list').innerText(), /Pasta/);
+
+            // Recipe dropdown remains in viewport and invokes add-to-list path.
+            await page.locator('.header-right-top .dropdown-wrapper:nth-of-type(3) .dropdown-btn').click();
+            await inside(page, '#recipes-dropdown', 'populated recipes menu');
+            assert.match(await page.locator('#recipes-dropdown').innerText(), /Pastatest/);
+            await page.keyboard.press('Escape');
+
+            // Link popup, including constrained viewport that approximates keyboard space.
+            await recipe.locator('.recipe-edit-meta-v4').click();
+            await inside(page, '#recipe-link-popup-v5 .recipe-link-card-v5', 'recipe link popup');
+            await page.locator('#recipe-link-input-v5').fill('example.com/recept');
+            await page.setViewportSize({width:390,height:500});
+            await page.waitForTimeout(100);
+            await inside(page, '#recipe-link-popup-v5 .recipe-link-card-v5', 'recipe link popup constrained', 500);
+            await page.locator('[data-link-save-v5]').click();
+            await page.setViewportSize({width:390,height:844});
+            await page.waitForFunction(() => document.querySelector('#recipes-list .recipe-name-link-v4'));
+
+            // Delete recipe through native confirm.
+            page.once('dialog', dialog => dialog.accept());
+            await page.locator('#recipes-list .recipe-item', {hasText:'Pastatest'}).locator('.recipe-delete-v4').click();
+            await page.waitForFunction(() => !document.querySelector('#recipes-list .recipe-item'));
+
+            // Header edit remains usable without zoom-sized text regression.
+            await page.locator('.logo').click();
+            await page.locator('#header-title-input').fill('Familjens inköp');
+            await page.locator('#header-title-input').press('Enter');
+            assert.equal((await page.locator('.logo').innerText()).trim(), 'Familjens inköp');
+
+            // Minimal layout: tools panel plus nested menus all remain inside viewport.
+            await page.goto('http://127.0.0.1:4173/budget/shopping.html?layout=minimal', {waitUntil:'domcontentloaded'});
+            await page.waitForFunction(() => document.body.classList.contains('shopping-list-engine-v7'));
+            await page.waitForFunction(() => window.__shoppingRecipeLinkPopupV5Installed === true);
+            await page.locator('.minimal-tools-toggle').click();
+            await inside(page, '.shopping-tools-wrap>.header-right-top', 'minimal tools panel');
+            await page.locator('.shopping-tools-wrap .dropdown-wrapper').first().locator('.dropdown-btn').click();
+            await inside(page, '#templates-menu', 'minimal nested templates menu');
+            await page.keyboard.press('Escape');
+            await openMenu(page, '.nav-btn', '#nav-menu', 'minimal hamburger menu');
+
+            await browser.close();
+            console.log('Shopping mobile WebKit E2E passed');
+          })().catch(err => { console.error(err); process.exit(1); });
+          EOF
+          node /tmp/shopping-mobile-e2e.cjs
