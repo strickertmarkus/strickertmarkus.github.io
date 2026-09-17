@@ -14,7 +14,7 @@ const authGate = read('auth-gate.js');
 
 test('canonical Shopping uses the Home-native dashboard shell', () => {
   assert.match(shopping, /data-shopping-layout="dashboard"/);
-  assert.match(shopping, /shopping-shell-v1\.css\?v=20260916-shopping-shell-v1/);
+  assert.match(shopping, /shopping-shell-v1\.css\?v=20260917-shopping-mobile-popovers-v1/);
   assert.match(shopping, /shopping-core-v1\.js\?v=20260916-shopping-shell-v1/);
   assert.match(shopping, /class="shopping-dashboard"/);
   assert.match(shopping, /class="shopping-panel shopping-list-panel"/);
@@ -41,6 +41,17 @@ test('Shopping presentation follows Home palette and responsive layout', () => {
   assert.match(shell, /@media\(max-width:900px\)/);
   assert.match(shell, /@media\(max-width:680px\)/);
   assert.match(shell, /@media\(max-width:430px\)/);
+});
+
+test('mobile Shopping popovers stay inside the visual viewport and can scroll', () => {
+  assert.match(shell, /\.dropdown-menu\{\s*position:fixed;/);
+  assert.match(shell, /left:max\(12px,env\(safe-area-inset-left,0px\)\)/);
+  assert.match(shell, /right:max\(12px,env\(safe-area-inset-right,0px\)\)/);
+  assert.match(shell, /max-height:calc\(100dvh - 96px/);
+  assert.match(shell, /overflow-y:auto/);
+  assert.match(shell, /html\[data-shopping-layout="minimal"\] \.shopping-tools-wrap>\.header-right-top\{[\s\S]*position:fixed!important/);
+  assert.match(shell, /#recipe-link-popup-v5\{[\s\S]*align-items:start!important/);
+  assert.match(shell, /\.recipe-link-card-v5\{[\s\S]*max-height:calc\(100dvh - 24px/);
 });
 
 test('mobile Safari editable inputs keep a 16px floor', () => {
