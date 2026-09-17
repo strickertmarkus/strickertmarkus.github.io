@@ -173,8 +173,8 @@ jobs:
             await page.locator('#new-recipe-url-v4').press('Enter');
             await page.waitForFunction(() => document.querySelector('#recipes-list .recipe-item'));
             const recipe = page.locator('#recipes-list .recipe-item', {hasText:'Pastatest'});
-            await recipe.locator('.recipe-toggle').click();
             const ingredient = recipe.locator('input[placeholder="+ Lägg till ingrediens"]');
+            if (!(await ingredient.isVisible())) await recipe.locator('.recipe-toggle').click();
             await ingredient.fill('Pasta');
             await ingredient.press('Enter');
             assert.match(await page.locator('#items-list').innerText(), /Pasta/);
