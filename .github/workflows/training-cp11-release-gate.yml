@@ -13,6 +13,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -37,7 +39,6 @@ jobs:
       - name: Serve repository
         run: |
           python3 -m http.server 4173 --directory . >/tmp/training-cp11-http.log 2>&1 &
-          echo $! >/tmp/training-cp11-http.pid
           sleep 2
 
       - name: Exercise release candidate in iPhone WebKit
@@ -46,290 +47,97 @@ jobs:
           const { webkit } = require(process.cwd() + '/node_modules/playwright');
           const assert = require('node:assert/strict');
 
-          const firebaseStub = `
-            (function(){
-              if(window.firebase)return;
-              function snapshot(value){return {exists:function(){return value!==null&&value!==undefined;},val:function(){return value==null?null:value;}};}
-              function makeRef(path){
-                return {
-                  key:String(path||'').split('/').pop()||null,
-                  set:function(){return Promise.resolve();},
-                  update:function(){return Promise.resolve();},
-                  remove:function(){return Promise.resolve();},
-                  get:function(){return Promise.resolve(snapshot(null));},
-                  once:function(){return Promise.resolve(snapshot(null));},
-                  on:function(event,cb){if(typeof cb==='function')setTimeout(function(){cb(snapshot(null));},0);return cb;},
-                  off:function(){},
-                  child:function(name){return makeRef(String(path||'')+'/'+name);}
-                };
-              }
-              var dbObj={ref:makeRef};
-              function database(){return dbObj;}
-              database.ServerValue={TIMESTAMP:Date.now()};
-              var authObj={
-                currentUser:{uid:'training-cp11'},
-                setPersistence:function(){return Promise.resolve();},
-                onAuthStateChanged:function(cb){var user=this.currentUser;setTimeout(function(){cb(user);},0);return function(){};},
-                signInWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser});},
-                createUserWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser});},
-                signOut:function(){return Promise.resolve();}
-              };
-              function auth(){return authObj;}
-              auth.Auth={Persistence:{LOCAL:'local'}};
-              window.firebase={apps:[{}],initializeApp:function(){return {};},app:function(){return {};},auth:auth,database:database};
-            })();
-          `;
+          const firebaseStub=`(function(){
+            if(window.firebase)return;
+            function snap(v){return {exists:function(){return v!=null},val:function(){return v==null?null:v}}}
+            function ref(path){return {set:function(){return Promise.resolve()},update:function(){return Promise.resolve()},remove:function(){return Promise.resolve()},get:function(){return Promise.resolve(snap(null))},once:function(){return Promise.resolve(snap(null))},on:function(e,cb){if(cb)setTimeout(function(){cb(snap(null))},0);return cb},off:function(){},child:function(n){return ref(String(path||'')+'/'+n)}}}
+            var db={ref:ref}; function database(){return db}; database.ServerValue={TIMESTAMP:Date.now()};
+            var authObj={currentUser:{uid:'cp11'},setPersistence:function(){return Promise.resolve()},onAuthStateChanged:function(cb){var u=this.currentUser;setTimeout(function(){cb(u)},0);return function(){}},signInWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},createUserWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},signOut:function(){return Promise.resolve()}};
+            function auth(){return authObj}; auth.Auth={Persistence:{LOCAL:'local'}};
+            window.firebase={apps:[{}],initializeApp:function(){return {}},app:function(){return {}},auth:auth,database:database};
+          })();`;
 
-          function iso(date){
-            const y=date.getFullYear();
-            const m=String(date.getMonth()+1).padStart(2,'0');
-            const d=String(date.getDate()).padStart(2,'0');
-            return `${y}-${m}-${d}`;
+          async function routes(page){
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__cp11FirebaseSyncStub=true;'}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
           }
-
-          async function installRoutes(page){
-            await page.route('https://www.gstatic.com/firebasejs/**', route => route.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
-            await page.route('**/firebase-sync.js*', route => route.fulfill({status:200,contentType:'application/javascript',body:'window.__cp11FirebaseSyncStub=true;'}));
-            await page.route('https://fonts.googleapis.com/**', route => route.fulfill({status:200,contentType:'text/css',body:''}));
-          }
-
           async function seed(page){
-            await page.addInitScript(() => {
-              const toIso = d => {
-                const y=d.getFullYear();
-                const m=String(d.getMonth()+1).padStart(2,'0');
-                const day=String(d.getDate()).padStart(2,'0');
-                return `${y}-${m}-${day}`;
-              };
-              const todayDate=new Date();
-              const tomorrowDate=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+1);
-              const today=toIso(todayDate), tomorrow=toIso(tomorrowDate);
-              localStorage.setItem('ex_wk',JSON.stringify([]));
+            await page.addInitScript(()=>{
+              const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              const a=new Date(),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+1),today=iso(a),tomorrow=iso(b);
+              localStorage.setItem('ex_wk','[]');
               localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
               localStorage.setItem('ex_plannedSessions',JSON.stringify({
                 [today]:{type:'CP11 Styrka',exercises:[{kind:'strength',name:'Testpress',sets:2,reps:8,weight:20}]},
                 [tomorrow]:{type:'CP11 Kondition',exercises:[{kind:'cardio',name:'Testlöpning',distance:3,time:20}]}
               }));
-              window.__CP11_SEED={today,tomorrow};
-              window.__CP11_OVERVIEW_HISTORY=[];
-              const startObserver=()=>{
-                if(!document.documentElement)return requestAnimationFrame(startObserver);
-                window.__CP11_OVERVIEW_HISTORY.push(document.documentElement.dataset.trainingOverview||'');
-                new MutationObserver(()=>window.__CP11_OVERVIEW_HISTORY.push(document.documentElement.dataset.trainingOverview||''))
-                  .observe(document.documentElement,{attributes:true,attributeFilter:['data-training-overview']});
-              };
-              startObserver();
+              window.__CP11={today,tomorrow,overview:[]};
+              const observe=()=>{if(!document.documentElement)return requestAnimationFrame(observe);window.__CP11.overview.push(document.documentElement.dataset.trainingOverview||'');new MutationObserver(()=>window.__CP11.overview.push(document.documentElement.dataset.trainingOverview||'')).observe(document.documentElement,{attributes:true,attributeFilter:['data-training-overview']})};observe();
             });
           }
-
-          async function waitReady(page){
-            await page.waitForFunction(() =>
-              window.__trainingOverviewModeInstalled === true &&
-              window.__wellnessShellInstalled === true &&
-              typeof window.startWorkoutSessionForDate === 'function' &&
-              typeof window.stopSessionMode === 'function' &&
-              document.querySelectorAll('#week-grid .week-day').length === 7 &&
-              document.querySelector('[data-wellness-kind-switch="true"]'),
-              null,{timeout:20000});
-            await page.waitForTimeout(450);
+          async function ready(page){
+            await page.waitForFunction(()=>window.__trainingOverviewModeInstalled===true&&window.__wellnessShellInstalled===true&&typeof window.startWorkoutSessionForDate==='function'&&document.querySelectorAll('#week-grid .week-day').length===7&&document.querySelector('[data-wellness-kind-switch="true"]'),null,{timeout:20000});
+            await page.waitForTimeout(400);
           }
-
           async function noOverflow(page,label){
-            const size=await page.evaluate(() => ({
-              scrollWidth:document.documentElement.scrollWidth,
-              clientWidth:document.documentElement.clientWidth,
-              bodyWidth:document.body.scrollWidth
-            }));
-            assert.ok(size.scrollWidth <= size.clientWidth + 1,`${label}: html overflow ${size.scrollWidth} > ${size.clientWidth}`);
-            assert.ok(size.bodyWidth <= size.clientWidth + 1,`${label}: body overflow ${size.bodyWidth} > ${size.clientWidth}`);
+            const s=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth,bw:document.body.scrollWidth}));
+            assert.ok(s.sw<=s.cw+1,`${label}: html overflow ${s.sw}>${s.cw}`);assert.ok(s.bw<=s.cw+1,`${label}: body overflow ${s.bw}>${s.cw}`);
           }
-
-          async function setOverview(page,mode){
-            await page.evaluate(m => window.setTrainingOverviewMode(m),mode);
-            await page.waitForFunction(m => document.documentElement.dataset.trainingOverview===m,mode);
-            await page.waitForTimeout(280);
+          async function overview(page,mode){
+            await page.evaluate(m=>window.setTrainingOverviewMode(m),mode);await page.waitForFunction(m=>document.documentElement.dataset.trainingOverview===m,mode);await page.waitForTimeout(260);
           }
-
-          async function destination(page,name){
+          async function wellness(page,name){
             await page.locator(`[data-wellness-destination="${name}"]`).first().click();
-            if(name==='training') await page.waitForFunction(() => document.documentElement.dataset.wellnessMode==='training');
-            else await page.waitForFunction(n => document.documentElement.dataset.wellnessMode==='zen' && document.body.dataset.kind===n,name);
-            await page.waitForTimeout(260);
+            if(name==='training')await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
+            else await page.waitForFunction(n=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind===n,name);
+            await page.waitForTimeout(220);
           }
 
           (async()=>{
             const browser=await webkit.launch();
             const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
-            const page=await context.newPage();
-            const errors=[];
-            page.on('pageerror',error=>errors.push('pageerror: '+error.message));
-            page.on('console',msg=>{if(msg.type()==='error')errors.push('console: '+msg.text());});
-            await installRoutes(page);
-            await seed(page);
-
+            const page=await context.newPage(),errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            await routes(page);await seed(page);
             const url='http://127.0.0.1:4173/budget/exercise.html';
+
             await page.goto(url,{waitUntil:'domcontentloaded'});
-            assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory','cold load must begin in Observatory');
-            await waitReady(page);
-            assert.ok(!(await page.evaluate(()=>window.__CP11_OVERVIEW_HISTORY||[])).includes('compact'),'cold load must not flash Compact state');
-            await noOverflow(page,'390px cold Observatory');
-
-            // Warm reload stays Observatory without a legacy/Compact state.
-            await page.reload({waitUntil:'domcontentloaded'});
-            assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory','warm load must begin in Observatory');
-            await waitReady(page);
-            assert.ok(!(await page.evaluate(()=>window.__CP11_OVERVIEW_HISTORY||[])).includes('compact'),'warm load must not flash Compact state');
-
-            // Repeated overview switching stays in one document and keeps scroll position stable.
-            const navCount=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
-            await page.evaluate(()=>window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight)));
-            const scrollBefore=await page.evaluate(()=>window.scrollY);
-            for(let i=0;i<3;i++){
-              await setOverview(page,'compact');
-              await setOverview(page,'observatory');
-            }
-            const scrollAfter=await page.evaluate(()=>window.scrollY);
-            assert.ok(Math.abs(scrollAfter-scrollBefore)<=3,`overview switch changed scroll ${scrollBefore} -> ${scrollAfter}`);
-            assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),navCount,'overview switch reloaded the document');
-
-            // Weekly plan reuses the same seven nodes/data while expanding/collapsing repeatedly.
-            await page.evaluate(()=>window.scrollTo(0,0));
-            const weekBefore=await page.locator('#week-grid .week-day').allTextContents();
-            const orbit=page.locator('[data-week-orbit-toggle]');
-            for(let i=0;i<3;i++){
-              await orbit.click();
-              await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='true');
-              assert.deepEqual(await page.locator('#week-grid .week-day').allTextContents(),weekBefore,'orbit expansion changed weekly data');
-              await orbit.click();
-              await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='false');
-            }
-
-            // Day selection and builder edit/save use the canonical planned-session store.
-            const seedData=await page.evaluate(()=>window.__CP11_SEED);
-            await page.locator('#week-grid .week-day',{hasText:'CP11 Styrka'}).click();
-            await page.waitForFunction(()=>document.getElementById('day-modal').classList.contains('show'));
-            await page.evaluate(()=>window.closeModal('day-modal'));
-            await page.evaluate(today=>window.openDayWorkoutBuilder('Idag',today),seedData.today);
-            await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));
-            await page.locator('#day-workout-type').fill('CP11 Redigerat');
-            assert.equal(await page.evaluate(()=>window.persistDayWorkoutPlan({})),true,'builder save failed');
-            assert.equal(await page.evaluate(today=>window.getPlannedSessions()[today].type,seedData.today),'CP11 Redigerat');
-            await page.evaluate(()=>window.closeModal('day-workout-modal'));
-
-            // Same strength plan enters the one canonical session runtime from both overview modes.
-            await setOverview(page,'observatory');
-            await page.evaluate(today=>window.startWorkoutSessionForDate(today),seedData.today);
-            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
-            const strengthObservatory=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
-            // Active workout blocks a wellness switch rather than destroying state.
-            await page.locator('[data-wellness-destination="stretch"]').first().click();
-            await page.waitForTimeout(120);
-            assert.notEqual(await page.evaluate(()=>document.documentElement.dataset.wellnessMode),'zen','active training session was allowed to leave Training');
-            assert.match(await page.locator('.wellness-mode-notice').innerText(),/Avsluta det pågående träningspasset/);
-            await page.evaluate(()=>window.stopSessionMode(false));
-
-            await setOverview(page,'compact');
-            await page.evaluate(today=>window.startWorkoutSessionForDate(today),seedData.today);
-            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
-            const strengthCompact=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
-            assert.deepEqual(strengthCompact,strengthObservatory,'Compact and Observatory did not enter equivalent session state');
-            await page.evaluate(()=>window.stopSessionMode(false));
-
-            // Cardio starts in the same runtime and remains inside a landscape mobile viewport.
-            await setOverview(page,'observatory');
-            await page.evaluate(tomorrow=>window.startWorkoutSessionForDate(tomorrow),seedData.tomorrow);
-            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
-            assert.equal(await page.evaluate(()=>window.sessionState.exercises[0].kind),'cardio');
-            await page.setViewportSize({width:844,height:390});
-            await page.waitForTimeout(180);
-            await noOverflow(page,'landscape cardio session');
-            await page.setViewportSize({width:390,height:844});
-            await page.evaluate(()=>window.stopSessionMode(false));
-
-            // Save/finish writes a workout and returns to the overview.
-            const beforeWorkouts=await page.evaluate(()=>window.getWorkouts().length);
-            await page.evaluate(today=>window.startWorkoutSessionForDate(today),seedData.today);
-            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
-            await page.evaluate(()=>{window.sessionState.passStartedAt=Date.now()-65000;window.saveSessionWorkout();});
-            await page.waitForFunction(()=>!document.getElementById('session-modal').classList.contains('show'));
-            assert.equal(await page.evaluate(()=>window.getWorkouts().length),beforeWorkouts+1,'saved workout was not persisted');
             assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');
+            await ready(page);assert.ok(!(await page.evaluate(()=>window.__CP11.overview)).includes('compact'));await noOverflow(page,'cold 390');
+            await page.reload({waitUntil:'domcontentloaded'});assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');await ready(page);assert.ok(!(await page.evaluate(()=>window.__CP11.overview)).includes('compact'));
 
-            // Shared three-state wellness switch and browser history stay in-page.
-            const navBeforeWellness=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
-            await destination(page,'stretch');
-            assert.ok(await page.locator('#wellness-zen-surface').isVisible());
-            await destination(page,'meditation');
-            assert.equal(await page.evaluate(()=>document.body.dataset.kind),'meditation');
-            await destination(page,'training');
-            await destination(page,'stretch');
-            await page.evaluate(()=>history.back());
-            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
-            await page.evaluate(()=>history.forward());
-            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');
-            await destination(page,'training');
-            assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),navBeforeWellness,'wellness/history switching reloaded the document');
+            const nav0=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
+            await page.evaluate(()=>window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight)));const y0=await page.evaluate(()=>window.scrollY);
+            for(let i=0;i<3;i++){await overview(page,'compact');await overview(page,'observatory')}
+            assert.ok(Math.abs((await page.evaluate(()=>window.scrollY))-y0)<=3);assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav0);
 
-            // Layout gate across target widths.
-            for(const width of [320,375,390,768,1440]){
-              await page.setViewportSize({width,height:width<500?844:900});
-              await page.waitForTimeout(120);
-              await noOverflow(page,`${width}px Training`);
-            }
-            await page.setViewportSize({width:390,height:844});
-            await destination(page,'stretch');
-            await noOverflow(page,'390px Stretch');
-            await destination(page,'meditation');
-            await noOverflow(page,'390px Meditation');
-            await destination(page,'training');
+            await page.evaluate(()=>window.scrollTo(0,0));const week0=await page.locator('#week-grid .week-day').allTextContents(),orbit=page.locator('[data-week-orbit-toggle]');
+            for(let i=0;i<3;i++){await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='true');assert.deepEqual(await page.locator('#week-grid .week-day').allTextContents(),week0);await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='false')}
 
-            // Reduced-motion keeps all mode changes functional.
-            await page.emulateMedia({reducedMotion:'reduce'});
-            await setOverview(page,'compact');
-            await setOverview(page,'observatory');
-            await destination(page,'stretch');
-            await destination(page,'training');
+            const data=await page.evaluate(()=>window.__CP11);
+            await page.locator('#week-grid .week-day',{hasText:'CP11 Styrka'}).click();await page.waitForFunction(()=>document.getElementById('day-modal').classList.contains('show'));await page.evaluate(()=>window.closeModal('day-modal'));
+            await page.evaluate(d=>window.openDayWorkoutBuilder('Idag',d),data.today);await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));await page.locator('#day-workout-type').fill('CP11 Redigerat');assert.equal(await page.evaluate(()=>window.persistDayWorkoutPlan({})),true);assert.equal(await page.evaluate(d=>window.getPlannedSessions()[d].type,data.today),'CP11 Redigerat');await page.evaluate(()=>window.closeModal('day-workout-modal'));
 
-            // Profile query survives shared wellness history/morph.
-            const maja=await context.newPage();
-            const majaErrors=[];
-            maja.on('pageerror',e=>majaErrors.push(e.message));
-            maja.on('console',m=>{if(m.type()==='error')majaErrors.push(m.text());});
-            await installRoutes(maja);
-            await seed(maja);
-            await maja.goto(url+'?user=maja',{waitUntil:'domcontentloaded'});
-            await waitReady(maja);
-            await destination(maja,'stretch');
-            assert.equal(await maja.evaluate(()=>new URLSearchParams(location.search).get('user')),'maja');
-            await destination(maja,'training');
-            assert.equal(await maja.evaluate(()=>new URLSearchParams(location.search).get('user')),'maja');
-            assert.deepEqual(majaErrors,[],'Maja profile browser errors: '+majaErrors.join(' | '));
-            await maja.close();
+            await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const a=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
+            await page.locator('[data-wellness-destination="stretch"]').first().click();await page.waitForTimeout(100);assert.notEqual(await page.evaluate(()=>document.documentElement.dataset.wellnessMode),'zen');assert.match(await page.locator('.wellness-mode-notice').innerText(),/Avsluta det pågående träningspasset/);await page.evaluate(()=>window.stopSessionMode(false));
+            await overview(page,'compact');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const b=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));assert.deepEqual(b,a);await page.evaluate(()=>window.stopSessionMode(false));
 
-            // Fresh request/load measurement for the current loader-v2 release candidate.
-            const audit=await page.evaluate(()=>{
-              const rows=performance.getEntriesByType('resource').map(e=>({name:e.name,initiatorType:e.initiatorType,duration:e.duration,transferSize:e.transferSize||0}));
-              const localScripts=rows.filter(row=>{
-                try{return new URL(row.name).origin===location.origin && /\.js(?:\?|$)/.test(new URL(row.name).pathname+new URL(row.name).search);}
-                catch(_){return false;}
-              });
-              const unique=[...new Set(localScripts.map(row=>new URL(row.name).pathname.split('/').pop()))];
-              const metrics=window.__exerciseLoaderMetricsV2||{};
-              return {
-                manifestCount:metrics.manifestCount||0,
-                bundleMs:(metrics.bundleReadyAt&&metrics.preloadStartedAt)?Math.round(metrics.bundleReadyAt-metrics.preloadStartedAt):null,
-                localScriptRequests:localScripts.length,
-                uniqueLocalScripts:unique.length,
-                scriptNames:unique.sort()
-              };
-            });
-            console.log('CP11_LOADER_AUDIT '+JSON.stringify(audit));
-            assert.equal(audit.manifestCount,27,'loader-v2 manifest baseline changed unexpectedly');
-            assert.ok(audit.uniqueLocalScripts>=27,'request audit did not observe the manifest');
+            await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.tomorrow);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));assert.equal(await page.evaluate(()=>window.sessionState.exercises[0].kind),'cardio');await page.setViewportSize({width:844,height:390});await page.waitForTimeout(160);await noOverflow(page,'landscape session');await page.setViewportSize({width:390,height:844});await page.evaluate(()=>window.stopSessionMode(false));
 
-            assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
-            await browser.close();
-            console.log('Training CP11 WebKit release gate passed');
-          })().catch(error=>{console.error(error);process.exit(1);});
+            const wc=await page.evaluate(()=>window.getWorkouts().length);await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));await page.evaluate(()=>{window.sessionState.passStartedAt=Date.now()-65000;window.saveSessionWorkout()});await page.waitForFunction(()=>!document.getElementById('session-modal').classList.contains('show'));assert.equal(await page.evaluate(()=>window.getWorkouts().length),wc+1);assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');
+
+            const nav1=await page.evaluate(()=>performance.getEntriesByType('navigation').length);await wellness(page,'stretch');assert.ok(await page.locator('#wellness-zen-surface').isVisible());await wellness(page,'meditation');await wellness(page,'training');await wellness(page,'stretch');await page.evaluate(()=>history.back());await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');await page.evaluate(()=>history.forward());await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');await wellness(page,'training');assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav1);
+
+            for(const width of [320,375,390,768,1440]){await page.setViewportSize({width,height:width<500?844:900});await page.waitForTimeout(100);await noOverflow(page,`${width}px Training`)}
+            await page.setViewportSize({width:390,height:844});await wellness(page,'stretch');await noOverflow(page,'390 Stretch');await wellness(page,'meditation');await noOverflow(page,'390 Meditation');await wellness(page,'training');
+            await page.emulateMedia({reducedMotion:'reduce'});await overview(page,'compact');await overview(page,'observatory');await wellness(page,'stretch');await wellness(page,'training');
+
+            const maja=await context.newPage(),majaErrors=[];maja.on('pageerror',e=>majaErrors.push(e.message));maja.on('console',m=>{if(m.type()==='error')majaErrors.push(m.text())});await routes(maja);await seed(maja);await maja.goto(url+'?user=maja',{waitUntil:'domcontentloaded'});await ready(maja);await wellness(maja,'stretch');assert.equal(await maja.evaluate(()=>new URLSearchParams(location.search).get('user')),'maja');await wellness(maja,'training');assert.equal(await maja.evaluate(()=>new URLSearchParams(location.search).get('user')),'maja');assert.deepEqual(majaErrors,[]);await maja.close();
+
+            const audit=await page.evaluate(()=>{const rows=performance.getEntriesByType('resource');const local=rows.filter(e=>{try{const u=new URL(e.name);return u.origin===location.origin&&u.pathname.endsWith('.js')}catch(_){return false}});const names=[...new Set(local.map(e=>new URL(e.name).pathname.split('/').pop()))].sort();const m=window.__exerciseLoaderMetricsV2||{};return {manifestCount:m.manifestCount||0,bundleMs:m.bundleReadyAt&&m.preloadStartedAt?Math.round(m.bundleReadyAt-m.preloadStartedAt):null,localScriptRequests:local.length,uniqueLocalScripts:names.length,scriptNames:names}});console.log('CP11_LOADER_AUDIT '+JSON.stringify(audit));assert.equal(audit.manifestCount,27);assert.ok(audit.uniqueLocalScripts>=27);
+            assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));await browser.close();console.log('Training CP11 WebKit release gate passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/training-cp11-e2e.cjs
