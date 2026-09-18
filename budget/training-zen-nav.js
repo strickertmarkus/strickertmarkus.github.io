@@ -348,6 +348,7 @@
   document.addEventListener('zen:home-rendered',function(){
     if(mode!=='zen')return;
     zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
+    syncCanvasTheme(zenKind);
     updateUnifiedSwitch(zenKind);
   });
   if('requestIdleCallback' in window)window.requestIdleCallback(warmZenAssets,{timeout:1200});
