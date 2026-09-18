@@ -39,7 +39,13 @@
   function syncCanvasTheme(destination){
     var zen=destination==='stretch'||destination==='meditation';
     var color=zen?zenCanvasColor(destination):trainingTheme;
-    document.documentElement.style.backgroundColor=color;
+    if(zen){
+      document.documentElement.dataset.wellnessKind=destination;
+      document.documentElement.style.removeProperty('background-color');
+    }else{
+      delete document.documentElement.dataset.wellnessKind;
+      document.documentElement.style.backgroundColor=color;
+    }
     ensureThemeMeta().content=color;
   }
   function setNotice(message){
