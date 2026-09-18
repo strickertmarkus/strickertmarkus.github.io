@@ -314,8 +314,8 @@ Measured CI/WebKit loader-v2 baseline from the passing CP11 run:
 
 - ordered manifest entries: **27**
 - observed unique local JavaScript requests after exercising Training + Zen: **64**
-- measured manifest preload → bundle-ready time in the final passing run: **307 ms**
+- measured manifest preload → bundle-ready time in the Step 3 re-verification run: **266 ms**
 
-The 64-request figure intentionally includes compatibility files plus Zen assets loaded during the full route exercise. It is a measurement baseline, **not the V1 target**. Repeat this audit after the final 12-owner loader cutover and compare against these numbers rather than using the old estimated request reduction.
+The 64-request figure intentionally includes compatibility files plus Zen assets loaded during the full route exercise. It is a measurement baseline, **not the V1 target**. The same Step 3 re-verification run was `35367177011` with **93/93** static tests and a successful iPhone-like WebKit pass. Repeat this audit after the final 12-owner loader cutover and compare against these numbers rather than using the old estimated request reduction.
 
 Remaining manual release gate: physical iPhone Safari/PWA validation, including the real finger-swipe compact ↔ expanded cardio-timer gesture. The automated gate verifies the timer morph in mobile WebKit and the touch handler/drag path in static contracts, but synthetic CI events are not recorded as trusted physical touches or as a substitute for a real-device PWA run.
