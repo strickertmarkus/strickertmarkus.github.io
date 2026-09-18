@@ -12,6 +12,12 @@
 html[data-wellness-mode="zen"] body[data-kind="stretch"] .wellness-kind-switch{--wellness-accent:#d4eea7;--wellness-accent-glow:rgba(192,243,150,.38);--wellness-muted:#b4c6af;--wellness-line:#b2d69626}
 html[data-wellness-mode="zen"] body[data-kind="meditation"] .wellness-kind-switch{--wellness-accent:#244739;--wellness-accent-glow:rgba(43,100,82,.25);--wellness-muted:#5c716b;--wellness-line:#627e6530}
 
+/* The unified shell owns the page canvas while Zen is mounted. The imported
+   Zen scene remains the visual owner above this base; these colors only fill
+   the document beyond the scene/content height instead of exposing Training. */
+html[data-wellness-mode="zen"] body[data-kind="stretch"]{background:#091d18!important}
+html[data-wellness-mode="zen"] body[data-kind="meditation"]{background:#a7c3bd!important}
+
 .wellness-zen-brand{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:#edf4dc;text-decoration:none;font-family:"Cormorant Garamond",Georgia,serif;font-size:37px;font-weight:400;line-height:1}
 .wellness-zen-brand[hidden],.wellness-zen-tools[hidden],.wellness-zen-backdrop[hidden]{display:none!important}
 .wellness-zen-brand>span:first-child{font-family:"DM Sans",system-ui,sans-serif;font-size:48px;font-weight:300;color:#d4eea7;text-shadow:0 0 25px #c0f39699}
