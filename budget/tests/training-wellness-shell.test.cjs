@@ -230,7 +230,7 @@ test('Zen render completion cannot rewrite wellness browser history',()=>{
 
 
 test('shared wellness CSS prevents iPhone focus zoom in every editable control without disabling pinch zoom',()=>{
-  assert.match(shellCss,/@supports \(-webkit-touch-callout:none\)/);
+  assert.doesNotMatch(shellCss,/@supports \(-webkit-touch-callout:none\)/);
   assert.match(shellCss,/@media\(hover:none\) and \(pointer:coarse\)/);
   assert.match(shellCss,/html body input:not\(\[type="hidden"\]\)[\s\S]*html body select,[\s\S]*html body textarea,[\s\S]*\[contenteditable\]:not\(\[contenteditable="false"\]\)[\s\S]*font-size:16px!important/);
   assert.doesNotMatch(shellCss,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
