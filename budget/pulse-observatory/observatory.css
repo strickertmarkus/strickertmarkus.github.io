@@ -119,6 +119,8 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-home #reactor-core .observatory-next-actions:has(.observatory-next-orb:is([data-plan-state="planned"],[data-observatory-state="current"])) .observatory-build{opacity:.62;border-color:#ffa3c038;background:linear-gradient(110deg,#f44a6f1a,#fa85b109);box-shadow:0 0 16px #ff4e7914,inset 0 0 10px #ffb0c108}
 #pulse-home #reactor-core .observatory-next-actions:has(.observatory-next-orb:is([data-plan-state="planned"],[data-observatory-state="current"])) .observatory-build::before{opacity:.035;animation:none}
 #pulse-home .observatory-stage::before,#pulse-home .observatory-scene *,#pulse-home .observatory-build::before{animation-play-state:var(--pulse-scene-motion,running)}
+#pulse-page:has(#session-modal.show) #pulse-home .observatory-scene{display:none}
+#pulse-page:has(#session-modal.show) #pulse-home .observatory-stage::before{content:none}
 @keyframes observatoryHorizonSweep{from{stroke-dashoffset:100;opacity:.85}to{stroke-dashoffset:0;opacity:.85}}
 @keyframes observatoryOrbitSweep{from{stroke-dashoffset:0}to{stroke-dashoffset:-100}}
 @keyframes observatoryTwinkle{0%,100%{opacity:.3}50%{opacity:1}}
