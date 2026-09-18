@@ -239,6 +239,11 @@ test('shared wellness CSS prevents iPhone focus zoom in every editable control w
   assert.doesNotMatch(zen,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
 });
 
+test('same-mode Zen destination selection always resynchronizes kind and canvas state',()=>{
+  assert.match(shell,/var changedDestination=destination!==zenKind\|\|document\.body\.dataset\.kind!==destination\|\|document\.documentElement\.dataset\.wellnessKind!==destination/);
+  assert.match(shell,/selectZenKind\(destination\);\s*if\(changedDestination\)historyFor/);
+});
+
 test('wellness shell removes the Pulse concept class while Zen owns the page and restores it for Training',()=>{
   assert.match(shell,/classList\.toggle\('exercise-concept-pulse-home-v1',!zen\)/);
 });
