@@ -74,7 +74,7 @@ test('Observatory metrics have no separator owner at base level', () => {
 
 test('hero atmosphere is owned by the whole Observatory stage and fades before its paint box ends', () => {
   assert.match(css, /observatory-stage::before\{[^}]*radial-gradient/);
-  assert.match(css, /observatory-stage::before\{[^}]*inset:-70px -10vw -150px/);
+  assert.match(css, /observatory-stage::before\{[^}]*inset:-70px -5vw -150px/);
   assert.match(css, /observatory-stage::before\{[^}]*-webkit-mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
   assert.match(css, /observatory-stage::before\{[^}]*mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
   assert.doesNotMatch(css, /observatory-scene::before\{/);
