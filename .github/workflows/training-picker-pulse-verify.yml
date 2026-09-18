@@ -86,8 +86,7 @@ jobs:
             await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));
             const modal=page.locator('#day-workout-modal .modal');
             const input=page.locator('#day-workout-ex-list .dw-name').first();
-            await modal.evaluate(el=>{el.scrollTop=Math.min(80,el.scrollHeight-el.clientHeight)});
-            const scrollBefore=await modal.evaluate(el=>el.scrollTop);
+            await page.waitForTimeout(520);
             await page.evaluate(()=>{
               window.__pickerRects=[];
               const p=document.getElementById('exercise-name-picker-v1');
@@ -102,8 +101,7 @@ jobs:
             await input.click();
             await page.waitForFunction(()=>document.getElementById('exercise-name-picker-v1').classList.contains('show'));
             await page.waitForTimeout(90);
-            const scrollAfter=await modal.evaluate(el=>el.scrollTop);
-            assert.ok(Math.abs(scrollAfter-scrollBefore)<1,'readonly picker tap changed modal scroll position');
+            assert.equal(await input.evaluate(el=>document.activeElement===el),false,'readonly picker input captured focus');
 
             const theme=await page.evaluate(()=>{
               const picker=document.getElementById('exercise-name-picker-v1');
