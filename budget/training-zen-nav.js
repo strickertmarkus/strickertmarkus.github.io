@@ -235,6 +235,7 @@
       if(zenBackdrop)zenBackdrop.hidden=true;
     }
     document.documentElement.dataset.wellnessMode=nextMode;
+    document.documentElement.classList.toggle('exercise-concept-pulse-home-v1',!zen);
     document.body.classList.toggle('wellness-zen-active',zen);
     trainingMain.hidden=zen;
     if(zen){
