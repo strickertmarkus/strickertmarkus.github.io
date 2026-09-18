@@ -120,8 +120,9 @@ jobs:
 
             const nav0=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
             await page.evaluate(()=>window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight)));const y0=await page.evaluate(()=>window.scrollY);
-            for(let i=0;i<3;i++){await overview(page,'compact');await overview(page,'observatory')}
-            assert.ok(Math.abs((await page.evaluate(()=>window.scrollY))-y0)<=3);assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav0);
+            const scrollTrace=[];for(let i=0;i<3;i++){await overview(page,'compact');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})));await overview(page,'observatory');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})))}
+            const y1=await page.evaluate(()=>window.scrollY);console.log('CP11_SCROLL '+JSON.stringify({y0,y1,trace:scrollTrace}));
+            assert.ok(Math.abs(y1-y0)<=3,`overview scroll drift ${y0}->${y1}`);assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav0);
 
             await page.evaluate(()=>window.scrollTo(0,0));const week0=await page.locator('#week-grid .week-day').allTextContents(),orbit=page.locator('[data-week-orbit-toggle]');
             for(let i=0;i<3;i++){await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='true');assert.deepEqual(await page.locator('#week-grid .week-day').allTextContents(),week0);await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='false')}
