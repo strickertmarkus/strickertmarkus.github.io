@@ -92,7 +92,13 @@ jobs:
               }).filter(x=>x.width>0&&(x.right>cw+1||x.left<-1)).sort((a,b)=>(b.right-cw)-(a.right-cw)).slice(0,20);
               return {sw:document.documentElement.scrollWidth,cw,bw:document.body.scrollWidth,offenders};
             });
-            if(s.sw>s.cw+1||s.bw>s.cw+1)console.log('CP11_OVERFLOW '+label+' '+JSON.stringify(s));
+            if(s.sw>s.cw+1||s.bw>s.cw+1){
+              const detail=await page.evaluate(()=>{
+                const info=sel=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect(),cs=getComputedStyle(el),bef=getComputedStyle(el,'::before'),aft=getComputedStyle(el,'::after');return {sel,rect:{left:r.left,right:r.right,width:r.width},clientWidth:el.clientWidth,scrollWidth:el.scrollWidth,offsetWidth:el.offsetWidth,attrWidth:el.getAttribute&&el.getAttribute('width'),cssWidth:cs.width,overflow:cs.overflow,overflowX:cs.overflowX,transform:cs.transform,before:{content:bef.content,left:bef.left,right:bef.right,width:bef.width,transform:bef.transform},after:{content:aft.content,left:aft.left,right:aft.right,width:aft.width,transform:aft.transform}}};
+                return ['.app-wrap','.wellness-zen-backdrop','.landscape-forest','#wellness-zen-surface','#zen-main','.sanctuary','.landscape-shade','#home-view','.ritual-section'].map(info);
+              });
+              console.log('CP11_OVERFLOW '+label+' '+JSON.stringify({...s,detail}));
+            }
             assert.ok(s.sw<=s.cw+1,`${label}: html overflow ${s.sw}>${s.cw}`);assert.ok(s.bw<=s.cw+1,`${label}: body overflow ${s.bw}>${s.cw}`);
           }
           async function overview(page,mode){
