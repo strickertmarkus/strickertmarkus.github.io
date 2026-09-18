@@ -335,7 +335,8 @@ Verification and ownership map: `TRAINING-OBSERVATORY-CP10-AUDIT.md`.
 - [x] Strength session from Compact.
 - [x] Cardio session from Observatory.
 - [x] Compact cardio timer pause/resume.
-- [x] Compact timer swipe expand/collapse repeatedly.
+- [x] Compact timer expand/collapse morph works repeatedly in the iPhone-like WebKit gate.
+- [ ] Physical iPhone finger-swipe expand/collapse repeatedly — CI WebKit cannot generate a trusted touch gesture.
 - [x] Automatic rest timer.
 - [x] 5-second pre-timer and sound path.
 - [x] Custom between exercise remains manual.
@@ -346,7 +347,7 @@ Verification and ownership map: `TRAINING-OBSERVATORY-CP10-AUDIT.md`.
 
 - [x] 320 px mobile.
 - [x] 375/390 px mobile.
-- [ ] iPhone Safari/PWA physical validation — intentionally left manual; automated WebKit is green but is not a physical-device claim.
+- [ ] iPhone Safari/PWA physical validation, including the real finger-swipe timer gesture — intentionally left manual; automated WebKit is green but cannot make a trusted physical-touch claim.
 - [x] 768 px tablet.
 - [x] 1440 px desktop.
 - [x] Landscape mobile session.

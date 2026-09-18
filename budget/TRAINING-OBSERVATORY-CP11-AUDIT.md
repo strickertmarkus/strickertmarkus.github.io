@@ -17,11 +17,11 @@ The gate found real overflow and idle-work issues that were fixed at their owner
 
 ## Automated release-candidate gate
 
-Passing run: GitHub Actions `Training CP11 release candidate gate`, run `35338355126`.
+Final passing run for the automated gate: GitHub Actions `Training CP11 release candidate gate`, run `35340636407`, head `ce470b56a2f455c213875113f7d8c588e1cb825f`.
 
 Static suite:
 
-- **91 passed**
+- **93 passed**
 - **0 failed**
 
 The iPhone-like WebKit pass exercised:
@@ -35,7 +35,7 @@ The iPhone-like WebKit pass exercised:
 - Cardio session from Observatory;
 - 5-second pre-timer;
 - timer pause/resume;
-- repeated touch-swipe compact ↔ expanded timer cycles;
+- repeated compact ↔ expanded timer morph cycles through the public timer controller in an iPhone-like WebKit context;
 - configured ordinary rest auto-start;
 - active-session guard when attempting to leave Training;
 - exactly one workout added by the save probe;
@@ -53,12 +53,17 @@ Passing CI/WebKit measurement:
 
 - manifest entries: **27**
 - unique local JavaScript requests after exercising Training + Zen: **64**
-- preload-start → bundle-ready in the passing run: **244 ms**
+- preload-start → bundle-ready in the final passing run: **307 ms**
 
 This is the pre-V1 consolidation baseline. It includes compatibility shims and Zen assets loaded by the regression route. It must not be presented as the final 12-owner request count.
 
 ## Remaining manual gate
 
-Physical iPhone Safari/PWA validation remains unchecked. Automated WebKit gives Safari-engine coverage but is not a substitute for a real iPhone/PWA lifecycle test.
+Physical iPhone Safari/PWA validation remains unchecked. This includes the real finger-swipe compact ↔ expanded cardio-timer gesture: CI WebKit can exercise the timer morph and statically protects the `touchstart` / `touchmove` / `touchend` drag path, but its synthetic events are not trusted physical touches. Automated WebKit therefore gives Safari-engine coverage without pretending to be a real iPhone/PWA lifecycle test.
 
 The working migration checklist is therefore retained until that manual item is completed. Git history/checkpoint branches remain the rollback mechanism.
+
+
+## Step 3 closeout note
+
+The final automated CP11 state before documentation cleanup is the run above: **93/93 static tests** plus a successful iPhone-like WebKit release gate. The production timer-focus owner is idle-reactive rather than permanently frame-driven, and the current request/load measurement remains a **pre-V1 consolidation baseline**, not the 12-owner target. The temporary CP11 GitHub Actions workflow is removed after this audit is committed and re-verified; Git history/checkpoint branches retain the test harness if it is needed again.

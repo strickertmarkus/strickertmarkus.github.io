@@ -13,7 +13,7 @@ The 41-script number is the pre-Observatory migration audit baseline. The Observ
 
 Checkpoint 10 updates the ownership map instead of allowing those files to become permanent extra owners. Compact/Observatory switching, Observatory dashboard presentation/state and weekly-orbit behavior now have one canonical JavaScript owner: **`exercise-dashboard.js`**. The first three historical paths above are temporary loader shims only until the final V1 loader cutover. `training-zen-nav.js` is mapped into the final `exercise-motion.js` responsibility together with shared wellness navigation/lifecycle; it is not a thirteenth V1 owner.
 
-The final target therefore remains **12 owners**. Do not use the old “29 fewer requests” number as a current network measurement: during the migration, compatibility loader paths still create requests even though they no longer own behavior. Checkpoint 11 must perform a fresh request/load audit after the final loader cutover.
+The final target therefore remains **12 owners**. Do not use the old “29 fewer requests” number as a current network measurement: during the migration, compatibility loader paths still create requests even though they no longer own behavior. Checkpoint 11 has now recorded the **pre-V1** request/load baseline. After the 12-owner loader cutover, the V1 release gate must repeat the same measurement and compare against that CP11 baseline.
 
 The repository history and checkpoint branches are the rollback/archive. Old versioned patch files should not remain in production merely because they once fixed a regression. For every consolidation batch: migrate surviving behavior, run the regression matrix, commit a checkpoint, then remove superseded production files or loader paths once their replacement is verified.
 
@@ -277,7 +277,7 @@ The temporary compatibility loader requests should be removed only when `exercis
 6. **Original dashboard cleanup**: fold the remaining six legacy dashboard sources into the already-established `exercise-dashboard.js`, then remove the three CP10 compatibility loader paths from the HTML/manifest.
 7. **Motion/wellness cleanup**: fold `training-zen-nav.js` plus `exercise-motion-v1.js` into clean `exercise-motion.js` while retaining one persistent hamburger and the three-state wellness selector.
 8. Narrow `session-ux`, `session-core`, recovery and persistence to their final responsibilities.
-9. Run the full Checkpoint 11 device/regression/request matrix and mark the resulting commit as the Release V1.0 checkpoint.
+9. After the owner merges and loader cutover, repeat the CP11-derived device/regression/request matrix, compare against the recorded pre-V1 baseline, and mark that resulting commit as the Release V1.0 checkpoint.
 
 ---
 
@@ -305,8 +305,8 @@ Current architecture at the CP11 gate:
 
 CP11 WebKit regression result:
 
-- **91 passed, 0 failed** in the combined Training/Zen static suite.
-- iPhone-like WebKit exercised cold/warm Observatory load, repeated Compact/Observatory switching, weekly orbit, builder save, planned-session fresh-load persistence, Strength and Cardio session entry, active-session navigation guard, cardio pause/resume, repeated timer swipe expand/collapse, 5-second pre-timer, automatic rest, workout save, wellness history, Markus/Maja query preservation, reduced motion and target widths.
+- **93 passed, 0 failed** in the combined Training/Zen static suite.
+- iPhone-like WebKit exercised cold/warm Observatory load, repeated Compact/Observatory switching, weekly orbit, builder save, planned-session fresh-load persistence, Strength and Cardio session entry, active-session navigation guard, cardio pause/resume, repeated compact/full-screen timer morph, 5-second pre-timer, automatic rest, workout save, wellness history, Markus/Maja query preservation, reduced motion and target widths.
 - no page-level horizontal overflow at 320, 375/390, 768 or 1440 px, including mobile landscape session and Stretch/Meditation at 390 px.
 - no new browser console/page errors in the passing gate.
 
@@ -314,8 +314,8 @@ Measured CI/WebKit loader-v2 baseline from the passing CP11 run:
 
 - ordered manifest entries: **27**
 - observed unique local JavaScript requests after exercising Training + Zen: **64**
-- measured manifest preload → bundle-ready time in that run: **244 ms**
+- measured manifest preload → bundle-ready time in the final passing run: **307 ms**
 
 The 64-request figure intentionally includes compatibility files plus Zen assets loaded during the full route exercise. It is a measurement baseline, **not the V1 target**. Repeat this audit after the final 12-owner loader cutover and compare against these numbers rather than using the old estimated request reduction.
 
-Remaining manual release gate: physical iPhone Safari/PWA validation. Automated WebKit is not recorded as a substitute for a real-device PWA run.
+Remaining manual release gate: physical iPhone Safari/PWA validation, including the real finger-swipe compact ↔ expanded cardio-timer gesture. The automated gate verifies the timer morph in mobile WebKit and the touch handler/drag path in static contracts, but synthetic CI events are not recorded as trusted physical touches or as a substitute for a real-device PWA run.
