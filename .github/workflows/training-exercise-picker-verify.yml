@@ -100,7 +100,8 @@ jobs:
             });
           }
           async function ready(page){
-            await page.waitForFunction(()=>typeof window.getExerciseNameCatalog==='function'&&typeof window.addDayWorkoutExRow==='function'&&typeof window.editWorkoutExercise==='function'&&document.getElementById('exercise-name-picker-v1'),null,{timeout:20000});
+            await page.waitForFunction(()=>typeof window.getExerciseNameCatalog==='function'&&typeof window.addDayWorkoutExRow==='function'&&typeof window.editWorkoutExercise==='function'&&document.getElementById('exercise-name-picker-v1')&&window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt,null,{timeout:20000});
+            await page.waitForTimeout(650);
           }
           async function pickerNames(page){
             return page.locator('#exercise-name-picker-v1 .exercise-name-picker-option-v1').allTextContents();
@@ -121,13 +122,13 @@ jobs:
             assert.deepEqual(await page.evaluate(()=>window.getExerciseNameCatalog('Kondition','strength').map(x=>x.name)),['Cykel','Löpning']);
 
             await page.evaluate(()=>{
-              const modal=document.getElementById('day-workout-modal');
-              modal.dataset.date='2026-10-01';
-              modal.classList.add('show');
+              window.openDayWorkoutBuilder('Tor','2026-10-01');
               document.getElementById('day-workout-type').value='Bröst + Triceps';
               document.getElementById('day-workout-ex-list').innerHTML='';
               window.addDayWorkoutExRow();
             });
+            await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));
+            assert.equal(await page.locator('#day-workout-modal').isVisible(),true);
             const builderName=page.locator('#day-workout-ex-list .dw-name').first();
             assert.equal(await builderName.getAttribute('readonly'),'');
             await builderName.click();
