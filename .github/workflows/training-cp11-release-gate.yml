@@ -82,7 +82,16 @@ jobs:
             await page.waitForTimeout(400);
           }
           async function noOverflow(page,label){
-            const s=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth,bw:document.body.scrollWidth}));
+            const s=await page.evaluate(()=>{
+              const cw=document.documentElement.clientWidth;
+              const offenders=Array.from(document.querySelectorAll('body *')).map(el=>{
+                const r=el.getBoundingClientRect();
+                const cs=getComputedStyle(el);
+                return {tag:el.tagName,id:el.id||'',cls:String(el.className||'').slice(0,120),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:cs.position,overflowX:cs.overflowX};
+              }).filter(x=>x.width>0&&(x.right>cw+1||x.left<-1)).sort((a,b)=>(b.right-cw)-(a.right-cw)).slice(0,20);
+              return {sw:document.documentElement.scrollWidth,cw,bw:document.body.scrollWidth,offenders};
+            });
+            if(s.sw>s.cw+1||s.bw>s.cw+1)console.log('CP11_OVERFLOW '+label+' '+JSON.stringify(s));
             assert.ok(s.sw<=s.cw+1,`${label}: html overflow ${s.sw}>${s.cw}`);assert.ok(s.bw<=s.cw+1,`${label}: body overflow ${s.bw}>${s.cw}`);
           }
           async function overview(page,mode){
