@@ -242,6 +242,11 @@ test('wellness shell removes the Pulse concept class while Zen owns the page and
   assert.match(shell,/classList\.toggle\('exercise-concept-pulse-home-v1',!zen\)/);
 });
 
+test('shared shell fills the full Stretch and Meditation document canvas',()=>{
+  assert.match(shellCss,/html\[data-wellness-mode="zen"\] body\[data-kind="stretch"\]\{background:#091d18!important\}/);
+  assert.match(shellCss,/html\[data-wellness-mode="zen"\] body\[data-kind="meditation"\]\{background:#a7c3bd!important\}/);
+});
+
 test('Zen owns the root canvas and training-only backgrounds release it cleanly',()=>{
   assert.match(shell,/function zenCanvasColor\(kind\)/);
   assert.match(shell,/document\.documentElement\.style\.backgroundColor=color/);
