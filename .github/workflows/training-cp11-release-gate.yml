@@ -71,7 +71,7 @@ jobs:
               localStorage.setItem('ex_wk','[]');
               localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
               localStorage.setItem('ex_plannedSessions',JSON.stringify({
-                [today]:{type:'CP11 Styrka',exercises:[{kind:'strength',name:'Testpress',sets:2,reps:8,weight:20}]},
+                [today]:{type:'CP11 Styrka',betweenSets:{type:'rest',seconds:6},exercises:[{kind:'strength',name:'Testpress',sets:2,reps:8,weight:20,betweenSets:{type:'rest',seconds:6}}]},
                 [tomorrow]:{type:'CP11 Kondition',exercises:[{kind:'cardio',name:'Testlöpning',distance:3,time:20}]}
               }));
               window.__CP11={today,tomorrow,overview:[]};
@@ -111,6 +111,27 @@ jobs:
             else await page.waitForFunction(n=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind===n,name);
             await page.waitForTimeout(220);
           }
+          async function swipeCardioTimer(page,deltaY){
+            await page.locator('#session-countdown-ring').evaluate((ring,dy)=>{
+              const rect=ring.getBoundingClientRect();
+              const x=rect.left+rect.width/2,startY=rect.top+rect.height/2,endY=startY+dy,id=77;
+              const fire=(type,y,active)=>{
+                const touch={identifier:id,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y};
+                const event=new Event(type,{bubbles:true,cancelable:true});
+                Object.defineProperties(event,{
+                  touches:{value:active?[touch]:[]},
+                  targetTouches:{value:active?[touch]:[]},
+                  changedTouches:{value:[touch]}
+                });
+                ring.dispatchEvent(event);
+              };
+              fire('touchstart',startY,true);
+              fire('touchmove',startY+dy*.58,true);
+              fire('touchmove',endY,true);
+              fire('touchend',endY,false);
+            },deltaY);
+            await page.waitForTimeout(340);
+          }
 
           (async()=>{
             const browser=await webkit.launch();
@@ -137,12 +158,56 @@ jobs:
             const data=await page.evaluate(()=>window.__CP11);
             await page.locator('#week-grid .week-day',{hasText:'CP11 Styrka'}).click();await page.waitForFunction(()=>document.getElementById('day-modal').classList.contains('show'));await page.evaluate(()=>window.closeModal('day-modal'));
             await page.evaluate(d=>window.openDayWorkoutBuilder('Idag',d),data.today);await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));await page.locator('#day-workout-type').fill('CP11 Redigerat');assert.equal(await page.evaluate(()=>window.persistDayWorkoutPlan({})),true);assert.equal(await page.evaluate(d=>window.getPlannedSessions()[d].type,data.today),'CP11 Redigerat');await page.evaluate(()=>window.closeModal('day-workout-modal'));
+            const persistedPlan=await page.evaluate(d=>window.getPlannedSessions()[d],data.today);
+            await page.reload({waitUntil:'domcontentloaded'});await ready(page);
+            assert.deepEqual(await page.evaluate(d=>window.getPlannedSessions()[d],data.today),persistedPlan,'planned session did not survive reload');
 
             await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const a=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
             await page.locator('[data-wellness-destination="stretch"]').first().evaluate(el=>el.click());await page.waitForTimeout(100);assert.notEqual(await page.evaluate(()=>document.documentElement.dataset.wellnessMode),'zen');assert.equal(await page.evaluate(()=>!!window.sessionState),true);assert.equal(await page.evaluate(()=>document.getElementById('session-modal').classList.contains('show')),true);await page.evaluate(()=>window.stopSessionMode(false));
             await overview(page,'compact');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const b=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));assert.deepEqual(b,a);await page.evaluate(()=>window.stopSessionMode(false));
 
-            await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.tomorrow);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));assert.equal(await page.evaluate(()=>window.sessionState.exercises[0].kind),'cardio');await page.setViewportSize({width:844,height:390});await page.waitForTimeout(160);await noOverflow(page,'landscape session');await page.setViewportSize({width:390,height:844});await page.evaluate(()=>window.stopSessionMode(false));
+            // Timed cardio: real pre-timer, pause/resume and mobile swipe morph.
+            await overview(page,'observatory');
+            await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.tomorrow);
+            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
+            assert.equal(await page.evaluate(()=>window.sessionState.exercises[0].kind),'cardio');
+            await page.evaluate(()=>window.startCurrentSet());
+            await page.waitForFunction(()=>document.getElementById('session-pre-timer').classList.contains('show'));
+            assert.equal(await page.locator('#session-pre-timer-value').innerText(),'5');
+            await page.evaluate(()=>window.__exerciseTimerFocus.beep());
+            await page.locator('#session-pre-timer').click({position:{x:8,y:8}});
+            await page.waitForFunction(()=>window.sessionState&&window.sessionState.setRunning===true);
+            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('cardio-countdown-active'));
+            await page.evaluate(()=>window.__exerciseTimerFocus.collapse());
+            await page.waitForFunction(()=>!document.documentElement.classList.contains('cardio-focus-active'));
+
+            const ring=page.locator('#session-countdown-ring');
+            await ring.click();
+            assert.equal(await page.evaluate(()=>window.sessionState.__hypePaused),true,'cardio did not pause from timer');
+            await ring.click();
+            assert.equal(await page.evaluate(()=>window.sessionState.__hypePaused),false,'cardio did not resume from timer');
+
+            for(let i=0;i<2;i++){
+              await swipeCardioTimer(page,-180);
+              assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('cardio-focus-active')),true,'swipe up did not expand cardio timer');
+              await swipeCardioTimer(page,180);
+              assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('cardio-focus-active')),false,'swipe down did not collapse cardio timer');
+            }
+            await page.setViewportSize({width:844,height:390});
+            await page.waitForTimeout(160);
+            await noOverflow(page,'landscape session');
+            await page.setViewportSize({width:390,height:844});
+            await page.evaluate(()=>window.stopSessionMode(false));
+
+            // Strength transition: configured ordinary rest starts automatically.
+            await page.evaluate(d=>{localStorage.setItem('ex_pretimer_v2_markus_'+d,'0');window.startWorkoutSessionForDate(d)},data.today);
+            await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));
+            await page.evaluate(()=>window.startCurrentSet());
+            await page.waitForFunction(()=>window.sessionState&&window.sessionState.setRunning===true);
+            await page.evaluate(()=>{window.sessionState.setStartedAt=Date.now()-1200;window.completeCurrentSet()});
+            await page.waitForFunction(()=>{const el=document.getElementById('session-between-overlay-v2');return !!(el&&el.classList.contains('show')&&el.dataset.betweenType==='rest')});
+            assert.match(await page.locator('#bs-overlay-value').innerText(),/^00:0[1-6]$/);
+            await page.evaluate(()=>window.stopSessionMode(false));
 
             const wc=await page.evaluate(()=>window.getWorkouts().length);await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));await page.evaluate(()=>{window.sessionState.logs[0]=[{actualReps:8,actualWeight:20,durationSec:30}];window.sessionState.passStartedAt=Date.now()-65000;window.saveSessionWorkout()});await page.waitForFunction(()=>!document.getElementById('session-modal').classList.contains('show'));assert.equal(await page.evaluate(()=>window.getWorkouts().length),wc+1);assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');
 
