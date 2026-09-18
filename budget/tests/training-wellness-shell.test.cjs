@@ -195,7 +195,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/training-week-orbit\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
   assert.match(zen,/zen\.css\?v=20260918-cp11-stretch-overflow-4/);
-  assert.match(zen,/zen\.js\?v=20260916-kind-enter-1/);
+  assert.match(zen,/zen\.js\?v=20260918-cp11-shared-shell-1/);
 });
 
 
@@ -211,4 +211,9 @@ test('Stretch mobile hero subtitle stays inside its content column', () => {
 
 test('Zen mobile hero title is bounded for a 390px shared shell', () => {
   assert.match(zenCss, /@media \(max-width:600px\)[\s\S]*\.hero-copy h1 \{[\s\S]*font-size: clamp\(58px,16vw,64px\);/);
+});
+
+
+test('Zen runtime does not write to the retired standalone profile label', () => {
+  assert.doesNotMatch(zenRuntime, /profile-name/);
 });

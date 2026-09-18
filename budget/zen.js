@@ -130,7 +130,6 @@
   $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw Error('Filen är för stor. Välj en Zen-säkerhetskopia under 10 MB.');const data=JSON.parse(await file.text());const count=S.import(data);$('import-result').textContent=count+' sparade uppgifter inlästa. Befintliga pass har behållits.';}catch(error){$('import-result').textContent=error instanceof SyntaxError?'Filen kunde inte läsas som en Zen-säkerhetskopia.':error.message;}e.target.value='';};
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();});
   window.addEventListener('pagehide',()=>{if(session)S.setActive(session);});
-  $('profile-name').textContent=(S.profile==='maja'?'Maja':'Markus');
   S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);}if(view==='home')renderHome();});
   setKind(kind);setInterval(()=>{if(!document.hidden)tick();},200);
 })();
