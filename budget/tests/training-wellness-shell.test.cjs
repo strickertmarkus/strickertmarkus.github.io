@@ -238,6 +238,10 @@ test('shared wellness CSS prevents iPhone focus zoom in every editable control w
   assert.doesNotMatch(zen,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
 });
 
+test('wellness shell removes the Pulse concept class while Zen owns the page and restores it for Training',()=>{
+  assert.match(shell,/classList\.toggle\('exercise-concept-pulse-home-v1',!zen\)/);
+});
+
 test('Zen owns the root canvas and training-only backgrounds release it cleanly',()=>{
   assert.match(shell,/function zenCanvasColor\(kind\)/);
   assert.match(shell,/document\.documentElement\.style\.backgroundColor=color/);
