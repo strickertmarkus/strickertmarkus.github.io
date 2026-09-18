@@ -92,9 +92,13 @@ jobs:
           }
           async function wellness(page,name){
             await page.locator(`[data-wellness-destination="${name}"]`).first().click();
-            if(name==='training')await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
-            else await page.waitForFunction(n=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind===n,name);
-            await page.waitForTimeout(220);
+            if(name==='training'){
+              await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
+              await page.waitForFunction(()=>!document.querySelector('[data-wellness-kind-switch="true"][aria-busy="true"]')&&!new URLSearchParams(location.search).has('wellness'));
+            }else{
+              await page.waitForFunction(n=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind===n,name);
+              await page.waitForFunction(n=>!document.querySelector('[data-wellness-kind-switch="true"][aria-busy="true"]')&&new URLSearchParams(location.search).get('wellness')===n,name);
+            }
           }
           async function swipeCardioTimer(page,deltaY){
             await page.locator('#session-countdown-ring').evaluate((ring,dy)=>{
