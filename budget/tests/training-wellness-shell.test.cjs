@@ -224,6 +224,7 @@ test('Zen runtime does not write to the retired standalone profile label', () =>
 test('Zen render completion cannot rewrite wellness browser history',()=>{
   const rendered=shell.match(/document\.addEventListener\('zen:home-rendered',[\s\S]*?\n  \}\);/);
   assert.ok(rendered,'zen:home-rendered listener must exist');
+  assert.match(rendered[0],/syncCanvasTheme\(zenKind\)/);
   assert.match(rendered[0],/updateUnifiedSwitch\(zenKind\)/);
   assert.doesNotMatch(rendered[0],/historyFor\(/,'requestDestination is the sole wellness history owner');
 });
