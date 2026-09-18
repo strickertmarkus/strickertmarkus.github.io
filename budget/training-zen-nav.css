@@ -58,14 +58,12 @@ html[data-wellness-mode="zen"] .wellness-kind-switch{z-index:30}
 /* iOS Safari auto-zooms focused form controls below 16px. This shared shell
    owns the floor for Compact, Observatory, Stretch and Meditation without
    disabling pinch zoom or changing non-editable typography. */
-@supports (-webkit-touch-callout:none){
-  @media(hover:none) and (pointer:coarse){
-    html body input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
-    html body select,
-    html body textarea,
-    html body [contenteditable]:not([contenteditable="false"]){
-      font-size:16px!important;
-    }
+@media(hover:none) and (pointer:coarse){
+  html body input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+  html body select,
+  html body textarea,
+  html body [contenteditable]:not([contenteditable="false"]){
+    font-size:16px!important;
   }
 }
 
