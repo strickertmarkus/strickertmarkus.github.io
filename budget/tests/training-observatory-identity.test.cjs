@@ -79,7 +79,7 @@ test('Next Workout has separate build and start actions with a true latent empty
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(html, /auth-gate\.js\?v=20260916-wellness-shell-3/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260916-main-next-pass-orb-2/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-1/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
