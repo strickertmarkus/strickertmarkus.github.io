@@ -194,11 +194,16 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
-  assert.match(zen,/zen\.css\?v=20260918-cp11-stretch-overflow-2/);
+  assert.match(zen,/zen\.css\?v=20260918-cp11-stretch-overflow-3/);
   assert.match(zen,/zen\.js\?v=20260916-kind-enter-1/);
 });
 
 
 test('Stretch home removes the retired oversized pseudo surface instead of hiding it with an override', () => {
   assert.doesNotMatch(zenCss, /body\[data-kind=stretch\] #home-view::before/);
+});
+
+
+test('Stretch mobile hero subtitle stays inside its content column', () => {
+  assert.match(zenCss, /@media \(max-width:600px\)[\s\S]*body\[data-kind=stretch\] \.hero-copy h1::after \{[\s\S]*width: 100%;[\s\S]*max-width: 100%;[\s\S]*white-space: normal;[\s\S]*overflow-wrap: anywhere;/);
 });

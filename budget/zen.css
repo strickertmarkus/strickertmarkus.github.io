@@ -2063,7 +2063,11 @@ body[data-kind=meditation] .hero-copy .eyebrow {
 @media (max-width:600px) {
 
   body[data-kind=stretch] .hero-copy h1::after {
-    font-size: .34em;
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: .31em;
     letter-spacing: -.35px;
     margin-top: .18em;
   }
