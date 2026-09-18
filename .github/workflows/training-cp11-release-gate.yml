@@ -119,7 +119,7 @@ jobs:
             await page.reload({waitUntil:'domcontentloaded'});assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');await ready(page);assert.ok(!(await page.evaluate(()=>window.__CP11.overview)).includes('compact'));
 
             const nav0=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
-            await page.evaluate(()=>window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight)));const y0=await page.evaluate(()=>window.scrollY);
+            await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight))});await page.waitForTimeout(60);const y0=await page.evaluate(()=>window.scrollY);
             const scrollTrace=[];for(let i=0;i<3;i++){await overview(page,'compact');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})));await overview(page,'observatory');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})))}
             const y1=await page.evaluate(()=>window.scrollY);console.log('CP11_SCROLL '+JSON.stringify({y0,y1,trace:scrollTrace}));
             assert.ok(Math.abs(y1-y0)<=3,`overview scroll drift ${y0}->${y1}`);assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav0);
