@@ -71,7 +71,7 @@
       var pulseBoot = document.createElement('style');
       pulseBoot.id = 'exercise-pulse-boot-critical-v82';
       pulseBoot.textContent =
-        'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
+        'html.exercise-concept-pulse-home-v1:not([data-wellness-mode="zen"]),html.exercise-concept-pulse-home-v1:not([data-wellness-mode="zen"]) body{background:#080D14!important}' +
         'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
         '@media(prefers-reduced-motion:reduce){html.exercise-concept-pulse-home-v1 body .app-wrap{animation:none!important}}';
       document.head.appendChild(pulseBoot);
@@ -82,8 +82,8 @@
     var exerciseCritical = document.createElement('style');
     exerciseCritical.id = 'exercise-profile-critical-v12';
     exerciseCritical.textContent =
-      'html,body{background:radial-gradient(900px 380px at 50% -110px,rgba(34,211,238,.105),transparent 67%),radial-gradient(620px 300px at 92% 42%,rgba(251,146,60,.025),transparent 72%),#0F1219!important}' +
-      'body::before{content:""!important;display:block!important;position:fixed!important;inset:0!important;pointer-events:none!important;z-index:0!important;background:linear-gradient(180deg,rgba(255,255,255,.008),transparent 28%)!important}' +
+      'html:not([data-wellness-mode="zen"]),html:not([data-wellness-mode="zen"]) body{background:radial-gradient(900px 380px at 50% -110px,rgba(34,211,238,.105),transparent 67%),radial-gradient(620px 300px at 92% 42%,rgba(251,146,60,.025),transparent 72%),#0F1219!important}' +
+      'html:not([data-wellness-mode="zen"]) body::before{content:""!important;display:block!important;position:fixed!important;inset:0!important;pointer-events:none!important;z-index:0!important;background:linear-gradient(180deg,rgba(255,255,255,.008),transparent 28%)!important}' +
       '.app-wrap{position:relative!important;z-index:1!important}' +
       '.app-header{background:linear-gradient(180deg,rgba(13,17,23,.985),rgba(34,211,238,.055))!important;border-bottom:1px solid rgba(34,211,238,.20)!important;box-shadow:0 7px 26px rgba(0,0,0,.42),0 1px 24px rgba(34,211,238,.07)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important}' +
       '.stat-card,.goal-card,.chart-card{background:linear-gradient(180deg,rgba(255,255,255,.046),rgba(255,255,255,.024))!important;border-color:rgba(34,211,238,.105)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 28px rgba(0,0,0,.18)!important}' +

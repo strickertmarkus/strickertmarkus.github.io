@@ -35,6 +35,13 @@
     if(!meta){meta=document.createElement('meta');meta.name='theme-color';meta.content=trainingTheme;document.head.appendChild(meta);}
     return meta;
   }
+  function zenCanvasColor(kind){return kind==='meditation'?'#a7c3bd':'#091d18';}
+  function syncCanvasTheme(destination){
+    var zen=destination==='stretch'||destination==='meditation';
+    var color=zen?zenCanvasColor(destination):trainingTheme;
+    document.documentElement.style.backgroundColor=color;
+    ensureThemeMeta().content=color;
+  }
   function setNotice(message){
     var node=document.querySelector('.wellness-mode-notice');
     if(!node)return;
@@ -209,6 +216,7 @@
     var button=zenHost&&zenHost.querySelector('.kind-switch [data-kind="'+kind+'"]');
     if(button&&button.getAttribute('aria-pressed')!=='true')button.click();
     document.body.dataset.kind=kind;
+    if(mode==='zen'||document.documentElement.dataset.wellnessMode==='zen')syncCanvasTheme(kind);
     updateUnifiedSwitch(kind);
   }
   function toggleZenStyles(active){zenStyleLinks.forEach(function(link){link.media=active?'all':'not all';});}
@@ -238,7 +246,7 @@
     var trainingBrand=header&&header.querySelector('.brand-text');if(trainingBrand)trainingBrand.hidden=zen;
     var streak=header&&header.querySelector('.streak-badge');if(streak)streak.hidden=zen;
     if(!zen)toggleZenStyles(false);
-    ensureThemeMeta().content=zen?(document.body.dataset.kind==='meditation'?'#a7c3bd':'#091d18'):trainingTheme;
+    syncCanvasTheme(zen?zenKind:'training');
     document.title=zen?'Zen · '+(zenKind==='meditation'?'Meditation':'Stretch'):trainingTitle;
     updateUnifiedSwitch(zen?zenKind:'training');
     mode=nextMode;
@@ -310,9 +318,12 @@
   }
 
   if(directZen&&!canonical){
+    zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
+    document.documentElement.dataset.wellnessMode='zen';
+    syncCanvasTheme(zenKind);
     var directTraining=document.querySelector('.kind-switch [data-wellness-destination="training"]');
     if(directTraining)directTraining.addEventListener('click',function(){location.href=modeURL('training').href;});
-    updateUnifiedSwitch(document.body.dataset.kind==='meditation'?'meditation':'stretch');
+    updateUnifiedSwitch(zenKind);
     return;
   }
   if(!canonical||!trainingMain||!header)return;

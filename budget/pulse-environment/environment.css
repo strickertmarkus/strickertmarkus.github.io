@@ -1,7 +1,7 @@
 /* Pulse Reactor: one isolated presentation layer for the preview, never the session. */
-#pulse-document:not(:has(#session-modal.show)),
-#pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
-#pulse-page:not(:has(#session-modal.show))::before{display:none!important}
+html:not([data-wellness-mode="zen"])#pulse-document:not(:has(#session-modal.show)),
+html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
+html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show))::before{display:none!important}
 #pulse-page{--reactor-red:#ff5b78;--reactor-light:#ffbccb;--reactor-line:#e29db92b;--reactor-muted:#aea2b6}
 #pulse-header{position:relative!important;width:90%!important;max-width:1300px;margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
 #pulse-header .brand-text h1{display:flex;align-items:center;gap:8px;font-size:17px!important;font-weight:650!important;letter-spacing:2px!important;color:#f9e9ef!important}

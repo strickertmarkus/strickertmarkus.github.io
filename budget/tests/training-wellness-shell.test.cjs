@@ -16,6 +16,8 @@ const zenCss=read('zen.css');
 const store=read('zen-store.js');
 const firebase=read('firebase-sync.js');
 const authGate=read('auth-gate.js');
+const authConfig=read('auth-config.js');
+const environmentCss=read('pulse-environment/environment.css');
 const shellV13=read('exercise-shell-v13.js');
 const builderV7=read('exercise-builder-between-preview-v7.js');
 
@@ -185,11 +187,11 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-no-flash-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260918-cp11-history-owner-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260918-ios-focus-zen-canvas-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260918-ios-focus-zen-canvas-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
-  assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
+  assert.match(exercise,/auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
+  assert.match(exercise,/auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260918-main-cp11-shims-1/);
@@ -224,4 +226,25 @@ test('Zen render completion cannot rewrite wellness browser history',()=>{
   assert.ok(rendered,'zen:home-rendered listener must exist');
   assert.match(rendered[0],/updateUnifiedSwitch\(zenKind\)/);
   assert.doesNotMatch(rendered[0],/historyFor\(/,'requestDestination is the sole wellness history owner');
+});
+
+
+test('shared wellness CSS prevents iPhone focus zoom in every editable control without disabling pinch zoom',()=>{
+  assert.match(shellCss,/@supports \(-webkit-touch-callout:none\)/);
+  assert.match(shellCss,/@media\(hover:none\) and \(pointer:coarse\)/);
+  assert.match(shellCss,/html body input:not\(\[type="hidden"\]\)[\s\S]*html body select,[\s\S]*html body textarea,[\s\S]*\[contenteditable\]:not\(\[contenteditable="false"\]\)[\s\S]*font-size:16px!important/);
+  assert.doesNotMatch(shellCss,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+  assert.doesNotMatch(exercise,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+  assert.doesNotMatch(zen,/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+});
+
+test('Zen owns the root canvas and training-only backgrounds release it cleanly',()=>{
+  assert.match(shell,/function zenCanvasColor\(kind\)/);
+  assert.match(shell,/document\.documentElement\.style\.backgroundColor=color/);
+  assert.match(shell,/syncCanvasTheme\(zen\?zenKind:'training'\)/);
+  assert.match(shell,/document\.documentElement\.dataset\.wellnessMode='zen'/);
+  assert.match(authConfig,/exercise-concept-pulse-home-v1:not\(\[data-wellness-mode="zen"\]\)/);
+  assert.match(authGate,/html:not\(\[data-wellness-mode="zen"\]\),html:not\(\[data-wellness-mode="zen"\]\) body/);
+  assert.match(environmentCss,/html:not\(\[data-wellness-mode="zen"\]\)#pulse-document/);
+  assert.doesNotMatch(environmentCss,/^#pulse-document:not\(:has\(#session-modal\.show\)\),/m);
 });

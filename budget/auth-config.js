@@ -147,7 +147,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       var pulseStyle = document.createElement('style');
       pulseStyle.id = 'exercise-pulse-preboot-v82';
       pulseStyle.textContent =
-        'html.exercise-concept-pulse-home-v1,html.exercise-concept-pulse-home-v1 body{background:#080D14!important}' +
+        'html.exercise-concept-pulse-home-v1:not([data-wellness-mode="zen"]),html.exercise-concept-pulse-home-v1:not([data-wellness-mode="zen"]) body{background:#080D14!important}' +
         'html.exercise-concept-pulse-home-v1 body .app-wrap{visibility:visible!important;opacity:1!important}' +
         'html.exercise-first-paint-loading-v1.exercise-concept-pulse-home-v1 body .app-wrap,html.exercise-first-paint-loading-v1.exercise-concept-pulse-home-v1 body>.fab{visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
       document.head.appendChild(pulseStyle);

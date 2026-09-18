@@ -84,7 +84,7 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260918-exercise-picker-pulse-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260918-ios-focus-zen-canvas-1/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
 });
 
