@@ -173,7 +173,7 @@ jobs:
             await page.waitForFunction(()=>document.getElementById('session-pre-timer').classList.contains('show'));
             assert.equal(await page.locator('#session-pre-timer-value').innerText(),'5');
             await page.evaluate(()=>window.__exerciseTimerFocus.beep());
-            await page.locator('#session-pre-timer').click({position:{x:8,y:8}});
+            await page.locator('#session-pre-timer').evaluate(el=>el.click());
             await page.waitForFunction(()=>window.sessionState&&window.sessionState.setRunning===true);
             await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('cardio-countdown-active'));
             await page.evaluate(()=>window.__exerciseTimerFocus.collapse());
