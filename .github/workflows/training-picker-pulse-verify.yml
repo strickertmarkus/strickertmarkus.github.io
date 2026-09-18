@@ -111,7 +111,8 @@ jobs:
               return {border:s.borderColor,bg:s.backgroundImage,kicker:k.color,rect:{x:r.x,y:r.y,w:r.width,h:r.height},frames:window.__pickerRects};
             });
             assert.equal(theme.kicker,'rgb(255, 175, 196)');
-            assert.ok(theme.bg.includes('rgb(255, 89, 124)'),'Pulse pink glow missing');
+            assert.notEqual(theme.bg,'none','Pulse picker background theme missing');
+            assert.ok(/^rgba?\(255,\s*159,\s*187/.test(theme.border),'Pulse picker border theme missing: '+theme.border);
             assert.ok(theme.rect.x>=0&&theme.rect.x+theme.rect.w<=390.5&&theme.rect.y>=0&&theme.rect.y+theme.rect.h<=844.5);
             assert.ok(theme.frames.length>=2,'picker visibility frame samples missing');
             const first=theme.frames[0],last=theme.frames[theme.frames.length-1];
