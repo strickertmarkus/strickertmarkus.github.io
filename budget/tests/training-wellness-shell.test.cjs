@@ -194,6 +194,11 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260918-main-cp11-shims-1/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
-  assert.match(zen,/zen\.css\?v=20260916-kind-enter-1/);
+  assert.match(zen,/zen\.css\?v=20260918-cp11-canvas-containment-1/);
   assert.match(zen,/zen\.js\?v=20260916-kind-enter-1/);
+});
+
+
+test('Zen scene canvas has an explicit CSS paint box inside the shared mobile shell', () => {
+  assert.match(zenCss, /\.landscape>div,\s*\.landscape>canvas\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*max-width:\s*100%;[^}]*display:\s*block;/s);
 });
