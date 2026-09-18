@@ -310,6 +310,37 @@
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .log-add-summary-v52{border-color:#ff789526!important;background:#ff6b8610!important;color:#b6bfd1!important;padding:12px!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(:focus-visible){outline:2px solid #ff9daf!important;outline-offset:3px}
 #pulse-page:not(:has(#session-modal.show)) #toast{background:#171723!important;border-color:#ff7c9b55!important;color:#ffd3df!important;box-shadow:0 15px 40px #0007!important;border-radius:8px!important;max-width:90vw;text-align:center}
+
+/* Exercise-name chooser belongs to the Pulse editor surface even though it is
+   portalled to body so it can stay inside the mobile viewport. */
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-v1{
+  border-color:#ff9fbb4a;
+  border-radius:16px;
+  background:radial-gradient(ellipse at 10% -12%,#ff597c20 0%,transparent 54%),linear-gradient(155deg,#1d111aec 0%,#110d15f7 58%,#0b0d13fa 100%);
+  box-shadow:0 24px 64px #0009,0 0 36px #ff4f7d16,inset 0 1px 0 #ffd7e30c;
+  -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
+}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-head-v1{padding:14px 15px 11px;border-bottom-color:#ef9fb925;background:linear-gradient(90deg,#ff547510,transparent 72%)}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-kicker-v1{color:#ffafc4;font-size:9px;font-weight:650;letter-spacing:.16em;text-shadow:0 0 15px #ff5c8a38}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-context-v1{color:#a991a3;font-size:10.5px}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-options-v1{padding:6px}
+#pulse-page:not(:has(#session-modal.show)) :is(.exercise-name-picker-option-v1,.exercise-name-picker-new-v1){min-height:44px;color:#d9c5d2;font-weight:450;border-radius:10px;transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .18s ease!important}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-option-v1{position:relative;padding:10px 12px;border:1px solid transparent}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-option-v1:hover,
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-option-v1:focus-visible{color:#ffe6ef;background:#ff718d0d;border-color:#ff9db526;box-shadow:none;outline:none}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-option-v1.is-current{color:#ffe5ed;background:linear-gradient(100deg,#ff557a1e,#ff8fa508 72%);border-color:#ff9db63d;box-shadow:inset 0 0 18px #ff5c7d0c}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-option-v1.is-current::after{content:'';position:absolute;right:12px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#ffc1d2;box-shadow:0 0 9px #ff5f8f}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-empty-v1{color:#8f7b8d;padding:16px 12px}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-new-v1{min-height:47px;padding:11px 15px;border-top:1px solid #f2a0bb25;border-radius:0;color:#ffb6c9;background:linear-gradient(90deg,#ff5a7c12,transparent 72%);font-weight:600}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-new-v1:hover,
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-new-v1:focus-visible{color:#ffe6ed;background:linear-gradient(90deg,#ff5a7c24,#ff76900b 74%);outline:none}
+#pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-v1 button:active{transform:none!important}
+@media(max-width:600px){
+ #pulse-page:not(:has(#session-modal.show)) .exercise-name-picker-v1{border-radius:14px}
+ #pulse-page:not(:has(#session-modal.show)) :is(.exercise-name-picker-option-v1,.exercise-name-picker-new-v1){min-height:47px}
+}
+@media(prefers-reduced-motion:reduce){#pulse-page .exercise-name-picker-v1,#pulse-page .exercise-name-picker-v1 *{transition:none!important}}
+
 #pulse-page #day-modal.pulse-editor .modal{max-width:460px!important}
 #pulse-page #day-modal.pulse-editor .modal-footer{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 #pulse-page #wk-modal.pulse-editor #wk-template-select{min-width:0;flex-basis:100%!important}

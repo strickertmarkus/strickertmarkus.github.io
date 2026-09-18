@@ -54,3 +54,28 @@ test('picker is viewport-contained for mobile Safari and free text avoids iOS zo
   assert.match(html,/window\.visualViewport/);
   assert.match(html,/data-exercise-name-free-v1="1"\]\{font-size:16px!important/);
 });
+
+
+test('Pulse Flow theme owns the portalled exercise picker with pink/red editor tokens',()=>{
+  const env=fs.readFileSync(path.resolve(__dirname,'..','pulse-environment','environment.css'),'utf8');
+  assert.match(env,/#pulse-page:not\(:has\(#session-modal\.show\)\) \.exercise-name-picker-v1/);
+  assert.match(env,/border-color:#ff9fbb4a/);
+  assert.match(env,/radial-gradient\(ellipse at 10% -12%,#ff597c20/);
+  assert.match(env,/\.exercise-name-picker-kicker-v1\{color:#ffafc4/);
+});
+
+test('picker is positioned before becoming visible and readonly taps do not focus-scroll the editor',()=>{
+  assert.match(html,/picker\.classList\.remove\('show'\);\s*positionExerciseNamePicker\(\);\s*requestAnimationFrame/);
+  assert.match(html,/exercisePickerInput\(tappedInput\)[\s\S]*event\.preventDefault\(\)/);
+  assert.doesNotMatch(html,/closeExerciseNamePicker\(\);\s*input\.blur\(\)/);
+});
+
+test('picker kind selection bypasses the whole-builder morph wrapper',()=>{
+  assert.match(html,/function applyExerciseKindToRow\(wrap,kind\)/);
+  assert.match(html,/function ensureExerciseRowKind\(row,kind\)[\s\S]*applyExerciseKindToRow\(row,kind\)/);
+  assert.match(html,/function setExerciseKind\(el,kind\)[\s\S]*applyExerciseKindToRow\(wrap,kind\)/);
+});
+
+test('Pulse picker stylesheet is cache-busted on the canonical route',()=>{
+  assert.match(html,/pulse-environment\/environment\.css\?v=20260918-exercise-picker-pulse-1/);
+});

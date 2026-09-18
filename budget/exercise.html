@@ -425,13 +425,16 @@
     /* ── EXERCISE NAME PICKER ── */
     .exercise-name-picker-input-v1[readonly]{cursor:pointer;caret-color:transparent;}
     .exercise-name-picker-v1{
-      position:fixed;z-index:2147483600;display:none;flex-direction:column;
+      position:fixed;z-index:2147483600;display:flex;flex-direction:column;
       width:min(380px,calc(100vw - 16px));max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);
       overflow:hidden;border:1px solid rgba(34,211,238,.24);border-radius:14px;
       background:linear-gradient(180deg,#18212b,#111820);box-shadow:0 22px 56px rgba(0,0,0,.58),0 0 0 1px rgba(34,211,238,.05);
       color:var(--text);font-family:'Inter',sans-serif;
+      opacity:0;visibility:hidden;pointer-events:none;
+      transition:opacity .14s ease,visibility 0s linear .14s,box-shadow .20s ease;
+      will-change:opacity;
     }
-    .exercise-name-picker-v1.show{display:flex;}
+    .exercise-name-picker-v1.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .14s ease,visibility 0s,box-shadow .20s ease;}
     .exercise-name-picker-head-v1{padding:11px 12px 8px;border-bottom:1px solid rgba(148,163,184,.12);}
     .exercise-name-picker-kicker-v1{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#67E8F9;}
     .exercise-name-picker-context-v1{margin-top:2px;font-size:11px;color:#8B949E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -511,7 +514,7 @@
   </style>
 <link rel="stylesheet" href="training-zen-nav.css?v=20260916-main-cp8-no-flash-1">
 <script defer src="training-zen-nav.js?v=20260918-cp11-history-owner-1"></script>
-<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260915-main-cp7-symbol-cyan-1">
+<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260918-exercise-picker-pulse-1">
 <link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260918-main-cp11-overflow-containment-3">
 <link rel="stylesheet" href="training-week-orbit.css?v=20260915-main-cp7-state-1">
 <script defer src="training-overview-mode.js?v=20260918-main-cp11-shims-1"></script>
@@ -1475,10 +1478,7 @@ function ensureExerciseRowKind(row,kind){
   if(!row||!kind)return;
   var hidden=row.querySelector('[class$="-kind"]');
   if(hidden&&hidden.value===kind)return;
-  var wanted=Array.prototype.slice.call(row.querySelectorAll('.ex-kind-btn')).find(function(button){
-    return kind==='cardio'?/kondition/i.test(button.textContent||''):/styrka/i.test(button.textContent||'');
-  });
-  if(wanted) setExerciseKind(wanted,kind);
+  applyExerciseKindToRow(row,kind);
 }
 function ensureExerciseNamePicker(){
   var picker=document.getElementById('exercise-name-picker-v1');
@@ -1504,7 +1504,6 @@ function ensureExerciseNamePicker(){
       input.dispatchEvent(new Event('input',{bubbles:true}));
       input.dispatchEvent(new Event('change',{bubbles:true}));
       closeExerciseNamePicker();
-      input.blur();
       return;
     }
     var addNew=event.target.closest('.exercise-name-picker-new-v1');
@@ -1578,8 +1577,11 @@ function renderExerciseNamePicker(input){
   input.readOnly=true;
   input.removeAttribute('data-exercise-name-free-v1');
   input.setAttribute('aria-expanded','true');
-  picker.classList.add('show');
-  requestAnimationFrame(positionExerciseNamePicker);
+  picker.classList.remove('show');
+  positionExerciseNamePicker();
+  requestAnimationFrame(function(){
+    if(exerciseNamePickerState.input===input)picker.classList.add('show');
+  });
 }
 function closeExerciseNamePicker(){
   var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
@@ -1601,6 +1603,11 @@ function installExerciseNamePicker(){
     }
   },true);
   document.addEventListener('pointerdown',function(event){
+    var tappedInput=event.target.closest&&event.target.closest('.exercise-name-picker-input-v1');
+    if(exercisePickerInput(tappedInput)&&tappedInput.dataset.exerciseNameFreeV1!=='1'){
+      event.preventDefault();
+      return;
+    }
     var picker=exerciseNamePickerState.picker;
     var input=exerciseNamePickerState.input;
     if(!input||!picker)return;
@@ -1659,23 +1666,28 @@ function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
     +'</div>';
 }
 
-function setExerciseKind(el,kind){
-  var wrap=el.closest('.inline-ex-row, .ex-row-wrap, .ex-row-item');
+function applyExerciseKindToRow(wrap,kind){
   if(!wrap)return;
   var hidden=wrap.querySelector('[class$="-kind"]');
   if(hidden)hidden.value=kind;
   wrap.classList.remove('is-strength','is-cardio');
   wrap.classList.add('is-'+kind);
-  wrap.querySelectorAll('.ex-kind-btn').forEach(function(btn){btn.classList.toggle('active',btn===el);});
+  wrap.querySelectorAll('.ex-kind-btn').forEach(function(btn){
+    var isKind=kind==='cardio'?/kondition/i.test(btn.textContent||''):/styrka/i.test(btn.textContent||'');
+    btn.classList.toggle('active',isKind);
+  });
   var metric1=wrap.querySelector('[class*="-metric1"]');
   var metric2=wrap.querySelector('[class*="-metric2"]');
   var metric3=wrap.querySelector('[class*="-metric3"]');
   if(metric1){metric1.dataset.role=kind==='cardio'?'distance':'sets';metric1.placeholder=kind==='cardio'?'Distans':'Sets';metric1.step=kind==='cardio'?'0.1':'1';metric1.value='';}
   if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.step=kind==='cardio'?'0.1':'1';metric2.value='';}
-  if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');}
-  if(metric3)metric3.value='';
+  if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');metric3.value='';}
   var nameInput=wrap.querySelector('.exercise-name-picker-input-v1');
   if(nameInput&&exerciseNamePickerState.input===nameInput)renderExerciseNamePicker(nameInput);
+}
+function setExerciseKind(el,kind){
+  var wrap=el.closest('.inline-ex-row, .ex-row-wrap, .ex-row-item');
+  applyExerciseKindToRow(wrap,kind);
 }
 
 function parseExerciseRow(row,prefix){
