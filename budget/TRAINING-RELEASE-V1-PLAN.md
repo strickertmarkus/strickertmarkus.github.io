@@ -286,3 +286,36 @@ The temporary compatibility loader requests should be removed only when `exercis
 Do not keep `v13`, `v19`, `v20`, `v21`, `v55`, `v58`, `v67`, `v92`, `v102`, `v104`, `v130`, `v131`, `v142`, `v143`, or migration compatibility filenames in the final production loader after their behavior has been consolidated. Git history/checkpoint branches are the archive. Production filenames should describe current ownership, not implementation history.
 
 The final script/request reduction number must be measured from the actual release-candidate loader during Checkpoint 11 rather than inferred from the original 41-script audit.
+
+---
+
+## Observatory migration CP11 release-candidate baseline — 2026-09-18
+
+The Observatory migration release-candidate gate is complete in automated WebKit. This is the **pre-V1-consolidation** baseline, not a claim that the 12-owner V1 loader cutover has already happened.
+
+Current architecture at the CP11 gate:
+
+- `budget/exercise.html` is the single production Training route.
+- Compact and Observatory share one dashboard/session data model.
+- `exercise-dashboard.js` is the canonical Observatory/Compact + weekly-orbit JavaScript owner; the three historical migration paths remain loader shims until the V1 loader cutover.
+- Training / Stretch / Meditation share one in-page wellness shell and one header/navigation surface.
+- one canonical live session runtime is used from both Compact and Observatory.
+- `exercise-timer-focus.js` is event-driven while idle; its animation frame is used only for short-lived gesture settling.
+- historical standalone Reactor/Observatory applications are Git/checkpoint history plus redirect aliases, not competing runtimes.
+
+CP11 WebKit regression result:
+
+- **91 passed, 0 failed** in the combined Training/Zen static suite.
+- iPhone-like WebKit exercised cold/warm Observatory load, repeated Compact/Observatory switching, weekly orbit, builder save, planned-session fresh-load persistence, Strength and Cardio session entry, active-session navigation guard, cardio pause/resume, repeated timer swipe expand/collapse, 5-second pre-timer, automatic rest, workout save, wellness history, Markus/Maja query preservation, reduced motion and target widths.
+- no page-level horizontal overflow at 320, 375/390, 768 or 1440 px, including mobile landscape session and Stretch/Meditation at 390 px.
+- no new browser console/page errors in the passing gate.
+
+Measured CI/WebKit loader-v2 baseline from the passing CP11 run:
+
+- ordered manifest entries: **27**
+- observed unique local JavaScript requests after exercising Training + Zen: **64**
+- measured manifest preload → bundle-ready time in that run: **244 ms**
+
+The 64-request figure intentionally includes compatibility files plus Zen assets loaded during the full route exercise. It is a measurement baseline, **not the V1 target**. Repeat this audit after the final 12-owner loader cutover and compare against these numbers rather than using the old estimated request reduction.
+
+Remaining manual release gate: physical iPhone Safari/PWA validation. Automated WebKit is not recorded as a substitute for a real-device PWA run.

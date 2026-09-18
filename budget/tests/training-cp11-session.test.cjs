@@ -11,6 +11,7 @@ const runtime=read('exercise-session-runtime-core-v21.js');
 const transitions=read('exercise-session-transition-stability-v142.js');
 const persistence=read('exercise-session-persistence-v143.js');
 const hype=read('exercise-hype-timer-layout-v1.js');
+const firebaseSync=read('firebase-sync.js');
 
 test('CP11 timer focus is reactive when idle instead of owning a permanent RAF',()=>{
   assert.doesNotMatch(timer,/function frame\(now\)/);
@@ -59,4 +60,11 @@ test('CP11 planned-session persistence wraps start and save without a second ses
 
 test('CP11 production cache-busts the reactive timer owner',()=>{
   assert.match(html,/exercise-timer-focus\.js\?v=20260918-cp11-reactive-timer-1/);
+});
+
+
+test('CP11 Firebase sync contract includes planned sessions and persistence listens for its sync event',()=>{
+  assert.match(firebaseSync,/['"]ex_plannedSessions['"]/);
+  assert.match(persistence,/addEventListener\('firebase-sync'/);
+  assert.match(persistence,/key === 'ex_wk' \|\| key === 'ex_plannedSessions'/);
 });

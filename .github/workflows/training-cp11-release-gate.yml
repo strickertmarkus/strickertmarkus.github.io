@@ -83,24 +83,9 @@ jobs:
             await page.waitForTimeout(400);
           }
           async function noOverflow(page,label){
-            const s=await page.evaluate(()=>{
-              const cw=document.documentElement.clientWidth;
-              const offenders=Array.from(document.querySelectorAll('body *')).map(el=>{
-                const r=el.getBoundingClientRect();
-                const cs=getComputedStyle(el);
-                return {tag:el.tagName,id:el.id||'',cls:String(el.className||'').slice(0,120),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:cs.position,overflowX:cs.overflowX};
-              }).filter(x=>x.width>0&&(x.right>cw+1||x.left<-1)).sort((a,b)=>(b.right-cw)-(a.right-cw)).slice(0,20);
-              return {sw:document.documentElement.scrollWidth,cw,bw:document.body.scrollWidth,offenders};
-            });
-            if(s.sw>s.cw+1||s.bw>s.cw+1){
-              const detail=await page.evaluate(()=>{
-                const info=sel=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect(),cs=getComputedStyle(el),bef=getComputedStyle(el,'::before'),aft=getComputedStyle(el,'::after');return {sel,rect:{left:r.left,right:r.right,width:r.width},clientWidth:el.clientWidth,scrollWidth:el.scrollWidth,offsetWidth:el.offsetWidth,attrWidth:el.getAttribute&&el.getAttribute('width'),cssWidth:cs.width,overflow:cs.overflow,overflowX:cs.overflowX,transform:cs.transform,before:{content:bef.content,left:bef.left,right:bef.right,width:bef.width,transform:bef.transform},after:{content:aft.content,left:aft.left,right:aft.right,width:aft.width,transform:aft.transform}}};
-                const scrollers=Array.from(document.querySelectorAll('body *')).map(el=>{const cs=getComputedStyle(el),b=getComputedStyle(el,'::before'),a=getComputedStyle(el,'::after');return {tag:el.tagName,id:el.id||'',cls:String(el.className||'').slice(0,100),clientWidth:el.clientWidth,scrollWidth:el.scrollWidth,before:{content:b.content,left:b.left,right:b.right,width:b.width,filter:b.filter,transform:b.transform},after:{content:a.content,left:a.left,right:a.right,width:a.width,filter:a.filter,transform:a.transform},overflow:cs.overflow};}).filter(x=>x.clientWidth>0&&x.scrollWidth>x.clientWidth+1).sort((a,b)=>(b.scrollWidth-b.clientWidth)-(a.scrollWidth-a.clientWidth)).slice(0,30);
-                return {nodes:['.app-wrap','.wellness-zen-backdrop','.landscape-forest','#wellness-zen-surface','#zen-main','.sanctuary','.landscape-shade','#home-view','.ritual-section'].map(info),scrollers};
-              });
-              console.log('CP11_OVERFLOW '+label+' '+JSON.stringify({...s,detail}));
-            }
-            assert.ok(s.sw<=s.cw+1,`${label}: html overflow ${s.sw}>${s.cw}`);assert.ok(s.bw<=s.cw+1,`${label}: body overflow ${s.bw}>${s.cw}`);
+            const s=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth,bw:document.body.scrollWidth}));
+            assert.ok(s.sw<=s.cw+1,`${label}: html overflow ${s.sw}>${s.cw}`);
+            assert.ok(s.bw<=s.cw+1,`${label}: body overflow ${s.bw}>${s.cw}`);
           }
           async function overview(page,mode){
             await page.evaluate(m=>window.setTrainingOverviewMode(m),mode);await page.waitForFunction(m=>document.documentElement.dataset.trainingOverview===m,mode);await page.waitForTimeout(260);
@@ -148,12 +133,15 @@ jobs:
 
             const nav0=await page.evaluate(()=>performance.getEntriesByType('navigation').length);
             await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,Math.min(420,document.documentElement.scrollHeight-window.innerHeight))});await page.waitForTimeout(60);const y0=await page.evaluate(()=>window.scrollY);
-            const scrollTrace=[];for(let i=0;i<3;i++){await overview(page,'compact');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})));await overview(page,'observatory');scrollTrace.push(await page.evaluate(()=>({mode:document.documentElement.dataset.trainingOverview,y:window.scrollY,h:document.documentElement.scrollHeight})))}
-            const y1=await page.evaluate(()=>window.scrollY);console.log('CP11_SCROLL '+JSON.stringify({y0,y1,trace:scrollTrace}));
+            for(let i=0;i<3;i++){await overview(page,'compact');await overview(page,'observatory')}
+            const y1=await page.evaluate(()=>window.scrollY);
             assert.ok(Math.abs(y1-y0)<=3,`overview scroll drift ${y0}->${y1}`);assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav0);
 
             await page.evaluate(()=>window.scrollTo(0,0));const week0=await page.locator('#week-grid .week-day').allTextContents(),orbit=page.locator('[data-week-orbit-toggle]');
             for(let i=0;i<3;i++){await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='true');assert.deepEqual(await page.locator('#week-grid .week-day').allTextContents(),week0);await orbit.click();await page.waitForFunction(()=>document.querySelector('[data-week-orbit-toggle]').getAttribute('aria-expanded')==='false')}
+            const weekLabel0=await page.locator('#week-nav-label').innerText();
+            await page.evaluate(()=>window.shiftViewedWeek(1));await page.waitForFunction(label=>document.getElementById('week-nav-label').textContent!==label,weekLabel0);
+            await page.evaluate(()=>window.shiftViewedWeek(-1));await page.waitForFunction(label=>document.getElementById('week-nav-label').textContent===label,weekLabel0);
 
             const data=await page.evaluate(()=>window.__CP11);
             await page.locator('#week-grid .week-day',{hasText:'CP11 Styrka'}).click();await page.waitForFunction(()=>document.getElementById('day-modal').classList.contains('show'));await page.evaluate(()=>window.closeModal('day-modal'));
@@ -163,6 +151,9 @@ jobs:
             await routes(persistencePage);await seed(persistencePage);
             await persistencePage.goto(url,{waitUntil:'domcontentloaded'});await ready(persistencePage);
             assert.deepEqual(await persistencePage.evaluate(d=>window.getPlannedSessions()[d],data.today),persistedPlan,'planned session did not survive a fresh page load');
+            await persistencePage.evaluate(()=>window.dispatchEvent(new CustomEvent('firebase-sync',{detail:{key:'ex_plannedSessions'}})));
+            await persistencePage.waitForTimeout(450);
+            assert.deepEqual(await persistencePage.evaluate(d=>window.getPlannedSessions()[d],data.today),persistedPlan,'planned session changed after firebase-sync repair event');
             await persistencePage.close();
 
             await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const a=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
@@ -214,7 +205,7 @@ jobs:
 
             const wc=await page.evaluate(()=>window.getWorkouts().length);await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));await page.evaluate(()=>{window.sessionState.logs[0]=[{actualReps:8,actualWeight:20,durationSec:30}];window.sessionState.passStartedAt=Date.now()-65000;window.saveSessionWorkout()});await page.waitForFunction(()=>!document.getElementById('session-modal').classList.contains('show'));assert.equal(await page.evaluate(()=>window.getWorkouts().length),wc+1);assert.equal(await page.evaluate(()=>document.documentElement.dataset.trainingOverview),'observatory');
 
-            const nav1=await page.evaluate(()=>performance.getEntriesByType('navigation').length);await wellness(page,'stretch');assert.ok(await page.locator('#wellness-zen-surface').isVisible());await wellness(page,'meditation');await wellness(page,'training');await wellness(page,'stretch');console.log('CP11_HISTORY_BEFORE '+JSON.stringify(await page.evaluate(()=>({href:location.href,mode:document.documentElement.dataset.wellnessMode,kind:document.body.dataset.kind,historyLength:history.length}))));await page.evaluate(()=>history.back());await page.waitForTimeout(700);const backState=await page.evaluate(()=>({href:location.href,mode:document.documentElement.dataset.wellnessMode,kind:document.body.dataset.kind}));console.log('CP11_HISTORY_BACK '+JSON.stringify(backState));assert.equal(backState.mode,'training');await page.evaluate(()=>history.forward());await page.waitForTimeout(700);const forwardState=await page.evaluate(()=>({href:location.href,mode:document.documentElement.dataset.wellnessMode,kind:document.body.dataset.kind}));console.log('CP11_HISTORY_FORWARD '+JSON.stringify(forwardState));assert.equal(forwardState.mode,'zen');assert.equal(forwardState.kind,'stretch');await wellness(page,'training');assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav1);
+            const nav1=await page.evaluate(()=>performance.getEntriesByType('navigation').length);await wellness(page,'stretch');assert.ok(await page.locator('#wellness-zen-surface').isVisible());await wellness(page,'meditation');await wellness(page,'training');await wellness(page,'stretch');await page.evaluate(()=>history.back());await page.waitForTimeout(700);const backState=await page.evaluate(()=>({mode:document.documentElement.dataset.wellnessMode,kind:document.body.dataset.kind}));assert.equal(backState.mode,'training');await page.evaluate(()=>history.forward());await page.waitForTimeout(700);const forwardState=await page.evaluate(()=>({mode:document.documentElement.dataset.wellnessMode,kind:document.body.dataset.kind}));assert.equal(forwardState.mode,'zen');assert.equal(forwardState.kind,'stretch');await wellness(page,'training');assert.equal(await page.evaluate(()=>performance.getEntriesByType('navigation').length),nav1);
 
             for(const width of [320,375,390,768,1440]){await page.setViewportSize({width,height:width<500?844:900});await page.waitForTimeout(100);await noOverflow(page,`${width}px Training`)}
             await page.setViewportSize({width:390,height:844});await wellness(page,'stretch');await noOverflow(page,'390 Stretch');await wellness(page,'meditation');await noOverflow(page,'390 Meditation');await wellness(page,'training');

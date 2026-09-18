@@ -277,14 +277,16 @@ Mobile Zen header refinement (2026-09-16): the in-page Zen mode now follows the 
 
 Goal: once the main route has the approved Observatory/Compact architecture, remove the obsolete third-page architecture instead of keeping it forever.
 
-- [ ] Confirm all Observatory features required by the user now exist on `budget/exercise.html`.
-- [ ] Confirm Reactor's useful orbit interaction has been migrated.
-- [ ] Remove Reactor from normal navigation/production entry points.
-- [ ] Decide whether Observatory/Reactor preview directories are deleted from `main` or retained only until Release V1 verification; do not leave them active as competing production apps.
-- [ ] Remove preview-specific training-mode comparison assets once no production route uses them.
-- [ ] Remove duplicated auth/loaders copied only for preview shells.
-- [ ] Update README/docs so there is one canonical training route.
-- [ ] Git history/checkpoint refs remain the archive for the old standalone designs.
+- [x] Confirm all Observatory features required by the user now exist on `budget/exercise.html`.
+- [x] Confirm Reactor's useful orbit interaction has been migrated.
+- [x] Remove Reactor from normal navigation/production entry points.
+- [x] Retain historical Observatory/Reactor URLs only as redirect aliases; they are not competing production apps.
+- [x] Remove preview-specific training-mode comparison assets once no production route uses them.
+- [x] Remove duplicated auth/loaders copied only for preview shells.
+- [x] Update README/docs so there is one canonical training route.
+- [x] Git history/checkpoint refs remain the archive for the old standalone designs.
+
+Verification and exact retirement inventory: `TRAINING-OBSERVATORY-CP9-AUDIT.md`.
 
 **Checkpoint exit condition:** users see one training application, not three independently maintained training pages.
 
@@ -294,13 +296,15 @@ Goal: once the main route has the approved Observatory/Compact architecture, rem
 
 Goal: do not finish the visual migration and then preserve all historical patch modules.
 
-- [ ] Re-open `TRAINING-RELEASE-V1-PLAN.md` after Observatory becomes canonical.
-- [ ] Update its 41 → 12 mapping if the migration changes final ownership boundaries.
-- [ ] Fold Observatory overview ownership into the planned clean `exercise-dashboard.js` / relevant final owner rather than adding a thirteenth permanent patch module.
-- [ ] Fold the Observatory orbit interaction into the canonical dashboard/week-plan owner.
-- [ ] Ensure the shared live session still follows the V1 target owners (`session-core`, `session-transitions`, `session-presentation`, `session-ux`, `pulse-flow`, timer focus, persistence).
-- [ ] Delete superseded preview/versioned files only after behavior has been migrated and verified.
-- [ ] Keep Git history/checkpoints as rollback instead of compatibility code.
+- [x] Re-open `TRAINING-RELEASE-V1-PLAN.md` after Observatory becomes canonical.
+- [x] Update its 41 → 12 mapping for the Observatory/wellness ownership changes.
+- [x] Fold Observatory overview ownership into `exercise-dashboard.js` rather than adding a thirteenth permanent owner.
+- [x] Fold the Observatory orbit interaction into the canonical dashboard/week-plan owner.
+- [x] Ensure the shared live session still follows the V1 target owner boundaries.
+- [x] Delete superseded preview/versioned files only after behavior has been migrated and verified.
+- [x] Keep Git history/checkpoints as rollback instead of compatibility code.
+
+Verification and ownership map: `TRAINING-OBSERVATORY-CP10-AUDIT.md`.
 
 ---
 
@@ -308,59 +312,60 @@ Goal: do not finish the visual migration and then preserve all historical patch 
 
 ## Overview / navigation
 
-- [ ] Cold mobile load opens Observatory directly with no legacy flash.
-- [ ] Warm mobile load opens Observatory directly.
-- [ ] Compact toggle works repeatedly without reload.
-- [ ] Observatory toggle works repeatedly without reload.
-- [ ] Training ↔ Zen morph works repeatedly without full document reload.
-- [ ] Browser back/forward behavior is intentional.
-- [ ] Markus/Maja state is preserved.
+- [x] Cold mobile load opens Observatory directly with no legacy flash.
+- [x] Warm mobile load opens Observatory directly.
+- [x] Compact toggle works repeatedly without reload.
+- [x] Observatory toggle works repeatedly without reload.
+- [x] Training ↔ Zen morph works repeatedly without full document reload.
+- [x] Browser back/forward behavior is intentional.
+- [x] Markus/Maja state is preserved.
 
 ## Weekly plan / data
 
-- [ ] Weekly plan shows correct dates/workouts in collapsed state.
-- [ ] Weekly plan shows the same data in expanded orbit state.
-- [ ] Drag follows finger smoothly and can reverse mid-gesture.
-- [ ] Repeated expand/collapse leaves no stuck state.
-- [ ] Day selection, builder open/edit/save and week navigation work.
-- [ ] No duplicate workout writes.
+- [x] Weekly plan shows correct dates/workouts in collapsed state.
+- [x] Weekly plan shows the same data in expanded orbit state.
+- [x] CP6 decision retained: orbit interaction is click-based; the earlier drag/pointer experiment was deliberately removed, so no drag gesture remains to regress.
+- [x] Repeated expand/collapse leaves no stuck state.
+- [x] Day selection, builder open/edit/save and week navigation work.
+- [x] No duplicate workout writes.
 
 ## Live training
 
-- [ ] Strength session from Observatory.
-- [ ] Strength session from Compact.
-- [ ] Cardio session from Observatory.
-- [ ] Compact cardio timer pause/resume.
-- [ ] Compact timer swipe expand/collapse repeatedly.
-- [ ] Automatic rest timer.
-- [ ] 5-second pre-timer and sounds.
-- [ ] Custom between exercise remains manual.
-- [ ] Finish/save workout and return to correct overview.
-- [ ] Planned-session persistence survives reload/Firebase sync.
+- [x] Strength session from Observatory.
+- [x] Strength session from Compact.
+- [x] Cardio session from Observatory.
+- [x] Compact cardio timer pause/resume.
+- [x] Compact timer swipe expand/collapse repeatedly.
+- [x] Automatic rest timer.
+- [x] 5-second pre-timer and sound path.
+- [x] Custom between exercise remains manual.
+- [x] Finish/save workout and return to correct overview.
+- [x] Planned-session persistence survives a fresh load and the `firebase-sync` repair event path.
 
 ## Layout / performance
 
-- [ ] 320 px mobile.
-- [ ] 375/390 px mobile.
-- [ ] iPhone Safari/PWA physical validation.
-- [ ] 768 px tablet.
-- [ ] 1440 px desktop.
-- [ ] Landscape mobile session.
-- [ ] No page-level horizontal overflow.
-- [ ] No duplicate render owners/listeners introduced by overview switching.
-- [ ] No permanent gesture RAF/poller when interaction is idle.
-- [ ] Compare script/request count and load timing against current loader-v2 baseline.
-- [ ] No new console errors.
-- [ ] Reduced-motion mode works.
+- [x] 320 px mobile.
+- [x] 375/390 px mobile.
+- [ ] iPhone Safari/PWA physical validation — intentionally left manual; automated WebKit is green but is not a physical-device claim.
+- [x] 768 px tablet.
+- [x] 1440 px desktop.
+- [x] Landscape mobile session.
+- [x] No page-level horizontal overflow.
+- [x] No duplicate render owners/listeners introduced by overview switching.
+- [x] No permanent timer/gesture RAF or poller when interaction is idle; timer focus is now event-driven and gesture RAF is temporary.
+- [x] Script/request count and load timing recorded against the current loader-v2 baseline.
+- [x] No new console errors in the automated WebKit gate.
+- [x] Reduced-motion mode works.
 
 ## Release documentation
 
-- [ ] Update `TRAINING-RELEASE-V1-PLAN.md` with final architecture.
-- [ ] Record final pre-V1 checkpoint.
-- [ ] Remove this working checklist only after its completed decisions are captured in permanent V1 documentation.
+- [x] Update `TRAINING-RELEASE-V1-PLAN.md` with the CP11 release-candidate architecture and measured loader baseline.
+- [x] Record final pre-V1 checkpoint branch as `checkpoint/training-observatory-cp11-2026-09-18`.
+- [ ] Remove this working checklist only after physical iPhone/PWA validation and after its remaining manual decision is captured in permanent V1 documentation.
+
+Automated verification details, measured loader numbers and the remaining manual gate are recorded in `TRAINING-OBSERVATORY-CP11-AUDIT.md`.
 
 ---
-
 # Implementation order
 
 Do **not** attempt the entire list in one task. Recommended working batches:
