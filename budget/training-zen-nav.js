@@ -331,7 +331,6 @@
     if(mode!=='zen')return;
     zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
     updateUnifiedSwitch(zenKind);
-    historyFor(zenKind,'replace');
   });
   if('requestIdleCallback' in window)window.requestIdleCallback(warmZenAssets,{timeout:1200});
   else window.setTimeout(warmZenAssets,1000);

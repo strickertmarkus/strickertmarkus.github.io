@@ -186,7 +186,7 @@ test('profile query and intentional browser history survive unified switching',(
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.css\?v=20260916-main-cp8-no-flash-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260916-main-cp8-no-flash-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260918-cp11-history-owner-1/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260916-wellness-shell-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260916-wellness-shell-3/);
@@ -216,4 +216,12 @@ test('Zen mobile hero title is bounded for a 390px shared shell', () => {
 
 test('Zen runtime does not write to the retired standalone profile label', () => {
   assert.doesNotMatch(zenRuntime, /profile-name/);
+});
+
+
+test('Zen render completion cannot rewrite wellness browser history',()=>{
+  const rendered=shell.match(/document\.addEventListener\('zen:home-rendered',[\s\S]*?\n  \}\);/);
+  assert.ok(rendered,'zen:home-rendered listener must exist');
+  assert.match(rendered[0],/updateUnifiedSwitch\(zenKind\)/);
+  assert.doesNotMatch(rendered[0],/historyFor\(/,'requestDestination is the sole wellness history owner');
 });
