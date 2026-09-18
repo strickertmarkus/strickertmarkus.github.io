@@ -8,6 +8,8 @@ on:
       - 'budget/exercise.html'
       - 'budget/pulse-environment/environment.css'
       - 'budget/tests/training-exercise-name-picker.test.cjs'
+      - 'budget/tests/training-observatory-mobile.test.cjs'
+      - 'budget/tests/training-observatory-state.test.cjs'
   workflow_dispatch:
 
 jobs:
