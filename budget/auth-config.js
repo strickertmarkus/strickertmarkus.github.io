@@ -71,13 +71,13 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     var firstPaintStyleV1 = document.createElement('style');
     firstPaintStyleV1.id = 'exercise-first-paint-critical-v1';
     firstPaintStyleV1.textContent =
-      'html.exercise-first-paint-loading-v1,html.exercise-first-paint-loading-v1 body{background:#080D14!important}' +
-      'html.exercise-first-paint-loading-v1 body .app-wrap,html.exercise-first-paint-loading-v1 body>.fab{visibility:hidden!important;opacity:0!important;pointer-events:none!important}' +
-      'html.exercise-first-paint-loading-v1 body::after{content:""!important;display:block!important;position:fixed!important;left:50%!important;top:50%!important;width:44px!important;height:44px!important;margin:0!important;border-radius:50%!important;border:2px solid rgba(103,232,249,.13)!important;border-top-color:#67E8F9!important;border-right-color:rgba(103,232,249,.46)!important;box-shadow:0 0 24px rgba(34,211,238,.12)!important;z-index:2147483600!important;pointer-events:none!important;animation:exerciseFirstPaintSpinV1 .82s linear infinite!important}' +
+      'html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]),html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]) body{background:#080D14!important}' +
+      'html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]) body .app-wrap,html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]) body>.fab{visibility:hidden!important;opacity:0!important;pointer-events:none!important}' +
+      'html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]) body::after{content:""!important;display:block!important;position:fixed!important;left:50%!important;top:50%!important;width:44px!important;height:44px!important;margin:0!important;border-radius:50%!important;border:2px solid rgba(103,232,249,.13)!important;border-top-color:#67E8F9!important;border-right-color:rgba(103,232,249,.46)!important;box-shadow:0 0 24px rgba(34,211,238,.12)!important;z-index:2147483600!important;pointer-events:none!important;animation:exerciseFirstPaintSpinV1 .82s linear infinite!important}' +
       'html.exercise-first-paint-ready-v1 body .app-wrap{animation:exerciseFirstPaintRevealV1 .20s cubic-bezier(.16,1,.3,1) both}' +
       '@keyframes exerciseFirstPaintSpinV1{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}' +
       '@keyframes exerciseFirstPaintRevealV1{from{opacity:0}to{opacity:1}}' +
-      '@media(prefers-reduced-motion:reduce){html.exercise-first-paint-loading-v1 body::after{animation:none!important}html.exercise-first-paint-ready-v1 body .app-wrap{animation:none!important}}';
+      '@media(prefers-reduced-motion:reduce){html.exercise-first-paint-loading-v1:not([data-wellness-mode="zen"]) body::after{animation:none!important}html.exercise-first-paint-ready-v1 body .app-wrap{animation:none!important}}';
     document.head.appendChild(firstPaintStyleV1);
   }
 
