@@ -297,7 +297,11 @@
     var nextMode=destination==='training'?'training':'zen';
     var token=++switchToken;
     if(nextMode===mode&&!options.force){
-      if(nextMode==='zen'&&destination!==zenKind){selectZenKind(destination);historyFor(destination,options.history||'push');}
+      if(nextMode==='zen'){
+        var changedDestination=destination!==zenKind||document.body.dataset.kind!==destination||document.documentElement.dataset.wellnessKind!==destination;
+        selectZenKind(destination);
+        if(changedDestination)historyFor(destination,options.history||'push');
+      }
       updateUnifiedSwitch(nextMode==='training'?'training':zenKind);
       if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
       return Promise.resolve(true);
