@@ -1525,25 +1525,37 @@ function ensureExerciseNamePicker(){
 }
 function positionExerciseNamePicker(){
   var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
-  if(!input||!picker||!picker.classList.contains('show'))return;
+  if(!input||!picker)return;
   var rect=input.getBoundingClientRect();
   var vv=window.visualViewport;
-  var viewportLeft=vv?vv.offsetLeft:0;
-  var viewportTop=vv?vv.offsetTop:0;
-  var viewportWidth=vv?vv.width:document.documentElement.clientWidth;
-  var viewportHeight=vv?vv.height:window.innerHeight;
+  /* The picker is position:fixed, so its CSS coordinates are viewport-relative.
+     visualViewport width/height are still useful on iOS, but offsetTop/offsetLeft
+     must not be added here or the popup can jump outside the fixed viewport. */
+  var viewportWidth=Math.min(document.documentElement.clientWidth||window.innerWidth,vv&&vv.width||window.innerWidth);
+  var viewportHeight=Math.min(window.innerHeight,vv&&vv.height||window.innerHeight);
   var margin=8,gap=6;
-  var width=Math.min(380,Math.max(250,rect.width),viewportWidth-margin*2);
-  var left=Math.max(viewportLeft+margin,Math.min(rect.left,viewportLeft+viewportWidth-width-margin));
-  var bottomLimit=viewportTop+viewportHeight-margin;
+  var width=Math.min(380,Math.max(250,rect.width),Math.max(180,viewportWidth-margin*2));
+  var left=Math.max(margin,Math.min(rect.left,viewportWidth-width-margin));
+  var bottomLimit=viewportHeight-margin;
   var below=Math.max(0,bottomLimit-rect.bottom-gap);
-  var above=Math.max(0,rect.top-viewportTop-margin-gap);
+  var above=Math.max(0,rect.top-margin-gap);
   var placeBelow=below>=Math.min(260,above)||below>=above;
-  var available=Math.max(120,placeBelow?below:above);
+  var available=Math.max(96,placeBelow?below:above);
+  var maxHeight=Math.min(420,Math.max(96,Math.min(available,viewportHeight-margin*2)));
+  var top=placeBelow?rect.bottom+gap:rect.top-gap-maxHeight;
   picker.style.width=width+'px';
   picker.style.left=left+'px';
-  picker.style.maxHeight=Math.min(420,available)+'px';
-  picker.style.top=(placeBelow?rect.bottom+gap:Math.max(viewportTop+margin,rect.top-gap-Math.min(420,available)))+'px';
+  picker.style.maxHeight=maxHeight+'px';
+  picker.style.top=Math.max(margin,Math.min(top,viewportHeight-maxHeight-margin))+'px';
+
+  /* Measure while visibility:hidden as well as while open, then clamp the
+     actual rendered box. This protects small iPhone viewports from borders,
+     font metrics or dynamic option counts changing the final size. */
+  var measured=picker.getBoundingClientRect();
+  var clampedLeft=Math.max(margin,Math.min(measured.left,viewportWidth-measured.width-margin));
+  var clampedTop=Math.max(margin,Math.min(measured.top,viewportHeight-measured.height-margin));
+  if(Math.abs(clampedLeft-measured.left)>.25)picker.style.left=clampedLeft+'px';
+  if(Math.abs(clampedTop-measured.top)>.25)picker.style.top=clampedTop+'px';
 }
 function renderExerciseNamePicker(input){
   if(!exercisePickerInput(input))return;
