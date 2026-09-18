@@ -422,6 +422,39 @@
     .ex-del{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;transition:color .15s;}
     .ex-del:hover{color:#F87171;}
 
+    /* ── EXERCISE NAME PICKER ── */
+    .exercise-name-picker-input-v1[readonly]{cursor:pointer;caret-color:transparent;}
+    .exercise-name-picker-v1{
+      position:fixed;z-index:2147483600;display:none;flex-direction:column;
+      width:min(380px,calc(100vw - 16px));max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);
+      overflow:hidden;border:1px solid rgba(34,211,238,.24);border-radius:14px;
+      background:linear-gradient(180deg,#18212b,#111820);box-shadow:0 22px 56px rgba(0,0,0,.58),0 0 0 1px rgba(34,211,238,.05);
+      color:var(--text);font-family:'Inter',sans-serif;
+    }
+    .exercise-name-picker-v1.show{display:flex;}
+    .exercise-name-picker-head-v1{padding:11px 12px 8px;border-bottom:1px solid rgba(148,163,184,.12);}
+    .exercise-name-picker-kicker-v1{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#67E8F9;}
+    .exercise-name-picker-context-v1{margin-top:2px;font-size:11px;color:#8B949E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .exercise-name-picker-options-v1{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px;}
+    .exercise-name-picker-option-v1,.exercise-name-picker-new-v1{
+      width:100%;min-height:42px;padding:9px 10px;border:0;border-radius:9px;background:transparent;
+      color:#E6EDF3;text-align:left;font:600 13px/1.25 'Inter',sans-serif;cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .exercise-name-picker-option-v1:hover,.exercise-name-picker-option-v1:focus-visible,
+    .exercise-name-picker-option-v1.is-current{background:rgba(34,211,238,.09);color:#CFFAFE;outline:none;}
+    .exercise-name-picker-empty-v1{padding:14px 10px;color:#64748B;font-size:11px;line-height:1.4;}
+    .exercise-name-picker-new-v1{
+      flex:0 0 auto;border-top:1px solid rgba(148,163,184,.12);border-radius:0;
+      color:#67E8F9;font-weight:800;background:rgba(34,211,238,.035);
+    }
+    .exercise-name-picker-new-v1:hover,.exercise-name-picker-new-v1:focus-visible{background:rgba(34,211,238,.11);outline:none;}
+    @media(max-width:600px){
+      .exercise-name-picker-v1{border-radius:13px;}
+      .exercise-name-picker-option-v1,.exercise-name-picker-new-v1{min-height:46px;font-size:14px;}
+      .exercise-name-picker-input-v1[data-exercise-name-free-v1="1"]{font-size:16px!important;}
+    }
+
     /* ── FAB ── */
     .fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;background:var(--accent);color:var(--bg);border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 24px var(--accent-glow);display:flex;align-items:center;justify-content:center;z-index:500;transition:transform .2s,box-shadow .2s;}
     .fab:hover{transform:scale(1.1);box-shadow:0 8px 32px var(--accent-glow);}
@@ -1338,6 +1371,274 @@ function addExerciseTimingEditor(row,timing){
   row.appendChild(editor);
 }
 
+var exerciseNamePickerState={input:null,picker:null};
+
+function cleanExerciseName(name){
+  return String(name||'').replace(/\s+/g,' ').trim();
+}
+function exerciseNameKey(name){
+  return cleanExerciseName(name).toLocaleLowerCase('sv-SE');
+}
+function normalizeExerciseCategory(type){
+  return String(type||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE');
+}
+function exerciseCategoryTokens(type){
+  var normalized=normalizeExerciseCategory(type)
+    .replace(/[+\/,;&]/g,' ')
+    .replace(/\boch\b/g,' ');
+  var stop={pass:1,träning:1,styrka:1,övning:1,övningar:1};
+  return normalized.split(/\s+/).map(function(token){
+    if(token==='axel')return 'axlar';
+    if(token==='armar')return 'arm';
+    return token;
+  }).filter(function(token){return token&&!stop[token];});
+}
+function exerciseCategoryIsCardio(type){
+  return /kondition|cardio|löp|jogg|intervall|cross[ -]?trainer|crosstrainer|ellipt|cyk|spinning|rodd|promenad/.test(normalizeExerciseCategory(type));
+}
+function exerciseCategoryMatches(sourceType,targetType){
+  var target=exerciseCategoryTokens(targetType);
+  if(!target.length)return true;
+  var source=exerciseCategoryTokens(sourceType);
+  if(!source.length)return false;
+  return target.some(function(token){return source.indexOf(token)>=0;});
+}
+function getExerciseCatalogSources(){
+  var records=[];
+  function add(type,exercises,source){
+    if(!Array.isArray(exercises)||!exercises.length)return;
+    records.push({type:String(type||'Övrigt'),exercises:exercises,source:source||''});
+  }
+  getWorkouts().slice().sort(function(a,b){
+    return String(b.date||'').localeCompare(String(a.date||''))||Number(b.id||0)-Number(a.id||0);
+  }).forEach(function(workout){add(workout.type,workout.exercises,'workout');});
+  var planned=getPlannedSessions();
+  Object.keys(planned).sort().reverse().forEach(function(date){
+    var session=planned[date]||{};
+    add(session.type,session.exercises,'planned');
+  });
+  getTemplates().slice().reverse().forEach(function(template){
+    add(template.type,template.exercises,'template');
+  });
+  return records;
+}
+function getExerciseNameCatalog(type,kind){
+  var targetCardio=kind==='cardio'||exerciseCategoryIsCardio(type);
+  var catalog=Object.create(null);
+  getExerciseCatalogSources().forEach(function(record){
+    var sourceCardio=exerciseCategoryIsCardio(record.type);
+    if(!targetCardio&&!exerciseCategoryMatches(record.type,type))return;
+    (record.exercises||[]).forEach(function(exercise){
+      var normalized=normalizeExercise(exercise);
+      var entryKind=normalized.kind;
+      if(targetCardio){
+        if(entryKind!=='cardio'&&!sourceCardio)return;
+        entryKind='cardio';
+      }else if(entryKind!=='strength'){
+        return;
+      }
+      var name=cleanExerciseName(normalized.name);
+      var key=exerciseNameKey(name);
+      if(!key||catalog[key])return;
+      catalog[key]={name:name,kind:entryKind};
+    });
+  });
+  return Object.keys(catalog).map(function(key){return catalog[key];}).sort(function(a,b){
+    return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});
+  });
+}
+window.getExerciseNameCatalog=getExerciseNameCatalog;
+
+function exercisePickerInput(target){
+  if(!target||!target.matches||!target.matches('.exercise-name-picker-input-v1'))return false;
+  return !!target.closest('#day-workout-ex-list,#ex-list,#single-exercise-editor-v9');
+}
+function exercisePickerContext(input){
+  var row=input&&input.closest('.ex-row-item');
+  var hidden=row&&row.querySelector('[class$="-kind"]');
+  var kind=hidden?hidden.value:'strength';
+  var type='Övrigt';
+  if(input&&input.closest('#day-workout-modal')){
+    var dayType=document.getElementById('day-workout-type');
+    type=dayType&&dayType.value||type;
+  }else if(input&&input.closest('#wk-modal')){
+    var workoutType=document.getElementById('wk-type');
+    type=workoutType&&workoutType.value||type;
+  }else if(input&&input.closest('#exercise-edit-modal-v9')&&singleExerciseEditState){
+    var workout=getWorkouts().find(function(item){return Number(item.id)===Number(singleExerciseEditState.workoutId);});
+    if(workout&&workout.type)type=workout.type;
+  }
+  if(exerciseCategoryIsCardio(type))kind='cardio';
+  return {type:type,kind:kind,row:row};
+}
+function ensureExerciseRowKind(row,kind){
+  if(!row||!kind)return;
+  var hidden=row.querySelector('[class$="-kind"]');
+  if(hidden&&hidden.value===kind)return;
+  var wanted=Array.prototype.slice.call(row.querySelectorAll('.ex-kind-btn')).find(function(button){
+    return kind==='cardio'?/kondition/i.test(button.textContent||''):/styrka/i.test(button.textContent||'');
+  });
+  if(wanted) setExerciseKind(wanted,kind);
+}
+function ensureExerciseNamePicker(){
+  var picker=document.getElementById('exercise-name-picker-v1');
+  if(picker)return picker;
+  picker=document.createElement('div');
+  picker.id='exercise-name-picker-v1';
+  picker.className='exercise-name-picker-v1';
+  picker.setAttribute('role','dialog');
+  picker.setAttribute('aria-label','Välj övning');
+  picker.innerHTML='<div class="exercise-name-picker-head-v1"><div class="exercise-name-picker-kicker-v1">Välj övning</div><div class="exercise-name-picker-context-v1"></div></div><div class="exercise-name-picker-options-v1" role="listbox"></div><button type="button" class="exercise-name-picker-new-v1">+ Ny övning</button>';
+  document.body.appendChild(picker);
+  exerciseNamePickerState.picker=picker;
+  picker.addEventListener('pointerdown',function(event){event.stopPropagation();});
+  picker.addEventListener('click',function(event){
+    var option=event.target.closest('.exercise-name-picker-option-v1');
+    var input=exerciseNamePickerState.input;
+    if(option&&input){
+      var context=exercisePickerContext(input);
+      ensureExerciseRowKind(context.row,option.dataset.exerciseKind||context.kind);
+      input.value=option.dataset.exerciseName||'';
+      input.readOnly=true;
+      input.removeAttribute('data-exercise-name-free-v1');
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+      closeExerciseNamePicker();
+      input.blur();
+      return;
+    }
+    var addNew=event.target.closest('.exercise-name-picker-new-v1');
+    if(addNew&&input){
+      var contextNew=exercisePickerContext(input);
+      ensureExerciseRowKind(contextNew.row,contextNew.kind);
+      var catalog=getExerciseNameCatalog(contextNew.type,contextNew.kind);
+      var currentKey=exerciseNameKey(input.value);
+      var isExisting=catalog.some(function(entry){return exerciseNameKey(entry.name)===currentKey;});
+      if(isExisting)input.value='';
+      input.readOnly=false;
+      input.dataset.exerciseNameFreeV1='1';
+      closeExerciseNamePicker();
+      try{input.focus({preventScroll:true});}catch(_focusError){input.focus();}
+      if(input.setSelectionRange){var length=input.value.length;input.setSelectionRange(length,length);}
+    }
+  });
+  return picker;
+}
+function positionExerciseNamePicker(){
+  var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
+  if(!input||!picker||!picker.classList.contains('show'))return;
+  var rect=input.getBoundingClientRect();
+  var vv=window.visualViewport;
+  var viewportLeft=vv?vv.offsetLeft:0;
+  var viewportTop=vv?vv.offsetTop:0;
+  var viewportWidth=vv?vv.width:document.documentElement.clientWidth;
+  var viewportHeight=vv?vv.height:window.innerHeight;
+  var margin=8,gap=6;
+  var width=Math.min(380,Math.max(250,rect.width),viewportWidth-margin*2);
+  var left=Math.max(viewportLeft+margin,Math.min(rect.left,viewportLeft+viewportWidth-width-margin));
+  var bottomLimit=viewportTop+viewportHeight-margin;
+  var below=Math.max(0,bottomLimit-rect.bottom-gap);
+  var above=Math.max(0,rect.top-viewportTop-margin-gap);
+  var placeBelow=below>=Math.min(260,above)||below>=above;
+  var available=Math.max(120,placeBelow?below:above);
+  picker.style.width=width+'px';
+  picker.style.left=left+'px';
+  picker.style.maxHeight=Math.min(420,available)+'px';
+  picker.style.top=(placeBelow?rect.bottom+gap:Math.max(viewportTop+margin,rect.top-gap-Math.min(420,available)))+'px';
+}
+function renderExerciseNamePicker(input){
+  if(!exercisePickerInput(input))return;
+  var picker=ensureExerciseNamePicker();
+  exerciseNamePickerState.input=input;
+  var context=exercisePickerContext(input);
+  var catalog=getExerciseNameCatalog(context.type,context.kind);
+  var options=picker.querySelector('.exercise-name-picker-options-v1');
+  var contextCopy=picker.querySelector('.exercise-name-picker-context-v1');
+  contextCopy.textContent=(context.kind==='cardio'?'Kondition':(cleanExerciseName(context.type)||'Styrka'))+' · '+catalog.length+' registrerade';
+  options.innerHTML='';
+  var current=exerciseNameKey(input.value);
+  if(!catalog.length){
+    var empty=document.createElement('div');
+    empty.className='exercise-name-picker-empty-v1';
+    empty.textContent='Inga registrerade övningar för den här kategorin ännu.';
+    options.appendChild(empty);
+  }else{
+    catalog.forEach(function(entry){
+      var button=document.createElement('button');
+      button.type='button';
+      button.className='exercise-name-picker-option-v1'+(exerciseNameKey(entry.name)===current?' is-current':'');
+      button.setAttribute('role','option');
+      button.setAttribute('aria-selected',exerciseNameKey(entry.name)===current?'true':'false');
+      button.dataset.exerciseName=entry.name;
+      button.dataset.exerciseKind=entry.kind;
+      button.textContent=entry.name;
+      options.appendChild(button);
+    });
+  }
+  input.readOnly=true;
+  input.removeAttribute('data-exercise-name-free-v1');
+  input.setAttribute('aria-expanded','true');
+  picker.classList.add('show');
+  requestAnimationFrame(positionExerciseNamePicker);
+}
+function closeExerciseNamePicker(){
+  var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
+  if(input)input.setAttribute('aria-expanded','false');
+  if(picker)picker.classList.remove('show');
+  exerciseNamePickerState.input=null;
+}
+function refreshOpenExerciseNamePicker(){
+  if(exerciseNamePickerState.input&&document.body.contains(exerciseNamePickerState.input))renderExerciseNamePicker(exerciseNamePickerState.input);
+}
+function installExerciseNamePicker(){
+  ensureExerciseNamePicker();
+  document.addEventListener('click',function(event){
+    var input=event.target.closest&&event.target.closest('.exercise-name-picker-input-v1');
+    if(exercisePickerInput(input)){
+      if(input.dataset.exerciseNameFreeV1==='1')return;
+      event.preventDefault();
+      renderExerciseNamePicker(input);
+    }
+  },true);
+  document.addEventListener('pointerdown',function(event){
+    var picker=exerciseNamePickerState.picker;
+    var input=exerciseNamePickerState.input;
+    if(!input||!picker)return;
+    if(event.target===input||picker.contains(event.target))return;
+    closeExerciseNamePicker();
+  },true);
+  document.addEventListener('focusout',function(event){
+    var input=event.target;
+    if(!exercisePickerInput(input)||input.dataset.exerciseNameFreeV1!=='1')return;
+    setTimeout(function(){
+      if(document.activeElement===input)return;
+      input.readOnly=true;
+      input.removeAttribute('data-exercise-name-free-v1');
+    },0);
+  });
+  document.addEventListener('keydown',function(event){
+    if(event.key==='Escape'&&exerciseNamePickerState.input){
+      event.preventDefault();
+      closeExerciseNamePicker();
+      return;
+    }
+    var input=event.target;
+    if(event.key==='Enter'&&exercisePickerInput(input)&&input.dataset.exerciseNameFreeV1==='1'){
+      event.preventDefault();
+      input.blur();
+    }
+  });
+  document.addEventListener('input',function(event){
+    if((event.target&&event.target.id==='day-workout-type')||(event.target&&event.target.id==='wk-type'))refreshOpenExerciseNamePicker();
+  });
+  window.addEventListener('resize',positionExerciseNamePicker);
+  window.addEventListener('scroll',positionExerciseNamePicker,true);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',positionExerciseNamePicker);
+    window.visualViewport.addEventListener('scroll',positionExerciseNamePicker);
+  }
+}
+
 function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
   var e=normalizeExercise(ex);
   var hasExplicitSets=ex&&Object.prototype.hasOwnProperty.call(ex,'sets');
@@ -1350,7 +1651,7 @@ function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
       +'<button class="ex-kind-btn'+(e.kind==='cardio'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'cardio\')">Kondition</button>'
     +'</div>'
     +'<div class="ex-row">'
-      +'<input type="text" class="'+prefix+'-name" placeholder="Övning" value="'+escHtml(e.name||'')+'">'
+      +'<input type="text" class="'+prefix+'-name exercise-name-picker-input-v1" placeholder="Övning" value="'+escHtml(e.name||'')+'" readonly autocomplete="off" aria-haspopup="listbox" aria-expanded="false">'
       +'<input type="number" class="'+prefix+'-metric1" data-role="'+(e.kind==='cardio'?'distance':'sets')+'" placeholder="'+(e.kind==='cardio'?'Distans':'Sets')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.distance||''):(hasExplicitSets?(ex.sets||''):''))+'">'
       +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
       +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
@@ -1373,13 +1674,16 @@ function setExerciseKind(el,kind){
   if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.step=kind==='cardio'?'0.1':'1';metric2.value='';}
   if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');}
   if(metric3)metric3.value='';
+  var nameInput=wrap.querySelector('.exercise-name-picker-input-v1');
+  if(nameInput&&exerciseNamePickerState.input===nameInput)renderExerciseNamePicker(nameInput);
 }
 
 function parseExerciseRow(row,prefix){
   var nameEl=row.querySelector('.'+prefix+'-name');
   if(!nameEl)return null;
-  var name=nameEl.value.trim();
+  var name=cleanExerciseName(nameEl.value);
   if(!name)return null;
+  nameEl.value=name;
   var kindEl=row.querySelector('.'+prefix+'-kind');
   var kind=kindEl?kindEl.value:'strength';
   if(kind==='cardio'){
@@ -2548,7 +2852,11 @@ function savePlan(){
 }
 
 // ══ MODAL HELPERS ════════════════════════════════════════════════
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeModal(id){
+  var modal=document.getElementById(id);
+  if(modal)modal.classList.remove('show');
+  if(exerciseNamePickerState.input&&modal&&modal.contains(exerciseNamePickerState.input))closeExerciseNamePicker();
+}
 document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('show');});});
 
 // ══ TOAST ════════════════════════════════════════════════════════
@@ -2568,13 +2876,14 @@ function initFade(){
 function refreshAll(){refreshStats();renderWeekGrid();refreshGoals();renderCharts();renderPRs();renderLog();}
 
 document.addEventListener('DOMContentLoaded',function(){refreshAll();initFade();});
-document.addEventListener('DOMContentLoaded',function(){refreshTypeSuggestions();refreshWeekTemplateSelectors();});
+document.addEventListener('DOMContentLoaded',function(){refreshTypeSuggestions();refreshWeekTemplateSelectors();installExerciseNamePicker();});
 window.addEventListener('firebase-sync',function(event){
   var key = event.detail && event.detail.key;
   if (key && key.indexOf('ex_') === 0) {
     refreshTypeSuggestions();
     refreshWeekTemplateSelectors();
     refreshAll();
+    refreshOpenExerciseNamePicker();
   }
 });
 // ══ RIPPLE ═════════════════════════════════════════════════════════
