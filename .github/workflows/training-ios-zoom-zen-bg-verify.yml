@@ -1,0 +1,186 @@
+name: Training iOS zoom and Zen canvas verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
+      - 'budget/training-zen-nav.css'
+      - 'budget/training-zen-nav.js'
+      - 'budget/auth-config.js'
+      - 'budget/auth-gate.js'
+      - 'budget/pulse-environment/environment.css'
+      - 'budget/exercise.html'
+      - 'budget/zen.html'
+      - 'budget/tests/**'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static Training and Zen regression
+        run: |
+          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          node --check budget/training-zen-nav.js
+          node --check budget/auth-config.js
+          node --check budget/auth-gate.js
+          git diff --check HEAD^ HEAD
+
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+
+      - name: Serve repository
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/training-ios-http.log 2>&1 &
+          sleep 2
+
+      - name: Verify all four modes in iPhone-like WebKit
+        run: |
+          cat > /tmp/training-ios-e2e.cjs <<'EOF'
+          const {webkit}=require(process.cwd()+'/node_modules/playwright');
+          const assert=require('node:assert/strict');
+
+          const firebaseStub=`(function(){
+            if(window.firebase)return;
+            function snap(v){return{exists:()=>v!=null,val:()=>v==null?null:v}}
+            function ref(path){return{
+              set:()=>Promise.resolve(),update:()=>Promise.resolve(),remove:()=>Promise.resolve(),
+              get:()=>Promise.resolve(snap(null)),once:()=>Promise.resolve(snap(null)),
+              on:(e,cb)=>{if(cb)setTimeout(()=>cb(snap(null)),0);return cb},off:()=>{},
+              child:n=>ref(String(path||'')+'/'+n)
+            }}
+            var db={ref};function database(){return db}database.ServerValue={TIMESTAMP:Date.now()};
+            var authObj={currentUser:{uid:'ios-zoom-test'},setPersistence:()=>Promise.resolve(),
+              onAuthStateChanged:function(cb){setTimeout(()=>cb(this.currentUser),0);return()=>{}},
+              signInWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},
+              createUserWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},
+              signOut:()=>Promise.resolve()};
+            function auth(){return authObj}auth.Auth={Persistence:{LOCAL:'local'}};
+            window.firebase={apps:[{}],initializeApp:()=>({}),app:()=>({}),auth,database};
+          })();`;
+          const chartStub=`(function(){
+            var charts=new Map();
+            function Chart(ctx,cfg){this.canvas=ctx&&ctx.canvas?ctx.canvas:ctx;this.ctx=ctx;this.data=cfg&&cfg.data||{};this.options=cfg&&cfg.options||{};this.scales={};this.destroy=()=>{if(this.canvas)charts.delete(this.canvas)};this.update=()=>{};this.resize=()=>{};this.getDatasetMeta=()=>({data:[]});if(this.canvas)charts.set(this.canvas,this)}
+            Chart.getChart=c=>charts.get(c)||null;Chart.register=()=>{};window.Chart=Chart;
+          })();`;
+
+          async function route(page){
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
+            await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartStub}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+          }
+
+          async function editableAudit(page,label){
+            const result=await page.evaluate(()=>{
+              const excluded=new Set(['hidden','checkbox','radio','range','color','file','button','submit','reset','image']);
+              const nodes=[...document.querySelectorAll('input,select,textarea,[contenteditable]:not([contenteditable="false"])')].filter(el=>{
+                if(el.tagName==='INPUT'&&excluded.has((el.type||'text').toLowerCase()))return false;
+                return true;
+              });
+              return {
+                total:nodes.length,
+                bad:nodes.map(el=>({
+                  tag:el.tagName.toLowerCase(),
+                  id:el.id||'',
+                  cls:typeof el.className==='string'?el.className:'',
+                  type:el.type||'',
+                  font:parseFloat(getComputedStyle(el).fontSize)||0
+                })).filter(x=>x.font<15.99)
+              };
+            });
+            assert.ok(result.total>0,label+' contained no editable controls to audit');
+            assert.deepEqual(result.bad,[],label+' has editable controls below 16px: '+JSON.stringify(result.bad));
+          }
+
+          async function canvasAudit(page,label,expected){
+            const colors=await page.evaluate(()=>({
+              html:getComputedStyle(document.documentElement).backgroundColor,
+              body:getComputedStyle(document.body).backgroundColor,
+              inline:document.documentElement.style.backgroundColor,
+              mode:document.documentElement.dataset.wellnessMode,
+              kind:document.body.dataset.kind
+            }));
+            assert.equal(colors.mode,'zen',label+' did not enter Zen mode');
+            assert.equal(colors.kind,label.toLowerCase(),label+' body kind mismatch');
+            assert.equal(colors.body,expected,label+' body canvas regressed');
+            assert.equal(colors.html,expected,label+' root canvas regressed');
+          }
+
+          (async()=>{
+            const browser=await webkit.launch();
+            const context=await browser.newContext({
+              viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+              userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
+            });
+            const page=await context.newPage(),errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            await route(page);
+            await page.addInitScript(()=>{
+              localStorage.setItem('ex_wk','[]');
+              localStorage.setItem('ex_plannedSessions','{}');
+              localStorage.setItem('ex_templates','[]');
+              localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
+            });
+
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setTrainingOverviewMode==='function'&&typeof window.setWellnessMode==='function',null,{timeout:20000});
+            await page.waitForTimeout(700);
+
+            assert.equal(await page.getAttribute('html','data-training-overview'),'observatory');
+            await editableAudit(page,'Pulse / Observatory');
+
+            await page.evaluate(()=>window.setTrainingOverviewMode('compact'));
+            await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
+            await page.waitForTimeout(320);
+            await editableAudit(page,'Compact');
+
+            await page.evaluate(async()=>{await window.setWellnessMode('stretch')});
+            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');
+            await page.waitForTimeout(400);
+            await editableAudit(page,'Stretch');
+            await canvasAudit(page,'Stretch','rgb(9, 29, 24)');
+
+            await page.evaluate(async()=>{await window.setWellnessMode('meditation')});
+            await page.waitForFunction(()=>document.body.dataset.kind==='meditation');
+            await page.waitForTimeout(300);
+            await editableAudit(page,'Meditation');
+            await canvasAudit(page,'Meditation','rgb(167, 195, 189)');
+
+            await page.setViewportSize({width:320,height:700});
+            await editableAudit(page,'Meditation 320px');
+            await canvasAudit(page,'Meditation','rgb(167, 195, 189)');
+            await page.evaluate(async()=>{await window.setWellnessMode('stretch')});
+            await page.waitForFunction(()=>document.body.dataset.kind==='stretch');
+            await editableAudit(page,'Stretch 320px');
+            await canvasAudit(page,'Stretch','rgb(9, 29, 24)');
+
+            await page.setViewportSize({width:375,height:812});
+            await page.evaluate(async()=>{await window.setWellnessMode('training')});
+            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
+            await page.evaluate(()=>window.setTrainingOverviewMode('observatory'));
+            await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='observatory');
+            await editableAudit(page,'Pulse / Observatory 375px');
+            await page.evaluate(()=>window.setTrainingOverviewMode('compact'));
+            await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
+            await editableAudit(page,'Compact 375px');
+
+            assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
+            await browser.close();
+            console.log('All-mode iOS focus and Zen canvas WebKit verification passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/training-ios-e2e.cjs
