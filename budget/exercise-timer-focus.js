@@ -10,7 +10,7 @@
   var lastCardioToken = '';
   var collapsedCardioToken = '';
   var lastRestKey = '';
-  var lastFrameAt = 0;
+  var reactiveSyncFrame = 0;
   var gesture = null;
   var suppressTimerClickUntil = 0;
   var dragAnimationFrame = 0;
@@ -1086,34 +1086,67 @@
     },true);
   }
 
+  function flushReactiveSync() {
+    reactiveSyncFrame = 0;
+    syncCardio(Date.now());
+    syncRestSound();
+  }
+
+  function scheduleReactiveSync() {
+    if (!reactiveSyncFrame) reactiveSyncFrame = requestAnimationFrame(flushReactiveSync);
+  }
+
+  function mutationSyncTarget(mutation) {
+    if (!mutation) return null;
+    var target = mutation.target;
+    if (target && target.nodeType !== 1) target = target.parentElement;
+    if (!target) return null;
+
+    if (mutation.type === 'attributes') {
+      if (target.id === 'session-modal' || target.id === 'session-pre-timer' || target.id === 'session-between-overlay-v2') return target;
+      return null;
+    }
+
+    if (target.id === 'session-countdown-value' || target.id === 'bs-overlay-value') return target;
+    if (target.closest) {
+      var valueOwner = target.closest('#session-countdown-value,#bs-overlay-value');
+      if (valueOwner) return valueOwner;
+    }
+
+    if (mutation.type === 'childList' && mutation.addedNodes) {
+      for (var i = 0; i < mutation.addedNodes.length; i++) {
+        var node = mutation.addedNodes[i];
+        if (!node || node.nodeType !== 1) continue;
+        if (node.id === 'session-between-overlay-v2' || node.id === 'session-pre-timer') return node;
+        if (node.querySelector && node.querySelector('#session-between-overlay-v2,#session-pre-timer')) return node;
+      }
+    }
+    return null;
+  }
+
   function installImmediateFocusSync() {
     if (!window.MutationObserver || !document.body) {
-      syncCardio(Date.now());
+      flushReactiveSync();
       return;
     }
     var observer = new MutationObserver(function (mutations) {
-      var relevant = false;
       for (var i = 0; i < mutations.length; i++) {
-        var target = mutations[i] && mutations[i].target;
-        if (target && (target.id === 'session-modal' || target.id === 'session-pre-timer')) {
-          relevant = true;
-          break;
+        if (mutationSyncTarget(mutations[i])) {
+          scheduleReactiveSync();
+          return;
         }
       }
-      if (relevant) syncCardio(Date.now());
     });
-    observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
-    /* Do not wait for the 80 ms maintenance loop on initial/returning cardio state. */
-    syncCardio(Date.now());
-  }
-
-  function frame(now) {
-    if (!lastFrameAt || now - lastFrameAt >= 80) {
-      lastFrameAt = now;
-      syncCardio(Date.now());
-      syncRestSound();
-    }
-    requestAnimationFrame(frame);
+    observer.observe(document.body,{
+      subtree:true,
+      attributes:true,
+      attributeFilter:['class','data-between-type','data-transition-stability-rest-v142'],
+      childList:true,
+      characterData:true
+    });
+    /* Timer/rest updates now wake this module from DOM/session changes only.
+       Gesture animation keeps its own short-lived RAF; idle pages have no loop. */
+    flushReactiveSync();
   }
 
   function installAudioUnlock() {
@@ -1130,13 +1163,13 @@
     installAudioUnlock();
     installTimerGestures();
     installImmediateFocusSync();
-    requestAnimationFrame(frame);
     window.__exerciseTimerFocus = {
       expand:expandFocus,
       collapse:collapseFocus,
       toggle:toggleFocus,
       unlockAudio:unlockAudio,
-      beep:function () { unlockAudio();beep(false); }
+      beep:function () { unlockAudio();beep(false); },
+      sync:scheduleReactiveSync
     };
   }
 
