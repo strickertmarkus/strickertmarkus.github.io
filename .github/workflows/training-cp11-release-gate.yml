@@ -101,28 +101,36 @@ jobs:
             }
           }
           async function swipeCardioTimer(page,deltaY){
-            await page.locator('#session-countdown-ring').evaluate((ring,dy)=>{
-              const rect=ring.getBoundingClientRect();
-              const x=rect.left+rect.width/2,startY=rect.top+rect.height/2,endY=startY+dy,id=77;
-              const fire=(type,y,active)=>{
-                const init={identifier:id,target:ring,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y,radiusX:2,radiusY:2,rotationAngle:0,force:.5};
-                const touch=typeof Touch==='function'?new Touch(init):init;
-                let event;
-                if(typeof TouchEvent==='function'){
-                  event=new TouchEvent(type,{bubbles:true,cancelable:true,composed:true,touches:active?[touch]:[],targetTouches:active?[touch]:[],changedTouches:[touch]});
-                }else{
-                  event=new Event(type,{bubbles:true,cancelable:true});
-                  Object.defineProperties(event,{touches:{value:active?[touch]:[]},targetTouches:{value:active?[touch]:[]},changedTouches:{value:[touch]}});
-                }
-                ring.dispatchEvent(event);
-              };
-              fire('touchstart',startY,true);
-              fire('touchmove',startY+dy*.58,true);
-              fire('touchmove',endY,true);
-              fire('touchend',endY,false);
-            },deltaY);
+            const ring=page.locator('#session-countdown-ring');
+            const geometry=await ring.evaluate(el=>{
+              const r=el.getBoundingClientRect();
+              return {x:r.left+r.width/2,y:r.top+r.height/2};
+            });
+            const fire=async(type,y,active)=>{
+              await ring.evaluate((el,args)=>{
+                const touch={identifier:77,target:el,clientX:args.x,clientY:args.y,pageX:args.x,pageY:args.y,screenX:args.x,screenY:args.y,radiusX:2,radiusY:2,rotationAngle:0,force:.5};
+                const event=new Event(args.type,{bubbles:true,cancelable:true,composed:true});
+                Object.defineProperties(event,{
+                  touches:{value:args.active?[touch]:[]},
+                  targetTouches:{value:args.active?[touch]:[]},
+                  changedTouches:{value:[touch]}
+                });
+                el.dispatchEvent(event);
+              },{type,x:geometry.x,y,active});
+            };
+            await fire('touchstart',geometry.y,true);
+            await page.waitForTimeout(24);
+            await fire('touchmove',geometry.y+deltaY*.32,true);
+            await page.waitForFunction(()=>document.documentElement.classList.contains('cardio-focus-dragging'),null,{timeout:2000});
+            await page.waitForTimeout(24);
+            await fire('touchmove',geometry.y+deltaY,true);
+            await page.waitForTimeout(32);
+            await fire('touchend',geometry.y+deltaY,false);
             const expanded=deltaY<0;
-            await page.waitForFunction(expected=>document.documentElement.classList.contains('cardio-focus-active')===expected,expanded,{timeout:3000});
+            await page.waitForFunction(expected=>
+              !document.documentElement.classList.contains('cardio-focus-dragging') &&
+              document.documentElement.classList.contains('cardio-focus-active')===expected,
+              expanded,{timeout:3000});
           }
 
           (async()=>{
