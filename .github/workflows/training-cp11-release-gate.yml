@@ -68,9 +68,9 @@ jobs:
             await page.addInitScript(()=>{
               const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
               const a=new Date(),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+1),today=iso(a),tomorrow=iso(b);
-              localStorage.setItem('ex_wk','[]');
-              localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
-              localStorage.setItem('ex_plannedSessions',JSON.stringify({
+              if(localStorage.getItem('ex_wk')===null)localStorage.setItem('ex_wk','[]');
+              if(localStorage.getItem('ex_goals')===null)localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
+              if(localStorage.getItem('ex_plannedSessions')===null)localStorage.setItem('ex_plannedSessions',JSON.stringify({
                 [today]:{type:'CP11 Styrka',betweenSets:{type:'rest',seconds:6},exercises:[{kind:'strength',name:'Testpress',sets:2,reps:8,weight:20,betweenSets:{type:'rest',seconds:6}}]},
                 [tomorrow]:{type:'CP11 Kondition',exercises:[{kind:'cardio',name:'Testlöpning',distance:3,time:20}]}
               }));
