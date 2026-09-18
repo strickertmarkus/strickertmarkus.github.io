@@ -119,7 +119,8 @@ jobs:
               fire('touchmove',endY,true);
               fire('touchend',endY,false);
             },deltaY);
-            await page.waitForTimeout(340);
+            const expanded=deltaY<0;
+            await page.waitForFunction(expected=>document.documentElement.classList.contains('cardio-focus-active')===expected,expanded,{timeout:2500});
           }
 
           (async()=>{
