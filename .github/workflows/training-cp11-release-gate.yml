@@ -159,8 +159,11 @@ jobs:
             await page.locator('#week-grid .week-day',{hasText:'CP11 Styrka'}).click();await page.waitForFunction(()=>document.getElementById('day-modal').classList.contains('show'));await page.evaluate(()=>window.closeModal('day-modal'));
             await page.evaluate(d=>window.openDayWorkoutBuilder('Idag',d),data.today);await page.waitForFunction(()=>document.getElementById('day-workout-modal').classList.contains('show'));await page.locator('#day-workout-type').fill('CP11 Redigerat');assert.equal(await page.evaluate(()=>window.persistDayWorkoutPlan({})),true);assert.equal(await page.evaluate(d=>window.getPlannedSessions()[d].type,data.today),'CP11 Redigerat');await page.evaluate(()=>window.closeModal('day-workout-modal'));
             const persistedPlan=await page.evaluate(d=>window.getPlannedSessions()[d],data.today);
-            await page.reload({waitUntil:'domcontentloaded'});await ready(page);
-            assert.deepEqual(await page.evaluate(d=>window.getPlannedSessions()[d],data.today),persistedPlan,'planned session did not survive reload');
+            const persistencePage=await context.newPage();
+            await routes(persistencePage);await seed(persistencePage);
+            await persistencePage.goto(url,{waitUntil:'domcontentloaded'});await ready(persistencePage);
+            assert.deepEqual(await persistencePage.evaluate(d=>window.getPlannedSessions()[d],data.today),persistedPlan,'planned session did not survive a fresh page load');
+            await persistencePage.close();
 
             await overview(page,'observatory');await page.evaluate(d=>window.startWorkoutSessionForDate(d),data.today);await page.waitForFunction(()=>document.getElementById('session-modal').classList.contains('show'));const a=await page.evaluate(()=>({type:window.sessionState.type,kind:window.sessionState.exercises[0].kind,name:window.sessionState.exercises[0].name}));
             await page.locator('[data-wellness-destination="stretch"]').first().evaluate(el=>el.click());await page.waitForTimeout(100);assert.notEqual(await page.evaluate(()=>document.documentElement.dataset.wellnessMode),'zen');assert.equal(await page.evaluate(()=>!!window.sessionState),true);assert.equal(await page.evaluate(()=>document.getElementById('session-modal').classList.contains('show')),true);await page.evaluate(()=>window.stopSessionMode(false));
