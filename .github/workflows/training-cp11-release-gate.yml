@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/training-cp11-release-gate.yml'
+      - 'budget/**'
   workflow_dispatch:
 
 jobs:
