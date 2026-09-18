@@ -83,7 +83,7 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-session-overflow-2/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260915-main-cp7-symbol-cyan-1/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
 });
@@ -95,8 +95,10 @@ test('Observatory CSS stays structurally balanced', () => {
 });
 
 
-test('CP11 mobile Observatory atmosphere stays inside the viewport', () => {
-  assert.match(css, /@media\(max-width:760px\)[\s\S]*\.observatory-stage::before\{inset:-70px -5vw -150px\}/);
+test('CP11 Observatory atmosphere and scene SVG stay inside the viewport', () => {
+  assert.match(css, /\.observatory-stage::before\{content:'';position:absolute;inset:-70px -5vw -150px;/);
+  assert.doesNotMatch(css, /\.observatory-stage::before\{content:'';position:absolute;inset:-70px -10vw -150px;/);
+  assert.match(css, /\.observatory-scene svg\{[^}]*overflow:hidden/);
 });
 
 
