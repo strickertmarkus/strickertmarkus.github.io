@@ -1,0 +1,188 @@
+name: Training exercise picker verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/training-exercise-picker-verify.yml'
+      - 'budget/exercise.html'
+      - 'budget/tests/training-exercise-name-picker.test.cjs'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static Training regression
+        run: |
+          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          node - <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('budget/exercise.html','utf8');
+          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
+          scripts.sort((a,b)=>b.length-a.length);
+          fs.writeFileSync('/tmp/exercise-inline.js',scripts[0]||'');
+          NODE
+          node --check /tmp/exercise-inline.js
+          git diff --check HEAD^ HEAD
+
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+
+      - name: Serve repository
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/exercise-picker-http.log 2>&1 &
+          sleep 2
+
+      - name: Exercise picker in iPhone-like WebKit
+        run: |
+          cat > /tmp/exercise-picker-e2e.cjs <<'EOF'
+          const { webkit } = require(process.cwd() + '/node_modules/playwright');
+          const assert = require('node:assert/strict');
+
+          const firebaseStub=`(function(){
+            if(window.firebase)return;
+            function snap(v){return {exists:function(){return v!=null},val:function(){return v==null?null:v}}}
+            function ref(path){return {set:function(){return Promise.resolve()},update:function(){return Promise.resolve()},remove:function(){return Promise.resolve()},get:function(){return Promise.resolve(snap(null))},once:function(){return Promise.resolve(snap(null))},on:function(e,cb){if(cb)setTimeout(function(){cb(snap(null))},0);return cb},off:function(){},child:function(n){return ref(String(path||'')+'/'+n)}}}
+            var db={ref:ref}; function database(){return db}; database.ServerValue={TIMESTAMP:Date.now()};
+            var authObj={currentUser:{uid:'exercise-picker-test'},setPersistence:function(){return Promise.resolve()},onAuthStateChanged:function(cb){var u=this.currentUser;setTimeout(function(){cb(u)},0);return function(){}},signInWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},createUserWithEmailAndPassword:function(){return Promise.resolve({user:this.currentUser})},signOut:function(){return Promise.resolve()}};
+            function auth(){return authObj}; auth.Auth={Persistence:{LOCAL:'local'}};
+            window.firebase={apps:[{}],initializeApp:function(){return {}},app:function(){return {}},auth:auth,database:database};
+          })();`;
+          const chartStub=`(function(){
+            var charts=new Map();
+            function Chart(ctx,config){this.canvas=ctx&&ctx.canvas?ctx.canvas:ctx;this.ctx=ctx;this.data=config&&config.data||{};this.options=config&&config.options||{};this.scales={};this.destroy=()=>{if(this.canvas)charts.delete(this.canvas)};this.update=()=>{};this.resize=()=>{};this.getDatasetMeta=()=>({data:[]});if(this.canvas)charts.set(this.canvas,this)}
+            Chart.getChart=function(canvas){return charts.get(canvas)||null};Chart.register=function(){};window.Chart=Chart;
+          })();`;
+
+          async function routes(page){
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__pickerFirebaseSyncStub=true;'}));
+            await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartStub}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+          }
+          async function seed(page){
+            await page.addInitScript(()=>{
+              localStorage.setItem('ex_wk',JSON.stringify([
+                {id:1,date:'2026-09-10',type:'Bröst + Triceps',exercises:[
+                  {kind:'strength',name:'Hantelpress bänk lutande',sets:3,reps:10,weight:24},
+                  {kind:'strength',name:'Triceps pushdown',sets:3,reps:12,weight:25}
+                ]},
+                {id:2,date:'2026-09-11',type:'Bröst + Triceps',exercises:[
+                  {kind:'strength',name:'lutande bänk Hantelpress',sets:3,reps:8,weight:26}
+                ]},
+                {id:3,date:'2026-09-12',type:'Rygg + Biceps',exercises:[
+                  {kind:'strength',name:'Latsdrag',sets:3,reps:10,weight:55}
+                ]},
+                {id:4,date:'2026-09-13',type:'Kondition',exercises:[
+                  {kind:'cardio',name:'Löpning',distance:5,time:28},
+                  {kind:'cardio',name:'Cykel',distance:12,time:35}
+                ]}
+              ]));
+              localStorage.setItem('ex_plannedSessions',JSON.stringify({
+                '2026-09-20':{type:'Bröst + Triceps',exercises:[{kind:'strength',name:'Flyes',sets:3,reps:12,weight:10}]}
+              }));
+              localStorage.setItem('ex_templates',JSON.stringify([
+                {id:10,name:'Bröstmall',type:'Bröst + Triceps',exercises:[{kind:'strength',name:'Dips',sets:3,reps:8,weight:0}]}
+              ]));
+              localStorage.setItem('ex_goals',JSON.stringify({weeklyWk:4,runDistanceGoal:10,vo2Goal:45}));
+            });
+          }
+          async function ready(page){
+            await page.waitForFunction(()=>typeof window.getExerciseNameCatalog==='function'&&typeof window.addDayWorkoutExRow==='function'&&typeof window.editWorkoutExercise==='function'&&document.getElementById('exercise-name-picker-v1'),null,{timeout:20000});
+          }
+          async function pickerNames(page){
+            return page.locator('#exercise-name-picker-v1 .exercise-name-picker-option-v1').allTextContents();
+          }
+
+          (async()=>{
+            const browser=await webkit.launch();
+            const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
+            const page=await context.newPage(),errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            await routes(page);await seed(page);
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
+            await ready(page);
+
+            const expectedStrength=['Dips','Flyes','Hantelpress bänk lutande','lutande bänk Hantelpress','Triceps pushdown'];
+            assert.deepEqual(await page.evaluate(()=>window.getExerciseNameCatalog('Bröst + Triceps','strength').map(x=>x.name)),expectedStrength);
+            assert.deepEqual(await page.evaluate(()=>window.getExerciseNameCatalog('Kondition','strength').map(x=>x.name)),['Cykel','Löpning']);
+
+            await page.evaluate(()=>{
+              const modal=document.getElementById('day-workout-modal');
+              modal.dataset.date='2026-10-01';
+              modal.classList.add('show');
+              document.getElementById('day-workout-type').value='Bröst + Triceps';
+              document.getElementById('day-workout-ex-list').innerHTML='';
+              window.addDayWorkoutExRow();
+            });
+            const builderName=page.locator('#day-workout-ex-list .dw-name').first();
+            assert.equal(await builderName.getAttribute('readonly'),'');
+            await builderName.click();
+            await page.waitForFunction(()=>document.getElementById('exercise-name-picker-v1').classList.contains('show'));
+            assert.deepEqual(await pickerNames(page),expectedStrength);
+            assert.equal(await page.locator('#exercise-name-picker-v1 .exercise-name-picker-new-v1').innerText(),'+ Ny övning');
+            const rect=await page.locator('#exercise-name-picker-v1').boundingBox();
+            assert.ok(rect.x>=0&&rect.x+rect.width<=390.5&&rect.y>=0&&rect.y+rect.height<=844.5,'builder picker escaped mobile viewport');
+            assert.equal((await pickerNames(page)).includes('Latsdrag'),false);
+
+            await page.locator('#exercise-name-picker-v1 .exercise-name-picker-option-v1',{hasText:'Hantelpress bänk lutande'}).click();
+            assert.equal(await builderName.inputValue(),'Hantelpress bänk lutande');
+            assert.equal(await builderName.getAttribute('readonly'),'');
+
+            await page.evaluate(()=>{
+              document.getElementById('day-workout-type').value='Kondition';
+              document.getElementById('day-workout-ex-list').innerHTML='';
+              window.addDayWorkoutExRow();
+            });
+            const cardioName=page.locator('#day-workout-ex-list .dw-name').first();
+            await cardioName.click();
+            assert.deepEqual(await pickerNames(page),['Cykel','Löpning']);
+            await page.locator('#exercise-name-picker-v1 .exercise-name-picker-new-v1').click();
+            assert.equal(await cardioName.getAttribute('readonly'),null);
+            assert.equal(await cardioName.getAttribute('data-exercise-name-free-v1'),'1');
+            assert.equal(await cardioName.evaluate(el=>getComputedStyle(el).fontSize),'16px');
+            await cardioName.fill('Roddmaskin');
+            await page.locator('#day-workout-ex-list .dw-metric1').fill('4');
+            await page.locator('#day-workout-ex-list .dw-metric2').fill('20');
+            assert.equal(await page.evaluate(()=>window.persistDayWorkoutPlan({startAfterSave:false})),true);
+            assert.deepEqual(await page.evaluate(()=>window.getExerciseNameCatalog('Kondition','cardio').map(x=>x.name)),['Cykel','Löpning','Roddmaskin']);
+
+            assert.equal((await page.evaluate(()=>window.getExerciseNameCatalog('Bröst + Triceps','strength').map(x=>x.name))).includes('lutande bänk Hantelpress'),true);
+            await page.evaluate(()=>window.editWorkoutExercise(2,0));
+            const singleName=page.locator('#single-exercise-editor-v9 .single-name');
+            await singleName.click();
+            await page.locator('#exercise-name-picker-v1 .exercise-name-picker-option-v1',{hasText:'Hantelpress bänk lutande'}).click();
+            await page.evaluate(()=>window.saveSingleExerciseEdit());
+            const afterRename=await page.evaluate(()=>window.getExerciseNameCatalog('Bröst + Triceps','strength').map(x=>x.name));
+            assert.equal(afterRename.includes('lutande bänk Hantelpress'),false,'orphaned historical name remained in catalog');
+            assert.equal(afterRename.includes('Hantelpress bänk lutande'),true);
+
+            await page.evaluate(()=>window.editWorkout(1));
+            const logName=page.locator('#wk-modal #ex-list .ex-name').first();
+            await logName.click();
+            await page.waitForFunction(()=>document.getElementById('exercise-name-picker-v1').classList.contains('show'));
+            assert.equal((await pickerNames(page)).includes('Hantelpress bänk lutande'),true);
+            await page.setViewportSize({width:320,height:700});
+            await page.waitForTimeout(80);
+            const smallRect=await page.locator('#exercise-name-picker-v1').boundingBox();
+            assert.ok(smallRect.x>=0&&smallRect.x+smallRect.width<=320.5&&smallRect.y>=0&&smallRect.y+smallRect.height<=700.5,'log picker escaped 320px viewport');
+
+            assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
+            await browser.close();
+            console.log('Exercise picker WebKit verification passed');
+          })().catch(error=>{console.error(error);process.exit(1)});
+          EOF
+          node /tmp/exercise-picker-e2e.cjs
