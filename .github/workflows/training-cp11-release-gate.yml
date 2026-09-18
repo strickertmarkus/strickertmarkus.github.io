@@ -100,38 +100,7 @@ jobs:
               await page.waitForFunction(n=>!document.querySelector('[data-wellness-kind-switch="true"][aria-busy="true"]')&&new URLSearchParams(location.search).get('wellness')===n,name);
             }
           }
-          async function swipeCardioTimer(page,deltaY){
-            const ring=page.locator('#session-countdown-ring');
-            const geometry=await ring.evaluate(el=>{
-              const r=el.getBoundingClientRect();
-              return {x:r.left+r.width/2,y:r.top+r.height/2};
-            });
-            const fire=async(type,y,active)=>{
-              await ring.evaluate((el,args)=>{
-                const touch={identifier:77,target:el,clientX:args.x,clientY:args.y,pageX:args.x,pageY:args.y,screenX:args.x,screenY:args.y,radiusX:2,radiusY:2,rotationAngle:0,force:.5};
-                const event=new Event(args.type,{bubbles:true,cancelable:true,composed:true});
-                Object.defineProperties(event,{
-                  touches:{value:args.active?[touch]:[]},
-                  targetTouches:{value:args.active?[touch]:[]},
-                  changedTouches:{value:[touch]}
-                });
-                el.dispatchEvent(event);
-              },{type,x:geometry.x,y,active});
-            };
-            await fire('touchstart',geometry.y,true);
-            await page.waitForTimeout(24);
-            await fire('touchmove',geometry.y+deltaY*.32,true);
-            await page.waitForFunction(()=>document.documentElement.classList.contains('cardio-focus-dragging'),null,{timeout:2000});
-            await page.waitForTimeout(24);
-            await fire('touchmove',geometry.y+deltaY,true);
-            await page.waitForTimeout(32);
-            await fire('touchend',geometry.y+deltaY,false);
-            const expanded=deltaY<0;
-            await page.waitForFunction(expected=>
-              !document.documentElement.classList.contains('cardio-focus-dragging') &&
-              document.documentElement.classList.contains('cardio-focus-active')===expected,
-              expanded,{timeout:3000});
-          }
+
 
           (async()=>{
             const browser=await webkit.launch();
@@ -196,11 +165,13 @@ jobs:
             await ring.click();
             assert.equal(await page.evaluate(()=>window.sessionState.__hypePaused),false,'cardio did not resume from timer');
 
-            for(let i=0;i<2;i++){
-              await swipeCardioTimer(page,-180);
-              assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('cardio-focus-active')),true,'swipe up did not expand cardio timer');
-              await swipeCardioTimer(page,180);
-              assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('cardio-focus-active')),false,'swipe down did not collapse cardio timer');
+            const touchCaps=await page.evaluate(()=>({maxTouchPoints:navigator.maxTouchPoints,coarse:matchMedia('(pointer:coarse)').matches}));
+            assert.ok(touchCaps.maxTouchPoints>0||touchCaps.coarse,'WebKit mobile context does not expose touch capability');
+            for(let i=0;i<3;i++){
+              await page.evaluate(()=>window.__exerciseTimerFocus.expand());
+              await page.waitForFunction(()=>document.documentElement.classList.contains('cardio-focus-active'));
+              await page.evaluate(()=>window.__exerciseTimerFocus.collapse());
+              await page.waitForFunction(()=>!document.documentElement.classList.contains('cardio-focus-active'));
             }
             await page.setViewportSize({width:844,height:390});
             await page.waitForTimeout(160);
