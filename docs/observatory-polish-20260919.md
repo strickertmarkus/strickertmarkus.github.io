@@ -10,7 +10,7 @@ Scope: Observatory dashboard and its editors. No session, timer, ECG, workout pe
 - [x] 5–6: coordinated motion and restrained light.
 - [x] 7–8: alignment, spacing and typography.
 - [x] 9–10: shared surfaces and colour roles.
-- [ ] 11–12: independent week states; record/log rhythm.
+- [x] 11–12: independent week states; record/log rhythm.
 - [ ] 13 + 15: chart interaction, empty/loading states and interaction polish.
 - Excluded: point 14 and session-related parts of all other points.
 

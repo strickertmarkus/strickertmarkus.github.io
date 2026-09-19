@@ -417,6 +417,9 @@
     setText('reactor-date', dateLabel);
     setText('reactor-title', title);
     setText('reactor-summary', summary);
+    setText('observatory-day-detail', dateLabel + ' · ' + (hasPlan
+      ? title + ' · ' + exercises.map(function(ex) { return ex.name || 'Övning'; }).join(', ')
+      : 'Inget pass planerat. Välj dagen för att lägga till ett pass.'));
     var core = document.getElementById('reactor-core');
     if (!core) return;
     var kind = workoutKind(plan, exercises);
@@ -447,6 +450,8 @@
       var label = (nameNode ? nameNode.textContent : '') + ' ' + (dateNode ? dateNode.textContent : '') + ', ' + (typeNode ? typeNode.textContent : '');
       day.setAttribute('aria-label', label + (day.classList.contains('done') ? ', genomfört' : '') + '. Öppna dag.');
       day.setAttribute('aria-pressed', String(dates[index] === selectedDate));
+      if (dates[index] === today) day.setAttribute('aria-current', 'date');
+      else day.removeAttribute('aria-current');
       day.title = label;
       var arc = document.querySelector('[data-day-arc="' + index + '"]');
       if (arc) {
