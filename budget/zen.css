@@ -32,7 +32,9 @@ body {
   font-family: var(--sans);
   font-size: 14px;
   line-height: 1.6;
-  transition: background 1s,color .8s;
+  /* The background is the document canvas below the scenery. Switching kind
+     must update it atomically; the forest/waterfall own visual transitions. */
+  transition: color .8s;
 }
 
 body[data-kind=meditation] {

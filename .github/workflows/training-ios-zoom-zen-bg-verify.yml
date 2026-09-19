@@ -13,6 +13,7 @@ on:
       - 'budget/exercise.html'
       - 'budget/zen.html'
       - 'budget/tests/**'
+      - 'budget/zen.css'
   workflow_dispatch:
 
 jobs:
@@ -29,7 +30,7 @@ jobs:
 
       - name: Static Training and Zen regression
         run: |
-          node --test budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
+          node --test budget/tests/navigation-symbols.test.cjs budget/tests/training-*.test.cjs budget/tests/zen*.test.cjs
           node --check budget/training-zen-nav.js
           node --check budget/auth-config.js
           node --check budget/auth-gate.js

@@ -265,3 +265,9 @@ test('Zen owns the root canvas and training-only backgrounds release it cleanly'
   assert.match(environmentCss,/html:not\(\[data-wellness-mode="zen"\]\)#pulse-document/);
   assert.doesNotMatch(environmentCss,/^#pulse-document:not\(:has\(#session-modal\.show\)\),/m);
 });
+
+
+test('Zen document canvas switches immediately instead of blending through stale background', () => {
+  assert.match(zenCss, /The background is the document canvas below the scenery/);
+  assert.doesNotMatch(zenCss, /transition:\s*background\s+1s/);
+});
