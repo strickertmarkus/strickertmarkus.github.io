@@ -571,8 +571,8 @@
       function syncMotion() {
         var paused = !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
         var motionState = paused ? 'paused' : 'running';
-        core.style.setProperty('--pulse-scene-motion', motionState);
-        document.documentElement.style.setProperty('--observatory-identity-motion', motionState);
+        var sceneRoot = core.closest('.observatory-stage') || core;
+        sceneRoot.style.setProperty('--pulse-scene-motion', motionState);
         core.querySelectorAll('.reactor-orbiter,.reactor-atmosphere').forEach(function(el) { el.style.animationPlayState = paused ? 'paused' : 'running'; });
       }
       if ('IntersectionObserver' in window) new IntersectionObserver(function(entries) { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
