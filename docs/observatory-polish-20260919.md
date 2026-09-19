@@ -15,3 +15,10 @@ Scope: Observatory dashboard and its editors. No session, timer, ECG, workout pe
 - Excluded: point 14 and session-related parts of all other points.
 
 Each pair is one commit. To compare, use the baseline branch; to undo after publication, revert the checkpoint commits in reverse order, preserving unrelated later changes.
+
+## Validation
+
+- 125 Node checks pass, including chart units, touch configuration, empty data and preserved heart-rate ranges/pace formatting.
+- All three changed CSS owners parse; changed JavaScript and CI script parse.
+- Canonical exercise inline runtime, base CSS and session markup were preserved. No workout/session persistence owner was changed.
+- Existing isolated WebKit workflow now covers empty/planned states at 320/390/1440 px, builder, orbit, expanded log, chart touch, reduced motion and the existing Compact/Zen checks. Screenshots are retained as the `observatory-visual-review` workflow artifact. Remote execution and screenshot review pending.

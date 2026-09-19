@@ -26,17 +26,12 @@ test('one native Observatory star geometry owns kicker, sticky header identity, 
   assert.doesNotMatch(html, /observatory-kicker"><span aria-hidden="true">✧/);
 });
 
-test('header star uses heartbeat cadence and existing Observatory scheduler', () => {
-  assert.match(css, /animation:observatoryHeartbeat 2\.05s linear infinite/);
-  assert.match(css, /@keyframes observatoryHeartbeat\{0%,18%,100%/);
-  assert.match(css, /3%\{transform:translateY\(-\.2px\) scale\(1\.16\)/);
-  assert.match(css, /9%\{transform:translateY\(-\.1px\) scale\(1\.085\)/);
-  assert.match(css, /50%\{transform:translateY\(\.2px\) scale\(\.998\) rotate\(-\.2deg\)/);
-  assert.match(css, /observatory-header-star \.observatory-star-glyph path\{stroke-width:1\.7\}/);
-  assert.match(css, /animation-play-state:var\(--observatory-identity-motion,paused\)/);
-  assert.match(css, /prefers-reduced-motion:reduce[\s\S]*observatory-header-star \.observatory-star-glyph\{animation:none!important/);
-  assert.match(dashboard, /motionState = paused \? 'paused' : 'running'/);
-  assert.match(dashboard, /document\.documentElement\.style\.setProperty\('--observatory-identity-motion', motionState\)/);
+test('identity is quiet and ambient motion uses one shared visibility scheduler', () => {
+  assert.doesNotMatch(css, /observatoryHeartbeat|observatoryTwinkle|observatoryAtmosphere/);
+  assert.match(css, /observatoryHorizonSweep 28s/);
+  assert.match(css, /observatoryReadyPulse 6s/);
+  assert.match(css, /animation-play-state:var\(--pulse-scene-motion,running\)/);
+  assert.match(dashboard, /sceneRoot\.style\.setProperty\('--pulse-scene-motion', motionState\)/);
   assert.match(dashboard, /document\.hidden \|\| !onScreen \|\| session\.classList\.contains\('show'\)/);
 });
 
@@ -47,40 +42,35 @@ test('retired header ECG has no remaining runtime or glow owner', () => {
 });
 
 test('Next Workout has separate build and start actions with a true latent empty state', () => {
-  const nextBlock = html.slice(html.indexOf('<div class="observatory-next">'), html.indexOf('<section class="observatory-metrics"'));
+  const nextBlock = html.slice(html.indexOf('<div class="observatory-next"'), html.indexOf('<section class="observatory-metrics"'));
   assert.match(nextBlock, /class="observatory-next-label"><span>NÄSTA PASS<\/span><\/span>/);
   assert.equal((html.match(/id="reactor-start"/g) || []).length, 1);
   assert.equal((html.match(/id="reactor-build"/g) || []).length, 1);
-  assert.match(nextBlock, /observatory-next-orb-label">STARTA NÄSTA PASS/);
+  assert.match(nextBlock, /observatory-next-orb-label">Starta pass/);
   assert.match(nextBlock, /id="reactor-start-notice"[^>]*>Bygg ett pass först\./);
   assert.doesNotMatch(nextBlock, /id="reactor-configure"/);
   assert.match(dashboard, /window\.getPlannedSessions\(\)/);
-  assert.match(dashboard, /setText\('reactor-action', 'Bygg pass'\)/);
+  assert.match(dashboard, /setText\('reactor-action', hasPlan \? 'Redigera pass' : 'Bygg pass'\)/);
   assert.match(dashboard, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
-  assert.match(dashboard, /orbMeta\.hidden = !hasPlan/);
-  assert.match(dashboard, /setText\('reactor-orb-meta', hasPlan \? summary : ''\)/);
-  assert.doesNotMatch(dashboard, /setText\('reactor-orb-meta', hasPlan \? summary : 'Inget planerat'\)/);
   assert.match(dashboard, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
   assert.match(dashboard, /showMissingPlanNotice\(\)/);
   assert.match(dashboard, /buildButton\.addEventListener\('click', openSelectedBuilder\)/);
   assert.doesNotMatch(dashboard, /else openSelectedBuilder\(\)/);
-  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 108px;[^}]*gap:14px/);
+  assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 120px;[^}]*gap:14px/);
   assert.match(css, /observatory-next-actions::before\{[^}]*inset:-28px -22px[^}]*rgba\(10,8,14,\.88\)/);
-  assert.match(css, /observatory-next-orb\{[^}]*width:108px;height:108px[^}]*opacity:\.82/);
-  assert.match(css, /observatory-next-orb-meta\[hidden\]\{display:none!important\}/);
+  assert.match(css, /observatory-next-orb\{[^}]*width:120px;height:120px[^}]*opacity:\.82/);
   assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
-  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\) \.observatory-next-orb-meta\{display:none!important\}/);
-  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 3\.8s ease-in-out infinite/);
+  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 6s ease-in-out infinite/);
   assert.match(css, /observatory-build\{[^}]*width:min\(205px,100%\)/);
-  assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\) \.observatory-build\{[^}]*opacity:\.62/);
+  assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\) \.observatory-build\{[^}]*opacity:1/);
   assert.match(css, /observatory-start-notice\{[^}]*position:absolute/);
 });
 
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
   assert.match(html, /auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
 });

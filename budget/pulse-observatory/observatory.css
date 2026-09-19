@@ -88,9 +88,6 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-home .observatory-week{margin:48px 0}
 #pulse-home .observatory-week .week-toolbar{display:flex!important;flex-wrap:wrap;justify-content:space-between;margin-bottom:20px!important}
 #pulse-home .observatory-week-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-left:auto}
-#pulse-home .observatory-add{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 12px;border:1px solid #ff96b64a;border-radius:999px;background:#ff5a8216;color:#f6c6d5;font:500 10px Inter,sans-serif;letter-spacing:.2px;cursor:pointer;box-shadow:0 0 18px #ff4f7d12;transition:background .25s,border-color .25s,box-shadow .25s,color .25s}
-#pulse-home .observatory-add svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-#pulse-home .observatory-add:hover,#pulse-home .observatory-add:focus-visible{background:#ff5a8230;border-color:#ffabc25f;color:#ffe8ef;box-shadow:0 0 24px #ff4f7d2c;outline:none}
 #pulse-home .observatory-week .section-hdr{margin-bottom:16px!important}
 #pulse-home .observatory-week .week-inline-actions-v13{margin-left:auto}
 #pulse-home .observatory-week #week-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:0!important;border-bottom:1px solid #eeb4ce26;overflow:visible!important;margin:0!important}
@@ -170,9 +167,8 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
  #pulse-home .observatory-week .week-nav{width:auto!important}
  #pulse-home .observatory-week .week-toolbar{gap:8px!important;margin-bottom:12px!important}
  #pulse-home .observatory-week-actions{width:auto;justify-content:flex-end;margin-left:auto}
- #pulse-home .observatory-add{display:none!important}
 }
-@media(max-width:none){
+@media(max-width:360px){
  #pulse-home .observatory-next-actions{grid-template-columns:minmax(0,1fr) 112px;gap:10px}
  #pulse-home .observatory-next-orb-wrap{width:112px}
  #pulse-home .observatory-next-orb{width:112px;height:112px}

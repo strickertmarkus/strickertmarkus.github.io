@@ -192,10 +192,10 @@ test('production pages cache-bust the shared wellness owners',()=>{
   }
   assert.match(exercise,/auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
   assert.match(exercise,/auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(exercise,/training-overview-mode\.js\?v=20260918-main-cp11-shims-1/);
-  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260918-main-cp11-shims-1/);
-  assert.match(exercise,/training-week-orbit\.js\?v=20260918-main-cp11-shims-1/);
-  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(exercise,/training-overview-mode\.js\?v=20260919-observatory-polish-1/);
+  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260919-observatory-polish-1/);
+  assert.match(exercise,/training-week-orbit\.js\?v=20260919-observatory-polish-1/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
   assert.match(zen,/zen\.css\?v=20260918-cp11-stretch-overflow-4/);
   assert.match(zen,/zen\.js\?v=20260918-cp11-shared-shell-1/);
 });

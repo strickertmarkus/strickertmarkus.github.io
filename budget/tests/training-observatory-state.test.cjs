@@ -41,7 +41,7 @@ test('pending dims semantic decoration while the intentionally latent empty star
   const genericPending = observatoryCss.match(/#pulse-home \[data-observatory-state="pending"\]\{[^}]*\}/);
   assert.ok(genericPending, 'generic pending semantic token rule must exist');
   assert.doesNotMatch(genericPending[0], /\bopacity:/);
-  assert.match(observatoryCss, /week-day::after\{[^}]*opacity:var\(--obs-state-decoration/);
+  assert.match(observatoryCss, /week-day.today::after\{opacity:1/);
   assert.match(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
 });
 
@@ -65,8 +65,8 @@ test('metrics next action goals and both week geometries consume shared state to
   assert.match(observatoryCss, /observatory-metrics \.stat-card\[data-observatory-state\]::after/);
   assert.match(observatoryCss, /observatory-next-orb\[data-observatory-state\]/);
   assert.match(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
-  assert.match(environmentCss, /progress-bar\{[^}]*linear-gradient\(90deg,#a73761,#ffb4cd\)/);
-  assert.match(environmentCss, /progress-marker\{[^}]*background:#ffe3ef/);
+  assert.match(environmentCss, /progress-bar\{[^}]*var\(--obs-data-color,#70aaff\)/);
+  assert.match(environmentCss, /progress-marker\{[^}]*background:var\(--obs-data-color,#70aaff\)/);
   assert.doesNotMatch(environmentCss, /progress-bar\{[^}]*var\(--obs-state/);
   assert.doesNotMatch(environmentCss, /progress-marker\{[^}]*var\(--obs-state/);
   assert.match(orbitCss, /week-orbit-layout \.week-day::before\{[\s\S]*var\(--obs-state-border/);
@@ -74,9 +74,9 @@ test('metrics next action goals and both week geometries consume shared state to
 });
 
 test('CP10 dashboard loader keeps current presentation CSS cache keys while JS ownership moves', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-pulse-log-pr-density-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
-  assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-observatory-polish-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
+  assert.match(html, /training-week-orbit\.css\?v=20260919-observatory-polish-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
   assert.doesNotMatch(environmentShim, /function syncObservatoryStates/);
 });

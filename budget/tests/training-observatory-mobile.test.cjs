@@ -19,24 +19,16 @@ function between(text, start, end) {
   return text.slice(from, to);
 }
 
-test('mobile Observatory summary is one four-column row', () => {
+test('mobile Observatory summary is a readable two-column grid', () => {
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important;gap:0!important/);
-  assert.doesNotMatch(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2/);
-  assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*min-width:0!important;[^}]*overflow:hidden!important/);
+  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;gap:24px 16px!important/);
+  assert.doesNotMatch(mobile, /font-size:(?:7|8|9)px/);
+  assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*min-width:0!important;[^}]*overflow:visible!important/);
   assert.doesNotMatch(mobile, /observatory-metrics \.stat-card\{[^}]*border-left:/);
   assert.match(mobile, /observatory-metrics \.stat-val\{[^}]*white-space:nowrap/);
 });
 
-test('320, 375 and 390 px widths keep four metric columns inside the Observatory content width', () => {
-  [320, 375, 390].forEach(viewport => {
-    const contentWidth = viewport * 0.90;
-    const columnWidth = contentWidth / 4;
-    assert.ok(columnWidth >= 72, `${viewport}px viewport leaves only ${columnWidth}px per metric`);
-  });
-});
-
-test('weekly plan stays immediately after the compact summary and before goals', () => {
+test('mobile order prioritises workout and week while preserving shared Compact DOM', () => {
   const stage = html.indexOf('<section class="observatory-stage');
   const metrics = html.indexOf('<section class="observatory-metrics');
   const week = html.indexOf('<section class="observatory-week"');
@@ -44,11 +36,13 @@ test('weekly plan stays immediately after the compact summary and before goals',
   assert.ok(stage >= 0 && metrics > stage && week > metrics && goals > week, 'Observatory top hierarchy must remain stage -> metrics -> week -> goals');
 
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /observatory-field\{min-height:252px/);
-  assert.match(mobile, /observatory-week\{margin:16px 0 40px\}/);
-  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 108px;gap:14px/);
-  assert.match(mobile, /observatory-next-orb-wrap\{width:108px\}/);
-  assert.match(mobile, /observatory-next-orb\{width:108px;height:108px\}/);
+  assert.match(mobile, /#pulse-home>\.observatory-week\{order:1\}/);
+  assert.match(mobile, /#pulse-home>\.observatory-metrics\{order:2\}/);
+  assert.match(mobile, /observatory-field\{min-height:0/);
+  assert.match(mobile, /observatory-week\{margin:0 0 32px\}/);
+  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 120px;gap:14px/);
+  assert.match(mobile, /observatory-next-orb-wrap\{width:120px\}/);
+  assert.match(mobile, /observatory-next-orb\{width:120px;height:120px\}/);
 });
 
 test('large add-workout CTA is absent from production weekly planning while contextual editing remains', () => {
@@ -63,7 +57,7 @@ test('large add-workout CTA is absent from production weekly planning while cont
 
 test('mobile preview cannot reintroduce the large Observatory add CTA', () => {
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /observatory-add\{display:none!important\}/);
+  assert.doesNotMatch(css, /\.observatory-add/);
 });
 
 test('Observatory metrics have no separator owner at base level', () => {
@@ -83,9 +77,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-pulse-log-pr-density-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-observatory-polish-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {

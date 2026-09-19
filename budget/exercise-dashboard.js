@@ -244,7 +244,7 @@
       id: 'pulseOverviewTheme',
       beforeUpdate:function(chart) {
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#fca5a5','#c0a8b8'] };
+        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#c0a8b8'] };
         var colors = palettes[chart.canvas.id];
         chart.data.datasets.forEach(function(dataset,index) {
           var color = colors ? colors[index % colors.length] : dataset.borderColor;
@@ -287,7 +287,7 @@
         });
         var units = {'chart-bw':'ml/kg/min','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
         var unit = units[chart.canvas.id] || '';
-        if (plugins && plugins.tooltip && chart.canvas.id !== 'chart-run-pace') {
+        if (plugins && plugins.tooltip && ['chart-bw','chart-sessions'].includes(chart.canvas.id)) {
           plugins.tooltip.callbacks = Object.assign({}, plugins.tooltip.callbacks, {
             label:function(context) {
               var value = context.parsed && context.parsed.y;

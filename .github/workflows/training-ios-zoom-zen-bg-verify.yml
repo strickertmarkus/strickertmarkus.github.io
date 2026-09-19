@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main]
+    branches: [main, work/observatory-polish-20260919]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
@@ -11,6 +11,9 @@ on:
       - 'budget/auth-gate.js'
       - 'budget/pulse-environment/environment.css'
       - 'budget/exercise.html'
+      - 'budget/exercise-dashboard.js'
+      - 'budget/pulse-observatory/observatory.css'
+      - 'budget/training-week-orbit.css'
       - 'budget/zen.html'
       - 'budget/tests/**'
       - 'budget/zen.css'
@@ -38,7 +41,7 @@ jobs:
 
       - name: Install WebKit
         run: |
-          npm install --no-save playwright
+          npm install --no-save playwright chart.js@4.4.4
           npx playwright install --with-deps webkit
 
       - name: Serve repository
@@ -70,16 +73,12 @@ jobs:
             function auth(){return authObj}auth.Auth={Persistence:{LOCAL:'local'}};
             window.firebase={apps:[{}],initializeApp:()=>({}),app:()=>({}),auth,database};
           })();`;
-          const chartStub=`(function(){
-            var charts=new Map();
-            function Chart(ctx,cfg){this.canvas=ctx&&ctx.canvas?ctx.canvas:ctx;this.ctx=ctx;this.data=cfg&&cfg.data||{};this.options=cfg&&cfg.options||{};this.scales={};this.destroy=()=>{if(this.canvas)charts.delete(this.canvas)};this.update=()=>{};this.resize=()=>{};this.getDatasetMeta=()=>({data:[]});if(this.canvas)charts.set(this.canvas,this)}
-            Chart.getChart=c=>charts.get(c)||null;Chart.register=()=>{};window.Chart=Chart;
-          })();`;
+          const chartSource=require('node:fs').readFileSync(process.cwd()+'/node_modules/chart.js/dist/chart.umd.js','utf8');
 
           async function route(page){
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
-            await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartStub}));
+            await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartSource}));
             await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
           }
@@ -141,6 +140,93 @@ jobs:
             await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setTrainingOverviewMode==='function'&&typeof window.setWellnessMode==='function',null,{timeout:20000});
             await page.waitForTimeout(700);
 
+            require('node:fs').mkdirSync('test-results/observatory',{recursive:true});
+            async function shot(name){await page.screenshot({path:'test-results/observatory/'+name+'.png',fullPage:true})}
+            async function overviewAudit(label){
+              const result=await page.evaluate(()=>{
+                const main=document.querySelector('#pulse-home');
+                const orb=document.querySelector('#reactor-start');
+                const week=document.querySelector('#pulse-week');
+                const metrics=document.querySelector('.observatory-metrics');
+                const header=document.querySelector('#pulse-header');
+                const columns=getComputedStyle(document.querySelector('.observatory-metrics .stats-row')).gridTemplateColumns.split(' ').length;
+                return {width:innerWidth,scroll:document.documentElement.scrollWidth,
+                  mainLeft:main.getBoundingClientRect().left,headerLeft:header.getBoundingClientRect().left,
+                  orbFont:parseFloat(getComputedStyle(orb.querySelector('.observatory-next-orb-label')).fontSize),
+                  columns,weekTop:week.getBoundingClientRect().top,metricsTop:metrics.getBoundingClientRect().top,
+                  badText:[...document.querySelectorAll('.observatory-metrics .stat-label,.observatory-metrics .stat-sub')].some(n=>parseFloat(getComputedStyle(n).fontSize)<12)};
+              });
+              assert.ok(result.scroll<=result.width+1,label+' page overflows: '+JSON.stringify(result));
+              assert.ok(Math.abs(result.mainLeft-result.headerLeft)<1,label+' gutters differ');
+              assert.ok(result.orbFont>=14,label+' orb label is too small');
+              assert.equal(result.badText,false,label+' metrics text is too small');
+              if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}
+            }
+            for(const width of [320,390,1440]){
+              await page.setViewportSize({width,height:width>760?1000:844});
+              await page.waitForTimeout(350);
+              await overviewAudit('empty '+width);
+              await shot('empty-'+width);
+            }
+            await page.setViewportSize({width:390,height:844});
+            await page.locator('#reactor-start').click();
+            assert.equal(await page.locator('#reactor-start-notice').isVisible(),true);
+            assert.equal(await page.locator('#session-modal').evaluate(n=>n.classList.contains('show')),false);
+            await page.locator('#reactor-build').click();
+            await page.waitForSelector('#day-workout-modal.show');
+            await shot('builder-mobile');
+            await page.locator('#day-workout-modal .modal-close').click();
+
+            await page.evaluate(()=>{
+              const date=todayISO();
+              const strength={kind:'strength',name:'Knäböj med kontrollerad excentrisk fas',sets:3,reps:8,weight:60};
+              const run={kind:'cardio',name:'Löpning',time:30,distance:5};
+              savePlannedSessions({[date]:{type:'Helkropp med rörlighet och kontrollerat tempo',exercises:[strength,run]}});
+              saveWorkouts([
+                {id:101,date:shiftISODate(date,-2),type:'Kondition',duration:30,hrAvg:145,hrMin:95,hrMax:170,vo2:48,exercises:[run]},
+                {id:102,date,type:'Helkropp',duration:45,hrAvg:125,hrMin:80,hrMax:150,vo2:49,exercises:[strength]}
+              ]);
+              refreshAll();
+            });
+            await page.waitForFunction(()=>document.querySelector('#reactor-start').dataset.planState==='planned');
+            assert.equal(await page.locator('#reactor-action').textContent(),'Redigera pass');
+            assert.equal(await page.locator('#week-grid .today').getAttribute('aria-current'),'date');
+            assert.equal(await page.locator('#week-grid .today.done .wd-status').isVisible(),true);
+            for(const width of [320,390,1440]){
+              await page.setViewportSize({width,height:width>760?1000:844});
+              await page.waitForTimeout(500);
+              await overviewAudit('populated '+width);
+              await shot('populated-'+width);
+            }
+            await page.setViewportSize({width:390,height:844});
+            await page.locator('[data-week-orbit-toggle]').click();
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
+            await shot('orbit-mobile');
+            await page.locator('[data-week-orbit-toggle]').click();
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('#week-grid').evaluate(n=>n.classList.contains('week-orbit-layout')),false);
+            await page.locator('#reactor-build').click();
+            await page.waitForSelector('#day-workout-modal.show');
+            await shot('planned-builder-mobile');
+            await page.locator('#day-workout-modal .modal-close').click();
+            await page.locator('#log-body .log-main-row').first().click();
+            await page.waitForTimeout(400);
+            await shot('expanded-log-mobile');
+            const charts=await page.evaluate(()=>['chart-sessions','chart-bw','chart-hr-combined'].map(id=>{
+              const chart=Chart.getChart(document.getElementById(id));
+              return {id,color:chart.data.datasets[0].borderColor,touch:chart.options.events.includes('touchstart')};
+            }));
+            assert.deepEqual(charts.map(c=>c.color),['#70aaff','#65d7a5','#ef646f']);
+            assert.ok(charts.every(c=>c.touch));
+            await page.locator('#chart-sessions').tap();
+            await shot('chart-touch-mobile');
+            await page.emulateMedia({reducedMotion:'reduce'});
+            await page.locator('[data-week-orbit-toggle]').click();
+            assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
+            await page.locator('[data-week-orbit-toggle]').click();
+            await page.emulateMedia({reducedMotion:'no-preference'});
+
             assert.equal(await page.getAttribute('html','data-training-overview'),'observatory');
             await editableAudit(page,'Pulse / Observatory');
 
@@ -185,3 +271,11 @@ jobs:
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/training-ios-e2e.cjs
+
+      - name: Save Observatory visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: observatory-visual-review
+          path: test-results/observatory/
+          if-no-files-found: warn

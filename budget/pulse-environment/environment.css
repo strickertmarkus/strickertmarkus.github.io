@@ -83,6 +83,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .reactor-week .section-hdr{margin-bottom:12px!important}
 #pulse-home .reactor-week .section-hdr h2{font-size:13px!important;color:#baa2b5!important;letter-spacing:.3px!important}
 #pulse-home .week-toolbar{display:flex!important;flex-wrap:wrap!important;gap:12px!important;margin-bottom:0!important}
+#pulse-home .week-nav-copy{min-width:0;flex:1}
 #pulse-home .week-nav{flex:1 1 100%!important;gap:10px!important;max-width:100%}
 #pulse-home .week-nav-label{font-size:13px!important;color:#f0d9e6!important}
 #pulse-home .week-nav-sub{font-size:11px!important;color:#aa91a5!important}
@@ -120,13 +121,15 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .goal-history tr:hover td{background:#ff8fb008!important}
 #pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}
 #pulse-home :is(.record-group-v52,.pr-card){border:1px solid var(--obs-line)!important;border-radius:var(--obs-card-radius)!important;background:var(--obs-surface)!important;box-shadow:none!important;overflow:hidden}
+#pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 88px 120px;padding:0 16px;column-gap:16px;font-size:11px;letter-spacing:0;text-transform:none;color:var(--obs-muted)}
+#pulse-home .record-group-count-v52{font-size:12px!important}
 #pulse-home .record-group-toggle-v52{padding:9px 14px!important;background:transparent!important;color:#edc6da!important;min-height:44px!important;font-weight:450!important;letter-spacing:.3px!important}
 #pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#9be4e9;text-shadow:none;margin-right:9px;font-size:16px}
 #pulse-home :is(.record-group-count-v52,.record-chevron-v52,.records-master-toggle-v52){color:#c09aaf!important;border-color:#e9a5c135!important;background:transparent!important}
 #pulse-home .record-row-v52{border-color:#f7b9d21a!important;background:transparent!important;min-height:64px!important;padding:16px!important;gap:16px!important;grid-template-columns:minmax(0,1fr) 88px 120px!important}
 #pulse-home .record-name-v52{font-size:14px!important;font-weight:450!important;color:var(--obs-text)!important;line-height:1.3!important}
 #pulse-home .record-max-v52{font-size:16px!important;font-weight:450!important;color:#ffe0eb!important;letter-spacing:-.3px}
-#pulse-home .record-progress-copy-v52{color:#b89bab!important}
+#pulse-home .record-progress-copy-v52{color:var(--obs-muted)!important;font-size:12px!important;line-height:1.5!important}
 #pulse-home .record-gain-v52{color:#a3e0ca!important;background:#a3e0ca09!important}
 #pulse-home :is(.record-flat-v52,.record-spark-empty-v52){color:#a0869a!important}
 #pulse-home .record-spark-v52{color:#ff9fbe!important;overflow:visible;filter:none}
@@ -159,11 +162,13 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .log-ex-row-v7:hover{background:#ff8ca811!important}
 #pulse-home :is(.log-ex-name-v7,.log-ex-target-v7){color:#ccb4c5!important}
 #pulse-home .log-ex-row-v7.is-cardio .log-ex-name-v7{color:#ffafc4!important}
-#pulse-home .log-ex-row-v7 .log-ex-time-v7{color:#dab7e9!important}
+#pulse-home .log-ex-row-v7 .log-ex-time-v7{color:#89dce7!important}
 #pulse-home :is(.log-ex-index-v7,.log-ex-chevron-v7,.log-ex-head-v7){color:#aa849d!important}
 #pulse-home .empty-state{color:#b496aa!important;border-color:#edb0ca22!important;background:radial-gradient(ellipse at 50% 0,#ff658715,transparent 70%)!important;padding:30px 16px!important}
 #pulse-home .empty-icon{color:#ffb1ce!important;text-shadow:0 0 25px #ff6181!important}
 @media(max-width:760px){
+ #pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 80px}
+ #pulse-home .records-columns-v52>span:last-child{display:none}
  #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 80px!important;min-height:64px!important;padding:16px!important;gap:8px 16px!important}
  #pulse-home .record-progress-v52{grid-column:1/-1;justify-content:space-between!important}
  #pulse-home .record-group-toggle-v52{padding:8px 11px!important;min-height:44px!important}
@@ -218,7 +223,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
  #pulse-home .reactor-configure{bottom:-1%;font-size:10px}
  #pulse-home .reactor-week{border-top:0;padding-top:5px;margin-bottom:23px}
  #pulse-home .reactor-week .section-hdr{display:none!important}
- #pulse-home .week-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:10px!important;align-items:center}
+ #pulse-home .week-toolbar{display:grid!important;grid-template-columns:1fr;gap:16px!important;align-items:center}
  #pulse-home .week-nav{width:100%!important;gap:6px!important}
  #pulse-home .week-inline-actions-v13{gap:6px!important}
  #pulse-home .week-inline-actions-v13 .btn-sm{font-size:12px!important;padding:8px 12px!important;min-height:44px!important}
