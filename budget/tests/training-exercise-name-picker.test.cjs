@@ -77,5 +77,5 @@ test('picker kind selection bypasses the whole-builder morph wrapper',()=>{
 });
 
 test('Pulse picker stylesheet is cache-busted on the canonical route',()=>{
-  assert.match(html,/pulse-environment\/environment\.css\?v=20260918-ios-focus-zen-canvas-1/);
+  assert.match(html,/pulse-environment\/environment\.css\?v=20260919-pulse-log-pr-density-1/);
 });

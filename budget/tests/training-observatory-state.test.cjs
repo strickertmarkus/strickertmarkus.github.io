@@ -74,7 +74,7 @@ test('metrics next action goals and both week geometries consume shared state to
 });
 
 test('CP10 dashboard loader keeps current presentation CSS cache keys while JS ownership moves', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260918-ios-focus-zen-canvas-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-pulse-log-pr-density-1/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260918-main-cp11-overflow-containment-3/);
   assert.match(html, /training-week-orbit\.css\?v=20260915-main-cp7-state-1/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260916-main-cp10-dashboard-1/);
