@@ -516,10 +516,10 @@
 <script defer src="training-zen-nav.js?v=20260918-ios-focus-zen-canvas-1"></script>
 <link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260919-observatory-polish-1">
 <link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260919-observatory-polish-1">
-<link rel="stylesheet" href="training-week-orbit.css?v=20260915-main-cp7-state-1">
-<script defer src="training-overview-mode.js?v=20260918-main-cp11-shims-1"></script>
-<script defer src="pulse-environment/environment.js?v=20260918-main-cp11-shims-1"></script>
-<script defer src="training-week-orbit.js?v=20260918-main-cp11-shims-1"></script>
+<link rel="stylesheet" href="training-week-orbit.css?v=20260919-observatory-polish-1">
+<script defer src="training-overview-mode.js?v=20260919-observatory-polish-1"></script>
+<script defer src="pulse-environment/environment.js?v=20260919-observatory-polish-1"></script>
+<script defer src="training-week-orbit.js?v=20260919-observatory-polish-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -573,9 +573,9 @@
         </div>
       </div>
       <div class="observatory-next-actions">
-        <button type="button" class="observatory-build" id="reactor-build"><svg class="observatory-build-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Bygg pass</span></button>
+        <button type="button" class="observatory-build" id="reactor-build" disabled><svg class="observatory-build-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Bygg pass</span></button>
         <span class="observatory-next-orb-wrap">
-          <button type="button" class="observatory-next-orb" id="reactor-start" aria-describedby="reactor-start-notice">
+          <button type="button" class="observatory-next-orb" id="reactor-start" disabled aria-describedby="reactor-start-notice">
             <span class="observatory-next-orb-label">Starta pass</span>
             <svg class="observatory-star-glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z"/></svg>
             <svg class="observatory-next-orb-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M7 17 17 7M8 7h9v9"/></svg>
@@ -592,8 +592,8 @@
     <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
-      <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
-      <div class="stat-card stat-duration fade-in"><div class="stat-label">Tid vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
+      <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt antal pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
+      <div class="stat-card stat-duration fade-in"><div class="stat-label">Träningstid denna vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
       <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
     </div>
     </section>
@@ -719,7 +719,7 @@
     <hr class="rule compact-only">
 <section class="pulse-section pulse-log" id="pulse-log">
     <!-- LOG -->
-    <div class="section-hdr fade-in"><h2>Träningslog</h2></div>
+    <div class="section-hdr fade-in"><h2>Träningslogg</h2></div>
     <div class="log-wrap fade-in">
       <table class="log-table">
         <thead><tr><th>Datum</th><th>Typ</th><th>Volym</th><th>Tid</th><th>Puls</th><th></th></tr></thead>

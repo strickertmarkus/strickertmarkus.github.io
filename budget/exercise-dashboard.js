@@ -244,40 +244,81 @@
       id: 'pulseOverviewTheme',
       beforeUpdate:function(chart) {
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        var palettes = { 'chart-bw':['#9ae0cb','#fbbd9f','#ff749b'], 'chart-sessions':['#ff648b','#c1acf0'] };
-        var colors = palettes[chart.canvas.id] || ['#ff88aa','#c5aff2','#a6e0d4'];
+        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#fca5a5','#c0a8b8'] };
+        var colors = palettes[chart.canvas.id];
         chart.data.datasets.forEach(function(dataset,index) {
-          var color = colors[index % colors.length];
+          var color = colors ? colors[index % colors.length] : dataset.borderColor;
+          if (typeof color !== 'string') return;
           dataset.borderColor = color;
           dataset.pointBackgroundColor = color;
           dataset.pointBorderColor = '#20121d';
           dataset.pointHoverBackgroundColor = '#ffe2ec';
           dataset.borderWidth = 2;
+          if (dataset.pointRadius !== 0) {
+            dataset.pointRadius = 3;
+            dataset.pointHoverRadius = 5;
+            dataset.pointHitRadius = 16;
+          }
           var area=chart.chartArea;
           if (area) {
             var fill=chart.ctx.createLinearGradient(0,area.top,0,area.bottom);
-            fill.addColorStop(0,color+'70'); fill.addColorStop(1,color+'04');
+            fill.addColorStop(0,color+'24'); fill.addColorStop(1,color+'02');
             dataset.backgroundColor=fill;
-          } else dataset.backgroundColor=color+'25';
+          } else dataset.backgroundColor=color+'14';
         });
         Object.values(chart.options.scales || {}).forEach(function(scale) {
-          if (scale.ticks) scale.ticks.color='#b9a6ba';
+          if (scale.ticks) {
+            scale.ticks.color='#c0a8b8';
+            scale.ticks.font = Object.assign({}, scale.ticks.font, { family:'Inter', size:12 });
+            scale.ticks.maxRotation = 0;
+            scale.ticks.autoSkip = true;
+          }
           if (scale.grid) scale.grid.color='#deb5ce12';
           if (scale.border) scale.border.color='#deb5ce20';
           if (scale.title) scale.title.color='#b9a6ba';
         });
+        chart.options.interaction = {mode:'index', intersect:false};
+        chart.options.events = ['mousemove','mouseout','click','touchstart','touchmove'];
         var plugins=chart.options.plugins;
         if (plugins && plugins.legend && plugins.legend.labels) plugins.legend.labels.color='#dcc7d8';
         if (plugins && plugins.tooltip) Object.assign(plugins.tooltip,{
           backgroundColor:'#241422',titleColor:'#ffe7f0',bodyColor:'#dec5d9',
-          borderColor:'#ff8eaf55',borderWidth:1,padding:12,cornerRadius:12
+          borderColor:'#ff8eaf55',borderWidth:1,padding:12,cornerRadius:10,titleFont:{family:'Inter',size:13},bodyFont:{family:'Inter',size:13}
         });
+        var units = {'chart-bw':'ml/kg/min','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
+        var unit = units[chart.canvas.id] || '';
+        if (plugins && plugins.tooltip && chart.canvas.id !== 'chart-run-pace') {
+          plugins.tooltip.callbacks = Object.assign({}, plugins.tooltip.callbacks, {
+            label:function(context) {
+              var value = context.parsed && context.parsed.y;
+              return context.dataset.label + ': ' + (value == null ? '—' : new Intl.NumberFormat('sv-SE', {maximumFractionDigits:1}).format(value) + ' ' + unit);
+            }
+          });
+        }
+        var summary = chart.data.datasets.filter(function(dataset) { return !dataset.borderDash; }).map(function(dataset) {
+          return dataset.label + ': ' + dataset.data.map(function(value,index) {
+            return value == null ? '' : String(chart.data.labels[index] || '') + ' ' + value + ' ' + unit;
+          }).filter(Boolean).join(', ');
+        }).join('. ');
+        chart.canvas.setAttribute('role','img');
+        chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
       },
-      beforeDatasetDraw:function(chart) {
-        if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        chart.ctx.save(); chart.ctx.shadowColor='#fa5f8d55'; chart.ctx.shadowBlur=9;
-      },
-      afterDatasetDraw:function(chart) { if (pulseOverviewActive() && chart.canvas.closest('#pulse-home')) chart.ctx.restore(); }
+      afterDraw:function(chart) {
+        if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || !chart.chartArea) return;
+        var hasData = chart.data.datasets.some(function(dataset) {
+          return dataset.data.some(function(value) { return value != null && Number.isFinite(Number(value)); });
+        });
+        if (chart.canvas.id === 'chart-sessions' && typeof window.getWorkouts === 'function') hasData = window.getWorkouts().length > 0;
+        if (hasData) return;
+        var area = chart.chartArea;
+        chart.ctx.save();
+        chart.ctx.fillStyle = '#c0a8b8';
+        chart.ctx.font = '13px Inter, sans-serif';
+        chart.ctx.textAlign = 'center';
+        chart.ctx.fillText('Visas när du har loggat ett pass', (area.left + area.right) / 2, (area.top + area.bottom) / 2);
+        chart.ctx.restore();
+        chart.canvas.setAttribute('aria-label','Ingen träningsdata ännu. Visas när du har loggat ett pass.');
+      }
     });
   }
 
@@ -376,7 +417,7 @@
 
     var latest = latestWorkout();
     if (!latest) {
-      setText('observatory-last', 'Senast genomfört · —');
+      setText('observatory-last', 'Ditt första genomförda pass visas här.');
       return;
     }
     var date = window.parseISODate ? window.parseISODate(latest.date) : new Date(latest.date + 'T12:00:00');
@@ -429,6 +470,8 @@
     syncContext();
     setText('reactor-action', hasPlan ? 'Redigera pass' : 'Bygg pass');
     core.dataset.planState = hasPlan ? 'planned' : 'empty';
+    var build = document.getElementById('reactor-build');
+    if (build) build.disabled = false;
     var start = document.getElementById('reactor-start');
     if (start) {
       start.disabled = false;
