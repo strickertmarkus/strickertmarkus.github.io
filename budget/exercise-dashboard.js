@@ -424,17 +424,13 @@
     var stage = core.closest('.observatory-stage');
     if (stage) stage.dataset.workoutKind = kind;
     syncContext();
-    setText('reactor-action', 'Bygg pass');
+    setText('reactor-action', hasPlan ? 'Redigera pass' : 'Bygg pass');
+    core.dataset.planState = hasPlan ? 'planned' : 'empty';
     var start = document.getElementById('reactor-start');
     if (start) {
       start.disabled = false;
       start.dataset.planState = hasPlan ? 'planned' : 'empty';
       start.setAttribute('aria-label', hasPlan ? ('Starta nästa pass: ' + title + ', ' + dateLabel + ', ' + summary) : 'Starta nästa pass. Inget pass är byggt ännu.');
-    }
-    var orbMeta = document.getElementById('reactor-orb-meta');
-    if (orbMeta) {
-      orbMeta.hidden = !hasPlan;
-      setText('reactor-orb-meta', hasPlan ? summary : '');
     }
     document.querySelectorAll('#week-grid .week-day').forEach(function(day, index) {
       if (!dates[index]) return;

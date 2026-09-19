@@ -515,7 +515,7 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260918-ios-focus-zen-canvas-1">
 <script defer src="training-zen-nav.js?v=20260918-ios-focus-zen-canvas-1"></script>
 <link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260919-pulse-log-pr-density-1">
-<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260918-main-cp11-overflow-containment-3">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260919-observatory-polish-1">
 <link rel="stylesheet" href="training-week-orbit.css?v=20260915-main-cp7-state-1">
 <script defer src="training-overview-mode.js?v=20260918-main-cp11-shims-1"></script>
 <script defer src="pulse-environment/environment.js?v=20260918-main-cp11-shims-1"></script>
@@ -563,12 +563,12 @@
         <g class="observatory-stars"><circle cx="258" cy="170" r="2"/><circle cx="720" cy="200" r="2.5"/><circle cx="600" cy="105" r="1.5"/><circle cx="165" cy="349" r="2"/><circle cx="781" cy="418" r="2"/><path d="M524 179V193M517 186H531M679 288V300M673 294H685"/></g>
       </svg>
     </div>
-    <div class="observatory-next">
+    <div class="observatory-next" aria-labelledby="reactor-title">
       <span class="observatory-next-label"><span>NÄSTA PASS</span></span>
       <div class="observatory-next-main">
         <span class="observatory-next-copy">
           <span id="reactor-date">DITT PASS</span>
-          <strong id="reactor-title">Laddar pass</strong>
+          <h3 id="reactor-title">Laddar pass…</h3>
           <span id="reactor-summary"></span>
         </span>
       </div>
@@ -576,9 +576,8 @@
         <button type="button" class="observatory-build" id="reactor-build"><svg class="observatory-build-ecg" viewBox="0 0 72 30" fill="none" aria-hidden="true"><path d="M2 16H17L23 10L30 24L39 3L46 20L52 13H70"/></svg><span id="reactor-action">Bygg pass</span></button>
         <span class="observatory-next-orb-wrap">
           <button type="button" class="observatory-next-orb" id="reactor-start" aria-describedby="reactor-start-notice">
-            <span class="observatory-next-orb-label">STARTA NÄSTA PASS</span>
+            <span class="observatory-next-orb-label">Starta pass</span>
             <svg class="observatory-star-glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z"/></svg>
-            <span class="observatory-next-orb-meta" id="reactor-orb-meta">Laddar pass</span>
             <svg class="observatory-next-orb-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M7 17 17 7M8 7h9v9"/></svg>
           </button>
           <span class="observatory-start-notice" id="reactor-start-notice" role="status" aria-live="polite" hidden>Bygg ett pass först.</span>
