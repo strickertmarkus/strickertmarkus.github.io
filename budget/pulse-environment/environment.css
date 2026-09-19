@@ -1,9 +1,10 @@
-/* Pulse Reactor: one isolated presentation layer for the preview, never the session. */
+/* Shared Observatory overview and editor presentation; never the active session. */
+#pulse-header,#pulse-home{--obs-page-width:1200px;--obs-gutter:clamp(20px,4vw,40px);font-variant-numeric:tabular-nums}
 html:not([data-wellness-mode="zen"])#pulse-document:not(:has(#session-modal.show)),
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show))::before{display:none!important}
 #pulse-page{--reactor-red:#ff5b78;--reactor-light:#ffbccb;--reactor-line:#e29db92b;--reactor-muted:#aea2b6}
-#pulse-header{position:relative!important;width:90%!important;max-width:1300px;margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
+#pulse-header{position:relative!important;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width);margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
 #pulse-header .brand-text h1{display:flex;align-items:center;gap:8px;font-size:17px!important;font-weight:650!important;letter-spacing:2px!important;color:#f9e9ef!important}
 #pulse-header .pulse-brand-flow{color:#ff8ca8;font-weight:350}
 #pulse-header .brand-text p{font-size:11px!important;color:#a99aac!important;letter-spacing:.5px;margin-top:5px}
@@ -19,7 +20,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-header .nav-dropdown-menu a:hover{color:#fff!important;background:#ff7c9d12!important}
 #pulse-header .exercise-user-toggle{margin:12px;padding:5px;border-color:#f6a7c333;border-radius:99px;background:#ff91b00a}
 #pulse-header .exercise-user-option{min-height:38px;flex:1;font-size:12px;border-radius:99px}
-#pulse-home{position:relative;width:90%!important;max-width:1240px!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home{position:relative;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width)!important;margin:auto!important;padding:10px 0 110px!important}
 #pulse-home .reactor-stage{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);grid-template-areas:'intro core' 'stats core' 'week core' 'jumps core';align-items:center;column-gap:40px;position:relative;margin:0 0 65px;padding:30px 0 25px;isolation:isolate}
 #pulse-home .reactor-stage::before{content:'';position:absolute;inset:-60px -5vw -90px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 77% 42%,#ed315819,transparent 62%)}
 #pulse-home .reactor-intro{grid-area:intro;position:relative;padding-bottom:26px}
@@ -69,11 +70,11 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .stats-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px 16px!important;margin:0!important}
 #pulse-home .stat-card{padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;min-width:0;overflow:visible!important}
 #pulse-home .stat-card::before{display:none!important}
-#pulse-home .stat-label{font-size:11px!important;letter-spacing:0!important;text-transform:none!important;color:#ac94a8!important}
-#pulse-home .stat-val{font-size:34px!important;font-weight:350!important;letter-spacing:-1.5px!important;line-height:1.3!important;color:#f5dce7!important;margin:4px 0!important}
-#pulse-home .stat-week .stat-val{color:#ffadc2!important;text-shadow:0 0 20px #ff6c8955}
+#pulse-home .stat-label{font-size:12px!important;letter-spacing:0!important;text-transform:none!important;color:#ac94a8!important}
+#pulse-home .stat-val{font-size:34px!important;font-weight:450!important;letter-spacing:-1px!important;line-height:1.3!important;color:#f5dce7!important;margin:4px 0!important}
+#pulse-home .stat-week .stat-val{color:#ffadc2!important;text-shadow:none}
 #pulse-home .stat-val small{font-size:13px!important;letter-spacing:0;margin-left:5px}
-#pulse-home .stat-sub{font-size:10px!important;color:#b19cae!important;line-height:1.45}
+#pulse-home .stat-sub{font-size:12px!important;color:#b19cae!important;line-height:1.45}
 #pulse-home .reactor-week{grid-area:week;min-width:0;padding-top:18px;border-top:1px solid #efb2ca22}
 #pulse-home .reactor-week .section-hdr{margin-bottom:12px!important}
 #pulse-home .reactor-week .section-hdr h2{font-size:13px!important;color:#baa2b5!important;letter-spacing:.3px!important}
@@ -86,16 +87,16 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .reactor-jumps{grid-area:jumps;display:flex;gap:22px;margin-top:25px}
 #pulse-home .reactor-jumps button{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#cdb5c8;font:400 11px Inter,sans-serif;cursor:pointer;min-height:40px}
 #pulse-home .reactor-jumps span{font-size:27px;color:#ffc5da;text-shadow:0 0 18px #ff6ca3;font-weight:300}
-#pulse-home .pulse-section{position:relative;margin-top:45px;padding-top:30px;border-top:1px solid #efb2ca22;scroll-margin-top:20px}
-#pulse-home .section-hdr{display:flex;align-items:center!important;gap:15px;margin:0 0 25px!important}
+#pulse-home .pulse-section{position:relative;margin-top:48px;padding-top:32px;border-top:1px solid #efb2ca22;scroll-margin-top:20px}
+#pulse-home .section-hdr{display:flex;align-items:center!important;gap:16px;flex-wrap:wrap;margin:0 0 24px!important}
 #pulse-home :is(.pulse-records,.pulse-log)>.section-hdr{margin-bottom:13px!important}
-#pulse-home .section-hdr h2{font-size:26px!important;font-weight:400!important;letter-spacing:-.7px!important;color:#f6dfe9!important}
+#pulse-home .section-hdr h2{font-size:26px!important;font-weight:500!important;letter-spacing:-.5px!important;color:#f6dfe9!important}
 #pulse-home .section-hdr h2::before{display:none!important}
 #pulse-home :is(.btn-sm,.btn-ghost){min-height:37px!important;padding:8px 14px!important;border-radius:99px!important;background:#f7a1b407!important;border:1px solid #f4a2bd30!important;color:#dab7ca!important;font:450 12px/1.3 Inter,sans-serif!important;box-shadow:none!important}
 #pulse-home :is(.btn-sm,.btn-ghost):hover{background:#ff809916!important;border-color:#ffbed04d!important}
 #pulse-home .goals-grid,#pulse-home .charts-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:36px!important}
 #pulse-home :is(.goal-card,.chart-card){min-width:0!important;border:0!important;border-radius:0!important;padding:22px 0!important;box-shadow:none!important;background:transparent!important}
-#pulse-home :is(.goal-lbl,.chart-card h3){font-size:15px!important;letter-spacing:0!important;font-weight:450!important;text-transform:none!important;color:#dcc4d4!important}
+#pulse-home :is(.goal-lbl,.chart-card h3){font-size:16px!important;letter-spacing:0!important;font-weight:500!important;text-transform:none!important;color:#dcc4d4!important}
 #pulse-home .chart-note{color:#a08b9f!important;font-size:12px!important}
 #pulse-home .chart-area{height:240px!important}
 #pulse-home :is(.run-pace-chart-area-v34,.vo2-chart-area-v37){height:190px!important}
@@ -193,7 +194,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
  #pulse-header .streak-badge{grid-column:2;grid-row:2;justify-self:end;font-size:12px!important}
  #pulse-header .wellness-nav a{font-size:11px;padding:0 10px;gap:7px}
  #pulse-header .wellness-symbol{font-size:18px}
- #pulse-home{width:90%!important;padding-top:0!important}
+ #pulse-home{padding-top:0!important}
  #pulse-home .reactor-stage{grid-template-columns:1fr;grid-template-areas:'intro' 'core' 'week' 'stats' 'jumps';padding-top:25px;row-gap:0;margin-bottom:40px}
  #pulse-home .reactor-intro{padding-bottom:6px}
  #pulse-home .reactor-eyebrow{font-size:9px;letter-spacing:2px}
@@ -225,7 +226,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
  #pulse-home .stat-sub{font-size:9px!important}
  #pulse-home .stat-val small{font-size:10px!important;display:block;margin:0;letter-spacing:0;line-height:1.2}
  #pulse-home .reactor-jumps{justify-content:center;margin-top:22px}
- #pulse-home .pulse-section{margin-top:30px;padding-top:24px}
+ #pulse-home .pulse-section{margin-top:32px;padding-top:24px}
  #pulse-home .section-hdr h2{font-size:24px!important}
  #pulse-home .goals-grid,#pulse-home .charts-row{grid-template-columns:minmax(0,1fr)!important;gap:17px!important}
  #pulse-home .chart-area{height:225px!important}

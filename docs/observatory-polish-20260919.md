@@ -8,7 +8,7 @@ Scope: Observatory dashboard and its editors. No session, timer, ECG, workout pe
 - [x] 1–2: next workout hierarchy; readable start orb and contextual builder action.
 - [x] 3–4: readable typography and mobile composition.
 - [x] 5–6: coordinated motion and restrained light.
-- [ ] 7–8: alignment, spacing and typography.
+- [x] 7–8: alignment, spacing and typography.
 - [ ] 9–10: shared surfaces and colour roles.
 - [ ] 11–12: independent week states; record/log rhythm.
 - [ ] 13 + 15: chart interaction, empty/loading states and interaction polish.
