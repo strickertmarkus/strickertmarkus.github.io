@@ -66,10 +66,8 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-home .observatory-start-notice{position:absolute;z-index:7;right:0;top:calc(100% + 9px);width:max-content;max-width:220px;padding:8px 10px;border:1px solid #ffb3c83d;border-radius:9px;background:#170f19e8;box-shadow:0 10px 28px #0007,0 0 18px #ff5c8216;color:#e7c5d1;font:500 12px/1.5 Inter,sans-serif;letter-spacing:.2px;opacity:0;transform:translateY(-3px) scale(.98);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
 #pulse-home .observatory-start-notice.is-visible{opacity:1;transform:none}
 #pulse-home .observatory-start-notice[hidden]{display:none}
-#pulse-home .observatory-metrics{padding:24px 0 30px;border-top:1px solid #e99cbb2a;border-bottom:1px solid #e99cbb1c}
+#pulse-home .observatory-metrics{padding:0;margin:32px 0}
 #pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:24px!important}
-#pulse-home .observatory-metrics .stat-card{padding-left:24px!important;border:0!important}
-#pulse-home .observatory-metrics .stat-card:first-child{padding-left:0!important}
 #pulse-home .observatory-metrics .stat-card[data-observatory-state]{position:relative}
 #pulse-home .observatory-metrics .stat-card[data-observatory-state]::after{content:'';display:block!important;position:absolute;left:50%;bottom:0;width:24px;height:1px;transform:translateX(-50%);background:var(--obs-state-accent);box-shadow:var(--obs-state-glow);opacity:var(--obs-state-decoration);pointer-events:none}
 #pulse-home .observatory-next-orb[data-observatory-state]{border-color:var(--obs-state-border);box-shadow:inset 0 0 18px var(--obs-state-fill),var(--obs-state-glow),0 0 19px #56d9e508}
@@ -118,12 +116,24 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-page:has(#session-modal.show) #pulse-home .observatory-stage::before{content:none}
 @keyframes observatoryHorizonSweep{from{stroke-dashoffset:100;opacity:.85}to{stroke-dashoffset:0;opacity:.85}}
 @keyframes observatoryReadyPulse{0%,100%{transform:scale(1);box-shadow:inset 0 0 23px #8aeaf012,0 0 27px #56d9e517,0 0 29px #ff4e7d19}50%{transform:scale(1.008);box-shadow:inset 0 0 25px #8aeaf018,0 0 27px #56d9e51c,0 0 29px #ff4e7d1c}}
+#pulse-home .observatory-templates{margin:8px 0 32px;scroll-margin-top:24px}
+#pulse-home .observatory-template-hint{font-size:13px;line-height:1.6;color:var(--obs-muted);margin:-12px 0 20px}
+#pulse-home .observatory-template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#pulse-home .observatory-template-card{display:grid;grid-template-columns:32px minmax(0,1fr);align-content:center;gap:8px 14px;min-height:116px;padding:22px;text-align:left;border:1px solid var(--obs-line);border-radius:var(--obs-card-radius);background:var(--obs-surface);color:var(--obs-text);font:inherit;cursor:pointer;transition:border-color .24s,background .24s,box-shadow .24s}
+#pulse-home .observatory-template-card:hover,#pulse-home .observatory-template-card:focus-visible{border-color:#ffb8cb80;background:radial-gradient(ellipse at 15% 10%,#ffb8cb16,transparent 90%),var(--obs-surface);box-shadow:0 0 24px #ff5c8814;outline:2px solid transparent;outline-offset:3px}
+#pulse-home .observatory-template-card:focus-visible{outline-color:#ffb8cb}
+#pulse-home .observatory-template-glyph{grid-row:1/3;color:#ffb8cb;font-size:27px;text-shadow:0 0 15px #ff85af55}
+#pulse-home .observatory-template-card strong{font-size:18px;font-weight:500;overflow-wrap:anywhere}
+#pulse-home .observatory-template-meta{font-size:12px;color:var(--obs-muted);line-height:1.5}
 @media(max-width:760px){
+ #pulse-home .observatory-template-grid{grid-template-columns:1fr;gap:12px}
+ #pulse-home .observatory-template-card{min-height:92px;padding:18px}
  #pulse-home{display:flex;flex-direction:column}
- #pulse-home> *{order:3;min-width:0}
+ #pulse-home> *{order:4;min-width:0}
  #pulse-home>.observatory-stage{order:0}
- #pulse-home>.observatory-week{order:1}
- #pulse-home>.observatory-metrics{order:2}
+ #pulse-home>.observatory-templates{order:1}
+ #pulse-home>.observatory-week{order:2}
+ #pulse-home>.observatory-metrics{order:3}
  #pulse-home .observatory-stage{grid-template-columns:1fr;gap:8px;min-height:0;margin-bottom:24px}
  #pulse-home .observatory-heading{padding:18px 0 0}
  #pulse-home .observatory-kicker{font-size:11px;letter-spacing:1.5px}
@@ -151,11 +161,9 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
  #pulse-home .observatory-build{width:min(205px,100%);min-height:44px;padding:10px 16px;gap:12px;font-size:12px}
  #pulse-home .observatory-progress{font-size:12px;letter-spacing:0}
  #pulse-home .observatory-last{font-size:12px}
- #pulse-home .observatory-metrics{padding:24px 0;margin-bottom:32px}
- #pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px 16px!important;margin:0!important}
- #pulse-home .observatory-metrics .stat-card{min-width:0!important;padding:0 0 12px!important;border:0!important;overflow:visible!important;text-align:left}
- #pulse-home .observatory-metrics .stat-card:first-child{padding-left:0!important}
- #pulse-home .observatory-metrics .stat-card:last-child{padding-right:0!important}
+ #pulse-home .observatory-metrics{padding:0;margin:0 0 32px}
+ #pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:0!important}
+ #pulse-home .observatory-metrics .stat-card{min-width:0!important;padding:16px!important;overflow:visible!important;text-align:left}
  #pulse-home .observatory-metrics .stat-val{font-size:30px!important;letter-spacing:-.8px!important;line-height:1.15!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:3px 0!important}
  #pulse-home .observatory-metrics .stat-label{min-height:1.5em;font-size:12px!important;line-height:1.5;letter-spacing:0!important}
  #pulse-home .observatory-metrics .stat-val small{display:inline;font-size:12px!important;margin-left:2px}
@@ -174,9 +182,6 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
  #pulse-home .observatory-next-actions{grid-template-columns:minmax(0,1fr) 112px;gap:10px}
  #pulse-home .observatory-next-orb-wrap{width:112px}
  #pulse-home .observatory-next-orb{width:112px;height:112px}
- #pulse-home .observatory-metrics .stat-card{padding-left:5px!important;padding-right:5px!important}
- #pulse-home .observatory-metrics .stat-card:first-child{padding-left:0!important}
- #pulse-home .observatory-metrics .stat-card:last-child{padding-right:0!important}
 }
 @media(prefers-reduced-motion:reduce){
  #pulse-header .observatory-header-star .observatory-star-glyph{animation:none!important;transform:none!important;opacity:.78!important;filter:drop-shadow(0 0 4px #56d9e552)!important}
