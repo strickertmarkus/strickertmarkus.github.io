@@ -28,6 +28,7 @@ const _realSetItem = localStorage.setItem.bind(localStorage);
 const _realGetItem = localStorage.getItem.bind(localStorage);
 const _nativeStorageGetItem = Storage.prototype.getItem;
 const _nativeStorageSetItem = Storage.prototype.setItem;
+const _nativeStorageRemoveItem = Storage.prototype.removeItem;
 
 const EXERCISE_KEYS = [
   'ex_wk',
@@ -39,6 +40,7 @@ const EXERCISE_KEYS = [
   'ex_plan',
   'ex_vo2'
 ];
+const PRIVATE_EXERCISE_KEYS = EXERCISE_KEYS.concat(['ex_bw', 'ex_weekPlans']);
 const isExercisePage = /\/exercise\.html$/.test(window.location.pathname);
 const requestedExerciseUser = new URLSearchParams(window.location.search).get('user');
 const exerciseUser = requestedExerciseUser && requestedExerciseUser.toLowerCase() === 'maja' ? 'maja' : 'markus';
@@ -125,7 +127,7 @@ async function initFirebaseSync() {
     accessContext = window.AppAccess ? await window.AppAccess.ready : null;
     if (!accessContext) return;
     activeSyncKeys = accessContext.role === 'training_only'
-      ? EXERCISE_KEYS.map(key => key + trainingSuffix())
+      ? PRIVATE_EXERCISE_KEYS.map(key => key + trainingSuffix())
       : SYNC_KEYS;
     if (typeof firebase === 'undefined') {
       console.log('[Firebase] Waiting for SDK...');
@@ -336,6 +338,14 @@ Storage.prototype.setItem = function(key, value) {
   if (this === localStorage && accessContext && activeSyncKeys.includes(mappedKey)) {
     syncToFirebase(mappedKey, value);
   }
+};
+
+/** Remove only the authenticated profile's local training key, never a family key. */
+Storage.prototype.removeItem = function(key) {
+  const stringKey = String(key);
+  const mappedKey = this === localStorage ? scopedExerciseKey(stringKey) : stringKey;
+  if (mappedKey === null) return;
+  return _nativeStorageRemoveItem.call(this, mappedKey);
 };
 
 /** Force reload all data from Firebase */

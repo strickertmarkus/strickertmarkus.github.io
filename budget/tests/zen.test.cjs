@@ -42,11 +42,11 @@ test('records are idempotent and deleted records stay deleted after offline merg
   assert.deepEqual(M.merge({one:deleted},{one:r}).one,deleted);assert.deepEqual(M.merge({one:r},{one:deleted}).one,deleted);
 });
 
-function storeHarness({deny=false,seed={},localFail=false}={}){
+function storeHarness({deny=false,seed={},localFail=false,role='family'}={}){
   const local=new Map(Object.entries(seed)),writes=[],listeners=new Map(),remote={},auth={callback:null};let pathRoot='';
   const ref={off(){},on(event,cb,error){listeners.set('entries',cb);if(deny)error(Error('PERMISSION_DENIED'));else cb({val:()=>remote});},once(){return Promise.resolve({val:()=>remote});},child(id){return {set(e){writes.push({path:pathRoot+'/'+id,entry:e});remote[id]=e;listeners.get('entries')?.({val:()=>remote});return Promise.resolve();}};}};
   const firebase={auth:()=>({onAuthStateChanged(fn){auth.callback=fn;fn({uid:'test-user'});}}),database:()=>({ref(p){if(p==='.info/connected')return {on(event,fn){listeners.set('connection',fn);fn({val:()=>true});}};pathRoot=p;return ref;}})};
-  const context={window:{ZenModel:M,firebase,AppAccess:{role:'family',uid:'test-user',ready:Promise.resolve({role:'family',uid:'test-user'})}},firebase,location:{search:'?user=maja'},URLSearchParams,Date,queueMicrotask,localStorage:{getItem:k=>local.get(k)||null,setItem(k,v){if(localFail)throw Error('Quota');local.set(k,v);}}};
+  const context={window:{ZenModel:M,firebase,AppAccess:{role,uid:'test-user',ready:Promise.resolve({role,uid:'test-user'})}},firebase,location:{search:'?user=maja'},URLSearchParams,Date,queueMicrotask,localStorage:{getItem:k=>local.get(k)||null,setItem(k,v){if(localFail)throw Error('Quota');local.set(k,v);}}};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../zen-store.js'),'utf8'),context);
   return {S:context.window.ZenStore,writes,local,auth};
 }
@@ -68,4 +68,12 @@ test('backup import validates profile, refuses training data, preserves existing
 });
 test('storage errors are surfaced and auth changes clear the current profile cache',()=>{
   const {S,auth}=storeHarness({deny:true,localFail:true});S.put(record('memory'));assert.match(S.status,/Kunde inte spara/);auth.callback(null);assert.equal(S.ready,false);assert.equal(S.entries.length,0);assert.equal(S.active,null);
+});
+
+test('training-only Zen uses its own UID/self path even with user=maja in the URL',async()=>{
+  const {S,writes}=storeHarness({role:'training_only'});
+  assert.equal(S.profile,'self');
+  S.put(record('ingemar-zen'));await flush();
+  assert.equal(writes.length,1);
+  assert.equal(writes[0].path,'zen_v1/test-user/self/entries/ingemar-zen');
 });

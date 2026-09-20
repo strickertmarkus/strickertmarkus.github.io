@@ -1,0 +1,42 @@
+name: Training-only account checks
+
+on:
+  push:
+    branches: [feature/training-only-accounts-20260920]
+    paths:
+      - 'budget/auth-gate.js'
+      - 'budget/firebase-sync.js'
+      - 'budget/zen-store.js'
+      - 'budget/exercise-motion-v1.js'
+      - 'budget/exercise.html'
+      - 'budget/zen.html'
+      - 'budget/tests/training-only-accounts.test.cjs'
+      - 'budget/tests/zen.test.cjs'
+      - '.github/workflows/training-only-accounts.yml'
+  pull_request:
+    paths:
+      - 'budget/auth-gate.js'
+      - 'budget/firebase-sync.js'
+      - 'budget/zen-store.js'
+      - 'budget/exercise-motion-v1.js'
+      - 'budget/exercise.html'
+      - 'budget/tests/training-only-accounts.test.cjs'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check budget/auth-gate.js
+          node --check budget/firebase-sync.js
+          node --check budget/zen-store.js
+          node --check budget/training-zen-nav.js
+          node --check budget/exercise-motion-v1.js
+          node --check budget/tests/training-only-accounts.test.cjs
+      - name: Run account and existing training / Zen tests
+        run: node --test budget/tests/*.test.cjs
