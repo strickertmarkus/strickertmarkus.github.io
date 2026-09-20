@@ -110,6 +110,16 @@
 
     var button = wrapper.querySelector('#training-nav-toggle');
     var menu = wrapper.querySelector('#nav-menu');
+    if(window.AppAccess)window.AppAccess.ready.then(function(access){
+      if(!access||access.role!=='training_only')return;
+      menu.querySelectorAll('a[data-training-nav-link]').forEach(function(link){
+        if(new URL(link.href,location.href).pathname.split('/').pop()!=='exercise.html')link.remove();
+      });
+      menu.querySelectorAll('.nav-sep').forEach(function(separator){separator.remove();});
+      menu.insertAdjacentHTML('beforeend',
+        navLink('exercise.html?wellness=stretch','✧','Stretch')+
+        navLink('exercise.html?wellness=meditation','≈','Meditation'));
+    });
 
     function commitMenu(open) {
       open = !!open;

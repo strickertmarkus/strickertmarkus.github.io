@@ -60,7 +60,7 @@ jobs:
             function snap(v){return{exists:()=>v!=null,val:()=>v==null?null:v}}
             function ref(path){return{
               set:()=>Promise.resolve(),update:()=>Promise.resolve(),remove:()=>Promise.resolve(),
-              get:()=>Promise.resolve(snap(null)),once:()=>Promise.resolve(snap(null)),
+              get:()=>Promise.resolve(snap(String(path||'').startsWith('app_roles/')?'family':null)),once:()=>Promise.resolve(snap(null)),
               on:(e,cb)=>{if(cb)setTimeout(()=>cb(snap(null)),0);return cb},off:()=>{},
               child:n=>ref(String(path||'')+'/'+n)
             }}

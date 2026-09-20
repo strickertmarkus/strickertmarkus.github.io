@@ -20,6 +20,8 @@
   // Keep the page invisible until the server-owned account role is resolved.
   // This is a presentation guard; Firebase rules enforce actual data isolation.
   document.documentElement.style.visibility = 'hidden';
+  document.documentElement.style.opacity = '0';
+  document.documentElement.style.pointerEvents = 'none';
   var resolveAccess;
   var accessReady = new Promise(function (resolve) { resolveAccess = resolve; });
   window.AppAccess = {role:null, uid:null, ready:accessReady};
@@ -264,7 +266,7 @@
   function nextTarget() {
     var params = new URLSearchParams(window.location.search);
     var next = params.get('next');
-    return next && next.trim() ? next : 'home.html';
+    return next && /^[a-z0-9_-]+\.html(?:[?#].*)?$/i.test(next) && !/^login\.html/i.test(next) ? next : 'home.html';
   }
 
   function goToNext() {
@@ -297,7 +299,7 @@
         return;
       }
       auth.signInWithEmailAndPassword(email, password)
-        .then(function () { showMessage('Inloggad. Omdirigerar...', false); goToNext(); })
+        .then(function () { showMessage('Inloggad. Kontrollerar behörighet...', false); })
         .catch(function (error) { showMessage(error && error.message ? error.message : 'Kunde inte logga in.', true); });
     });
 
@@ -318,6 +320,8 @@
     function ready() {
       wireLoginUi();
       document.documentElement.style.visibility = '';
+      document.documentElement.style.opacity = '';
+      document.documentElement.style.pointerEvents = '';
       if (new URLSearchParams(location.search).has('access')) {
         showMessage('Kontot saknar aktiv behörighet. Kontakta administratören.', true);
       }
@@ -366,6 +370,8 @@
         }
       }
       document.documentElement.style.visibility = '';
+      document.documentElement.style.opacity = '';
+      document.documentElement.style.pointerEvents = '';
     }).catch(function () {
       // Fail closed for unprovisioned accounts, unavailable rules and network errors.
       auth.signOut().then(function () {

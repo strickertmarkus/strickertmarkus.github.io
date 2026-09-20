@@ -24,9 +24,11 @@
   }
   function catchUp(remote){lastRemote=remote;if(syncQueued)return;syncQueued=true;const atEpoch=epoch;queueMicrotask(()=>{syncQueued=false;if(atEpoch!==epoch)return;for(const e of Object.values(entries))if(!lastRemote[e.id]||e.updatedAt>lastRemote[e.id].updatedAt)push(e);});}
   function connect(user){
-    const access=window.AppAccess;
-    if(!access||!access.role||!user||user.uid!==access.uid)return;
-    profile=access.role==='training_only'?'self':(new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus');
+    if(user){
+      const access=window.AppAccess;
+      if(!access||!access.role||user.uid!==access.uid)return;
+      profile=access.role==='training_only'?'self':(new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus');
+    }
     epoch++;if(ref)ref.off();inFlight.clear();syncQueued=false;lastRemote={};entries={};active=null;ready=false;loaded=false;blocked=false;pending=0;ref=null;
     if(!user){emit();return;}
     key='zen_v1_'+user.uid+'_'+profile;
@@ -50,13 +52,13 @@
     export(){return {app:'zen',version:1,profile,exportedAt:Date.now(),entries};},
     import(data){
       if(!ready)throw Error('Vänta tills ditt konto har laddats.');
-      if(!data||data.app!=='zen'||data.version!==1||data.profile!==profile||!data.entries||typeof data.entries!=='object'||Array.isArray(data.entries))throw Error('Välj en Zen-säkerhetskopia för '+(profile==='maja'?'Maja':'Markus')+'.');
+      if(!data||data.app!=='zen'||data.version!==1||data.profile!==profile||!data.entries||typeof data.entries!=='object'||Array.isArray(data.entries))throw Error('Välj en Zen-säkerhetskopia för '+(profile==='maja'?'Maja':profile==='self'?'Ingemar':'Markus')+'.');
       const values=Object.values(data.entries);if(values.length>20000||values.some(e=>!M.entryValid(e))||Object.entries(data.entries).some(([id,e])=>id!==e.id))throw Error('Säkerhetskopian innehåller ogiltiga uppgifter.');
       entries=M.merge(entries,data.entries);write(key+'_entries',entries);values.forEach(e=>push(entries[e.id]));emit();return values.filter(e=>!e.deleted).length;
     }
   };
   if(window.firebase){
-    try{firebase.database().ref('.info/connected').on('value',s=>{connected=s.val()===true;if(connected&&ready&&loaded&&!blocked)ref.once('value').then(s=>catchUp(M.merge({},s.val()))).catch(()=>{blocked=true;emit();});emit();});firebase.auth().onAuthStateChanged(user=>{if(window.AppAccess)window.AppAccess.ready.then(()=>connect(user));},()=>{authError=true;emit();});}catch(_){authError=true;emit();}
+    try{firebase.database().ref('.info/connected').on('value',s=>{connected=s.val()===true;if(connected&&ready&&loaded&&!blocked)ref.once('value').then(s=>catchUp(M.merge({},s.val()))).catch(()=>{blocked=true;emit();});emit();});firebase.auth().onAuthStateChanged(user=>{if(!user){connect(null);return;}if(window.AppAccess&&window.AppAccess.role)connect(user);else if(window.AppAccess)window.AppAccess.ready.then(()=>connect(user));},()=>{authError=true;emit();});}catch(_){authError=true;emit();}
   }else{authError=true;emit();}
   if(window.addEventListener)window.addEventListener('storage',event=>{if(ready&&event.key===key+'_entries'){entries=M.merge(entries,read(key+'_entries',{}));emit();}});
 })();

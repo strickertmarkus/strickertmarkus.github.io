@@ -46,7 +46,7 @@ function storeHarness({deny=false,seed={},localFail=false}={}){
   const local=new Map(Object.entries(seed)),writes=[],listeners=new Map(),remote={},auth={callback:null};let pathRoot='';
   const ref={off(){},on(event,cb,error){listeners.set('entries',cb);if(deny)error(Error('PERMISSION_DENIED'));else cb({val:()=>remote});},once(){return Promise.resolve({val:()=>remote});},child(id){return {set(e){writes.push({path:pathRoot+'/'+id,entry:e});remote[id]=e;listeners.get('entries')?.({val:()=>remote});return Promise.resolve();}};}};
   const firebase={auth:()=>({onAuthStateChanged(fn){auth.callback=fn;fn({uid:'test-user'});}}),database:()=>({ref(p){if(p==='.info/connected')return {on(event,fn){listeners.set('connection',fn);fn({val:()=>true});}};pathRoot=p;return ref;}})};
-  const context={window:{ZenModel:M,firebase},firebase,location:{search:'?user=maja'},URLSearchParams,Date,queueMicrotask,localStorage:{getItem:k=>local.get(k)||null,setItem(k,v){if(localFail)throw Error('Quota');local.set(k,v);}}};
+  const context={window:{ZenModel:M,firebase,AppAccess:{role:'family',uid:'test-user',ready:Promise.resolve({role:'family',uid:'test-user'})}},firebase,location:{search:'?user=maja'},URLSearchParams,Date,queueMicrotask,localStorage:{getItem:k=>local.get(k)||null,setItem(k,v){if(localFail)throw Error('Quota');local.set(k,v);}}};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../zen-store.js'),'utf8'),context);
   return {S:context.window.ZenStore,writes,local,auth};
 }
