@@ -93,6 +93,7 @@ jobs:
               });
               return {
                 total:nodes.length,
+                state:{mode:document.documentElement.dataset.trainingOverview,wellness:document.documentElement.dataset.wellnessMode,envDisabled:document.getElementById('training-observatory-environment').disabled,coarse:matchMedia('(pointer:coarse)').matches},
                 bad:nodes.map(el=>({
                   tag:el.tagName.toLowerCase(),
                   id:el.id||'',
@@ -103,7 +104,7 @@ jobs:
               };
             });
             assert.ok(result.total>0,label+' contained no editable controls to audit');
-            assert.deepEqual(result.bad,[],label+' has editable controls below 16px: '+JSON.stringify(result.bad));
+            assert.deepEqual(result.bad,[],label+' has editable controls below 16px: '+JSON.stringify(result));
           }
 
           async function canvasAudit(page,label,expected){
@@ -295,9 +296,11 @@ jobs:
             await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='training');
             await page.evaluate(()=>window.setTrainingOverviewMode('observatory'));
             await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='observatory');
+            await page.waitForTimeout(320);
             await editableAudit(page,'Pulse / Observatory 375px');
             await page.evaluate(()=>window.setTrainingOverviewMode('compact'));
             await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
+            await page.waitForTimeout(320);
             await editableAudit(page,'Compact 375px');
 
             assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
