@@ -1,0 +1,117 @@
+name: Ingemar demo preview verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/ingemar-preview.html'
+      - 'budget/tests/ingemar-preview.test.cjs'
+      - '.github/workflows/ingemar-preview-verify.yml'
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate standalone source
+        run: node --test budget/tests/ingemar-preview.test.cjs
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+      - name: Serve preview
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/ingemar-preview-http.log 2>&1 &
+          sleep 2
+      - name: Test mobile and desktop interactions
+        run: |
+          cat > /tmp/ingemar-preview-e2e.cjs <<'EOF'
+          const {webkit}=require(process.cwd()+'/node_modules/playwright');
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+          (async()=>{
+            const browser=await webkit.launch();
+            const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+            const page=await context.newPage(),errors=[],firebaseRequests=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            page.on('request',r=>{if(/firebase|firestore|googleapis\.com\/identitytoolkit/.test(r.url()))firebaseRequests.push(r.url());});
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+            fs.mkdirSync('test-results/ingemar-demo',{recursive:true});
+            await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html');
+            await page.waitForSelector('[data-choice="Push"]');
+            assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
+            for(const width of [320,390,1440]){
+              await page.setViewportSize({width,height:width===1440?960:844});
+              const dimensions=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
+              assert.ok(dimensions.scroll<=dimensions.width+1,'Horizontal overflow at '+width+': '+JSON.stringify(dimensions));
+              await page.screenshot({path:'test-results/ingemar-demo/overview-'+width+'.png',fullPage:true});
+            }
+            await page.setViewportSize({width:390,height:844});
+            await page.locator('[data-choice="Push"]').click();
+            assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+            assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'60');
+            assert.equal(await page.locator('[data-set="0:1:weight"]').inputValue(),'65');
+            assert.equal(await page.locator('[data-set="0:2:weight"]').inputValue(),'67.5');
+            await page.locator('[data-set="0:1:weight"]').fill('72.5');
+            await page.locator('[data-set="0:1:reps"]').fill('9');
+            await page.locator('[data-add-set="0"]').click();
+            assert.equal(await page.locator('[data-set="0:3:weight"]').inputValue(),'67.5');
+            await page.locator('[data-set="0:3:weight"]').fill('75');
+            await page.locator('[data-remove-set="0:3"]').click();
+            await page.locator('[data-mode="1:min"]').click();
+            assert.equal(await page.locator('[data-set="1:0:minutes"]').inputValue(),'5');
+            await page.locator('[data-set="1:0:minutes"]').fill('3.5');
+            await page.screenshot({path:'test-results/ingemar-demo/set-editor-mobile.png'});
+            await page.locator('[data-action="start-from-builder"]').click();
+            await page.waitForSelector('#session[open]');
+            assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
+            assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
+            assert.equal(await page.locator('[data-actual="1:0:minutes"]').inputValue(),'3.5');
+            await page.locator('[data-done="0:0"]').click();
+            await page.locator('[data-done="0:1"]').click();
+            await page.locator('[data-actual="0:1:weight"]').fill('73');
+            await page.locator('[data-done="1:0"]').click();
+            await page.screenshot({path:'test-results/ingemar-demo/live-sets-mobile.png'});
+            await page.locator('[data-action="finish-session"]').click();
+            await page.waitForSelector('#session:not([open])');
+            const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
+            const latest=saved.history.at(-1);
+            assert.equal(latest.type,'Push');
+            assert.deepEqual(latest.exercises[0].sets.map(s=>s.weight),[60,73]);
+            assert.deepEqual(latest.exercises[0].sets.map(s=>s.reps),[12,9]);
+            assert.equal(latest.exercises[1].sets[0].minutes,3.5);
+            await page.reload();
+            assert.equal(await page.locator('#history .history-row').count()>0,true);
+            await page.locator('[data-view="stretch"]').click();
+            await page.locator('[data-zen-index="0"]').click();
+            await page.waitForSelector('#zen-session[open]');
+            await page.locator('[data-action="pause-zen"]').click();
+            await page.locator('[data-action="finish-zen"]').click();
+            await page.locator('[data-view="meditation"]').click();
+            await page.locator('[data-zen-index="1"]').click();
+            await page.locator('[data-action="finish-zen"]').click();
+            await page.locator('[data-view="training"]').click();
+            page.once('dialog',d=>d.accept());
+            await page.locator('[data-action="reset"]').click();
+            const reset=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
+            assert.equal(reset.history.length,8,'Reset must restore original fake history');
+            assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
+            assert.deepEqual(firebaseRequests,[],'Unexpected Firebase calls');
+            await browser.close();
+            console.log('Mobile + desktop Ingemar demo, per-set workout and Zen flow passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/ingemar-preview-e2e.cjs
+      - name: Upload visual snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingemar-demo-visual-review
+          path: test-results/ingemar-demo/
+          if-no-files-found: warn
