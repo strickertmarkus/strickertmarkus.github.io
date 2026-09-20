@@ -89,6 +89,17 @@ jobs:
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
+            async function saveVisibleSession(label){
+              await page.locator('#session').evaluate(el=>el.scrollTop=el.scrollHeight);
+              const placement=await page.evaluate(()=>{
+                const button=document.getElementById('finish-session').getBoundingClientRect();
+                const bar=document.getElementById('session-controls').getBoundingClientRect();
+                return {buttonTop:button.top,buttonBottom:button.bottom,barTop:bar.top,height:innerHeight};
+              });
+              assert.ok(placement.buttonTop>=0&&placement.buttonBottom<=placement.barTop-5,
+                label+' save button must be reachable above the persistent action bar: '+JSON.stringify(placement));
+              await page.locator('#finish-session').click();
+            }
             async function assertActionsVisible(label){
               const placement=await page.locator('#session-controls').evaluate(el=>{
                 const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
@@ -175,7 +186,7 @@ jobs:
             await page.locator('[data-actual="0:1:weight"]').fill('73');
             await page.locator('[data-done="1:0"]').click();
             await page.screenshot({path:'test-results/ingemar-demo/live-sets-mobile.png'});
-            await page.locator('[data-action="finish-session"]').click();
+            await saveVisibleSession('Push');
             await page.waitForFunction(()=>document.getElementById('session').hidden);
             const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
             const latest=saved.history.at(-1);
@@ -218,7 +229,7 @@ jobs:
             await page.locator('[data-action="skip-rest"]').click();
             await page.locator('[data-action="finish-session-exercise"]').click();
             assert.notEqual(await page.locator('#session-current-ex').textContent(),pullExercise,'Övning klar should progress to the next exercise');
-            await page.locator('[data-action="finish-session"]').click();
+            await saveVisibleSession('Pull');
             await page.locator('[data-choice="Kondition"]').click();
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
@@ -238,7 +249,7 @@ jobs:
             await auditNoHorizontalScroll('Konditionsläge 390px');
             await page.screenshot({path:'test-results/ingemar-demo/cardio-session-mobile.png'});
             await page.locator('[data-done="0:0"]').click();
-            await page.locator('[data-action="finish-session"]').click();
+            await saveVisibleSession('Kondition');
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();

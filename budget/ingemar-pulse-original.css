@@ -699,7 +699,7 @@
    v58 classnames and corresponding original CSS above. This adapter only
    constrains the session to the independent preview and makes its existing
    per-set cards a scrollable section without altering their own styling. */
-#session{padding:0;--border:#273241;--border-a:#273241;--surface:#101824;--bg3:#101824;--text:#f1f5f9;--text-sec:#788596;--pf-rgb:251,146,60;--pf-accent:#FB923C;--pf-soft:#FED7AA;background:#080D14;color:#F1F5F9}
+#session{padding:0;scroll-padding-bottom:calc(106px + env(safe-area-inset-bottom));--border:#273241;--border-a:#273241;--surface:#101824;--bg3:#101824;--text:#f1f5f9;--text-sec:#788596;--pf-rgb:251,146,60;--pf-accent:#FB923C;--pf-soft:#FED7AA;background:#080D14;color:#F1F5F9}
 #session-modal{width:100%;min-height:100dvh;height:auto;max-width:100%;position:relative;overflow:visible;color:#F1F5F9}
 #session-modal .session-shell{width:100%;height:auto;min-height:100dvh}
 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%;background:#080D14!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -734,7 +734,7 @@
 #session-modal .session-set-rail .mode-exercise-card.is-current{border-color:rgba(var(--pf-rgb),.32);background:linear-gradient(155deg,rgba(var(--pf-rgb),.075),#ffffff04)}
 #session-modal .session-rail-footer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.1)}
 #session-modal .session-rail-footer .hint{margin:0;max-width:300px}
-#session-modal .session-rail-footer button{min-height:43px}
+#session-modal .session-rail-footer button{min-height:43px;scroll-margin-bottom:calc(106px + env(safe-area-inset-bottom))}
 #session-modal .session-rail-footer button:disabled{opacity:.5}
 #session-modal .pulse-flow-band-v58{width:100%;height:67px}
 #session-modal .pulse-flow-band-v58 svg{height:67px}
