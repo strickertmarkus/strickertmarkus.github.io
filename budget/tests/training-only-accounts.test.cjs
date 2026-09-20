@@ -9,7 +9,7 @@ const source = fs.readFileSync(path.join(root, 'firebase-sync.js'), 'utf8');
 const authSource = fs.readFileSync(path.join(root, 'auth-gate.js'), 'utf8');
 const exerciseSource = fs.readFileSync(path.join(root, 'exercise.html'), 'utf8');
 const navSource = fs.readFileSync(path.join(root, 'exercise-motion-v1.js'), 'utf8');
-const flush = async () => { for (let i = 0; i < 35; i++) await Promise.resolve(); };
+const flush = async () => { for (let i = 0; i < 250; i++) await Promise.resolve(); };
 
 function harness(role, uid, seed = {}, urlSearch = '?user=maja') {
   const local = new Map();
@@ -94,6 +94,6 @@ test('client does not grant a role on registration and exposes Ingemar categorie
   assert.match(authSource,/ref\('app_roles\/' \+ user\.uid\)/);
   assert.match(authSource,/auth\.signOut\(\)/);
   assert.match(navSource,/access\.role!=='training_only'/);
-  assert.match(exerciseSource,/Ingemars träning/);
+  assert.match(source,/Ingemars träning/);
   assert.match(exerciseSource,/Push','Pull','Kondition/);
 });

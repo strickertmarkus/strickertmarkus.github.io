@@ -164,7 +164,7 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(shellCss,/body\[data-kind="stretch"\] #exercise-user-toggle\{--profile-accent:#d4eea7/);
   assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
   for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
-  assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
+  assert.match(exercise,/firebase-sync\.js\?v=20260920-training-only-2/);
 });
 
 test('rapid Training and Zen requests cancel stale pending transitions',()=>{
@@ -188,10 +188,10 @@ test('profile query and intentional browser history survive unified switching',(
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.css\?v=20260918-ios-focus-zen-canvas-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260918-ios-focus-zen-canvas-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260920-training-only-2/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(exercise,/auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
+  assert.match(exercise,/auth-gate\.js\?v=20260920-training-only-2/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260919-observatory-polish-1/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260919-observatory-polish-1/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260919-observatory-polish-1/);
