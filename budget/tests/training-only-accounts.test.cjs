@@ -96,4 +96,8 @@ test('client does not grant a role on registration and exposes Ingemar categorie
   assert.match(navSource,/access\.role!=='training_only'/);
   assert.match(source,/Ingemars träning/);
   assert.match(exerciseSource,/Push','Pull','Kondition/);
+  assert.match(exerciseSource,/id="ingemar-training-choices"/);
+  assert.match(exerciseSource,/data-ingemar-workout="Push"/);
+  assert.match(exerciseSource,/data-ingemar-workout="Pull"/);
+  assert.match(exerciseSource,/data-ingemar-workout="Kondition"/);
 });

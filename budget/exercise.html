@@ -511,6 +511,11 @@
       .log-detail-box .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 74px 74px 24px;}
       .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
     }
+    .ingemar-training-choices{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 2px;padding:0 2px}
+    .ingemar-training-choices[hidden]{display:none!important}
+    .ingemar-choices-caption{font:700 10px/1.2 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8C94A6;margin-right:4px}
+    .ingemar-training-choices button{border:1px solid rgba(252,165,180,.22);border-radius:999px;background:rgba(251,74,114,.055);color:#FFB8C8;font:600 12px/1.2 Inter,sans-serif;padding:9px 14px;cursor:pointer;transition:background .2s,border-color .2s}
+    .ingemar-training-choices button:hover,.ingemar-training-choices button:focus-visible{background:rgba(251,74,114,.16);border-color:rgba(252,165,180,.6)}
     .ingemar-workout-options{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
     .ingemar-workout-option{border:1px solid rgba(34,211,238,.26);border-radius:12px;padding:8px 12px;background:rgba(34,211,238,.07);color:#CFFAFE;font:600 12px/1.3 Inter,sans-serif;cursor:pointer}
     .ingemar-workout-option[aria-pressed="true"]{background:rgba(34,211,238,.2);border-color:#67E8F9}
@@ -548,6 +553,12 @@
       <button type="button" data-reactor-scroll="pulse-log"><span aria-hidden="true">◌</span> Träningslogg</button>
     </nav>
   </div>
+  <nav class="ingemar-training-choices" id="ingemar-training-choices" aria-label="Välj Ingemars träningspass" hidden>
+    <span class="ingemar-choices-caption">Välj pass</span>
+    <button type="button" data-ingemar-workout="Push">Push</button>
+    <button type="button" data-ingemar-workout="Pull">Pull</button>
+    <button type="button" data-ingemar-workout="Kondition">Kondition</button>
+  </nav>
   <div class="observatory-field" id="reactor-core">
     <div class="observatory-scene" aria-hidden="true">
       <div class="observatory-rays"></div>
@@ -2912,6 +2923,24 @@ if(window.AppAccess)window.AppAccess.ready.then(function(access){
     return;
   }
   WORKOUT_TYPES=['Push','Pull','Kondition'];
+  var choices=document.getElementById('ingemar-training-choices');
+  if(choices){
+    choices.hidden=false;
+    choices.querySelectorAll('button[data-ingemar-workout]').forEach(function(button){
+      button.addEventListener('click',function(){
+        var selected=document.querySelector('#week-grid .week-day.is-selected');
+        var date=selected&&selected.dataset.reactorDate||todayISO();
+        openDayWorkoutBuilder('',date);
+        var field=document.getElementById('day-workout-type');
+        if(!field)return;
+        field.value=button.dataset.ingemarWorkout;
+        field.dispatchEvent(new Event('input',{bubbles:true}));
+        field.parentElement.querySelectorAll('.ingemar-workout-option').forEach(function(option){
+          option.setAttribute('aria-pressed',String(option.textContent===field.value));
+        });
+      });
+    });
+  }
   var wk=document.getElementById('wk-type');
   var day=document.getElementById('day-workout-type');
   if(wk)wk.placeholder='Push, Pull eller Kondition';

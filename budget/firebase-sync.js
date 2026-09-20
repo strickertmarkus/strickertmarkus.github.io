@@ -377,7 +377,7 @@ function applyExerciseUserToggle() {
   if (accessContext.role === 'training_only') {
     document.title = 'Ingemars träning';
     const brandSub = document.querySelector('.brand-text p');
-    if (brandSub) brandSub.textContent = 'Ingemar';
+    if (brandSub) brandSub.textContent = 'Ingemars träning';
     const headerBrand = document.querySelector('.brand-text h1');
     if (headerBrand) headerBrand.onclick = function () { location.href = 'exercise.html'; };
     const toggle = document.getElementById('exercise-user-toggle');
