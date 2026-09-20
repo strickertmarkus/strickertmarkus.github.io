@@ -60,7 +60,7 @@ jobs:
             function snap(v){return{exists:()=>v!=null,val:()=>v==null?null:v}}
             function ref(path){return{
               set:()=>Promise.resolve(),update:()=>Promise.resolve(),remove:()=>Promise.resolve(),
-              get:()=>Promise.resolve(snap(String(path||'').startsWith('app_roles/')?'family':null)),once:()=>Promise.resolve(snap(null)),
+              get:()=>Promise.resolve(snap(String(path||'').startsWith('app_roles/')?(window.__testExternalRole?'training_only':'family'):null)),once:()=>Promise.resolve(snap(null)),
               on:(e,cb)=>{if(cb)setTimeout(()=>cb(snap(null)),0);return cb},off:()=>{},
               child:n=>ref(String(path||'')+'/'+n)
             }}
@@ -75,9 +75,9 @@ jobs:
           })();`;
           const chartSource=require('node:fs').readFileSync(process.cwd()+'/node_modules/chart.js/dist/chart.umd.js','utf8');
 
-          async function route(page){
+          async function route(page,realSync=false){
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
-            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
+            if(!realSync)await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
             await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartSource}));
             await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
@@ -304,6 +304,38 @@ jobs:
             await editableAudit(page,'Compact 375px');
 
             assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
+
+            // Verify the actual account gate + real (mock-backed) sync path in an
+            // isolated browser profile, not just a static HTML/sync stub.
+            const guestContext=await browser.newContext({
+              viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+              userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
+            });
+            const guest=await guestContext.newPage(),guestErrors=[];
+            guest.on('pageerror',e=>guestErrors.push(e.message));
+            await guest.addInitScript(()=>{window.__testExternalRole=true;});
+            await route(guest,true);
+            await guest.goto('http://127.0.0.1:4173/budget/exercise.html?user=maja',{waitUntil:'domcontentloaded'});
+            await guest.waitForFunction(()=>document.documentElement.dataset.accountRole==='training_only' &&
+              document.title==='Ingemars träning' &&
+              document.getElementById('ingemar-training-choices') &&
+              !document.getElementById('ingemar-training-choices').hidden,null,{timeout:20000});
+            assert.equal(await guest.locator('#exercise-user-toggle').count(),0,'Ingemar must not see family profile toggle');
+            await guest.waitForSelector('#nav-menu a[data-training-nav-link]');
+            const guestMenu=await guest.locator('#nav-menu a[data-training-nav-link]').evaluateAll(links=>
+              links.map(link=>new URL(link.href).pathname.split('/').pop()));
+            assert.ok(guestMenu.length>=3 && guestMenu.every(name=>name==='exercise.html'),
+              'Training-only menu contains a family link: '+JSON.stringify(guestMenu));
+            await guest.locator('[data-ingemar-workout="Push"]').click();
+            await guest.waitForSelector('#day-workout-modal.show');
+            assert.equal(await guest.locator('#day-workout-type').inputValue(),'Push');
+            await guest.waitForTimeout(350);
+            await guest.screenshot({path:'test-results/observatory/ingemar-push-mobile.png'});
+            await guest.locator('#day-workout-modal .modal-close').click();
+            await guest.goto('http://127.0.0.1:4173/budget/home.html',{waitUntil:'domcontentloaded'});
+            await guest.waitForURL('**/budget/exercise.html',{timeout:20000});
+            assert.deepEqual(guestErrors,[],'Ingemar browser errors: '+guestErrors.join(' | '));
+            await guestContext.close();
             await browser.close();
             console.log('All-mode iOS focus and Zen canvas WebKit verification passed');
           })().catch(e=>{console.error(e);process.exit(1)});
