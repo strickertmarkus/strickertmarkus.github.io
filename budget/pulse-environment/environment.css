@@ -19,7 +19,8 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-header .nav-dropdown-menu a:hover{color:#fff!important;background:#ff7c9d12!important}
 #pulse-header .exercise-user-toggle{margin:12px;padding:5px;border-color:#f6a7c333;border-radius:99px;background:#ff91b00a}
 #pulse-header .exercise-user-option{min-height:44px;flex:1;font-size:12px;border-radius:99px}
-#pulse-home{position:relative;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width)!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home{position:relative;isolation:isolate;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width)!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 90% 650px at 85% 25%,#71304b12,transparent 75%),radial-gradient(ellipse 100% 950px at 8% 65%,#68305610,transparent 80%)}
 #pulse-home .reactor-stage{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);grid-template-areas:'intro core' 'stats core' 'week core' 'jumps core';align-items:center;column-gap:40px;position:relative;margin:0 0 65px;padding:30px 0 25px;isolation:isolate}
 #pulse-home .reactor-stage::before{content:'';position:absolute;inset:-60px -5vw -90px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 77% 42%,#ed315819,transparent 62%)}
 #pulse-home .reactor-intro{grid-area:intro;position:relative;padding-bottom:26px}
