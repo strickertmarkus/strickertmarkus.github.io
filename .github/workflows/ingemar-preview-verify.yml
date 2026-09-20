@@ -46,15 +46,33 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html');
             await page.waitForSelector('[data-choice="Push"]');
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
-            for(const width of [320,390,1440]){
+            async function auditNoHorizontalScroll(label){
+              const result=await page.evaluate(()=>{
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),.mode-topbar,.mode-layout,.mode-focus,.mode-details,.mode-exercise-card,.mode-set-row,.zen-layout,.zen-scenery,.zen-workspace';
+                const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
+                const invalid=candidates.map(el=>{
+                  const box=el.getBoundingClientRect();
+                  return {selector:el.tagName.toLowerCase()+(el.id?'#'+el.id:'.'+String(el.className).trim().replace(/\s+/g,'.')),
+                    left:box.left,right:box.right,scroll:el.scrollWidth,client:el.clientWidth};
+                }).filter(v=>v.left<-1||v.right>width+1||v.scroll>v.client+1);
+                return {width,html:document.documentElement.scrollWidth,body:document.body.scrollWidth,invalid:invalid.slice(0,12)};
+              });
+              assert.ok(result.html<=result.width+1&&result.body<=result.width+1&&result.invalid.length===0,
+                label+' horizontally overflows: '+JSON.stringify(result));
+            }
+            for(const width of [320,360,390,430,768,1440]){
               await page.setViewportSize({width,height:width===1440?960:844});
-              const dimensions=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
-              assert.ok(dimensions.scroll<=dimensions.width+1,'Horizontal overflow at '+width+': '+JSON.stringify(dimensions));
+              await auditNoHorizontalScroll('Startsida '+width+'px');
               await page.screenshot({path:'test-results/ingemar-demo/overview-'+width+'.png',fullPage:true});
             }
             await page.setViewportSize({width:390,height:844});
             await page.locator('[data-choice="Push"]').click();
             assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+            for(const width of [320,390,768]){
+              await page.setViewportSize({width,height:844});
+              await auditNoHorizontalScroll('Passbyggare '+width+'px');
+            }
+            await page.setViewportSize({width:390,height:844});
             assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'60');
             assert.equal(await page.locator('[data-set="0:1:weight"]').inputValue(),'65');
             assert.equal(await page.locator('[data-set="0:2:weight"]').inputValue(),'67.5');
@@ -69,17 +87,29 @@ jobs:
             await page.locator('[data-set="1:0:minutes"]').fill('3.5');
             await page.screenshot({path:'test-results/ingemar-demo/set-editor-mobile.png'});
             await page.locator('[data-action="start-from-builder"]').click();
-            await page.waitForSelector('#session[open]');
+            await page.waitForSelector('#session:not([hidden])');
+            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
+            for(const width of [320,360,390,430,768,1440]){
+              await page.setViewportSize({width,height:width===1440?960:844});
+              await auditNoHorizontalScroll('Pushläge '+width+'px');
+              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/push-session-'+width+'.png'});
+            }
+            await page.setViewportSize({width:390,height:844});
+            await page.locator('[data-action="advance-session"]').click();
+            assert.equal(await page.locator('#session-stage').textContent(),'SET PÅGÅR');
             assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
             assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
             assert.equal(await page.locator('[data-actual="1:0:minutes"]').inputValue(),'3.5');
             await page.locator('[data-done="0:0"]').click();
+            assert.equal(await page.locator('#session-stage').textContent(),'VILA');
+            await page.locator('[data-action="advance-session"]').click();
+            assert.notEqual(await page.locator('#session-stage').textContent(),'VILA');
             await page.locator('[data-done="0:1"]').click();
             await page.locator('[data-actual="0:1:weight"]').fill('73');
             await page.locator('[data-done="1:0"]').click();
             await page.screenshot({path:'test-results/ingemar-demo/live-sets-mobile.png'});
             await page.locator('[data-action="finish-session"]').click();
-            await page.waitForFunction(()=>!document.getElementById('session').open);
+            await page.waitForFunction(()=>document.getElementById('session').hidden);
             const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
             const latest=saved.history.at(-1);
             assert.equal(latest.type,'Push');
@@ -93,15 +123,58 @@ jobs:
             assert.ok(historyDetails.includes('73')&&historyDetails.includes('3.5'),
               'Recorded set details were not visible: '+historyDetails);
             await page.locator('[data-action="close-history"]').first().click();
+            await page.locator('[data-choice="Pull"]').click();
+            await page.locator('[data-action="start-from-builder"]').click();
+            await page.waitForSelector('#session:not([hidden])');
+            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Pull');
+            await auditNoHorizontalScroll('Pullläge 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/pull-session-mobile.png'});
+            await page.locator('[data-done="0:0"]').click();
+            await page.locator('[data-action="finish-session"]').click();
+            await page.locator('[data-choice="Kondition"]').click();
+            await page.locator('[data-action="start-from-builder"]').click();
+            await page.waitForSelector('#session:not([hidden])');
+            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Kondition');
+            await page.locator('[data-action="advance-session"]').click();
+            assert.equal(await page.locator('#session-stage').textContent(),'SET PÅGÅR');
+            assert.match(await page.locator('#session-clock-caption').textContent(),/Kvar i intervallet/);
+            await auditNoHorizontalScroll('Konditionsläge 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/cardio-session-mobile.png'});
+            await page.locator('[data-done="0:0"]').click();
+            await page.locator('[data-action="finish-session"]').click();
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
             await page.locator('[data-zen-index="0"]').click();
-            await page.waitForSelector('#zen-session[open]');
+            await page.waitForSelector('#zen-session:not([hidden])');
+            assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'stretch');
+            for(const width of [320,360,390,430,768]){
+              await page.setViewportSize({width,height:844});
+              await auditNoHorizontalScroll('Stretchläge '+width+'px');
+              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/stretch-session-'+width+'.png'});
+            }
+            await page.setViewportSize({width:390,height:844});
+            const stretchFirst=await page.locator('#zen-session-title').textContent();
+            await page.locator('[data-action="next-zen"]').click();
+            assert.notEqual(await page.locator('#zen-session-title').textContent(),stretchFirst);
+            await page.locator('[data-zen-step="0"]').click();
+            assert.equal(await page.locator('#zen-session-title').textContent(),stretchFirst);
             await page.locator('[data-action="pause-zen"]').click();
+            assert.equal(await page.locator('#zen-breath').textContent(),'PAUSAD');
             await page.locator('[data-action="finish-zen"]').click();
             await page.locator('[data-view="meditation"]').click();
             await page.locator('[data-zen-index="1"]').click();
+            await page.waitForSelector('#zen-session:not([hidden])');
+            assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'meditation');
+            for(const width of [320,390,430]){
+              await page.setViewportSize({width,height:844});
+              await auditNoHorizontalScroll('Meditationsläge '+width+'px');
+              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/meditation-session-'+width+'.png'});
+            }
+            await page.setViewportSize({width:390,height:844});
+            assert.match(await page.locator('#zen-breath').textContent(),/ANDAS (IN|UT)/);
+            await page.locator('[data-action="next-zen"]').click();
+            assert.equal(await page.locator('#zen-stage-list [aria-current="step"]').count(),1);
             await page.locator('[data-action="finish-zen"]').click();
             await page.locator('[data-view="training"]').click();
             page.once('dialog',d=>d.accept());
@@ -111,7 +184,7 @@ jobs:
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
             assert.deepEqual(firebaseRequests,[],'Unexpected Firebase calls');
             await browser.close();
-            console.log('Mobile + desktop Ingemar demo, per-set workout and Zen flow passed');
+            console.log('Full-screen Push/Pull/Kondition, guided Stretch/Meditation, per-set data and horizontal-overflow checks passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/ingemar-preview-e2e.cjs

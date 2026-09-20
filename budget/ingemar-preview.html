@@ -13,6 +13,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260920-immersive-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -30,8 +31,69 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 <p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
 </main>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><input id="build-date" type="date"></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
-<dialog id="session" aria-labelledby="session-title"><div class="modal-head"><div><span class="eyebrow">LIVE / TRÄNINGSLÄGE</span><h2 id="session-title">Pågående pass</h2></div><button type="button" class="x" data-action="close-session" aria-label="Stäng">×</button></div><div class="modal-body"><div class="hint" id="session-overline"></div><div class="session-progress"><div id="session-bar"></div></div><div class="session-timer" id="session-timer">00:00</div><div class="hint">Ange faktisk vikt/repetitioner eller minuter för varje set och markera det klart.</div><div id="session-exercises"></div><div class="modal-actions"><button type="button" class="ghost" data-action="close-session">Avbryt</button><button type="button" class="primary" data-action="finish-session" id="finish-session">Spara träningspass ✓</button></div></div></dialog>
-<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog><dialog id="zen-session" aria-labelledby="zen-session-title"><div class="modal-head"><div><span class="eyebrow">ZEN / PÅGÅENDE</span><h2 id="zen-session-title">Stretch</h2></div><button type="button" class="x" data-action="close-zen" aria-label="Stäng">×</button></div><div class="modal-body" style="text-align:center"><div class="zen-ring" id="zen-session-ring"><span>✧</span></div><div class="zen-timer" id="zen-clock">05:00</div><p class="hint" id="zen-step">Andas lugnt och ta den tid du behöver.</p><div class="session-progress"><div id="zen-bar"></div></div><div class="modal-actions"><button type="button" class="ghost" data-action="close-zen">Avsluta utan att spara</button><div class="right"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="primary" data-action="finish-zen">Spara stund ✓</button></div></div></div></dialog>
+<section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
+  <div class="mode-wave" aria-hidden="true"><svg viewBox="0 0 1100 620" preserveAspectRatio="xMidYMid slice"><path d="M-100 260H145L186 227L232 304L284 150L341 335L406 242H560L604 260L653 210L706 320L766 235H1220"/><path d="M-100 262H145L186 227L232 304L284 150L341 335L406 242H560L604 260L653 210L706 320L766 235H1220"/></svg></div>
+  <div class="mode-topbar"><button type="button" class="back" data-action="close-session">← Avsluta</button><div class="mode-identity"><small>INGEMARS TRÄNING · PULSE REACTOR</small><strong id="session-kind">Push</strong></div><span class="mode-status" id="session-status">LIVE · DEMO</span></div>
+  <div class="mode-layout">
+    <div class="mode-focus">
+      <div class="mode-eyebrow" id="session-overline">SET 1 / 9</div>
+      <h1 id="session-title">Pågående pass</h1>
+      <p class="mode-description" id="session-guidance">Starta ett set och följ träningen i realtid.</p>
+      <div class="mode-clock-ring" id="session-ring" role="progressbar" aria-label="Genomförda set" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" pathLength="100"/></svg>
+        <div class="mode-ring-text"><small id="session-stage">REDO FÖR SET</small><strong id="session-timer">00:00</strong><span id="session-clock-caption">Passets tid</span></div>
+      </div>
+      <div class="mode-focus-name" id="session-focus-name">Bänkpress</div>
+      <div class="mode-focus-plan" id="session-focus-plan">Set 1 av 3 · 60 kg × 12</div>
+      <div class="mode-live-note" id="session-rest-indicator" hidden>Vila 01:00</div>
+    </div>
+    <div class="mode-details">
+      <div class="mode-details-head"><h2>Dina set</h2><span id="session-set-count">0 av 9 klara</span></div>
+      <div class="mode-progress"><div id="session-bar"></div></div>
+      <p class="mode-description">Varje rad är ett eget set. Ändra vikt, repetitioner eller minuter under passet och markera utförda set med ✓.</p>
+      <div id="session-exercises"></div>
+      <div class="mode-command-row"><button type="button" class="secondary" data-action="rest-session" id="session-rest-button">Vila 60 s</button><button type="button" class="primary" data-action="advance-session" id="session-next-button">Starta set ↗</button></div>
+      <div class="mode-session-footer"><p class="hint">Endast markerade set sparas i demologgen.</p><button type="button" class="primary" data-action="finish-session" id="finish-session">Spara genomförda set ✓</button></div>
+    </div>
+  </div>
+</section>
+<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog><section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
+  <div class="mode-topbar"><button type="button" class="back" data-action="close-zen">← Lämna</button><div class="mode-identity"><small>INGEMAR / ZEN · EGEN ÅTERHÄMTNING</small><strong id="zen-kind-name">Stretch</strong></div><span class="mode-status" id="zen-status">LIVE · DEMO</span></div>
+  <div class="zen-layout">
+    <div class="zen-scenery" aria-hidden="true">
+      <svg class="zen-scene-stretch" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="forestlight" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#7dab87" stop-opacity=".7"/><stop offset="1" stop-color="#0b241d" stop-opacity=".1"/></linearGradient></defs>
+        <circle cx="401" cy="6" r="134" fill="#a8d69b" opacity=".11"/><path d="M0 0H800V260H0Z" fill="url(#forestlight)" opacity=".3"/>
+        <g fill="#0a211a" stroke="#668868" stroke-opacity=".3" stroke-width="2"><path d="M25 260L48 0H83L82 260Z"/><path d="M683 260L725 0H774L788 260Z"/><path d="M-15 45Q180 4 290 0Q129 48 10 125Z"/><path d="M825 40Q602 -10 531 0Q689 39 821 130Z"/></g>
+        <g fill="#214939" opacity=".96"><ellipse cx="32" cy="25" rx="160" ry="92"/><ellipse cx="185" cy="-12" rx="173" ry="67"/><ellipse cx="764" cy="8" rx="150" ry="96"/><ellipse cx="593" cy="-14" rx="146" ry="60"/></g>
+        <g fill="#75aa7f" opacity=".35"><ellipse cx="220" cy="33" rx="86" ry="24"/><ellipse cx="589" cy="40" rx="100" ry="23"/></g>
+        <path d="M0 224Q190 198 356 227T800 210V260H0Z" fill="#14372b"/><path d="M0 239Q187 218 350 242T800 222V260H0Z" fill="#082019"/>
+        <g fill="#d5efaa"><circle cx="198" cy="130" r="2" opacity=".75"/><circle cx="563" cy="146" r="2.6" opacity=".64"/><circle cx="395" cy="75" r="1.7" opacity=".8"/></g>
+      </svg>
+      <svg class="zen-scene-meditation" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="waterfall" x1="0" x2="1"><stop stop-color="#dafcf1" stop-opacity=".08"/><stop offset=".5" stop-color="#e9faf0" stop-opacity=".75"/><stop offset="1" stop-color="#b5ebdf" stop-opacity=".1"/></linearGradient></defs>
+        <circle cx="395" cy="44" r="39" fill="#fff0b3" opacity=".83"/><circle cx="395" cy="44" r="73" fill="#fff0b3" opacity=".15"/>
+        <path d="M0 115L120 85L250 140L450 100L612 144L730 71L800 92V260H0Z" fill="#33585c"/><path d="M0 156L120 139L256 181L558 138L800 159V260H0Z" fill="#234449"/>
+        <path d="M331 107Q396 92 469 107L455 251H347Z" fill="url(#waterfall)" opacity=".95"/><path d="M357 110Q392 119 427 110L422 238H355Z" fill="#dafff1" opacity=".21"/>
+        <path d="M0 230Q162 206 337 237T800 220V260H0Z" fill="#1b383f"/><path d="M300 237Q399 216 495 237" fill="none" stroke="#eaf9e8" stroke-opacity=".58" stroke-width="4"/>
+        <g fill="#142f2c"><path d="M75 260V25h12v235Z"/><path d="M114 260V0h10v260Z"/><path d="M685 260V9h11v251Z"/><path d="M716 260V31h9v229Z"/></g>
+        <g stroke="#6eae8c" stroke-width="2" fill="#285947"><path d="M83 68Q28 22 5 70Q44 53 83 68Z"/><path d="M118 112Q172 68 193 103Q157 89 118 112Z"/><path d="M689 81Q640 35 608 65Q649 60 689 81Z"/><path d="M719 141Q776 96 814 132Q767 122 719 141Z"/></g>
+      </svg>
+      <div class="scene-sheen"></div><span class="scene-hint" id="zen-scene-hint">SKOGSLJUS · MJUK RÖRELSE</span>
+    </div>
+    <div class="zen-workspace">
+      <div class="zen-overline" id="zen-session-overline">STRETCH · STEG 1 AV 5</div>
+      <h1 id="zen-session-title">Helkropp</h1>
+      <p class="zen-description" id="zen-step">Rör dig mjukt och ta en stund för kroppen.</p>
+      <div class="zen-clock-wrap" id="zen-session-ring"><div class="zen-clock-inner"><small id="zen-clock-caption">KVAR I RÖRELSEN</small><strong id="zen-clock">01:00</strong><small id="zen-breath">TA DET LUGNT</small></div></div>
+      <div class="zen-stage" id="zen-stage-label">STEGETS FÖRLOPP</div>
+      <div class="mode-progress zen-progress"><div id="zen-bar"></div></div>
+      <div class="zen-stage-list" id="zen-stage-list" aria-label="Passets steg"></div>
+      <div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
+      <button type="button" class="ghost zen-exit" data-action="finish-zen" id="finish-zen">Avsluta och spara stund ✓</button>
+    </div>
+  </div>
+</section>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
 (function(){
@@ -39,6 +101,47 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 var KEY='ingemar-pulse-demo-v1';
 var DAYS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 var TYPES=['Push','Pull','Kondition'];
+var ZEN_ROUTINES={
+ stretch:[
+  {name:'Helkropp',minutes:8,description:'Mjuk rörlighet · 8 min',steps:[
+   {name:'Hitta din andning',seconds:60,cue:'Stå bekvämt. Låt axlarna sjunka och andas lugnt.'},
+   {name:'Nacke & axlar',seconds:90,cue:'Låt huvudet röra sig mjukt från sida till sida. Undvik att pressa.'},
+   {name:'Bröstrygg',seconds:90,cue:'Rotera överkroppen långsamt. Låt rörelsen vara behaglig.'},
+   {name:'Höft & framsida lår',seconds:120,cue:'Ta ett mjukt steg bakåt och öppna höften. Byt sida efter halva tiden.'},
+   {name:'Baksida ben & avslut',seconds:120,cue:'Fäll framåt med mjuka knän. Res dig långsamt och landa i andningen.'}
+  ]},
+  {name:'Axlar & rygg',minutes:6,description:'Avlastning · 6 min',steps:[
+   {name:'Landa i kroppen',seconds:60,cue:'Ta några lugna andetag och slappna av i käken.'},
+   {name:'Axelcirklar',seconds:90,cue:'Rulla axlarna bakåt och framåt utan att forcera.'},
+   {name:'Bröstryggsrotation',seconds:90,cue:'Rotera långsamt sida till sida och håll bäckenet stilla.'},
+   {name:'Mjuk framåtfällning',seconds:120,cue:'Låt armarna hänga och ryggen få slappna av.'}
+  ]},
+  {name:'Höft & ben',minutes:10,description:'Rörlighet · 10 min',steps:[
+   {name:'Andning & förberedelse',seconds:60,cue:'Stå stadigt och andas lugnt in genom näsan.'},
+   {name:'Höftböjare',seconds:120,cue:'Kliv fram i ett mjukt utfall. Byt sida efter halva tiden.'},
+   {name:'Baksida lår',seconds:120,cue:'Luta dig försiktigt framåt med mjuka knän.'},
+   {name:'Sittande höftöppning',seconds:120,cue:'Sitt bekvämt och arbeta försiktigt med rörligheten.'},
+   {name:'Vad & avslut',seconds:180,cue:'Sträck ut vaderna och avsluta med lugn andning.'}
+  ]}
+ ],
+ meditation:[
+  {name:'Lugn andning',minutes:5,description:'Guidad andning · 5 min',steps:[
+   {name:'Landa',seconds:60,cue:'Hitta en bekväm position och låt blicken vila.'},
+   {name:'Följ andetaget',seconds:180,cue:'Andas in i ungefär fyra sekunder och ut i sex, om det känns bekvämt.'},
+   {name:'Stanna i lugnet',seconds:60,cue:'Släpp räkningen och återvänd mjukt till rummet.'}
+  ]},
+  {name:'Stillhet',minutes:10,description:'Egen takt · 10 min',steps:[
+   {name:'Kom till ro',seconds:120,cue:'Sitt eller ligg bekvämt. Känn stödet från underlaget.'},
+   {name:'Tyst närvaro',seconds:360,cue:'Lägg märke till andetagen utan att ändra dem.'},
+   {name:'Mjuk återgång',seconds:120,cue:'Känn kroppen och öppna ögonen när du är redo.'}
+  ]},
+  {name:'Djup vila',minutes:15,description:'Lugn avslutning · 15 min',steps:[
+   {name:'Varva ner',seconds:180,cue:'Finn en vilsam position. Släpp spänningar i ansikte och axlar.'},
+   {name:'Vila',seconds:540,cue:'Låt tankarna passera utan att följa dem. Andas naturligt.'},
+   {name:'Återvänd',seconds:180,cue:'Rör varsamt på fingrar och tår och återvänd i din egen takt.'}
+  ]}
+ ]
+};
 var $=function(id){return document.getElementById(id);};
 function clean(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function uid(){return 'demo-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);}
@@ -110,8 +213,8 @@ function renderZen(){
  $('zen-title').textContent=med?'En stund för sinnet.':'En stund för kroppen.';
  $('zen-description').textContent=med?'Sänk tempot, följ andningen och landa i nuet.':'Rörlighet och återhämtning med mjuka övergångar.';
  $('zen-ring').classList.toggle('meditation',med);$('zen-ring').querySelector('span').textContent=med?'≈':'✧';
- var routines=med?[['Lugn andning',5,'Guidad andning · 5 min'],['Stillhet',10,'Egen takt · 10 min'],['Djup vila',15,'Lugn avslutning · 15 min']]:[['Helkropp',8,'Mjuk rörlighet · 8 min'],['Axlar & rygg',6,'Avlastning · 6 min'],['Höft & ben',10,'Rörlighet · 10 min']];
- $('zen-choices').innerHTML=routines.map(function(r,i){return '<button type="button" class="choice '+(med?'meditation':'stretch')+'" data-zen-index="'+i+'"><span class="glyph">'+(med?'≈':'✧')+'</span><b>'+clean(r[0])+'</b><small>'+clean(r[2])+' ↗</small></button>';}).join('');
+ var routines=ZEN_ROUTINES[view];
+ $('zen-choices').innerHTML=routines.map(function(r,i){return '<button type="button" class="choice '+(med?'meditation':'stretch')+'" data-zen-index="'+i+'"><span class="glyph">'+(med?'≈':'✧')+'</span><b>'+clean(r.name)+'</b><small>'+clean(r.description)+' ↗</small></button>';}).join('');
  $('zen-history').innerHTML=state.zenHistory.filter(function(h){return h.type===view;}).slice().reverse().map(function(h){return '<div class="history-row"><div><strong>'+clean(h.name)+'</strong><small>'+pretty(h.date)+'</small></div><span class="metric">'+h.minutes+' min</span></div>';}).join('')||'<p class="hint">Här visas dina sparade stunder.</p>';
 }
 function deep(v){return JSON.parse(JSON.stringify(v));}
@@ -152,23 +255,141 @@ function saveDraft(){
  state.plans[draft.date]={type:draft.type,name:draft.name,exercises:deep(draft.exercises)};
  selected=draft.date;persist();render();return true;
 }
+function firstPendingSet(){
+ if(!active)return null;
+ for(var i=0;i<active.exercises.length;i++){
+  for(var j=0;j<active.exercises[i].sets.length;j++){
+   if(!active.exercises[i].sets[j].done)return {ex:i,set:j};
+  }
+ }
+ return null;
+}
+function focusedSet(){
+ if(!active||!active.focus)return null;
+ var e=active.exercises[active.focus.ex];
+ return e&&e.sets[active.focus.set]||null;
+}
+function elapsedSetSeconds(){
+ if(!active)return 0;
+ return (active.timerElapsed||0)+(active.timerRunning?Math.max(0,(Date.now()-active.timerStartedAt)/1000):0);
+}
+function resetSetClock(){
+ if(!active)return;
+ active.timerElapsed=0;active.timerRunning=false;active.timerStartedAt=0;
+}
 function start(){
  var p=plan(selected);
  if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}
  active=deep(p);active.exercises.forEach(function(e){e.sets.forEach(function(s){s.done=false;});});
  active.startedAt=Date.now();active.date=selected;
+ active.focus=firstPendingSet();active.timerElapsed=0;active.timerStartedAt=0;active.timerRunning=false;active.restUntil=0;
  $('session-title').textContent=active.name;
- $('session').showModal();
+ $('session-kind').textContent=active.type;
+ $('session').dataset.kind=active.type;
+ $('session').hidden=false;
+ document.body.dataset.modeOpen='true';
  renderSession();
+ $('session').scrollTop=0;
 }
 function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(seconds));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}
+function updateSessionClock(){
+ if(!active)return;
+ var focus=active.focus,ex=focus&&active.exercises[focus.ex],set=focusedSet(),now=Date.now();
+ var rest=active.restUntil?Math.max(0,Math.ceil((active.restUntil-now)/1000)):0;
+ if(active.restUntil&&!rest){active.restUntil=0;renderSession();return;}
+ var all=active.exercises.reduce(function(n,e){return n+e.sets.length;},0);
+ var done=active.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0);
+ var caption,clock,stage,progress;
+ if(rest){
+  clock=fmtSeconds(rest);stage='VILA';caption='Till nästa set';
+  progress=100*(1-rest/60);
+ }else if(set){
+  var elapsed=elapsedSetSeconds();
+  var timed=ex.mode==='min';
+  var duration=timed?Math.max(1,Number(set.minutes)||1)*60:0;
+  clock=fmtSeconds(timed?Math.ceil(Math.max(0,duration-elapsed)):Math.floor(elapsed));
+  stage=active.timerRunning?'SET PÅGÅR':(elapsed>0?'PAUSAT':'REDO FÖR SET');
+  caption=timed?'Kvar i intervallet':'Tid för detta set';
+  progress=timed?100*Math.min(1,elapsed/duration):(all?100*done/all:0);
+ }else{
+  clock=fmtSeconds((Date.now()-active.startedAt)/1000);
+  stage='ALLA SET KLARA';caption='Passets tid';progress=100;
+ }
+ $('session-timer').textContent=clock;
+ $('session-stage').textContent=stage;
+ $('session-clock-caption').textContent=caption;
+ $('session-ring').style.setProperty('--ring-progress-num',String(Math.min(100,Math.max(0,progress))));
+ $('session-ring').setAttribute('aria-valuenow',String(Math.round(all?100*done/all:0)));
+ $('session-rest-indicator').hidden=!rest;
+ if(rest)$('session-rest-indicator').textContent='Vila · '+fmtSeconds(rest)+' kvar';
+ $('session-status').textContent=rest?'VILA':active.timerRunning?'AKTIVT SET':'LIVE · DEMO';
+ var next=$('session-next-button');
+ if(!set){next.textContent='Alla set klara ✓';next.disabled=true;}
+ else{
+  next.disabled=false;
+  next.textContent=rest?'Hoppa över vilan ↗':active.timerRunning?'Set klart · Nästa ↗':ex.mode==='min'?'Starta intervall ↗':'Starta set ↗';
+ }
+ $('session-rest-button').textContent=rest?'Hoppa över vila':'Vila 60 s';
+}
 function renderSession(){
  if(!active)return;
- var all=active.exercises.reduce(function(n,e){return n+e.sets.length;},0),done=active.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0);
- $('session-overline').textContent=done+' / '+all+' set klara · '+active.date;
- $('session-bar').style.width=(all?done/all*100:0)+'%';
- $('finish-session').textContent=done?'Spara '+done+' set ✓':'Spara träningspass ✓';
- $('session-exercises').innerHTML=active.exercises.map(function(e,i){var timed=e.mode==='min';return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.filter(function(s){return s.done;}).length+'/'+e.sets.length+' klara</span></div><div class="set-header session-set"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span>KLAR</span></div>'+e.sets.map(function(s,j){return '<div class="set-row session-set"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" step="0.5" min="0" max="999" aria-label="Faktisk '+(timed?'tid':'vikt')+' för set '+(j+1)+'" data-actual="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'"><input type="number" inputmode="numeric" min="0" max="999" aria-label="Faktiska reps för set '+(j+1)+'" data-actual="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="done-button" data-done="'+i+':'+j+'" aria-pressed="'+s.done+'" aria-label="Set '+(j+1)+(s.done?' klart':' ej klart')+'">'+(s.done?'✓':'○')+'</button></div>';}).join('')+'</article>';}).join('');
+ var total=active.exercises.reduce(function(n,e){return n+e.sets.length;},0);
+ var done=active.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0);
+ var focus=active.focus,ex=focus&&active.exercises[focus.ex],set=focusedSet(),timed=ex&&ex.mode==='min';
+ $('session-overline').textContent=ex?'ÖVNING '+(focus.ex+1)+' / '+active.exercises.length+' · SET '+(focus.set+1)+' AV '+ex.sets.length:'PASS GENOMFÖRT';
+ $('session-set-count').textContent=done+' av '+total+' set klara';
+ $('session-bar').style.width=(total?done/total*100:0)+'%';
+ $('finish-session').textContent=done?'Spara '+done+' genomförda set ✓':'Spara genomförda set ✓';
+ $('session-focus-name').textContent=ex?ex.name:'Bra genomfört!';
+ $('session-focus-plan').innerHTML=set
+  ?'Set '+(focus.set+1)+' av '+ex.sets.length+' · <b>'+(timed?set.minutes+' minuter':set.weight+' kg × '+set.reps+' reps')+'</b>'
+  :'Alla set är markerade. Spara ditt pass i loggen.';
+ $('session-guidance').textContent=active.restUntil?'Nästa set väntar. Återhämta dig i din takt.':timed
+  ?'Tryck på Starta intervall. Klockan räknar ned från den valda tiden.':'Starta ett set, följ timern och justera den faktiska vikten eller antalet repetitioner.';
+ $('session-exercises').innerHTML=active.exercises.map(function(e,i){
+  var timed=e.mode==='min',current=focus&&focus.ex===i;
+  return '<article class="mode-exercise-card'+(current?' is-current':'')+'"><div class="mode-exercise-head"><strong>'+clean(e.name)+'</strong><small>'+e.sets.filter(function(s){return s.done;}).length+' / '+e.sets.length+' klara</small></div>'+
+   '<div class="mode-set-header"><span>SET</span><span>'+(timed?'MINUTER':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span>KLAR</span></div>'+
+   e.sets.map(function(s,j){
+    var thisSet=current&&focus.set===j;
+    return '<div class="mode-set-row'+(thisSet?' is-current':'')+(s.done?' is-complete':'')+'"><span class="set-number">'+pad(j+1)+'</span>'+
+     '<input type="number" inputmode="decimal" step="0.5" min="0" max="999" aria-label="Faktisk '+(timed?'tid':'vikt')+' för set '+(j+1)+'" data-actual="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'">'+
+     '<input type="number" inputmode="numeric" min="0" max="999" aria-label="Faktiska reps för set '+(j+1)+'" data-actual="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'">'+
+     '<button type="button" class="done-button" data-done="'+i+':'+j+'" aria-pressed="'+s.done+'" aria-label="Set '+(j+1)+(s.done?' klart':' ej klart')+'">'+(s.done?'✓':'○')+'</button></div>';
+   }).join('')+'</article>';
+ }).join('');
+ updateSessionClock();
+}
+function toggleCompletedSet(exIndex,setIndex){
+ if(!active)return;
+ var ex=active.exercises[exIndex],set=ex&&ex.sets[setIndex];if(!set)return;
+ var previouslyDone=set.done;
+ set.done=!set.done;
+ if(active.focus&&active.focus.ex===exIndex&&active.focus.set===setIndex||!active.focus){
+  resetSetClock();
+  active.focus=firstPendingSet();
+  active.restUntil=set.done&&active.focus&&active.type!=='Kondition'?Date.now()+60000:0;
+ }else if(previouslyDone&&!set.done){
+  active.restUntil=0;
+ }
+ renderSession();
+}
+function advanceSession(){
+ if(!active)return;
+ if(active.restUntil){active.restUntil=0;renderSession();return;}
+ var set=focusedSet();if(!set){toast('Alla set är klara. Spara passet i loggen.');return;}
+ if(!active.timerRunning){
+  active.timerRunning=true;active.timerStartedAt=Date.now();renderSession();return;
+ }
+ toggleCompletedSet(active.focus.ex,active.focus.set);
+}
+function toggleSessionRest(){
+ if(!active||!focusedSet())return;
+ if(active.timerRunning){
+  active.timerElapsed=elapsedSetSeconds();active.timerRunning=false;
+ }
+ active.restUntil=active.restUntil?0:Date.now()+60000;
+ renderSession();
 }
 function openHistory(id){
  var workout=state.history.find(function(h){return h.id===id;});
@@ -184,24 +405,96 @@ function openHistory(id){
 }
 function finishSession(){
  if(!active)return;
- var selectedExercises=active.exercises.map(function(e){var copy=deep(e);copy.sets=copy.sets.filter(function(s){return s.done;});return copy;}).filter(function(e){return e.sets.length;});
+ var selectedExercises=active.exercises.map(function(e){var copy=deep(e);copy.sets=copy.sets.filter(function(set){return set.done;});return copy;}).filter(function(e){return e.sets.length;});
  if(!selectedExercises.length){toast('Markera minst ett set som klart.');return;}
  var workout={id:uid(),date:active.date,type:active.type,name:active.name,minutes:Math.max(1,Math.round((Date.now()-active.startedAt)/60000)),exercises:selectedExercises};
- state.history.push(workout);persist();active=null;$('session').close();render();toast('Träningspasset sparades lokalt i demon.');
+ state.history.push(workout);
+ persist();
+ active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;
+ render();toast('Träningspasset sparades lokalt i demon.');
+}
+function zenStepAt(elapsed){
+ if(!activeZen)return {index:0,start:0,end:0,step:null};
+ var start=0,steps=activeZen.steps;
+ for(var i=0;i<steps.length;i++){
+  var end=start+steps[i].seconds;
+  if(elapsed<end||i===steps.length-1)return {index:i,start:start,end:end,step:steps[i]};
+  start=end;
+ }
+ return {index:0,start:0,end:0,step:steps[0]};
 }
 function zenStart(index){
- var med=view==='meditation',r=med?[['Lugn andning',5],['Stillhet',10],['Djup vila',15]][index]:[['Helkropp',8],['Axlar & rygg',6],['Höft & ben',10]][index];
- if(!r)return;
- activeZen={type:view,name:r[0],duration:r[1]*60,elapsed:0,running:true,last:Date.now()};
- $('zen-session-title').textContent=r[0];
- $('zen-step').textContent=med?'Följ en lugn andning. Du kan pausa när som helst.':'Rör dig mjukt och byt rörelse i din egen takt.';
- $('zen-session-ring').classList.toggle('meditation',med);
- $('zen-session-ring').querySelector('span').textContent=med?'≈':'✧';
- $('zen-session').showModal();renderZenSession();
+ var routines=ZEN_ROUTINES[view],routine=routines&&routines[index];
+ if(!routine)return;
+ activeZen={type:view,name:routine.name,steps:deep(routine.steps),duration:routine.steps.reduce(function(sum,step){return sum+step.seconds;},0),elapsed:0,running:true,last:Date.now(),shownStage:-1};
+ $('zen-session').dataset.kind=view;
+ $('zen-kind-name').textContent=routine.name;
+ $('zen-scene-hint').textContent=view==='meditation'?'VATTEN · LJUS · LUGN ANDNING':'SKOGSLJUS · MJUK RÖRELSE';
+ $('zen-session').hidden=false;
+ document.body.dataset.modeOpen='true';
+ renderZenSession();
+ $('zen-session').scrollTop=0;
 }
-function zenTick(){if(!activeZen)return;if(activeZen.running){var now=Date.now();activeZen.elapsed=Math.min(activeZen.duration,activeZen.elapsed+(now-activeZen.last)/1000);activeZen.last=now;}renderZenSession();}
-function renderZenSession(){if(!activeZen)return;var remaining=activeZen.duration-activeZen.elapsed;$('zen-clock').textContent=fmtSeconds(Math.ceil(remaining));$('zen-bar').style.width=100*activeZen.elapsed/activeZen.duration+'%';$('pause-zen').textContent=activeZen.running?'Pausa':'Fortsätt';if(!remaining){activeZen.running=false;$('zen-step').textContent='Din stund är klar. Spara den i historiken.';}}
-function finishZen(){if(!activeZen)return;zenTick();var minutes=Math.max(1,Math.round(activeZen.elapsed/60));state.zenHistory.push({date:dayISO(new Date()),type:activeZen.type,name:activeZen.name,minutes:minutes});persist();activeZen=null;$('zen-session').close();renderZen();render();toast('Stunden sparades lokalt i demon.');}
+function zenTick(){
+ if(!activeZen)return;
+ if(activeZen.running){
+  var now=Date.now();
+  activeZen.elapsed=Math.min(activeZen.duration,activeZen.elapsed+Math.max(0,(now-activeZen.last)/1000));
+  activeZen.last=now;
+ }
+ if(activeZen.elapsed>=activeZen.duration)activeZen.running=false;
+ renderZenSession();
+}
+function renderZenSession(){
+ if(!activeZen)return;
+ var position=zenStepAt(activeZen.elapsed),step=position.step,done=activeZen.elapsed>=activeZen.duration;
+ var remaining=done?0:Math.max(0,position.end-activeZen.elapsed);
+ var med=activeZen.type==='meditation';
+ $('zen-session-overline').textContent=(med?'MEDITATION':'STRETCH')+' · STEG '+(position.index+1)+' AV '+activeZen.steps.length;
+ $('zen-session-title').textContent=done?'Din stund är klar.':step.name;
+ $('zen-step').textContent=done?'Ta ett lugnt andetag och spara din stund när du vill.':step.cue;
+ $('zen-clock').textContent=fmtSeconds(Math.ceil(remaining));
+ $('zen-clock-caption').textContent=done?'FÄRDIG':med?'KVAR I DETTA STEG':'KVAR I RÖRELSEN';
+ var breath=activeZen.running&&med&&!done?(activeZen.elapsed%10<4?'ANDAS IN':'ANDAS UT'):'';
+ $('zen-breath').textContent=done?'BRA GJORT':!activeZen.running?'PAUSAD':med?breath:'MJUK RÖRELSE';
+ $('zen-status').textContent=done?'KLART':activeZen.running?'PÅGÅR':'PAUSAD';
+ $('zen-session-ring').classList.toggle('is-paused',!activeZen.running);
+ $('zen-bar').style.width=(100*activeZen.elapsed/activeZen.duration)+'%';
+ $('zen-stage-label').textContent=done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+Math.round(activeZen.elapsed/activeZen.duration*100)+' % AV PASSET';
+ $('pause-zen').disabled=done;$('pause-zen').textContent=activeZen.running?'Pausa':'Fortsätt';
+ $('next-zen').textContent=done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗';
+ if(activeZen.shownStage!==position.index||activeZen.shownDone!==done){
+  $('zen-stage-list').innerHTML=activeZen.steps.map(function(item,i){
+   return '<button type="button" data-zen-step="'+i+'" aria-current="'+(i===position.index?'step':'false')+'">'+(i+1)+'. '+clean(item.name)+'</button>';
+  }).join('');
+  activeZen.shownStage=position.index;activeZen.shownDone=done;
+ }
+}
+function nextZen(){
+ if(!activeZen)return;
+ zenTick();
+ var at=zenStepAt(activeZen.elapsed);
+ if(activeZen.elapsed>=activeZen.duration||at.index===activeZen.steps.length-1){finishZen();return;}
+ activeZen.elapsed=at.end;
+ activeZen.last=Date.now();
+ activeZen.shownStage=-1;
+ renderZenSession();
+}
+function selectZenStep(index){
+ if(!activeZen||index<0||index>=activeZen.steps.length)return;
+ activeZen.elapsed=activeZen.steps.slice(0,index).reduce(function(sum,step){return sum+step.seconds;},0);
+ activeZen.last=Date.now();activeZen.shownStage=-1;
+ renderZenSession();
+}
+function finishZen(){
+ if(!activeZen)return;
+ zenTick();
+ var minutes=Math.max(1,Math.round(activeZen.elapsed/60));
+ state.zenHistory.push({date:dayISO(new Date()),type:activeZen.type,name:activeZen.name,minutes:minutes});
+ persist();
+ activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
+ renderZen();render();toast('Stunden sparades lokalt i demon.');
+}
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
  if(b.dataset.view){switchView(b.dataset.view);return;}
@@ -209,12 +502,13 @@ document.addEventListener('click',function(event){
  if(b.dataset.day){selected=b.dataset.day;render();return;}
  if(b.dataset.choice){openBuilder(b.dataset.choice);return;}
  if(b.dataset.zenIndex!=null){zenStart(Number(b.dataset.zenIndex));return;}
- if(b.dataset.type){var t=b.dataset.type;var from=draft.exercises;draft.type=t;draft.name=t+' · Fokus';draft.exercises=template(t);$('builder-title').textContent='Bygg '+t.toLowerCase()+'pass';renderBuilder();return;}
+ if(b.dataset.zenStep!=null){selectZenStep(Number(b.dataset.zenStep));return;}
+ if(b.dataset.type){var t=b.dataset.type;draft.type=t;draft.name=t+' · Fokus';draft.exercises=template(t);$('builder-title').textContent='Bygg '+t.toLowerCase()+'pass';renderBuilder();return;}
  if(b.dataset.mode){var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];e.sets.forEach(function(s){if(e.mode==='min'&&!s.minutes)s.minutes=5;if(e.mode==='kg'&&!s.reps)s.reps=10;});renderBuilder();return;}
  if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
  if(b.dataset.removeSet){var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
  if(b.dataset.removeExercise!=null){if(draft.exercises.length>1)draft.exercises.splice(Number(b.dataset.removeExercise),1);renderBuilder();return;}
- if(b.dataset.done){var a=b.dataset.done.split(':'),s=active.exercises[Number(a[0])].sets[Number(a[1])];s.done=!s.done;renderSession();return;}
+ if(b.dataset.done){var at=b.dataset.done.split(':');toggleCompletedSet(Number(at[0]),Number(at[1]));return;}
  if(b.dataset.action){
   switch(b.dataset.action){
    case 'build':openBuilder();break;
@@ -223,26 +517,37 @@ document.addEventListener('click',function(event){
    case 'add-exercise':if(draft.exercises.length>=16){toast('Högst 16 övningar.');break;}draft.exercises.push(exercise('Ny övning',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));renderBuilder();break;
    case 'save-plan':if(saveDraft()){$('builder').close();draft=null;toast('Passupplägget sparades lokalt i demon.');}break;
    case 'start-from-builder':if(saveDraft()){$('builder').close();draft=null;start();}break;
-   case 'close-session':active=null;$('session').close();toast('Passet avslutades utan att sparas.');break;
+   case 'close-session':if(active&&confirm('Avsluta passet utan att spara genomförda set?')){active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;toast('Passet avslutades utan att sparas.');}break;
    case 'close-history':$('history-detail').close();break;
    case 'finish-session':finishSession();break;
+   case 'advance-session':advanceSession();break;
+   case 'rest-session':toggleSessionRest();break;
    case 'reset':if(confirm('Återställa all demodata och dina ändringar i förhandsvisningen?')){state=seed();selected=dayISO(new Date());persist();render();toast('Demodata återställd.');}break;
-   case 'pause-zen':if(activeZen){zenTick();activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();}break;
-   case 'close-zen':activeZen=null;$('zen-session').close();break;
+   case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();}}break;
+   case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
    case 'finish-zen':finishZen();break;
+   case 'next-zen':nextZen();break;
   }
  }
 });
 document.addEventListener('input',function(event){
- var el=event.target;if(!$('builder').open||!draft)return;
- if(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set)updateDraftField(el);
+ var el=event.target;
+ if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
+ if(el.dataset.actual&&active){
+  var position=el.dataset.actual.split(':'),ex=active.exercises[Number(position[0])];
+  var set=ex&&ex.sets[Number(position[1])];
+  if(set){
+   set[position[2]]=Math.max(0,Math.min(999,Number(el.value)||0));
+   if(active.focus&&Number(position[0])===active.focus.ex&&Number(position[1])===active.focus.set){
+    $('session-focus-plan').innerHTML='Set '+(active.focus.set+1)+' av '+ex.sets.length+' · <b>'+(ex.mode==='min'?set.minutes+' minuter':set.weight+' kg × '+set.reps+' reps')+'</b>';
+   }
+  }
+ }
 });
-document.addEventListener('change',function(event){
- var el=event.target;if(el.dataset.actual&&active){var a=el.dataset.actual.split(':'),set=active.exercises[Number(a[0])].sets[Number(a[1])];set[a[2]]=Math.max(0,Math.min(999,Number(el.value)||0));}
-});
-['builder','session','zen-session','history-detail'].forEach(function(id){$(id).addEventListener('cancel',function(event){event.preventDefault();toast('Använd Avbryt/Stäng så att du inte tappar ändringar av misstag.');});});
+$('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
+$('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
 window.addEventListener('beforeunload',function(event){if(active||activeZen){event.preventDefault();event.returnValue='';}});
-setInterval(function(){if(active)$('session-timer').textContent=fmtSeconds((Date.now()-active.startedAt)/1000);if(activeZen)zenTick();},400);
+setInterval(function(){if(active)updateSessionClock();if(activeZen)zenTick();},400);
 render();
 })();
 </script>
