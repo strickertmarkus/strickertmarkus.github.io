@@ -98,6 +98,10 @@ jobs:
                 label+' save button must remain reachable after scrolling: '+JSON.stringify(position));
               await page.locator('#finish-session').click();
             }
+            async function actionTopAtStart(){
+              await page.locator('#session').evaluate(el=>el.scrollTop=0);
+              return page.locator('#session-controls').evaluate(el=>el.getBoundingClientRect().top);
+            }
             async function assertActionsInFlow(label,shouldFit){
               const placement=await page.locator('#session-controls').evaluate(el=>{
                 const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
@@ -126,6 +130,9 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true,
               'Strength sets use the count-up timer at top right, not a one-minute ring');
+            const readyActionTop=await actionTopAtStart();
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).visibility),'hidden',
+              'The strength ring is invisible but retains the recovery timer slot');
             assert.match(await page.locator('#session-current-target').textContent(),/60 kg/);
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'true');
             await page.locator('[data-action="toggle-prestart"]').click();
@@ -168,6 +175,9 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
+            const restActionTop=await actionTopAtStart();
+            assert.ok(Math.abs(readyActionTop-restActionTop)<=4,
+              'Starta set must align with Hoppa över vilan: '+JSON.stringify({readyActionTop,restActionTop}));
             await assertActionsInFlow('Hoppa över vilan',false);
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
@@ -178,6 +188,9 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
             assert.equal(await page.locator('[data-action="extra-session-set"]').count(),1);
             assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
+            const decisionActionTop=await actionTopAtStart();
+            assert.ok(Math.abs(decisionActionTop-restActionTop)<=4,
+              'Starta nästa set must align with Hoppa över vilan: '+JSON.stringify({decisionActionTop,restActionTop}));
             for(const viewport of [{width:320,height:568},{width:390,height:667}]){
               await page.setViewportSize(viewport);
               await assertActionsInFlow('Tre beslutsknappar '+viewport.width+'×'+viewport.height,false);
