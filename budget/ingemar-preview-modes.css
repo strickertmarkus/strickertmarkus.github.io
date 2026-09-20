@@ -4,14 +4,7 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .mode-screen[hidden]{display:none!important}
 .mode-screen{--mode-accent:#ff9eb6;--mode-accent-soft:#f15d8d39;--mode-border:#ffb4d04e;position:fixed;inset:0;z-index:55;display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;min-height:100dvh;max-width:100vw;color:#fff1f6;background:radial-gradient(ellipse at 50% -23%,#b4406540,transparent 55%),#090e17;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);-webkit-overflow-scrolling:touch}
 .mode-screen *{box-sizing:border-box;min-width:0}
-.mode-screen[data-kind="Pull"]{--mode-accent:#8ce2ed;--mode-accent-soft:#50d0de24;--mode-border:#94eaf049;background:radial-gradient(ellipse at 50% -23%,#17798939,transparent 55%),#081019}
-.mode-screen[data-kind="Kondition"]{--mode-accent:#ff958a;--mode-accent-soft:#f76d4b30;--mode-border:#ffa18c50;background:radial-gradient(ellipse at 50% -23%,#b8363042,transparent 55%),#120d17}
 .mode-screen button{touch-action:manipulation}
-#session[data-phase="rest"]{--mode-accent:#67e8f9;--mode-accent-soft:#39bde52e;--mode-border:#7deafa69;--ecg-speed:3.1s}
-#session[data-phase="complete"]{--mode-accent:#a5f3c0;--mode-accent-soft:#4edb9940;--mode-border:#9ff2ba67;--ecg-speed:3.4s}
-#session[data-phase="active"]{--ecg-speed:1.05s}
-#session[data-kind="Kondition"][data-phase="active"]{--ecg-speed:.75s}
-#session[data-phase="ready"]{--ecg-speed:2.6s}
 .mode-topbar{position:relative;z-index:4;width:min(1100px,100%);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:11px;padding:15px clamp(13px,3vw,28px);border-bottom:1px solid var(--mode-border)}
 .mode-topbar .back{border:1px solid #ffffff24;background:#ffffff08;color:#e9dce5;padding:11px 14px;border-radius:13px;font-size:12px;font-weight:700;min-height:43px;flex:none}
 .mode-topbar .back:hover{border-color:var(--mode-accent)}
@@ -19,29 +12,6 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .mode-identity small{font-size:9px;font-weight:800;letter-spacing:.18em;color:var(--mode-accent)}
 .mode-identity strong{font-size:14px;letter-spacing:.015em;font-weight:650}
 .mode-topbar .mode-status{font-size:10px;letter-spacing:.08em;color:#b7a4b1;text-transform:uppercase;min-width:72px;text-align:right}
-.mode-layout{position:relative;z-index:2;width:min(1100px,100%);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(16px,4vw,48px);margin:auto;padding:clamp(17px,3vw,42px) clamp(13px,3vw,28px) 34px}
-.mode-screen h1{font-size:clamp(26px,4vw,43px);font-weight:420;letter-spacing:-.055em;line-height:1.13;margin:11px 0;color:#ffecf4}
-.mode-eyebrow{font:750 10px/1.4 Inter,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:var(--mode-accent)}
-.mode-description{font-size:12px;line-height:1.7;color:#bfb0bf}
-.mode-focus{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;position:relative;padding:22px clamp(13px,2.4vw,27px) 25px;overflow:hidden;border:1px solid var(--mode-border);border-radius:27px;background:radial-gradient(ellipse 100% 57% at 50% 57%,var(--mode-accent-soft),transparent 82%),linear-gradient(158deg,#151522d9,#080d17e8 74%);box-shadow:0 22px 90px #0005,inset 0 0 58px #ffffff04;transition:border-color .4s,background .4s}
-.mode-focus .mode-description{max-width:395px;margin:0 0 2px;color:#d8bcc9}
-.mode-clock-ring{position:relative;isolation:isolate;display:grid;place-items:center;width:clamp(205px,23vw,278px);aspect-ratio:1;margin:4px auto 0;border-radius:50%;background:radial-gradient(circle at 51% 46%,var(--mode-accent-soft),transparent 67%),#0c121bb0;border:1px solid var(--mode-border);box-shadow:0 0 53px var(--mode-accent-soft),inset 0 0 40px var(--mode-accent-soft);--ring-progress:0%;flex:none;transition:border-color .4s,box-shadow .4s}
-.mode-clock-ring::before,.mode-clock-ring::after{content:"";position:absolute;inset:12px;border-radius:50%;border:1px solid var(--mode-border);opacity:.65}
-.mode-clock-ring::after{inset:-10px;border:1px dashed var(--mode-border);opacity:.38;animation:modeRotate 85s linear infinite}
-.mode-clock-ring svg{position:absolute;width:100%;height:100%;inset:0;transform:rotate(-90deg);overflow:visible}
-.mode-clock-ring svg circle{fill:none;stroke:var(--mode-accent);stroke-linecap:round;stroke-width:3;stroke-dasharray:100;stroke-dashoffset:calc(100 - var(--ring-progress-num,0));filter:drop-shadow(0 0 5px var(--mode-accent));transition:stroke-dashoffset .24s linear}
-.mode-ring-text{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:1}
-.mode-ring-text small{font-size:10px;letter-spacing:.16em;color:var(--mode-accent);font-weight:800}
-.mode-ring-text strong{font-size:clamp(39px,5vw,52px);letter-spacing:-.075em;font-weight:430;font-variant-numeric:tabular-nums;color:#ffe9f2;text-shadow:0 0 32px var(--mode-accent-soft)}
-.mode-ring-text span{font-size:11px;color:#baa7b7}
-.mode-focus-name{font-size:19px;font-weight:600;letter-spacing:-.035em;max-width:100%;overflow-wrap:anywhere;margin-top:3px;color:#ffedf3}
-.mode-focus-plan{font-size:12px;color:#d7b7c7}
-.mode-focus-plan b{color:var(--mode-accent)}
-.mode-live-note{padding:9px 12px;border:1px solid var(--mode-border);border-radius:999px;background:var(--mode-accent-soft);color:#ffe8ef;font-size:11px;max-width:100%}
-.mode-details{display:flex;flex-direction:column;gap:12px}
-.mode-details-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.mode-details-head h2{font-size:17px;font-weight:620;letter-spacing:-.025em;margin:0}
-.mode-details-head span{font-size:11px;color:#c5abba}
 .mode-progress{height:4px;border-radius:100px;background:#ffffff16;overflow:hidden}
 .mode-progress >div{height:100%;width:0;background:linear-gradient(90deg,var(--mode-accent),#fff1f6);transition:width .25s}
 .mode-exercise-card{border:1px solid #ffffff1b;border-radius:17px;background:linear-gradient(145deg,#ffffff09,#ffffff02);padding:13px;box-shadow:0 12px 38px #0002}
@@ -58,27 +28,6 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .mode-set-row .set-number{color:var(--mode-accent)}
 .mode-set-row .done-button{height:42px;min-height:42px;width:43px}
 .mode-set-row .done-button[aria-pressed=true]{background:#60ce9435;border:1px solid #a3ecc5a0;color:#c8ffe0}
-.mode-command-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;padding:10px 0}
-.mode-command-row button{min-height:45px}
-.mode-command-row .primary{background:linear-gradient(120deg,var(--mode-accent),#ffe5ed)}
-.mode-command-row .secondary{background:#ffffff0b;border-color:var(--mode-border)}
-.mode-session-footer{padding:12px 0 30px;border-top:1px solid #ffffff16;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
-.mode-session-footer .hint{margin:0;max-width:330px}
-.mode-session-footer button{white-space:nowrap}
-/* Styled on the existing Pulse Flow ECG ribbon: decorative motion, not real BPM.
-   Only the active timer panel is themed; the scrollable exercise rail stays intact. */
-.mode-pulse-band{position:relative;width:100%;max-width:450px;min-width:0;height:83px;overflow:hidden;isolation:isolate;color:var(--mode-accent);border-top:1px solid var(--mode-border);border-bottom:1px solid var(--mode-border);background:linear-gradient(90deg,transparent,var(--mode-accent-soft) 23%,var(--mode-accent-soft) 72%,transparent);transition:color .4s,border-color .4s}
-.mode-pulse-readout{position:absolute;inset:6px 7px auto;z-index:3;display:flex;gap:7px;align-items:center;text-align:left;color:var(--mode-accent);font-size:9px;font-weight:750;letter-spacing:.12em}
-.mode-pulse-dot{display:block;width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:var(--mode-accent);box-shadow:0 0 8px var(--mode-accent);animation:modePulseDot var(--ecg-speed,2.6s) ease-in-out infinite}
-.mode-pulse-live{margin-left:auto;color:#ae9baa;font-size:8px;font-weight:550;letter-spacing:.09em}
-.mode-pulse-ecg{display:block;position:absolute;left:0;right:0;bottom:1px;width:100%;height:64px;overflow:visible}
-.mode-pulse-ecg path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
-.mode-ecg-baseline{stroke:var(--mode-accent);stroke-width:1;opacity:.14}
-.mode-ecg-ghost{stroke:currentColor;stroke-width:1.25;opacity:.25}
-.mode-ecg-glow,.mode-ecg-trace{stroke:currentColor;stroke-dasharray:175 825;stroke-dashoffset:0;animation:modeEcgSweep var(--ecg-speed,2.6s) linear infinite}
-.mode-ecg-glow{stroke-width:5;opacity:.28;filter:blur(3.5px)}
-.mode-ecg-trace{stroke-width:2.2;filter:drop-shadow(0 0 3px var(--mode-accent))}
-#session[data-phase="rest"] .mode-ecg-glow,#session[data-phase="complete"] .mode-ecg-glow{opacity:.2}
 /* A distinct, full-viewport scenic stage for Stretch and Meditation. */
 .zen-workout{--mode-accent:#b4e5a9;--mode-accent-soft:#82bd7b2c;--mode-border:#aee7b44f;background:radial-gradient(ellipse at 50% 8%,#456e4a28,transparent 58%),linear-gradient(180deg,#0d1e1a,#08130f 70%)}
 .zen-workout[data-kind="meditation"]{--mode-accent:#f5dba2;--mode-accent-soft:#d5c09a26;--mode-border:#e8d7a456;background:radial-gradient(ellipse at 50% -15%,#d1a77e46,transparent 48%),linear-gradient(180deg,#183532,#091e24 72%)}
@@ -113,41 +62,8 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .zen-workout .zen-controls button{min-height:47px}
 .zen-workout .zen-controls .primary{background:linear-gradient(115deg,var(--mode-accent),#f3f4cb);color:#1d2a24}
 .zen-workout .zen-exit{display:block;margin:12px auto 0;font-size:11px;color:#c4cfc2}
-@media(max-width:900px){
- .mode-topbar{padding:11px 10px;gap:6px}
- .mode-topbar .back{padding:10px;font-size:11px;min-height:40px}
- .mode-topbar .mode-status{font-size:9px;min-width:58px}
- .mode-identity strong{font-size:12px}
- .mode-layout{grid-template-columns:minmax(0,1fr);gap:12px;padding:10px 11px 18px}
- .mode-focus{padding:16px 12px 18px;gap:9px;border-radius:21px}
- .mode-screen h1{font-size:29px;margin:7px 0}
- .mode-clock-ring{width:clamp(160px,26dvh,210px)}
- .mode-pulse-band{height:70px}
- .mode-pulse-ecg{height:54px}
- .mode-pulse-readout{font-size:8px}
- .mode-pulse-live{font-size:7px}
- .mode-ring-text strong{font-size:37px}
- .mode-focus-name{font-size:16px}
- .mode-description{margin-bottom:2px}
- .mode-details{gap:9px}
- .mode-exercise-card{padding:10px;border-radius:14px}
- .mode-set-header,.mode-set-row{grid-template-columns:23px minmax(0,1fr) minmax(0,1fr) 39px;gap:5px}
- .mode-set-row .done-button{width:39px;height:42px}
- .mode-command-row{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:4;padding:8px 0;background:#091019ed;backdrop-filter:blur(8px);border-radius:13px}
- .mode-command-row .primary,.mode-command-row .secondary{padding:12px 8px;font-size:11px}
- .mode-session-footer{align-items:stretch;flex-direction:column;gap:8px;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
- .zen-layout{padding:8px 10px 20px}
- .zen-scenery{height:clamp(115px,21dvh,195px);border-radius:17px;margin:8px 0}
- .zen-workout .zen-clock-wrap{width:clamp(130px,22dvh,190px);height:clamp(130px,22dvh,190px)}
- .zen-workout .zen-clock-wrap strong{font-size:37px}
- .zen-workout .zen-stage-list{gap:5px}
- .zen-workout .zen-stage-list button{font-size:10px;padding:6px 9px}
- .zen-workout .zen-controls button{padding:11px 6px;font-size:11px}
-}
-@media(max-width:360px){.mode-topbar .mode-status{min-width:43px;font-size:8px}.mode-identity small{font-size:8px}.mode-clock-ring{width:160px}.mode-pulse-band{height:63px}.mode-pulse-ecg{height:49px}.mode-layout{padding-inline:8px}.mode-set-header,.mode-set-row{grid-template-columns:21px minmax(0,1fr) minmax(0,1fr) 37px;gap:4px}.mode-set-row .done-button{width:37px}.mode-set-row input{padding-inline:1px}.zen-workout .zen-controls{gap:6px}}
+@media(max-width:900px){.mode-topbar{padding:11px 10px;gap:6px}.mode-topbar .back{padding:10px;font-size:11px;min-height:40px}.mode-topbar .mode-status{font-size:9px;min-width:58px}.mode-identity strong{font-size:12px}.zen-layout{padding:8px 10px 20px}.zen-scenery{height:clamp(115px,21dvh,195px);border-radius:17px;margin:8px 0}.zen-workout .zen-clock-wrap{width:clamp(130px,22dvh,190px);height:clamp(130px,22dvh,190px)}.zen-workout .zen-clock-wrap strong{font-size:37px}.zen-workout .zen-stage-list{gap:5px}.zen-workout .zen-stage-list button{font-size:10px;padding:6px 9px}.zen-workout .zen-controls button{padding:11px 6px;font-size:11px}}
+@media(max-width:360px){.mode-topbar .mode-status{min-width:43px;font-size:8px}.mode-identity small{font-size:8px}.zen-workout .zen-controls{gap:6px}.mode-set-row,.mode-set-header{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 37px;gap:4px}}
 @media(prefers-reduced-motion:reduce){.mode-screen *,.mode-screen *::before,.mode-screen *::after{animation:none!important;transition:none!important}}
-@keyframes modeRotate{to{transform:rotate(360deg)}}
-@keyframes modeEcgSweep{to{stroke-dashoffset:-1000}}
-@keyframes modePulseDot{50%{opacity:.45;box-shadow:0 0 3px var(--mode-accent)}}
 @keyframes zenGlimmer{50%{transform:translateX(12%);opacity:.4}}
 @keyframes zenBreathe{50%{transform:scale(1.09);opacity:.65}}

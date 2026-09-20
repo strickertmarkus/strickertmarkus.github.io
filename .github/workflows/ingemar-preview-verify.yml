@@ -48,7 +48,7 @@ jobs:
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),.mode-topbar,.mode-layout,.mode-focus,.mode-details,.mode-exercise-card,.mode-set-row,.zen-layout,.zen-scenery,.zen-workspace';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -95,21 +95,25 @@ jobs:
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/push-session-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
+            assert.match(await page.locator('#session-current-target').textContent(),/60 kg/);
+            assert.equal(await page.locator('#session-exercises .mode-exercise-card').count(),3);
             await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'SET PÅGÅR');
-            assert.equal(await page.locator('#session').getAttribute('data-phase'),'active');
-            assert.match(await page.locator('#session-ecg-label').textContent(),/AKTIVT SET/);
-            await auditNoHorizontalScroll('Aktiv ECG / Push 390px');
+            assert.equal(await page.locator('#session-stage').textContent(),'Aktivt set');
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
+            assert.match(await page.locator('#session-ecg-label').textContent(),/Aktivt set/);
+            await auditNoHorizontalScroll('Aktivt styrkeset 390px');
             assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
             assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
             assert.equal(await page.locator('[data-actual="1:0:minutes"]').inputValue(),'3.5');
-            await page.locator('[data-done="0:0"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'VILA');
-            assert.equal(await page.locator('#session').getAttribute('data-phase'),'rest');
-            assert.match(await page.locator('#session-ecg-label').textContent(),/ÅTERHÄMTNING/);
             await page.locator('[data-action="advance-session"]').click();
-            assert.notEqual(await page.locator('#session-stage').textContent(),'VILA');
-            assert.equal(await page.locator('#session').getAttribute('data-phase'),'ready');
+            assert.equal(await page.locator('#session-stage').textContent(),'Återhämtning');
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
+            assert.equal(await page.locator('[data-action="skip-rest"]').count(),1);
+            await page.locator('[data-action="skip-rest"]').click();
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
+            assert.equal(await page.locator('[data-action="extra-session-set"]').count(),1);
+            assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
             await page.locator('[data-done="0:1"]').click();
             await page.locator('[data-actual="0:1:weight"]').fill('73');
             await page.locator('[data-done="1:0"]').click();
@@ -135,15 +139,27 @@ jobs:
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Pull');
             await auditNoHorizontalScroll('Pullläge 390px');
             await page.screenshot({path:'test-results/ingemar-demo/pull-session-mobile.png'});
-            await page.locator('[data-done="0:0"]').click();
+            const pullExercise=await page.locator('#session-current-ex').textContent();
+            await page.locator('[data-action="advance-session"]').click();
+            await page.locator('[data-action="advance-session"]').click();
+            await page.locator('[data-action="skip-rest"]').click();
+            await page.locator('[data-action="extra-session-set"]').click();
+            assert.equal(await page.locator('[data-actual="0:3:weight"]').count(),1,'Extra set should add its own editable row');
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
+            await page.locator('[data-action="advance-session"]').click();
+            await page.locator('[data-action="skip-rest"]').click();
+            await page.locator('[data-action="finish-session-exercise"]').click();
+            assert.notEqual(await page.locator('#session-current-ex').textContent(),pullExercise,'Övning klar should progress to the next exercise');
             await page.locator('[data-action="finish-session"]').click();
             await page.locator('[data-choice="Kondition"]').click();
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Kondition');
             await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'SET PÅGÅR');
-            assert.match(await page.locator('#session-clock-caption').textContent(),/Kvar i intervallet/);
+            assert.equal(await page.locator('#session-stage').textContent(),'Kondition pågår');
+            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
+            assert.equal(await page.locator('#session-cardio-countdown').evaluate(el=>el.hidden),false);
+            assert.match(await page.locator('#session-ecg-label').textContent(),/Kondition pågår/);
             await auditNoHorizontalScroll('Konditionsläge 390px');
             await page.screenshot({path:'test-results/ingemar-demo/cardio-session-mobile.png'});
             await page.locator('[data-done="0:0"]').click();
@@ -190,7 +206,7 @@ jobs:
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
             assert.deepEqual(firebaseRequests,[],'Unexpected Firebase calls');
             await browser.close();
-            console.log('Full-screen Push/Pull/Kondition, guided Stretch/Meditation, per-set data and horizontal-overflow checks passed');
+            console.log('Original Pulse Flow CSS, start/complete/next/extra/finish lifecycle, independent sets, Zen and mobile overflow passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/ingemar-preview-e2e.cjs
