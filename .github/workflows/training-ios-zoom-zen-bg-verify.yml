@@ -87,6 +87,7 @@ jobs:
             const result=await page.evaluate(()=>{
               const excluded=new Set(['hidden','checkbox','radio','range','color','file','button','submit','reset','image']);
               const nodes=[...document.querySelectorAll('input,select,textarea,[contenteditable]:not([contenteditable="false"])')].filter(el=>{
+                if(document.documentElement.dataset.wellnessMode==='zen'&&!el.closest('#wellness-zen-surface'))return false;
                 if(el.tagName==='INPUT'&&excluded.has((el.type||'text').toLowerCase()))return false;
                 return true;
               });
@@ -144,6 +145,8 @@ jobs:
             async function shot(name){
               const file='test-results/observatory/'+name+'.png';
               if(name.includes('builder')){
+                await page.waitForFunction(()=>!document.documentElement.dataset.exerciseMorph);
+                await page.waitForFunction(()=>{const modal=document.querySelector('#day-workout-modal .modal');return getComputedStyle(modal).opacity==='1'&&getComputedStyle(modal).filter==='none'});
                 await page.screenshot({path:file});
                 return;
               }
@@ -180,13 +183,14 @@ jobs:
                 const header=document.querySelector('#pulse-header');
                 const columns=getComputedStyle(document.querySelector('.observatory-metrics .stats-row')).gridTemplateColumns.split(' ').length;
                 return {width:innerWidth,scroll:document.documentElement.scrollWidth,
-                  mainLeft:main.getBoundingClientRect().left,headerLeft:header.getBoundingClientRect().left,
+                  mainLeft:main.getBoundingClientRect().left,headerLeft:header.getBoundingClientRect().left,navLeft:document.querySelector('.wellness-kind-switch').getBoundingClientRect().left,
                   orbFont:parseFloat(getComputedStyle(orb.querySelector('.observatory-next-orb-label')).fontSize),
                   columns,weekTop:week.getBoundingClientRect().top,metricsTop:metrics.getBoundingClientRect().top,
                   badText:[...document.querySelectorAll('.observatory-metrics .stat-label,.observatory-metrics .stat-sub')].some(n=>parseFloat(getComputedStyle(n).fontSize)<12)};
               });
               assert.ok(result.scroll<=result.width+1,label+' page overflows: '+JSON.stringify(result));
               assert.ok(Math.abs(result.mainLeft-result.headerLeft)<1,label+' gutters differ');
+              assert.ok(Math.abs(result.mainLeft-result.navLeft)<1,label+' navigation gutter differs');
               assert.ok(result.orbFont>=14,label+' orb label is too small');
               assert.equal(result.badText,false,label+' metrics text is too small');
               if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}

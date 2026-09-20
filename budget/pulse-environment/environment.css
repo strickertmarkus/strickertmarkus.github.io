@@ -3,20 +3,17 @@
  --obs-text:#f7e9ef;--obs-muted:#c0a8b8;--obs-accent:#ffb8cb;--obs-line:#e8acce2e;
  --obs-surface:#19121ddd;--obs-input:#100d15;--obs-card-radius:14px;--obs-control-radius:10px;
 }
-#pulse-header,#pulse-home{--obs-page-width:1200px;--obs-gutter:clamp(20px,4vw,40px);font-variant-numeric:tabular-nums}
+#pulse-header,#pulse-home,html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{--obs-page-width:1200px;--obs-gutter:clamp(20px,4vw,40px);font-variant-numeric:tabular-nums}
 html:not([data-wellness-mode="zen"])#pulse-document:not(:has(#session-modal.show)),
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show))::before{display:none!important}
 #pulse-page{--reactor-red:#ff5b78;--reactor-light:#ffbccb;--reactor-line:#e29db92b;--reactor-muted:#aea2b6}
 #pulse-header{position:relative!important;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width);margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
+html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:calc(100% - 2 * var(--obs-gutter));max-width:var(--obs-page-width)}
 #pulse-header .brand-text h1{display:flex;align-items:center;gap:8px;font-size:17px!important;font-weight:650!important;letter-spacing:2px!important;color:#f9e9ef!important}
 #pulse-header .pulse-brand-flow{color:#ff8ca8;font-weight:350}
 #pulse-header .brand-text p{font-size:11px!important;color:#a99aac!important;letter-spacing:.5px;margin-top:5px}
 #pulse-header .pf-header-ecg-v80{color:#ff7897!important}
-#pulse-header .wellness-nav{width:auto!important;flex-basis:auto!important;margin-left:auto;border-color:#fc9db526;background:linear-gradient(120deg,#ff839211,#e690dc05);box-shadow:inset 0 1px 0 #ffe8f30c,0 0 35px #f6578a08}
-#pulse-header .wellness-nav a{color:#bdacbd}
-#pulse-header .wellness-nav a[aria-current=page]{color:#ffe0eb;background:linear-gradient(120deg,#ff607c29,#fd7daf0b);border-color:#ff8fab44;box-shadow:0 0 20px #fd5f8a15}
-#pulse-header .wellness-symbol{color:#ff9fb8;text-shadow:0 0 15px #ff6593}
 #pulse-header .nav-btn{width:44px;height:44px;background:transparent!important;border:1px solid #fbc5dc22!important;border-radius:50%!important;color:#eed0df!important;box-shadow:none!important}
 #pulse-header .streak-badge{background:transparent!important;border:0!important;color:#d4b8c8!important;box-shadow:none!important}
 #pulse-header .nav-dropdown-menu{background:linear-gradient(145deg,#22141ff7,#120e18fc)!important;border:1px solid #ff94b53b!important;border-radius:18px!important;box-shadow:0 25px 70px #000a,0 0 45px #d5367410!important;max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
@@ -167,6 +164,9 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .empty-state{color:#b496aa!important;border-color:#edb0ca22!important;background:radial-gradient(ellipse at 50% 0,#ff658715,transparent 70%)!important;padding:30px 16px!important}
 #pulse-home .empty-icon{color:#ffb1ce!important;text-shadow:0 0 25px #ff6181!important}
 @media(max-width:760px){
+ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-options{gap:12px;justify-content:space-between}
+ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-options button{flex-direction:column;gap:6px;font-size:12px;padding:8px 1px 12px}
+
  #pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 80px}
  #pulse-home .records-columns-v52>span:last-child{display:none}
  #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 80px!important;min-height:64px!important;padding:16px!important;gap:8px 16px!important}
@@ -201,10 +201,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
  #pulse-header{padding:22px 0 12px!important;display:grid!important;grid-template-columns:1fr auto;gap:17px 10px!important}
  #pulse-header .brand{grid-column:1;grid-row:1}
  #pulse-header .nav-dropdown-wrapper{grid-column:2;grid-row:1;justify-self:end}
- #pulse-header .wellness-nav{grid-column:1;grid-row:2;justify-self:start;margin-left:0}
  #pulse-header .streak-badge{grid-column:2;grid-row:2;justify-self:end;font-size:12px!important}
- #pulse-header .wellness-nav a{font-size:11px;padding:0 10px;gap:7px}
- #pulse-header .wellness-symbol{font-size:18px}
  #pulse-home{padding-top:0!important}
  #pulse-home .reactor-stage{grid-template-columns:1fr;grid-template-areas:'intro' 'core' 'week' 'stats' 'jumps';padding-top:25px;row-gap:0;margin-bottom:40px}
  #pulse-home .reactor-intro{padding-bottom:6px}
