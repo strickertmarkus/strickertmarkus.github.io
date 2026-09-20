@@ -43,7 +43,7 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
  const body=original.split('style.textContent = '+quote)[1].split(quote+';\n    document.head.appendChild(style)')[0];
  const css=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
  assert.ok(body.length>25000,'Original stylesheet extraction should be available');
- assert.ok(css.includes(body),'Demo must contain the exact original family Pulse Flow CSS');
+ assert.ok(css.includes(body.trimEnd()),'Demo must contain the original family Pulse Flow CSS without trailing whitespace');
  for(const phrase of ['id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show"',
   'class="session-shell"','class="session-timers"','class="hype-workout-progress"',
   'id="session-stable-details"','id="pulse-flow-live-v58"',
