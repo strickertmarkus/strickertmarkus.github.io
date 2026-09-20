@@ -57,7 +57,7 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .mode-command-row button{min-height:45px}
 .mode-command-row .primary{background:linear-gradient(120deg,var(--mode-accent),#ffe5ed)}
 .mode-command-row .secondary{background:#ffffff0b;border-color:var(--mode-border)}
-.mode-session-footer{padding:12px 0 30px;border-top:1px solid #ffffff16;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.mode-session-footer{padding:12px 0 30px;border-top:1px solid #ffffff16;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
 .mode-session-footer .hint{margin:0;max-width:330px}
 .mode-session-footer button{white-space:nowrap}
 .mode-wave{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.32}
@@ -98,7 +98,7 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .zen-workout .zen-controls button{min-height:47px}
 .zen-workout .zen-controls .primary{background:linear-gradient(115deg,var(--mode-accent),#f3f4cb);color:#1d2a24}
 .zen-workout .zen-exit{display:block;margin:12px auto 0;font-size:11px;color:#c4cfc2}
-@media(max-width:740px){
+@media(max-width:900px){
  .mode-topbar{padding:11px 10px;gap:6px}
  .mode-topbar .back{padding:10px;font-size:11px;min-height:40px}
  .mode-topbar .mode-status{font-size:9px;min-width:58px}

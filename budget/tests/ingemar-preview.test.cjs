@@ -55,7 +55,7 @@ test('dedicated style sheet scopes responsive surfaces and reduced motion',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  assert.match(html,/ingemar-preview-modes\.css\?v=20260920-immersive-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
- assert.match(css,/@media\(max-width:740px\)/);
+ assert.match(css,/@media\(max-width:900px\)/);
  assert.match(css,/@media\(max-width:360px\)/);
  assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
