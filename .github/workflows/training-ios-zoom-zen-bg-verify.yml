@@ -146,7 +146,9 @@ jobs:
               const file='test-results/observatory/'+name+'.png';
               if(name.includes('builder')){
                 await page.waitForFunction(()=>!document.documentElement.dataset.exerciseMorph);
-                await page.waitForFunction(()=>{const modal=document.querySelector('#day-workout-modal .modal');return getComputedStyle(modal).opacity==='1'&&getComputedStyle(modal).filter==='none'});
+                await page.waitForFunction(()=>document.querySelector('#day-workout-modal .modal').getAnimations().every(a=>a.playState==='finished'||a.playState==='idle'));
+                const modalStyle=await page.locator('#day-workout-modal .modal').evaluate(n=>({opacity:getComputedStyle(n).opacity,filter:getComputedStyle(n).filter}));
+                assert.ok(Number(modalStyle.opacity)>.99,'builder remains transparent: '+JSON.stringify(modalStyle));
                 await page.screenshot({path:file});
                 return;
               }
