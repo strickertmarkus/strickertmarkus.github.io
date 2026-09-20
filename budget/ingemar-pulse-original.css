@@ -723,7 +723,7 @@
 #session-modal .session-cta.warn{background:rgba(251,146,60,.08);border-color:rgba(251,146,60,.3);color:#fed7aa}
 #session-modal .session-rail-head{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0;color:#788596;font-size:9px;letter-spacing:.09em;font-weight:650;text-transform:uppercase;margin-top:4px}
 #session-modal .session-rail-head span{flex:0 0 auto}
-#session-modal .session-set-rail{width:100%;min-width:0;max-height:clamp(175px,33dvh,420px);overflow:auto;overscroll-behavior:contain;touch-action:pan-y;padding:4px 6px 6px 0;display:flex;flex-direction:column;gap:10px;scrollbar-color:#354354 transparent}
+#session-modal .session-set-rail{width:100%;min-width:0;max-height:none;overflow:visible;padding:4px 0 6px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:78px}
 #session-modal .session-set-rail .mode-exercise-card{width:100%;min-width:0}
 #session-modal .session-set-rail .mode-set-row input{font-size:16px}
 #session-modal .session-set-rail .mode-set-row{grid-template-columns:26px minmax(0,1fr) minmax(0,1fr) 40px;gap:5px}
@@ -739,16 +739,32 @@
 #session-modal .pulse-flow-band-v58{width:100%;height:67px}
 #session-modal .pulse-flow-band-v58 svg{height:67px}
 #session-modal .pulse-flow-status-v58 b{font-weight:750}
-#session-modal .session-live-timer{position:relative;min-height:0}
-#session-modal .session-live-timer .session-countdown{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px auto 0;font-size:10px;color:#788596}
-#session-modal .session-live-timer .session-countdown[hidden]{display:none}
-#session-modal .session-live-timer .session-countdown strong{color:var(--pf-soft);font-size:19px;font-variant-numeric:tabular-nums}
-#session-modal .session-rest-banner{border:1px solid rgba(34,211,238,.32);border-radius:12px;padding:9px 12px;text-align:center;background:linear-gradient(120deg,rgba(34,211,238,.08),rgba(255,255,255,.008));color:#cffafe;font-size:12px}
-#session-modal .session-rest-banner[hidden]{display:none}
-#session-modal .session-rest-banner:not([hidden]){display:block}
+/* Family Pulse Flow v85 timer geometry/ECG/marker, adapted to Ingemar's single
+   timer surface. A single ring morphs between set, interval, rest and complete;
+   its SVG path is painted from wall-clock timestamps (never discrete CSS steps). */
+#session-modal .session-live-timer{display:flex;justify-content:center;align-items:center;min-width:0;min-height:176px;margin:0 auto;width:100%;isolation:isolate}
+#session-modal #session-countdown-ring{position:relative;display:grid;place-items:center;width:clamp(142px,24dvh,176px);height:clamp(142px,24dvh,176px);flex:none;overflow:visible;border:0;border-radius:50%;background:radial-gradient(circle,rgba(var(--pf-rgb),.035) 0 48%,transparent 69%);filter:none;transition:background .35s ease,transform .55s cubic-bezier(.16,1,.3,1)}
+#session-modal .pf-live-ring::before{content:"";position:absolute;inset:24%;border-radius:50%;pointer-events:none;background:rgba(var(--pf-rgb),.085);filter:blur(23px);opacity:.68;transition:background .45s ease}
+#session-modal .pf-arc-svg-v80{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#session-modal .pf-arc-svg-v80 path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+#session-modal .pf-arc-track-v80{stroke:rgba(var(--pf-rgb),.11);stroke-width:2.7}
+#session-modal .pf-arc-progress-v80{stroke:rgba(var(--pf-rgb),.84);stroke-width:2.7;filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),.7)) drop-shadow(0 0 9px rgba(var(--pf-rgb),.26))}
+#session-modal .pf-arc-marker-v80{fill:url(#ingemar-pf-marker);stroke:none;opacity:0;filter:drop-shadow(0 0 3px rgba(var(--pf-rgb),1)) drop-shadow(0 0 9px rgba(var(--pf-rgb),.78)) drop-shadow(0 0 18px rgba(var(--pf-rgb),.33))}
+#session-modal .session-countdown-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;padding:18px 15px 16px}
+#session-modal .session-countdown-value{color:var(--pf-soft);font-size:clamp(27px,4.8vw,35px);font-weight:650;letter-spacing:-.055em;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(var(--pf-rgb),.18)}
+#session-modal .session-countdown-label{font-size:9px;letter-spacing:.1em;font-weight:650;text-transform:uppercase;color:var(--pf-accent);line-height:1.15}
+#session-modal .pf-ecg-v80{display:block;width:57px;height:13px;flex:none;margin:3px auto 0;color:var(--pf-accent);overflow:visible}
+#session-modal .pf-ecg-v80 svg{display:block;width:100%;height:100%;overflow:visible}
+#session-modal .pf-ecg-v80 path{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+#session-modal .pf-ecg-base-v80{stroke-width:1.05;opacity:.24}
+#session-modal .pf-ecg-sweep-a-v80{stroke-width:1.8;stroke-dasharray:24 76;stroke-dashoffset:0;filter:drop-shadow(0 0 1.4px rgba(var(--pf-rgb),.96)) drop-shadow(0 0 4.5px rgba(var(--pf-rgb),.5));animation:ingemarEcgSweep var(--pf-speed,2.4s) linear infinite}
+#session-modal[data-state="rest"] #session-countdown-ring{transform:scale(1.075)}
+#session-modal[data-state="complete"] .pf-arc-marker-v80{opacity:1}
+@keyframes ingemarEcgSweep{to{stroke-dashoffset:-100}}
+@media(max-width:740px){#session-modal .session-live-timer{min-height:163px}#session-modal #session-countdown-ring{width:clamp(138px,22dvh,162px);height:clamp(138px,22dvh,162px)}#session-modal .session-countdown-value{font-size:31px}}
+@media(prefers-reduced-motion:reduce){#session-modal #session-countdown-ring{transition:none}#session-modal .pf-ecg-sweep-a-v80{animation:none;stroke-dashoffset:-36}}
 #session-modal .session-set-rail .mode-set-row.is-skipped{opacity:.36}
 #session-modal .hype-progress-segment.is-skipped .pf-progress-dot-v80{opacity:.15}
-#session-modal .session-rest-banner strong{font-variant-numeric:tabular-nums;font-size:18px;font-weight:750}
 #session-modal .session-timers .timer-box{position:relative;min-height:62px;padding:9px 12px;overflow:hidden;border:1px solid rgba(var(--pf-rgb),.13);border-radius:13px;background:linear-gradient(145deg,rgba(var(--pf-rgb),.075),rgba(255,255,255,.014) 68%);box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
 #session-modal .session-timers .timer-box::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(var(--pf-rgb),.62),transparent);opacity:.42}
 #session-modal .hype-progress-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px 10px}
@@ -773,7 +789,7 @@
  #session-modal .session-top{padding:11px 12px}
  #session-modal .session-grid{padding:9px!important}
  #session-modal .session-main.session-card{padding:12px!important;gap:10px!important}
- #session-modal .session-set-rail{max-height:clamp(175px,31dvh,320px)}
+ #session-modal .session-set-rail{scroll-margin-top:68px}
  #session-modal .session-set-rail .mode-set-row,#session-modal .session-set-rail .mode-set-header{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 37px;gap:4px}
  #session-modal .session-set-rail .done-button{width:37px}
  #session-modal .session-cta-row.decision-row .session-cta{font-size:11px;padding:9px 4px!important}

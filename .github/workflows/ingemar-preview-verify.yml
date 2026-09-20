@@ -101,10 +101,29 @@ jobs:
             await page.locator('[data-action="toggle-prestart"]').click();
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
             assert.equal(await page.locator('#session-exercises .mode-exercise-card').count(),3);
+            const railGeometry=await page.locator('#session-exercises').evaluate(el=>({
+              height:el.getBoundingClientRect().height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,
+              overflow:getComputedStyle(el).overflowY
+            }));
+            assert.ok(railGeometry.height>400 && railGeometry.scrollHeight<=railGeometry.clientHeight+2 &&
+              railGeometry.overflow==='visible','Rail must grow with every card instead of clipping: '+JSON.stringify(railGeometry));
+            await page.locator('#session-exercises .mode-exercise-card').last().scrollIntoViewIfNeeded();
+            const cardVisibility=await page.evaluate(()=>{
+              const el=document.querySelector('#session-exercises .mode-exercise-card:last-child');
+              const r=el.getBoundingClientRect(),mode=document.getElementById('session');
+              return {top:r.top,bottom:r.bottom,viewport:innerHeight,outerScroll:mode.scrollTop,railScroll:document.getElementById('session-exercises').scrollTop};
+            });
+            assert.ok(cardVisibility.top>=0&&cardVisibility.bottom<=cardVisibility.viewport+2 &&
+              cardVisibility.outerScroll>0 && cardVisibility.railScroll===0,
+              'Scrolling down must expose the entire last exercise card: '+JSON.stringify(cardVisibility));
+            await auditNoHorizontalScroll('Fully expanded set cards 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/all-set-cards-mobile.png'});
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-stage').textContent(),'Aktivt set');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
             assert.match(await page.locator('#session-ecg-label').textContent(),/Aktivt set/);
+            await page.waitForFunction(()=>document.getElementById('session-ring-progress').getAttribute('d').length>12);
+            assert.equal(await page.locator('#session-ring-label').textContent(),'SETTID');
             await auditNoHorizontalScroll('Aktivt styrkeset 390px');
             assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
             assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
@@ -112,6 +131,11 @@ jobs:
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-stage').textContent(),'Återhämtning');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
+            assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
+            assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
+            assert.match(await page.locator('#session-ring-value').textContent(),/^00:/);
+            await auditNoHorizontalScroll('Glowing rest ring 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/glowing-rest-timer-mobile.png'});
             assert.equal(await page.locator('[data-action="skip-rest"]').count(),1);
             await page.locator('[data-action="skip-rest"]').click();
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
@@ -175,7 +199,9 @@ jobs:
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-stage').textContent(),'Kondition pågår');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
-            assert.equal(await page.locator('#session-cardio-countdown').evaluate(el=>el.hidden),false);
+            assert.equal(await page.locator('#session-ring-label').textContent(),'INTERVALL KVAR');
+            assert.ok((await page.locator('#session-ring-progress').getAttribute('d')).length>12);
+            assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ecg-label').textContent(),/Kondition pågår/);
             await auditNoHorizontalScroll('Konditionsläge 390px');
             await page.screenshot({path:'test-results/ingemar-demo/cardio-session-mobile.png'});

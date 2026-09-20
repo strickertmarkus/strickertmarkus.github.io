@@ -14,7 +14,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260920-canonical-1">
-<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260920-canonical-1">
+<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260920-glow-ring-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -41,7 +41,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
     <div class="session-ex-heading-row"><h1 id="session-current-ex">Bänkpress</h1><span id="session-next-ex-inline"></span></div>
     <div class="session-nextset" id="session-current-target">Set 1 av 3 · 60 kg × 12 reps</div>
     <div id="pulse-flow-live-v58"><div class="pulse-flow-band-v58" aria-hidden="true"><div class="pulse-flow-status-v58"><span></span><b data-pulse-flow-status id="session-ecg-label">Redo</b></div><svg viewBox="0 0 600 70" preserveAspectRatio="none" focusable="false"><defs><linearGradient id="ingemar-pulse-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".28" stop-color="currentColor" stop-opacity=".52"/><stop offset=".64" stop-color="currentColor"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><filter id="ingemar-pulse-glow" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="2.4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path class="pulse-flow-axis-v58" d="M0 36H600" pathLength="1000"/><path class="pulse-flow-ghost-v58" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000"/><path class="pulse-flow-trace-v58" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000" stroke="url(#ingemar-pulse-gradient)" filter="url(#ingemar-pulse-glow)"/></svg></div></div>
-    <div class="session-live-timer"><div class="session-rest-banner" id="session-rest-indicator" hidden>Återhämtning · <strong id="session-rest-value">01:00</strong></div><div id="session-cardio-countdown" class="session-countdown" hidden>INTERVALL KVAR <strong id="session-countdown-value">00:00</strong></div></div>
+    <div class="session-live-timer" aria-label="Aktiv timer och vilotimer"><div id="session-countdown-ring" class="pf-live-ring" role="timer" aria-label="Settimer"><svg class="pf-arc-svg-v80" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><radialGradient id="ingemar-pf-marker"><stop offset="0%" stop-color="#fff"/><stop offset="14%" stop-color="#fff"/><stop offset="32%" stop-color="var(--pf-soft)"/><stop offset="55%" stop-color="var(--pf-accent)"/><stop offset="80%" stop-color="var(--pf-accent)" stop-opacity=".4"/><stop offset="100%" stop-color="var(--pf-accent)" stop-opacity="0"/></radialGradient></defs><path class="pf-arc-track-v80" d="M17.826 76.997 A42 42 0 1 1 82.174 76.997"/><path class="pf-arc-progress-v80" id="session-ring-progress" d=""/><circle class="pf-arc-marker-v80" id="session-ring-marker" r="4.5" cx="17.826" cy="76.997"/></svg><div class="session-countdown-copy"><span class="session-countdown-value" id="session-ring-value">00:00</span><span class="pf-ecg-v80" aria-hidden="true"><svg viewBox="0 0 42 9" focusable="false"><path class="pf-ecg-base-v80" d="M0 5 H10 L13 3.7 L16 6.1 L20 1 L24 8 L28 4.8 H42" pathLength="100"/><path class="pf-ecg-sweep-a-v80" d="M0 5 H10 L13 3.7 L16 6.1 L20 1 L24 8 L28 4.8 H42" pathLength="100"/></svg></span><span class="session-countdown-label" id="session-ring-label">REDO FÖR SET</span></div></div></div>
     <div id="session-stable-details"><div><div class="stable-detail-label">SET</div><div class="stable-detail-value" id="session-metric-set">01 / 03</div></div><div><div class="stable-detail-label">REPS / TID</div><div class="stable-detail-value" id="session-metric-reps">12</div></div><div><div class="stable-detail-label">VIKT</div><div class="stable-detail-value" id="session-metric-weight">60 kg</div></div></div>
     <div class="hype-workout-progress"><div class="hype-progress-head"><span class="hype-progress-title">Passflöde</span><span class="hype-progress-percent" id="session-progress-pct">0%</span></div><div class="hype-progress-track" id="session-progress-dots" aria-label="Genomförda set"></div><div class="hype-progress-meta"><span id="session-set-count">0 av 9 set klara</span><span id="session-stage">Redo</span></div></div>
     <div class="session-cta-row" id="session-controls"><button type="button" class="session-cta primary" data-action="advance-session" id="session-next-button">Starta set</button></div>
@@ -293,11 +293,70 @@ function start(){
  $('session-pre-timer').hidden=true;
  document.body.dataset.modeOpen='true';
  renderSession();
+ startSessionRing();
  $('session-exercises').scrollTop=0;
  $('session').scrollTop=0;
 }
 function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(seconds));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}
 function sessionRestSeconds(now){return active&&active.restUntil?Math.max(0,Math.ceil((active.restUntil-(now||Date.now()))/1000)):0;}
+/* Geometry and endpoint marker from the original Pulse Flow v85 ring.
+   Wall-clock time drives the SVG directly; the session controls own state. */
+var sessionRingFrame=0,sessionRingLastFrame=0;
+function sessionArcPoint(ratio){
+ ratio=Math.max(0,Math.min(1,Number(ratio)||0));
+ var radians=(140+260*ratio)*Math.PI/180;
+ return {x:50+42*Math.cos(radians),y:50+42*Math.sin(radians)};
+}
+function sessionArcPath(ratio){
+ ratio=Math.max(0,Math.min(1,Number(ratio)||0));
+ if(ratio<=.000001)return '';
+ var start=sessionArcPoint(0),end=sessionArcPoint(ratio),large=260*ratio>180?1:0;
+ return 'M'+start.x.toFixed(3)+' '+start.y.toFixed(3)+' A42 42 0 '+large+' 1 '+end.x.toFixed(3)+' '+end.y.toFixed(3);
+}
+function paintSessionRing(now){
+ if(!active)return;
+ now=now||Date.now();
+ var current=focusedSet(),ex=sessionExercise(),rest=active.restUntil?Math.max(0,(active.restUntil-now)/1000):0;
+ var elapsed=elapsedSetSeconds(),ratio=0,value='00:00',label='REDO FÖR SET';
+ if(!current&&!firstPendingSet()){
+  ratio=1;value=fmtSeconds((now-active.startedAt)/1000);label='PASS KLART';
+ }else if(rest>0){
+  ratio=Math.min(1,rest/60);value=fmtSeconds(Math.ceil(rest));label='VILA KVAR';
+ }else if(active.timerRunning&&ex&&current){
+  if(ex.mode==='min'){
+   var duration=Math.max(1,Number(current.minutes)||1)*60,remaining=Math.max(0,duration-elapsed);
+   ratio=Math.min(1,remaining/duration);value=fmtSeconds(Math.ceil(remaining));label='INTERVALL KVAR';
+  }else{
+   ratio=(elapsed%60)/60;value=fmtSeconds(elapsed);label='SETTID';
+  }
+ }else if(active.awaitingDecision){
+  ratio=1;label='SET KLART';
+ }
+ var valueEl=$('session-ring-value'),labelEl=$('session-ring-label');
+ if(valueEl.textContent!==value)valueEl.textContent=value;
+ if(labelEl.textContent!==label)labelEl.textContent=label;
+ var svg=$('session-ring-progress'),marker=$('session-ring-marker'),ring=$('session-countdown-ring');
+ var progress=sessionArcPath(ratio),endpoint=sessionArcPoint(ratio);
+ if(svg.getAttribute('d')!==progress)svg.setAttribute('d',progress);
+ marker.setAttribute('cx',endpoint.x.toFixed(3));
+ marker.setAttribute('cy',endpoint.y.toFixed(3));
+ marker.style.opacity=ratio>.002?'1':'0';
+ ring.setAttribute('aria-label',label.toLocaleLowerCase('sv-SE')+': '+value);
+}
+function sessionRingTick(time){
+ if(!active||$('session').hidden){sessionRingFrame=0;return;}
+ if(time-sessionRingLastFrame>30){
+  sessionRingLastFrame=time;
+  if(!document.hidden)paintSessionRing(Date.now());
+ }
+ sessionRingFrame=requestAnimationFrame(sessionRingTick);
+}
+function startSessionRing(){
+ if(sessionRingFrame)return;
+ sessionRingLastFrame=0;
+ sessionRingFrame=requestAnimationFrame(sessionRingTick);
+}
+
 function sessionSetIndex(){return active&&active.focus?active.focus.set:-1;}
 function sessionExercise(){return active&&active.focus?active.exercises[active.focus.ex]:null;}
 function updateSessionClock(){
@@ -327,10 +386,7 @@ function updateSessionClock(){
  modal.classList.toggle('pulse-flow-strength-v58',phase!=='complete'&&phase!=='rest'&&!timed);
  modal.classList.toggle('pulse-flow-cardio-v58',phase!=='complete'&&phase!=='rest'&&!!timed);
  $('session-timer').textContent=fmtSeconds(active.timerRunning?elapsed:0);
- $('session-countdown-value').textContent=fmtSeconds(remaining);
- $('session-cardio-countdown').hidden=!timed||!active.timerRunning;
- $('session-rest-indicator').hidden=!rest;
- if(rest)$('session-rest-value').textContent=fmtSeconds(rest);
+ paintSessionRing(now);
  $('session-stage').textContent=phase==='rest'?'Återhämtning':phase==='active'?(timed?'Kondition pågår':'Aktivt set'):phase==='complete'?'Pass klart':active.awaitingDecision?'Set klart':'Redo';
  $('session-ecg-label').textContent=$('session-stage').textContent;
  $('session-prestart-toggle').setAttribute('aria-pressed',String(active.preEnabled));
