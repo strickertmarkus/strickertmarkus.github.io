@@ -90,36 +90,36 @@ jobs:
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
             async function saveVisibleSession(label){
-              await page.locator('#session').evaluate(el=>el.scrollTop=el.scrollHeight);
-              const placement=await page.evaluate(()=>{
-                const button=document.getElementById('finish-session').getBoundingClientRect();
-                const bar=document.getElementById('session-controls').getBoundingClientRect();
-                return {buttonTop:button.top,buttonBottom:button.bottom,barTop:bar.top,height:innerHeight};
+              await page.locator('#finish-session').scrollIntoViewIfNeeded();
+              const position=await page.locator('#finish-session').evaluate(el=>{
+                const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight};
               });
-              assert.ok(placement.buttonTop>=0&&placement.buttonBottom<=placement.barTop-5,
-                label+' save button must be reachable above the persistent action bar: '+JSON.stringify(placement));
+              assert.ok(position.top>=0&&position.bottom<=position.height+1,
+                label+' save button must remain reachable after scrolling: '+JSON.stringify(position));
               await page.locator('#finish-session').click();
             }
-            async function assertActionsVisible(label){
+            async function assertActionsInFlow(label,shouldFit){
               const placement=await page.locator('#session-controls').evaluate(el=>{
                 const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
                   const r=btn.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
                 });
                 return {position:getComputedStyle(el).position,top:rect.top,bottom:rect.bottom,width:innerWidth,height:innerHeight,buttons};
               });
-              assert.ok(placement.position==='fixed'&&placement.top>=-1&&placement.bottom<=placement.height+1&&
-                placement.buttons.length>=1&&placement.buttons.every(rect=>rect.left>=-1&&rect.right<=placement.width+1&&
-                rect.top>=placement.top-1&&rect.bottom<=placement.height+1),label+' action bar must fit the viewport: '+JSON.stringify(placement));
+              assert.ok(placement.position!=='fixed'&&placement.position!=='sticky'&&
+                placement.buttons.length>=1&&placement.buttons.every(r=>r.left>=-1&&r.right<=placement.width+1),
+                label+' actions must sit in the normal layout: '+JSON.stringify(placement));
+              if(shouldFit)assert.ok(placement.top>=0&&placement.bottom<=placement.height+1,
+                label+' must appear without scrolling on a regular phone: '+JSON.stringify(placement));
             }
             for(const width of [320,360,390,430,768,1440]){
               await page.setViewportSize({width,height:width===1440?960:844});
               await auditNoHorizontalScroll('Pushläge '+width+'px');
-              await assertActionsVisible('Starta set '+width+'px');
+              await assertActionsInFlow('Starta set '+width+'px',width===390||width===430);
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/push-session-'+width+'.png'});
             }
             for(const viewport of [{width:320,height:568},{width:390,height:667}]){
               await page.setViewportSize(viewport);
-              await assertActionsVisible('Starta set / kort mobil '+viewport.width+'×'+viewport.height);
+              await assertActionsInFlow('Starta set / kort mobil '+viewport.width+'×'+viewport.height,false);
               await auditNoHorizontalScroll('Kort mobil '+viewport.width+'×'+viewport.height);
             }
             await page.setViewportSize({width:390,height:844});
@@ -132,7 +132,7 @@ jobs:
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
             assert.equal(await page.locator('#session-exercises .mode-exercise-card').count(),3);
             assert.ok(await page.locator('#session-modal .session-grid').evaluate(el=>
-              parseFloat(getComputedStyle(el).paddingBottom)>=145),'The scrollable page must reserve space under the fixed action bar');
+              parseFloat(getComputedStyle(el).paddingBottom)<65),'The normal layout must not reserve empty space for a fixed action bar');
             const railGeometry=await page.locator('#session-exercises').evaluate(el=>({
               height:el.getBoundingClientRect().height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,
               overflow:getComputedStyle(el).overflowY
@@ -140,7 +140,9 @@ jobs:
             assert.ok(railGeometry.height>400 && railGeometry.scrollHeight<=railGeometry.clientHeight+2 &&
               railGeometry.overflow==='visible','Rail must grow with every card instead of clipping: '+JSON.stringify(railGeometry));
             await page.locator('#session-exercises .mode-exercise-card').last().scrollIntoViewIfNeeded();
-            await assertActionsVisible('Starta set efter att ha scrollat till sista övningen');
+            await assertActionsInFlow('Setknappar följer sidans scrollning efter sista övningen',false);
+            assert.ok(await page.locator('#session-controls').evaluate(el=>el.getBoundingClientRect().bottom<0),
+              'Setknapparna ska scrolla bort med sidan, inte ligga fast längst ned');
             const cardVisibility=await page.evaluate(()=>{
               const el=document.querySelector('#session-exercises .mode-exercise-card:last-child');
               const r=el.getBoundingClientRect(),mode=document.getElementById('session');
@@ -158,7 +160,7 @@ jobs:
             assert.match(await page.locator('#session-ecg-label').textContent(),/Aktivt set/);
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true);
             assert.equal(await page.locator('#session-ring-label').textContent(),'REDO FÖR SET');
-            await assertActionsVisible('Klar med set under styrkeset');
+            await assertActionsInFlow('Klar med set under styrkeset',false);
             await auditNoHorizontalScroll('Aktivt styrkeset 390px');
             assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
             assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
@@ -168,7 +170,7 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
-            await assertActionsVisible('Hoppa över vilan');
+            await assertActionsInFlow('Hoppa över vilan',false);
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
             await auditNoHorizontalScroll('Glowing rest ring 390px');
@@ -180,7 +182,7 @@ jobs:
             assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
             for(const viewport of [{width:320,height:568},{width:390,height:667}]){
               await page.setViewportSize(viewport);
-              await assertActionsVisible('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
+              await assertActionsInFlow('Tre beslutsknappar '+viewport.width+'×'+viewport.height,false);
               await auditNoHorizontalScroll('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
             }
             await page.setViewportSize({width:390,height:844});
@@ -244,7 +246,7 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'INTERVALL KVAR');
-            await assertActionsVisible('Starta intervall / kondition');
+            await assertActionsInFlow('Starta intervall / kondition',false);
             assert.ok((await page.locator('#session-ring-progress').getAttribute('d')).length>12);
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ecg-label').textContent(),/Kondition pågår/);

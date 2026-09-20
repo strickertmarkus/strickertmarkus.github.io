@@ -699,14 +699,14 @@
    v58 classnames and corresponding original CSS above. This adapter only
    constrains the session to the independent preview and makes its existing
    per-set cards a scrollable section without altering their own styling. */
-#session{padding:0;scroll-padding-bottom:calc(106px + env(safe-area-inset-bottom));--border:#273241;--border-a:#273241;--surface:#101824;--bg3:#101824;--text:#f1f5f9;--text-sec:#788596;--pf-rgb:251,146,60;--pf-accent:#FB923C;--pf-soft:#FED7AA;background:#080D14;color:#F1F5F9}
+#session{padding:0;--border:#273241;--border-a:#273241;--surface:#101824;--bg3:#101824;--text:#f1f5f9;--text-sec:#788596;--pf-rgb:251,146,60;--pf-accent:#FB923C;--pf-soft:#FED7AA;background:#080D14;color:#F1F5F9}
 #session-modal{width:100%;min-height:100dvh;height:auto;max-width:100%;position:relative;overflow:visible;color:#F1F5F9}
 #session-modal .session-shell{width:100%;height:auto;min-height:100dvh}
 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%;background:#080D14!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 #session-modal .session-top>.session-cta{flex:0 0 auto;min-height:42px}
 #session-modal .session-title{font-size:18px}
 #session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto}
-#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-grid{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important}
+
 #session-modal .session-main{width:100%;min-width:0}
 #session-modal .session-current-target{margin:0}
 #session-modal .ingemar-session-note{font-size:11px;line-height:1.45;color:#778496;margin:-4px 0 0}
@@ -735,7 +735,7 @@
 #session-modal .session-set-rail .mode-exercise-card.is-current{border-color:rgba(var(--pf-rgb),.32);background:linear-gradient(155deg,rgba(var(--pf-rgb),.075),#ffffff04)}
 #session-modal .session-rail-footer{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;border-top:1px solid rgba(148,163,184,.1)}
 #session-modal .session-rail-footer .hint{margin:0;max-width:300px}
-#session-modal .session-rail-footer button{min-height:43px;scroll-margin-bottom:calc(106px + env(safe-area-inset-bottom))}
+#session-modal .session-rail-footer button{min-height:43px}
 #session-modal .session-rail-footer button:disabled{opacity:.5}
 #session-modal .pulse-flow-band-v58{width:100%;height:67px}
 #session-modal .pulse-flow-band-v58 svg{height:67px}
@@ -786,13 +786,16 @@
 #session-modal[data-state="complete"]{--pf-accent:#34D399;--pf-soft:#A7F3D0;--pf-rgb:52,211,153;--pf-speed:3.2s}
 #session-modal.pulse-flow-active-v58{--pf-speed:.92s}
 #session-modal.pulse-flow-active-v58.pulse-flow-cardio-v58{--pf-speed:.72s}
-/* Keep the active action visible while the full-size exercise cards scroll
-   underneath. The bottom space on session-grid prevents obscuring the final row. */
-#session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-controls{position:fixed!important;z-index:12!important;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(820px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px);margin:0!important;padding:9px!important;min-height:60px!important;gap:6px!important;border:1px solid rgba(var(--pf-rgb),.24);border-radius:18px;background:#090f19;box-shadow:0 -14px 45px rgba(0,0,0,.58),0 0 20px rgba(var(--pf-rgb),.08)}
-#session-modal #session-controls .session-cta{min-width:0;min-height:45px!important;white-space:normal;line-height:1.2;text-align:center;touch-action:manipulation}
-#session-modal #session-controls.decision-row .session-cta{font-size:clamp(10px,2.9vw,12px)!important;padding:8px 4px!important}
 #session-modal .session-cta-row .session-cta{touch-action:manipulation}
 @media(max-width:740px){
+ /* Match the family's compact in-flow action layout on phones. */
+ #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-main.session-card{gap:7px!important;padding:9px 4px 10px!important}
+ #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-grid{padding-top:6px!important}
+ #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-workout-progress{margin:2px 0 0!important}
+ #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-stable-details{padding:6px 0 7px!important}
+ #session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-controls{margin-top:0!important}
+ #session-modal .pulse-flow-band-v58{height:60px}
+ #session-modal .pulse-flow-band-v58 svg{height:60px}
  #session-modal .session-top{padding:11px 12px}
  #session-modal .session-grid{padding:9px!important}
  #session-modal .session-main.session-card{padding:12px!important;gap:10px!important}
