@@ -30,6 +30,8 @@ test('preview includes an isolated training log and interactive Zen modes',()=>{
  assert.match(source[1],/zenHistory/);
  assert.match(source[1],/activeZen/);
  assert.match(source[1],/state\.history\.push\(workout\)/);
+ assert.match(html,/id="history-detail"/);
+ assert.match(source[1],/function openHistory\(id\)/);
  assert.match(source[1],/localStorage\.setItem\(KEY/);
  assert.match(source[1],/Återställa all demodata/);
 });

@@ -79,13 +79,20 @@ jobs:
             await page.locator('[data-done="1:0"]').click();
             await page.screenshot({path:'test-results/ingemar-demo/live-sets-mobile.png'});
             await page.locator('[data-action="finish-session"]').click();
-            await page.waitForSelector('#session:not([open])');
+            await page.waitForFunction(()=>!document.getElementById('session').open);
             const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
             const latest=saved.history.at(-1);
             assert.equal(latest.type,'Push');
             assert.deepEqual(latest.exercises[0].sets.map(s=>s.weight),[60,73]);
             assert.deepEqual(latest.exercises[0].sets.map(s=>s.reps),[12,9]);
             assert.equal(latest.exercises[1].sets[0].minutes,3.5);
+            await page.locator('#history [data-history]').first().click();
+            await page.waitForSelector('#history-detail[open]');
+            assert.equal(await page.locator('#history-detail .exercise-card').count(),2);
+            const historyDetails=await page.locator('#history-detail-body').innerText();
+            assert.ok(historyDetails.includes('73')&&historyDetails.includes('3.5'),
+              'Recorded set details were not visible: '+historyDetails);
+            await page.locator('[data-action="close-history"]').first().click();
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
