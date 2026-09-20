@@ -503,10 +503,11 @@ body[data-kind=meditation] .primary-button {
 
 .section-heading {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 26px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .section-heading .eyebrow {
@@ -542,8 +543,8 @@ body[data-kind=meditation] .primary-button {
   width: 100%;
   background: linear-gradient(130deg,#1e39272e,#2335220d);
   border: 1px solid var(--line);
-  border-radius: 13px;
-  transition: background .7s,border-color .7s,box-shadow .7s;
+  border-radius: var(--wellness-card-radius,14px);
+  transition: background var(--wellness-motion,.24s),border-color var(--wellness-motion,.24s),box-shadow var(--wellness-motion,.24s);
 }
 
 .ritual-choice:hover {
@@ -879,8 +880,8 @@ body[data-kind=meditation] .primary-button {
 
 .page-section,
 .sanctuary {
-  width: 89%;
-  max-width: 1180px;
+  width: calc(100% - 2 * var(--wellness-gutter,20px));
+  max-width: var(--wellness-page-width,1200px);
 }
 
 body[data-kind=meditation] .day-fill {
@@ -1551,8 +1552,6 @@ body[data-kind=meditation] .form-error {
     font-size: 18px;
   }
 
-  .sanctuary,
-  .page-section,
   .session-view {
     width: 88%;
   }
@@ -3464,3 +3463,10 @@ body[data-kind=meditation] #start-button,
 body[data-kind=meditation] #start-button:hover {
   box-shadow: 0 0 18px rgba(255,224,143,.25),0 0 43px rgba(255,220,129,.15),0 0 68px rgba(255,226,151,.065),inset 0 0 26px rgba(255,241,184,.12),inset 0 0 1px rgba(255,248,217,.62);
 }
+
+/* Shared UI typography; scene titles retain their own serif character. */
+#home-view :is(button,.subtle-text,.week-label,.hero-description,.history-row p){font-family:var(--wellness-ui-font,Inter,system-ui,sans-serif)}
+#home-view :is(.text-button,.week-label,.subtle-text){font-size:12px;line-height:1.5}
+#home-view .text-button{min-height:44px}
+#home-view .hero-description{font-size:14px;line-height:1.7}
+#home-view :is(.growth-stats strong,.week-summary strong,.history-row){font-variant-numeric:tabular-nums}
