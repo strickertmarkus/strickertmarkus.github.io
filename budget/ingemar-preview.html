@@ -293,6 +293,7 @@ function start(){
  $('session-pre-timer').hidden=true;
  document.body.dataset.modeOpen='true';
  renderSession();
+ $('session-exercises').scrollTop=0;
  $('session').scrollTop=0;
 }
 function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(seconds));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}

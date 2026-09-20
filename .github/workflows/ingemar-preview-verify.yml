@@ -169,6 +169,7 @@ jobs:
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Kondition');
+            assert.equal(await page.locator('#session-exercises').evaluate(el=>el.scrollTop),0,'New session must start at first set row');
             await page.locator('[data-action="toggle-prestart"]').click();
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
             await page.locator('[data-action="advance-session"]').click();
