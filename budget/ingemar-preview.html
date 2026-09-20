@@ -32,13 +32,21 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 </main>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><input id="build-date" type="date"></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
-  <div class="mode-wave" aria-hidden="true"><svg viewBox="0 0 1100 620" preserveAspectRatio="xMidYMid slice"><path d="M-100 260H145L186 227L232 304L284 150L341 335L406 242H560L604 260L653 210L706 320L766 235H1220"/><path d="M-100 262H145L186 227L232 304L284 150L341 335L406 242H560L604 260L653 210L706 320L766 235H1220"/></svg></div>
   <div class="mode-topbar"><button type="button" class="back" data-action="close-session">← Avsluta</button><div class="mode-identity"><small>INGEMARS TRÄNING · PULSE REACTOR</small><strong id="session-kind">Push</strong></div><span class="mode-status" id="session-status">LIVE · DEMO</span></div>
   <div class="mode-layout">
     <div class="mode-focus">
       <div class="mode-eyebrow" id="session-overline">SET 1 / 9</div>
       <h1 id="session-title">Pågående pass</h1>
       <p class="mode-description" id="session-guidance">Starta ett set och följ träningen i realtid.</p>
+      <div class="mode-pulse-band" aria-hidden="true">
+        <div class="mode-pulse-readout"><span class="mode-pulse-dot"></span><span id="session-ecg-label">PULSE / REDO</span><span class="mode-pulse-live">ECG · PULSE FLOW</span></div>
+        <svg class="mode-pulse-ecg" viewBox="0 0 600 70" preserveAspectRatio="none" focusable="false">
+          <path class="mode-ecg-baseline" d="M0 36H600"/>
+          <path class="mode-ecg-ghost" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000"/>
+          <path class="mode-ecg-glow" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000"/>
+          <path class="mode-ecg-trace" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000"/>
+        </svg>
+      </div>
       <div class="mode-clock-ring" id="session-ring" role="progressbar" aria-label="Genomförda set" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" pathLength="100"/></svg>
         <div class="mode-ring-text"><small id="session-stage">REDO FÖR SET</small><strong id="session-timer">00:00</strong><span id="session-clock-caption">Passets tid</span></div>
@@ -318,6 +326,9 @@ function updateSessionClock(){
  $('session-timer').textContent=clock;
  $('session-stage').textContent=stage;
  $('session-clock-caption').textContent=caption;
+ var phase=rest?'rest':!set?'complete':active.timerRunning?'active':'ready';
+ $('session').dataset.phase=phase;
+ $('session-ecg-label').textContent=phase==='rest'?'PULSE / ÅTERHÄMTNING':phase==='active'?'PULSE / AKTIVT SET':phase==='complete'?'PULSE / PASS KLART':'PULSE / REDO';
  $('session-ring').style.setProperty('--ring-progress-num',String(Math.min(100,Math.max(0,progress))));
  $('session-ring').setAttribute('aria-valuenow',String(Math.round(all?100*done/all:0)));
  $('session-rest-indicator').hidden=!rest;

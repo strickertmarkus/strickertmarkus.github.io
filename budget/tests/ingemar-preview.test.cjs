@@ -48,6 +48,9 @@ test('training and Zen use dedicated immersive screens rather than timer popups'
  assert.match(source[1],/function selectZenStep\(index\)/);
  assert.match(html,/data-action="advance-session"/);
  assert.match(html,/data-action="rest-session"/);
+ assert.match(html,/id="session-ecg-label"/);
+ assert.match(html,/class="mode-pulse-ecg"/);
+ assert.match(source[1],/dataset\.phase=phase/);
  assert.match(html,/data-action="next-zen"/);
  assert.match(source[1],/var TYPES=\['Push','Pull','Kondition'\]/);
 });
@@ -56,6 +59,10 @@ test('dedicated style sheet scopes responsive surfaces and reduced motion',()=>{
  assert.match(html,/ingemar-preview-modes\.css\?v=20260920-immersive-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
+ assert.match(css,/\.mode-pulse-band\{/);
+ assert.match(css,/@keyframes modeEcgSweep/);
+ assert.match(css,/#session\[data-phase="rest"\]/);
+ assert.doesNotMatch(css,/\.mode-wave\{/);
  assert.match(css,/@media\(max-width:360px\)/);
  assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
