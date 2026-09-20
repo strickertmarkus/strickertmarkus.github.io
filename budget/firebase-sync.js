@@ -187,6 +187,11 @@ async function bootstrapFirebaseSync(app) {
   }
 
   await loadAllFromFirebase();
+  // Initial reads use native Storage.setItem and populate lastKnownValues before
+  // listeners attach, so a hydration event is needed even for unchanged snapshots.
+  if (isExercisePage) window.dispatchEvent(new CustomEvent('firebase-sync', {
+    detail:{key:'ex_wk', value:null, initial:true}
+  }));
   setupRealtimeListeners();
   startRemotePolling();
   startLocalPolling();

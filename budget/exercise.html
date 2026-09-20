@@ -2906,7 +2906,11 @@ function refreshAll(){refreshStats();renderWeekGrid();refreshGoals();renderChart
 
 document.addEventListener('DOMContentLoaded',function(){refreshAll();initFade();});
 if(window.AppAccess)window.AppAccess.ready.then(function(access){
-  if(!access||access.role!=='training_only')return;
+  if(!access)return;
+  if(access.role!=='training_only'){
+    refreshTypeSuggestions();refreshWeekTemplateSelectors();refreshAll();
+    return;
+  }
   WORKOUT_TYPES=['Push','Pull','Kondition'];
   var wk=document.getElementById('wk-type');
   var day=document.getElementById('day-workout-type');

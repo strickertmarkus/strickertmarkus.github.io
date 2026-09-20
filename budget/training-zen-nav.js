@@ -361,6 +361,8 @@
   window.setWellnessMode=function(next){return requestDestination(next);};
   if(window.AppAccess)window.AppAccess.ready.then(function(access){
     if(access&&access.role==='training_only'){
+      trainingTitle='Ingemars träning';
+      if(mode==='training')document.title=trainingTitle;
       if(zenBrand)zenBrand.href='exercise.html';
       var directBrand=document.querySelector('.zen-header .zen-brand');
       if(directBrand)directBrand.href='exercise.html';
