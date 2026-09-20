@@ -702,7 +702,7 @@
 #session{padding:0;--border:#273241;--border-a:#273241;--surface:#101824;--bg3:#101824;--text:#f1f5f9;--text-sec:#788596;--pf-rgb:251,146,60;--pf-accent:#FB923C;--pf-soft:#FED7AA;background:#080D14;color:#F1F5F9}
 #session-modal{width:100%;min-height:100dvh;height:auto;max-width:100%;position:relative;overflow:visible;color:#F1F5F9}
 #session-modal .session-shell{width:100%;height:auto;min-height:100dvh}
-#session-modal .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%}
+#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%;background:#080D14!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 #session-modal .session-top>.session-cta{flex:0 0 auto;min-height:42px}
 #session-modal .session-title{font-size:18px}
 #session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto}

@@ -116,6 +116,7 @@ jobs:
             assert.ok(cardVisibility.top>=0&&cardVisibility.bottom<=cardVisibility.viewport+2 &&
               cardVisibility.outerScroll>0 && cardVisibility.railScroll===0,
               'Scrolling down must expose the entire last exercise card: '+JSON.stringify(cardVisibility));
+            assert.equal(await page.locator('#session-modal .session-top').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(8, 13, 20)','Sticky title bar must obscure the scrolling set cards');
             await auditNoHorizontalScroll('Fully expanded set cards 390px');
             await page.screenshot({path:'test-results/ingemar-demo/all-set-cards-mobile.png'});
             await page.locator('[data-action="advance-session"]').click();
