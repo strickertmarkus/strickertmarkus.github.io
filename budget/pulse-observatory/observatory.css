@@ -1,7 +1,7 @@
 /* Observatory composition. Shared overview, records, log and editor materials live in environment.css. */
 #pulse-home{
  --obs-pending-accent:#c59aaa;--obs-pending-border:#c59aaa2e;--obs-pending-fill:#b8869a0c;--obs-pending-glow:0 0 0 transparent;--obs-pending-decoration:.5;
- --obs-current-accent:#ffb8cb;--obs-current-border:#ffa1bb65;--obs-current-fill:#ff769912;--obs-current-glow:0 0 12px #ff5c881c;--obs-current-decoration:.9;
+ --obs-current-accent:#ffb8cb;--obs-current-border:#ffa1bb65;--obs-current-fill:#ff769912;--obs-current-glow:0 0 24px #ff5c8833;--obs-current-decoration:.9;
  --obs-completed-accent:#ffb8cb;--obs-completed-border:#ffa1bb78;--obs-completed-fill:#ff769914;--obs-completed-glow:0 0 14px #ff5c8818;--obs-completed-decoration:.94;
  --obs-achieved-accent:#ffe7ef;--obs-achieved-border:#ffc5d89c;--obs-achieved-fill:#ff7b9f1c;--obs-achieved-glow:0 0 18px #ff5c882a;--obs-achieved-decoration:1
 }
@@ -90,17 +90,19 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-home .observatory-week-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-left:auto}
 #pulse-home .observatory-week .section-hdr{margin-bottom:16px!important}
 #pulse-home .observatory-week .week-inline-actions-v13{margin-left:auto}
-#pulse-home .observatory-week #week-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:0!important;border-bottom:1px solid #eeb4ce26;overflow:visible!important;margin:0!important}
-#pulse-home .observatory-week .week-day{position:relative!important;min-width:0;min-height:106px!important;padding:16px 7px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;gap:7px!important;transition:background .3s!important}
-#pulse-home .observatory-week .week-day::after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:var(--obs-state-accent,var(--obs-pending-accent));bottom:-3px;left:calc(50% - 2px);box-shadow:var(--obs-state-glow,var(--obs-pending-glow));opacity:0}
-#pulse-home .observatory-week .week-day.is-selected{background:#ffb8cb12!important;box-shadow:inset 0 0 0 1px #ffb8cb55!important}
+#pulse-home .observatory-week #week-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:6px!important;border-bottom:0;overflow:visible!important;margin:0!important}
+#pulse-home .observatory-week .week-day{position:relative!important;min-width:0;min-height:106px!important;padding:16px 7px!important;border:1px solid var(--obs-line)!important;border-radius:var(--obs-card-radius)!important;background:var(--obs-surface)!important;box-shadow:none!important;gap:7px!important;transition:background .24s,border-color .24s,box-shadow .24s!important}
+#pulse-home .observatory-week .week-day::after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:var(--obs-state-accent,var(--obs-pending-accent));bottom:7px;left:calc(50% - 2px);box-shadow:var(--obs-state-glow,var(--obs-pending-glow));opacity:0}
+#pulse-home .observatory-week .week-day.is-selected{background:radial-gradient(ellipse at 50% 10%,#ffb8cb22,transparent 90%),var(--obs-surface)!important;border-color:#ffb8cb80!important;box-shadow:inset 0 0 18px #ffb8cb0c!important}
 #pulse-home .observatory-week .week-day[data-observatory-state="current"] .wd-date,#pulse-home .observatory-week .week-day[data-observatory-state="completed"] .wd-date{color:var(--obs-state-accent)!important}
 #pulse-home .observatory-week .week-day[data-observatory-state="completed"] .wd-date{font-weight:450!important}
 #pulse-home .observatory-week .wd-name{font-size:12px!important;letter-spacing:.3px!important;color:#ba9baf!important}
 #pulse-home .observatory-week .wd-date{font-size:24px!important;font-weight:350!important;line-height:1!important;color:#e5cedc!important}
 #pulse-home .observatory-week .wd-type{font-size:12px!important;font-weight:400!important;line-height:1.4;color:#b19aad!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pulse-home .observatory-week :is(.wd-week,.wd-status){display:none!important}
-#pulse-home .observatory-week .week-day.today::after{opacity:1;background:#ffb8cb;box-shadow:none}
+#pulse-home .observatory-week .week-day.today{background:radial-gradient(ellipse at 50% 90%,#ff85af2c,transparent 80%),var(--obs-surface)!important;box-shadow:0 0 28px #ff527b24,inset 0 0 20px #ff85af10!important}
+#pulse-home .observatory-week .week-day.today .wd-date{color:#ffe2ed!important;text-shadow:0 0 9px #ff94b899,0 0 20px #ff527b55}
+#pulse-home .observatory-week .week-day.today::after{opacity:1;background:#ffe2ed;box-shadow:0 0 8px #ff9cbd,0 0 18px #ff527b}
 #pulse-home .observatory-week .week-day.done .wd-status{display:block!important;top:5px;right:5px;font-size:12px;color:#ffb8cb}
 #pulse-home .observatory-day-detail{min-height:3em;margin:20px 0 0;padding:16px 0;border-top:1px solid var(--obs-line);color:var(--obs-muted);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
 #pulse-page.pulse-observatory #pulse-log-button{display:none!important}
