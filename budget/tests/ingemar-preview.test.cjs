@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
+const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(__dirname,'../ingemar-preview.html'),'utf8');
 const source=html.match(/<script>([\s\S]*?)<\/script>/);
 test('standalone preview has valid inline JavaScript and does not load Firebase',()=>{
