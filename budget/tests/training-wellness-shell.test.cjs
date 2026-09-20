@@ -190,7 +190,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
     assert.match(source,/training-zen-nav\.css\?v=20260918-ios-focus-zen-canvas-1/);
     assert.match(source,/training-zen-nav\.js\?v=20260920-training-only-2/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
+  assert.match(exercise,/auth-config\.js\?v=20260920-training-only-3/);
   assert.match(exercise,/auth-gate\.js\?v=20260920-training-only-2/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260919-observatory-polish-1/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260919-observatory-polish-1/);

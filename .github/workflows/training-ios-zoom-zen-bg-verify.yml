@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main, work/observatory-polish-20260919]
+    branches: [main, work/observatory-polish-20260919, feature/training-only-accounts-20260920]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
