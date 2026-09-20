@@ -705,7 +705,7 @@
 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%;background:#080D14!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 #session-modal .session-top>.session-cta{flex:0 0 auto;min-height:42px}
 #session-modal .session-title{font-size:18px}
-#session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto}
+#session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto;padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
 #session-modal .session-main{width:100%;min-width:0}
 #session-modal .session-current-target{margin:0}
 #session-modal .ingemar-session-note{font-size:11px;line-height:1.45;color:#778496;margin:-4px 0 0}
@@ -742,6 +742,7 @@
 /* Family Pulse Flow v85 timer geometry/ECG/marker, adapted to Ingemar's single
    timer surface. A single ring morphs between set, interval, rest and complete;
    its SVG path is painted from wall-clock timestamps (never discrete CSS steps). */
+#session-modal .session-live-timer[hidden]{display:none!important}
 #session-modal .session-live-timer{display:flex;justify-content:center;align-items:center;min-width:0;min-height:176px;margin:0 auto;width:100%;isolation:isolate}
 #session-modal #session-countdown-ring{position:relative;display:grid;place-items:center;width:clamp(142px,24dvh,176px);height:clamp(142px,24dvh,176px);flex:none;overflow:visible;border:0;border-radius:50%;background:radial-gradient(circle,rgba(var(--pf-rgb),.035) 0 48%,transparent 69%);filter:none;transition:background .35s ease,transform .55s cubic-bezier(.16,1,.3,1)}
 #session-modal .pf-live-ring::before{content:"";position:absolute;inset:24%;border-radius:50%;pointer-events:none;background:rgba(var(--pf-rgb),.085);filter:blur(23px);opacity:.68;transition:background .45s ease}
@@ -784,6 +785,11 @@
 #session-modal[data-state="complete"]{--pf-accent:#34D399;--pf-soft:#A7F3D0;--pf-rgb:52,211,153;--pf-speed:3.2s}
 #session-modal.pulse-flow-active-v58{--pf-speed:.92s}
 #session-modal.pulse-flow-active-v58.pulse-flow-cardio-v58{--pf-speed:.72s}
+/* Keep the active action visible while the full-size exercise cards scroll
+   underneath. The bottom space on session-grid prevents obscuring the final row. */
+#session-modal.pulse-flow-v58.show:not(.session-overview-mode) #session-controls{position:fixed!important;z-index:12!important;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(820px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px);margin:0!important;padding:9px!important;min-height:60px!important;gap:6px!important;border:1px solid rgba(var(--pf-rgb),.24);border-radius:18px;background:#090f19;box-shadow:0 -14px 45px rgba(0,0,0,.58),0 0 20px rgba(var(--pf-rgb),.08)}
+#session-modal #session-controls .session-cta{min-width:0;min-height:45px!important;white-space:normal;line-height:1.2;text-align:center;touch-action:manipulation}
+#session-modal #session-controls.decision-row .session-cta{font-size:clamp(10px,2.9vw,12px)!important;padding:8px 4px!important}
 #session-modal .session-cta-row .session-cta{touch-action:manipulation}
 @media(max-width:740px){
  #session-modal .session-top{padding:11px 12px}

@@ -63,7 +63,7 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
  assert.match(html,/ingemar-preview-modes\.css\?v=20260920-canonical-1/);
- assert.match(html,/ingemar-pulse-original\.css\?v=20260920-glow-ring-1/);
+ assert.match(html,/ingemar-pulse-original\.css\?v=20260920-strength-actions-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
  assert.match(css,/@media\(max-width:360px\)/);
@@ -77,6 +77,12 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(source[1],/function paintSessionRing\(now\)/);
  assert.match(source[1],/requestAnimationFrame\(sessionRingTick\)/);
  assert.match(html,/id="session-countdown-ring"/);
+ assert.match(html,/id="session-live-timer"/);
+ assert.match(source[1],/session-live-timer'\)\.hidden=!complete&&!rest&&!!ex&&ex\.mode!=='min'/);
+ assert.doesNotMatch(source[1],/elapsed%60/);
+ assert.match(pulse,/#session-modal \.session-live-timer\[hidden\]\{display:none!important\}/);
+ assert.match(pulse,/#session-modal\.pulse-flow-v58\.show:not\(\.session-overview-mode\) #session-controls\{position:fixed!important/);
+ assert.match(pulse,/padding-bottom:calc\(112px \+ env\(safe-area-inset-bottom\)\)/);
  assert.match(html,/id="session-ring-progress"/);
  assert.match(html,/id="session-ring-marker"/);
  assert.doesNotMatch(html,/id="session-cardio-countdown"/);

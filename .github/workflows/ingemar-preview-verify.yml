@@ -89,13 +89,32 @@ jobs:
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
+            async function assertActionsVisible(label){
+              const placement=await page.locator('#session-controls').evaluate(el=>{
+                const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
+                  const r=btn.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+                });
+                return {position:getComputedStyle(el).position,top:rect.top,bottom:rect.bottom,width:innerWidth,height:innerHeight,buttons};
+              });
+              assert.ok(placement.position==='fixed'&&placement.top>=-1&&placement.bottom<=placement.height+1&&
+                placement.buttons.length>=1&&placement.buttons.every(rect=>rect.left>=-1&&rect.right<=placement.width+1&&
+                rect.top>=placement.top-1&&rect.bottom<=placement.height+1),label+' action bar must fit the viewport: '+JSON.stringify(placement));
+            }
             for(const width of [320,360,390,430,768,1440]){
               await page.setViewportSize({width,height:width===1440?960:844});
               await auditNoHorizontalScroll('Pushläge '+width+'px');
+              await assertActionsVisible('Starta set '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/push-session-'+width+'.png'});
+            }
+            for(const viewport of [{width:320,height:568},{width:390,height:667}]){
+              await page.setViewportSize(viewport);
+              await assertActionsVisible('Starta set / kort mobil '+viewport.width+'×'+viewport.height);
+              await auditNoHorizontalScroll('Kort mobil '+viewport.width+'×'+viewport.height);
             }
             await page.setViewportSize({width:390,height:844});
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true,
+              'Strength sets use the count-up timer at top right, not a one-minute ring');
             assert.match(await page.locator('#session-current-target').textContent(),/60 kg/);
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'true');
             await page.locator('[data-action="toggle-prestart"]').click();
@@ -108,6 +127,7 @@ jobs:
             assert.ok(railGeometry.height>400 && railGeometry.scrollHeight<=railGeometry.clientHeight+2 &&
               railGeometry.overflow==='visible','Rail must grow with every card instead of clipping: '+JSON.stringify(railGeometry));
             await page.locator('#session-exercises .mode-exercise-card').last().scrollIntoViewIfNeeded();
+            await assertActionsVisible('Starta set efter att ha scrollat till sista övningen');
             const cardVisibility=await page.evaluate(()=>{
               const el=document.querySelector('#session-exercises .mode-exercise-card:last-child');
               const r=el.getBoundingClientRect(),mode=document.getElementById('session');
@@ -123,8 +143,9 @@ jobs:
             assert.equal(await page.locator('#session-stage').textContent(),'Aktivt set');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
             assert.match(await page.locator('#session-ecg-label').textContent(),/Aktivt set/);
-            await page.waitForFunction(()=>document.getElementById('session-ring-progress').getAttribute('d').length>12);
-            assert.equal(await page.locator('#session-ring-label').textContent(),'SETTID');
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true);
+            assert.equal(await page.locator('#session-ring-label').textContent(),'REDO FÖR SET');
+            await assertActionsVisible('Klar med set under styrkeset');
             await auditNoHorizontalScroll('Aktivt styrkeset 390px');
             assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
             assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
@@ -132,7 +153,9 @@ jobs:
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-stage').textContent(),'Återhämtning');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
+            await assertActionsVisible('Hoppa över vilan');
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
             await auditNoHorizontalScroll('Glowing rest ring 390px');
@@ -142,6 +165,12 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
             assert.equal(await page.locator('[data-action="extra-session-set"]').count(),1);
             assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
+            for(const viewport of [{width:320,height:568},{width:390,height:667}]){
+              await page.setViewportSize(viewport);
+              await assertActionsVisible('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
+              await auditNoHorizontalScroll('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
+            }
+            await page.setViewportSize({width:390,height:844});
             await page.locator('[data-done="0:1"]').click();
             await page.locator('[data-actual="0:1:weight"]').fill('73');
             await page.locator('[data-done="1:0"]').click();
@@ -200,7 +229,9 @@ jobs:
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-stage').textContent(),'Kondition pågår');
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'INTERVALL KVAR');
+            await assertActionsVisible('Starta intervall / kondition');
             assert.ok((await page.locator('#session-ring-progress').getAttribute('d')).length>12);
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ecg-label').textContent(),/Kondition pågår/);
