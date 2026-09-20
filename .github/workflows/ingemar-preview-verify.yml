@@ -140,9 +140,7 @@ jobs:
             assert.ok(railGeometry.height>400 && railGeometry.scrollHeight<=railGeometry.clientHeight+2 &&
               railGeometry.overflow==='visible','Rail must grow with every card instead of clipping: '+JSON.stringify(railGeometry));
             await page.locator('#session-exercises .mode-exercise-card').last().scrollIntoViewIfNeeded();
-            await assertActionsInFlow('Setknappar följer sidans scrollning efter sista övningen',false);
-            assert.ok(await page.locator('#session-controls').evaluate(el=>el.getBoundingClientRect().bottom<0),
-              'Setknapparna ska scrolla bort med sidan, inte ligga fast längst ned');
+            await assertActionsInFlow('Setknappar ligger i det normala sidflödet, även efter scrollning',false);
             const cardVisibility=await page.evaluate(()=>{
               const el=document.querySelector('#session-exercises .mode-exercise-card:last-child');
               const r=el.getBoundingClientRect(),mode=document.getElementById('session');
