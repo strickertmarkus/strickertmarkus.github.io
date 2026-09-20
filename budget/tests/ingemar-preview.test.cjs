@@ -52,6 +52,11 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
   'finishCurrentExercise','skipSessionRest'])assert.ok(source[1].includes('function '+fn+'()'),fn);
  assert.match(source[1],/set\.skipped/);
  assert.match(source[1],/dataset\.state=phase/);
+ assert.match(html,/id="session-pre-timer"/);
+ assert.match(html,/id="session-prestart-toggle"/);
+ assert.match(source[1],/function skipPrestart\(\)/);
+ assert.match(source[1],/function togglePrestart\(\)/);
+ assert.match(source[1],/active\.preUntil=Date\.now\(\)\+5000/);
  assert.doesNotMatch(html,/<dialog id="session"/);
 });
 test('independent editable set rail and Zen remain mobile friendly',()=>{
