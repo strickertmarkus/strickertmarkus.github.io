@@ -14,7 +14,7 @@
   var trainingTitle=document.title;
   var trainingTheme='#0F1219';
 
-  function profileQuery(){return new URLSearchParams(location.search).get('user')==='maja'?'maja':'';}
+  function profileQuery(){return window.AppAccess&&window.AppAccess.role==='training_only'?'':new URLSearchParams(location.search).get('user')==='maja'?'maja':'';}
   function normalizeDestination(value){return value==='meditation'?'meditation':value==='stretch'||value==='zen'?'stretch':'training';}
   function destinationFromURL(){return normalizeDestination(new URLSearchParams(location.search).get('wellness'));}
   function modeURL(destination){
@@ -101,7 +101,7 @@
     if(brand&&!brand.querySelector('.wellness-zen-brand')){
       zenBrand=document.createElement('a');
       zenBrand.className='wellness-zen-brand';
-      zenBrand.href='home.html';
+      zenBrand.href=window.AppAccess&&window.AppAccess.role==='training_only'?'exercise.html':'home.html';
       zenBrand.hidden=true;
       zenBrand.setAttribute('aria-label','Startsida');
       zenBrand.innerHTML='<span aria-hidden="true">✧</span><span>ZEN<small>STRETCH &amp; MEDITATION</small></span>';
@@ -359,6 +359,13 @@
   else window.setTimeout(warmZenAssets,1000);
   window.addEventListener('popstate',function(){requestDestination(destinationFromURL(),{history:'none'});});
   window.setWellnessMode=function(next){return requestDestination(next);};
+  if(window.AppAccess)window.AppAccess.ready.then(function(access){
+    if(access&&access.role==='training_only'){
+      if(zenBrand)zenBrand.href='exercise.html';
+      var directBrand=document.querySelector('.zen-header .zen-brand');
+      if(directBrand)directBrand.href='exercise.html';
+    }
+  });
   var initial=destinationFromURL();
   if(initial!=='training')requestDestination(initial,{history:'none',force:true});
 })();

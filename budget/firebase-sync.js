@@ -13,6 +13,8 @@
 let firebaseInitialized = false;
 let authReady = false;
 let authUser = null;
+let accessContext = null;
+let activeSyncKeys = [];
 let db = null;
 let syncEnabled = true;
 const syncQueue = {};
@@ -41,15 +43,35 @@ const isExercisePage = /\/exercise\.html$/.test(window.location.pathname);
 const requestedExerciseUser = new URLSearchParams(window.location.search).get('user');
 const exerciseUser = requestedExerciseUser && requestedExerciseUser.toLowerCase() === 'maja' ? 'maja' : 'markus';
 
+function trainingSuffix() {
+  return accessContext && accessContext.role === 'training_only' ? '__training_' + accessContext.uid : '';
+}
+
 function scopedExerciseKey(key) {
-  if (!isExercisePage || !EXERCISE_KEYS.includes(key)) return key;
-  return exerciseUser === 'maja' ? `${key}_maja` : key;
+  if (!isExercisePage || !key.startsWith('ex_')) return key;
+  if (!accessContext) return null; // Never load a family cache before identity resolution.
+  if (accessContext.role === 'training_only') return key + trainingSuffix();
+  return EXERCISE_KEYS.includes(key) && exerciseUser === 'maja' ? key + '_maja' : key;
 }
 
 function logicalExerciseKey(key) {
-  if (!isExercisePage || exerciseUser !== 'maja' || !key.endsWith('_maja')) return key;
-  const baseKey = key.slice(0, -5);
-  return EXERCISE_KEYS.includes(baseKey) ? baseKey : key;
+  if (!isExercisePage) return key;
+  const suffix = trainingSuffix();
+  if (suffix && key.endsWith(suffix)) return key.slice(0, -suffix.length);
+  if (exerciseUser === 'maja' && key.endsWith('_maja')) {
+    const baseKey = key.slice(0, -5);
+    if (EXERCISE_KEYS.includes(baseKey)) return baseKey;
+  }
+  return key;
+}
+
+function firebaseRef(key) {
+  const suffix = trainingSuffix();
+  if (suffix) {
+    if (!key.endsWith(suffix)) throw new Error('Blocked cross-account training key');
+    return db.ref('training_users/' + accessContext.uid + '/data/' + key.slice(0, -suffix.length));
+  }
+  return db.ref(key);
 }
 
 // Scope exercise storage before exercise.html's inline script runs. Markus keeps the
@@ -57,7 +79,7 @@ function logicalExerciseKey(key) {
 Storage.prototype.getItem = function(key) {
   const stringKey = String(key);
   const mappedKey = this === localStorage ? scopedExerciseKey(stringKey) : stringKey;
-  return _nativeStorageGetItem.call(this, mappedKey);
+  return mappedKey === null ? null : _nativeStorageGetItem.call(this, mappedKey);
 };
 
 const firebaseConfig = window.FIREBASE_CONFIG || {
@@ -99,6 +121,12 @@ function safeSetLocal(key, value) {
 async function initFirebaseSync() {
   if (firebaseInitialized) return;
   try {
+    // Role must be verified before any existing family key is read or synchronized.
+    accessContext = window.AppAccess ? await window.AppAccess.ready : null;
+    if (!accessContext) return;
+    activeSyncKeys = accessContext.role === 'training_only'
+      ? EXERCISE_KEYS.map(key => key + trainingSuffix())
+      : SYNC_KEYS;
     if (typeof firebase === 'undefined') {
       console.log('[Firebase] Waiting for SDK...');
       await new Promise((resolve, reject) => {
@@ -169,8 +197,8 @@ async function bootstrapFirebaseSync(app) {
 async function loadAllFromFirebase() {
   if (!db) return;
   try {
-    for (const key of SYNC_KEYS) {
-      const snapshot = await db.ref(key).get();
+    for (const key of activeSyncKeys) {
+      const snapshot = await firebaseRef(key).get();
       if (snapshot.exists()) {
         const value = snapshot.val();
         safeSetLocal(key, value);
@@ -189,8 +217,8 @@ async function loadAllFromFirebase() {
  */
 function setupRealtimeListeners() {
   if (!db) return;
-  for (const key of SYNC_KEYS) {
-    db.ref(key).on('value', (snapshot) => {
+  for (const key of activeSyncKeys) {
+    firebaseRef(key).on('value', (snapshot) => {
       if (!snapshot.exists()) return;
       handleRemoteUpdate(key, snapshot.val());
     }, (error) => {
@@ -208,8 +236,8 @@ function startRemotePolling() {
   remotePollInterval = setInterval(async () => {
     if (!db) return;
     try {
-      for (const key of SYNC_KEYS) {
-        const snapshot = await db.ref(key).get();
+      for (const key of activeSyncKeys) {
+        const snapshot = await firebaseRef(key).get();
         if (snapshot.exists()) {
           handleRemoteUpdate(key, snapshot.val());
         }
@@ -231,7 +259,7 @@ function startLocalPolling() {
   if (localPollInterval) return;
   localPollInterval = setInterval(async () => {
     if (!db || !syncEnabled) return;
-    for (const key of SYNC_KEYS) {
+    for (const key of activeSyncKeys) {
       let currentValue = null;
       try {
         currentValue = _realGetItem(key);
@@ -268,8 +296,9 @@ function handleRemoteUpdate(key, value) {
   safeSetLocal(key, value);
 
   const eventKey = logicalExerciseKey(key);
-  if (isExercisePage && exerciseUser === 'maja' && EXERCISE_KEYS.includes(key)) return;
-  if (isExercisePage && exerciseUser === 'markus' && key.endsWith('_maja')) return;
+  if (accessContext && accessContext.role === 'training_only' && !key.endsWith(trainingSuffix())) return;
+  if (isExercisePage && accessContext && accessContext.role === 'family' && exerciseUser === 'maja' && EXERCISE_KEYS.includes(key)) return;
+  if (isExercisePage && accessContext && accessContext.role === 'family' && exerciseUser === 'markus' && key.endsWith('_maja')) return;
 
   window.dispatchEvent(new CustomEvent('firebase-sync', {
     detail: { key: eventKey, value }
@@ -278,12 +307,12 @@ function handleRemoteUpdate(key, value) {
 
 /** Write to Firebase (debounced 500ms) */
 function syncToFirebase(key, value) {
-  if (!syncEnabled || !db) return;
+  if (!syncEnabled || !db || !accessContext || !activeSyncKeys.includes(key)) return;
   lastKnownValues[key] = value;
   if (syncQueue[key]) clearTimeout(syncQueue[key]);
   syncQueue[key] = setTimeout(async () => {
     try {
-      await db.ref(key).set(value);
+      await firebaseRef(key).set(value);
       console.log(`[Firebase] Synced '${key}'`);
     } catch (error) {
       console.warn(`[Firebase] Sync failed '${key}':`, error.message);
@@ -296,6 +325,7 @@ function syncToFirebase(key, value) {
 Storage.prototype.setItem = function(key, value) {
   const stringKey = String(key);
   const mappedKey = this === localStorage ? scopedExerciseKey(stringKey) : stringKey;
+  if (mappedKey === null) return;
   try {
     _nativeStorageSetItem.call(this, mappedKey, value);
   } catch (error) {
@@ -303,7 +333,7 @@ Storage.prototype.setItem = function(key, value) {
       fallbackSetItem(mappedKey, value).catch(() => {});
     }
   }
-  if (this === localStorage && SYNC_KEYS.includes(mappedKey)) {
+  if (this === localStorage && accessContext && activeSyncKeys.includes(mappedKey)) {
     syncToFirebase(mappedKey, value);
   }
 };
@@ -311,7 +341,7 @@ Storage.prototype.setItem = function(key, value) {
 /** Force reload all data from Firebase */
 async function forceSyncFromFirebase() {
   console.log('[Firebase] Forcing full sync...');
-  for (const key of SYNC_KEYS) delete lastKnownValues[key];
+  for (const key of activeSyncKeys) delete lastKnownValues[key];
   await loadAllFromFirebase();
   window.dispatchEvent(new Event('firebase-force-sync'));
 }
@@ -321,14 +351,24 @@ function isFirebaseConnected() {
 }
 
 function switchExerciseUser(user) {
-  if (!isExercisePage || !['markus', 'maja'].includes(user)) return;
+  if (!isExercisePage || !accessContext || accessContext.role !== 'family' || !['markus', 'maja'].includes(user)) return;
   const url = new URL(window.location.href);
   url.searchParams.set('user', user);
   window.location.href = url.toString();
 }
 
 function applyExerciseUserToggle() {
-  if (!isExercisePage) return;
+  if (!isExercisePage || !accessContext) return;
+  if (accessContext.role === 'training_only') {
+    document.title = 'Ingemars träning';
+    const brandSub = document.querySelector('.brand-text p');
+    if (brandSub) brandSub.textContent = 'Ingemar';
+    const headerBrand = document.querySelector('.brand-text h1');
+    if (headerBrand) headerBrand.onclick = function () { location.href = 'exercise.html'; };
+    const toggle = document.getElementById('exercise-user-toggle');
+    if (toggle) toggle.remove();
+    return;
+  }
 
   document.title = `${exerciseUser === 'maja' ? 'Maja' : 'Markus'} Träning`;
   const brandSub = document.querySelector('.brand-text p');
@@ -473,5 +513,7 @@ function applyExerciseLogDateFieldFix() {
 
 // Auto-init when DOM is ready
 document.addEventListener('DOMContentLoaded', initFirebaseSync, { once: true });
-document.addEventListener('DOMContentLoaded', applyExerciseUserToggle, { once: true });
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.AppAccess) window.AppAccess.ready.then(applyExerciseUserToggle);
+}, { once: true });
 document.addEventListener('DOMContentLoaded', applyExerciseLogDateFieldFix, { once: true });

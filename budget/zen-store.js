@@ -1,7 +1,8 @@
 /* Zen owns this namespace. No exercise keys, training templates or training sync. */
 (function(){
   'use strict';
-  const M=window.ZenModel,profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
+  const M=window.ZenModel;
+  let profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
   let entries={},active=null,key='',ref=null,connected=false,loaded=false,blocked=false,ready=false,storageOK=true,pending=0,epoch=0,authError=false;
   const listeners=new Set(),inFlight=new Map();let syncQueued=false,lastRemote={};
   const emit=()=>listeners.forEach(fn=>fn());
@@ -23,6 +24,9 @@
   }
   function catchUp(remote){lastRemote=remote;if(syncQueued)return;syncQueued=true;const atEpoch=epoch;queueMicrotask(()=>{syncQueued=false;if(atEpoch!==epoch)return;for(const e of Object.values(entries))if(!lastRemote[e.id]||e.updatedAt>lastRemote[e.id].updatedAt)push(e);});}
   function connect(user){
+    const access=window.AppAccess;
+    if(!access||!access.role||!user||user.uid!==access.uid)return;
+    profile=access.role==='training_only'?'self':(new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus');
     epoch++;if(ref)ref.off();inFlight.clear();syncQueued=false;lastRemote={};entries={};active=null;ready=false;loaded=false;blocked=false;pending=0;ref=null;
     if(!user){emit();return;}
     key='zen_v1_'+user.uid+'_'+profile;
@@ -36,7 +40,7 @@
   }
   function put(entry){if(!ready||!M.entryValid(entry))return false;entries=M.merge(M.merge(entries,read(key+'_entries',{})),{[entry.id]:entry});write(key+'_entries',entries);push(entry);emit();return true;}
   window.ZenStore={
-    profile,get ready(){return ready;},get active(){return active;},get status(){return status();},
+    get profile(){return profile;},get ready(){return ready;},get active(){return active;},get status(){return status();},
     get description(){return blocked?'Molnsynk är inte tillgänglig för Zen på det här kontot just nu. Dina pass sparas på den här enheten. Hämta gärna en säkerhetskopia.':status()+'. Zen synkar i en egen del av ditt konto, separat från träningen.';},
     get entries(){return Object.values(entries).filter(e=>!e.deleted);},
     subscribe(fn){listeners.add(fn);fn();return()=>listeners.delete(fn);},
@@ -52,7 +56,7 @@
     }
   };
   if(window.firebase){
-    try{firebase.database().ref('.info/connected').on('value',s=>{connected=s.val()===true;if(connected&&ready&&loaded&&!blocked)ref.once('value').then(s=>catchUp(M.merge({},s.val()))).catch(()=>{blocked=true;emit();});emit();});firebase.auth().onAuthStateChanged(connect,()=>{authError=true;emit();});}catch(_){authError=true;emit();}
+    try{firebase.database().ref('.info/connected').on('value',s=>{connected=s.val()===true;if(connected&&ready&&loaded&&!blocked)ref.once('value').then(s=>catchUp(M.merge({},s.val()))).catch(()=>{blocked=true;emit();});emit();});firebase.auth().onAuthStateChanged(user=>{if(window.AppAccess)window.AppAccess.ready.then(()=>connect(user));},()=>{authError=true;emit();});}catch(_){authError=true;emit();}
   }else{authError=true;emit();}
   if(window.addEventListener)window.addEventListener('storage',event=>{if(ready&&event.key===key+'_entries'){entries=M.merge(entries,read(key+'_entries',{}));emit();}});
 })();

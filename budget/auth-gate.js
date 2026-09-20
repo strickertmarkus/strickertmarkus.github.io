@@ -17,9 +17,17 @@
   if (!firebase.auth) return;
 
   var auth = firebase.auth();
+  // Keep the page invisible until the server-owned account role is resolved.
+  // This is a presentation guard; Firebase rules enforce actual data isolation.
+  document.documentElement.style.visibility = 'hidden';
+  var resolveAccess;
+  var accessReady = new Promise(function (resolve) { resolveAccess = resolve; });
+  window.AppAccess = {role:null, uid:null, ready:accessReady};
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith('/budget/login.html') || lowerPath.endsWith('/login.html');
   var isExercisePage = lowerPath.endsWith('/budget/exercise.html') || lowerPath.endsWith('/exercise.html');
+  var isZenPage = lowerPath.endsWith('/budget/zen.html') || lowerPath.endsWith('/zen.html');
+  var isTrainingSurface = isExercisePage || isZenPage;
   var isHomePage = lowerPath.endsWith('/budget/home.html') || lowerPath.endsWith('/home.html');
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
@@ -301,22 +309,72 @@
           showMessage('Fyll i e-post och lösenord först.', true);
           return;
         }
-        auth.createUserWithEmailAndPassword(email, password)
-          .then(function () { showMessage('Konto skapat och inloggad.', false); goToNext(); })
-          .catch(function (error) { showMessage(error && error.message ? error.message : 'Kunde inte skapa konto.', true); });
+        showMessage('Nya konton skapas av administratören i Firebase Console och tilldelas en behörighet där.', true);
       });
     }
   }
 
-  auth.onAuthStateChanged(function (user) {
-    if (isLoginPage) {
-      if (user) { goToNext(); return; }
+  function showLogin() {
+    function ready() {
       wireLoginUi();
-      return;
+      document.documentElement.style.visibility = '';
+      if (new URLSearchParams(location.search).has('access')) {
+        showMessage('Kontot saknar aktiv behörighet. Kontakta administratören.', true);
+      }
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, {once:true});
+    else ready();
+  }
+
+  function resolveRole(user) {
+    // app_roles is provisioned through Firebase Console; clients cannot assign roles.
+    if (!firebase.database) return Promise.reject(new Error('Firebase Database SDK saknas'));
+    return firebase.database().ref('app_roles/' + user.uid).get().then(function (snapshot) {
+      var role = snapshot.val();
+      if (role !== 'family' && role !== 'training_only') throw new Error('Kontot saknar behörighet');
+      return {uid:user.uid, role:role};
+    });
+  }
+
+  auth.onAuthStateChanged(function (user) {
     if (!user) {
+      if (isLoginPage) { showLogin(); return; }
       var current = window.location.pathname.split('/').pop() + window.location.search + window.location.hash;
       window.location.replace('login.html?next=' + encodeURIComponent(current));
+      return;
     }
+    resolveRole(user).then(function (access) {
+      if (!auth.currentUser || auth.currentUser.uid !== access.uid) return;
+      if (access.role === 'training_only' && !isTrainingSurface && !isLoginPage) {
+        window.location.replace('exercise.html');
+        return;
+      }
+      window.AppAccess.role = access.role;
+      window.AppAccess.uid = access.uid;
+      document.documentElement.dataset.accountRole = access.role;
+      resolveAccess(access);
+      window.dispatchEvent(new CustomEvent('app-access-ready', {detail:access}));
+      if (isLoginPage) {
+        window.location.replace(access.role === 'training_only' ? 'exercise.html' : nextTarget());
+        return;
+      }
+      if (isExercisePage && access.role === 'training_only') {
+        var url = new URL(location.href);
+        if (url.searchParams.has('user')) {
+          url.searchParams.delete('user');
+          history.replaceState(history.state, '', url.href);
+        }
+      }
+      document.documentElement.style.visibility = '';
+    }).catch(function () {
+      // Fail closed for unprovisioned accounts, unavailable rules and network errors.
+      auth.signOut().then(function () {
+        if (isLoginPage) { showLogin(); showMessage('Kontot kunde inte verifieras. Kontakta administratören.', true); }
+        else window.location.replace('login.html?access=denied');
+      }).catch(function () {
+        if (isLoginPage) showLogin();
+        else window.location.replace('login.html?access=denied');
+      });
+    });
   });
 })();
