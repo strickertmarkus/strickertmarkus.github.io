@@ -141,7 +141,36 @@ jobs:
             await page.waitForTimeout(700);
 
             require('node:fs').mkdirSync('test-results/observatory',{recursive:true});
-            async function shot(name){await page.screenshot({path:'test-results/observatory/'+name+'.png',fullPage:true})}
+            async function shot(name){
+              const file='test-results/observatory/'+name+'.png';
+              if(name.includes('builder')){
+                await page.screenshot({path:file});
+                return;
+              }
+              if(name==='orbit-mobile'){
+                await page.locator('#pulse-week').scrollIntoViewIfNeeded();
+                await page.waitForTimeout(600);
+                await page.locator('#pulse-week').screenshot({path:file});
+                return;
+              }
+              if(name==='expanded-log-mobile'){
+                await page.locator('#pulse-log').scrollIntoViewIfNeeded();
+                await page.waitForTimeout(600);
+                await page.screenshot({path:file});
+                return;
+              }
+              if(name==='chart-touch-mobile'){
+                await page.screenshot({path:file});
+                return;
+              }
+              // Reveal scroll-triggered content using the actual page interaction.
+              for(const selector of ['#pulse-week','.observatory-metrics','#pulse-goals','#pulse-progress','#pulse-records','#pulse-log']){
+                await page.locator(selector).scrollIntoViewIfNeeded();
+                await page.waitForTimeout(600);
+              }
+              await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+              await page.screenshot({path:file,fullPage:true});
+            }
             async function overviewAudit(label){
               const result=await page.evaluate(()=>{
                 const main=document.querySelector('#pulse-home');
@@ -200,11 +229,11 @@ jobs:
             }
             await page.setViewportSize({width:390,height:844});
             await page.locator('[data-week-orbit-toggle]').click();
-            await page.waitForTimeout(450);
+            await page.waitForFunction(()=>document.querySelector('#pulse-week').dataset.weekOrbitState==='expanded',null,{timeout:5000});
             assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
             await shot('orbit-mobile');
             await page.locator('[data-week-orbit-toggle]').click();
-            await page.waitForTimeout(450);
+            await page.waitForFunction(()=>!document.querySelector('#week-grid').classList.contains('week-orbit-layout'),null,{timeout:5000});
             assert.equal(await page.locator('#week-grid').evaluate(n=>n.classList.contains('week-orbit-layout')),false);
             await page.locator('#reactor-build').click();
             await page.waitForSelector('#day-workout-modal.show');
