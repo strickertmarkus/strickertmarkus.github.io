@@ -131,6 +131,8 @@ jobs:
             await page.locator('[data-action="toggle-prestart"]').click();
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
             assert.equal(await page.locator('#session-exercises .mode-exercise-card').count(),3);
+            assert.ok(await page.locator('#session-modal .session-grid').evaluate(el=>
+              parseFloat(getComputedStyle(el).paddingBottom)>=145),'The scrollable page must reserve space under the fixed action bar');
             const railGeometry=await page.locator('#session-exercises').evaluate(el=>({
               height:el.getBoundingClientRect().height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,
               overflow:getComputedStyle(el).overflowY

@@ -705,7 +705,8 @@
 #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-top{position:sticky;top:0;z-index:5;min-height:62px;gap:12px;padding:13px clamp(13px,3vw,22px);width:100%;background:#080D14!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 #session-modal .session-top>.session-cta{flex:0 0 auto;min-height:42px}
 #session-modal .session-title{font-size:18px}
-#session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto;padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+#session-modal .session-grid{height:auto!important;min-height:0!important;overflow:visible!important;width:100%;max-width:900px;margin:auto}
+#session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-grid{padding-bottom:calc(145px + env(safe-area-inset-bottom))!important}
 #session-modal .session-main{width:100%;min-width:0}
 #session-modal .session-current-target{margin:0}
 #session-modal .ingemar-session-note{font-size:11px;line-height:1.45;color:#778496;margin:-4px 0 0}

@@ -82,7 +82,7 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.doesNotMatch(source[1],/elapsed%60/);
  assert.match(pulse,/#session-modal \.session-live-timer\[hidden\]\{display:none!important\}/);
  assert.match(pulse,/#session-modal\.pulse-flow-v58\.show:not\(\.session-overview-mode\) #session-controls\{position:fixed!important/);
- assert.match(pulse,/padding-bottom:calc\(112px \+ env\(safe-area-inset-bottom\)\)/);
+ assert.match(pulse,/#session-modal\.pulse-flow-v58\.show:not\(\.session-overview-mode\) \.session-grid\{padding-bottom:calc\(145px \+ env\(safe-area-inset-bottom\)\)!important\}/);
  assert.match(html,/id="session-ring-progress"/);
  assert.match(html,/id="session-ring-marker"/);
  assert.doesNotMatch(html,/id="session-cardio-countdown"/);
