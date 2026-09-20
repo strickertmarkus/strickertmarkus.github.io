@@ -179,26 +179,18 @@
       return mode;
     }
 
-    var outgoing = visibleContent(root);
-    animateNodes(outgoing, [
-      {opacity:1, transform:'translate3d(0,0,0)'},
-      {opacity:.58, transform:'translate3d(0,2px,0)'}
-    ], {duration:90, easing:'ease-out', fill:'both'}).then(function () {
+    // Commit the chosen mode immediately; stale animation completions do no work.
+    commitAtSameScroll(mode, {deferCharts:true});
+    requestAnimationFrame(function () {
       if (token !== switchToken) return;
-      cancelAnimations();
-      commitAtSameScroll(mode, {deferCharts:true});
-
-      requestAnimationFrame(function () {
+      var incoming = visibleContent(root);
+      animateNodes(incoming, [
+        {opacity:.72, transform:'translate3d(0,3px,0)'},
+        {opacity:1, transform:'translate3d(0,0,0)'}
+      ], {duration:180, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).then(function () {
         if (token !== switchToken) return;
-        var incoming = visibleContent(root);
-        animateNodes(incoming, [
-          {opacity:.52, transform:'translate3d(0,-3px,0)'},
-          {opacity:1, transform:'translate3d(0,0,0)'}
-        ], {duration:230, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).then(function () {
-          if (token !== switchToken) return;
-          cancelAnimations();
-          renderChartsSoon();
-        });
+        cancelAnimations();
+        renderChartsSoon();
       });
     });
 
@@ -664,7 +656,7 @@
     if (core && session) {
       var onScreen = true;
       function syncMotion() {
-        var paused = !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
+        var paused = document.documentElement.dataset.wellnessMode === 'zen' || !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
         var motionState = paused ? 'paused' : 'running';
         var sceneRoot = core.closest('.observatory-stage') || core;
         sceneRoot.style.setProperty('--pulse-scene-motion', motionState);
@@ -673,6 +665,7 @@
       if ('IntersectionObserver' in window) new IntersectionObserver(function(entries) { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
       new MutationObserver(syncMotion).observe(session, { attributes: true, attributeFilter: ['class'] });
       document.addEventListener('visibilitychange', syncMotion);
+      window.addEventListener('wellness-mode-change', syncMotion);
       window.addEventListener('training-overview-change', function () { syncReactor(); syncMotion(); });
       syncMotion();
     }

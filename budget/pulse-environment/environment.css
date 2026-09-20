@@ -113,6 +113,9 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){color:#c0a4b9!important}
 #pulse-home .goal-history{border-color:#f2b8d120!important;background:transparent!important}
 #pulse-home .goal-history :is(th,td){background:transparent!important;border-color:#edb4d017!important;color:#baa4b7!important}
+#pulse-home .goal-history :is(th,td){font-size:12px!important;line-height:1.5!important}
+#pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){font-size:12px!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37) span{font-size:12px!important;line-height:1.5}
 #pulse-home .goal-history th{color:#e4bfd2!important}
 #pulse-home .goal-history tr:hover td{background:#ff8fb008!important}
 #pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}

@@ -8,6 +8,6 @@ Scope: Observatory overview, shared navigation and Zen home start controls. Exis
 - [x] 3–4: coherent cards, template selection and overview order.
 - [x] 5–6: stable shared navigation and typography roles.
 - [x] 7–8: selective action lighting and atmosphere below the hero.
-- [ ] 9–10: consistent motion and mobile readability.
+- [x] 9–10: consistent motion and mobile readability.
 - [ ] Stretch: consolidate home start orb and iPhone placement.
 - [ ] Validate: Node checks, WebKit interactions and actual screenshots in all three themes.

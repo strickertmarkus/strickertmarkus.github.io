@@ -115,7 +115,7 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
 #pulse-page:has(#session-modal.show) #pulse-home .observatory-scene{display:none}
 #pulse-page:has(#session-modal.show) #pulse-home .observatory-stage::before{content:none}
 @keyframes observatoryHorizonSweep{from{stroke-dashoffset:100;opacity:.85}to{stroke-dashoffset:0;opacity:.85}}
-@keyframes observatoryReadyPulse{0%,100%{transform:scale(1);box-shadow:inset 0 0 23px #8aeaf012,0 0 27px #56d9e517,0 0 29px #ff4e7d19}50%{transform:scale(1.008);box-shadow:inset 0 0 25px #8aeaf018,0 0 27px #56d9e51c,0 0 29px #ff4e7d1c}}
+@keyframes observatoryReadyPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
 #pulse-home .observatory-templates{margin:8px 0 32px;scroll-margin-top:24px}
 #pulse-home .observatory-template-hint{font-size:13px;line-height:1.6;color:var(--obs-muted);margin:-12px 0 20px}
 #pulse-home .observatory-template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -174,6 +174,8 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
  #pulse-home .observatory-week .wd-name{font-size:11px!important;letter-spacing:0!important}
  #pulse-home .observatory-week .wd-date{font-size:20px!important}
  #pulse-home .observatory-week .wd-type{display:none!important}
+ #pulse-home .observatory-week #week-grid{gap:3px!important}
+ #pulse-home .observatory-week .week-day{border-radius:10px!important}
  #pulse-home .observatory-week .week-nav{width:auto!important}
  #pulse-home .observatory-week .week-toolbar{gap:8px!important;margin-bottom:12px!important}
  #pulse-home .observatory-week-actions{width:auto;justify-content:flex-end;margin-left:auto}
