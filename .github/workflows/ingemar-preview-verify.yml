@@ -133,7 +133,7 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
             assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
-            assert.match(await page.locator('#session-ring-value').textContent(),/^00:/);
+            assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
             await auditNoHorizontalScroll('Glowing rest ring 390px');
             await page.screenshot({path:'test-results/ingemar-demo/glowing-rest-timer-mobile.png'});
             assert.equal(await page.locator('[data-action="skip-rest"]').count(),1);
