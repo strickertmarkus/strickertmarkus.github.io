@@ -347,6 +347,15 @@ jobs:
             await page.locator('[data-zen-index="0"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'stretch');
+            assert.equal(await page.locator('#zen-clock').textContent(),'01:00');
+            assert.equal(await page.locator('#zen-step-total').textContent(),'AV 01:00');
+            assert.equal(await page.locator('#zen-total-time').textContent(),'00:00 / 08:00');
+            assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
+            assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer');
+            const arcBefore=Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset));
+            await page.waitForTimeout(1100);
+            const arcAfter=Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset));
+            assert.ok(arcAfter<arcBefore&&arcAfter>90,'Stretch step dial must advance with elapsed time');
             for(const width of [320,360,390,430,768]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Stretchläge '+width+'px');
@@ -356,15 +365,34 @@ jobs:
             const stretchFirst=await page.locator('#zen-session-title').textContent();
             await page.locator('[data-action="next-zen"]').click();
             assert.notEqual(await page.locator('#zen-session-title').textContent(),stretchFirst);
+            assert.equal(await page.locator('#zen-step-total').textContent(),'AV 01:30');
+            assert.ok(Number(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'))>0,
+              'Advancing to the next stretch step must also advance the total pass progress');
+            assert.ok(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset))>98,
+              'The new movement starts with its own fresh circular countdown');
             await page.locator('[data-zen-step="0"]').click();
+            assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-session-title').textContent(),stretchFirst);
             await page.locator('[data-action="pause-zen"]').click();
             assert.equal(await page.locator('#zen-breath').textContent(),'PAUSAD');
+            const pausedArc=await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset);
+            const pausedTime=await page.locator('#zen-clock').textContent();
+            await page.waitForTimeout(850);
+            assert.equal(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset),pausedArc,
+              'Pause freezes the step dial');
+            assert.equal(await page.locator('#zen-clock').textContent(),pausedTime,
+              'Pause freezes the current movement countdown');
             await page.locator('[data-action="finish-zen"]').click();
             await page.locator('[data-view="meditation"]').click();
             await page.locator('[data-zen-index="1"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'meditation');
+            assert.equal(await page.locator('#zen-clock').textContent(),'02:00');
+            assert.equal(await page.locator('#zen-step-total').textContent(),'AV 02:00');
+            assert.equal(await page.locator('#zen-total-time').textContent(),'00:00 / 10:00');
+            assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
+            assert.equal(await page.locator('#zen-step-arc').evaluate(el=>getComputedStyle(el).stroke),
+              'rgb(245, 219, 162)','Meditation arc should inherit the warm meditation accent');
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Meditationsläge '+width+'px');

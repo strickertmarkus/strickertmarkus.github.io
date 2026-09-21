@@ -47,17 +47,27 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .zen-workout .zen-description{margin:0 auto 6px;font-size:12px;line-height:1.6;max-width:500px;color:#c6d5c7}
 .zen-workout[data-kind="meditation"] .zen-description{color:#dfd7c2}
 .zen-workout .zen-clock-wrap{margin:10px auto 8px;border-radius:50%;border:1px solid var(--mode-border);width:clamp(155px,28dvh,230px);height:clamp(155px,28dvh,230px);display:grid;place-items:center;background:radial-gradient(circle,var(--mode-accent-soft),transparent 70%);box-shadow:0 0 58px var(--mode-accent-soft);position:relative}
+.zen-workout .zen-step-dial{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;transform:rotate(-90deg)}
+.zen-workout .zen-step-track,.zen-workout .zen-step-arc{fill:none;stroke-width:2.2;transform-origin:50% 50%}
+.zen-workout .zen-step-track{stroke:var(--mode-border);stroke-opacity:.65}
+.zen-workout .zen-step-arc{stroke:var(--mode-accent);stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .38s linear;filter:drop-shadow(0 0 3px var(--mode-accent))}
+.zen-workout .zen-step-marker{fill:#fffcea;stroke:var(--mode-accent);stroke-width:.7;filter:drop-shadow(0 0 3px var(--mode-accent));transition:opacity .2s}
+.zen-workout .zen-clock-wrap.is-switching .zen-step-arc{transition:none}
 .zen-workout .zen-clock-wrap:before{content:"";position:absolute;inset:-9px;border:1px solid var(--mode-border);border-radius:50%;opacity:.3;animation:zenBreathe 6s ease-in-out infinite}
 .zen-workout .zen-clock-wrap .zen-clock-inner{position:relative;z-index:1;display:flex;flex-direction:column;gap:7px;align-items:center}
 .zen-workout .zen-clock-wrap strong{font-size:clamp(35px,7vw,56px);font-weight:350;letter-spacing:-.075em;font-variant-numeric:tabular-nums}
 .zen-workout .zen-clock-wrap small{font-size:10px;letter-spacing:.12em;color:var(--mode-accent);font-weight:750}
 .zen-workout .zen-clock-wrap.is-paused:before{animation-play-state:paused}
+.zen-workout .zen-clock-wrap #zen-step-total{font-size:9px;color:#d5e5cd;opacity:.82}
+.zen-workout .zen-total-time{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:690px;margin:8px auto 2px;color:#c2d2be;font-size:11px;font-variant-numeric:tabular-nums;letter-spacing:.055em}
+.zen-workout .zen-total-time #zen-total-percent{color:var(--mode-accent);font-weight:750}
+.zen-workout .zen-progress{height:6px;background:#ffffff16}
 .zen-workout .zen-stage{color:var(--mode-accent);font-size:10px;font-weight:750;letter-spacing:.12em;margin:10px 0}
 .zen-workout .zen-stage-list{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:8px 0 14px}
 .zen-workout .zen-stage-list button{min-height:35px;max-width:100%;border:1px solid var(--mode-border);background:#ffffff08;color:#e5e9d7;border-radius:100px;font-size:11px;padding:7px 12px}
 .zen-workout .zen-stage-list button[aria-current="step"]{background:var(--mode-accent-soft);color:#fff;border-color:var(--mode-accent)}
 .zen-workout .zen-stage-list button[disabled]{opacity:.45}
-.zen-workout .zen-progress{max-width:690px;margin:9px auto}
+.zen-workout .zen-progress{max-width:690px;margin:7px auto 10px}
 .zen-workout .zen-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;max-width:560px;margin:13px auto 0}
 .zen-workout .zen-controls button{min-height:47px}
 .zen-workout .zen-controls .primary{background:linear-gradient(115deg,var(--mode-accent),#f3f4cb);color:#1d2a24}

@@ -74,7 +74,7 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260920-canonical-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-progress-1/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
@@ -109,5 +109,13 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);
  assert.match(source[1],/function nextZen\(\)/);
  assert.match(source[1],/function selectZenStep\(index\)/);
+ assert.match(html,/id="zen-step-arc"/);
+ assert.match(html,/id="zen-step-marker"/);
+ assert.match(html,/id="zen-total-time"/);
+ assert.match(html,/id="zen-total-progress" role="progressbar"/);
+ assert.match(css,/\.zen-workout \.zen-step-arc\{/);
+ assert.match(css,/\.zen-workout \.zen-total-time\{/);
+ assert.match(source[1],/stepCircle\.style\.strokeDashoffset|arc\.style\.strokeDashoffset/);
+ assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
