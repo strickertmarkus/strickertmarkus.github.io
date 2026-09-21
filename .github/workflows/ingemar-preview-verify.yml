@@ -366,7 +366,12 @@ jobs:
             await page.setViewportSize({width:390,height:844});
             const stretchFirst=await page.locator('#zen-session-title').textContent();
             await page.locator('[data-action="next-zen"]').click();
-            assert.notEqual(await page.locator('#zen-session-title').textContent(),stretchFirst);
+            assert.deepEqual(errors,[],'Zen navigation browser errors: '+errors.join(' | '));
+            const nextStepState={title:await page.locator('#zen-session-title').textContent(),
+              step:await page.locator('#zen-stage-label').textContent(),
+              time:await page.locator('#zen-total-time').textContent(),
+              button:await page.locator('[data-action="next-zen"]').textContent()};
+            assert.notEqual(nextStepState.title,stretchFirst,'Next Zen movement must advance: '+JSON.stringify(nextStepState));
             assert.equal(await page.locator('#zen-step-total').textContent(),'AV 01:30');
             assert.ok(Number(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'))>0,
               'Advancing to the next stretch step must also advance the total pass progress');
