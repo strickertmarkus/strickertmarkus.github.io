@@ -68,14 +68,28 @@ jobs:
               await page.screenshot({path:'test-results/ingemar-demo/overview-'+width+'.png',fullPage:true});
             }
             await page.setViewportSize({width:390,height:844});
-            await page.locator('[data-choice="Push"]').click();
+            const preBuilderY=await page.evaluate(()=>{
+              const target=Math.min(480,Math.max(0,document.body.scrollHeight-innerHeight));
+              window.scrollTo(0,target);return window.scrollY;
+            });
+            await page.evaluate(()=>document.querySelector('[data-choice="Push"]').click());
             assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+            const builderLock=await page.evaluate(()=>({
+              flag:document.body.dataset.builderOpen,
+              position:getComputedStyle(document.body).position,
+              top:document.body.style.top,
+              y:window.scrollY
+            }));
+            assert.equal(builderLock.flag,'true');
+            assert.equal(builderLock.position,'fixed');
+            assert.equal(builderLock.top,(-preBuilderY)+'px');
+            assert.equal(builderLock.y,preBuilderY,'Opening the builder must not move the underlying page');
             async function auditBuilder(label){
               await auditNoHorizontalScroll(label);
               const layout=await page.locator('#builder').evaluate(dialog=>{
                 const frame=dialog.getBoundingClientRect();
                 const nodes=[dialog,dialog.querySelector('.modal-head'),dialog.querySelector('.modal-body'),
-                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
+                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.builder-exercise-name-control,.builder-exercise-name-menu:not([hidden]),.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
                 const wrong=nodes.flatMap(el=>{
                   const r=el.getBoundingClientRect(),extra=el.scrollWidth-el.clientWidth;
                   return r.left<frame.left-1||r.right>frame.right+1||extra>1
@@ -125,6 +139,15 @@ jobs:
             await auditBuilder('Passbyggare 320px med större text');
             await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
+            const firstName=page.locator('[data-exercise-name-input="0"]');
+            assert.equal(await firstName.getAttribute('readonly'),'');
+            await firstName.click();
+            assert.equal(await page.locator('[data-exercise-menu="0"]').isVisible(),true);
+            assert.equal(await page.locator('[data-exercise-menu="0"] [data-exercise-name="Bänkpress"]').count(),1,
+              'Push examples should be derived from the saved Ingemar data');
+            assert.equal(await page.locator('[data-exercise-new="0"]').textContent(),'＋ Ny övning');
+            await auditBuilder('Passbyggare med övningsdropdown 390px');
+            await page.locator('[data-exercise-picker="0"]').click();
             const originalDate=await page.locator('#build-date').inputValue();
             const originalDateText=await page.locator('#build-date-text').textContent();
             await page.locator('#build-date').fill('2026-12-31');
@@ -138,6 +161,33 @@ jobs:
             await page.locator('#builder').evaluate(dialog=>{dialog.scrollTop=dialog.scrollHeight;});
             await auditBuilder('Passbyggare nedscrollad 390px');
             await page.screenshot({path:'test-results/ingemar-demo/builder-bottom-390.png'});
+            await page.locator('[data-action="add-exercise"]').click();
+            const customIndex=(await page.locator('#exercise-list .exercise-card').count())-1;
+            assert.equal(await page.locator('[data-exercise-menu="'+customIndex+'"]').isVisible(),true,
+              'A new row should immediately offer the saved examples');
+            await page.locator('[data-exercise-new="'+customIndex+'"]').click();
+            const customInput=page.locator('[data-exercise-name-input="'+customIndex+'"]');
+            assert.equal(await customInput.getAttribute('readonly'),null);
+            await customInput.fill('  Demo   flyes Ingemar  ');
+            await page.locator('[data-action="save-plan"]').click();
+            assert.equal(await page.locator('#builder').evaluate(el=>el.open),false);
+            assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen||''),'');
+            assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).position),'fixed');
+            assert.equal(await page.evaluate(()=>window.scrollY),preBuilderY,'Closing the builder restores the background scroll position');
+
+            await page.evaluate(()=>document.querySelector('[data-action="build"]').click());
+            await page.locator('[data-exercise-name-input="0"]').click();
+            assert.equal(await page.locator('[data-exercise-menu="0"] [data-exercise-name="Demo flyes Ingemar"]').count(),1,
+              'A newly saved exercise must become a live catalog option');
+            await page.locator('[data-exercise-picker="0"]').click();
+            const savedCustomIndex=(await page.locator('#exercise-list .exercise-card').count())-1;
+            await page.locator('[data-remove-exercise="'+savedCustomIndex+'"]').click();
+            await page.locator('[data-action="save-plan"]').click();
+            await page.evaluate(()=>document.querySelector('[data-action="build"]').click());
+            await page.locator('[data-exercise-name-input="0"]').click();
+            assert.equal(await page.locator('[data-exercise-menu="0"] [data-exercise-name="Demo flyes Ingemar"]').count(),0,
+              'Exercise catalog is derived live; an unlogged name disappears after its last saved occurrence is removed');
+            await page.locator('[data-exercise-picker="0"]').click();
             assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'60');
             assert.equal(await page.locator('[data-set="0:1:weight"]').inputValue(),'65');
             assert.equal(await page.locator('[data-set="0:2:weight"]').inputValue(),'67.5');

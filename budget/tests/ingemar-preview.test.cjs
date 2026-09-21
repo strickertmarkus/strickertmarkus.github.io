@@ -36,6 +36,18 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/weight:weight\|\|0,reps:reps\|\|0,minutes:minutes\|\|0/);
  assert.match(source[1],/exercises:selectedExercises/);
  assert.match(source[1],/set\.done/);
+ assert.match(source[1],/function exerciseCatalogSources\(\)/);
+ assert.match(source[1],/state\.history\.slice\(\)/);
+ assert.match(source[1],/Object\.keys\(state\.plans\)/);
+ assert.match(source[1],/function exerciseNameCatalog\(type,mode\)/);
+ assert.match(source[1],/localeCompare\(b\.name,'sv-SE',\{sensitivity:'base'\}\)/);
+ assert.match(source[1],/>＋ Ny övning<\/button>/);
+ assert.match(source[1],/data-exercise-name-free="1"/);
+ assert.doesNotMatch(source[1],/exerciseNames|exerciseCatalogRegistry|localStorage\.setItem\([^\n]*exercise/i);
+ assert.match(html,/body\[data-builder-open="true"\]\{position:fixed/);
+ assert.match(html,/#builder::backdrop\{background:#020409ed;backdrop-filter:none;-webkit-backdrop-filter:none\}/);
+ assert.match(source[1],/function lockBuilderBackground\(\)/);
+ assert.match(source[1],/function unlockBuilderBackground\(\)/);
 });
 test('preview includes an isolated training log and interactive Zen modes',()=>{
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
