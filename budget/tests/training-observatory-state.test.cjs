@@ -75,9 +75,9 @@ test('metrics next action goals and both week geometries consume shared state to
 });
 
 test('CP10 dashboard loader keeps current presentation CSS cache keys while JS ownership moves', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-activity-glow-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-observatory-home-1/);
   assert.match(html, /training-week-orbit\.css\?v=20260919-observatory-polish-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-activity-glow-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-observatory-home-1/);
   assert.doesNotMatch(environmentShim, /function syncObservatoryStates/);
 });

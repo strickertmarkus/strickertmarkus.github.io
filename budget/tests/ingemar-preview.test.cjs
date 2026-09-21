@@ -40,6 +40,15 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/state\.history\.slice\(\)/);
  assert.match(source[1],/Object\.keys\(state\.plans\)/);
  assert.match(source[1],/function exerciseNameCatalog\(type,mode\)/);
+ assert.match(html,/id="builder-template-select"/);
+ assert.match(html,/data-action="save-template">Spara som mall/);
+ assert.match(html,/data-copy-exercise="/);
+ assert.match(html,/data-drag-exercise="/);
+ for(const fn of ['builderTemplates','saveBuilderTemplate','applyBuilderTemplate','deleteBuilderTemplate','copyDraftExercise','moveDraftExercise','startBuilderDrag','moveBuilderDrag','endBuilderDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ assert.match(source[1],/templates:\[\]/);
+ assert.match(source[1],/if\(!Array\.isArray\(value\.templates\)\)value\.templates=\[\]/);
+ assert.match(html,/#builder \.builder-row-drag\{[^}]*touch-action:none/);
+ assert.match(html,/\.builder-drag-ghost\{position:fixed!important/);
  assert.match(source[1],/localeCompare\(b\.name,'sv-SE',\{sensitivity:'base'\}\)/);
  assert.match(source[1],/>＋ Ny övning<\/button>/);
  assert.match(source[1],/data-exercise-name-free="1"/);
@@ -48,6 +57,26 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(html,/#builder::backdrop\{background:#020409ed;backdrop-filter:none;-webkit-backdrop-filter:none\}/);
  assert.match(source[1],/function lockBuilderBackground\(\)/);
  assert.match(source[1],/function unlockBuilderBackground\(\)/);
+ assert.match(html,/data-action="plan-week">Planera vecka ↗/);
+ assert.match(html,/id="week-planner"/);
+ assert.match(html,/id="week-template-select"/);
+ assert.match(html,/data-action="save-week">Spara hela veckan ✓/);
+ assert.match(html,/data-action="save-week-template">Spara veckan som mall/);
+ for(const fn of ['seedWeekTemplates','weekDraftFromMonday','openWeekPlanner','renderWeekPlanner','setWeekDaySource','copyWeekDay','swapWeekDays','saveWholeWeek','saveWeekTemplate','applyWeekTemplate','deleteWeekTemplate','startWeekDrag','moveWeekDrag','endWeekDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ assert.match(source[1],/weekTemplates:seedWeekTemplates\(\)/);
+ assert.match(source[1],/if\(!Array\.isArray\(value\.weekTemplates\)\)value\.weekTemplates=seedWeekTemplates\(\)/);
+ assert.match(source[1],/state\.plans\[date\]=weekPlanClone\(entry\)/);
+ assert.match(source[1],/delete state\.plans\[date\]/);
+ assert.match(source[1],/weekDraft\[to\]=weekPlanClone\(weekDraft\[from\]\)/);
+ assert.match(html,/#week-planner\{width:min\(780px,calc\(100dvw - 20px\)\)/);
+ assert.match(html,/\.week-planner-drag\{touch-action:none/);
+ for(const fn of ['openWeekDayBuilder','restoreWeekPlannerFromBuilder','addWeekExercise','removeWeekExercise','weekExercisePreset','weekExerciseOptions','positionWeekDrag','glowBarsMarkup','selectGlowBar','inspectChartPoint','installChartPointHandlers'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ for(const control of ['data-week-edit','data-week-add-exercise','data-week-remove-exercise','data-week-toggle-exercises','data-chart-point','data-chart-bar'])assert.match(source[1],new RegExp(control),control);
+ for(const id of ['bars-inspect','zen-bars-inspect','pp-volume-chart-inspect','pp-exercise-chart-inspect'])assert.match(html,new RegExp('id="'+id+'"'),id);
+ assert.match(source[1],/if\(builderWeekIndex>=0\)\{weekDraft\[builderWeekIndex\]=weekPlanClone\(draft\)/);
+ assert.match(source[1],/document\.removeEventListener\('pointermove',moveWeekDrag\)/);
+ assert.match(source[1],/Math\.min\(window\.innerWidth-w-8/);
+ assert.doesNotMatch(source[1],/var pointWidth=g\.innerW\/count/);
 });
 test('preview includes an isolated training log and interactive Zen modes',()=>{
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
@@ -109,7 +138,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-strength-counter-6/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-week-editor-charts-7/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);

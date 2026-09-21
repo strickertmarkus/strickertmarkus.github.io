@@ -25,5 +25,5 @@ test('Pulse mobile log has two rows and records retain progress',()=>{
 });
 test('Pulse-only owner and cache version are updated',()=>{
  assert.match(css,/#pulse-home :is\(\.pulse-records,\.pulse-log\)>\.section-hdr\{margin-bottom:24px!important\}/);
- assert.match(html,/pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
+ assert.match(html,/pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
 });

@@ -48,6 +48,13 @@ jobs:
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
             await page.waitForSelector('#pp-volume-chart svg');
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
+            await page.locator('#pp-volume-chart [data-chart-point="2"]').click();
+            assert.match(await page.locator('#pp-volume-chart-inspect').textContent(),/v\d+ · Push: .* · Pull: /,'Tapped volume chart must reveal both actual series values');
+            await page.locator('#pp-exercise-chart [data-chart-point="3"]').click();
+            assert.match(await page.locator('#pp-exercise-chart-inspect').textContent(),/v\d+ · Bänkpress: .* · Sittande rodd: /,'Tapped exercise chart must show both compared exercises');
+            await page.locator('#bars [data-bar-index="1"]').click();
+            assert.match(await page.locator('#bars-inspect').textContent(),/v\d+ · \d+ pass/,'Tapped training bar must reveal the exact week count');
+
             assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Push should expose three demo exercises');
             assert.equal(await page.locator('#pp-exercise-title').textContent(),'Bänkpress');
             assert.equal(await page.locator('#pp-exercise-compare').textContent(),'Jämför med Sittande rodd');
@@ -65,7 +72,7 @@ jobs:
             await page.locator('[data-analytics-metric="volume"]').click();
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -85,6 +92,84 @@ jobs:
               await page.screenshot({path:'test-results/ingemar-demo/overview-'+width+'.png',fullPage:true});
             }
             await page.setViewportSize({width:390,height:844});
+            const preWeekState=await page.evaluate(()=>localStorage.getItem('ingemar-pulse-demo-v1'));
+            await page.locator('[data-action="plan-week"]').click();
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),true);
+            assert.equal(await page.locator('#week-planner-days .week-planner-day').count(),7,'Week planner should edit all seven days together');
+            assert.match(await page.locator('#week-planner-label').textContent(),/^Vecka \d+$/);
+            await auditNoHorizontalScroll('Veckoplanerare 390px');
+
+            const mondaySelect=page.locator('[data-week-source="0"]');
+            await mondaySelect.selectOption('standard:Pull');
+            assert.match(await page.locator('[data-week-day="0"] .week-planner-day-summary').textContent(),/Pull/);
+            await page.locator('[data-week-copy="0"]').click();
+            assert.equal(await page.locator('#week-copy-note').isVisible(),true);
+            await page.locator('[data-week-copy-target="1"]').click();
+            assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/,'Copy should duplicate a planned workout to another day');
+
+            await page.locator('[data-week-toggle-exercises="0"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'Each day exposes its own editable exercise list');
+            await page.locator('[data-week-remove-exercise="0:2"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),2);
+            await page.locator('[data-week-add-exercise="0"]').selectOption({label:'Hantelcurl'});
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'The removed exercise can be selected again without leaving the week planner');
+            await auditNoHorizontalScroll('Veckodagens övningsval 390px');
+            await page.locator('[data-week-toggle-exercises="0"]').click();
+
+            const beforeWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
+            const weekDragHandle=page.locator('[data-week-drag="0"]');
+            const weekDragSource=await weekDragHandle.boundingBox();
+            const weekDragTarget=await page.locator('[data-week-day="2"]').boundingBox();
+            await page.mouse.move(weekDragSource.x+weekDragSource.width/2,weekDragSource.y+weekDragSource.height/2);
+            await page.mouse.down();
+            const dragX=weekDragSource.x+weekDragSource.width/2,dragY=weekDragSource.y+weekDragSource.height/2;
+            const ghostBefore=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
+            await page.mouse.move(dragX+18,dragY+24,{steps:3});
+            const ghostAfter=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
+            assert.ok(Math.abs((ghostAfter.x-ghostBefore.x)-18)<10&&Math.abs((ghostAfter.y-ghostBefore.y)-24)<10,
+              'Dragged pass preview must follow the finger movement in both axes: '+JSON.stringify({ghostBefore,ghostAfter}));
+            await page.mouse.move(weekDragTarget.x+weekDragTarget.width/2,weekDragTarget.y+weekDragTarget.height/2,{steps:7});
+            await page.mouse.up();
+            const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
+            assert.equal(afterWeekDrag[2],beforeWeekDrag[0],'Dragging a day should move/swap its planned workout');
+
+            await page.locator('[data-week-edit="1"]').first().click();
+            assert.equal(await page.locator('#builder').evaluate(el=>el.open),true,'Tapping a planner day should open its actual workout editor');
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),false);
+            assert.equal(await page.locator('#build-date').isDisabled(),true,'Editing a week day must not silently move it to another date');
+            assert.equal(await page.locator('#builder-start-from-builder').isVisible(),false,'A week draft must be saved before a session can start');
+            await page.locator('[data-set="0:0:weight"]').fill('61');
+            await page.locator('[data-action="save-plan"]').click();
+            await page.waitForFunction(()=>document.querySelector('#week-planner').open);
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),true,'Saving one day returns to the week planner');
+            assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/);
+            await page.locator('[data-week-edit="1"]').first().click();
+            assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'61','Day edits remain in the unsaved week draft');
+            await page.locator('[data-action="close-builder"]').first().click();
+            await page.waitForFunction(()=>document.querySelector('#week-planner').open);
+
+            page.once('dialog',d=>d.accept('Demo vecka 4 dagar'));
+            await page.locator('[data-action="save-week-template"]').click();
+            assert.ok((await page.locator('#week-template-select option').count())>=3,'New week template should be available immediately');
+            assert.equal(await page.locator('#week-template-select option:checked').textContent(),'Demo vecka 4 dagar');
+
+            const plannedMonday=await page.locator('[data-week-day="0"]').getAttribute('data-week-date');
+            const plannedTuesday=await page.locator('[data-week-day="1"]').getAttribute('data-week-date');
+            await page.locator('[data-action="save-week"]').click();
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),false);
+            const savedWeek=await page.evaluate(({monday,tuesday})=>{
+              const s=JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1'));return {monday:s.plans[monday]||null,tuesday:s.plans[tuesday]||null,templates:s.weekTemplates||[]};
+            },{monday:plannedMonday,tuesday:plannedTuesday});
+            assert.ok(savedWeek.monday||savedWeek.tuesday,'Saving the whole week should persist multiple day slots');
+            assert.ok(savedWeek.templates.some(t=>t.name==='Demo vecka 4 dagar'),'Saved week template should persist locally');
+
+            await page.evaluate(previous=>{
+              if(previous==null)localStorage.removeItem('ingemar-pulse-demo-v1');else localStorage.setItem('ingemar-pulse-demo-v1',previous);
+            },preWeekState);
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.setViewportSize({width:390,height:844});
+            await page.waitForSelector('[data-choice="Push"]');
+
             const preBuilderY=await page.evaluate(()=>{
               const target=Math.min(480,Math.max(0,document.body.scrollHeight-innerHeight));
               window.scrollTo({top:target,behavior:'instant'});return window.scrollY;
@@ -104,7 +189,7 @@ jobs:
               const layout=await page.locator('#builder').evaluate(dialog=>{
                 const frame=dialog.getBoundingClientRect();
                 const nodes=[dialog,dialog.querySelector('.modal-head'),dialog.querySelector('.modal-body'),
-                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.builder-exercise-name-control,.builder-exercise-name-menu:not([hidden]),.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
+                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.builder-template-tools,.builder-exercise-name-control,.builder-exercise-name-menu:not([hidden]),.builder-row-tools,.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
                 const wrong=nodes.flatMap(el=>{
                   const r=el.getBoundingClientRect(),extra=el.scrollWidth-el.clientWidth;
                   return r.left<frame.left-1||r.right>frame.right+1||extra>1
@@ -155,6 +240,33 @@ jobs:
             await auditBuilder('Passbyggare 320px med större text');
             await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
+            assert.equal(await page.locator('#builder-template-select option').count(),1,'Empty demo starts without custom templates');
+            page.once('dialog',d=>d.accept('Push standard'));
+            await page.locator('[data-action="save-template"]').click();
+            assert.equal(await page.locator('#builder-template-select option').count(),2,'Saved template should become selectable immediately');
+            assert.equal(await page.locator('#builder-template-select option:checked').textContent(),'Push standard');
+            assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')).templates.length),1);
+
+            const initialBuilderExercises=await page.locator('#exercise-list .exercise-card').count();
+            const firstExerciseName=await page.locator('[data-exercise-name-input="0"]').inputValue();
+            await page.locator('[data-copy-exercise="0"]').click();
+            assert.equal(await page.locator('#exercise-list .exercise-card').count(),initialBuilderExercises+1,'Copy control should duplicate the exercise row');
+            assert.equal(await page.locator('[data-exercise-name-input="1"]').inputValue(),firstExerciseName,'Copied row should preserve exercise data');
+            await page.locator('[data-remove-exercise="1"]').click();
+
+            const beforeDrag=await page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(nodes=>nodes.map(n=>n.value));
+            const dragHandle=page.locator('[data-drag-exercise="0"]');
+            const sourceBox=await dragHandle.boundingBox();
+            const lastCard=page.locator('#exercise-list .exercise-card').last();
+            const targetBox=await lastCard.boundingBox();
+            await page.mouse.move(sourceBox.x+sourceBox.width/2,sourceBox.y+sourceBox.height/2);
+            await page.mouse.down();
+            await page.mouse.move(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height-4,{steps:7});
+            await page.mouse.up();
+            const afterDrag=await page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(nodes=>nodes.map(n=>n.value));
+            assert.equal(afterDrag.at(-1),beforeDrag[0],'Drag handle should move the first exercise to the end');
+            await page.locator('#type-pills [data-type="Push"]').click();
+
             const firstName=page.locator('[data-exercise-name-input="0"]');
             assert.equal(await firstName.getAttribute('readonly'),'');
             await firstName.click();
@@ -412,6 +524,8 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
+            await page.locator('#zen-bars [data-bar-index="3"]').click();
+            assert.match(await page.locator('#zen-bars-inspect').textContent(),/v\d+ · \d+ stunder/,'Tapped Zen bar must show the weekly value');
             await page.locator('#zen-choices [data-zen-index="0"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'stretch');

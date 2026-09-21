@@ -189,12 +189,15 @@ jobs:
               const result=await page.evaluate(()=>{
                 const main=document.querySelector('#pulse-home');
                 const orb=document.querySelector('#reactor-start');
+                const orbRect=orb.getBoundingClientRect();
+                const orbText=orb.querySelector('#reactor-title').getBoundingClientRect();
                 const week=document.querySelector('#pulse-week');
                 const metrics=document.querySelector('.observatory-metrics');
                 const header=document.querySelector('#pulse-header');
                 const columns=getComputedStyle(document.querySelector('.observatory-metrics .stats-row')).gridTemplateColumns.split(' ').length;
                 return {width:innerWidth,scroll:document.documentElement.scrollWidth,
                   mainLeft:main.getBoundingClientRect().left,headerLeft:header.getBoundingClientRect().left,navLeft:document.querySelector('.wellness-kind-switch').getBoundingClientRect().left,
+                  orbWidth:orbRect.width,orbHeight:orbRect.height,orbTextFits:orbText.left>=orbRect.left+12&&orbText.right<=orbRect.right-12&&orbText.bottom<orbRect.bottom-12,
                   orbFont:parseFloat(getComputedStyle(orb.querySelector('.observatory-next-orb-label')).fontSize),
                   columns,weekTop:week.getBoundingClientRect().top,metricsTop:metrics.getBoundingClientRect().top,
                   badText:[...document.querySelectorAll('.observatory-metrics .stat-label,.observatory-metrics .stat-sub')].some(n=>parseFloat(getComputedStyle(n).fontSize)<12)};
@@ -202,6 +205,9 @@ jobs:
               assert.ok(result.scroll<=result.width+1,label+' page overflows: '+JSON.stringify(result));
               assert.ok(Math.abs(result.mainLeft-result.headerLeft)<1,label+' gutters differ');
               assert.ok(Math.abs(result.mainLeft-result.navLeft)<1,label+' navigation gutter differs');
+              assert.ok(result.orbWidth>=167&&Math.abs(result.orbHeight-result.orbWidth)<1,label+' start must be a large circle');
+              assert.ok(result.orbTextFits,label+' long title escapes start circle');
+              assert.equal(await page.locator('#reactor-build').count(),0);
               assert.ok(result.orbFont>=14,label+' orb label is too small');
               assert.equal(result.badText,false,label+' metrics text is too small');
               const graphs=await page.locator('#pulse-home .goal-card,#pulse-home .chart-card').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {border:s.borderTopWidth,shadow:s.boxShadow,background:s.backgroundColor}}));
@@ -219,7 +225,7 @@ jobs:
             await page.locator('#reactor-start').click();
             assert.equal(await page.locator('#reactor-start-notice').isVisible(),true);
             assert.equal(await page.locator('#session-modal').evaluate(n=>n.classList.contains('show')),false);
-            await page.locator('#reactor-build').click();
+            await page.getByRole('button',{name:/Bygg ditt pass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await shot('builder-mobile');
             await page.locator('#day-workout-modal .modal-close').click();
@@ -236,7 +242,7 @@ jobs:
               refreshAll();
             });
             await page.waitForFunction(()=>document.querySelector('#reactor-start').dataset.planState==='planned');
-            assert.equal(await page.locator('#reactor-action').textContent(),'Redigera pass');
+            assert.equal(await page.locator('#reactor-start #reactor-title').textContent(),'Helkropp med rörlighet och kontrollerat tempo');
             assert.equal(await page.locator('#week-grid .today').getAttribute('aria-current'),'date');
             assert.equal(await page.locator('#week-grid .today.done .wd-status').isVisible(),true);
             // Template cards prepare a draft and never overwrite a saved day on selection/cancel.
@@ -247,6 +253,7 @@ jobs:
               saveWeekTemplates([{id:702,name:'Lugn träningsvecka',days:{}}]);
               refreshAll();
             });
+            assert.equal(await page.getByRole('button',{name:/Bygg ditt pass/}).count(),1);
             await page.getByRole('button',{name:/Kontrollerat styrkepass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await page.waitForTimeout(450);
@@ -266,6 +273,7 @@ jobs:
               await page.waitForTimeout(500);
               await overviewAudit('populated '+width);
               await shot('populated-'+width);
+              await page.screenshot({path:'test-results/observatory/training-home-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
             await page.locator('[data-week-orbit-toggle]').click();
@@ -275,10 +283,15 @@ jobs:
             await page.locator('[data-week-orbit-toggle]').click();
             await page.waitForFunction(()=>!document.querySelector('#week-grid').classList.contains('week-orbit-layout'),null,{timeout:5000});
             assert.equal(await page.locator('#week-grid').evaluate(n=>n.classList.contains('week-orbit-layout')),false);
-            await page.locator('#reactor-build').click();
+            await page.getByRole('button',{name:/Bygg ditt pass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await shot('planned-builder-mobile');
             await page.locator('#day-workout-modal .modal-close').click();
+            await page.locator('#reactor-start').click();
+            await page.waitForSelector('#session-modal.show');
+            assert.match(await page.locator('#session-current-ex').textContent(),/Knäböj/);
+            await page.evaluate(()=>stopSessionMode(false));
+            assert.equal(await page.locator('#session-modal').evaluate(n=>n.classList.contains('show')),false);
             await page.locator('#log-body .log-main-row').first().click();
             await page.waitForTimeout(400);
             await shot('expanded-log-mobile');
