@@ -61,7 +61,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-strength-analytics-5">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-strength-counter-6">
 <link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-family-structure-1">
 </head>
 <body>
@@ -91,7 +91,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
       </div>
     </div>
     <div class="panel pp-exercise-panel">
-      <div class="pp-panel-head pp-exercise-head"><div><span class="pp-kicker">ÖVNINGSUTVECKLING</span><h3 id="pp-exercise-title">Bänkpress</h3></div><div class="pp-type-switch" role="group" aria-label="Välj Push eller Pull"><button type="button" data-analytics-type="Push" aria-pressed="true">Push</button><button type="button" data-analytics-type="Pull" aria-pressed="false">Pull</button></div></div>
+      <div class="pp-panel-head pp-exercise-head"><div><span class="pp-kicker">ÖVNINGSUTVECKLING</span><h3 id="pp-exercise-title">Bänkpress</h3><div class="pp-exercise-compare" id="pp-exercise-compare">Jämför med Sittande rodd</div></div><div class="pp-type-switch" role="group" aria-label="Välj Push eller Pull"><button type="button" data-analytics-type="Push" aria-pressed="true">Push</button><button type="button" data-analytics-type="Pull" aria-pressed="false">Pull</button></div></div>
       <div class="pp-exercise-pills" id="pp-exercise-pills" aria-label="Välj övning"></div>
       <div class="pp-metric-tabs" role="group" aria-label="Välj mätvärde"><button type="button" data-analytics-metric="volume" aria-pressed="true">Volym</button><button type="button" data-analytics-metric="weight" aria-pressed="false">Arbetsvikt</button><button type="button" data-analytics-metric="e1rm" aria-pressed="false">Est. 1RM</button></div>
       <div class="pp-chart pp-exercise-chart" id="pp-exercise-chart" aria-label="Övningsutveckling över åtta veckor"></div>
@@ -374,6 +374,16 @@ function analyticsExerciseList(type){
  });
  return names;
 }
+var ANALYTICS_COUNTER_EXERCISES={
+ Push:{'Bänkpress':'Sittande rodd','Axelpress':'Latsdrag','Tricepspress':'Hantelcurl'},
+ Pull:{'Sittande rodd':'Bänkpress','Latsdrag':'Axelpress','Hantelcurl':'Tricepspress'}
+};
+function analyticsCounterExercise(type,name){
+ var opposite=type==='Push'?'Pull':'Push',mapped=ANALYTICS_COUNTER_EXERCISES[type]&&ANALYTICS_COUNTER_EXERCISES[type][name];
+ if(mapped&&analyticsExerciseList(opposite).indexOf(mapped)>=0)return {type:opposite,name:mapped};
+ var own=analyticsExerciseList(type),other=analyticsExerciseList(opposite),index=Math.max(0,own.indexOf(name));
+ return other.length?{type:opposite,name:other[Math.min(index,other.length-1)]}:null;
+}
 function metricDisplay(value,metric){
  if(metric==='volume')return Math.round(value).toLocaleString('sv-SE')+' kg';
  if(metric==='weight'||metric==='e1rm')return (Math.round(value*10)/10).toLocaleString('sv-SE')+' kg';
@@ -423,9 +433,15 @@ function renderPushPullAnalytics(){
  if(!analyticsExercise||names.indexOf(analyticsExercise)<0)analyticsExercise=names[0]||'';
  $('pp-exercise-pills').innerHTML=names.map(function(name){return '<button type="button" data-analytics-exercise="'+clean(name)+'" aria-pressed="'+String(name===analyticsExercise)+'">'+clean(name)+'</button>';}).join('');
  $('pp-exercise-title').textContent=analyticsExercise||analyticsType;
+ var counter=analyticsCounterExercise(analyticsType,analyticsExercise);
+ $('pp-exercise-compare').textContent=counter?'Jämför med '+counter.name:'Ingen motövning registrerad';
  var detail=weeks.map(function(w){return strengthMetric(w,analyticsType,analyticsExercise,analyticsMetric);});
+ var detailSeries=[{label:analyticsExercise,className:analyticsType.toLowerCase()+' primary',values:detail}];
+ if(counter){
+  detailSeries.push({label:counter.name,className:counter.type.toLowerCase()+' comparison',values:weeks.map(function(w){return strengthMetric(w,counter.type,counter.name,analyticsMetric);})});
+ }
  $('pp-exercise-chart').dataset.type=analyticsType.toLowerCase();
- $('pp-exercise-chart').innerHTML=comparisonChartSvg([{label:analyticsExercise,className:analyticsType.toLowerCase(),values:detail}],labels,analyticsMetric);
+ $('pp-exercise-chart').innerHTML=comparisonChartSvg(detailSeries,labels,analyticsMetric);
  var now=detail[latest]||0,first=detail.find(function(v){return v>0;})||0,best=Math.max.apply(null,detail.concat([0]));
  $('pp-exercise-now').textContent=metricDisplay(now,analyticsMetric);$('pp-exercise-change').textContent=percentDelta(now,first);$('pp-exercise-best').textContent=metricDisplay(best,analyticsMetric);
 }

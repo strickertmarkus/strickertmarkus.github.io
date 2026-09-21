@@ -50,8 +50,14 @@ jobs:
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
             assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Push should expose three demo exercises');
             assert.equal(await page.locator('#pp-exercise-title').textContent(),'Bänkpress');
+            assert.equal(await page.locator('#pp-exercise-compare').textContent(),'Jämför med Sittande rodd');
+            assert.equal(await page.locator('#pp-exercise-chart .pp-line').count(),2,'Exercise chart should show selected and counter exercise');
+            assert.equal(await page.locator('#pp-exercise-chart .pp-line.primary').count(),1);
+            assert.equal(await page.locator('#pp-exercise-chart .pp-line.comparison').count(),1);
             await page.locator('[data-analytics-type="Pull"]').click();
             assert.equal(await page.locator('#pp-exercise-title').textContent(),'Latsdrag');
+            assert.equal(await page.locator('#pp-exercise-compare').textContent(),'Jämför med Axelpress');
+            assert.equal(await page.locator('#pp-exercise-chart .pp-line').count(),2,'Pull exercise chart should retain its Push counter line');
             assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Pull should expose three demo exercises');
             await page.locator('[data-analytics-metric="e1rm"]').click();
             assert.match(await page.locator('#pp-exercise-now').textContent(),/kg$/,'Estimated 1RM should be displayed in kg');
