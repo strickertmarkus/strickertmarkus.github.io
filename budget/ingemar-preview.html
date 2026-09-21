@@ -464,6 +464,7 @@ function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
 function nextType(){var p=plan(selected);return p?p.type:fallbackType(selected);}
+function historyNewestFirst(a,b){var byDate=String(b.date||'').localeCompare(String(a.date||''));if(byDate)return byDate;if(!!a.demo!==!!b.demo)return a.demo?1:-1;return 0;}
 function render(){
  var p=plan(selected),type=nextType();
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
@@ -477,12 +478,12 @@ function render(){
  $('stat-week').textContent=weekHistory.length;
  $('stat-total').textContent=state.history.length+state.zenHistory.length;
  $('stat-minutes').innerHTML=weekHistory.reduce(function(n,h){return n+h.minutes;},0)+'<small>min</small>';
- var recent=state.history.slice().sort(function(a,b){return b.date.localeCompare(a.date);})[0];
+ var recent=state.history.slice().sort(historyNewestFirst)[0];
  $('stat-last').textContent=recent?pretty(recent.date):'–';$('stat-last-kind').textContent=recent?recent.type:'Inget registrerat';
  $('bars').innerHTML=Array.from({length:7},function(_,i){var first=offset(weekStart(today),-(6-i)*7),last=offset(first,7),count=state.history.filter(function(h){return h.date>=first&&h.date<last;}).length;
  return '<div class="bar-wrap"><div class="bar" style="height:'+Math.max(3,Math.min(96,count*23))+'px" title="'+count+' pass"></div><small>v'+String(Math.floor((dayFrom(first)-new Date(dayFrom(first).getFullYear(),0,1))/86400000/7)+1)+'</small></div>';
  }).join('');
- $('history').innerHTML=state.history.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,12).map(function(h){return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa alla set för '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+h.exercises.length+' övningar · Tryck för setdetaljer</small></div><span class="metric">'+h.minutes+' min<br>'+h.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0)+' set ↗</span></button>';}).join('')||'<p class="hint">Inga pass ännu.</p>';
+ $('history').innerHTML=state.history.slice().sort(historyNewestFirst).slice(0,12).map(function(h){return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa alla set för '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+h.exercises.length+' övningar · Tryck för setdetaljer</small></div><span class="metric">'+h.minutes+' min<br>'+h.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0)+' set ↗</span></button>';}).join('')||'<p class="hint">Inga pass ännu.</p>';
  renderPushPullAnalytics();
 }
 function switchView(next){
