@@ -814,6 +814,9 @@ function startWeekDrag(event,handle){
  var card=handle.closest('.week-planner-day'),index=Number(card&&card.dataset.weekDay);if(!card||!Number.isFinite(index))return;
  var rect=card.getBoundingClientRect(),ghost=card.cloneNode(true);ghost.removeAttribute('data-week-day');ghost.classList.add('week-planner-drag-ghost');ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';document.body.appendChild(ghost);
  card.classList.add('is-drag-source');weekDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost,startTop:rect.top,offsetY:event.clientY-rect.top};
+ document.addEventListener('pointermove',moveWeekDrag,{passive:false});
+ document.addEventListener('pointerup',endWeekDrag);
+ document.addEventListener('pointercancel',endWeekDrag);
  if(handle.setPointerCapture)try{handle.setPointerCapture(event.pointerId);}catch(e){}
  event.preventDefault();
 }
@@ -826,7 +829,11 @@ function moveWeekDrag(event){
 }
 function endWeekDrag(event){
  if(!weekDrag||event&&event.pointerId!=null&&event.pointerId!==weekDrag.pointerId)return;
- var dragState=weekDrag;weekDrag=null;clearWeekDragTarget();if(dragState.ghost&&dragState.ghost.parentNode)dragState.ghost.remove();if(dragState.card)dragState.card.classList.remove('is-drag-source');
+ var dragState=weekDrag;weekDrag=null;
+ document.removeEventListener('pointermove',moveWeekDrag);
+ document.removeEventListener('pointerup',endWeekDrag);
+ document.removeEventListener('pointercancel',endWeekDrag);
+ clearWeekDragTarget();if(dragState.ghost&&dragState.ghost.parentNode)dragState.ghost.remove();if(dragState.card)dragState.card.classList.remove('is-drag-source');
  if(dragState.from!==dragState.to)swapWeekDays(dragState.from,dragState.to);
 }
 function builderTemplates(){if(!Array.isArray(state.templates))state.templates=[];return state.templates;}
@@ -1466,9 +1473,6 @@ document.addEventListener('click',function(event){
 $('week-planner-days').addEventListener('pointerdown',function(event){
  var handle=event.target.closest&&event.target.closest('[data-week-drag]');if(handle)startWeekDrag(event,handle);
 });
-document.addEventListener('pointermove',moveWeekDrag,{passive:false});
-document.addEventListener('pointerup',endWeekDrag);
-document.addEventListener('pointercancel',endWeekDrag);
 $('week-planner-days').addEventListener('change',function(event){
  var select=event.target.closest&&event.target.closest('[data-week-source]');if(select)setWeekDaySource(Number(select.dataset.weekSource),select.value);
 });
