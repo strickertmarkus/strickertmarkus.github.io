@@ -354,6 +354,20 @@ jobs:
                 assert.ok(Math.abs(bounds.headerLeft-bounds.homeLeft)<1,kind+' home gutter not aligned');
                 assert.equal(bounds.headerHeight,width<=760?92:104);
                 await page.screenshot({path:'test-results/observatory/'+kind+'-home-'+width+'.png'});
+                if(width===390){
+                  await page.locator('#start-button').click();
+                  assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
+                  await page.locator('#pause-session').click();
+                  assert.equal(await page.locator('#pause-session').textContent(),'Fortsätt');
+                  await page.locator('#leave-session').click();
+                  assert.equal(await page.locator('#resume-banner').isVisible(),true);
+                  await page.locator('#resume-button').click();
+                  assert.equal(await page.locator('#pause-session').textContent(),'Pausa');
+                  await page.locator('#leave-session').click();
+                  await page.locator('#discard-button').click();
+                  await page.locator('#confirm-yes').click();
+                  assert.equal(await page.locator('#resume-banner').isVisible(),false);
+                }
               }
             }
             await page.evaluate(async()=>{
