@@ -70,6 +70,13 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/weekDraft\[to\]=weekPlanClone\(weekDraft\[from\]\)/);
  assert.match(html,/#week-planner\{width:min\(780px,calc\(100dvw - 20px\)\)/);
  assert.match(html,/\.week-planner-drag\{touch-action:none/);
+ for(const fn of ['openWeekDayBuilder','restoreWeekPlannerFromBuilder','addWeekExercise','removeWeekExercise','weekExercisePreset','weekExerciseOptions','positionWeekDrag','glowBarsMarkup','selectGlowBar','inspectChartPoint','installChartPointHandlers'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ for(const control of ['data-week-edit','data-week-add-exercise','data-week-remove-exercise','data-week-toggle-exercises','data-chart-point','data-chart-bar'])assert.match(source[1],new RegExp(control),control);
+ for(const id of ['bars-inspect','zen-bars-inspect','pp-volume-chart-inspect','pp-exercise-chart-inspect'])assert.match(html,new RegExp('id="'+id+'"'),id);
+ assert.match(source[1],/if\(builderWeekIndex>=0\)\{weekDraft\[builderWeekIndex\]=weekPlanClone\(draft\)/);
+ assert.match(source[1],/document\.removeEventListener\('pointermove',moveWeekDrag\)/);
+ assert.match(source[1],/Math\.min\(window\.innerWidth-w-8/);
+ assert.doesNotMatch(source[1],/var pointWidth=g\.innerW\/count/);
 });
 test('preview includes an isolated training log and interactive Zen modes',()=>{
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
@@ -131,7 +138,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-strength-counter-6/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-week-editor-charts-7/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
