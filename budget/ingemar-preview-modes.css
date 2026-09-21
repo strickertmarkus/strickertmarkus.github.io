@@ -289,17 +289,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-chart-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;position:relative;z-index:1}
 .zen-chart-head strong{display:block;margin-top:8px;font-size:27px;font-weight:430;letter-spacing:-.04em;color:var(--zen-ink)}
 .zen-chart-head>span{font-size:10px;color:#8d9891}
-.zen-bars{position:relative;z-index:1;height:125px;margin-top:10px;border-bottom:1px solid rgba(var(--zen-accent-rgb),.12)}
-.zen-bars .bar-wrap{height:100%;display:flex;flex-direction:column;justify-content:flex-end}
-.zen-bars .zen-bar{
-  width:min(18px,60%);
-  margin:0 auto;
-  background:linear-gradient(180deg,var(--zen-soft),rgba(var(--zen-accent-rgb),.38));
-  box-shadow:0 0 15px rgba(var(--zen-accent-rgb),.12);
-  transform-origin:bottom;
-  animation:zenBarGrow .58s cubic-bezier(.22,1,.36,1) both;
-}
-.zen-bars .bar-wrap small{margin-top:6px;color:#747f78}
+.zen-bars{position:relative;z-index:1;margin-top:10px;border-bottom:1px solid rgba(var(--zen-accent-rgb),.12)}
 
 .zen-history .zen-history-row{
   position:relative;
@@ -384,6 +374,13 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .pp-legend .push i{background:#ff9eb6;box-shadow:0 0 9px #ff6f9855}.pp-legend .pull i{background:#94e8eb;box-shadow:0 0 9px #70dfe455}
 .pp-chart{width:100%;height:228px;margin:7px 0 2px;overflow:hidden}
 .pp-chart svg{display:block;width:100%;height:100%;overflow:visible}
+.pp-chart-point{cursor:pointer;outline:none}
+.pp-chart-point .pp-guide{stroke:#b1c3d050;stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke;opacity:0;pointer-events:none}
+.pp-chart-point[aria-pressed="true"] .pp-guide,.pp-chart-point:focus-visible .pp-guide{opacity:1}
+.pp-chart-point .pp-hit{cursor:pointer;pointer-events:all}
+.pp-chart-point:focus-visible .pp-hit{stroke:#94e8eb99;stroke-width:1;vector-effect:non-scaling-stroke}
+.pp-chart+.chart-inspect{margin:2px 0 12px;color:#b9c5d1;font-size:11px;font-variant-numeric:tabular-nums;min-height:18px}
+
 .pp-grid-line{stroke:#ffffff10;stroke-width:1;vector-effect:non-scaling-stroke}
 .pp-axis-label{fill:#687483;font:9px Inter,system-ui,sans-serif}
 .pp-line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
