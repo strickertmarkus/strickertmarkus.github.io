@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main, work/observatory-polish-20260919]
+    branches: [main, work/observatory-polish-20260919, work/wellness-cohesion-20260920]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
@@ -170,7 +170,7 @@ jobs:
                 return;
               }
               // Reveal scroll-triggered content using the actual page interaction.
-              for(const selector of ['#pulse-week','.observatory-metrics','#pulse-goals','#pulse-progress','#pulse-records','#pulse-log']){
+              for(const selector of ['.observatory-templates','#pulse-week','.observatory-metrics','#pulse-goals','#pulse-progress','#pulse-records','#pulse-log']){
                 await page.locator(selector).scrollIntoViewIfNeeded();
                 await page.waitForTimeout(600);
               }
@@ -196,6 +196,9 @@ jobs:
               assert.ok(Math.abs(result.mainLeft-result.navLeft)<1,label+' navigation gutter differs');
               assert.ok(result.orbFont>=14,label+' orb label is too small');
               assert.equal(result.badText,false,label+' metrics text is too small');
+              const graphs=await page.locator('#pulse-home .goal-card,#pulse-home .chart-card').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {border:s.borderTopWidth,shadow:s.boxShadow,background:s.backgroundColor}}));
+              assert.ok(graphs.length>0);
+              assert.ok(graphs.every(g=>g.border==='0px'&&g.shadow==='none'&&g.background==='rgba(0, 0, 0, 0)'),label+' graphs must remain unboxed: '+JSON.stringify(graphs));
               if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}
             }
             for(const width of [320,390,1440]){
@@ -235,6 +238,25 @@ jobs:
               await shot('populated-'+width);
             }
             await page.setViewportSize({width:390,height:844});
+            // Template cards prepare a draft and never overwrite a saved day on selection/cancel.
+            assert.equal(await page.locator('.observatory-template-card').count(),2);
+            const savedPlan=await page.evaluate(()=>JSON.stringify(getPlannedSessions()));
+            await page.evaluate(()=>{
+              saveTemplates([{id:701,name:'Kontrollerat styrkepass',type:'Helkropp',exercises:[{kind:'strength',name:'Knäböj',sets:3,reps:8,weight:60}]}]);
+              saveWeekTemplates([{id:702,name:'Lugn träningsvecka',days:{}}]);
+              refreshAll();
+            });
+            await page.getByRole('button',{name:/Kontrollerat styrkepass/}).click();
+            await page.waitForSelector('#day-workout-modal.show');
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('#day-workout-type').inputValue(),'Helkropp');
+            assert.equal(await page.locator('#day-workout-ex-list .ex-row-item').count(),1);
+            assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
+            await page.locator('#day-workout-modal .modal-close').click();
+            assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
+            await page.getByRole('button',{name:/Lugn träningsvecka/}).click();
+            assert.equal(await page.locator('#template-pick').inputValue(),'702');
+            await page.locator('#template-modal .modal-close').click();
             await page.locator('[data-week-orbit-toggle]').click();
             await page.waitForFunction(()=>document.querySelector('#pulse-week').dataset.weekOrbitState==='expanded',null,{timeout:5000});
             assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
@@ -303,6 +325,39 @@ jobs:
             await page.waitForTimeout(320);
             await editableAudit(page,'Compact 375px');
 
+            // Inspect the real shared Zen home at narrow, normal and wide iPhone sizes.
+            for(const width of [320,390,430,1440]){
+              await page.setViewportSize({width,height:width>760?1000:width===320?700:844});
+              for(const kind of ['stretch','meditation']){
+                await page.evaluate(k=>window.setWellnessMode(k),kind);
+                await page.waitForFunction(k=>document.body.dataset.kind===k&&document.documentElement.dataset.wellnessMode==='zen',kind);
+                await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+                await page.waitForTimeout(450);
+                const bounds=await page.evaluate(()=>{
+                  const orb=document.querySelector('#start-button'),r=orb.getBoundingClientRect(),s=getComputedStyle(orb);
+                  const header=document.querySelector('#pulse-header').getBoundingClientRect(),nav=document.querySelector('.wellness-kind-switch').getBoundingClientRect();
+                  return {width:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,radius:s.borderRadius,headerLeft:header.left,navLeft:nav.left,headerHeight:header.height,disabled:orb.disabled};
+                });
+                assert.ok(Math.abs(bounds.w-bounds.h)<1,kind+' start must be round: '+JSON.stringify(bounds));
+                assert.equal(bounds.radius,'50%');
+                assert.equal(bounds.disabled,false);
+                assert.ok(bounds.scroll<=bounds.width+1,kind+' overflows: '+JSON.stringify(bounds));
+                assert.ok(bounds.x>=0&&bounds.x+bounds.w<=bounds.width,kind+' orb outside horizontal viewport');
+                if(width<=760)assert.ok(bounds.y>=0&&bounds.bottom<=bounds.height,kind+' orb below first screen: '+JSON.stringify(bounds));
+                assert.ok(Math.abs(bounds.headerLeft-bounds.navLeft)<1,kind+' header/nav not aligned');
+                assert.equal(bounds.headerHeight,width<=760?92:104);
+                await page.screenshot({path:'test-results/observatory/'+kind+'-home-'+width+'.png'});
+              }
+            }
+            await page.evaluate(async()=>{
+              await Promise.all([setWellnessMode('training'),setWellnessMode('stretch'),setWellnessMode('meditation'),setWellnessMode('training')]);
+              setTrainingOverviewMode('compact');setTrainingOverviewMode('observatory');setTrainingOverviewMode('compact');setTrainingOverviewMode('observatory');
+            });
+            await page.waitForTimeout(500);
+            assert.equal(await page.getAttribute('html','data-wellness-mode'),'training');
+            assert.equal(await page.getAttribute('html','data-training-overview'),'observatory');
+            assert.equal(await page.locator('#pulse-home').evaluate(n=>getComputedStyle(n).opacity),'1');
+            assert.equal(await page.locator('.wellness-kind-switch').getAttribute('aria-busy'),null);
             assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
             await browser.close();
             console.log('All-mode iOS focus and Zen canvas WebKit verification passed');

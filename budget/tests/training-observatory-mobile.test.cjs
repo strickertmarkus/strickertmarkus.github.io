@@ -21,7 +21,7 @@ function between(text, start, end) {
 
 test('mobile Observatory summary is a readable two-column grid', () => {
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;gap:24px 16px!important/);
+  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;gap:12px!important/);
   assert.doesNotMatch(mobile, /font-size:(?:7|8|9)px/);
   assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*min-width:0!important;[^}]*overflow:visible!important/);
   assert.doesNotMatch(mobile, /observatory-metrics \.stat-card\{[^}]*border-left:/);
@@ -36,8 +36,8 @@ test('mobile order prioritises workout and week while preserving shared Compact 
   assert.ok(stage >= 0 && metrics > stage && week > metrics && goals > week, 'Observatory top hierarchy must remain stage -> metrics -> week -> goals');
 
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /#pulse-home>\.observatory-week\{order:1\}/);
-  assert.match(mobile, /#pulse-home>\.observatory-metrics\{order:2\}/);
+  assert.match(mobile, /#pulse-home>\.observatory-week\{order:2\}/);
+  assert.match(mobile, /#pulse-home>\.observatory-metrics\{order:3\}/);
   assert.match(mobile, /observatory-field\{min-height:0/);
   assert.match(mobile, /observatory-week\{margin:0 0 32px\}/);
   assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 120px;gap:14px/);
@@ -60,9 +60,10 @@ test('mobile preview cannot reintroduce the large Observatory add CTA', () => {
   assert.doesNotMatch(css, /\.observatory-add/);
 });
 
-test('Observatory metrics have no separator owner at base level', () => {
+test('Observatory metric card materials have one environment owner', () => {
   const base = css.slice(0, css.indexOf('@media(max-width:760px){'));
-  assert.match(base, /observatory-metrics \.stat-card\{[^}]*border:0!important/);
+  assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border:/);
+  assert.match(read('pulse-environment/environment.css'), /#pulse-home \.stat-card\{[^}]*border:1px solid var\(--obs-line\)/);
   assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border-left:/);
 });
 
@@ -77,9 +78,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-observatory-polish-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {

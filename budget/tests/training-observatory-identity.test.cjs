@@ -54,12 +54,12 @@ test('Next Workout has separate build and start actions with a true latent empty
   assert.match(dashboard, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
   assert.match(dashboard, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
   assert.match(dashboard, /showMissingPlanNotice\(\)/);
-  assert.match(dashboard, /buildButton\.addEventListener\('click', openSelectedBuilder\)/);
+  assert.match(dashboard, /buildButton\.addEventListener\('click', function\(\) \{ openSelectedBuilder\(\); \}\)/);
   assert.doesNotMatch(dashboard, /else openSelectedBuilder\(\)/);
   assert.match(css, /observatory-next-actions\{[^}]*grid-template-columns:minmax\(0,1fr\) 120px;[^}]*gap:14px/);
   assert.match(css, /observatory-next-actions::before\{[^}]*inset:-28px -22px[^}]*rgba\(10,8,14,\.88\)/);
   assert.match(css, /observatory-next-orb\{[^}]*width:120px;height:120px[^}]*opacity:\.82/);
-  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
+  assert.match(css, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.85/);
   assert.match(css, /observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\{[^}]*opacity:1[^}]*animation:observatoryReadyPulse 6s ease-in-out infinite/);
   assert.match(css, /observatory-build\{[^}]*width:min\(205px,100%\)/);
   assert.match(css, /observatory-next-actions:has\(\.observatory-next-orb:is\(\[data-plan-state="planned"\],\[data-observatory-state="current"\]\)\) \.observatory-build\{[^}]*opacity:1/);
@@ -69,8 +69,8 @@ test('Next Workout has separate build and start actions with a true latent empty
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
   assert.match(html, /auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260916-wellness-shell-3'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260916-wellness-shell-3'/);
 });

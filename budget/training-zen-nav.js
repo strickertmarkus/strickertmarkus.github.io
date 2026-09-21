@@ -118,7 +118,7 @@
   }
   function getZenDocument(){
     if(zenDocumentPromise)return zenDocumentPromise;
-    zenDocumentPromise=fetch('zen.html',{credentials:'same-origin'}).then(function(response){
+    zenDocumentPromise=fetch('zen.html?v=20260921-wellness-cohesion-1',{credentials:'same-origin'}).then(function(response){
       if(!response.ok)throw new Error('Zen kunde inte laddas.');
       return response.text();
     }).then(function(html){return new DOMParser().parseFromString(html,'text/html');}).catch(function(error){zenDocumentPromise=null;throw error;});

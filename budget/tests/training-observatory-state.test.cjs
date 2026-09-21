@@ -42,11 +42,11 @@ test('pending dims semantic decoration while the intentionally latent empty star
   assert.ok(genericPending, 'generic pending semantic token rule must exist');
   assert.doesNotMatch(genericPending[0], /\bopacity:/);
   assert.match(observatoryCss, /week-day.today::after\{opacity:1/);
-  assert.match(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.56/);
+  assert.match(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.85/);
 });
 
 test('active and achieved states use bounded OLED-friendly glow tokens', () => {
-  assert.match(observatoryCss, /--obs-current-glow:0 0 12px/);
+  assert.match(observatoryCss, /--obs-current-glow:0 0 24px/);
   assert.match(observatoryCss, /--obs-completed-glow:0 0 14px/);
   assert.match(observatoryCss, /--obs-achieved-glow:0 0 18px/);
 });
@@ -64,7 +64,8 @@ test('cyan is reserved for Observatory identity symbols while semantic data stat
 test('metrics next action goals and both week geometries consume shared state tokens', () => {
   assert.match(observatoryCss, /observatory-metrics \.stat-card\[data-observatory-state\]::after/);
   assert.match(observatoryCss, /observatory-next-orb\[data-observatory-state\]/);
-  assert.match(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
+  assert.doesNotMatch(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
+  assert.match(environmentCss, /:is\(\.goal-card,\.chart-card\)\{[^}]*border:0!important;[^}]*box-shadow:none!important;background:transparent!important/);
   assert.match(environmentCss, /progress-bar\{[^}]*var\(--obs-data-color,#70aaff\)/);
   assert.match(environmentCss, /progress-marker\{[^}]*background:var\(--obs-data-color,#70aaff\)/);
   assert.doesNotMatch(environmentCss, /progress-bar\{[^}]*var\(--obs-state/);
@@ -74,9 +75,9 @@ test('metrics next action goals and both week geometries consume shared state to
 });
 
 test('CP10 dashboard loader keeps current presentation CSS cache keys while JS ownership moves', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260919-observatory-polish-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260919-observatory-polish-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-wellness-cohesion-1/);
   assert.match(html, /training-week-orbit\.css\?v=20260919-observatory-polish-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
   assert.doesNotMatch(environmentShim, /function syncObservatoryStates/);
 });
