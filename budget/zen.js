@@ -42,6 +42,7 @@
   }
   function renderHome(){
     const r=chosen();$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
+    document.querySelector('.start-ring-symbol').textContent=copy[kind].symbol;
     document.querySelector('.start-ring-name').textContent=r.name;
     document.querySelector('.start-ring-meta').textContent=$('selected-meta').textContent;
     $('start-button').setAttribute('aria-label','Starta '+r.name+', '+$('selected-meta').textContent);

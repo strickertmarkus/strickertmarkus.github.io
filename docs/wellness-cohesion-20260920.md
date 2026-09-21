@@ -9,5 +9,9 @@ Scope: Observatory overview, shared navigation and Zen home start controls. Exis
 - [x] 5–6: stable shared navigation and typography roles.
 - [x] 7–8: selective action lighting and atmosphere below the hero.
 - [x] 9–10: consistent motion and mobile readability.
-- [ ] Stretch: consolidate home start orb and iPhone placement.
+- [x] Stretch: consolidate home start orb and iPhone placement.
 - [ ] Validate: Node checks, WebKit interactions and actual screenshots in all three themes.
+
+- [x] Follow-up: goal/progress graphs sit directly on the background without panel borders, fills or shadows.
+- [x] Refresh changed asset URLs, including the lazily fetched Zen document.
+- [x] Relevant Node regression suite: 119/119 passing before browser validation.
