@@ -33,23 +33,24 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 .week-planner-day.is-copy-source{border-color:#94e8eb60;background:#94e8eb0a}
 .week-planner-day.is-drag-source{opacity:.25}
 .week-planner-day.is-drag-target{border-color:#94e8eb72;background:#94e8eb0e;box-shadow:0 0 0 1px #94e8eb18,0 0 22px #55d7df12}
+.week-planner-date{display:block;width:100%;padding:4px 0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
 .week-planner-date small{display:block;color:#888492;font-size:9px;text-transform:uppercase;letter-spacing:.08em}
 .week-planner-date strong{display:block;margin-top:4px;font-size:13px;font-weight:700}
 .week-planner-day-main{display:grid;gap:5px;width:100%;min-width:0;overflow:hidden}
 .week-planner-day-main select{display:block;width:100%;min-width:0;max-width:100%;height:42px;padding:8px 35px 8px 10px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.week-planner-day-summary{min-height:14px;color:#8f8b99;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.week-planner-day-summary{min-height:22px;padding:0;border:0;background:transparent;text-align:left;color:#aaa7b3;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 .week-planner-day-actions{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;flex-wrap:wrap}
 .week-planner-day-actions button{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #ffffff1e;background:#ffffff06;color:#bdb8c4}
 .week-planner-copy{color:#c9f6f7!important;border-color:#94e8eb3d!important;background:#94e8eb09!important;font-size:16px}
 .week-planner-copy-target{width:auto!important;padding:0 9px!important;color:#c9f6f7!important;border-color:#94e8eb55!important;background:#94e8eb0d!important;font-size:9px;font-weight:750;white-space:nowrap}
-.week-planner-drag{touch-action:none;cursor:grab}
+.week-planner-drag{touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
 .week-planner-drag:active{cursor:grabbing;color:#d9fcfd;border-color:#94e8eb62}
 .week-planner-drag-bars{width:15px;display:grid;gap:2px;pointer-events:none}
 .week-planner-drag-bars i{height:2px;border-radius:999px;background:currentColor}
 .week-planner-clear{color:#d7a9b9!important}
 .week-planner-actions{position:sticky;bottom:-1px;z-index:2;padding:12px 0 2px;background:linear-gradient(180deg,transparent,#101521 20%)}
 .week-planner-actions .primary{white-space:nowrap}
-.week-planner-drag-ghost{position:fixed!important;z-index:2147482600!important;pointer-events:none!important;margin:0!important;opacity:.96;background:#121a26!important;border:1px solid #94e8eb78!important;box-shadow:0 18px 45px #000c,0 0 24px #58d8df18!important;will-change:transform}
+.week-planner-drag-ghost{position:fixed!important;top:0;left:0;width:min(235px,60vw);padding:13px 15px;border-radius:13px;z-index:2147482600!important;pointer-events:none!important;margin:0!important;opacity:.98;background:#121a26!important;border:1px solid #94e8eb78!important;box-shadow:0 18px 45px #000c,0 0 24px #58d8df18!important;will-change:transform}.week-planner-drag-ghost strong,.week-planner-drag-ghost small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.week-planner-drag-ghost strong{font-size:12px;color:#daf9fa}.week-planner-drag-ghost small{margin-top:4px;font-size:10px;color:#a1acb8}
 
 @media(max-width:600px){
  .week-head-actions{gap:4px}.week-head-actions button{padding:8px 9px;font-size:10px}
@@ -69,6 +70,15 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
  .week-planner-actions .right{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
  .week-planner-actions .right button{width:100%;padding:10px 6px;font-size:10px;white-space:normal}
 }
+.week-day-exercises{grid-column:1/-1;min-width:0;border-top:1px solid #ffffff13;padding-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.week-day-exercises[hidden]{display:none!important}
+.week-day-exercise-list{display:flex;align-items:center;flex-wrap:wrap;gap:6px;width:100%}
+.week-exercise-chip{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;border:1px solid #ffb3ca36;border-radius:999px;background:#ffb3ca08;color:#eacbd8;padding:4px 5px 4px 9px;font-size:10px}
+.week-exercise-chip span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.week-exercise-chip button{min-width:24px;min-height:24px;padding:0;border:0;background:#ffffff08;border-radius:50%;color:#d8a7bb}
+.week-day-exercises select{flex:1 1 140px;width:auto;min-width:0;height:38px;padding:7px 10px;font-size:12px}
+.week-day-exercises .week-day-open-builder{flex:1 1 148px;min-height:38px;border:1px solid #94e8eb45;border-radius:10px;background:#94e8eb0a;color:#b4eff0;padding:8px 11px;font-size:11px}
+.week-tap-hint{margin:7px 0 0;font-size:10px}
 /* Ingemar passbyggare: one vertical scroll surface, no horizontal scrollbar. */
 #builder{width:min(660px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 #builder::backdrop{background:#020409ed;backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -153,6 +163,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   <div class="choices"><button type="button" class="choice push" data-choice="Push"><span class="glyph">↗</span><b>Push</b><small>Bröst · Axlar · Triceps</small></button><button type="button" class="choice pull" data-choice="Pull"><span class="glyph">↙</span><b>Pull</b><small>Rygg · Biceps</small></button><button type="button" class="choice cardio" data-choice="Kondition"><span class="glyph">⌁</span><b>Kondition</b><small>Intervaller · Distans · Tid</small></button></div>
   <div class="stats"><div class="panel stat"><div class="stat-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub">av 4 planerade</div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="build">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="week" id="week" aria-label="Veckans pass"></div>
+  <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
   <div class="section-head"><h2>Framsteg</h2><span class="hint">Exempelstatistik – senaste sju veckorna</span></div><div class="panel"><div class="eyebrow">Genomförda träningspass</div><div class="bars" id="bars"></div></div>
   <div class="section-head pp-section-head"><div><div class="eyebrow">PUSH / PULL · BELASTNING</div><h2>Jämför utvecklingen</h2></div><span class="hint">Demodata · senaste åtta veckorna</span></div>
   <section class="pp-analytics" aria-label="Push och Pull träningsanalys">
@@ -250,11 +261,11 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   </div>
   <div class="field week-template-field"><label for="week-template-select">Veckomall</label><div class="week-template-tools"><select id="week-template-select" aria-label="Välj sparad veckomall"></select><button type="button" class="secondary" data-action="apply-week-template">Använd</button><button type="button" class="secondary" data-action="save-week-template">Spara veckan som mall</button><button type="button" class="ghost" data-action="delete-week-template">Ta bort</button></div><small class="week-planner-hint" id="week-template-hint">Planera flera dagar och återanvänd hela veckan senare.</small></div>
   <div class="week-planner-copy-note" id="week-copy-note" hidden></div>
-  <div class="week-planner-days" id="week-planner-days" aria-label="Veckans sju dagar"></div>
+  <p class="week-planner-hint">Tryck på en dag för fullständig passbyggare. Välj och ta bort övningar direkt under respektive dag.</p><div class="week-planner-days" id="week-planner-days" aria-label="Veckans sju dagar"></div>
   <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar sparas lokalt i Ingemar-demon.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar sparas lokalt i Ingemar-demon.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
  <div id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show" data-state="ready">
   <div class="session-shell">
@@ -579,7 +590,7 @@ function seed(){
  return {plans:plans,history:history,zenHistory:zenSeedHistory(today),templates:[],weekTemplates:seedWeekTemplates(),goal:4};
 }
 function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory)){if(!Array.isArray(value.templates))value.templates=[];if(!Array.isArray(value.weekTemplates))value.weekTemplates=seedWeekTemplates();return hydrateStrengthDemo(hydrateZenDemo(value));}}}catch(e){}return seed();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
@@ -754,6 +765,33 @@ function renderWeekTemplates(){
  select.innerHTML='<option value="">'+(templates.length?'Välj veckomall':'Inga veckomallar ännu')+'</option>'+templates.map(function(item){return '<option value="'+clean(item.id)+'" '+(String(item.id)===String(weekTemplateId)?'selected':'')+'>'+clean(item.name)+'</option>';}).join('');
  $('week-template-hint').textContent=templates.length?templates.length+' veckomall'+(templates.length===1?'':'ar')+' · kan användas på valfri vecka':'Planera veckan och spara den som en återanvändbar mall.';
 }
+function weekExerciseOptions(entry){
+ var names=exerciseNameCatalog(entry.type,entry.type==='Kondition'?'min':'kg').map(function(item){return item.name;});
+ template(entry.type).forEach(function(ex){if(names.indexOf(ex.name)<0)names.push(ex.name);});
+ (entry.exercises||[]).forEach(function(ex){names=names.filter(function(name){return exerciseNameKey(name)!==exerciseNameKey(ex.name);});});
+ return '<option value="">+ Välj övning</option>'+names.map(function(name){return '<option value="'+clean(name)+'">'+clean(name)+'</option>';}).join('');
+}
+function weekExercisePreset(type,name){
+ var key=exerciseNameKey(name),items=template(type);
+ state.history.slice().reverse().forEach(function(workout){if(workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});
+ Object.keys(state.plans).sort().forEach(function(date){var workout=state.plans[date];if(workout&&workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});
+ builderTemplates().forEach(function(workout){if(workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});
+ var found=items.find(function(ex){return exerciseNameKey(ex.name)===key;});
+ if(!found)return null;
+ var copy=deep(found);copy.id=uid();copy.sets=(copy.sets||[]).map(function(set){set.id=uid();set.done=false;return set;});return copy;
+}
+function addWeekExercise(index,name){
+ var entry=weekDraft&&weekDraft[index];if(!entry||!name)return;
+ if(entry.exercises.length>=16){toast('Högst 16 övningar per dag.');return;}
+ if(entry.exercises.some(function(ex){return exerciseNameKey(ex.name)===exerciseNameKey(name)})){toast('Övningen finns redan den dagen.');return;}
+ var ex=weekExercisePreset(entry.type,name);
+ if(!ex){toast('Använd Bygg pass för att lägga till en ny övning.');return;}
+ entry.exercises.push(ex);weekDraftDirty=true;weekExpandedDay=index;renderWeekPlanner();
+}
+function removeWeekExercise(index,exerciseIndex){
+ var entry=weekDraft&&weekDraft[index];if(!entry||exerciseIndex<0||exerciseIndex>=entry.exercises.length)return;
+ entry.exercises.splice(exerciseIndex,1);weekDraftDirty=true;weekExpandedDay=index;renderWeekPlanner();
+}
 function renderWeekPlanner(){
  if(!weekDraft||!weekPlannerMonday)return;
  $('week-planner-label').textContent='Vecka '+isoWeekNumber(weekPlannerMonday);
@@ -762,14 +800,36 @@ function renderWeekPlanner(){
  $('week-copy-note').hidden=weekCopyFrom<0;
  $('week-copy-note').textContent=weekCopyFrom>=0?'Kopiera '+DAYS[weekCopyFrom]+' till en annan dag. Välj “Kopiera hit” eller avbryt på källdagen.':'';
  $('week-planner-days').innerHTML=DAYS.map(function(day,i){
-  var date=offset(weekPlannerMonday,i),entry=weekDraft[i],sets=entry?(entry.exercises||[]).reduce(function(n,e){return n+(e.sets||[]).length;},0):0;
+  var date=offset(weekPlannerMonday,i),entry=weekDraft[i],sets=entry?(entry.exercises||[]).reduce(function(n,e){return n+(e.sets||[]).length;},0):0,expanded=weekExpandedDay===i;
   var sourceAction=weekCopyFrom===i?'<button type="button" class="week-planner-copy-target" data-week-copy-cancel="'+i+'">Avbryt</button>':'<button type="button" class="week-planner-copy" data-week-copy="'+i+'" aria-label="Kopiera '+day+'" title="Kopiera dag">⧉</button>';
   var copyTarget=weekCopyFrom>=0&&weekCopyFrom!==i?'<button type="button" class="week-planner-copy-target" data-week-copy-target="'+i+'">Kopiera hit</button>':sourceAction;
-  return '<article class="week-planner-day'+(weekCopyFrom===i?' is-copy-source':'')+'" data-week-day="'+i+'" data-week-date="'+date+'"><div class="week-planner-date"><small>'+day+'</small><strong>'+pretty(date)+'</strong></div><div class="week-planner-day-main"><select data-week-source="'+i+'" aria-label="Pass för '+day+'">'+weekPlannerSourceOptions(i)+'</select><div class="week-planner-day-summary">'+(entry?clean(entry.type)+' · '+(entry.exercises||[]).length+' övningar · '+sets+' set':'Vila · inget pass planerat')+'</div></div><div class="week-planner-day-actions">'+copyTarget+'<button type="button" class="week-planner-drag" data-week-drag="'+i+'" aria-label="Dra för att flytta '+day+'" title="Dra för att flytta eller byta dag"><span class="week-planner-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="week-planner-clear" data-week-clear="'+i+'" aria-label="Rensa '+day+'" title="Rensa dag">×</button></div></article>';
+  var exerciseEditor=entry?'<div class="week-day-exercises" '+(expanded?'':'hidden')+'><div class="week-day-exercise-list">'+entry.exercises.map(function(ex,j){return '<span class="week-exercise-chip"><span>'+clean(ex.name)+'</span><button type="button" data-week-remove-exercise="'+i+':'+j+'" aria-label="Ta bort '+clean(ex.name)+' från '+day+'">×</button></span>';}).join('')+'</div><select data-week-add-exercise="'+i+'" aria-label="Lägg till övning på '+day+'">'+weekExerciseOptions(entry)+'</select><button type="button" class="week-day-open-builder" data-week-edit="'+i+'">Bygg pass · redigera set ↗</button></div>':'<div class="week-day-exercises" '+(expanded?'':'hidden')+'><p class="hint">Välj pass ovan eller öppna passbyggaren.</p><button type="button" class="week-day-open-builder" data-week-edit="'+i+'">Bygg nytt pass ↗</button></div>';
+  return '<article class="week-planner-day'+(weekCopyFrom===i?' is-copy-source':'')+'" data-week-day="'+i+'" data-week-date="'+date+'"><button type="button" class="week-planner-date" data-week-edit="'+i+'" aria-label="Bygg pass för '+day+'"><small>'+day+'</small><strong>'+pretty(date)+'</strong></button><div class="week-planner-day-main"><select data-week-source="'+i+'" aria-label="Pass för '+day+'">'+weekPlannerSourceOptions(i)+'</select><button type="button" class="week-planner-day-summary" data-week-toggle-exercises="'+i+'" aria-expanded="'+expanded+'" aria-label="Välj övningar för '+day+'">'+(entry?clean(entry.type)+' · '+(entry.exercises||[]).length+' övningar · '+sets+' set':'Vila · inget pass planerat')+' <span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button></div><div class="week-planner-day-actions">'+copyTarget+'<button type="button" class="week-planner-drag" data-week-drag="'+i+'" aria-label="Dra för att flytta '+day+'" title="Dra för att flytta eller byta dag"><span class="week-planner-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="week-planner-clear" data-week-clear="'+i+'" aria-label="Rensa '+day+'" title="Rensa dag">×</button></div>'+exerciseEditor+'</article>';
  }).join('');
 }
-function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;renderWeekPlanner();}
+function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;weekExpandedDay=-1;renderWeekPlanner();}
 function openWeekPlanner(){if(active||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));$('week-planner').showModal();}
+function openWeekDayBuilder(index){
+ if(!weekDraft||index<0||index>6||builderWeekIndex>=0)return;
+ var entry=weekDraft[index],date=offset(weekPlannerMonday,index),kind=entry&&entry.type||fallbackType(date);
+ if(!TYPES.includes(kind))kind='Push';
+ builderWeekIndex=index;weekExpandedDay=index;
+ weekPlannerScrollY=$('week-planner').scrollTop;
+ draft=entry?deep(entry):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
+ draft.date=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
+ $('builder-title').textContent='Bygg '+DAYS[index]+' · '+pretty(date);
+ $('build-date').disabled=true;
+ $('builder-save-plan').textContent='Spara i veckoplanen';
+ $('builder-start-from-builder').hidden=true;
+ $('week-planner').close();renderBuilder();lockBuilderBackground();$('builder').showModal();
+}
+function restoreWeekPlannerFromBuilder(){
+ if(builderWeekIndex<0)return;
+ builderWeekIndex=-1;$('build-date').disabled=false;
+ $('builder-save-plan').textContent='Spara upplägg';
+ $('builder-start-from-builder').hidden=false;
+ renderWeekPlanner();$('week-planner').showModal();$('week-planner').scrollTop=weekPlannerScrollY;
+}
 function closeWeekPlanner(){endWeekDrag();if(weekDraftDirty&&!confirm('Stäng veckoplaneraren utan att spara ändringarna?'))return;weekDraft=null;weekDraftDirty=false;weekCopyFrom=-1;$('week-planner').close();}
 function shiftWeekPlanner(delta){if(weekDraftDirty&&!confirm('Byta vecka utan att spara ändringarna?'))return;loadWeekPlannerMonday(offset(weekPlannerMonday,Number(delta)*7));}
 function currentWeekPlanner(){if(weekDraftDirty&&!confirm('Gå till denna vecka utan att spara ändringarna?'))return;loadWeekPlannerMonday(weekStart(dayISO(new Date())));}
@@ -812,17 +872,27 @@ function clearWeekDragTarget(){weekPlannerCards().forEach(function(card){card.cl
 function startWeekDrag(event,handle){
  if(!weekDraft||!handle||event.button>0)return;
  var card=handle.closest('.week-planner-day'),index=Number(card&&card.dataset.weekDay);if(!card||!Number.isFinite(index))return;
- var rect=card.getBoundingClientRect(),ghost=card.cloneNode(true);ghost.removeAttribute('data-week-day');ghost.classList.add('week-planner-drag-ghost');ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';document.body.appendChild(ghost);
- card.classList.add('is-drag-source');weekDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost,startTop:rect.top,offsetY:event.clientY-rect.top};
+ var entry=weekDraft[index],ghost=document.createElement('div');
+ ghost.className='week-planner-drag-ghost';
+ ghost.innerHTML='<strong>'+DAYS[index]+' · '+(entry?clean(entry.name):'Vila')+'</strong><small>'+(entry?entry.exercises.length+' övningar':'Ingen träning')+'</small>';
+ document.body.appendChild(ghost);
+ card.classList.add('is-drag-source');
+ weekDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost};
+ positionWeekDrag(event);
  document.addEventListener('pointermove',moveWeekDrag,{passive:false});
  document.addEventListener('pointerup',endWeekDrag);
  document.addEventListener('pointercancel',endWeekDrag);
  if(handle.setPointerCapture)try{handle.setPointerCapture(event.pointerId);}catch(e){}
  event.preventDefault();
 }
+function positionWeekDrag(event){
+ if(!weekDrag)return;
+ var w=weekDrag.ghost.offsetWidth,h=weekDrag.ghost.offsetHeight;
+ weekDrag.ghost.style.transform='translate3d('+(Math.min(window.innerWidth-w-8,Math.max(8,event.clientX-w*.5)))+'px,'+(Math.min(window.innerHeight-h-8,Math.max(8,event.clientY-h*.5)))+'px,0)';
+}
 function moveWeekDrag(event){
  if(!weekDrag||event.pointerId!==weekDrag.pointerId)return;
- var y=event.clientY-weekDrag.offsetY;weekDrag.ghost.style.transform='translate3d(0,'+(y-weekDrag.startTop)+'px,0) scale(1.01)';
+ positionWeekDrag(event);
  var cards=weekPlannerCards(),target=cards.find(function(card){var r=card.getBoundingClientRect();return event.clientY>=r.top&&event.clientY<=r.bottom;});
  clearWeekDragTarget();if(target&&target!==weekDrag.card){target.classList.add('is-drag-target');weekDrag.to=Number(target.dataset.weekDay);}else weekDrag.to=weekDrag.from;
  event.preventDefault();
@@ -906,6 +976,7 @@ function endBuilderDrag(event){
  if(stateDrag.from!==stateDrag.to)moveDraftExercise(stateDrag.from,stateDrag.to);
 }
 function openBuilder(type){
+ builderWeekIndex=-1;
  var existing=plan(selected);
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
@@ -913,6 +984,7 @@ function openBuilder(type){
  draft.date=selected;
  builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+kind.toLowerCase()+'pass';
+ $('build-date').disabled=false;$('builder-save-plan').textContent='Spara upplägg';$('builder-start-from-builder').hidden=false;
  renderBuilder();
  lockBuilderBackground();
  $('builder').showModal();
@@ -944,6 +1016,7 @@ function saveDraft(){
  if(!draft.exercises.length||draft.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge varje övning och lägg till minst ett set.');return false;}
  if(draft.exercises.some(function(e){return e.sets.some(function(s){return e.mode==='kg'&&s.reps<=0||e.mode==='min'&&s.minutes<=0;});})){toast('Ange repetitioner eller minuter för varje set.');return false;}
  draft.name=draft.name.trim()||draft.type;
+ if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;return true;}
  state.plans[draft.date]={type:draft.type,name:draft.name,exercises:deep(draft.exercises)};
  selected=draft.date;persist();render();return true;
 }
@@ -1407,11 +1480,14 @@ document.addEventListener('click',function(event){
  if(b.dataset.weekCopyCancel!=null){weekCopyFrom=-1;renderWeekPlanner();return;}
  if(b.dataset.weekCopyTarget!=null){copyWeekDay(weekCopyFrom,Number(b.dataset.weekCopyTarget));return;}
  if(b.dataset.weekClear!=null){clearWeekDay(Number(b.dataset.weekClear));return;}
+ if(b.dataset.weekEdit!=null){openWeekDayBuilder(Number(b.dataset.weekEdit));return;}
+ if(b.dataset.weekToggleExercises!=null){var expandIndex=Number(b.dataset.weekToggleExercises);weekExpandedDay=weekExpandedDay===expandIndex?-1:expandIndex;renderWeekPlanner();return;}
+ if(b.dataset.weekRemoveExercise!=null){var ids=b.dataset.weekRemoveExercise.split(':').map(Number);removeWeekExercise(ids[0],ids[1]);return;}
  if(b.dataset.analyticsType){analyticsType=b.dataset.analyticsType;analyticsExercise='';renderPushPullAnalytics();return;}
  if(b.dataset.analyticsMetric){analyticsMetric=b.dataset.analyticsMetric;renderPushPullAnalytics();return;}
  if(b.dataset.analyticsExercise!=null){analyticsExercise=b.dataset.analyticsExercise;renderPushPullAnalytics();return;}
  if(b.dataset.history){openHistory(b.dataset.history);return;}
- if(b.dataset.day){selected=b.dataset.day;render();return;}
+ if(b.dataset.day){selected=b.dataset.day;render();openBuilder();return;}
  if(b.dataset.choice){openBuilder(b.dataset.choice);return;}
  if(b.dataset.zenIndex!=null){zenStart(Number(b.dataset.zenIndex));return;}
  if(b.dataset.zenStep!=null){selectZenStep(Number(b.dataset.zenStep));return;}
@@ -1451,8 +1527,8 @@ document.addEventListener('click',function(event){
     draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));
     builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
-   case 'save-plan':if(saveDraft()){$('builder').close();draft=null;toast('Passupplägget sparades lokalt i demon.');}break;
-   case 'start-from-builder':if(saveDraft()){$('builder').close();draft=null;start();}break;
+   case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget sparades lokalt i demon.');}break;
+   case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
    case 'close-session':if(active&&confirm('Avsluta passet utan att spara genomförda set?')){active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;toast('Passet avslutades utan att sparas.');}break;
    case 'close-history':$('history-detail').close();break;
    case 'finish-session':finishSession();break;
@@ -1470,11 +1546,16 @@ document.addEventListener('click',function(event){
   }
  }
 });
+$('week-planner-days').addEventListener('click',function(event){
+ var card=event.target.closest&&event.target.closest('[data-week-day]');
+ if(card&&!event.target.closest('button,select,input,label'))openWeekDayBuilder(Number(card.dataset.weekDay));
+});
 $('week-planner-days').addEventListener('pointerdown',function(event){
  var handle=event.target.closest&&event.target.closest('[data-week-drag]');if(handle)startWeekDrag(event,handle);
 });
 $('week-planner-days').addEventListener('change',function(event){
- var select=event.target.closest&&event.target.closest('[data-week-source]');if(select)setWeekDaySource(Number(select.dataset.weekSource),select.value);
+ var select=event.target.closest&&event.target.closest('[data-week-source]');if(select){setWeekDaySource(Number(select.dataset.weekSource),select.value);return;}
+ var exercisePick=event.target.closest&&event.target.closest('[data-week-add-exercise]');if(exercisePick)addWeekExercise(Number(exercisePick.dataset.weekAddExercise),exercisePick.value);
 });
 $('exercise-list').addEventListener('pointerdown',function(event){
  var handle=event.target.closest&&event.target.closest('[data-drag-exercise]');if(handle)startBuilderDrag(event,handle);
@@ -1520,7 +1601,7 @@ document.addEventListener('input',function(event){
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
-$('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();});
+$('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
 window.addEventListener('beforeunload',function(event){if(active||activeZen){event.preventDefault();event.returnValue='';}});
 setInterval(function(){if(active)updateSessionClock();},400);
