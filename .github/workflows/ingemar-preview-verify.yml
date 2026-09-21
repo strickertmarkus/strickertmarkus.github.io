@@ -84,21 +84,30 @@ jobs:
                     ?[{name:el.getAttribute('aria-label')||el.textContent||el.tagName,left:r.left,right:r.right}]:[];
                 });
                 return {left:frame.left,right:frame.right,scroll:dialog.scrollWidth,client:dialog.clientWidth,
+                  overflowX:getComputedStyle(dialog).overflowX,overflowY:getComputedStyle(dialog).overflowY,
                   wrong:wrong.slice(0,12),inputOverflow:inputOverflow.slice(0,12)};
               });
               assert.ok(layout.left>=-1&&layout.right<=page.viewportSize().width+1&&
+                layout.overflowX==='hidden'&&layout.overflowY==='auto'&&
                 layout.scroll<=layout.client+1&&layout.wrong.length===0&&layout.inputOverflow.length===0,
                 label+' must stay inside the mobile dialog: '+JSON.stringify(layout));
               await page.locator('#builder').evaluate(dialog=>{dialog.scrollLeft=100;});
               assert.equal(await page.locator('#builder').evaluate(dialog=>dialog.scrollLeft),0,
                 label+' must not allow sideways dragging of the builder');
             }
-            for(const width of [320,360,390,430,768]){
+            for(const width of [320,360,375,390,430,600,768]){
               await page.setViewportSize({width,height:844});
               await auditBuilder('Passbyggare '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/builder-'+width+'.png'});
             }
+            await page.setViewportSize({width:320,height:700});
+            const enlargedFonts=await page.addStyleTag({content:'#builder .type-pills .pill,#builder .metric-pills .pill,#builder .modal-actions button{font-size:17px!important}#builder .modal-head h2{font-size:28px!important}'});
+            await auditBuilder('Passbyggare 320px med större text');
+            await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
+            await page.locator('#builder').evaluate(dialog=>{dialog.scrollTop=dialog.scrollHeight;});
+            await auditBuilder('Passbyggare nedscrollad 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/builder-bottom-390.png'});
             assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'60');
             assert.equal(await page.locator('[data-set="0:1:weight"]').inputValue(),'65');
             assert.equal(await page.locator('[data-set="0:2:weight"]').inputValue(),'67.5');
