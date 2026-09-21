@@ -948,7 +948,11 @@ function startWeekDrag(event,handle){
 function positionWeekDrag(event){
  if(!weekDrag)return;
  var w=weekDrag.ghost.offsetWidth,h=weekDrag.ghost.offsetHeight;
- weekDrag.ghost.style.transform='translate3d('+(Math.min(window.innerWidth-w-8,Math.max(8,event.clientX-w*.5)))+'px,'+(Math.min(window.innerHeight-h-8,Math.max(8,event.clientY-h*.5)))+'px,0)';
+ var left=event.clientX-w-10;
+ if(left<8)left=event.clientX+10;
+ left=Math.min(window.innerWidth-w-8,Math.max(8,left));
+ var top=Math.min(window.innerHeight-h-8,Math.max(8,event.clientY-h*.5));
+ weekDrag.ghost.style.transform='translate3d('+left+'px,'+top+'px,0)';
 }
 function moveWeekDrag(event){
  if(!weekDrag||event.pointerId!==weekDrag.pointerId)return;
