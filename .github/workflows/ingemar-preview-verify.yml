@@ -125,6 +125,7 @@ jobs:
 
             const beforeWeekDrag=await page.locator('#week-planner-days .week-planner-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.weekPlanType));
             const weekDragHandle=page.locator('[data-week-drag="0"]');
+            await weekDragHandle.scrollIntoViewIfNeeded();
             const weekDragSource=await weekDragHandle.boundingBox();
             const weekDragTarget=await page.locator('[data-week-day="2"]').boundingBox();
             await page.mouse.move(weekDragSource.x+weekDragSource.width/2,weekDragSource.y+weekDragSource.height/2);
