@@ -836,7 +836,8 @@ body[data-kind=meditation] .primary-button {
   font-size: 9px;
 }
 
-.page-section {
+.page-section,
+.sanctuary {
   width: calc(100% - 2 * var(--wellness-gutter,20px));
   max-width: var(--wellness-page-width,1200px);
 }
