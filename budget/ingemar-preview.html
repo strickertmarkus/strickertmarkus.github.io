@@ -615,7 +615,7 @@ function unlockBuilderBackground(){
  if(document.body.dataset.builderOpen!=='true')return;
  delete document.body.dataset.builderOpen;
  document.body.style.top='';
- window.scrollTo(0,builderScrollY);
+ window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
 function openBuilder(type){
  var existing=plan(selected);
