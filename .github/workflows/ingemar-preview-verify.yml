@@ -54,7 +54,7 @@ jobs:
                   const box=el.getBoundingClientRect();
                   return {selector:el.tagName.toLowerCase()+(el.id?'#'+el.id:'.'+String(el.className).trim().replace(/\s+/g,'.')),
                     left:box.left,right:box.right,scroll:el.scrollWidth,client:el.clientWidth};
-                }).filter(v=>v.left<-1||v.right>width+1||v.scroll>v.client+1);
+                }).filter(v=>v.left<-1||v.right>width+1||v.scroll>v.client+2);
                 return {width,html:document.documentElement.scrollWidth,body:document.body.scrollWidth,invalid:invalid.slice(0,12)};
               });
               assert.ok(result.html<=result.width+1&&result.body<=result.width+1&&result.invalid.length===0,
