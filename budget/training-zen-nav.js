@@ -258,6 +258,10 @@
     updateUnifiedSwitch(zen?zenKind:'training');
     mode=nextMode;
   }
+  function clearSurfaceMotion(){
+    document.documentElement.classList.remove('wellness-shell-switching');
+    [trainingMain,zenHost].forEach(function(node){if(node)node.classList.remove('wellness-surface-enter');});
+  }
   function swap(nextMode,token){
     scrollPositions[mode]=window.scrollY||0;
     applyMode(nextMode);
@@ -269,6 +273,7 @@
     document.documentElement.classList.add('wellness-shell-switching');
     return new Promise(function(resolve){
       requestAnimationFrame(function(){
+        if(token!==switchToken){resolve();return;}
         target.classList.add('wellness-surface-enter');
         window.setTimeout(function(){
           if(token===switchToken){
@@ -298,6 +303,7 @@
     var destination=normalizeDestination(value);
     var nextMode=destination==='training'?'training':'zen';
     var token=++switchToken;
+    clearSurfaceMotion();
     if(nextMode===mode&&!options.force){
       if(nextMode==='zen'){
         var changedDestination=destination!==zenKind||document.body.dataset.kind!==destination||document.documentElement.dataset.wellnessKind!==destination;

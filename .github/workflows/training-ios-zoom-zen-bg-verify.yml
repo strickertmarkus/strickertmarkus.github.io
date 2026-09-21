@@ -41,7 +41,7 @@ jobs:
 
       - name: Install WebKit
         run: |
-          npm install --no-save playwright chart.js@4.4.4
+          npm install --no-save playwright chart.js@4.4.4 @fontsource/inter@5 @fontsource/cormorant-garamond@5 @fontsource/manrope@5
           npx playwright install --with-deps webkit
 
       - name: Serve repository
@@ -75,11 +75,15 @@ jobs:
           })();`;
           const chartSource=require('node:fs').readFileSync(process.cwd()+'/node_modules/chart.js/dist/chart.umd.js','utf8');
 
+          const fontCss=['inter','cormorant-garamond','manrope'].flatMap(family=>(family==='inter'?[300,400,500,600,700,800,900]:family==='manrope'?[300,400,500,600,700,800]:[300,400,500,600,700]).map(weight=>{
+            const source=require('node:fs').readFileSync(process.cwd()+'/node_modules/@fontsource/'+family+'/'+weight+'.css','utf8');
+            return source.replaceAll('./files/','http://127.0.0.1:4173/node_modules/@fontsource/'+family+'/files/');
+          })).join('\n');
           async function route(page){
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
             await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartSource}));
-            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:fontCss}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
           }
 
@@ -141,6 +145,7 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
             await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setTrainingOverviewMode==='function'&&typeof window.setWellnessMode==='function',null,{timeout:20000});
             await page.waitForTimeout(700);
+            await page.evaluate(()=>document.fonts.ready);
 
             require('node:fs').mkdirSync('test-results/observatory',{recursive:true});
             async function shot(name){
@@ -332,6 +337,7 @@ jobs:
                 await page.evaluate(k=>window.setWellnessMode(k),kind);
                 await page.waitForFunction(k=>document.body.dataset.kind===k&&document.documentElement.dataset.wellnessMode==='zen',kind);
                 await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+                await page.evaluate(()=>document.fonts.ready);
                 await page.waitForTimeout(450);
                 const bounds=await page.evaluate(()=>{
                   const orb=document.querySelector('#start-button'),r=orb.getBoundingClientRect(),s=getComputedStyle(orb);
@@ -358,6 +364,13 @@ jobs:
             assert.equal(await page.getAttribute('html','data-training-overview'),'observatory');
             assert.equal(await page.locator('#pulse-home').evaluate(n=>getComputedStyle(n).opacity),'1');
             assert.equal(await page.locator('.wellness-kind-switch').getAttribute('aria-busy'),null);
+            await page.evaluate(()=>{setWellnessMode('stretch');});
+            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen');
+            await page.evaluate(()=>setWellnessMode('stretch'));
+            await page.waitForTimeout(350);
+            assert.equal(await page.locator('html').evaluate(n=>n.classList.contains('wellness-shell-switching')),false);
+            assert.equal(await page.locator('.wellness-surface-enter').count(),0);
+            assert.equal(await page.locator('html').evaluate(n=>n.style.overflowAnchor),'');
             assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
             await browser.close();
             console.log('All-mode iOS focus and Zen canvas WebKit verification passed');

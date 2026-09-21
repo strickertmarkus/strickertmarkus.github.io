@@ -142,7 +142,11 @@
     }));
   }
 
+  var scrollCommitFrame = 0;
+  var scrollRestore = null;
   function commitAtSameScroll(mode, options) {
+    cancelAnimationFrame(scrollCommitFrame);
+    if (scrollRestore) scrollRestore();
     var x = window.scrollX;
     var y = window.scrollY;
     var html = document.documentElement;
@@ -154,12 +158,14 @@
     applyMode(mode, options);
     window.scrollTo(x, y);
 
-    requestAnimationFrame(function () {
+    scrollRestore = function () {
+      html.style.scrollBehavior = previousBehavior;
+      html.style.overflowAnchor = previousAnchor;
+      scrollRestore = null;
+    };
+    scrollCommitFrame = requestAnimationFrame(function () {
       window.scrollTo(x, y);
-      requestAnimationFrame(function () {
-        html.style.scrollBehavior = previousBehavior;
-        html.style.overflowAnchor = previousAnchor;
-      });
+      scrollCommitFrame = requestAnimationFrame(function () { if (scrollRestore) scrollRestore(); });
     });
   }
 
