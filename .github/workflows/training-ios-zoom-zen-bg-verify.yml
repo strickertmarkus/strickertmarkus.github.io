@@ -351,7 +351,7 @@ jobs:
                 await page.waitForFunction(k=>document.body.dataset.kind===k&&document.documentElement.dataset.wellnessMode==='zen',kind);
                 await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
                 await page.evaluate(()=>document.fonts.ready);
-                await page.waitForFunction(()=>['#home-view','#wellness-zen-surface'].every(selector=>document.querySelector(selector).getAnimations().every(a=>a.playState==='finished'||a.playState==='idle')));
+                await page.waitForFunction(()=>document.getAnimations().every(a=>!Number.isFinite(a.effect.getComputedTiming().endTime)||a.playState==='finished'||a.playState==='idle'));
                 await page.waitForFunction(()=>Math.abs(document.querySelector('#pulse-header').getBoundingClientRect().left-document.querySelector('.sanctuary').getBoundingClientRect().left)<1);
                 const bounds=await page.evaluate(()=>{
                   const orb=document.querySelector('#start-button'),r=orb.getBoundingClientRect(),s=getComputedStyle(orb);
