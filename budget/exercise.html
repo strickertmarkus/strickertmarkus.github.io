@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="training-activity.js?v=20260921-activity-glow-1"></script>
   <style>
     :root {
       --bg:    #0D1117;
@@ -515,11 +516,11 @@
 <link rel="stylesheet" href="training-zen-nav.css?v=20260921-wellness-cohesion-1">
 <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script>
 <link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260921-wellness-cohesion-1">
-<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260921-wellness-cohesion-1">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260921-activity-glow-1">
 <link rel="stylesheet" href="training-week-orbit.css?v=20260919-observatory-polish-1">
-<script defer src="training-overview-mode.js?v=20260921-wellness-cohesion-1"></script>
-<script defer src="pulse-environment/environment.js?v=20260921-wellness-cohesion-1"></script>
-<script defer src="training-week-orbit.js?v=20260921-wellness-cohesion-1"></script>
+<script defer src="training-overview-mode.js?v=20260921-activity-glow-1"></script>
+<script defer src="pulse-environment/environment.js?v=20260921-activity-glow-1"></script>
+<script defer src="training-week-orbit.js?v=20260921-activity-glow-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -701,9 +702,15 @@
     <!-- CHARTS -->
     <div class="section-hdr fade-in"><h2>Framsteg</h2></div>
     <div class="charts-row fade-in">
-      <div class="chart-card">
-        <h3>Träningspass per vecka</h3>
-        <div class="chart-note" id="sessions-total-note">Totalt pass: 0</div>
+      <div class="chart-card" id="activity-chart">
+        <h3 id="activity-title">Veckans aktivitet</h3>
+        <div class="activity-controls observatory-only">
+          <div class="activity-switch" role="group" aria-label="Aktivitetens tidsvy"><button type="button" data-activity-view="week" aria-pressed="true">Vecka</button><button type="button" data-activity-view="history" aria-pressed="false">Historik</button></div>
+          <div class="activity-switch" role="group" aria-label="Aktivitetens mått"><button type="button" data-activity-metric="minutes" aria-pressed="true">Minuter</button><button type="button" data-activity-metric="sessions" aria-pressed="false">Pass</button></div>
+        </div>
+        <div class="activity-summary observatory-only" role="status" aria-live="polite" aria-atomic="true"><strong id="activity-total">0</strong><span id="activity-unit">minuter</span><p id="activity-note">Inga registrerade pass under perioden.</p></div>
+        <div class="activity-navigation observatory-only"><button type="button" id="activity-prev" aria-label="Visa föregående period">‹</button><span id="activity-period"></span><button type="button" id="activity-next" aria-label="Visa nästa period" disabled>›</button><button type="button" id="activity-now" disabled>Nu</button></div>
+        <div class="chart-note compact-only" id="sessions-total-note">Totalt pass: 0</div>
         <div class="chart-area"><canvas id="chart-sessions"></canvas></div>
       </div>
       <div class="chart-card" id="hr-card-combined">
@@ -2315,7 +2322,7 @@ function renderCharts(){
   if(note)note.textContent='Totalt pass: '+wks.length;
   var sessionsCtx=document.getElementById('chart-sessions').getContext('2d');
   if(chartSessions)chartSessions.destroy();
-  chartSessions=new Chart(sessionsCtx,{type:'line',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.15)',pointBackgroundColor:'#ECFEFF',pointBorderColor:'#22D3EE',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:2},{label:'Medel pass / vecka',data:avgVals.length?avgVals:[0],borderColor:'#EF4444',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2.5,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+  chartSessions=new Chart(sessionsCtx,(window.TrainingActivity&&TrainingActivity.config(wks))||{type:'line',data:{labels:wkLabels.length?wkLabels:['—'],datasets:[{label:'Pass / vecka',data:sessionsVals.length?sessionsVals:[0],borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.15)',pointBackgroundColor:'#ECFEFF',pointBorderColor:'#22D3EE',pointRadius:3,pointHoverRadius:5,borderWidth:2.5,tension:.3,fill:true,spanGaps:true,yAxisID:'y',order:2},{label:'Medel pass / vecka',data:avgVals.length?avgVals:[0],borderColor:'#EF4444',backgroundColor:'transparent',tension:0,pointRadius:0,pointHoverRadius:0,borderWidth:2.5,borderDash:[6,4],fill:false,yAxisID:'y',order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8B949E',font:{family:'Inter',size:11}}},tooltip:{backgroundColor:'#161B22',titleColor:'#C9D1DC',bodyColor:'#C9D1DC',borderColor:'rgba(255,255,255,.08)',borderWidth:1}},scales:{x:{ticks:{color:'#8B949E',font:{family:'Inter',size:11}},grid:{color:'rgba(255,255,255,.05)'}},y:{beginAtZero:true,max:yMax,ticks:{stepSize:1,precision:0,color:'#8B949E',font:{family:'Inter',size:11},callback:function(v){return Number.isInteger(v)?v:'';}},grid:{color:'rgba(255,255,255,.05)'}}}}});
   var bwCtx=document.getElementById('chart-bw').getContext('2d');
   var existingVO2=typeof Chart.getChart==='function'?Chart.getChart(bwCtx.canvas):null;
   if(existingVO2)existingVO2.destroy();

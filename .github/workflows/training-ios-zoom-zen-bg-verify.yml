@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main, work/observatory-polish-20260919, work/wellness-cohesion-20260920]
+    branches: [main, work/observatory-polish-20260919, work/wellness-cohesion-20260920, work/activity-glow-20260921]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
@@ -12,6 +12,7 @@ on:
       - 'budget/pulse-environment/environment.css'
       - 'budget/exercise.html'
       - 'budget/exercise-dashboard.js'
+      - 'budget/training-activity.js'
       - 'budget/pulse-observatory/observatory.css'
       - 'budget/training-week-orbit.css'
       - 'budget/zen.html'
@@ -289,6 +290,46 @@ jobs:
             assert.ok(charts.every(c=>c.touch));
             await page.locator('#chart-sessions').tap();
             await shot('chart-touch-mobile');
+            // The activity view reuses the canonical chart and saved workouts.
+            await page.evaluate(()=>{
+              const today=todayISO();
+              saveWorkouts([{id:801,date:today,type:'Styrka',duration:30,exercises:[]},
+                {id:802,date:today,type:'Kondition',duration:15,exercises:[]},
+                {id:803,date:today,type:'Rörlighet',exercises:[]},
+                {id:804,date:shiftISODate(today,-7),type:'Styrka',duration:20,exercises:[]}]);
+              refreshAll();
+            });
+            assert.equal(await page.locator('#activity-total').textContent(),'45');
+            assert.ok((await page.locator('#activity-note').textContent()).includes('1 pass saknar'));
+            assert.equal(await page.evaluate(()=>Chart.getChart('chart-sessions').config.type),'bar');
+            assert.equal(await page.evaluate(()=>Chart.getChart('chart-sessions').data.labels.length),7);
+            await page.locator('[data-activity-metric="sessions"]').focus();
+            await page.keyboard.press('Enter');
+            assert.equal(await page.locator('#activity-total').textContent(),'3');
+            await page.locator('[data-activity-view="history"]').click();
+            assert.equal(await page.locator('#activity-total').textContent(),'4');
+            assert.equal(await page.evaluate(()=>Chart.getChart('chart-sessions').data.labels.length),8);
+            await page.locator('#activity-prev').click();
+            assert.equal(await page.locator('#activity-total').textContent(),'0');
+            await page.locator('#activity-next').click();
+            assert.equal(await page.locator('#activity-total').textContent(),'4');
+            assert.equal(await page.locator('#activity-next').isDisabled(),true);
+            await page.locator('[data-activity-view="week"]').click();
+            await page.locator('#activity-prev').click();
+            assert.equal(await page.locator('#activity-total').textContent(),'1');
+            await page.locator('#activity-now').click();
+            assert.equal(await page.locator('#activity-total').textContent(),'3');
+            for(const width of [320,390,1440]){
+              await page.setViewportSize({width,height:width>760?1000:844});
+              for(const view of ['week','history']){
+                await page.locator('[data-activity-view="'+view+'"]').click();
+                await page.locator('[data-activity-metric="minutes"]').click();
+                await page.waitForTimeout(400);
+                assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'activity page overflow');
+                await page.locator('#activity-chart').screenshot({path:'test-results/observatory/activity-'+view+'-'+width+'.png'});
+              }
+            }
+            await page.setViewportSize({width:390,height:844});
             await page.emulateMedia({reducedMotion:'reduce'});
             await page.locator('[data-week-orbit-toggle]').click();
             assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
@@ -302,6 +343,8 @@ jobs:
             await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
             await page.waitForTimeout(320);
             await editableAudit(page,'Compact');
+            assert.equal(await page.locator('.activity-controls').isVisible(),false);
+            assert.equal(await page.evaluate(()=>Chart.getChart('chart-sessions').config.type),'line');
 
             // Release the large chart/screenshot document before the independent Zen flow.
             await page.close();

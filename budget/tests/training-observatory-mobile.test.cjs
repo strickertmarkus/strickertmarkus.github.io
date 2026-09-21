@@ -78,9 +78,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-activity-glow-1/);
   assert.match(html, /pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-activity-glow-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {

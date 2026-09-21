@@ -191,3 +191,20 @@ html[data-training-overview="observatory"] .training-overview-option[data-overvi
  #pulse-home .observatory-build::before{opacity:.08}
  #pulse-home .observatory-start-notice{transition:none!important}
 }
+
+/* Activity shares the open, luminous weekly rhythm of the Zen scenes. */
+#pulse-home .activity-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin:18px 0}
+#pulse-home .activity-switch{display:flex;gap:2px;border-bottom:1px solid var(--obs-line)}
+#pulse-home .activity-switch button{min-height:44px;padding:8px 12px;border:0;border-radius:0;background:none;color:var(--obs-muted);font:500 12px var(--wellness-ui-font);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+#pulse-home .activity-switch button[aria-pressed=true]{color:#d9f5ff;border-bottom-color:#94d6ff;text-shadow:0 0 16px #70aaff60}
+#pulse-home .activity-summary{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:20px 0 12px;color:#b5a4b8;font-size:13px;font-variant-numeric:tabular-nums}
+#pulse-home .activity-summary strong{font-size:40px;line-height:1.2;font-weight:400;color:#d9f5ff;text-shadow:0 0 24px #70aaff30}
+#pulse-home .activity-summary p{flex-basis:100%;margin:0;font-size:12px;line-height:1.5}
+#pulse-home .activity-navigation{display:flex;align-items:center;gap:4px;min-width:0;margin-bottom:8px}
+#pulse-home .activity-navigation span{flex:1;min-width:0;text-align:center;font-size:12px;line-height:1.4;color:var(--obs-muted)}
+#pulse-home .activity-navigation button{flex:0 0 44px;min-width:44px;min-height:44px;padding:4px;border:0;border-radius:50%;background:transparent;color:#dcc4d4;font:500 18px var(--wellness-ui-font);cursor:pointer}
+#pulse-home #activity-now{font-size:12px}
+#pulse-home .activity-navigation button:disabled{opacity:.3;cursor:default}
+#pulse-home #activity-chart button:focus-visible{outline:2px solid #94d6ff;outline-offset:2px}
+#pulse-home #activity-chart button:not(:disabled):hover{color:#d9f5ff;background:#70aaff09}
+@media(prefers-reduced-motion:reduce){#pulse-home .activity-switch button{transition:none}}

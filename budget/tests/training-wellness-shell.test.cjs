@@ -193,10 +193,10 @@ test('production pages cache-bust the shared wellness owners',()=>{
   }
   assert.match(exercise,/auth-config\.js\?v=20260921-wellness-cohesion-1/);
   assert.match(exercise,/auth-gate\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(exercise,/training-overview-mode\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(exercise,/training-week-orbit\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(exercise,/training-overview-mode\.js\?v=20260921-activity-glow-1/);
+  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260921-activity-glow-1/);
+  assert.match(exercise,/training-week-orbit\.js\?v=20260921-activity-glow-1/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260921-activity-glow-1/);
   assert.match(zen,/zen\.css\?v=20260921-wellness-cohesion-1/);
   assert.match(zen,/zen\.js\?v=20260921-wellness-cohesion-1/);
 });

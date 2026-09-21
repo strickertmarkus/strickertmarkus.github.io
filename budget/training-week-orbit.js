@@ -6,7 +6,7 @@
   if (window.__exerciseDashboardCP10Requested) return;
   window.__exerciseDashboardCP10Requested = true;
   var script = document.createElement('script');
-  script.src = 'exercise-dashboard.js?v=20260921-wellness-cohesion-1';
+  script.src = 'exercise-dashboard.js?v=20260921-activity-glow-1';
   script.async = false;
   script.dataset.exerciseDashboardOwner = 'cp10-fallback';
   document.head.appendChild(script);

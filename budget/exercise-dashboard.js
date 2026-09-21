@@ -241,6 +241,7 @@
     Chart.register({
       id: 'pulseOverviewTheme',
       beforeUpdate:function(chart) {
+        if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
         var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#c0a8b8'] };
         var colors = palettes[chart.canvas.id];
@@ -302,6 +303,7 @@
         chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
       },
       afterDraw:function(chart) {
+        if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || !chart.chartArea) return;
         var hasData = chart.data.datasets.some(function(dataset) {
           return dataset.data.some(function(value) { return value != null && Number.isFinite(Number(value)); });
