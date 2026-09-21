@@ -46,9 +46,20 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html');
             await page.waitForSelector('[data-choice="Push"]');
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
+            await page.waitForSelector('#pp-volume-chart svg');
+            assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
+            assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Push should expose three demo exercises');
+            assert.equal(await page.locator('#pp-exercise-title').textContent(),'Bänkpress');
+            await page.locator('[data-analytics-type="Pull"]').click();
+            assert.equal(await page.locator('#pp-exercise-title').textContent(),'Latsdrag');
+            assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Pull should expose three demo exercises');
+            await page.locator('[data-analytics-metric="e1rm"]').click();
+            assert.match(await page.locator('#pp-exercise-now').textContent(),/kg$/,'Estimated 1RM should be displayed in kg');
+            await page.locator('[data-analytics-type="Push"]').click();
+            await page.locator('[data-analytics-metric="volume"]').click();
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -485,7 +496,7 @@ jobs:
             page.once('dialog',d=>d.accept());
             await page.locator('[data-action="reset"]').click();
             const reset=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
-            assert.equal(reset.history.length,8,'Reset must restore original fake history');
+            assert.equal(reset.history.length,20,'Reset must restore the expanded eight-week fake history');
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
             assert.deepEqual(firebaseRequests,[],'Unexpected Firebase calls');
             await browser.close();
