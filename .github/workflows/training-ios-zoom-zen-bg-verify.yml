@@ -351,7 +351,8 @@ jobs:
                 await page.waitForFunction(k=>document.body.dataset.kind===k&&document.documentElement.dataset.wellnessMode==='zen',kind);
                 await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
                 await page.evaluate(()=>document.fonts.ready);
-                await page.waitForTimeout(450);
+                await page.waitForFunction(()=>['#home-view','#wellness-zen-surface'].every(selector=>document.querySelector(selector).getAnimations().every(a=>a.playState==='finished'||a.playState==='idle')));
+                await page.waitForFunction(()=>Math.abs(document.querySelector('#pulse-header').getBoundingClientRect().left-document.querySelector('.sanctuary').getBoundingClientRect().left)<1);
                 const bounds=await page.evaluate(()=>{
                   const orb=document.querySelector('#start-button'),r=orb.getBoundingClientRect(),s=getComputedStyle(orb);
                   const header=document.querySelector('#pulse-header').getBoundingClientRect(),nav=document.querySelector('.wellness-kind-switch').getBoundingClientRect();
@@ -365,7 +366,7 @@ jobs:
                 assert.ok(bounds.x>=0&&bounds.x+bounds.w<=bounds.width,kind+' orb outside horizontal viewport');
                 if(width<=760)assert.ok(bounds.y>=0&&bounds.bottom<=bounds.height,kind+' orb below first screen: '+JSON.stringify(bounds));
                 assert.ok(Math.abs(bounds.headerLeft-bounds.navLeft)<1,kind+' header/nav not aligned');
-                assert.ok(Math.abs(bounds.headerLeft-bounds.homeLeft)<1,kind+' home gutter not aligned');
+                assert.ok(Math.abs(bounds.headerLeft-bounds.homeLeft)<1,kind+' home gutter not aligned: '+JSON.stringify(bounds));
                 assert.equal(bounds.headerHeight,width<=760?92:104);
                 if(width===390){
                   await page.locator('#start-button').click();
