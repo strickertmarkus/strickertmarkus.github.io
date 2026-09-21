@@ -48,6 +48,13 @@ jobs:
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
             await page.waitForSelector('#pp-volume-chart svg');
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
+            await page.locator('#pp-volume-chart [data-chart-point="2"]').click();
+            assert.match(await page.locator('#pp-volume-chart-inspect').textContent(),/v\d+ · Push: .* · Pull: /,'Tapped volume chart must reveal both actual series values');
+            await page.locator('#pp-exercise-chart [data-chart-point="3"]').click();
+            assert.match(await page.locator('#pp-exercise-chart-inspect').textContent(),/v\d+ · Bänkpress: .* · Sittande rodd: /,'Tapped exercise chart must show both compared exercises');
+            await page.locator('#bars [data-bar-index="1"]').click();
+            assert.match(await page.locator('#bars-inspect').textContent(),/v\d+ · \d+ pass/,'Tapped training bar must reveal the exact week count');
+
             assert.equal(await page.locator('#pp-exercise-pills button').count(),3,'Push should expose three demo exercises');
             assert.equal(await page.locator('#pp-exercise-title').textContent(),'Bänkpress');
             assert.equal(await page.locator('#pp-exercise-compare').textContent(),'Jämför med Sittande rodd');
@@ -100,16 +107,46 @@ jobs:
             await page.locator('[data-week-copy-target="1"]').click();
             assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/,'Copy should duplicate a planned workout to another day');
 
+            await page.locator('[data-week-toggle-exercises="0"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'Each day exposes its own editable exercise list');
+            await page.locator('[data-week-remove-exercise="0:2"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),2);
+            await page.locator('[data-week-add-exercise="0"]').selectOption({label:'Hantelcurl'});
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'The removed exercise can be selected again without leaving the week planner');
+            await auditNoHorizontalScroll('Veckodagens övningsval 390px');
+            await page.locator('[data-week-toggle-exercises="0"]').click();
+
             const beforeWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
             const weekDragHandle=page.locator('[data-week-drag="0"]');
             const weekDragSource=await weekDragHandle.boundingBox();
             const weekDragTarget=await page.locator('[data-week-day="2"]').boundingBox();
             await page.mouse.move(weekDragSource.x+weekDragSource.width/2,weekDragSource.y+weekDragSource.height/2);
             await page.mouse.down();
+            const dragX=weekDragSource.x+weekDragSource.width/2,dragY=weekDragSource.y+weekDragSource.height/2;
+            await page.mouse.move(dragX+18,dragY+24,{steps:3});
+            const ghostPosition=await page.locator('.week-planner-drag-ghost').evaluate(el=>{
+              const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};
+            });
+            assert.ok(Math.abs(ghostPosition.x-(dragX+18))<16&&Math.abs(ghostPosition.y-(dragY+24))<16,'Dragged pass preview should follow the finger in both axes');
             await page.mouse.move(weekDragTarget.x+weekDragTarget.width/2,weekDragTarget.y+weekDragTarget.height/2,{steps:7});
             await page.mouse.up();
             const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
             assert.equal(afterWeekDrag[2],beforeWeekDrag[0],'Dragging a day should move/swap its planned workout');
+
+            await page.locator('[data-week-edit="1"]').first().click();
+            assert.equal(await page.locator('#builder').evaluate(el=>el.open),true,'Tapping a planner day should open its actual workout editor');
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),false);
+            assert.equal(await page.locator('#build-date').isDisabled(),true,'Editing a week day must not silently move it to another date');
+            assert.equal(await page.locator('#builder-start-from-builder').isVisible(),false,'A week draft must be saved before a session can start');
+            await page.locator('[data-set="0:0:weight"]').fill('61');
+            await page.locator('[data-action="save-plan"]').click();
+            await page.waitForFunction(()=>document.querySelector('#week-planner').open);
+            assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),true,'Saving one day returns to the week planner');
+            assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/);
+            await page.locator('[data-week-edit="1"]').first().click();
+            assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'61','Day edits remain in the unsaved week draft');
+            await page.locator('[data-action="close-builder"]').first().click();
+            await page.waitForFunction(()=>document.querySelector('#week-planner').open);
 
             page.once('dialog',d=>d.accept('Demo vecka 4 dagar'));
             await page.locator('[data-action="save-week-template"]').click();
@@ -487,6 +524,8 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
+            await page.locator('#zen-bars [data-bar-index="3"]').click();
+            assert.match(await page.locator('#zen-bars-inspect').textContent(),/v\d+ · \d+ stunder/,'Tapped Zen bar must show the weekly value');
             await page.locator('#zen-choices [data-zen-index="0"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'stretch');
