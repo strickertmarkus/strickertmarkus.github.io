@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main, work/observatory-polish-20260919]
+    branches: [main, work/observatory-polish-20260919, work/wellness-cohesion-20260920]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
@@ -41,7 +41,7 @@ jobs:
 
       - name: Install WebKit
         run: |
-          npm install --no-save playwright chart.js@4.4.4
+          npm install --no-save playwright chart.js@4.4.4 @fontsource/inter@5 @fontsource/cormorant-garamond@5 @fontsource/manrope@5
           npx playwright install --with-deps webkit
 
       - name: Serve repository
@@ -75,11 +75,15 @@ jobs:
           })();`;
           const chartSource=require('node:fs').readFileSync(process.cwd()+'/node_modules/chart.js/dist/chart.umd.js','utf8');
 
+          const fontCss=['inter','cormorant-garamond','manrope'].flatMap(family=>(family==='inter'?[300,400,500,600,700,800,900]:family==='manrope'?[300,400,500,600,700,800]:[300,400,500,600,700]).map(weight=>{
+            const source=require('node:fs').readFileSync(process.cwd()+'/node_modules/@fontsource/'+family+'/'+weight+'.css','utf8');
+            return source.replaceAll('./files/','http://127.0.0.1:4173/node_modules/@fontsource/'+family+'/files/');
+          })).join('\n');
           async function route(page){
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:firebaseStub}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'window.__iosZoomSyncStub=true;'}));
             await page.route('https://cdn.jsdelivr.net/npm/chart.js**',r=>r.fulfill({status:200,contentType:'application/javascript',body:chartSource}));
-            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:fontCss}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
           }
 
@@ -127,7 +131,9 @@ jobs:
               viewport:{width:390,height:844},isMobile:true,hasTouch:true,
               userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
             });
-            const page=await context.newPage(),errors=[];
+            context.setDefaultTimeout(15000);
+            let page=await context.newPage();
+            const errors=[];
             page.on('pageerror',e=>errors.push('pageerror: '+e.message));
             page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
             await route(page);
@@ -141,6 +147,7 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
             await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setTrainingOverviewMode==='function'&&typeof window.setWellnessMode==='function',null,{timeout:20000});
             await page.waitForTimeout(700);
+            await page.evaluate(()=>document.fonts.ready);
 
             require('node:fs').mkdirSync('test-results/observatory',{recursive:true});
             async function shot(name){
@@ -170,7 +177,7 @@ jobs:
                 return;
               }
               // Reveal scroll-triggered content using the actual page interaction.
-              for(const selector of ['#pulse-week','.observatory-metrics','#pulse-goals','#pulse-progress','#pulse-records','#pulse-log']){
+              for(const selector of ['.observatory-templates','#pulse-week','.observatory-metrics','#pulse-goals','#pulse-progress','#pulse-records','#pulse-log']){
                 await page.locator(selector).scrollIntoViewIfNeeded();
                 await page.waitForTimeout(600);
               }
@@ -196,6 +203,9 @@ jobs:
               assert.ok(Math.abs(result.mainLeft-result.navLeft)<1,label+' navigation gutter differs');
               assert.ok(result.orbFont>=14,label+' orb label is too small');
               assert.equal(result.badText,false,label+' metrics text is too small');
+              const graphs=await page.locator('#pulse-home .goal-card,#pulse-home .chart-card').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {border:s.borderTopWidth,shadow:s.boxShadow,background:s.backgroundColor}}));
+              assert.ok(graphs.length>0);
+              assert.ok(graphs.every(g=>g.border==='0px'&&g.shadow==='none'&&g.background==='rgba(0, 0, 0, 0)'),label+' graphs must remain unboxed: '+JSON.stringify(graphs));
               if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}
             }
             for(const width of [320,390,1440]){
@@ -228,6 +238,28 @@ jobs:
             assert.equal(await page.locator('#reactor-action').textContent(),'Redigera pass');
             assert.equal(await page.locator('#week-grid .today').getAttribute('aria-current'),'date');
             assert.equal(await page.locator('#week-grid .today.done .wd-status').isVisible(),true);
+            // Template cards prepare a draft and never overwrite a saved day on selection/cancel.
+            assert.equal(await page.locator('.observatory-template-card').count(),2);
+            const savedPlan=await page.evaluate(()=>JSON.stringify(getPlannedSessions()));
+            await page.evaluate(()=>{
+              saveTemplates([{id:701,name:'Kontrollerat styrkepass',type:'Helkropp',exercises:[{kind:'strength',name:'Knäböj',sets:3,reps:8,weight:60}]}]);
+              saveWeekTemplates([{id:702,name:'Lugn träningsvecka',days:{}}]);
+              refreshAll();
+            });
+            await page.getByRole('button',{name:/Kontrollerat styrkepass/}).click();
+            await page.waitForSelector('#day-workout-modal.show');
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('#day-workout-type').inputValue(),'Helkropp');
+            assert.equal(await page.locator('#day-workout-ex-list .ex-row-item').count(),1);
+            assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
+            await page.locator('#day-workout-modal .modal-close').click();
+            assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
+            console.log('Opening weekly template');
+            await page.getByRole('button',{name:/Lugn träningsvecka/}).click();
+            assert.equal(await page.locator('#template-pick').inputValue(),'702');
+            await page.waitForFunction(()=>document.querySelector('#template-modal .modal').getAnimations().every(a=>a.playState==='finished'||a.playState==='idle'));
+            await page.locator('#template-modal .modal-close').click();
+            console.log('Weekly template selected and closed');
             for(const width of [320,390,1440]){
               await page.setViewportSize({width,height:width>760?1000:844});
               await page.waitForTimeout(500);
@@ -271,6 +303,14 @@ jobs:
             await page.waitForTimeout(320);
             await editableAudit(page,'Compact');
 
+            // Release the large chart/screenshot document before the independent Zen flow.
+            await page.close();
+            page=await context.newPage();
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            await route(page);
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setWellnessMode==='function');
             await page.evaluate(async()=>{await window.setWellnessMode('stretch')});
             await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');
             await page.waitForTimeout(400);
@@ -303,12 +343,73 @@ jobs:
             await page.waitForTimeout(320);
             await editableAudit(page,'Compact 375px');
 
+            // Inspect the real shared Zen home at narrow, normal and wide iPhone sizes.
+            for(const width of [320,390,430,1440]){
+              await page.setViewportSize({width,height:width>760?1000:width===320?700:844});
+              for(const kind of ['stretch','meditation']){
+                await page.evaluate(k=>window.setWellnessMode(k),kind);
+                await page.waitForFunction(k=>document.body.dataset.kind===k&&document.documentElement.dataset.wellnessMode==='zen',kind);
+                await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+                await page.evaluate(()=>document.fonts.ready);
+                await page.waitForFunction(()=>document.getAnimations().every(a=>!Number.isFinite(a.effect.getComputedTiming().endTime)||a.playState==='finished'||a.playState==='idle'));
+                await page.waitForFunction(()=>Math.abs(document.querySelector('#pulse-header').getBoundingClientRect().left-document.querySelector('.sanctuary').getBoundingClientRect().left)<1);
+                const bounds=await page.evaluate(()=>{
+                  const orb=document.querySelector('#start-button'),r=orb.getBoundingClientRect(),s=getComputedStyle(orb);
+                  const header=document.querySelector('#pulse-header').getBoundingClientRect(),nav=document.querySelector('.wellness-kind-switch').getBoundingClientRect();
+                  return {width:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,radius:s.borderRadius,headerLeft:header.left,navLeft:nav.left,headerHeight:header.height,homeLeft:document.querySelector('.sanctuary').getBoundingClientRect().left,disabled:orb.disabled};
+                });
+                await page.screenshot({path:'test-results/observatory/'+kind+'-home-'+width+'.png'});
+                assert.ok(Math.abs(bounds.w-bounds.h)<1,kind+' start must be round: '+JSON.stringify(bounds));
+                assert.equal(bounds.radius,'50%');
+                assert.equal(bounds.disabled,false);
+                assert.ok(bounds.scroll<=bounds.width+1,kind+' overflows: '+JSON.stringify(bounds));
+                assert.ok(bounds.x>=0&&bounds.x+bounds.w<=bounds.width,kind+' orb outside horizontal viewport');
+                if(width<=760)assert.ok(bounds.y>=0&&bounds.bottom<=bounds.height,kind+' orb below first screen: '+JSON.stringify(bounds));
+                assert.ok(Math.abs(bounds.headerLeft-bounds.navLeft)<1,kind+' header/nav not aligned');
+                assert.ok(Math.abs(bounds.headerLeft-bounds.homeLeft)<1,kind+' home gutter not aligned: '+JSON.stringify(bounds));
+                assert.equal(bounds.headerHeight,width<=760?92:104);
+                if(width===390){
+                  await page.locator('#start-button').click();
+                  await page.locator('#session-view').waitFor({state:'visible'});
+                  await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
+                  assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
+                  await page.locator('#pause-session').click();
+                  assert.equal(await page.locator('#pause-session').textContent(),'Fortsätt');
+                  await page.locator('#leave-session').click();
+                  assert.equal(await page.locator('#resume-banner').isVisible(),true);
+                  await page.locator('#resume-button').click();
+                  await page.locator('#session-view').waitFor({state:'visible'});
+                  await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
+                  assert.equal(await page.locator('#pause-session').textContent(),'Pausa');
+                  await page.locator('#leave-session').click();
+                  await page.locator('#discard-button').click();
+                  await page.locator('#confirm-yes').click();
+                  assert.equal(await page.locator('#resume-banner').isVisible(),false);
+                }
+              }
+            }
+            await page.evaluate(async()=>{
+              await Promise.all([setWellnessMode('training'),setWellnessMode('stretch'),setWellnessMode('meditation'),setWellnessMode('training')]);
+              setTrainingOverviewMode('compact');setTrainingOverviewMode('observatory');setTrainingOverviewMode('compact');setTrainingOverviewMode('observatory');
+            });
+            await page.waitForTimeout(500);
+            assert.equal(await page.getAttribute('html','data-wellness-mode'),'training');
+            assert.equal(await page.getAttribute('html','data-training-overview'),'observatory');
+            assert.equal(await page.locator('#pulse-home').evaluate(n=>getComputedStyle(n).opacity),'1');
+            assert.equal(await page.locator('.wellness-kind-switch').getAttribute('aria-busy'),null);
+            await page.evaluate(()=>{setWellnessMode('stretch');});
+            await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen');
+            await page.evaluate(()=>setWellnessMode('stretch'));
+            await page.waitForTimeout(350);
+            assert.equal(await page.locator('html').evaluate(n=>n.classList.contains('wellness-shell-switching')),false);
+            assert.equal(await page.locator('.wellness-surface-enter').count(),0);
+            assert.equal(await page.locator('html').evaluate(n=>n.style.overflowAnchor),'');
             assert.deepEqual(errors,[],'browser errors: '+errors.join(' | '));
             await browser.close();
             console.log('All-mode iOS focus and Zen canvas WebKit verification passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
-          node /tmp/training-ios-e2e.cjs
+          DEBUG=pw:browser node /tmp/training-ios-e2e.cjs
 
       - name: Save Observatory visual review
         if: always()

@@ -142,7 +142,11 @@
     }));
   }
 
+  var scrollCommitFrame = 0;
+  var scrollRestore = null;
   function commitAtSameScroll(mode, options) {
+    cancelAnimationFrame(scrollCommitFrame);
+    if (scrollRestore) scrollRestore();
     var x = window.scrollX;
     var y = window.scrollY;
     var html = document.documentElement;
@@ -154,12 +158,14 @@
     applyMode(mode, options);
     window.scrollTo(x, y);
 
-    requestAnimationFrame(function () {
+    scrollRestore = function () {
+      html.style.scrollBehavior = previousBehavior;
+      html.style.overflowAnchor = previousAnchor;
+      scrollRestore = null;
+    };
+    scrollCommitFrame = requestAnimationFrame(function () {
       window.scrollTo(x, y);
-      requestAnimationFrame(function () {
-        html.style.scrollBehavior = previousBehavior;
-        html.style.overflowAnchor = previousAnchor;
-      });
+      scrollCommitFrame = requestAnimationFrame(function () { if (scrollRestore) scrollRestore(); });
     });
   }
 
@@ -179,26 +185,18 @@
       return mode;
     }
 
-    var outgoing = visibleContent(root);
-    animateNodes(outgoing, [
-      {opacity:1, transform:'translate3d(0,0,0)'},
-      {opacity:.58, transform:'translate3d(0,2px,0)'}
-    ], {duration:90, easing:'ease-out', fill:'both'}).then(function () {
+    // Commit the chosen mode immediately; stale animation completions do no work.
+    commitAtSameScroll(mode, {deferCharts:true});
+    requestAnimationFrame(function () {
       if (token !== switchToken) return;
-      cancelAnimations();
-      commitAtSameScroll(mode, {deferCharts:true});
-
-      requestAnimationFrame(function () {
+      var incoming = visibleContent(root);
+      animateNodes(incoming, [
+        {opacity:.72, transform:'translate3d(0,3px,0)'},
+        {opacity:1, transform:'translate3d(0,0,0)'}
+      ], {duration:180, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).then(function () {
         if (token !== switchToken) return;
-        var incoming = visibleContent(root);
-        animateNodes(incoming, [
-          {opacity:.52, transform:'translate3d(0,-3px,0)'},
-          {opacity:1, transform:'translate3d(0,0,0)'}
-        ], {duration:230, easing:'cubic-bezier(.22,1,.36,1)', fill:'both'}).then(function () {
-          if (token !== switchToken) return;
-          cancelAnimations();
-          renderChartsSoon();
-        });
+        cancelAnimations();
+        renderChartsSoon();
       });
     });
 
@@ -503,12 +501,53 @@
       }
     });
     syncObservatoryStates();
+    renderTemplateChoices();
   }
 
-  function openSelectedBuilder() {
+  function openSelectedBuilder(template) {
     if (!selectedDate) return;
     var day = new Intl.DateTimeFormat('sv-SE', { weekday: 'long' }).format(window.parseISODate(selectedDate));
     window.openDayWorkoutBuilder(day, selectedDate);
+    // Fill a draft through the existing editor. Saving remains explicit.
+    if (template && Array.isArray(template.exercises)) {
+      document.getElementById('day-workout-type').value = template.type || template.name || 'Övrigt';
+      document.getElementById('day-workout-ex-list').replaceChildren();
+      template.exercises.forEach(function(exercise) { window.addDayWorkoutExRow(exercise); });
+    }
+  }
+
+  var templateSignature = '';
+  function renderTemplateChoices() {
+    var root = document.getElementById('observatory-template-grid');
+    if (!root || !selectedDate || typeof window.getTemplates !== 'function') return;
+    var templates = window.getTemplates().filter(function(item) { return item && item.exercises && item.exercises.length; });
+    var weeks = typeof window.getWeekTemplates === 'function' ? window.getWeekTemplates() : [];
+    var signature = JSON.stringify([templates,weeks,selectedDate]);
+    if (signature === templateSignature) return;
+    templateSignature = signature;
+    setText('observatory-template-hint', 'Välj ett sparat upplägg för ' + new Intl.DateTimeFormat('sv-SE', {weekday:'long',day:'numeric',month:'short'}).format(window.parseISODate(selectedDate)) + '. Du granskar innan du sparar.');
+    var fragment = document.createDocumentFragment();
+    function card(name, detail, glyph, action) {
+      var button = document.createElement('button');
+      button.type = 'button'; button.className = 'observatory-template-card';
+      var icon = document.createElement('span'); icon.className = 'observatory-template-glyph'; icon.textContent = glyph; icon.setAttribute('aria-hidden','true');
+      var title = document.createElement('strong'); title.textContent = name;
+      var meta = document.createElement('span'); meta.className = 'observatory-template-meta'; meta.textContent = detail;
+      button.append(icon,title,meta); button.addEventListener('click',action); fragment.appendChild(button);
+    }
+    templates.forEach(function(template) {
+      card(template.name || template.type || 'Mallpass', template.exercises.length + ' övningar · Förhandsgranska', '⌁', function() { openSelectedBuilder(template); });
+    });
+    weeks.forEach(function(template) {
+      card(template.name || 'Veckomall', 'Veckoupplägg · Välj vecka', '◌', function() {
+        window.openTemplateModal(); document.getElementById('template-pick').value = String(template.id);
+      });
+    });
+    if (!templates.length && !weeks.length) {
+      card('Bygg ditt pass', 'Välj övningar för den valda dagen', '＋', function() { openSelectedBuilder(); });
+      card('Skapa en veckomall', 'Ett upplägg att återanvända', '◌', function() { window.openWeekTemplateEditor(); });
+    }
+    root.replaceChildren(fragment);
   }
 
   function install() {
@@ -579,7 +618,13 @@
       showMissingPlanNotice();
     });
     var buildButton = document.getElementById('reactor-build');
-    if (buildButton) buildButton.addEventListener('click', openSelectedBuilder);
+    if (buildButton) buildButton.addEventListener('click', function() { openSelectedBuilder(); });
+    var templateManage = document.getElementById('observatory-manage-templates');
+    if (templateManage) templateManage.addEventListener('click', function() { window.openTemplateModal(); });
+    ['wk-template-select','template-pick'].forEach(function(id) {
+      var select = document.getElementById(id);
+      if (select) new MutationObserver(renderTemplateChoices).observe(select, {childList:true});
+    });
 
     new MutationObserver(syncReactor).observe(grid, { childList: true });
     var semanticObserver = new MutationObserver(syncObservatoryStates);
@@ -617,7 +662,7 @@
     if (core && session) {
       var onScreen = true;
       function syncMotion() {
-        var paused = !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
+        var paused = document.documentElement.dataset.wellnessMode === 'zen' || !pulseOverviewActive() || document.hidden || !onScreen || session.classList.contains('show');
         var motionState = paused ? 'paused' : 'running';
         var sceneRoot = core.closest('.observatory-stage') || core;
         sceneRoot.style.setProperty('--pulse-scene-motion', motionState);
@@ -626,6 +671,7 @@
       if ('IntersectionObserver' in window) new IntersectionObserver(function(entries) { onScreen = entries[0].isIntersecting; syncMotion(); }).observe(core);
       new MutationObserver(syncMotion).observe(session, { attributes: true, attributeFilter: ['class'] });
       document.addEventListener('visibilitychange', syncMotion);
+      window.addEventListener('wellness-mode-change', syncMotion);
       window.addEventListener('training-overview-change', function () { syncReactor(); syncMotion(); });
       syncMotion();
     }

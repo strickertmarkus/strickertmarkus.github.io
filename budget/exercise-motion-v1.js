@@ -183,7 +183,9 @@
       .exercise-morph-fallback-v2 { transform-origin:50% 0;animation:exercise-morph-fallback-v2 .36s cubic-bezier(.22,1,.36,1) both !important; }
       @keyframes exercise-morph-fallback-v2 { 0% { opacity:.24;transform:scale(.975) translateY(4px);filter:blur(1.5px); } 100% { opacity:1;transform:none;filter:none; } }
 
-      .modal-overlay.show > .modal,
+      .modal-overlay.show > .modal {
+        transform-origin:50% 18%;animation:exercise-control-in-v2 .18s cubic-bezier(.22,1,.36,1) both;
+      }
       #session-modal.show > .session-shell,
       #exercise-plan-preview-v7.show .plan-preview-card-v7,
       #session-between-overlay-v2.show .bs-overlay-wrap,

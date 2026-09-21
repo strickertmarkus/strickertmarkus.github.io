@@ -22,23 +22,27 @@
     $('hero-eyebrow').textContent=c.eyebrow;$('hero-title').innerHTML=c.title;$('hero-description').innerHTML=c.description;$('selected-symbol').textContent=c.symbol;$('start-hint').textContent=c.hint;$('growth-title').textContent=c.growth;$('growth-eyebrow').textContent=c.growthEyebrow;$('collection-title').textContent=c.collection;$('leave-session').textContent=c.home;
     document.querySelectorAll('.kind-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===kind)));savePrefs();renderHome();
   }
+  let kindMotionTimer=0,kindMotionToken=0;
   function setKind(next){
+    const token=++kindMotionToken;clearTimeout(kindMotionTimer);
     next=next==='meditation'?'meditation':'stretch';
     const changed=next!==kind,home=$('home-view');
     const animate=!!(changed&&view==='home'&&home);
-    if(animate){home.classList.remove('zen-kind-surface-enter');home.style.visibility='hidden';}
+    if(home)home.classList.remove('zen-kind-surface-enter');
     applyKind(next);
     if(!animate)return;
     home.style.visibility='';
     const motionReduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     if(motionReduced)return;
     requestAnimationFrame(()=>{
+      if(token!==kindMotionToken)return;
       home.classList.add('zen-kind-surface-enter');
-      setTimeout(()=>home.classList.remove('zen-kind-surface-enter'),200);
+      kindMotionTimer=setTimeout(()=>home.classList.remove('zen-kind-surface-enter'),200);
     });
   }
   function renderHome(){
     const r=chosen();$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
+    document.querySelector('.start-ring-symbol').textContent=copy[kind].symbol;
     document.querySelector('.start-ring-name').textContent=r.name;
     document.querySelector('.start-ring-meta').textContent=$('selected-meta').textContent;
     $('start-button').setAttribute('aria-label','Starta '+r.name+', '+$('selected-meta').textContent);

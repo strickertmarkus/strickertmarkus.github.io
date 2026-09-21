@@ -23,7 +23,7 @@ const builderV7=read('exercise-builder-between-preview-v7.js');
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
   assert.match(shell,/canonical=\/\\\/exercise\\\.html\$\//);
-  assert.match(shell,/fetch\('zen\.html'/);
+  assert.match(shell,/fetch\('zen\.html\?v=20260921-wellness-cohesion-1'/);
   assert.match(shell,/extractZenSurface\(doc\)/);
   assert.match(shell,/zenBackdrop=document\.importNode\(landscape,true\)/);
   assert.match(shell,/wrap\.insertBefore\(zenBackdrop,wrap\.firstChild\)/);
@@ -86,7 +86,8 @@ test('wellness morph animates only the incoming surface and remains short',()=>{
 
 test('Stretch and Meditation reuse the same incoming-only atomic transition model',()=>{
   assert.match(zenRuntime,/function applyKind\(next\)/);
-  assert.match(zenRuntime,/home\.style\.visibility='hidden'/);
+  assert.doesNotMatch(zenRuntime,/home\.style\.visibility='hidden'/);
+  assert.match(zenRuntime,/kindMotionToken/);
   assert.match(zenRuntime,/home\.classList\.add\('zen-kind-surface-enter'\)/);
   assert.match(zenRuntime,/prefers-reduced-motion: reduce/);
   assert.match(zenCss,/\.zen-kind-surface-enter \{[\s\S]*zenKindSurfaceIn \.18s/);
@@ -95,7 +96,7 @@ test('Stretch and Meditation reuse the same incoming-only atomic transition mode
 });
 
 test('Zen network assets warm without starting the Zen runtime',()=>{
-  assert.equal((shell.match(/fetch\('zen\.html'/g)||[]).length,1,'Zen document should have one fetch owner');
+  assert.equal((shell.match(/fetch\('zen\.html\?v=20260921-wellness-cohesion-1'/g)||[]).length,1,'Zen document should have one fetch owner');
   assert.match(shell,/function getZenDocument\(\)/);
   assert.match(shell,/function preloadZenAssets\(doc\)/);
   assert.match(shell,/link\.rel='preload';link\.as='style'/);
@@ -140,8 +141,8 @@ test('Compact uses one right-side wellness-row symbol and no dashboard mode swit
   assert.match(overviewCss,/html\[data-wellness-mode="zen"\] #training-overview-toggle\{display:none!important\}/);
 });
 
-test('Zen shared header restores the original transparent Zen composition',()=>{
-  assert.match(shellCss,/html\[data-wellness-mode=\"zen\"\] #pulse-header\{[^}]*background:transparent!important[^}]*backdrop-filter:none!important[^}]*border:0!important[^}]*box-shadow:none!important[^}]*height:108px!important/);
+test('Shared header geometry is stable across all wellness themes',()=>{
+  assert.match(shellCss,/#pulse-page #pulse-header\{[^}]*height:104px!important[^}]*border:0!important[^}]*background:transparent!important[^}]*box-shadow:none!important[^}]*backdrop-filter:none!important/);
   assert.match(shellCss,/@media\(max-width:760px\)\{[\s\S]*#pulse-header\{height:92px!important;min-height:92px!important/);
   assert.match(shellCss,/wellness-zen-brand>span:first-child\{[^}]*font-size:48px/);
   assert.match(shellCss,/#pulse-header \.wellness-zen-brand small\{display:none\}/);
@@ -151,7 +152,7 @@ test('Zen shared header restores the original transparent Zen composition',()=>{
 test('Zen landscape begins at the app top behind header and shared toggle',()=>{
   assert.match(shell,/zenBackdrop\.classList\.add\('wellness-zen-backdrop'\)/);
   assert.match(shellCss,/\.wellness-zen-backdrop\{position:absolute!important;inset:0 0 auto!important/);
-  assert.match(shellCss,/html\[data-wellness-mode="zen"\] #pulse-header\{background:transparent!important/);
+  assert.match(shellCss,/#pulse-page #pulse-header\{[^}]*background:transparent!important/);
   assert.match(shellCss,/html\[data-wellness-mode="zen"\] \.wellness-kind-switch\{z-index:30\}/);
 });
 
@@ -187,17 +188,17 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260918-ios-focus-zen-canvas-1/);
-    assert.match(source,/training-zen-nav\.js\?v=20260918-ios-focus-zen-canvas-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260921-wellness-cohesion-1/);
+    assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(exercise,/auth-gate\.js\?v=20260918-ios-focus-zen-canvas-1/);
-  assert.match(exercise,/training-overview-mode\.js\?v=20260919-observatory-polish-1/);
-  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260919-observatory-polish-1/);
-  assert.match(exercise,/training-week-orbit\.js\?v=20260919-observatory-polish-1/);
-  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260919-observatory-polish-1/);
-  assert.match(zen,/zen\.css\?v=20260918-cp11-stretch-overflow-4/);
-  assert.match(zen,/zen\.js\?v=20260918-cp11-shared-shell-1/);
+  assert.match(exercise,/auth-config\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(exercise,/auth-gate\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(exercise,/training-overview-mode\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(exercise,/training-week-orbit\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(zen,/zen\.css\?v=20260921-wellness-cohesion-1/);
+  assert.match(zen,/zen\.js\?v=20260921-wellness-cohesion-1/);
 });
 
 

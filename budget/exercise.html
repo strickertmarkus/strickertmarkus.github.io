@@ -8,8 +8,8 @@
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
-<script src="auth-config.js?v=20260918-ios-focus-zen-canvas-1"></script>
-<script src="auth-gate.js?v=20260918-ios-focus-zen-canvas-1"></script>
+<script src="auth-config.js?v=20260921-wellness-cohesion-1"></script>
+<script src="auth-gate.js?v=20260921-wellness-cohesion-1"></script>
   <script defer src="exercise-timer-focus.js?v=20260918-cp11-reactive-timer-1"></script>
   <script src="firebase-sync.js?v=20260916-profile-theme-2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -512,14 +512,14 @@
       .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
     }
   </style>
-<link rel="stylesheet" href="training-zen-nav.css?v=20260918-ios-focus-zen-canvas-1">
-<script defer src="training-zen-nav.js?v=20260918-ios-focus-zen-canvas-1"></script>
-<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260919-observatory-polish-1">
-<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260919-observatory-polish-1">
+<link rel="stylesheet" href="training-zen-nav.css?v=20260921-wellness-cohesion-1">
+<script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script>
+<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260921-wellness-cohesion-1">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260921-wellness-cohesion-1">
 <link rel="stylesheet" href="training-week-orbit.css?v=20260919-observatory-polish-1">
-<script defer src="training-overview-mode.js?v=20260919-observatory-polish-1"></script>
-<script defer src="pulse-environment/environment.js?v=20260919-observatory-polish-1"></script>
-<script defer src="training-week-orbit.js?v=20260919-observatory-polish-1"></script>
+<script defer src="training-overview-mode.js?v=20260921-wellness-cohesion-1"></script>
+<script defer src="pulse-environment/environment.js?v=20260921-wellness-cohesion-1"></script>
+<script defer src="training-week-orbit.js?v=20260921-wellness-cohesion-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -587,6 +587,11 @@
       <span class="observatory-last" id="observatory-last" aria-live="polite"></span>
     </div>
   </div>
+</section>
+<section class="observatory-templates observatory-only" aria-labelledby="observatory-templates-title">
+  <div class="section-hdr"><h2 id="observatory-templates-title">Välj pass</h2><button type="button" class="btn-ghost" id="observatory-manage-templates">Mallpass</button></div>
+  <p class="observatory-template-hint" id="observatory-template-hint">Välj ett sparat upplägg för vald dag.</p>
+  <div class="observatory-template-grid" id="observatory-template-grid"></div>
 </section>
 <section class="observatory-metrics" aria-label="Träningsöversikt">
     <!-- STATS -->

@@ -118,7 +118,7 @@
   }
   function getZenDocument(){
     if(zenDocumentPromise)return zenDocumentPromise;
-    zenDocumentPromise=fetch('zen.html',{credentials:'same-origin'}).then(function(response){
+    zenDocumentPromise=fetch('zen.html?v=20260921-wellness-cohesion-1',{credentials:'same-origin'}).then(function(response){
       if(!response.ok)throw new Error('Zen kunde inte laddas.');
       return response.text();
     }).then(function(html){return new DOMParser().parseFromString(html,'text/html');}).catch(function(error){zenDocumentPromise=null;throw error;});
@@ -258,9 +258,14 @@
     updateUnifiedSwitch(zen?zenKind:'training');
     mode=nextMode;
   }
-  function swap(nextMode){
+  function clearSurfaceMotion(){
+    document.documentElement.classList.remove('wellness-shell-switching');
+    [trainingMain,zenHost].forEach(function(node){if(node)node.classList.remove('wellness-surface-enter');});
+  }
+  function swap(nextMode,token){
     scrollPositions[mode]=window.scrollY||0;
     applyMode(nextMode);
+    window.scrollTo({top:scrollPositions[mode]||0,left:0,behavior:'instant'});
     if(reduced&&reduced.matches)return Promise.resolve();
     var target=nextMode==='zen'?zenHost:trainingMain;
     if(!target)return Promise.resolve();
@@ -268,10 +273,13 @@
     document.documentElement.classList.add('wellness-shell-switching');
     return new Promise(function(resolve){
       requestAnimationFrame(function(){
+        if(token!==switchToken){resolve();return;}
         target.classList.add('wellness-surface-enter');
         window.setTimeout(function(){
-          document.documentElement.classList.remove('wellness-shell-switching');
-          target.classList.remove('wellness-surface-enter');
+          if(token===switchToken){
+            document.documentElement.classList.remove('wellness-shell-switching');
+            target.classList.remove('wellness-surface-enter');
+          }
           resolve();
         },200);
       });
@@ -287,7 +295,6 @@
     if(token!==switchToken)return false;
     historyFor(destination,options.history||'push');
     if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');
-    requestAnimationFrame(function(){window.scrollTo(0,scrollPositions[mode]||0);});
     window.dispatchEvent(new CustomEvent('wellness-mode-change',{detail:{mode:mode,destination:destination}}));
     return true;
   }
@@ -296,6 +303,7 @@
     var destination=normalizeDestination(value);
     var nextMode=destination==='training'?'training':'zen';
     var token=++switchToken;
+    clearSurfaceMotion();
     if(nextMode===mode&&!options.force){
       if(nextMode==='zen'){
         var changedDestination=destination!==zenKind||document.body.dataset.kind!==destination||document.documentElement.dataset.wellnessKind!==destination;
@@ -317,7 +325,7 @@
     return ready.then(function(){
       if(token!==switchToken)return false;
       if(nextMode==='zen')selectZenKind(destination);
-      return swap(nextMode).then(function(){return finishSwitch(destination,options,token);});
+      return swap(nextMode,token).then(function(){return finishSwitch(destination,options,token);});
     }).catch(function(){
       if(token===switchToken){
         if(sharedSwitch)sharedSwitch.removeAttribute('aria-busy');

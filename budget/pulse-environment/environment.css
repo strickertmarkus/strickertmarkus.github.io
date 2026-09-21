@@ -1,15 +1,13 @@
 /* Shared Observatory overview and editor presentation; never the active session. */
 #pulse-header,#pulse-home,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.exercise-name-picker-v1){
  --obs-text:#f7e9ef;--obs-muted:#c0a8b8;--obs-accent:#ffb8cb;--obs-line:#e8acce2e;
- --obs-surface:#19121ddd;--obs-input:#100d15;--obs-card-radius:14px;--obs-control-radius:10px;
+ --obs-surface:linear-gradient(135deg,#32203455,#18121dd9);--obs-input:#100d15;--obs-card-radius:var(--wellness-card-radius,14px);--obs-control-radius:var(--wellness-control-radius,10px);
 }
-#pulse-header,#pulse-home,html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{--obs-page-width:1200px;--obs-gutter:clamp(20px,4vw,40px);font-variant-numeric:tabular-nums}
+#pulse-header,#pulse-home{--obs-page-width:var(--wellness-page-width);--obs-gutter:var(--wellness-gutter);font-variant-numeric:tabular-nums;font-family:var(--wellness-ui-font)}
 html:not([data-wellness-mode="zen"])#pulse-document:not(:has(#session-modal.show)),
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)){background:#0c090f!important;color-scheme:dark}
 html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show))::before{display:none!important}
 #pulse-page{--reactor-red:#ff5b78;--reactor-light:#ffbccb;--reactor-line:#e29db92b;--reactor-muted:#aea2b6}
-#pulse-header{position:relative!important;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width);margin:auto!important;padding:27px 0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:20px!important}
-html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:calc(100% - 2 * var(--obs-gutter));max-width:var(--obs-page-width)}
 #pulse-header .brand-text h1{display:flex;align-items:center;gap:8px;font-size:17px!important;font-weight:650!important;letter-spacing:2px!important;color:#f9e9ef!important}
 #pulse-header .pulse-brand-flow{color:#ff8ca8;font-weight:350}
 #pulse-header .brand-text p{font-size:11px!important;color:#a99aac!important;letter-spacing:.5px;margin-top:5px}
@@ -21,7 +19,8 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-header .nav-dropdown-menu a:hover{color:#fff!important;background:#ff7c9d12!important}
 #pulse-header .exercise-user-toggle{margin:12px;padding:5px;border-color:#f6a7c333;border-radius:99px;background:#ff91b00a}
 #pulse-header .exercise-user-option{min-height:44px;flex:1;font-size:12px;border-radius:99px}
-#pulse-home{position:relative;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width)!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home{position:relative;isolation:isolate;width:calc(100% - 2 * var(--obs-gutter))!important;max-width:var(--obs-page-width)!important;margin:auto!important;padding:10px 0 110px!important}
+#pulse-home::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 90% 650px at 85% 25%,#71304b12,transparent 75%),radial-gradient(ellipse 100% 950px at 8% 65%,#68305610,transparent 80%)}
 #pulse-home .reactor-stage{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);grid-template-areas:'intro core' 'stats core' 'week core' 'jumps core';align-items:center;column-gap:40px;position:relative;margin:0 0 65px;padding:30px 0 25px;isolation:isolate}
 #pulse-home .reactor-stage::before{content:'';position:absolute;inset:-60px -5vw -90px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 77% 42%,#ed315819,transparent 62%)}
 #pulse-home .reactor-intro{grid-area:intro;position:relative;padding-bottom:26px}
@@ -66,10 +65,10 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-home .reactor-action>span:last-child{font-size:21px;font-weight:300}
 #pulse-home .reactor-configure{position:absolute;left:50%;bottom:1%;transform:translateX(-50%);padding:9px 12px;border:0;background:#0c090fe0;border-radius:30px;color:#c0a4b7;min-height:36px;font:400 11px Inter,sans-serif;white-space:nowrap;cursor:pointer}
 #pulse-home .reactor-configure[hidden]{display:none}
-/* Open metrics and controls surround the core, instead of repeating cards. */
+/* One material connects overview metrics and controls. */
 #pulse-home .pulse-overview{grid-area:stats;margin:0 0 24px}
 #pulse-home .stats-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px 16px!important;margin:0!important}
-#pulse-home .stat-card{padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;min-width:0;overflow:visible!important}
+#pulse-home .stat-card{padding:20px!important;border:1px solid var(--obs-line)!important;border-radius:var(--obs-card-radius)!important;box-shadow:inset 0 1px 0 #fff3fa04!important;background:var(--obs-surface)!important;min-width:0;overflow:visible!important}
 #pulse-home .stat-card::before{display:none!important}
 #pulse-home .stat-label{font-size:12px!important;letter-spacing:0!important;text-transform:none!important;color:#ac94a8!important}
 #pulse-home .stat-val{font-size:34px!important;font-weight:450!important;letter-spacing:-1px!important;line-height:1.3!important;color:#f5dce7!important;margin:4px 0!important}
@@ -94,10 +93,10 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-home :is(.pulse-records,.pulse-log)>.section-hdr{margin-bottom:24px!important}
 #pulse-home .section-hdr h2{font-size:26px!important;font-weight:500!important;letter-spacing:-.5px!important;color:#f6dfe9!important}
 #pulse-home .section-hdr h2::before{display:none!important}
-#pulse-home :is(.btn-sm,.btn-ghost){min-height:44px!important;padding:8px 14px!important;border-radius:var(--obs-control-radius)!important;background:#f7a1b407!important;border:1px solid #f4a2bd30!important;color:#dab7ca!important;font:450 12px/1.3 Inter,sans-serif!important;box-shadow:none!important}
+#pulse-home :is(.btn-sm,.btn-ghost){min-height:44px!important;padding:8px 14px!important;border-radius:var(--obs-control-radius)!important;background:#f7a1b407!important;border:1px solid #f4a2bd30!important;color:#dab7ca!important;font:500 13px/1.3 var(--wellness-ui-font)!important;box-shadow:none!important}
 #pulse-home :is(.btn-sm,.btn-ghost):hover{background:#ff809916!important;border-color:#ffbed04d!important}
 #pulse-home .goals-grid,#pulse-home .charts-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important}
-#pulse-home :is(.goal-card,.chart-card){min-width:0!important;border:1px solid var(--obs-line)!important;border-radius:var(--obs-card-radius)!important;padding:24px!important;box-shadow:none!important;background:var(--obs-surface)!important}
+#pulse-home :is(.goal-card,.chart-card){min-width:0!important;border:0!important;border-radius:0!important;padding:20px 0!important;box-shadow:none!important;background:transparent!important}
 #pulse-home :is(.goal-lbl,.chart-card h3){font-size:16px!important;letter-spacing:0!important;font-weight:500!important;text-transform:none!important;color:#dcc4d4!important}
 #pulse-home .chart-note{color:#a08b9f!important;font-size:12px!important}
 #pulse-home .chart-area{height:240px!important}
@@ -114,6 +113,9 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){color:#c0a4b9!important}
 #pulse-home .goal-history{border-color:#f2b8d120!important;background:transparent!important}
 #pulse-home .goal-history :is(th,td){background:transparent!important;border-color:#edb4d017!important;color:#baa4b7!important}
+#pulse-home .goal-history :is(th,td){font-size:12px!important;line-height:1.5!important}
+#pulse-home :is(.run-pace-chart-title-v34,.vo2-chart-title-v37){font-size:12px!important}
+#pulse-home :is(.run-goal-stat-v34,.vo2-goal-stat-v37) span{font-size:12px!important;line-height:1.5}
 #pulse-home .goal-history th{color:#e4bfd2!important}
 #pulse-home .goal-history tr:hover td{background:#ff8fb008!important}
 #pulse-home :is(#g2-goal,#g3-goal){color:#ffbed3!important;-webkit-text-fill-color:#ffbed3!important;border-color:#ff9bb940!important;background:#ff8bad08!important;font-size:16px!important}
@@ -139,8 +141,9 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-home .log-table{display:block;border:0!important;width:100%!important}
 #pulse-home .log-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 #pulse-home #log-body{display:block}
-#pulse-home .log-main-row{display:grid!important;grid-template-columns:84px minmax(0,1fr) 84px 76px 88px 44px;align-items:center;gap:16px;margin:0;padding:20px 4px;border:0;border-bottom:1px solid var(--obs-line);border-radius:0;background:transparent;box-shadow:none;transition:border-color .2s,background .2s}
-#pulse-home .log-main-row:hover,#pulse-home .log-main-row[aria-expanded=true]{border-color:#ff9dbb63;background:#ffb8cb08;box-shadow:none}
+#pulse-home .log-main-row{display:grid!important;grid-template-columns:84px minmax(0,1fr) 84px 76px 88px 44px;align-items:center;gap:16px;margin:12px 0 0;padding:20px;border:1px solid var(--obs-line);border-radius:var(--obs-card-radius);background:var(--obs-surface);box-shadow:none;transition:border-color .2s,background .2s}
+#pulse-home .log-main-row:hover,#pulse-home .log-main-row[aria-expanded=true]{border-color:#ff9dbb63;background:linear-gradient(#ffb8cb08,#ffb8cb08),var(--obs-surface);box-shadow:none}
+#pulse-home .log-main-row[aria-expanded=true]{border-bottom-color:transparent;border-radius:var(--obs-card-radius) var(--obs-card-radius) 0 0}
 #pulse-home .log-main-row>td{display:block!important;width:auto!important;max-width:none!important;min-width:0;height:auto!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important;color:var(--obs-muted)!important;font-size:14px!important;white-space:normal!important;text-align:left!important}
 #pulse-home .log-main-row>td:nth-child(1){font-size:12px!important;color:var(--obs-muted)!important}
 #pulse-home .log-tag{display:block!important;padding:0!important;border:0!important;background:none!important;color:var(--obs-text)!important;white-space:normal!important;font-size:14px!important;font-weight:450!important;line-height:1.3!important;overflow-wrap:anywhere}
@@ -164,15 +167,13 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 #pulse-home .empty-state{color:#b496aa!important;border-color:#edb0ca22!important;background:radial-gradient(ellipse at 50% 0,#ff658715,transparent 70%)!important;padding:30px 16px!important}
 #pulse-home .empty-icon{color:#ffb1ce!important;text-shadow:0 0 25px #ff6181!important}
 @media(max-width:760px){
- html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-options{gap:12px;justify-content:space-between}
- html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-options button{flex-direction:column;gap:6px;font-size:12px;padding:8px 1px 12px}
 
  #pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 80px}
  #pulse-home .records-columns-v52>span:last-child{display:none}
  #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 80px!important;min-height:64px!important;padding:16px!important;gap:8px 16px!important}
  #pulse-home .record-progress-v52{grid-column:1/-1;justify-content:space-between!important}
  #pulse-home .record-group-toggle-v52{padding:8px 11px!important;min-height:44px!important}
- #pulse-home .log-main-row{grid-template-columns:repeat(3,minmax(0,1fr)) 44px;padding:16px 0!important;gap:12px 8px;border-radius:0}
+ #pulse-home .log-main-row{grid-template-columns:repeat(3,minmax(0,1fr)) 44px;padding:16px!important;gap:12px 8px}
  #pulse-home .log-main-row>td:nth-child(1){grid-column:1;grid-row:1;font-size:12px!important;white-space:nowrap!important}
  #pulse-home .log-main-row>td:nth-child(2){grid-column:2/4;grid-row:1;overflow:hidden!important}
  #pulse-home .log-main-row>td:nth-child(3){grid-column:1;grid-row:2}
@@ -192,16 +193,11 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 @keyframes reactorOrbit{to{transform:rotate(360deg)}}
 @keyframes reactorLuminance{0%,100%{opacity:.65;transform:scale(.98)}50%{opacity:1;transform:scale(1.04)}}
 @media(max-width:960px){
- #pulse-header{gap:12px!important}
  #pulse-home .reactor-stage{column-gap:15px;grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr)}
  #pulse-home .reactor-intro h2{font-size:44px}
  #pulse-home .reactor-core #reactor-title{font-size:24px}
 }
 @media(max-width:760px){
- #pulse-header{padding:22px 0 12px!important;display:grid!important;grid-template-columns:1fr auto;gap:17px 10px!important}
- #pulse-header .brand{grid-column:1;grid-row:1}
- #pulse-header .nav-dropdown-wrapper{grid-column:2;grid-row:1;justify-self:end}
- #pulse-header .streak-badge{grid-column:2;grid-row:2;justify-self:end;font-size:12px!important}
  #pulse-home{padding-top:0!important}
  #pulse-home .reactor-stage{grid-template-columns:1fr;grid-template-areas:'intro' 'core' 'week' 'stats' 'jumps';padding-top:25px;row-gap:0;margin-bottom:40px}
  #pulse-home .reactor-intro{padding-bottom:6px}
@@ -255,7 +251,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page .wellness-kind-switch{width:cal
 /* The same materials continue through every overview dialog, including dynamic previews. */
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7){
  --accent:#ff7890;--accent-dim:rgba(255,90,119,.1);--border-a:rgba(255,112,139,.4);
- --bg2:var(--obs-surface);--bg3:var(--obs-input);--text:var(--obs-text);--text-sec:var(--obs-muted);--text-dim:#b19aae;
+ --bg2:#19121d;--bg3:var(--obs-input);--text:var(--obs-text);--text-sec:var(--obs-muted);--text-dim:#b19aae;
  --border:rgba(180,190,214,.17);--surface:rgba(255,255,255,.035);--surface-h:rgba(255,106,136,.07);
  color:var(--text);color-scheme:dark;
  background:radial-gradient(ellipse at 70% 10%,rgba(153,27,58,.13),transparent 55%),rgba(4,6,12,.8)!important;
