@@ -91,7 +91,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .pulse-section{position:relative;margin-top:48px;padding-top:32px;border-top:1px solid #efb2ca22;scroll-margin-top:20px}
 #pulse-home .section-hdr{display:flex;align-items:center!important;gap:16px;flex-wrap:wrap;margin:0 0 24px!important}
 #pulse-home :is(.pulse-records,.pulse-log)>.section-hdr{margin-bottom:24px!important}
-#pulse-home .section-hdr h2{font-size:26px!important;font-weight:500!important;letter-spacing:-.5px!important;color:#f6dfe9!important}
+#pulse-home .section-hdr h2{font-family:"Cormorant Garamond",Georgia,serif!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.5px!important;color:#f6dfe9!important}
 #pulse-home .section-hdr h2::before{display:none!important}
 #pulse-home :is(.btn-sm,.btn-ghost){min-height:44px!important;padding:8px 14px!important;border-radius:var(--obs-control-radius)!important;background:#f7a1b407!important;border:1px solid #f4a2bd30!important;color:#dab7ca!important;font:500 13px/1.3 var(--wellness-ui-font)!important;box-shadow:none!important}
 #pulse-home :is(.btn-sm,.btn-ghost):hover{background:#ff809916!important;border-color:#ffbed04d!important}

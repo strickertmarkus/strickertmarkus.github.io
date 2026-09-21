@@ -241,6 +241,7 @@
     Chart.register({
       id: 'pulseOverviewTheme',
       beforeUpdate:function(chart) {
+        if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
         var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#c0a8b8'] };
         var colors = palettes[chart.canvas.id];
@@ -302,6 +303,7 @@
         chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
       },
       afterDraw:function(chart) {
+        if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || !chart.chartArea) return;
         var hasData = chart.data.datasets.some(function(dataset) {
           return dataset.data.some(function(value) { return value != null && Number.isFinite(Number(value)); });
@@ -441,8 +443,8 @@
     var exercises = plan && Array.isArray(plan.exercises) ? plan.exercises : [];
     hasPlan = exercises.length > 0;
     var dateLabel = new Intl.DateTimeFormat('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' }).format(window.parseISODate(selectedDate));
-    var title = hasPlan ? (plan.type || 'Planerat pass') : 'Planera ditt pass';
-    var summary = 'Välj övningar och upplägg';
+    var title = hasPlan ? (plan.type || 'Planerat pass') : 'Välj ett pass';
+    var summary = 'Ditt nästa steg';
     if (hasPlan) {
       summary = exercises.length + (exercises.length === 1 ? ' övning' : ' övningar');
       if (exercises.every(function(ex) { return ex.kind !== 'cardio'; })) {
@@ -466,10 +468,7 @@
     var stage = core.closest('.observatory-stage');
     if (stage) stage.dataset.workoutKind = kind;
     syncContext();
-    setText('reactor-action', hasPlan ? 'Redigera pass' : 'Bygg pass');
     core.dataset.planState = hasPlan ? 'planned' : 'empty';
-    var build = document.getElementById('reactor-build');
-    if (build) build.disabled = false;
     var start = document.getElementById('reactor-start');
     if (start) {
       start.disabled = false;
@@ -543,8 +542,8 @@
         window.openTemplateModal(); document.getElementById('template-pick').value = String(template.id);
       });
     });
+    card('Bygg ditt pass', 'Planera eller ändra den valda dagens pass', '＋', function() { openSelectedBuilder(); });
     if (!templates.length && !weeks.length) {
-      card('Bygg ditt pass', 'Välj övningar för den valda dagen', '＋', function() { openSelectedBuilder(); });
       card('Skapa en veckomall', 'Ett upplägg att återanvända', '◌', function() { window.openWeekTemplateEditor(); });
     }
     root.replaceChildren(fragment);
@@ -617,8 +616,6 @@
       if (hasPlan) { window.startWorkoutSessionForDate(selectedDate); return; }
       showMissingPlanNotice();
     });
-    var buildButton = document.getElementById('reactor-build');
-    if (buildButton) buildButton.addEventListener('click', function() { openSelectedBuilder(); });
     var templateManage = document.getElementById('observatory-manage-templates');
     if (templateManage) templateManage.addEventListener('click', function() { window.openTemplateModal(); });
     ['wk-template-select','template-pick'].forEach(function(id) {

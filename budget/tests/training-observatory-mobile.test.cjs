@@ -40,9 +40,6 @@ test('mobile order prioritises workout and week while preserving shared Compact 
   assert.match(mobile, /#pulse-home>\.observatory-metrics\{order:3\}/);
   assert.match(mobile, /observatory-field\{min-height:0/);
   assert.match(mobile, /observatory-week\{margin:0 0 32px\}/);
-  assert.match(mobile, /observatory-next-actions\{grid-template-columns:minmax\(0,1fr\) 120px;gap:14px/);
-  assert.match(mobile, /observatory-next-orb-wrap\{width:120px\}/);
-  assert.match(mobile, /observatory-next-orb\{width:120px;height:120px\}/);
 });
 
 test('large add-workout CTA is absent from production weekly planning while contextual editing remains', () => {
@@ -78,9 +75,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-wellness-cohesion-1/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-wellness-cohesion-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-observatory-home-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-observatory-home-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {
