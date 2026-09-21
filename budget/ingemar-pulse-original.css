@@ -722,6 +722,16 @@
 #session-modal .session-cta-row .session-cta:disabled{opacity:.48;cursor:not-allowed}
 #session-modal .session-cta.success{background:rgba(52,211,153,.09);border-color:rgba(52,211,153,.3);color:#a7f3d0}
 #session-modal .session-cta.warn{background:rgba(251,146,60,.08);border-color:rgba(251,146,60,.3);color:#fed7aa}
+/* Family-style compact log beneath the action; full editable plan stays below. */
+#session-modal .session-log-section{width:100%;min-width:0;margin-top:4px}
+#session-modal .session-log-heading{font-size:10px;letter-spacing:.13em;color:#798698;font-weight:650}
+#session-modal #session-set-log{display:flex;flex-direction:column;width:100%;min-width:0;margin-top:8px;border-top:1px solid rgba(148,163,184,.11)}
+#session-modal #session-set-log .set-log-item{display:grid;grid-template-columns:minmax(55px,.6fr) minmax(0,1fr) minmax(0,1fr) 30px;align-items:center;gap:9px;min-width:0;padding:9px 3px;border-bottom:1px solid rgba(148,163,184,.1)}
+#session-modal #session-set-log .set-tag{color:var(--pf-soft);font-size:12px}
+#session-modal #session-set-log input{width:100%;min-width:0;height:42px;border:0;border-bottom:1px solid rgba(var(--pf-rgb),.25);border-radius:0;background:transparent;color:#DCE5F0;-webkit-text-fill-color:#DCE5F0;text-align:center;font-size:16px;font-variant-numeric:tabular-nums}
+#session-modal #session-set-log input:focus{outline:none;border-bottom-color:var(--pf-accent);box-shadow:0 6px 13px -10px rgba(var(--pf-rgb),.8)}
+#session-modal .session-log-unit{font-size:11px;color:#8995a5;text-align:right}
+#session-modal .session-log-empty{padding:14px 3px;color:#778496;font-size:12px}
 #session-modal .session-rail-head{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0;color:#788596;font-size:9px;letter-spacing:.09em;font-weight:650;text-transform:uppercase;margin-top:4px}
 #session-modal .session-rail-head span{flex:0 0 auto}
 #session-modal .session-set-rail{width:100%;min-width:0;max-height:none;overflow:visible;padding:4px 0 6px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:78px}
@@ -743,8 +753,8 @@
 /* Family Pulse Flow v85 timer geometry/ECG/marker, adapted to Ingemar's single
    timer surface. A single ring morphs between set, interval, rest and complete;
    its SVG path is painted from wall-clock timestamps (never discrete CSS steps). */
-/* Preserve the ring slot for strength sets, matching the position of rest actions. */
-#session-modal .session-live-timer[hidden]{display:flex!important;visibility:hidden!important;pointer-events:none!important}
+/* No invisible strength timer: the family's action follows progress directly. */
+#session-modal .session-live-timer[hidden]{display:none!important}
 #session-modal .session-live-timer{display:flex;justify-content:center;align-items:center;min-width:0;min-height:176px;margin:0 auto;width:100%;isolation:isolate}
 #session-modal #session-countdown-ring{position:relative;display:grid;place-items:center;width:clamp(142px,24dvh,176px);height:clamp(142px,24dvh,176px);flex:none;overflow:visible;border:0;border-radius:50%;background:radial-gradient(circle,rgba(var(--pf-rgb),.035) 0 48%,transparent 69%);filter:none;transition:background .35s ease,transform .55s cubic-bezier(.16,1,.3,1)}
 #session-modal .pf-live-ring::before{content:"";position:absolute;inset:24%;border-radius:50%;pointer-events:none;background:rgba(var(--pf-rgb),.085);filter:blur(23px);opacity:.68;transition:background .45s ease}

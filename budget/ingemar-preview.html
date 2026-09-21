@@ -14,7 +14,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260920-canonical-1">
-<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260920-aligned-actions-1">
+<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-family-structure-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -45,6 +45,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
     <div id="session-stable-details"><div><div class="stable-detail-label">SET</div><div class="stable-detail-value" id="session-metric-set">01 / 03</div></div><div><div class="stable-detail-label">REPS / TID</div><div class="stable-detail-value" id="session-metric-reps">12</div></div><div><div class="stable-detail-label">VIKT</div><div class="stable-detail-value" id="session-metric-weight">60 kg</div></div></div>
     <div class="hype-workout-progress"><div class="hype-progress-head"><span class="hype-progress-title">Passflöde</span><span class="hype-progress-percent" id="session-progress-pct">0%</span></div><div class="hype-progress-track" id="session-progress-dots" aria-label="Genomförda set"></div><div class="hype-progress-meta"><span id="session-set-count">0 av 9 set klara</span><span id="session-stage">Redo</span></div></div>
     <div class="session-cta-row" id="session-controls"><button type="button" class="session-cta primary" data-action="advance-session" id="session-next-button">Starta set</button></div>
+    <div class="session-log-section"><div class="session-log-heading">LOGGADE SET (REDIGERBARA)</div><div id="session-set-log" aria-label="Genomförda set, redigerbara"></div></div>
     <div class="session-rail-head"><strong>ÖVNINGAR · REDIGERBARA SET</strong><span id="session-overline">Övning 1 av 3</span></div>
     <div class="session-set-rail" id="session-exercises" tabindex="0" aria-label="Övningar och individuella set"></div>
     <div class="session-rail-footer"><span class="hint">Endast genomförda set sparas i demologgen.</span><button type="button" class="session-cta success" data-action="finish-session" id="finish-session" disabled>Spara genomförda set ✓</button></div>
@@ -443,6 +444,17 @@ function renderSession(){
    return '<span class="hype-progress-segment '+(s.done?'done ':'')+(s.skipped?'is-skipped ':'')+(current?'current ':'')+(e.mode==='min'?'cardio':'strength')+'" title="'+clean(e.name)+' · set '+(j+1)+'"><span class="pf-progress-dot-v80"></span></span>';
   }).join('');
  }).join('');
+ // Family-style completed-set log, using the same source set data as the full plan.
+ var logExIndex=focus?focus.ex:Math.max(0,active.exercises.length-1);
+ var logEx=active.exercises[logExIndex];
+ var logged=logEx?logEx.sets.map(function(s,j){return {set:s,index:j};}).filter(function(item){return item.set.done;}):[];
+ $('session-set-log').innerHTML=logged.length?logged.map(function(item){
+  var s=item.set,j=item.index,timed=logEx.mode==='min',key=logExIndex+':'+j+':';
+  return '<div class="set-log-item"><span class="set-tag">Set '+(j+1)+'</span>'+
+   '<input type="number" inputmode="numeric" min="0" max="999" aria-label="Loggade reps för set '+(j+1)+'" data-log-actual="'+key+'reps" value="'+(s.reps||'')+'" placeholder="Reps">'+
+   '<input type="number" inputmode="decimal" step="0.5" min="0" max="999" aria-label="Loggad '+(timed?'tid':'vikt')+' för set '+(j+1)+'" data-log-actual="'+key+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'">'+
+   '<span class="session-log-unit">'+(timed?'min':'kg')+'</span></div>';
+ }).join(''):'<div class="session-log-empty">Inga set loggade ännu.</div>';
  $('session-exercises').innerHTML=active.exercises.map(function(e,i){
   var timed=e.mode==='min',current=focus&&focus.ex===i;
   return '<article class="mode-exercise-card'+(current?' is-current':'')+'"><div class="mode-exercise-head"><strong>'+clean(e.name)+'</strong><small>'+e.sets.filter(function(set){return set.done;}).length+' / '+e.sets.length+' klara</small></div>'+
@@ -708,11 +720,15 @@ document.addEventListener('click',function(event){
 document.addEventListener('input',function(event){
  var el=event.target;
  if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
- if(el.dataset.actual&&active){
-  var position=el.dataset.actual.split(':'),ex=active.exercises[Number(position[0])];
+ var actualKey=el.dataset.actual||el.dataset.logActual;
+  if(actualKey&&active){
+   var position=actualKey.split(':'),ex=active.exercises[Number(position[0])];
   var set=ex&&ex.sets[Number(position[1])];
   if(set){
    set[position[2]]=Math.max(0,Math.min(999,Number(el.value)||0));
+    document.querySelectorAll('[data-actual],[data-log-actual]').forEach(function(other){
+     if(other!==el&&(other.dataset.actual||other.dataset.logActual)===actualKey)other.value=el.value;
+    });
    if(active.focus&&Number(position[0])===active.focus.ex&&Number(position[1])===active.focus.set){
     $('session-current-target').textContent='Set '+(active.focus.set+1)+' av '+ex.sets.length+' · '+(ex.mode==='min'?set.minutes+' minuter':set.reps+' reps @ '+set.weight+' kg');
     $('session-metric-reps').textContent=ex.mode==='min'?set.minutes+' min':set.reps;

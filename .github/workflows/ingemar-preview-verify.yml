@@ -98,10 +98,6 @@ jobs:
                 label+' save button must remain reachable after scrolling: '+JSON.stringify(position));
               await page.locator('#finish-session').click();
             }
-            async function actionTopAtStart(){
-              await page.locator('#session').evaluate(el=>el.scrollTop=0);
-              return page.locator('#session-controls').evaluate(el=>el.getBoundingClientRect().top);
-            }
             async function assertActionsInFlow(label,shouldFit){
               const placement=await page.locator('#session-controls').evaluate(el=>{
                 const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
@@ -130,9 +126,17 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true,
               'Strength sets use the count-up timer at top right, not a one-minute ring');
-            const readyActionTop=await actionTopAtStart();
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).visibility),'hidden',
-              'The strength ring is invisible but retains the recovery timer slot');
+            const strengthLayout=await page.evaluate(()=>{
+              const ring=document.getElementById('session-live-timer'),flow=document.querySelector('#session-modal .hype-workout-progress'),
+                button=document.getElementById('session-controls'),log=document.getElementById('session-set-log');
+              return {ringDisplay:getComputedStyle(ring).display,flowBottom:flow.getBoundingClientRect().bottom,
+                actionTop:button.getBoundingClientRect().top,logTop:log.getBoundingClientRect().top,
+                logImmediatelyBelow:button.nextElementSibling?.classList.contains('session-log-section')};
+            });
+            assert.ok(strengthLayout.ringDisplay==='none'&&strengthLayout.logImmediatelyBelow&&
+              strengthLayout.actionTop>=strengthLayout.flowBottom&&strengthLayout.actionTop-strengthLayout.flowBottom<30&&
+              strengthLayout.logTop>strengthLayout.actionTop,
+              'Strength action must follow progress without an invisible ring: '+JSON.stringify(strengthLayout));
             assert.match(await page.locator('#session-current-target').textContent(),/60 kg/);
             assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'true');
             await page.locator('[data-action="toggle-prestart"]').click();
@@ -175,9 +179,8 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
             assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
-            const restActionTop=await actionTopAtStart();
-            assert.ok(Math.abs(readyActionTop-restActionTop)<=4,
-              'Starta set must align with Hoppa över vilan: '+JSON.stringify({readyActionTop,restActionTop}));
+            assert.notEqual(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).display),'none',
+              'The ring remains visible during recovery');
             await assertActionsInFlow('Hoppa över vilan',false);
             assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
             assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
@@ -188,15 +191,19 @@ jobs:
             assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
             assert.equal(await page.locator('[data-action="extra-session-set"]').count(),1);
             assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
-            const decisionActionTop=await actionTopAtStart();
-            assert.ok(Math.abs(decisionActionTop-restActionTop)<=4,
-              'Starta nästa set must align with Hoppa över vilan: '+JSON.stringify({decisionActionTop,restActionTop}));
+            assert.equal(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).display),'none',
+              'The next-set action must not have an empty timer placeholder');
             for(const viewport of [{width:320,height:568},{width:390,height:667}]){
               await page.setViewportSize(viewport);
               await assertActionsInFlow('Tre beslutsknappar '+viewport.width+'×'+viewport.height,false);
               await auditNoHorizontalScroll('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
             }
             await page.setViewportSize({width:390,height:844});
+            assert.equal(await page.locator('#session-set-log .set-log-item').count(),1,
+              'The compact log shows the completed set above the detailed plan');
+            await page.locator('[data-log-actual="0:0:weight"]').fill('61');
+            assert.equal(await page.locator('[data-actual="0:0:weight"]').inputValue(),'61',
+              'Logged-set edits update the independent detailed set plan');
             await page.locator('[data-done="0:1"]').click();
             await page.locator('[data-actual="0:1:weight"]').fill('73');
             await page.locator('[data-done="1:0"]').click();
@@ -206,7 +213,7 @@ jobs:
             const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
             const latest=saved.history.at(-1);
             assert.equal(latest.type,'Push');
-            assert.deepEqual(latest.exercises[0].sets.map(s=>s.weight),[60,73]);
+            assert.deepEqual(latest.exercises[0].sets.map(s=>s.weight),[61,73]);
             assert.deepEqual(latest.exercises[0].sets.map(s=>s.reps),[12,9]);
             assert.equal(latest.exercises[1].sets[0].minutes,3.5);
             await page.locator('#history [data-history]').first().click();
