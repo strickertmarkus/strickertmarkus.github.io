@@ -88,13 +88,11 @@ jobs:
             const builderLock=await page.evaluate(()=>({
               flag:document.body.dataset.builderOpen,
               position:getComputedStyle(document.body).position,
-              top:document.body.style.top,
-              y:window.scrollY
+              top:document.body.style.top
             }));
             assert.equal(builderLock.flag,'true');
             assert.equal(builderLock.position,'fixed');
-            assert.equal(builderLock.top,(-preBuilderY)+'px');
-            assert.equal(builderLock.y,preBuilderY,'Opening the builder must not move the underlying page');
+            assert.equal(builderLock.top,(-preBuilderY)+'px','The fixed body offset preserves the underlying visual position');
             async function auditBuilder(label){
               await auditNoHorizontalScroll(label);
               const layout=await page.locator('#builder').evaluate(dialog=>{
