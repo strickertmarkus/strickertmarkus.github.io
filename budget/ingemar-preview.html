@@ -169,7 +169,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-strength-counter-6">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-week-editor-charts-7">
 <link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-family-structure-1">
 </head>
 <body>
@@ -534,7 +534,7 @@ function comparisonChartSvg(seriesList,labels,unitClass){
   var dots=pts.map(function(p){return '<circle class="pp-dot '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="3.5"><title>'+clean(series.label)+': '+metricDisplay(p.v,unitClass)+'</title></circle>';}).join('');
   return '<path class="pp-line '+series.className+'" d="'+path+'"/>'+dots;
  }).join('');
- var pointWidth=g.innerW/count;
+ var pointWidth=(g.width-g.left-g.right)/count;
  var hits=labels.map(function(label,i){
   var x=g.x(i,count),details=seriesList.map(function(series){return clean(series.label)+': '+metricDisplay(series.values[i],unitClass);}).join(' · ');
   var accessible=clean(label+' · '+details);
