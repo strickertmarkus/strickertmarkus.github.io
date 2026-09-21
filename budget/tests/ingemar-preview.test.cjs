@@ -74,7 +74,7 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-progress-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-smooth-glow-2/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
@@ -117,5 +117,14 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(css,/\.zen-workout \.zen-total-time\{/);
  assert.match(source[1],/stepCircle\.style\.strokeDashoffset|arc\.style\.strokeDashoffset/);
  assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
+ assert.match(source[1],/function zenAnimationTick\(\)/);
+ assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);
+ assert.doesNotMatch(source[1],/if\(activeZen\)zenTick\(\)/);
+ assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);
+ assert.match(css,/--mode-glow:/);
+ assert.match(css,/drop-shadow\(0 0 8px var\(--mode-accent\)\)/);
+ assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);
+ assert.doesNotMatch(css,/stroke-dashoffset \.38s/);
+ assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });

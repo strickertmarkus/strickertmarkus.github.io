@@ -354,13 +354,32 @@ jobs:
             assert.equal(await page.locator('#zen-total-time').textContent(),'00:00 / 08:00');
             assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer');
-            const arcBefore=Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset));
-            await page.waitForTimeout(1100);
-            const arcAfter=Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset));
-            assert.ok(arcAfter<arcBefore&&arcAfter>90,'Stretch step dial must advance with elapsed time');
+            async function auditZenDial(label){
+              const dial=await page.locator('#zen-session-ring').evaluate(ring=>{
+                const rb=ring.getBoundingClientRect(),inner=ring.querySelector('.zen-clock-inner').getBoundingClientRect(),
+                  arc=ring.querySelector('#zen-step-arc'),children=[...ring.querySelector('.zen-clock-inner').children];
+                return {ring:{left:rb.left,right:rb.right,top:rb.top,bottom:rb.bottom,width:rb.width,height:rb.height},
+                  inner:{left:inner.left,right:inner.right,top:inner.top,bottom:inner.bottom,width:inner.width,height:inner.height},
+                  textOverflow:children.filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>({id:el.id,scroll:el.scrollWidth,client:el.clientWidth,text:el.textContent})),
+                  boxShadow:getComputedStyle(ring).boxShadow,arcFilter:getComputedStyle(arc).filter};
+              });
+              assert.ok(dial.inner.left>=dial.ring.left+dial.ring.width*.1&&
+                dial.inner.right<=dial.ring.right-dial.ring.width*.1&&
+                dial.inner.top>=dial.ring.top+dial.ring.height*.1&&
+                dial.inner.bottom<=dial.ring.bottom-dial.ring.height*.1&&
+                dial.textOverflow.length===0,label+' timer text must fit inside the circle: '+JSON.stringify(dial));
+              assert.notEqual(dial.boxShadow,'none',label+' timer needs visible ring glow');
+              assert.notEqual(dial.arcFilter,'none',label+' progress arc needs glow');
+            }
+            const smoothArc=[];
+            for(let i=0;i<6;i++){await page.waitForTimeout(70);smoothArc.push(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset)));}
+            const smoothDeltas=smoothArc.slice(1).map((v,i)=>smoothArc[i]-v);
+            assert.ok(new Set(smoothArc.map(v=>v.toFixed(3))).size>=5&&smoothDeltas.every(v=>v>0&&v<1.5),
+              'Stretch dial must advance continuously rather than in 400 ms jumps: '+JSON.stringify({smoothArc,smoothDeltas}));
             for(const width of [320,360,390,430,768]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Stretchläge '+width+'px');
+              await auditZenDial('Stretchläge '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/stretch-session-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
@@ -403,6 +422,7 @@ jobs:
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Meditationsläge '+width+'px');
+              await auditZenDial('Meditationsläge '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/meditation-session-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
