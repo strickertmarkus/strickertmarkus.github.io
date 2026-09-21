@@ -35,10 +35,10 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 .week-planner-day.is-drag-target{border-color:#94e8eb72;background:#94e8eb0e;box-shadow:0 0 0 1px #94e8eb18,0 0 22px #55d7df12}
 .week-planner-date small{display:block;color:#888492;font-size:9px;text-transform:uppercase;letter-spacing:.08em}
 .week-planner-date strong{display:block;margin-top:4px;font-size:13px;font-weight:700}
-.week-planner-day-main{display:grid;gap:5px}
-.week-planner-day-main select{width:100%;height:42px;padding:8px 35px 8px 10px;font-size:12px}
+.week-planner-day-main{display:grid;gap:5px;width:100%;min-width:0;overflow:hidden}
+.week-planner-day-main select{display:block;width:100%;min-width:0;max-width:100%;height:42px;padding:8px 35px 8px 10px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .week-planner-day-summary{min-height:14px;color:#8f8b99;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.week-planner-day-actions{display:flex;align-items:center;gap:5px}
+.week-planner-day-actions{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;flex-wrap:wrap}
 .week-planner-day-actions button{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #ffffff1e;background:#ffffff06;color:#bdb8c4}
 .week-planner-copy{color:#c9f6f7!important;border-color:#94e8eb3d!important;background:#94e8eb09!important;font-size:16px}
 .week-planner-copy-target{width:auto!important;padding:0 9px!important;color:#c9f6f7!important;border-color:#94e8eb55!important;background:#94e8eb0d!important;font-size:9px;font-weight:750;white-space:nowrap}
@@ -59,7 +59,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
  .week-template-tools select{grid-column:1/-1}
  .week-template-tools button{width:100%;padding:8px 6px;font-size:10px;white-space:normal}
  .week-template-tools button:last-child{grid-column:1/-1}
- .week-planner-day{grid-template-columns:57px minmax(0,1fr);gap:7px;padding:8px}
+ .week-planner-day{grid-template-columns:57px minmax(0,1fr);gap:7px;padding:8px;overflow:hidden}
  .week-planner-day-actions{grid-column:1/-1;justify-content:flex-end;border-top:1px solid #ffffff0d;padding-top:7px}
  .week-planner-day-actions button{width:38px;height:34px}
  .week-planner-copy-target{width:auto!important}
