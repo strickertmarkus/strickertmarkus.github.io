@@ -147,8 +147,8 @@ test('push/pull analytics track load, balance and exercise progression from demo
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-planner-telemetry-8/);
- assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-session-9/);
+ assert.match(html,/ingemar-pulse-original\.css\?v=20260921-smooth-timers-2/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
  assert.match(css,/@media\(max-width:360px\)/);
@@ -160,7 +160,10 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(pulse,/#session-modal \.pf-arc-progress-v80/);
  assert.match(pulse,/@keyframes ingemarEcgSweep/);
  assert.match(source[1],/function paintSessionRing\(now\)/);
- assert.match(source[1],/requestAnimationFrame\(sessionRingTick\)/);
+ assert.match(source[1],/function startSessionAnimation\(\)/);
+ assert.match(source[1],/function stopSessionAnimation\(\)/);
+ assert.match(source[1],/requestAnimationFrame\(sessionAnimationTick\)/);
+ assert.doesNotMatch(source[1],/sessionRingTick|sessionRingLastFrame|setInterval\(function\(\)\{if\(active\)updateSessionClock/);
  assert.match(html,/id="session-countdown-ring"/);
  assert.match(html,/id="session-live-timer"/);
  assert.match(source[1],/session-live-timer'\)\.hidden=!complete&&!rest&&!!ex&&ex\.mode!=='min'/);
@@ -191,13 +194,20 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(source[1],/stepCircle\.style\.strokeDashoffset|arc\.style\.strokeDashoffset/);
  assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
  assert.match(source[1],/function startZenTimer\(\)/);
- assert.match(source[1],/zenTimer=setInterval\(function\(\)\{[\s\S]*?\},30\)/);
  assert.match(source[1],/function stopZenTimer\(\)/);
- assert.doesNotMatch(source[1],/zenAnimationTick|zenAnimationFrame|if\(activeZen\)zenTick\(\)/);
+ assert.match(source[1],/function zenAnimationTick\(\)/);
+ assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);
+ assert.match(source[1],/cancelAnimationFrame\(zenAnimationFrame\)/);
+ assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);
  assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);
  assert.match(css,/--mode-glow:/);
  assert.match(css,/drop-shadow\(0 0 8px var\(--mode-accent\)\)/);
  assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);
+ assert.match(html,/class="zen-focus-grid"/);
+ for(const id of ['zen-next-step','zen-next-meta','zen-breath-pulse'])assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);
+ assert.match(css,/@keyframes zenWaterRipple/);
+  assert.match(pulse,/#session \.session-pre-line>div\{[^}]*transition:none;will-change:width/);
  assert.doesNotMatch(css,/stroke-dashoffset \.38s/);
  assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
