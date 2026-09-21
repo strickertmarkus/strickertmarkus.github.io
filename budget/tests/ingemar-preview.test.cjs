@@ -57,6 +57,19 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(html,/#builder::backdrop\{background:#020409ed;backdrop-filter:none;-webkit-backdrop-filter:none\}/);
  assert.match(source[1],/function lockBuilderBackground\(\)/);
  assert.match(source[1],/function unlockBuilderBackground\(\)/);
+ assert.match(html,/data-action="plan-week">Planera vecka ↗/);
+ assert.match(html,/id="week-planner"/);
+ assert.match(html,/id="week-template-select"/);
+ assert.match(html,/data-action="save-week">Spara hela veckan ✓/);
+ assert.match(html,/data-action="save-week-template">Spara veckan som mall/);
+ for(const fn of ['seedWeekTemplates','weekDraftFromMonday','openWeekPlanner','renderWeekPlanner','setWeekDaySource','copyWeekDay','swapWeekDays','saveWholeWeek','saveWeekTemplate','applyWeekTemplate','deleteWeekTemplate','startWeekDrag','moveWeekDrag','endWeekDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ assert.match(source[1],/weekTemplates:seedWeekTemplates\(\)/);
+ assert.match(source[1],/if\(!Array\.isArray\(value\.weekTemplates\)\)value\.weekTemplates=seedWeekTemplates\(\)/);
+ assert.match(source[1],/state\.plans\[date\]=weekPlanClone\(entry\)/);
+ assert.match(source[1],/delete state\.plans\[date\]/);
+ assert.match(source[1],/weekDraft\[to\]=weekPlanClone\(weekDraft\[from\]\)/);
+ assert.match(html,/#week-planner\{width:min\(780px,calc\(100dvw - 20px\)\)/);
+ assert.match(html,/\.week-planner-drag\{touch-action:none/);
 });
 test('preview includes an isolated training log and interactive Zen modes',()=>{
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
