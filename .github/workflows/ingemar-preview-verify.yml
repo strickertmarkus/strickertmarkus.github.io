@@ -68,9 +68,35 @@ jobs:
             await page.setViewportSize({width:390,height:844});
             await page.locator('[data-choice="Push"]').click();
             assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
-            for(const width of [320,390,768]){
+            async function auditBuilder(label){
+              await auditNoHorizontalScroll(label);
+              const layout=await page.locator('#builder').evaluate(dialog=>{
+                const frame=dialog.getBoundingClientRect();
+                const nodes=[dialog,dialog.querySelector('.modal-head'),dialog.querySelector('.modal-body'),
+                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
+                const wrong=nodes.flatMap(el=>{
+                  const r=el.getBoundingClientRect(),extra=el.scrollWidth-el.clientWidth;
+                  return r.left<frame.left-1||r.right>frame.right+1||extra>1
+                    ?[{name:el.className||el.tagName,left:r.left,right:r.right,scroll:el.scrollWidth,client:el.clientWidth}]:[];
+                });
+                const inputOverflow=[...dialog.querySelectorAll('input,button')].flatMap(el=>{
+                  const r=el.getBoundingClientRect();return r.left<frame.left-1||r.right>frame.right+1
+                    ?[{name:el.getAttribute('aria-label')||el.textContent||el.tagName,left:r.left,right:r.right}]:[];
+                });
+                return {left:frame.left,right:frame.right,scroll:dialog.scrollWidth,client:dialog.clientWidth,
+                  wrong:wrong.slice(0,12),inputOverflow:inputOverflow.slice(0,12)};
+              });
+              assert.ok(layout.left>=-1&&layout.right<=page.viewportSize().width+1&&
+                layout.scroll<=layout.client+1&&layout.wrong.length===0&&layout.inputOverflow.length===0,
+                label+' must stay inside the mobile dialog: '+JSON.stringify(layout));
+              await page.locator('#builder').evaluate(dialog=>{dialog.scrollLeft=100;});
+              assert.equal(await page.locator('#builder').evaluate(dialog=>dialog.scrollLeft),0,
+                label+' must not allow sideways dragging of the builder');
+            }
+            for(const width of [320,360,390,430,768]){
               await page.setViewportSize({width,height:844});
-              await auditNoHorizontalScroll('Passbyggare '+width+'px');
+              await auditBuilder('Passbyggare '+width+'px');
+              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/builder-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
             assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'60');
@@ -79,10 +105,16 @@ jobs:
             await page.locator('[data-set="0:1:weight"]').fill('72.5');
             await page.locator('[data-set="0:1:reps"]').fill('9');
             await page.locator('[data-add-set="0"]').click();
+            await page.setViewportSize({width:320,height:700});
+            await auditBuilder('Passbyggare med extra set 320px');
+            await page.setViewportSize({width:390,height:844});
             assert.equal(await page.locator('[data-set="0:3:weight"]').inputValue(),'67.5');
             await page.locator('[data-set="0:3:weight"]').fill('75');
             await page.locator('[data-remove-set="0:3"]').click();
             await page.locator('[data-mode="1:min"]').click();
+            await page.setViewportSize({width:320,height:700});
+            await auditBuilder('Passbyggare med tidsbaserat set 320px');
+            await page.setViewportSize({width:390,height:844});
             assert.equal(await page.locator('[data-set="1:0:minutes"]').inputValue(),'5');
             await page.locator('[data-set="1:0:minutes"]').fill('3.5');
             await page.screenshot({path:'test-results/ingemar-demo/set-editor-mobile.png'});

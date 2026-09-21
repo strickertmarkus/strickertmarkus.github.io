@@ -16,6 +16,9 @@ test('standalone preview has valid inline JavaScript and does not load Firebase'
 });
 test('workout builder provides independently editable set weights, reps and minutes',()=>{
  assert.match(source[1],/e\.sets\.map\(function\(s,j\)/);
+ assert.match(html,/@media\(max-width:600px\)\{\s*#builder\{/);
+ assert.match(html,/#builder \.exercise-fields\{grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(html,/#builder \.modal-actions \.right\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(source[1],/data-set=/);
  assert.match(source[1],/data-actual=/);
  assert.match(source[1],/data-mode=/);
