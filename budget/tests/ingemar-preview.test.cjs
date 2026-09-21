@@ -201,7 +201,7 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);
  assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);
  assert.match(css,/--mode-glow:/);
- assert.match(css,/drop-shadow\(0 0 8px var\(--mode-accent\)\)/);
+ assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);
  assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);
  assert.match(html,/class="zen-focus-grid"/);
  for(const id of ['zen-next-step','zen-next-meta','zen-breath-pulse'])assert.match(html,new RegExp('id="'+id+'"'));
