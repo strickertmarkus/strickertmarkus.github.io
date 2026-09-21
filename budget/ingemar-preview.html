@@ -813,6 +813,9 @@ function positionWeekDrag(event){
 function moveWeekDrag(event){
  if(!weekDrag||event.pointerId!==weekDrag.pointerId)return;
  positionWeekDrag(event);
+ var planner=$('week-planner'),frame=planner.getBoundingClientRect(),edge=Math.min(74,frame.height*.12);
+ if(event.clientY<frame.top+edge)planner.scrollTop-=Math.max(6,Math.round((frame.top+edge-event.clientY)*.22));
+ else if(event.clientY>frame.bottom-edge)planner.scrollTop+=Math.max(6,Math.round((event.clientY-(frame.bottom-edge))*.22));
  var cards=weekPlannerCards(),target=cards.find(function(card){var r=card.getBoundingClientRect();return event.clientY>=r.top&&event.clientY<=r.bottom;});
  clearWeekDragTarget();if(target&&target!==weekDrag.card){target.classList.add('is-drag-target');weekDrag.to=Number(target.dataset.weekDay);}else weekDrag.to=weekDrag.from;
  event.preventDefault();
