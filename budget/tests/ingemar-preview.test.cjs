@@ -83,10 +83,26 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
  assert.match(source[1],/active\.preUntil=Date\.now\(\)\+5000/);
  assert.doesNotMatch(html,/<dialog id="session"/);
 });
+test('push/pull analytics track load, balance and exercise progression from demo history',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ for(const id of ['pp-volume-chart','pp-push-volume','pp-pull-volume','pp-balance','pp-set-count','pp-rep-count','pp-exercise-chart','pp-exercise-pills'])assert.match(html,new RegExp('id="'+id+'"'));
+ for(const metric of ['volume','weight','e1rm'])assert.match(html,new RegExp('data-analytics-metric="'+metric+'"'));
+ for(const type of ['Push','Pull'])assert.match(html,new RegExp('data-analytics-type="'+type+'"'));
+ for(const fn of ['strengthDemoHistory','hydrateStrengthDemo','strengthWeeks','strengthMetric','comparisonChartSvg','renderPushPullAnalytics'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ assert.match(source[1],/Bänkpress/);
+ assert.match(source[1],/Latsdrag/);
+ assert.match(source[1],/w\*\(1\+r\/30\)/);
+ assert.match(source[1],/renderPushPullAnalytics\(\)/);
+ assert.match(css,/\/\* INGEMAR PUSH PULL ANALYTICS/);
+ assert.match(css,/\.pp-line\.push\{/);
+ assert.match(css,/\.pp-line\.pull\{/);
+ assert.match(css,/@media\(max-width:390px\)/);
+});
+
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-observatory-flow-4/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-strength-analytics-5/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
