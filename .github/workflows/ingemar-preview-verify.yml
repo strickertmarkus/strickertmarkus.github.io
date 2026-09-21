@@ -406,7 +406,7 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
-            await page.locator('[data-zen-index="0"]').click();
+            await page.locator('#zen-choices [data-zen-index="0"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'stretch');
             assert.equal(await page.locator('#zen-clock').textContent(),'01:00');
@@ -470,7 +470,7 @@ jobs:
               'Pause freezes the current movement countdown');
             await page.locator('[data-action="finish-zen"]').click();
             await page.locator('[data-view="meditation"]').click();
-            await page.locator('[data-zen-index="1"]').click();
+            await page.locator('#zen-choices [data-zen-index="1"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'meditation');
             assert.equal(await page.locator('#zen-clock').textContent(),'02:00');
