@@ -367,3 +367,70 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 @keyframes zenParticleA{0%,100%{transform:translate(0,0);opacity:.25}50%{transform:translate(24px,-14px);opacity:1}}
 @keyframes zenParticleB{0%,100%{transform:translate(0,0);opacity:.35}50%{transform:translate(-30px,17px);opacity:.9}}
 @keyframes zenBarGrow{from{transform:scaleY(.08);opacity:.2}to{transform:scaleY(1);opacity:1}}
+
+
+/* INGEMAR PUSH PULL ANALYTICS
+   One responsive source of truth for strength-comparison charts on the Training overview. */
+.pp-section-head{align-items:flex-end}
+.pp-section-head>div .eyebrow{margin-bottom:7px}
+.pp-analytics{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr);gap:13px;margin-bottom:40px}
+.pp-analytics .panel{min-width:0;border-color:#ffffff18;background:linear-gradient(158deg,#171b278f,#10151e94)}
+.pp-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:7px}
+.pp-panel-head h3{margin:5px 0 0;font-size:24px;font-weight:520;letter-spacing:-.045em}
+.pp-kicker{font-size:9px;letter-spacing:.17em;font-weight:800;color:#9ba8b8}
+.pp-legend{display:flex;align-items:center;gap:13px;padding-top:5px;color:#9ea7b2;font-size:10px}
+.pp-legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.pp-legend i{width:16px;height:2px;border-radius:99px;display:inline-block}
+.pp-legend .push i{background:#ff9eb6;box-shadow:0 0 9px #ff6f9855}.pp-legend .pull i{background:#94e8eb;box-shadow:0 0 9px #70dfe455}
+.pp-chart{width:100%;height:228px;margin:7px 0 2px;overflow:hidden}
+.pp-chart svg{display:block;width:100%;height:100%;overflow:visible}
+.pp-grid-line{stroke:#ffffff10;stroke-width:1;vector-effect:non-scaling-stroke}
+.pp-axis-label{fill:#687483;font:9px Inter,system-ui,sans-serif}
+.pp-line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.pp-line.push{stroke:#ff9eb6;filter:drop-shadow(0 0 5px #ff6b9650)}
+.pp-line.pull{stroke:#94e8eb;filter:drop-shadow(0 0 5px #72dbe150)}
+.pp-dot{stroke-width:1.5;vector-effect:non-scaling-stroke}
+.pp-dot.push{fill:#ffd1dc;stroke:#ff87a7;filter:drop-shadow(0 0 4px #ff799b75)}
+.pp-dot.pull{fill:#d5fcff;stroke:#7bdddf;filter:drop-shadow(0 0 4px #63d7dc75)}
+.pp-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:5px;border-top:1px solid #ffffff12;border-bottom:1px solid #ffffff12}
+.pp-summary{position:relative;padding:13px 11px;min-width:0}
+.pp-summary+.pp-summary:before{content:"";position:absolute;left:0;top:20%;bottom:20%;width:1px;background:#ffffff10}
+.pp-summary small{display:block;color:#778495;font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+.pp-summary strong{display:block;margin:7px 0 4px;font-size:clamp(17px,2vw,24px);font-weight:560;letter-spacing:-.04em;white-space:nowrap}
+.pp-summary>span{font-size:9px;color:#788595}
+.pp-summary.push strong{color:#ffd3df}.pp-summary.pull strong{color:#c8f7f8}
+.pp-balance-track{position:relative;height:5px;margin:9px 0 5px;border-radius:9px;overflow:hidden;background:#94e8eb45}
+.pp-balance-track span{display:block;height:100%;background:linear-gradient(90deg,#ff89ab,#ffc0d1);box-shadow:0 0 8px #ff7da15c;transition:width .35s cubic-bezier(.22,1,.36,1)}
+.pp-balance-track i{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#fff9}
+.pp-balance-caption{display:block!important;white-space:nowrap}
+.pp-load-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding-top:12px}
+.pp-load-row>div{min-width:0;padding:8px 9px;border-left:1px solid #ffffff11}
+.pp-load-row small{display:block;color:#697687;font-size:8px;letter-spacing:.09em}
+.pp-load-row strong{display:block;margin-top:5px;color:#cfd8e4;font-size:13px;font-weight:650;white-space:nowrap}
+.pp-exercise-panel{position:relative;overflow:hidden}
+.pp-exercise-panel:after{content:"";position:absolute;right:-80px;top:-70px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,#ff9eb611,transparent 68%);pointer-events:none}
+.pp-exercise-head{position:relative;z-index:1}
+.pp-type-switch,.pp-metric-tabs,.pp-exercise-pills{display:flex;gap:5px;flex-wrap:wrap}
+.pp-type-switch button,.pp-metric-tabs button,.pp-exercise-pills button{border:1px solid #ffffff18;background:#ffffff04;color:#8f9aaa;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:700;transition:border-color .18s,background .18s,color .18s,box-shadow .18s}
+.pp-type-switch button[aria-pressed="true"]:first-child{border-color:#ff9eb66f;background:#ff9eb612;color:#ffd0dc;box-shadow:0 0 14px #ff78971a}
+.pp-type-switch button[aria-pressed="true"]:last-child{border-color:#94e8eb70;background:#94e8eb10;color:#cffbfd;box-shadow:0 0 14px #70dce11a}
+.pp-exercise-pills{margin:12px 0 8px;padding-bottom:8px;border-bottom:1px solid #ffffff0d}
+.pp-exercise-pills button[aria-pressed="true"]{border-color:#ffffff45;background:#ffffff0c;color:#eef4f8}
+.pp-metric-tabs{margin:3px 0 2px}
+.pp-metric-tabs button[aria-pressed="true"]{border-color:#f2b8ca51;background:#f2b8ca0d;color:#e8dce1}
+.pp-exercise-chart{height:205px;margin-top:3px}
+.pp-exercise-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #ffffff10;margin-top:3px}
+.pp-exercise-summary>div{min-width:0;padding:11px 8px}
+.pp-exercise-summary small{display:block;color:#687687;font-size:8px;letter-spacing:.1em}
+.pp-exercise-summary strong{display:block;margin-top:5px;color:#d9e0e8;font-size:15px;letter-spacing:-.025em;white-space:nowrap}
+@media(max-width:900px){.pp-analytics{grid-template-columns:1fr}.pp-exercise-chart{height:220px}}
+@media(max-width:740px){
+ .pp-section-head{align-items:flex-start}.pp-analytics{gap:10px;margin-bottom:33px}.pp-analytics .panel{padding:14px 10px}.pp-panel-head h3{font-size:20px}
+ .pp-chart{height:200px;margin-left:-2px;margin-right:-2px;width:calc(100% + 4px)}.pp-summary{padding:11px 6px}.pp-summary strong{font-size:16px}.pp-summary small{font-size:7px;line-height:1.25}
+ .pp-balance-caption{font-size:7px!important}.pp-load-row{gap:4px}.pp-load-row>div{padding:7px 5px}.pp-load-row small{font-size:7px}.pp-load-row strong{font-size:11px}
+ .pp-type-switch button,.pp-metric-tabs button,.pp-exercise-pills button{padding:7px 9px}.pp-exercise-head{align-items:flex-start}.pp-exercise-summary strong{font-size:13px}
+}
+@media(max-width:390px){
+ .pp-panel-head{gap:8px}.pp-legend{gap:8px}.pp-summary-grid{grid-template-columns:1fr 1fr}.pp-summary.balance{grid-column:1/-1;border-top:1px solid #ffffff0d}.pp-summary.balance:before{display:none}
+ .pp-chart{height:187px}.pp-axis-label{font-size:8px}
+}
