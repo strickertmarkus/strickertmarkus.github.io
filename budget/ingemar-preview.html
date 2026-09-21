@@ -33,12 +33,33 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 #builder .builder-exercise-name-option,#builder .builder-exercise-name-new{display:block;width:100%;min-width:0;border:0;border-radius:9px;background:transparent;color:#eee5e9;text-align:left;padding:10px 9px;font-size:12px;overflow-wrap:anywhere}
 #builder .builder-exercise-name-option:hover,#builder .builder-exercise-name-option.is-current{background:#ff9eb614;color:#ffd5e0}
 #builder .builder-exercise-name-new{margin-top:5px;border-top:1px solid #ffffff12;border-radius:0;color:#ffafc4;font-weight:750}
+#builder .builder-template-tools{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:7px;align-items:center}
+#builder .builder-template-tools select{height:43px}
+#builder .builder-template-tools button{min-height:43px;white-space:nowrap}
+#builder .builder-template-hint{display:block;margin-top:7px;color:#7f8796;font-size:10px;line-height:1.45}
+#builder .exercise-head{gap:8px}
+#builder .builder-row-title{display:flex;align-items:center;gap:8px;min-width:0}
+#builder .builder-row-title h3{margin:0}
+#builder .builder-row-tools{margin-left:auto;display:flex;align-items:center;gap:5px;flex:0 0 auto}
+#builder .builder-row-copy,#builder .builder-row-drag{width:31px;height:29px;min-width:31px;min-height:29px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+#builder .builder-row-copy{border:1px solid #94e8eb45;background:#94e8eb0d;color:#baf8fa;font-size:18px;font-weight:800}
+#builder .builder-row-drag{border:1px solid #ffffff20;background:#ffffff08;color:#9ba6b5;touch-action:none;cursor:grab}
+#builder .builder-row-drag:active{cursor:grabbing;color:#d8fbfc;border-color:#94e8eb66;background:#94e8eb12}
+#builder .builder-drag-bars{width:15px;display:grid;gap:2px;pointer-events:none}
+#builder .builder-drag-bars i{display:block;height:2px;border-radius:999px;background:currentColor}
+#builder .exercise-card.builder-drag-source{opacity:.24}
+#builder .exercise-card.builder-drag-target{border-color:#94e8eb70;box-shadow:0 0 0 1px #94e8eb20,0 0 24px #59d7de12}
+.builder-drag-ghost{position:fixed!important;z-index:2147482500!important;pointer-events:none!important;margin:0!important;opacity:.96;transform-origin:center center;background:#121a26!important;border:1px solid #94e8eb77!important;box-shadow:0 20px 46px #000c,0 0 25px #58d7df18!important;will-change:transform}
 @media(max-width:600px){
  #builder .modal-head{padding:16px 14px;gap:10px}
  #builder .modal-head .x{flex:0 0 34px}
  #builder .modal-head h2{overflow-wrap:anywhere}
  #builder .modal-body{padding:14px 12px 18px}
  #builder .type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #builder .builder-template-tools{grid-template-columns:minmax(0,1fr) repeat(2,minmax(0,auto));}
+ #builder .builder-template-tools select{grid-column:1/-1}
+ #builder .builder-template-delete{grid-column:auto}
+ #builder .builder-row-copy,#builder .builder-row-drag{width:34px;height:32px;min-width:34px;min-height:32px}
  #builder .type-pills .pill{width:100%;padding:10px 3px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
  #builder .exercise-card{padding:11px}
  #builder .exercise-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
@@ -160,7 +181,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 </section>
 <p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
 </main>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar sparas lokalt i Ingemar-demon.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
  <div id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show" data-state="ready">
   <div class="session-shell">
@@ -471,10 +492,10 @@ function seed(){
  plans[offset(mon,4)]={type:'Pull',name:'Pull · Volym',exercises:template('Pull')};
  plans[offset(mon,5)]={type:'Kondition',name:'Kondition · Lugn distans',exercises:template('Kondition')};
  var history=strengthDemoHistory(today);
- return {plans:plans,history:history,zenHistory:zenSeedHistory(today),goal:4};
+ return {plans:plans,history:history,zenHistory:zenSeedHistory(today),templates:[],goal:4};
 }
-function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory))return hydrateStrengthDemo(hydrateZenDemo(value));}}catch(e){}return seed();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1;
+function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory)){if(!Array.isArray(value.templates))value.templates=[];return hydrateStrengthDemo(hydrateZenDemo(value));}}}catch(e){}return seed();}
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
@@ -633,26 +654,96 @@ function unlockBuilderBackground(){
  document.body.style.top='';
  window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
+function builderTemplates(){if(!Array.isArray(state.templates))state.templates=[];return state.templates;}
+function renderBuilderTemplates(){
+ var templates=builderTemplates(),select=$('builder-template-select');
+ select.innerHTML='<option value="">'+(templates.length?'Välj mallpass':'Inga mallpass ännu')+'</option>'+templates.map(function(item){return '<option value="'+clean(item.id)+'" '+(String(item.id)===String(builderTemplateId)?'selected':'')+'>'+clean(item.name)+'</option>';}).join('');
+ $('builder-template-hint').textContent=templates.length?templates.length+' sparade mallpass · lagras lokalt i demon':'Mallar sparas lokalt i Ingemar-demon.';
+}
+function saveBuilderTemplate(){
+ if(!draft)return;
+ updateDraftFromBuilderInputs();
+ var copy=deep(draft);copy.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
+ if(!copy.exercises.length||copy.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge övningarna innan du sparar mallen.');return;}
+ var name=prompt('Namn på mallpass:',copy.name.trim()||copy.type+' · Mall');
+ if(!name)return;
+ var item={id:'tpl-'+Date.now(),name:name.trim()||copy.type+' · Mall',type:copy.type,exercises:deep(copy.exercises)};
+ builderTemplates().push(item);builderTemplateId=item.id;persist();renderBuilderTemplates();toast('Mallpass sparat.');
+}
+function applyBuilderTemplate(){
+ if(!draft)return;
+ var id=$('builder-template-select').value,item=builderTemplates().find(function(t){return String(t.id)===String(id);});
+ if(!item){toast('Välj ett mallpass först.');return;}
+ builderTemplateId=item.id;draft.type=item.type;draft.name=item.name;draft.exercises=deep(item.exercises);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+draft.type.toLowerCase()+'pass';renderBuilder();toast('Mallpass inläst.');
+}
+function deleteBuilderTemplate(){
+ var id=$('builder-template-select').value;if(!id){toast('Välj ett mallpass först.');return;}
+ var item=builderTemplates().find(function(t){return String(t.id)===String(id);});
+ if(!item||!confirm('Ta bort mallpasset '+item.name+'?'))return;
+ state.templates=builderTemplates().filter(function(t){return String(t.id)!==String(id);});builderTemplateId='';persist();renderBuilderTemplates();toast('Mallpass borttaget.');
+}
+function updateDraftFromBuilderInputs(){
+ if(!$('builder').open||!draft)return;
+ var name=$('build-name');if(name)draft.name=name.value;
+ var date=$('build-date');if(date&&/^\d{4}-\d\d-\d\d$/.test(date.value))draft.date=date.value;
+ document.querySelectorAll('#builder [data-name],[data-set]').forEach(updateDraftField);
+}
+function copyDraftExercise(index){
+ if(!draft||index<0||index>=draft.exercises.length)return;
+ if(draft.exercises.length>=16){toast('Högst 16 övningar.');return;}
+ updateDraftFromBuilderInputs();draft.exercises.splice(index+1,0,deep(draft.exercises[index]));builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+ var card=document.querySelector('#exercise-list [data-exercise="'+(index+1)+'"]');if(card){card.classList.add('builder-drag-target');setTimeout(function(){card.classList.remove('builder-drag-target');},420);card.scrollIntoView({block:'nearest',behavior:'smooth'});}
+}
+function moveDraftExercise(from,to){
+ if(!draft||from===to||from<0||from>=draft.exercises.length||to<0||to>=draft.exercises.length)return;
+ updateDraftFromBuilderInputs();var moved=draft.exercises.splice(from,1)[0];draft.exercises.splice(to,0,moved);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+}
+function builderDragCards(){return Array.prototype.slice.call(document.querySelectorAll('#exercise-list > .exercise-card'));}
+function clearBuilderDragTarget(){builderDragCards().forEach(function(card){card.classList.remove('builder-drag-target');});}
+function startBuilderDrag(event,handle){
+ if(!draft||!handle||event.button>0)return;
+ var card=handle.closest('.exercise-card'),index=Number(card&&card.dataset.exercise);if(!card||!Number.isFinite(index))return;
+ updateDraftFromBuilderInputs();closeBuilderExercisePicker();var rect=card.getBoundingClientRect(),ghost=card.cloneNode(true);
+ ghost.removeAttribute('data-exercise');ghost.classList.add('builder-drag-ghost');ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';document.body.appendChild(ghost);
+ card.classList.add('builder-drag-source');builderDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost,offsetY:event.clientY-rect.top,left:rect.left,width:rect.width};
+ if(handle.setPointerCapture)try{handle.setPointerCapture(event.pointerId);}catch(e){}
+ event.preventDefault();
+}
+function moveBuilderDrag(event){
+ if(!builderDrag||event.pointerId!==builderDrag.pointerId)return;
+ var y=event.clientY-builderDrag.offsetY;builderDrag.ghost.style.transform='translate3d(0,'+(y-parseFloat(builderDrag.ghost.style.top||0))+'px,0) scale(1.012)';
+ var others=builderDragCards().filter(function(card){return card!==builderDrag.card;}),to=0;
+ others.forEach(function(card){var r=card.getBoundingClientRect();if(event.clientY>r.top+r.height/2)to++;});
+ builderDrag.to=Math.max(0,Math.min(draft.exercises.length-1,to));clearBuilderDragTarget();
+ var target=others[Math.min(builderDrag.to,Math.max(0,others.length-1))];if(target)target.classList.add('builder-drag-target');
+ event.preventDefault();
+}
+function endBuilderDrag(event){
+ if(!builderDrag||event&&event.pointerId!==builderDrag.pointerId)return;
+ var stateDrag=builderDrag;builderDrag=null;clearBuilderDragTarget();if(stateDrag.ghost&&stateDrag.ghost.parentNode)stateDrag.ghost.remove();if(stateDrag.card)stateDrag.card.classList.remove('builder-drag-source');
+ if(stateDrag.from!==stateDrag.to)moveDraftExercise(stateDrag.from,stateDrag.to);
+}
 function openBuilder(type){
  var existing=plan(selected);
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
  draft=existing&&existing.type===kind?deep(existing):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
  draft.date=selected;
- builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;
+ builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+kind.toLowerCase()+'pass';
  renderBuilder();
  lockBuilderBackground();
  $('builder').showModal();
 }
 function renderBuilder(){
+ renderBuilderTemplates();
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
  $('build-date-text').textContent=builderDateText(draft.date);
  $('build-name').value=draft.name;
  $('exercise-list').innerHTML=draft.exercises.map(function(e,i){
   var timed=e.mode==='min';
-  return '<article class="exercise-card" data-exercise="'+i+'"><div class="exercise-head"><h3>ÖVNING '+(i+1)+'</h3><button type="button" class="mini" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort</button></div><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
+  return '<article class="exercise-card" data-exercise="'+i+'"><div class="exercise-head"><div class="builder-row-title"><h3>ÖVNING '+(i+1)+'</h3></div><div class="builder-row-tools"><button type="button" class="builder-row-copy" data-copy-exercise="'+i+'" aria-label="Kopiera övning '+(i+1)+'" title="Kopiera övning">＋</button><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="mini" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort</button></div></div><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
   e.sets.map(function(s,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="'+(timed?'0.5':'0.5')+'" aria-label="Set '+(j+1)+' '+(timed?'tid i minuter':'vikt i kg')+'" data-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'"><input type="number" inputmode="numeric" min="0" max="999" step="1" aria-label="Set '+(j+1)+' '+(timed?'valfria minuter eller mål':'repetitioner')+'" data-set="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="remove-set" data-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'" '+(e.sets.length<=1?'disabled':'')+'>×</button></div>';}).join('')+
  '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' individuella set · '+(timed?'tidsbaserat':'viktbaserat')+'</span></div></article>';
  }).join('');
@@ -1149,12 +1240,16 @@ document.addEventListener('click',function(event){
  if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
  if(b.dataset.removeSet){var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
  if(b.dataset.removeExercise!=null){if(draft.exercises.length>1)draft.exercises.splice(Number(b.dataset.removeExercise),1);renderBuilder();return;}
+ if(b.dataset.copyExercise!=null){copyDraftExercise(Number(b.dataset.copyExercise));return;}
  if(b.dataset.done){var at=b.dataset.done.split(':');toggleCompletedSet(Number(at[0]),Number(at[1]));return;}
  if(b.dataset.action){
   switch(b.dataset.action){
    case 'build':openBuilder();break;
    case 'start':start();break;
-   case 'close-builder':draft=null;$('builder').close();break;
+   case 'close-builder':endBuilderDrag();draft=null;$('builder').close();break;
+   case 'apply-template':applyBuilderTemplate();break;
+   case 'save-template':saveBuilderTemplate();break;
+   case 'delete-template':deleteBuilderTemplate();break;
    case 'add-exercise':
     if(draft.exercises.length>=16){toast('Högst 16 övningar.');break;}
     var newIndex=draft.exercises.length;
@@ -1180,6 +1275,12 @@ document.addEventListener('click',function(event){
   }
  }
 });
+$('exercise-list').addEventListener('pointerdown',function(event){
+ var handle=event.target.closest&&event.target.closest('[data-drag-exercise]');if(handle)startBuilderDrag(event,handle);
+});
+document.addEventListener('pointermove',moveBuilderDrag,{passive:false});
+document.addEventListener('pointerup',endBuilderDrag);
+document.addEventListener('pointercancel',endBuilderDrag);
 $('exercise-list').addEventListener('click',function(event){
  var input=event.target.closest&&event.target.closest('[data-exercise-name-input]');
  if(!input||input.dataset.exerciseNameFree==='1')return;
@@ -1216,7 +1317,7 @@ document.addEventListener('input',function(event){
  }
 });
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
-$('builder').addEventListener('close',function(){builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;unlockBuilderBackground();});
+$('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
 window.addEventListener('beforeunload',function(event){if(active||activeZen){event.preventDefault();event.returnValue='';}});
 setInterval(function(){if(active)updateSessionClock();},400);

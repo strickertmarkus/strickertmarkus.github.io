@@ -40,6 +40,15 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/state\.history\.slice\(\)/);
  assert.match(source[1],/Object\.keys\(state\.plans\)/);
  assert.match(source[1],/function exerciseNameCatalog\(type,mode\)/);
+ assert.match(html,/id="builder-template-select"/);
+ assert.match(html,/data-action="save-template">Spara som mall/);
+ assert.match(html,/data-copy-exercise="/);
+ assert.match(html,/data-drag-exercise="/);
+ for(const fn of ['builderTemplates','saveBuilderTemplate','applyBuilderTemplate','deleteBuilderTemplate','copyDraftExercise','moveDraftExercise','startBuilderDrag','moveBuilderDrag','endBuilderDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ assert.match(source[1],/templates:\[\]/);
+ assert.match(source[1],/if\(!Array\.isArray\(value\.templates\)\)value\.templates=\[\]/);
+ assert.match(html,/#builder \.builder-row-drag\{[^}]*touch-action:none/);
+ assert.match(html,/\.builder-drag-ghost\{position:fixed!important/);
  assert.match(source[1],/localeCompare\(b\.name,'sv-SE',\{sensitivity:'base'\}\)/);
  assert.match(source[1],/>＋ Ny övning<\/button>/);
  assert.match(source[1],/data-exercise-name-free="1"/);

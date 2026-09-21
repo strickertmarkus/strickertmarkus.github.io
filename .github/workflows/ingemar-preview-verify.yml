@@ -104,7 +104,7 @@ jobs:
               const layout=await page.locator('#builder').evaluate(dialog=>{
                 const frame=dialog.getBoundingClientRect();
                 const nodes=[dialog,dialog.querySelector('.modal-head'),dialog.querySelector('.modal-body'),
-                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.builder-exercise-name-control,.builder-exercise-name-menu:not([hidden]),.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
+                  ...dialog.querySelectorAll('.exercise-card,.exercise-fields,.builder-template-tools,.builder-exercise-name-control,.builder-exercise-name-menu:not([hidden]),.builder-row-tools,.metric-pills,.set-header,.set-row,.exercise-foot,.modal-actions,.modal-actions .right')];
                 const wrong=nodes.flatMap(el=>{
                   const r=el.getBoundingClientRect(),extra=el.scrollWidth-el.clientWidth;
                   return r.left<frame.left-1||r.right>frame.right+1||extra>1
@@ -155,6 +155,33 @@ jobs:
             await auditBuilder('Passbyggare 320px med större text');
             await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
+            assert.equal(await page.locator('#builder-template-select option').count(),1,'Empty demo starts without custom templates');
+            page.once('dialog',d=>d.accept('Push standard'));
+            await page.locator('[data-action="save-template"]').click();
+            assert.equal(await page.locator('#builder-template-select option').count(),2,'Saved template should become selectable immediately');
+            assert.equal(await page.locator('#builder-template-select option:checked').textContent(),'Push standard');
+            assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')).templates.length),1);
+
+            const initialBuilderExercises=await page.locator('#exercise-list .exercise-card').count();
+            const firstExerciseName=await page.locator('[data-exercise-name-input="0"]').inputValue();
+            await page.locator('[data-copy-exercise="0"]').click();
+            assert.equal(await page.locator('#exercise-list .exercise-card').count(),initialBuilderExercises+1,'Copy control should duplicate the exercise row');
+            assert.equal(await page.locator('[data-exercise-name-input="1"]').inputValue(),firstExerciseName,'Copied row should preserve exercise data');
+            await page.locator('[data-remove-exercise="1"]').click();
+
+            const beforeDrag=await page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(nodes=>nodes.map(n=>n.value));
+            const dragHandle=page.locator('[data-drag-exercise="0"]');
+            const sourceBox=await dragHandle.boundingBox();
+            const lastCard=page.locator('#exercise-list .exercise-card').last();
+            const targetBox=await lastCard.boundingBox();
+            await page.mouse.move(sourceBox.x+sourceBox.width/2,sourceBox.y+sourceBox.height/2);
+            await page.mouse.down();
+            await page.mouse.move(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height-4,{steps:7});
+            await page.mouse.up();
+            const afterDrag=await page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(nodes=>nodes.map(n=>n.value));
+            assert.equal(afterDrag.at(-1),beforeDrag[0],'Drag handle should move the first exercise to the end');
+            await page.locator('#type-pills [data-type="Push"]').click();
+
             const firstName=page.locator('[data-exercise-name-input="0"]');
             assert.equal(await firstName.getAttribute('readonly'),'');
             await firstName.click();
