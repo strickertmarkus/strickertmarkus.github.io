@@ -75,7 +75,7 @@ jobs:
             await page.locator('[data-analytics-metric="volume"]').click();
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,#week-planner .week-day-card-top,#week-planner .week-day-editor,#week-planner .week-day-type-grid,#week-planner .week-exercise-grid,.pp-chart-shell,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,#week-planner .week-day-card-top,#week-planner .week-day-editor,#week-planner .week-day-type-grid,#week-planner .week-exercise-grid,.pp-chart-shell,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace,.zen-focus-grid,.zen-focus-card,.zen-journey-card';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -493,6 +493,11 @@ jobs:
             await page.locator('[data-action="advance-session"]').click();
             assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-pre-count').textContent(),'5');
+            const preProgress=[];
+            for(let i=0;i<6;i++){await page.waitForTimeout(70);preProgress.push(parseFloat(await page.locator('#session-pre-progress').evaluate(el=>el.style.width)));}
+            const preDeltas=preProgress.slice(1).map((v,i)=>v-preProgress[i]);
+            assert.ok(new Set(preProgress.map(v=>v.toFixed(3))).size>=5&&preDeltas.every(v=>v>0&&v<4),
+              '5 s start progress must advance continuously on animation frames: '+JSON.stringify({preProgress,preDeltas}));
             await auditNoHorizontalScroll('Originalets femsekunderstimer 390px');
             await page.screenshot({path:'test-results/ingemar-demo/5s-prestart-mobile.png'});
             await page.locator('[data-action="skip-prestart"]').click();
@@ -543,6 +548,9 @@ jobs:
             assert.equal(await page.locator('#zen-total-time').textContent(),'00:00 / 08:00');
             assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer');
+            assert.equal(await page.locator('#zen-next-step').textContent(),'Nacke & axlar');
+            assert.equal(await page.locator('.zen-focus-grid').count(),1);
+            assert.equal(await page.locator('.zen-journey-card').count(),1);
             async function auditZenDial(label){
               const dial=await page.locator('#zen-session-ring').evaluate(ring=>{
                 const rb=ring.getBoundingClientRect(),inner=ring.querySelector('.zen-clock-inner').getBoundingClientRect(),
@@ -608,6 +616,9 @@ jobs:
             assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-step-arc').evaluate(el=>getComputedStyle(el).stroke),
               'rgb(245, 219, 162)','Meditation arc should inherit the warm meditation accent');
+            const breathTransforms=[];
+            for(let i=0;i<5;i++){await page.waitForTimeout(75);breathTransforms.push(await page.locator('#zen-breath-pulse').evaluate(el=>el.style.transform));}
+            assert.ok(new Set(breathTransforms).size>=4,'Meditation breath guide must animate continuously: '+JSON.stringify(breathTransforms));
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Meditationsläge '+width+'px');
