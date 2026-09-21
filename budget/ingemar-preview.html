@@ -61,7 +61,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-zen-smooth-glow-2">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-zen-observatory-flow-3">
 <link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-family-structure-1">
 </head>
 <body>
@@ -76,7 +76,60 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   <div class="section-head"><h2>Framsteg</h2><span class="hint">Exempelstatistik – senaste sju veckorna</span></div><div class="panel"><div class="eyebrow">Genomförda träningspass</div><div class="bars" id="bars"></div></div>
   <div class="section-head"><h2>Träningslogg</h2><button type="button" class="ghost" data-action="reset">Återställ demodata ↻</button></div><div class="history" id="history"></div>
 </section>
-<section id="zen-view" class="zen-view" hidden><div class="eyebrow">✧ ZEN / <span id="zen-eyebrow">STRETCH</span></div><h1 style="font-size:clamp(34px,5vw,58px);font-weight:400;letter-spacing:-.05em;margin-top:18px" id="zen-title">En stund för kroppen.</h1><p class="hint" id="zen-description">Rörelse och återhämtning i din egen takt.</p><div class="zen-ring" id="zen-ring"><span>✧</span></div><div class="section-head"><h2>Välj pass</h2><span class="hint">Ingemars egen demohistorik</span></div><div class="choices" id="zen-choices"></div><div class="section-head"><h2>Senaste stunder</h2></div><div class="history" id="zen-history"></div></section>
+<section id="zen-view" class="zen-view" data-kind="stretch" hidden>
+  <div class="zen-dashboard-hero">
+    <div class="zen-dashboard-copy">
+      <div class="eyebrow">✧ ZEN / <span id="zen-eyebrow">STRETCH</span></div>
+      <h1 id="zen-title">Rörlighet<br><em>i ett mjukare flöde.</em></h1>
+      <p class="hint" id="zen-description">Rörlighet och återhämtning med mjuka övergångar.</p>
+      <div class="zen-dashboard-actions">
+        <button type="button" class="zen-theme-primary" id="zen-main-start" data-zen-index="0">Starta Helkropp ↗</button>
+        <span class="zen-dashboard-note" id="zen-hero-note">4 planerade stunder denna vecka</span>
+      </div>
+    </div>
+    <div class="zen-flow-visual" aria-hidden="true">
+      <svg viewBox="0 0 560 300" preserveAspectRatio="none" focusable="false">
+        <defs>
+          <linearGradient id="zen-flow-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".18" stop-color="currentColor" stop-opacity=".45"/><stop offset=".55" stop-color="currentColor"/><stop offset=".84" stop-color="currentColor" stop-opacity=".45"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
+          <filter id="zen-flow-glow" x="-20%" y="-80%" width="140%" height="260%"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <path class="zen-flow-axis" d="M0 158 C70 142 103 177 157 157 S249 129 303 156 S393 188 445 156 S520 138 560 151"/>
+        <path class="zen-flow-ghost" d="M0 158 C70 142 103 177 157 157 S249 129 303 156 S393 188 445 156 S520 138 560 151"/>
+        <path class="zen-flow-trace" d="M0 158 C70 142 103 177 157 157 S249 129 303 156 S393 188 445 156 S520 138 560 151" stroke="url(#zen-flow-gradient)" filter="url(#zen-flow-glow)"/>
+        <path class="zen-flow-orbit zen-flow-orbit-a" d="M75 166 C111 70 435 52 490 149 C535 228 151 267 75 166Z"/>
+        <path class="zen-flow-orbit zen-flow-orbit-b" d="M111 133 C184 228 419 232 472 132 C513 54 191 28 111 133Z"/>
+      </svg>
+      <span class="zen-flow-particle p1"></span><span class="zen-flow-particle p2"></span><span class="zen-flow-particle p3"></span>
+      <div class="zen-flow-core">
+        <small id="zen-flow-kicker">NÄSTA STUND</small>
+        <strong id="zen-flow-name">Helkropp</strong>
+        <span id="zen-flow-meta">8 min · mjuk rörlighet</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats zen-stats">
+    <div class="panel stat"><div class="stat-label">Denna vecka</div><strong id="zen-stat-week">0</strong><div class="sub" id="zen-stat-week-sub">av 4 planerade</div></div>
+    <div class="panel stat"><div class="stat-label">Totalt antal</div><strong id="zen-stat-total">0</strong><div class="sub" id="zen-stat-total-sub">stretchstunder</div></div>
+    <div class="panel stat"><div class="stat-label">Tid denna vecka</div><strong id="zen-stat-minutes">0<small>min</small></strong><div class="sub">återhämtning</div></div>
+    <div class="panel stat"><div class="stat-label">Senaste stund</div><strong id="zen-stat-last">–</strong><div class="sub" id="zen-stat-last-kind">Inget registrerat</div></div>
+  </div>
+
+  <div class="section-head"><h2>Välj pass</h2><span class="hint" id="zen-choice-hint">Tre exempelpass för Stretch</span></div>
+  <div class="choices zen-choices" id="zen-choices"></div>
+
+  <div class="section-head"><h2>Veckoplan</h2><span class="hint" id="zen-week-hint">Mjuka stunder utspridda över veckan</span></div>
+  <div class="week zen-week" id="zen-week" aria-label="Veckans återhämtning"></div>
+
+  <div class="section-head"><h2>Flow över tid</h2><span class="hint">Exempelstatistik · senaste sju veckorna</span></div>
+  <div class="panel zen-chart-panel">
+    <div class="zen-chart-head"><div><div class="eyebrow" id="zen-chart-eyebrow">STRETCH · KONTINUITET</div><strong id="zen-chart-value">0 stunder</strong></div><span id="zen-chart-caption">Genomförda pass per vecka</span></div>
+    <div class="bars zen-bars" id="zen-bars"></div>
+  </div>
+
+  <div class="section-head"><h2>Senaste stunder</h2><span class="hint">Exempeldata och sparade pass</span></div>
+  <div class="history zen-history" id="zen-history"></div>
+</section>
 <p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
 </main>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
@@ -214,6 +267,24 @@ function template(type){
  if(type==='Kondition')return [exercise('Löpintervaller','min',[[0,0,8],[0,0,10],[0,0,12]]),exercise('Cykling','min',[[0,0,15]])];
  return [exercise('Bänkpress','kg',[[60,12],[65,10],[67.5,8]]),exercise('Axelpress','kg',[[16,12],[18,10],[20,8]]),exercise('Tricepspress','kg',[[20,12],[22.5,10],[25,8]])];
 }
+function zenSeedHistory(today){
+ var pattern=[
+  ['stretch','Helkropp',8,-1],['meditation','Lugn andning',5,-2],['stretch','Axlar & rygg',6,-4],['meditation','Stillhet',10,-6],
+  ['stretch','Höft & ben',10,-8],['stretch','Helkropp',8,-11],['meditation','Djup vila',15,-13],['stretch','Axlar & rygg',6,-15],
+  ['meditation','Lugn andning',5,-18],['stretch','Helkropp',8,-20],['stretch','Höft & ben',10,-23],['meditation','Stillhet',10,-25],
+  ['stretch','Axlar & rygg',6,-29],['meditation','Lugn andning',5,-31],['stretch','Helkropp',8,-34],['meditation','Djup vila',15,-37],
+  ['stretch','Höft & ben',10,-40],['stretch','Helkropp',8,-43],['meditation','Stillhet',10,-46],['stretch','Axlar & rygg',6,-48]
+ ];
+ return pattern.map(function(item,i){return {id:'zen-demo-'+i,date:offset(today,item[3]),type:item[0],minutes:item[2],name:item[1],demo:true};});
+}
+function hydrateZenDemo(value){
+ if(!value||!Array.isArray(value.zenHistory))return value;
+ if(value.zenHistory.length>=8)return value;
+ var seen=Object.create(null);
+ value.zenHistory.forEach(function(h){seen[String(h.date)+'|'+String(h.type)+'|'+String(h.name)]=true;});
+ zenSeedHistory(dayISO(new Date())).forEach(function(h){var key=h.date+'|'+h.type+'|'+h.name;if(!seen[key])value.zenHistory.push(h);});
+ return value;
+}
 function seed(){
  var today=dayISO(new Date()),mon=weekStart(today);
  var plans={};
@@ -226,9 +297,9 @@ function seed(){
    var ex=template(t);ex.forEach(function(e){e.sets.forEach(function(set){set.done=true;});});
    history.push({id:uid(),date:offset(today,-i-1),type:t,name:t+' · Genomfört',minutes:t==='Kondition'?42:54,exercises:ex});
  });
- return {plans:plans,history:history,zenHistory:[{date:offset(today,-2),type:'stretch',minutes:12,name:'Helkropp'},{date:offset(today,-4),type:'meditation',minutes:10,name:'Lugn andning'}],goal:4};
+ return {plans:plans,history:history,zenHistory:zenSeedHistory(today),goal:4};
 }
-function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory))return value;}}catch(e){}return seed();}
+function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory))return hydrateZenDemo(value);}}catch(e){}return seed();}
 var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
@@ -260,18 +331,64 @@ function switchView(next){
  view=next;
  $('training-view').hidden=next!=='training';$('zen-view').hidden=next==='training';
  document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.view===next));});
- if(next!=='training')renderZen();
+ if(next!=='training')renderZen(); else delete document.body.dataset.overview;
  window.scrollTo({top:0,behavior:'instant'});
 }
+function zenPlanIndexForDay(dayIndex,med){
+ var slots=med?[1,3,5]:[0,2,4,6];
+ var at=slots.indexOf(dayIndex);
+ return at<0?-1:at%ZEN_ROUTINES[med?'meditation':'stretch'].length;
+}
 function renderZen(){
- var med=view==='meditation';
+ var med=view==='meditation',kind=med?'meditation':'stretch',routines=ZEN_ROUTINES[kind],today=dayISO(new Date()),monday=weekStart(today);
+ var all=state.zenHistory.filter(function(h){return h.type===kind;}).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+ var weekEnd=offset(monday,7),weekHistory=all.filter(function(h){return h.date>=monday&&h.date<weekEnd;});
+ var planned=med?3:4,nextIndex=med?0:0,nextRoutine=routines[nextIndex];
+
+ $('zen-view').dataset.kind=kind;
+ document.body.dataset.overview=kind;
  $('zen-eyebrow').textContent=med?'MEDITATION':'STRETCH';
- $('zen-title').textContent=med?'En stund för sinnet.':'En stund för kroppen.';
- $('zen-description').textContent=med?'Sänk tempot, följ andningen och landa i nuet.':'Rörlighet och återhämtning med mjuka övergångar.';
- $('zen-ring').classList.toggle('meditation',med);$('zen-ring').querySelector('span').textContent=med?'≈':'✧';
- var routines=ZEN_ROUTINES[view];
- $('zen-choices').innerHTML=routines.map(function(r,i){return '<button type="button" class="choice '+(med?'meditation':'stretch')+'" data-zen-index="'+i+'"><span class="glyph">'+(med?'≈':'✧')+'</span><b>'+clean(r.name)+'</b><small>'+clean(r.description)+' ↗</small></button>';}).join('');
- $('zen-history').innerHTML=state.zenHistory.filter(function(h){return h.type===view;}).slice().reverse().map(function(h){return '<div class="history-row"><div><strong>'+clean(h.name)+'</strong><small>'+pretty(h.date)+'</small></div><span class="metric">'+h.minutes+' min</span></div>';}).join('')||'<p class="hint">Här visas dina sparade stunder.</p>';
+ $('zen-title').innerHTML=med?'Stillhet<br><em>som får ta plats.</em>':'Rörlighet<br><em>i ett mjukare flöde.</em>';
+ $('zen-description').textContent=med?'Sänk tempot, följ andningen och låt varje stund få vara enkel.':'Rörlighet och återhämtning med mjuka övergångar och ett lugnt tempo.';
+ $('zen-main-start').textContent='Starta '+nextRoutine.name+' ↗';
+ $('zen-main-start').dataset.zenIndex=String(nextIndex);
+ $('zen-hero-note').textContent=planned+' planerade stunder denna vecka';
+ $('zen-flow-kicker').textContent=med?'NÄSTA MEDITATION':'NÄSTA STRETCH';
+ $('zen-flow-name').textContent=nextRoutine.name;
+ $('zen-flow-meta').textContent=nextRoutine.minutes+' min · '+(med?'guidad stillhet':'mjuk rörlighet');
+
+ $('zen-stat-week').textContent=weekHistory.length;
+ $('zen-stat-week-sub').textContent='av '+planned+' planerade';
+ $('zen-stat-total').textContent=all.length;
+ $('zen-stat-total-sub').textContent=med?'meditationsstunder':'stretchstunder';
+ $('zen-stat-minutes').innerHTML=weekHistory.reduce(function(n,h){return n+h.minutes;},0)+'<small>min</small>';
+ $('zen-stat-last').textContent=all[0]?pretty(all[0].date):'–';
+ $('zen-stat-last-kind').textContent=all[0]?all[0].name:'Inget registrerat';
+
+ $('zen-choice-hint').textContent='Tre exempelpass för '+(med?'Meditation':'Stretch');
+ $('zen-choices').innerHTML=routines.map(function(r,i){
+  return '<button type="button" class="choice zen-choice '+kind+'" data-zen-index="'+i+'"><span class="glyph">'+(med?'≈':'✧')+'</span><b>'+clean(r.name)+'</b><small>'+clean(r.description)+'</small><span class="zen-choice-flow" aria-hidden="true"></span></button>';
+ }).join('');
+
+ $('zen-week-hint').textContent=med?'Tre lugna pauser utspridda över veckan':'Fyra mjuka rörlighetspass utspridda över veckan';
+ $('zen-week').innerHTML=DAYS.map(function(name,i){
+  var date=offset(monday,i),routineIndex=zenPlanIndexForDay(i,med),routine=routineIndex>=0?routines[routineIndex]:null;
+  return '<button type="button" class="day zen-day'+(date===today?' today':'')+(routine?' is-planned':'')+'" '+(routine?'data-zen-index="'+routineIndex+'"':'disabled')+'><small>'+name+'</small><strong>'+dayFrom(date).getDate()+'</strong><span>'+(routine?clean(routine.name):'Vila')+'</span></button>';
+ }).join('');
+
+ var counts=[];
+ $('zen-bars').innerHTML=Array.from({length:7},function(_,i){
+  var first=offset(monday,-(6-i)*7),last=offset(first,7),count=all.filter(function(h){return h.date>=first&&h.date<last;}).length;
+  counts.push(count);
+  return '<div class="bar-wrap"><div class="bar zen-bar" style="height:'+Math.max(4,Math.min(96,count*25))+'px" title="'+count+' stunder"></div><small>v'+String(Math.floor((dayFrom(first)-new Date(dayFrom(first).getFullYear(),0,1))/86400000/7)+1)+'</small></div>';
+ }).join('');
+ $('zen-chart-eyebrow').textContent=(med?'MEDITATION':'STRETCH')+' · KONTINUITET';
+ $('zen-chart-value').textContent=counts.reduce(function(a,b){return a+b;},0)+' stunder';
+ $('zen-chart-caption').textContent=med?'Meditationer per vecka':'Stretchpass per vecka';
+
+ $('zen-history').innerHTML=all.slice(0,12).map(function(h){
+  return '<div class="history-row zen-history-row"><div><strong>'+clean(h.name)+'</strong><small>'+pretty(h.date)+' · '+(h.demo?'exempeldata':'sparad stund')+'</small></div><span class="metric">'+h.minutes+' min</span></div>';
+ }).join('')||'<p class="hint">Här visas dina sparade stunder.</p>';
 }
 function deep(v){return JSON.parse(JSON.stringify(v));}
 function cleanExerciseName(name){return String(name||'').replace(/\s+/g,' ').trim();}
