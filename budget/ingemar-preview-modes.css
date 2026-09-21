@@ -334,7 +334,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
   .zen-choices .zen-choice b{font-size:15px}
   .zen-choices .zen-choice small{font-size:9px;line-height:1.35}
   .zen-chart-head{align-items:flex-start;flex-direction:column;gap:4px}
-  .zen-bars{height:112px}
+  .zen-bars{height:150px}
 }
 @media(max-width:390px){
   .zen-dashboard-copy h1{font-size:38px}
