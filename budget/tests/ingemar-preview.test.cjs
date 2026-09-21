@@ -62,7 +62,7 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(html,/id="week-template-select"/);
  assert.match(html,/data-action="save-week">Spara hela veckan ✓/);
  assert.match(html,/data-action="save-week-template">Spara veckan som mall/);
- for(const fn of ['seedWeekTemplates','weekDraftFromMonday','openWeekPlanner','renderWeekPlanner','setWeekDaySource','copyWeekDay','swapWeekDays','saveWholeWeek','saveWeekTemplate','applyWeekTemplate','deleteWeekTemplate','startWeekDrag','moveWeekDrag','endWeekDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ for(const fn of ['seedWeekTemplates','weekDraftFromMonday','openWeekPlanner','renderWeekPlanner','setWeekDayType','toggleWeekExercise','applyWeekDayTemplate','weekPlannerSummaryText','copyWeekDay','swapWeekDays','saveWholeWeek','saveWeekTemplate','applyWeekTemplate','deleteWeekTemplate','startWeekDrag','moveWeekDrag','endWeekDrag'])assert.ok(source[1].includes('function '+fn+'('),fn);
  assert.match(source[1],/weekTemplates:seedWeekTemplates\(\)/);
  assert.match(source[1],/if\(!Array\.isArray\(value\.weekTemplates\)\)value\.weekTemplates=seedWeekTemplates\(\)/);
  assert.match(source[1],/state\.plans\[date\]=weekPlanClone\(entry\)/);
@@ -70,8 +70,11 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/weekDraft\[to\]=weekPlanClone\(weekDraft\[from\]\)/);
  assert.match(html,/#week-planner\{width:min\(780px,calc\(100dvw - 20px\)\)/);
  assert.match(html,/\.week-planner-drag\{touch-action:none/);
- for(const fn of ['openWeekDayBuilder','restoreWeekPlannerFromBuilder','addWeekExercise','removeWeekExercise','weekExercisePreset','weekExerciseOptions','positionWeekDrag','glowBarsMarkup','selectGlowBar','inspectChartPoint','installChartPointHandlers'])assert.ok(source[1].includes('function '+fn+'('),fn);
- for(const control of ['data-week-edit','data-week-add-exercise','data-week-remove-exercise','data-week-toggle-exercises','data-chart-point','data-chart-bar'])assert.match(source[1],new RegExp(control),control);
+ for(const fn of ['openWeekDayBuilder','restoreWeekPlannerFromBuilder','weekExercisePreset','weekExerciseNames','positionWeekDrag','glowBarsMarkup','selectGlowBar','chartAxisDisplay','chartSeriesColor','inspectChartPoint','installChartPointHandlers'])assert.ok(source[1].includes('function '+fn+'('),fn);
+ for(const control of ['data-week-edit','data-week-type','data-week-exercise','data-week-toggle-day','data-week-copy-target','data-chart-point','data-chart-bar'])assert.match(source[1],new RegExp(control),control);
+ assert.doesNotMatch(source[1],/function setWeekDaySource|data-week-source|data-week-add-exercise|data-week-remove-exercise|data-week-toggle-exercises/);
+ assert.match(html,/class="week-planner-guide"/);
+ assert.match(html,/id="week-planner-summary"/);
  for(const id of ['bars-inspect','zen-bars-inspect','pp-volume-chart-inspect','pp-exercise-chart-inspect'])assert.match(html,new RegExp('id="'+id+'"'),id);
  assert.match(source[1],/if\(builderWeekIndex>=0\)\{weekDraft\[builderWeekIndex\]=weekPlanClone\(draft\)/);
  assert.match(source[1],/document\.removeEventListener\('pointermove',moveWeekDrag\)/);
@@ -132,13 +135,19 @@ test('push/pull analytics track load, balance and exercise progression from demo
  assert.match(css,/\.pp-line\.pull\{/);
  assert.match(css,/\.pp-line\.primary\{/);
  assert.match(css,/\.pp-line\.comparison\{/);
+ assert.match(css,/\.pp-area\{/);
+ assert.match(css,/\.pp-selector-halo/);
+ assert.match(css,/\.pp-chart-shell/);
+ assert.match(source[1],/linearGradient id=/);
+ assert.match(source[1],/class="pp-y-label"/);
+ assert.match(source[1],/class="zen-style-bar-fill/);
  assert.match(css,/@media\(max-width:390px\)/);
 });
 
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-week-editor-charts-7/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-planner-telemetry-8/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
