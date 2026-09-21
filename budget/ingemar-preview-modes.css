@@ -78,3 +78,292 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 @media(prefers-reduced-motion:reduce){.mode-screen *,.mode-screen *::before,.mode-screen *::after{animation:none!important;transition:none!important}}
 @keyframes zenGlimmer{50%{transform:translateX(12%);opacity:.4}}
 @keyframes zenBreathe{50%{transform:scale(1.09);opacity:.65}}
+
+
+/* INGEMAR ZEN OBSERVATORY DASHBOARD
+   Stretch and Meditation use the same information hierarchy as Training,
+   but keep their own calm flow language and accent ownership. */
+body[data-overview="stretch"]{background:radial-gradient(ellipse 86% 34% at 52% 0,#47795828,transparent 76%),#08110e}
+body[data-overview="meditation"]{background:radial-gradient(ellipse 86% 34% at 52% 0,#b38d4526,transparent 76%),#10100c}
+body[data-overview="stretch"] .topnav button[aria-selected="true"]{background:#9ee6b012;border-color:#9ee6b05c;color:#d9ffe3;box-shadow:0 0 20px #65c98514}
+body[data-overview="meditation"] .topnav button[aria-selected="true"]{background:#f2d48812;border-color:#f2d48862;color:#fff0ba;box-shadow:0 0 20px #d9b34d17}
+
+.zen-view{
+  --zen-accent:#9fe0ad;
+  --zen-accent-rgb:159,224,173;
+  --zen-soft:#d8f5df;
+  --zen-faint:#9fe0ad24;
+  --zen-border:#9fe0ad46;
+  --zen-ink:#dff8e5;
+  max-width:none;
+  width:100%;
+  margin:0 auto;
+}
+.zen-view[data-kind="meditation"]{
+  --zen-accent:#f0d17e;
+  --zen-accent-rgb:240,209,126;
+  --zen-soft:#fff0b6;
+  --zen-faint:#f0d17e20;
+  --zen-border:#f0d17e49;
+  --zen-ink:#fff3ca;
+}
+.zen-view:not([hidden]){animation:zenOverviewEnter .46s cubic-bezier(.22,1,.36,1) both}
+.zen-view .eyebrow{color:var(--zen-accent)}
+.zen-view .section-head{border-bottom:1px solid rgba(var(--zen-accent-rgb),.11);padding-bottom:10px}
+.zen-view .section-head h2{color:#f2f5f1}
+.zen-view .hint{color:#9fa9a2}
+
+.zen-dashboard-hero{
+  min-height:380px;
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  align-items:center;
+  gap:28px;
+  position:relative;
+}
+.zen-dashboard-copy{position:relative;z-index:2}
+.zen-dashboard-copy h1{
+  margin:18px 0 15px;
+  max-width:560px;
+  font-size:clamp(38px,5.2vw,64px);
+  line-height:1.02;
+  letter-spacing:-.065em;
+  font-weight:390;
+}
+.zen-dashboard-copy h1 em{font-style:normal;color:var(--zen-accent);text-shadow:0 0 28px rgba(var(--zen-accent-rgb),.13)}
+.zen-dashboard-copy>p{max-width:480px;line-height:1.7;font-size:13px}
+.zen-dashboard-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:24px}
+.zen-theme-primary{
+  min-height:45px;
+  border:1px solid rgba(var(--zen-accent-rgb),.52);
+  border-radius:14px;
+  padding:12px 18px;
+  background:linear-gradient(120deg,rgba(var(--zen-accent-rgb),.95),rgba(var(--zen-accent-rgb),.67));
+  color:#09130d;
+  font-weight:800;
+  font-size:12px;
+  box-shadow:0 10px 34px rgba(var(--zen-accent-rgb),.13),inset 0 1px 0 #ffffff45;
+  transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s ease,filter .2s ease;
+}
+.zen-view[data-kind="meditation"] .zen-theme-primary{color:#211b0d}
+.zen-theme-primary:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 15px 40px rgba(var(--zen-accent-rgb),.19),inset 0 1px 0 #ffffff55}
+.zen-dashboard-note{color:#8e9992;font-size:10px;letter-spacing:.045em}
+
+.zen-flow-visual{
+  position:relative;
+  height:354px;
+  overflow:hidden;
+  isolation:isolate;
+  color:var(--zen-accent);
+  background:
+    radial-gradient(circle at 52% 49%,rgba(var(--zen-accent-rgb),.13),transparent 34%),
+    radial-gradient(ellipse at 52% 51%,rgba(var(--zen-accent-rgb),.08),transparent 68%);
+}
+.zen-flow-visual::before{
+  content:"";
+  position:absolute;
+  width:255px;height:255px;border-radius:50%;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(var(--zen-accent-rgb),.12),transparent 69%);
+  filter:blur(3px);
+  animation:zenFlowBreath 7.5s ease-in-out infinite;
+}
+.zen-flow-visual::after{
+  content:"";
+  position:absolute;
+  inset:8% 3%;
+  background:linear-gradient(100deg,transparent 15%,rgba(var(--zen-accent-rgb),.035) 48%,transparent 74%);
+  transform:skewX(-11deg);
+  animation:zenFlowSheen 9s ease-in-out infinite;
+}
+.zen-flow-visual svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.zen-flow-axis,.zen-flow-ghost,.zen-flow-trace,.zen-flow-orbit{fill:none;vector-effect:non-scaling-stroke}
+.zen-flow-axis{stroke:rgba(var(--zen-accent-rgb),.11);stroke-width:1}
+.zen-flow-ghost{stroke:rgba(var(--zen-accent-rgb),.2);stroke-width:1.2}
+.zen-flow-trace{
+  stroke-width:2.1;
+  stroke-linecap:round;
+  stroke-dasharray:110 450;
+  animation:zenFlowSweep 5.8s linear infinite;
+}
+.zen-flow-orbit{stroke:rgba(var(--zen-accent-rgb),.2);stroke-width:1}
+.zen-flow-orbit-a{stroke-dasharray:2 9;animation:zenOrbitDash 25s linear infinite}
+.zen-flow-orbit-b{stroke-dasharray:1 11;animation:zenOrbitDash 35s linear infinite reverse}
+.zen-flow-core{
+  position:absolute;
+  z-index:3;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:min(270px,65%);
+  text-align:center;
+  padding:24px 20px 21px;
+}
+.zen-flow-core::before,.zen-flow-core::after{
+  content:"";
+  position:absolute;
+  left:15%;right:15%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--zen-accent-rgb),.52),transparent);
+}
+.zen-flow-core::before{top:0}.zen-flow-core::after{bottom:0}
+.zen-flow-core small{display:block;font-size:9px;letter-spacing:.19em;color:var(--zen-accent);font-weight:800}
+.zen-flow-core strong{display:block;margin:12px 0 7px;font-size:clamp(25px,3.3vw,35px);letter-spacing:-.045em;font-weight:430;color:#f4f8f5;text-shadow:0 0 25px rgba(var(--zen-accent-rgb),.13)}
+.zen-flow-core span{font-size:10px;color:#a9b2ac}
+.zen-flow-particle{
+  position:absolute;z-index:4;width:5px;height:5px;border-radius:50%;
+  background:var(--zen-soft);
+  box-shadow:0 0 5px var(--zen-soft),0 0 16px rgba(var(--zen-accent-rgb),.72);
+}
+.zen-flow-particle.p1{left:18%;top:44%;animation:zenParticleA 8s ease-in-out infinite}
+.zen-flow-particle.p2{right:17%;top:34%;width:3px;height:3px;animation:zenParticleB 10s ease-in-out infinite}
+.zen-flow-particle.p3{right:29%;bottom:23%;width:4px;height:4px;animation:zenParticleA 12s ease-in-out infinite reverse}
+
+.zen-stats{margin-top:2px;margin-bottom:42px}
+.zen-stats .panel{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(var(--zen-accent-rgb),.12);
+  background:linear-gradient(155deg,rgba(var(--zen-accent-rgb),.042),rgba(255,255,255,.018));
+}
+.zen-stats .panel::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--zen-accent-rgb),.5),transparent);
+  opacity:.65;
+}
+.zen-stats .stat strong{color:var(--zen-ink)}
+.zen-stats .stat strong small{color:var(--zen-accent)}
+.zen-stats .stat-label{color:#9da59f}
+
+.zen-choices .zen-choice{
+  min-height:142px;
+  border-color:rgba(var(--zen-accent-rgb),.18);
+  background:
+    radial-gradient(circle at 91% 8%,rgba(var(--zen-accent-rgb),.10),transparent 46%),
+    rgba(255,255,255,.025);
+}
+.zen-choices .zen-choice:hover{
+  border-color:rgba(var(--zen-accent-rgb),.55);
+  background:
+    radial-gradient(circle at 91% 8%,rgba(var(--zen-accent-rgb),.17),transparent 52%),
+    rgba(var(--zen-accent-rgb),.04);
+  box-shadow:0 15px 40px rgba(var(--zen-accent-rgb),.07);
+}
+.zen-choices .zen-choice .glyph{color:var(--zen-accent);text-shadow:0 0 14px rgba(var(--zen-accent-rgb),.36)}
+.zen-choices .zen-choice b{color:#f0f5f1}
+.zen-choice-flow{
+  position:absolute;left:13px;right:13px;bottom:10px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(var(--zen-accent-rgb),.5),transparent);
+  transform:scaleX(.38);opacity:.35;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .35s ease;
+}
+.zen-choice:hover .zen-choice-flow{transform:scaleX(1);opacity:.8}
+
+.zen-week .zen-day{
+  border-color:rgba(var(--zen-accent-rgb),.10);
+  background:rgba(255,255,255,.022);
+  transition:transform .2s cubic-bezier(.22,1,.36,1),border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+.zen-week .zen-day.is-planned{
+  border-color:rgba(var(--zen-accent-rgb),.34);
+  background:linear-gradient(160deg,rgba(var(--zen-accent-rgb),.085),rgba(255,255,255,.018));
+}
+.zen-week .zen-day.is-planned:hover{transform:translateY(-2px);border-color:rgba(var(--zen-accent-rgb),.62);box-shadow:0 8px 25px rgba(var(--zen-accent-rgb),.08)}
+.zen-week .zen-day.today{box-shadow:inset 0 0 0 1px rgba(var(--zen-accent-rgb),.55),0 0 22px rgba(var(--zen-accent-rgb),.07)}
+.zen-week .zen-day span{color:var(--zen-accent)}
+.zen-week .zen-day:disabled span{color:#68716c}
+.zen-week .zen-day:disabled{opacity:.58;cursor:default}
+
+.zen-chart-panel{
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(var(--zen-accent-rgb),.16);
+  background:
+    radial-gradient(ellipse at 50% 110%,rgba(var(--zen-accent-rgb),.09),transparent 62%),
+    linear-gradient(165deg,rgba(var(--zen-accent-rgb),.035),rgba(255,255,255,.015));
+}
+.zen-chart-panel::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent calc(14.285% - 1px),rgba(var(--zen-accent-rgb),.035) 14.285%);
+  mask-image:linear-gradient(to bottom,transparent 10%,#000 45%,#000 90%,transparent);
+}
+.zen-chart-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;position:relative;z-index:1}
+.zen-chart-head strong{display:block;margin-top:8px;font-size:27px;font-weight:430;letter-spacing:-.04em;color:var(--zen-ink)}
+.zen-chart-head>span{font-size:10px;color:#8d9891}
+.zen-bars{position:relative;z-index:1;height:125px;margin-top:10px;border-bottom:1px solid rgba(var(--zen-accent-rgb),.12)}
+.zen-bars .bar-wrap{height:100%;display:flex;flex-direction:column;justify-content:flex-end}
+.zen-bars .zen-bar{
+  width:min(18px,60%);
+  margin:0 auto;
+  background:linear-gradient(180deg,var(--zen-soft),rgba(var(--zen-accent-rgb),.38));
+  box-shadow:0 0 15px rgba(var(--zen-accent-rgb),.12);
+  transform-origin:bottom;
+  animation:zenBarGrow .58s cubic-bezier(.22,1,.36,1) both;
+}
+.zen-bars .bar-wrap small{margin-top:6px;color:#747f78}
+
+.zen-history .zen-history-row{
+  position:relative;
+  border-color:rgba(var(--zen-accent-rgb),.11);
+  background:linear-gradient(140deg,rgba(var(--zen-accent-rgb),.035),rgba(255,255,255,.018));
+}
+.zen-history .zen-history-row::before{
+  content:"";position:absolute;left:0;top:25%;bottom:25%;width:1px;background:var(--zen-accent);box-shadow:0 0 10px rgba(var(--zen-accent-rgb),.45)
+}
+.zen-history .metric{color:var(--zen-accent)}
+
+.zen-workout .secondary,
+.zen-workout .ghost{
+  border-color:var(--mode-border);
+  color:var(--mode-accent);
+  background:rgba(255,255,255,.035);
+}
+.zen-workout .secondary:hover,
+.zen-workout .ghost:hover{background:var(--mode-accent-soft);border-color:var(--mode-accent)}
+.zen-workout .mode-status{color:var(--mode-accent)}
+.zen-workout .zen-stage-list button{box-shadow:inset 0 0 18px var(--mode-accent-soft)}
+.zen-workout .zen-controls .primary{
+  border:1px solid var(--mode-border);
+  box-shadow:0 8px 30px var(--mode-accent-soft),inset 0 1px 0 #ffffff50;
+}
+.zen-workout[data-kind="meditation"] .zen-controls .primary{background:linear-gradient(115deg,#f0d17e,#fff0b6);color:#261f0d}
+.zen-workout[data-kind="stretch"] .zen-controls .primary{background:linear-gradient(115deg,#92d9a2,#d9f5df);color:#102418}
+.zen-workout .zen-total-time,
+.zen-workout .zen-exit{color:color-mix(in srgb,var(--mode-accent) 55%,#aab4ad)}
+
+@media(max-width:740px){
+  .zen-dashboard-hero{grid-template-columns:1fr;min-height:0;gap:2px}
+  .zen-dashboard-copy{padding-top:16px}
+  .zen-dashboard-copy h1{font-size:42px;margin:15px 0 11px}
+  .zen-dashboard-actions{margin-top:17px}
+  .zen-flow-visual{height:245px;margin:4px -5px 0}
+  .zen-flow-core{width:68%;padding:19px 12px 17px}
+  .zen-flow-core strong{font-size:25px}
+  .zen-stats{grid-template-columns:1fr 1fr;margin-top:5px;margin-bottom:33px}
+  .zen-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .zen-choices .zen-choice{min-height:124px;padding:12px}
+  .zen-choices .zen-choice b{font-size:15px}
+  .zen-choices .zen-choice small{font-size:9px;line-height:1.35}
+  .zen-chart-head{align-items:flex-start;flex-direction:column;gap:4px}
+  .zen-bars{height:112px}
+}
+@media(max-width:390px){
+  .zen-dashboard-copy h1{font-size:38px}
+  .zen-dashboard-note{width:100%}
+  .zen-flow-visual{height:225px}
+  .zen-flow-core{width:75%}
+  .zen-week{gap:3px}
+  .zen-week .zen-day{padding:8px 2px}
+  .zen-week .zen-day span{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .zen-view:not([hidden]),.zen-flow-visual::before,.zen-flow-visual::after,.zen-flow-trace,.zen-flow-orbit,.zen-flow-particle,.zen-bars .zen-bar{animation:none!important}
+}
+
+@keyframes zenOverviewEnter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes zenFlowBreath{50%{transform:translate(-50%,-50%) scale(1.1);opacity:.68}}
+@keyframes zenFlowSheen{0%,100%{transform:translateX(-10%) skewX(-11deg);opacity:.2}50%{transform:translateX(12%) skewX(-11deg);opacity:.7}}
+@keyframes zenFlowSweep{to{stroke-dashoffset:-560}}
+@keyframes zenOrbitDash{to{stroke-dashoffset:-90}}
+@keyframes zenParticleA{0%,100%{transform:translate(0,0);opacity:.25}50%{transform:translate(24px,-14px);opacity:1}}
+@keyframes zenParticleB{0%,100%{transform:translate(0,0);opacity:.35}50%{transform:translate(-30px,17px);opacity:.9}}
+@keyframes zenBarGrow{from{transform:scaleY(.08);opacity:.2}to{transform:scaleY(1);opacity:1}}
