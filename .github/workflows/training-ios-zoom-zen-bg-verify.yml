@@ -366,12 +366,16 @@ jobs:
                 assert.equal(bounds.headerHeight,width<=760?92:104);
                 if(width===390){
                   await page.locator('#start-button').click();
+                  await page.locator('#session-view').waitFor({state:'visible'});
+                  await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
                   assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
                   await page.locator('#pause-session').click();
                   assert.equal(await page.locator('#pause-session').textContent(),'Fortsätt');
                   await page.locator('#leave-session').click();
                   assert.equal(await page.locator('#resume-banner').isVisible(),true);
                   await page.locator('#resume-button').click();
+                  await page.locator('#session-view').waitFor({state:'visible'});
+                  await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
                   assert.equal(await page.locator('#pause-session').textContent(),'Pausa');
                   await page.locator('#leave-session').click();
                   await page.locator('#discard-button').click();
