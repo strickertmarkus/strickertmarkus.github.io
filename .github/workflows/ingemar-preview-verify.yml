@@ -127,19 +127,19 @@ jobs:
             const weekDragHandle=page.locator('[data-week-drag="0"]');
             await weekDragHandle.scrollIntoViewIfNeeded();
             const weekDragSource=await weekDragHandle.boundingBox();
-            const weekDragTarget=await page.locator('[data-week-day="2"]').boundingBox();
-            await page.mouse.move(weekDragSource.x+weekDragSource.width/2,weekDragSource.y+weekDragSource.height/2);
-            await page.mouse.down();
-            const dragX=weekDragSource.x+weekDragSource.width/2,dragY=weekDragSource.y+weekDragSource.height/2;
+            const dragX=weekDragSource.x+weekDragSource.width/2,dragY=weekDragSource.y+weekDragSource.height/2,pointerId=41;
+            await weekDragHandle.dispatchEvent('pointerdown',{pointerId,button:0,buttons:1,clientX:dragX,clientY:dragY,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true});
+            await page.locator('.week-planner-drag-ghost').waitFor({state:'visible'});
             const ghostBefore=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
-            await page.mouse.move(dragX+18,dragY+24,{steps:3});
+            await page.evaluate(({pointerId,x,y})=>document.dispatchEvent(new PointerEvent('pointermove',{pointerId,button:-1,buttons:1,clientX:x,clientY:y,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true})),{pointerId,x:dragX+18,y:dragY+24});
             const ghostAfter=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
             assert.ok(Math.abs((ghostAfter.x-ghostBefore.x)-18)<10&&Math.abs((ghostAfter.y-ghostBefore.y)-24)<10,
-              'Dragged pass preview must follow the finger movement in both axes: '+JSON.stringify({ghostBefore,ghostAfter}));
-            await page.mouse.move(weekDragTarget.x+weekDragTarget.width/2,weekDragTarget.y+weekDragTarget.height/2,{steps:7});
-            await page.mouse.up();
+              'Dragged pass preview must follow touch movement in both axes: '+JSON.stringify({ghostBefore,ghostAfter}));
+            const target=await page.locator('[data-week-day="1"]').boundingBox();
+            await page.evaluate(({pointerId,x,y})=>document.dispatchEvent(new PointerEvent('pointermove',{pointerId,button:-1,buttons:1,clientX:x,clientY:y,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true})),{pointerId,x:target.x+target.width/2,y:target.y+Math.min(30,target.height/2)});
+            await page.evaluate(pointerId=>document.dispatchEvent(new PointerEvent('pointerup',{pointerId,button:0,buttons:0,clientX:20,clientY:20,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true})),pointerId);
             const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.weekPlanType));
-            assert.equal(afterWeekDrag[2],beforeWeekDrag[0],'Dragging a day should move/swap its planned workout');
+            assert.equal(afterWeekDrag[1],beforeWeekDrag[0],'Touch-dragging a day should move/swap its planned workout');
 
             await page.locator('[data-week-edit="1"]').first().click();
             assert.equal(await page.locator('#builder').evaluate(el=>el.open),true,'The main day surface opens the full workout builder');
