@@ -1143,7 +1143,7 @@ document.addEventListener('click',function(event){
     if(draft.exercises.length>=16){toast('Högst 16 övningar.');break;}
     var newIndex=draft.exercises.length;
     draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));
-    builderFreeExerciseIndex=-1;renderBuilder();requestAnimationFrame(function(){setBuilderExercisePicker(newIndex);var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
+    builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
    case 'save-plan':if(saveDraft()){$('builder').close();draft=null;toast('Passupplägget sparades lokalt i demon.');}break;
    case 'start-from-builder':if(saveDraft()){$('builder').close();draft=null;start();}break;
