@@ -92,17 +92,23 @@ jobs:
                 layout.scroll<=layout.client+1&&layout.wrong.length===0&&layout.inputOverflow.length===0,
                 label+' must stay inside the mobile dialog: '+JSON.stringify(layout));
               const dateField=await page.locator('#build-date').evaluate(input=>{
-                const body=input.closest('.modal-body'),field=input.closest('.field');
-                const r=input.getBoundingClientRect(),parent=body.getBoundingClientRect(),f=field.getBoundingClientRect(),
-                  style=getComputedStyle(body),padLeft=parseFloat(style.paddingLeft),padRight=parseFloat(style.paddingRight);
-                return {left:r.left,right:r.right,width:r.width,fieldLeft:f.left,fieldRight:f.right,
-                  innerLeft:parent.left+padLeft,innerRight:parent.right-padRight,
-                  client:input.clientWidth,scroll:input.scrollWidth,track:getComputedStyle(field).gridTemplateColumns};
+                const control=input.closest('.builder-date-control'),body=input.closest('.modal-body');
+                const frame=control.getBoundingClientRect(),native=input.getBoundingClientRect(),
+                  name=document.getElementById('build-name').getBoundingClientRect(),container=body.getBoundingClientRect(),
+                  style=getComputedStyle(body),leftInset=parseFloat(style.paddingLeft),rightInset=parseFloat(style.paddingRight);
+                return {left:frame.left,right:frame.right,width:frame.width,
+                  nativeLeft:native.left,nativeRight:native.right,
+                  nameLeft:name.left,nameRight:name.right,
+                  bodyLeft:container.left+leftInset,bodyRight:container.right-rightInset,
+                  opacity:getComputedStyle(input).opacity,hasNativePicker:input.type==='date',
+                  displayed:control.querySelector('.builder-date-text').textContent};
               });
-              assert.ok(dateField.left>=dateField.innerLeft-1&&dateField.right<=dateField.innerRight+1&&
-                dateField.left>=dateField.fieldLeft-1&&dateField.right<=dateField.fieldRight+1&&
-                dateField.scroll<=dateField.client+1,
-                label+' date input must fit within the padded builder body: '+JSON.stringify(dateField));
+              assert.ok(Math.abs(dateField.left-dateField.nameLeft)<=1&&
+                Math.abs(dateField.right-dateField.nameRight)<=1&&
+                dateField.left>=dateField.bodyLeft-1&&dateField.right<=dateField.bodyRight+1&&
+                dateField.nativeLeft>=dateField.left-1&&dateField.nativeRight<=dateField.right+1&&
+                dateField.opacity==='0'&&dateField.hasNativePicker&&dateField.displayed.length>3,
+                label+' date FIELD must match the pass name field, not merely fit inside the dialog: '+JSON.stringify(dateField));
               await page.locator('#builder').evaluate(dialog=>{dialog.scrollLeft=100;});
               assert.equal(await page.locator('#builder').evaluate(dialog=>dialog.scrollLeft),0,
                 label+' must not allow sideways dragging of the builder');
@@ -118,10 +124,15 @@ jobs:
             await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
             const originalDate=await page.locator('#build-date').inputValue();
+            const originalDateText=await page.locator('#build-date-text').textContent();
             await page.locator('#build-date').fill('2026-12-31');
             assert.equal(await page.locator('#build-date').inputValue(),'2026-12-31');
+            assert.match(await page.locator('#build-date-text').textContent(),/31.+2026/,
+              'The visible date must follow the actual native date input');
             await auditBuilder('Passbyggare med ändrat datum 390px');
             await page.locator('#build-date').fill(originalDate);
+            assert.equal(await page.locator('#build-date-text').textContent(),originalDateText,
+              'Resetting the native date input must update the visible date again');
             await page.locator('#builder').evaluate(dialog=>{dialog.scrollTop=dialog.scrollHeight;});
             await auditBuilder('Passbyggare nedscrollad 390px');
             await page.screenshot({path:'test-results/ingemar-demo/builder-bottom-390.png'});

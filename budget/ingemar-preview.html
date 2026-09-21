@@ -14,13 +14,13 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 #builder{width:min(660px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none}
 #builder .modal-head,#builder .modal-head>div,#builder .modal-body,#builder .field,#builder #exercise-list,#builder .exercise-card,#builder .exercise-head,#builder .exercise-fields,#builder .metric-pills,#builder .set-header,#builder .set-row,#builder .exercise-foot,#builder .modal-actions,#builder .modal-actions .right{min-width:0;max-width:100%}
 #builder input,#builder button,#builder select{min-width:0;max-width:100%}
-/* iOS Safari's native date control can keep an intrinsic content width even
-   when its input has width:100%. Give its field a shrinkable grid track and
-   bound the control and native date text to that track. */
-#builder .field{display:grid;grid-template-columns:minmax(0,1fr)}
-#builder #build-date{display:block;box-sizing:border-box;inline-size:100%;min-inline-size:0;max-inline-size:100%;min-block-size:48px;font-size:16px}
-#builder #build-date::-webkit-date-and-time-value{min-inline-size:0;max-inline-size:100%;text-align:center}
-#builder #build-date::-webkit-datetime-edit{min-inline-size:0;max-inline-size:100%}
+/* Native iOS date widgets can paint outside their own CSS box. The visible
+   field uses regular layout; the real input still opens the native picker. */
+#builder .builder-date-control{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-width:0;max-width:100%;height:48px;overflow:hidden;background:#0f1520;border:1px solid #ffffff27;border-radius:12px}
+#builder .builder-date-text{min-width:0;max-width:100%;padding:0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;font-variant-numeric:tabular-nums;pointer-events:none}
+#builder #build-date{position:absolute;inset:0;display:block;width:100%;height:100%;min-width:0;max-width:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+#builder #build-date:focus-visible{outline:none}
+#builder .builder-date-control:focus-within{outline:2px solid var(--cyan);outline-offset:2px}
 @media(max-width:600px){
  #builder .modal-head{padding:16px 14px;gap:10px}
  #builder .modal-head .x{flex:0 0 34px}
@@ -67,7 +67,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 <section id="zen-view" class="zen-view" hidden><div class="eyebrow">✧ ZEN / <span id="zen-eyebrow">STRETCH</span></div><h1 style="font-size:clamp(34px,5vw,58px);font-weight:400;letter-spacing:-.05em;margin-top:18px" id="zen-title">En stund för kroppen.</h1><p class="hint" id="zen-description">Rörelse och återhämtning i din egen takt.</p><div class="zen-ring" id="zen-ring"><span>✧</span></div><div class="section-head"><h2>Välj pass</h2><span class="hint">Ingemars egen demohistorik</span></div><div class="choices" id="zen-choices"></div><div class="section-head"><h2>Senaste stunder</h2></div><div class="history" id="zen-history"></div></section>
 <p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
 </main>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><input id="build-date" type="date"></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
  <div id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show" data-state="ready">
   <div class="session-shell">
@@ -186,6 +186,7 @@ function dayFrom(iso){var n=String(iso).split('-').map(Number);return new Date(n
 function offset(iso,n){var d=dayFrom(iso);d.setDate(d.getDate()+n);return dayISO(d);}
 function weekStart(iso){var d=dayFrom(iso);d.setDate(d.getDate()-((d.getDay()+6)%7));return dayISO(d);}
 function pretty(iso){return dayFrom(iso).toLocaleDateString('sv-SE',{day:'numeric',month:'short'});}
+function builderDateText(iso){return dayFrom(iso).toLocaleDateString('sv-SE',{day:'numeric',month:'short',year:'numeric'});}
 function freshSet(weight,reps,minutes){return {id:uid(),weight:weight||0,reps:reps||0,minutes:minutes||0,done:false};}
 function exercise(name,mode,values){return {id:uid(),name:name,mode:mode,sets:values.map(function(v){return freshSet(v[0],v[1],v[2]);})};}
 function template(type){
@@ -266,6 +267,7 @@ function openBuilder(type){
 function renderBuilder(){
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
+ $('build-date-text').textContent=builderDateText(draft.date);
  $('build-name').value=draft.name;
  $('exercise-list').innerHTML=draft.exercises.map(function(e,i){
   var timed=e.mode==='min';
@@ -276,7 +278,7 @@ function renderBuilder(){
 }
 function updateDraftField(el){
  if(!draft)return;
- if(el.id==='build-date'){if(/^\d{4}-\d\d-\d\d$/.test(el.value))draft.date=el.value;return;}
+ if(el.id==='build-date'){if(/^\d{4}-\d\d-\d\d$/.test(el.value)){draft.date=el.value;$('build-date-text').textContent=builderDateText(el.value);}return;}
  if(el.id==='build-name'){draft.name=el.value;return;}
  if(el.dataset.name!=null){draft.exercises[Number(el.dataset.name)].name=el.value;return;}
  if(el.dataset.set){var ids=el.dataset.set.split(':'),set=draft.exercises[Number(ids[0])].sets[Number(ids[1])],field=ids[2];set[field]=Math.max(0,Math.min(999,Number(el.value)||0));}
@@ -753,6 +755,7 @@ document.addEventListener('click',function(event){
   }
  }
 });
+document.addEventListener('change',function(event){if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);});
 document.addEventListener('input',function(event){
  var el=event.target;
  if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
