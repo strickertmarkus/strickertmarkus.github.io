@@ -131,7 +131,8 @@ jobs:
               viewport:{width:390,height:844},isMobile:true,hasTouch:true,
               userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
             });
-            const page=await context.newPage(),errors=[];
+            let page=await context.newPage();
+            const errors=[];
             page.on('pageerror',e=>errors.push('pageerror: '+e.message));
             page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
             await route(page);
@@ -236,13 +237,6 @@ jobs:
             assert.equal(await page.locator('#reactor-action').textContent(),'Redigera pass');
             assert.equal(await page.locator('#week-grid .today').getAttribute('aria-current'),'date');
             assert.equal(await page.locator('#week-grid .today.done .wd-status').isVisible(),true);
-            for(const width of [320,390,1440]){
-              await page.setViewportSize({width,height:width>760?1000:844});
-              await page.waitForTimeout(500);
-              await overviewAudit('populated '+width);
-              await shot('populated-'+width);
-            }
-            await page.setViewportSize({width:390,height:844});
             // Template cards prepare a draft and never overwrite a saved day on selection/cancel.
             assert.equal(await page.locator('.observatory-template-card').count(),2);
             const savedPlan=await page.evaluate(()=>JSON.stringify(getPlannedSessions()));
@@ -261,7 +255,15 @@ jobs:
             assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
             await page.getByRole('button',{name:/Lugn träningsvecka/}).click();
             assert.equal(await page.locator('#template-pick').inputValue(),'702');
+            await page.waitForFunction(()=>document.querySelector('#template-modal .modal').getAnimations().every(a=>a.playState==='finished'||a.playState==='idle'));
             await page.locator('#template-modal .modal-close').click();
+            for(const width of [320,390,1440]){
+              await page.setViewportSize({width,height:width>760?1000:844});
+              await page.waitForTimeout(500);
+              await overviewAudit('populated '+width);
+              await shot('populated-'+width);
+            }
+            await page.setViewportSize({width:390,height:844});
             await page.locator('[data-week-orbit-toggle]').click();
             await page.waitForFunction(()=>document.querySelector('#pulse-week').dataset.weekOrbitState==='expanded',null,{timeout:5000});
             assert.equal(await page.locator('[data-week-orbit-toggle]').getAttribute('aria-expanded'),'true');
@@ -298,6 +300,14 @@ jobs:
             await page.waitForTimeout(320);
             await editableAudit(page,'Compact');
 
+            // Release the large chart/screenshot document before the independent Zen flow.
+            await page.close();
+            page=await context.newPage();
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            await route(page);
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.__exerciseLoaderMetricsV2&&window.__exerciseLoaderMetricsV2.bundleReadyAt&&typeof window.setWellnessMode==='function');
             await page.evaluate(async()=>{await window.setWellnessMode('stretch')});
             await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');
             await page.waitForTimeout(400);
