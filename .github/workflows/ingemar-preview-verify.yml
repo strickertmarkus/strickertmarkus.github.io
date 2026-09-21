@@ -123,11 +123,11 @@ jobs:
             await page.mouse.move(weekDragSource.x+weekDragSource.width/2,weekDragSource.y+weekDragSource.height/2);
             await page.mouse.down();
             const dragX=weekDragSource.x+weekDragSource.width/2,dragY=weekDragSource.y+weekDragSource.height/2;
+            const ghostBefore=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
             await page.mouse.move(dragX+18,dragY+24,{steps:3});
-            const ghostPosition=await page.locator('.week-planner-drag-ghost').evaluate(el=>{
-              const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};
-            });
-            assert.ok(Math.abs(ghostPosition.x-(dragX+18))<16&&Math.abs(ghostPosition.y-(dragY+24))<16,'Dragged pass preview should follow the finger in both axes');
+            const ghostAfter=await page.locator('.week-planner-drag-ghost').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top};});
+            assert.ok(Math.abs((ghostAfter.x-ghostBefore.x)-18)<10&&Math.abs((ghostAfter.y-ghostBefore.y)-24)<10,
+              'Dragged pass preview must follow the finger movement in both axes: '+JSON.stringify({ghostBefore,ghostAfter}));
             await page.mouse.move(weekDragTarget.x+weekDragTarget.width/2,weekDragTarget.y+weekDragTarget.height/2,{steps:7});
             await page.mouse.up();
             const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
