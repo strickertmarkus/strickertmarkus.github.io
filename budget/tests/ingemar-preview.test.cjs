@@ -69,7 +69,7 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/delete state\.plans\[date\]/);
  assert.match(source[1],/weekDraft\[to\]=weekPlanClone\(weekDraft\[from\]\)/);
  assert.match(html,/#week-planner\{width:min\(780px,calc\(100dvw - 20px\)\)/);
- assert.match(html,/\.week-planner-drag\{touch-action:none/);
+ assert.match(html,/\.week-planner-drag\{[^}]*touch-action:none/);
  for(const fn of ['openWeekDayBuilder','restoreWeekPlannerFromBuilder','weekExercisePreset','weekExerciseChoices','positionWeekDrag','glowBarsMarkup','selectGlowBar','chartAxisDisplay','chartSeriesColor','inspectChartPoint','installChartPointHandlers'])assert.ok(source[1].includes('function '+fn+'('),fn);
  for(const control of ['data-week-edit','data-week-type','data-week-exercise','data-week-toggle-day','data-week-copy-target','data-chart-point','data-chart-bar'])assert.match(source[1],new RegExp(control),control);
  assert.doesNotMatch(source[1],/function setWeekDaySource|data-week-source|data-week-add-exercise|data-week-remove-exercise|data-week-toggle-exercises/);
