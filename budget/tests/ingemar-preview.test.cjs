@@ -86,7 +86,7 @@ test('training mode embeds the original Pulse Flow CSS and ordered set decisions
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-observatory-flow-3/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-observatory-flow-4/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-family-structure-1/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
