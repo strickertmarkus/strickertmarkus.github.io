@@ -48,6 +48,9 @@ jobs:
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
             await page.waitForSelector('#pp-volume-chart svg');
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
+            assert.equal(await page.locator('#pp-volume-chart .pp-area').count(),2,'Telemetry chart should render soft area depth under both lines');
+            assert.equal(await page.locator('#pp-volume-chart .pp-node-halo').count(),16,'Eight weeks across two series should have glowing telemetry nodes');
+            assert.equal(await page.locator('#pp-volume-chart [data-chart-point][aria-pressed="true"]').count(),1,'Latest week should be selected by default');
             await page.locator('#pp-volume-chart [data-chart-point="2"]').click();
             assert.match(await page.locator('#pp-volume-chart-inspect').textContent(),/v\d+ · Push: .* · Pull: /,'Tapped volume chart must reveal both actual series values');
             await page.locator('#pp-exercise-chart [data-chart-point="3"]').click();
@@ -72,7 +75,7 @@ jobs:
             await page.locator('[data-analytics-metric="volume"]').click();
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,#week-planner .week-day-card-top,#week-planner .week-day-editor,#week-planner .week-day-type-grid,#week-planner .week-exercise-grid,.pp-chart-shell,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -95,28 +98,32 @@ jobs:
             const preWeekState=await page.evaluate(()=>localStorage.getItem('ingemar-pulse-demo-v1'));
             await page.locator('[data-action="plan-week"]').click();
             assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),true);
-            assert.equal(await page.locator('#week-planner-days .week-planner-day').count(),7,'Week planner should edit all seven days together');
+            assert.equal(await page.locator('#week-planner-days .week-planner-day').count(),7,'Week planner should show all seven days together');
             assert.match(await page.locator('#week-planner-label').textContent(),/^Vecka \d+$/);
+            assert.match(await page.locator('#week-planner-summary').textContent(),/\d+ pass planerade/);
+            assert.equal(await page.locator('[data-week-source]').count(),0,'Daily dropdowns are intentionally removed from the primary planning flow');
             await auditNoHorizontalScroll('Veckoplanerare 390px');
 
-            const mondaySelect=page.locator('[data-week-source="0"]');
-            await mondaySelect.selectOption('standard:Pull');
-            assert.match(await page.locator('[data-week-day="0"] .week-planner-day-summary').textContent(),/Pull/);
+            await page.locator('[data-week-toggle-day="0"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] .week-day-editor').isVisible(),true,'Snabbplanera should expose obvious controls in the day card');
+            await page.locator('[data-week-type="0:Pull"]').click();
+            assert.equal(await page.locator('[data-week-day="0"]').getAttribute('data-week-plan-type'),'Pull');
+            assert.equal(await page.locator('[data-week-day="0"] [data-week-type="0:Pull"]').getAttribute('aria-pressed'),'true');
+            assert.equal(await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Latsdrag')+'"]').getAttribute('aria-pressed'),'true');
+
+            await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').getAttribute('aria-pressed'),'false','Exercise chips toggle directly');
+            await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').click();
+            assert.equal(await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').getAttribute('aria-pressed'),'true');
+            await auditNoHorizontalScroll('Veckodagens synliga snabbval 390px');
+
             await page.locator('[data-week-copy="0"]').click();
-            assert.equal(await page.locator('#week-copy-note').isVisible(),true);
+            assert.equal(await page.locator('[data-week-day="0"] .week-copy-destinations').isVisible(),true,'Copy action should immediately show destination days');
             await page.locator('[data-week-copy-target="1"]').click();
-            assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/,'Copy should duplicate a planned workout to another day');
+            assert.equal(await page.locator('[data-week-day="1"]').getAttribute('data-week-plan-type'),'Pull','Copy should duplicate the planned workout to the chosen day');
+            assert.equal(await page.locator('[data-week-day="1"] .week-day-editor').isVisible(),true,'Copied target becomes the active card so the result is obvious');
 
-            await page.locator('[data-week-toggle-exercises="0"]').click();
-            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'Each day exposes its own editable exercise list');
-            await page.locator('[data-week-remove-exercise="0:2"]').click();
-            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),2);
-            await page.locator('[data-week-add-exercise="0"]').selectOption({label:'Hantelcurl'});
-            assert.equal(await page.locator('[data-week-day="0"] .week-day-exercise-list .week-exercise-chip').count(),3,'The removed exercise can be selected again without leaving the week planner');
-            await auditNoHorizontalScroll('Veckodagens övningsval 390px');
-            await page.locator('[data-week-toggle-exercises="0"]').click();
-
-            const beforeWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
+            const beforeWeekDrag=await page.locator('#week-planner-days .week-planner-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.weekPlanType));
             const weekDragHandle=page.locator('[data-week-drag="0"]');
             const weekDragSource=await weekDragHandle.boundingBox();
             const weekDragTarget=await page.locator('[data-week-day="2"]').boundingBox();
@@ -130,11 +137,11 @@ jobs:
               'Dragged pass preview must follow the finger movement in both axes: '+JSON.stringify({ghostBefore,ghostAfter}));
             await page.mouse.move(weekDragTarget.x+weekDragTarget.width/2,weekDragTarget.y+weekDragTarget.height/2,{steps:7});
             await page.mouse.up();
-            const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day-summary').evaluateAll(nodes=>nodes.map(n=>n.textContent));
+            const afterWeekDrag=await page.locator('#week-planner-days .week-planner-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.weekPlanType));
             assert.equal(afterWeekDrag[2],beforeWeekDrag[0],'Dragging a day should move/swap its planned workout');
 
             await page.locator('[data-week-edit="1"]').first().click();
-            assert.equal(await page.locator('#builder').evaluate(el=>el.open),true,'Tapping a planner day should open its actual workout editor');
+            assert.equal(await page.locator('#builder').evaluate(el=>el.open),true,'The main day surface opens the full workout builder');
             assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),false);
             assert.equal(await page.locator('#build-date').isDisabled(),true,'Editing a week day must not silently move it to another date');
             assert.equal(await page.locator('#builder-start-from-builder').isVisible(),false,'A week draft must be saved before a session can start');
@@ -142,12 +149,13 @@ jobs:
             await page.locator('[data-action="save-plan"]').click();
             await page.waitForFunction(()=>document.querySelector('#week-planner').open);
             assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),true,'Saving one day returns to the week planner');
-            assert.match(await page.locator('[data-week-day="1"] .week-planner-day-summary').textContent(),/Pull/);
+            assert.equal(await page.locator('[data-week-day="1"]').getAttribute('data-week-plan-type'),'Pull');
             await page.locator('[data-week-edit="1"]').first().click();
             assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'61','Day edits remain in the unsaved week draft');
             await page.locator('[data-action="close-builder"]').first().click();
             await page.waitForFunction(()=>document.querySelector('#week-planner').open);
 
+            await page.locator('.week-template-drawer summary').click();
             page.once('dialog',d=>d.accept('Demo vecka 4 dagar'));
             await page.locator('[data-action="save-week-template"]').click();
             assert.ok((await page.locator('#week-template-select option').count())>=3,'New week template should be available immediately');
