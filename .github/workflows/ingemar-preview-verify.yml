@@ -96,6 +96,7 @@ jobs:
                     ?[{name:el.className||el.tagName,left:r.left,right:r.right,scroll:el.scrollWidth,client:el.clientWidth}]:[];
                 });
                 const inputOverflow=[...dialog.querySelectorAll('input,button')].flatMap(el=>{
+                  if(!el.getClientRects().length||getComputedStyle(el).visibility==='hidden')return [];
                   const r=el.getBoundingClientRect();return r.left<frame.left-1||r.right>frame.right+1
                     ?[{name:el.getAttribute('aria-label')||el.textContent||el.tagName,left:r.left,right:r.right}]:[];
                 });
