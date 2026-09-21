@@ -45,6 +45,11 @@ jobs:
             fs.mkdirSync('test-results/ingemar-demo',{recursive:true});
             await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html');
             await page.waitForSelector('[data-choice="Push"]');
+            async function waitAnimationFrames(count=4){
+              await page.evaluate(count=>new Promise(resolve=>{
+                let seen=0;function frame(){seen++;if(seen>=count)resolve();else requestAnimationFrame(frame);}requestAnimationFrame(frame);
+              }),count);
+            }
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
             await page.waitForSelector('#pp-volume-chart svg');
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
@@ -494,7 +499,7 @@ jobs:
             assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-pre-count').textContent(),'5');
             const preProgress=[];
-            for(let i=0;i<6;i++){await page.waitForTimeout(70);preProgress.push(parseFloat(await page.locator('#session-pre-progress').evaluate(el=>el.style.width)));}
+            for(let i=0;i<6;i++){await waitAnimationFrames(4);preProgress.push(parseFloat(await page.locator('#session-pre-progress').evaluate(el=>el.style.width)));}
             const preDeltas=preProgress.slice(1).map((v,i)=>v-preProgress[i]);
             assert.ok(new Set(preProgress.map(v=>v.toFixed(3))).size>=5&&preDeltas.every(v=>v>0&&v<4),
               '5 s start progress must advance continuously on animation frames: '+JSON.stringify({preProgress,preDeltas}));
@@ -569,7 +574,7 @@ jobs:
               assert.notEqual(dial.arcFilter,'none',label+' progress arc needs glow');
             }
             const smoothArc=[];
-            for(let i=0;i<6;i++){await page.waitForTimeout(70);smoothArc.push(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset)));}
+            for(let i=0;i<6;i++){await waitAnimationFrames(4);smoothArc.push(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset)));}
             const smoothDeltas=smoothArc.slice(1).map((v,i)=>smoothArc[i]-v);
             assert.ok(new Set(smoothArc.map(v=>v.toFixed(3))).size>=5&&smoothDeltas.every(v=>v>0&&v<1.5),
               'Stretch dial must advance continuously rather than in 400 ms jumps: '+JSON.stringify({smoothArc,smoothDeltas}));
@@ -617,7 +622,7 @@ jobs:
             assert.equal(await page.locator('#zen-step-arc').evaluate(el=>getComputedStyle(el).stroke),
               'rgb(245, 219, 162)','Meditation arc should inherit the warm meditation accent');
             const breathTransforms=[];
-            for(let i=0;i<5;i++){await page.waitForTimeout(75);breathTransforms.push(await page.locator('#zen-breath-pulse').evaluate(el=>el.style.transform));}
+            for(let i=0;i<5;i++){await waitAnimationFrames(4);breathTransforms.push(await page.locator('#zen-breath-pulse').evaluate(el=>el.style.transform));}
             assert.ok(new Set(breathTransforms).size>=4,'Meditation breath guide must animate continuously: '+JSON.stringify(breathTransforms));
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
