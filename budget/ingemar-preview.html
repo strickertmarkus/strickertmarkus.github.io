@@ -14,6 +14,13 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 #builder{width:min(660px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none}
 #builder .modal-head,#builder .modal-head>div,#builder .modal-body,#builder .field,#builder #exercise-list,#builder .exercise-card,#builder .exercise-head,#builder .exercise-fields,#builder .metric-pills,#builder .set-header,#builder .set-row,#builder .exercise-foot,#builder .modal-actions,#builder .modal-actions .right{min-width:0;max-width:100%}
 #builder input,#builder button,#builder select{min-width:0;max-width:100%}
+/* iOS Safari's native date control can keep an intrinsic content width even
+   when its input has width:100%. Give its field a shrinkable grid track and
+   bound the control and native date text to that track. */
+#builder .field{display:grid;grid-template-columns:minmax(0,1fr)}
+#builder #build-date{display:block;box-sizing:border-box;inline-size:100%;min-inline-size:0;max-inline-size:100%;min-block-size:48px;font-size:16px}
+#builder #build-date::-webkit-date-and-time-value{min-inline-size:0;max-inline-size:100%;text-align:center}
+#builder #build-date::-webkit-datetime-edit{min-inline-size:0;max-inline-size:100%}
 @media(max-width:600px){
  #builder .modal-head{padding:16px 14px;gap:10px}
  #builder .modal-head .x{flex:0 0 34px}

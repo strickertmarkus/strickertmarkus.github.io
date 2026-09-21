@@ -19,6 +19,9 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(html,/#builder\{width:min\(660px,calc\(100dvw - 20px\)\);max-width:calc\(100dvw - 20px\);max-height:calc\(100dvh - 20px\);overflow-x:hidden;overflow-y:auto/);
  assert.match(html,/@media\(max-width:600px\)\{\s*#builder \.modal-head/);
  assert.match(html,/#builder \.exercise-fields\{grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(html,/#builder \.field\{display:grid;grid-template-columns:minmax\(0,1fr\)\}/);
+ assert.match(html,/#builder #build-date\{display:block;box-sizing:border-box;inline-size:100%;min-inline-size:0;max-inline-size:100%/);
+ assert.match(html,/#builder #build-date::-webkit-date-and-time-value\{min-inline-size:0/);
  assert.match(html,/#builder \.modal-actions \.right\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(html,/Builder-only small-screen layout/);
  assert.match(source[1],/data-set=/);

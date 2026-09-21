@@ -91,6 +91,18 @@ jobs:
                 layout.overflowX==='hidden'&&layout.overflowY==='auto'&&
                 layout.scroll<=layout.client+1&&layout.wrong.length===0&&layout.inputOverflow.length===0,
                 label+' must stay inside the mobile dialog: '+JSON.stringify(layout));
+              const dateField=await page.locator('#build-date').evaluate(input=>{
+                const body=input.closest('.modal-body'),field=input.closest('.field');
+                const r=input.getBoundingClientRect(),parent=body.getBoundingClientRect(),f=field.getBoundingClientRect(),
+                  style=getComputedStyle(body),padLeft=parseFloat(style.paddingLeft),padRight=parseFloat(style.paddingRight);
+                return {left:r.left,right:r.right,width:r.width,fieldLeft:f.left,fieldRight:f.right,
+                  innerLeft:parent.left+padLeft,innerRight:parent.right-padRight,
+                  client:input.clientWidth,scroll:input.scrollWidth,track:getComputedStyle(field).gridTemplateColumns};
+              });
+              assert.ok(dateField.left>=dateField.innerLeft-1&&dateField.right<=dateField.innerRight+1&&
+                dateField.left>=dateField.fieldLeft-1&&dateField.right<=dateField.fieldRight+1&&
+                dateField.scroll<=dateField.client+1,
+                label+' date input must fit within the padded builder body: '+JSON.stringify(dateField));
               await page.locator('#builder').evaluate(dialog=>{dialog.scrollLeft=100;});
               assert.equal(await page.locator('#builder').evaluate(dialog=>dialog.scrollLeft),0,
                 label+' must not allow sideways dragging of the builder');
@@ -105,6 +117,11 @@ jobs:
             await auditBuilder('Passbyggare 320px med större text');
             await enlargedFonts.evaluate(style=>style.remove());
             await page.setViewportSize({width:390,height:844});
+            const originalDate=await page.locator('#build-date').inputValue();
+            await page.locator('#build-date').fill('2026-12-31');
+            assert.equal(await page.locator('#build-date').inputValue(),'2026-12-31');
+            await auditBuilder('Passbyggare med ändrat datum 390px');
+            await page.locator('#build-date').fill(originalDate);
             await page.locator('#builder').evaluate(dialog=>{dialog.scrollTop=dialog.scrollHeight;});
             await auditBuilder('Passbyggare nedscrollad 390px');
             await page.screenshot({path:'test-results/ingemar-demo/builder-bottom-390.png'});
