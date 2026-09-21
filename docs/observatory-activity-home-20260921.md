@@ -29,3 +29,4 @@
 - Activity-only WebKit verification passed: Actions run `35620610746`.
 - Home, steady start target and complete mode flows passed: Actions run `35636882578`.
 - Final narrow-layout verification: Actions run `35636985957` (the associated artifact contains the final review images).
+- The Compact assertion waits for the canonical post-animation chart redraw (bounded to 3 seconds), avoiding a fixed 320ms race on busy CI runners.

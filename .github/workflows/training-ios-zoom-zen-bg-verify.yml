@@ -354,7 +354,8 @@ jobs:
 
             await page.evaluate(()=>window.setTrainingOverviewMode('compact'));
             await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
-            await page.waitForTimeout(320);
+            // Mode commits first; the canonical chart redraw follows its entry animation.
+            await page.waitForFunction(()=>Chart.getChart('chart-sessions')?.config.type==='line',null,{timeout:3000});
             await editableAudit(page,'Compact');
             assert.equal(await page.locator('.activity-controls').isVisible(),false);
             assert.equal(await page.evaluate(()=>Chart.getChart('chart-sessions').config.type),'line');
@@ -396,7 +397,8 @@ jobs:
             await editableAudit(page,'Pulse / Observatory 375px');
             await page.evaluate(()=>window.setTrainingOverviewMode('compact'));
             await page.waitForFunction(()=>document.documentElement.dataset.trainingOverview==='compact');
-            await page.waitForTimeout(320);
+            // Mode commits first; the canonical chart redraw follows its entry animation.
+            await page.waitForFunction(()=>Chart.getChart('chart-sessions')?.config.type==='line',null,{timeout:3000});
             await editableAudit(page,'Compact 375px');
 
             // Inspect the real shared Zen home at narrow, normal and wide iPhone sizes.
