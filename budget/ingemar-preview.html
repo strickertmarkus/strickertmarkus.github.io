@@ -366,7 +366,7 @@ function strengthMetric(week,type,exerciseName,metric){
  if(metric==='e1rm')return sets.reduce(function(max,s){var w=Number(s.weight)||0,r=Number(s.reps)||0;return Math.max(max,w*(1+r/30));},0);
  return sets.reduce(function(n,s){return n+(Number(s.weight)||0)*(Number(s.reps)||0);},0);
 }
-function strengthExerciseNames(type){
+function analyticsExerciseList(type){
  var seen=Object.create(null),names=[];
  state.history.forEach(function(workout){
   if(workout.type!==type)return;
@@ -419,7 +419,7 @@ function renderPushPullAnalytics(){
  $('pp-set-count').textContent=pushSets+' / '+pullSets;$('pp-rep-count').textContent=pushReps+' / '+pullReps;$('pp-total-volume').textContent=metricDisplay(total,'volume');
  document.querySelectorAll('[data-analytics-type]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.analyticsType===analyticsType));});
  document.querySelectorAll('[data-analytics-metric]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.analyticsMetric===analyticsMetric));});
- var names=strengthExerciseNames(analyticsType);
+ var names=analyticsExerciseList(analyticsType);
  if(!analyticsExercise||names.indexOf(analyticsExercise)<0)analyticsExercise=names[0]||'';
  $('pp-exercise-pills').innerHTML=names.map(function(name){return '<button type="button" data-analytics-exercise="'+clean(name)+'" aria-pressed="'+String(name===analyticsExercise)+'">'+clean(name)+'</button>';}).join('');
  $('pp-exercise-title').textContent=analyticsExercise||analyticsType;
