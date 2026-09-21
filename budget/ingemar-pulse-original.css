@@ -831,7 +831,7 @@
 #session .session-pre-eyebrow,#session .session-pre-label{color:var(--pf-accent);letter-spacing:1.45px;font-size:10px;font-weight:700;text-transform:uppercase}
 #session .session-pre-value{font-size:clamp(65px,17vw,98px);font-weight:550;line-height:1;letter-spacing:-.06em;color:var(--pf-soft);text-shadow:0 0 20px rgba(var(--pf-rgb),.25);font-variant-numeric:tabular-nums}
 #session .session-pre-line{width:min(250px,68vw);height:2px;background:rgba(var(--pf-rgb),.16);overflow:visible;margin:7px 0}
-#session .session-pre-line>div{position:relative;width:0;height:100%;background:var(--pf-accent);box-shadow:0 0 7px rgba(var(--pf-rgb),.65);transition:width .16s linear}
+#session .session-pre-line>div{position:relative;width:0;height:100%;background:var(--pf-accent);box-shadow:0 0 7px rgba(var(--pf-rgb),.65);transition:none;will-change:width}
 #session .session-pre-line>div::after{content:"";position:absolute;right:0;top:50%;transform:translate(50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--pf-soft);box-shadow:0 0 12px var(--pf-accent)}
 #session .session-pre-center .session-cta{margin-top:14px;padding:11px 24px;min-height:45px;border-radius:999px;border:1px solid var(--pf-accent);background:rgba(var(--pf-rgb),.16);color:var(--pf-soft)}
 @media(max-width:360px){#session-modal .session-top #session-prestart-toggle{padding:8px 6px;font-size:10px}#session-modal .session-top>.session-cta{padding:8px;font-size:11px}}
