@@ -344,6 +344,7 @@ jobs:
                   const header=document.querySelector('#pulse-header').getBoundingClientRect(),nav=document.querySelector('.wellness-kind-switch').getBoundingClientRect();
                   return {width:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,radius:s.borderRadius,headerLeft:header.left,navLeft:nav.left,headerHeight:header.height,homeLeft:document.querySelector('.sanctuary').getBoundingClientRect().left,disabled:orb.disabled};
                 });
+                await page.screenshot({path:'test-results/observatory/'+kind+'-home-'+width+'.png'});
                 assert.ok(Math.abs(bounds.w-bounds.h)<1,kind+' start must be round: '+JSON.stringify(bounds));
                 assert.equal(bounds.radius,'50%');
                 assert.equal(bounds.disabled,false);
@@ -353,7 +354,6 @@ jobs:
                 assert.ok(Math.abs(bounds.headerLeft-bounds.navLeft)<1,kind+' header/nav not aligned');
                 assert.ok(Math.abs(bounds.headerLeft-bounds.homeLeft)<1,kind+' home gutter not aligned');
                 assert.equal(bounds.headerHeight,width<=760?92:104);
-                await page.screenshot({path:'test-results/observatory/'+kind+'-home-'+width+'.png'});
                 if(width===390){
                   await page.locator('#start-button').click();
                   assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
