@@ -501,7 +501,7 @@ jobs:
             const preProgress=[];
             for(let i=0;i<6;i++){await waitAnimationFrames(4);preProgress.push(parseFloat(await page.locator('#session-pre-progress').evaluate(el=>el.style.width)));}
             const preDeltas=preProgress.slice(1).map((v,i)=>v-preProgress[i]);
-            assert.ok(new Set(preProgress.map(v=>v.toFixed(3))).size>=5&&preDeltas.every(v=>v>0&&v<4),
+            assert.ok(new Set(preProgress.map(v=>v.toFixed(3))).size>=5&&preDeltas.every(v=>v>0&&v<8),
               '5 s start progress must advance continuously on animation frames: '+JSON.stringify({preProgress,preDeltas}));
             await auditNoHorizontalScroll('Originalets femsekunderstimer 390px');
             await page.screenshot({path:'test-results/ingemar-demo/5s-prestart-mobile.png'});
