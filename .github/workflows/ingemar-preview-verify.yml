@@ -272,13 +272,14 @@ jobs:
             const dragHandle=page.locator('[data-drag-exercise="0"]');
             const sourceBox=await dragHandle.boundingBox();
             const lastCard=page.locator('#exercise-list .exercise-card').last();
-            const targetBox=await lastCard.boundingBox();
-            await page.mouse.move(sourceBox.x+sourceBox.width/2,sourceBox.y+sourceBox.height/2);
-            await page.mouse.down();
-            await page.mouse.move(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height-4,{steps:7});
-            await page.mouse.up();
+            const targetBox=await lastCard.boundingBox(),builderPointerId=52;
+            const builderDragX=sourceBox.x+sourceBox.width/2,builderDragY=sourceBox.y+sourceBox.height/2;
+            await dragHandle.dispatchEvent('pointerdown',{pointerId:builderPointerId,button:0,buttons:1,clientX:builderDragX,clientY:builderDragY,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true});
+            await page.locator('.builder-drag-ghost').waitFor({state:'visible'});
+            await page.evaluate(({pointerId,x,y})=>document.dispatchEvent(new PointerEvent('pointermove',{pointerId,button:-1,buttons:1,clientX:x,clientY:y,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true})),{pointerId:builderPointerId,x:targetBox.x+targetBox.width/2,y:targetBox.y+targetBox.height-4});
+            await page.evaluate(({pointerId,x,y})=>document.dispatchEvent(new PointerEvent('pointerup',{pointerId,button:0,buttons:0,clientX:x,clientY:y,pointerType:'touch',isPrimary:true,bubbles:true,cancelable:true})),{pointerId:builderPointerId,x:targetBox.x+targetBox.width/2,y:targetBox.y+targetBox.height-4});
             const afterDrag=await page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(nodes=>nodes.map(n=>n.value));
-            assert.equal(afterDrag.at(-1),beforeDrag[0],'Drag handle should move the first exercise to the end');
+            assert.equal(afterDrag.at(-1),beforeDrag[0],'Touch drag handle should move the first exercise to the end');
             await page.locator('#type-pills [data-type="Push"]').click();
 
             const firstName=page.locator('[data-exercise-name-input="0"]');
