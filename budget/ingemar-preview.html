@@ -104,8 +104,8 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-planner-telemetry-8">
-<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-family-structure-1">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260921-zen-session-9">
+<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-smooth-timers-2">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -241,6 +241,11 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
  </div>
 </section>
 <dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog><section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
+  <div class="zen-session-ambient" aria-hidden="true">
+    <span class="zen-ambient-orb orb-a"></span><span class="zen-ambient-orb orb-b"></span>
+    <span class="zen-ambient-leaf leaf-a"></span><span class="zen-ambient-leaf leaf-b"></span><span class="zen-ambient-leaf leaf-c"></span>
+    <span class="zen-ambient-ripple ripple-a"></span><span class="zen-ambient-ripple ripple-b"></span>
+  </div>
   <div class="mode-topbar"><button type="button" class="back" data-action="close-zen">← Lämna</button><div class="mode-identity"><small>INGEMAR / ZEN · EGEN ÅTERHÄMTNING</small><strong id="zen-kind-name">Stretch</strong></div><span class="mode-status" id="zen-status">LIVE · DEMO</span></div>
   <div class="zen-layout">
     <div class="zen-scenery" aria-hidden="true">
@@ -265,21 +270,32 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
       <div class="scene-sheen"></div><span class="scene-hint" id="zen-scene-hint">SKOGSLJUS · MJUK RÖRELSE</span>
     </div>
     <div class="zen-workspace">
-      <div class="zen-overline" id="zen-session-overline">STRETCH · STEG 1 AV 5</div>
-      <h1 id="zen-session-title">Helkropp</h1>
-      <p class="zen-description" id="zen-step">Rör dig mjukt och ta en stund för kroppen.</p>
-      <div class="zen-clock-wrap" id="zen-session-ring" role="timer" aria-label="Tid kvar i aktuellt steg">
-        <svg class="zen-step-dial" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-          <circle class="zen-step-track" cx="50" cy="50" r="44" pathLength="100"/>
-          <circle class="zen-step-arc" id="zen-step-arc" cx="50" cy="50" r="44" pathLength="100"/>
-          <circle class="zen-step-marker" id="zen-step-marker" cx="94" cy="50" r="3.2"/>
-        </svg>
-        <div class="zen-clock-inner"><small id="zen-clock-caption">KVAR I RÖRELSEN</small><strong id="zen-clock">01:00</strong><small id="zen-step-total">AV 01:00</small><small id="zen-breath">TA DET LUGNT</small></div>
+      <div class="zen-focus-grid">
+        <div class="zen-focus-card">
+          <div class="zen-focus-copy">
+            <div class="zen-overline" id="zen-session-overline">STRETCH · STEG 1 AV 5</div>
+            <h1 id="zen-session-title">Helkropp</h1>
+            <p class="zen-description" id="zen-step">Rör dig mjukt och ta en stund för kroppen.</p>
+          </div>
+          <div class="zen-clock-wrap" id="zen-session-ring" role="timer" aria-label="Tid kvar i aktuellt steg">
+            <span class="zen-clock-aura" aria-hidden="true"></span>
+            <svg class="zen-step-dial" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+              <circle class="zen-step-track" cx="50" cy="50" r="44" pathLength="100"/>
+              <circle class="zen-step-arc" id="zen-step-arc" cx="50" cy="50" r="44" pathLength="100"/>
+              <circle class="zen-step-marker" id="zen-step-marker" cx="94" cy="50" r="3.2"/>
+            </svg>
+            <div class="zen-clock-inner"><small id="zen-clock-caption">KVAR I RÖRELSEN</small><strong id="zen-clock">01:00</strong><small id="zen-step-total">AV 01:00</small><small id="zen-breath">TA DET LUGNT</small></div>
+          </div>
+          <div class="zen-live-flow" aria-hidden="true"><span></span><i id="zen-breath-pulse"></i><span></span></div>
+        </div>
+        <aside class="zen-journey-card">
+          <div class="zen-next-block"><small>NÄSTA</small><strong id="zen-next-step">Nacke &amp; axlar</strong><span id="zen-next-meta">01:30 · steg 2</span></div>
+          <div class="zen-stage" id="zen-stage-label">STEGETS FÖRLOPP</div>
+          <div class="zen-total-time"><span id="zen-total-time">00:00 / 08:00</span><span id="zen-total-percent">0 %</span></div>
+          <div class="mode-progress zen-progress" id="zen-total-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="zen-bar"></div></div>
+          <div class="zen-stage-list" id="zen-stage-list" aria-label="Passets steg"></div>
+        </aside>
       </div>
-      <div class="zen-stage" id="zen-stage-label">STEGETS FÖRLOPP</div>
-      <div class="zen-total-time"><span id="zen-total-time">00:00 / 08:00</span><span id="zen-total-percent">0 %</span></div>
-      <div class="mode-progress zen-progress" id="zen-total-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="zen-bar"></div></div>
-      <div class="zen-stage-list" id="zen-stage-list" aria-label="Passets steg"></div>
       <div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
       <button type="button" class="ghost zen-exit" data-action="finish-zen" id="finish-zen">Avsluta och spara stund ✓</button>
     </div>
@@ -545,7 +561,7 @@ function seed(){
  return {plans:plans,history:history,zenHistory:zenSeedHistory(today),templates:[],weekTemplates:seedWeekTemplates(),goal:4};
 }
 function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory)){if(!Array.isArray(value.templates))value.templates=[];if(!Array.isArray(value.weekTemplates))value.weekTemplates=seedWeekTemplates();return hydrateStrengthDemo(hydrateZenDemo(value));}}}catch(e){}return seed();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenAnimationFrame=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
@@ -957,9 +973,10 @@ function focusedSet(){
  var e=active.exercises[active.focus.ex];
  return e&&e.sets[active.focus.set]||null;
 }
-function elapsedSetSeconds(){
+function elapsedSetSeconds(now){
  if(!active)return 0;
- return (active.timerElapsed||0)+(active.timerRunning?Math.max(0,(Date.now()-active.timerStartedAt)/1000):0);
+ now=now||Date.now();
+ return (active.timerElapsed||0)+(active.timerRunning?Math.max(0,(now-active.timerStartedAt)/1000):0);
 }
 function resetSetClock(){
  if(!active)return;
@@ -983,15 +1000,16 @@ function start(){
  $('session-pre-timer').hidden=true;
  document.body.dataset.modeOpen='true';
  renderSession();
- startSessionRing();
+ startSessionAnimation();
  $('session-exercises').scrollTop=0;
  $('session').scrollTop=0;
 }
 function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(seconds));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}
+function setText(id,value){var node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;}
 function sessionRestSeconds(now){return active&&active.restUntil?Math.max(0,Math.ceil((active.restUntil-(now||Date.now()))/1000)):0;}
 /* Geometry and endpoint marker from the original Pulse Flow v85 ring.
    Wall-clock time drives the SVG directly; the session controls own state. */
-var sessionRingFrame=0,sessionRingLastFrame=0;
+var sessionAnimationFrame=0;
 function sessionArcPoint(ratio){
  ratio=Math.max(0,Math.min(1,Number(ratio)||0));
  var radians=(140+260*ratio)*Math.PI/180;
@@ -1008,7 +1026,7 @@ function paintSessionRing(now){
  now=now||Date.now();
  var current=focusedSet(),ex=sessionExercise(),rest=active.restUntil?Math.max(0,(active.restUntil-now)/1000):0;
  if($('session-live-timer').hidden)return;
- var elapsed=elapsedSetSeconds(),ratio=0,value='00:00',label='REDO FÖR SET';
+ var elapsed=elapsedSetSeconds(now),ratio=0,value='00:00',label='REDO FÖR SET';
  if(!current&&!firstPendingSet()){
   ratio=1;value=fmtSeconds((now-active.startedAt)/1000);label='PASS KLART';
  }else if(rest>0){
@@ -1032,34 +1050,35 @@ function paintSessionRing(now){
  marker.style.opacity=ratio>.002?'1':'0';
  ring.setAttribute('aria-label',label.toLocaleLowerCase('sv-SE')+': '+value);
 }
-function sessionRingTick(time){
- if(!active||$('session').hidden){sessionRingFrame=0;return;}
- if(time-sessionRingLastFrame>30){
-  sessionRingLastFrame=time;
-  if(!document.hidden)paintSessionRing(Date.now());
- }
- sessionRingFrame=requestAnimationFrame(sessionRingTick);
+function sessionAnimationTick(){
+ if(!active||$('session').hidden){sessionAnimationFrame=0;return;}
+ if(!document.hidden)updateSessionClock(Date.now());
+ sessionAnimationFrame=requestAnimationFrame(sessionAnimationTick);
 }
-function startSessionRing(){
- if(sessionRingFrame)return;
- sessionRingLastFrame=0;
- sessionRingFrame=requestAnimationFrame(sessionRingTick);
+function startSessionAnimation(){
+ if(sessionAnimationFrame)return;
+ sessionAnimationFrame=requestAnimationFrame(sessionAnimationTick);
+}
+function stopSessionAnimation(){
+ if(!sessionAnimationFrame)return;
+ cancelAnimationFrame(sessionAnimationFrame);sessionAnimationFrame=0;
 }
 
 function sessionSetIndex(){return active&&active.focus?active.focus.set:-1;}
 function sessionExercise(){return active&&active.focus?active.exercises[active.focus.ex]:null;}
-function updateSessionClock(){
+function updateSessionClock(now){
  if(!active)return;
- var now=Date.now(),rest=sessionRestSeconds(now),set=focusedSet(),ex=sessionExercise();
- $('session-pass-timer').textContent=fmtSeconds((now-active.startedAt)/1000);
+ now=now||Date.now();
+ var rest=sessionRestSeconds(now),set=focusedSet(),ex=sessionExercise();
+ setText('session-pass-timer',fmtSeconds((now-active.startedAt)/1000));
  if(active.preUntil){
   if(active.preUntil<=now){beginSetRaw();return;}
-  $('session-pre-count').textContent=String(Math.ceil((active.preUntil-now)/1000));
+  setText('session-pre-count',String(Math.ceil((active.preUntil-now)/1000)));
   $('session-pre-progress').style.width=(100*(1-(active.preUntil-now)/5000))+'%';
   return;
  }
  if(active.restUntil&&!rest){active.restUntil=0;renderSession();return;}
- var elapsed=elapsedSetSeconds();
+ var elapsed=elapsedSetSeconds(now);
  var timed=ex&&ex.mode==='min';
  var remaining=timed&&set?Math.max(0,Math.ceil(Math.max(0,Number(set.minutes)*60-elapsed))):0;
  if(active.timerRunning&&timed&&remaining<=0){completeCurrentSet();return;}
@@ -1074,17 +1093,17 @@ function updateSessionClock(){
  modal.classList.toggle('pulse-flow-complete-v58',phase==='complete');
  modal.classList.toggle('pulse-flow-strength-v58',phase!=='complete'&&phase!=='rest'&&!timed);
  modal.classList.toggle('pulse-flow-cardio-v58',phase!=='complete'&&phase!=='rest'&&!!timed);
- $('session-timer').textContent=fmtSeconds(active.timerRunning?elapsed:0);
+ setText('session-timer',fmtSeconds(active.timerRunning?elapsed:0));
  // Strength sets already have an unrestricted count-up timer in the top-right box.
  // Only timed intervals, recovery and the completed session use the large ring.
  $('session-live-timer').hidden=!complete&&!rest&&!!ex&&ex.mode!=='min';
  paintSessionRing(now);
- $('session-stage').textContent=phase==='rest'?'Återhämtning':phase==='active'?(timed?'Kondition pågår':'Aktivt set'):phase==='complete'?'Pass klart':active.awaitingDecision?'Set klart':'Redo';
- $('session-ecg-label').textContent=$('session-stage').textContent;
+ var stage=phase==='rest'?'Återhämtning':phase==='active'?(timed?'Kondition pågår':'Aktivt set'):phase==='complete'?'Pass klart':active.awaitingDecision?'Set klart':'Redo';
+ setText('session-stage',stage);setText('session-ecg-label',stage);
  $('session-prestart-toggle').setAttribute('aria-pressed',String(active.preEnabled));
- $('session-prestart-toggle').textContent=active.preEnabled?'5 s: På':'5 s: Av';
- $('session-progress-pct').textContent=(total?Math.round(done/total*100):0)+'%';
- $('session-set-count').textContent=done+' av '+total+' set klara';
+ setText('session-prestart-toggle',active.preEnabled?'5 s: På':'5 s: Av');
+ setText('session-progress-pct',(total?Math.round(done/total*100):0)+'%');
+ setText('session-set-count',done+' av '+total+' set klara');
 }
 function sessionControl(label,action,kind,disabled){
  return '<button type="button" class="session-cta '+(kind||'')+'" data-action="'+action+'"'+(kind==='primary'?' id="session-next-button"':'')+(disabled?' disabled':'')+'>'+label+'</button>';
@@ -1282,7 +1301,7 @@ function finishSession(){
  var workout={id:uid(),date:active.date,type:active.type,name:active.name,minutes:Math.max(1,Math.round((Date.now()-active.startedAt)/60000)),exercises:selectedExercises};
  state.history.push(workout);
  persist();
- active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;
+ stopSessionAnimation();active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;
  render();toast('Träningspasset sparades lokalt i demon.');
 }
 function zenStepAt(elapsed){
@@ -1319,54 +1338,47 @@ function zenTick(now){
  renderZenSession();
 }
 function stopZenTimer(){
- if(!zenTimer)return;
- clearInterval(zenTimer);zenTimer=0;
+ if(!zenAnimationFrame)return;
+ cancelAnimationFrame(zenAnimationFrame);zenAnimationFrame=0;
+}
+function zenAnimationTick(){
+ if(!activeZen||$('zen-session').hidden||!activeZen.running){zenAnimationFrame=0;return;}
+ if(!document.hidden)zenTick(Date.now());
+ if(activeZen&&activeZen.running)zenAnimationFrame=requestAnimationFrame(zenAnimationTick);else zenAnimationFrame=0;
 }
 function startZenTimer(){
- if(zenTimer||!activeZen||!activeZen.running)return;
- zenTimer=setInterval(function(){
-  if(!activeZen||$('zen-session').hidden||!activeZen.running){stopZenTimer();return;}
-  zenTick(Date.now());
-  if(!activeZen||!activeZen.running)stopZenTimer();
- },30);
+ if(zenAnimationFrame||!activeZen||!activeZen.running)return;
+ zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
 }
 function renderZenSession(){
  if(!activeZen)return;
- var position=zenStepAt(activeZen.elapsed),step=position.step,done=activeZen.elapsed>=activeZen.duration;
- var remaining=done?0:Math.max(0,position.end-activeZen.elapsed);
- var med=activeZen.type==='meditation';
- $('zen-session-overline').textContent=(med?'MEDITATION':'STRETCH')+' · STEG '+(position.index+1)+' AV '+activeZen.steps.length;
- $('zen-session-title').textContent=done?'Din stund är klar.':step.name;
- $('zen-step').textContent=done?'Ta ett lugnt andetag och spara din stund när du vill.':step.cue;
- $('zen-clock').textContent=fmtSeconds(Math.ceil(remaining));
- $('zen-step-total').textContent='AV '+fmtSeconds(step.seconds);
- $('zen-clock-caption').textContent=done?'KLAR':med?'STEG KVAR':'RÖRELSE KVAR';
- // Both indicators derive from the existing elapsed-time model, even when paused.
+ var position=zenStepAt(activeZen.elapsed),step=position.step,done=activeZen.elapsed>=activeZen.duration,next=activeZen.steps[position.index+1]||null;
+ var remaining=done?0:Math.max(0,position.end-activeZen.elapsed),med=activeZen.type==='meditation';
+ setText('zen-session-overline',(med?'MEDITATION':'STRETCH')+' · STEG '+(position.index+1)+' AV '+activeZen.steps.length);
+ setText('zen-session-title',done?'Din stund är klar.':step.name);
+ setText('zen-step',done?'Ta ett lugnt andetag och spara din stund när du vill.':step.cue);
+ setText('zen-clock',fmtSeconds(Math.ceil(remaining)));setText('zen-step-total','AV '+fmtSeconds(step.seconds));
+ setText('zen-clock-caption',done?'KLAR':med?'STEG KVAR':'RÖRELSE KVAR');
+ setText('zen-next-step',done?'Stunden är komplett':next?next.name:'Avslutning');
+ setText('zen-next-meta',done?'Spara när du är redo':next?fmtSeconds(next.seconds)+' · steg '+(position.index+2):'Sista steget');
  var stepFraction=done?1:Math.max(0,Math.min(1,(activeZen.elapsed-position.start)/step.seconds));
- var dial=$('zen-session-ring'),arc=$('zen-step-arc'),marker=$('zen-step-marker');
+ var dial=$('zen-session-ring'),arc=$('zen-step-arc'),marker=$('zen-step-marker'),pulse=$('zen-breath-pulse');
  var stageChanged=activeZen.shownStage!==position.index||activeZen.shownDone!==done;
  arc.style.strokeDashoffset=String(100*(1-stepFraction));
- var theta=2*Math.PI*stepFraction;
- marker.setAttribute('cx',String(50+44*Math.cos(theta)));
- marker.setAttribute('cy',String(50+44*Math.sin(theta)));
- marker.style.opacity=stepFraction>0?'1':'0';
- var breath=activeZen.running&&med&&!done?(activeZen.elapsed%10<4?'ANDAS IN':'ANDAS UT'):'';
- $('zen-breath').textContent=done?'BRA GJORT':!activeZen.running?'PAUSAD':med?breath:'MJUK RÖRELSE';
- $('zen-status').textContent=done?'KLART':activeZen.running?'PÅGÅR':'PAUSAD';
- $('zen-session-ring').classList.toggle('is-paused',!activeZen.running);
- var passFraction=Math.max(0,Math.min(1,activeZen.elapsed/activeZen.duration));
- var percent=Math.round(passFraction*100);
- $('zen-bar').style.width=(passFraction*100)+'%';
- $('zen-total-time').textContent=fmtSeconds(Math.floor(activeZen.elapsed))+' / '+fmtSeconds(activeZen.duration);
- $('zen-total-percent').textContent=percent+' %';
- $('zen-total-progress').setAttribute('aria-valuenow',String(percent));
- $('zen-stage-label').textContent=done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+percent+' % AV PASSET';
- $('pause-zen').disabled=done;$('pause-zen').textContent=activeZen.running?'Pausa':'Fortsätt';
- $('next-zen').textContent=done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗';
+ var theta=2*Math.PI*stepFraction;marker.setAttribute('cx',String(50+44*Math.cos(theta)));marker.setAttribute('cy',String(50+44*Math.sin(theta)));marker.style.opacity=stepFraction>0?'1':'0';
+ var cycle=med?(activeZen.elapsed%10)/10:(activeZen.elapsed%6)/6;
+ var breathLevel=med?(cycle<.4?cycle/.4:Math.max(0,1-(cycle-.4)/.6)):(.5+.5*Math.sin(cycle*Math.PI*2));
+ if(pulse){pulse.style.transform='scaleX('+(0.18+breathLevel*.82).toFixed(4)+')';pulse.style.opacity=String((.35+breathLevel*.65).toFixed(3));}
+ var aura=dial.querySelector('.zen-clock-aura');if(aura)aura.style.transform='scale('+(0.96+breathLevel*.07).toFixed(4)+')';
+ var breath=activeZen.running&&med&&!done?(cycle<.4?'ANDAS IN':'ANDAS UT'):'';
+ setText('zen-breath',done?'BRA GJORT':!activeZen.running?'PAUSAD':med?breath:'MJUK RÖRELSE');
+ setText('zen-status',done?'KLART':activeZen.running?'PÅGÅR':'PAUSAD');dial.classList.toggle('is-paused',!activeZen.running);
+ var passFraction=Math.max(0,Math.min(1,activeZen.elapsed/activeZen.duration)),percent=Math.round(passFraction*100);
+ $('zen-bar').style.width=(passFraction*100)+'%';setText('zen-total-time',fmtSeconds(Math.floor(activeZen.elapsed))+' / '+fmtSeconds(activeZen.duration));setText('zen-total-percent',percent+' %');
+ $('zen-total-progress').setAttribute('aria-valuenow',String(percent));setText('zen-stage-label',done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+percent+' % AV PASSET');
+ $('pause-zen').disabled=done;setText('pause-zen',activeZen.running?'Pausa':'Fortsätt');setText('next-zen',done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗');
  if(stageChanged){
-  $('zen-stage-list').innerHTML=activeZen.steps.map(function(item,i){
-   return '<button type="button" data-zen-step="'+i+'" aria-current="'+(i===position.index?'step':'false')+'">'+(i+1)+'. '+clean(item.name)+'</button>';
-  }).join('');
+  $('zen-stage-list').innerHTML=activeZen.steps.map(function(item,i){var state=i<position.index?'done':i===position.index?'current':'upcoming';return '<button type="button" class="is-'+state+'" data-zen-step="'+i+'" aria-current="'+(i===position.index?'step':'false')+'"><span>'+(i<position.index?'✓':(i+1))+'</span><b>'+clean(item.name)+'</b><small>'+fmtSeconds(item.seconds)+'</small></button>';}).join('');
   activeZen.shownStage=position.index;activeZen.shownDone=done;
  }
 }
@@ -1454,7 +1466,7 @@ document.addEventListener('click',function(event){
     break;
    case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget sparades lokalt i demon.');}break;
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
-   case 'close-session':if(active&&confirm('Avsluta passet utan att spara genomförda set?')){active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;toast('Passet avslutades utan att sparas.');}break;
+   case 'close-session':if(active&&confirm('Avsluta passet utan att spara genomförda set?')){stopSessionAnimation();active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;toast('Passet avslutades utan att sparas.');}break;
    case 'close-history':$('history-detail').close();break;
    case 'finish-session':finishSession();break;
    case 'advance-session':advanceSession();break;
@@ -1521,7 +1533,6 @@ $('builder').addEventListener('cancel',function(event){event.preventDefault();to
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
 window.addEventListener('beforeunload',function(event){if(active||activeZen){event.preventDefault();event.returnValue='';}});
-setInterval(function(){if(active)updateSessionClock();},400);
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 render();
 })();
