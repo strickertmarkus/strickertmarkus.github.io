@@ -117,9 +117,10 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(css,/\.zen-workout \.zen-total-time\{/);
  assert.match(source[1],/stepCircle\.style\.strokeDashoffset|arc\.style\.strokeDashoffset/);
  assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
- assert.match(source[1],/function zenAnimationTick\(\)/);
- assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);
- assert.doesNotMatch(source[1],/if\(activeZen\)zenTick\(\)/);
+ assert.match(source[1],/function startZenTimer\(\)/);
+ assert.match(source[1],/zenTimer=setInterval\(function\(\)\{[\s\S]*?\},30\)/);
+ assert.match(source[1],/function stopZenTimer\(\)/);
+ assert.doesNotMatch(source[1],/zenAnimationTick|zenAnimationFrame|if\(activeZen\)zenTick\(\)/);
  assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);
  assert.match(css,/--mode-glow:/);
  assert.match(css,/drop-shadow\(0 0 8px var\(--mode-accent\)\)/);

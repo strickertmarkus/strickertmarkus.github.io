@@ -217,7 +217,7 @@ function seed(){
  return {plans:plans,history:history,zenHistory:[{date:offset(today,-2),type:'stretch',minutes:12,name:'Helkropp'},{date:offset(today,-4),type:'meditation',minutes:10,name:'Lugn andning'}],goal:4};
 }
 function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory))return value;}}catch(e){}return seed();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenAnimationFrame=0;
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenTimer=0;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
@@ -663,7 +663,7 @@ function zenStart(index){
  document.body.dataset.modeOpen='true';
  renderZenSession();
  $('zen-session').scrollTop=0;
- startZenAnimation();
+ startZenTimer();
 }
 function zenTick(now){
  if(!activeZen)return;
@@ -675,14 +675,17 @@ function zenTick(now){
  if(activeZen.elapsed>=activeZen.duration)activeZen.running=false;
  renderZenSession();
 }
-function zenAnimationTick(){
- if(!activeZen||$('zen-session').hidden||!activeZen.running){zenAnimationFrame=0;return;}
- if(!document.hidden)zenTick(Date.now());
- zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
+function stopZenTimer(){
+ if(!zenTimer)return;
+ clearInterval(zenTimer);zenTimer=0;
 }
-function startZenAnimation(){
- if(zenAnimationFrame||!activeZen||!activeZen.running)return;
- zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
+function startZenTimer(){
+ if(zenTimer||!activeZen||!activeZen.running)return;
+ zenTimer=setInterval(function(){
+  if(!activeZen||$('zen-session').hidden||!activeZen.running){stopZenTimer();return;}
+  zenTick(Date.now());
+  if(!activeZen||!activeZen.running)stopZenTimer();
+ },30);
 }
 function renderZenSession(){
  if(!activeZen)return;
@@ -746,7 +749,7 @@ function finishZen(){
  var minutes=Math.max(1,Math.round(activeZen.elapsed/60));
  state.zenHistory.push({date:dayISO(new Date()),type:activeZen.type,name:activeZen.name,minutes:minutes});
  persist();
- activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
+ stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
  renderZen();render();toast('Stunden sparades lokalt i demon.');
 }
 document.addEventListener('click',function(event){
@@ -781,8 +784,8 @@ document.addEventListener('click',function(event){
    case 'extra-session-set':addExtraSet();break;
    case 'finish-session-exercise':finishCurrentExercise();break;
    case 'reset':if(confirm('Återställa all demodata och dina ändringar i förhandsvisningen?')){state=seed();selected=dayISO(new Date());persist();render();toast('Demodata återställd.');}break;
-   case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();if(activeZen.running)startZenAnimation();}}break;
-   case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
+   case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();if(activeZen.running)startZenTimer();else stopZenTimer();}}break;
+   case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
    case 'finish-zen':finishZen();break;
    case 'next-zen':nextZen();break;
   }
