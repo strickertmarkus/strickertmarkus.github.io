@@ -81,7 +81,7 @@ jobs:
             await page.setViewportSize({width:390,height:844});
             const preBuilderY=await page.evaluate(()=>{
               const target=Math.min(480,Math.max(0,document.body.scrollHeight-innerHeight));
-              window.scrollTo(0,target);return window.scrollY;
+              window.scrollTo({top:target,behavior:'instant'});return window.scrollY;
             });
             await page.evaluate(()=>document.querySelector('[data-choice="Push"]').click());
             assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
