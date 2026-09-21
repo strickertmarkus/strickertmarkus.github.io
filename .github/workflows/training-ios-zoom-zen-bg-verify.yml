@@ -131,6 +131,7 @@ jobs:
               viewport:{width:390,height:844},isMobile:true,hasTouch:true,
               userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
             });
+            context.setDefaultTimeout(15000);
             let page=await context.newPage();
             const errors=[];
             page.on('pageerror',e=>errors.push('pageerror: '+e.message));
@@ -253,10 +254,12 @@ jobs:
             assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
             await page.locator('#day-workout-modal .modal-close').click();
             assert.equal(await page.evaluate(()=>JSON.stringify(getPlannedSessions())),savedPlan);
+            console.log('Opening weekly template');
             await page.getByRole('button',{name:/Lugn träningsvecka/}).click();
             assert.equal(await page.locator('#template-pick').inputValue(),'702');
             await page.waitForFunction(()=>document.querySelector('#template-modal .modal').getAnimations().every(a=>a.playState==='finished'||a.playState==='idle'));
             await page.locator('#template-modal .modal-close').click();
+            console.log('Weekly template selected and closed');
             for(const width of [320,390,1440]){
               await page.setViewportSize({width,height:width>760?1000:844});
               await page.waitForTimeout(500);
@@ -405,7 +408,7 @@ jobs:
             console.log('All-mode iOS focus and Zen canvas WebKit verification passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
-          node /tmp/training-ios-e2e.cjs
+          DEBUG=pw:browser node /tmp/training-ios-e2e.cjs
 
       - name: Save Observatory visual review
         if: always()
