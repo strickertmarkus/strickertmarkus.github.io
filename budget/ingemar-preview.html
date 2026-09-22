@@ -104,8 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260922-training-flow-11">
-<link rel="stylesheet" href="ingemar-pulse-original.css?v=20260921-smooth-timers-2">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260922-family-session-12">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -236,31 +235,8 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
  </div>
 </dialog>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar sparas lokalt i Ingemar-demon.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
-<section id="session" class="mode-screen workout-screen" data-kind="Push" aria-labelledby="session-title" hidden>
- <div id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show" data-state="ready">
-  <div class="session-shell">
-   <div class="session-top"><div><div class="session-title" id="session-title">Passläge</div><div id="session-subtitle">Ingemars träning · <span id="session-kind">Push</span></div></div><button type="button" class="session-cta" data-action="toggle-prestart" id="session-prestart-toggle" aria-pressed="true">5 s: På</button><button type="button" class="session-cta" data-action="close-session">Avsluta</button></div>
-   <div class="session-grid"><div class="session-main session-card">
-    <div class="session-timers"><div class="timer-box"><div class="timer-lbl">Passets tid</div><div class="timer-val" id="session-pass-timer">00:00</div></div><div class="timer-box"><div class="timer-lbl">Nuvarande set</div><div class="timer-val" id="session-timer">00:00</div></div></div>
-    <div class="session-ex-heading-row"><h1 id="session-current-ex">Bänkpress</h1><span id="session-next-ex-inline"></span></div>
-    <div class="session-nextset" id="session-current-target">Set 1 av 3 · 60 kg × 12 reps</div>
-    <div id="pulse-flow-live-v58"><div class="pulse-flow-band-v58" aria-hidden="true"><div class="pulse-flow-status-v58"><span></span><b data-pulse-flow-status id="session-ecg-label">Redo</b></div><svg viewBox="0 0 600 70" preserveAspectRatio="none" focusable="false"><defs><linearGradient id="ingemar-pulse-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".28" stop-color="currentColor" stop-opacity=".52"/><stop offset=".64" stop-color="currentColor"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><filter id="ingemar-pulse-glow" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="2.4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path class="pulse-flow-axis-v58" d="M0 36H600" pathLength="1000"/><path class="pulse-flow-ghost-v58" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000"/><path class="pulse-flow-trace-v58" d="M0 36 L42 36 C49 36 52 34 56 30 L63 42 L72 36 L101 36 L112 13 L126 58 L139 36 L170 36 C177 36 180 34 184 30 L191 42 L200 36 L229 36 L240 13 L254 58 L267 36 L298 36 C305 36 308 34 312 30 L319 42 L328 36 L357 36 L368 13 L382 58 L395 36 L426 36 C433 36 436 34 440 30 L447 42 L456 36 L485 36 L496 13 L510 58 L523 36 L600 36" pathLength="1000" stroke="url(#ingemar-pulse-gradient)" filter="url(#ingemar-pulse-glow)"/></svg></div></div>
-    <div class="session-live-timer" id="session-live-timer" aria-label="Intervalltimer och vilotimer"><div id="session-countdown-ring" class="pf-live-ring" role="timer" aria-label="Settimer"><svg class="pf-arc-svg-v80" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><radialGradient id="ingemar-pf-marker"><stop offset="0%" stop-color="#fff"/><stop offset="14%" stop-color="#fff"/><stop offset="32%" stop-color="var(--pf-soft)"/><stop offset="55%" stop-color="var(--pf-accent)"/><stop offset="80%" stop-color="var(--pf-accent)" stop-opacity=".4"/><stop offset="100%" stop-color="var(--pf-accent)" stop-opacity="0"/></radialGradient></defs><path class="pf-arc-track-v80" d="M17.826 76.997 A42 42 0 1 1 82.174 76.997"/><path class="pf-arc-progress-v80" id="session-ring-progress" d=""/><circle class="pf-arc-marker-v80" id="session-ring-marker" r="4.5" cx="17.826" cy="76.997"/></svg><div class="session-countdown-copy"><span class="session-countdown-value" id="session-ring-value">00:00</span><span class="pf-ecg-v80" aria-hidden="true"><svg viewBox="0 0 42 9" focusable="false"><path class="pf-ecg-base-v80" d="M0 5 H10 L13 3.7 L16 6.1 L20 1 L24 8 L28 4.8 H42" pathLength="100"/><path class="pf-ecg-sweep-a-v80" d="M0 5 H10 L13 3.7 L16 6.1 L20 1 L24 8 L28 4.8 H42" pathLength="100"/></svg></span><span class="session-countdown-label" id="session-ring-label">REDO FÖR SET</span></div></div></div>
-    <div id="session-stable-details"><div><div class="stable-detail-label">SET</div><div class="stable-detail-value" id="session-metric-set">01 / 03</div></div><div><div class="stable-detail-label">REPS / TID</div><div class="stable-detail-value" id="session-metric-reps">12</div></div><div><div class="stable-detail-label">VIKT</div><div class="stable-detail-value" id="session-metric-weight">60 kg</div></div></div>
-    <div class="hype-workout-progress"><div class="hype-progress-head"><span class="hype-progress-title">Passflöde</span><span class="hype-progress-percent" id="session-progress-pct">0%</span></div><div class="hype-progress-track" id="session-progress-dots" aria-label="Genomförda set"></div><div class="hype-progress-meta"><span id="session-set-count">0 av 9 set klara</span><span id="session-stage">Redo</span></div></div>
-    <div class="session-cta-row" id="session-controls"><button type="button" class="session-cta primary" data-action="advance-session" id="session-next-button">Starta set</button></div>
-    <div class="session-log-section"><div class="session-log-heading">LOGGADE SET (REDIGERBARA)</div><div id="session-set-log" aria-label="Genomförda set, redigerbara"></div></div>
-    <div class="session-rail-head"><strong>ÖVNINGAR · REDIGERBARA SET</strong><span id="session-overline">Övning 1 av 3</span></div>
-    <div class="session-set-rail" id="session-exercises" tabindex="0" aria-label="Övningar och individuella set"></div>
-    <div class="session-rail-footer"><span class="hint">Endast genomförda set sparas i demologgen.</span><button type="button" class="session-cta success" data-action="finish-session" id="finish-session" disabled>Spara genomförda set ✓</button></div>
-   </div></div>
-  </div>
- </div>
- <div id="session-pre-timer" class="session-pre-timer" hidden role="group" aria-label="Startnedräkning">
-  <div class="session-pre-center"><div class="session-pre-eyebrow">PULSE / FÖRBERED</div><div class="session-pre-value" id="session-pre-count">5</div><div class="session-pre-label">STARTAR SET</div><div class="session-pre-line"><div id="session-pre-progress"></div></div><button type="button" class="session-cta primary" data-action="skip-prestart">Starta nu ↗</button></div>
- </div>
-</section>
-<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog><section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
+<iframe id="family-session-frame" class="family-session-frame" src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
+<section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
   <div class="zen-session-ambient" aria-hidden="true">
     <span class="zen-ambient-orb orb-a"></span><span class="zen-ambient-orb orb-b"></span>
     <span class="zen-ambient-leaf leaf-a"></span><span class="zen-ambient-leaf leaf-b"></span><span class="zen-ambient-leaf leaf-c"></span>
@@ -581,7 +557,7 @@ function seed(){
  return {plans:plans,history:history,zenHistory:zenSeedHistory(today),templates:[],weekTemplates:seedWeekTemplates(),goal:4};
 }
 function load(){try{var raw=localStorage.getItem(KEY);if(raw){var value=JSON.parse(raw);if(value&&value.plans&&Array.isArray(value.history)&&Array.isArray(value.zenHistory)){if(!Array.isArray(value.templates))value.templates=[];if(!Array.isArray(value.weekTemplates))value.weekTemplates=seedWeekTemplates();return hydrateStrengthDemo(hydrateZenDemo(value));}}}catch(e){}return seed();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,active=null,activeZen=null,toastTimer=0,zenAnimationFrame=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,activeZen=null,toastTimer=0,zenAnimationFrame=0,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null;
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Demolagringen är inte tillgänglig på den här enheten.');}}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
@@ -617,7 +593,7 @@ function render(){
  renderPushPullAnalytics();
 }
 function switchView(next){
- if(active||activeZen){toast('Avsluta det pågående passet först.');return;}
+ if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}
  view=next;
  $('training-view').hidden=next!=='training';$('zen-view').hidden=next==='training';
  document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.view===next));});
@@ -767,7 +743,7 @@ function renderWeekPlanner(){
   return '<article class="week-planner-day is-'+typeClass+(weekCopyFrom===i?' is-copy-source':'')+'" data-week-day="'+i+'" data-week-date="'+date+'" data-week-plan-type="'+type+'"><div class="week-day-card-top"><button type="button" class="week-day-open" data-week-edit="'+i+'" aria-label="Öppna full passbyggare för '+day+'"><span class="week-day-date"><small>'+day+'</small><strong>'+dayFrom(date).getDate()+'</strong></span><span class="week-day-pass"><span class="week-day-kind">'+clean(type)+'</span><strong>'+(entry?clean(entry.name):'Ingen träning')+'</strong><small>'+clean(preview)+'</small></span><span class="week-day-open-arrow">↗</span></button><button type="button" class="week-planner-drag" data-week-drag="'+i+'" aria-label="Håll och dra '+day+'"><span class="week-planner-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button></div><button type="button" class="week-day-quick" data-week-toggle-day="'+i+'" aria-expanded="'+expanded+'"><span><b>Snabbplanera</b> · '+(entry?(entry.exercises||[]).length+' övningar · '+sets+' set':'välj pass med ett tryck')+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button><div class="week-day-editor" '+(expanded?'':'hidden')+'><div class="week-planner-step"><div class="week-planner-step-head"><b>1 · VÄLJ PASS</b><span>Ett tryck räcker</span></div><div class="week-day-type-grid">'+typeButtons+'</div></div><div class="week-planner-step"><div class="week-planner-step-head"><b>2 · VÄLJ ÖVNINGAR</b><span>Tryck för på / av</span></div><div class="week-exercise-grid">'+exerciseButtons+'</div>'+(templateButtons?'<div class="week-day-template-chips">'+templateButtons+'</div>':'')+'</div><div class="week-planner-step"><div class="week-planner-step-head"><b>3 · FINJUSTERING</b><span>Valfritt</span></div><div class="week-day-builder-row"><button type="button" class="week-day-open-builder" data-week-edit="'+i+'">'+(entry?'Set, vikter & detaljer ↗':'Bygg ett eget pass ↗')+'</button><div class="week-day-tools"><button type="button" data-week-copy="'+i+'">'+(weekCopyFrom===i?'Avbryt kopiering':'Kopiera pass')+'</button><button type="button" class="week-day-clear" data-week-clear="'+i+'">Rensa dag</button></div></div>'+copyDest+'</div></div></article>';}).join('');
 }
 function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;weekExpandedDay=-1;renderWeekPlanner();}
-function openWeekPlanner(){if(active||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));$('week-planner').showModal();}
+function openWeekPlanner(){if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));$('week-planner').showModal();}
 function openWeekDayBuilder(index){
  if(!weekDraft||index<0||index>6||builderWeekIndex>=0)return;
  var entry=weekDraft[index],date=offset(weekPlannerMonday,index),kind=entry&&entry.type||fallbackType(date);
@@ -979,329 +955,12 @@ function saveDraft(){
  state.plans[draft.date]={type:draft.type,name:draft.name,exercises:deep(draft.exercises)};
  selected=draft.date;persist();render();return true;
 }
-function firstPendingSet(){
- if(!active)return null;
- for(var i=0;i<active.exercises.length;i++){
-  for(var j=0;j<active.exercises[i].sets.length;j++){
-   if(!active.exercises[i].sets[j].done&&!active.exercises[i].sets[j].skipped)return {ex:i,set:j};
-  }
- }
- return null;
-}
-function focusedSet(){
- if(!active||!active.focus)return null;
- var e=active.exercises[active.focus.ex];
- return e&&e.sets[active.focus.set]||null;
-}
-function elapsedSetSeconds(now){
- if(!active)return 0;
- now=now||Date.now();
- return (active.timerElapsed||0)+(active.timerRunning?Math.max(0,(now-active.timerStartedAt)/1000):0);
-}
-function resetSetClock(){
- if(!active)return;
- active.timerElapsed=0;active.timerRunning=false;active.timerStartedAt=0;
-}
-/* Same ordered set/decision lifecycle as the family training mode, backed by
-   the demo's per-set actual values. No family storage, Firebase, or global
-   exercise.html script is loaded here. */
-function start(){
- var p=plan(selected);
- if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}
- active=deep(p);
- active.exercises.forEach(function(e){e.sets.forEach(function(set){set.done=false;});});
- active.startedAt=Date.now();active.date=selected;
- active.focus=firstPendingSet();active.timerElapsed=0;active.timerStartedAt=0;
- active.timerRunning=false;active.awaitingDecision=false;active.restUntil=0;active.preUntil=0;active.preEnabled=state.prestartEnabled!==false;
- $('session-title').textContent=active.name;
- $('session-kind').textContent=active.type;
- $('session').dataset.kind=active.type;
- $('session').hidden=false;
- $('session-pre-timer').hidden=true;
- document.body.dataset.modeOpen='true';
- renderSession();
- startSessionAnimation();
- $('session-exercises').scrollTop=0;
- $('session').scrollTop=0;
-}
-function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(seconds));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}
-function setText(id,value){var node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;}
-function sessionRestSeconds(now){return active&&active.restUntil?Math.max(0,Math.ceil((active.restUntil-(now||Date.now()))/1000)):0;}
-/* Geometry and endpoint marker from the original Pulse Flow v85 ring.
-   Wall-clock time drives the SVG directly; the session controls own state. */
-var sessionAnimationFrame=0;
-function sessionArcPoint(ratio){
- ratio=Math.max(0,Math.min(1,Number(ratio)||0));
- var radians=(140+260*ratio)*Math.PI/180;
- return {x:50+42*Math.cos(radians),y:50+42*Math.sin(radians)};
-}
-function sessionArcPath(ratio){
- ratio=Math.max(0,Math.min(1,Number(ratio)||0));
- if(ratio<=.000001)return '';
- var start=sessionArcPoint(0),end=sessionArcPoint(ratio),large=260*ratio>180?1:0;
- return 'M'+start.x.toFixed(3)+' '+start.y.toFixed(3)+' A42 42 0 '+large+' 1 '+end.x.toFixed(3)+' '+end.y.toFixed(3);
-}
-function paintSessionRing(now){
- if(!active)return;
- now=now||Date.now();
- var current=focusedSet(),ex=sessionExercise(),rest=active.restUntil?Math.max(0,(active.restUntil-now)/1000):0;
- if($('session-live-timer').hidden)return;
- var elapsed=elapsedSetSeconds(now),ratio=0,value='00:00',label='REDO FÖR SET';
- if(!current&&!firstPendingSet()){
-  ratio=1;value=fmtSeconds((now-active.startedAt)/1000);label='PASS KLART';
- }else if(rest>0){
-  ratio=Math.min(1,rest/60);value=fmtSeconds(Math.ceil(rest));label='VILA KVAR';
- }else if(active.timerRunning&&ex&&current){
-  if(ex.mode==='min'){
-   var duration=Math.max(1,Number(current.minutes)||1)*60,remaining=Math.max(0,duration-elapsed);
-   ratio=Math.min(1,remaining/duration);value=fmtSeconds(Math.ceil(remaining));label='INTERVALL KVAR';
-  }
- }else if(active.awaitingDecision){
-  ratio=1;label='SET KLART';
- }
- var valueEl=$('session-ring-value'),labelEl=$('session-ring-label');
- if(valueEl.textContent!==value)valueEl.textContent=value;
- if(labelEl.textContent!==label)labelEl.textContent=label;
- var svg=$('session-ring-progress'),marker=$('session-ring-marker'),ring=$('session-countdown-ring');
- var progress=sessionArcPath(ratio),endpoint=sessionArcPoint(ratio);
- if(svg.getAttribute('d')!==progress)svg.setAttribute('d',progress);
- marker.setAttribute('cx',endpoint.x.toFixed(3));
- marker.setAttribute('cy',endpoint.y.toFixed(3));
- marker.style.opacity=ratio>.002?'1':'0';
- ring.setAttribute('aria-label',label.toLocaleLowerCase('sv-SE')+': '+value);
-}
-function sessionAnimationTick(){
- if(!active||$('session').hidden){sessionAnimationFrame=0;return;}
- if(!document.hidden)updateSessionClock(Date.now());
- sessionAnimationFrame=requestAnimationFrame(sessionAnimationTick);
-}
-function startSessionAnimation(){
- if(sessionAnimationFrame)return;
- sessionAnimationFrame=requestAnimationFrame(sessionAnimationTick);
-}
-function stopSessionAnimation(){
- if(!sessionAnimationFrame)return;
- cancelAnimationFrame(sessionAnimationFrame);sessionAnimationFrame=0;
-}
-
-function sessionSetIndex(){return active&&active.focus?active.focus.set:-1;}
-function sessionExercise(){return active&&active.focus?active.exercises[active.focus.ex]:null;}
-function updateSessionClock(now){
- if(!active)return;
- now=now||Date.now();
- var rest=sessionRestSeconds(now),set=focusedSet(),ex=sessionExercise();
- setText('session-pass-timer',fmtSeconds((now-active.startedAt)/1000));
- if(active.preUntil){
-  if(active.preUntil<=now){beginSetRaw();return;}
-  setText('session-pre-count',String(Math.ceil((active.preUntil-now)/1000)));
-  $('session-pre-progress').style.width=(100*(1-(active.preUntil-now)/5000))+'%';
-  return;
- }
- if(active.restUntil&&!rest){active.restUntil=0;renderSession();return;}
- var elapsed=elapsedSetSeconds(now);
- var timed=ex&&ex.mode==='min';
- var remaining=timed&&set?Math.max(0,Math.ceil(Math.max(0,Number(set.minutes)*60-elapsed))):0;
- if(active.timerRunning&&timed&&remaining<=0){completeCurrentSet();return;}
- var total=active.exercises.reduce(function(n,e){return n+e.sets.length;},0);
- var done=active.exercises.reduce(function(n,e){return n+e.sets.filter(function(x){return x.done;}).length;},0);
- var complete=!set&&!firstPendingSet();
- var phase=complete?'complete':rest?'rest':active.timerRunning?'active':'ready';
- var modal=$('session-modal');
- modal.dataset.state=phase;
- modal.classList.toggle('pulse-flow-active-v58',phase==='active');
- modal.classList.toggle('pulse-flow-resting-v58',phase==='rest'||active.awaitingDecision);
- modal.classList.toggle('pulse-flow-complete-v58',phase==='complete');
- modal.classList.toggle('pulse-flow-strength-v58',phase!=='complete'&&phase!=='rest'&&!timed);
- modal.classList.toggle('pulse-flow-cardio-v58',phase!=='complete'&&phase!=='rest'&&!!timed);
- setText('session-timer',fmtSeconds(active.timerRunning?elapsed:0));
- // Strength sets already have an unrestricted count-up timer in the top-right box.
- // Only timed intervals, recovery and the completed session use the large ring.
- $('session-live-timer').hidden=!complete&&!rest&&!!ex&&ex.mode!=='min';
- paintSessionRing(now);
- var stage=phase==='rest'?'Återhämtning':phase==='active'?(timed?'Kondition pågår':'Aktivt set'):phase==='complete'?'Pass klart':active.awaitingDecision?'Set klart':'Redo';
- setText('session-stage',stage);setText('session-ecg-label',stage);
- $('session-prestart-toggle').setAttribute('aria-pressed',String(active.preEnabled));
- setText('session-prestart-toggle',active.preEnabled?'5 s: På':'5 s: Av');
- setText('session-progress-pct',(total?Math.round(done/total*100):0)+'%');
- setText('session-set-count',done+' av '+total+' set klara');
-}
-function sessionControl(label,action,kind,disabled){
- return '<button type="button" class="session-cta '+(kind||'')+'" data-action="'+action+'"'+(kind==='primary'?' id="session-next-button"':'')+(disabled?' disabled':'')+'>'+label+'</button>';
-}
-function renderSessionControls(){
- var control=$('session-controls'),set=focusedSet(),ex=sessionExercise();
- if(!set){control.className='session-cta-row';control.innerHTML=sessionControl('Spara pass','finish-session','primary',!active.exercises.some(function(e){return e.sets.some(function(x){return x.done;});}));return;}
- if(active.preUntil){control.className='session-cta-row';control.innerHTML=sessionControl('Startar set…','advance-session','primary',true);return;}
- if(sessionRestSeconds()){
-  control.className='session-cta-row';
-  control.innerHTML=sessionControl('Hoppa över vilan','skip-rest','primary',false);
- }else if(active.timerRunning){
-  control.className='session-cta-row';
-  control.innerHTML=sessionControl('Klar med set','advance-session','primary',false);
- }else if(active.awaitingDecision){
-  control.className='session-cta-row decision-row';
-  control.innerHTML=sessionControl('Starta nästa set','advance-session','primary',false)+
-   sessionControl('Extra set','extra-session-set','warn',ex.sets.length>=15)+
-   sessionControl('Övning klar','finish-session-exercise','success',false);
- }else{
-  control.className='session-cta-row';
-  control.innerHTML=sessionControl(ex.mode==='min'?'Starta intervall':'Starta set','advance-session','primary',false);
- }
-}
-function renderSession(){
- if(!active)return;
- var total=active.exercises.reduce(function(n,e){return n+e.sets.length;},0);
- var done=active.exercises.reduce(function(n,e){return n+e.sets.filter(function(set){return set.done;}).length;},0);
- var focus=active.focus,ex=sessionExercise(),set=focusedSet(),timed=ex&&ex.mode==='min';
- if(!set&&firstPendingSet()){active.focus=firstPendingSet();focus=active.focus;ex=sessionExercise();set=focusedSet();timed=ex&&ex.mode==='min';}
- $('session-overline').textContent=ex?'ÖVNING '+(focus.ex+1)+' / '+active.exercises.length+' · SET '+(focus.set+1)+' AV '+ex.sets.length:'PASS GENOMFÖRT';
- $('finish-session').disabled=!done;
- $('finish-session').textContent=done?'Spara '+done+' genomförda set ✓':'Spara genomförda set ✓';
- $('session-current-ex').textContent=ex?ex.name:'Alla övningar klara';
- var nextEx=ex&&active.exercises[focus.ex+1];
- $('session-next-ex-inline').textContent=nextEx?'→ '+nextEx.name:'';
- $('session-current-target').textContent=set
-  ?'Set '+(focus.set+1)+' av '+ex.sets.length+' · '+(timed?set.minutes+' minuter':set.reps+' reps @ '+set.weight+' kg')
-  :'Kontrollera dina genomförda set och spara passet.';
- $('session-metric-set').textContent=ex?pad(focus.set+1)+' / '+pad(ex.sets.length):'✓';
- $('session-metric-reps').textContent=set?(timed?set.minutes+' min':set.reps):'–';
- $('session-metric-weight').textContent=set&&!timed?set.weight+' kg':'–';
- $('session-progress-dots').innerHTML=active.exercises.map(function(e,i){
-  return e.sets.map(function(s,j){
-   var current=focus&&focus.ex===i&&focus.set===j&&!s.done&&!s.skipped;
-   return '<span class="hype-progress-segment '+(s.done?'done ':'')+(s.skipped?'is-skipped ':'')+(current?'current ':'')+(e.mode==='min'?'cardio':'strength')+'" title="'+clean(e.name)+' · set '+(j+1)+'"><span class="pf-progress-dot-v80"></span></span>';
-  }).join('');
- }).join('');
- // Family-style completed-set log, using the same source set data as the full plan.
- var logExIndex=focus?focus.ex:Math.max(0,active.exercises.length-1);
- var logEx=active.exercises[logExIndex];
- var logged=logEx?logEx.sets.map(function(s,j){return {set:s,index:j};}).filter(function(item){return item.set.done;}):[];
- $('session-set-log').innerHTML=logged.length?logged.map(function(item){
-  var s=item.set,j=item.index,timed=logEx.mode==='min',key=logExIndex+':'+j+':';
-  return '<div class="set-log-item"><span class="set-tag">Set '+(j+1)+'</span>'+
-   '<input type="number" inputmode="numeric" min="0" max="999" aria-label="Loggade reps för set '+(j+1)+'" data-log-actual="'+key+'reps" value="'+(s.reps||'')+'" placeholder="Reps">'+
-   '<input type="number" inputmode="decimal" step="0.5" min="0" max="999" aria-label="Loggad '+(timed?'tid':'vikt')+' för set '+(j+1)+'" data-log-actual="'+key+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'">'+
-   '<span class="session-log-unit">'+(timed?'min':'kg')+'</span></div>';
- }).join(''):'<div class="session-log-empty">Inga set loggade ännu.</div>';
- $('session-exercises').innerHTML=active.exercises.map(function(e,i){
-  var timed=e.mode==='min',current=focus&&focus.ex===i;
-  return '<article class="mode-exercise-card'+(current?' is-current':'')+'"><div class="mode-exercise-head"><strong>'+clean(e.name)+'</strong><small>'+e.sets.filter(function(set){return set.done;}).length+' / '+e.sets.length+' klara</small></div>'+
-   '<div class="mode-set-header"><span>SET</span><span>'+(timed?'MINUTER':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span>KLAR</span></div>'+
-   e.sets.map(function(s,j){
-    var thisSet=current&&focus.set===j;
-    return '<div class="mode-set-row'+(thisSet?' is-current':'')+(s.done?' is-complete':'')+(s.skipped?' is-skipped':'')+'"><span class="set-number">'+pad(j+1)+'</span>'+
-     '<input type="number" inputmode="decimal" step="0.5" min="0" max="999" aria-label="Faktisk '+(timed?'tid':'vikt')+' för set '+(j+1)+'" data-actual="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'">'+
-     '<input type="number" inputmode="numeric" min="0" max="999" aria-label="Faktiska reps för set '+(j+1)+'" data-actual="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'">'+
-     '<button type="button" class="done-button" data-done="'+i+':'+j+'" aria-pressed="'+s.done+'" aria-label="Set '+(j+1)+(s.done?' klart':' ej klart')+'">'+(s.done?'✓':'○')+'</button></div>';
-   }).join('')+'</article>';
- }).join('');
- renderSessionControls();
- updateSessionClock();
-}
-function beginSetRaw(){
- if(!active||!focusedSet())return;
- active.preUntil=0;$('session-pre-timer').hidden=true;
- active.timerStartedAt=Date.now();active.timerRunning=true;
- renderSession();
-}
-function startCurrentSet(){
- if(!active||!focusedSet()||active.timerRunning||active.awaitingDecision||active.preUntil)return;
- active.restUntil=0;resetSetClock();
- if(active.preEnabled){
-  active.preUntil=Date.now()+5000;
-  $('session-pre-progress').style.width='0%';
-  $('session-pre-count').textContent='5';
-  $('session-pre-timer').hidden=false;
-  renderSession();
-  return;
- }
- beginSetRaw();
-}
-function skipPrestart(){
- if(active&&active.preUntil)beginSetRaw();
-}
-function togglePrestart(){
- if(!active)return;
- active.preEnabled=!active.preEnabled;
- state.prestartEnabled=active.preEnabled;persist();
- if(!active.preEnabled&&active.preUntil)beginSetRaw();
- else updateSessionClock();
-}
-function completeCurrentSet(){
- if(!active||!focusedSet()||active.preUntil)return;
- var set=focusedSet(),ex=sessionExercise();
- set.done=true;
- resetSetClock();
- active.awaitingDecision=true;
- active.restUntil=ex.mode!=='min'&&firstPendingSet()?Date.now()+60000:0;
- if(!firstPendingSet()){
-  active.focus=null;active.awaitingDecision=false;active.restUntil=0;
- }
- renderSession();
-}
-function startNextSet(){
- if(!active)return;
- active.focus=firstPendingSet();
- active.awaitingDecision=false;active.restUntil=0;
- resetSetClock();
- if(active.focus)startCurrentSet();
- else renderSession();
-}
-function addExtraSet(){
- if(!active||!active.focus)return;
- var i=active.focus.ex,ex=active.exercises[i];
- if(ex.sets.length>=15){toast('Högst 15 set per övning.');return;}
- var last=ex.sets[active.focus.set]||ex.sets[ex.sets.length-1];
- ex.sets.push(freshSet(last.weight,last.reps,last.minutes));
- active.focus={ex:i,set:ex.sets.length-1};
- active.awaitingDecision=false;active.restUntil=0;resetSetClock();
- startCurrentSet();
-}
-function finishCurrentExercise(){
- if(!active||!active.focus)return;
- var current=active.focus.ex,next=-1;
- active.exercises[current].sets.forEach(function(set){if(!set.done)set.skipped=true;});
- for(var i=current+1;i<active.exercises.length;i++){
-  if(active.exercises[i].sets.some(function(set){return !set.done&&!set.skipped;})){next=i;break;}
- }
- active.focus=next<0?null:{ex:next,set:active.exercises[next].sets.findIndex(function(set){return !set.done&&!set.skipped;})};
- active.awaitingDecision=false;active.restUntil=0;resetSetClock();
- renderSession();
-}
-function skipSessionRest(){
- if(!active)return;
- active.restUntil=0;
- renderSession();
-}
-function toggleCompletedSet(exIndex,setIndex){
- if(!active)return;
- var ex=active.exercises[exIndex],set=ex&&ex.sets[setIndex];if(!set)return;
- var wasDone=set.done;
- set.done=!wasDone;
- if(active.focus&&active.focus.ex===exIndex&&active.focus.set===setIndex){
-  resetSetClock();
-  active.awaitingDecision=set.done;
-  active.restUntil=set.done&&ex.mode!=='min'&&firstPendingSet()?Date.now()+60000:0;
- }
- if(!set.done){
-  if(!active.focus||!focusedSet()||focusedSet().done){
-   active.focus={ex:exIndex,set:setIndex};active.awaitingDecision=false;
-  }
-  active.restUntil=0;
- }
- if(!firstPendingSet()){
-  active.focus=null;active.awaitingDecision=false;active.restUntil=0;resetSetClock();
- }
- renderSession();
-}
-function advanceSession(){
- if(!active)return;
- if(sessionRestSeconds()){skipSessionRest();return;}
- if(!focusedSet()){toast('Alla set är klara. Spara passet i loggen.');return;}
- if(active.timerRunning){completeCurrentSet();return;}
- if(active.awaitingDecision){startNextSet();return;}
- startCurrentSet();
-}
+var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
+function familySessionFrame(){return $('family-session-frame');}
+function sendFamilySession(){var frame=familySessionFrame();if(!familySessionReady||!familySessionOpen||!pendingFamilySession||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'ingemar-family-session-start',workout:deep(pendingFamilySession.workout),date:pendingFamilySession.date},location.origin);pendingFamilySession=null;}
+function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
+function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;familySessionFrame().hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
+window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset sparades lokalt i demon.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
 function openHistory(id){
  var workout=state.history.find(function(h){return h.id===id;});
  if(!workout)return;
@@ -1313,16 +972,6 @@ function openHistory(id){
    e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:#acffcb" aria-label="Klart">✓</span></div>';}).join('')+'</article>';
  }).join('');
  $('history-detail').showModal();
-}
-function finishSession(){
- if(!active)return;
- var selectedExercises=active.exercises.map(function(e){var copy=deep(e);copy.sets=copy.sets.filter(function(set){return set.done;});return copy;}).filter(function(e){return e.sets.length;});
- if(!selectedExercises.length){toast('Markera minst ett set som klart.');return;}
- var workout={id:uid(),date:active.date,type:active.type,name:active.name,minutes:Math.max(1,Math.round((Date.now()-active.startedAt)/60000)),exercises:selectedExercises};
- state.history.push(workout);
- persist();
- stopSessionAnimation();active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;
- render();toast('Träningspasset sparades lokalt i demon.');
 }
 function zenStepAt(elapsed){
  if(!activeZen)return {index:0,start:0,end:0,step:null};
@@ -1486,15 +1135,7 @@ document.addEventListener('click',function(event){
     break;
    case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget sparades lokalt i demon.');}break;
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
-   case 'close-session':if(active&&confirm('Avsluta passet utan att spara genomförda set?')){stopSessionAnimation();active=null;$('session').hidden=true;delete document.body.dataset.modeOpen;toast('Passet avslutades utan att sparas.');}break;
    case 'close-history':$('history-detail').close();break;
-   case 'finish-session':finishSession();break;
-   case 'advance-session':advanceSession();break;
-   case 'skip-rest':skipSessionRest();break;
-   case 'skip-prestart':skipPrestart();break;
-   case 'toggle-prestart':togglePrestart();break;
-   case 'extra-session-set':addExtraSet();break;
-   case 'finish-session-exercise':finishCurrentExercise();break;
    case 'reset':if(confirm('Återställa all demodata och dina ändringar i förhandsvisningen?')){state=seed();selected=dayISO(new Date());persist();render();toast('Demodata återställd.');}break;
    case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();if(activeZen.running)startZenTimer();else stopZenTimer();}}break;
    case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
@@ -1530,29 +1171,14 @@ document.addEventListener('change',function(event){if(event.target.id==='build-d
 document.addEventListener('input',function(event){
  var el=event.target;
  if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
- var actualKey=el.dataset.actual||el.dataset.logActual;
-  if(actualKey&&active){
-   var position=actualKey.split(':'),ex=active.exercises[Number(position[0])];
-  var set=ex&&ex.sets[Number(position[1])];
-  if(set){
-   set[position[2]]=Math.max(0,Math.min(999,Number(el.value)||0));
-    document.querySelectorAll('[data-actual],[data-log-actual]').forEach(function(other){
-     if(other!==el&&(other.dataset.actual||other.dataset.logActual)===actualKey)other.value=el.value;
-    });
-   if(active.focus&&Number(position[0])===active.focus.ex&&Number(position[1])===active.focus.set){
-    $('session-current-target').textContent='Set '+(active.focus.set+1)+' av '+ex.sets.length+' · '+(ex.mode==='min'?set.minutes+' minuter':set.reps+' reps @ '+set.weight+' kg');
-    $('session-metric-reps').textContent=ex.mode==='min'?set.minutes+' min':set.reps;
-    $('session-metric-weight').textContent=ex.mode==='min'?'–':set.weight+' kg';
-   }
-  }
- }
+
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
-window.addEventListener('beforeunload',function(event){if(active||activeZen){event.preventDefault();event.returnValue='';}});
+window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 render();
 })();

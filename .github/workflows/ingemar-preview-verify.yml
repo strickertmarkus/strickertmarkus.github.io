@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'budget/ingemar-preview.html'
+      - 'budget/ingemar-preview-modes.css'
+      - 'budget/ingemar-session/exercise.html'
       - 'budget/tests/ingemar-preview.test.cjs'
       - '.github/workflows/ingemar-preview-verify.yml'
   workflow_dispatch:
@@ -99,7 +101,7 @@ jobs:
             await page.locator('[data-analytics-metric="volume"]').click();
             async function auditNoHorizontalScroll(label){
               const result=await page.evaluate(()=>{
-                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,#week-planner .week-day-card-top,#week-planner .week-day-editor,#week-planner .week-day-type-grid,#week-planner .week-exercise-grid,.pp-chart-shell,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-set-rail,#session-modal .session-set-rail .mode-exercise-card,#session-modal .session-set-rail .mode-set-row,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace,.zen-focus-grid,.zen-focus-card,.zen-journey-card';
+                const width=innerWidth, selectors='main,header .inner,.hero,.stats,.choices,.week,.history,.pp-analytics,.pp-chart,.pp-summary-grid,.pp-load-row,.pp-exercise-panel,#week-planner,#week-planner .week-planner-nav,#week-planner .week-template-tools,#week-planner .week-planner-day,#week-planner .week-day-card-top,#week-planner .week-day-editor,#week-planner .week-day-type-grid,#week-planner .week-exercise-grid,.pp-chart-shell,dialog[open],dialog[open] .modal-body,dialog[open] .exercise-card,.mode-screen:not([hidden]),.family-session-frame,.mode-topbar,.zen-layout,.zen-scenery,.zen-workspace,.zen-focus-grid,.zen-focus-card,.zen-journey-card';
                 const candidates=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length>0 && getComputedStyle(el).visibility!=='hidden');
                 const invalid=candidates.map(el=>{
                   const box=el.getBoundingClientRect();
@@ -370,203 +372,58 @@ jobs:
             await page.locator('[data-set="1:0:minutes"]').fill('3.5');
             await page.screenshot({path:'test-results/ingemar-demo/set-editor-mobile.png'});
             await page.locator('[data-action="start-from-builder"]').click();
-            await page.waitForSelector('#session:not([hidden])');
-            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
-            async function saveVisibleSession(label){
-              await page.locator('#finish-session').scrollIntoViewIfNeeded();
-              const position=await page.locator('#finish-session').evaluate(el=>{
-                const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight};
+            await page.waitForFunction(()=>!document.getElementById('family-session-frame').hidden);
+            const family=page.frameLocator('#family-session-frame');
+            await family.locator('#session-modal.show').waitFor();
+            assert.equal(await family.locator('#exercise-pulse-flow-v58-style').count(),1,'Exact family Pulse Flow presentation must load');
+            assert.equal(await family.locator('#exercise-session-typography-style').count(),1,'Exact family typography owner must load');
+            assert.equal(await family.locator('#session-current-ex').textContent(),'Bänkpress');
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.__exercisePulseFlowV58Installed),true);
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.__exerciseSessionRuntimeCoreV21Installed),true);
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.__exerciseHypeTimerLayoutV1Installed),true);
+            async function auditFamilySession(label){
+              const result=await family.locator('html').evaluate(()=>{
+                const width=innerWidth,selectors='#session-modal,#session-modal .session-shell,#session-modal .session-top,#session-modal .session-grid,#session-modal .session-main,#session-modal .session-timers,#session-modal .session-cta-row,#session-modal .session-card,#session-modal #session-set-log';
+                const invalid=[...document.querySelectorAll(selectors)].filter(el=>el.getClientRects().length).map(el=>{const r=el.getBoundingClientRect(),style=getComputedStyle(el);return {selector:el.id?'#'+el.id:el.className,left:r.left,right:r.right,scroll:el.scrollWidth,client:el.clientWidth,overflow:style.overflowX};}).filter(v=>v.left<-1||v.right>width+1||(v.overflow!=='hidden'&&v.overflow!=='clip'&&v.scroll>v.client+1));
+                return {width,html:document.documentElement.scrollWidth,body:document.body.scrollWidth,invalid};
               });
-              assert.ok(position.top>=0&&position.bottom<=position.height+1,
-                label+' save button must remain reachable after scrolling: '+JSON.stringify(position));
-              await page.locator('#finish-session').click();
+              assert.ok(result.html<=result.width+1&&result.body<=result.width+1&&result.invalid.length===0,label+' family session overflows: '+JSON.stringify(result));
             }
-            async function assertActionsInFlow(label,shouldFit){
-              const placement=await page.locator('#session-controls').evaluate(el=>{
-                const rect=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button:not([disabled])')].map(btn=>{
-                  const r=btn.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
-                });
-                return {position:getComputedStyle(el).position,top:rect.top,bottom:rect.bottom,width:innerWidth,height:innerHeight,buttons};
-              });
-              assert.ok(placement.position!=='fixed'&&placement.position!=='sticky'&&
-                placement.buttons.length>=1&&placement.buttons.every(r=>r.left>=-1&&r.right<=placement.width+1),
-                label+' actions must sit in the normal layout: '+JSON.stringify(placement));
-              if(shouldFit)assert.ok(placement.top>=0&&placement.bottom<=placement.height+1,
-                label+' must appear without scrolling on a regular phone: '+JSON.stringify(placement));
-            }
-            for(const width of [320,360,390,430,768,1440]){
-              await page.setViewportSize({width,height:width===1440?960:844});
-              await auditNoHorizontalScroll('Pushläge '+width+'px');
-              await assertActionsInFlow('Starta set '+width+'px',width===390||width===430);
-              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/push-session-'+width+'.png'});
-            }
-            for(const viewport of [{width:320,height:568},{width:390,height:667}]){
-              await page.setViewportSize(viewport);
-              await assertActionsInFlow('Starta set / kort mobil '+viewport.width+'×'+viewport.height,false);
-              await auditNoHorizontalScroll('Kort mobil '+viewport.width+'×'+viewport.height);
+            for(const width of [320,360,390,430,768]){
+              await page.setViewportSize({width,height:width>=768?900:844});
+              await auditFamilySession('Markus/Maja shared mode '+width+'px');
+              if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/family-session-'+width+'.png'});
             }
             await page.setViewportSize({width:390,height:844});
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true,
-              'Strength sets use the count-up timer at top right, not a one-minute ring');
-            const strengthLayout=await page.evaluate(()=>{
-              const ring=document.getElementById('session-live-timer'),flow=document.querySelector('#session-modal .hype-workout-progress'),
-                button=document.getElementById('session-controls'),log=document.getElementById('session-set-log');
-              return {ringDisplay:getComputedStyle(ring).display,flowBottom:flow.getBoundingClientRect().bottom,
-                actionTop:button.getBoundingClientRect().top,logTop:log.getBoundingClientRect().top,
-                logImmediatelyBelow:button.nextElementSibling?.classList.contains('session-log-section')};
-            });
-            assert.ok(strengthLayout.ringDisplay==='none'&&strengthLayout.logImmediatelyBelow&&
-              strengthLayout.actionTop>=strengthLayout.flowBottom&&strengthLayout.actionTop-strengthLayout.flowBottom<30&&
-              strengthLayout.logTop>strengthLayout.actionTop,
-              'Strength action must follow progress without an invisible ring: '+JSON.stringify(strengthLayout));
-            assert.match(await page.locator('#session-current-target').textContent(),/60 kg/);
-            assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'true');
-            await page.locator('[data-action="toggle-prestart"]').click();
-            assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
-            assert.equal(await page.locator('#session-exercises .mode-exercise-card').count(),3);
-            assert.ok(await page.locator('#session-modal .session-grid').evaluate(el=>
-              parseFloat(getComputedStyle(el).paddingBottom)<65),'The normal layout must not reserve empty space for a fixed action bar');
-            const railGeometry=await page.locator('#session-exercises').evaluate(el=>({
-              height:el.getBoundingClientRect().height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,
-              overflow:getComputedStyle(el).overflowY
-            }));
-            assert.ok(railGeometry.height>400 && railGeometry.scrollHeight<=railGeometry.clientHeight+2 &&
-              railGeometry.overflow==='visible','Rail must grow with every card instead of clipping: '+JSON.stringify(railGeometry));
-            await page.locator('#session-exercises .mode-exercise-card').last().scrollIntoViewIfNeeded();
-            await assertActionsInFlow('Setknappar ligger i det normala sidflödet, även efter scrollning',false);
-            const cardVisibility=await page.evaluate(()=>{
-              const el=document.querySelector('#session-exercises .mode-exercise-card:last-child');
-              const r=el.getBoundingClientRect(),mode=document.getElementById('session');
-              return {top:r.top,bottom:r.bottom,viewport:innerHeight,outerScroll:mode.scrollTop,railScroll:document.getElementById('session-exercises').scrollTop};
-            });
-            assert.ok(cardVisibility.top>=0&&cardVisibility.bottom<=cardVisibility.viewport+2 &&
-              cardVisibility.outerScroll>0 && cardVisibility.railScroll===0,
-              'Scrolling down must expose the entire last exercise card: '+JSON.stringify(cardVisibility));
-            assert.equal(await page.locator('#session-modal .session-top').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(8, 13, 20)','Sticky title bar must obscure the scrolling set cards');
-            await auditNoHorizontalScroll('Fully expanded set cards 390px');
-            await page.screenshot({path:'test-results/ingemar-demo/all-set-cards-mobile.png'});
-            await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'Aktivt set');
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
-            assert.match(await page.locator('#session-ecg-label').textContent(),/Aktivt set/);
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),true);
-            assert.equal(await page.locator('#session-ring-label').textContent(),'REDO FÖR SET');
-            await assertActionsInFlow('Klar med set under styrkeset',false);
-            await auditNoHorizontalScroll('Aktivt styrkeset 390px');
-            assert.equal(await page.locator('[data-actual="0:1:weight"]').inputValue(),'72.5');
-            assert.equal(await page.locator('[data-actual="0:1:reps"]').inputValue(),'9');
-            assert.equal(await page.locator('[data-actual="1:0:minutes"]').inputValue(),'3.5');
-            await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'Återhämtning');
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'rest');
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
-            assert.equal(await page.locator('#session-ring-label').textContent(),'VILA KVAR');
-            assert.notEqual(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).display),'none',
-              'The ring remains visible during recovery');
-            await assertActionsInFlow('Hoppa över vilan',false);
-            assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
-            assert.match(await page.locator('#session-ring-value').textContent(),/^\d{2}:\d{2}$/);
-            await auditNoHorizontalScroll('Glowing rest ring 390px');
-            await page.screenshot({path:'test-results/ingemar-demo/glowing-rest-timer-mobile.png'});
-            assert.equal(await page.locator('[data-action="skip-rest"]').count(),1);
-            await page.locator('[data-action="skip-rest"]').click();
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'ready');
-            assert.equal(await page.locator('[data-action="extra-session-set"]').count(),1);
-            assert.equal(await page.locator('[data-action="finish-session-exercise"]').count(),1);
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>getComputedStyle(el).display),'none',
-              'The next-set action must not have an empty timer placeholder');
-            for(const viewport of [{width:320,height:568},{width:390,height:667}]){
-              await page.setViewportSize(viewport);
-              await assertActionsInFlow('Tre beslutsknappar '+viewport.width+'×'+viewport.height,false);
-              await auditNoHorizontalScroll('Tre beslutsknappar '+viewport.width+'×'+viewport.height);
-            }
-            await page.setViewportSize({width:390,height:844});
-            assert.equal(await page.locator('#session-set-log .set-log-item').count(),1,
-              'The compact log shows the completed set above the detailed plan');
-            await page.locator('[data-log-actual="0:0:weight"]').fill('61');
-            assert.equal(await page.locator('[data-actual="0:0:weight"]').inputValue(),'61',
-              'Logged-set edits update the independent detailed set plan');
-            await page.locator('[data-done="0:1"]').click();
-            await page.locator('[data-actual="0:1:weight"]').fill('73');
-            await page.locator('[data-done="1:0"]').click();
-            await page.screenshot({path:'test-results/ingemar-demo/live-sets-mobile.png'});
-            await saveVisibleSession('Push');
-            await page.waitForFunction(()=>document.getElementById('session').hidden);
-            const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')));
-            const latest=saved.history.at(-1);
-            assert.equal(latest.type,'Push');
-            assert.deepEqual(latest.exercises[0].sets.map(s=>s.weight),[61,73]);
-            assert.deepEqual(latest.exercises[0].sets.map(s=>s.reps),[12,9]);
-            assert.equal(latest.exercises[1].sets[0].minutes,3.5);
-            await page.locator('#history [data-history]').first().click();
-            await page.waitForSelector('#history-detail[open]');
-            assert.equal(await page.locator('#history-detail .exercise-card').count(),2);
-            const historyDetails=await page.locator('#history-detail-body').innerText();
-            assert.ok(historyDetails.includes('73')&&historyDetails.includes('3.5'),
-              'Recorded set details were not visible: '+historyDetails);
-            await page.locator('[data-action="close-history"]').first().click();
-            await page.locator('[data-choice="Pull"]').click();
-            await page.locator('[data-action="start-from-builder"]').click();
-            await page.waitForSelector('#session:not([hidden])');
-            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Pull');
-            await auditNoHorizontalScroll('Pullläge 390px');
-            await page.screenshot({path:'test-results/ingemar-demo/pull-session-mobile.png'});
-            const pullExercise=await page.locator('#session-current-ex').textContent();
-            await page.locator('[data-action="toggle-prestart"]').click();
-            assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'true');
-            await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),false);
-            assert.equal(await page.locator('#session-pre-count').textContent(),'5');
-            const preProgress=[];
-            for(let i=0;i<6;i++){
-              await waitAnimationFrames(4);
-              preProgress.push(await page.locator('#session-pre-progress').evaluate(el=>({value:parseFloat(el.style.width),time:performance.now()})));
-            }
-            const preDeltas=preProgress.slice(1).map((sample,i)=>({
-              value:sample.value-preProgress[i].value,
-              time:sample.time-preProgress[i].time
-            }));
-            assert.ok(new Set(preProgress.map(sample=>sample.value.toFixed(3))).size>=5&&preDeltas.every(delta=>
-              delta.value>0&&Math.abs(delta.value-delta.time/50)<1.25
-            ),'5 s start progress must track wall-clock time on rendered frames: '+JSON.stringify({preProgress,preDeltas}));
-            await auditNoHorizontalScroll('Originalets femsekunderstimer 390px');
-            await page.screenshot({path:'test-results/ingemar-demo/5s-prestart-mobile.png'});
-            await page.locator('[data-action="skip-prestart"]').click();
-            assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),true);
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
-            await page.locator('[data-action="advance-session"]').click();
-            await page.locator('[data-action="skip-rest"]').click();
-            await page.locator('[data-action="extra-session-set"]').click();
-            assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),false);
-            await page.locator('[data-action="skip-prestart"]').click();
-            assert.equal(await page.locator('[data-actual="0:3:weight"]').count(),1,'Extra set should add its own editable row');
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
-            await page.locator('[data-action="advance-session"]').click();
-            await page.locator('[data-action="skip-rest"]').click();
-            await page.locator('[data-action="finish-session-exercise"]').click();
-            assert.notEqual(await page.locator('#session-current-ex').textContent(),pullExercise,'Övning klar should progress to the next exercise');
-            await saveVisibleSession('Pull');
+            const preToggle=family.locator('#session-prestart-toggle');
+            if(await preToggle.count()&&await preToggle.getAttribute('aria-pressed')==='true')await preToggle.click();
+            const firstAction=family.locator('#session-controls button:not([disabled])').first();
+            assert.match(await firstAction.textContent(),/Starta set|Starta/);
+            await firstAction.click();
+            assert.equal(await family.locator('#session-modal').evaluate(el=>!!el.ownerDocument.defaultView.sessionState.setRunning),true);
+            await family.locator('#session-controls button:not([disabled])').first().click();
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.sessionState.logs[0].length),1);
+            assert.equal(await family.locator('#session-controls .warn').count(),1);
+            assert.equal(await family.locator('#session-controls .success').count(),1);
+            await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.saveSessionWorkout());
+            await page.waitForFunction(()=>document.getElementById('family-session-frame').hidden);
+            const savedFamily=await page.evaluate(()=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1'))),latestFamily=savedFamily.history.at(-1);
+            assert.equal(latestFamily.type,'Push');
+            assert.equal(latestFamily.exercises[0].name,'Bänkpress');
+            assert.equal(latestFamily.exercises[0].sets.length,1);
+            assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-choice="Kondition"]').click();
             await page.locator('[data-action="start-from-builder"]').click();
-            await page.waitForSelector('#session:not([hidden])');
-            assert.equal(await page.locator('#session').getAttribute('data-kind'),'Kondition');
-            assert.equal(await page.locator('#session-exercises').evaluate(el=>el.scrollTop),0,'New session must start at first set row');
-            await page.locator('[data-action="toggle-prestart"]').click();
-            assert.equal(await page.locator('#session-prestart-toggle').getAttribute('aria-pressed'),'false');
-            await page.locator('[data-action="advance-session"]').click();
-            assert.equal(await page.locator('#session-stage').textContent(),'Kondition pågår');
-            assert.equal(await page.locator('#session-modal').getAttribute('data-state'),'active');
-            assert.equal(await page.locator('#session-live-timer').evaluate(el=>el.hidden),false);
-            assert.equal(await page.locator('#session-ring-label').textContent(),'INTERVALL KVAR');
-            await assertActionsInFlow('Starta intervall / kondition',false);
-            assert.ok((await page.locator('#session-ring-progress').getAttribute('d')).length>12);
-            assert.equal(await page.locator('#session-countdown-ring').getAttribute('role'),'timer');
-            assert.match(await page.locator('#session-ecg-label').textContent(),/Kondition pågår/);
-            await auditNoHorizontalScroll('Konditionsläge 390px');
-            await page.screenshot({path:'test-results/ingemar-demo/cardio-session-mobile.png'});
-            await page.locator('[data-done="0:0"]').click();
-            await saveVisibleSession('Kondition');
+            await page.waitForFunction(()=>!document.getElementById('family-session-frame').hidden);
+            await family.locator('#session-modal.show').waitFor();
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.sessionState.exercises[0].kind),'cardio');
+            const cardioToggle=family.locator('#session-prestart-toggle');
+            if(await cardioToggle.count()&&await cardioToggle.getAttribute('aria-pressed')==='true')await cardioToggle.click();
+            await family.locator('#session-controls button:not([disabled])').first().click();
+            assert.equal(await family.locator('#session-modal').evaluate(el=>!!el.ownerDocument.defaultView.sessionState.setRunning),true);
+            assert.equal(await family.locator('#session-modal').evaluate(el=>el.classList.contains('pulse-flow-cardio-v58')),true);
+            await family.locator('#session-modal').evaluate(el=>el.ownerDocument.defaultView.stopSessionMode(false));
+            await page.waitForFunction(()=>document.getElementById('family-session-frame').hidden);
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
