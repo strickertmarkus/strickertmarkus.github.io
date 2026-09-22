@@ -37,7 +37,8 @@ const EXERCISE_KEYS = [
   'ex_plan',
   'ex_vo2'
 ];
-const isExercisePage = /\/exercise\.html$/.test(window.location.pathname);
+const isPulseFieldPage = /\/training-pulse-field\.html$/i.test(window.location.pathname);
+const isExercisePage = /\/(?:exercise|training-pulse-field)\.html$/i.test(window.location.pathname);
 const requestedExerciseUser = new URLSearchParams(window.location.search).get('user');
 const exerciseUser = requestedExerciseUser && requestedExerciseUser.toLowerCase() === 'maja' ? 'maja' : 'markus';
 
@@ -328,7 +329,8 @@ function switchExerciseUser(user) {
 }
 
 function applyExerciseUserToggle() {
-  if (!isExercisePage) return;
+  // Pulse Field owns its profile switch and title; only share data scoping here.
+  if (!isExercisePage || isPulseFieldPage) return;
 
   document.title = `${exerciseUser === 'maja' ? 'Maja' : 'Markus'} Träning`;
   const brandSub = document.querySelector('.brand-text p');
@@ -402,7 +404,7 @@ function applyExerciseUserToggle() {
 
 // Exercise page layout correction for native date controls.
 function applyExerciseLogDateFieldFix() {
-  if (!isExercisePage) return;
+  if (!isExercisePage || isPulseFieldPage) return;
   const style = document.createElement('style');
   style.id = 'exercise-log-date-field-fix';
   style.textContent = `
