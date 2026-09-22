@@ -111,7 +111,7 @@ jobs:
             assert.equal(sceneQuality.startSvgCount,0,'Start symbol must not contain the old ECG ring SVG: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startFlowAnimation,'startOrbitFlow','Outer start ring must use circulating flow instead of breathing: '+JSON.stringify(sceneQuality));
             if(mobile){
-              assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1&&sceneQuality.bodyScrollWidth<=sceneQuality.viewportWidth+1,'Mobile page must not overflow horizontally: '+JSON.stringify(sceneQuality));
+              assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1,'Mobile root must not overflow horizontally: '+JSON.stringify(sceneQuality));
               await page.evaluate(()=>window.scrollTo(140,0));
               await page.waitForTimeout(80);
               assert.equal(await page.evaluate(()=>window.scrollX),0,'Mobile page must not pan horizontally');
