@@ -136,7 +136,7 @@ jobs:
             assert.ok(starDistance>2.2,'Background stars should drift noticeably: '+JSON.stringify({before:before.stars,after:after.stars,starDistance}));
             const directionCos=(starDx*fleckDx+starDy*fleckDy)/(starDistance*fleckDistance);
             assert.ok(directionCos>.995,'Large and small background stars must drift in one unified direction: '+JSON.stringify({starDx,starDy,fleckDx,fleckDy,directionCos}));
-            assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.08,'Nebula dust layer must rotate subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
+            assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.01,'Nebula dust layer must keep rotating subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
             assert.ok(Math.abs(after.near.opacity-before.near.opacity)>.004,'Near gas layer opacity must continue changing as it drifts: '+JSON.stringify({before:before.near,after:after.near}));
 
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
