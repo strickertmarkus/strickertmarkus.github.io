@@ -91,6 +91,7 @@ test('preview includes an isolated training log and interactive Zen modes',()=>{
  assert.doesNotMatch(html,/class="orbit"|class="orbit-inner"|class="orbit-dot"/);
  assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{[\s\S]*?--zen-accent:#ff4f6d/);
  assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/@keyframes zenFlowSweep/);
+ assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{max-width:100%;margin:4px 0 0\}/);
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
  for(const type of ['Push','Pull','Kondition'])assert.match(html,new RegExp('data-choice="'+type+'"'));
  assert.match(source[1],/zenHistory/);
@@ -156,7 +157,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260922-training-flow-10/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260922-training-flow-11/);
  assert.match(html,/ingemar-pulse-original\.css\?v=20260921-smooth-timers-2/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);

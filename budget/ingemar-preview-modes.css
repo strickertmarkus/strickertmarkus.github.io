@@ -410,6 +410,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
   .zen-dashboard-copy h1{font-size:42px;margin:15px 0 11px}
   .zen-dashboard-actions{margin-top:17px}
   .zen-flow-visual{height:245px;margin:4px -5px 0}
+  .training-flow-visual{max-width:100%;margin:4px 0 0}
   .zen-flow-core{width:68%;padding:19px 12px 17px}
   .zen-flow-core strong{font-size:25px}
   .zen-stats{grid-template-columns:1fr 1fr;margin-top:5px;margin-bottom:33px}
@@ -424,6 +425,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
   .zen-dashboard-copy h1{font-size:38px}
   .zen-dashboard-note{width:100%}
   .zen-flow-visual{height:225px}
+  .training-flow-visual{max-width:100%;margin-left:0;margin-right:0}
   .zen-flow-core{width:75%}
   .zen-week{gap:3px}
   .zen-week .zen-day{padding:8px 2px}
