@@ -353,6 +353,12 @@ jobs:
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
+            assert.equal(await page.locator('#session-live-flow').count(),1);
+            assert.notEqual(await page.locator('#session-live-flow').evaluate(el=>getComputedStyle(el).display),'none');
+            assert.equal(await page.locator('#session-flow-pulse').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 79, 109)');
+            const trainingFlowTransforms=[];
+            for(let i=0;i<5;i++){await waitAnimationFrames(4);trainingFlowTransforms.push(await page.locator('#session-flow-pulse').evaluate(el=>el.style.transform));}
+            assert.ok(new Set(trainingFlowTransforms).size>=4,'Red training live-flow must animate continuously on rendered frames: '+JSON.stringify(trainingFlowTransforms));
             async function saveVisibleSession(label){
               await page.locator('#finish-session').scrollIntoViewIfNeeded();
               const position=await page.locator('#finish-session').evaluate(el=>{
