@@ -53,6 +53,10 @@ jobs:
             page.on('pageerror',e=>errors.push(e.message));
             await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+            // Visual verification must not depend on a live Firebase login/session.
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
 
             await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#insight-chart svg');
