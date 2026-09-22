@@ -14,7 +14,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     activityMetric: 'minutes',
     insight: 'heart',
     insightMode: 'chart',
-    volumeExercise: null,
     openLogId: null,
     logTouched: false
   };
@@ -305,33 +304,57 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     data.workouts.forEach(function(w){var value=number(w.vo2);if(w.date&&value)map[w.date]={date:w.date,value:value,type:workoutType(w)};});
     return Object.keys(map).sort().map(function(key){return map[key];}).slice(-14);
   }
-  function exerciseVolumeCatalog() {
+  function trainingGroupName(workout) {
+    var raw=workoutType(workout).trim();
+    var shortMap={H:'Helkropp',B:'Bröst + Triceps',R:'Rygg + Biceps',L:'Ben + Axlar',O:'Övrigt','Ö':'Överkropp',U:'Underkropp'};
+    return shortMap[raw]||raw||'Övrigt';
+  }
+  function trainingGroupVolumeSeries() {
     var map={};
     data.workouts.forEach(function(workout){
-      (workout.exercises||[]).forEach(function(raw){
-        var ex=normalizeExercise(raw),volume=ex.sets*ex.reps*ex.weight;
-        if(ex.kind!=='strength'||!ex.name.trim()||!(volume>0))return;
-        var key=ex.name.trim().toLocaleLowerCase('sv-SE');
-        if(!map[key])map[key]={key:key,name:ex.name.trim(),count:0,lastDate:''};
-        map[key].count+=1;
-        if(String(workout.date)>map[key].lastDate)map[key].lastDate=String(workout.date);
-      });
+      var volume=workoutVolume(workout);
+      if(!(volume>0)||!workout.date)return;
+      var name=trainingGroupName(workout),key=name.toLocaleLowerCase('sv-SE');
+      if(!map[key])map[key]={key:key,name:name,byDate:{},lastDate:''};
+      map[key].byDate[workout.date]=(map[key].byDate[workout.date]||0)+volume;
+      if(String(workout.date)>map[key].lastDate)map[key].lastDate=String(workout.date);
     });
-    return Object.keys(map).map(function(key){return map[key];}).sort(function(a,b){
+    return Object.keys(map).map(function(key){
+      var item=map[key];
+      item.entries=Object.keys(item.byDate).sort().map(function(date){return {date:date,value:item.byDate[date]};});
+      item.count=item.entries.length;
+      return item;
+    }).sort(function(a,b){
       return b.count-a.count||String(b.lastDate).localeCompare(String(a.lastDate))||a.name.localeCompare(b.name,'sv');
     });
   }
-  function exerciseVolumeData(key) {
-    return data.workouts.slice().sort(function(a,b){
-      return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);
-    }).map(function(workout){
-      var volume=(workout.exercises||[]).reduce(function(sum,raw){
-        var ex=normalizeExercise(raw);
-        var exKey=ex.name.trim().toLocaleLowerCase('sv-SE');
-        return sum+(ex.kind==='strength'&&exKey===key?ex.sets*ex.reps*ex.weight:0);
-      },0);
-      return volume>0?{date:workout.date,value:volume,type:workoutType(workout)}:null;
-    }).filter(Boolean).slice(-14);
+  function groupVolumeColor(index) {
+    return ['#ff657a','#67d4e4','#ffd2bd','#65d7a5','#a78bfa','#f6c977','#ff9a91','#8ab4f8'][index%8];
+  }
+  function groupVolumeChart(series) {
+    var chart=byId('volume-chart');
+    if(!series.length)return '<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
+    var dates={},values=[];
+    series.forEach(function(group){
+      group.entries.forEach(function(entry){dates[entry.date]=true;values.push(entry.value);});
+    });
+    var dateKeys=Object.keys(dates).sort();
+    if(!dateKeys.length)return '<div class="volume-empty">Ingen passvolym finns att visa ännu.</div>';
+    var width=clamp(chart.clientWidth||820,320,820),height=clamp(chart.clientHeight||272,230,292),left=53,right=22,top=24,bottom=38,plotW=width-left-right,plotH=height-top-bottom;
+    var firstDate=dateAtNoon(dateKeys[0]).getTime(),lastDate=dateAtNoon(dateKeys[dateKeys.length-1]).getTime(),span=Math.max(1,lastDate-firstDate);
+    var max=Math.max.apply(Math,values.concat([1])),axisMax=Math.max(100,Math.ceil(max*1.12/100)*100);
+    function x(date){return dateKeys.length===1?left+plotW/2:left+(dateAtNoon(date).getTime()-firstDate)*plotW/span;}
+    function y(value){return top+(axisMax-value)*plotH/axisMax;}
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+    [0,.5,1].forEach(function(ratio){var value=axisMax*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
+    series.forEach(function(group,index){
+      var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
+      if(points.length>1)svg+='<path class="group-volume-line" d="'+seriesPath(points)+'" stroke="'+color+'" style="color:'+color+'"/>';
+      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
+    });
+    var labelIndexes=dateKeys.length<4?dateKeys.map(function(_,i){return i;}):[0,Math.floor((dateKeys.length-1)/2),dateKeys.length-1];
+    labelIndexes.forEach(function(index){var date=dateKeys[index];svg+='<text class="chart-axis-label" x="'+x(date)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(date)+'</text>';});
+    return svg+'</svg>';
   }
   function seriesPath(points) {
     if(!points.length)return'';
@@ -452,28 +475,21 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderVolume() {
-    var tabs=byId('volume-exercise-tabs'),chart=byId('volume-chart'),summary=byId('volume-summary'),catalog=exerciseVolumeCatalog();
-    if(!catalog.length){
-      state.volumeExercise=null;
-      tabs.innerHTML='';
-      summary.hidden=true;
-      chart.innerHTML='<div class="volume-empty">Passvolym visas när en styrkeövning med set, reps och vikt har loggats.</div>';
+    var legend=byId('volume-legend'),chart=byId('volume-chart'),series=trainingGroupVolumeSeries();
+    if(!series.length){
+      legend.innerHTML='';
+      chart.innerHTML='<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
       chart.setAttribute('aria-label','Ingen passvolym att visa ännu.');
       return;
     }
-    if(!state.volumeExercise||!catalog.some(function(item){return item.key===state.volumeExercise;}))state.volumeExercise=catalog[0].key;
-    tabs.innerHTML=catalog.map(function(item){
-      var selected=item.key===state.volumeExercise;
-      return '<button type="button" role="tab" data-volume-exercise="'+encodeURIComponent(item.key)+'" aria-selected="'+selected+'">'+escapeHtml(item.name)+'</button>';
+    legend.innerHTML=series.map(function(group,index){
+      var color=groupVolumeColor(index);
+      return '<span><i style="--legend-color:'+color+'"></i>'+escapeHtml(group.name)+'</span>';
     }).join('');
-    var selected=catalog.find(function(item){return item.key===state.volumeExercise;})||catalog[0];
-    var entries=exerciseVolumeData(selected.key),latest=entries.length?entries[entries.length-1].value:0,best=entries.length?Math.max.apply(Math,entries.map(function(entry){return entry.value;})):0;
-    summary.hidden=false;
-    byId('volume-latest').textContent=latest?formatNumber(Math.round(latest),0)+' kg':'—';
-    byId('volume-best').textContent=best?formatNumber(Math.round(best),0)+' kg':'—';
-    byId('volume-caption').textContent=entries.length+' loggade pass · '+selected.name;
-    chart.innerHTML=lineChart(entries,{containerId:'volume-chart',gradientId:'volume-fill',color:'#ff9a91',decimals:0,suffix:' kg',empty:'Ingen volymhistorik för '+selected.name+'.'});
-    chart.setAttribute('aria-label','Passvolym för '+selected.name+'. '+entries.map(function(entry){return logDate(entry.date)+': '+Math.round(entry.value)+' kg';}).join('. '));
+    chart.innerHTML=groupVolumeChart(series);
+    chart.setAttribute('aria-label','Passvolym per träningsgrupp. '+series.map(function(group){
+      return group.name+': '+group.entries.map(function(entry){return logDate(entry.date)+' '+Math.round(entry.value)+' kg';}).join(', ');
+    }).join('. '));
   }
 
   function exerciseResult(raw) {
@@ -572,7 +588,6 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
       var insight=event.target.closest('[data-insight]');if(insight){state.insight=insight.dataset.insight;renderInsight();return;}
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
-      var volumeExercise=event.target.closest('[data-volume-exercise]');if(volumeExercise){state.volumeExercise=decodeURIComponent(volumeExercise.dataset.volumeExercise);renderVolume();return;}
     });
     window.addEventListener('firebase-sync',function(){renderAll();showToast('Träningsdata uppdaterad');});
     var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){renderActivity();renderInsight();renderVolume();},180);});
