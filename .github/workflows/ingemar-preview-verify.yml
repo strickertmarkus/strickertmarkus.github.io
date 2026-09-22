@@ -506,10 +506,17 @@ jobs:
             assert.equal(await page.locator('#session-pre-timer').evaluate(el=>el.hidden),false);
             assert.equal(await page.locator('#session-pre-count').textContent(),'5');
             const preProgress=[];
-            for(let i=0;i<6;i++){await waitAnimationFrames(4);preProgress.push(parseFloat(await page.locator('#session-pre-progress').evaluate(el=>el.style.width)));}
-            const preDeltas=preProgress.slice(1).map((v,i)=>v-preProgress[i]);
-            assert.ok(new Set(preProgress.map(v=>v.toFixed(3))).size>=5&&preDeltas.every(v=>v>0&&v<8),
-              '5 s start progress must advance continuously on animation frames: '+JSON.stringify({preProgress,preDeltas}));
+            for(let i=0;i<6;i++){
+              await waitAnimationFrames(4);
+              preProgress.push(await page.locator('#session-pre-progress').evaluate(el=>({value:parseFloat(el.style.width),time:performance.now()})));
+            }
+            const preDeltas=preProgress.slice(1).map((sample,i)=>({
+              value:sample.value-preProgress[i].value,
+              time:sample.time-preProgress[i].time
+            }));
+            assert.ok(new Set(preProgress.map(sample=>sample.value.toFixed(3))).size>=5&&preDeltas.every(delta=>
+              delta.value>0&&Math.abs(delta.value-delta.time/50)<1.25
+            ),'5 s start progress must track wall-clock time on rendered frames: '+JSON.stringify({preProgress,preDeltas}));
             await auditNoHorizontalScroll('Originalets femsekunderstimer 390px');
             await page.screenshot({path:'test-results/ingemar-demo/5s-prestart-mobile.png'});
             await page.locator('[data-action="skip-prestart"]').click();
