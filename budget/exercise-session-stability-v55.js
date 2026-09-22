@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseSessionStabilityV55Installed) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionStabilityV55Installed) return;
   window.__exerciseSessionStabilityV55Installed = true;
 
   /* Suppress the legacy v49 follow-up layer. Its document-wide MutationObserver

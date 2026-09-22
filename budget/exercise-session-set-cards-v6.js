@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
   function addStyles() {
     if (document.getElementById('exercise-session-set-cards-v6-style')) return;

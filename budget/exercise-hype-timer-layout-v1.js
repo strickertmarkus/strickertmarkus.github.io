@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
   if (window.__exerciseHypeTimerLayoutV1Installed) return;
   window.__exerciseHypeTimerLayoutV1Installed = true;
   /* Set this before DOMContentLoaded so every older polling layer can yield
