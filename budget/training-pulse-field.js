@@ -167,6 +167,12 @@
   }
   function wireProfileLinks() {
     byId('profile-name').textContent=profile==='maja'?'Maja':'Markus Strickert';
+    document.querySelectorAll('[data-field-profile]').forEach(function(link){
+      var target=new URL(location.href);
+      if(link.dataset.fieldProfile==='maja')target.searchParams.set('user','maja');else target.searchParams.delete('user');
+      link.href=target.pathname.split('/').pop()+target.search+target.hash;
+      if(link.dataset.fieldProfile===profile)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');
+    });
     document.title=(profile==='maja'?'Maja':'Markus')+' Träning · Pulse Field';
     ['original-link','menu-original','next-session-link','edit-week-link','log-action-link','footer-original'].forEach(function(id){
       var link=byId(id);if(!link)return;
@@ -174,6 +180,8 @@
     });
     byId('stretch-link').href=profileHref('exercise.html',{wellness:'stretch'});
     byId('meditation-link').href=profileHref('exercise.html',{wellness:'meditation'});
+    document.querySelector('.field-brand').href=profileHref('home.html');
+    document.querySelector('#field-menu a[href="home.html"]').href=profileHref('home.html');
     var current=new URL(location.href);if(profile==='maja')current.searchParams.set('user','maja');
     document.querySelector('.kind-switch .is-active').href=current.pathname.split('/').pop()+current.search;
   }
