@@ -1,6 +1,8 @@
 /* Ingemar demo mode surfaces. The original landing page and builder keep their own layout. */
 html,body{max-width:100%;overflow-x:clip}
 body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
+.family-session-frame[hidden]{display:none!important}
+.family-session-frame{position:fixed;inset:0;z-index:55;display:block;width:100vw;height:100dvh;max-width:100vw;border:0;background:#080D14}
 .mode-screen[hidden]{display:none!important}
 .mode-screen{--mode-accent:#ff9eb6;--mode-accent-soft:#f15d8d39;--mode-border:#ffb4d04e;position:fixed;inset:0;z-index:55;display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;min-height:100dvh;max-width:100vw;color:#fff1f6;background:radial-gradient(ellipse at 50% -23%,#b4406540,transparent 55%),#090e17;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);-webkit-overflow-scrolling:touch}
 .mode-screen *{box-sizing:border-box;min-width:0}
