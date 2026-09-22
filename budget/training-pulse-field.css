@@ -77,14 +77,14 @@ main{display:block}
 .signal-ghost{fill:none;stroke:#ff657a1b;stroke-width:18;filter:blur(16px)}
 .signal-main{fill:none;stroke:url(#field-line);stroke-width:1.2;filter:drop-shadow(0 0 5px #ff9a9180);stroke-dasharray:2 1;animation:signalTravel 28s linear infinite}
 .field-start-area{position:relative;z-index:7;width:176px;max-width:100%;margin:40px 0 0}
-.start-orbit{--start-light:255,154,145;--start-text:#f5eeea;--start-muted:#bda9a4;position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:168px;height:168px;min-height:168px;margin:0;padding:20px 15px;border:1px solid rgba(var(--start-light),.58);border-radius:50%;background:radial-gradient(circle at 43% 34%,rgba(255,209,186,.16),transparent 40%),radial-gradient(circle at 50% 66%,rgba(255,101,122,.16),#0d131ae8 67%);color:var(--start-text);box-shadow:0 0 22px rgba(var(--start-light),.24),0 0 48px rgba(255,101,122,.12),inset 0 0 24px rgba(var(--start-light),.09);overflow:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s cubic-bezier(.2,.8,.2,1)}
+.start-orbit{--start-light:255,154,145;--start-text:#f5eeea;--start-muted:#bda9a4;position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:168px;height:168px;min-height:168px;margin:0;padding:20px 15px;border:1px solid rgba(var(--start-light),.55);border-radius:50%;background:radial-gradient(circle at 43% 34%,rgba(255,209,186,.16),transparent 40%),radial-gradient(circle at 50% 66%,rgba(255,101,122,.16),#0d131ae8 67%);color:var(--start-text);box-shadow:0 0 22px rgba(var(--start-light),.22),0 0 48px rgba(255,101,122,.10),inset 0 0 24px rgba(var(--start-light),.09);overflow:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s cubic-bezier(.2,.8,.2,1)}
 .start-orbit::before,.start-orbit::after{content:"";position:absolute;display:block;pointer-events:none;border-radius:50%}
 .start-orbit::before{inset:8px;border:1px solid rgba(var(--start-light),.25)}
 .start-orbit::after{inset:-6px;border:1px solid rgba(var(--start-light),.18);animation:orbitBreath 6.2s ease-in-out infinite}
-.start-orbit:hover{transform:scale(1.018);border-color:rgba(var(--start-light),.82);box-shadow:0 0 24px rgba(var(--start-light),.30),0 0 52px rgba(255,101,122,.16),inset 0 0 26px rgba(var(--start-light),.11)}
+.start-orbit:hover{transform:scale(1.018);border-color:rgba(var(--start-light),.8);box-shadow:0 0 24px rgba(var(--start-light),.30),0 0 52px rgba(255,101,122,.16),inset 0 0 26px rgba(var(--start-light),.11)}
 .start-orbit>span,.start-orbit>strong{position:relative;z-index:1;text-align:center}
 .start-label{margin:0;color:var(--start-text);font:600 14px/1.3 var(--field-ui);letter-spacing:0;text-transform:none}
-.training-glyph{display:grid;place-items:center;width:28px;height:28px;margin:0;color:rgb(var(--start-light));filter:drop-shadow(0 0 10px rgba(var(--start-light),.65))}
+.training-glyph{display:grid;place-items:center;width:26px;height:26px;margin:0;color:rgb(var(--start-light));filter:drop-shadow(0 0 10px rgba(var(--start-light),.65))}
 .training-glyph svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .training-glyph path{stroke-width:2}
 .training-glyph circle{stroke-opacity:.28}
@@ -253,7 +253,7 @@ main{display:block}
 .toast.is-visible{transform:translate(-50%,0);opacity:1}
 
 @keyframes signalTravel{to{stroke-dashoffset:-100}}
-@keyframes orbitBreath{0%,100%{transform:scale(.985);opacity:.5}50%{transform:scale(1.025);opacity:.9}}
+@keyframes orbitBreath{0%,100%{transform:scale(.985);opacity:.48}50%{transform:scale(1.025);opacity:.82}}
 @keyframes weekSweep{to{stroke-dashoffset:-100}}
 @keyframes barRise{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
 
@@ -271,7 +271,7 @@ main{display:block}
   .signal-landscape{left:-60px;width:calc(100% + 130px);height:328px}
   .field-start-area{margin:auto 0 0;padding-top:12px}
   .start-orbit{width:168px;height:168px;min-height:168px;padding:20px 15px}
-  .training-glyph{width:28px;height:28px}
+  .training-glyph{width:26px;height:26px}
   .start-orbit strong{max-width:130px;font-size:19px}
   .rhythm-section,.field-section{padding:34px 0}
   .section-intro h2,.section-head h2{font-size:35px}
