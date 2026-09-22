@@ -7,6 +7,9 @@ const path=require('node:path');
 const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(__dirname,'../ingemar-preview.html'),'utf8');
 const source=html.match(/<script>([\s\S]*?)<\/script>/);
+const familyHtml=fs.readFileSync(path.join(root,'ingemar-session/exercise.html'),'utf8');
+const productionHtml=fs.readFileSync(path.join(root,'exercise.html'),'utf8');
+function sessionMarkup(text){const start=text.indexOf('<!-- ── SESSION MODE ── -->'),end=text.indexOf('<datalist id="type-suggestions"',start);assert.ok(start>=0&&end>start,'Session markup bounds missing');return text.slice(start,end).trim();}
 test('standalone preview has valid inline JavaScript and does not load Firebase',()=>{
  assert.ok(source,'Preview script missing');
  new vm.Script(source[1],{filename:'ingemar-preview.html'});
@@ -103,28 +106,20 @@ test('preview includes an isolated training log and interactive Zen modes',()=>{
  assert.match(source[1],/Återställa all demodata/);
 });
 
-test('training mode embeds the original Pulse Flow CSS and ordered set decisions',()=>{
- const original=fs.readFileSync(path.join(root,'exercise-pulse-flow-v58.js'),'utf8');
- const quote=String.fromCharCode(96);
- const body=original.split('style.textContent = '+quote)[1].split(quote+';\n    document.head.appendChild(style)')[0];
- const css=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.ok(body.length>25000,'Original stylesheet extraction should be available');
- assert.ok(css.includes(body.trimEnd()),'Demo must contain the original family Pulse Flow CSS without trailing whitespace');
- for(const phrase of ['id="session-modal" class="pulse-flow-v58 pulse-flow-strength-v58 show"',
-  'class="session-shell"','class="session-timers"','class="hype-workout-progress"',
-  'id="session-stable-details"','id="pulse-flow-live-v58"',
-  'class="pulse-flow-trace-v58"','id="session-exercises" tabindex="0"'])assert.ok(html.includes(phrase),phrase);
- for(const fn of ['startCurrentSet','completeCurrentSet','startNextSet','addExtraSet',
-  'finishCurrentExercise','skipSessionRest'])assert.ok(source[1].includes('function '+fn+'()'),fn);
- assert.match(source[1],/set\.skipped/);
- assert.match(source[1],/dataset\.state=phase/);
- assert.match(html,/id="session-pre-timer"/);
- assert.match(html,/id="session-prestart-toggle"/);
- assert.match(source[1],/function skipPrestart\(\)/);
- assert.match(source[1],/function togglePrestart\(\)/);
- assert.match(source[1],/active\.preUntil=Date\.now\(\)\+5000/);
- assert.doesNotMatch(html,/<dialog id="session"/);
+test('Ingemar training delegates to the exact Markus/Maja family session',()=>{
+ assert.match(html,/id="family-session-frame"[^>]*src="ingemar-session\/exercise\.html\?user=ingemar"/);
+ assert.doesNotMatch(html,/id="session-modal"|id="session-live-timer"|ingemar-pulse-original\.css/);
+ assert.equal(sessionMarkup(familyHtml),sessionMarkup(productionHtml),'Family host must use the exact production session modal markup');
+ const productionStyle=(productionHtml.match(/<style>([\s\S]*?)<\/style>/)||[])[1],familyStyle=(familyHtml.match(/<style data-family-base>([\s\S]*?)<\/style>/)||[])[1];
+ assert.equal(familyStyle,productionStyle,'Family host base CSS must be byte-for-byte identical to production');
+ const requiredAssets=['exercise-timer-focus.js','exercise-session-enhancements.js','exercise-session-runtime-core-v21.js','exercise-session-theme-stability.js','exercise-session-stable-details.js','exercise-between-routing-v7.js','exercise-between-custom-exercise-v3.js','exercise-between-sets.js','exercise-hype-polish.js','exercise-flow-polish-v2.js','exercise-session-set-cards-v6.js','exercise-session-shell-v19.js','exercise-session-ux-v20.js','exercise-motion-v1.js','exercise-hype-timer-layout-v1.js','exercise-session-stability-v55.js','exercise-custom-transition-atomic-v56.js','exercise-pulse-flow-v58.js','exercise-pulse-flow-motion-v67.js','exercise-session-typography.js','exercise-pulse-flow-progress-marker-v92.js','exercise-pulse-flow-completed-marker-v102.js','exercise-pulse-flow-ecg-glow-v104.js','exercise-pulse-flow-canvas-glow-v130.js','exercise-pulse-flow-canvas-glow-v131.js','exercise-session-transition-stability-v142.js','exercise-session-persistence-v143.js'];
+ requiredAssets.forEach(asset=>assert.ok(familyHtml.includes('src="'+asset+'?v='),asset));
+ assert.doesNotMatch(familyHtml,/firebase-app-compat|firebase-auth-compat|firebase-database-compat|firebase-sync\.js|auth-gate\.js|auth-config\.js/);
+ assert.match(source[1],/function sendFamilySession\(\)/);assert.match(source[1],/ingemar-family-session-saved/);
+ assert.doesNotMatch(source[1],/function renderSession\(|function startCurrentSet\(|function paintSessionRing\(/);
+ Array.from(familyHtml.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)).map(m=>m[1]).filter(Boolean).forEach((script,index)=>new vm.Script(script,{filename:'ingemar-family-session-inline-'+index+'.js'}));
 });
+
 test('push/pull analytics track load, balance and exercise progression from demo history',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  for(const id of ['pp-volume-chart','pp-push-volume','pp-pull-volume','pp-balance','pp-set-count','pp-rep-count','pp-exercise-chart','pp-exercise-pills'])assert.match(html,new RegExp('id="'+id+'"'));
@@ -154,71 +149,17 @@ test('push/pull analytics track load, balance and exercise progression from demo
  assert.match(css,/@media\(max-width:390px\)/);
 });
 
-test('independent editable set rail and Zen remain mobile friendly',()=>{
+test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260922-training-flow-11/);
- assert.match(html,/ingemar-pulse-original\.css\?v=20260921-smooth-timers-2/);
- assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
- assert.match(css,/@media\(max-width:900px\)/);
- assert.match(css,/@media\(max-width:360px\)/);
- assert.match(css,/env\(safe-area-inset-bottom\)/);
- assert.match(pulse,/#session-modal \.session-set-rail\{/);
- assert.match(pulse,/#session-modal \.session-set-rail\{[^\n]*max-height:none;overflow:visible/);
- assert.doesNotMatch(pulse, /max-height:clamp\(175px,31dvh,320px\)/);
- assert.match(pulse,/#session-modal \.pf-live-ring::before/);
- assert.match(pulse,/#session-modal \.pf-arc-progress-v80/);
- assert.match(pulse,/@keyframes ingemarEcgSweep/);
- assert.match(source[1],/function paintSessionRing\(now\)/);
- assert.match(source[1],/function startSessionAnimation\(\)/);
- assert.match(source[1],/function stopSessionAnimation\(\)/);
- assert.match(source[1],/requestAnimationFrame\(sessionAnimationTick\)/);
- assert.doesNotMatch(source[1],/sessionRingTick|sessionRingLastFrame|setInterval\(function\(\)\{if\(active\)updateSessionClock/);
- assert.match(html,/id="session-countdown-ring"/);
- assert.match(html,/id="session-live-timer"/);
- assert.match(source[1],/session-live-timer'\)\.hidden=!complete&&!rest&&!!ex&&ex\.mode!=='min'/);
- assert.doesNotMatch(source[1],/elapsed%60/);
- assert.match(pulse,/#session-modal \.session-live-timer\[hidden\]\{display:none!important\}/);
- assert.match(html,/class="session-log-section"/);
- assert.match(html,/id="session-set-log"/);
- assert.match(source[1],/data-log-actual/);
- assert.match(pulse,/#session-modal #session-set-log \.set-log-item/);
- assert.doesNotMatch(pulse,/#session-modal\.pulse-flow-v58\.show:not\(\.session-overview-mode\) #session-controls\{position:fixed!important/);
- assert.doesNotMatch(pulse,/padding-bottom:calc\(145px \+ env\(safe-area-inset-bottom\)\)/);
- assert.match(pulse,/#session-modal\.pulse-flow-v58\.show:not\(\.session-overview-mode\) #session-controls\s*\{[\s\S]*?margin-top:5px/);
- assert.match(pulse,/@media\(max-width:740px\)\{/);
- assert.match(html,/id="session-ring-progress"/);
- assert.match(html,/id="session-ring-marker"/);
- assert.doesNotMatch(html,/id="session-cardio-countdown"/);
- assert.match(pulse,/@media\(max-width:740px\)/);
- assert.match(pulse,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);
- assert.match(source[1],/function nextZen\(\)/);
- assert.match(source[1],/function selectZenStep\(index\)/);
- assert.match(html,/id="zen-step-arc"/);
- assert.match(html,/id="zen-step-marker"/);
- assert.match(html,/id="zen-total-time"/);
- assert.match(html,/id="zen-total-progress" role="progressbar"/);
- assert.match(css,/\.zen-workout \.zen-step-arc\{/);
- assert.match(css,/\.zen-workout \.zen-total-time\{/);
- assert.match(source[1],/stepCircle\.style\.strokeDashoffset|arc\.style\.strokeDashoffset/);
- assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
- assert.match(source[1],/function startZenTimer\(\)/);
- assert.match(source[1],/function stopZenTimer\(\)/);
- assert.match(source[1],/function zenAnimationTick\(\)/);
- assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);
- assert.match(source[1],/cancelAnimationFrame\(zenAnimationFrame\)/);
- assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);
- assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);
- assert.match(css,/--mode-glow:/);
- assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);
- assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);
- assert.match(html,/class="zen-focus-grid"/);
- for(const id of ['zen-next-step','zen-next-meta','zen-breath-pulse'])assert.match(html,new RegExp('id="'+id+'"'));
- assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);
- assert.match(css,/@keyframes zenWaterRipple/);
-  assert.match(pulse,/#session \.session-pre-line>div\{[^}]*transition:none;will-change:width/);
- assert.doesNotMatch(css,/stroke-dashoffset \.38s/);
- assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);
- assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260922-family-session-12/);
+ assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
+ assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
+ assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
+ for(const id of ['zen-step-arc','zen-step-marker','zen-total-time','zen-next-step','zen-next-meta','zen-breath-pulse'])assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/id="zen-total-progress" role="progressbar"/);assert.match(css,/\.zen-workout \.zen-step-arc\{/);assert.match(css,/\.zen-workout \.zen-total-time\{/);
+ assert.match(source[1],/arc\.style\.strokeDashoffset/);assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
+ assert.match(source[1],/function startZenTimer\(\)/);assert.match(source[1],/function stopZenTimer\(\)/);assert.match(source[1],/function zenAnimationTick\(\)/);assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);assert.match(source[1],/cancelAnimationFrame\(zenAnimationFrame\)/);
+ assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);assert.match(css,/--mode-glow:/);
+ assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);assert.match(html,/class="zen-focus-grid"/);assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);assert.match(css,/@keyframes zenWaterRipple/);
+ assert.doesNotMatch(css,/stroke-dashoffset \.38s/);assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
