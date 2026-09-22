@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
   if (window.__exerciseSessionUxV20Installed) return;
   window.__exerciseSessionUxV20Installed = true;
 

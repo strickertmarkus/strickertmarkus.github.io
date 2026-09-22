@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseMotionV2Installed) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseMotionV2Installed) return;
   window.__exerciseMotionV2Installed = true;
 
   var activeTransition = null;

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowV58Installed) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exercisePulseFlowV58Installed) return;
   window.__exercisePulseFlowV58Installed = true;
 
   var renderBound = false;

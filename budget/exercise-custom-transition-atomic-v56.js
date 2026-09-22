@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseCustomTransitionAtomicV56Installed) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseCustomTransitionAtomicV56Installed) return;
   window.__exerciseCustomTransitionAtomicV56Installed = true;
 
   function getState() {
