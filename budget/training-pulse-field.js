@@ -274,11 +274,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
     var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=48,right=20,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient><filter id="bar-glow-near" x="-140%" y="-45%" width="380%" height="190%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="4"/></filter><filter id="bar-glow-wide" x="-320%" y="-80%" width="740%" height="260%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="11"/></filter></defs>';
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
-      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
-      if(value)svg+='<rect class="activity-bar-glow-wide" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="#ff657a" filter="url(#bar-glow-wide)" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar-glow-near" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="#ff9a91" filter="url(#bar-glow-near)" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
+      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH,wideW=barW*2.55,nearW=barW*1.65;
+      if(value)svg+='<rect class="activity-bar-glow-wide" x="'+(x-wideW/2)+'" y="'+y+'" width="'+wideW+'" height="'+barH+'" rx="'+(wideW/2)+'" fill="#ff657a" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar-glow-near" x="'+(x-nearW/2)+'" y="'+y+'" width="'+nearW+'" height="'+barH+'" rx="'+(nearW/2)+'" fill="#ff9a91" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
       else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
@@ -349,8 +349,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     [0,.5,1].forEach(function(ratio){var value=axisMax*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
-      if(points.length>1)svg+='<path class="group-volume-line" d="'+seriesPath(points)+'" stroke="'+color+'" style="color:'+color+'"/>';
-      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
+      if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
+      points.forEach(function(point){svg+='<circle class="chart-point-halo" cx="'+point[0]+'" cy="'+point[1]+'" r="7.5" fill="'+color+'" style="color:'+color+'"/><circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
     });
     var labelIndexes=dateKeys.length<4?dateKeys.map(function(_,i){return i;}):[0,Math.floor((dateKeys.length-1)/2),dateKeys.length-1];
     labelIndexes.forEach(function(index){var date=dateKeys[index];svg+='<text class="chart-axis-label" x="'+x(date)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(date)+'</text>';});
@@ -365,6 +365,17 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       path+=' C '+mid+' '+prev[1]+', '+mid+' '+point[1]+', '+point[0]+' '+point[1];
     }
     return path;
+  }
+  function glowingLine(path,color,coreClass) {
+    var extra=coreClass?' '+coreClass:'';
+    return '<path class="chart-line-halo-wide" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>'
+      +'<path class="chart-line-halo-near" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>'
+      +'<path class="chart-line-core'+extra+'" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>';
+  }
+  function glowingPoint(x,y,r,color,coreClass) {
+    var extra=coreClass?' '+coreClass:'';
+    return '<circle class="chart-point-halo" cx="'+x+'" cy="'+y+'" r="'+(r*2.15)+'" fill="'+color+'" style="color:'+color+'"/>'
+      +'<circle class="last-point'+extra+'" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+color+'" style="color:'+color+'"/>';
   }
   function emptyChart(message) {
     return '<div class="log-empty">'+escapeHtml(message)+'</div>';
@@ -386,8 +397,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><linearGradient id="'+gradientId+'" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+escapeHtml(axisLabel(value))+'</text>';});
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'" stroke="#ffffff35" stroke-dasharray="3 7"/><text class="chart-axis-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
-    svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/><path class="line-glow" d="'+path+'" style="color:'+options.color+'" stroke="'+options.color+'"/>';
-    points.forEach(function(point,index){if(index===points.length-1)svg+='<circle class="last-point" cx="'+point[0]+'" cy="'+point[1]+'" r="5" fill="'+options.color+'" style="color:'+options.color+'"/>';});
+    svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/>'+glowingLine(path,options.color,'');
+    points.forEach(function(point,index){if(index===points.length-1)svg+=glowingPoint(point[0],point[1],5,options.color,'');});
     var last=entries[entries.length-1],lastPoint=points[points.length-1],labelX=clamp(lastPoint[0],left+35,width-right-2),anchor=labelX>width-120?'end':'start';
     svg+='<text class="last-label" x="'+labelX+'" y="'+clamp(lastPoint[1]-14,top+10,height-bottom-10)+'" text-anchor="'+anchor+'" fill="'+options.color+'">'+escapeHtml(valueLabel(last.value))+'</text>';
     var indexes=entries.length<4?entries.map(function(_,i){return i;}):[0,Math.floor((entries.length-1)/2),entries.length-1];
@@ -418,14 +429,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
     [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config){
       groups[config[0]].forEach(function(points){
-        if(points.length>1)svg+='<path class="line-glow" d="'+seriesPath(points)+'" stroke="'+config[1]+'" style="color:'+config[1]+'"/>';
+        if(points.length>1)svg+=glowingLine(seriesPath(points),config[1],'');
       });
     });
     var previouslyLabelled=[];
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0))return;
       var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
-      svg+='<circle class="last-point" cx="'+px+'" cy="'+py+'" r="4" fill="'+color+'" style="color:'+color+'"/>';
+      svg+=glowingPoint(px,py,4,color,'');
       if(width<560&&index!==0&&index!==entries.length-1&&index%3!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
       // Alternate labels when successive samples would otherwise occupy the same lane.
