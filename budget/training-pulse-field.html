@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-signal-bars-5">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-zen-orbit-7">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
   <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
-  <script defer src="training-pulse-field.js?v=20260922-gradient-scale-6"></script>
+  <script defer src="training-pulse-field.js?v=20260922-zen-orbit-7"></script>
 </head>
 <body>
   <div class="field-canvas" aria-hidden="true">
@@ -66,8 +66,20 @@
         <p class="hero-description">Ett levande fält av pass, puls och utveckling.</p>
       </div>
 
-      <div class="hero-stage">
-        <svg class="signal-landscape" viewBox="0 0 920 430" preserveAspectRatio="none" aria-hidden="true">
+      <div class="field-start-area">
+        <a class="start-orbit" id="next-session-link" href="exercise.html" aria-describedby="next-session-meta">
+          <span class="start-label">Starta pass</span>
+          <span class="training-glyph" aria-hidden="true">
+            <svg viewBox="0 0 54 54"><path d="M7 29h8l4-9 7 18 6-25 6 16h9"/><circle cx="27" cy="27" r="23"/></svg>
+          </span>
+          <strong id="next-session-title">Välj dagens rörelse</strong>
+          <span class="start-orbit-meta" id="next-session-meta">Nästa pass · Bygg eller välj ett upplägg</span>
+          <span class="start-orbit-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <div class="hero-stage" aria-hidden="true">
+        <svg class="signal-landscape" viewBox="0 0 920 430" preserveAspectRatio="none">
           <defs>
             <linearGradient id="field-line" x1="0" x2="1"><stop stop-color="#ff6f7d" stop-opacity="0"/><stop offset=".2" stop-color="#ff9a91"/><stop offset=".62" stop-color="#ffd4bd"/><stop offset="1" stop-color="#ff6f7d" stop-opacity="0"/></linearGradient>
             <radialGradient id="field-node"><stop stop-color="#fff6ee"/><stop offset=".32" stop-color="#ffb19f"/><stop offset="1" stop-color="#ff657a" stop-opacity="0"/></radialGradient>
@@ -81,21 +93,6 @@
             <circle cx="828" cy="126" r="5" fill="url(#field-node)"/>
           </g>
         </svg>
-
-        <a class="start-orbit" id="next-session-link" href="exercise.html" aria-describedby="next-session-meta">
-          <span class="orbit-ring orbit-ring-one"></span>
-          <span class="orbit-ring orbit-ring-two"></span>
-          <span class="orbit-ticks"></span>
-          <span class="training-glyph" aria-hidden="true">
-            <svg viewBox="0 0 54 54"><path d="M7 29h8l4-9 7 18 6-25 6 16h9"/><circle cx="27" cy="27" r="23"/></svg>
-          </span>
-          <span class="start-label">Starta pass</span>
-          <strong id="next-session-title">Välj dagens rörelse</strong>
-        </a>
-        <div class="start-meta" id="next-session-meta">
-          <span id="next-session-date">Nästa pass</span>
-          <strong id="next-session-detail">Bygg eller välj ett upplägg</strong>
-        </div>
       </div>
     </section>
 
