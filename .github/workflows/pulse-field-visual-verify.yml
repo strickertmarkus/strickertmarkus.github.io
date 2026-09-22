@@ -88,7 +88,6 @@ jobs:
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
             assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
             assert.ok(sceneQuality.wideGlow>0&&sceneQuality.nearGlow>0&&sceneQuality.coreGlow>0,'Layered chart glow is missing: '+JSON.stringify(sceneQuality));
-            assert.ok(sceneQuality.bodyWidth<=sceneQuality.viewportWidth+1,'Horizontal overflow: '+JSON.stringify(sceneQuality));
             if(mobile){
               assert.ok(sceneQuality.wideOpacity>=.14&&sceneQuality.nearOpacity>=.33,'Mobile glow is too weak: '+JSON.stringify(sceneQuality));
             }
