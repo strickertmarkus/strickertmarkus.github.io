@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="sv" data-field-view="history">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080d12">
+  <title>Markus Träning · Pulse Field</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-field-1">
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script src="auth-config.js?v=20260922-observatory-records-3"></script>
+  <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
+  <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
+  <script defer src="training-pulse-field.js?v=20260922-field-1"></script>
+</head>
+<body>
+  <div class="field-canvas" aria-hidden="true">
+    <span class="field-aura field-aura-one"></span>
+    <span class="field-aura field-aura-two"></span>
+    <span class="field-grain"></span>
+  </div>
+
+  <header class="field-header">
+    <a class="field-brand" href="home.html" aria-label="Pulse Flow startsida">
+      <strong>PULSE <span>FLOW</span></strong>
+      <small id="profile-name">Markus Strickert</small>
+    </a>
+    <div class="field-header-actions">
+      <a class="version-link" id="original-link" href="exercise.html">Originalvy</a>
+      <button class="round-control" id="menu-toggle" type="button" aria-label="Öppna meny" aria-expanded="false" aria-controls="field-menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12M6 12h12M6 16h12"/></svg>
+      </button>
+    </div>
+    <nav class="field-menu" id="field-menu" aria-hidden="true">
+      <a href="home.html">Startsida</a>
+      <a id="menu-original" href="exercise.html">Nuvarande träningssida</a>
+      <div class="field-profile-control" role="group" aria-label="Välj träningsprofil">
+        <span>Träningsprofil</span>
+        <div class="field-profile-options">
+          <a id="field-profile-markus" data-field-profile="markus" href="training-pulse-field.html">Markus</a>
+          <a id="field-profile-maja" data-field-profile="maja" href="training-pulse-field.html?user=maja">Maja</a>
+        </div>
+      </div>
+      <a href="#week-field">Veckoplan</a>
+      <a href="#activity-field">Aktivitet</a>
+      <a href="#training-log">Träningslogg</a>
+    </nav>
+  </header>
+
+  <nav class="kind-switch" aria-label="Välj träningsområde">
+    <a class="is-active" href="training-pulse-field.html" aria-current="page"><span aria-hidden="true">⌁</span>Träning</a>
+    <a id="stretch-link" href="exercise.html?wellness=stretch"><span aria-hidden="true">✧</span>Stretch</a>
+    <a id="meditation-link" href="exercise.html?wellness=meditation"><span aria-hidden="true">≈</span>Meditation</a>
+  </nav>
+
+  <main>
+    <section class="field-hero" aria-labelledby="field-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="spark-symbol" aria-hidden="true">✦</span> PULSE / FIELD</p>
+        <h1 id="field-title">Träning</h1>
+        <p class="hero-script">styrka i rörelse.</p>
+        <p class="hero-description">Ett levande fält av pass, puls och utveckling.</p>
+      </div>
+
+      <div class="hero-stage">
+        <svg class="signal-landscape" viewBox="0 0 920 430" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="field-line" x1="0" x2="1"><stop stop-color="#ff6f7d" stop-opacity="0"/><stop offset=".2" stop-color="#ff9a91"/><stop offset=".62" stop-color="#ffd4bd"/><stop offset="1" stop-color="#ff6f7d" stop-opacity="0"/></linearGradient>
+            <radialGradient id="field-node"><stop stop-color="#fff6ee"/><stop offset=".32" stop-color="#ffb19f"/><stop offset="1" stop-color="#ff657a" stop-opacity="0"/></radialGradient>
+            <filter id="field-glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <path class="signal-ghost" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170"/>
+          <path class="signal-main" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170" pathLength="100"/>
+          <g filter="url(#field-glow)">
+            <circle cx="318" cy="244" r="9" fill="url(#field-node)"/>
+            <circle cx="655" cy="202" r="7" fill="url(#field-node)"/>
+            <circle cx="828" cy="126" r="5" fill="url(#field-node)"/>
+          </g>
+        </svg>
+
+        <a class="start-orbit" id="next-session-link" href="exercise.html" aria-describedby="next-session-meta">
+          <span class="orbit-ring orbit-ring-one"></span>
+          <span class="orbit-ring orbit-ring-two"></span>
+          <span class="orbit-ticks"></span>
+          <span class="training-glyph" aria-hidden="true">
+            <svg viewBox="0 0 54 54"><path d="M7 29h8l4-9 7 18 6-25 6 16h9"/><circle cx="27" cy="27" r="23"/></svg>
+          </span>
+          <span class="start-label">Starta pass</span>
+          <strong id="next-session-title">Välj dagens rörelse</strong>
+        </a>
+        <div class="start-meta" id="next-session-meta">
+          <span id="next-session-date">Nästa pass</span>
+          <strong id="next-session-detail">Bygg eller välj ett upplägg</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="rhythm-section" aria-labelledby="rhythm-title">
+      <div class="section-intro">
+        <p class="eyebrow">VECKANS SIGNAL</p>
+        <h2 id="rhythm-title">Din rytm, i ett ögonblick.</h2>
+      </div>
+      <div class="rhythm-layout">
+        <div class="rhythm-primary">
+          <div class="rhythm-count"><strong id="week-count">0</strong><span>av <b id="week-goal">4</b> pass</span></div>
+          <div class="rhythm-track" id="rhythm-track" aria-label="Veckomål"></div>
+          <p id="rhythm-message">Din vecka börjar med ett pass.</p>
+        </div>
+        <dl class="rhythm-stats">
+          <div><dt>Rörelsetid</dt><dd><span id="week-minutes">0</span><small>min</small></dd></div>
+          <div><dt>Belastning</dt><dd id="week-volume">0 kg</dd></div>
+          <div><dt>Senast</dt><dd id="latest-workout">—</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="field-section week-section" id="week-field" aria-labelledby="week-title">
+      <div class="section-head">
+        <div><p class="eyebrow">PLANERA RYTMEN</p><h2 id="week-title">Veckofält</h2></div>
+        <a class="quiet-action" id="edit-week-link" href="exercise.html#pulse-week">Redigera i originalvyn <span>↗</span></a>
+      </div>
+      <div class="week-navigator" data-week-navigator>
+        <button type="button" data-week-shift="-1" aria-label="Föregående vecka">‹</button>
+        <div><strong data-week-label>Vecka</strong><span data-week-range></span></div>
+        <button type="button" data-week-shift="1" aria-label="Nästa vecka">›</button>
+      </div>
+      <div class="week-field-shell">
+        <svg class="week-orbit-art" viewBox="0 0 880 200" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M20 128 C175 30 340 180 505 86 S720 35 860 116"/>
+          <path class="week-orbit-light" d="M20 128 C175 30 340 180 505 86 S720 35 860 116" pathLength="100"/>
+        </svg>
+        <div class="week-days" id="week-days"></div>
+      </div>
+      <p class="selected-day-copy" id="selected-day-copy"></p>
+    </section>
+
+    <section class="field-section activity-section" id="activity-field" aria-labelledby="activity-title">
+      <div class="section-head activity-heading">
+        <div><p class="eyebrow">BELASTNING ÖVER TID</p><h2 id="activity-title">Aktivitetsljus</h2></div>
+        <div class="segmented" aria-label="Aktivitetsmått">
+          <button type="button" data-activity-metric="minutes" aria-pressed="true">Minuter</button>
+          <button type="button" data-activity-metric="sessions" aria-pressed="false">Pass</button>
+        </div>
+      </div>
+      <div class="view-tabs" role="tablist" aria-label="Aktivitetens tidsvy">
+        <button type="button" role="tab" data-activity-view="history" aria-selected="true">Historik</button>
+        <button type="button" role="tab" data-activity-view="week" aria-selected="false">Vecka</button>
+      </div>
+      <div class="activity-week-nav" id="activity-week-nav" hidden>
+        <div class="week-navigator" data-week-navigator>
+          <button type="button" data-week-shift="-1" aria-label="Föregående vecka">‹</button>
+          <div><strong data-week-label>Vecka</strong><span data-week-range></span></div>
+          <button type="button" data-week-shift="1" aria-label="Nästa vecka">›</button>
+        </div>
+      </div>
+      <div class="activity-summary">
+        <strong id="activity-total">0</strong><span id="activity-unit">minuter</span>
+        <p id="activity-caption">De senaste åtta veckorna</p>
+      </div>
+      <div class="luminous-chart" id="activity-chart" role="img" aria-label="Aktivitet över tid"></div>
+    </section>
+
+    <section class="field-section insight-section" id="insights" aria-labelledby="insight-title">
+      <div class="section-head">
+        <div><p class="eyebrow">MÄTVÄRDEN</p><h2 id="insight-title">Kroppens svar</h2></div>
+        <div class="segmented insight-mode" aria-label="Visa graf eller tabell">
+          <button type="button" data-insight-mode="chart" aria-pressed="true">Graf</button>
+          <button type="button" data-insight-mode="table" aria-pressed="false">Tabell</button>
+        </div>
+      </div>
+      <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
+        <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
+        <button type="button" role="tab" data-insight="distance" aria-selected="false">Löpdistans</button>
+        <button type="button" role="tab" data-insight="vo2" aria-selected="false">VO₂</button>
+      </div>
+      <div class="insight-copy">
+        <h3 id="insight-name">Medelpuls över tid</h3>
+        <p id="insight-description">Kondition och styrka visas som två tydliga signaler.</p>
+      </div>
+      <div class="insight-chart" id="insight-chart" role="img" aria-label="Mätvärdesgraf"></div>
+      <div class="insight-table-wrap" id="insight-table-wrap" hidden>
+        <table class="insight-table">
+          <thead id="insight-table-head"></thead>
+          <tbody id="insight-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="field-section log-section" id="training-log" aria-labelledby="log-title">
+      <div class="section-head">
+        <div><p class="eyebrow">PASS FÖR PASS</p><h2 id="log-title">Träningslogg</h2></div>
+        <a class="quiet-action" id="log-action-link" href="exercise.html#pulse-log">Logga eller redigera <span>↗</span></a>
+      </div>
+      <p class="section-lead">En lugn tidslinje. Öppna bara det pass du vill läsa.</p>
+      <div class="log-timeline" id="log-timeline"></div>
+    </section>
+
+    <section class="field-section records-section" id="records" aria-labelledby="records-title">
+      <div class="section-head">
+        <div><p class="eyebrow">STARKASTE SIGNALERNA</p><h2 id="records-title">Personliga rekord</h2></div>
+        <span class="record-count" id="record-count">0 rekord</span>
+      </div>
+      <div class="record-podium" id="record-podium"></div>
+      <div class="record-groups" id="record-groups"></div>
+    </section>
+  </main>
+
+  <footer class="field-footer">
+    <span>Pulse Field · jämförelsevy</span>
+    <a id="footer-original" href="exercise.html">Till nuvarande sida</a>
+  </footer>
+
+  <div class="toast" id="field-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
