@@ -295,6 +295,12 @@ jobs:
             await page.locator('#log-body .log-main-row').first().click();
             await page.waitForTimeout(400);
             await shot('expanded-log-mobile');
+            // Use an exercise supported by the existing record categories.
+            await page.evaluate(()=>{
+              const workouts=getWorkouts();
+              workouts[0].exercises.push({kind:'strength',name:'Marklyft sumo',sets:3,reps:5,weight:80});
+              saveWorkouts(workouts);refreshAll();
+            });
             await page.locator('.records-master-toggle-v52').click();
             const record=page.locator('details.record-row-v52').first();
             assert.ok(await record.count(),'saved strength record must render');
