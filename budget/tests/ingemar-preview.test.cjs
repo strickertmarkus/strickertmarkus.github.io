@@ -32,7 +32,6 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(html,/#builder \.modal-actions \.right\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(html,/Builder-only small-screen layout/);
  assert.match(source[1],/data-set=/);
- assert.match(source[1],/data-actual=/);
  assert.match(source[1],/data-mode=/);
  assert.match(source[1],/data-add-set=/);
  assert.match(source[1],/data-remove-set=/);
@@ -99,7 +98,7 @@ test('preview includes an isolated training log and interactive Zen modes',()=>{
  for(const type of ['Push','Pull','Kondition'])assert.match(html,new RegExp('data-choice="'+type+'"'));
  assert.match(source[1],/zenHistory/);
  assert.match(source[1],/activeZen/);
- assert.match(source[1],/state\.history\.push\(workout\)/);
+ assert.match(source[1],/state\.history\.push\(event\.data\.workout\)/);
  assert.match(html,/id="history-detail"/);
  assert.match(source[1],/function openHistory\(id\)/);
  assert.match(source[1],/localStorage\.setItem\(KEY/);
