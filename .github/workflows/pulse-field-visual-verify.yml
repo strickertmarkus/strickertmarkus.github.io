@@ -37,7 +37,7 @@ jobs:
             return page.evaluate(()=>{
               function pick(selector){
                 const el=document.querySelector(selector),style=getComputedStyle(el),matrix=new DOMMatrix(style.transform==='none'?undefined:style.transform);
-                return {transform:style.transform,x:matrix.m41,y:matrix.m42,opacity:parseFloat(style.opacity||'1')};
+                return {transform:style.transform,x:matrix.m41,y:matrix.m42,opacity:parseFloat(style.opacity||'1'),rotation:Math.atan2(matrix.b,matrix.a)*180/Math.PI};
               }
               return {
                 nebula:pick('.space-scene__nebula'),
@@ -111,6 +111,9 @@ jobs:
               const dx=after[key].x-before[key].x,dy=after[key].y-before[key].y,distance=Math.hypot(dx,dy);
               assert.ok(distance>.55,key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance}));
             });
+            const starDistance=Math.hypot(after.stars.x-before.stars.x,after.stars.y-before.stars.y);
+            assert.ok(starDistance>2.2,'Background stars should drift noticeably faster: '+JSON.stringify({before:before.stars,after:after.stars,starDistance}));
+            assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.08,'Nebula dust layer must rotate subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
             assert.ok(Math.abs(after.near.opacity-before.near.opacity)>.015,'Near gas layer must visibly breathe as it drifts: '+JSON.stringify({before:before.near,after:after.near}));
 
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
