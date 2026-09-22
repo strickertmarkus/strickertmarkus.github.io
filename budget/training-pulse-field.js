@@ -288,7 +288,7 @@
   }
 
   function heartData() {
-    return data.workouts.filter(function(w){return number(w.hrAvg)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg)>0?number(w.hrAvg):null,min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
   }
   function distanceData() {
     return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
@@ -320,7 +320,7 @@
     function x(index){return left+(entries.length===1?(width-left-right)/2:index*(width-left-right)/(entries.length-1));}
     function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
     var points=entries.map(function(entry,index){return [x(index),y(entry.value)];}),path=seriesPath(points);
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="insight-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><linearGradient id="insight-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(value,options.decimals)+'</text>';});
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'" stroke="#ffffff35" stroke-dasharray="3 7"/><text class="chart-axis-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
     svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#insight-fill)"/><path class="line-glow" d="'+path+'" style="color:'+options.color+'" stroke="'+options.color+'"/>';
@@ -332,23 +332,55 @@
     return svg+'</svg>';
   }
   function heartChart(entries) {
-    if(!entries.length)return emptyChart('Pulskurvan visas när ett pass med puls är loggat.');
-    var width=820,height=290,left=47,right=34,top=32,bottom=37,min=Math.max(0,Math.min.apply(Math,entries.map(function(e){return e.min||e.value;}))-15),max=Math.max.apply(Math,entries.map(function(e){return e.max||e.value;}))+15;
+    var valid=entries.filter(function(entry){return entry.value!=null&&entry.value>0;});
+    if(!valid.length)return emptyChart('Pulskurvan visas när ett pass med puls är loggat.');
+    var width=820,height=290,left=47,right=34,top=32,bottom=37;
+    var min=Math.max(0,Math.min.apply(Math,valid.map(function(e){return e.min||e.value;}))-15);
+    var max=Math.max.apply(Math,valid.map(function(e){return e.max||e.value;}))+15;
     min=Math.floor(min/10)*10;max=Math.ceil(max/10)*10;
+    if(max<=min)max=min+10;
     function x(index){return left+(entries.length===1?(width-left-right)/2:index*(width-left-right)/(entries.length-1));}
     function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
-    var groups={cardio:[],strength:[]};entries.forEach(function(entry,index){groups[entry.kind].push({entry:entry,index:index,point:[x(index),y(entry.value)]});});
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true">';
+    var groups={cardio:[[]],strength:[[]]};
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(value)+'</text>';});
-    entries.forEach(function(entry,index){if(entry.min&&entry.max){var px=x(index),y1=y(entry.max),y2=y(entry.min),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y1+'" x2="'+(px+5)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y2+'" x2="'+(px+5)+'" y2="'+y2+'" stroke="'+color+'"/>';}});
-    [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config,groupIndex){var points=groups[config[0]];if(!points.length)return;var path=seriesPath(points.map(function(p){return p.point;}));svg+='<path class="line-glow" d="'+path+'" stroke="'+config[1]+'" style="color:'+config[1]+'"/>';var last=points[points.length-1],labelX=clamp(last.point[0]+(groupIndex?-5:5),left+38,width-right),anchor=last.point[0]>width-115?'end':'start',offset=groupIndex?18:-12;svg+='<circle class="last-point" cx="'+last.point[0]+'" cy="'+last.point[1]+'" r="5" fill="'+config[1]+'" style="color:'+config[1]+'"/><text class="last-label" x="'+labelX+'" y="'+clamp(last.point[1]+offset,top+10,height-bottom-6)+'" text-anchor="'+anchor+'" fill="'+config[1]+'">'+Math.round(last.entry.value)+' bpm</text>';});
-    var indexes=entries.length<4?entries.map(function(_,i){return i;}):[0,Math.floor((entries.length-1)/2),entries.length-1];indexes.forEach(function(index){svg+='<text class="chart-axis-label" x="'+x(index)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(entries[index].date)+'</text>';});
+    entries.forEach(function(entry,index){
+      if(entry.value==null||!(entry.value>0)){groups.cardio.push([]);groups.strength.push([]);return;}
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
+      groups[entry.kind][groups[entry.kind].length-1].push([px,py]);
+      if(entry.min>0&&entry.max>=entry.min){
+        var y1=y(entry.max),y2=y(entry.min);
+        svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y1+'" x2="'+(px+5)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y2+'" x2="'+(px+5)+'" y2="'+y2+'" stroke="'+color+'"/>';
+      }
+    });
+    [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config){
+      groups[config[0]].forEach(function(points){
+        if(points.length>1)svg+='<path class="line-glow" d="'+seriesPath(points)+'" stroke="'+config[1]+'" style="color:'+config[1]+'"/>';
+      });
+    });
+    var previouslyLabelled=[];
+    entries.forEach(function(entry,index){
+      if(entry.value==null||!(entry.value>0))return;
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
+      svg+='<circle class="last-point" cx="'+px+'" cy="'+py+'" r="4" fill="'+color+'" style="color:'+color+'"/>';
+      var labelText=Math.round(entry.value)+' bpm';
+      // Alternate labels when successive samples would otherwise occupy the same lane.
+      var above=index%2===0;
+      if(previouslyLabelled.length&&Math.abs(py-previouslyLabelled[previouslyLabelled.length-1][1])<18)above=!previouslyLabelled[previouslyLabelled.length-1][2];
+      var labelY=clamp(py+(above?-13:21),top+11,height-bottom-8);
+      var labelX=clamp(px,left+24,width-right-24);
+      svg+='<text class="last-label" x="'+labelX+'" y="'+labelY+'" text-anchor="middle" fill="'+color+'">'+labelText+'</text>';
+      previouslyLabelled.push([px,py,above]);
+    });
+    var indexes=entries.length<4?entries.map(function(_,i){return i;}):[0,Math.floor((entries.length-1)/2),entries.length-1];
+    indexes.forEach(function(index){svg+='<text class="chart-axis-label" x="'+x(index)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(entries[index].date)+'</text>';});
     return svg+'</svg>';
   }
+
   function renderInsightTable(entries) {
     var headers=[],rows=[];
     if(state.insight==='heart'){
-      headers=['Datum','Pass','Medel','Intervall'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,Math.round(e.value)+' bpm',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max):'—'];});
+      headers=['Datum','Pass','Medel','Intervall'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,e.value!=null?Math.round(e.value)+' bpm':'—',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max):'—'];});
     }else if(state.insight==='distance'){
       headers=['Datum','Pass','Distans','Snittakt'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,2)+' km',formatPace(e.pace)];});
     }else{
@@ -371,7 +403,7 @@
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
     byId('insight-chart').innerHTML=markup;renderInsightTable(entries);
-    byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+e.value;}).join('. '));
+    byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+(e.value==null?'saknas':e.value);}).join('. '));
   }
 
   function exerciseResult(raw) {
