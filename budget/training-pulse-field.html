@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-nebula-stars-11">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-sharp-nebula-12">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
@@ -25,31 +25,55 @@
   </div>
   <div class="space-scene" aria-hidden="true">
     <div class="space-scene__nebula"></div>
-    <div class="space-scene__flecks"></div>
-    <div class="space-scene__stars">
-      <span class="space-star space-star--1"></span>
-      <span class="space-star space-star--2"></span>
-      <span class="space-star space-star--3"></span>
-      <span class="space-star space-star--4"></span>
-      <span class="space-star space-star--5"></span>
-      <span class="space-star space-star--6"></span>
-      <span class="space-star space-star--7"></span>
-      <span class="space-star space-star--8"></span>
-      <span class="space-star space-star--9"></span>
-      <span class="space-star space-star--10"></span>
-    </div>
-    <svg class="space-scene__threads" viewBox="0 0 1200 750" preserveAspectRatio="none" aria-hidden="true">
+    <div class="space-scene__mottle"></div>
+    <svg class="space-scene__filaments" viewBox="0 0 1200 760" preserveAspectRatio="none" aria-hidden="true">
       <defs>
-        <linearGradient id="space-thread-light" x1="0" x2="1">
-          <stop stop-color="#ff657a" stop-opacity="0"/>
-          <stop offset=".38" stop-color="#ff9a91" stop-opacity=".36"/>
-          <stop offset=".68" stop-color="#ffd2bd" stop-opacity=".28"/>
+        <linearGradient id="nebula-band" x1="0" x2="1">
+          <stop offset="0" stop-color="#ff657a" stop-opacity="0"/>
+          <stop offset=".28" stop-color="#b74f77" stop-opacity=".22"/>
+          <stop offset=".58" stop-color="#ff8b92" stop-opacity=".30"/>
+          <stop offset=".77" stop-color="#ffd2bd" stop-opacity=".16"/>
           <stop offset="1" stop-color="#ff657a" stop-opacity="0"/>
         </linearGradient>
+        <linearGradient id="nebula-edge" x1="0" x2="1">
+          <stop offset="0" stop-color="#ff657a" stop-opacity="0"/>
+          <stop offset=".34" stop-color="#ff9a91" stop-opacity=".30"/>
+          <stop offset=".61" stop-color="#ffe2d2" stop-opacity=".68"/>
+          <stop offset=".82" stop-color="#ff8a92" stop-opacity=".24"/>
+          <stop offset="1" stop-color="#ff657a" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="nebula-wisp" x1="0" x2="1">
+          <stop offset="0" stop-color="#a35d82" stop-opacity="0"/>
+          <stop offset=".45" stop-color="#d87998" stop-opacity=".24"/>
+          <stop offset=".7" stop-color="#ffb5ac" stop-opacity=".18"/>
+          <stop offset="1" stop-color="#a35d82" stop-opacity="0"/>
+        </linearGradient>
       </defs>
-      <path d="M-40 520 C140 485 260 545 395 478 S675 345 795 418 S1050 490 1250 350"/>
-      <path d="M-40 606 C160 560 282 602 430 526 S680 454 835 500 S1050 548 1250 460"/>
+      <g class="nebula-filament nebula-filament--primary">
+        <path class="nebula-band" d="M-90 556 C102 498 198 395 356 384 S595 425 713 330 S934 170 1280 296"/>
+        <path class="nebula-edge" d="M-90 538 C111 476 223 370 374 365 S603 407 722 310 S956 148 1280 272"/>
+      </g>
+      <g class="nebula-filament nebula-filament--secondary">
+        <path class="nebula-band" d="M-70 684 C120 626 276 623 414 554 S659 408 814 447 S1064 526 1274 422"/>
+        <path class="nebula-edge" d="M-70 669 C129 607 284 604 427 535 S666 391 823 430 S1070 507 1274 403"/>
+      </g>
+      <path class="nebula-wisp" d="M112 196 C267 145 350 213 459 185 S653 82 812 140 S1031 230 1192 143"/>
+      <path class="nebula-wisp nebula-wisp--lower" d="M20 624 C214 579 304 468 481 487 S740 603 909 516 S1096 379 1232 397"/>
     </svg>
+    <div class="space-scene__shade"></div>
+    <div class="space-scene__flecks"></div>
+    <div class="space-scene__stars">
+      <span class="space-star space-star--1">✦</span>
+      <span class="space-star space-star--2">✦</span>
+      <span class="space-star space-star--3">✦</span>
+      <span class="space-star space-star--4">✦</span>
+      <span class="space-star space-star--5">✦</span>
+      <span class="space-star space-star--6">✦</span>
+      <span class="space-star space-star--7">✦</span>
+      <span class="space-star space-star--8">✦</span>
+      <span class="space-star space-star--9">✦</span>
+      <span class="space-star space-star--10">✦</span>
+    </div>
   </div>
 
   <header class="field-header">
