@@ -89,7 +89,8 @@
       records.before(recordsAnchor);
     }
     if (mode==='observatory') {
-      destination.append(activity,metrics);
+      destination.append(activity);
+      document.querySelector('.observatory-stage').after(metrics);
       log.after(records);
     } else {
       activityAnchor.after(activity);
@@ -270,7 +271,7 @@
       beforeUpdate:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#ff657a','#a8b0ba'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#a8b0ba'] };
+        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#ff657a','#a8b0ba'], 'chart-run-distance':['#ff9a91','#a8b0ba'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#a8b0ba'] };
         var colors = palettes[chart.canvas.id];
         chart.data.datasets.forEach(function(dataset,index) {
           var color = colors ? colors[index % colors.length] : dataset.borderColor;
@@ -279,9 +280,11 @@
           dataset.pointBackgroundColor = color;
           dataset.pointBorderColor = '#090d12';
           dataset.pointHoverBackgroundColor = '#fff1ea';
-          dataset.borderWidth = 2;
+          dataset.borderWidth = dataset.borderDash ? 1 : 2;
+          if(!dataset.borderDash){dataset.tension=.35;dataset.cubicInterpolationMode='monotone';dataset.fill=true;}
+          dataset.pointRadius=function(context){return context.dataIndex===context.dataset.data.length-1?4:0;};
           if (dataset.pointRadius !== 0) {
-            dataset.pointRadius = 2;
+
             dataset.pointHoverRadius = 4;
             dataset.pointHitRadius = 16;
           }
@@ -299,7 +302,8 @@
             scale.ticks.maxRotation = 0;
             scale.ticks.autoSkip = true;
           }
-          if (scale.grid) scale.grid.color='#ffffff09';
+          if (scale.grid) {scale.grid.color='#ffffff09';scale.grid.drawTicks=false;}
+          if(scale.ticks)scale.ticks.maxTicksLimit=4;
           if (scale.border) scale.border.color='#ffffff15';
           if (scale.title) scale.title.color='#a8b0ba';
         });
@@ -328,6 +332,13 @@
         }).join('. ');
         chart.canvas.setAttribute('role','img');
         chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
+      },
+      beforeDatasetDraw:function(chart,args){
+        if(!pulseOverviewActive() || chart.config.type!=='line')return;
+        chart.ctx.save();chart.ctx.shadowColor=chart.data.datasets[args.index].borderColor;chart.ctx.shadowBlur=10;
+      },
+      afterDatasetDraw:function(chart){
+        if(pulseOverviewActive() && chart.config.type==='line')chart.ctx.restore();
       },
       afterDraw:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
@@ -389,6 +400,14 @@
     var total = numericNodeValue('total-cnt');
     var last = document.getElementById('last-d');
     var hasLast = !!(last && String(last.textContent || '').trim() && String(last.textContent).trim() !== '—');
+
+    var lights=document.getElementById('rhythm-lights');
+    var count=Math.max(1,Math.min(14,Math.round(weeklyGoal)));
+    var lightMarkup=Array.from({length:count},function(_,i){return '<i'+(i<weekCount?' class="is-lit"':'')+'></i>';}).join('');
+    if(lights && lights.innerHTML!==lightMarkup)lights.innerHTML=lightMarkup;
+    var copy=document.getElementById('rhythm-copy');
+    var message=weekCount>=weeklyGoal?'Veckomålet är nått. Varje extra pass är en bonus.':weekCount===0?'Din vecka börjar med ett pass.':(weeklyGoal-weekCount)+' pass kvar till veckomålet.';
+    if(copy && copy.textContent!==message)copy.textContent=message;
 
     setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-total'), total > 0 ? 'completed' : 'pending');
@@ -879,4 +898,23 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
   else install();
+})();
+
+/* Distance is its own measured trend; pace remains a separate metric. */
+window.renderObservatoryDistance=function(workouts){
+  var canvas=document.getElementById('chart-run-distance');
+  if(!canvas || document.documentElement.dataset.trainingOverview!=='observatory')return;
+  var existing=Chart.getChart(canvas);if(existing)existing.destroy();
+  var entries=workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).map(function(w){return {date:w.date,distance:workoutRunMetrics(w).distance};}).filter(function(w){return w.distance>0;}).slice(-14);
+  var goal=Number(getGoals().runDistanceGoal)||Number(document.getElementById('g2-goal').value)||10;
+  new Chart(canvas,{type:'line',data:{labels:entries.map(function(w){return fmtDate(w.date);}),datasets:[{label:'Löpdistans',data:entries.map(function(w){return w.distance;}),borderColor:'#ff9a91',fill:true},{label:'Distansmål',data:entries.map(function(){return goal;}),borderColor:'#a8b0ba',borderDash:[3,6],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+' km';}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{maxTicksLimit:4}}}}});
+};
+
+(function(){
+ document.addEventListener('keydown',function(event){
+  var row=event.target.closest('.log-main-row');
+  if(row && event.target===row && (event.key==='Enter'||event.key===' ')){event.preventDefault();row.click();}
+ });
+ var log=document.getElementById('log-body');
+ if(log){var labelRows=function(){log.querySelectorAll('.log-main-row').forEach(function(row){row.tabIndex=0;row.setAttribute('aria-label','Visa passdetaljer');});};new MutationObserver(labelRows).observe(log,{childList:true});labelRows();}
 })();

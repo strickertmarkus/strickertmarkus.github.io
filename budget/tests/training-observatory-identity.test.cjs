@@ -61,8 +61,8 @@ test('hero has one Zen-sized start action and keeps building in the template sec
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260921-wellness-cohesion-1/);
   assert.match(html, /auth-gate\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-red-light-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
   assert.match(authConfig, /exerciseFastVersion = '20260921-wellness-cohesion-1'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260921-wellness-cohesion-1'/);
 });

@@ -25,7 +25,7 @@ test('mobile Observatory summary is a readable two-column grid', () => {
   assert.doesNotMatch(mobile, /font-size:(?:7|8|9)px/);
   assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*padding:4px 0!important;text-align:left/);
   assert.doesNotMatch(mobile, /observatory-metrics \.stat-card\{[^}]*border-left:/);
-  assert.match(mobile, /observatory-metrics \.stat-val\{[^}]*white-space:nowrap/);
+  assert.match(mobile, /observatory-metrics \.stat-val\{[^}]*font-size:32px!important/);
 });
 
 test('mobile order prioritises workout and week while preserving shared Compact DOM', () => {
@@ -36,9 +36,9 @@ test('mobile order prioritises workout and week while preserving shared Compact 
   assert.ok(stage >= 0 && metrics > stage && week > metrics && goals > week, 'Observatory top hierarchy must remain stage -> metrics -> week -> goals');
 
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(dashboard, /destination\.append\(activity,metrics\)/);
+  assert.match(dashboard, /destination\.append\(activity\)/);
   assert.match(dashboard, /metricsAnchor\.after\(metrics\)/);
-  assert.match(mobile, /observatory-field\{align-self:center/);
+  assert.match(mobile, /observatory-field\{align-self:flex-start/);
   assert.match(css, /observatory-week\{margin:0 0 32px\}/);
 });
 
@@ -75,9 +75,9 @@ test('hero atmosphere is owned by the whole Observatory stage and fades before i
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-red-light-1/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260922-observatory-red-light-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260922-observatory-composition-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {

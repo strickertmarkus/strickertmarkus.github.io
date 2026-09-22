@@ -120,19 +120,21 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .goal-history th{color:#dce0e5!important}
 #pulse-home .goal-history tr:hover td{background:#ffad9f08!important}
 #pulse-home :is(#g2-goal,#g3-goal){color:#fff1ea!important;-webkit-text-fill-color:#fff1ea!important;border-color:#ffad9f40!important;background:#ffad9f08!important;font-size:16px!important}
-#pulse-home :is(.record-group-v52,.pr-card){border:1px solid var(--obs-line)!important;border-radius:var(--obs-card-radius)!important;background:var(--obs-surface)!important;box-shadow:none!important;overflow:hidden}
+#pulse-home :is(.record-group-v52,.pr-card){border:0!important;border-bottom:1px solid var(--obs-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden}
 #pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 88px 120px;padding:0 16px;column-gap:16px;font-size:11px;letter-spacing:0;text-transform:none;color:var(--obs-muted)}
 #pulse-home .record-group-count-v52{font-size:12px!important}
 #pulse-home .record-group-toggle-v52{padding:9px 14px!important;background:transparent!important;color:#ffad9f!important;min-height:44px!important;font-weight:450!important;letter-spacing:.3px!important}
 #pulse-home .record-group-toggle-v52>span:first-child::before{content:'✧';color:#ffe4d6;text-shadow:none;margin-right:9px;font-size:16px}
 #pulse-home :is(.record-group-count-v52,.record-chevron-v52,.records-master-toggle-v52){color:#a8b0ba!important;border-color:#ffad9f35!important;background:transparent!important}
-#pulse-home .record-row-v52{border-color:#ffad9f1a!important;background:transparent!important;min-height:64px!important;padding:16px!important;gap:16px!important;grid-template-columns:minmax(0,1fr) 88px 120px!important}
+#pulse-home .record-row-v52{display:block!important;border-color:#ffad9f1a!important;background:transparent!important;min-height:44px!important;padding:8px 0!important;gap:12px!important;grid-template-columns:minmax(0,1fr) 88px 120px!important}
+#pulse-home .record-summary{grid-template-columns:minmax(0,1fr) 80px;min-height:28px}
+#pulse-home .record-summary .record-max-v52::after{content:" ⌄";font-size:12px;color:#ff9a91}
 #pulse-home .record-name-v52{font-size:14px!important;font-weight:450!important;color:var(--obs-text)!important;line-height:1.3!important}
 #pulse-home .record-max-v52{font-size:16px!important;font-weight:450!important;color:#fff1ea!important;letter-spacing:-.3px}
 #pulse-home .record-progress-copy-v52{color:var(--obs-muted)!important;font-size:12px!important;line-height:1.5!important}
 #pulse-home .record-gain-v52{color:#a3e0ca!important;background:#a3e0ca09!important}
 #pulse-home :is(.record-flat-v52,.record-spark-empty-v52){color:#a8b0ba!important}
-#pulse-home .record-spark-v52{color:#ffad9f!important;overflow:visible;filter:none}
+#pulse-home .record-spark-v52{color:#ffad9f!important;overflow:visible;filter:drop-shadow(0 0 5px #ff657a88)}
 #pulse-home .record-spark-v52 polyline{stroke:#ffad9f!important}
 #pulse-home .record-spark-v52 circle{fill:#fff1ea!important}
 #pulse-home .pr-weight{color:#fff1ea!important;text-shadow:0 0 20px #ff657a22}
@@ -142,14 +144,19 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-home .log-table{display:block;border:0!important;width:100%!important}
 #pulse-home .log-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 #pulse-home #log-body{display:block}
-#pulse-home .log-main-row{display:grid!important;grid-template-columns:84px minmax(0,1fr) 84px 76px 88px 44px;align-items:center;gap:16px;margin:0;padding:16px 0;border:0;border-bottom:1px solid var(--obs-line);border-radius:0;background:transparent;box-shadow:none;transition:border-color .2s,background .2s}
+#pulse-home .log-main-row{display:grid!important;grid-template-columns:64px minmax(0,1fr) 110px;align-items:center;gap:12px;margin:0;padding:10px 0;border:0;border-bottom:1px solid var(--obs-line);border-radius:0;background:transparent;box-shadow:none;transition:border-color .2s,background .2s}
 #pulse-home .log-main-row:hover,#pulse-home .log-main-row[aria-expanded=true]{border-color:#ffad9f63;background:linear-gradient(#fff1ea08,#fff1ea08),var(--obs-surface);box-shadow:none}
 #pulse-home .log-main-row[aria-expanded=true]{border-bottom-color:transparent;border-radius:0}
 #pulse-home .log-main-row>td{display:block!important;width:auto!important;max-width:none!important;min-width:0;height:auto!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important;color:var(--obs-muted)!important;font-size:14px!important;white-space:normal!important;text-align:left!important}
 #pulse-home .log-main-row>td:nth-child(1){font-size:12px!important;color:var(--obs-muted)!important}
 #pulse-home .log-tag{display:block!important;padding:0!important;border:0!important;background:none!important;color:var(--obs-text)!important;white-space:normal!important;font-size:14px!important;font-weight:450!important;line-height:1.3!important;overflow-wrap:anywhere}
 #pulse-home .log-pass-cardio-v7 .log-tag{color:#ffad9f!important}
-#pulse-home .log-main-row>td:nth-child(3)::before{content:'Volym';display:block;color:#a8b0ba;font-size:11px;letter-spacing:0;margin-bottom:2px}
+#pulse-home .log-main-row>td:nth-child(3){text-align:right!important;color:#ffe4d6!important}
+#pulse-home .log-main-row>td:nth-child(n+4){display:none!important}
+#pulse-home .log-main-row[aria-expanded=true]{grid-template-columns:64px minmax(0,1fr) 110px}
+#pulse-home .log-main-row[aria-expanded=true]>td:nth-child(n+4){display:block!important;grid-row:2}
+#pulse-home .log-disclosure{float:right;color:#ffb3a5;margin-left:6px}
+#pulse-home .log-main-row[aria-expanded=true] .log-disclosure{transform:rotate(180deg)}
 #pulse-home .log-main-row>td:nth-child(4)::before{content:'Tid';display:block;color:#a8b0ba;font-size:11px;letter-spacing:0;margin-bottom:2px}
 #pulse-home .log-main-row>td:nth-child(5)::before{content:'Puls';display:block;color:#a8b0ba;font-size:11px;letter-spacing:0;margin-bottom:2px}
 #pulse-home .log-del{width:44px!important;height:44px!important;border:1px solid #ffad9f2c!important;border-radius:50%!important;background:#ffad9f05!important;color:#a8b0ba!important;font-size:16px!important}
@@ -171,16 +178,16 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 
  #pulse-home .records-columns-v52{grid-template-columns:minmax(0,1fr) 80px}
  #pulse-home .records-columns-v52>span:last-child{display:none}
- #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 80px!important;min-height:56px!important;padding:12px!important;gap:8px 16px!important}
+ #pulse-home .record-row-v52{grid-template-columns:minmax(0,1fr) 80px!important;min-height:44px!important;padding:8px 0!important;gap:6px 12px!important}
  #pulse-home .record-progress-v52{grid-column:1/-1;justify-content:space-between!important}
  #pulse-home .record-group-toggle-v52{padding:8px 11px!important;min-height:44px!important}
- #pulse-home .log-main-row{grid-template-columns:repeat(3,minmax(0,1fr)) 44px;padding:14px 0!important;gap:8px}
+ #pulse-home .log-main-row{grid-template-columns:46px minmax(0,1fr) 84px;padding:10px 0!important;gap:8px;min-height:52px}
  #pulse-home .log-main-row>td:nth-child(1){grid-column:1;grid-row:1;font-size:12px!important;white-space:nowrap!important}
- #pulse-home .log-main-row>td:nth-child(2){grid-column:2/4;grid-row:1;overflow:hidden!important}
- #pulse-home .log-main-row>td:nth-child(3){grid-column:1;grid-row:2}
- #pulse-home .log-main-row>td:nth-child(4){grid-column:2;grid-row:2}
- #pulse-home .log-main-row>td:nth-child(5){grid-column:3/5;grid-row:2}
- #pulse-home .log-main-row>td:nth-child(6){grid-column:4;grid-row:1;align-self:center}
+ #pulse-home .log-main-row>td:nth-child(2){grid-column:2;grid-row:1;overflow:hidden!important}
+ #pulse-home .log-main-row>td:nth-child(3){grid-column:3;grid-row:1}
+ #pulse-home .log-main-row>td:nth-child(4){grid-column:1;grid-row:2}
+ #pulse-home .log-main-row>td:nth-child(5){grid-column:2;grid-row:2}
+ #pulse-home .log-main-row>td:nth-child(6){grid-column:3;grid-row:2;align-self:center}
  #pulse-home .log-main-row .log-tag{font-size:14px!important;line-height:1.4!important}
  #pulse-home .log-detail-box{padding:12px 9px!important}
  #pulse-home .record-max-v52{font-size:16px!important}
@@ -361,7 +368,7 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .ex-row-item,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).builder-row-floating-v4{padding:13px 10px!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .is-cardio .ex-row,#pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4).is-cardio .ex-row{grid-template-columns:repeat(3,minmax(0,1fr)) 36px!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=text]{grid-column:1/4;grid-row:1}
- #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>.ex-del{grid-column:4;grid-row:1}
+ #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>.ex-del{grid-column:3;grid-row:2}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row>input[type=number]{grid-row:2;padding-left:8px!important;padding-right:7px!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7,.builder-row-floating-v4) .ex-row-head{flex-wrap:wrap!important}
  #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .builder-week-between-v7{grid-template-columns:1fr!important;gap:17px!important}

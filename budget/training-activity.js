@@ -66,7 +66,7 @@
     return {
       type:'bar',data:{labels:data.buckets.map(function(b){return b.label;}),datasets:[{
         label:state.metric==='minutes'?'Träningstid':'Träningspass',data:data.buckets.map(function(b){return b[state.metric];}),
-        borderColor:'#ff657a',borderWidth:0,borderRadius:5,borderSkipped:false,maxBarThickness:8,barPercentage:.55,categoryPercentage:.9,
+        borderColor:'#ff657a',borderWidth:0,borderRadius:5,borderSkipped:false,maxBarThickness:9,barPercentage:.55,categoryPercentage:.9,
         backgroundColor:function(context){
           var area=context.chart.chartArea;if(!area)return '#ff657a';
           var current=data.buckets[context.dataIndex]&&data.buckets[context.dataIndex].current;
@@ -77,12 +77,12 @@
           gradient.addColorStop(0,current?'#ffe4d6':'#ffb3a5');gradient.addColorStop(.3,current?'#ff9a91':'#ff657a');gradient.addColorStop(1,'#ff657a30');return gradient;
         }
       }]},
-      plugins:[{id:'activityGlow',beforeDatasetDraw:function(chart){chart.ctx.save();chart.ctx.shadowColor='#ff657a80';chart.ctx.shadowBlur=14;},afterDatasetDraw:function(chart){chart.ctx.restore();
+      plugins:[{id:'activityGlow',beforeDatasetDraw:function(chart){chart.ctx.save();chart.ctx.shadowColor='#ff657a80';chart.ctx.shadowBlur=22;},afterDatasetDraw:function(chart){chart.ctx.restore();
         var ctx=chart.ctx,meta=chart.getDatasetMeta(0),base=chart.scales.y.getPixelForValue(0);
         ctx.save();ctx.fillStyle='#a8b0ba55';
         meta.data.forEach(function(bar,i){if(chart.data.datasets[0].data[i]===0)ctx.fillRect(bar.x-3,base-2,6,2);});
         ctx.restore();}}],
-      options:{responsive:true,maintainAspectRatio:false,animation:matchMedia('(prefers-reduced-motion: reduce)').matches?false:{duration:300},
+      options:{responsive:true,maintainAspectRatio:false,animation:matchMedia('(prefers-reduced-motion: reduce)').matches?false:{duration:850,easing:'easeOutQuart',delay:function(context){return context.type==='data' ? context.dataIndex*55 : 0;}},
         layout:{padding:{top:16,right:8,left:4}},interaction:{mode:'index',intersect:false},events:['mousemove','mouseout','click','touchstart','touchmove'],
         plugins:{legend:{display:false},tooltip:{backgroundColor:'#121820',titleColor:'#f2f3f5',bodyColor:'#c5cbd3',borderColor:'#ff657a44',borderWidth:1,padding:12,displayColors:false,
           callbacks:{title:function(items){var b=data.buckets[items[0].dataIndex];return shortDate(b.date)+(state.view==='history'?' – '+shortDate(b.end):'');},label:function(item){return number(item.parsed.y)+' '+unit;}}}},

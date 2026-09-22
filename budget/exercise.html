@@ -17,7 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="training-activity.js?v=20260922-observatory-red-light-1"></script>
+  <script src="training-activity.js?v=20260922-observatory-composition-2"></script>
   <style>
     :root {
       --bg:    #0D1117;
@@ -513,14 +513,14 @@
       .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
     }
   </style>
-<link rel="stylesheet" href="training-zen-nav.css?v=20260922-observatory-red-light-1">
+<link rel="stylesheet" href="training-zen-nav.css?v=20260922-observatory-composition-2">
 <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script>
-<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260922-observatory-red-light-1">
-<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260922-observatory-red-light-1">
-<link rel="stylesheet" href="training-week-orbit.css?v=20260922-observatory-red-light-1">
-<script defer src="training-overview-mode.js?v=20260922-observatory-red-light-1"></script>
-<script defer src="pulse-environment/environment.js?v=20260922-observatory-red-light-1"></script>
-<script defer src="training-week-orbit.js?v=20260922-observatory-red-light-1"></script>
+<link id="training-observatory-environment" rel="stylesheet" href="pulse-environment/environment.css?v=20260922-observatory-composition-2">
+<link id="training-observatory-composition" rel="stylesheet" href="pulse-observatory/observatory.css?v=20260922-observatory-composition-2">
+<link rel="stylesheet" href="training-week-orbit.css?v=20260922-observatory-composition-2">
+<script defer src="training-overview-mode.js?v=20260922-observatory-composition-2"></script>
+<script defer src="pulse-environment/environment.js?v=20260922-observatory-composition-2"></script>
+<script defer src="training-week-orbit.js?v=20260922-observatory-composition-2"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <div class="app-wrap">
@@ -580,12 +580,15 @@
 </section>
 <section class="observatory-metrics" aria-label="Träningsöversikt">
     <!-- STATS -->
+    <h2 class="rhythm-heading observatory-only"><span>DIN VECKA I RÖRELSE</span>Varje pass räknas.</h2>
     <div class="stats-row">
       <div class="stat-card stat-week fade-in"><div class="stat-label">Denna vecka</div><div class="stat-val"><span id="sw-cnt">0</span></div><div class="stat-sub" id="week-goal-text">av <span id="sw-goal-lbl">4</span> pass</div></div>
       <div class="stat-card stat-total fade-in"><div class="stat-label">Totalt antal pass</div><div class="stat-val"><span id="total-cnt">0</span></div><div class="stat-sub">alla tider</div></div>
       <div class="stat-card stat-duration fade-in"><div class="stat-label">Träningstid denna vecka</div><div class="stat-val"><span id="dur-wk">0</span><small>min</small></div><div class="stat-sub">summerad träningstid</div></div>
       <div class="stat-card stat-last fade-in"><div class="stat-label">Senaste pass</div><div class="stat-val"><span id="last-d">—</span></div><div class="stat-sub" id="last-sub"></div></div>
     </div>
+    <div class="rhythm-lights observatory-only" id="rhythm-lights" aria-hidden="true"></div>
+    <p class="rhythm-copy observatory-only" id="rhythm-copy"></p>
     </section>
 <section class="observatory-week" id="pulse-week">
     <!-- WEEKLY PLAN -->
@@ -645,16 +648,17 @@
           <div class="run-goal-stat-v34"><span>Totaldistans</span><strong id="g2-total-distance">0 km</strong></div>
           <div class="run-goal-stat-v34"><span>Bästa snittakt</span><strong id="g2-best-pace">—</strong></div>
         </div>
+        <div class="observatory-only"><div class="trend-heading"><span>Löpdistans över tid</span><span>km · mål markerat</span></div><div class="distance-trend"><canvas id="chart-run-distance"></canvas></div></div>
         <div class="run-pace-chart-v34">
           <div class="run-pace-chart-title-v34"><span>Snittakt över tid</span><span>min/km</span></div>
           <div class="run-pace-chart-area-v34"><canvas id="chart-run-pace"></canvas></div>
         </div>
-        <div class="goal-history">
+        <details class="goal-history-fold"><summary>Visa registrerade värden</summary><div class="goal-history">
           <table>
             <thead><tr><th>Datum</th><th>Distans</th><th>Tid</th><th>Snittakt</th><th>Totalt</th></tr></thead>
             <tbody id="run-history-body"></tbody>
           </table>
-        </div>
+        </div></details>
       </div>
       <div class="goal-card goal-card-vo2-v37">
         <div class="goal-lbl">Högsta VO₂ (ml/kg/min)</div>
@@ -672,12 +676,12 @@
           <div class="vo2-chart-title-v37"><span>VO₂ över tid</span><span>ml/kg/min</span></div>
           <div class="vo2-chart-area-v37"><canvas id="chart-bw"></canvas></div>
         </div>
-        <div class="goal-history">
+        <details class="goal-history-fold"><summary>Visa registrerade värden</summary><div class="goal-history">
           <table>
             <thead><tr><th>Datum</th><th>VO₂</th><th>Löptid</th><th>Snittpuls</th><th>Mål</th></tr></thead>
             <tbody id="vo2-history-body"></tbody>
           </table>
-        </div>
+        </div></details>
       </div>
     </div>
 
@@ -2284,6 +2288,7 @@ var chartSessions, chartVO2, chartRunPace;
 function getWeekNum(d){var d2=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));d2.setUTCDate(d2.getUTCDate()+4-(d2.getUTCDay()||7));var ys=new Date(Date.UTC(d2.getUTCFullYear(),0,1));return Math.ceil(((d2-ys)/86400000+1)/7);}
 function renderCharts(){
   var wks=getWorkouts();
+  if(window.renderObservatoryDistance)window.renderObservatoryDistance(wks);
   var weekStats={};
   wks.forEach(function(w){
     var d=new Date(w.date), dow=d.getDay()===0?6:d.getDay()-1, ws=new Date(d); ws.setDate(d.getDate()-dow);
@@ -2444,7 +2449,7 @@ function renderLog(){
     var rowClass='log-main-row'+(cardioPass?' log-pass-cardio-v7':'');
     html+='<tr class="'+rowClass+'" data-workout-id="'+w.id+'" aria-expanded="'+(detailOpen?'true':'false')+'" onclick="toggleWorkoutDetails('+w.id+')">'
       +'<td>'+fmtDate(w.date)+'</td>'
-      +'<td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span></td>'
+      +'<td><span class="log-tag">'+escHtml(typeDisp||'—')+'</span><span class="observatory-only log-disclosure" aria-hidden="true">⌄</span></td>'
       +'<td class="log-volume-v34">'+volumeMarkup+'</td><td>'+durationDisp+'</td><td>'+pulseDisp+'</td>'
       +'<td class="log-actions"><button class="log-del" type="button" onclick="event.stopPropagation();deleteWorkout('+w.id+')" aria-label="Ta bort pass" title="Ta bort">×</button></td>'
       +'</tr>';

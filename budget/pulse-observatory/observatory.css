@@ -15,8 +15,8 @@
 #pulse-header .observatory-header-star .observatory-star-glyph{width:22px;height:22px;filter:drop-shadow(0 0 7px #ff657a65)}
 #pulse-home .observatory-star-glyph,#pulse-header .observatory-star-glyph{display:block;overflow:visible;flex:0 0 auto}
 #pulse-home .observatory-star-glyph path,#pulse-header .observatory-star-glyph path{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-#pulse-home .observatory-stage{position:relative;isolation:isolate;display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:510px;margin:0 0 44px;padding:50px 0 54px;gap:40px}
-#pulse-home .observatory-stage::before{content:'';position:absolute;inset:0 calc(-1 * var(--obs-gutter)) -35px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 42% 42% at 74% 55%,#ff657a13,transparent 80%);mask-image:linear-gradient(transparent,#000 20%,#000 70%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 20%,#000 70%,transparent)}
+#pulse-home .observatory-stage{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:flex-start;min-height:675px;margin:0 0 32px;padding:28px 0 56px;gap:24px}
+#pulse-home .observatory-stage::before{content:'';position:absolute;inset:0 calc(-1 * var(--obs-gutter)) -35px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 42% 42% at 18% 65%,#ff657a13,transparent 80%);mask-image:linear-gradient(transparent,#000 20%,#000 70%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 20%,#000 70%,transparent)}
 #pulse-home .observatory-heading{position:relative;z-index:2;max-width:550px}
 #pulse-home .observatory-kicker{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:2px;color:#a8b0ba}
 #pulse-home .observatory-kicker>.observatory-star-glyph{width:24px;height:24px;color:#ffb3a5;filter:drop-shadow(0 0 9px #ff657a55)}
@@ -29,15 +29,15 @@
 #pulse-home .observatory-jumps button[aria-current="true"]::after{content:'';position:absolute;left:0;bottom:2px;width:20px;height:1px;background:#ff9a91;box-shadow:0 0 10px #ff657a}
 #pulse-home .observatory-jumps span{font-size:21px;color:#ff9a91}
 #pulse-home .observatory-scene{position:absolute;inset:0 calc(-1 * var(--obs-gutter));z-index:-1;pointer-events:none;overflow:hidden;mask-image:linear-gradient(transparent,#000 12%,#000 86%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 86%,transparent)}
-#pulse-home .observatory-scene svg{position:absolute;left:15%;top:10%;width:100%;height:100%;overflow:visible}
+#pulse-home .observatory-scene svg{position:absolute;left:0;top:10%;width:100%;height:100%;overflow:visible}
 #pulse-home .observatory-horizon{stroke:url(#observatory-edge);stroke-width:1;filter:drop-shadow(0 0 4px #ffb3a566) drop-shadow(0 0 17px #ff657a88)}
 #pulse-home .observatory-horizon-light{stroke:#ffe4d6;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:2 98;filter:drop-shadow(0 0 5px #ffb3a5) drop-shadow(0 0 12px #ff657a);animation:observatoryHorizonSweep 32s linear infinite}
-#pulse-home .observatory-field{position:relative;z-index:2;justify-self:center;min-width:0;width:100%;max-width:300px}
-#pulse-home .observatory-next{text-align:center}
+#pulse-home .observatory-field{position:relative;z-index:2;min-width:0;width:176px;max-width:100%;margin:40px 0 0}
+#pulse-home .observatory-next{text-align:left}
 #pulse-home #reactor-date{display:block;font-size:12px;letter-spacing:1px;color:var(--obs-muted);text-transform:uppercase}
-#pulse-home .observatory-next-actions{display:flex;justify-content:center;margin:24px 0 0}
-#pulse-home .observatory-next-orb-wrap{display:flex;flex-direction:column;align-items:center;gap:22px;width:100%}
-#pulse-home .observatory-next-orb{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;width:184px;height:184px;min-height:184px;flex:none;gap:10px;padding:28px 22px;border:1px solid #ffc5acb3;border-radius:50%;color:#fff1ea;background:radial-gradient(circle at 43% 28%,#ffc3ab18,transparent 50%),radial-gradient(circle at 50% 85%,#ff657a14,transparent 70%),#0e131a;box-shadow:0 0 10px #ffad9f33,0 0 32px #ff657a38,0 0 72px #ff657a20,inset 0 0 30px #ff8b8912;overflow:visible;font-family:inherit;cursor:pointer;transition:border-color .24s,box-shadow .24s}
+#pulse-home .observatory-next-actions{display:flex;justify-content:flex-start;margin:14px 0 0}
+#pulse-home .observatory-next-orb-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:100%}
+#pulse-home .observatory-next-orb{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;width:168px;height:168px;min-height:168px;flex:none;gap:10px;padding:28px 22px;border:1px solid #ffc5acb3;border-radius:50%;color:#fff1ea;background:radial-gradient(circle at 43% 28%,#ffc3ab18,transparent 50%),radial-gradient(circle at 50% 85%,#ff657a14,transparent 70%),#0e131a;box-shadow:0 0 10px #ffad9f33,0 0 32px #ff657a38,0 0 72px #ff657a20,inset 0 0 30px #ff8b8912;overflow:visible;font-family:inherit;cursor:pointer;transition:border-color .24s,box-shadow .24s}
 #pulse-home .observatory-next-orb::before{content:'';position:absolute;inset:8px;border:1px solid #ffb3a530;border-radius:50%;pointer-events:none}
 #pulse-home .observatory-next-orb::after{content:'';position:absolute;inset:-7px;border:1px solid #ffb3a540;border-radius:50%;pointer-events:none;animation:observatoryReadyPulse 6.2s ease-in-out infinite;animation-play-state:var(--pulse-scene-motion,running)}
 #pulse-home .observatory-next-orb:hover,#pulse-home .observatory-next-orb:focus-visible{border-color:#ffe4d6;box-shadow:0 0 12px #ffad9f44,0 0 38px #ff657a50,0 0 78px #ff657a28,inset 0 0 30px #ff8b891a}
@@ -76,11 +76,23 @@
 #pulse-home .observatory-activity{margin:0;padding:24px 0 8px;border-top:1px solid var(--obs-line)}
 #pulse-home .observatory-activity #activity-chart{padding:0!important}
 #pulse-home .observatory-activity #activity-chart h3{font:500 30px/1.2 "Cormorant Garamond",Georgia,serif!important;color:var(--obs-text)!important;margin:0 0 12px}
-#pulse-home .observatory-activity .chart-area{height:155px!important}
-#pulse-home .observatory-metrics{margin:22px 0 0;padding:18px 0 0;border-top:1px solid var(--obs-line)}
-#pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:24px!important}
-#pulse-home .observatory-metrics .stat-val{font-size:30px!important;line-height:1.2!important;letter-spacing:-.7px!important;color:var(--obs-text)!important}
+#pulse-home .observatory-activity .chart-area{height:195px!important}
+#pulse-home .observatory-metrics{padding:28px 0;margin:0;border-top:1px solid var(--obs-line);border-bottom:1px solid var(--obs-line);position:relative;background:radial-gradient(ellipse at 12% 25%,#ff657a0d,transparent 65%)}
+#pulse-home .rhythm-heading{font:500 30px/1.2 "Cormorant Garamond",Georgia,serif;margin:0 0 24px}
+#pulse-home .rhythm-heading span{display:block;color:#ffb3a5;font:500 10px/1.5 Inter,sans-serif;letter-spacing:2px;margin-bottom:8px}
+#pulse-home .observatory-metrics .stats-row{display:grid!important;grid-template-columns:1.4fr repeat(3,1fr)!important;gap:24px!important}
+#pulse-home .observatory-metrics .stat-card{padding:0!important;text-align:left}
+#pulse-home .observatory-metrics .stat-val{font:500 40px/1.2 "Cormorant Garamond",Georgia,serif!important;color:#fff1ea!important;margin:7px 0!important}
+#pulse-home .observatory-metrics .stat-week .stat-val{font-size:64px!important;text-shadow:0 0 28px #ff657a55}
 #pulse-home .observatory-metrics .stat-label,#pulse-home .observatory-metrics .stat-sub{font-size:12px!important;line-height:1.5!important;color:var(--obs-muted)!important}
+#pulse-home .rhythm-lights{display:flex;gap:7px;margin:12px 0;max-width:300px}
+#pulse-home .rhythm-lights i{height:4px;flex:1;border-radius:5px;background:#ffffff13;transition:background .6s,box-shadow .6s}
+#pulse-home .rhythm-lights i.is-lit{background:#ffd4b9;box-shadow:0 0 7px #ffb3a5,0 0 20px #ff657a99}
+#pulse-home .rhythm-copy{color:#ffc8b5;font-size:13px;line-height:1.6;margin:22px 0 0}
+#pulse-home .trend-heading{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 10px;color:#c5cbd3;font-size:12px}
+#pulse-home .distance-trend{height:180px}
+#pulse-home .goal-history-fold{margin-top:12px;border-top:1px solid var(--obs-line)}
+#pulse-home .goal-history-fold summary{cursor:pointer;padding:14px 0;color:var(--obs-muted);font-size:12px;min-height:44px}
 #pulse-home .pulse-goals .goal-nums[data-observatory-state="goal-achieved"]{color:var(--obs-state-accent)!important;font-weight:600}
 #pulse-home .activity-controls{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:0 0 8px}
 #pulse-home .activity-switch{display:flex;gap:4px}
@@ -102,18 +114,16 @@
 @keyframes observatoryHorizonSweep{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
 @keyframes observatoryReadyPulse{0%,100%{transform:scale(.99);opacity:.5}50%{transform:scale(1.025);opacity:.85}}
 @media(min-width:761px){
- #pulse-home .observatory-activity{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:50px;align-items:center}
- #pulse-home .observatory-metrics{margin:0;border:0;padding:0}
- #pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:28px 24px!important}
+ #pulse-home .observatory-activity{display:block;padding:32px 0}
 }
 @media(max-width:760px){
- #pulse-home .observatory-stage{display:flex;flex-direction:column;align-items:flex-start;min-height:0;gap:26px;margin-bottom:34px;padding:26px 0 24px}
- #pulse-home .observatory-stage::before{background:radial-gradient(ellipse 65% 36% at 50% 64%,#ff657a14,transparent 85%)}
+ #pulse-home .observatory-stage{display:flex;flex-direction:column;align-items:flex-start;min-height:clamp(400px,calc(100svh - 164px),620px);gap:24px;margin-bottom:30px;padding:24px 0 30px}
+ #pulse-home .observatory-stage::before{background:radial-gradient(ellipse 65% 36% at 20% 70%,#ff657a14,transparent 85%)}
  #pulse-home .observatory-heading h2{font-size:clamp(60px,16vw,72px);letter-spacing:-2px;margin-top:12px}
  #pulse-home .observatory-tagline{font-size:22px}
  #pulse-home .observatory-description{margin:14px 0 6px;max-width:300px}
  #pulse-home .observatory-jumps{gap:18px}
- #pulse-home .observatory-field{align-self:center;max-width:290px}
+ #pulse-home .observatory-field{align-self:flex-start;max-width:176px;margin:auto 0 0;padding-top:12px}
  #pulse-home .observatory-next-actions{margin-top:20px}
  #pulse-home .observatory-next-orb{width:168px;height:168px;min-height:168px;padding:24px 20px}
  #pulse-home #reactor-title{font-size:23px;max-width:128px}
@@ -134,7 +144,10 @@
  #pulse-home .observatory-week .week-toolbar{gap:8px!important}
  #pulse-home .observatory-metrics .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}
  #pulse-home .observatory-metrics .stat-card{padding:4px 0!important;text-align:left}
- #pulse-home .observatory-metrics .stat-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #pulse-home .observatory-metrics .stat-val{font-size:32px!important}
+ #pulse-home .observatory-metrics .stat-week{grid-column:1/-1}
+ #pulse-home .observatory-metrics .stat-total{display:none}
+ #pulse-home .observatory-metrics .stat-week .stat-val{font-size:64px!important}
  #pulse-home .activity-summary p{flex-basis:100%;margin:0}
 }
 @media(max-width:360px){

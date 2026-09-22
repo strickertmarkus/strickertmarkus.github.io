@@ -2,7 +2,7 @@ name: Training iOS zoom and Zen canvas verification
 
 on:
   push:
-    branches: [main, work/observatory-polish-20260919, work/wellness-cohesion-20260920, work/activity-glow-20260921]
+    branches: [work/observatory-composition-20260922, main, work/observatory-polish-20260919, work/wellness-cohesion-20260920, work/activity-glow-20260921]
     paths:
       - '.github/workflows/training-ios-zoom-zen-bg-verify.yml'
       - 'budget/training-zen-nav.css'
@@ -213,7 +213,7 @@ jobs:
               const graphs=await page.locator('#pulse-home .goal-card,#pulse-home .chart-card').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {border:s.borderTopWidth,shadow:s.boxShadow,background:s.backgroundColor}}));
               assert.ok(graphs.length>0);
               assert.ok(graphs.every(g=>g.border==='0px'&&g.shadow==='none'&&g.background==='rgba(0, 0, 0, 0)'),label+' graphs must remain unboxed: '+JSON.stringify(graphs));
-              if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}
+              if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.metricsTop<result.weekTop,label+' summary must precede week')}
             }
             for(const width of [320,390,1440]){
               await page.setViewportSize({width,height:width>760?1000:844});
