@@ -36,8 +36,6 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.match(source[1],/data-add-set=/);
  assert.match(source[1],/data-remove-set=/);
  assert.match(source[1],/weight:weight\|\|0,reps:reps\|\|0,minutes:minutes\|\|0/);
- assert.match(source[1],/exercises:selectedExercises/);
- assert.match(source[1],/set\.done/);
  assert.match(source[1],/function exerciseCatalogSources\(\)/);
  assert.match(source[1],/state\.history\.slice\(\)/);
  assert.match(source[1],/Object\.keys\(state\.plans\)/);
@@ -115,6 +113,10 @@ test('Ingemar training delegates to the exact Markus/Maja family session',()=>{
  requiredAssets.forEach(asset=>assert.ok(familyHtml.includes('src="'+asset+'?v='),asset));
  assert.doesNotMatch(familyHtml,/firebase-app-compat|firebase-auth-compat|firebase-database-compat|firebase-sync\.js|auth-gate\.js|auth-config\.js/);
  assert.match(source[1],/function sendFamilySession\(\)/);assert.match(source[1],/ingemar-family-session-saved/);
+ assert.match(familyHtml,/function sessionToIngemarWorkout\(\)/);
+ assert.match(familyHtml,/actualWeight/);assert.match(familyHtml,/actualReps/);
+ assert.match(familyHtml,/done:true,skipped:false/);
+ assert.match(familyHtml,/parent\.postMessage\(\{type:'ingemar-family-session-saved'/);
  assert.doesNotMatch(source[1],/function renderSession\(|function startCurrentSet\(|function paintSessionRing\(/);
  Array.from(familyHtml.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)).map(m=>m[1]).filter(Boolean).forEach((script,index)=>new vm.Script(script,{filename:'ingemar-family-session-inline-'+index+'.js'}));
 });
