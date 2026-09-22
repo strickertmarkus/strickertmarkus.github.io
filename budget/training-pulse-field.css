@@ -29,10 +29,17 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 [hidden]{display:none!important}
 
 .field-canvas{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#080d12 0%,#090e14 55%,#070b10 100%)}
-.field-top-scene{position:absolute;z-index:0;left:0;right:0;top:0;height:760px;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 12% 13%,#ff657a1b 0,#ff657a09 25%,transparent 58%),radial-gradient(ellipse at 82% 20%,#ffd2bd14 0,#ff9a9108 28%,transparent 60%),linear-gradient(180deg,#ff657a05 0,transparent 62%);-webkit-mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%)}
-.field-top-scene::before,.field-top-scene::after{content:"";position:absolute;pointer-events:none}
-.field-top-scene::before{width:min(760px,82vw);height:min(760px,82vw);right:-24vw;top:-410px;border:1px solid #ff9a9114;border-radius:50%;box-shadow:0 0 0 84px #ff9a9108,0 0 0 168px #ff657a05;opacity:.72}
-.field-top-scene::after{left:-5vw;right:-5vw;top:114px;height:390px;background:radial-gradient(circle at 26% 22%,#ffd9c89c 0 1px,#ff9a9140 2px,transparent 5px),radial-gradient(circle at 68% 16%,#ff9a9180 0 1px,#ff657a32 2px,transparent 6px),radial-gradient(circle at 88% 64%,#ffd2bd78 0 1px,#ff9a912c 2px,transparent 5px);opacity:.42}
+/* A single observatory landscape spans header, mode switch and hero. */
+.pulse-scene{position:absolute;z-index:0;top:0;left:0;right:0;height:735px;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#11151d 0%,#0c1119 45%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 68%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 68%,transparent 100%)}
+.pulse-scene__light{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 32%,#ff657a1e 0,#ff657a09 29%,transparent 62%),radial-gradient(ellipse at 76% 24%,#ffd2bd15 0,#ff9a9108 30%,transparent 65%),radial-gradient(ellipse at 55% 72%,#ff657a0b 0,transparent 51%)}
+.pulse-scene__world{position:absolute;left:50%;top:0;display:block;width:max(980px,100%);height:100%;transform:translateX(-50%);overflow:visible}
+.pulse-scene__orbits{stroke-width:1;opacity:.72}
+.pulse-scene__sweep{fill:none;stroke:#ffd2bd;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:1 99;stroke-dashoffset:0;opacity:.72;filter:drop-shadow(0 0 7px #ff9a91);animation:pulseObservatorySweep 32s linear infinite}
+.pulse-scene__perspective{stroke:#ff9a91;stroke-width:.75;opacity:.10}
+.pulse-scene__curve{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pulse-scene__curve--far{stroke:url(#pulse-landscape-far);stroke-width:3;opacity:.62;filter:blur(2px)}
+.pulse-scene__curve--mid{stroke:url(#pulse-landscape-mid);stroke-width:1.7;opacity:.67;filter:drop-shadow(0 0 5px #ff657a35)}
+.pulse-scene__nodes{opacity:.8;animation:pulseObservatoryNodes 7s ease-in-out infinite}
 .field-aura{position:absolute;border-radius:50%;filter:blur(28px);opacity:.65}
 .field-aura-one{width:650px;height:510px;left:-380px;top:270px;background:radial-gradient(circle,#ff657a16 0,transparent 68%)}
 .field-aura-two{width:560px;height:460px;right:-360px;top:980px;background:radial-gradient(circle,#67d4e40a 0,transparent 70%)}
@@ -71,9 +78,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 
 main{position:relative;z-index:2;display:block}
 .field-hero{position:relative;display:flex;flex-direction:column;min-height:535px;padding:48px 0 30px;isolation:isolate}
-.field-hero::before,.field-hero::after{content:"";position:absolute;z-index:0;pointer-events:none}
-.field-hero::before{inset:-12px -9vw 6px;background:radial-gradient(ellipse at 20% 34%,#ff657a1f 0,#ff657a0c 26%,transparent 59%),radial-gradient(ellipse at 76% 18%,#ffd2bd18 0,#ff9a910a 27%,transparent 61%),radial-gradient(ellipse at 56% 82%,#ff657a13 0,transparent 54%);filter:blur(18px);opacity:.92;transform:translate3d(0,0,0) scale(1.01);animation:pulseAtmosphereDrift 18s ease-in-out infinite alternate}
-.field-hero::after{inset:82px -7vw 18px;background:radial-gradient(circle at 14% 72%,#ffe0d1b8 0 1px,#ff9a9152 2px,transparent 5px),radial-gradient(circle at 34% 33%,#ff9a9190 0 1px,#ff657a3e 2px,transparent 6px),radial-gradient(circle at 59% 71%,#ffd2bd9c 0 1px,#ff9a9140 2px,transparent 5px),radial-gradient(circle at 82% 31%,#ff9a918c 0 1px,#ff657a38 2px,transparent 6px),repeating-radial-gradient(ellipse at 70% 58%,transparent 0 58px,#ff9a9108 59px 60px,transparent 62px 118px);opacity:.58;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,transparent 100%);animation:pulseAtmosphereBreath 9s ease-in-out infinite}
 .hero-copy{position:relative;z-index:4;max-width:540px}
 .eyebrow{margin:0;color:var(--field-coral);font-size:10px;line-height:1.5;letter-spacing:2.3px;text-transform:uppercase}
 .spark-symbol{display:inline-grid;place-items:center;margin-right:9px;font-size:20px;text-shadow:0 0 16px #ff657a}
@@ -261,8 +265,8 @@ main{position:relative;z-index:2;display:block}
 .toast.is-visible{transform:translate(-50%,0);opacity:1}
 
 @keyframes signalTravel{to{stroke-dashoffset:-100}}
-@keyframes pulseAtmosphereDrift{0%{transform:translate3d(-1.5%,0,0) scale(1.01);opacity:.78}100%{transform:translate3d(1.8%,-1.2%,0) scale(1.045);opacity:1}}
-@keyframes pulseAtmosphereBreath{0%,100%{transform:translate3d(0,0,0);opacity:.46}50%{transform:translate3d(0,-4px,0);opacity:.67}}
+@keyframes pulseObservatorySweep{to{stroke-dashoffset:-100}}
+@keyframes pulseObservatoryNodes{0%,100%{opacity:.45}50%{opacity:.9}}
 @keyframes orbitBreath{0%,100%{transform:scale(.985);opacity:.48}50%{transform:scale(1.025);opacity:.82}}
 @keyframes weekSweep{to{stroke-dashoffset:-100}}
 @keyframes barRise{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
@@ -273,12 +277,13 @@ main{position:relative;z-index:2;display:block}
   .version-link{display:none}
   .kind-switch a{min-height:52px;font-size:12px}
   .kind-switch a span{font-size:19px}
-  .field-top-scene{height:690px;background:radial-gradient(ellipse at 18% 12%,#ff657a1b 0,#ff657a09 29%,transparent 62%),radial-gradient(ellipse at 90% 17%,#ffd2bd11 0,#ff9a9107 26%,transparent 58%),linear-gradient(180deg,#ff657a05 0,transparent 66%)}
-  .field-top-scene::before{width:520px;height:520px;right:-330px;top:-270px;box-shadow:0 0 0 66px #ff9a9107,0 0 0 132px #ff657a04}
-  .field-top-scene::after{left:-18vw;right:-18vw;top:116px;opacity:.34}
+  .pulse-scene{height:calc(78px + 52px + clamp(460px,calc(100svh - 164px),535px) + 55px)}
+  .pulse-scene__world{width:980px}
+  .pulse-scene__orbits{opacity:.58}
+  .pulse-scene__perspective{opacity:.06}
+  .pulse-scene__curve--far{opacity:.42}
+  .pulse-scene__curve--mid{opacity:.55}
   .field-hero{min-height:clamp(460px,calc(100svh - 164px),535px);padding-top:30px}
-  .field-hero::before{inset:0 -28vw 12px;filter:blur(14px);opacity:.86}
-  .field-hero::after{inset:100px -22vw 20px;opacity:.50}
   .hero-copy h1{font-size:68px;letter-spacing:-3px}
   .hero-script{font-size:23px}
   .hero-description{max-width:285px;line-height:1.7}
@@ -363,6 +368,6 @@ main{position:relative;z-index:2;display:block}
 @media(prefers-reduced-motion:reduce){
   .field-aura,.training-glyph{filter:none!important}
   html{scroll-behavior:auto}
-  .field-hero::before,.field-hero::after,.signal-main,.start-orbit::after,.week-orbit-light,.activity-bar,.activity-bar-glow-near,.activity-bar-glow-wide{animation:none!important}
+  .pulse-scene__sweep,.pulse-scene__nodes,.signal-main,.start-orbit::after,.week-orbit-light,.activity-bar,.activity-bar-glow-near,.activity-bar-glow-wide{animation:none!important}
   *,*::before,*::after{transition-duration:.01ms!important}
 }
