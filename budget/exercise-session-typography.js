@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
   if (window.__exerciseSessionTypographyInstalled) return;
   window.__exerciseSessionTypographyInstalled = true;
 

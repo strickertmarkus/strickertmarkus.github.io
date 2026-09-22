@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCanvasGlowV140LayerInstalled) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exercisePulseFlowCanvasGlowV140LayerInstalled) return;
   window.__exercisePulseFlowCanvasGlowV140LayerInstalled = true;
 
   var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v140-layer-style';
