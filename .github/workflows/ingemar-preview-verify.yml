@@ -457,8 +457,10 @@ jobs:
               assert.notEqual(dial.boxShadow,'none',label+' timer needs visible ring glow');
               assert.notEqual(dial.arcFilter,'none',label+' progress arc needs glow');
             }
+            const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
+            assert.ok(initialStretchArc>98&&initialStretchArc<=100,'Stretch dial must start at the normalized SVG path origin: '+initialStretchArc);
             const smoothArc=[];
-            for(let i=0;i<6;i++){await waitAnimationFrames(4);smoothArc.push(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset)));}
+            for(let i=0;i<6;i++){await waitAnimationFrames(4);smoothArc.push(Number(await page.locator('#zen-step-arc').evaluate(el=>el.getAttribute('stroke-dashoffset'))));}
             const smoothDeltas=smoothArc.slice(1).map((v,i)=>smoothArc[i]-v);
             assert.ok(new Set(smoothArc.map(v=>v.toFixed(3))).size>=5&&smoothDeltas.every(v=>v>0&&v<1.5),
               'Stretch dial must advance continuously rather than in 400 ms jumps: '+JSON.stringify({smoothArc,smoothDeltas}));
@@ -480,17 +482,17 @@ jobs:
             assert.equal(await page.locator('#zen-step-total').textContent(),'AV 01:30');
             assert.ok(Number(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'))>0,
               'Advancing to the next stretch step must also advance the total pass progress');
-            assert.ok(Number(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset))>98,
+            assert.ok(Number(await page.locator('#zen-step-arc').evaluate(el=>el.getAttribute('stroke-dashoffset')))>98,
               'The new movement starts with its own fresh circular countdown');
             await page.locator('[data-zen-step="0"]').click();
             assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-session-title').textContent(),stretchFirst);
             await page.locator('[data-action="pause-zen"]').click();
             assert.equal(await page.locator('#zen-breath').textContent(),'PAUSAD');
-            const pausedArc=await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset);
+            const pausedArc=await page.locator('#zen-step-arc').evaluate(el=>el.getAttribute('stroke-dashoffset'));
             const pausedTime=await page.locator('#zen-clock').textContent();
             await page.waitForTimeout(850);
-            assert.equal(await page.locator('#zen-step-arc').evaluate(el=>el.style.strokeDashoffset),pausedArc,
+            assert.equal(await page.locator('#zen-step-arc').evaluate(el=>el.getAttribute('stroke-dashoffset')),pausedArc,
               'Pause freezes the step dial');
             assert.equal(await page.locator('#zen-clock').textContent(),pausedTime,
               'Pause freezes the current movement countdown');

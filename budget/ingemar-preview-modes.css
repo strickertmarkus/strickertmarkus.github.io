@@ -107,7 +107,7 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
 .zen-workout .zen-step-dial{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;transform:rotate(-90deg)}
 .zen-workout .zen-step-track,.zen-workout .zen-step-arc{fill:none;stroke-width:2.4;transform-origin:50% 50%}
 .zen-workout .zen-step-track{stroke:rgba(var(--mode-accent-rgb),.2);filter:drop-shadow(0 0 3px rgba(var(--mode-accent-rgb),.14))}
-.zen-workout .zen-step-arc{stroke:var(--mode-accent);stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 2px var(--mode-accent)) drop-shadow(0 0 9px var(--mode-accent));will-change:stroke-dashoffset}
+.zen-workout .zen-step-arc{stroke:var(--mode-accent);stroke-linecap:round;stroke-dasharray:100;filter:drop-shadow(0 0 2px var(--mode-accent)) drop-shadow(0 0 9px var(--mode-accent));will-change:stroke-dashoffset}
 .zen-workout .zen-step-marker{fill:#fffdf0;stroke:var(--mode-accent);stroke-width:.8;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 9px var(--mode-accent));transition:opacity .1s;will-change:transform}
 .zen-workout .zen-clock-wrap .zen-clock-inner{position:relative;z-index:3;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;width:72%;max-width:72%;text-align:center;line-height:1.04}
 .zen-workout .zen-clock-wrap strong{max-width:100%;font-size:clamp(33px,6vw,50px);font-weight:350;letter-spacing:-.065em;line-height:.96;font-variant-numeric:tabular-nums;white-space:nowrap}
