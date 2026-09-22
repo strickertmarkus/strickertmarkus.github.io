@@ -1,0 +1,108 @@
+name: Pulse Field visual verification
+
+on:
+  push:
+    paths:
+      - 'budget/training-pulse-field.html'
+      - 'budget/training-pulse-field.css'
+      - 'budget/training-pulse-field.js'
+      - '.github/workflows/pulse-field-visual-verify.yml'
+  workflow_dispatch:
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+      - name: Serve repository
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/pulse-field-http.log 2>&1 &
+          sleep 2
+      - name: Render desktop and mobile
+        run: |
+          cat > /tmp/pulse-field-visual.cjs <<'EOF'
+          const {webkit}=require(process.cwd()+'/node_modules/playwright');
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+
+          async function animationSnapshot(page){
+            return page.evaluate(()=>{
+              const pick=s=>getComputedStyle(document.querySelector(s)).transform;
+              return {
+                nebula:pick('.space-scene__nebula'),
+                mottle:pick('.space-scene__mottle'),
+                near:pick('.space-scene__drift--near'),
+                stars:pick('.space-scene__stars')
+              };
+            });
+          }
+
+          async function verify(viewport,name,mobile){
+            const browser=await webkit.launch();
+            const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});
+            const page=await context.newPage();
+            const errors=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+
+            await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1',{waitUntil:'domcontentloaded'});
+            await page.waitForSelector('#insight-chart svg');
+            await page.waitForTimeout(500);
+
+            const sceneQuality=await page.evaluate(()=>({
+              mottleBackground:getComputedStyle(document.querySelector('.space-scene__mottle')).backgroundImage,
+              nebulaFilter:getComputedStyle(document.querySelector('.space-scene__nebula')).filter,
+              wideGlow:document.querySelectorAll('#insight-chart .chart-line-halo-wide').length,
+              nearGlow:document.querySelectorAll('#insight-chart .chart-line-halo-near').length,
+              coreGlow:document.querySelectorAll('#insight-chart .chart-line-core').length,
+              wideOpacity:parseFloat(getComputedStyle(document.querySelector('#insight-chart .chart-line-halo-wide')).opacity),
+              nearOpacity:parseFloat(getComputedStyle(document.querySelector('#insight-chart .chart-line-halo-near')).opacity),
+              bodyWidth:document.body.scrollWidth,
+              viewportWidth:innerWidth
+            }));
+            assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
+            assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
+            assert.ok(sceneQuality.wideGlow>0&&sceneQuality.nearGlow>0&&sceneQuality.coreGlow>0,'Layered chart glow is missing: '+JSON.stringify(sceneQuality));
+            assert.ok(sceneQuality.bodyWidth<=sceneQuality.viewportWidth+1,'Horizontal overflow: '+JSON.stringify(sceneQuality));
+            if(mobile){
+              assert.ok(sceneQuality.wideOpacity>=.14&&sceneQuality.nearOpacity>=.33,'Mobile glow is too weak: '+JSON.stringify(sceneQuality));
+            }
+
+            const before=await animationSnapshot(page);
+            await page.waitForTimeout(1400);
+            const after=await animationSnapshot(page);
+            ['nebula','mottle','near','stars'].forEach(key=>{
+              assert.notEqual(after[key],before[key],key+' animation is not advancing: '+JSON.stringify({before,after}));
+            });
+
+            fs.mkdirSync('test-results/pulse-field',{recursive:true});
+            await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
+            await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
+            await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
+            assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
+            await browser.close();
+          }
+
+          (async()=>{
+            await verify({width:1440,height:960},'desktop',false);
+            await verify({width:390,height:844},'mobile',true);
+            console.log('Pulse Field high-resolution scene, motion and desktop/mobile glow verified in WebKit');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/pulse-field-visual.cjs
+      - name: Upload desktop and mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-field-visual-review
+          path: test-results/pulse-field/
+          if-no-files-found: warn
