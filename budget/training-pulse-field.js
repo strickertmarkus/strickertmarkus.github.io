@@ -277,14 +277,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
-      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH,wideW=barW*2.55,nearW=barW*1.65;
-      if(value)svg+='<rect class="activity-bar-glow-wide" x="'+(x-wideW/2)+'" y="'+y+'" width="'+wideW+'" height="'+barH+'" rx="'+(wideW/2)+'" fill="#ff657a" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar-glow-near" x="'+(x-nearW/2)+'" y="'+y+'" width="'+nearW+'" height="'+barH+'" rx="'+(nearW/2)+'" fill="#ff9a91" style="animation-delay:'+(index*45)+'ms"/><rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
+      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
+      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
       else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
     svg+='</svg>';
     byId('activity-chart').innerHTML=svg;
     byId('activity-chart').setAttribute('aria-label',buckets.map(function(b){return b.label+': '+b[metric]+' '+(metric==='minutes'?'minuter':'pass');}).join('. '));
+    scheduleChartCanvasGlow();
   }
 
   function heartData() {
@@ -350,7 +351,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
-      points.forEach(function(point){svg+='<circle class="chart-point-halo" cx="'+point[0]+'" cy="'+point[1]+'" r="7.5" fill="'+color+'" style="color:'+color+'"/><circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
+      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
     });
     var labelIndexes=dateKeys.length<4?dateKeys.map(function(_,i){return i;}):[0,Math.floor((dateKeys.length-1)/2),dateKeys.length-1];
     labelIndexes.forEach(function(index){var date=dateKeys[index];svg+='<text class="chart-axis-label" x="'+x(date)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(date)+'</text>';});
@@ -368,15 +369,163 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function glowingLine(path,color,coreClass) {
     var extra=coreClass?' '+coreClass:'';
-    return '<path class="chart-line-halo-wide" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>'
-      +'<path class="chart-line-halo-near" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>'
-      +'<path class="chart-line-core'+extra+'" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>';
+    return '<path class="line-glow'+extra+'" d="'+path+'" stroke="'+color+'" style="color:'+color+'"/>';
   }
   function glowingPoint(x,y,r,color,coreClass) {
     var extra=coreClass?' '+coreClass:'';
-    return '<circle class="chart-point-halo" cx="'+x+'" cy="'+y+'" r="'+(r*2.15)+'" fill="'+color+'" style="color:'+color+'"/>'
-      +'<circle class="last-point'+extra+'" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+color+'" style="color:'+color+'"/>';
+    return '<circle class="last-point'+extra+'" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+color+'" style="color:'+color+'"/>';
   }
+
+  // iOS/WebKit can flatten SVG filter glows into visible bands. This mirrors the
+  // proven training-mode timer solution: the SVG stays crisp while a Canvas 2D
+  // layer underneath paints real shadowBlur light.
+  var chartGlowMq=window.matchMedia?window.matchMedia('(max-width:760px)'):{matches:true};
+  var chartGlowRaf=0,chartGlowTimer=0;
+  var chartGlowDpr=Math.min(1.5,Math.max(1,Number(window.devicePixelRatio)||1));
+
+  function glowRgb(value,fallback) {
+    value=String(value||'').trim();
+    var hex=value.match(/^#([0-9a-f]{6})$/i);
+    if(hex)return [
+      parseInt(hex[1].slice(0,2),16),
+      parseInt(hex[1].slice(2,4),16),
+      parseInt(hex[1].slice(4,6),16)
+    ];
+    var rgb=value.match(/rgba?\(\s*([\d.]+)[, ]+\s*([\d.]+)[, ]+\s*([\d.]+)/i);
+    if(rgb)return [Number(rgb[1]),Number(rgb[2]),Number(rgb[3])];
+    return fallback||[255,101,122];
+  }
+  function glowRgba(rgb,a){return 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+a+')';}
+  function chartGlowCanvas(container) {
+    if(!container)return null;
+    var canvas=Array.prototype.find.call(container.children,function(el){return el.matches&&el.matches('canvas.chart-canvas-glow');});
+    if(!canvas){
+      canvas=document.createElement('canvas');
+      canvas.className='chart-canvas-glow';
+      canvas.setAttribute('aria-hidden','true');
+      canvas.setAttribute('role','presentation');
+      container.insertBefore(canvas,container.firstChild||null);
+    }
+    return canvas;
+  }
+  function sizeChartGlowCanvas(canvas) {
+    var rect=canvas.getBoundingClientRect(),cssW=Math.max(1,rect.width),cssH=Math.max(1,rect.height);
+    var w=Math.max(1,Math.round(cssW*chartGlowDpr)),h=Math.max(1,Math.round(cssH*chartGlowDpr));
+    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+    return {rect:rect,scale:chartGlowDpr};
+  }
+  function screenPointToCanvas(element,x,y,canvasRect,scale) {
+    var ctm=null;
+    try{ctm=element.getScreenCTM();}catch(_){}
+    if(ctm&&window.DOMPoint){
+      var p=new DOMPoint(x,y).matrixTransform(ctm);
+      return {x:(p.x-canvasRect.left)*scale,y:(p.y-canvasRect.top)*scale};
+    }
+    var rect=element.ownerSVGElement?element.ownerSVGElement.getBoundingClientRect():element.getBoundingClientRect();
+    return {x:(rect.left-canvasRect.left+x)*scale,y:(rect.top-canvasRect.top+y)*scale};
+  }
+  function sampleGlowPath(path,canvasRect,scale,steps) {
+    if(!path||typeof path.getTotalLength!=='function')return null;
+    var len=0;try{len=path.getTotalLength();}catch(_){return null;}
+    if(!(len>0))return null;
+    var pts=[];steps=Math.max(12,steps||48);
+    for(var i=0;i<=steps;i++){
+      var p;try{p=path.getPointAtLength(len*i/steps);}catch(_){return null;}
+      pts.push(screenPointToCanvas(path,p.x,p.y,canvasRect,scale));
+    }
+    return pts;
+  }
+  function buildGlowPolyline(ctx,points){
+    if(!points||points.length<2)return false;
+    ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+    for(var i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);
+    return true;
+  }
+  function canvasNeonPass(ctx,points,rgb,width,blur,alpha){
+    if(!buildGlowPolyline(ctx,points))return;
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.lineWidth=width*chartGlowDpr;
+    ctx.strokeStyle=glowRgba(rgb,.72);
+    ctx.shadowColor=glowRgba(rgb,alpha);
+    ctx.shadowBlur=blur*chartGlowDpr;
+    ctx.stroke();
+    ctx.restore();
+  }
+  function canvasNeonLine(ctx,points,rgb){
+    canvasNeonPass(ctx,points,rgb,1.05,20,.22);
+    canvasNeonPass(ctx,points,rgb,1.25,12,.50);
+    canvasNeonPass(ctx,points,rgb,1.55,6,.96);
+  }
+  function canvasNeonDot(ctx,x,y,r,rgb){
+    [[20,.22,1.04],[12,.50,.92],[6,.96,.78]].forEach(function(pass){
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      ctx.beginPath();ctx.arc(x,y,Math.max(1,r*pass[2]*chartGlowDpr),0,Math.PI*2);
+      ctx.fillStyle=glowRgba(rgb,.55);
+      ctx.shadowColor=glowRgba(rgb,pass[1]);
+      ctx.shadowBlur=pass[0]*chartGlowDpr;
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+  function roundedGlowRect(ctx,x,y,w,h,r){
+    r=Math.max(0,Math.min(r,Math.min(w,h)/2));
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+  }
+  function canvasNeonBar(ctx,rect,canvasRect,rgb){
+    var x=(rect.left-canvasRect.left)*chartGlowDpr,y=(rect.top-canvasRect.top)*chartGlowDpr;
+    var w=rect.width*chartGlowDpr,h=rect.height*chartGlowDpr,r=Math.min(rect.width/2,9)*chartGlowDpr;
+    [[25,.20,.12],[14,.46,.18],[7,.90,.24]].forEach(function(pass){
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      roundedGlowRect(ctx,x,y,w,h,r);
+      ctx.fillStyle=glowRgba(rgb,pass[2]);
+      ctx.shadowColor=glowRgba(rgb,pass[1]);
+      ctx.shadowBlur=pass[0]*chartGlowDpr;
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+  function paintChartCanvasGlow(container){
+    if(!container||container.hidden)return;
+    var svg=container.querySelector('svg');
+    if(!svg)return;
+    var canvas=chartGlowCanvas(container),size=sizeChartGlowCanvas(canvas),ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    container.querySelectorAll('path.line-glow').forEach(function(path){
+      var pts=sampleGlowPath(path,size.rect,size.scale,64);
+      if(pts)canvasNeonLine(ctx,pts,glowRgb(path.getAttribute('stroke'),[255,101,122]));
+    });
+    container.querySelectorAll('circle.last-point,circle.group-volume-point').forEach(function(dot){
+      var cx=Number(dot.getAttribute('cx')),cy=Number(dot.getAttribute('cy')),r=Number(dot.getAttribute('r'))||4;
+      var p=screenPointToCanvas(dot,cx,cy,size.rect,size.scale);
+      canvasNeonDot(ctx,p.x,p.y,r,glowRgb(dot.getAttribute('fill'),[255,101,122]));
+    });
+    container.querySelectorAll('rect.activity-bar').forEach(function(bar){
+      canvasNeonBar(ctx,bar.getBoundingClientRect(),size.rect,[255,101,122]);
+    });
+  }
+  function removeChartCanvasGlow(){
+    document.querySelectorAll('canvas.chart-canvas-glow').forEach(function(canvas){canvas.remove();});
+  }
+  function paintAllChartGlows(){
+    chartGlowRaf=0;
+    if(!chartGlowMq.matches){removeChartCanvasGlow();return;}
+    ['activity-chart','insight-chart','volume-chart'].forEach(function(id){paintChartCanvasGlow(byId(id));});
+  }
+  function scheduleChartCanvasGlow(){
+    if(chartGlowRaf)cancelAnimationFrame(chartGlowRaf);
+    chartGlowRaf=requestAnimationFrame(function(){chartGlowRaf=requestAnimationFrame(paintAllChartGlows);});
+    clearTimeout(chartGlowTimer);
+    chartGlowTimer=setTimeout(paintAllChartGlows,780);
+  }
+
   function emptyChart(message) {
     return '<div class="log-empty">'+escapeHtml(message)+'</div>';
   }
@@ -483,6 +632,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
     byId('insight-chart').innerHTML=markup;renderInsightTable(entries);
     byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+(e.value==null?'saknas':e.value);}).join('. '));
+    scheduleChartCanvasGlow();
   }
 
   function renderVolume() {
@@ -501,6 +651,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     chart.setAttribute('aria-label','Passvolym per träningsgrupp. '+series.map(function(group){
       return group.name+': '+group.entries.map(function(entry){return logDate(entry.date)+' '+Math.round(entry.value)+' kg';}).join(', ');
     }).join('. '));
+    scheduleChartCanvasGlow();
   }
 
   function exerciseResult(raw) {
@@ -602,6 +753,8 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     });
     window.addEventListener('firebase-sync',function(){renderAll();showToast('Träningsdata uppdaterad');});
     var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){renderActivity();renderInsight();renderVolume();},180);});
+    if(chartGlowMq.addEventListener)chartGlowMq.addEventListener('change',scheduleChartCanvasGlow);
+    else if(chartGlowMq.addListener)chartGlowMq.addListener(scheduleChartCanvasGlow);
   }
 
   function install() {
