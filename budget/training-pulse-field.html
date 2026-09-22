@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-ambient-spill-14">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-pace-volume-15">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
   <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
-  <script defer src="training-pulse-field.js?v=20260922-ambient-spill-9"></script>
+  <script defer src="training-pulse-field.js?v=20260922-pace-volume-10"></script>
 </head>
 <body>
   <div class="field-canvas" aria-hidden="true">
@@ -224,6 +224,7 @@
       <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
         <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
         <button type="button" role="tab" data-insight="distance" aria-selected="false">Löpdistans</button>
+        <button type="button" role="tab" data-insight="pace" aria-selected="false">Snittakt</button>
         <button type="button" role="tab" data-insight="vo2" aria-selected="false">VO₂</button>
       </div>
       <div class="insight-copy">
@@ -237,6 +238,23 @@
           <tbody id="insight-table-body"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="field-section volume-section" id="exercise-volume" aria-labelledby="volume-title">
+      <div class="section-head volume-heading">
+        <div>
+          <p class="eyebrow">PASSVOLYM</p>
+          <h2 id="volume-title">Volym per övning</h2>
+        </div>
+        <p class="volume-formula">set × reps × vikt</p>
+      </div>
+      <div class="volume-exercise-tabs" id="volume-exercise-tabs" role="tablist" aria-label="Välj övning"></div>
+      <div class="volume-summary" id="volume-summary" hidden>
+        <div><span>Senast</span><strong id="volume-latest">—</strong></div>
+        <div><span>Högst</span><strong id="volume-best">—</strong></div>
+        <p id="volume-caption">Volym per pass för vald övning.</p>
+      </div>
+      <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym över tid"></div>
     </section>
 
     <section class="field-section log-section" id="training-log" aria-labelledby="log-title">

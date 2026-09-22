@@ -224,6 +224,23 @@ main{position:relative;z-index:2;display:block}
 .insight-table td{color:#cad0d6}
 .insight-table td:last-child,.insight-table th:last-child{text-align:right}
 
+.volume-heading{align-items:flex-end}
+.volume-formula{margin:0 0 5px;color:var(--field-faint);font-size:10px;letter-spacing:.8px;text-transform:uppercase}
+.volume-exercise-tabs{display:flex;gap:7px;margin:4px 0 13px;padding:2px 0 6px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.volume-exercise-tabs::-webkit-scrollbar{display:none}
+.volume-exercise-tabs button{flex:none;min-height:34px;padding:7px 12px;border:1px solid #ff9a9126;border-radius:999px;background:#ffffff03;color:#9aa4ae;cursor:pointer;font:600 10px var(--field-ui);white-space:nowrap;transition:.24s ease}
+.volume-exercise-tabs button:hover{border-color:#ff9a9142;color:#e6cbc2;background:#ff657a08}
+.volume-exercise-tabs button[aria-selected="true"]{border-color:#ff9a9162;background:radial-gradient(circle at 38% 24%,#ffd2bd16,#ff657a0d 70%,transparent);color:#ffe5d8;box-shadow:0 0 14px #ff657a18}
+.volume-summary{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:end;gap:22px;margin:3px 0 0}
+.volume-summary div{min-width:82px}
+.volume-summary span{display:block;color:var(--field-faint);font-size:9px;letter-spacing:.8px;text-transform:uppercase}
+.volume-summary strong{display:block;margin-top:3px;color:#f2e5df;font:500 24px/1 var(--field-serif);font-variant-numeric:tabular-nums}
+.volume-summary p{margin:0;color:var(--field-muted);font-size:11px;text-align:right}
+.volume-chart{height:248px;margin-top:8px}
+.volume-chart .line-glow{stroke-width:2.4}
+.volume-chart .last-label{font-size:9px}
+.volume-empty{padding:22px 0;border-top:1px solid var(--field-line);color:var(--field-muted);font-size:12px}
+
 .section-lead{max-width:520px;margin:-6px 0 16px;color:var(--field-muted);font-size:12px}
 .log-timeline{position:relative;display:grid;gap:2px}
 .log-timeline::before{content:"";position:absolute;left:18px;top:22px;bottom:22px;width:1px;background:linear-gradient(transparent,#ff9a9145 12%,#ff9a9125 88%,transparent)}
@@ -365,9 +382,18 @@ main{position:relative;z-index:2;display:block}
   .activity-summary strong{font-size:44px}
   .luminous-chart{height:168px;margin-top:4px}
   .insight-mode{align-self:flex-end}
+  .insight-tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none}
+  .insight-tabs::-webkit-scrollbar{display:none}
+  .insight-tabs button{flex:none}
   .insight-copy{display:block}
   .insight-copy p{margin-top:5px;text-align:left}
   .insight-chart{height:244px;margin-top:9px}
+  .volume-heading{display:block}
+  .volume-formula{margin-top:5px}
+  .volume-exercise-tabs{margin-top:0}
+  .volume-summary{grid-template-columns:auto auto;gap:14px}
+  .volume-summary p{grid-column:1/-1;text-align:left}
+  .volume-chart{height:232px;margin-top:5px}
   .log-card{margin-left:36px}
   .log-timeline::before{left:8px}
   .log-card::before{left:-32px}

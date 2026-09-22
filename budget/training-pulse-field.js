@@ -14,6 +14,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     activityMetric: 'minutes',
     insight: 'heart',
     insightMode: 'chart',
+    volumeExercise: null,
     openLogId: null,
     logTouched: false
   };
@@ -293,11 +294,44 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function distanceData() {
     return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
   }
+  function paceData() {
+    return distanceData().filter(function(entry){return entry.pace>0;}).map(function(entry){
+      return {date:entry.date,value:entry.pace,distance:entry.value,time:entry.time,type:entry.type};
+    });
+  }
   function vo2Data() {
     var map={};
     (data.vo2||[]).forEach(function(entry){var value=number(entry.score||entry.value||entry.vo2);if(entry.date&&value)map[entry.date]={date:entry.date,value:value,type:'VO₂-logg'};});
     data.workouts.forEach(function(w){var value=number(w.vo2);if(w.date&&value)map[w.date]={date:w.date,value:value,type:workoutType(w)};});
     return Object.keys(map).sort().map(function(key){return map[key];}).slice(-14);
+  }
+  function exerciseVolumeCatalog() {
+    var map={};
+    data.workouts.forEach(function(workout){
+      (workout.exercises||[]).forEach(function(raw){
+        var ex=normalizeExercise(raw),volume=ex.sets*ex.reps*ex.weight;
+        if(ex.kind!=='strength'||!ex.name.trim()||!(volume>0))return;
+        var key=ex.name.trim().toLocaleLowerCase('sv-SE');
+        if(!map[key])map[key]={key:key,name:ex.name.trim(),count:0,lastDate:''};
+        map[key].count+=1;
+        if(String(workout.date)>map[key].lastDate)map[key].lastDate=String(workout.date);
+      });
+    });
+    return Object.keys(map).map(function(key){return map[key];}).sort(function(a,b){
+      return b.count-a.count||String(b.lastDate).localeCompare(String(a.lastDate))||a.name.localeCompare(b.name,'sv');
+    });
+  }
+  function exerciseVolumeData(key) {
+    return data.workouts.slice().sort(function(a,b){
+      return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);
+    }).map(function(workout){
+      var volume=(workout.exercises||[]).reduce(function(sum,raw){
+        var ex=normalizeExercise(raw);
+        var exKey=ex.name.trim().toLocaleLowerCase('sv-SE');
+        return sum+(ex.kind==='strength'&&exKey===key?ex.sets*ex.reps*ex.weight:0);
+      },0);
+      return volume>0?{date:workout.date,value:volume,type:workoutType(workout)}:null;
+    }).filter(Boolean).slice(-14);
   }
   function seriesPath(points) {
     if(!points.length)return'';
@@ -314,19 +348,25 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function lineChart(entries,options) {
     if(!entries.length)return emptyChart(options.empty);
-    var width=clamp(byId('insight-chart').clientWidth||820,320,820),height=clamp(byId('insight-chart').clientHeight||276,230,290),left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
-    if(min===max){min=Math.max(0,min-1);max+=1;}
-    var pad=(max-min)*.14;min=Math.max(options.floor||0,min-pad);max+=pad;
+    var container=byId(options.containerId||'insight-chart');
+    var width=clamp(container.clientWidth||820,320,820),height=clamp(container.clientHeight||276,230,290),left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
+    if(min===max){var samePad=Math.max(Math.abs(min)*.04,1);min=Math.max(options.floor||0,min-samePad);max+=samePad;}
+    var range=Math.max(.0001,max-min),pad=range*.14;
+    if(options.min==null)min=Math.max(options.floor||0,min-pad);
+    if(options.max==null)max+=pad;
     function x(index){return left+(entries.length===1?(width-left-right)/2:index*(width-left-right)/(entries.length-1));}
-    function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
+    function y(value){return options.reverse?top+(value-min)*(height-top-bottom)/(max-min):top+(max-value)*(height-top-bottom)/(max-min);}
+    function valueLabel(value){return options.formatter?options.formatter(value):formatNumber(value,options.decimals)+(options.suffix||'');}
+    function axisLabel(value){return options.axisFormatter?options.axisFormatter(value):formatNumber(value,options.decimals);}
     var points=entries.map(function(entry,index){return [x(index),y(entry.value)];}),path=seriesPath(points);
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><linearGradient id="insight-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
-    [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(value,options.decimals)+'</text>';});
+    var gradientId=options.gradientId||'insight-fill';
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><linearGradient id="'+gradientId+'" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
+    [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+escapeHtml(axisLabel(value))+'</text>';});
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'" stroke="#ffffff35" stroke-dasharray="3 7"/><text class="chart-axis-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
-    svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#insight-fill)"/><path class="line-glow" d="'+path+'" style="color:'+options.color+'" stroke="'+options.color+'"/>';
+    svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/><path class="line-glow" d="'+path+'" style="color:'+options.color+'" stroke="'+options.color+'"/>';
     points.forEach(function(point,index){if(index===points.length-1)svg+='<circle class="last-point" cx="'+point[0]+'" cy="'+point[1]+'" r="5" fill="'+options.color+'" style="color:'+options.color+'"/>';});
     var last=entries[entries.length-1],lastPoint=points[points.length-1],labelX=clamp(lastPoint[0],left+35,width-right-2),anchor=labelX>width-120?'end':'start';
-    svg+='<text class="last-label" x="'+labelX+'" y="'+clamp(lastPoint[1]-14,top+10,height-bottom-10)+'" text-anchor="'+anchor+'" fill="'+options.color+'">'+formatNumber(last.value,options.decimals)+(options.suffix||'')+'</text>';
+    svg+='<text class="last-label" x="'+labelX+'" y="'+clamp(lastPoint[1]-14,top+10,height-bottom-10)+'" text-anchor="'+anchor+'" fill="'+options.color+'">'+escapeHtml(valueLabel(last.value))+'</text>';
     var indexes=entries.length<4?entries.map(function(_,i){return i;}):[0,Math.floor((entries.length-1)/2),entries.length-1];
     indexes.forEach(function(index){svg+='<text class="chart-axis-label" x="'+x(index)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(entries[index].date)+'</text>';});
     return svg+'</svg>';
@@ -384,6 +424,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       headers=['Datum','Pass','Medel','Intervall'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,e.value!=null?Math.round(e.value)+' bpm':'—',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max):'—'];});
     }else if(state.insight==='distance'){
       headers=['Datum','Pass','Distans','Snittakt'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,2)+' km',formatPace(e.pace)];});
+    }else if(state.insight==='pace'){
+      headers=['Datum','Pass','Snittakt','Distans'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatPace(e.value),formatNumber(e.distance,2)+' km'];});
     }else{
       headers=['Datum','Källa','VO₂'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,1)+' ml/kg/min'];});
     }
@@ -398,13 +440,40 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       entries=heartData();name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
     }else if(state.insight==='distance'){
       entries=distanceData();name='Löpdistans över tid';description='Distanskurvan och ditt mål hålls tydligt åtskilda.';markup=lineChart(entries,{color:'#ff8f8b',goal:number(data.goals.runDistanceGoal)||10,decimals:1,suffix:' km',empty:'Distanskurvan visas när löpning har loggats.'});
+    }else if(state.insight==='pace'){
+      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
     }else{
-      entries=vo2Data();name='VO₂ över tid';description='Syreupptagets utveckling med senaste mätningen tydligt förankrad.';markup=lineChart(entries,{color:'#65d7a5',goal:number(data.goals.vo2Goal)||45,min:40,max:55,floor:40,decimals:1,empty:'VO₂-kurvan visas när ett värde har loggats.'});
+      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
     }
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
     byId('insight-chart').innerHTML=markup;renderInsightTable(entries);
     byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+(e.value==null?'saknas':e.value);}).join('. '));
+  }
+
+  function renderVolume() {
+    var tabs=byId('volume-exercise-tabs'),chart=byId('volume-chart'),summary=byId('volume-summary'),catalog=exerciseVolumeCatalog();
+    if(!catalog.length){
+      state.volumeExercise=null;
+      tabs.innerHTML='';
+      summary.hidden=true;
+      chart.innerHTML='<div class="volume-empty">Passvolym visas när en styrkeövning med set, reps och vikt har loggats.</div>';
+      chart.setAttribute('aria-label','Ingen passvolym att visa ännu.');
+      return;
+    }
+    if(!state.volumeExercise||!catalog.some(function(item){return item.key===state.volumeExercise;}))state.volumeExercise=catalog[0].key;
+    tabs.innerHTML=catalog.map(function(item){
+      var selected=item.key===state.volumeExercise;
+      return '<button type="button" role="tab" data-volume-exercise="'+encodeURIComponent(item.key)+'" aria-selected="'+selected+'">'+escapeHtml(item.name)+'</button>';
+    }).join('');
+    var selected=catalog.find(function(item){return item.key===state.volumeExercise;})||catalog[0];
+    var entries=exerciseVolumeData(selected.key),latest=entries.length?entries[entries.length-1].value:0,best=entries.length?Math.max.apply(Math,entries.map(function(entry){return entry.value;})):0;
+    summary.hidden=false;
+    byId('volume-latest').textContent=latest?formatNumber(Math.round(latest),0)+' kg':'—';
+    byId('volume-best').textContent=best?formatNumber(Math.round(best),0)+' kg':'—';
+    byId('volume-caption').textContent=entries.length+' loggade pass · '+selected.name;
+    chart.innerHTML=lineChart(entries,{containerId:'volume-chart',gradientId:'volume-fill',color:'#ff9a91',decimals:0,suffix:' kg',empty:'Ingen volymhistorik för '+selected.name+'.'});
+    chart.setAttribute('aria-label','Passvolym för '+selected.name+'. '+entries.map(function(entry){return logDate(entry.date)+': '+Math.round(entry.value)+' kg';}).join('. '));
   }
 
   function exerciseResult(raw) {
@@ -473,7 +542,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderAll() {
-    loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderLog();renderRecords();
+    loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderVolume();renderLog();renderRecords();
   }
   function showToast(message) {
     var toast=byId('field-toast');toast.textContent=message;toast.classList.add('is-visible');clearTimeout(showToast.timer);showToast.timer=setTimeout(function(){toast.classList.remove('is-visible');},2600);
@@ -503,9 +572,10 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
       var insight=event.target.closest('[data-insight]');if(insight){state.insight=insight.dataset.insight;renderInsight();return;}
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
+      var volumeExercise=event.target.closest('[data-volume-exercise]');if(volumeExercise){state.volumeExercise=decodeURIComponent(volumeExercise.dataset.volumeExercise);renderVolume();return;}
     });
     window.addEventListener('firebase-sync',function(){renderAll();showToast('Träningsdata uppdaterad');});
-    var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){renderActivity();renderInsight();},180);});
+    var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){renderActivity();renderInsight();renderVolume();},180);});
   }
 
   function install() {
