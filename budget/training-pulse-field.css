@@ -157,7 +157,7 @@ main{display:block}
 .chart-axis-label{fill:#8b949e;font:10px var(--field-ui)}
 .activity-bar,.activity-bar-glow-near,.activity-bar-glow-wide{transform-box:fill-box;transform-origin:center bottom;animation:barRise .72s cubic-bezier(.2,.8,.2,1) backwards}
 .activity-bar-glow-near,.activity-bar-glow-wide{pointer-events:none}
-.activity-bar-glow-near{opacity:.82}
+.activity-bar-glow-near{opacity:1}
 .activity-bar-glow-wide{opacity:.5}
 .activity-bar{filter:none}
 .activity-zero{stroke:#8d98a333;stroke-width:2;stroke-linecap:round}
