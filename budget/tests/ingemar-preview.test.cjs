@@ -82,6 +82,15 @@ test('workout builder provides independently editable set weights, reps and minu
  assert.doesNotMatch(source[1],/var pointWidth=g\.innerW\/count/);
 });
 test('preview includes an isolated training log and interactive Zen modes',()=>{
+ assert.match(html,/class="zen-flow-visual training-flow-visual"/);
+ assert.match(html,/id="training-flow-gradient"/);
+ assert.match(html,/id="training-flow-glow"/);
+ assert.match(html,/class="zen-flow-trace"[^>]*stroke="url\(#training-flow-gradient\)"/);
+ assert.match(html,/id="orbit-kind"/);
+ assert.match(html,/id="orbit-summary"/);
+ assert.doesNotMatch(html,/class="orbit"|class="orbit-inner"|class="orbit-dot"/);
+ assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{[\s\S]*?--zen-accent:#ff4f6d/);
+ assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/@keyframes zenFlowSweep/);
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
  for(const type of ['Push','Pull','Kondition'])assert.match(html,new RegExp('data-choice="'+type+'"'));
  assert.match(source[1],/zenHistory/);
@@ -147,8 +156,8 @@ test('push/pull analytics track load, balance and exercise progression from demo
 test('independent editable set rail and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const pulse=fs.readFileSync(path.join(root,'ingemar-pulse-original.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260921-zen-session-9/);
- assert.match(html,/ingemar-pulse-original\.css\?v=20260922-red-live-flow-3/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260922-training-flow-10/);
+ assert.match(html,/ingemar-pulse-original\.css\?v=20260921-smooth-timers-2/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);
  assert.match(css,/@media\(max-width:900px\)/);
  assert.match(css,/@media\(max-width:360px\)/);
@@ -163,13 +172,6 @@ test('independent editable set rail and Zen remain mobile friendly',()=>{
  assert.match(source[1],/function startSessionAnimation\(\)/);
  assert.match(source[1],/function stopSessionAnimation\(\)/);
  assert.match(source[1],/requestAnimationFrame\(sessionAnimationTick\)/);
- assert.match(html,/id="session-live-flow"[^>]*data-flow-state="ready"/);
- assert.match(html,/id="session-flow-pulse"/);
- assert.match(source[1],/function paintSessionLiveFlow\(now\)/);
- assert.match(source[1],/paintSessionLiveFlow\(now\)/);
- assert.match(pulse,/#session-modal \.session-live-flow\{[^}]*grid-template-columns:1fr minmax\(86px,31%\) 1fr/);
- assert.match(pulse,/--training-flow:#ff4f6d/);
- assert.doesNotMatch(source[1],/setInterval\([^\n]*session-live-flow|setInterval\([^\n]*session-flow-pulse/);
  assert.doesNotMatch(source[1],/sessionRingTick|sessionRingLastFrame|setInterval\(function\(\)\{if\(active\)updateSessionClock/);
  assert.match(html,/id="session-countdown-ring"/);
  assert.match(html,/id="session-live-timer"/);

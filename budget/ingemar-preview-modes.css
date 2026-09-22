@@ -222,6 +222,17 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-theme-primary:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 15px 40px rgba(var(--zen-accent-rgb),.19),inset 0 1px 0 #ffffff55}
 .zen-dashboard-note{color:#8e9992;font-size:10px;letter-spacing:.045em}
 
+.training-flow-visual{
+  --zen-accent:#ff4f6d;
+  --zen-accent-rgb:255,79,109;
+  --zen-soft:#ffd4dc;
+  --zen-faint:#ff4f6d24;
+  --zen-border:#ff4f6d46;
+  --zen-ink:#ffe7ec;
+}
+.training-flow-visual .zen-flow-core strong{color:#fff2f5;text-shadow:0 0 25px rgba(255,79,109,.16)}
+.training-flow-visual .zen-flow-core span{color:#c8a9b1}
+
 .zen-flow-visual{
   position:relative;
   height:354px;

@@ -50,7 +50,26 @@ jobs:
                 let seen=0;function frame(){seen++;if(seen>=count)resolve();else requestAnimationFrame(frame);}requestAnimationFrame(frame);
               }),count);
             }
+            async function auditTrainingFlowHome(){
+              for(const width of [320,390,430,768,1440]){
+                await page.setViewportSize({width,height:width===1440?960:844});
+                const visual=await page.locator('.training-flow-visual').evaluate(el=>{
+                  const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:innerWidth,height:r.height};
+                });
+                assert.ok(visual.left>=-1&&visual.right<=visual.width+1&&visual.height>150,
+                  'Training animated hero must fit viewport '+width+'px: '+JSON.stringify(visual));
+              }
+              await page.setViewportSize({width:390,height:844});
+            }
             assert.equal(await page.title(),'Ingemars träning · Förhandsvisning');
+            assert.equal(await page.locator('.training-flow-visual').count(),1);
+            assert.equal(await page.locator('.training-flow-visual').evaluate(el=>getComputedStyle(el).color),'rgb(255, 79, 109)');
+            const trainingTrace=page.locator('.training-flow-visual .zen-flow-trace');
+            assert.match(await trainingTrace.evaluate(el=>getComputedStyle(el).animationName),/zenFlowSweep/);
+            const trainingTraceOffsets=[];
+            for(let i=0;i<5;i++){await waitAnimationFrames(4);trainingTraceOffsets.push(await trainingTrace.evaluate(el=>getComputedStyle(el).strokeDashoffset));}
+            assert.ok(new Set(trainingTraceOffsets).size>=4,'Training homepage red flow line must animate like Stretch/Meditation: '+JSON.stringify(trainingTraceOffsets));
+            await auditTrainingFlowHome();
             await page.waitForSelector('#pp-volume-chart svg');
             assert.equal(await page.locator('#pp-volume-chart .pp-line').count(),2,'Push/Pull volume chart should render two trend lines');
             assert.equal(await page.locator('#pp-volume-chart .pp-area').count(),2,'Telemetry chart should render soft area depth under both lines');
@@ -353,12 +372,6 @@ jobs:
             await page.locator('[data-action="start-from-builder"]').click();
             await page.waitForSelector('#session:not([hidden])');
             assert.equal(await page.locator('#session').getAttribute('data-kind'),'Push');
-            assert.equal(await page.locator('#session-live-flow').count(),1);
-            assert.notEqual(await page.locator('#session-live-flow').evaluate(el=>getComputedStyle(el).display),'none');
-            assert.equal(await page.locator('#session-flow-pulse').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 79, 109)');
-            const trainingFlowTransforms=[];
-            for(let i=0;i<5;i++){await waitAnimationFrames(4);trainingFlowTransforms.push(await page.locator('#session-flow-pulse').evaluate(el=>el.style.transform));}
-            assert.ok(new Set(trainingFlowTransforms).size>=4,'Red training live-flow must animate continuously on rendered frames: '+JSON.stringify(trainingFlowTransforms));
             async function saveVisibleSession(label){
               await page.locator('#finish-session').scrollIntoViewIfNeeded();
               const position=await page.locator('#finish-session').evaluate(el=>{
