@@ -43,6 +43,7 @@ jobs:
                 nebula:pick('.space-scene__nebula'),
                 mottle:pick('.space-scene__mottle'),
                 near:pick('.space-scene__drift--near'),
+                flecks:pick('.space-scene__flecks'),
                 stars:pick('.space-scene__stars')
               };
             });
@@ -83,19 +84,37 @@ jobs:
                 return {present:true,width:canvas.width,height:canvas.height,energy};
               }
               const line=document.querySelector('#insight-chart path.line-glow');
+              const start=document.querySelector('.start-orbit');
+              const startSymbol=document.querySelector('.start-field-symbol');
+              const root=document.scrollingElement||document.documentElement;
+              const offenders=Array.from(document.querySelectorAll('body *')).map(el=>({el,rect:el.getBoundingClientRect()})).filter(x=>x.rect.right>innerWidth+1||x.rect.left<-1).slice(0,12).map(x=>({tag:x.el.tagName,class:x.el.className,right:Math.round(x.rect.right),left:Math.round(x.rect.left),width:Math.round(x.rect.width)}));
               return {
                 mottleBackground:mottle?getComputedStyle(mottle).backgroundImage:'',
                 nebulaFilter:nebula?getComputedStyle(nebula).filter:'',
                 oldLayerCount:document.querySelectorAll('.chart-line-halo-wide,.chart-line-halo-near,.chart-line-core,.chart-point-halo,.activity-bar-glow-wide,.activity-bar-glow-near').length,
                 insightCanvas:canvasEnergy('#insight-chart > canvas.chart-canvas-glow'),
                 activityCanvas:canvasEnergy('#activity-chart > canvas.chart-canvas-glow'),
-                lineFilter:line?getComputedStyle(line).filter:''
+                lineFilter:line?getComputedStyle(line).filter:'',
+                startSymbol:startSymbol?startSymbol.textContent.trim():'',
+                startSvgCount:start?start.querySelectorAll('svg').length:-1,
+                startFlowAnimation:start?getComputedStyle(start,'::after').animationName:'',
+                rootScrollWidth:root.scrollWidth,
+                bodyScrollWidth:document.body.scrollWidth,
+                viewportWidth:innerWidth,
+                offenders
               };
             });
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
             assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
             assert.equal(sceneQuality.oldLayerCount,0,'Legacy visible SVG halo layers must be absent: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startSymbol,'✦','Start circle must use the Pulse Field ✦ symbol: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startSvgCount,0,'Start symbol must not contain the old ECG ring SVG: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startFlowAnimation,'startOrbitFlow','Outer start ring must use circulating flow instead of breathing: '+JSON.stringify(sceneQuality));
             if(mobile){
+              assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1,'Mobile root must not overflow horizontally: '+JSON.stringify(sceneQuality));
+              await page.evaluate(()=>window.scrollTo(140,0));
+              await page.waitForTimeout(80);
+              assert.equal(await page.evaluate(()=>window.scrollX),0,'Mobile page must not pan horizontally');
               assert.ok(sceneQuality.insightCanvas.present&&sceneQuality.insightCanvas.energy>500,'Mobile insight Canvas glow did not paint real pixels: '+JSON.stringify(sceneQuality));
               assert.ok(sceneQuality.activityCanvas.present&&sceneQuality.activityCanvas.energy>250,'Mobile activity Canvas glow did not paint real pixels: '+JSON.stringify(sceneQuality));
               assert.equal(sceneQuality.lineFilter,'none','Mobile SVG line must stay crisp above Canvas glow');
@@ -107,13 +126,17 @@ jobs:
             const before=await animationSnapshot(page);
             await page.waitForTimeout(1800);
             const after=await animationSnapshot(page);
-            ['nebula','mottle','near','stars'].forEach(key=>{
+            ['nebula','mottle','near','flecks','stars'].forEach(key=>{
               const dx=after[key].x-before[key].x,dy=after[key].y-before[key].y,distance=Math.hypot(dx,dy);
               assert.ok(distance>.55,key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance}));
             });
-            const starDistance=Math.hypot(after.stars.x-before.stars.x,after.stars.y-before.stars.y);
-            assert.ok(starDistance>2.2,'Background stars should drift noticeably faster: '+JSON.stringify({before:before.stars,after:after.stars,starDistance}));
-            assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.08,'Nebula dust layer must rotate subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
+            const starDx=after.stars.x-before.stars.x,starDy=after.stars.y-before.stars.y;
+            const fleckDx=after.flecks.x-before.flecks.x,fleckDy=after.flecks.y-before.flecks.y;
+            const starDistance=Math.hypot(starDx,starDy),fleckDistance=Math.hypot(fleckDx,fleckDy);
+            assert.ok(starDistance>2.2,'Background stars should drift noticeably: '+JSON.stringify({before:before.stars,after:after.stars,starDistance}));
+            const directionCos=(starDx*fleckDx+starDy*fleckDy)/(starDistance*fleckDistance);
+            assert.ok(directionCos>.995,'Large and small background stars must drift in one unified direction: '+JSON.stringify({starDx,starDy,fleckDx,fleckDy,directionCos}));
+            assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.01,'Nebula dust layer must keep rotating subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
             assert.ok(Math.abs(after.near.opacity-before.near.opacity)>.004,'Near gas layer opacity must continue changing as it drifts: '+JSON.stringify({before:before.near,after:after.near}));
 
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
