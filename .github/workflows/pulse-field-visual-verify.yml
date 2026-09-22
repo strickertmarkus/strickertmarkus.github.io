@@ -58,17 +58,29 @@ jobs:
             await page.waitForSelector('#insight-chart svg');
             await page.waitForTimeout(500);
 
-            const sceneQuality=await page.evaluate(()=>({
-              mottleBackground:getComputedStyle(document.querySelector('.space-scene__mottle')).backgroundImage,
-              nebulaFilter:getComputedStyle(document.querySelector('.space-scene__nebula')).filter,
-              wideGlow:document.querySelectorAll('#insight-chart .chart-line-halo-wide').length,
-              nearGlow:document.querySelectorAll('#insight-chart .chart-line-halo-near').length,
-              coreGlow:document.querySelectorAll('#insight-chart .chart-line-core').length,
-              wideOpacity:parseFloat(getComputedStyle(document.querySelector('#insight-chart .chart-line-halo-wide')).opacity),
-              nearOpacity:parseFloat(getComputedStyle(document.querySelector('#insight-chart .chart-line-halo-near')).opacity),
-              bodyWidth:document.body.scrollWidth,
-              viewportWidth:innerWidth
-            }));
+            fs.mkdirSync('test-results/pulse-field',{recursive:true});
+            await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
+            await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
+            await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
+
+            const sceneQuality=await page.evaluate(()=>{
+              const mottle=document.querySelector('.space-scene__mottle');
+              const nebula=document.querySelector('.space-scene__nebula');
+              const wide=document.querySelector('#insight-chart .chart-line-halo-wide');
+              const near=document.querySelector('#insight-chart .chart-line-halo-near');
+              return {
+                mottleBackground:mottle?getComputedStyle(mottle).backgroundImage:'',
+                nebulaFilter:nebula?getComputedStyle(nebula).filter:'',
+                wideGlow:document.querySelectorAll('#insight-chart .chart-line-halo-wide').length,
+                nearGlow:document.querySelectorAll('#insight-chart .chart-line-halo-near').length,
+                coreGlow:document.querySelectorAll('#insight-chart .chart-line-core').length,
+                wideOpacity:wide?parseFloat(getComputedStyle(wide).opacity):-1,
+                nearOpacity:near?parseFloat(getComputedStyle(near).opacity):-1,
+                bodyWidth:document.body.scrollWidth,
+                viewportWidth:innerWidth,
+                insightHtml:document.getElementById('insight-chart').innerHTML.slice(0,900)
+              };
+            });
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
             assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
             assert.ok(sceneQuality.wideGlow>0&&sceneQuality.nearGlow>0&&sceneQuality.coreGlow>0,'Layered chart glow is missing: '+JSON.stringify(sceneQuality));
@@ -84,10 +96,6 @@ jobs:
               assert.notEqual(after[key],before[key],key+' animation is not advancing: '+JSON.stringify({before,after}));
             });
 
-            fs.mkdirSync('test-results/pulse-field',{recursive:true});
-            await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
-            await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
-            await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
             await browser.close();
           }
