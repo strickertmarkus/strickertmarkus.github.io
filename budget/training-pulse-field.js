@@ -196,14 +196,14 @@
     }
     if(!found){
       byId('next-session-title').textContent='Välj dagens rörelse';
-      byId('next-session-date').textContent='Nästa pass';
-      byId('next-session-detail').textContent='Bygg eller välj ett upplägg';
+      byId('next-session-meta').textContent='Nästa pass · Bygg eller välj ett upplägg';
       return;
     }
     var exercises=found.plan.exercises||[],sets=exercises.reduce(function(sum,ex){return sum+number(ex.sets);},0);
+    var dateLabel=isoDate(found.date)===isoDate(today)?'I dag · '+shortDate(found.date):dayNames[(found.date.getDay()+6)%7]+' · '+shortDate(found.date);
+    var detail=exercises.length?exercises.length+' övning'+(exercises.length===1?'':'ar')+(sets?' · '+sets+' set':''):'Planerat upplägg';
     byId('next-session-title').textContent=found.plan.type||'Planerat pass';
-    byId('next-session-date').textContent=isoDate(found.date)===isoDate(today)?'I dag · '+shortDate(found.date):dayNames[(found.date.getDay()+6)%7]+' · '+shortDate(found.date);
-    byId('next-session-detail').textContent=exercises.length?exercises.length+' övning'+(exercises.length===1?'':'ar')+(sets?' · '+sets+' set':''):'Planerat upplägg';
+    byId('next-session-meta').textContent=dateLabel+' · '+detail;
     byId('next-session-link').href=profileHref('exercise.html');
   }
 
