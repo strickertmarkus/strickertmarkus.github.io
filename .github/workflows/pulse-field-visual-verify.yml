@@ -35,16 +35,17 @@ jobs:
 
           async function animationSnapshot(page){
             return page.evaluate(()=>{
-              function pick(selector){
-                const el=document.querySelector(selector),style=getComputedStyle(el),matrix=new DOMMatrix(style.transform==='none'?undefined:style.transform);
+              function read(el){
+                const style=getComputedStyle(el),matrix=new DOMMatrix(style.transform==='none'?undefined:style.transform);
                 return {transform:style.transform,x:matrix.m41,y:matrix.m42,opacity:parseFloat(style.opacity||'1'),rotation:Math.atan2(matrix.b,matrix.a)*180/Math.PI};
               }
+              function pick(selector){return read(document.querySelector(selector));}
               return {
                 nebula:pick('.space-scene__nebula'),
                 mottle:pick('.space-scene__mottle'),
                 near:pick('.space-scene__drift--near'),
                 flecks:pick('.space-scene__flecks'),
-                stars:pick('.space-scene__stars')
+                stars:Array.from(document.querySelectorAll('.space-star')).map(read)
               };
             });
           }
@@ -101,7 +102,8 @@ jobs:
                 rootScrollWidth:root.scrollWidth,
                 bodyScrollWidth:document.body.scrollWidth,
                 viewportWidth:innerWidth,
-                offenders
+                offenders,
+                starSizes:Array.from(document.querySelectorAll('.space-star__glyph')).map(el=>parseFloat(getComputedStyle(el).fontSize))
               };
             });
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
@@ -110,6 +112,7 @@ jobs:
             assert.equal(sceneQuality.startSymbol,'✦','Start circle must use the Pulse Field ✦ symbol: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSvgCount,0,'Start symbol must not contain the old ECG ring SVG: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startFlowAnimation,'startOrbitFlow','Outer start ring must use circulating flow instead of breathing: '+JSON.stringify(sceneQuality));
+            assert.ok(new Set(sceneQuality.starSizes.map(v=>Math.round(v))).size>=5,'Pulse stars must keep visibly varied sizes: '+JSON.stringify(sceneQuality.starSizes));
             if(mobile){
               assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1,'Mobile root must not overflow horizontally: '+JSON.stringify(sceneQuality));
               await page.evaluate(()=>window.scrollTo(140,0));
@@ -126,16 +129,21 @@ jobs:
             const before=await animationSnapshot(page);
             await page.waitForTimeout(1800);
             const after=await animationSnapshot(page);
-            ['nebula','mottle','near','flecks','stars'].forEach(key=>{
+            ['nebula','mottle','near','flecks'].forEach(key=>{
               const dx=after[key].x-before[key].x,dy=after[key].y-before[key].y,distance=Math.hypot(dx,dy);
               assert.ok(distance>.55,key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance}));
             });
-            const starDx=after.stars.x-before.stars.x,starDy=after.stars.y-before.stars.y;
-            const fleckDx=after.flecks.x-before.flecks.x,fleckDy=after.flecks.y-before.flecks.y;
-            const starDistance=Math.hypot(starDx,starDy),fleckDistance=Math.hypot(fleckDx,fleckDy);
-            assert.ok(starDistance>2.2,'Background stars should drift noticeably: '+JSON.stringify({before:before.stars,after:after.stars,starDistance}));
-            const directionCos=(starDx*fleckDx+starDy*fleckDy)/(starDistance*fleckDistance);
-            assert.ok(directionCos>.995,'Large and small background stars must drift in one unified direction: '+JSON.stringify({starDx,starDy,fleckDx,fleckDy,directionCos}));
+            assert.equal(before.stars.length,10,'Expected ten independent pulse stars');
+            const starVectors=after.stars.map((star,i)=>{
+              const dx=star.x-before.stars[i].x,dy=star.y-before.stars[i].y;
+              return {dx,dy,distance:Math.hypot(dx,dy)};
+            });
+            const moving=starVectors.filter(v=>v.distance>.35);
+            assert.ok(moving.length>=7,'Most pulse stars should visibly drift: '+JSON.stringify(starVectors));
+            const directions=new Set(moving.map(v=>(v.dx>=0?'R':'L')+(v.dy>=0?'D':'U')));
+            assert.ok(directions.size>=3,'Pulse stars must drift in several directions, not as one field: '+JSON.stringify(starVectors));
+            const speeds=moving.map(v=>v.distance).sort((a,b)=>a-b);
+            assert.ok(speeds[speeds.length-1]/Math.max(.01,speeds[0])>1.45,'Pulse stars must move at noticeably different speeds: '+JSON.stringify(starVectors));
             assert.ok(Math.abs(after.mottle.rotation-before.mottle.rotation)>.01,'Nebula dust layer must keep rotating subtly: '+JSON.stringify({before:before.mottle,after:after.mottle}));
             assert.ok(Math.abs(after.near.opacity-before.near.opacity)>.004,'Near gas layer opacity must continue changing as it drifts: '+JSON.stringify({before:before.near,after:after.near}));
 
