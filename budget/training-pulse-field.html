@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-pace-volume-15">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-group-volume-motion-16">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
   <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
-  <script defer src="training-pulse-field.js?v=20260922-pace-volume-10"></script>
+  <script defer src="training-pulse-field.js?v=20260922-group-volume-motion-11"></script>
 </head>
 <body>
   <div class="field-canvas" aria-hidden="true">
@@ -26,40 +26,8 @@
   <div class="space-scene" aria-hidden="true">
     <div class="space-scene__nebula"></div>
     <div class="space-scene__mottle"></div>
-    <svg class="space-scene__filaments" viewBox="0 0 1200 760" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="nebula-band" x1="0" x2="1">
-          <stop offset="0" stop-color="#ff657a" stop-opacity="0"/>
-          <stop offset=".28" stop-color="#b74f77" stop-opacity=".22"/>
-          <stop offset=".58" stop-color="#ff8b92" stop-opacity=".30"/>
-          <stop offset=".77" stop-color="#ffd2bd" stop-opacity=".16"/>
-          <stop offset="1" stop-color="#ff657a" stop-opacity="0"/>
-        </linearGradient>
-        <linearGradient id="nebula-edge" x1="0" x2="1">
-          <stop offset="0" stop-color="#ff657a" stop-opacity="0"/>
-          <stop offset=".34" stop-color="#ff9a91" stop-opacity=".30"/>
-          <stop offset=".61" stop-color="#ffe2d2" stop-opacity=".68"/>
-          <stop offset=".82" stop-color="#ff8a92" stop-opacity=".24"/>
-          <stop offset="1" stop-color="#ff657a" stop-opacity="0"/>
-        </linearGradient>
-        <linearGradient id="nebula-wisp" x1="0" x2="1">
-          <stop offset="0" stop-color="#a35d82" stop-opacity="0"/>
-          <stop offset=".45" stop-color="#d87998" stop-opacity=".24"/>
-          <stop offset=".7" stop-color="#ffb5ac" stop-opacity=".18"/>
-          <stop offset="1" stop-color="#a35d82" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <g class="nebula-filament nebula-filament--primary">
-        <path class="nebula-band" d="M-90 556 C102 498 198 395 356 384 S595 425 713 330 S934 170 1280 296"/>
-        <path class="nebula-edge" d="M-90 538 C111 476 223 370 374 365 S603 407 722 310 S956 148 1280 272"/>
-      </g>
-      <g class="nebula-filament nebula-filament--secondary">
-        <path class="nebula-band" d="M-70 684 C120 626 276 623 414 554 S659 408 814 447 S1064 526 1274 422"/>
-        <path class="nebula-edge" d="M-70 669 C129 607 284 604 427 535 S666 391 823 430 S1070 507 1274 403"/>
-      </g>
-      <path class="nebula-wisp" d="M112 196 C267 145 350 213 459 185 S653 82 812 140 S1031 230 1192 143"/>
-      <path class="nebula-wisp nebula-wisp--lower" d="M20 624 C214 579 304 468 481 487 S740 603 909 516 S1096 379 1232 397"/>
-    </svg>
+    <div class="space-scene__drift space-scene__drift--far"></div>
+    <div class="space-scene__drift space-scene__drift--near"></div>
     <div class="space-scene__shade"></div>
     <div class="space-scene__flecks"></div>
     <div class="space-scene__stars">
@@ -244,17 +212,13 @@
       <div class="section-head volume-heading">
         <div>
           <p class="eyebrow">PASSVOLYM</p>
-          <h2 id="volume-title">Volym per övning</h2>
+          <h2 id="volume-title">Volym per träningsgrupp</h2>
         </div>
-        <p class="volume-formula">set × reps × vikt</p>
+        <p class="volume-formula">summa set × reps × vikt</p>
       </div>
-      <div class="volume-exercise-tabs" id="volume-exercise-tabs" role="tablist" aria-label="Välj övning"></div>
-      <div class="volume-summary" id="volume-summary" hidden>
-        <div><span>Senast</span><strong id="volume-latest">—</strong></div>
-        <div><span>Högst</span><strong id="volume-best">—</strong></div>
-        <p id="volume-caption">Volym per pass för vald övning.</p>
-      </div>
-      <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym över tid"></div>
+      <p class="volume-lead">Varje linje följer den totala styrkevolymen för en träningsgrupp över tid.</p>
+      <div class="volume-legend" id="volume-legend" aria-label="Träningsgrupper"></div>
+      <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym per träningsgrupp över tid"></div>
     </section>
 
     <section class="field-section log-section" id="training-log" aria-labelledby="log-title">
