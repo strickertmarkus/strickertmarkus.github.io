@@ -273,7 +273,7 @@
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=240,left=40,right=14,top=20,bottom=37,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24);
+    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||222,190,240),left=40,right=14,top=20,bottom=37,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24);
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0e5"/><stop offset=".25" stop-color="#ff9a91"/><stop offset="1" stop-color="#ff657a" stop-opacity=".18"/></linearGradient><filter id="bar-glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
@@ -314,7 +314,7 @@
   }
   function lineChart(entries,options) {
     if(!entries.length)return emptyChart(options.empty);
-    var width=clamp(byId('insight-chart').clientWidth||820,320,820),height=290,left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
+    var width=clamp(byId('insight-chart').clientWidth||820,320,820),height=clamp(byId('insight-chart').clientHeight||276,230,290),left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
     if(min===max){min=Math.max(0,min-1);max+=1;}
     var pad=(max-min)*.14;min=Math.max(options.floor||0,min-pad);max+=pad;
     function x(index){return left+(entries.length===1?(width-left-right)/2:index*(width-left-right)/(entries.length-1));}
@@ -334,7 +334,7 @@
   function heartChart(entries) {
     var valid=entries.filter(function(entry){return entry.value!=null&&entry.value>0;});
     if(!valid.length)return emptyChart('Pulskurvan visas när ett pass med puls är loggat.');
-    var width=clamp(byId('insight-chart').clientWidth||820,320,820),height=290,left=47,right=34,top=32,bottom=37;
+    var width=clamp(byId('insight-chart').clientWidth||820,320,820),height=clamp(byId('insight-chart').clientHeight||276,230,290),left=47,right=34,top=32,bottom=37;
     var min=Math.max(0,Math.min.apply(Math,valid.map(function(e){return e.min||e.value;}))-15);
     var max=Math.max.apply(Math,valid.map(function(e){return e.max||e.value;}))+15;
     min=Math.floor(min/10)*10;max=Math.ceil(max/10)*10;
