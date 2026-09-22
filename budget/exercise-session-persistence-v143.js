@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseSessionPersistenceV143Installed) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionPersistenceV143Installed) return;
   window.__exerciseSessionPersistenceV143Installed = true;
   var repairTimer = null;
   var wrapperTimer = null;

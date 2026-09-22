@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  if(!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exercisePulseFlowProgressMarkerV98Installed) return;
+  if(!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowProgressMarkerV98Installed) return;
   window.__exercisePulseFlowProgressMarkerV98Installed=true;
 
   var LIVE='pf-ex-runtime-current-v98';

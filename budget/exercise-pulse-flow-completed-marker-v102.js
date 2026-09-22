@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  if(!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exercisePulseFlowCompletedMarkerV103Installed) return;
+  if(!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowCompletedMarkerV103Installed) return;
   window.__exercisePulseFlowCompletedMarkerV103Installed=true;
 
   var style=document.createElement('style');

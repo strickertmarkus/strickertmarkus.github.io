@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseSessionTransitionStabilityV142Installed) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseSessionTransitionStabilityV142Installed) return;
   window.__exerciseSessionTransitionStabilityV142Installed = true;
 
   var activeRest = null;

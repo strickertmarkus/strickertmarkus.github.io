@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exercisePulseFlowEcgGlowV128Installed) return;
+  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exercisePulseFlowEcgGlowV128Installed) return;
   window.__exercisePulseFlowEcgGlowV128Installed = true;
 
   var STYLE_ID = 'exercise-pulse-flow-ecg-glow-v128-style';

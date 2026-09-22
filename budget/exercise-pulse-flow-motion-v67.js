@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  if(!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
+  if(!/\/exercise\.html$/i.test(window.location.pathname)) return;
   var params=new URLSearchParams(window.location.search);
   var requested=String(params.get('concept')||'').toLowerCase();
   var resolved=requested||String(window.__exerciseConceptResolved||'pulse-home').toLowerCase()||'pulse-home';
