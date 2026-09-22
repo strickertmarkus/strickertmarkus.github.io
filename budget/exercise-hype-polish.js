@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname))) return;
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (e) { return null; }

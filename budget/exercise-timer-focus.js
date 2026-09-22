@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseTimerFocusInstalled) return;
+  if (!(window.__exerciseSharedSessionHost || /\/exercise\.html$/i.test(window.location.pathname)) || window.__exerciseTimerFocusInstalled) return;
   window.__exerciseTimerFocusInstalled = true;
 
   var audioContext = null;
