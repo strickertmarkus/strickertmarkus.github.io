@@ -346,6 +346,6 @@ main{display:block}
 @media(prefers-reduced-motion:reduce){
   .field-aura,.training-glyph{filter:none!important}
   html{scroll-behavior:auto}
-  .signal-main,.orbit-ring-two,.orbit-ticks,.week-orbit-light,.activity-bar{animation:none!important}
+  .signal-main,.orbit-ring-two,.orbit-ticks,.week-orbit-light,.activity-bar,.activity-bar-glow{animation:none!important}
   *,*::before,*::after{transition-duration:.01ms!important}
 }
