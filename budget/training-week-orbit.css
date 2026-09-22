@@ -21,11 +21,11 @@ html[data-training-overview="observatory"] #pulse-home .week-orbit-toggle{
   display:grid;
   place-items:center;
   padding:0;
-  border:1px solid #f0a9c32b;
+  border:1px solid #ffad9f2b;
   border-radius:50%;
-  background:#ff78920a;
-  color:#d4b7c7;
-  box-shadow:inset 0 1px 0 #ffeaf20a,0 0 16px #ff557809;
+  background:#ffad9f0a;
+  color:#a8b0ba;
+  box-shadow:inset 0 1px 0 #fff1ea0a,0 0 16px #ff657a09;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
   transition:color .22s,border-color .22s,background .22s,box-shadow .22s,transform .22s;
@@ -33,18 +33,18 @@ html[data-training-overview="observatory"] #pulse-home .week-orbit-toggle{
 
 html[data-training-overview="observatory"] #pulse-home .week-orbit-toggle:hover,
 html[data-training-overview="observatory"] #pulse-home .week-orbit-toggle:focus-visible{
-  color:#ffe6ef;
-  border-color:#ffb0c55c;
-  background:#ff789218;
-  box-shadow:inset 0 1px 0 #ffeaf20e,0 0 22px #ff55781c;
+  color:#fff1ea;
+  border-color:#ffad9f5c;
+  background:#ffad9f18;
+  box-shadow:inset 0 1px 0 #fff1ea0e,0 0 22px #ff657a1c;
   outline:none;
 }
 
 html[data-training-overview="observatory"] #pulse-home .week-orbit-toggle[aria-expanded="true"]{
-  color:#ffd7e3;
-  border-color:#ffb8cd62;
-  background:#ff789216;
-  box-shadow:inset 0 0 12px #ffbdd00a,0 0 22px #ff55781c;
+  color:#fff1ea;
+  border-color:#fff1ea62;
+  background:#ffad9f16;
+  box-shadow:inset 0 0 12px #fff1ea0a,0 0 22px #ff657a1c;
 }
 
 html[data-training-overview="observatory"] #pulse-home .week-orbit-expand-symbol{
@@ -82,24 +82,24 @@ html[data-training-overview="observatory"] #pulse-home .week-orbit-geometry{
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-ring{
   fill:none;
-  stroke:#ff91ad2f;
+  stroke:#ffad9f2f;
   stroke-width:.55;
   vector-effect:non-scaling-stroke;
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-ring-outer{
-  stroke:#ff78964a;
-  filter:drop-shadow(0 0 4px #ff547b38);
+  stroke:#ffad9f4a;
+  filter:drop-shadow(0 0 4px #ff657a38);
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-ring-inner{
-  stroke:#d9a2d321;
+  stroke:#a8b0ba21;
   stroke-dasharray:1.5 5;
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-trace{
   fill:none;
-  stroke:#ff5d8457;
+  stroke:#ff657a57;
   stroke-width:.85;
   stroke-linecap:round;
-  filter:drop-shadow(0 0 3px #ff476a45);
+  filter:drop-shadow(0 0 3px #ff657a45);
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-trace-secondary{
   stroke:#8ad7df33;
@@ -107,13 +107,13 @@ html[data-training-overview="observatory"] #pulse-home .week-orbit-trace-seconda
 }
 html[data-training-overview="observatory"] #pulse-home .week-orbit-center-symbol{
   fill:none;
-  stroke:#ffd2df;
+  stroke:#fff1ea;
   stroke-width:1.15;
   stroke-linecap:round;
   stroke-linejoin:round;
   vector-effect:non-scaling-stroke;
   opacity:var(--week-orbit-progress,0);
-  filter:drop-shadow(0 0 3px #ffb2c8) drop-shadow(0 0 9px #ff5c8a77);
+  filter:drop-shadow(0 0 3px #ffad9f) drop-shadow(0 0 9px #ff657a77);
 }
 
 html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout{
@@ -176,13 +176,13 @@ html[data-training-overview="observatory"] #pulse-home .observatory-week #week-g
 html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .wd-name{
   font-size:11px!important;
   letter-spacing:.35px!important;
-  color:#cbb4c5!important;
+  color:#a8b0ba!important;
   line-height:1!important;
 }
 html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .wd-date{
   font-size:18px!important;
   font-weight:500!important;
-  color:#f7e3eb!important;
+  color:#fff1ea!important;
   line-height:1!important;
 }
 html[data-training-overview="observatory"] #pulse-home .observatory-week #week-grid.week-orbit-layout .wd-status{
@@ -203,7 +203,7 @@ html[data-training-overview="observatory"] #pulse-home .observatory-week[data-we
   aspect-ratio:1;
   transform:translate(-50%,-50%);
   border-radius:50%;
-  background:radial-gradient(circle,#ff55700d 0%,#ff4f7511 26%,#a31e5010 50%,transparent 72%);
+  background:radial-gradient(circle,#ff657a0d 0%,#ff657a11 26%,#ff657a10 50%,transparent 72%);
   filter:blur(13px);
   pointer-events:none;
   z-index:-1;

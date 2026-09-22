@@ -21,9 +21,9 @@ function between(text, start, end) {
 
 test('mobile Observatory summary is a readable two-column grid', () => {
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;gap:12px!important/);
+  assert.match(mobile, /observatory-metrics \.stats-row\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;gap:16px!important/);
   assert.doesNotMatch(mobile, /font-size:(?:7|8|9)px/);
-  assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*min-width:0!important;[^}]*overflow:visible!important/);
+  assert.match(mobile, /observatory-metrics \.stat-card\{[^}]*padding:4px 0!important;text-align:left/);
   assert.doesNotMatch(mobile, /observatory-metrics \.stat-card\{[^}]*border-left:/);
   assert.match(mobile, /observatory-metrics \.stat-val\{[^}]*white-space:nowrap/);
 });
@@ -36,10 +36,10 @@ test('mobile order prioritises workout and week while preserving shared Compact 
   assert.ok(stage >= 0 && metrics > stage && week > metrics && goals > week, 'Observatory top hierarchy must remain stage -> metrics -> week -> goals');
 
   const mobile = between(css, '@media(max-width:760px){', '@media(max-width:360px){');
-  assert.match(mobile, /#pulse-home>\.observatory-week\{order:2\}/);
-  assert.match(mobile, /#pulse-home>\.observatory-metrics\{order:3\}/);
-  assert.match(mobile, /observatory-field\{min-height:0/);
-  assert.match(mobile, /observatory-week\{margin:0 0 32px\}/);
+  assert.match(dashboard, /destination\.append\(activity,metrics\)/);
+  assert.match(dashboard, /metricsAnchor\.after\(metrics\)/);
+  assert.match(mobile, /observatory-field\{align-self:center/);
+  assert.match(css, /observatory-week\{margin:0 0 32px\}/);
 });
 
 test('large add-workout CTA is absent from production weekly planning while contextual editing remains', () => {
@@ -60,24 +60,24 @@ test('mobile preview cannot reintroduce the large Observatory add CTA', () => {
 test('Observatory metric card materials have one environment owner', () => {
   const base = css.slice(0, css.indexOf('@media(max-width:760px){'));
   assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border:/);
-  assert.match(read('pulse-environment/environment.css'), /#pulse-home \.stat-card\{[^}]*border:1px solid var\(--obs-line\)/);
+  assert.match(read('pulse-environment/environment.css'), /#pulse-home \.stat-card\{[^}]*border:0!important/);
   assert.doesNotMatch(base, /observatory-metrics \.stat-card\{[^}]*border-left:/);
 });
 
 test('hero atmosphere is owned by the whole Observatory stage and fades before its paint box ends', () => {
   assert.match(css, /observatory-stage::before\{[^}]*radial-gradient/);
-  assert.match(css, /observatory-stage::before\{[^}]*inset:-70px -5vw -150px/);
-  assert.match(css, /observatory-stage::before\{[^}]*-webkit-mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
-  assert.match(css, /observatory-stage::before\{[^}]*mask-image:linear-gradient\(to bottom,[^}]*transparent 100%\)/);
+  assert.match(css, /observatory-stage::before\{[^}]*inset:0 calc\(-1 \* var\(--obs-gutter\)\) -35px/);
+  assert.match(css, /observatory-stage::before\{[^}]*-webkit-mask-image:linear-gradient\(transparent,[^}]*transparent\)/);
+  assert.match(css, /observatory-stage::before\{[^}]*mask-image:linear-gradient\(transparent,[^}]*transparent\)/);
   assert.doesNotMatch(css, /observatory-scene::before\{/);
-  assert.match(css, /observatory-stage\[data-workout-kind="cardio"\]::before/);
+  assert.match(css, /observatory-stage::before\{[^}]*pointer-events:none/);
   assert.match(dashboard, /stage\.dataset\.workoutKind = kind/);
 });
 
 test('CP10 dashboard loader owns Observatory JavaScript while presentation CSS stays cache-busted', () => {
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-observatory-home-1/);
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-observatory-home-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
 });
 
 test('Observatory CSS stays structurally balanced', () => {
@@ -88,9 +88,9 @@ test('Observatory CSS stays structurally balanced', () => {
 
 
 test('CP11 Observatory atmosphere and scene SVG stay inside the viewport', () => {
-  assert.match(css, /\.observatory-stage::before\{content:'';position:absolute;inset:-70px -5vw -150px;/);
+  assert.match(css, /\.observatory-stage::before\{content:'';position:absolute;inset:0 calc\(-1 \* var\(--obs-gutter\)\) -35px;/);
   assert.doesNotMatch(css, /\.observatory-stage::before\{content:'';position:absolute;inset:-70px -10vw -150px;/);
-  assert.match(css, /\.observatory-scene svg\{[^}]*overflow:hidden/);
+  assert.match(css, /\.observatory-scene\{[^}]*overflow:hidden/);
 });
 
 

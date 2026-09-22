@@ -6,7 +6,7 @@
   if (window.__exerciseDashboardCP10Requested) return;
   window.__exerciseDashboardCP10Requested = true;
   var script = document.createElement('script');
-  script.src = 'exercise-dashboard.js?v=20260921-observatory-home-1';
+  script.src = 'exercise-dashboard.js?v=20260922-observatory-red-light-1';
   script.async = false;
   script.dataset.exerciseDashboardOwner = 'cp10';
   script.addEventListener('load', function () { window.__exerciseDashboardCP10Loaded = true; }, {once:true});

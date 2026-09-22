@@ -23,7 +23,7 @@ function chart(id, data=[48,50]) {
 }
 test('chart theme preserves metric units, readable axes and touch targets',()=>{
  const {plugin}=pluginHarness();
- for(const [id,color,unit] of [['chart-bw','#65d7a5','ml/kg/min'],['chart-sessions','#70aaff','pass']]){
+ for(const [id,color,unit] of [['chart-bw','#65d7a5','ml/kg/min'],['chart-sessions','#ff657a','pass']]){
   const c=chart(id);plugin.beforeUpdate(c);
   assert.equal(c.data.datasets[0].borderColor,color);
   assert.equal(c.options.scales.x.ticks.font.size,12);

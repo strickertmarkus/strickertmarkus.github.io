@@ -3,7 +3,7 @@
 #pulse-page #pulse-header{position:relative!important;top:auto!important;display:flex!important;align-items:center!important;width:calc(100% - 2 * var(--wellness-gutter))!important;max-width:var(--wellness-page-width)!important;height:104px!important;min-height:104px!important;margin:0 auto!important;padding:0!important;gap:16px!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:30!important}
 #pulse-page #pulse-header .brand{flex:1;min-width:0}
 #pulse-page #pulse-header .nav-dropdown-wrapper{margin-left:auto}
-.wellness-kind-switch{--wellness-accent:#ff9bb2;--wellness-accent-glow:rgba(255,98,142,.42);--wellness-muted:#a896a5;--wellness-line:rgba(255,184,208,.20);display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:end;column-gap:14px;width:calc(100% - 2 * var(--wellness-gutter));max-width:var(--wellness-page-width);margin:0 auto;padding-top:18px;border-bottom:1px solid var(--wellness-line);font-family:Inter,system-ui,sans-serif;position:relative;z-index:24}
+.wellness-kind-switch{--wellness-accent:#ff9a91;--wellness-accent-glow:rgba(255,101,122,.42);--wellness-muted:#a8b0ba;--wellness-line:rgba(255,154,145,.20);display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:end;column-gap:14px;width:calc(100% - 2 * var(--wellness-gutter));max-width:var(--wellness-page-width);margin:0 auto;padding-top:18px;border-bottom:1px solid var(--wellness-line);font-family:Inter,system-ui,sans-serif;position:relative;z-index:24}
 .wellness-kind-options{display:flex;align-items:center;gap:28px;min-width:0}
 .wellness-overview-slot{display:grid;place-items:center;width:42px;height:54px;padding-bottom:7px;justify-self:end;align-self:end}
 .wellness-kind-options button{position:relative;appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 3px 14px;border:0;border-radius:0;background:none;color:var(--wellness-muted);font:500 13px/1.25 var(--wellness-ui-font);cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:color .3s,text-shadow .3s}
@@ -33,7 +33,7 @@ html[data-wellness-mode="zen"][data-wellness-kind="meditation"] body{background:
 .wellness-zen-tools .icon-button{display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:1px solid #b2d69626;border-radius:50%;background:transparent;color:#edf4dc;font-size:27px;line-height:1}
 .wellness-zen-tools .icon-button:hover{background:#d4eea71a}
 
-#exercise-user-toggle{--profile-accent:#ff9bb2;--profile-soft:rgba(255,155,178,.12);--profile-border:rgba(255,155,178,.34);--profile-glow:rgba(255,98,142,.22);--profile-muted:#b8a7b2}
+#exercise-user-toggle{--profile-accent:#ff9a91;--profile-soft:rgba(255,154,145,.12);--profile-border:rgba(255,154,145,.34);--profile-glow:rgba(255,101,122,.22);--profile-muted:#a8b0ba}
 html[data-wellness-mode="zen"] body[data-kind="stretch"] #exercise-user-toggle{--profile-accent:#d4eea7;--profile-soft:rgba(212,238,167,.11);--profile-border:rgba(212,238,167,.32);--profile-glow:rgba(192,243,150,.20);--profile-muted:#b4c6af}
 html[data-wellness-mode="zen"] body[data-kind="meditation"] #exercise-user-toggle{--profile-accent:#244739;--profile-soft:rgba(43,100,82,.11);--profile-border:rgba(43,100,82,.28);--profile-glow:rgba(43,100,82,.15);--profile-muted:#5c716b}
 

@@ -77,5 +77,5 @@ test('CP10 gives orbit behavior one canonical dashboard owner', () => {
   assert.match(orbitShim, /ownership moved to exercise-dashboard\.js/);
   assert.doesNotMatch(orbitShim, /weekOrbitProgress|function orbitFrame/);
   assert.equal((dashboard.match(/function orbitFrame\(now\)/g) || []).length, 1);
-  assert.match(html, /training-week-orbit\.css\?v=20260919-observatory-polish-1/);
+  assert.match(html, /training-week-orbit\.css\?v=20260922-observatory-red-light-1/);
 });

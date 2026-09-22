@@ -223,9 +223,9 @@ jobs:
             }
             await page.setViewportSize({width:390,height:844});
             await page.locator('#reactor-start').click();
-            assert.equal(await page.locator('#reactor-start-notice').isVisible(),true);
+            assert.equal(await page.evaluate(()=>document.activeElement.id),'observatory-templates-title');
             assert.equal(await page.locator('#session-modal').evaluate(n=>n.classList.contains('show')),false);
-            await page.getByRole('button',{name:/Bygg ditt pass/}).click();
+            await page.getByRole('button',{name:/Bygg pass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await shot('builder-mobile');
             await page.locator('#day-workout-modal .modal-close').click();
@@ -246,14 +246,14 @@ jobs:
             assert.equal(await page.locator('#week-grid .today').getAttribute('aria-current'),'date');
             assert.equal(await page.locator('#week-grid .today.done .wd-status').isVisible(),true);
             // Template cards prepare a draft and never overwrite a saved day on selection/cancel.
-            assert.equal(await page.locator('.observatory-template-card').count(),2);
+            assert.equal(await page.locator('.observatory-template-card').count(),0);
             const savedPlan=await page.evaluate(()=>JSON.stringify(getPlannedSessions()));
             await page.evaluate(()=>{
               saveTemplates([{id:701,name:'Kontrollerat styrkepass',type:'Helkropp',exercises:[{kind:'strength',name:'Knäböj',sets:3,reps:8,weight:60}]}]);
               saveWeekTemplates([{id:702,name:'Lugn träningsvecka',days:{}}]);
               refreshAll();
             });
-            assert.equal(await page.getByRole('button',{name:/Bygg ditt pass/}).count(),1);
+            assert.equal(await page.getByRole('button',{name:/Bygg pass/}).count(),1);
             await page.getByRole('button',{name:/Kontrollerat styrkepass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await page.waitForTimeout(450);
@@ -283,7 +283,7 @@ jobs:
             await page.locator('[data-week-orbit-toggle]').click();
             await page.waitForFunction(()=>!document.querySelector('#week-grid').classList.contains('week-orbit-layout'),null,{timeout:5000});
             assert.equal(await page.locator('#week-grid').evaluate(n=>n.classList.contains('week-orbit-layout')),false);
-            await page.getByRole('button',{name:/Bygg ditt pass/}).click();
+            await page.getByRole('button',{name:/Bygg pass/}).click();
             await page.waitForSelector('#day-workout-modal.show');
             await shot('planned-builder-mobile');
             await page.locator('#day-workout-modal .modal-close').click();
@@ -299,7 +299,7 @@ jobs:
               const chart=Chart.getChart(document.getElementById(id));
               return {id,color:chart.data.datasets[0].borderColor,touch:chart.options.events.includes('touchstart')};
             }));
-            assert.deepEqual(charts.map(c=>c.color),['#70aaff','#65d7a5','#ef646f']);
+            assert.deepEqual(charts.map(c=>c.color),['#ff657a','#65d7a5','#ef646f']);
             assert.ok(charts.every(c=>c.touch));
             await page.locator('#chart-sessions').tap();
             await shot('chart-touch-mobile');
