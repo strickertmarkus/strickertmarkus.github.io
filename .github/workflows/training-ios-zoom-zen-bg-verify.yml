@@ -306,6 +306,7 @@ jobs:
             assert.ok(await record.count(),'saved strength record must render');
             await record.locator('summary').click();
             assert.equal(await record.evaluate(n=>n.open),true);
+            await page.waitForFunction(()=>getComputedStyle(document.querySelector('#pr-grid')).opacity==='1');
             await page.locator('#pulse-records').screenshot({path:'test-results/observatory/records-mobile.png'});
             const charts=await page.evaluate(()=>['chart-sessions','chart-bw','chart-hr-combined'].map(id=>{
               const chart=Chart.getChart(document.getElementById(id));

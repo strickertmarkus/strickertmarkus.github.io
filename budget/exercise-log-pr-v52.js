@@ -198,7 +198,8 @@
     if(!force&&signature===lastSignature&&grid.querySelector('.records-log-table-v52')) return;
     lastSignature=signature;
     ensureHeader();
-    grid.className='pr-grid fade-in records-log-wrap-v52'+(sectionCollapsed?' records-section-collapsed-v52':'');
+    grid.classList.add('records-log-wrap-v52');
+    grid.classList.toggle('records-section-collapsed-v52',sectionCollapsed);
     if(observatory && !sections.length){grid.innerHTML='<div class="records-log-table-v52"><p class="record-empty">Inga registrerade styrkerekord ännu.</p></div>';return;}
     grid.innerHTML='<div class="records-log-table-v52"><div class="records-columns-v52"><span>Övning</span><span>Max</span>'+(observatory?'':'<span>Utveckling</span>')+'</div>'
       +sections.map(function(section){return renderGroup(section,map);}).join('')+'</div>';
