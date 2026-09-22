@@ -213,7 +213,7 @@ jobs:
               const graphs=await page.locator('#pulse-home .goal-card,#pulse-home .chart-card').evaluateAll(nodes=>nodes.map(n=>{const s=getComputedStyle(n);return {border:s.borderTopWidth,shadow:s.boxShadow,background:s.backgroundColor}}));
               assert.ok(graphs.length>0);
               assert.ok(graphs.every(g=>g.border==='0px'&&g.shadow==='none'&&g.background==='rgba(0, 0, 0, 0)'),label+' graphs must remain unboxed: '+JSON.stringify(graphs));
-              if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.weekTop<result.metricsTop,label+' week must precede metrics')}
+              if(result.width<=760){assert.equal(result.columns,2);assert.ok(result.metricsTop<result.weekTop,label+' summary must precede week')}
             }
             for(const width of [320,390,1440]){
               await page.setViewportSize({width,height:width>760?1000:844});
@@ -295,6 +295,12 @@ jobs:
             await page.locator('#log-body .log-main-row').first().click();
             await page.waitForTimeout(400);
             await shot('expanded-log-mobile');
+            await page.locator('.records-master-toggle-v52').click();
+            const record=page.locator('details.record-row-v52').first();
+            assert.ok(await record.count(),'saved strength record must render');
+            await record.locator('summary').click();
+            assert.equal(await record.evaluate(n=>n.open),true);
+            await page.locator('#pulse-records').screenshot({path:'test-results/observatory/records-mobile.png'});
             const charts=await page.evaluate(()=>['chart-sessions','chart-bw','chart-hr-combined'].map(id=>{
               const chart=Chart.getChart(document.getElementById(id));
               return {id,color:chart.data.datasets[0].borderColor,touch:chart.options.events.includes('touchstart')};
@@ -337,7 +343,7 @@ jobs:
               for(const view of ['week','history']){
                 await page.locator('[data-activity-view="'+view+'"]').click();
                 await page.locator('[data-activity-metric="minutes"]').click();
-                await page.waitForTimeout(400);
+                await page.waitForTimeout(1400);
                 assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'activity page overflow');
                 await page.locator('#activity-chart').screenshot({path:'test-results/observatory/activity-'+view+'-'+width+'.png'});
               }
@@ -432,7 +438,7 @@ jobs:
                   await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
                   assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
                   await page.locator('#pause-session').click();
-                  assert.equal(await page.locator('#pause-session').textContent(),'Fortsätt');
+                  await page.waitForFunction(()=>document.querySelector('#pause-session').textContent==='Fortsätt');
                   await page.locator('#leave-session').click();
                   assert.equal(await page.locator('#resume-banner').isVisible(),true);
                   await page.locator('#resume-button').click();

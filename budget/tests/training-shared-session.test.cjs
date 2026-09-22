@@ -64,9 +64,9 @@ test('CP10 dashboard owner is presentation-only and cannot own live session stat
 });
 
 test('CP10 historical dashboard entry files are non-owning compatibility loaders', () => {
-  assert.match(overviewShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
-  assert.match(orbitShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(overviewShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
+  assert.match(orbitShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
   assert.doesNotMatch(overviewShim, /function currentMode\(|function setModeWithTransition\(/);
   assert.doesNotMatch(environmentShim, /function syncReactor\(|function syncObservatoryStates\(/);
   assert.doesNotMatch(orbitShim, /weekOrbitProgress|function orbitFrame\(/);

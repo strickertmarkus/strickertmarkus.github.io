@@ -89,7 +89,8 @@
       records.before(recordsAnchor);
     }
     if (mode==='observatory') {
-      destination.append(activity,metrics);
+      destination.append(activity);
+      document.querySelector('.observatory-stage').after(metrics);
       log.after(records);
     } else {
       activityAnchor.after(activity);
@@ -130,6 +131,8 @@
     if (document.body) document.body.classList.toggle('pulse-observatory', mode === 'observatory');
     arrangeOverview(mode);
     setAssetState(mode);
+    document.querySelectorAll('.goal-history-fold').forEach(function(details){details.open=mode==='compact';});
+    if(typeof window.renderStrengthRecordsV52==='function')window.renderStrengthRecordsV52(true);
     setVisibility(mode);
     updateControl(mode);
 
@@ -270,7 +273,7 @@
       beforeUpdate:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#ff657a','#a8b0ba'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#a8b0ba'] };
+        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#ff657a','#a8b0ba'], 'chart-run-distance':['#ff9a91','#a8b0ba'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#a8b0ba'] };
         var colors = palettes[chart.canvas.id];
         chart.data.datasets.forEach(function(dataset,index) {
           var color = colors ? colors[index % colors.length] : dataset.borderColor;
@@ -279,9 +282,11 @@
           dataset.pointBackgroundColor = color;
           dataset.pointBorderColor = '#090d12';
           dataset.pointHoverBackgroundColor = '#fff1ea';
-          dataset.borderWidth = 2;
+          dataset.borderWidth = dataset.borderDash ? 1 : 2;
+          if(!dataset.borderDash){dataset.tension=.35;dataset.cubicInterpolationMode='monotone';dataset.fill=true;}
+          if(!dataset.borderDash)dataset.pointRadius=function(context){return context.dataIndex===context.dataset.data.length-1?4:0;};
           if (dataset.pointRadius !== 0) {
-            dataset.pointRadius = 2;
+
             dataset.pointHoverRadius = 4;
             dataset.pointHitRadius = 16;
           }
@@ -299,7 +304,8 @@
             scale.ticks.maxRotation = 0;
             scale.ticks.autoSkip = true;
           }
-          if (scale.grid) scale.grid.color='#ffffff09';
+          if (scale.grid) {scale.grid.color='#ffffff09';scale.grid.drawTicks=false;}
+          if(scale.ticks)scale.ticks.maxTicksLimit=4;
           if (scale.border) scale.border.color='#ffffff15';
           if (scale.title) scale.title.color='#a8b0ba';
         });
@@ -311,7 +317,7 @@
           backgroundColor:'#121820',titleColor:'#f2f3f5',bodyColor:'#c5cbd3',
           borderColor:'#ff657a55',borderWidth:1,padding:12,cornerRadius:10,titleFont:{family:'Inter',size:13},bodyFont:{family:'Inter',size:13}
         });
-        var units = {'chart-bw':'ml/kg/min','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
+        var units = {'chart-bw':'ml/kg/min','chart-run-distance':'km','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
         var unit = units[chart.canvas.id] || '';
         if (plugins && plugins.tooltip && ['chart-bw','chart-sessions'].includes(chart.canvas.id)) {
           plugins.tooltip.callbacks = Object.assign({}, plugins.tooltip.callbacks, {
@@ -329,6 +335,13 @@
         chart.canvas.setAttribute('role','img');
         chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
       },
+      beforeDatasetDraw:function(chart,args){
+        if(!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || chart.config.type!=='line')return;
+        chart.ctx.save();chart.ctx.shadowColor=chart.data.datasets[args.index].borderColor;chart.ctx.shadowBlur=10;
+      },
+      afterDatasetDraw:function(chart){
+        if(pulseOverviewActive() && chart.canvas.closest('#pulse-home') && chart.config.type==='line')chart.ctx.restore();
+      },
       afterDraw:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || !chart.chartArea) return;
@@ -336,7 +349,23 @@
           return dataset.data.some(function(value) { return value != null && Number.isFinite(Number(value)); });
         });
         if (chart.canvas.id === 'chart-sessions' && typeof window.getWorkouts === 'function') hasData = window.getWorkouts().length > 0;
-        if (hasData) return;
+        if (hasData) {
+          if(['chart-bw','chart-run-distance'].includes(chart.canvas.id) && chart.getDatasetMeta){
+            var values=chart.data.datasets[0].data,index=values.length-1;
+            var point=chart.getDatasetMeta(0).data[index];
+            var target=chart.data.datasets.find(function(d){return d.borderDash && d.data.length===1;});
+            if(target && chart.scales.y){
+              var lineY=chart.scales.y.getPixelForValue(target.data[0]),context=chart.ctx;
+              context.save();context.strokeStyle='#a8b0ba66';context.setLineDash([3,6]);context.beginPath();context.moveTo(chart.chartArea.left,lineY);context.lineTo(chart.chartArea.right,lineY);context.stroke();context.restore();
+            }
+            if(point && values[index]!=null){
+              var ctx=chart.ctx;ctx.save();ctx.font='500 12px Inter, sans-serif';ctx.textAlign='right';ctx.fillStyle=chart.data.datasets[0].borderColor;
+              var label=Number(values[index]).toLocaleString('sv-SE')+(chart.canvas.id==='chart-run-distance'?' km':'');
+              ctx.fillText(label,Math.max(chart.chartArea.left+ctx.measureText(label).width,Math.min(point.x,chart.chartArea.right)),Math.max(chart.chartArea.top+14,point.y-14));ctx.restore();
+            }
+          }
+          return;
+        }
         var area = chart.chartArea;
         chart.ctx.save();
         chart.ctx.fillStyle = '#a8b0ba';
@@ -389,6 +418,14 @@
     var total = numericNodeValue('total-cnt');
     var last = document.getElementById('last-d');
     var hasLast = !!(last && String(last.textContent || '').trim() && String(last.textContent).trim() !== '—');
+
+    var lights=document.getElementById('rhythm-lights');
+    var count=Math.max(1,Math.min(14,Math.round(weeklyGoal)));
+    var lightMarkup=Array.from({length:count},function(_,i){return '<i'+(i<weekCount?' class="is-lit"':'')+'></i>';}).join('');
+    if(lights && lights.innerHTML!==lightMarkup)lights.innerHTML=lightMarkup;
+    var copy=document.getElementById('rhythm-copy');
+    var message=weekCount>=weeklyGoal?'Veckomålet är nått. Varje extra pass är en bonus.':weekCount===0?'Din vecka börjar med ett pass.':(weeklyGoal-weekCount)+' pass kvar till veckomålet.';
+    if(copy && copy.textContent!==message)copy.textContent=message;
 
     setObservatoryState(document.querySelector('.observatory-metrics .stat-week'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-total'), total > 0 ? 'completed' : 'pending');
@@ -879,4 +916,23 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
   else install();
+})();
+
+/* Distance is its own measured trend; pace remains a separate metric. */
+window.renderObservatoryDistance=function(workouts){
+  var canvas=document.getElementById('chart-run-distance');
+  if(!canvas || document.documentElement.dataset.trainingOverview!=='observatory')return;
+  var existing=Chart.getChart(canvas);if(existing)existing.destroy();
+  var entries=workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).map(function(w){return {date:w.date,distance:workoutRunMetrics(w).distance};}).filter(function(w){return w.distance>0;}).slice(-14);
+  var goal=Number(getGoals().runDistanceGoal)||Number(document.getElementById('g2-goal').value)||10;
+  new Chart(canvas,{type:'line',data:{labels:entries.map(function(w){return fmtDate(w.date);}),datasets:[{label:'Löpdistans',data:entries.map(function(w){return w.distance;}),borderColor:'#ff9a91',fill:true},{label:'Distansmål',data:entries.map(function(){return goal;}),borderColor:'#a8b0ba',borderDash:[3,6],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+' km';}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{maxTicksLimit:4}}}}});
+};
+
+(function(){
+ document.addEventListener('keydown',function(event){
+  var row=event.target.closest('.log-main-row');
+  if(row && event.target===row && (event.key==='Enter'||event.key===' ')){event.preventDefault();row.click();}
+ });
+ var log=document.getElementById('log-body');
+ if(log){var labelRows=function(){log.querySelectorAll('.log-main-row').forEach(function(row){row.tabIndex=0;row.setAttribute('aria-label','Visa passdetaljer');});};new MutationObserver(labelRows).observe(log,{childList:true});labelRows();}
 })();
