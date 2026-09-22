@@ -447,23 +447,24 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     ctx.globalCompositeOperation='lighter';
     ctx.lineCap='round';ctx.lineJoin='round';
     ctx.lineWidth=width*chartGlowDpr;
-    ctx.strokeStyle=glowRgba(rgb,.72);
+    ctx.strokeStyle=glowRgba(rgb,.88);
     ctx.shadowColor=glowRgba(rgb,alpha);
     ctx.shadowBlur=blur*chartGlowDpr;
     ctx.stroke();
     ctx.restore();
   }
   function canvasNeonLine(ctx,points,rgb){
-    canvasNeonPass(ctx,points,rgb,1.05,20,.22);
-    canvasNeonPass(ctx,points,rgb,1.25,12,.50);
-    canvasNeonPass(ctx,points,rgb,1.55,6,.96);
+    canvasNeonPass(ctx,points,rgb,1.10,27,.34);
+    canvasNeonPass(ctx,points,rgb,1.35,17,.68);
+    canvasNeonPass(ctx,points,rgb,1.70,9,1);
+    canvasNeonPass(ctx,points,rgb,1.90,4,.98);
   }
   function canvasNeonDot(ctx,x,y,r,rgb){
-    [[20,.22,1.04],[12,.50,.92],[6,.96,.78]].forEach(function(pass){
+    [[27,.34,1.18],[17,.68,1.04],[9,1,.88],[4,.98,.76]].forEach(function(pass){
       ctx.save();
       ctx.globalCompositeOperation='lighter';
       ctx.beginPath();ctx.arc(x,y,Math.max(1,r*pass[2]*chartGlowDpr),0,Math.PI*2);
-      ctx.fillStyle=glowRgba(rgb,.55);
+      ctx.fillStyle=glowRgba(rgb,.72);
       ctx.shadowColor=glowRgba(rgb,pass[1]);
       ctx.shadowBlur=pass[0]*chartGlowDpr;
       ctx.fill();
@@ -481,7 +482,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function canvasNeonBar(ctx,rect,canvasRect,rgb){
     var x=(rect.left-canvasRect.left)*chartGlowDpr,y=(rect.top-canvasRect.top)*chartGlowDpr;
     var w=rect.width*chartGlowDpr,h=rect.height*chartGlowDpr,r=Math.min(rect.width/2,9)*chartGlowDpr;
-    [[25,.20,.12],[14,.46,.18],[7,.90,.24]].forEach(function(pass){
+    [[32,.30,.16],[20,.62,.24],[11,.96,.31],[5,1,.35]].forEach(function(pass){
       ctx.save();
       ctx.globalCompositeOperation='lighter';
       roundedGlowRect(ctx,x,y,w,h,r);
