@@ -13,7 +13,9 @@
     activityView: 'history',
     activityMetric: 'minutes',
     insight: 'heart',
-    insightMode: 'chart'
+    insightMode: 'chart',
+    openLogId: null,
+    logTouched: false
   };
   var data = {};
 
@@ -379,16 +381,36 @@
   }
   function exerciseSeconds(workout,raw,index) {
     var ex=normalizeExercise(raw);if(ex.durationSec)return ex.durationSec;
-    var timings=workout.exerciseTimings||[],timing=Array.isArray(timings)?timings[index]:null;
-    return timing&&number(timing.durationSec);
+    var timings=Array.isArray(workout.exerciseTimings)?workout.exerciseTimings:[];
+    var timing=timings.find(function(item){return item&&number(item.exerciseIndex)===index;});
+    if(!timing&&timings[index]&&timings[index].exerciseIndex==null)timing=timings[index];
+    return timing?number(timing.durationSec):0;
   }
   function renderLog() {
-    var workouts=data.workouts.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);}).slice(0,12);
-    if(!workouts.length){byId('log-timeline').innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';return;}
-    byId('log-timeline').innerHTML=workouts.map(function(workout,index){
-      var exercises=workout.exercises||[],volume=workoutVolume(workout),distance=workoutDistance(workout),kind=workoutKind(workout),detail=exercises.length+' övning'+(exercises.length===1?'':'ar')+(number(workout.duration)?' · '+number(workout.duration)+' min':'');
-      var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){var seconds=exerciseSeconds(workout,exercise,exerciseIndex);return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+formatDuration(seconds)+'</time>':'')+'</div>';}).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
-      return '<article class="log-card'+(index===0?' is-open':'')+'" data-log-card><button class="log-summary" type="button" aria-expanded="'+(index===0)+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span>'+escapeHtml(detail)+'</span></span><span class="log-result">'+escapeHtml(workoutPrimary(workout))+'</span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?number(workout.duration)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div><div class="vital pulse-vital"><span>Medelpuls</span><strong>'+(number(workout.hrAvg)?number(workout.hrAvg)+' bpm':'—')+'</strong></div></div><div class="exercise-stack">'+rows+'</div></div></article>';
+    var workouts=data.workouts.slice().sort(function(a,b){
+      return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
+    }).slice(0,12);
+    var timeline=byId('log-timeline');
+    if(!workouts.length){
+      timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
+      return;
+    }
+    if(params.get('demo')==='1'&&!state.logTouched&&state.openLogId===null) {
+      state.openLogId='field-log-'+String(workouts[0].id||workouts[0].date+'-0').replace(/[^a-zA-Z0-9_-]/g,'-');
+    }
+    timeline.innerHTML=workouts.map(function(workout,index){
+      var id='field-log-'+String(workout.id||workout.date+'-'+index).replace(/[^a-zA-Z0-9_-]/g,'-');
+      var open=state.openLogId===id;
+      var exercises=Array.isArray(workout.exercises)?workout.exercises:[],volume=workoutVolume(workout),distance=workoutDistance(workout),kind=workoutKind(workout);
+      var secondary=number(workout.duration)?formatNumber(workout.duration,0)+' min':number(workout.hrAvg)?Math.round(number(workout.hrAvg))+' bpm':'—';
+      var detail=exercises.length+' övning'+(exercises.length===1?'':'ar');
+      var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
+        var seconds=exerciseSeconds(workout,exercise,exerciseIndex);
+        return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+formatDuration(seconds)+'</time>':'')+'</div>';
+      }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
+      var pulse='<div class="log-pulse-strip" aria-label="Puls: minimum, medel och maximum"><div><span>MIN</span><strong>'+(number(workout.hrMin)?Math.round(number(workout.hrMin)):'—')+'</strong></div><div><span>MEDEL</span><strong>'+(number(workout.hrAvg)?Math.round(number(workout.hrAvg)):'—')+'</strong></div><div><span>MAX</span><strong>'+(number(workout.hrMax)?Math.round(number(workout.hrMax)):'—')+'</strong></div><span class="pulse-unit">bpm</span></div>';
+      var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
+      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+pulse+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
   }
 
@@ -427,7 +449,20 @@
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
-    document.addEventListener('click',function(event){if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);var logButton=event.target.closest('.log-summary');if(logButton){var card=logButton.closest('[data-log-card]'),open=!card.classList.contains('is-open');card.classList.toggle('is-open',open);logButton.setAttribute('aria-expanded',String(open));}});
+    document.addEventListener('click',function(event){
+      if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
+      var logButton=event.target.closest('.log-summary');
+      if(logButton){
+        var card=logButton.closest('[data-log-card]'),id=card.dataset.logId;
+        state.logTouched=true;state.openLogId=state.openLogId===id?null:id;
+        document.querySelectorAll('[data-log-card]').forEach(function(item){
+          var open=item.dataset.logId===state.openLogId;
+          item.classList.toggle('is-open',open);
+          item.querySelector('.log-summary').setAttribute('aria-expanded',String(open));
+          item.querySelector('.log-detail').hidden=!open;
+        });
+      }
+    });
     document.addEventListener('click',function(event){
       var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=shiftDate(state.weekStart,number(shift.dataset.weekShift)*7);state.selectedDate=isoDate(state.weekStart);renderWeek();if(state.activityView==='week')renderActivity();return;}
       var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();return;}
