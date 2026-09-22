@@ -35,7 +35,10 @@ jobs:
 
           async function animationSnapshot(page){
             return page.evaluate(()=>{
-              const pick=s=>getComputedStyle(document.querySelector(s)).transform;
+              function pick(selector){
+                const el=document.querySelector(selector),style=getComputedStyle(el),matrix=new DOMMatrix(style.transform==='none'?undefined:style.transform);
+                return {transform:style.transform,x:matrix.m41,y:matrix.m42,opacity:parseFloat(style.opacity||'1')};
+              }
               return {
                 nebula:pick('.space-scene__nebula'),
                 mottle:pick('.space-scene__mottle'),
@@ -60,7 +63,7 @@ jobs:
 
             await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#insight-chart svg');
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(950);
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
@@ -70,34 +73,45 @@ jobs:
             const sceneQuality=await page.evaluate(()=>{
               const mottle=document.querySelector('.space-scene__mottle');
               const nebula=document.querySelector('.space-scene__nebula');
-              const wide=document.querySelector('#insight-chart .chart-line-halo-wide');
-              const near=document.querySelector('#insight-chart .chart-line-halo-near');
+              function canvasEnergy(selector){
+                const canvas=document.querySelector(selector);
+                if(!canvas||!canvas.width||!canvas.height)return {present:false,width:0,height:0,energy:0};
+                const ctx=canvas.getContext('2d'),data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+                let energy=0;
+                const stride=Math.max(4,Math.floor((canvas.width*canvas.height)/18000))*4;
+                for(let i=3;i<data.length;i+=stride)energy+=data[i];
+                return {present:true,width:canvas.width,height:canvas.height,energy};
+              }
+              const line=document.querySelector('#insight-chart path.line-glow');
               return {
                 mottleBackground:mottle?getComputedStyle(mottle).backgroundImage:'',
                 nebulaFilter:nebula?getComputedStyle(nebula).filter:'',
-                wideGlow:document.querySelectorAll('#insight-chart .chart-line-halo-wide').length,
-                nearGlow:document.querySelectorAll('#insight-chart .chart-line-halo-near').length,
-                coreGlow:document.querySelectorAll('#insight-chart .chart-line-core').length,
-                wideOpacity:wide?parseFloat(getComputedStyle(wide).opacity):-1,
-                nearOpacity:near?parseFloat(getComputedStyle(near).opacity):-1,
-                bodyWidth:document.body.scrollWidth,
-                viewportWidth:innerWidth,
-                insightHtml:document.getElementById('insight-chart').innerHTML.slice(0,900)
+                oldLayerCount:document.querySelectorAll('.chart-line-halo-wide,.chart-line-halo-near,.chart-line-core,.chart-point-halo,.activity-bar-glow-wide,.activity-bar-glow-near').length,
+                insightCanvas:canvasEnergy('#insight-chart > canvas.chart-canvas-glow'),
+                activityCanvas:canvasEnergy('#activity-chart > canvas.chart-canvas-glow'),
+                lineFilter:line?getComputedStyle(line).filter:''
               };
             });
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
             assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
-            assert.ok(sceneQuality.wideGlow>0&&sceneQuality.nearGlow>0&&sceneQuality.coreGlow>0,'Layered chart glow is missing: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.oldLayerCount,0,'Legacy visible SVG halo layers must be absent: '+JSON.stringify(sceneQuality));
             if(mobile){
-              assert.ok(sceneQuality.wideOpacity>=.14&&sceneQuality.nearOpacity>=.33,'Mobile glow is too weak: '+JSON.stringify(sceneQuality));
+              assert.ok(sceneQuality.insightCanvas.present&&sceneQuality.insightCanvas.energy>500,'Mobile insight Canvas glow did not paint real pixels: '+JSON.stringify(sceneQuality));
+              assert.ok(sceneQuality.activityCanvas.present&&sceneQuality.activityCanvas.energy>250,'Mobile activity Canvas glow did not paint real pixels: '+JSON.stringify(sceneQuality));
+              assert.equal(sceneQuality.lineFilter,'none','Mobile SVG line must stay crisp above Canvas glow');
+            }else{
+              assert.equal(sceneQuality.insightCanvas.present,false,'Desktop should keep native SVG glow without Canvas');
+              assert.notEqual(sceneQuality.lineFilter,'none','Desktop SVG glow filter must remain active');
             }
 
             const before=await animationSnapshot(page);
-            await page.waitForTimeout(1400);
+            await page.waitForTimeout(1800);
             const after=await animationSnapshot(page);
             ['nebula','mottle','near','stars'].forEach(key=>{
-              assert.notEqual(after[key],before[key],key+' animation is not advancing: '+JSON.stringify({before,after}));
+              const dx=after[key].x-before[key].x,dy=after[key].y-before[key].y,distance=Math.hypot(dx,dy);
+              assert.ok(distance>.55,key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance}));
             });
+            assert.ok(Math.abs(after.near.opacity-before.near.opacity)>.015,'Near gas layer must visibly breathe as it drifts: '+JSON.stringify({before:before.near,after:after.near}));
 
             assert.deepEqual(errors,[],'Browser errors: '+errors.join(' | '));
             await browser.close();
