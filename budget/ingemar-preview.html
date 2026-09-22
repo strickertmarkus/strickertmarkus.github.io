@@ -1013,7 +1013,7 @@ function stopZenTimer(){
 }
 function zenAnimationTick(){
  if(!activeZen||$('zen-session').hidden||!activeZen.running){zenAnimationFrame=0;return;}
- if(!document.hidden)zenTick(Date.now());
+ zenTick(Date.now());
  if(activeZen&&activeZen.running)zenAnimationFrame=requestAnimationFrame(zenAnimationTick);else zenAnimationFrame=0;
 }
 function startZenTimer(){
