@@ -192,13 +192,15 @@
     if(sessionOpen()&&!force) return;
     var grid=document.getElementById('pr-grid'); if(!grid) return;
     var map=buildRecords();
-    var signature=JSON.stringify(SECTIONS.map(function(section){return section.items.map(function(item){var r=map[item.key];return [r.key,r.max,r.first,r.latest,r.history,r.seen];});}));
+    var observatory=document.documentElement.dataset.trainingOverview==='observatory';
+    var sections=observatory?SECTIONS.map(function(section){return {name:section.name,items:section.items.filter(function(item){return map[item.key].seen||map[item.key].max>0;})};}).filter(function(section){return section.items.length;}):SECTIONS;
+    var signature=String(observatory)+JSON.stringify(sections.map(function(section){return section.items.map(function(item){var r=map[item.key];return [r.key,r.max,r.first,r.latest,r.history,r.seen];});}));
     if(!force&&signature===lastSignature&&grid.classList.contains('records-log-wrap-v52')) return;
     lastSignature=signature;
     ensureHeader();
     grid.className='pr-grid fade-in records-log-wrap-v52'+(sectionCollapsed?' records-section-collapsed-v52':'');
     grid.innerHTML='<div class="records-log-table-v52"><div class="records-columns-v52"><span>Övning</span><span>Max</span><span>Utveckling</span></div>'
-      +SECTIONS.map(function(section){return renderGroup(section,map);}).join('')+'</div>';
+      +sections.map(function(section){return renderGroup(section,map);}).join('')+'</div>';
   }
   window.renderStrengthRecordsV52=renderStrengthRecords;
 

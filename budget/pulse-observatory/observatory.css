@@ -45,7 +45,7 @@
 #pulse-home .observatory-next-orb-label{position:relative;font-size:14px;font-weight:600;line-height:1.3;color:#ffbcad}
 #pulse-home #reactor-title{position:relative;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;max-width:136px;overflow:hidden;overflow-wrap:anywhere;text-align:center;font:500 25px/1.1 "Cormorant Garamond",Georgia,serif;color:#fff1ea}
 #pulse-home #reactor-summary{display:block;max-width:270px;color:var(--obs-muted);font:400 13px/1.5 var(--wellness-ui-font)}
-#pulse-home .observatory-templates{margin:0 0 38px;scroll-margin-top:24px}
+#pulse-home .observatory-templates{margin:32px 0 38px;scroll-margin-top:24px}
 #pulse-home .observatory-template-actions{display:flex;gap:8px;flex-wrap:wrap}
 #pulse-home #observatory-build{border-color:#ff8b8945!important;color:#ffd0c0!important;background:#ff657a0b!important}
 #pulse-home .observatory-template-hint{font-size:13px;line-height:1.5;color:var(--obs-muted);margin:-12px 0 18px}
@@ -77,12 +77,14 @@
 #pulse-home .observatory-activity #activity-chart{padding:0!important}
 #pulse-home .observatory-activity #activity-chart h3{font:500 30px/1.2 "Cormorant Garamond",Georgia,serif!important;color:var(--obs-text)!important;margin:0 0 12px}
 #pulse-home .observatory-activity .chart-area{height:195px!important}
-#pulse-home .observatory-metrics{padding:28px 0;margin:0;border-top:1px solid var(--obs-line);border-bottom:1px solid var(--obs-line);position:relative;background:radial-gradient(ellipse at 12% 25%,#ff657a0d,transparent 65%)}
+#pulse-home .observatory-metrics{padding:28px 0;margin:0;border-top:1px solid var(--obs-line);border-bottom:1px solid var(--obs-line);position:relative;background:none}
 #pulse-home .rhythm-heading{font:500 30px/1.2 "Cormorant Garamond",Georgia,serif;margin:0 0 24px}
 #pulse-home .rhythm-heading span{display:block;color:#ffb3a5;font:500 10px/1.5 Inter,sans-serif;letter-spacing:2px;margin-bottom:8px}
 #pulse-home .observatory-metrics .stats-row{display:grid!important;grid-template-columns:1.4fr repeat(3,1fr)!important;gap:24px!important}
 #pulse-home .observatory-metrics .stat-card{padding:0!important;text-align:left}
 #pulse-home .observatory-metrics .stat-val{font:500 40px/1.2 "Cormorant Garamond",Georgia,serif!important;color:#fff1ea!important;margin:7px 0!important}
+#pulse-home .observatory-metrics .stat-week{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:baseline}
+#pulse-home .observatory-metrics .stat-week .stat-label,#pulse-home .observatory-metrics .rhythm-lights{grid-column:1/-1}
 #pulse-home .observatory-metrics .stat-week .stat-val{font-size:64px!important;text-shadow:0 0 28px #ff657a55}
 #pulse-home .observatory-metrics .stat-label,#pulse-home .observatory-metrics .stat-sub{font-size:12px!important;line-height:1.5!important;color:var(--obs-muted)!important}
 #pulse-home .rhythm-lights{display:flex;gap:7px;margin:12px 0;max-width:300px}

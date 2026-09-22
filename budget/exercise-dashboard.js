@@ -131,6 +131,8 @@
     if (document.body) document.body.classList.toggle('pulse-observatory', mode === 'observatory');
     arrangeOverview(mode);
     setAssetState(mode);
+    document.querySelectorAll('.goal-history-fold').forEach(function(details){details.open=mode==='compact';});
+    if(typeof window.renderStrengthRecordsV52==='function')window.renderStrengthRecordsV52(true);
     setVisibility(mode);
     updateControl(mode);
 
@@ -282,7 +284,7 @@
           dataset.pointHoverBackgroundColor = '#fff1ea';
           dataset.borderWidth = dataset.borderDash ? 1 : 2;
           if(!dataset.borderDash){dataset.tension=.35;dataset.cubicInterpolationMode='monotone';dataset.fill=true;}
-          dataset.pointRadius=function(context){return context.dataIndex===context.dataset.data.length-1?4:0;};
+          if(!dataset.borderDash)dataset.pointRadius=function(context){return context.dataIndex===context.dataset.data.length-1?4:0;};
           if (dataset.pointRadius !== 0) {
 
             dataset.pointHoverRadius = 4;
@@ -315,7 +317,7 @@
           backgroundColor:'#121820',titleColor:'#f2f3f5',bodyColor:'#c5cbd3',
           borderColor:'#ff657a55',borderWidth:1,padding:12,cornerRadius:10,titleFont:{family:'Inter',size:13},bodyFont:{family:'Inter',size:13}
         });
-        var units = {'chart-bw':'ml/kg/min','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
+        var units = {'chart-bw':'ml/kg/min','chart-run-distance':'km','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
         var unit = units[chart.canvas.id] || '';
         if (plugins && plugins.tooltip && ['chart-bw','chart-sessions'].includes(chart.canvas.id)) {
           plugins.tooltip.callbacks = Object.assign({}, plugins.tooltip.callbacks, {
@@ -334,11 +336,11 @@
         chart.canvas.setAttribute('aria-label', summary || 'Ingen träningsdata ännu');
       },
       beforeDatasetDraw:function(chart,args){
-        if(!pulseOverviewActive() || chart.config.type!=='line')return;
+        if(!pulseOverviewActive() || !chart.canvas.closest('#pulse-home') || chart.config.type!=='line')return;
         chart.ctx.save();chart.ctx.shadowColor=chart.data.datasets[args.index].borderColor;chart.ctx.shadowBlur=10;
       },
       afterDatasetDraw:function(chart){
-        if(pulseOverviewActive() && chart.config.type==='line')chart.ctx.restore();
+        if(pulseOverviewActive() && chart.canvas.closest('#pulse-home') && chart.config.type==='line')chart.ctx.restore();
       },
       afterDraw:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
@@ -347,7 +349,17 @@
           return dataset.data.some(function(value) { return value != null && Number.isFinite(Number(value)); });
         });
         if (chart.canvas.id === 'chart-sessions' && typeof window.getWorkouts === 'function') hasData = window.getWorkouts().length > 0;
-        if (hasData) return;
+        if (hasData) {
+          if(['chart-bw','chart-run-distance'].includes(chart.canvas.id) && chart.getDatasetMeta){
+            var values=chart.data.datasets[0].data,index=values.length-1;
+            var point=chart.getDatasetMeta(0).data[index];
+            if(point && values[index]!=null){
+              var ctx=chart.ctx;ctx.save();ctx.font='500 12px Inter, sans-serif';ctx.textAlign='right';ctx.fillStyle=chart.data.datasets[0].borderColor;
+              ctx.fillText(Number(values[index]).toLocaleString('sv-SE')+(chart.canvas.id==='chart-run-distance'?' km':''),Math.min(point.x,chart.chartArea.right),Math.max(chart.chartArea.top+14,point.y-14));ctx.restore();
+            }
+          }
+          return;
+        }
         var area = chart.chartArea;
         chart.ctx.save();
         chart.ctx.fillStyle = '#a8b0ba';

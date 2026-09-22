@@ -337,7 +337,7 @@ jobs:
               for(const view of ['week','history']){
                 await page.locator('[data-activity-view="'+view+'"]').click();
                 await page.locator('[data-activity-metric="minutes"]').click();
-                await page.waitForTimeout(400);
+                await page.waitForTimeout(1400);
                 assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'activity page overflow');
                 await page.locator('#activity-chart').screenshot({path:'test-results/observatory/activity-'+view+'-'+width+'.png'});
               }
@@ -432,7 +432,7 @@ jobs:
                   await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
                   assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
                   await page.locator('#pause-session').click();
-                  assert.equal(await page.locator('#pause-session').textContent(),'Fortsätt');
+                  await page.waitForFunction(()=>document.querySelector('#pause-session').textContent==='Fortsätt');
                   await page.locator('#leave-session').click();
                   assert.equal(await page.locator('#resume-banner').isVisible(),true);
                   await page.locator('#resume-button').click();
