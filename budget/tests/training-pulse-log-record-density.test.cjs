@@ -11,7 +11,7 @@ test('Pulse records remain 3 columns with readable category headings and rows',(
  assert.match(css,/#pulse-home \.record-row-v52\{[^}]*grid-template-columns:minmax\(0,1fr\) 88px 120px!important/);
 });
 test('Pulse log cards preserve all six cells with consistent spacing',()=>{
- assert.match(css,/#pulse-home \.log-main-row\{[^}]*padding:20px;/);
+ assert.match(css,/#pulse-home \.log-main-row\{[^}]*padding:16px 0;/);
  assert.match(css,/#pulse-home \.log-del\{width:44px!important;height:44px!important/);
  assert.match(css,/#pulse-home \.log-ex-row-v7\{min-height:44px!important/);
  assert.match(html,/class="log-table"/);
@@ -20,10 +20,10 @@ test('Pulse mobile log has two rows and records retain progress',()=>{
  for(const i of [1,2,3,4,5,6]){
   assert.match(css,new RegExp('\\.log-main-row>td:nth-child\\('+i+'\\)\\{grid-column:[^}]+grid-row:[12]'));
  }
- assert.match(css,/#pulse-home \.record-row-v52\{grid-template-columns:minmax\(0,1fr\) 80px!important;min-height:64px!important/);
+ assert.match(css,/#pulse-home \.record-row-v52\{grid-template-columns:minmax\(0,1fr\) 80px!important;min-height:56px!important/);
  assert.match(css,/#pulse-home \.record-progress-v52\{grid-column:1\/-1/);
 });
 test('Pulse-only owner and cache version are updated',()=>{
  assert.match(css,/#pulse-home :is\(\.pulse-records,\.pulse-log\)>\.section-hdr\{margin-bottom:24px!important\}/);
- assert.match(html,/pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
+ assert.match(html,/pulse-environment\/environment\.css\?v=20260922-observatory-red-light-1/);
 });

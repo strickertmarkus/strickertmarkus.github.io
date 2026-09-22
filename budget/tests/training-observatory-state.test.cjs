@@ -35,35 +35,32 @@ test('current state is reserved for active context rather than partial progress'
   assert.match(dashboard, /start, start\.dataset\.planState === 'planned' \? 'current' : 'pending'/);
 });
 
-test('pending dims semantic decoration while the intentionally latent empty start orb may dim as a whole', () => {
+test('pending dims semantic decoration while the start action keeps its light', () => {
   assert.match(observatoryCss, /--obs-pending-decoration:\.5/);
   assert.match(observatoryCss, /--obs-pending-glow:0 0 0 transparent/);
   const genericPending = observatoryCss.match(/#pulse-home \[data-observatory-state="pending"\]\{[^}]*\}/);
   assert.ok(genericPending, 'generic pending semantic token rule must exist');
   assert.doesNotMatch(genericPending[0], /\bopacity:/);
   assert.match(observatoryCss, /week-day.today::after\{opacity:1/);
-  assert.match(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\],\[data-observatory-state="pending"\]\)\{[^}]*opacity:\.85/);
+  assert.doesNotMatch(observatoryCss, /observatory-next-orb:is\(\[data-plan-state="empty"\]/);
 });
 
 test('active and achieved states use bounded OLED-friendly glow tokens', () => {
-  assert.match(observatoryCss, /--obs-current-glow:0 0 24px/);
-  assert.match(observatoryCss, /--obs-completed-glow:0 0 14px/);
+  assert.match(observatoryCss, /--obs-current-glow:0 0 20px/);
+  assert.match(observatoryCss, /--obs-completed-glow:0 0 12px/);
   assert.match(observatoryCss, /--obs-achieved-glow:0 0 18px/);
 });
 
-test('cyan is reserved for Observatory identity symbols while semantic data states stay pink', () => {
-  assert.match(observatoryCss, /--obs-current-accent:#ffb8cb/);
-  assert.doesNotMatch(observatoryCss, /--obs-current-accent:#9be4e9/);
-  assert.match(observatoryCss, /observatory-header-star\{[^}]*color:#9be4e9/);
-  assert.match(observatoryCss, /observatory-kicker>\.observatory-star-glyph\{[^}]*color:#9be4e9/);
-  assert.match(observatoryCss, /observatory-next-orb \.observatory-star-glyph\{[^}]*color:#9be4e9/);
-  assert.match(observatoryCss, /data-overview-mode=\"observatory\"\] \.training-overview-option-icon\{color:#9be4e9/);
-  assert.match(environmentCss, /record-group-toggle-v52>span:first-child::before\{[^}]*color:#9be4e9/);
+test('warm identity lighting is separate from semantic data colours', () => {
+  assert.match(observatoryCss, /--obs-current-accent:#ffb3a5/);
+  assert.match(observatoryCss, /observatory-header-star\{[^}]*color:#ffe4d6/);
+  assert.match(observatoryCss, /observatory-kicker>\.observatory-star-glyph\{[^}]*color:#ffb3a5/);
+  assert.doesNotMatch(observatoryCss, /#9be4e9/);
 });
 
 test('metrics next action goals and both week geometries consume shared state tokens', () => {
-  assert.match(observatoryCss, /observatory-metrics \.stat-card\[data-observatory-state\]::after/);
-  assert.match(observatoryCss, /observatory-next-orb\[data-observatory-state\]/);
+  assert.match(environmentCss, /\.stat-card\{[^}]*background:transparent!important/);
+  assert.match(observatoryCss, /observatory-next-orb\{[^}]*box-shadow:/);
   assert.doesNotMatch(observatoryCss, /pulse-goals \.goal-card\[data-observatory-state\]::after/);
   assert.match(environmentCss, /:is\(\.goal-card,\.chart-card\)\{[^}]*border:0!important;[^}]*box-shadow:none!important;background:transparent!important/);
   assert.match(environmentCss, /progress-bar\{[^}]*var\(--obs-data-color,#70aaff\)/);
@@ -75,9 +72,9 @@ test('metrics next action goals and both week geometries consume shared state to
 });
 
 test('CP10 dashboard loader keeps current presentation CSS cache keys while JS ownership moves', () => {
-  assert.match(html, /pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-observatory-home-1/);
-  assert.match(html, /training-week-orbit\.css\?v=20260919-observatory-polish-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-observatory-home-1/);
+  assert.match(html, /pulse-environment\/environment\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(html, /training-week-orbit\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
   assert.doesNotMatch(environmentShim, /function syncObservatoryStates/);
 });

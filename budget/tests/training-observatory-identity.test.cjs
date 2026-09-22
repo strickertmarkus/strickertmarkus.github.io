@@ -17,8 +17,8 @@ const authConfig = read('auth-config.js');
 const authGate = read('auth-gate.js');
 const starPath = 'M12 1.8C13.3 7.15 16.85 10.7 22.2 12C16.85 13.3 13.3 16.85 12 22.2C10.7 16.85 7.15 13.3 1.8 12C7.15 10.7 10.7 7.15 12 1.8Z';
 
-test('one native Observatory star geometry owns kicker, sticky header identity, next cue and weekly orbit centre', () => {
-  assert.equal((html.match(new RegExp(starPath, 'g')) || []).length, 4);
+test('one native Observatory star geometry owns kicker, sticky header identity, and weekly orbit centre', () => {
+  assert.equal((html.match(new RegExp(starPath, 'g')) || []).length, 3);
   assert.match(html, /week-orbit-center-symbol/);
   assert.match(html, /observatory-only observatory-brand-lockup[^>]*>PULSE[\s\S]*observatory-header-star/);
   assert.match(html, /observatory-kicker[^>]*><svg class="observatory-star-glyph"/);
@@ -28,8 +28,8 @@ test('one native Observatory star geometry owns kicker, sticky header identity, 
 
 test('identity is quiet and ambient motion uses one shared visibility scheduler', () => {
   assert.doesNotMatch(css, /observatoryHeartbeat|observatoryTwinkle|observatoryAtmosphere/);
-  assert.match(css, /observatoryHorizonSweep 28s/);
-  assert.match(css, /observatoryReadyPulse 6s/);
+  assert.match(css, /observatoryHorizonSweep 32s/);
+  assert.match(css, /observatoryReadyPulse 6\.2s/);
   assert.match(css, /animation-play-state:var\(--pulse-scene-motion,running\)/);
   assert.match(dashboard, /sceneRoot\.style\.setProperty\('--pulse-scene-motion', motionState\)/);
   assert.match(dashboard, /document\.hidden \|\| !onScreen \|\| session\.classList\.contains\('show'\)/);
@@ -47,11 +47,11 @@ test('hero has one Zen-sized start action and keeps building in the template sec
   assert.doesNotMatch(html, /id="reactor-build"|id="reactor-action"/);
   assert.match(hero, /<h2>Träning<\/h2>/);
   assert.match(hero, /id="reactor-title"/);
-  assert.match(hero, /Välj eller bygg ett pass längre ned/);
+  assert.match(hero, /aria-describedby="reactor-summary"/);
   assert.match(dashboard, /window\.getPlannedSessions\(\)/);
   assert.match(dashboard, /start\.dataset\.planState = hasPlan \? 'planned' : 'empty'/);
   assert.match(dashboard, /if \(hasPlan\) \{ window\.startWorkoutSessionForDate\(selectedDate\); return; \}/);
-  assert.match(dashboard, /showMissingPlanNotice\(\)/);
+  assert.match(dashboard, /choices\.focus\(\{preventScroll:true\}\)/);
   assert.doesNotMatch(dashboard, /reactor-build|reactor-action/);
   assert.match(css, /observatory-next-orb\{[^}]*width:168px;height:168px/);
   assert.match(css, /observatory-next-orb::after\{[^}]*border-radius:50%/);
@@ -61,8 +61,8 @@ test('hero has one Zen-sized start action and keeps building in the template sec
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260921-wellness-cohesion-1/);
   assert.match(html, /auth-gate\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260921-observatory-home-1/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260921-observatory-home-1/);
+  assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-red-light-1/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
   assert.match(authConfig, /exerciseFastVersion = '20260921-wellness-cohesion-1'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260921-wellness-cohesion-1'/);
 });

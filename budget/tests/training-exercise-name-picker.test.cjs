@@ -56,12 +56,12 @@ test('picker is viewport-contained for mobile Safari and free text avoids iOS zo
 });
 
 
-test('Pulse Flow theme owns the portalled exercise picker with pink/red editor tokens',()=>{
+test('Pulse Flow theme owns the portalled exercise picker with warm red editor tokens',()=>{
   const env=fs.readFileSync(path.resolve(__dirname,'..','pulse-environment','environment.css'),'utf8');
   assert.match(env,/#pulse-page:not\(:has\(#session-modal\.show\)\) \.exercise-name-picker-v1/);
-  assert.match(env,/border-color:#ff9fbb4a/);
-  assert.match(env,/radial-gradient\(ellipse at 10% -12%,#ff597c20/);
-  assert.match(env,/\.exercise-name-picker-kicker-v1\{color:#ffafc4/);
+  assert.match(env,/border-color:#ffad9f4a/);
+  assert.match(env,/radial-gradient\(ellipse at 10% -12%,#ff657a20/);
+  assert.match(env,/\.exercise-name-picker-kicker-v1\{color:#ffad9f/);
 });
 
 test('picker is positioned before becoming visible and readonly taps do not focus-scroll the editor',()=>{
@@ -77,5 +77,5 @@ test('picker kind selection bypasses the whole-builder morph wrapper',()=>{
 });
 
 test('Pulse picker stylesheet is cache-busted on the canonical route',()=>{
-  assert.match(html,/pulse-environment\/environment\.css\?v=20260921-observatory-home-1/);
+  assert.match(html,/pulse-environment\/environment\.css\?v=20260922-observatory-red-light-1/);
 });

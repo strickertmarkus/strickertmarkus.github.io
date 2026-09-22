@@ -161,7 +161,7 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(firebase,/\.exercise-user-option \{[\s\S]*min-height:26px !important;[\s\S]*height:26px !important;/);
   assert.match(firebase,/@media\(max-width:430px\)[\s\S]*height:24px !important;/);
   assert.match(firebase,/#exercise-user-toggle \.exercise-user-option\.active/);
-  assert.match(shellCss,/#exercise-user-toggle\{--profile-accent:#ff9bb2/);
+  assert.match(shellCss,/#exercise-user-toggle\{--profile-accent:#ff9a91/);
   assert.match(shellCss,/body\[data-kind="stretch"\] #exercise-user-toggle\{--profile-accent:#d4eea7/);
   assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
   for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
@@ -188,15 +188,15 @@ test('profile query and intentional browser history survive unified switching',(
 
 test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260921-wellness-cohesion-1/);
+    assert.match(source,/training-zen-nav\.css\?v=20260922-observatory-red-light-1/);
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260921-wellness-cohesion-1/);
   assert.match(exercise,/auth-gate\.js\?v=20260921-wellness-cohesion-1/);
-  assert.match(exercise,/training-overview-mode\.js\?v=20260921-observatory-home-1/);
-  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260921-observatory-home-1/);
-  assert.match(exercise,/training-week-orbit\.js\?v=20260921-observatory-home-1/);
-  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260921-observatory-home-1/);
+  assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-red-light-1/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260922-observatory-red-light-1/);
   assert.match(zen,/zen\.css\?v=20260921-wellness-cohesion-1/);
   assert.match(zen,/zen\.js\?v=20260921-wellness-cohesion-1/);
 });

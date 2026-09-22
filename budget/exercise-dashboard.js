@@ -72,6 +72,26 @@
     button.title = compact ? 'Compact vy aktiv' : 'Compact vy';
   }
 
+  var activityAnchor, metricsAnchor;
+  function arrangeOverview(mode) {
+    var activity=document.getElementById('activity-chart');
+    var metrics=document.querySelector('.observatory-metrics');
+    var destination=document.getElementById('pulse-activity');
+    if (!activity || !metrics || !destination) return;
+    if (!activityAnchor) {
+      activityAnchor=document.createComment('Compact activity position');
+      activity.before(activityAnchor);
+      metricsAnchor=document.createComment('Compact metrics position');
+      metrics.before(metricsAnchor);
+    }
+    if (mode==='observatory') {
+      destination.append(activity,metrics);
+    } else {
+      activityAnchor.after(activity);
+      metricsAnchor.after(metrics);
+    }
+  }
+
   function setAssetState(mode) {
     var enabled = mode === 'observatory';
     styleIds.forEach(function (id) {
@@ -102,6 +122,7 @@
     var previous = currentMode();
     document.documentElement.dataset.trainingOverview = mode;
     if (document.body) document.body.classList.toggle('pulse-observatory', mode === 'observatory');
+    arrangeOverview(mode);
     setAssetState(mode);
     setVisibility(mode);
     updateControl(mode);
@@ -243,19 +264,19 @@
       beforeUpdate:function(chart) {
         if (chart.canvas.id === 'chart-sessions' && chart.config && chart.config.type === 'bar') return;
         if (!pulseOverviewActive() || !chart.canvas.closest('#pulse-home')) return;
-        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#70aaff','#c0a8b8'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#c0a8b8'] };
+        var palettes = { 'chart-bw':['#65d7a5'], 'chart-sessions':['#ff657a','#a8b0ba'], 'chart-run-pace':['#f87171'], 'chart-hr-combined':['#ef646f','#67d4e4','#a8b0ba'] };
         var colors = palettes[chart.canvas.id];
         chart.data.datasets.forEach(function(dataset,index) {
           var color = colors ? colors[index % colors.length] : dataset.borderColor;
           if (typeof color !== 'string') return;
           dataset.borderColor = color;
           dataset.pointBackgroundColor = color;
-          dataset.pointBorderColor = '#20121d';
-          dataset.pointHoverBackgroundColor = '#ffe2ec';
+          dataset.pointBorderColor = '#090d12';
+          dataset.pointHoverBackgroundColor = '#fff1ea';
           dataset.borderWidth = 2;
           if (dataset.pointRadius !== 0) {
-            dataset.pointRadius = 3;
-            dataset.pointHoverRadius = 5;
+            dataset.pointRadius = 2;
+            dataset.pointHoverRadius = 4;
             dataset.pointHitRadius = 16;
           }
           var area=chart.chartArea;
@@ -267,22 +288,22 @@
         });
         Object.values(chart.options.scales || {}).forEach(function(scale) {
           if (scale.ticks) {
-            scale.ticks.color='#c0a8b8';
+            scale.ticks.color='#a8b0ba';
             scale.ticks.font = Object.assign({}, scale.ticks.font, { family:'Inter', size:12 });
             scale.ticks.maxRotation = 0;
             scale.ticks.autoSkip = true;
           }
-          if (scale.grid) scale.grid.color='#deb5ce12';
-          if (scale.border) scale.border.color='#deb5ce20';
-          if (scale.title) scale.title.color='#b9a6ba';
+          if (scale.grid) scale.grid.color='#ffffff09';
+          if (scale.border) scale.border.color='#ffffff15';
+          if (scale.title) scale.title.color='#a8b0ba';
         });
         chart.options.interaction = {mode:'index', intersect:false};
         chart.options.events = ['mousemove','mouseout','click','touchstart','touchmove'];
         var plugins=chart.options.plugins;
-        if (plugins && plugins.legend && plugins.legend.labels) plugins.legend.labels.color='#dcc7d8';
+        if (plugins && plugins.legend && plugins.legend.labels) plugins.legend.labels.color='#dce0e5';
         if (plugins && plugins.tooltip) Object.assign(plugins.tooltip,{
-          backgroundColor:'#241422',titleColor:'#ffe7f0',bodyColor:'#dec5d9',
-          borderColor:'#ff8eaf55',borderWidth:1,padding:12,cornerRadius:10,titleFont:{family:'Inter',size:13},bodyFont:{family:'Inter',size:13}
+          backgroundColor:'#121820',titleColor:'#f2f3f5',bodyColor:'#c5cbd3',
+          borderColor:'#ff657a55',borderWidth:1,padding:12,cornerRadius:10,titleFont:{family:'Inter',size:13},bodyFont:{family:'Inter',size:13}
         });
         var units = {'chart-bw':'ml/kg/min','chart-sessions':'pass','chart-hr-combined':'bpm','chart-run-pace':'min/km'};
         var unit = units[chart.canvas.id] || '';
@@ -312,7 +333,7 @@
         if (hasData) return;
         var area = chart.chartArea;
         chart.ctx.save();
-        chart.ctx.fillStyle = '#c0a8b8';
+        chart.ctx.fillStyle = '#a8b0ba';
         chart.ctx.font = '13px Inter, sans-serif';
         chart.ctx.textAlign = 'center';
         chart.ctx.fillText('Visas när du har loggat ett pass', (area.left + area.right) / 2, (area.top + area.bottom) / 2);
@@ -367,8 +388,6 @@
     setObservatoryState(document.querySelector('.observatory-metrics .stat-total'), total > 0 ? 'completed' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-duration'), duration > 0 ? 'completed' : 'pending');
     setObservatoryState(document.querySelector('.observatory-metrics .stat-last'), hasLast ? 'completed' : 'pending');
-    setObservatoryState(document.getElementById('observatory-progress'), weekCount >= weeklyGoal ? 'goal-achieved' : 'pending');
-    setObservatoryState(document.getElementById('observatory-last'), hasLast ? 'completed' : 'pending');
 
     document.querySelectorAll('#week-grid .week-day').forEach(function(day) {
       var state = (day.classList.contains('is-selected') || day.classList.contains('today'))
@@ -393,39 +412,11 @@
     return typeof window.getWorkouts === 'function' ? window.getWorkouts() : [];
   }
 
-  function latestWorkout() {
-    return workoutList()
-      .filter(function(workout) { return workout && workout.date; })
-      .sort(function(a, b) { return String(b.date).localeCompare(String(a.date)) || Number(b.id || 0) - Number(a.id || 0); })[0] || null;
-  }
-
   function workoutKind(plan, exercises) {
     var type = String(plan && plan.type || '').toLowerCase();
     if (exercises.length && exercises.every(function(exercise) { return exercise && exercise.kind === 'cardio'; })) return 'cardio';
     if (exercises.some(function(exercise) { return exercise && exercise.kind === 'cardio'; }) || /kond|cardio|löp|run|intervall/.test(type)) return 'cardio';
     return 'strength';
-  }
-
-  function syncContext() {
-    var workouts = workoutList();
-    var weekStart = typeof window.weekStartISO === 'function' ? window.weekStartISO() : '';
-    var weekWorkouts = weekStart ? workouts.filter(function(workout) { return workout && workout.date >= weekStart; }) : [];
-    var goals = typeof window.getGoals === 'function' ? window.getGoals() : { weeklyWk: 4 };
-    var weeklyGoal = Number(goals && goals.weeklyWk) || 4;
-    var weekMinutes = Math.round(weekWorkouts.reduce(function(total, workout) { return total + (Number(workout && workout.duration) || 0); }, 0));
-    setText('observatory-progress', weekWorkouts.length + ' av ' + weeklyGoal + ' pass · ' + weekMinutes + ' min denna vecka');
-
-    var latest = latestWorkout();
-    if (!latest) {
-      setText('observatory-last', 'Ditt första genomförda pass visas här.');
-      return;
-    }
-    var date = window.parseISODate ? window.parseISODate(latest.date) : new Date(latest.date + 'T12:00:00');
-    var dateLabel = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'short' }).format(date);
-    var type = typeof window.canonicalWorkoutType === 'function'
-      ? window.canonicalWorkoutType(latest.type, latest.exercises)
-      : (latest.type || 'Pass');
-    setText('observatory-last', 'Senast genomfört · ' + dateLabel + ' · ' + type);
   }
 
   function syncReactor() {
@@ -443,8 +434,8 @@
     var exercises = plan && Array.isArray(plan.exercises) ? plan.exercises : [];
     hasPlan = exercises.length > 0;
     var dateLabel = new Intl.DateTimeFormat('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' }).format(window.parseISODate(selectedDate));
-    var title = hasPlan ? (plan.type || 'Planerat pass') : 'Välj ett pass';
-    var summary = 'Ditt nästa steg';
+    var title = hasPlan ? (plan.type || 'Planerat pass') : 'Din nästa rörelse';
+    var summary = 'Välj ett upplägg eller bygg ditt eget.';
     if (hasPlan) {
       summary = exercises.length + (exercises.length === 1 ? ' övning' : ' övningar');
       if (exercises.every(function(ex) { return ex.kind !== 'cardio'; })) {
@@ -467,13 +458,13 @@
     core.dataset.workoutKind = kind;
     var stage = core.closest('.observatory-stage');
     if (stage) stage.dataset.workoutKind = kind;
-    syncContext();
     core.dataset.planState = hasPlan ? 'planned' : 'empty';
     var start = document.getElementById('reactor-start');
     if (start) {
       start.disabled = false;
       start.dataset.planState = hasPlan ? 'planned' : 'empty';
-      start.setAttribute('aria-label', hasPlan ? ('Starta nästa pass: ' + title + ', ' + dateLabel + ', ' + summary) : 'Starta nästa pass. Inget pass är byggt ännu.');
+      start.querySelector('.observatory-next-orb-label').textContent = hasPlan ? 'Starta pass' : 'Välj pass';
+      start.setAttribute('aria-label', hasPlan ? ('Starta nästa pass: ' + title + ', ' + dateLabel + ', ' + summary) : 'Välj eller bygg ett träningspass');
     }
     document.querySelectorAll('#week-grid .week-day').forEach(function(day, index) {
       if (!dates[index]) return;
@@ -524,7 +515,7 @@
     var signature = JSON.stringify([templates,weeks,selectedDate]);
     if (signature === templateSignature) return;
     templateSignature = signature;
-    setText('observatory-template-hint', 'Välj ett sparat upplägg för ' + new Intl.DateTimeFormat('sv-SE', {weekday:'long',day:'numeric',month:'short'}).format(window.parseISODate(selectedDate)) + '. Du granskar innan du sparar.');
+    setText('observatory-template-hint', 'Välj ett sparat upplägg för ' + new Intl.DateTimeFormat('sv-SE', {weekday:'long',day:'numeric',month:'short'}).format(window.parseISODate(selectedDate)) + '.');
     var fragment = document.createDocumentFragment();
     function card(name, detail, glyph, action) {
       var button = document.createElement('button');
@@ -542,9 +533,11 @@
         window.openTemplateModal(); document.getElementById('template-pick').value = String(template.id);
       });
     });
-    card('Bygg ditt pass', 'Planera eller ändra den valda dagens pass', '＋', function() { openSelectedBuilder(); });
     if (!templates.length && !weeks.length) {
-      card('Skapa en veckomall', 'Ett upplägg att återanvända', '◌', function() { window.openWeekTemplateEditor(); });
+      var empty=document.createElement('p');
+      empty.className='observatory-template-empty';
+      empty.textContent='Dina sparade pass visas här. Börja med att bygga ett pass.';
+      fragment.appendChild(empty);
     }
     root.replaceChildren(fragment);
   }
@@ -598,24 +591,15 @@
       }
     });
 
-    var startNotice = document.getElementById('reactor-start-notice');
-    var startNoticeTimer = 0;
-    function showMissingPlanNotice() {
-      if (!startNotice) return;
-      window.clearTimeout(startNoticeTimer);
-      startNotice.hidden = false;
-      startNotice.classList.remove('is-visible');
-      requestAnimationFrame(function() { startNotice.classList.add('is-visible'); });
-      startNoticeTimer = window.setTimeout(function() {
-        startNotice.classList.remove('is-visible');
-        window.setTimeout(function() { startNotice.hidden = true; }, reduced.matches ? 0 : 180);
-      }, 2200);
-    }
     var startButton = document.getElementById('reactor-start');
     if (startButton) startButton.addEventListener('click', function () {
       if (hasPlan) { window.startWorkoutSessionForDate(selectedDate); return; }
-      showMissingPlanNotice();
+      var choices=document.getElementById('observatory-templates-title');
+      choices.focus({preventScroll:true});
+      choices.scrollIntoView({behavior:reduced.matches ? 'instant' : 'smooth',block:'start'});
     });
+    var buildButton=document.getElementById('observatory-build');
+    if (buildButton) buildButton.addEventListener('click',function(){openSelectedBuilder();});
     var templateManage = document.getElementById('observatory-manage-templates');
     if (templateManage) templateManage.addEventListener('click', function() { window.openTemplateModal(); });
     ['wk-template-select','template-pick'].forEach(function(id) {
