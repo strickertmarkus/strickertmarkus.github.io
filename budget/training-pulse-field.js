@@ -4,6 +4,7 @@
   var root = document.documentElement;
   var params = new URLSearchParams(location.search);
   var profile = params.get('user') === 'maja' ? 'maja' : 'markus';
+  var sceneSpill = initialSceneSpill();
   var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.','okt.','nov.','dec.'];
   var dayNames = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
   var dayKeys = ['mon','tue','wed','thu','fri','sat','sun'];
@@ -19,6 +20,28 @@
   };
   var data = {};
 
+  function initialSceneSpill() {
+    var requested=params.get('spill');
+    if(requested==='a'||requested==='c')return requested;
+    try {
+      var saved=localStorage.getItem('pulseFieldSceneSpill');
+      if(saved==='a'||saved==='c')return saved;
+    } catch (_) {}
+    return 'a';
+  }
+  function applySceneSpill(value,updateUrl) {
+    sceneSpill=value==='c'?'c':'a';
+    document.body.dataset.sceneSpill=sceneSpill;
+    document.querySelectorAll('[data-spill-choice]').forEach(function(button){
+      button.setAttribute('aria-pressed',String(button.dataset.spillChoice===sceneSpill));
+    });
+    try { localStorage.setItem('pulseFieldSceneSpill',sceneSpill); } catch (_) {}
+    if(updateUrl){
+      var url=new URL(location.href);
+      url.searchParams.set('spill',sceneSpill);
+      history.replaceState({},'',url.pathname+url.search+url.hash);
+    }
+  }
   function byId(id) { return document.getElementById(id); }
   function number(value) { var n = Number(value); return Number.isFinite(n) ? n : 0; }
   function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
@@ -497,6 +520,7 @@
       }
     });
     document.addEventListener('click',function(event){
+      var spill=event.target.closest('[data-spill-choice]');if(spill){applySceneSpill(spill.dataset.spillChoice,true);return;}
       var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=shiftDate(state.weekStart,number(shift.dataset.weekShift)*7);state.selectedDate=isoDate(state.weekStart);renderWeek();if(state.activityView==='week')renderActivity();return;}
       var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();return;}
       var view=event.target.closest('[data-activity-view]');if(view){state.activityView=view.dataset.activityView;renderActivity();return;}
@@ -509,7 +533,7 @@
   }
 
   function install() {
-    wireProfileLinks();loadData();installEvents();renderAll();
+    applySceneSpill(sceneSpill,false);wireProfileLinks();loadData();installEvents();renderAll();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

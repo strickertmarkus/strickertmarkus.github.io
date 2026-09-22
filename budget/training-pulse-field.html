@@ -8,16 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-sharp-nebula-12">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260922-spill-compare-13">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
   <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
-  <script defer src="training-pulse-field.js?v=20260922-zen-orbit-7"></script>
+  <script defer src="training-pulse-field.js?v=20260922-spill-compare-8"></script>
 </head>
-<body>
+<body data-scene-spill="a">
   <div class="field-canvas" aria-hidden="true">
     <span class="field-aura field-aura-one"></span>
     <span class="field-aura field-aura-two"></span>
@@ -149,9 +149,16 @@
     </section>
 
     <section class="rhythm-section" aria-labelledby="rhythm-title">
-      <div class="section-intro">
-        <p class="eyebrow">VECKANS SIGNAL</p>
-        <h2 id="rhythm-title">Din rytm, i ett ögonblick.</h2>
+      <div class="rhythm-topline">
+        <div class="section-intro">
+          <p class="eyebrow">VECKANS SIGNAL</p>
+          <h2 id="rhythm-title">Din rytm, i ett ögonblick.</h2>
+        </div>
+        <div class="spill-compare" role="group" aria-label="Jämför scenens ljusspill">
+          <span class="spill-compare__label">Ljusspill</span>
+          <button type="button" data-spill-choice="a" aria-pressed="true" aria-label="Variant A, ambient sidoljus" title="A · Ambient side spill">A</button>
+          <button type="button" data-spill-choice="c" aria-pressed="false" aria-label="Variant C, mjukt Zen-ljus" title="C · Zen soft light echo">C</button>
+        </div>
       </div>
       <div class="rhythm-layout">
         <div class="rhythm-primary">
