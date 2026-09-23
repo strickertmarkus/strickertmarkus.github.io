@@ -1405,6 +1405,22 @@ document.addEventListener('click',function(event){
  if(b.dataset.history){openHistory(b.dataset.history);return;}
  if(b.dataset.day){selected=b.dataset.day;render();openBuilder();return;}
  if(b.dataset.choice){openBuilder(b.dataset.choice);return;}
+ if(b.dataset.zenWeekShift!=null){zenWeekMonday=offset(zenWeekMonday,7*Number(b.dataset.zenWeekShift));renderZen();return;}
+ if(b.dataset.zenDay!=null){openZenDay(b.dataset.zenDay);return;}
+ if(b.dataset.zenPlanRoutine!=null){openZenDay(dayISO(new Date()),b.dataset.zenPlanRoutine);return;}
+ if(b.dataset.zenEdit!=null){openZenRoutineEditor(view,b.dataset.zenEdit);return;}
+ if(b.dataset.zenHistory!=null){openZenHistoryEditor(b.dataset.zenHistory);return;}
+ if(b.dataset.zenStepMove!=null){
+  if(!zenEditDraft)return;
+  syncZenEditor();var oldIndex=Number(b.dataset.zenStepIndex),newIndex=oldIndex+Number(b.dataset.zenStepMove);
+  if(newIndex>=0&&newIndex<zenEditDraft.steps.length){var moved=zenEditDraft.steps.splice(oldIndex,1)[0];zenEditDraft.steps.splice(newIndex,0,moved);renderZenEditor();}
+  return;
+ }
+ if(b.dataset.zenStepRemove!=null){
+  if(zenEditDraft&&zenEditDraft.steps.length>1){syncZenEditor();zenEditDraft.steps.splice(Number(b.dataset.zenStepRemove),1);renderZenEditor();}
+  return;
+ }
+ if(b.dataset.zenAction){zenEditorAction(b.dataset.zenAction);return;}
  if(b.dataset.zenIndex!=null){zenStart(Number(b.dataset.zenIndex));return;}
  if(b.dataset.zenStep!=null){selectZenStep(Number(b.dataset.zenStep));return;}
  if(b.dataset.exercisePicker!=null){var pickerIndex=Number(b.dataset.exercisePicker);setBuilderExercisePicker(builderOpenExerciseIndex===pickerIndex?-1:pickerIndex);return;}
@@ -1480,14 +1496,19 @@ document.addEventListener('pointerdown',function(event){
 document.addEventListener('change',function(event){if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);});
 document.addEventListener('input',function(event){
  var el=event.target;
+ if($('zen-editor').open&&zenEditDraft&&$('zen-editor').contains(el)){
+  syncZenEditor();
+  $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(zenEditDraft.steps)/60)+' min · '+zenEditDraft.steps.length+' steg';
+ }
  if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
-
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
+$('zen-editor').addEventListener('cancel',function(event){event.preventDefault();$('zen-editor').close();zenEditDraft=null;});
+$('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 var ppResizeFrame=0,ppLastChartWidth=0;
