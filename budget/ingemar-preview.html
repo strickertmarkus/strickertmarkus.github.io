@@ -206,10 +206,10 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
     <div class="panel stat"><div class="stat-label">Senaste stund</div><strong id="zen-stat-last">–</strong><div class="sub" id="zen-stat-last-kind">Inget registrerat</div></div>
   </div>
 
-  <div class="section-head"><h2>Välj pass</h2><span class="hint" id="zen-choice-hint">Tre exempelpass för Stretch</span></div>
+  <div class="section-head zen-section-head"><h2>Välj pass</h2><div class="zen-section-actions"><span class="hint" id="zen-choice-hint">Dina pass för Stretch</span><button type="button" class="zen-inline-action" data-zen-action="create">＋ Bygg pass</button></div></div>
   <div class="choices zen-choices" id="zen-choices"></div>
 
-  <div class="section-head"><h2>Veckoplan</h2><span class="hint" id="zen-week-hint">Mjuka stunder utspridda över veckan</span></div>
+  <div class="section-head zen-section-head"><h2>Veckoplan</h2><div class="zen-section-actions"><button type="button" class="zen-week-arrow" data-zen-week-shift="-1" aria-label="Föregående vecka">‹</button><span class="hint" id="zen-week-hint">Veckans stunder</span><button type="button" class="zen-week-arrow" data-zen-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="zen-inline-action" data-zen-action="current-week">Idag</button></div></div>
   <div class="week zen-week" id="zen-week" aria-label="Veckans återhämtning"></div>
 
   <div class="section-head"><h2>Flow över tid</h2><span class="hint">Exempelstatistik · senaste sju veckorna</span></div>
@@ -218,11 +218,33 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
     <div class="bars zen-bars" id="zen-bars" aria-label="Zen-pass per vecka"></div><div class="chart-inspect bar-inspect" id="zen-bars-inspect" role="status" aria-live="polite"></div>
   </div>
 
-  <div class="section-head"><h2>Senaste stunder</h2><span class="hint">Exempeldata och sparade pass</span></div>
+  <div class="section-head zen-section-head"><h2>Träningslogg</h2><div class="zen-section-actions"><span class="hint">Tryck på ett pass för detaljer eller redigering</span><button type="button" class="zen-inline-action" data-zen-action="log">＋ Registrera pass</button></div></div>
   <div class="history zen-history" id="zen-history"></div>
 </section>
 <p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
 </main>
+
+<dialog id="zen-editor" class="zen-editor-dialog" aria-labelledby="zen-editor-title">
+ <div class="modal-head"><div><span class="eyebrow" id="zen-editor-kicker">STRETCH · PASSBYGGARE</span><h2 id="zen-editor-title">Bygg pass</h2></div><button type="button" class="x" data-zen-action="close-editor" aria-label="Stäng">×</button></div>
+ <div class="modal-body">
+  <div class="zen-editor-meta">
+   <label class="field">Passnamn<input id="zen-edit-name" maxlength="70" required placeholder="Mitt pass"></label>
+   <label class="field" id="zen-edit-date-wrap" hidden>Datum<input type="date" id="zen-edit-date"></label>
+   <label class="field" id="zen-edit-minutes-wrap" hidden>Genomförd tid (min)<input type="number" id="zen-edit-minutes" min="1" max="1440" step="1" inputmode="numeric"></label>
+  </div>
+  <label class="field" id="zen-edit-notes-wrap" hidden>Egna anteckningar<textarea id="zen-edit-notes" rows="3" maxlength="1200" placeholder="Hur kändes passet?"></textarea></label>
+  <div class="zen-editor-steps-heading"><div><span class="eyebrow">PASSINNEHÅLL</span><strong>Steg, längd och instruktioner</strong></div><span id="zen-editor-duration">0 min</span></div>
+  <div id="zen-edit-steps" class="zen-editor-steps"></div>
+  <button type="button" class="zen-inline-action zen-add-step" data-zen-action="add-step">＋ Lägg till steg</button>
+  <p class="hint zen-edit-note">Alla ändringar sparas lokalt. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
+  <div class="modal-actions zen-editor-actions"><button type="button" class="ghost" data-zen-action="close-editor">Avbryt</button><div class="right"><button type="button" class="secondary" id="zen-edit-delete" data-zen-action="delete-entry" hidden>Ta bort</button><button type="button" class="primary" data-zen-action="save-editor">Spara pass ✓</button></div></div>
+ </div>
+</dialog>
+<dialog id="zen-day-dialog" class="zen-editor-dialog" aria-labelledby="zen-day-title">
+ <div class="modal-head"><div><span class="eyebrow" id="zen-day-kind">STRETCH · VECKOPLAN</span><h2 id="zen-day-title">Planera dag</h2></div><button type="button" class="x" data-zen-action="close-day" aria-label="Stäng">×</button></div>
+ <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen sparas lokalt och kan ändras när som helst.</p>
+ <div class="modal-actions"><button type="button" class="ghost" data-zen-action="close-day">Avbryt</button><div class="right"><button type="button" class="secondary" data-zen-action="start-day">Starta pass ↗</button><button type="button" class="primary" data-zen-action="save-day">Spara dagen ✓</button></div></div></div>
+</dialog>
 <dialog id="week-planner" aria-labelledby="week-planner-title">
  <div class="modal-head"><div><span class="eyebrow">VECKOPLANERARE · INGEMAR</span><h2 id="week-planner-title">Planera vecka</h2></div><button type="button" class="x" data-action="close-week-planner" aria-label="Stäng">×</button></div>
  <div class="modal-body">
