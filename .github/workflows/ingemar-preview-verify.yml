@@ -478,21 +478,29 @@ jobs:
             assert.equal(await page.locator('.zen-focus-grid').count(),1);
             assert.equal(await page.locator('.zen-journey-card').count(),1);
             async function auditZenDial(label){
-              const dial=await page.locator('#zen-session-ring').evaluate(ring=>{
-                const rb=ring.getBoundingClientRect(),inner=ring.querySelector('.zen-clock-inner').getBoundingClientRect(),
-                  arc=ring.querySelector('#zen-step-arc'),children=[...ring.querySelector('.zen-clock-inner').children];
-                return {ring:{left:rb.left,right:rb.right,top:rb.top,bottom:rb.bottom,width:rb.width,height:rb.height},
-                  inner:{left:inner.left,right:inner.right,top:inner.top,bottom:inner.bottom,width:inner.width,height:inner.height},
-                  textOverflow:children.filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>({id:el.id,scroll:el.scrollWidth,client:el.clientWidth,text:el.textContent})),
-                  boxShadow:getComputedStyle(ring).boxShadow,arcFilter:getComputedStyle(arc).filter};
+              const kind=await page.locator('#zen-session').getAttribute('data-kind');
+              const scene=await page.locator('.zen-scenery').evaluate(el=>{
+                const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth,height:innerHeight};
               });
-              assert.ok(dial.inner.left>=dial.ring.left+dial.ring.width*.1&&
-                dial.inner.right<=dial.ring.right-dial.ring.width*.1&&
-                dial.inner.top>=dial.ring.top+dial.ring.height*.1&&
-                dial.inner.bottom<=dial.ring.bottom-dial.ring.height*.1&&
-                dial.textOverflow.length===0,label+' timer text must fit inside the circle: '+JSON.stringify(dial));
-              assert.notEqual(dial.boxShadow,'none',label+' timer needs visible ring glow');
-              assert.notEqual(dial.arcFilter,'none',label+' progress arc needs glow');
+              assert.ok(scene.left>=-1&&scene.right<=scene.width+1&&scene.top>=0&&scene.bottom<=scene.height+1,
+                label+' immersive landscape should fit viewport: '+JSON.stringify(scene));
+              assert.equal(await page.locator('#zen-stage-list button').count()>0,true,
+                label+' should keep accessible stages for navigation');
+              assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer',
+                label+' must preserve a semantic timer');
+              if(kind==='stretch'){
+                assert.equal(await page.locator('.zen-forest-landscape').isVisible(),true,'Forest Motion landscape is visible');
+                assert.equal(await page.locator('#zen-forest-route').count(),1);
+                assert.equal(await page.locator('#zen-forest-traveller').count(),1);
+                assert.equal(await page.locator('#zen-forest-waypoints .zen-forest-waypoint').count()>0,true);
+                assert.equal(await page.locator('.zen-lake-landscape').isVisible(),false);
+              }else{
+                assert.equal(await page.locator('.zen-lake-landscape').isVisible(),true,'Stillwater landscape is visible');
+                assert.equal(await page.locator('.zen-forest-landscape').isVisible(),false);
+                assert.equal(await page.locator('#zen-immersion-breath').isVisible(),true);
+                assert.equal(await page.locator('#zen-lake-horizon-progress').count(),1);
+                assert.equal(await page.locator('#zen-clock-toggle').isVisible(),true);
+              }
             }
             const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
             assert.ok(initialStretchArc>98&&initialStretchArc<=100,'Stretch dial must start at the normalized SVG path origin: '+initialStretchArc);
@@ -504,7 +512,10 @@ jobs:
             }
             await page.setViewportSize({width:390,height:844});
             const stretchFirst=await page.locator('#zen-session-title').textContent();
+            const forestBefore=Number(await page.locator('#zen-forest-progress').evaluate(el=>el.style.strokeDashoffset));
             await page.locator('[data-action="next-zen"]').click();
+            const forestAfter=Number(await page.locator('#zen-forest-progress').evaluate(el=>el.style.strokeDashoffset));
+            assert.ok(forestAfter<forestBefore,'Forest path should illuminate when next stretch stage starts');
             assert.deepEqual(errors,[],'Zen navigation browser errors: '+errors.join(' | '));
             const nextStepState={title:await page.locator('#zen-session-title').textContent(),
               step:await page.locator('#zen-stage-label').textContent(),
@@ -547,8 +558,15 @@ jobs:
             }
             await page.setViewportSize({width:390,height:844});
             assert.match(await page.locator('#zen-breath').textContent(),/ANDAS (IN|UT)/);
+            const lakeBefore=Number(await page.locator('#zen-lake-horizon-progress').evaluate(el=>el.style.strokeDashoffset));
             await page.locator('[data-action="next-zen"]').click();
+            const lakeAfter=Number(await page.locator('#zen-lake-horizon-progress').evaluate(el=>el.style.strokeDashoffset));
+            assert.ok(lakeAfter<lakeBefore,'Meditation should illuminate horizon when a stage completes');
             assert.equal(await page.locator('#zen-stage-list [aria-current="step"]').count(),1);
+            await page.locator('#zen-clock-toggle').click();
+            assert.equal(await page.locator('#zen-immersion-time').isVisible(),false,'Meditation can hide the timer');
+            await page.locator('#zen-clock-toggle').click();
+            assert.equal(await page.locator('#zen-immersion-time').isVisible(),true,'Meditation can reveal the timer');
             await page.locator('[data-action="finish-zen"]').click();
             await page.locator('[data-zen-action="create"]').click();
             await page.locator('#zen-edit-name').fill('Sjöandning');
