@@ -374,11 +374,9 @@ main{position:relative;z-index:2;display:block}
   .week-day .day-date{font-size:28px;line-height:1.06}
   .week-day .day-type{display:none}
   .week-day.is-today::after{bottom:7px}
-  .activity-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
-  .activity-heading>div:first-child{min-width:0}
-  .activity-heading h2{font-size:clamp(23px,6.7vw,30px)}
-  .activity-heading .segmented{width:max-content;min-width:0;margin:0}
-  .activity-heading .segmented button{padding-inline:10px}
+  .section-head-toggle{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+  .section-head-toggle>div:first-child{min-width:0}
+  .section-head-toggle .segmented{width:max-content;min-width:0;margin:0;align-self:auto}
   .activity-section{padding-top:22px;padding-bottom:24px}
   .activity-summary{margin-top:9px}
   .activity-summary p{flex-basis:100%;margin:0}
@@ -388,7 +386,6 @@ main{position:relative;z-index:2;display:block}
   .chart-canvas-glow{display:block;inset:-28px;width:calc(100% + 56px);height:calc(100% + 56px);z-index:1;opacity:1;filter:none;-webkit-filter:none;mix-blend-mode:screen}
   .line-glow,.activity-bar,.last-point,.group-volume-point{filter:none!important;-webkit-filter:none!important}
   .range-bar{opacity:.21}
-  .insight-mode{align-self:flex-end}
   .insight-tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none}
   .insight-tabs::-webkit-scrollbar{display:none}
   .insight-tabs button{flex:none}
@@ -437,8 +434,7 @@ main{position:relative;z-index:2;display:block}
   .section-head{gap:12px}
   .section-head>.quiet-action{font-size:10px}
   .segmented button{padding-inline:10px}
-  .activity-heading h2{font-size:21px}
-  .activity-heading .segmented button{padding-inline:8px;font-size:10px}
+  .section-head-toggle .segmented button{padding-inline:8px;font-size:10px}
   .log-summary{grid-template-columns:43px minmax(0,1fr) minmax(0,auto) 15px;gap:5px}
   .log-result{font-size:11px}
   .log-vitals{gap:4px}
