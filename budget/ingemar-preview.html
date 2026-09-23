@@ -350,6 +350,8 @@ var $=function(id){return document.getElementById(id);};
 function clean(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function uid(){return 'demo-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);}
 function pad(n){return String(n).padStart(2,'0');}
+function fmtSeconds(seconds){seconds=Math.max(0,Math.floor(Number(seconds)||0));return pad(Math.floor(seconds/60))+':'+pad(seconds%60);}
+function setText(id,value){var node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;}
 function dayISO(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function dayFrom(iso){var n=String(iso).split('-').map(Number);return new Date(n[0],n[1]-1,n[2]);}
 function offset(iso,n){var d=dayFrom(iso);d.setDate(d.getDate()+n);return dayISO(d);}
