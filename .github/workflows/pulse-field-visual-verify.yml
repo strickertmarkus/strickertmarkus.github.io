@@ -103,8 +103,8 @@ jobs:
               const activitySvg=document.querySelector('#activity-chart svg');
               const activityGrid=document.querySelector('#activity-chart .chart-grid');
               const activityViewBox=activitySvg.viewBox.baseVal;
-              const activityPlotCenter=((Number(activityGrid.getAttribute('x1'))+Number(activityGrid.getAttribute('x2')))/2);
-              const activityPlotCenterOffset=activityPlotCenter-activityViewBox.width/2;
+              const activityPlotWidthRatio=(Number(activityGrid.getAttribute('x2'))-Number(activityGrid.getAttribute('x1')))/activityViewBox.width;
+              const activityPlotLeft=Number(activityGrid.getAttribute('x1')),activityPlotRight=Number(activityGrid.getAttribute('x2'));
               const insightTabs=insightControls.querySelector('.view-tabs').getBoundingClientRect();
               const insightToggle=insightControls.querySelector('.segmented').getBoundingClientRect();
               const weekday=document.querySelector('.week-day');
@@ -123,7 +123,7 @@ jobs:
                 metricUnit:(document.querySelector('#insight-chart .metric-chart-unit-label')||{}).textContent||'',
                 activityMetricAxisLines:document.querySelectorAll('#activity-chart .metric-chart-axis-line').length,
                 activityMetricUnit:(document.querySelector('#activity-chart .metric-chart-unit-label')||{}).textContent||'',
-                activityPlotCenterOffset,
+                activityPlotWidthRatio,activityPlotLeft,activityPlotRight,activityViewBoxWidth:activityViewBox.width,
                 lineFilter:line?getComputedStyle(line).filter:'',
                 startSymbol:startSymbol?startSymbol.textContent.trim():'',
                 startSvgCount:start?start.querySelectorAll('svg').length:-1,
@@ -145,7 +145,7 @@ jobs:
                 insightControls:{tabsTop:insightTabs.top,tabsBottom:insightTabs.bottom,tabsRight:insightTabs.right,toggleTop:insightToggle.top,toggleBottom:insightToggle.bottom,toggleLeft:insightToggle.left,toggleRight:insightToggle.right,controlsRight:insightControls.getBoundingClientRect().right},
                 offenders,
                 statClearance,
-                weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,crest:getComputedStyle(dayDate,'::after').animationName,rise:getComputedStyle(dayDate,'::before').animationName}:null,
+                weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,glow:getComputedStyle(dayDate,'::before').animationName,arc:getComputedStyle(dayDate,'::after').content}:null,
                 starSizes:Array.from(document.querySelectorAll('.space-star__glyph')).map(el=>parseFloat(getComputedStyle(el).fontSize))
               };
             });
@@ -163,13 +163,14 @@ jobs:
             assert.equal(sceneQuality.startSymbolColor,'rgb(255, 154, 145)','Start glyph should use Pulse Field theme accent: '+JSON.stringify(sceneQuality));
             assert.ok(new Set(sceneQuality.starSizes.map(v=>Math.round(v))).size>=5,'Pulse stars must keep visibly varied sizes: '+JSON.stringify(sceneQuality.starSizes));
             assert.equal(sceneQuality.weekFlow?.animation,'weekDateShimmer','Selected week date should softly brighten');
-            assert.equal(sceneQuality.weekFlow?.crest,'weekDateCrest','Selected week date should have a rising arc');
-            assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
+            assert.equal(sceneQuality.weekFlow?.glow,'weekDateGlow','Selected day needs stationary light glow');
+            assert.equal(sceneQuality.weekFlow?.arc,'none','Selected day must not display moving arc');
             assert.equal(sceneQuality.metricAxisLines,0,'Heart graph should retain the earlier Pulse Field treatment without metric axes: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricUnit,'','Activity graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
-            assert.ok(Math.abs(sceneQuality.activityPlotCenterOffset)<.5,'Activity plot area must be centered rather than right-shifted: '+JSON.stringify(sceneQuality));
+            assert.ok(sceneQuality.activityPlotWidthRatio>.85,'Activity bars must fill nearly the entire chart width: '+JSON.stringify(sceneQuality));
+            assert.ok(sceneQuality.activityPlotLeft>=18&&sceneQuality.activityPlotRight<=sceneQuality.activityViewBoxWidth-5,'Activity plot labels must stay inside viewbox');
             if(mobile){
               assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
               const activityTabsCenter=(sceneQuality.activityControls.tabsTop+sceneQuality.activityControls.tabsBottom)/2;
@@ -201,11 +202,7 @@ jobs:
               assert.notEqual(sceneQuality.lineFilter,'none','Desktop SVG glow filter must remain active');
             }
 
-            await page.locator('[data-insight="distance"]').click();
-            await page.waitForTimeout(40);
-            assert.equal((await page.locator('#insight-chart .metric-chart-unit-label').textContent()).trim(),'KM','Distance keeps its graph-only unit');
-            assert.ok(await page.locator('#insight-chart .metric-chart-axis-line').count()>=2,'Distance keeps its old-page style axes');
-            assert.ok(await page.locator('#insight-special').isHidden(),'Distance must not get the Pace/VO2 special chrome');
+            assert.equal(await page.locator('[data-insight="distance"]').count(),0,'Standalone running distance graph must be removed');
 
             await page.locator('[data-insight="pace"]').click();
             await page.waitForTimeout(40);
@@ -214,6 +211,9 @@ jobs:
             assert.equal((await page.locator('#insight-special-chart-unit').textContent()).trim(),'MIN/KM');
             assert.ok((await page.locator('#insight-special-legend').textContent()).includes('Snittakt'),'Pace legend missing');
             assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Snittakt & registrerade värden'),'Pace section title missing');
+            assert.equal(await page.locator('#insight-special-summary [role="progressbar"]').count(),1,'Distance goal bar above pace must be present');
+            assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Längsta löppass'),'Distance goal text missing');
+            assert.equal(await page.locator('#pace-distance-comparison .pace-scatter-point').count(),3,'Three demo runs must appear in pace versus distance scatter');
             assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Pace unit belongs in the external old-page heading');
             assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=5,'Pace must keep Y-axis labels');
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-pace-special.png'});
@@ -233,6 +233,13 @@ jobs:
 
             await page.locator('[data-insight="heart"]').click();
             await page.waitForTimeout(40);
+            assert.ok(await page.locator('#pace-distance-comparison').isHidden(),'Scatter must only show for Pace');
+            const firstLog=page.locator('#log-timeline [data-log-card]').first();
+            assert.equal(await firstLog.locator('.log-mini-meter').count(),3,'Three log interval charts must render');
+            const cardioLog=page.locator('#log-timeline [data-log-card]').nth(1);
+            await cardioLog.locator('.log-summary').click();
+            assert.equal(await cardioLog.locator('.log-mini-meter:not(.is-missing)').count(),3,'Cardio demo must expose recorded pulse VO2 and pace');
+            assert.ok((await cardioLog.locator('.log-mini-meter--pace strong').textContent()).includes('min/km'),'Pace mini interval requires unit');
             assert.ok(await page.locator('#insight-special').isHidden(),'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-axis-line').count(),0,'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Heart graph must not show the new metric unit badge');

@@ -265,7 +265,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=48,right=48,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
+    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
@@ -614,8 +614,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var headers=[],rows=[];
     if(state.insight==='heart'){
       headers=['Datum','Pass','Medel','Intervall'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,e.value!=null?Math.round(e.value)+' bpm':'—',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max):'—'];});
-    }else if(state.insight==='distance'){
-      headers=['Datum','Pass','Distans','Snittakt'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,2)+' km',formatPace(e.pace)];});
     }else if(state.insight==='pace'){
       headers=['Datum','Pass','Snittakt','Distans'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatPace(e.value),formatNumber(e.distance,2)+' km'];});
     }else{
@@ -641,7 +639,18 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var summary=byId('insight-special-summary'),title=byId('insight-special-chart-title'),unit=byId('insight-special-chart-unit'),legend=byId('insight-special-legend');
     var latest=entries.length?entries[entries.length-1]:null;
     if(state.insight==='pace'){
-      summary.innerHTML='<p class="insight-special-section-label">Snittakt &amp; registrerade värden</p>';
+      var goalDistance=number(data.goals.runDistanceGoal)||10;
+      var allRuns=data.workouts.map(workoutDistance).filter(function(distance){return distance>0;});
+      var maxDistance=allRuns.length?Math.max.apply(Math,allRuns):0;
+      var totalDistance=allRuns.reduce(function(total,distance){return total+distance;},0);
+      var distanceRatio=clamp(maxDistance/goalDistance*100,0,100);
+      summary.innerHTML='<p class="insight-special-section-label">Snittakt &amp; registrerade värden</p>'+
+        '<div class="insight-special-goal-title">Längsta löppass <span>(km)</span></div>'+
+        '<div class="insight-special-progress" style="--metric-progress:'+distanceRatio.toFixed(2)+'%" role="progressbar" aria-label="Längsta löppass mot distansmål" aria-valuemin="0" aria-valuemax="'+goalDistance+'" aria-valuenow="'+maxDistance+'">'+
+          '<div class="insight-special-progress-track"><i></i><b></b></div>'+
+          '<div class="insight-special-progress-scale"><span>0 km</span><strong>'+formatNumber(maxDistance,1)+' km</strong><span>'+formatNumber(goalDistance,1)+' km</span></div>'+
+        '</div>'+
+        '<div class="insight-special-distance-total">Totalt loggat: '+formatNumber(totalDistance,1)+' km</div>';
       title.textContent='Snittakt över tid';
       unit.textContent='MIN/KM';
       legend.innerHTML='<span class="insight-special-key"><i></i>Snittakt</span><strong>'+(latest?'Senast '+escapeHtml(formatPace(latest.value)):'Inga registrerade värden')+'</strong>';
@@ -668,14 +677,29 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
 
+  function renderPaceDistanceScatter(entries) {
+    var runs=entries.filter(function(entry){return entry.distance>0&&entry.value>0;});
+    if(!runs.length)return '<div class="pace-distance-title"><strong>Snittakt mot löpdistans</strong><span>MIN/KM · KM</span></div><p class="log-empty">Logga ett löppass med tid och distans för att se sambandet.</p>';
+    var width=clamp(byId('pace-distance-comparison').clientWidth||720,280,820),height=188,left=42,right=15,top=16,bottom=34,plotW=width-left-right,plotH=height-top-bottom;
+    var maxDistance=Math.max(1,Math.ceil(Math.max.apply(Math,runs.map(function(e){return e.distance;}))));
+    var minPace=Math.min.apply(Math,runs.map(function(e){return e.value;})),maxPace=Math.max.apply(Math,runs.map(function(e){return e.value;}));
+    var padding=Math.max(.25,(maxPace-minPace)*.18);minPace=Math.max(0,minPace-padding);maxPace+=padding;
+    function x(distance){return left+distance/maxDistance*plotW;}
+    function y(pace){return top+(pace-minPace)/(maxPace-minPace)*plotH;}
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Löppass, löpdistans på vågrät axel och snittakt på lodrät axel. Snabbare tempo högre upp.">';
+    [0,.5,1].forEach(function(ratio){var gy=y(minPace+(maxPace-minPace)*ratio);svg+='<line class="pace-scatter-grid" x1="'+left+'" x2="'+(width-right)+'" y1="'+gy+'" y2="'+gy+'"/><text class="pace-scatter-axis" x="'+(left-7)+'" y="'+(gy+3)+'" text-anchor="end">'+formatPace(minPace+(maxPace-minPace)*ratio).replace(' /km','')+'</text>';});
+    [0,.5,1].forEach(function(ratio){var value=maxDistance*ratio;svg+='<text class="pace-scatter-axis" x="'+x(value)+'" y="'+(height-9)+'" text-anchor="middle">'+formatNumber(value,1)+'</text>';});
+    svg+='<line class="pace-scatter-baseline" x1="'+left+'" x2="'+(width-right)+'" y1="'+(height-bottom)+'" y2="'+(height-bottom)+'"/>';
+    runs.forEach(function(entry){svg+='<circle class="pace-scatter-point" cx="'+x(entry.distance)+'" cy="'+y(entry.value)+'" r="4.4"><title>'+escapeHtml(logDate(entry.date)+' · '+formatNumber(entry.distance,2)+' km · '+formatPace(entry.value))+'</title></circle>';});
+    return '<div class="pace-distance-title"><strong>Snittakt mot löpdistans</strong><span>Y: MIN/KM · X: KM</span></div><p class="pace-distance-note">Varje punkt är ett löppass. Snabbare tempo visas högre upp.</p>'+svg+'</svg>';
+  }
+
   function renderInsight() {
     document.querySelectorAll('[data-insight]').forEach(function(button){button.setAttribute('aria-selected',String(button.dataset.insight===state.insight));});
     document.querySelectorAll('[data-insight-mode]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.insightMode===state.insightMode));});
     var entries,markup,name,description;
     if(state.insight==='heart'){
       entries=heartData();name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
-    }else if(state.insight==='distance'){
-      entries=distanceData();name='Löpdistans över tid';description='Distanskurvan och ditt mål hålls tydligt åtskilda.';markup=lineChart(entries,{color:'#ff8f8b',axisColor:'#b9898e',gridColor:'#f8717112',unit:'KM',tickCount:4,goal:number(data.goals.runDistanceGoal)||10,decimals:1,suffix:' km',empty:'Distanskurvan visas när löpning har loggats.'});
     }else if(state.insight==='pace'){
       entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',axisColor:'#b9898e',gridColor:'#f8717112',tickCount:5,reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
     }else{
@@ -684,6 +708,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
     renderInsightSpecial(entries);
+    var compare=byId('pace-distance-comparison');
+    compare.hidden=state.insight!=='pace'||state.insightMode!=='chart';
+    compare.innerHTML=compare.hidden?'':renderPaceDistanceScatter(entries);
     byId('insight-chart').innerHTML=markup;renderInsightTable(entries);
     byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+(e.value==null?'saknas':e.value);}).join('. '));
     scheduleChartCanvasGlow();
@@ -720,6 +747,27 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(!timing&&timings[index]&&timings[index].exerciseIndex==null)timing=timings[index];
     return timing?number(timing.durationSec):0;
   }
+  function workoutMiniIntervals(workout) {
+    var min=number(workout.hrMin),avg=number(workout.hrAvg),max=number(workout.hrMax);
+    var saved=(data.vo2||[]).find(function(item){return item&&item.date===workout.date;});
+    var vo2=number(workout.vo2)||number(saved&&(saved.score||saved.value||saved.vo2));
+    var pace=workoutPace(workout),goal=number(data.goals.vo2Goal)||45;
+    function chart(type,label,value,position,low,high,unit){
+      var valid=value!==''&&value!=null;
+      return '<div class="log-mini-meter log-mini-meter--'+type+(valid?'':' is-missing')+'" role="img" aria-label="'+escapeHtml(label+': '+(valid?value+' '+unit:'Inget värde'))+'">'+
+        '<span class="log-mini-label">'+label+'</span><strong>'+escapeHtml(valid?value:'—')+'<small>'+unit+'</small></strong>'+
+        '<svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg>'+
+        '<div class="log-mini-scale"><span>'+escapeHtml(low)+'</span><span>'+escapeHtml(high)+'</span></div></div>';
+    }
+    var pulsePos=min>0&&max>=min&&avg>0?(min===max?52:9+clamp((avg-min)/(max-min),0,1)*86):52;
+    var pulse=chart('heart','Puls',avg>0?Math.round(avg):'',pulsePos,min?String(Math.round(min)):'min',max?String(Math.round(max)):'max','bpm');
+    var vo2Pos=9+clamp((vo2-40)/(Math.max(40.1,goal)-40),0,1)*86;
+    var vo2Chart=chart('vo2','VO₂',vo2>0?formatNumber(vo2,1):'',vo2Pos,'40',formatNumber(goal,1)+' mål','ml/kg/min');
+    var pacePos=9+clamp((7-pace)/4,0,1)*86;
+    var paceChart=chart('pace','Snittakt',pace>0?formatPace(pace).replace(' /km',''):'',pacePos,'7:00','3:00','min/km');
+    return '<div class="log-mini-intervals" aria-label="Passintervall för puls, VO₂ och snittakt">'+pulse+vo2Chart+paceChart+'</div>';
+  }
+
   function renderLog() {
     var workouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
@@ -742,9 +790,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         var seconds=exerciseSeconds(workout,exercise,exerciseIndex);
         return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+formatDuration(seconds)+'</time>':'')+'</div>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
-      var pulse='<div class="log-pulse-strip" aria-label="Puls: minimum, medel och maximum"><div><span>MIN</span><strong>'+(number(workout.hrMin)?Math.round(number(workout.hrMin)):'—')+'</strong></div><div><span>MEDEL</span><strong>'+(number(workout.hrAvg)?Math.round(number(workout.hrAvg)):'—')+'</strong></div><div><span>MAX</span><strong>'+(number(workout.hrMax)?Math.round(number(workout.hrMax)):'—')+'</strong></div><span class="pulse-unit">bpm</span></div>';
+      var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+pulse+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
   }
 
