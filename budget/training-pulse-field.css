@@ -176,7 +176,6 @@ main{position:relative;z-index:2;display:block}
 .week-day.is-selected .day-date::before{z-index:-1;top:-6px;width:44px;height:40px;border-radius:50%;background:radial-gradient(ellipse at 50% 78%,#ffd2bd6b 0%,#ff657a28 35%,transparent 73%);filter:blur(5px);transform:translate3d(-50%,2px,0) scale(.82);opacity:.33;animation:weekDateRise 4.8s ease-in-out infinite}
 .week-day.is-selected .day-date::after{top:-6px;width:31px;height:9px;border-top:1.5px solid #ffd2bdad;border-radius:50% 50% 0 0;box-shadow:0 -3px 9px #ff9a9152;transform:translate3d(-50%,3px,0) scaleX(.58);opacity:0;animation:weekDateCrest 4.8s ease-in-out infinite}
 .week-day .day-type{max-width:72px;overflow:hidden;color:#c4cbd2;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
-.selected-day-copy{min-height:24px;margin:12px 0 0;color:var(--field-muted);font-size:12px;text-align:center}
 
 .activity-section{padding-top:34px;padding-bottom:30px}
 .activity-heading{margin-bottom:10px}
@@ -366,16 +365,21 @@ main{position:relative;z-index:2;display:block}
   .section-head>.quiet-action{max-width:120px;justify-content:flex-end;text-align:right}
   .week-navigator{gap:10px}
   .week-navigator div{min-width:145px}
-  .week-field-shell{min-height:96px;padding-top:8px}
-  .week-days{gap:2px}
-  .week-day{min-height:68px;border-radius:12px;padding:5px 1px}
+  .week-section{padding-bottom:20px}
+  .week-field-shell{min-height:100px;padding-top:7px}
+  .week-days{gap:3px}
+  .week-day{min-height:83px;border-radius:14px;padding:8px 1px}
   .week-day::before{display:none}
-  .week-day .day-date{font-size:22px}
+  .week-day .day-name{font-size:10px;letter-spacing:.8px}
+  .week-day .day-date{font-size:28px;line-height:1.06}
   .week-day .day-type{display:none}
-  .week-day.is-today::after{bottom:6px}
-  .activity-heading{display:block}
-  .activity-heading .segmented{width:max-content;margin:10px 0 0 auto}
-  .activity-section{padding-top:26px;padding-bottom:24px}
+  .week-day.is-today::after{bottom:7px}
+  .activity-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+  .activity-heading>div:first-child{min-width:0}
+  .activity-heading h2{font-size:clamp(23px,6.7vw,30px)}
+  .activity-heading .segmented{width:max-content;min-width:0;margin:0}
+  .activity-heading .segmented button{padding-inline:10px}
+  .activity-section{padding-top:22px;padding-bottom:24px}
   .activity-summary{margin-top:9px}
   .activity-summary p{flex-basis:100%;margin:0}
   .activity-summary{flex-wrap:wrap}
@@ -433,6 +437,8 @@ main{position:relative;z-index:2;display:block}
   .section-head{gap:12px}
   .section-head>.quiet-action{font-size:10px}
   .segmented button{padding-inline:10px}
+  .activity-heading h2{font-size:21px}
+  .activity-heading .segmented button{padding-inline:8px;font-size:10px}
   .log-summary{grid-template-columns:43px minmax(0,1fr) minmax(0,auto) 15px;gap:5px}
   .log-result{font-size:11px}
   .log-vitals{gap:4px}
