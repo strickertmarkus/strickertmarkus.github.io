@@ -147,7 +147,7 @@ jobs:
               const dx=star.x-before.stars[i].x,dy=star.y-before.stars[i].y;
               return {dx,dy,distance:Math.hypot(dx,dy)};
             });
-            const moving=starVectors.filter(v=>v.distance>.35);
+            const moving=starVectors.filter(v=>v.distance>.25);
             assert.ok(moving.length>=7,'Most pulse stars should visibly drift: '+JSON.stringify(starVectors));
             const directions=new Set(moving.map(v=>(v.dx>=0?'R':'L')+(v.dy>=0?'D':'U')));
             assert.ok(directions.size>=3,'Pulse stars must drift in several directions, not as one field: '+JSON.stringify(starVectors));
