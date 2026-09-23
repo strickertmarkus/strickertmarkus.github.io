@@ -73,6 +73,7 @@ jobs:
             await page.locator('.start-orbit').screenshot({path:'test-results/pulse-field/'+name+'-start-orbit.png'});
             await page.locator('.rhythm-section').screenshot({path:'test-results/pulse-field/'+name+'-rhythm-stats.png'});
             await page.locator('#week-field').screenshot({path:'test-results/pulse-field/'+name+'-week-field.png'});
+            await page.locator('#activity-field').screenshot({path:'test-results/pulse-field/'+name+'-activity-field.png'});
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
 
             const sceneQuality=await page.evaluate(()=>{
@@ -91,6 +92,11 @@ jobs:
               const start=document.querySelector('.start-orbit');
               const startSymbol=document.querySelector('.start-field-symbol');
               const root=document.scrollingElement||document.documentElement;
+              const activityHeading=document.querySelector('.activity-heading');
+              const activityTitle=activityHeading.querySelector('h2').getBoundingClientRect();
+              const activityToggle=activityHeading.querySelector('.segmented').getBoundingClientRect();
+              const weekday=document.querySelector('.week-day');
+              const weekdayDate=weekday.querySelector('.day-date');
               const dayDate=document.querySelector('.week-day.is-selected .day-date');
               const statRows=Array.from(document.querySelectorAll('.rhythm-stats > div'));
               const statClearance=statRows.map((row,i)=>({left:row.getBoundingClientRect().left,separator:i?statRows[i-1].getBoundingClientRect().right:null,textLeft:row.querySelector('dd').getBoundingClientRect().left,textRight:row.querySelector('dd').getBoundingClientRect().right,rowRight:row.getBoundingClientRect().right}));
@@ -112,6 +118,11 @@ jobs:
                 rootScrollWidth:root.scrollWidth,
                 bodyScrollWidth:document.body.scrollWidth,
                 viewportWidth:innerWidth,
+                selectedDayCopyExists:!!document.querySelector('#selected-day-copy'),
+                weekdayHeight:weekday.getBoundingClientRect().height,
+                weekdayFont:parseFloat(getComputedStyle(weekdayDate).fontSize),
+                weekdayCount:document.querySelectorAll('.week-day').length,
+                activityHeading:{titleTop:activityTitle.top,titleBottom:activityTitle.bottom,toggleTop:activityToggle.top,toggleBottom:activityToggle.bottom,toggleRight:activityToggle.right,viewportRight:activityHeading.getBoundingClientRect().right},
                 offenders,
                 statClearance,
                 weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,crest:getComputedStyle(dayDate,'::after').animationName,rise:getComputedStyle(dayDate,'::before').animationName}:null,
@@ -121,6 +132,8 @@ jobs:
             assert.ok(!sceneQuality.mottleBackground.includes('url('),'Nebula texture must not use a scaled raster/SVG texture: '+sceneQuality.mottleBackground);
             assert.equal(sceneQuality.nebulaFilter,'none','Main animated nebula must avoid costly filter rasterization');
             assert.equal(sceneQuality.oldLayerCount,0,'Legacy visible SVG halo layers must be absent: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.selectedDayCopyExists,false,'Redundant selected-day summary must be removed');
+            assert.equal(sceneQuality.weekdayCount,7,'Seven weekday buttons must remain');
             assert.equal(sceneQuality.startSymbol,'✦','Start circle must use the Pulse Field ✦ symbol: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSvgCount,0,'Start symbol must not contain the old ECG ring SVG: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startHaloAnimation,'startHaloBreath','Outer start glow must breathe, not rotate: '+JSON.stringify(sceneQuality));
@@ -133,6 +146,9 @@ jobs:
             assert.equal(sceneQuality.weekFlow?.crest,'weekDateCrest','Selected week date should have a rising arc');
             assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
             if(mobile){
+              assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
+              assert.ok(Math.abs(sceneQuality.activityHeading.titleBottom-sceneQuality.activityHeading.toggleBottom)<17,'Activity toggle must align with section heading, not sit on a separate row: '+JSON.stringify(sceneQuality.activityHeading));
+              assert.ok(sceneQuality.activityHeading.toggleRight<=sceneQuality.activityHeading.viewportRight+1,'Activity toggle must fit within content width: '+JSON.stringify(sceneQuality.activityHeading));
               assert.equal(sceneQuality.statClearance.length,3,'Expected three rhythm metrics');
               for(let i=1;i<3;i++)assert.ok(sceneQuality.statClearance[i].textLeft-sceneQuality.statClearance[i].separator>=10,'Rhythm value is too close to vertical divider: '+JSON.stringify(sceneQuality.statClearance));
               for(let i=0;i<2;i++)assert.ok(sceneQuality.statClearance[i].rowRight-sceneQuality.statClearance[i].textRight>=7,'Rhythm value is too close to its right divider: '+JSON.stringify(sceneQuality.statClearance));
