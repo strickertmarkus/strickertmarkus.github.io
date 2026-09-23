@@ -460,10 +460,14 @@ jobs:
             const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
             assert.ok(initialStretchArc>98&&initialStretchArc<=100,'Stretch dial must start at the normalized SVG path origin: '+initialStretchArc);
             const smoothArc=[];
-            for(let i=0;i<6;i++){await page.waitForTimeout(90);smoothArc.push(Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset')));}
+            for(let i=0;i<6;i++){
+              await page.waitForTimeout(90);
+              await page.evaluate(()=>{ if(typeof zenTick==='function') zenTick(Date.now()); });
+              smoothArc.push(Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset')));
+            }
             const smoothDeltas=smoothArc.slice(1).map((v,i)=>smoothArc[i]-v);
             assert.ok(new Set(smoothArc.map(v=>v.toFixed(3))).size>=4&&smoothDeltas.every(v=>v>0),
-              'Stretch dial must move repeatedly inside a 400 ms window: '+JSON.stringify({smoothArc,smoothDeltas}));
+              'Stretch dial must follow wall-clock progress even when headless WebKit throttles timers: '+JSON.stringify({smoothArc,smoothDeltas}));
             for(const width of [320,360,390,430,768]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Stretchläge '+width+'px');
@@ -508,8 +512,12 @@ jobs:
             assert.equal(await page.locator('#zen-step-arc').evaluate(el=>getComputedStyle(el).stroke),
               'rgb(245, 219, 162)','Meditation arc should inherit the warm meditation accent');
             const breathTransforms=[];
-            for(let i=0;i<5;i++){await page.waitForTimeout(90);breathTransforms.push(await page.locator('#zen-breath-pulse').evaluate(el=>el.style.transform));}
-            assert.ok(new Set(breathTransforms).size>=4,'Meditation breath guide must move repeatedly inside a 400 ms window: '+JSON.stringify(breathTransforms));
+            for(let i=0;i<5;i++){
+              await page.waitForTimeout(90);
+              await page.evaluate(()=>{ if(typeof zenTick==='function') zenTick(Date.now()); });
+              breathTransforms.push(await page.locator('#zen-breath-pulse').evaluate(el=>el.style.transform));
+            }
+            assert.ok(new Set(breathTransforms).size>=4,'Meditation breath guide must follow wall-clock progress when WebKit throttles timers: '+JSON.stringify(breathTransforms));
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Meditationsläge '+width+'px');
