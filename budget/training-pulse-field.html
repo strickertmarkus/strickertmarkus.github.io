@@ -242,7 +242,12 @@
     <section class="field-section records-section" id="records" aria-labelledby="records-title">
       <div class="section-head">
         <div><p class="eyebrow">STARKASTE SIGNALERNA</p><h2 id="records-title">Personliga rekord</h2></div>
-        <span class="record-count" id="record-count">0 rekord</span>
+        <div class="record-actions"><span class="record-count" id="record-count">0 rekord</span><button class="record-customize" id="record-customize" type="button" aria-expanded="false" aria-controls="record-picker">Anpassa <span aria-hidden="true">✎</span></button></div>
+      </div>
+      <div class="record-picker" id="record-picker" hidden>
+        <div class="record-picker-head"><strong>Välj dina tre signaler</strong><button type="button" id="record-picker-close" aria-label="Stäng val av rekord">Stäng ×</button></div>
+        <div class="record-picker-fields" id="record-picker-fields"></div>
+        <p>Valen sparas på den här enheten för din träningsprofil.</p>
       </div>
       <div class="record-podium" id="record-podium"></div>
       <div class="record-groups" id="record-groups"></div>

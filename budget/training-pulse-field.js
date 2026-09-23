@@ -351,8 +351,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
       points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
     });
-    var labelIndexes=dateKeys.length<4?dateKeys.map(function(_,i){return i;}):[0,Math.floor((dateKeys.length-1)/2),dateKeys.length-1];
-    labelIndexes.forEach(function(index){var date=dateKeys[index];svg+='<text class="chart-axis-label" x="'+x(date)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(date)+'</text>';});
+    var daySpan=Math.round((dateAtNoon(dateKeys[dateKeys.length-1])-dateAtNoon(dateKeys[0]))/86400000);
+    var tickCount=daySpan===0?1:Math.min(5,daySpan+1);
+    for(var tick=0;tick<tickCount;tick++){
+      var dayOffset=tickCount===1?0:Math.round(daySpan*tick/(tickCount-1));
+      var tickDate=isoDate(shiftDate(dateKeys[0],dayOffset));
+      svg+='<text class="chart-axis-label volume-date-label" x="'+x(tickDate)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(tickDate)+'</text>';
+    }
     return svg+'</svg>';
   }
   function seriesPath(points) {
@@ -828,7 +833,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var detail=exercises.length+' övning'+(exercises.length===1?'':'ar');
       var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
         var seconds=exerciseSeconds(workout,exercise,exerciseIndex);
-        return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+formatDuration(seconds)+'</time>':'')+'</div>';
+        return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></div>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
@@ -854,10 +859,51 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     Object.keys(data.prs||{}).forEach(function(name){var value=number(data.prs[name]);if(!value)return;var key=name.toLowerCase();if(!map[key])map[key]={name:name,value:value,first:value,history:[value],category:recordCategory(name)};else map[key].value=Math.max(map[key].value,value);});
     return Object.keys(map).map(function(key){var record=map[key];record.gain=Math.max(0,record.value-record.first);return record;}).sort(function(a,b){return b.value-a.value;});
   }
+  function featuredRecordKeys(records) {
+    var available=records.map(function(record){return record.name.toLocaleLowerCase('sv-SE');});
+    var stored=readJSON('pulseFieldFeaturedRecords_'+profile,[]);
+    var selected=[];
+    if(Array.isArray(stored))stored.forEach(function(key){if(typeof key==='string'&&available.includes(key)&&!selected.includes(key)&&selected.length<3)selected.push(key);});
+    available.forEach(function(key){if(selected.length<3&&!selected.includes(key))selected.push(key);});
+    return selected;
+  }
+  function setFeaturedRecord(slot,key) {
+    var records=recordData(),keys=featuredRecordKeys(records),oldKey=keys[slot],otherSlot=keys.indexOf(key);
+    if(!records.some(function(record){return record.name.toLocaleLowerCase('sv-SE')===key;}))return;
+    if(otherSlot>=0&&otherSlot!==slot)keys[otherSlot]=oldKey||'';
+    keys[slot]=key;
+    try{localStorage.setItem('pulseFieldFeaturedRecords_'+profile,JSON.stringify(keys));}catch(_){}
+    renderRecords();
+  }
+  function setRecordPicker(open,slot) {
+    var picker=byId('record-picker'),toggle=byId('record-customize');
+    picker.hidden=!open;toggle.setAttribute('aria-expanded',String(open));
+    if(open&&slot!=null){
+      var control=picker.querySelector('[data-featured-select="'+slot+'"]');
+      if(control)control.focus();
+    }
+  }
+
   function renderRecords() {
     var records=recordData();byId('record-count').textContent=records.length+' rekord';
-    if(!records.length){byId('record-podium').innerHTML='';byId('record-groups').innerHTML='<p class="record-empty">Dina starkaste resultat får en egen plats här när de är loggade.</p>';return;}
-    byId('record-podium').innerHTML=records.slice(0,3).map(function(record,index){return '<article class="record-feature"><span class="rank">SIGNAL '+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><strong>'+formatKg(record.value)+'</strong><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></article>';}).join('');
+    if(!records.length){
+      byId('record-podium').innerHTML='';byId('record-picker-fields').innerHTML='';
+      byId('record-customize').disabled=true;
+      byId('record-groups').innerHTML='<p class="record-empty">Dina starkaste resultat får en egen plats här när de är loggade.</p>';return;
+    }
+    byId('record-customize').disabled=false;
+    var keys=featuredRecordKeys(records),byKey={};
+    records.forEach(function(record){byKey[record.name.toLocaleLowerCase('sv-SE')]=record;});
+    byId('record-podium').innerHTML=keys.map(function(key,index){
+      var record=byKey[key];
+      return '<article class="record-feature"><div class="record-feature-top"><span class="rank">SIGNAL '+String(index+1).padStart(2,'0')+'</span><button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för signal '+(index+1)+'">✎</button></div>'+
+        '<h3>'+escapeHtml(record.name)+'</h3><strong>'+formatKg(record.value)+'</strong><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></article>';
+    }).join('');
+    byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
+      return '<label class="record-picker-field"><span>Signal '+String(slot+1).padStart(2,'0')+'</span><select data-featured-select="'+slot+'" aria-label="Välj rekord för signal '+(slot+1)+'">'+
+        records.map(function(record){var key=record.name.toLocaleLowerCase('sv-SE');return '<option value="'+escapeHtml(key)+'"'+(keys[slot]===key?' selected':'')+'>'+escapeHtml(record.name)+'</option>';}).join('')+
+      '</select></label>';
+    }).join('');
     var groups={};records.forEach(function(record){(groups[record.category]||(groups[record.category]=[])).push(record);});
     byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){var rows=groups[category].map(function(record){return '<div class="record-row"><span>'+escapeHtml(record.name)+(record.gain?'<small>+'+formatNumber(record.gain,1)+' kg utveckling</small>':'')+'</span><strong>'+formatKg(record.value)+'</strong></div>';}).join('');return '<details class="record-group"'+(index===0?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>＋</i></summary><div class="record-list">'+rows+'</div></details>';}).join('');
   }
@@ -872,6 +918,16 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
+    byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
+    byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
+    byId('record-picker-fields').addEventListener('change',function(event){
+      var select=event.target.closest('[data-featured-select]');
+      if(select)setFeaturedRecord(number(select.dataset.featuredSelect),select.value);
+    });
+    byId('record-podium').addEventListener('click',function(event){
+      var edit=event.target.closest('[data-record-edit-slot]');
+      if(edit)setRecordPicker(true,number(edit.dataset.recordEditSlot));
+    });
     document.addEventListener('click',function(event){
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
       var logButton=event.target.closest('.log-summary');

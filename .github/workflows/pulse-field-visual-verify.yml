@@ -145,7 +145,7 @@ jobs:
                 insightControls:{tabsTop:insightTabs.top,tabsBottom:insightTabs.bottom,tabsRight:insightTabs.right,toggleTop:insightToggle.top,toggleBottom:insightToggle.bottom,toggleLeft:insightToggle.left,toggleRight:insightToggle.right,controlsRight:insightControls.getBoundingClientRect().right},
                 offenders,
                 statClearance,
-                weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,glow:getComputedStyle(dayDate,'::before').animationName,arc:getComputedStyle(dayDate,'::after').content}:null,
+                weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,selectedBorder:getComputedStyle(dayDate).borderTopWidth,dot:getComputedStyle(dayDate,'::after').content}:null,
                 starSizes:Array.from(document.querySelectorAll('.space-star__glyph')).map(el=>parseFloat(getComputedStyle(el).fontSize))
               };
             });
@@ -162,9 +162,11 @@ jobs:
             assert.equal(sceneQuality.startSymbolDuration,'2s','Start glyph heartbeat must repeat every two seconds: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSymbolColor,'rgb(255, 154, 145)','Start glyph should use Pulse Field theme accent: '+JSON.stringify(sceneQuality));
             assert.ok(new Set(sceneQuality.starSizes.map(v=>Math.round(v))).size>=5,'Pulse stars must keep visibly varied sizes: '+JSON.stringify(sceneQuality.starSizes));
-            assert.equal(sceneQuality.weekFlow?.animation,'weekDateShimmer','Selected week date should softly brighten');
-            assert.equal(sceneQuality.weekFlow?.glow,'weekDateGlow','Selected day needs stationary light glow');
-            assert.equal(sceneQuality.weekFlow?.arc,'none','Selected day must not display moving arc');
+            assert.equal(sceneQuality.weekFlow?.animation,'weekDateShimmer','Selected date should still shimmer');
+            assert.equal(sceneQuality.weekFlow?.selectedBorder,'1px','Only selected date needs a visible tile border');
+            assert.equal(sceneQuality.weekFlow?.dot,'""','The date indicator must be a dot beneath each date');
+            assert.equal(await page.locator('.week-day .day-date').count(),7,'Seven weekday dates must keep their small dots');
+            assert.equal(await page.locator('.week-day .day-date::after').count(),0,'Dots must be CSS pseudo-elements, not extra DOM rows');
             assert.equal(sceneQuality.metricAxisLines,0,'Heart graph should retain the earlier Pulse Field treatment without metric axes: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
@@ -172,6 +174,7 @@ jobs:
             assert.equal((await page.locator('#activity-chart .chart-axis-unit').textContent()).trim(),'MIN','Activity minutes graph needs axis units');
             assert.equal((await page.locator('#insight-chart .chart-axis-unit').textContent()).trim(),'BPM','Heart graph needs axis units');
             assert.equal((await page.locator('#volume-chart .chart-axis-unit').textContent()).trim(),'KG','Training volume graph needs axis units');
+            assert.equal(await page.locator('#volume-chart .volume-date-label').count(),5,'Sparse training-volume data should still have five evenly spaced time-axis labels');
             assert.ok(sceneQuality.activityPlotWidthRatio>.85,'Activity bars must fill nearly the entire chart width: '+JSON.stringify(sceneQuality));
             assert.ok(sceneQuality.activityPlotLeft>=18&&sceneQuality.activityPlotRight<=sceneQuality.activityViewBoxWidth-5,'Activity plot labels must stay inside viewbox');
             if(mobile){
@@ -245,6 +248,9 @@ jobs:
             assert.ok(await page.locator('#pace-distance-comparison').isHidden(),'Scatter must only show for Pace');
             const firstLog=page.locator('#log-timeline [data-log-card]').first();
             assert.equal(await firstLog.locator('.log-mini-meter').count(),3,'Three log interval charts must render');
+            assert.ok(await firstLog.locator('.exercise-row').count()>0,'Open training log must have exercises');
+            assert.equal(await firstLog.locator('.exercise-row').first().locator('.exercise-performance').count(),1,'Exercise value and duration must share the same metric column');
+            assert.ok(await firstLog.locator('.exercise-row').first().locator('.exercise-performance .exercise-result').isVisible(),'Exercise value must remain visible in compact metric column');
             const cardioLog=page.locator('#log-timeline [data-log-card]').nth(1);
             await cardioLog.locator('.log-summary').click();
             assert.equal(await cardioLog.locator('.log-mini-meter:not(.is-missing)').count(),3,'Cardio demo must expose recorded pulse VO2 and pace');
@@ -272,6 +278,20 @@ jobs:
             assert.equal(await page.locator('#activity-chart .metric-chart-unit-label').count(),0,'Activity graph must not show a metric unit badge');
             await page.locator('[data-activity-metric="minutes"]').click();
             await page.waitForTimeout(40);
+
+            assert.equal(await page.locator('#record-podium .record-feature').count(),3,'Three featured records should appear in demo data');
+            await page.locator('#record-customize').click();
+            assert.ok(await page.locator('#record-picker').isVisible(),'Record picker must open from Customize');
+            assert.equal(await page.locator('#record-picker-fields select').count(),3,'Three record selection dropdowns must be available');
+            const initialRecord=(await page.locator('#record-podium .record-feature h3').first().textContent()).trim();
+            const alternatives=await page.locator('[data-featured-select="0"] option').evaluateAll(opts=>opts.map(opt=>({value:opt.value,label:opt.textContent})));
+            const alternative=alternatives.find(item=>item.label.trim()!==initialRecord&&!alternatives.slice(0,3).some((top,index)=>index>0&&top.label.trim()===item.label.trim()));
+            assert.ok(alternative,'Demo data should have another record to select');
+            await page.locator('[data-featured-select="0"]').selectOption(alternative.value);
+            assert.equal((await page.locator('#record-podium .record-feature h3').first().textContent()).trim(),alternative.label.trim(),'Chosen featured record must appear in the first card');
+            await page.reload({waitUntil:'domcontentloaded'});
+            assert.equal((await page.locator('#record-podium .record-feature h3').first().textContent()).trim(),alternative.label.trim(),'Featured record selection must survive reload');
+            assert.ok(await page.locator('#record-picker').isHidden(),'Editor should start closed after reload');
 
             const before=await animationSnapshot(page);
             await page.waitForTimeout(1800);

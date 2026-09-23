@@ -163,16 +163,15 @@ main{position:relative;z-index:2;display:block}
 .week-orbit-art path{fill:none;stroke:#ff9a9133;stroke-width:1}
 .week-orbit-art .week-orbit-light{stroke:#ffd2bd;stroke-width:1.7;stroke-linecap:round;stroke-dasharray:1 99;filter:drop-shadow(0 0 5px #ff9a91) drop-shadow(0 0 12px #ff657a);animation:weekSweep 26s linear infinite}
 .week-days{position:relative;z-index:2;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:8px 4px;border:1px solid transparent;border-radius:50%;background:#090f15d9;cursor:pointer;transition:.3s ease}
-.week-day::before{content:"";position:absolute;inset:8px;border:1px solid #ffffff0c;border-radius:50%}
-.week-day:hover,.week-day.is-selected{border-color:#ff9a9168;background:radial-gradient(circle at 40% 25%,#ff9a9114,#0b1118 72%);box-shadow:0 0 24px #ff657a18}
-.week-day.is-today{color:var(--field-peach)}
-.week-day.is-today::after{content:"";position:absolute;bottom:11px;width:5px;height:5px;border-radius:50%;background:#ffd1ba;box-shadow:0 0 8px #ff9a91,0 0 17px #ff657a}
-.week-day.is-complete{border-color:#ff9a9138}
+.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:6px 2px;background:transparent;border:0;border-radius:12px;cursor:pointer}
 .week-day .day-name{color:var(--field-muted);font-size:9px;letter-spacing:1px;text-transform:uppercase}
-.week-day .day-date{position:relative;z-index:1;display:inline-block;font:500 26px/1.1 var(--field-serif)}
-.week-day.is-selected .day-date{color:#ffdacb;text-shadow:0 0 11px #ff9a9170;animation:weekDateShimmer 4.8s ease-in-out infinite}
-.week-day.is-selected .day-date::before{content:"";position:absolute;z-index:-1;inset:-8px -14px;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse at center,#ffd2bd80 0%,#ff9a9155 30%,#ff657a22 57%,transparent 75%);filter:blur(6px);animation:weekDateGlow 4.8s ease-in-out infinite}
+.week-day .day-date{position:relative;display:grid;place-items:center;isolation:isolate;width:46px;height:50px;margin-top:3px;padding-bottom:9px;border:1px solid transparent;border-radius:12px;color:#d4d7da;font:500 26px/1.1 var(--field-serif);transition:background .25s,border-color .25s}
+.week-day:hover .day-date{background:#ff9a910b}
+.week-day.is-today .day-date{color:var(--field-peach)}
+.week-day.is-selected .day-date{border-color:#ff9a9168;background:radial-gradient(ellipse at 50% 30%,#ff9a9113,#0b1118 78%);color:#ffdacb;animation:weekDateShimmer 4.8s ease-in-out infinite}
+.week-day .day-date::after{content:"";position:absolute;bottom:5px;left:50%;width:5px;height:5px;border-radius:50%;transform:translateX(-50%);background:#606b76;pointer-events:none}
+.week-day.is-complete .day-date::after{background:#ffd2bd;box-shadow:0 0 7px #ff9a91a6,0 0 13px #ff657a57;animation:weekDonePulse 3.8s ease-in-out infinite}
+.week-day.is-selected.is-complete .day-date::before{content:"";position:absolute;bottom:-4px;left:50%;width:25px;height:25px;border-radius:50%;transform:translateX(-50%);pointer-events:none;background:radial-gradient(circle,#ffd2bd72 0%,#ff657a34 38%,transparent 73%);animation:weekDotFlow 3.8s ease-in-out infinite}
 .week-day .day-type{max-width:72px;overflow:hidden;color:#c4cbd2;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
 
 .activity-section{padding-top:34px;padding-bottom:30px}
@@ -320,18 +319,35 @@ main{position:relative;z-index:2;display:block}
 .vital strong{display:block;margin-top:3px;color:#e9e7e5;font:500 19px var(--field-serif)}
 .pulse-vital{grid-column:1/-1;position:relative;overflow:hidden}
 .pulse-vital::after{content:"";position:absolute;left:12px;right:12px;bottom:9px;height:1px;background:linear-gradient(90deg,#ff657a,#ffd2bd,#ff657a);box-shadow:0 0 8px #ff657a80;opacity:.55}
-.exercise-stack{display:grid;gap:6px}
-.exercise-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;align-items:center;gap:12px;min-height:40px;padding:4px 0;border-bottom:1px solid #ffffff0b}
+.exercise-stack{display:grid;gap:0;border-top:1px solid #ffffff0b}
+.exercise-row{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(86px,auto);align-items:center;gap:10px;min-height:56px;padding:8px 0;border-bottom:1px solid #ffffff0d}
 .exercise-index{display:grid;place-items:center;width:24px;height:24px;border:1px solid #ff9a9128;border-radius:50%;color:var(--field-coral);font-size:9px}
-.exercise-name{min-width:0;overflow:hidden;color:#d9dde1;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
-.exercise-result{color:#b7c0c9;font-size:11px;white-space:nowrap}
-.exercise-time{color:var(--field-cyan);font-size:10px;white-space:nowrap}
+.exercise-name{min-width:0;color:#d9dde1;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.exercise-performance{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;min-width:0;padding-left:9px;border-left:1px solid #ffffff13;text-align:right;font-variant-numeric:tabular-nums}
+.exercise-result{color:#d9d5d5;font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.exercise-time{display:inline-flex;align-items:center;gap:4px;color:var(--field-cyan);font-size:10px;line-height:1.2;white-space:nowrap}
+.exercise-time span{font-size:12px;opacity:.65}
 .log-empty,.record-empty{padding:25px 0;border-top:1px solid var(--field-line);color:var(--field-muted);font-size:12px}
 
+.record-actions{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 .record-count{color:var(--field-muted);font-size:11px}
+.record-customize,.record-feature-edit,.record-picker-head button{border:1px solid #ff9a913c;background:#ff9a910a;color:var(--field-peach);cursor:pointer}
+.record-customize{padding:6px 10px;border-radius:999px;font-size:10px}
+.record-customize span{padding-left:4px}
+.record-customize:disabled{opacity:.35;cursor:default}
+.record-picker{margin:0 0 15px;padding:14px;border:1px solid #ff9a9135;border-radius:14px;background:linear-gradient(130deg,#ff657a0a,#0e151c 60%)}
+.record-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.record-picker-head strong{color:#e7d8d0;font-size:12px}
+.record-picker-head button{padding:5px 9px;border-radius:8px;font-size:10px}
+.record-picker-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.record-picker-field{display:grid;gap:5px;min-width:0;color:var(--field-muted);font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.record-picker-field select{width:100%;min-width:0;min-height:37px;padding:6px 20px 6px 8px;border:1px solid #ff9a9133;border-radius:8px;background:#151a22;color:#e9e1df;font:11px var(--field-ui);text-transform:none;letter-spacing:0}
+.record-picker p{margin:10px 0 0;color:var(--field-faint);font-size:9px}
 .record-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
 .record-feature{position:relative;min-height:134px;padding:16px;border:1px solid #ff9a9124;border-radius:18px;background:radial-gradient(circle at 22% 10%,#ff9a9110,transparent 55%),#0d141b;overflow:hidden}
 .record-feature::after{content:"";position:absolute;width:80px;height:80px;right:-32px;bottom:-36px;border:1px solid #ff9a9128;border-radius:50%;box-shadow:0 0 35px #ff657a12}
+.record-feature-top{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.record-feature-edit{position:relative;z-index:1;display:grid;place-items:center;flex:0 0 auto;width:24px;height:24px;border-radius:50%;font-size:11px}
 .record-feature .rank{color:var(--field-coral);font-size:9px;letter-spacing:1.5px}
 .record-feature h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:190px;min-height:2.6em;margin:12px 0 7px;font:500 13px/1.3 var(--field-ui);overflow-wrap:anywhere}
 .record-feature strong{display:block;color:#fff2eb;font:600 27px/1.1 var(--field-ui);font-variant-numeric:tabular-nums;text-shadow:0 0 20px #ff657a22;white-space:nowrap}
@@ -369,7 +385,8 @@ main{position:relative;z-index:2;display:block}
 @keyframes startHaloBreath{0%,100%{transform:scale(.96);opacity:.38}50%{transform:scale(1.09);opacity:.90}}
 @keyframes startSymbolHeartbeat{0%,6%,31%,100%{transform:scale(1);opacity:.88}10%{transform:scale(1.13);opacity:1}15%{transform:scale(1.02);opacity:.94}21%{transform:scale(1.20);opacity:1}29%{transform:scale(1);opacity:.88}}
 @keyframes weekSweep{to{stroke-dashoffset:-100}}
-@keyframes weekDateGlow{0%,100%{opacity:.25;transform:scale(.94)}50%{opacity:.85;transform:scale(1.06)}}
+@keyframes weekDonePulse{0%,100%{box-shadow:0 0 3px #ff9a9166,0 0 8px #ff657a26;opacity:.65}50%{box-shadow:0 0 9px #ffd2bd,0 0 20px #ff657a91;opacity:1}}
+@keyframes weekDotFlow{0%,100%{opacity:.23;transform:translateX(-50%) scale(.7)}50%{opacity:.92;transform:translateX(-50%) scale(1.25)}}
 @keyframes weekDateShimmer{0%,100%{text-shadow:0 0 6px #ff9a9146}42%{text-shadow:0 0 12px #ff9a91a6,0 0 21px #ff657a51}}
 @keyframes barRise{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
 
@@ -420,12 +437,10 @@ main{position:relative;z-index:2;display:block}
   .week-section{padding-bottom:20px}
   .week-field-shell{min-height:100px;padding-top:7px}
   .week-days{gap:3px}
-  .week-day{min-height:83px;border-radius:14px;padding:8px 1px}
-  .week-day::before{display:none}
+  .week-day{min-height:83px;padding:6px 1px}
   .week-day .day-name{font-size:10px;letter-spacing:.8px}
-  .week-day .day-date{font-size:28px;line-height:1.06}
+  .week-day .day-date{width:42px;height:52px;font-size:28px;line-height:1.06}
   .week-day .day-type{display:none}
-  .week-day.is-today::after{bottom:7px}
   .activity-heading,.insight-section>.section-head{margin-bottom:8px}
   .section-controls{gap:10px}
   .section-controls>.segmented button{min-height:34px;padding:0 10px;font-size:10px}
@@ -473,14 +488,20 @@ main{position:relative;z-index:2;display:block}
   .pulse-vital{grid-column:auto}
   .vital{padding:10px 8px}
   .vital strong{font-size:16px}
-  .exercise-row{grid-template-columns:25px minmax(0,1fr) auto}
-  .exercise-time{grid-column:3}
-  .exercise-result{white-space:normal;text-align:right;overflow-wrap:anywhere}
+  .exercise-row{grid-template-columns:25px minmax(0,1fr) minmax(86px,34%);gap:8px;min-height:56px}
+  .exercise-result{font-size:11px}
+  .exercise-performance{padding-left:7px}
   .log-title strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .log-result{font:600 12px var(--field-ui)}
+  .record-picker{padding:10px}
+  .record-picker-fields{grid-template-columns:minmax(0,1fr)}
+  .record-actions{gap:4px}
+  .record-count{font-size:9px}
+  .record-customize{padding:5px 7px;font-size:9px}
   .record-podium{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
   .record-feature{min-width:0;min-height:136px;padding:11px 9px}
   .record-feature .rank{font-size:8px;letter-spacing:.4px}
+  .record-feature-edit{width:22px;height:22px;font-size:10px}
   .record-feature h3{max-width:100%;min-height:2.6em;margin-top:8px;margin-bottom:7px;font-size:11px}
   .record-feature strong{font-size:clamp(13px,3.4vw,19px)}
   .record-feature p{position:static;margin-top:9px;font-size:8px;line-height:1.4}
@@ -507,6 +528,6 @@ main{position:relative;z-index:2;display:block}
 @media(prefers-reduced-motion:reduce){
   .field-aura{filter:none!important}
   html{scroll-behavior:auto}
-  .space-scene__nebula,.space-scene__nebula::before,.space-scene__mottle,.space-scene__drift,.space-scene__flecks,.space-star,.space-star__glyph,.space-star__glyph::after,.rhythm-section::before,.rhythm-section::after,.signal-main,.start-orbit::after,.start-field-symbol,.week-orbit-light,.week-day.is-selected .day-date,.week-day.is-selected .day-date::before,.activity-bar{animation:none!important}
+  .space-scene__nebula,.space-scene__nebula::before,.space-scene__mottle,.space-scene__drift,.space-scene__flecks,.space-star,.space-star__glyph,.space-star__glyph::after,.rhythm-section::before,.rhythm-section::after,.signal-main,.start-orbit::after,.start-field-symbol,.week-orbit-light,.week-day.is-selected .day-date,.week-day.is-complete .day-date::after,.week-day.is-selected.is-complete .day-date::before,.activity-bar{animation:none!important}
   *,*::before,*::after{transition-duration:.01ms!important}
 }
