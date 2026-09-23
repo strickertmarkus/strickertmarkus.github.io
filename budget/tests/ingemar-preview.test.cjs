@@ -152,7 +152,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260923-chart-polish-6/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260923-zen-builder-7/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -182,4 +182,23 @@ test('Ingemar graph polish keeps responsive SVG, a compact status line, luminous
  assert.match(css,/\.pp-dot-core\{/);
  assert.match(css,/\.pp-chart,\.pp-exercise-chart\{height:190px\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.pp-summary-pulse\{animation:none\}\}/);
+});
+
+test('Zen stretch and meditation support custom routines, editable planned days, and full saved session history',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ for(const kind of ['stretch','meditation'])assert.match(source[1],new RegExp("zenRoutinesFor\\(kind\\)"));
+ for(const id of ['zen-editor','zen-edit-name','zen-edit-steps','zen-edit-date','zen-edit-notes','zen-edit-minutes','zen-day-dialog','zen-day-date','zen-day-routine'])assert.match(html,new RegExp('id="'+id+'"'));
+ for(const action of ['create','log','add-step','save-editor','save-start','delete-entry','save-day','start-day'])assert.match(html,new RegExp('data-zen-action="'+action+'"'));
+ for(const fn of ['ensureZenData','zenPlanForDate','zenRoutinesFor','openZenRoutineEditor','openZenHistoryEditor','syncZenEditor','renderZenEditor','saveZenEditor','removeZenEntry','openZenDay','saveZenDay','zenEditorAction'])assert.match(source[1],new RegExp('function '+fn+'\\('));
+ assert.match(source[1],/state\.zenPlans\[zenDayKind\]\[date\]=routine\?routine\.id:null/);
+ assert.match(source[1],/state\.zenHistory\.push\(\{id:uid\(\),date:dayISO\(new Date\(\)\),type:activeZen\.type/);
+ assert.match(source[1],/steps:deep\(activeZen\.steps\),notes:''/);
+ assert.match(source[1],/zenDeletedDemoIds/);
+ assert.match(source[1],/data-zen-history/);
+ assert.match(source[1],/data-zen-day/);
+ assert.match(css,/\.zen-editor-dialog\{/);
+ assert.match(css,/\.zen-library-card\{/);
+ assert.match(css,/\.zen-step-editor\{/);
+ assert.match(css,/@media\(max-width:740px\)/);
+ assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
