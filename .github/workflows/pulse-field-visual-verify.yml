@@ -285,8 +285,8 @@ jobs:
             assert.equal(await page.locator('#record-picker-fields select').count(),3,'Three record selection dropdowns must be available');
             const initialRecord=(await page.locator('#record-podium .record-feature h3').first().textContent()).trim();
             const alternatives=await page.locator('[data-featured-select="0"] option').evaluateAll(opts=>opts.map(opt=>({value:opt.value,label:opt.textContent})));
-            const alternative=alternatives.find(item=>item.label.trim()!==initialRecord&&!alternatives.slice(0,3).some((top,index)=>index>0&&top.label.trim()===item.label.trim()));
-            assert.ok(alternative,'Demo data should have another record to select');
+            const alternative=alternatives.find(item=>item.label.trim()!==initialRecord);
+            assert.ok(alternative,'Demo data should have another record to swap into the first slot');
             await page.locator('[data-featured-select="0"]').selectOption(alternative.value);
             assert.equal((await page.locator('#record-podium .record-feature h3').first().textContent()).trim(),alternative.label.trim(),'Chosen featured record must appear in the first card');
             await page.reload({waitUntil:'domcontentloaded'});
