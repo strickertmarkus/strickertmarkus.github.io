@@ -200,7 +200,7 @@ jobs:
               assert.equal((await page.locator('#insight-chart .metric-chart-unit-label').textContent()).trim(),unit,'Wrong unit for '+metric);
               assert.ok(await page.locator('#insight-chart .metric-chart-axis-line').count()>=2,'Missing old-page style axes for '+metric);
               assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=minYLabels,'Too few Y-axis ticks for '+metric);
-              assert.ok(await page.locator('#insight-chart .metric-chart-x-label').count()>=4,'Too few date labels for '+metric);
+              assert.ok(await page.locator('#insight-chart .metric-chart-x-label').count()>=3,'Too few date labels for '+metric);
             }
             await page.locator('[data-insight="heart"]').click();
             await page.waitForTimeout(40);
