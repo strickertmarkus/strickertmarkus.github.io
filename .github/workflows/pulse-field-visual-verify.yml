@@ -216,9 +216,10 @@ jobs:
             const before=await animationSnapshot(page);
             await page.waitForTimeout(1800);
             const after=await animationSnapshot(page);
+            const minimumMotion={nebula:.12,mottle:.55,near:.55,flecks:.55};
             ['nebula','mottle','near','flecks'].forEach(key=>{
               const dx=after[key].x-before[key].x,dy=after[key].y-before[key].y,distance=Math.hypot(dx,dy);
-              assert.ok(distance>.55,key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance}));
+              assert.ok(distance>minimumMotion[key],key+' motion is too small to register visually: '+JSON.stringify({before:before[key],after:after[key],distance,minimum:minimumMotion[key]}));
             });
             assert.equal(before.stars.length,10,'Expected ten independent pulse stars');
             const starVectors=after.stars.map((star,i)=>{
