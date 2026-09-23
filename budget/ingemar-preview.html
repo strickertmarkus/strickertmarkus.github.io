@@ -1009,27 +1009,24 @@ function zenTick(now){
 }
 function clearZenSchedule(){
  if(zenAnimationFrame!==null){cancelAnimationFrame(zenAnimationFrame);zenAnimationFrame=null;}
- if(zenAnimationWatchdog!==null){clearTimeout(zenAnimationWatchdog);zenAnimationWatchdog=null;}
+ if(zenAnimationWatchdog!==null){clearInterval(zenAnimationWatchdog);zenAnimationWatchdog=null;}
 }
 function stopZenTimer(){clearZenSchedule();}
 function zenAnimationTick(){
- if(zenAnimationWatchdog!==null){clearTimeout(zenAnimationWatchdog);zenAnimationWatchdog=null;}
  zenAnimationFrame=null;
  if(!activeZen||$('zen-session').hidden||!activeZen.running)return;
  zenTick(Date.now());
- scheduleZenAnimation();
+ zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
 }
 function zenAnimationFallback(){
- if(zenAnimationFrame!==null){cancelAnimationFrame(zenAnimationFrame);zenAnimationFrame=null;}
- zenAnimationWatchdog=null;
- zenAnimationTick();
+ if(!activeZen||$('zen-session').hidden||!activeZen.running)return;
+ zenTick(Date.now());
 }
-function scheduleZenAnimation(){
- if(!activeZen||$('zen-session').hidden||!activeZen.running||zenAnimationFrame!==null||zenAnimationWatchdog!==null)return;
- zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
- zenAnimationWatchdog=setTimeout(zenAnimationFallback,64);
+function startZenTimer(){
+ if(!activeZen||$('zen-session').hidden||!activeZen.running)return;
+ if(zenAnimationFrame===null)zenAnimationFrame=requestAnimationFrame(zenAnimationTick);
+ if(zenAnimationWatchdog===null)zenAnimationWatchdog=setInterval(zenAnimationFallback,64);
 }
-function startZenTimer(){scheduleZenAnimation();}
 function renderZenSession(){
  if(!activeZen)return;
  var position=zenStepAt(activeZen.elapsed),step=position.step,done=activeZen.elapsed>=activeZen.duration,next=activeZen.steps[position.index+1]||null;

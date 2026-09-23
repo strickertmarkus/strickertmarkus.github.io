@@ -161,7 +161,7 @@ test('shared family iframe and Zen remain mobile friendly',()=>{
  assert.match(html,/id="zen-total-progress" role="progressbar"/);assert.match(css,/\.zen-workout \.zen-step-arc\{/);assert.match(css,/\.zen-workout \.zen-total-time\{/);
  assert.match(source[1],/arc\.setAttribute\('stroke-dashoffset'/);assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
  assert.match(source[1],/function startZenTimer\(\)/);assert.match(source[1],/function stopZenTimer\(\)/);assert.match(source[1],/function zenAnimationTick\(\)/);assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);assert.match(source[1],/cancelAnimationFrame\(zenAnimationFrame\)/);
- assert.match(source[1],/function scheduleZenAnimation\(\)/);assert.match(source[1],/function zenAnimationFallback\(\)/);assert.match(source[1],/setTimeout\(zenAnimationFallback,64\)/);assert.match(source[1],/clearTimeout\(zenAnimationWatchdog\)/);
+ assert.match(source[1],/function zenAnimationFallback\(\)/);assert.match(source[1],/setInterval\(zenAnimationFallback,64\)/);assert.match(source[1],/clearInterval\(zenAnimationWatchdog\)/);
  assert.doesNotMatch(source[1],/if\(!document\.hidden\)zenTick/);assert.match(source[1],/zenTick\(Date\.now\(\)\)/);
  assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);assert.match(css,/--mode-glow:/);
  assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);assert.match(html,/class="zen-focus-grid"/);assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);assert.match(css,/@keyframes zenWaterRipple/);
