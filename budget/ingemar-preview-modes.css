@@ -488,3 +488,73 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .pp-summary-pulse{animation:ppSummaryFlash .48s ease-out}.pp-summary.pull.pp-summary-pulse{animation-name:ppSummaryFlashCyan}
 @media(max-width:760px){.pp-line{filter:none}.pp-chart-canvas-glow{display:block}}
 @media(prefers-reduced-motion:reduce){.pp-summary-pulse{animation:none}}
+
+/* Zen pass library, date-specific weekly plans, and editable training history. */
+.zen-section-head{align-items:center;gap:12px}
+.zen-section-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:0}
+.zen-inline-action,.zen-week-arrow{border:1px solid var(--zen-border,#9fe0ad46);border-radius:999px;background:rgba(var(--zen-accent-rgb,159,224,173),.055);color:var(--zen-accent,#9fe0ad);font:700 11px Inter,system-ui,sans-serif;padding:9px 13px;min-height:35px;white-space:nowrap;transition:border-color .2s,background .2s,box-shadow .2s}
+.zen-inline-action:hover,.zen-week-arrow:hover{border-color:var(--zen-accent,#9fe0ad);background:rgba(var(--zen-accent-rgb,159,224,173),.12);box-shadow:0 0 18px rgba(var(--zen-accent-rgb,159,224,173),.14)}
+.zen-week-arrow{display:grid;place-items:center;min-width:35px;padding:6px;font-size:22px;line-height:1}
+.zen-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
+.zen-library-card{display:flex;flex-direction:column;min-width:0;border:1px solid rgba(var(--zen-accent-rgb),.17);border-radius:17px;background:radial-gradient(circle at 85% 2%,rgba(var(--zen-accent-rgb),.08),transparent 55%),#ffffff03;overflow:hidden;transition:border-color .25s,box-shadow .25s}
+.zen-library-card:hover{border-color:rgba(var(--zen-accent-rgb),.4);box-shadow:0 0 27px rgba(var(--zen-accent-rgb),.07)}
+.zen-choices .zen-library-card .zen-choice{width:100%;min-height:123px;flex:1;border:none;border-radius:0;background:transparent;text-align:left}
+.zen-library-tools{display:flex;gap:4px;padding:0 9px 9px}
+.zen-library-tools button{flex:1;min-width:0;min-height:34px;border:1px solid rgba(var(--zen-accent-rgb),.22);border-radius:10px;background:rgba(var(--zen-accent-rgb),.035);color:var(--zen-ink);font-size:10px;font-weight:700}
+.zen-library-tools button:hover{border-color:var(--zen-accent);background:rgba(var(--zen-accent-rgb),.1)}
+.zen-week .zen-day{cursor:pointer}.zen-week .zen-day:not(.is-planned){opacity:.74}.zen-week .zen-day:not(.is-planned):hover{opacity:1;border-color:rgba(var(--zen-accent-rgb),.4)}
+.zen-week .zen-day span{display:block;overflow-wrap:anywhere;line-height:1.3}
+.zen-history .zen-history-row{width:100%;text-align:left;cursor:pointer;font:inherit}
+.zen-history .zen-history-row:hover{border-color:rgba(var(--zen-accent-rgb),.45);background:rgba(var(--zen-accent-rgb),.075)}
+.zen-history .zen-history-row:focus-visible,.zen-week .zen-day:focus-visible,.zen-library-tools button:focus-visible,.zen-choices .zen-choice:focus-visible{outline:2px solid var(--zen-accent);outline-offset:3px}
+.zen-editor-dialog{--zen-accent:#9fe0ad;--zen-accent-rgb:159,224,173;--zen-border:#9fe0ad46;--zen-ink:#dff8e5;width:min(700px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;border-color:rgba(var(--zen-accent-rgb),.32);background:radial-gradient(circle at 90% -5%,rgba(var(--zen-accent-rgb),.075),transparent 47%),linear-gradient(145deg,#161d25,#0c141b)}
+.zen-editor-dialog[data-kind="meditation"]{--zen-accent:#f0d17e;--zen-accent-rgb:240,209,126;--zen-border:#f0d17e49;--zen-ink:#fff3ca}
+.zen-editor-dialog [hidden]{display:none!important}
+.zen-editor-dialog .modal-head{background:#111a20f5;border-bottom-color:rgba(var(--zen-accent-rgb),.14)}
+.zen-editor-dialog .modal-head .eyebrow,.zen-editor-dialog .zen-editor-steps-heading .eyebrow{color:var(--zen-accent);font-size:9px;letter-spacing:.13em}
+.zen-editor-dialog .modal-head .x{flex:0 0 38px}
+.zen-editor-dialog .modal-body,.zen-editor-dialog .modal-actions,.zen-editor-dialog .modal-actions .right{min-width:0;max-width:100%}
+.zen-editor-dialog .field{display:grid;gap:7px;min-width:0;margin:0 0 12px;color:#bac5c6;font-size:11px;font-weight:680}
+.zen-editor-dialog .field input,.zen-editor-dialog .field textarea,.zen-editor-dialog .field select,.zen-editor-dialog .zen-step-editor input,.zen-editor-dialog .zen-step-editor textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;border:1px solid rgba(var(--zen-accent-rgb),.23);border-radius:11px;background:#ffffff06;color:#f3f7f5;padding:11px 12px;font:500 13px Inter,system-ui,sans-serif;outline:none;appearance:auto}
+.zen-editor-dialog .field textarea,.zen-editor-dialog .zen-step-editor textarea{resize:vertical;line-height:1.5}
+.zen-editor-dialog input:focus-visible,.zen-editor-dialog textarea:focus-visible,.zen-editor-dialog select:focus-visible{border-color:var(--zen-accent);box-shadow:0 0 15px rgba(var(--zen-accent-rgb),.1)}
+.zen-editor-meta{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(110px,.8fr);gap:8px}
+.zen-editor-meta>.field:first-child{grid-column:1/-1}
+.zen-editor-steps-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:18px 0 12px}
+.zen-editor-steps-heading strong{display:block;color:var(--zen-ink);font-size:14px;margin-top:7px;font-weight:570}
+.zen-editor-steps-heading>span{color:var(--zen-accent);font-size:11px;white-space:nowrap}
+.zen-editor-steps{display:grid;gap:10px}
+.zen-step-editor{border:1px solid rgba(var(--zen-accent-rgb),.17);background:linear-gradient(145deg,rgba(var(--zen-accent-rgb),.055),#ffffff02);border-radius:14px;padding:12px;min-width:0}
+.zen-step-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.zen-step-editor-head>span{font-size:9px;letter-spacing:.13em;font-weight:800;color:var(--zen-accent)}
+.zen-step-editor-tools{display:flex;gap:5px}
+.zen-step-editor-tools button{min-width:31px;min-height:29px;border:1px solid rgba(var(--zen-accent-rgb),.2);border-radius:9px;background:#ffffff07;color:var(--zen-ink);font-size:17px}
+.zen-step-editor-tools button:disabled{opacity:.25;cursor:default}
+.zen-step-fields{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(100px,.7fr);gap:9px}
+.zen-step-editor label{min-width:0;display:grid;gap:6px;margin-bottom:10px;color:#aebdbc;font-size:10px;font-weight:600}
+.zen-step-editor label:last-child{margin-bottom:0}
+.zen-add-step{margin-top:12px;width:100%;border-style:dashed}
+.zen-editor-dialog .zen-edit-note{font-size:10px;line-height:1.55;margin:14px 0}
+.zen-editor-dialog .primary,.zen-editor-dialog .secondary{border:1px solid rgba(var(--zen-accent-rgb),.48);border-radius:12px;background:rgba(var(--zen-accent-rgb),.13);color:var(--zen-ink);padding:11px 15px;font-size:11px;font-weight:750}
+.zen-editor-dialog .primary{background:linear-gradient(115deg,rgba(var(--zen-accent-rgb),.93),rgba(var(--zen-accent-rgb),.66));color:#09130d}
+.zen-editor-dialog[data-kind="meditation"] .primary{color:#261e0d}
+.zen-editor-dialog .ghost{color:#aab7b8}
+.zen-editor-dialog #zen-edit-delete{border-color:#db748047;color:#eab1b6;background:#db74800b}
+.zen-editor-dialog .zen-editor-actions .right{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+@media(max-width:740px){
+ .zen-section-head{align-items:flex-start;flex-direction:column;gap:8px}
+ .zen-section-actions{justify-content:flex-start;gap:6px}
+ .zen-section-actions .hint{font-size:10px;line-height:1.35}
+ .zen-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .zen-choices .zen-library-card .zen-choice{min-height:111px;padding:12px}
+ .zen-library-tools{padding:0 6px 7px;gap:5px}
+ .zen-library-tools button{font-size:9px}
+ .zen-editor-dialog .modal-head{padding:14px}
+ .zen-editor-dialog .modal-body{padding:13px 11px 18px}
+ .zen-editor-dialog .modal-actions{display:grid;grid-template-columns:1fr}
+ .zen-editor-dialog .modal-actions>.ghost{justify-self:start}
+ .zen-editor-dialog .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+ .zen-editor-dialog .modal-actions .right button{min-width:0;width:100%;padding:12px 7px}
+}
+@media(max-width:370px){.zen-choices{grid-template-columns:1fr}.zen-step-fields{grid-template-columns:1fr}.zen-editor-meta{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.zen-library-card,.zen-library-tools button{transition:none}}
