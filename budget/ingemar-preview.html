@@ -286,6 +286,61 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
         <g fill="#142f2c"><path d="M75 260V25h12v235Z"/><path d="M114 260V0h10v260Z"/><path d="M685 260V9h11v251Z"/><path d="M716 260V31h9v229Z"/></g>
         <g stroke="#6eae8c" stroke-width="2" fill="#285947"><path d="M83 68Q28 22 5 70Q44 53 83 68Z"/><path d="M118 112Q172 68 193 103Q157 89 118 112Z"/><path d="M689 81Q640 35 608 65Q649 60 689 81Z"/><path d="M719 141Q776 96 814 132Q767 122 719 141Z"/></g>
       </svg>
+      <div class="zen-forest-landscape" aria-hidden="true">
+        <svg id="zen-forest-art" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
+          <defs>
+            <linearGradient id="zforest-sky" x2="0" y2="1"><stop stop-color="#173d35"/><stop offset=".46" stop-color="#315b49"/><stop offset="1" stop-color="#081e1a"/></linearGradient>
+            <radialGradient id="zforest-sun"><stop stop-color="#e6ffca" stop-opacity=".85"/><stop offset=".34" stop-color="#c7edb0" stop-opacity=".35"/><stop offset="1" stop-color="#c6ecac" stop-opacity="0"/></radialGradient>
+            <linearGradient id="zforest-path" x2=".15" y2="1"><stop stop-color="#6c8a58"/><stop offset="1" stop-color="#122a23"/></linearGradient>
+            <linearGradient id="zforest-route" x2="0" y2="1"><stop stop-color="#e3ffb2"/><stop offset="1" stop-color="#76efab"/></linearGradient>
+          </defs>
+          <path fill="url(#zforest-sky)" d="M0 0h900v700H0z"/>
+          <ellipse cx="483" cy="220" rx="365" ry="305" fill="url(#zforest-sun)"/>
+          <path d="M0 330Q180 260 340 310T680 300T900 340V700H0z" fill="#23483b" opacity=".75"/>
+          <path d="M0 410Q190 330 370 378T700 353T900 404V700H0z" fill="#14382e"/>
+          <g class="zen-forest-backtrees" fill="#092b24" opacity=".84">
+            <path d="M0 0h57l-8 700H0zM76 0h24L73 480H50zM842 0h47l11 700h-81zM780 0h27l24 530h-23z"/>
+            <ellipse cx="102" cy="42" rx="230" ry="148"/><ellipse cx="856" cy="35" rx="210" ry="154"/>
+            <ellipse cx="286" cy="-40" rx="250" ry="95"/><ellipse cx="665" cy="-26" rx="248" ry="92"/>
+          </g>
+          <g class="zen-forest-beams" fill="#d2f9ad" opacity=".065"><path d="M470 0h34L90 655zM508 0h38L378 660zM555 0h31L740 630z"/></g>
+          <path d="M0 512Q195 428 359 445T699 422T900 515V700H0z" fill="#0c2922"/>
+          <path d="M340 700Q369 566 443 503Q529 453 473 420Q417 397 486 363Q572 330 510 298Q457 273 489 245L519 245Q501 277 554 292Q620 337 544 373Q487 405 539 440Q600 480 545 514Q477 568 554 700Z" fill="url(#zforest-path)" opacity=".78"/>
+          <path id="zen-forest-route" d="M450 655 C527 575 391 560 464 502 S564 445 467 405 S390 348 506 325 S601 270 496 239" fill="none" stroke="#b9ffc4" stroke-opacity=".18" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+          <path id="zen-forest-progress" d="M450 655 C527 575 391 560 464 502 S564 445 467 405 S390 348 506 325 S601 270 496 239" fill="none" stroke="url(#zforest-route)" stroke-width="4.2" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+          <g id="zen-forest-waypoints"></g>
+          <g id="zen-forest-traveller"><circle r="18" fill="#c2f7ad" opacity=".13"/><circle r="10" fill="#b4f7a5" opacity=".3"/><circle r="4.2" fill="#f5ffe2"/></g>
+          <g class="zen-forest-fronttrees" fill="#061d19">
+            <path d="M0 0h36l18 700H0zM900 0h-36l-24 700h60z"/><path d="M0 92Q150-18 296 9Q121 45 0 191zM900 105Q773-18 604 7Q775 51 900 180z"/>
+            <ellipse cx="-38" cy="484" rx="98" ry="205"/><ellipse cx="945" cy="475" rx="103" ry="233"/>
+          </g>
+          <g fill="#e6ffe1" class="zen-forest-fireflies"><circle cx="204" cy="298" r="2"/><circle cx="682" cy="348" r="2.3"/><circle cx="331" cy="419" r="1.5"/><circle cx="705" cy="191" r="1.5"/><circle cx="165" cy="509" r="1.8"/></g>
+        </svg>
+        <div class="zen-forest-wayfinder"><span class="zen-forest-wayfinder-mark">✦</span><span id="zen-forest-wayfinder-text">Stigen börjar här</span></div>
+      </div>
+      <div class="zen-lake-landscape" aria-hidden="true">
+        <svg viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
+          <defs>
+            <linearGradient id="zlake-sky" x2="0" y2="1"><stop stop-color="#142a34"/><stop offset=".43" stop-color="#6d7770"/><stop offset=".60" stop-color="#d1b87a"/><stop offset="1" stop-color="#172e34"/></linearGradient>
+            <radialGradient id="zlake-light"><stop stop-color="#fff8d5" stop-opacity="1"/><stop offset=".22" stop-color="#f9e5aa" stop-opacity=".64"/><stop offset="1" stop-color="#efdba1" stop-opacity="0"/></radialGradient>
+            <linearGradient id="zlake-water" x2="0" y2="1"><stop stop-color="#6c837e"/><stop offset=".25" stop-color="#273f46"/><stop offset="1" stop-color="#091d2a"/></linearGradient>
+            <linearGradient id="zlake-reflection" x2="0" y2="1"><stop stop-color="#ffedc4" stop-opacity=".52"/><stop offset="1" stop-color="#f7ce79" stop-opacity="0"/></linearGradient>
+          </defs>
+          <path d="M0 0h900v700H0z" fill="url(#zlake-sky)"/>
+          <circle cx="461" cy="324" r="225" fill="url(#zlake-light)"/><circle class="zen-lake-sun" cx="461" cy="324" r="44" fill="#fff1c2"/>
+          <path d="M0 371L78 299L135 342L218 266L315 363L390 316L470 355L565 277L662 364L752 289L841 357L900 303V458H0z" fill="#344c4d" opacity=".6"/>
+          <path d="M0 406L126 347L190 398L282 360L369 398L506 357L614 399L734 350L854 385L900 366V465H0z" fill="#233d42" opacity=".8"/>
+          <path d="M0 429Q264 420 450 426T900 422V700H0z" fill="url(#zlake-water)"/>
+          <path d="M462 430L481 430L614 700H312Z" fill="url(#zlake-reflection)" opacity=".45"/>
+          <g class="zen-lake-waterlines" stroke="#e9dcaa" stroke-linecap="round" fill="none"><path d="M354 454q100-10 207 0M324 480q134-14 282 0M280 518q176-14 349 0M228 565q225-19 475 0M158 621q283-24 598 0" opacity=".27" stroke-width="2"/><path d="M390 468h145M368 494h192M325 543h261M286 596h333" opacity=".33" stroke-width="2.4"/></g>
+          <g class="zen-lake-ripples" fill="none" stroke="#f5e5b7"><ellipse cx="457" cy="547" rx="112" ry="21" opacity=".46"/><ellipse cx="457" cy="547" rx="170" ry="34" opacity=".26"/><ellipse cx="457" cy="547" rx="236" ry="48" opacity=".11"/></g>
+          <path d="M0 427H900" stroke="#faedc7" stroke-opacity=".3" stroke-width="1"/>
+          <path id="zen-lake-horizon-progress" d="M0 427H900" stroke="#fff0b4" stroke-width="2.6" stroke-dasharray="900" stroke-dashoffset="900"/>
+          <g fill="#0b2427"><path d="M0 700V295q64-82 118-86Q46 296 94 700zM900 700V274q-72-72-133-50Q863 329 809 700z"/><path d="M90 0h15v700H90zM817 0h12v700h-12z" opacity=".75"/></g>
+          <g class="zen-lake-bamboo" stroke="#26493e" stroke-width="4" fill="#31584a"><path d="M92 155Q7 94 0 133Q42 124 92 155zM99 233Q176 140 208 184Q154 178 99 233zM821 131Q895 77 909 121Q880 111 821 131zM815 265Q725 191 691 226Q756 214 815 265z"/></g>
+        </svg>
+        <div class="zen-lake-breath-guide"><span id="zen-immersion-breath">ANDAS IN</span><strong id="zen-immersion-time">01:00</strong><small>Följ ditt eget tempo</small></div>
+      </div>
       <div class="scene-sheen"></div><span class="scene-hint" id="zen-scene-hint">SKOGSLJUS · MJUK RÖRELSE</span>
     </div>
     <div class="zen-workspace">
@@ -315,7 +370,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
           <div class="zen-stage-list" id="zen-stage-list" aria-label="Passets steg"></div>
         </aside>
       </div>
-      <div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
+      <div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="secondary zen-clock-toggle" data-action="toggle-zen-clock" id="zen-clock-toggle" aria-pressed="true">Dölj tid</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
       <button type="button" class="ghost zen-exit" data-action="finish-zen" id="finish-zen">Avsluta och spara stund ✓</button>
     </div>
   </div>
