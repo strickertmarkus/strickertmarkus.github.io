@@ -723,7 +723,7 @@ function switchView(next){
  view=next;
  $('training-view').hidden=next!=='training';$('zen-view').hidden=next==='training';
  document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.view===next));});
- if(next!=='training')renderZen(); else delete document.body.dataset.overview;
+ if(next!=='training')renderZen(); else {delete document.body.dataset.overview;renderPushPullAnalytics();}
  window.scrollTo({top:0,behavior:'instant'});
 }
 function zenPlanIndexForDay(dayIndex,med){
