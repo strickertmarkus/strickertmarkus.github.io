@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-week-red-scale-5">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-chart-polish-6">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -141,7 +141,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   <section class="pp-analytics" aria-label="Push och Pull träningsanalys">
     <div class="panel pp-volume-panel">
       <div class="pp-panel-head"><div><span class="pp-kicker">TRÄNINGSVOLYM</span><h3>Push vs Pull</h3></div><div class="pp-legend" aria-label="Diagramförklaring"><span class="push"><i></i>Push</span><span class="pull"><i></i>Pull</span></div></div>
-      <div class="pp-chart-shell"><div class="pp-chart" id="pp-volume-chart" aria-label="Träningsvolym Push jämfört med Pull de senaste åtta veckorna"></div><div class="chart-inspect" id="pp-volume-chart-inspect" role="status" aria-live="polite"></div></div>
+      <div class="pp-chart-inspect-row" id="pp-volume-chart-inspect" role="status" aria-live="polite"></div><div class="pp-chart-shell"><div class="pp-chart" id="pp-volume-chart" aria-label="Träningsvolym Push jämfört med Pull de senaste åtta veckorna"></div></div>
       <div class="pp-summary-grid">
         <div class="pp-summary push"><small>Push · senaste veckan</small><strong id="pp-push-volume">–</strong><span id="pp-push-delta">–</span></div>
         <div class="pp-summary pull"><small>Pull · senaste veckan</small><strong id="pp-pull-volume">–</strong><span id="pp-pull-delta">–</span></div>
@@ -157,7 +157,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
       <div class="pp-panel-head pp-exercise-head"><div><span class="pp-kicker">ÖVNINGSUTVECKLING</span><h3 id="pp-exercise-title">Bänkpress</h3><div class="pp-exercise-compare" id="pp-exercise-compare">Jämför med Sittande rodd</div></div><div class="pp-type-switch" role="group" aria-label="Välj Push eller Pull"><button type="button" data-analytics-type="Push" aria-pressed="true">Push</button><button type="button" data-analytics-type="Pull" aria-pressed="false">Pull</button></div></div>
       <div class="pp-exercise-pills" id="pp-exercise-pills" aria-label="Välj övning"></div>
       <div class="pp-metric-tabs" role="group" aria-label="Välj mätvärde"><button type="button" data-analytics-metric="volume" aria-pressed="true">Volym</button><button type="button" data-analytics-metric="weight" aria-pressed="false">Arbetsvikt</button><button type="button" data-analytics-metric="e1rm" aria-pressed="false">Est. 1RM</button></div>
-      <div class="pp-chart-shell pp-exercise-shell"><div class="pp-chart pp-exercise-chart" id="pp-exercise-chart" aria-label="Övningsutveckling över åtta veckor"></div><div class="chart-inspect" id="pp-exercise-chart-inspect" role="status" aria-live="polite"></div></div>
+      <div class="pp-chart-inspect-row" id="pp-exercise-chart-inspect" role="status" aria-live="polite"></div><div class="pp-chart-shell pp-exercise-shell"><div class="pp-chart pp-exercise-chart" id="pp-exercise-chart" aria-label="Övningsutveckling över åtta veckor"></div></div>
       <div class="pp-exercise-summary">
         <div><small>NU</small><strong id="pp-exercise-now">–</strong></div>
         <div><small>8 VECKOR</small><strong id="pp-exercise-change">–</strong></div>
@@ -463,8 +463,9 @@ function percentDelta(now,prev){
  if(!prev)return now?'Ny':'0 %';
  var delta=(now-prev)/prev*100;return (delta>=0?'+':'')+Math.round(delta)+' %';
 }
-function chartGeometry(seriesList){
- var width=720,height=250,left=52,right=16,top=27,bottom=38,values=[];
+function chartGeometry(seriesList,unitClass,containerId){
+ var container=$(containerId),width=Math.max(240,Math.round(container.clientWidth||720)),height=Math.max(160,Math.round(container.clientHeight||225));
+ var left=unitClass==='weight'||unitClass==='e1rm'?54:48,right=18,top=22,bottom=29,values=[];
  seriesList.forEach(function(series){values=values.concat(series.values.filter(function(v){return Number.isFinite(v)&&v>=0;}));});
  if(!values.length)values=[0];
  var dataMin=Math.min.apply(null,values),dataMax=Math.max.apply(null,values);
@@ -486,11 +487,11 @@ function chartGeometry(seriesList){
 var chartSvgSerial=0;
 function chartAxisDisplay(value,unitClass){if(unitClass==='volume')return value>=1000?(Math.round(value/100)/10)+'k':String(Math.round(value));if(unitClass==='weight'||unitClass==='e1rm')return String(Math.round(value))+' kg';return String(Math.round(value));}
 function chartSeriesColor(className){return String(className).indexOf('pull')>=0?'#94e8eb':'#d95b65';}
-function comparisonChartSvg(seriesList,labels,unitClass){
- var g=chartGeometry(seriesList),count=labels.length,grid='',defs='',layers='',serial='pulse-chart-'+(++chartSvgSerial),baseY=g.top+g.innerH;
+function comparisonChartSvg(seriesList,labels,unitClass,containerId){
+ var g=chartGeometry(seriesList,unitClass,containerId),count=labels.length,grid='',defs='',layers='',serial='pulse-chart-'+(++chartSvgSerial),baseY=g.top+g.innerH;
  for(var n=0;n<=4;n++){var gy=g.top+g.innerH*n/4,axisValue=g.max-(g.max-g.min)*n/4;grid+='<line class="pp-grid-line" x1="'+g.left+'" x2="'+(g.width-g.right)+'" y1="'+gy+'" y2="'+gy+'"/><text class="pp-y-label" x="'+(g.left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+chartAxisDisplay(axisValue,unitClass)+'</text>';}
  var xlabels=labels.map(function(label,i){return '<text class="pp-axis-label" x="'+g.x(i,count)+'" y="'+(g.height-10)+'" text-anchor="middle">'+label+'</text>';}).join('');
- seriesList.forEach(function(series,seriesIndex){var color=chartSeriesColor(series.className),grad=serial+'-area-'+seriesIndex,glow=serial+'-glow-'+seriesIndex;defs+='<linearGradient id="'+grad+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+color+'" stop-opacity="'+(series.className.indexOf('comparison')>=0?'.10':'.19')+'"/><stop offset=".72" stop-color="'+color+'" stop-opacity=".025"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></linearGradient><filter id="'+glow+'" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="'+(series.className.indexOf('comparison')>=0?'1.1':'2.2')+'" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';var pts=series.values.map(function(v,i){return {x:g.x(i,count),y:g.y(v),v:v};}),line=pts.map(function(p,i){return (i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' '),area=pts.length?'M'+pts[0].x.toFixed(1)+' '+baseY.toFixed(1)+' L'+pts.map(function(p){return p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' L')+' L'+pts[pts.length-1].x.toFixed(1)+' '+baseY.toFixed(1)+' Z':'';var nodes=pts.map(function(p){return '<circle class="pp-node-halo '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="8"/><circle class="pp-dot '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(series.className.indexOf('comparison')>=0?'3':'3.8')+'"><title>'+clean(series.label)+': '+metricDisplay(p.v,unitClass)+'</title></circle>';}).join('');layers+='<path class="pp-area '+series.className+'" d="'+area+'" fill="url(#'+grad+')"/><path class="pp-line '+series.className+'" d="'+line+'" stroke="'+color+'" style="color:'+color+'" filter="url(#'+glow+')"/>'+nodes;});
+ seriesList.forEach(function(series,seriesIndex){var color=chartSeriesColor(series.className),grad=serial+'-area-'+seriesIndex,glow=serial+'-glow-'+seriesIndex;defs+='<linearGradient id="'+grad+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+color+'" stop-opacity="'+(series.className.indexOf('comparison')>=0?'.10':'.19')+'"/><stop offset=".72" stop-color="'+color+'" stop-opacity=".025"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></linearGradient><filter id="'+glow+'" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="'+(series.className.indexOf('comparison')>=0?'1.1':'2.2')+'" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';var pts=series.values.map(function(v,i){return {x:g.x(i,count),y:g.y(v),v:v};}),line=pts.map(function(p,i){return (i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' '),area=pts.length?'M'+pts[0].x.toFixed(1)+' '+baseY.toFixed(1)+' L'+pts.map(function(p){return p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' L')+' L'+pts[pts.length-1].x.toFixed(1)+' '+baseY.toFixed(1)+' Z':'';var nodes=pts.map(function(p){var comparison=series.className.indexOf('comparison')>=0;return '<circle class="pp-node-halo '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="8"/><circle class="pp-dot '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(comparison?'3':'3.8')+'"><title>'+clean(series.label)+': '+metricDisplay(p.v,unitClass)+'</title></circle><circle class="pp-dot-core '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(comparison?'1.05':'1.35')+'" aria-hidden="true"/>';}).join('');layers+='<path class="pp-area '+series.className+'" d="'+area+'" fill="url(#'+grad+')"/><path class="pp-line '+series.className+'" d="'+line+'" stroke="'+color+'" style="color:'+color+'"/>'+nodes;});
  var pointWidth=(g.width-g.left-g.right)/count,primary=seriesList[0];
  var hits=labels.map(function(label,i){var x=g.x(i,count),y=g.y(primary.values[i]),details=seriesList.map(function(series){return clean(series.label)+': '+metricDisplay(series.values[i],unitClass);}).join(' · '),accessible=clean(label+' · '+details);return '<g class="pp-chart-point '+primary.className+'" data-chart-point="'+i+'" role="button" tabindex="0" aria-label="'+accessible+'" aria-pressed="false"><line class="pp-guide" x1="'+x+'" x2="'+x+'" y1="'+g.top+'" y2="'+baseY+'"/><circle class="pp-selector-halo" cx="'+x+'" cy="'+y+'" r="12"/><circle class="pp-selector-core" cx="'+x+'" cy="'+y+'" r="4"/><rect class="pp-hit" x="'+(x-pointWidth*.55)+'" y="'+g.top+'" width="'+(pointWidth*1.1)+'" height="'+g.innerH+'" fill="transparent"/><title>'+accessible+'</title></g>';}).join('');
  return '<svg viewBox="0 0 '+g.width+' '+g.height+'" role="group" aria-label="Välj vecka för att se värden"><defs>'+defs+'</defs>'+grid+xlabels+layers+hits+'</svg>';
@@ -542,12 +543,12 @@ function ppCanvasNeonPass(ctx,points,rgb,width,blur,alpha){
 }
 function ppCanvasNeonLine(ctx,points,rgb,soft){
  soft=soft==null?1:soft;
- ppCanvasNeonPass(ctx,points,rgb,1.15,32,.46*soft);ppCanvasNeonPass(ctx,points,rgb,1.50,20,.82*soft);
- ppCanvasNeonPass(ctx,points,rgb,1.90,10,1*soft);ppCanvasNeonPass(ctx,points,rgb,2.15,5,1*soft);
+ ppCanvasNeonPass(ctx,points,rgb,1.05,16,.25*soft);ppCanvasNeonPass(ctx,points,rgb,1.35,9,.55*soft);
+ ppCanvasNeonPass(ctx,points,rgb,1.85,4,.8*soft);
 }
 function ppCanvasNeonDot(ctx,x,y,r,rgb,soft){
  soft=soft==null?1:soft;
- [[32,.46,1.28],[20,.82,1.10],[10,1,.94],[5,1,.80]].forEach(function(pass){
+ [[18,.38,1.15],[9,.65,1.03],[4,.82,.90]].forEach(function(pass){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.beginPath();ctx.arc(x,y,Math.max(1,r*pass[2]*ppChartGlowDpr),0,Math.PI*2);
   ctx.fillStyle=ppGlowRgba(rgb,.8*soft);ctx.shadowColor=ppGlowRgba(rgb,pass[1]*soft);ctx.shadowBlur=pass[0]*ppChartGlowDpr;ctx.fill();ctx.restore();
  });
@@ -571,16 +572,50 @@ function paintAllPpChartGlows(){ppChartGlowRaf=0;if(!ppChartGlowMq.matches){remo
 function schedulePpChartGlow(){if(ppChartGlowRaf)cancelAnimationFrame(ppChartGlowRaf);ppChartGlowRaf=requestAnimationFrame(function(){ppChartGlowRaf=requestAnimationFrame(paintAllPpChartGlows);});clearTimeout(ppChartGlowTimer);ppChartGlowTimer=setTimeout(paintAllPpChartGlows,780);}
 
 var chartDetails={};
-function setChartDetails(id,seriesList,labels,unitClass){chartDetails[id]={series:seriesList,labels:labels,unit:unitClass};if(labels.length)inspectChartPoint(id,labels.length-1);}
-function inspectChartPoint(id,index){var record=chartDetails[id];if(!record||index<0||index>=record.labels.length)return;$(id).querySelectorAll('[data-chart-point]').forEach(function(point){point.setAttribute('aria-pressed',String(Number(point.dataset.chartPoint)===index));});$(id+'-inspect').textContent=record.labels[index]+' · '+record.series.map(function(series){return series.label+': '+metricDisplay(series.values[index],record.unit);}).join(' · ');schedulePpChartGlow();}
-function installChartPointHandlers(id){$(id).addEventListener('click',function(event){var point=event.target.closest&&event.target.closest('[data-chart-point]');if(point)inspectChartPoint(id,Number(point.dataset.chartPoint));});$(id).addEventListener('keydown',function(event){var point=event.target.closest&&event.target.closest('[data-chart-point]');if(point&&(event.key==='Enter'||event.key===' ')){event.preventDefault();inspectChartPoint(id,Number(point.dataset.chartPoint));}});}
+function setChartDetails(id,seriesList,labels,unitClass){chartDetails[id]={series:seriesList,labels:labels,unit:unitClass};if(labels.length)inspectChartPoint(id,labels.length-1,false);}
+function updateChartSummary(id,index,record){
+ var label=record.labels[index],series=record.series;
+ if(id==='pp-volume-chart'){
+  var push=Number(series[0].values[index])||0,pull=Number(series[1].values[index])||0,total=push+pull,previous=index>0?index-1:0;
+  var pushShare=total?Math.round(push/total*100):50,pullShare=100-pushShare,week=strengthWeeks()[index];
+  document.querySelector('.pp-summary.push small').textContent='Push · '+label;
+  document.querySelector('.pp-summary.pull small').textContent='Pull · '+label;
+  $('pp-push-volume').textContent=metricDisplay(push,'volume');$('pp-push-delta').textContent=index?percentDelta(push,series[0].values[previous]):'–';
+  $('pp-pull-volume').textContent=metricDisplay(pull,'volume');$('pp-pull-delta').textContent=index?percentDelta(pull,series[1].values[previous]):'–';
+  $('pp-balance').textContent=pushShare+' / '+pullShare;$('pp-balance-push').style.width=pushShare+'%';$('pp-balance-caption').textContent='Push '+pushShare+' % · Pull '+pullShare+' %';
+  $('pp-set-count').textContent=strengthMetric(week,'Push','','sets')+' / '+strengthMetric(week,'Pull','','sets');
+  $('pp-rep-count').textContent=strengthMetric(week,'Push','','reps')+' / '+strengthMetric(week,'Pull','','reps');
+  $('pp-total-volume').textContent=metricDisplay(total,'volume');
+  document.querySelectorAll('.pp-load-row small').forEach(function(item,i){item.textContent=['SET · ','REPS · ','TOTAL VOLYM · '][i]+label;});
+ }else{
+  var values=series[0].values,value=Number(values[index])||0,first=values.find(function(v){return v>0;})||0;
+  document.querySelector('.pp-exercise-summary>div:first-child small').textContent=label+' · '+(analyticsMetric==='weight'?'Arbetsvikt':analyticsMetric==='e1rm'?'Est. 1RM':'Volym');
+  $('pp-exercise-now').textContent=metricDisplay(value,record.unit);$('pp-exercise-change').textContent=percentDelta(value,first);
+ }
+}
+function pulseChartSummary(id){
+ var root=document.querySelector(id==='pp-volume-chart'?'.pp-volume-panel':'.pp-exercise-panel');
+ if(!root)return;
+ root.querySelectorAll(id==='pp-volume-chart'?'.pp-summary.push,.pp-summary.pull':'.pp-exercise-summary>div:first-child').forEach(function(cell){
+  cell.classList.remove('pp-summary-pulse');void cell.offsetWidth;cell.classList.add('pp-summary-pulse');
+ });
+}
+function inspectChartPoint(id,index,animate){
+ var record=chartDetails[id];if(!record||index<0||index>=record.labels.length)return;
+ $(id).querySelectorAll('[data-chart-point]').forEach(function(point){point.setAttribute('aria-pressed',String(Number(point.dataset.chartPoint)===index));});
+ $(id+'-inspect').textContent=record.labels[index]+' · '+record.series.map(function(series){return series.label+': '+metricDisplay(series.values[index],record.unit);}).join(' · ');
+ updateChartSummary(id,index,record);
+ if(animate)pulseChartSummary(id);
+ schedulePpChartGlow();
+}
+function installChartPointHandlers(id){$(id).addEventListener('click',function(event){var point=event.target.closest&&event.target.closest('[data-chart-point]');if(point)inspectChartPoint(id,Number(point.dataset.chartPoint),true);});$(id).addEventListener('keydown',function(event){var point=event.target.closest&&event.target.closest('[data-chart-point]');if(point&&(event.key==='Enter'||event.key===' ')){event.preventDefault();inspectChartPoint(id,Number(point.dataset.chartPoint),true);}});}
 var analyticsType='Push',analyticsMetric='volume',analyticsExercise='';
 function renderPushPullAnalytics(){
  var weeks=strengthWeeks(),labels=weeks.map(function(w){return w.label;});
  var push=weeks.map(function(w){return strengthMetric(w,'Push','','volume');});
  var pull=weeks.map(function(w){return strengthMetric(w,'Pull','','volume');});
  var volumeSeries=[{label:'Push',className:'push',values:push},{label:'Pull',className:'pull',values:pull}];
- $('pp-volume-chart').innerHTML=comparisonChartSvg(volumeSeries,labels,'volume');setChartDetails('pp-volume-chart',volumeSeries,labels,'volume');
+ $('pp-volume-chart').innerHTML=comparisonChartSvg(volumeSeries,labels,'volume','pp-volume-chart');setChartDetails('pp-volume-chart',volumeSeries,labels,'volume');
  var latest=weeks.length-1,prev=Math.max(0,latest-1),pushNow=push[latest]||0,pullNow=pull[latest]||0,total=pushNow+pullNow;
  $('pp-push-volume').textContent=metricDisplay(pushNow,'volume');$('pp-push-delta').textContent=percentDelta(pushNow,push[prev]);
  $('pp-pull-volume').textContent=metricDisplay(pullNow,'volume');$('pp-pull-delta').textContent=percentDelta(pullNow,pull[prev]);
@@ -603,7 +638,7 @@ function renderPushPullAnalytics(){
   detailSeries.push({label:counter.name,className:counter.type.toLowerCase()+' comparison',values:weeks.map(function(w){return strengthMetric(w,counter.type,counter.name,analyticsMetric);})});
  }
  $('pp-exercise-chart').dataset.type=analyticsType.toLowerCase();
- $('pp-exercise-chart').innerHTML=comparisonChartSvg(detailSeries,labels,analyticsMetric);setChartDetails('pp-exercise-chart',detailSeries,labels,analyticsMetric);
+ $('pp-exercise-chart').innerHTML=comparisonChartSvg(detailSeries,labels,analyticsMetric,'pp-exercise-chart');setChartDetails('pp-exercise-chart',detailSeries,labels,analyticsMetric);
  var now=detail[latest]||0,first=detail.find(function(v){return v>0;})||0,best=Math.max.apply(null,detail.concat([0]));
  $('pp-exercise-now').textContent=metricDisplay(now,analyticsMetric);$('pp-exercise-change').textContent=percentDelta(now,first);$('pp-exercise-best').textContent=metricDisplay(best,analyticsMetric);
  schedulePpChartGlow();
@@ -1278,7 +1313,15 @@ $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExe
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
-window.addEventListener('resize',schedulePpChartGlow,{passive:true});
+var ppResizeFrame=0,ppLastChartWidth=0;
+window.addEventListener('resize',function(){
+ if(ppResizeFrame)cancelAnimationFrame(ppResizeFrame);
+ ppResizeFrame=requestAnimationFrame(function(){
+  ppResizeFrame=0;var width=$('pp-volume-chart').clientWidth;
+  if(Math.abs(width-ppLastChartWidth)>2){ppLastChartWidth=width;if(view==='training')renderPushPullAnalytics();}
+  else schedulePpChartGlow();
+ });
+},{passive:true});
 if(ppChartGlowMq.addEventListener)ppChartGlowMq.addEventListener('change',schedulePpChartGlow);
 render();
 })();
