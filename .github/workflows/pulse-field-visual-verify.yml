@@ -214,6 +214,10 @@ jobs:
             assert.equal(await page.locator('#insight-special-summary [role="progressbar"]').count(),1,'Distance goal bar above pace must be present');
             assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Längsta löppass'),'Distance goal text missing');
             assert.equal(await page.locator('#pace-distance-comparison .pace-scatter-point').count(),3,'Three demo runs must appear in pace versus distance scatter');
+            assert.equal(await page.locator('#pace-distance-comparison .pace-scatter-halo').count(),3,'Every scatter point must have a radial glow');
+            assert.equal(await page.locator('#pace-distance-comparison .pace-scatter-unit').count(),2,'Scatter axes must each have a subtle unit label');
+            assert.deepEqual((await page.locator('#pace-distance-comparison .pace-scatter-unit').allTextContents()).map(s=>s.trim()),['min/km','km'],'Scatter axis units are incorrect');
+            assert.ok((await page.locator('#pace-distance-comparison .pace-scatter-halo').first().getAttribute('fill')).includes('pace-scatter-halo-gradient'),'Scatter glow must use a WebKit-safe SVG radial gradient');
             assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Pace unit belongs in the external old-page heading');
             assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=5,'Pace must keep Y-axis labels');
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-pace-special.png'});
@@ -239,6 +243,8 @@ jobs:
             const cardioLog=page.locator('#log-timeline [data-log-card]').nth(1);
             await cardioLog.locator('.log-summary').click();
             assert.equal(await cardioLog.locator('.log-mini-meter:not(.is-missing)').count(),3,'Cardio demo must expose recorded pulse VO2 and pace');
+            assert.equal(await cardioLog.locator('.log-mini-halo').count(),6,'Each logged metric must have two low-opacity glow layers');
+            assert.equal(await cardioLog.locator('.log-mini-point').count(),3,'Glow must not duplicate the actual measurement markers');
             assert.ok((await cardioLog.locator('.log-mini-meter--pace strong').textContent()).includes('min/km'),'Pace mini interval requires unit');
             assert.ok(await page.locator('#insight-special').isHidden(),'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-axis-line').count(),0,'Heart graph must remain in the earlier Pulse Field format');

@@ -248,7 +248,9 @@ main{position:relative;z-index:2;display:block}
 .pace-distance-comparison svg{display:block;width:100%;height:176px}
 .pace-scatter-grid{stroke:#f8717119;stroke-width:1}
 .pace-scatter-axis{fill:#a4aeba;font:9px var(--field-ui)}
+.pace-scatter-unit{fill:#b9898e;font:600 9px var(--field-ui);letter-spacing:.25px}
 .pace-scatter-baseline{stroke:#ffffff30;stroke-width:1}
+.pace-scatter-halo{pointer-events:none}
 .pace-scatter-point{fill:#ff9a91;stroke:#ffd2bd;stroke-width:1;filter:drop-shadow(0 0 5px #ff657a)}
 .line-area{opacity:.17}
 .range-bar{stroke-width:10;stroke-linecap:round;opacity:.16}
@@ -306,7 +308,9 @@ main{position:relative;z-index:2;display:block}
 .log-mini-meter svg{display:block;width:100%;height:25px;overflow:visible}
 .log-mini-track{stroke:var(--mini-color);stroke-width:1.5;stroke-opacity:.48;stroke-linecap:round}
 .log-mini-end{fill:var(--mini-color);opacity:.48}
-.log-mini-point{fill:var(--mini-color);stroke:#0b1118;stroke-width:1;filter:drop-shadow(0 0 3px var(--mini-color))}
+.log-mini-halo{fill:var(--mini-color);opacity:.12;pointer-events:none}
+.log-mini-halo--inner{opacity:.22}
+.log-mini-point{fill:var(--mini-color);stroke:#0b1118;stroke-width:1;filter:drop-shadow(0 0 4px var(--mini-color))}
 .log-mini-meter.is-missing .log-mini-track{stroke-opacity:.14}
 .log-mini-scale{display:flex;justify-content:space-between;gap:3px;color:var(--field-faint);font-size:8px;font-variant-numeric:tabular-nums}
 .log-secondary{margin:14px 0 0;color:var(--field-muted);font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -431,7 +435,7 @@ main{position:relative;z-index:2;display:block}
   .activity-summary strong{font-size:44px}
   .luminous-chart{height:168px;margin-top:4px}
   .chart-canvas-glow{display:block;inset:-28px;width:calc(100% + 56px);height:calc(100% + 56px);z-index:1;opacity:1;filter:none;-webkit-filter:none;mix-blend-mode:screen}
-  .line-glow,.activity-bar,.last-point,.group-volume-point{filter:none!important;-webkit-filter:none!important}
+  .line-glow,.activity-bar,.last-point,.group-volume-point,.pace-scatter-point,.log-mini-point{filter:none!important;-webkit-filter:none!important}
   .range-bar{opacity:.21}
   .insight-tabs{gap:14px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:0;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   .insight-tabs::-webkit-scrollbar{display:none}

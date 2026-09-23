@@ -686,12 +686,18 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var padding=Math.max(.25,(maxPace-minPace)*.18);minPace=Math.max(0,minPace-padding);maxPace+=padding;
     function x(distance){return left+distance/maxDistance*plotW;}
     function y(pace){return top+(pace-minPace)/(maxPace-minPace)*plotH;}
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Löppass, löpdistans på vågrät axel och snittakt på lodrät axel. Snabbare tempo högre upp.">';
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Löppass, löpdistans på vågrät axel och snittakt på lodrät axel. Snabbare tempo högre upp."><defs><radialGradient id="pace-scatter-halo-gradient"><stop offset="0%" stop-color="#ff9a91" stop-opacity=".62"/><stop offset="43%" stop-color="#ff657a" stop-opacity=".22"/><stop offset="100%" stop-color="#ff657a" stop-opacity="0"/></radialGradient></defs>';
     [0,.5,1].forEach(function(ratio){var gy=y(minPace+(maxPace-minPace)*ratio);svg+='<line class="pace-scatter-grid" x1="'+left+'" x2="'+(width-right)+'" y1="'+gy+'" y2="'+gy+'"/><text class="pace-scatter-axis" x="'+(left-7)+'" y="'+(gy+3)+'" text-anchor="end">'+formatPace(minPace+(maxPace-minPace)*ratio).replace(' /km','')+'</text>';});
     [0,.5,1].forEach(function(ratio){var value=maxDistance*ratio;svg+='<text class="pace-scatter-axis" x="'+x(value)+'" y="'+(height-9)+'" text-anchor="middle">'+formatNumber(value,1)+'</text>';});
     svg+='<line class="pace-scatter-baseline" x1="'+left+'" x2="'+(width-right)+'" y1="'+(height-bottom)+'" y2="'+(height-bottom)+'"/>';
-    runs.forEach(function(entry){svg+='<circle class="pace-scatter-point" cx="'+x(entry.distance)+'" cy="'+y(entry.value)+'" r="4.4"><title>'+escapeHtml(logDate(entry.date)+' · '+formatNumber(entry.distance,2)+' km · '+formatPace(entry.value))+'</title></circle>';});
-    return '<div class="pace-distance-title"><strong>Snittakt mot löpdistans</strong><span>Y: MIN/KM · X: KM</span></div><p class="pace-distance-note">Varje punkt är ett löppass. Snabbare tempo visas högre upp.</p>'+svg+'</svg>';
+    svg+='<text class="pace-scatter-unit" x="12" y="'+(top+plotH/2)+'" text-anchor="middle" transform="rotate(-90 12 '+(top+plotH/2)+')">min/km</text>';
+    svg+='<text class="pace-scatter-unit" x="'+(width-right)+'" y="'+(height-21)+'" text-anchor="end">km</text>';
+    runs.forEach(function(entry){
+      var px=x(entry.distance),py=y(entry.value);
+      svg+='<circle class="pace-scatter-halo" cx="'+px+'" cy="'+py+'" r="14" fill="url(#pace-scatter-halo-gradient)"/>'+
+        '<circle class="pace-scatter-point" cx="'+px+'" cy="'+py+'" r="4.4"><title>'+escapeHtml(logDate(entry.date)+' · '+formatNumber(entry.distance,2)+' km · '+formatPace(entry.value))+'</title></circle>';
+    });
+    return '<div class="pace-distance-title"><strong>Snittakt mot löpdistans</strong><span>PER LÖPPASS</span></div><p class="pace-distance-note">Varje punkt är ett löppass. Snabbare tempo visas högre upp.</p>'+svg+'</svg>';
   }
 
   function renderInsight() {
@@ -756,7 +762,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var valid=value!==''&&value!=null;
       return '<div class="log-mini-meter log-mini-meter--'+type+(valid?'':' is-missing')+'" role="img" aria-label="'+escapeHtml(label+': '+(valid?value+' '+unit:'Inget värde'))+'">'+
         '<span class="log-mini-label">'+label+'</span><strong>'+escapeHtml(valid?value:'—')+'<small>'+unit+'</small></strong>'+
-        '<svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg>'+
+        '<svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-halo" cx="'+position.toFixed(2)+'" cy="12" r="10"/><circle class="log-mini-halo log-mini-halo--inner" cx="'+position.toFixed(2)+'" cy="12" r="6"/><circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg>'+
         '<div class="log-mini-scale"><span>'+escapeHtml(low)+'</span><span>'+escapeHtml(high)+'</span></div></div>';
     }
     var pulsePos=min>0&&max>=min&&avg>0?(min===max?52:9+clamp((avg-min)/(max-min),0,1)*86):52;
