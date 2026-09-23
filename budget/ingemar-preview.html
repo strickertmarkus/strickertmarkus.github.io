@@ -688,6 +688,8 @@ function ensureZenData(value){
 }
 function hydrateZenDemo(value){
  if(!value||!Array.isArray(value.zenHistory))return value;
+ // Keep the original rolling demo history from multiplying after each new week.
+ if(value.zenHistory.length>=8)return value;
  var seen=Object.create(null),hidden=value.zenDeletedDemoIds||[];
  value.zenHistory.forEach(function(h){seen[String(h.date)+'|'+String(h.type)+'|'+String(h.name)]=true;});
  zenSeedHistory(dayISO(new Date())).forEach(function(h){
