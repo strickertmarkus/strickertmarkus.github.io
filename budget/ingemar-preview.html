@@ -1148,6 +1148,144 @@ function zenStepAt(elapsed){
  }
  return {index:0,start:0,end:0,step:steps[0]};
 }
+
+function zenStepTemplate(){return {name:'Nytt steg',seconds:60,cue:''};}
+function zenStepDuration(steps){return (steps||[]).reduce(function(total,step){return total+(Number(step.seconds)||0);},0);}
+function zenEditorStepMarkup(step,index,length){
+ return '<div class="zen-step-editor" data-zen-step-row="'+index+'"><div class="zen-step-editor-head"><span>STEG '+(index+1)+'</span><div class="zen-step-editor-tools"><button type="button" data-zen-step-move="-1" data-zen-step-index="'+index+'" aria-label="Flytta steg upp" '+(index===0?'disabled':'')+'>↑</button><button type="button" data-zen-step-move="1" data-zen-step-index="'+index+'" aria-label="Flytta steg ned" '+(index===length-1?'disabled':'')+'>↓</button><button type="button" data-zen-step-remove="'+index+'" aria-label="Ta bort steg" '+(length===1?'disabled':'')+'>×</button></div></div>'
+ +'<div class="zen-step-fields"><label>Steg / övning<input data-zen-step-field="name" maxlength="70" required value="'+clean(step.name)+'" aria-label="Namn steg '+(index+1)+'"></label><label>Varaktighet, sek<input data-zen-step-field="seconds" inputmode="numeric" type="number" min="10" max="3600" step="10" value="'+(Number(step.seconds)||0)+'" aria-label="Tid steg '+(index+1)+'"></label></div>'
+ +'<label>Instruktioner / fokus<textarea data-zen-step-field="cue" maxlength="600" rows="2" aria-label="Instruktioner steg '+(index+1)+'">'+clean(step.cue||'')+'</textarea></label></div>';
+}
+function syncZenEditor(){
+ if(!zenEditDraft||!$('zen-editor').open)return;
+ zenEditDraft.name=$('zen-edit-name').value;
+ if(zenEditMode==='history'){
+  zenEditDraft.date=$('zen-edit-date').value;
+  zenEditDraft.minutes=Number($('zen-edit-minutes').value);
+  zenEditDraft.notes=$('zen-edit-notes').value;
+ }
+ $('zen-edit-steps').querySelectorAll('[data-zen-step-row]').forEach(function(row){
+  var index=Number(row.dataset.zenStepRow),step=zenEditDraft.steps[index];
+  if(!step)return;
+  step.name=row.querySelector('[data-zen-step-field="name"]').value;
+  step.seconds=Number(row.querySelector('[data-zen-step-field="seconds"]').value);
+  step.cue=row.querySelector('[data-zen-step-field="cue"]').value;
+ });
+}
+function renderZenEditor(){
+ if(!zenEditDraft)return;
+ var kind=zenEditKind,history=zenEditMode==='history',item=zenEditDraft;
+ $('zen-editor').dataset.kind=kind;
+ $('zen-editor-kicker').textContent=(kind==='meditation'?'MEDITATION':'STRETCH')+' · '+(history?'TRÄNINGSLOGG':'PASSBYGGARE');
+ $('zen-editor-title').textContent=history?(zenEditId?'Redigera logg':'Registrera genomfört pass'):(zenEditId?'Redigera pass':'Bygg eget pass');
+ $('zen-edit-name').value=item.name||'';
+ $('zen-edit-date-wrap').hidden=!history;$('zen-edit-minutes-wrap').hidden=!history;$('zen-edit-notes-wrap').hidden=!history;
+ if(history){$('zen-edit-date').value=item.date;$('zen-edit-minutes').value=item.minutes||1;$('zen-edit-notes').value=item.notes||'';}
+ $('zen-edit-steps').innerHTML=item.steps.map(function(step,index){return zenEditorStepMarkup(step,index,item.steps.length);}).join('');
+ $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(item.steps)/60)+' min · '+item.steps.length+' steg';
+ $('zen-edit-delete').hidden=!zenEditId;
+ $('zen-editor').querySelector('[data-zen-action="save-editor"]').textContent=history?'Spara logg ✓':'Spara pass ✓';
+}
+function openZenRoutineEditor(kind,id){
+ var current=id?zenRoutineForId(kind,id):null;
+ if(id&&!current){toast('Passet hittades inte längre.');return;}
+ zenEditMode='routine';zenEditKind=kind;zenEditId=current?current.id:'';
+ zenEditDraft=current?deep(current):{id:uid(),name:'',description:'',steps:[zenStepTemplate()]};
+ renderZenEditor();$('zen-editor').showModal();$('zen-edit-name').focus();
+}
+function zenLogSteps(item){
+ if(Array.isArray(item.steps)&&item.steps.length)return deep(item.steps);
+ var routine=zenRoutineForId(item.type,item.routineId)||zenRoutinesFor(item.type).find(function(r){return r.name===item.name;});
+ return routine?deep(routine.steps):[{name:item.name||'Avslappning',seconds:Math.max(60,(Number(item.minutes)||1)*60),cue:''}];
+}
+function openZenHistoryEditor(id){
+ var current=id?state.zenHistory.find(function(item){return item.id===id;}):null;
+ if(id&&!current){toast('Loggposten hittades inte.');return;}
+ zenEditMode='history';zenEditKind=current?current.type:view;zenEditId=current?current.id:'';
+ zenEditDraft=current?deep(current):{id:uid(),type:view,name:'',date:dayISO(new Date()),minutes:5,notes:'',steps:[zenStepTemplate()],demo:false};
+ zenEditDraft.steps=zenLogSteps(zenEditDraft);
+ renderZenEditor();$('zen-editor').showModal();$('zen-edit-name').focus();
+}
+function saveZenEditor(){
+ if(!zenEditDraft)return;
+ syncZenEditor();
+ var name=String(zenEditDraft.name||'').trim(),steps=zenEditDraft.steps;
+ if(!name||name.length>70){toast('Ange ett passnamn (högst 70 tecken).');$('zen-edit-name').focus();return;}
+ if(!steps.length||steps.length>20||steps.some(function(step){return !String(step.name||'').trim()||!Number.isInteger(step.seconds)||step.seconds<10||step.seconds>3600;})){
+  toast('Varje steg behöver ett namn och en tid mellan 10 och 3600 sekunder.');return;
+ }
+ steps.forEach(function(step){step.name=step.name.trim();step.cue=String(step.cue||'').trim();});
+ zenEditDraft.name=name;
+ if(zenEditMode==='history'){
+  var date=zenEditDraft.date,minutes=zenEditDraft.minutes;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||dayISO(dayFrom(date))!==date){toast('Ange ett giltigt datum.');return;}
+  if(!Number.isInteger(minutes)||minutes<1||minutes>1440){toast('Ange en giltig passtid (1–1440 minuter).');return;}
+  zenEditDraft.type=zenEditKind;zenEditDraft.demo=false;
+  var historyIndex=state.zenHistory.findIndex(function(item){return item.id===zenEditId;});
+  if(historyIndex>=0){
+   if(state.zenHistory[historyIndex].demo)state.zenDeletedDemoIds.push(zenEditId);
+   state.zenHistory[historyIndex]=deep(zenEditDraft);
+  }else state.zenHistory.push(deep(zenEditDraft));
+ }else{
+  zenEditDraft.minutes=Math.ceil(zenStepDuration(steps)/60);
+  zenEditDraft.description=steps.length+' steg · '+zenEditDraft.minutes+' min';
+  var routines=zenRoutinesFor(zenEditKind),index=routines.findIndex(function(item){return item.id===zenEditId;});
+  if(index>=0)routines[index]=deep(zenEditDraft);else routines.push(deep(zenEditDraft));
+ }
+ persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(zenEditMode==='history'?'Loggen sparades.':'Passet sparades.');
+}
+function removeZenEntry(){
+ if(!zenEditDraft||!zenEditId)return;
+ var history=zenEditMode==='history',kind=zenEditKind;
+ if(!history&&zenRoutinesFor(kind).length===1){toast('Behåll minst ett pass eller skapa ett nytt innan du tar bort detta.');return;}
+ if(!confirm(history?'Ta bort denna loggpost permanent?':'Ta bort passet och dess planerade dagar? Tidigare genomförda pass behålls i loggen.'))return;
+ if(history){
+  var old=state.zenHistory.find(function(item){return item.id===zenEditId;});
+  if(old&&old.demo&&!state.zenDeletedDemoIds.includes(old.id))state.zenDeletedDemoIds.push(old.id);
+  state.zenHistory=state.zenHistory.filter(function(item){return item.id!==zenEditId;});
+ }else{
+  state.zenRoutines[kind]=zenRoutinesFor(kind).filter(function(item){return item.id!==zenEditId;});
+  Object.keys(state.zenPlans[kind]).forEach(function(date){if(state.zenPlans[kind][date]===zenEditId)state.zenPlans[kind][date]=null;});
+ }
+ persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(history?'Loggposten togs bort.':'Passet togs bort.');
+}
+function openZenDay(date,routineId){
+ zenDayKind=view;zenDayDate=date||dayISO(new Date());
+ $('zen-day-dialog').dataset.kind=view;
+ $('zen-day-kind').textContent=(view==='meditation'?'MEDITATION':'STRETCH')+' · VECKOPLAN';
+ $('zen-day-title').textContent='Planera '+pretty(zenDayDate);
+ $('zen-day-date').value=zenDayDate;
+ var routines=zenRoutinesFor(view),current=routineId?zenRoutineForId(view,routineId):zenPlanForDate(view,zenDayDate);
+ $('zen-day-routine').innerHTML='<option value="">Vilodag / inget pass</option>'+routines.map(function(r){return '<option value="'+clean(r.id)+'">'+clean(r.name)+' · '+Math.ceil(zenStepDuration(r.steps)/60)+' min</option>';}).join('');
+ $('zen-day-routine').value=current?current.id:'';
+ $('zen-day-dialog').showModal();
+}
+function saveZenDay(start){
+ var date=$('zen-day-date').value,id=$('zen-day-routine').value;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||dayISO(dayFrom(date))!==date){toast('Ange ett giltigt datum.');return;}
+ var routine=id?zenRoutineForId(zenDayKind,id):null;
+ if(id&&!routine){toast('Välj ett befintligt pass.');return;}
+ if(start&&!routine){toast('Välj ett pass att starta.');return;}
+ state.zenPlans[zenDayKind][date]=routine?routine.id:null;
+ persist();zenDayDate=date;
+ $('zen-day-dialog').close();renderZen();
+ if(start)zenStart(zenRoutinesFor(zenDayKind).indexOf(routine));else toast('Veckoplanen sparades.');
+}
+function zenEditorAction(action){
+ if(action==='create'){openZenRoutineEditor(view);return;}
+ if(action==='log'){openZenHistoryEditor();return;}
+ if(action==='current-week'){zenWeekMonday=weekStart(dayISO(new Date()));renderZen();return;}
+ if(action==='close-editor'){$('zen-editor').close();zenEditDraft=null;return;}
+ if(action==='close-day'){$('zen-day-dialog').close();return;}
+ if(action==='add-step'){
+  syncZenEditor();if(zenEditDraft.steps.length>=20){toast('Högst 20 steg per pass.');return;}
+  zenEditDraft.steps.push(zenStepTemplate());renderZenEditor();return;
+ }
+ if(action==='save-editor'){saveZenEditor();return;}
+ if(action==='delete-entry'){removeZenEntry();return;}
+ if(action==='save-day'||action==='start-day'){saveZenDay(action==='start-day');return;}
+}
+
 function zenStart(index){
  var routines=zenRoutinesFor(view),routine=routines&&routines[index];
  if(!routine)return;
