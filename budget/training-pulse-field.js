@@ -256,6 +256,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       return {label:'v'+weekNumber(start),date:startKey,sessions:sessions.length,minutes:sessions.reduce(function(sum,w){return sum+number(w.duration);},0),current:index===7};
     });
   }
+  function chartAxisUnit(label,left,top) {
+    return '<text class="chart-axis-unit" x="'+left+'" y="'+(top-12)+'" text-anchor="start">'+escapeHtml(label)+'</text>';
+  }
+
   function renderActivity() {
     root.dataset.fieldView=state.activityView;
     byId('activity-week-nav').hidden=state.activityView!=='week';
@@ -267,6 +271,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
     var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
+    svg+=chartAxisUnit(metric==='minutes'?'MIN':'PASS',left,top);
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
       var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
@@ -339,6 +344,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     function x(date){return dateKeys.length===1?left+plotW/2:left+(dateAtNoon(date).getTime()-firstDate)*plotW/span;}
     function y(value){return top+(axisMax-value)*plotH/axisMax;}
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+    svg+=chartAxisUnit('KG',left,top);
     [0,.5,1].forEach(function(ratio){var value=axisMax*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
@@ -504,13 +510,40 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       canvasNeonBar(ctx,bar.getBoundingClientRect(),size.rect,[255,101,122]);
     });
   }
+  function paintMiniIntervalGlows() {
+    document.querySelectorAll('#log-timeline .log-card.is-open .log-mini-signal').forEach(function(signal){
+      var dot=signal.querySelector('.log-mini-point');
+      if(!dot)return;
+      var canvas=signal.querySelector('canvas.log-mini-canvas-glow');
+      if(!canvas){
+        canvas=document.createElement('canvas');
+        canvas.className='log-mini-canvas-glow';
+        canvas.setAttribute('aria-hidden','true');
+        signal.insertBefore(canvas,signal.firstChild);
+      }
+      var rect=canvas.getBoundingClientRect(),scale=chartGlowDpr;
+      var width=Math.max(1,Math.round(rect.width*scale)),height=Math.max(1,Math.round(rect.height*scale));
+      if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+      var ctx=canvas.getContext('2d');ctx.clearRect(0,0,width,height);
+      var p=screenPointToCanvas(dot,Number(dot.getAttribute('cx')),Number(dot.getAttribute('cy')),rect,scale);
+      var rgb=glowRgb(getComputedStyle(signal.closest('.log-mini-meter').querySelector('strong')).color,[255,101,122]);
+      var radius=15*scale,gradient=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
+      gradient.addColorStop(0,glowRgba(rgb,.9));
+      gradient.addColorStop(.2,glowRgba(rgb,.48));
+      gradient.addColorStop(.48,glowRgba(rgb,.19));
+      gradient.addColorStop(1,glowRgba(rgb,0));
+      ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.fill();
+    });
+  }
+
   function removeChartCanvasGlow(){
-    document.querySelectorAll('canvas.chart-canvas-glow').forEach(function(canvas){canvas.remove();});
+    document.querySelectorAll('canvas.chart-canvas-glow,canvas.log-mini-canvas-glow').forEach(function(canvas){canvas.remove();});
   }
   function paintAllChartGlows(){
     chartGlowRaf=0;
     if(!chartGlowMq.matches){removeChartCanvasGlow();return;}
     ['activity-chart','insight-chart','volume-chart'].forEach(function(id){paintChartCanvasGlow(byId(id));});
+    paintMiniIntervalGlows();
   }
   function scheduleChartCanvasGlow(){
     if(chartGlowRaf)cancelAnimationFrame(chartGlowRaf);
@@ -531,7 +564,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }
     svg+='<line class="metric-chart-axis-line" x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+baseY+'"/>'+
       '<line class="metric-chart-axis-line" x1="'+left+'" y1="'+baseY+'" x2="'+plotRight+'" y2="'+baseY+'"/>';
-    if(options.unit)svg+='<text class="metric-chart-unit-label" x="'+plotRight+'" y="'+Math.max(10,top-14)+'" text-anchor="end">'+escapeHtml(options.unit)+'</text>';
+    if(options.unit||options.axisUnit)svg+=chartAxisUnit(options.axisUnit||options.unit,left,top);
     return svg;
   }
   function lineChart(entries,options) {
@@ -575,6 +608,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
     var groups={cardio:[[]],strength:[[]]};
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+    svg+=chartAxisUnit('BPM',left,top);
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(value)+'</text>';});
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0)){groups.cardio.push([]);groups.strength.push([]);return;}
@@ -707,9 +741,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(state.insight==='heart'){
       entries=heartData();name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
     }else if(state.insight==='pace'){
-      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',axisColor:'#b9898e',gridColor:'#f8717112',tickCount:5,reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
+      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',axisColor:'#b9898e',gridColor:'#f8717112',axisUnit:'MIN/KM',tickCount:5,reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
     }else{
-      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',axisColor:'#65d7a5',gridColor:'#65d7a514',tickCount:5,goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
+      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',axisColor:'#65d7a5',gridColor:'#65d7a514',axisUnit:'ML/KG/MIN',tickCount:5,goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
     }
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
@@ -762,7 +796,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var valid=value!==''&&value!=null;
       return '<div class="log-mini-meter log-mini-meter--'+type+(valid?'':' is-missing')+'" role="img" aria-label="'+escapeHtml(label+': '+(valid?value+' '+unit:'Inget värde'))+'">'+
         '<span class="log-mini-label">'+label+'</span><strong>'+escapeHtml(valid?value:'—')+'<small>'+unit+'</small></strong>'+
-        '<svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-halo" cx="'+position.toFixed(2)+'" cy="12" r="10"/><circle class="log-mini-halo log-mini-halo--inner" cx="'+position.toFixed(2)+'" cy="12" r="6"/><circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg>'+
+        '<span class="log-mini-signal"><svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg></span>'+
         '<div class="log-mini-scale"><span>'+escapeHtml(low)+'</span><span>'+escapeHtml(high)+'</span></div></div>';
     }
     var pulsePos=min>0&&max>=min&&avg>0?(min===max?52:9+clamp((avg-min)/(max-min),0,1)*86):52;
@@ -849,6 +883,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           item.querySelector('.log-summary').setAttribute('aria-expanded',String(open));
           item.querySelector('.log-detail').hidden=!open;
         });
+        scheduleChartCanvasGlow();
       }
     });
     document.addEventListener('click',function(event){

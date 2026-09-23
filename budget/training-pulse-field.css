@@ -199,6 +199,7 @@ main{position:relative;z-index:2;display:block}
 .chart-canvas-glow{display:none;position:absolute;pointer-events:none;user-select:none}
 .chart-grid{stroke:#ffffff0b;stroke-width:1}
 .chart-axis-label{fill:#8b949e;font:10px var(--field-ui)}
+.chart-axis-unit{fill:#a8b0ba;font:600 9px var(--field-ui);letter-spacing:.65px}
 .metric-chart-grid{stroke-width:1;vector-effect:non-scaling-stroke}
 .metric-chart-axis-line{stroke:#ffffff20;stroke-width:1;vector-effect:non-scaling-stroke}
 .metric-chart-y-label,.metric-chart-x-label,.metric-goal-label{font:9px var(--field-ui)}
@@ -305,11 +306,11 @@ main{position:relative;z-index:2;display:block}
 .log-mini-label{color:var(--field-muted);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .log-mini-meter strong{color:var(--mini-color);font-size:clamp(11px,1.5vw,15px);font-variant-numeric:tabular-nums;white-space:nowrap}
 .log-mini-meter strong small{margin-left:3px;color:var(--field-faint);font-size:8px;font-weight:500}
-.log-mini-meter svg{display:block;width:100%;height:25px;overflow:visible}
+.log-mini-signal{display:block;position:relative;isolation:isolate;min-width:0;height:25px}
+.log-mini-signal svg{position:relative;z-index:2;display:block;width:100%;height:25px;overflow:visible}
+.log-mini-canvas-glow{display:none;position:absolute;inset:-12px;width:calc(100% + 24px);height:calc(100% + 24px);z-index:1;pointer-events:none;mix-blend-mode:screen}
 .log-mini-track{stroke:var(--mini-color);stroke-width:1.5;stroke-opacity:.48;stroke-linecap:round}
 .log-mini-end{fill:var(--mini-color);opacity:.48}
-.log-mini-halo{fill:var(--mini-color);opacity:.12;pointer-events:none}
-.log-mini-halo--inner{opacity:.22}
 .log-mini-point{fill:var(--mini-color);stroke:#0b1118;stroke-width:1;filter:drop-shadow(0 0 4px var(--mini-color))}
 .log-mini-meter.is-missing .log-mini-track{stroke-opacity:.14}
 .log-mini-scale{display:flex;justify-content:space-between;gap:3px;color:var(--field-faint);font-size:8px;font-variant-numeric:tabular-nums}
@@ -436,6 +437,7 @@ main{position:relative;z-index:2;display:block}
   .luminous-chart{height:168px;margin-top:4px}
   .chart-canvas-glow{display:block;inset:-28px;width:calc(100% + 56px);height:calc(100% + 56px);z-index:1;opacity:1;filter:none;-webkit-filter:none;mix-blend-mode:screen}
   .line-glow,.activity-bar,.last-point,.group-volume-point,.pace-scatter-point,.log-mini-point{filter:none!important;-webkit-filter:none!important}
+  .log-mini-canvas-glow{display:block}
   .range-bar{opacity:.21}
   .insight-tabs{gap:14px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:0;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   .insight-tabs::-webkit-scrollbar{display:none}

@@ -168,7 +168,10 @@ jobs:
             assert.equal(sceneQuality.metricAxisLines,0,'Heart graph should retain the earlier Pulse Field treatment without metric axes: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
-            assert.equal(sceneQuality.activityMetricUnit,'','Activity graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.activityMetricUnit,'','Activity graph should not gain a new metric-specific unit badge: '+JSON.stringify(sceneQuality));
+            assert.equal((await page.locator('#activity-chart .chart-axis-unit').textContent()).trim(),'MIN','Activity minutes graph needs axis units');
+            assert.equal((await page.locator('#insight-chart .chart-axis-unit').textContent()).trim(),'BPM','Heart graph needs axis units');
+            assert.equal((await page.locator('#volume-chart .chart-axis-unit').textContent()).trim(),'KG','Training volume graph needs axis units');
             assert.ok(sceneQuality.activityPlotWidthRatio>.85,'Activity bars must fill nearly the entire chart width: '+JSON.stringify(sceneQuality));
             assert.ok(sceneQuality.activityPlotLeft>=18&&sceneQuality.activityPlotRight<=sceneQuality.activityViewBoxWidth-5,'Activity plot labels must stay inside viewbox');
             if(mobile){
@@ -209,6 +212,7 @@ jobs:
             assert.ok(await page.locator('#insight-special').isVisible(),'Pace must show special old-page chrome');
             assert.equal((await page.locator('#insight-special-chart-title').textContent()).trim(),'Snittakt över tid');
             assert.equal((await page.locator('#insight-special-chart-unit').textContent()).trim(),'MIN/KM');
+            assert.equal((await page.locator('#insight-chart .chart-axis-unit').textContent()).trim(),'MIN/KM','Pace graph needs in-plot axis units');
             assert.ok((await page.locator('#insight-special-legend').textContent()).includes('Snittakt'),'Pace legend missing');
             assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Snittakt & registrerade värden'),'Pace section title missing');
             assert.equal(await page.locator('#insight-special-summary [role="progressbar"]').count(),1,'Distance goal bar above pace must be present');
@@ -227,6 +231,7 @@ jobs:
             assert.ok(await page.locator('#insight-special').isVisible(),'VO2 must show special old-page chrome');
             assert.equal((await page.locator('#insight-special-chart-title').textContent()).trim(),'VO₂ över tid');
             assert.equal((await page.locator('#insight-special-chart-unit').textContent()).trim(),'ML/KG/MIN');
+            assert.equal((await page.locator('#insight-chart .chart-axis-unit').textContent()).trim(),'ML/KG/MIN','VO2 graph needs in-plot axis units');
             assert.equal(await page.locator('#insight-special-summary [role="progressbar"]').count(),1,'VO2 goal progress bar missing');
             assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Högsta VO₂'),'VO2 highest-value summary missing');
             assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Längsta löptid'),'VO2 longest-run summary missing');
@@ -243,14 +248,26 @@ jobs:
             const cardioLog=page.locator('#log-timeline [data-log-card]').nth(1);
             await cardioLog.locator('.log-summary').click();
             assert.equal(await cardioLog.locator('.log-mini-meter:not(.is-missing)').count(),3,'Cardio demo must expose recorded pulse VO2 and pace');
-            assert.equal(await cardioLog.locator('.log-mini-halo').count(),6,'Each logged metric must have two low-opacity glow layers');
+            assert.equal(await cardioLog.locator('.log-mini-halo').count(),0,'Old flat SVG halo graphics must be removed');
             assert.equal(await cardioLog.locator('.log-mini-point').count(),3,'Glow must not duplicate the actual measurement markers');
+            await page.waitForTimeout(170);
+            const miniGlow=await cardioLog.locator('.log-mini-signal').evaluateAll(signals=>signals.map(signal=>{
+              const canvas=signal.querySelector('canvas.log-mini-canvas-glow');
+              if(!canvas)return {present:false,energy:0};
+              const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+              let energy=0;for(let i=3;i<pixels.length;i+=4)energy+=pixels[i];
+              return {present:true,energy};
+            }));
+            assert.equal(miniGlow.length,3,'Three mini log metrics should be checked');
+            if(mobile)assert.ok(miniGlow.every(glow=>glow.present&&glow.energy>100),'Mobile mini metric glow needs actual Canvas 2D pixels: '+JSON.stringify(miniGlow));
+            else assert.ok(miniGlow.every(glow=>!glow.present),'Desktop mini metrics must retain native glow without extra Canvas');
             assert.ok((await cardioLog.locator('.log-mini-meter--pace strong').textContent()).includes('min/km'),'Pace mini interval requires unit');
             assert.ok(await page.locator('#insight-special').isHidden(),'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-axis-line').count(),0,'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Heart graph must not show the new metric unit badge');
             await page.locator('[data-activity-metric="sessions"]').click();
             await page.waitForTimeout(40);
+            assert.equal((await page.locator('#activity-chart .chart-axis-unit').textContent()).trim(),'PASS','Activity sessions graph needs matching axis units');
             assert.equal(await page.locator('#activity-chart .metric-chart-axis-line').count(),0,'Activity graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#activity-chart .metric-chart-unit-label').count(),0,'Activity graph must not show a metric unit badge');
             await page.locator('[data-activity-metric="minutes"]').click();
