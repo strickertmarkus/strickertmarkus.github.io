@@ -578,6 +578,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-forest-landscape,.zen-lake-landscape{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .zen-workout[data-kind="meditation"] .zen-forest-landscape,.zen-workout[data-kind="stretch"] .zen-lake-landscape{display:none}
 .zen-forest-landscape svg,.zen-lake-landscape svg{position:absolute;inset:0;width:100%;height:100%;max-height:none;transform:none}
+.zen-workout[data-kind="stretch"] .zen-forest-landscape svg{transform:translateY(var(--zen-forest-camera,0px)) scale(1.045);transform-origin:50% 55%}
 .zen-workout .zen-scenery:after{position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,#04100bc9 0%,#04100869 29%,transparent 47%,#06170e36 62%,#04100bec 100%)}
 .zen-workout[data-kind="meditation"] .zen-scenery:after{background:linear-gradient(180deg,#081821cb 0%,#101e2766 30%,transparent 49%,#07172164 72%,#07151deb 100%)}
 .zen-workout .zen-scenery .scene-sheen{z-index:1;animation:none;opacity:.3}
@@ -620,6 +621,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-live-flow{display:none}
 .zen-workout[data-kind="meditation"] .zen-clock-wrap{position:absolute;width:1px;height:1px;min-height:0;min-width:0;padding:0;opacity:0;overflow:hidden;pointer-events:none}
 .zen-lake-sun{transform-origin:461px 324px;opacity:var(--zen-lake-daylight,.7);filter:drop-shadow(0 0 17px #fff1b26b);transition:opacity 3s linear}
+.zen-scenery.zen-stage-bloom .zen-lake-sun{animation:zenSunBloom 1.6s ease-out}
 .zen-lake-waterlines{animation:zenLakeCurrent 10s ease-in-out infinite alternate;transform-origin:50% 65%}
 .zen-lake-ripples{transform:translateY(calc((1 - var(--zen-breath-level,0)) * 3px)) scaleX(calc(.72 + var(--zen-breath-level,0) * .45));transform-origin:457px 547px;opacity:calc(.40 + var(--zen-breath-level,0) * .60);filter:drop-shadow(0 0 4px #fff0c38c)}
 .zen-lake-landscape #zen-lake-horizon-progress{filter:drop-shadow(0 0 3px #fff1cc) drop-shadow(0 0 10px #f9db8b);stroke-linecap:round}
@@ -653,6 +655,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-exit{position:relative;z-index:7;flex:0 0 auto;display:block;min-height:27px;margin:3px auto 0;padding:4px 10px;color:#d0dac7;font-size:10px;pointer-events:auto}
 .zen-workout.zen-clock-hidden .zen-lake-breath-guide>strong{visibility:hidden}
 .zen-workout[data-running="false"] .zen-lake-waterlines,.zen-workout[data-running="false"] .zen-lake-bamboo,.zen-workout[data-running="false"] .zen-forest-backtrees,.zen-workout[data-running="false"] .zen-forest-fronttrees,.zen-workout[data-running="false"] .zen-forest-fireflies circle{animation-play-state:paused}
+@keyframes zenSunBloom{0%{filter:drop-shadow(0 0 8px #fff1b260)}40%{filter:drop-shadow(0 0 35px #fff7b4ce)}100%{filter:drop-shadow(0 0 17px #fff1b26b)}}
 @keyframes zenForestSway{from{transform:translateX(-3px) rotate(-.16deg)}to{transform:translateX(4px) rotate(.16deg)}}
 @keyframes zenForestLight{from{opacity:.045}to{opacity:.11}}
 @keyframes zenFirefly{from{opacity:.25;transform:translateY(4px)}to{opacity:.9;transform:translateY(-7px)}}
