@@ -151,9 +151,8 @@ jobs:
             assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
             if(mobile){
               assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
-              const activityToggleOffset=sceneQuality.activityHeading.toggleTop-sceneQuality.activityHeading.headingTop;
-              const insightToggleOffset=sceneQuality.insightHeading.toggleTop-sceneQuality.insightHeading.headingTop;
-              assert.ok(Math.abs(activityToggleOffset-insightToggleOffset)<1.5,'Activity and insight toggles must share the exact same heading alignment path: '+JSON.stringify({activity:sceneQuality.activityHeading,insight:sceneQuality.insightHeading}));
+              assert.ok(Math.abs(sceneQuality.activityHeading.toggleTop-sceneQuality.activityHeading.titleTop)<1.5,'Activity toggle must start on the activity title row: '+JSON.stringify(sceneQuality.activityHeading));
+              assert.ok(Math.abs(sceneQuality.insightHeading.toggleTop-sceneQuality.insightHeading.titleTop)<1.5,'Insight toggle must start on the insight title row: '+JSON.stringify(sceneQuality.insightHeading));
               assert.ok(Math.abs(sceneQuality.activityHeading.titleFont-sceneQuality.insightHeading.titleFont)<.1,'Activity and insight headings must share typography sizing: '+JSON.stringify({activity:sceneQuality.activityHeading,insight:sceneQuality.insightHeading}));
               assert.ok(sceneQuality.activityHeading.toggleRight<=sceneQuality.activityHeading.viewportRight+1,'Activity toggle must fit within content width: '+JSON.stringify(sceneQuality.activityHeading));
               assert.equal(sceneQuality.statClearance.length,3,'Expected three rhythm metrics');
