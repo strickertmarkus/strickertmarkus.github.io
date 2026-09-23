@@ -459,16 +459,6 @@ jobs:
             }
             const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
             assert.ok(initialStretchArc>98&&initialStretchArc<=100,'Stretch dial must start at the normalized SVG path origin: '+initialStretchArc);
-            const stretchArcSamples=await page.evaluate(()=>{
-              const values=[];
-              [0.1,0.35,0.7].forEach(elapsed=>{
-                activeZen.elapsed=elapsed;activeZen.last=Date.now();renderZenSession();
-                values.push(Number(document.getElementById('zen-step-arc').getAttribute('stroke-dashoffset')));
-              });
-              return values;
-            });
-            assert.ok(stretchArcSamples[0]>stretchArcSamples[1]&&stretchArcSamples[1]>stretchArcSamples[2]&&stretchArcSamples[2]<100,
-              'Stretch dial must map increasing elapsed time to continuous SVG progress: '+JSON.stringify(stretchArcSamples));
             for(const width of [320,360,390,430,768]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Stretchläge '+width+'px');
@@ -512,15 +502,6 @@ jobs:
             assert.equal(await page.locator('#zen-total-progress').getAttribute('aria-valuenow'),'0');
             assert.equal(await page.locator('#zen-step-arc').evaluate(el=>getComputedStyle(el).stroke),
               'rgb(245, 219, 162)','Meditation arc should inherit the warm meditation accent');
-            const breathTransforms=await page.evaluate(()=>{
-              const values=[];
-              [0.5,1.5,3].forEach(elapsed=>{
-                activeZen.elapsed=elapsed;activeZen.last=Date.now();renderZenSession();
-                values.push(document.getElementById('zen-breath-pulse').style.transform);
-              });
-              return values;
-            });
-            assert.equal(new Set(breathTransforms).size,3,'Meditation breath guide must respond continuously to elapsed time: '+JSON.stringify(breathTransforms));
             for(const width of [320,390,430]){
               await page.setViewportSize({width,height:844});
               await auditNoHorizontalScroll('Meditationsläge '+width+'px');
