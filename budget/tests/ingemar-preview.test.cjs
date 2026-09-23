@@ -152,7 +152,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260923-zen-builder-8/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260923-immersive-zen-9/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -201,4 +201,26 @@ test('Zen stretch and meditation support custom routines, editable planned days,
  assert.match(css,/\.zen-step-editor\{/);
  assert.match(css,/@media\(max-width:740px\)/);
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
+});
+
+test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes with accessible session controls',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ for(const id of ['zen-forest-art','zen-forest-route','zen-forest-progress','zen-forest-traveller','zen-forest-waypoints','zen-lake-horizon-progress','zen-immersion-breath','zen-immersion-time','zen-clock-toggle']){
+  assert.match(html,new RegExp('id="'+id+'"'),'Missing immersive scene component '+id);
+ }
+ for(const fn of ['zenForestWaypoints','zenImmersionFrame']){
+  assert.match(source[1],new RegExp('function '+fn+'\\('));
+ }
+ assert.match(source[1],/zenImmersionFrame\(position,stepFraction,passFraction,breathLevel,breath,done\)/);
+ assert.match(source[1],/if\(view==='stretch'\)zenForestWaypoints\(\)/);
+ assert.match(source[1],/activeZen\.forestPathLength/);
+ assert.match(source[1],/session\.dataset\.running=activeZen\.running&&!done/);
+ assert.match(source[1],/case 'toggle-zen-clock'/);
+ assert.match(css,/ZEN IMMERSIVE MODES/);
+ assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{display:flex;flex-direction:column;height:100dvh/);
+ assert.match(css,/\.zen-forest-landscape/);
+ assert.match(css,/\.zen-lake-landscape/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/\.zen-workout\.zen-clock-hidden \.zen-lake-breath-guide>strong\{visibility:hidden\}/);
+ assert.doesNotMatch(html,/class="zen-scene-stretch"/,'Remove superseded scenery artwork');
 });
