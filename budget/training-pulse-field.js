@@ -241,14 +241,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span><span class="day-type">'+escapeHtml(type)+'</span></button>';
     }
     byId('week-days').innerHTML=markup;
-    renderSelectedDay();
-  }
-  function renderSelectedDay() {
-    var date=dateAtNoon(state.selectedDate),plan=planForDate(date),logged=workoutsOn(date),parts=[dayNames[(date.getDay()+6)%7]+' '+shortDate(date)];
-    if(plan)parts.push(plan.type||'Planerat pass');
-    if(logged.length)parts.push(logged.length+' loggat pass');
-    if(!plan&&!logged.length)parts.push('Återhämtning eller fri rörelse');
-    byId('selected-day-copy').textContent=parts.join(' · ');
   }
 
   function activityBuckets() {
