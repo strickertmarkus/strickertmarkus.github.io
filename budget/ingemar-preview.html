@@ -1351,11 +1351,16 @@ function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath
  if(med){
   session.style.setProperty('--zen-breath-level',breathLevel.toFixed(4));
   session.style.setProperty('--zen-lake-daylight',(.65+passFraction*.35).toFixed(3));
+  if(scene&&activeZen.visualStage!==position.index){
+   activeZen.visualStage=position.index;
+   scene.classList.remove('zen-stage-bloom');void scene.offsetWidth;scene.classList.add('zen-stage-bloom');
+  }
   var horizon=$('zen-lake-horizon-progress');
   if(horizon)horizon.style.strokeDashoffset=String(900*(1-passFraction));
   setText('zen-immersion-breath',done?'STUNDEN ÄR KLAR':!activeZen.running?'PAUSAD':breath);
   setText('zen-immersion-time',fmtSeconds(Math.ceil(Math.max(0,position.end-activeZen.elapsed))));
  }else{
+  session.style.setProperty('--zen-forest-camera',(-20*passFraction).toFixed(2)+'px');
   var route=$('zen-forest-route'),progress=$('zen-forest-progress'),traveller=$('zen-forest-traveller');
   if(progress)progress.style.strokeDashoffset=String(100*(1-passFraction));
   if(route&&traveller){
