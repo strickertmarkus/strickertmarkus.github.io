@@ -166,7 +166,7 @@ jobs:
             assert.equal(sceneQuality.weekFlow?.selectedBorder,'1px','Only selected date needs a visible tile border');
             assert.equal(sceneQuality.weekFlow?.dot,'""','The date indicator must be a dot beneath each date');
             assert.equal(await page.locator('.week-day .day-date').count(),7,'Seven weekday dates must keep their small dots');
-            assert.equal(await page.locator('.week-day .day-date::after').count(),0,'Dots must be CSS pseudo-elements, not extra DOM rows');
+            assert.ok(await page.locator('.week-day .day-date').evaluateAll(days=>days.every(day=>getComputedStyle(day,'::after').content==='""')),'All seven dates should display their dot pseudo-element');
             assert.equal(sceneQuality.metricAxisLines,0,'Heart graph should retain the earlier Pulse Field treatment without metric axes: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
