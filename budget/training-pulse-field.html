@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260923-compact-week-24">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260923-compact-controls-25">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
@@ -154,15 +154,15 @@
 
     <section class="field-section activity-section" id="activity-field" aria-labelledby="activity-title">
       <div class="section-head activity-heading">
-        <div><p class="eyebrow">BELASTNING ÖVER TID</p><h2 id="activity-title">Aktivitetsljus</h2></div>
-        <div class="segmented" aria-label="Aktivitetsmått">
+        <div class="activity-heading-copy"><p class="eyebrow">BELASTNING ÖVER TID</p><h2 id="activity-title">Aktivitetsljus</h2></div>
+        <div class="view-tabs activity-view-tabs" role="tablist" aria-label="Aktivitetens tidsvy">
+          <button type="button" role="tab" data-activity-view="history" aria-selected="true">Historik</button>
+          <button type="button" role="tab" data-activity-view="week" aria-selected="false">Vecka</button>
+        </div>
+        <div class="segmented activity-metric" aria-label="Aktivitetsmått">
           <button type="button" data-activity-metric="minutes" aria-pressed="true">Minuter</button>
           <button type="button" data-activity-metric="sessions" aria-pressed="false">Pass</button>
         </div>
-      </div>
-      <div class="view-tabs" role="tablist" aria-label="Aktivitetens tidsvy">
-        <button type="button" role="tab" data-activity-view="history" aria-selected="true">Historik</button>
-        <button type="button" role="tab" data-activity-view="week" aria-selected="false">Vecka</button>
       </div>
       <div class="activity-week-nav" id="activity-week-nav" hidden>
         <div class="week-navigator" data-week-navigator>
@@ -179,18 +179,18 @@
     </section>
 
     <section class="field-section insight-section" id="insights" aria-labelledby="insight-title">
-      <div class="section-head">
-        <div><p class="eyebrow">MÄTVÄRDEN</p><h2 id="insight-title">Kroppens svar</h2></div>
+      <div class="section-head insight-heading">
+        <div class="insight-heading-copy"><p class="eyebrow">MÄTVÄRDEN</p><h2 id="insight-title">Kroppens svar</h2></div>
+        <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
+          <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
+          <button type="button" role="tab" data-insight="distance" aria-selected="false">Löpdistans</button>
+          <button type="button" role="tab" data-insight="pace" aria-selected="false">Snittakt</button>
+          <button type="button" role="tab" data-insight="vo2" aria-selected="false">VO₂</button>
+        </div>
         <div class="segmented insight-mode" aria-label="Visa graf eller tabell">
           <button type="button" data-insight-mode="chart" aria-pressed="true">Graf</button>
           <button type="button" data-insight-mode="table" aria-pressed="false">Tabell</button>
         </div>
-      </div>
-      <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
-        <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
-        <button type="button" role="tab" data-insight="distance" aria-selected="false">Löpdistans</button>
-        <button type="button" role="tab" data-insight="pace" aria-selected="false">Snittakt</button>
-        <button type="button" role="tab" data-insight="vo2" aria-selected="false">VO₂</button>
       </div>
       <div class="insight-copy">
         <h3 id="insight-name">Medelpuls över tid</h3>
