@@ -71,6 +71,8 @@ jobs:
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
             await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
             await page.locator('.start-orbit').screenshot({path:'test-results/pulse-field/'+name+'-start-orbit.png'});
+            await page.locator('.rhythm-section').screenshot({path:'test-results/pulse-field/'+name+'-rhythm-stats.png'});
+            await page.locator('#week-field').screenshot({path:'test-results/pulse-field/'+name+'-week-field.png'});
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
 
             const sceneQuality=await page.evaluate(()=>{
@@ -89,6 +91,9 @@ jobs:
               const start=document.querySelector('.start-orbit');
               const startSymbol=document.querySelector('.start-field-symbol');
               const root=document.scrollingElement||document.documentElement;
+              const dayDate=document.querySelector('.week-day.is-selected .day-date');
+              const statRows=Array.from(document.querySelectorAll('.rhythm-stats > div'));
+              const statClearance=statRows.map((row,i)=>({left:row.getBoundingClientRect().left,separator:i?statRows[i-1].getBoundingClientRect().right:null,textLeft:row.querySelector('dd').getBoundingClientRect().left,textRight:row.querySelector('dd').getBoundingClientRect().right,rowRight:row.getBoundingClientRect().right}));
               const offenders=Array.from(document.querySelectorAll('body *')).map(el=>({el,rect:el.getBoundingClientRect()})).filter(x=>x.rect.right>innerWidth+1||x.rect.left<-1).slice(0,12).map(x=>({tag:x.el.tagName,class:x.el.className,right:Math.round(x.rect.right),left:Math.round(x.rect.left),width:Math.round(x.rect.width)}));
               return {
                 mottleBackground:mottle?getComputedStyle(mottle).backgroundImage:'',
@@ -108,6 +113,8 @@ jobs:
                 bodyScrollWidth:document.body.scrollWidth,
                 viewportWidth:innerWidth,
                 offenders,
+                statClearance,
+                weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,crest:getComputedStyle(dayDate,'::after').animationName,rise:getComputedStyle(dayDate,'::before').animationName}:null,
                 starSizes:Array.from(document.querySelectorAll('.space-star__glyph')).map(el=>parseFloat(getComputedStyle(el).fontSize))
               };
             });
@@ -122,7 +129,13 @@ jobs:
             assert.equal(sceneQuality.startSymbolDuration,'2s','Start glyph heartbeat must repeat every two seconds: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSymbolColor,'rgb(255, 154, 145)','Start glyph should use Pulse Field theme accent: '+JSON.stringify(sceneQuality));
             assert.ok(new Set(sceneQuality.starSizes.map(v=>Math.round(v))).size>=5,'Pulse stars must keep visibly varied sizes: '+JSON.stringify(sceneQuality.starSizes));
+            assert.equal(sceneQuality.weekFlow?.animation,'weekDateShimmer','Selected week date should softly brighten');
+            assert.equal(sceneQuality.weekFlow?.crest,'weekDateCrest','Selected week date should have a rising arc');
+            assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
             if(mobile){
+              assert.equal(sceneQuality.statClearance.length,3,'Expected three rhythm metrics');
+              for(let i=1;i<3;i++)assert.ok(sceneQuality.statClearance[i].textLeft-sceneQuality.statClearance[i].separator>=10,'Rhythm value is too close to vertical divider: '+JSON.stringify(sceneQuality.statClearance));
+              for(let i=0;i<2;i++)assert.ok(sceneQuality.statClearance[i].rowRight-sceneQuality.statClearance[i].textRight>=7,'Rhythm value is too close to its right divider: '+JSON.stringify(sceneQuality.statClearance));
               assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1,'Mobile root must not overflow horizontally: '+JSON.stringify(sceneQuality));
               await page.evaluate(()=>window.scrollTo(140,0));
               await page.waitForTimeout(80);
