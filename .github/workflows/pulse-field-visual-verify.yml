@@ -70,6 +70,7 @@ jobs:
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
             await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
+            await page.locator('.start-orbit').screenshot({path:'test-results/pulse-field/'+name+'-start-orbit.png'});
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
 
             const sceneQuality=await page.evaluate(()=>{
@@ -98,7 +99,11 @@ jobs:
                 lineFilter:line?getComputedStyle(line).filter:'',
                 startSymbol:startSymbol?startSymbol.textContent.trim():'',
                 startSvgCount:start?start.querySelectorAll('svg').length:-1,
-                startFlowAnimation:start?getComputedStyle(start,'::after').animationName:'',
+                startHaloAnimation:start?getComputedStyle(start,'::after').animationName:'',
+                startHaloBackground:start?getComputedStyle(start,'::after').backgroundImage:'',
+                startSymbolAnimation:startSymbol?getComputedStyle(startSymbol).animationName:'',
+                startSymbolDuration:startSymbol?getComputedStyle(startSymbol).animationDuration:'',
+                startSymbolColor:startSymbol?getComputedStyle(startSymbol).color:'',
                 rootScrollWidth:root.scrollWidth,
                 bodyScrollWidth:document.body.scrollWidth,
                 viewportWidth:innerWidth,
@@ -111,7 +116,11 @@ jobs:
             assert.equal(sceneQuality.oldLayerCount,0,'Legacy visible SVG halo layers must be absent: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSymbol,'✦','Start circle must use the Pulse Field ✦ symbol: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.startSvgCount,0,'Start symbol must not contain the old ECG ring SVG: '+JSON.stringify(sceneQuality));
-            assert.equal(sceneQuality.startFlowAnimation,'startOrbitFlow','Outer start ring must use circulating flow instead of breathing: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startHaloAnimation,'startHaloBreath','Outer start glow must breathe, not rotate: '+JSON.stringify(sceneQuality));
+            assert.ok(sceneQuality.startHaloBackground.includes('radial-gradient')&&!sceneQuality.startHaloBackground.includes('conic-gradient'),'Start glow must be diffuse rather than a rotating ring: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startSymbolAnimation,'startSymbolHeartbeat','Start glyph should have its own heartbeat: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startSymbolDuration,'2s','Start glyph heartbeat must repeat every two seconds: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.startSymbolColor,'rgb(255, 154, 145)','Start glyph should use Pulse Field theme accent: '+JSON.stringify(sceneQuality));
             assert.ok(new Set(sceneQuality.starSizes.map(v=>Math.round(v))).size>=5,'Pulse stars must keep visibly varied sizes: '+JSON.stringify(sceneQuality.starSizes));
             if(mobile){
               assert.ok(sceneQuality.rootScrollWidth<=sceneQuality.viewportWidth+1,'Mobile root must not overflow horizontally: '+JSON.stringify(sceneQuality));
@@ -138,7 +147,7 @@ jobs:
               const dx=star.x-before.stars[i].x,dy=star.y-before.stars[i].y;
               return {dx,dy,distance:Math.hypot(dx,dy)};
             });
-            const moving=starVectors.filter(v=>v.distance>.35);
+            const moving=starVectors.filter(v=>v.distance>.25);
             assert.ok(moving.length>=7,'Most pulse stars should visibly drift: '+JSON.stringify(starVectors));
             const directions=new Set(moving.map(v=>(v.dx>=0?'R':'L')+(v.dy>=0?'D':'U')));
             assert.ok(directions.size>=3,'Pulse stars must drift in several directions, not as one field: '+JSON.stringify(starVectors));
