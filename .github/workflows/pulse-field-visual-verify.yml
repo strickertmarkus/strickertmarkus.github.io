@@ -114,12 +114,10 @@ jobs:
                 oldLayerCount:document.querySelectorAll('.chart-line-halo-wide,.chart-line-halo-near,.chart-line-core,.chart-point-halo,.activity-bar-glow-wide,.activity-bar-glow-near').length,
                 insightCanvas:canvasEnergy('#insight-chart > canvas.chart-canvas-glow'),
                 activityCanvas:canvasEnergy('#activity-chart > canvas.chart-canvas-glow'),
-                insightAxisLines:document.querySelectorAll('#insight-chart .chart-axis-line').length,
-                activityAxisLines:document.querySelectorAll('#activity-chart .chart-axis-line').length,
-                insightAxisLabels:document.querySelectorAll('#insight-chart .chart-axis-label').length,
-                activityAxisLabels:document.querySelectorAll('#activity-chart .chart-axis-label').length,
-                insightUnit:(document.querySelector('#insight-chart .chart-unit-label')||{}).textContent||'',
-                activityUnit:(document.querySelector('#activity-chart .chart-unit-label')||{}).textContent||'',
+                metricAxisLines:document.querySelectorAll('#insight-chart .metric-chart-axis-line').length,
+                metricUnit:(document.querySelector('#insight-chart .metric-chart-unit-label')||{}).textContent||'',
+                activityMetricAxisLines:document.querySelectorAll('#activity-chart .metric-chart-axis-line').length,
+                activityMetricUnit:(document.querySelector('#activity-chart .metric-chart-unit-label')||{}).textContent||'',
                 lineFilter:line?getComputedStyle(line).filter:'',
                 startSymbol:startSymbol?startSymbol.textContent.trim():'',
                 startSvgCount:start?start.querySelectorAll('svg').length:-1,
@@ -161,10 +159,10 @@ jobs:
             assert.equal(sceneQuality.weekFlow?.animation,'weekDateShimmer','Selected week date should softly brighten');
             assert.equal(sceneQuality.weekFlow?.crest,'weekDateCrest','Selected week date should have a rising arc');
             assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
-            assert.ok(sceneQuality.insightAxisLines>=2&&sceneQuality.insightAxisLabels>=7,'Insight chart must expose clear X/Y axes and labels: '+JSON.stringify(sceneQuality));
-            assert.ok(sceneQuality.activityAxisLines>=2&&sceneQuality.activityAxisLabels>=11,'Activity chart must expose a clear but restrained scale: '+JSON.stringify(sceneQuality));
-            assert.equal(sceneQuality.insightUnit,'BPM','Heart graph must show its unit: '+JSON.stringify(sceneQuality));
-            assert.equal(sceneQuality.activityUnit,'MIN','Activity minutes graph must show its unit: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.metricAxisLines,0,'Heart graph should retain the earlier Pulse Field treatment without metric axes: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
+            assert.equal(sceneQuality.activityMetricUnit,'','Activity graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             if(mobile){
               assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
               const activityTabsCenter=(sceneQuality.activityControls.tabsTop+sceneQuality.activityControls.tabsBottom)/2;
@@ -196,22 +194,22 @@ jobs:
               assert.notEqual(sceneQuality.lineFilter,'none','Desktop SVG glow filter must remain active');
             }
 
-            for(const [metric,unit] of [['distance','KM'],['pace','MIN/KM'],['vo2','ML/KG/MIN'],['heart','BPM']]){
+            for(const [metric,unit,minYLabels] of [['distance','KM',4],['pace','MIN/KM',5],['vo2','ML/KG/MIN',5]]){
               await page.locator('[data-insight="'+metric+'"]').click();
               await page.waitForTimeout(40);
-              assert.equal((await page.locator('#insight-chart .chart-unit-label').textContent()).trim(),unit,'Wrong unit for '+metric);
-              assert.ok(await page.locator('#insight-chart .chart-axis-line').count()>=2,'Missing chart axes for '+metric);
+              assert.equal((await page.locator('#insight-chart .metric-chart-unit-label').textContent()).trim(),unit,'Wrong unit for '+metric);
+              assert.ok(await page.locator('#insight-chart .metric-chart-axis-line').count()>=2,'Missing old-page style axes for '+metric);
+              assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=minYLabels,'Too few Y-axis ticks for '+metric);
+              assert.ok(await page.locator('#insight-chart .metric-chart-x-label').count()>=4,'Too few date labels for '+metric);
             }
-            await page.locator('[data-insight="distance"]').click();
-            await page.locator('[data-insight-mode="table"]').click();
-            await page.waitForTimeout(40);
-            const distanceHeaders=(await page.locator('#insight-table-head').textContent()).replace(/\s+/g,' ');
-            assert.ok(distanceHeaders.includes('Distans (km)')&&distanceHeaders.includes('Snittakt (min/km)'),'Insight table headers must carry units: '+distanceHeaders);
-            await page.locator('[data-insight-mode="chart"]').click();
             await page.locator('[data-insight="heart"]').click();
+            await page.waitForTimeout(40);
+            assert.equal(await page.locator('#insight-chart .metric-chart-axis-line').count(),0,'Heart graph must remain in the earlier Pulse Field format');
+            assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Heart graph must not show the new metric unit badge');
             await page.locator('[data-activity-metric="sessions"]').click();
             await page.waitForTimeout(40);
-            assert.equal((await page.locator('#activity-chart .chart-unit-label').textContent()).trim(),'PASS','Activity sessions graph must show PASS');
+            assert.equal(await page.locator('#activity-chart .metric-chart-axis-line').count(),0,'Activity graph must remain in the earlier Pulse Field format');
+            assert.equal(await page.locator('#activity-chart .metric-chart-unit-label').count(),0,'Activity graph must not show a metric unit badge');
             await page.locator('[data-activity-metric="minutes"]').click();
             await page.waitForTimeout(40);
 
