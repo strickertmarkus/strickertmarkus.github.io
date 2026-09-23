@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-chart-polish-6">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-zen-builder-7">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -237,7 +237,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   <div id="zen-edit-steps" class="zen-editor-steps"></div>
   <button type="button" class="zen-inline-action zen-add-step" data-zen-action="add-step">＋ Lägg till steg</button>
   <p class="hint zen-edit-note">Alla ändringar sparas lokalt. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
-  <div class="modal-actions zen-editor-actions"><button type="button" class="ghost" data-zen-action="close-editor">Avbryt</button><div class="right"><button type="button" class="secondary" id="zen-edit-delete" data-zen-action="delete-entry" hidden>Ta bort</button><button type="button" class="primary" data-zen-action="save-editor">Spara pass ✓</button></div></div>
+  <div class="modal-actions zen-editor-actions"><button type="button" class="ghost" data-zen-action="close-editor">Avbryt</button><div class="right"><button type="button" class="secondary" id="zen-edit-delete" data-zen-action="delete-entry" hidden>Ta bort</button><button type="button" class="secondary" id="zen-edit-save-start" data-zen-action="save-start">Spara &amp; starta ↗</button><button type="button" class="primary" data-zen-action="save-editor">Spara pass ✓</button></div></div>
  </div>
 </dialog>
 <dialog id="zen-day-dialog" class="zen-editor-dialog" aria-labelledby="zen-day-title">
@@ -1184,6 +1184,7 @@ function renderZenEditor(){
  $('zen-edit-steps').innerHTML=item.steps.map(function(step,index){return zenEditorStepMarkup(step,index,item.steps.length);}).join('');
  $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(item.steps)/60)+' min · '+item.steps.length+' steg';
  $('zen-edit-delete').hidden=!zenEditId;
+ $('zen-edit-save-start').hidden=history;
  $('zen-editor').querySelector('[data-zen-action="save-editor"]').textContent=history?'Spara logg ✓':'Spara pass ✓';
 }
 function openZenRoutineEditor(kind,id){
@@ -1206,7 +1207,7 @@ function openZenHistoryEditor(id){
  zenEditDraft.steps=zenLogSteps(zenEditDraft);
  renderZenEditor();$('zen-editor').showModal();$('zen-edit-name').focus();
 }
-function saveZenEditor(){
+function saveZenEditor(startAfterSave){
  if(!zenEditDraft)return;
  syncZenEditor();
  var name=String(zenEditDraft.name||'').trim(),steps=zenEditDraft.steps;
@@ -1232,7 +1233,12 @@ function saveZenEditor(){
   var routines=zenRoutinesFor(zenEditKind),index=routines.findIndex(function(item){return item.id===zenEditId;});
   if(index>=0)routines[index]=deep(zenEditDraft);else routines.push(deep(zenEditDraft));
  }
- persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(zenEditMode==='history'?'Loggen sparades.':'Passet sparades.');
+ var savedId=zenEditDraft.id,savedKind=zenEditKind,savedHistory=zenEditMode==='history';
+ persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(savedHistory?'Loggen sparades.':'Passet sparades.');
+ if(startAfterSave&&!savedHistory){
+  var startIndex=zenRoutinesFor(savedKind).findIndex(function(item){return item.id===savedId;});
+  if(startIndex>=0)zenStart(startIndex);
+ }
 }
 function removeZenEntry(){
  if(!zenEditDraft||!zenEditId)return;
@@ -1281,7 +1287,7 @@ function zenEditorAction(action){
   syncZenEditor();if(zenEditDraft.steps.length>=20){toast('Högst 20 steg per pass.');return;}
   zenEditDraft.steps.push(zenStepTemplate());renderZenEditor();return;
  }
- if(action==='save-editor'){saveZenEditor();return;}
+ if(action==='save-editor'||action==='save-start'){saveZenEditor(action==='save-start');return;}
  if(action==='delete-entry'){removeZenEntry();return;}
  if(action==='save-day'||action==='start-day'){saveZenDay(action==='start-day');return;}
 }
