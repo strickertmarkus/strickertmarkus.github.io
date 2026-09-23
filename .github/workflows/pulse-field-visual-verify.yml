@@ -93,8 +93,11 @@ jobs:
               const startSymbol=document.querySelector('.start-field-symbol');
               const root=document.scrollingElement||document.documentElement;
               const activityHeading=document.querySelector('.activity-heading');
+              const insightHeading=document.querySelector('#insights .section-head-toggle');
               const activityTitle=activityHeading.querySelector('h2').getBoundingClientRect();
               const activityToggle=activityHeading.querySelector('.segmented').getBoundingClientRect();
+              const insightTitle=insightHeading.querySelector('h2').getBoundingClientRect();
+              const insightToggle=insightHeading.querySelector('.segmented').getBoundingClientRect();
               const weekday=document.querySelector('.week-day');
               const weekdayDate=weekday.querySelector('.day-date');
               const dayDate=document.querySelector('.week-day.is-selected .day-date');
@@ -122,7 +125,8 @@ jobs:
                 weekdayHeight:weekday.getBoundingClientRect().height,
                 weekdayFont:parseFloat(getComputedStyle(weekdayDate).fontSize),
                 weekdayCount:document.querySelectorAll('.week-day').length,
-                activityHeading:{titleTop:activityTitle.top,titleBottom:activityTitle.bottom,toggleTop:activityToggle.top,toggleBottom:activityToggle.bottom,toggleRight:activityToggle.right,viewportRight:activityHeading.getBoundingClientRect().right},
+                activityHeading:{headingTop:activityHeading.getBoundingClientRect().top,titleTop:activityTitle.top,titleBottom:activityTitle.bottom,toggleTop:activityToggle.top,toggleBottom:activityToggle.bottom,toggleRight:activityToggle.right,viewportRight:activityHeading.getBoundingClientRect().right,titleFont:parseFloat(getComputedStyle(activityHeading.querySelector('h2')).fontSize)},
+                insightHeading:{headingTop:insightHeading.getBoundingClientRect().top,titleTop:insightTitle.top,titleBottom:insightTitle.bottom,toggleTop:insightToggle.top,toggleBottom:insightToggle.bottom,titleFont:parseFloat(getComputedStyle(insightHeading.querySelector('h2')).fontSize)},
                 offenders,
                 statClearance,
                 weekFlow:dayDate?{animation:getComputedStyle(dayDate).animationName,crest:getComputedStyle(dayDate,'::after').animationName,rise:getComputedStyle(dayDate,'::before').animationName}:null,
@@ -147,7 +151,9 @@ jobs:
             assert.equal(sceneQuality.weekFlow?.rise,'weekDateRise','Selected week date should have a rising ambient light');
             if(mobile){
               assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
-              assert.ok(Math.abs(sceneQuality.activityHeading.titleBottom-sceneQuality.activityHeading.toggleBottom)<17,'Activity toggle must align with section heading, not sit on a separate row: '+JSON.stringify(sceneQuality.activityHeading));
+              assert.ok(Math.abs(sceneQuality.activityHeading.toggleTop-sceneQuality.activityHeading.titleTop)<1.5,'Activity toggle must start on the activity title row: '+JSON.stringify(sceneQuality.activityHeading));
+              assert.ok(Math.abs(sceneQuality.insightHeading.toggleTop-sceneQuality.insightHeading.titleTop)<1.5,'Insight toggle must start on the insight title row: '+JSON.stringify(sceneQuality.insightHeading));
+              assert.ok(Math.abs(sceneQuality.activityHeading.titleFont-sceneQuality.insightHeading.titleFont)<.1,'Activity and insight headings must share typography sizing: '+JSON.stringify({activity:sceneQuality.activityHeading,insight:sceneQuality.insightHeading}));
               assert.ok(sceneQuality.activityHeading.toggleRight<=sceneQuality.activityHeading.viewportRight+1,'Activity toggle must fit within content width: '+JSON.stringify(sceneQuality.activityHeading));
               assert.equal(sceneQuality.statClearance.length,3,'Expected three rhythm metrics');
               for(let i=1;i<3;i++)assert.ok(sceneQuality.statClearance[i].textLeft-sceneQuality.statClearance[i].separator>=10,'Rhythm value is too close to vertical divider: '+JSON.stringify(sceneQuality.statClearance));
