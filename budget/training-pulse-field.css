@@ -199,8 +199,10 @@ main{position:relative;z-index:2;display:block}
 .luminous-chart,.insight-chart,.volume-chart{position:relative;isolation:isolate;overflow:visible}
 .luminous-chart svg,.insight-chart svg,.volume-chart svg{position:relative;z-index:2;display:block;width:100%;height:100%;overflow:visible}
 .chart-canvas-glow{display:none;position:absolute;pointer-events:none;user-select:none}
-.chart-grid{stroke:#ffffff0b;stroke-width:1}
-.chart-axis-label{fill:#8b949e;font:10px var(--field-ui)}
+.chart-grid{stroke:#ffffff12;stroke-width:1;vector-effect:non-scaling-stroke}
+.chart-axis-line{stroke:#ffffff24;stroke-width:1;vector-effect:non-scaling-stroke}
+.chart-axis-label{fill:#a8b0ba;font:500 10px var(--field-ui)}
+.chart-unit-label{fill:#b9c1ca;font:600 9px var(--field-ui);letter-spacing:1px}
 .activity-bar{transform-box:fill-box;transform-origin:center bottom;animation:barRise .72s cubic-bezier(.2,.8,.2,1) backwards;filter:drop-shadow(0 0 5px #ff657a80) drop-shadow(0 0 13px #ff657a45)}
 .activity-zero{stroke:#8d98a333;stroke-width:2;stroke-linecap:round}
 .chart-value{fill:#ffd6c4;font:600 10px var(--field-ui);paint-order:stroke;stroke:#080d12;stroke-width:3px;stroke-linejoin:round}

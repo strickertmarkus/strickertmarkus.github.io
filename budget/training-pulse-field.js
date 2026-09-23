@@ -265,13 +265,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=48,right=20,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
+    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,800),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=48,right=20,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH,baseY=top+plotH;
+    function y(value){return top+plotH*(1-value/max);}
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
-    [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
+    svg+=chartFrame(width,height,left,right,top,bottom,metric==='minutes'?'MIN':'PASS',[0,max*.5,max],y,function(value){return Math.round(value);});
     buckets.forEach(function(bucket,index){
-      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
-      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
-      else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
+      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,barY=value?baseY-barH:baseY;
+      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+barY+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(barY-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
+      else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+baseY+'" x2="'+(x+4)+'" y2="'+baseY+'"/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
     svg+='</svg>';
@@ -522,6 +523,16 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function emptyChart(message) {
     return '<div class="log-empty">'+escapeHtml(message)+'</div>';
   }
+  function chartFrame(width,height,left,right,top,bottom,unit,ticks,y,labelFormatter) {
+    var plotRight=width-right,baseY=height-bottom,svg='';
+    (ticks||[]).forEach(function(value){
+      var gy=y(value);
+      svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+plotRight+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+escapeHtml(labelFormatter(value))+'</text>';
+    });
+    svg+='<line class="chart-axis-line" x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+baseY+'"/><line class="chart-axis-line" x1="'+left+'" y1="'+baseY+'" x2="'+plotRight+'" y2="'+baseY+'"/>';
+    if(unit)svg+='<text class="chart-unit-label" x="'+plotRight+'" y="'+Math.max(10,top-14)+'" text-anchor="end">'+escapeHtml(unit)+'</text>';
+    return svg;
+  }
   function lineChart(entries,options) {
     if(!entries.length)return emptyChart(options.empty);
     var container=byId(options.containerId||'insight-chart');
@@ -537,7 +548,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var points=entries.map(function(entry,index){return [x(index),y(entry.value)];}),path=seriesPath(points);
     var gradientId=options.gradientId||'insight-fill';
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><linearGradient id="'+gradientId+'" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+options.color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+options.color+'" stop-opacity="0"/></linearGradient></defs>';
-    [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+escapeHtml(axisLabel(value))+'</text>';});
+    svg+=chartFrame(width,height,left,right,top,bottom,options.unit||'',[min,min+(max-min)/3,min+(max-min)*2/3,max],y,axisLabel);
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'" stroke="#ffffff35" stroke-dasharray="3 7"/><text class="chart-axis-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
     svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/>'+glowingLine(path,options.color,'');
     points.forEach(function(point,index){if(index===points.length-1)svg+=glowingPoint(point[0],point[1],5,options.color,'');});
@@ -559,7 +570,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
     var groups={cardio:[[]],strength:[[]]};
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
-    [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(value)+'</text>';});
+    svg+=chartFrame(width,height,left,right,top,bottom,'BPM',[min,min+(max-min)/3,min+(max-min)*2/3,max],y,function(value){return Math.round(value);});
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0)){groups.cardio.push([]);groups.strength.push([]);return;}
       var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
@@ -597,13 +608,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function renderInsightTable(entries) {
     var headers=[],rows=[];
     if(state.insight==='heart'){
-      headers=['Datum','Pass','Medel','Intervall'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,e.value!=null?Math.round(e.value)+' bpm':'—',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max):'—'];});
+      headers=['Datum','Pass','Medel (bpm)','Intervall (bpm)'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,e.value!=null?Math.round(e.value)+' bpm':'—',e.min&&e.max?Math.round(e.min)+'–'+Math.round(e.max)+' bpm':'—'];});
     }else if(state.insight==='distance'){
-      headers=['Datum','Pass','Distans','Snittakt'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,2)+' km',formatPace(e.pace)];});
+      headers=['Datum','Pass','Distans (km)','Snittakt (min/km)'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,2)+' km',formatPace(e.pace)];});
     }else if(state.insight==='pace'){
-      headers=['Datum','Pass','Snittakt','Distans'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatPace(e.value),formatNumber(e.distance,2)+' km'];});
+      headers=['Datum','Pass','Snittakt (min/km)','Distans (km)'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatPace(e.value),formatNumber(e.distance,2)+' km'];});
     }else{
-      headers=['Datum','Källa','VO₂'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,1)+' ml/kg/min'];});
+      headers=['Datum','Källa','VO₂ (ml/kg/min)'];rows=entries.slice().reverse().map(function(e){return [logDate(e.date),e.type,formatNumber(e.value,1)+' ml/kg/min'];});
     }
     byId('insight-table-head').innerHTML='<tr>'+headers.map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr>';
     byId('insight-table-body').innerHTML=rows.length?rows.map(function(row){return'<tr>'+row.map(function(cell){return'<td>'+escapeHtml(cell)+'</td>';}).join('')+'</tr>';}).join(''):'<tr><td colspan="'+headers.length+'">Inga mätvärden ännu.</td></tr>';
@@ -615,11 +626,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(state.insight==='heart'){
       entries=heartData();name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
     }else if(state.insight==='distance'){
-      entries=distanceData();name='Löpdistans över tid';description='Distanskurvan och ditt mål hålls tydligt åtskilda.';markup=lineChart(entries,{color:'#ff8f8b',goal:number(data.goals.runDistanceGoal)||10,decimals:1,suffix:' km',empty:'Distanskurvan visas när löpning har loggats.'});
+      entries=distanceData();name='Löpdistans över tid';description='Distanskurvan och ditt mål hålls tydligt åtskilda.';markup=lineChart(entries,{color:'#ff8f8b',unit:'KM',goal:number(data.goals.runDistanceGoal)||10,decimals:1,suffix:' km',empty:'Distanskurvan visas när löpning har loggats.'});
     }else if(state.insight==='pace'){
-      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
+      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',unit:'MIN/KM',reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
     }else{
-      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
+      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',unit:'ML/KG/MIN',goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
     }
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
