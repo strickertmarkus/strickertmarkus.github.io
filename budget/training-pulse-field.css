@@ -218,6 +218,29 @@ main{position:relative;z-index:2;display:block}
 .insight-copy{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin:14px 0 0}
 .insight-copy h3{margin:0;font-size:16px;font-weight:500}
 .insight-copy p{margin:0;color:var(--field-muted);font-size:11px;text-align:right}
+.insight-special{--special-color:#f87171;--special-soft:#f8717117;--special-line:#f8717131;margin:14px 0 0}
+.insight-special[data-kind=vo2]{--special-color:#65d7a5;--special-soft:#65d7a512;--special-line:#65d7a52e}
+.insight-special-section-label{margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid var(--special-line);color:#a7afb8;font-size:12px}
+.insight-special-goal-title{margin:0 0 11px;color:#d9dee3;font-size:15px;font-weight:500}
+.insight-special-goal-title span{color:#aeb7c0;font-size:.88em}
+.insight-special-progress{margin-bottom:14px}
+.insight-special-progress-track{position:relative;height:5px;border-radius:999px;background:#ffffff10}
+.insight-special-progress-track i{position:absolute;inset:0 auto 0 0;width:var(--metric-progress);border-radius:inherit;background:var(--special-color);box-shadow:0 0 10px color-mix(in srgb,var(--special-color) 34%,transparent)}
+.insight-special-progress-track b{position:absolute;left:var(--metric-progress);top:50%;width:14px;height:14px;border:2px solid #dff9ed;border-radius:50%;background:var(--special-color);box-shadow:0 0 10px color-mix(in srgb,var(--special-color) 55%,transparent);transform:translate(-50%,-50%)}
+.insight-special-progress-scale{position:relative;display:flex;justify-content:space-between;min-height:26px;padding-top:10px;color:#9da7b2;font-size:10px;font-weight:600;font-variant-numeric:tabular-nums}
+.insight-special-progress-scale strong{position:absolute;left:var(--metric-progress);transform:translateX(-50%);color:var(--special-color);font-size:10px}
+.insight-special-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 17px}
+.insight-special-stats div{min-width:0;padding:8px 10px;border-left:2px solid var(--special-line);background:var(--special-soft)}
+.insight-special-stats span{display:block;color:#8f9aaa;font-size:8px;font-weight:700;letter-spacing:.55px;text-transform:uppercase}
+.insight-special-stats strong{display:block;margin-top:3px;color:#d8dde2;font-size:12px;font-variant-numeric:tabular-nums}
+.insight-special-chart-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:11px;border-top:1px solid var(--special-line);color:#b7c0c9;text-transform:uppercase;letter-spacing:.6px}
+.insight-special-chart-heading strong{font-size:11px}
+.insight-special-chart-heading span{color:var(--special-color);font-size:10px;font-weight:700}
+.insight-special-legend{display:flex;align-items:center;gap:12px;min-height:25px;color:#8f99a4;font-size:9px}
+.insight-special-key{display:inline-flex;align-items:center;gap:6px;color:#b6bec7}
+.insight-special-key i{display:block;width:17px;height:2px;border-radius:999px;background:var(--special-color);box-shadow:0 0 7px color-mix(in srgb,var(--special-color) 60%,transparent)}
+.insight-special-goal-key{padding-left:11px;border-left:1px solid #ffffff14}
+.insight-special-legend strong{margin-left:auto;color:#cbd1d7;font-size:9px;font-weight:500;font-variant-numeric:tabular-nums}
 .insight-chart{height:276px;margin-top:12px}
 .line-area{opacity:.17}
 .range-bar{stroke-width:10;stroke-linecap:round;opacity:.16}
@@ -401,6 +424,13 @@ main{position:relative;z-index:2;display:block}
   .insight-tabs button{flex:none}
   .insight-copy{display:block}
   .insight-copy p{margin-top:5px;text-align:left}
+  .insight-special{margin-top:11px}
+  .insight-special-goal-title{font-size:14px}
+  .insight-special-stats{gap:8px;margin-bottom:14px}
+  .insight-special-stats div{padding:7px 8px}
+  .insight-special-chart-heading{padding-top:10px}
+  .insight-special-legend{gap:9px;flex-wrap:wrap}
+  .insight-special-legend strong{flex:1 0 100%;margin-left:0;margin-top:-4px}
   .insight-chart{height:244px;margin-top:9px}
   .volume-heading{display:block}
   .volume-formula{margin-top:5px}

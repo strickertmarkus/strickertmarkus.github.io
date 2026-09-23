@@ -100,6 +100,11 @@ jobs:
               const insightTitle=insightHeading.querySelector('h2').getBoundingClientRect();
               const activityTabs=activityControls.querySelector('.view-tabs').getBoundingClientRect();
               const activityToggle=activityControls.querySelector('.segmented').getBoundingClientRect();
+              const activitySvg=document.querySelector('#activity-chart svg');
+              const activityGrid=document.querySelector('#activity-chart .chart-grid');
+              const activityViewBox=activitySvg.viewBox.baseVal;
+              const activityPlotCenter=((Number(activityGrid.getAttribute('x1'))+Number(activityGrid.getAttribute('x2')))/2);
+              const activityPlotCenterOffset=activityPlotCenter-activityViewBox.width/2;
               const insightTabs=insightControls.querySelector('.view-tabs').getBoundingClientRect();
               const insightToggle=insightControls.querySelector('.segmented').getBoundingClientRect();
               const weekday=document.querySelector('.week-day');
@@ -118,6 +123,7 @@ jobs:
                 metricUnit:(document.querySelector('#insight-chart .metric-chart-unit-label')||{}).textContent||'',
                 activityMetricAxisLines:document.querySelectorAll('#activity-chart .metric-chart-axis-line').length,
                 activityMetricUnit:(document.querySelector('#activity-chart .metric-chart-unit-label')||{}).textContent||'',
+                activityPlotCenterOffset,
                 lineFilter:line?getComputedStyle(line).filter:'',
                 startSymbol:startSymbol?startSymbol.textContent.trim():'',
                 startSvgCount:start?start.querySelectorAll('svg').length:-1,
@@ -163,6 +169,7 @@ jobs:
             assert.equal(sceneQuality.metricUnit,'','Heart graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricAxisLines,0,'Activity graph should retain its earlier Pulse Field treatment: '+JSON.stringify(sceneQuality));
             assert.equal(sceneQuality.activityMetricUnit,'','Activity graph should not gain a new unit badge: '+JSON.stringify(sceneQuality));
+            assert.ok(Math.abs(sceneQuality.activityPlotCenterOffset)<.5,'Activity plot area must be centered rather than right-shifted: '+JSON.stringify(sceneQuality));
             if(mobile){
               assert.ok(sceneQuality.weekdayHeight>=80&&sceneQuality.weekdayFont>=27,'Mobile weekday tiles and dates must be enlarged: '+JSON.stringify(sceneQuality));
               const activityTabsCenter=(sceneQuality.activityControls.tabsTop+sceneQuality.activityControls.tabsBottom)/2;
@@ -194,16 +201,39 @@ jobs:
               assert.notEqual(sceneQuality.lineFilter,'none','Desktop SVG glow filter must remain active');
             }
 
-            for(const [metric,unit,minYLabels] of [['distance','KM',4],['pace','MIN/KM',5],['vo2','ML/KG/MIN',5]]){
-              await page.locator('[data-insight="'+metric+'"]').click();
-              await page.waitForTimeout(40);
-              assert.equal((await page.locator('#insight-chart .metric-chart-unit-label').textContent()).trim(),unit,'Wrong unit for '+metric);
-              assert.ok(await page.locator('#insight-chart .metric-chart-axis-line').count()>=2,'Missing old-page style axes for '+metric);
-              assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=minYLabels,'Too few Y-axis ticks for '+metric);
-              assert.ok(await page.locator('#insight-chart .metric-chart-x-label').count()>=3,'Too few date labels for '+metric);
-            }
+            await page.locator('[data-insight="distance"]').click();
+            await page.waitForTimeout(40);
+            assert.equal((await page.locator('#insight-chart .metric-chart-unit-label').textContent()).trim(),'KM','Distance keeps its graph-only unit');
+            assert.ok(await page.locator('#insight-chart .metric-chart-axis-line').count()>=2,'Distance keeps its old-page style axes');
+            assert.ok(await page.locator('#insight-special').isHidden(),'Distance must not get the Pace/VO2 special chrome');
+
+            await page.locator('[data-insight="pace"]').click();
+            await page.waitForTimeout(40);
+            assert.ok(await page.locator('#insight-special').isVisible(),'Pace must show special old-page chrome');
+            assert.equal((await page.locator('#insight-special-chart-title').textContent()).trim(),'Snittakt över tid');
+            assert.equal((await page.locator('#insight-special-chart-unit').textContent()).trim(),'MIN/KM');
+            assert.ok((await page.locator('#insight-special-legend').textContent()).includes('Snittakt'),'Pace legend missing');
+            assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Snittakt & registrerade värden'),'Pace section title missing');
+            assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Pace unit belongs in the external old-page heading');
+            assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=5,'Pace must keep Y-axis labels');
+            await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-pace-special.png'});
+
+            await page.locator('[data-insight="vo2"]').click();
+            await page.waitForTimeout(40);
+            assert.ok(await page.locator('#insight-special').isVisible(),'VO2 must show special old-page chrome');
+            assert.equal((await page.locator('#insight-special-chart-title').textContent()).trim(),'VO₂ över tid');
+            assert.equal((await page.locator('#insight-special-chart-unit').textContent()).trim(),'ML/KG/MIN');
+            assert.equal(await page.locator('#insight-special-summary [role="progressbar"]').count(),1,'VO2 goal progress bar missing');
+            assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Högsta VO₂'),'VO2 highest-value summary missing');
+            assert.ok((await page.locator('#insight-special-summary').textContent()).includes('Längsta löptid'),'VO2 longest-run summary missing');
+            assert.ok((await page.locator('#insight-special-legend').textContent()).includes('VO₂ max'),'VO2 legend missing');
+            assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'VO2 unit belongs in the external old-page heading');
+            assert.ok(await page.locator('#insight-chart .metric-chart-y-label').count()>=5,'VO2 must keep Y-axis labels');
+            await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-vo2-special.png'});
+
             await page.locator('[data-insight="heart"]').click();
             await page.waitForTimeout(40);
+            assert.ok(await page.locator('#insight-special').isHidden(),'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-axis-line').count(),0,'Heart graph must remain in the earlier Pulse Field format');
             assert.equal(await page.locator('#insight-chart .metric-chart-unit-label').count(),0,'Heart graph must not show the new metric unit badge');
             await page.locator('[data-activity-metric="sessions"]').click();

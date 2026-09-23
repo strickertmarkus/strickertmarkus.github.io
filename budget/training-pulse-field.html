@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260923-metric-axes-27">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260923-special-metrics-28">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
   <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
-  <script defer src="training-pulse-field.js?v=20260923-metric-axes-18"></script>
+  <script defer src="training-pulse-field.js?v=20260923-special-metrics-19"></script>
 </head>
 <body>
   <div class="field-canvas" aria-hidden="true">
@@ -196,9 +196,17 @@
           <button type="button" data-insight-mode="table" aria-pressed="false">Tabell</button>
         </div>
       </div>
-      <div class="insight-copy">
+      <div class="insight-copy" id="insight-copy">
         <h3 id="insight-name">Medelpuls över tid</h3>
         <p id="insight-description">Kondition och styrka visas som två tydliga signaler.</p>
+      </div>
+      <div class="insight-special" id="insight-special" hidden>
+        <div class="insight-special-summary" id="insight-special-summary"></div>
+        <div class="insight-special-chart-heading">
+          <strong id="insight-special-chart-title"></strong>
+          <span id="insight-special-chart-unit"></span>
+        </div>
+        <div class="insight-special-legend" id="insight-special-legend"></div>
       </div>
       <div class="insight-chart" id="insight-chart" role="img" aria-label="Mätvärdesgraf"></div>
       <div class="insight-table-wrap" id="insight-table-wrap" hidden>
