@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-zen-builder-8">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260923-immersive-zen-9">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -1349,6 +1349,49 @@ function zenEditorAction(action){
  if(action==='save-day'||action==='start-day'){saveZenDay(action==='start-day');return;}
 }
 
+
+// Forest Motion and Stillwater are visual projections of the existing Zen timer;
+// all state, pause, skip, and session history continue to use activeZen.
+function zenForestWaypoints(){
+ var route=$('zen-forest-route'),holder=$('zen-forest-waypoints');
+ if(!route||!holder||!activeZen||activeZen.type!=='stretch')return;
+ var length=route.getTotalLength(),steps=activeZen.steps,duration=activeZen.duration,elapsed=0;
+ holder.innerHTML=steps.map(function(step,i){
+  var pt=route.getPointAtLength(length*(elapsed/duration));elapsed+=step.seconds;
+  return '<g class="zen-forest-waypoint" data-zen-landmark="'+i+'" transform="translate('+pt.x.toFixed(2)+' '+pt.y.toFixed(2)+')"><circle class="zen-forest-waypoint-halo" r="10"/><circle class="zen-forest-waypoint-core" r="3.1"/></g>';
+ }).join('');
+ activeZen.forestPathLength=length;
+}
+function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath,done){
+ var session=$('zen-session'),med=activeZen.type==='meditation',scene=session.querySelector('.zen-scenery');
+ session.dataset.running=activeZen.running&&!done?'true':'false';
+ session.style.setProperty('--zen-pass-fraction',passFraction.toFixed(5));
+ if(med){
+  session.style.setProperty('--zen-breath-level',breathLevel.toFixed(4));
+  session.style.setProperty('--zen-lake-daylight',(.65+passFraction*.35).toFixed(3));
+  var horizon=$('zen-lake-horizon-progress');
+  if(horizon)horizon.style.strokeDashoffset=String(900*(1-passFraction));
+  setText('zen-immersion-breath',done?'STUNDEN ÄR KLAR':!activeZen.running?'PAUSAD':breath);
+  setText('zen-immersion-time',fmtSeconds(Math.ceil(Math.max(0,position.end-activeZen.elapsed))));
+ }else{
+  var route=$('zen-forest-route'),progress=$('zen-forest-progress'),traveller=$('zen-forest-traveller');
+  if(progress)progress.style.strokeDashoffset=String(100*(1-passFraction));
+  if(route&&traveller){
+   var pt=route.getPointAtLength((activeZen.forestPathLength||route.getTotalLength())*passFraction);
+   traveller.setAttribute('transform','translate('+pt.x.toFixed(2)+' '+pt.y.toFixed(2)+')');
+  }
+  setText('zen-forest-wayfinder-text',done?'Stigen är fullbordad':Math.round(passFraction*100)+' % av stigen');
+  if(scene&&activeZen.visualStage!==position.index){
+   activeZen.visualStage=position.index;
+   scene.classList.remove('zen-stage-bloom');void scene.offsetWidth;scene.classList.add('zen-stage-bloom');
+   session.querySelectorAll('.zen-forest-waypoint').forEach(function(point,i){
+    point.classList.toggle('is-complete',i<position.index||done);
+    point.classList.toggle('is-current',i===position.index&&!done);
+   });
+  }
+ }
+}
+
 function zenStart(index){
  var routines=zenRoutinesFor(view),routine=routines&&routines[index];
  if(!routine)return;
@@ -1357,7 +1400,11 @@ function zenStart(index){
  $('zen-kind-name').textContent=routine.name;
  $('zen-scene-hint').textContent=view==='meditation'?'VATTEN · LJUS · LUGN ANDNING':'SKOGSLJUS · MJUK RÖRELSE';
  $('zen-session').hidden=false;
+ $('zen-session').classList.remove('zen-clock-hidden');
+ $('zen-clock-toggle').setAttribute('aria-pressed','true');
+ $('zen-clock-toggle').textContent='Dölj tid';
  document.body.dataset.modeOpen='true';
+ if(view==='stretch')zenForestWaypoints();
  renderZenSession();
  $('zen-session').scrollTop=0;
  startZenTimer();
@@ -1416,6 +1463,7 @@ function renderZenSession(){
  setText('zen-breath',done?'BRA GJORT':!activeZen.running?'PAUSAD':med?breath:'MJUK RÖRELSE');
  setText('zen-status',done?'KLART':activeZen.running?'PÅGÅR':'PAUSAD');dial.classList.toggle('is-paused',!activeZen.running);
  var passFraction=Math.max(0,Math.min(1,activeZen.elapsed/activeZen.duration)),percent=Math.round(passFraction*100);
+ zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath,done);
  $('zen-bar').style.width=(passFraction*100)+'%';setText('zen-total-time',fmtSeconds(Math.floor(activeZen.elapsed))+' / '+fmtSeconds(activeZen.duration));setText('zen-total-percent',percent+' %');
  $('zen-total-progress').setAttribute('aria-valuenow',String(percent));setText('zen-stage-label',done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+percent+' % AV PASSET');
  $('pause-zen').disabled=done;setText('pause-zen',activeZen.running?'Pausa':'Fortsätt');setText('next-zen',done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗');
@@ -1526,6 +1574,13 @@ document.addEventListener('click',function(event){
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
    case 'close-history':$('history-detail').close();break;
    case 'reset':if(confirm('Återställa all demodata och dina ändringar i förhandsvisningen?')){state=seed();selected=dayISO(new Date());persist();render();toast('Demodata återställd.');}break;
+   case 'toggle-zen-clock':
+    if(activeZen){
+     var visible=$('zen-session').classList.toggle('zen-clock-hidden')===false;
+     $('zen-clock-toggle').setAttribute('aria-pressed',String(visible));
+     $('zen-clock-toggle').textContent=visible?'Dölj tid':'Visa tid';
+    }
+    break;
    case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();if(activeZen.running)startZenTimer();else stopZenTimer();}}break;
    case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
    case 'finish-zen':finishZen();break;
