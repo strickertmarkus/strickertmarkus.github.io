@@ -89,7 +89,7 @@ test('preview includes an isolated training log and interactive Zen modes',()=>{
  assert.match(html,/id="orbit-kind"/);
  assert.match(html,/id="orbit-summary"/);
  assert.doesNotMatch(html,/class="orbit"|class="orbit-inner"|class="orbit-dot"/);
- assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{[\s\S]*?--zen-accent:#ff4f6d/);
+ assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{[\s\S]*?--zen-accent:#cc4354/);
  assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/@keyframes zenFlowSweep/);
  assert.match(fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8'),/\.training-flow-visual\{max-width:100%;margin:4px 0 0\}/);
  for(const route of ['training','stretch','meditation'])assert.match(html,new RegExp('data-view="'+route+'"'));
@@ -152,7 +152,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260922-family-session-13/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260923-chart-polish-6/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -166,4 +166,20 @@ test('shared family iframe and Zen remain mobile friendly',()=>{
  assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);assert.match(css,/--mode-glow:/);
  assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);assert.match(html,/class="zen-focus-grid"/);assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);assert.match(css,/@keyframes zenWaterRipple/);
  assert.doesNotMatch(css,/stroke-dashoffset \.38s/);assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
+});
+
+test('Ingemar graph polish keeps responsive SVG, a compact status line, luminous dot cores, and selected-week summaries',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ assert.match(html,/pp-chart-inspect-row" id="pp-volume-chart-inspect"/);
+ assert.match(html,/pp-chart-inspect-row" id="pp-exercise-chart-inspect"/);
+ assert.match(source[1],/function chartGeometry\(seriesList,unitClass,containerId\)/);
+ assert.match(source[1],/clientWidth\|\|720/);
+ assert.match(source[1],/pp-dot-core/);
+ assert.match(source[1],/function updateChartSummary\(id,index,record\)/);
+ assert.match(source[1],/function pulseChartSummary\(id\)/);
+ assert.match(source[1],/ppCanvasNeonLine/);
+ assert.match(css,/\.pp-chart-inspect-row\{/);
+ assert.match(css,/\.pp-dot-core\{/);
+ assert.match(css,/\.pp-chart,\.pp-exercise-chart\{height:190px\}/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.pp-summary-pulse\{animation:none\}\}/);
 });
