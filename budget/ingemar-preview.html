@@ -274,7 +274,6 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
             <linearGradient id="zforest-sky" x2="0" y2="1"><stop stop-color="#12241f"/><stop offset=".45" stop-color="#2d493c"/><stop offset="1" stop-color="#081914"/></linearGradient>
             <radialGradient id="zforest-sun"><stop stop-color="#c9dbb7" stop-opacity=".45"/><stop offset=".43" stop-color="#9fbfa7" stop-opacity=".13"/><stop offset="1" stop-color="#87ad99" stop-opacity="0"/></radialGradient>
             <linearGradient id="zforest-trunk" x2="1" y2=".06"><stop stop-color="#071b16"/><stop offset=".40" stop-color="#18382c"/><stop offset=".62" stop-color="#203c30"/><stop offset="1" stop-color="#071711"/></linearGradient>
-            <linearGradient id="zforest-trail" x2="0" y2="1"><stop stop-color="#d9ffdc"/><stop offset="1" stop-color="#82dba9"/></linearGradient>
           </defs>
           <path fill="url(#zforest-sky)" d="M0 0h900v700H0z"/>
           <ellipse cx="464" cy="248" rx="330" ry="278" fill="url(#zforest-sun)"/>
@@ -1358,6 +1357,7 @@ function zenPositionProgressLane(){
  var available=sceneRect.height-top-bottom;
  session.style.setProperty('--zen-lane-top',top+'px');
  session.style.setProperty('--zen-lane-bottom',bottom+'px');
+ session.style.setProperty('--zen-breath-y',(top+Math.max(0,available)/2)+'px');
  session.dataset.tightScene=available<170?'true':'false';
 }
 function scheduleZenProgressLane(){
