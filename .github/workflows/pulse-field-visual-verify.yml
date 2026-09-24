@@ -78,13 +78,15 @@ jobs:
             assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
             assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
-            const weekAppearance=await page.locator('.week-day').evaluateAll(days=>days.map(day=>({
-              appearance:getComputedStyle(day).appearance,
-              background:getComputedStyle(day).backgroundColor,
-              shadow:getComputedStyle(day).boxShadow
-            })));
-            assert.equal(weekAppearance.length,7,'Seven weekday buttons should be present');
-            assert.ok(weekAppearance.every(day=>day.appearance==='none'&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'),'Weekdays must not have full-tile native/dark button backgrounds: '+JSON.stringify(weekAppearance));
+            const weekAppearance=await page.locator('.week-day').evaluateAll(days=>days.map(day=>{
+              const date=day.querySelector('button.day-date');
+              return {tag:day.tagName,background:getComputedStyle(day).backgroundColor,shadow:getComputedStyle(day).boxShadow,dateTag:date?.tagName,dateAppearance:date?getComputedStyle(date).appearance:null};
+            }));
+            assert.equal(weekAppearance.length,7,'Seven day wrappers should exist');
+            assert.ok(weekAppearance.every(day=>day.tag==='DIV'&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'&&day.dateTag==='BUTTON'&&day.dateAppearance==='none'),'Only the actual date button may have a highlighted panel: '+JSON.stringify(weekAppearance));
+            assert.equal(await page.locator('.week-orbit-art').count(),0,'Old animated curve must not sit behind date selectors');
+            assert.equal(await page.locator('.signal-traveler animateMotion').count(),1,'Hero light travels as a small independent marker');
+            assert.equal(await page.locator('.signal-main').evaluate(el=>getComputedStyle(el).animationName),'none','Hero route must not repaint its full dashed stroke every frame');
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
@@ -94,6 +96,21 @@ jobs:
             await page.locator('#week-field').screenshot({path:'test-results/pulse-field/'+name+'-week-field.png'});
             await page.locator('#activity-field').screenshot({path:'test-results/pulse-field/'+name+'-activity-field.png'});
             await page.locator('#insights').screenshot({path:'test-results/pulse-field/'+name+'-heart-graph.png'});
+            // Simulate mobile Safari's height-only resize while scrolling: charts and glow must not be recreated.
+            const activityIdentity=await page.evaluate(()=>{
+              window.__activitySvg=document.querySelector('#activity-chart svg');
+              window.__activityGlow=document.querySelector('#activity-chart > canvas.chart-canvas-glow');
+              return {svg:!!window.__activitySvg,glow:!!window.__activityGlow};
+            });
+            assert.ok(activityIdentity.svg,'Activity plot should exist before scrolling');
+            await page.evaluate(()=>{window.scrollTo({top:document.documentElement.scrollHeight/2,behavior:'instant'});window.dispatchEvent(new Event('resize'));});
+            await page.waitForTimeout(950);
+            const stableActivity=await page.evaluate(()=>({
+              svg:window.__activitySvg===document.querySelector('#activity-chart svg'),
+              canvas:window.__activityGlow===document.querySelector('#activity-chart > canvas.chart-canvas-glow'),
+              count:document.querySelectorAll('#activity-chart svg').length
+            }));
+            assert.ok(stableActivity.svg&&stableActivity.canvas&&stableActivity.count===1,'Scroll/height-only resize must not regenerate activity bars or overlay: '+JSON.stringify(stableActivity));
 
             const sceneQuality=await page.evaluate(()=>{
               const mottle=document.querySelector('.space-scene__mottle');
@@ -366,8 +383,9 @@ jobs:
               await page.waitForSelector('.zen-home-switch');
               const zenNav=await page.locator('.zen-home-switch').boundingBox();
               assert.ok(Math.abs(zenNav.y-trainingNav.y)<3&&Math.abs(zenNav.width-trainingNav.width)<3&&Math.abs(zenNav.x-trainingNav.x)<3,'Zen '+kind+' toggle bar must match training position on mobile: '+JSON.stringify({zenNav,trainingNav}));
-              const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage}));
+              const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage,root:getComputedStyle(document.documentElement).backgroundColor}));
               assert.equal(scene.top,0,'Zen scenery must start at the top of the mobile viewport');
+              assert.equal(scene.root,kind==='meditation'?'rgb(167, 195, 189)':'rgb(9, 29, 24)','Zen status-bar canvas must match its scenery, without a top edge');
               assert.ok(scene.mask.includes('linear-gradient')&&scene.mask.includes('100%')&&/(transparent|rgba\(0, 0, 0, 0\))/.test(scene.mask),'Zen scenery must fade into the page background without a hard boundary: '+scene.mask);
             }
             await browser.close();

@@ -243,8 +243,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
-      markup+='<button type="button" class="'+classes.join(' ')+'" data-day="'+key+'" aria-pressed="'+(key===state.selectedDate)+'">'+
-        '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span><span class="day-type">'+escapeHtml(type)+'</span></button>';
+      markup+='<div class="'+classes.join(' ')+'">'+
+        '<span class="day-name">'+dayNames[i]+'</span><button type="button" class="day-date" data-day="'+key+'" aria-label="'+dayNames[i]+' '+date.getDate()+'" aria-pressed="'+(key===state.selectedDate)+'">'+date.getDate()+'</button>'+
+        '<span class="day-type">'+escapeHtml(type)+'</span></div>';
     }
     byId('week-days').innerHTML=markup;
   }
@@ -281,7 +282,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
     buckets.forEach(function(bucket,index){
       var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
-      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)" style="animation-delay:'+(index*45)+'ms"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
+      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
       else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
@@ -389,7 +390,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   // proven training-mode timer solution: the SVG stays crisp while a Canvas 2D
   // layer underneath paints real shadowBlur light.
   var chartGlowMq=window.matchMedia?window.matchMedia('(max-width:760px)'):{matches:true};
-  var chartGlowRaf=0,chartGlowTimer=0;
+  var chartGlowRaf=0;
   var chartGlowDpr=Math.min(1.5,Math.max(1,Number(window.devicePixelRatio)||1));
 
   function glowRgb(value,fallback) {
@@ -557,10 +558,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     paintMiniIntervalGlows();
   }
   function scheduleChartCanvasGlow(){
-    if(chartGlowRaf)cancelAnimationFrame(chartGlowRaf);
-    chartGlowRaf=requestAnimationFrame(function(){chartGlowRaf=requestAnimationFrame(paintAllChartGlows);});
-    clearTimeout(chartGlowTimer);
-    chartGlowTimer=setTimeout(paintAllChartGlows,780);
+    if(chartGlowRaf)return;
+    chartGlowRaf=requestAnimationFrame(paintAllChartGlows);
   }
 
   function emptyChart(message) {
@@ -959,7 +958,15 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
     });
     window.addEventListener('firebase-sync',function(){renderAll();showToast('Träningsdata uppdaterad');});
-    var resizeTimer;window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(function(){renderActivity();renderInsight();renderVolume();},180);});
+    var layoutWidth=document.documentElement.clientWidth,resizeTimer;
+    window.addEventListener('resize',function(){
+      // Ignore mobile Safari toolbar collapse: viewport height changes, chart width does not.
+      var width=document.documentElement.clientWidth;
+      if(width===layoutWidth)return;
+      layoutWidth=width;
+      clearTimeout(resizeTimer);
+      resizeTimer=setTimeout(function(){renderActivity();renderInsight();renderVolume();},150);
+    });
     if(chartGlowMq.addEventListener)chartGlowMq.addEventListener('change',scheduleChartCanvasGlow);
     else if(chartGlowMq.addListener)chartGlowMq.addListener(scheduleChartCanvasGlow);
   }

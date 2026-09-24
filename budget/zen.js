@@ -21,6 +21,7 @@
   function records(){return S.entries.filter(e=>e.type==='session');}
   function applyKind(next){
     kind=next;allHistory=false;document.body.dataset.kind=kind;
+    document.documentElement.style.backgroundColor=kind==='stretch'?'#091d18':'#a7c3bd';
     if(/\/zen\.html$/.test(location.pathname)){
       var route=new URL(location.href);
       if(route.searchParams.get('wellness')!==kind){route.searchParams.set('wellness',kind);history.replaceState(history.state,'',route.href);}
