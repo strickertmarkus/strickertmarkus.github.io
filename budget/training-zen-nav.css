@@ -20,9 +20,9 @@ html[data-wellness-mode="zen"] body[data-kind="meditation"] .wellness-kind-switc
 /* The unified shell owns the page canvas while Zen is mounted. The imported
    Zen scene remains the visual owner above this base; these colors only fill
    the document beyond the scene/content height instead of exposing Training. */
-html[data-wellness-mode="zen"][data-wellness-kind="stretch"],
+html[data-wellness-mode="zen"][data-wellness-kind="stretch"]{background:#071c1b!important}
 html[data-wellness-mode="zen"][data-wellness-kind="stretch"] body{background:#091d18!important}
-html[data-wellness-mode="zen"][data-wellness-kind="meditation"],
+html[data-wellness-mode="zen"][data-wellness-kind="meditation"]{background:#a8c5be!important}
 html[data-wellness-mode="zen"][data-wellness-kind="meditation"] body{background:#a7c3bd!important}
 
 .wellness-zen-brand{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:#edf4dc;text-decoration:none;font-family:"Cormorant Garamond",Georgia,serif;font-size:37px;font-weight:400;line-height:1}

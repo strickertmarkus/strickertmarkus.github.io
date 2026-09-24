@@ -187,8 +187,9 @@ test('profile query and intentional browser history survive unified switching',(
 });
 
 test('production pages cache-bust the shared wellness owners',()=>{
+  assert.match(exercise,/training-zen-nav\.css\?v=20260922-observatory-composition-2/);
+  assert.match(zen,/training-zen-nav\.css\?v=20260924-sky-tint-3/);
   for(const source of [exercise,zen]){
-    assert.match(source,/training-zen-nav\.css\?v=20260922-observatory-composition-2/);
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
   assert.match(exercise,/auth-config\.js\?v=20260922-observatory-records-3/);
