@@ -152,7 +152,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260923-immersive-zen-9/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-refined-10/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -223,4 +223,19 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/\.zen-workout\.zen-clock-hidden \.zen-lake-breath-guide>strong\{visibility:hidden\}/);
  assert.doesNotMatch(html,/class="zen-scene-stretch"/,'Remove superseded scenery artwork');
+});
+
+test('Refined Zen scene keeps the forest route clear, visible trees and a non-overlapping compact dock',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ assert.match(html,/class="zen-forest-trunks"/);
+ assert.match(html,/class="zen-forest-distance"/);
+ assert.match(html,/id="zen-forest-route" d="M444 414/);
+ assert.match(html,/id="zen-forest-progress" d="M444 414/);
+ assert.doesNotMatch(html,/zforest-path|zen-forest-wayfinder|zen-scene-hint/);
+ assert.match(css,/\.zen-workout \.zen-stage\{position:static;/);
+ assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:min\(720px,100%\)/);
+ assert.match(css,/\.zen-forest-landscape #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
+ assert.match(css,/\.zen-lake-ripples\{[^}]*opacity:calc\(\.22/);
+ assert.match(css,/\.zen-forest-trunks\{/);
+ assert.doesNotMatch(css,/\.zen-forest-wayfinder\{/);
 });
