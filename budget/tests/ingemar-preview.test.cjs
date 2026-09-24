@@ -157,15 +157,16 @@ test('shared family iframe and Zen remain mobile friendly',()=>{
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
- for(const id of ['zen-step-arc','zen-step-marker','zen-total-time','zen-next-step','zen-next-meta','zen-breath-pulse'])assert.match(html,new RegExp('id="'+id+'"'));
- assert.match(html,/id="zen-step-arc"[^>]*stroke-dashoffset="100"/);assert.doesNotMatch(css,/\.zen-workout \.zen-step-arc\{[^}]*stroke-dashoffset:100/);
- assert.match(html,/id="zen-total-progress" role="progressbar"/);assert.match(css,/\.zen-workout \.zen-step-arc\{/);assert.match(css,/\.zen-workout \.zen-total-time\{/);
- assert.match(source[1],/arc\.setAttribute\('stroke-dashoffset'/);assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
+ for(const id of ['zen-session-ring','zen-total-time','zen-next-step','zen-next-meta','zen-visual-canvas','zen-visual-breath'])assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/id="zen-total-progress" role="progressbar"/);assert.match(css,/\.zen-workout \.zen-total-time\{/);
+ assert.match(source[1],/zen-total-progress'\)\.setAttribute\('aria-valuenow'/);
+ assert.doesNotMatch(html,/zen-step-arc|zen-step-marker|zen-breath-pulse/);
  assert.match(source[1],/function startZenTimer\(\)/);assert.match(source[1],/function stopZenTimer\(\)/);assert.match(source[1],/function zenAnimationTick\(\)/);assert.match(source[1],/requestAnimationFrame\(zenAnimationTick\)/);assert.match(source[1],/cancelAnimationFrame\(zenAnimationFrame\)/);
  assert.match(source[1],/function zenAnimationFallback\(\)/);assert.match(source[1],/setInterval\(zenAnimationFallback,64\)/);assert.match(source[1],/clearInterval\(zenAnimationWatchdog\)/);
  assert.doesNotMatch(source[1],/if\(!document\.hidden\)zenTick/);assert.match(source[1],/zenTick\(Date\.now\(\)\)/);
  assert.doesNotMatch(source[1],/zenTimer=setInterval|setInterval\(function\(\)\{[\s\S]*?zenTick/);assert.match(source[1],/med\?'STEG KVAR':'RÖRELSE KVAR'/);assert.match(css,/--mode-glow:/);
- assert.match(css,/\.zen-workout \.zen-step-arc\{[^}]*filter:[^}]*drop-shadow\(0 0 \d+px var\(--mode-accent\)\)/);assert.match(css,/\.zen-clock-inner\{[^\n]*width:72%;max-width:72%/);assert.match(html,/class="zen-focus-grid"/);assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);assert.match(css,/@keyframes zenWaterRipple/);
+ assert.match(css,/\.zen-visual-canvas\{/);assert.match(css,/\.zen-workout \.zen-clock-wrap\{/);
+ assert.match(html,/class="zen-focus-grid"/);assert.match(css,/\.zen-focus-card,\.zen-journey-card\{/);
  assert.doesNotMatch(css,/stroke-dashoffset \.38s/);assert.doesNotMatch(css,/\.zen-clock-wrap\.is-switching/);assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
 
