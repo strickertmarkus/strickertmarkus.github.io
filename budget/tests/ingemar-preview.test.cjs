@@ -234,7 +234,8 @@ test('Refined Zen scene keeps the forest route clear, visible trees and a non-ov
  assert.match(html,/id="zen-forest-progress" d="M196 477/);
  assert.doesNotMatch(html,/zforest-path|zen-forest-wayfinder|zen-scene-hint/);
  assert.match(css,/\.zen-workout \.zen-stage\{position:static;/);
- assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:min\(720px,100%\)/);
+ assert.match(css,/\.zen-workout \.zen-session-dock\{[^}]*width:min\(760px,100%\)/);
+ assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:100%/);
  assert.match(css,/\.zen-workout \.zen-forest-route-art #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
  assert.match(css,/\.zen-lake-ripples\{[^}]*opacity:calc\(\.22/);
  assert.match(css,/\.zen-scenery \.zen-forest-landscape svg,\.zen-scenery \.zen-lake-landscape svg\{/);
