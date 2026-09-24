@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-refined-12/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-layout-13/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -218,7 +218,7 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(source[1],/session\.dataset\.running=activeZen\.running&&!done/);
  assert.match(source[1],/case 'toggle-zen-clock'/);
  assert.match(css,/ZEN IMMERSIVE MODES/);
- assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{display:flex;flex-direction:column;height:100dvh/);
+ assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{display:flex;flex-direction:column;min-height:100dvh;height:100dvh/);
  assert.match(css,/\.zen-forest-landscape/);
  assert.match(css,/\.zen-lake-landscape/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
@@ -230,13 +230,22 @@ test('Refined Zen scene keeps the forest route clear, visible trees and a non-ov
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  assert.match(html,/class="zen-forest-trunks"/);
  assert.match(html,/class="zen-forest-distance"/);
- assert.match(html,/id="zen-forest-route" d="M444 414/);
- assert.match(html,/id="zen-forest-progress" d="M444 414/);
+ assert.match(html,/id="zen-forest-route" d="M196 477/);
+ assert.match(html,/id="zen-forest-progress" d="M196 477/);
  assert.doesNotMatch(html,/zforest-path|zen-forest-wayfinder|zen-scene-hint/);
  assert.match(css,/\.zen-workout \.zen-stage\{position:static;/);
  assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:min\(720px,100%\)/);
- assert.match(css,/\.zen-forest-landscape #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
+ assert.match(css,/\.zen-workout \.zen-forest-route-art #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
  assert.match(css,/\.zen-lake-ripples\{[^}]*opacity:calc\(\.22/);
  assert.match(css,/\.zen-forest-trunks\{/);
+ assert.match(html,/class="zen-forest-route-art" id="zen-forest-route-art"/);
+ assert.match(source[1],/function zenPositionProgressLane\(\)/);
+ assert.match(source[1],/scheduleZenProgressLane\(\)/);
+ assert.match(source[1],/--zen-breath-y/);
+ assert.match(css,/\.zen-forest-route-art\{[^}]*height:max\(0px,calc\(100% - var\(--zen-lane-top/);
+ assert.match(css,/\.zen-workout \.zen-stage-list\{display:grid;grid-template-columns:repeat\(auto-fit/);
+ assert.match(css,/\.zen-workout \.zen-next-block strong\{[^}]*white-space:normal/);
+ assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{[^}]*overflow-y:auto/);
+ assert.match(css,/\.zen-lake-breath-guide\{[^}]*top:var\(--zen-breath-y/);
  assert.doesNotMatch(css,/\.zen-forest-wayfinder\{/);
 });
