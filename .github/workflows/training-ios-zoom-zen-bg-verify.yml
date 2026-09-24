@@ -394,21 +394,21 @@ jobs:
             await page.waitForFunction(()=>document.documentElement.dataset.wellnessMode==='zen'&&document.body.dataset.kind==='stretch');
             await page.waitForTimeout(400);
             await editableAudit(page,'Stretch');
-            await canvasAudit(page,'Stretch','rgb(9, 29, 24)');
+            await canvasAudit(page,'Stretch','rgb(7, 28, 27)');
 
             await page.evaluate(async()=>{await window.setWellnessMode('meditation')});
             await page.waitForFunction(()=>document.body.dataset.kind==='meditation');
             await page.waitForTimeout(300);
             await editableAudit(page,'Meditation');
-            await canvasAudit(page,'Meditation','rgb(167, 195, 189)');
+            await canvasAudit(page,'Meditation','rgb(168, 197, 190)');
 
             await page.setViewportSize({width:320,height:700});
             await editableAudit(page,'Meditation 320px');
-            await canvasAudit(page,'Meditation','rgb(167, 195, 189)');
+            await canvasAudit(page,'Meditation','rgb(168, 197, 190)');
             await page.evaluate(async()=>{await window.setWellnessMode('stretch')});
             await page.waitForFunction(()=>document.body.dataset.kind==='stretch');
             await editableAudit(page,'Stretch 320px');
-            await canvasAudit(page,'Stretch','rgb(9, 29, 24)');
+            await canvasAudit(page,'Stretch','rgb(7, 28, 27)');
 
             await page.setViewportSize({width:375,height:812});
             await page.evaluate(async()=>{await window.setWellnessMode('training')});
