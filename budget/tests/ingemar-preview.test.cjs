@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-visuals-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-visuals-2/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -205,15 +205,15 @@ test('Zen stretch and meditation support custom routines, editable planned days,
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
 
-test('Canvas Zen session switches Observatory and Motion/Stillness without losing pass state',()=>{
+test('Canvas Zen session switches Observatory, Journey/Horizon and Motion/Stillness without losing pass state',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  const visuals=fs.readFileSync(path.join(root,'ingemar-zen-visuals.js'),'utf8');
  new vm.Script(visuals,{filename:'ingemar-zen-visuals.js'});
  for(const id of ['zen-session','zen-visual-canvas','zen-visual-breath','zen-session-ring','zen-stage-list','zen-clock-toggle'])
   assert.match(html,new RegExp('id="'+id+'"'));
- for(const variant of ['observatory','abstract'])
+ for(const variant of ['observatory','journey','abstract'])
   assert.match(html,new RegExp('data-zen-variant="'+variant+'"'));
- assert.match(html,/ingemar-zen-visuals\.js\?v=20260924-zen-visuals-1/);
+ assert.match(html,/ingemar-zen-visuals\.js\?v=20260924-zen-visuals-2/);
  assert.match(source[1],/IngemarZenVisuals\.init\(\$\('zen-session'\),\$\('zen-visual-canvas'\)\)/);
  assert.match(source[1],/if\(b\.dataset\.zenVariant\)\{window\.IngemarZenVisuals\.switchTo/);
  assert.match(source[1],/IngemarZenVisuals\.update\(\{kind:activeZen\.type,elapsed:activeZen\.elapsed/);
@@ -223,12 +223,14 @@ test('Canvas Zen session switches Observatory and Motion/Stillness without losin
  assert.match(source[1],/case 'toggle-zen-clock'/);
  assert.match(source[1],/state\.zenHistory\.push\(\{id:uid\(\)/);
  assert.match(visuals,/ingemar-zen-visual-style-v1/);
- for(const painter of ['ringScene','horizonScene','ribbonScene','sphereScene'])
+ for(const painter of ['ringScene','horizonScene','forestJourneyScene','lakeJourneyScene','ribbonScene','sphereScene'])
   assert.match(visuals,new RegExp('function '+painter+'\\('));
  assert.match(visuals,/createRadialGradient/);
  assert.match(visuals,/getContext\('2d'/);
  assert.doesNotMatch(html,/zen-forest-landscape|zen-lake-landscape|zen-step-dial|zen-forest-route-art/);
  assert.match(css,/\.zen-variant-switch\{/);
+ assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/\[data-zen-variant="journey"\] \.zen-journey-card\{/);
  assert.match(css,/\.zen-visual-canvas\{/);
  assert.match(css,/\.zen-workout \.zen-workspace\{/);
  assert.match(css,/\.zen-workout \.zen-stage-list\{display:grid;grid-template-columns:repeat\(auto-fit/);
@@ -237,7 +239,7 @@ test('Canvas Zen session switches Observatory and Motion/Stillness without losin
  assert.doesNotMatch(css,/ZEN IMMERSIVE MODES/);
 });
 
-test('all four Zen Canvas variants paint and share live progress and pause state',()=>{
+test('all six Zen Canvas variants paint and share live progress and pause state',()=>{
  const visuals=fs.readFileSync(path.join(root,'ingemar-zen-visuals.js'),'utf8');
  const trace={fills:0,strokes:0,ellipses:0,gradients:0};
  const ctx=new Proxy({},{get(obj,key){
@@ -263,7 +265,7 @@ test('all four Zen Canvas variants paint and share live progress and pause state
  vm.runInNewContext(visuals,context,{filename:'ingemar-zen-visuals.js'});
  const api=fakeWindow.IngemarZenVisuals;assert.ok(api);
  api.init(sceneRoot,canvas);sceneRoot.hidden=false;
- for(const kind of ['stretch','meditation'])for(const variant of ['observatory','abstract']){
+ for(const kind of ['stretch','meditation'])for(const variant of ['observatory','journey','abstract']){
   api.switchTo(variant);const before={...trace};
   api.update({kind,variant,elapsed:140,duration:600,stepFraction:.34,breath:.6,running:false,done:false,stage:1});
   const pending=queue.slice();queue=[];pending.forEach(item=>item.fn(1200));
