@@ -107,9 +107,6 @@ main{position:relative;z-index:2;display:block}
 .signal-ghost{fill:none;stroke:#ff657a1b;stroke-width:18;filter:blur(16px)}
 .signal-main{fill:none;stroke:url(#field-line);stroke-width:1.2;filter:drop-shadow(0 0 5px #ff9a9180);stroke-dasharray:2 1;animation:signalTravel 28s linear infinite}
 .field-start-area{position:relative;z-index:7;width:176px;max-width:100%;margin:40px 0 0}
-.field-build-action{display:flex;justify-content:center;align-items:center;gap:8px;min-height:39px;margin-top:13px;padding:7px 8px;border:1px solid #ff9a9134;border-radius:999px;background:#ff657a0c;color:#ffd2bd;font-size:11px;white-space:nowrap;transition:border-color .2s,box-shadow .2s}
-.field-build-action:hover,.field-build-action:focus-visible{border-color:#ff9a9185;box-shadow:0 0 16px #ff657a1c}
-.field-build-action span{color:var(--field-coral);font-size:14px}
 .start-orbit{--start-light:255,154,145;--start-text:#f5eeea;--start-muted:#c8b7b2;position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:168px;height:168px;min-height:168px;margin:0;padding:20px 15px;border:1px solid rgba(var(--start-light),.60);border-radius:50%;background:radial-gradient(circle at 43% 30%,rgba(255,209,186,.18),transparent 37%),radial-gradient(circle at 50% 64%,rgba(255,101,122,.12),transparent 58%),linear-gradient(160deg,#121a23fc 0%,#0d141cfd 58%,#0a1017ff 100%);color:var(--start-text);box-shadow:0 0 22px rgba(var(--start-light),.24),0 0 48px rgba(255,101,122,.12),inset 0 0 28px rgba(var(--start-light),.10);overflow:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s cubic-bezier(.2,.8,.2,1)}
 .start-orbit::before,.start-orbit::after{content:"";position:absolute;display:block;pointer-events:none;border-radius:50%}
 .start-orbit::before{inset:8px;border:1px solid rgba(var(--start-light),.25)}
@@ -166,7 +163,7 @@ main{position:relative;z-index:2;display:block}
 .week-orbit-art path{fill:none;stroke:#ff9a9133;stroke-width:1}
 .week-orbit-art .week-orbit-light{stroke:#ffd2bd;stroke-width:1.7;stroke-linecap:round;stroke-dasharray:1 99;filter:drop-shadow(0 0 5px #ff9a91) drop-shadow(0 0 12px #ff657a);animation:weekSweep 26s linear infinite}
 .week-days{position:relative;z-index:2;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:6px 2px;background:transparent;border:0;border-radius:12px;cursor:pointer}
+.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:6px 2px;-webkit-appearance:none;appearance:none;background:none;border:0;border-radius:12px;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;cursor:pointer}
 .week-day .day-name{color:var(--field-muted);font-size:9px;letter-spacing:1px;text-transform:uppercase}
 .week-day .day-date{position:relative;display:grid;place-items:center;isolation:isolate;width:46px;height:50px;margin-top:3px;padding-bottom:9px;border:1px solid transparent;border-radius:12px;color:#d4d7da;font:500 26px/1.1 var(--field-serif);transition:background .25s,border-color .25s}
 .week-day:hover .day-date{background:#ff9a910b}

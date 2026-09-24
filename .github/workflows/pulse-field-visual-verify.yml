@@ -70,13 +70,21 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/exercise.html?demo=1',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#insight-chart svg');
             assert.ok(page.url().includes('/budget/exercise.html?demo=1'),'Pulse Field must be served at canonical exercise.html');
-            for(const [id,tool] of [['next-session-link','start'],['build-session-link','build'],['edit-week-link','week'],['log-action-link','log']]){
+            assert.equal(await page.locator('#build-session-link').count(),0,'Second build-pass action must not appear beneath the start circle');
+            for(const [id,tool] of [['next-session-link','start'],['menu-build','build'],['edit-week-link','week'],['log-action-link','log']]){
               const href=await page.locator('#'+id).getAttribute('href');
               assert.ok(href.includes('archive/exercise.html?tool='+tool),'Training action '+id+' must reach preserved interactive tooling: '+href);
             }
             assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
             assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
+            const weekAppearance=await page.locator('.week-day').evaluateAll(days=>days.map(day=>({
+              appearance:getComputedStyle(day).appearance,
+              background:getComputedStyle(day).backgroundColor,
+              shadow:getComputedStyle(day).boxShadow
+            })));
+            assert.equal(weekAppearance.length,7,'Seven weekday buttons should be present');
+            assert.ok(weekAppearance.every(day=>day.appearance==='none'&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'),'Weekdays must not have full-tile native/dark button backgrounds: '+JSON.stringify(weekAppearance));
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
@@ -342,6 +350,7 @@ jobs:
             await page.waitForURL(/\/budget\/exercise\.html\?demo=1&user=maja#training-log/);
             await page.waitForSelector('#insight-chart svg');
             assert.equal((await page.locator('#profile-name').textContent()).trim(),'Maja','Old Pulse Field preview URL must redirect to canonical page with profile preserved');
+            const trainingNav=await page.locator('.kind-switch').boundingBox();
             const archived=await context.request.get('http://127.0.0.1:4173/budget/archive/exercise.html?tool=start');
             assert.equal(archived.status(),200,'Original session and builder page must remain available in archive');
             const archiveHtml=await archived.text();
@@ -351,6 +360,15 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/exercise.html?user=maja&wellness=meditation',{waitUntil:'domcontentloaded'});
             await page.waitForURL(/\/budget\/zen\.html\?/);
             assert.ok(page.url().includes('wellness=meditation')&&page.url().includes('user=maja'),'Old Zen bookmarks must route to the standalone Zen page with profile and kind intact');
+            for(const kind of ['meditation','stretch']){
+              await page.goto('http://127.0.0.1:4173/budget/zen.html?user=maja&wellness='+kind,{waitUntil:'domcontentloaded'});
+              await page.waitForSelector('.zen-home-switch');
+              const zenNav=await page.locator('.zen-home-switch').boundingBox();
+              assert.ok(Math.abs(zenNav.y-trainingNav.y)<3&&Math.abs(zenNav.width-trainingNav.width)<3&&Math.abs(zenNav.x-trainingNav.x)<3,'Zen '+kind+' toggle bar must match training position on mobile: '+JSON.stringify({zenNav,trainingNav}));
+              const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage}));
+              assert.equal(scene.top,0,'Zen scenery must start at the top of the mobile viewport');
+              assert.ok(scene.mask.includes('transparent 100%'),'Zen scenery must fade into the page background without a hard boundary');
+            }
             await browser.close();
           }
 

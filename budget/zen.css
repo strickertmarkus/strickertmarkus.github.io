@@ -171,10 +171,12 @@ h2 {
 .landscape {
   position: absolute;
   inset: 0 0 auto;
-  height: 940px;
+  height: max(940px,calc(100svh + env(safe-area-inset-top,0px)));
   overflow: hidden;
   pointer-events: none;
   z-index: -2;
+  -webkit-mask-image: linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.85) 81%,rgba(0,0,0,.44) 91%,transparent 100%);
+  mask-image: linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.85) 81%,rgba(0,0,0,.44) 91%,transparent 100%);
 }
 
 .landscape>div,
@@ -263,36 +265,45 @@ body[data-kind=meditation] .landscape-forest {
   background: rgba(var(--accent-rgb),.1);
 }
 
-.kind-switch {
-  display: inline-flex;
-  gap: 28px;
-  margin-bottom: 35px;
+.zen-home-switch {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 0;
+  width: calc(100% - 2 * var(--wellness-gutter,20px));
+  max-width: var(--wellness-page-width,1200px);
+  min-height: 56px;
+  margin: 0 auto;
   border-bottom: 1px solid var(--line);
 }
 
-.kind-switch button {
+.zen-home-switch button {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  min-width: 0;
+  min-height: 56px;
   background: none;
-  padding: 8px 3px 14px;
+  padding: 8px 3px;
   color: var(--muted);
   font-size: 13px;
 }
 
-.kind-switch button span {
+.zen-home-switch button span {
   font-size: 27px;
   line-height: 1;
   font-weight: 400;
 }
 
-.kind-switch button[aria-pressed=true] {
+.zen-home-switch button[aria-pressed=true] {
   color: var(--accent);
   text-shadow: 0 0 25px rgba(var(--accent-rgb),.4);
 }
 
-.kind-switch button:after {
+.zen-home-switch button:after {
   content: "";
   position: absolute;
   left: 0;
@@ -305,7 +316,7 @@ body[data-kind=meditation] .landscape-forest {
   transition: transform .65s;
 }
 
-.kind-switch button[aria-pressed=true]:after {
+.zen-home-switch button[aria-pressed=true]:after {
   transform: scaleX(1);
 }
 
@@ -1448,9 +1459,10 @@ body[data-kind=meditation] .form-error {
 @media (max-width:600px) {
 
   .zen-header {
-    height: 92px;
+    height: calc(78px + env(safe-area-inset-top,0px));
+    min-height: calc(78px + env(safe-area-inset-top,0px));
     gap: 12px;
-    padding: 0 6%;
+    padding: env(safe-area-inset-top,0px) var(--wellness-gutter,20px) 0;
   }
 
   .zen-brand {
@@ -1501,14 +1513,17 @@ body[data-kind=meditation] .form-error {
     width: 88%;
   }
 
-  .kind-switch {
-    margin-bottom: 31px;
-    gap: 27px;
+  .zen-home-switch {
+    min-height: 52px;
+    margin-bottom: 0;
   }
 
-  .kind-switch button {
+  .zen-home-switch button {
+    min-height: 52px;
+    gap: 7px;
     font-size: 12px;
   }
+  .zen-home-switch button span {font-size:19px}
 
   .hero-copy h1 {
     font-size: clamp(58px,16vw,64px);
@@ -1879,7 +1894,7 @@ body[data-kind=meditation] .form-error {
 @media (max-width:360px) {
 
   .zen-header {
-    padding: 0 4%;
+    padding: env(safe-area-inset-top,0px) var(--wellness-gutter,20px) 0;
     gap: 8px;
   }
 
@@ -2128,11 +2143,11 @@ body[data-kind=meditation] .zen-footer>span {
   text-shadow: 0 0 12px rgba(var(--sun-rgb),.80),0 0 24px rgba(var(--sun-rgb),.34) !important;
 }
 
-body[data-kind=meditation] .kind-switch button[aria-pressed=true] {
+body[data-kind=meditation] .zen-home-switch button[aria-pressed=true] {
   text-shadow: 0 0 25px rgba(var(--sun-rgb),.40);
 }
 
-body[data-kind=meditation] .kind-switch button[aria-pressed=true]:after {
+body[data-kind=meditation] .zen-home-switch button[aria-pressed=true]:after {
   box-shadow: 0 0 12px var(--sun);
 }
 
@@ -2509,9 +2524,7 @@ body[data-kind=meditation] .collection .keepsake:first-child .keepsake-symbol {
 
 }
 
-.sanctuary .kind-switch {
-  margin-bottom: 20px;
-}
+
 
 .sanctuary .hero-copy .eyebrow {
   margin-bottom: 9px;
@@ -2560,9 +2573,7 @@ body[data-kind=stretch] .sanctuary::before {
 
 @media (max-width:700px) {
 
-  .sanctuary .kind-switch {
-    margin-bottom: 17px;
-  }
+  
 
   .sanctuary .hero-copy .eyebrow {
     margin-bottom: 7px;
@@ -2586,9 +2597,7 @@ body[data-kind=stretch] .sanctuary::before {
 
 @media (max-width:700px) {
 
-  .sanctuary .kind-switch {
-    align-self: flex-start;
-  }
+  
 
 }
 
@@ -2631,9 +2640,7 @@ body[data-kind=stretch] .landscape-shade::after {
 
 @media (max-width:700px) {
 
-  body[data-kind=stretch] .sanctuary .kind-switch {
-    align-self: flex-start;
-  }
+  
 
   body[data-kind=stretch] .landscape-shade::before {
     opacity: .96;
@@ -3008,7 +3015,7 @@ body[data-kind=meditation] .hero-copy h1::after {
 #home-view :is(.growth-stats strong,.week-summary strong,.history-row){font-variant-numeric:tabular-nums}
 
 /* One home start component for both Zen scenes; no viewport translations. */
-.sanctuary{position:relative;display:flex;flex-direction:column;min-height:675px;margin:0 auto;padding:28px 0 56px;gap:24px}
+.sanctuary{position:relative;display:flex;flex-direction:column;min-height:675px;margin:0 auto;padding:30px 0 56px;gap:24px}
 .sanctuary .start-area{position:relative;z-index:7;width:176px;max-width:100%;margin:40px 0 0}
 #home-view .selected-routine{display:none}
 #home-view #start-button{--start-light:191,230,145;--start-text:#edf4dc;--start-muted:#b4c6af;position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;gap:5px;width:168px;height:168px;min-height:168px;margin:0;padding:20px 15px;border:1px solid rgba(var(--start-light),.55);border-radius:50%;background:radial-gradient(circle at 43% 34%,rgba(var(--start-light),.16),transparent 40%),radial-gradient(circle at 50% 66%,#16392cd9,#0d231ccc);color:var(--start-text);box-shadow:0 0 22px rgba(var(--start-light),.22),0 0 48px rgba(var(--start-light),.10),inset 0 0 24px rgba(var(--start-light),.09);overflow:visible;transition:transform var(--wellness-motion,.24s) var(--wellness-ease,ease),border-color var(--wellness-motion,.24s)}
@@ -3029,7 +3036,7 @@ body[data-kind=meditation] #home-view #start-button{--start-light:245,223,160;--
 body[data-kind=meditation] #home-view #start-label{color:#f7e3a5;text-shadow:0 1px 2px #33534170,0 0 12px #ffe89f88}
 @keyframes zenStartRingBreath{0%,100%{transform:scale(.985);opacity:.48}50%{transform:scale(1.025);opacity:.82}}
 @media(max-width:700px){
- .sanctuary{min-height:clamp(400px,calc(100svh - 164px),620px);padding:24px 0 30px;gap:24px}
+ .sanctuary{min-height:clamp(400px,calc(100svh - 164px),620px);padding:30px 0 30px;gap:24px}
  .sanctuary .start-area{margin: auto 0 0;padding-top:12px}
 }
 @media(prefers-reduced-motion:reduce){
