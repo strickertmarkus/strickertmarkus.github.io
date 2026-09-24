@@ -504,8 +504,8 @@ jobs:
               const names={observatory:'Observatory',journey:kind==='stretch'?'Journey':'Horizon',abstract:kind==='stretch'?'Motion':'Stillness'};
               assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),kind);
               for(const variant of ['observatory','journey','abstract']){
-                await page.locator('[data-zen-variant="'+variant+'"]').click();
-                assert.equal(await page.locator('[data-zen-variant="'+variant+'"]').getAttribute('aria-pressed'),'true');
+                await page.locator('button[data-zen-variant="'+variant+'"]').click();
+                assert.equal(await page.locator('button[data-zen-variant="'+variant+'"]').getAttribute('aria-pressed'),'true');
                 assert.equal(await page.locator('#zen-session').getAttribute('data-zen-variant'),variant);
                 for(const width of [320,390,430]){
                   await page.setViewportSize({width,height:844});
@@ -515,15 +515,15 @@ jobs:
                 }
               }
               // Short-screen stress check uses the new cinematic option because it has the most scene detail.
-              await page.locator('[data-zen-variant="journey"]').click();
+              await page.locator('button[data-zen-variant="journey"]').click();
               await page.setViewportSize({width:320,height:640});
               await auditZenCanvas(kind+' '+names.journey+' short');
               await page.locator('#zen-session').evaluate(root=>root.scrollTop=root.scrollHeight);
               await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-journey-320-short.png'});
               await page.locator('#zen-session').evaluate(root=>root.scrollTop=0);
               await page.setViewportSize({width:390,height:844});
-              await page.locator('[data-zen-variant="observatory"]').click();
-              assert.equal(await page.locator('[data-zen-variant="observatory"]').getAttribute('aria-pressed'),'true');
+              await page.locator('button[data-zen-variant="observatory"]').click();
+              assert.equal(await page.locator('button[data-zen-variant="observatory"]').getAttribute('aria-pressed'),'true');
               await auditZenCanvas(kind+' Observatory restored');
               assert.equal(await page.evaluate(()=>localStorage.getItem('ingemar-zen-visual-style-v1')),'observatory');
             }
