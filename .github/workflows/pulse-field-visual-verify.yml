@@ -3,7 +3,11 @@ name: Pulse Field visual verification
 on:
   push:
     paths:
+      - 'budget/exercise.html'
+      - 'budget/archive/exercise.html'
       - 'budget/training-pulse-field.html'
+      - 'budget/zen.html'
+      - 'budget/zen.js'
       - 'budget/training-pulse-field.css'
       - 'budget/training-pulse-field.js'
       - '.github/workflows/pulse-field-visual-verify.yml'
@@ -63,8 +67,15 @@ jobs:
             await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
 
-            await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1',{waitUntil:'domcontentloaded'});
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html?demo=1',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#insight-chart svg');
+            assert.ok(page.url().includes('/budget/exercise.html?demo=1'),'Pulse Field must be served at canonical exercise.html');
+            for(const [id,tool] of [['next-session-link','start'],['build-session-link','build'],['edit-week-link','week'],['log-action-link','log']]){
+              const href=await page.locator('#'+id).getAttribute('href');
+              assert.ok(href.includes('archive/exercise.html?tool='+tool),'Training action '+id+' must reach preserved interactive tooling: '+href);
+            }
+            assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
+            assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
@@ -319,10 +330,29 @@ jobs:
             await browser.close();
           }
 
+          async function verifyMigration(){
+            const browser=await webkit.launch(),context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+            const page=await context.newPage();
+            await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1&user=maja#training-log',{waitUntil:'domcontentloaded'});
+            await page.waitForURL(/\/budget\/exercise\.html\?demo=1&user=maja#training-log/);
+            assert.equal((await page.locator('#profile-name').textContent()).trim(),'Maja','Old Pulse Field preview URL must redirect to canonical page with profile preserved');
+            const archived=await context.request.get('http://127.0.0.1:4173/budget/archive/exercise.html?tool=start');
+            assert.equal(archived.status(),200,'Original session and builder page must remain available in archive');
+            const archiveHtml=await archived.text();
+            assert.ok(archiveHtml.includes('<base href="../">')&&archiveHtml.includes('id="session-modal"')&&archiveHtml.includes('id="observatory-build"')&&archiveHtml.includes('id="pulse-log-button"'),'Preserved app must retain all interactive training tools and root-relative assets');
+            const asset=await context.request.get('http://127.0.0.1:4173/budget/training-overview-mode.js');
+            assert.equal(asset.status(),200,'Preserved builder asset must resolve under /budget');
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html?user=maja&wellness=meditation',{waitUntil:'domcontentloaded'});
+            await page.waitForURL(/\/budget\/zen\.html\?/);
+            assert.ok(page.url().includes('wellness=meditation')&&page.url().includes('user=maja'),'Old Zen bookmarks must route to the standalone Zen page with profile and kind intact');
+            await browser.close();
+          }
+
           (async()=>{
             await verify({width:1440,height:960},'desktop',false);
             await verify({width:390,height:844},'mobile',true);
-            console.log('Pulse Field high-resolution scene, motion and desktop/mobile glow verified in WebKit');
+            await verifyMigration();
+            console.log('Pulse Field canonical training, archive routing and desktop/mobile glow verified in WebKit');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/pulse-field-visual.cjs

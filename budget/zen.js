@@ -8,7 +8,8 @@
   const prefKey='zen_preferences_'+S.profile;
   let prefs={};try{prefs=JSON.parse(localStorage.getItem(prefKey)||'{}');}catch(_){}
   if(!prefs||typeof prefs!=='object')prefs={};
-  let kind=prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:'forest',meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false;
+  const routeKind=new URLSearchParams(location.search).get('wellness');
+  let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:'forest',meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false;
   const copy={
     stretch:{eyebrow:'RÖRLIGHET',title:'Stretch',description:'Välj ett pass för hela kroppen eller fokusera på ett område.',symbol:'✧',hint:'Övningarna kräver inga redskap.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'},
     meditation:{eyebrow:'ANDNING & FOKUS',title:'Meditation',description:'Välj längd och meditera med andningsguide eller i egen takt.',symbol:'≈',hint:'Andningsguiden kan stängas av under passet.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'}
@@ -18,7 +19,12 @@
   function routines(){return [...M.routines,...S.entries.filter(e=>e.type==='routine').map(e=>e.routine)];}
   function chosen(){return routines().find(r=>r.id===selected[kind]&&r.kind===kind)||M.routines.find(r=>r.kind===kind);}
   function records(){return S.entries.filter(e=>e.type==='session');}
-  function applyKind(next){kind=next;allHistory=false;document.body.dataset.kind=kind;document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#091d18':'#a7c3bd';const c=copy[kind];
+  function applyKind(next){
+    kind=next;allHistory=false;document.body.dataset.kind=kind;
+    if(/\/zen\.html$/.test(location.pathname)){
+      var route=new URL(location.href);
+      if(route.searchParams.get('wellness')!==kind){route.searchParams.set('wellness',kind);history.replaceState(history.state,'',route.href);}
+    }document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#091d18':'#a7c3bd';const c=copy[kind];
     $('hero-eyebrow').textContent=c.eyebrow;$('hero-title').innerHTML=c.title;$('hero-description').innerHTML=c.description;$('selected-symbol').textContent=c.symbol;$('start-hint').textContent=c.hint;$('growth-title').textContent=c.growth;$('growth-eyebrow').textContent=c.growthEyebrow;$('collection-title').textContent=c.collection;$('leave-session').textContent=c.home;
     document.querySelectorAll('.kind-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===kind)));savePrefs();renderHome();
   }

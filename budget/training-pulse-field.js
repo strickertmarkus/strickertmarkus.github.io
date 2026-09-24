@@ -165,7 +165,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var url=new URL(file,location.href);
     if (profile==='maja') url.searchParams.set('user','maja');
     if (extra) Object.keys(extra).forEach(function(key){if(extra[key])url.searchParams.set(key,extra[key]);});
-    return url.pathname.split('/').pop()+url.search+url.hash;
+    return file+url.search+url.hash;
   }
   function wireProfileLinks() {
     byId('profile-name').textContent=profile==='maja'?'Maja':'Markus Strickert';
@@ -176,12 +176,18 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(link.dataset.fieldProfile===profile)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');
     });
     document.title=(profile==='maja'?'Maja':'Markus')+' Träning · Pulse Field';
-    ['original-link','menu-original','next-session-link','edit-week-link','log-action-link','footer-original'].forEach(function(id){
+    var archiveRoutes={
+      'original-link':{},'menu-original':{},'footer-original':{},
+      'next-session-link':{tool:'start'},'build-session-link':{tool:'build'},'menu-build':{tool:'build'},
+      'edit-week-link':{tool:'week'},'log-action-link':{tool:'log'},'menu-log':{tool:'log'},
+      'menu-records':{tool:'records'}
+    };
+    Object.keys(archiveRoutes).forEach(function(id){
       var link=byId(id);if(!link)return;
-      var hash=link.hash,url=profileHref('exercise.html');link.href=url+hash;
+      link.href=profileHref('archive/exercise.html',archiveRoutes[id])+link.hash;
     });
-    byId('stretch-link').href=profileHref('exercise.html',{wellness:'stretch'});
-    byId('meditation-link').href=profileHref('exercise.html',{wellness:'meditation'});
+    byId('stretch-link').href=profileHref('zen.html',{wellness:'stretch'});
+    byId('meditation-link').href=profileHref('zen.html',{wellness:'meditation'});
     document.querySelector('.field-brand').href=profileHref('home.html');
     document.querySelector('#field-menu a[href="home.html"]').href=profileHref('home.html');
     var current=new URL(location.href);if(profile==='maja')current.searchParams.set('user','maja');
@@ -204,7 +210,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var detail=exercises.length?exercises.length+' övning'+(exercises.length===1?'':'ar')+(sets?' · '+sets+' set':''):'Planerat upplägg';
     byId('next-session-title').textContent=found.plan.type||'Planerat pass';
     byId('next-session-meta').textContent=dateLabel+' · '+detail;
-    byId('next-session-link').href=profileHref('exercise.html');
+    byId('next-session-link').href=profileHref('archive/exercise.html',{tool:'start'})+'#observatory-templates-title';
   }
 
   function renderRhythm() {
