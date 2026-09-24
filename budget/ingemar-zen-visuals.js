@@ -241,9 +241,9 @@
     if(v.running&&!reduced)raf=requestAnimationFrame(frame);
   }
   function draw(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}
-  function refreshLayout(){needsMeasure=true;draw();}
+  function refreshLayout(){needsMeasure=true;lastFrame=0;draw();}
   function switchTo(next){
-    if(variants.indexOf(next)<0)return;view.variant=next;
+    if(variants.indexOf(next)<0)return;view.variant=next;needsMeasure=true;lastFrame=0;
     try{localStorage.setItem(KEY,next);}catch(_){}
     if(root){root.dataset.zenVariant=next;root.querySelectorAll('[data-zen-variant]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.zenVariant===next));});}
     draw();
