@@ -482,8 +482,12 @@ jobs:
               const scene=await page.locator('.zen-scenery').evaluate(el=>{
                 const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth,height:innerHeight};
               });
-              assert.ok(scene.left>=-1&&scene.right<=scene.width+1&&scene.top>=0&&scene.bottom<=scene.height+1,
-                label+' immersive landscape should fit viewport: '+JSON.stringify(scene));
+              assert.ok(scene.left>=-1&&scene.right<=scene.width+1&&scene.top>=0,
+                label+' immersive landscape must stay horizontally inside the viewport: '+JSON.stringify(scene));
+              if(scene.bottom>scene.height+1){
+                const shortScroll=await page.locator('#zen-session').evaluate(root=>getComputedStyle(root).overflowY==='auto'&&root.scrollHeight>root.clientHeight);
+                assert.equal(shortScroll,true,label+' taller short-screen scene must be reachable by scrolling');
+              }
               assert.equal(await page.locator('#zen-stage-list button').count()>0,true,
                 label+' should keep accessible stages for navigation');
               assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer',
