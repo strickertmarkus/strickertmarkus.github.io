@@ -488,6 +488,31 @@ jobs:
                 label+' should keep accessible stages for navigation');
               assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer',
                 label+' must preserve a semantic timer');
+              // Check real browser geometry, not only that the elements exist.
+              await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+              const geo=await page.locator('#zen-session').evaluate(root=>{
+                const rect=sel=>{const r=root.querySelector(sel).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width};};
+                const buttons=Array.from(root.querySelectorAll('#zen-stage-list button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
+                return {focus:rect('.zen-focus-card'),dock:rect('.zen-journey-card'),controls:rect('.zen-controls'),
+                  exit:rect('.zen-exit'),lane:rect('.zen-forest-route-art'),breath:rect('.zen-lake-breath-guide'),
+                  stageList:rect('#zen-stage-list'),buttons,
+                  scrollHeight:root.scrollHeight,clientHeight:root.clientHeight,scrollable:getComputedStyle(root).overflowY};
+              });
+              const noOverlap=(a,b)=>a.bottom<=b.top+1;
+              assert.ok(noOverlap(geo.focus,geo.dock)&&noOverlap(geo.dock,geo.controls)&&noOverlap(geo.controls,geo.exit),
+                label+' stacked controls must never overlap: '+JSON.stringify(geo));
+              assert.ok(geo.buttons.every(b=>b.left>=geo.stageList.left-2&&b.right<=geo.stageList.right+2&&
+                b.top>=geo.stageList.top-2&&b.bottom<=geo.stageList.bottom+2),
+                label+' all step buttons must fit without cropped edges: '+JSON.stringify(geo));
+              assert.ok(geo.exit.bottom<=geo.clientHeight+4||geo.scrollable==='auto',
+                label+' short screens must allow scrolling to the final control');
+              if(kind==='stretch'){
+                assert.ok(geo.lane.height>=120&&geo.lane.top>=geo.focus.bottom+3&&geo.lane.bottom<=geo.dock.top-3,
+                  label+' forest path must occupy the measured clear corridor: '+JSON.stringify(geo));
+              }else{
+                assert.ok(geo.breath.top>=geo.focus.bottom-1&&geo.breath.bottom<=geo.dock.top+1,
+                  label+' meditation breathing guide must remain clear of controls: '+JSON.stringify(geo));
+              }
               if(kind==='stretch'){
                 assert.equal(await page.locator('.zen-forest-landscape').isVisible(),true,'Forest Motion landscape is visible');
                 assert.equal(await page.locator('#zen-forest-route').count(),1);
@@ -510,6 +535,11 @@ jobs:
               await auditZenDial('Stretchläge '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/stretch-session-'+width+'.png'});
             }
+            await page.setViewportSize({width:320,height:640});
+            await auditZenDial('Stretchläge 320x640');
+            await page.locator('#zen-session').evaluate(root=>root.scrollTop=root.scrollHeight);
+            await page.screenshot({path:'test-results/ingemar-demo/stretch-session-320-short-bottom.png'});
+            await page.locator('#zen-session').evaluate(root=>root.scrollTop=0);
             await page.setViewportSize({width:390,height:844});
             const stretchFirst=await page.locator('#zen-session-title').textContent();
             const forestBefore=Number(await page.locator('#zen-forest-progress').evaluate(el=>el.style.strokeDashoffset));
