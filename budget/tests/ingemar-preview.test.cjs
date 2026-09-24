@@ -236,3 +236,43 @@ test('Canvas Zen session switches Observatory and Motion/Stillness without losin
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.doesNotMatch(css,/ZEN IMMERSIVE MODES/);
 });
+
+test('all four Zen Canvas variants paint and share live progress and pause state',()=>{
+ const visuals=fs.readFileSync(path.join(root,'ingemar-zen-visuals.js'),'utf8');
+ const trace={fills:0,strokes:0,ellipses:0,gradients:0};
+ const ctx=new Proxy({},{get(obj,key){
+  if(key in obj)return obj[key];
+  if(key==='createRadialGradient'||key==='createLinearGradient')return ()=>{trace.gradients++;return {addColorStop(){}};};
+  if(key==='fillRect')return ()=>{trace.fills++;};
+  if(key==='stroke')return ()=>{trace.strokes++;};
+  if(key==='ellipse')return ()=>{trace.ellipses++;};
+  return ()=>{};
+ },set(obj,key,value){obj[key]=value;return true;}});
+ const rect=(top,bottom,width)=>({getBoundingClientRect:()=>({top,bottom,left:0,right:width,width,height:bottom-top})});
+ const layout=rect(88,788,390),focus=rect(99,246,390),dock=rect(633,725,390),attrs={};
+ const buttons=['observatory','abstract'].map(value=>({dataset:{zenVariant:value},setAttribute(k,v){this[k]=v;}}));
+ const root={hidden:true,dataset:{},style:{setProperty(k,v){this[k]=v;}},querySelector(q){return q==='.zen-layout'?layout:q==='.zen-focus-card'?focus:dock;},querySelectorAll(){return buttons;}};
+ const canvas={width:0,height:0,clientWidth:390,clientHeight:700,getContext(){return ctx;}};
+ let queue=[],seq=0;
+ const requestAnimationFrame=fn=>{const id=++seq;queue.push({id,fn});return id;};
+ const cancelAnimationFrame=id=>{queue=queue.filter(item=>item.id!==id);};
+ const values={},fakeWindow={devicePixelRatio:2,addEventListener(){},matchMedia(){return {matches:false};}};
+ const fakeDocument={addEventListener(){},fonts:{ready:{then(){}}}};
+ const fakeStorage={getItem(k){return values[k]||null;},setItem(k,v){values[k]=v;}};
+ const context={window:fakeWindow,document:fakeDocument,localStorage:fakeStorage,performance:{now:()=>1000},requestAnimationFrame,cancelAnimationFrame};
+ vm.runInNewContext(visuals,context,{filename:'ingemar-zen-visuals.js'});
+ const api=fakeWindow.IngemarZenVisuals;assert.ok(api);
+ api.init(root,canvas);root.hidden=false;
+ for(const kind of ['stretch','meditation'])for(const variant of ['observatory','abstract']){
+  api.switchTo(variant);const before={...trace};
+  api.update({kind,variant,elapsed:140,duration:600,stepFraction:.34,breath:.6,running:false,done:false,stage:1});
+  const pending=queue.slice();queue=[];pending.forEach(item=>item.fn(1200));
+  assert.ok(trace.fills>before.fills&&trace.strokes>before.strokes&&trace.gradients>before.gradients,kind+' '+variant+' must paint actual Canvas materials');
+  assert.ok(canvas.width>0&&canvas.height>0);
+  assert.equal(root.dataset.zenVariant,variant);
+ }
+ assert.equal(fakeStorage.getItem('ingemar-zen-visual-style-v1'),'abstract');
+ assert.match(root.style['--zen-art-center-y'],/px$/);
+ assert.match(root.style['--zen-breath-label-y'],/px$/);
+ api.stop();
+});
