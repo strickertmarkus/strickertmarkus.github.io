@@ -213,7 +213,7 @@ test('Canvas Zen session switches Observatory, Journey/Horizon and Motion/Stilln
   assert.match(html,new RegExp('id="'+id+'"'));
  for(const variant of ['observatory','journey','abstract'])
   assert.match(html,new RegExp('data-zen-variant="'+variant+'"'));
- assert.match(html,/ingemar-zen-visuals\.js\?v=20260924-zen-visuals-2/);
+ assert.match(html,/ingemar-zen-visuals\.js\?v=20260924-zen-visuals-3/);
  assert.match(source[1],/IngemarZenVisuals\.init\(\$\('zen-session'\),\$\('zen-visual-canvas'\)\)/);
  assert.match(source[1],/if\(b\.dataset\.zenVariant\)\{window\.IngemarZenVisuals\.switchTo/);
  assert.match(source[1],/IngemarZenVisuals\.update\(\{kind:activeZen\.type,elapsed:activeZen\.elapsed/);
