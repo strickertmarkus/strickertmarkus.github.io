@@ -497,7 +497,7 @@ jobs:
                 label+' rendered centerpiece must remain between the instructions and the controls: '+JSON.stringify(data));
               assert.ok(data.buttons.every(b=>b.left>=data.stageList.left-2&&b.right<=data.stageList.right+2&&b.top>=data.stageList.top-2&&b.bottom<=data.stageList.bottom+2),
                 label+' every numbered step must fit its container: '+JSON.stringify(data));
-              assert.ok(data.exit.bottom<=innerHeight+4||data.overflow==='auto',label+' short viewports must be scrollable');
+              assert.ok(data.exit.bottom<=data.clientHeight+4||data.overflow==='auto',label+' short viewports must be scrollable');
               assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer');
             }
             async function compareZenVariants(kind){
