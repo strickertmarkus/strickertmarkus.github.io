@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-refined-12">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-layout-13">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -296,10 +296,6 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
           </g>
           <path d="M0 524Q176 474 329 487T603 484T900 518V700H0Z" fill="#10281f" opacity=".55"/>
           <path d="M0 634Q148 578 281 589T609 581T900 621V700H0Z" fill="#091f19" opacity=".48"/>
-          <path id="zen-forest-route" d="M444 414 C477 395 500 382 467 363 S418 337 473 316 S514 291 463 268 S424 248 470 226 S500 205 477 185" fill="none" stroke="#abd8b8" stroke-opacity=".16" stroke-width="5" stroke-linecap="round" pathLength="100"/>
-          <path id="zen-forest-progress" d="M444 414 C477 395 500 382 467 363 S418 337 473 316 S514 291 463 268 S424 248 470 226 S500 205 477 185" fill="none" stroke="url(#zforest-trail)" stroke-width="2.7" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
-          <g id="zen-forest-waypoints"></g>
-          <g id="zen-forest-traveller"><circle r="10" fill="#bde4c0" opacity=".1"/><circle r="4.3" fill="#c0f8ce" opacity=".42"/><circle r="2.2" fill="#f4fff0"/></g>
           <g class="zen-forest-foreground" fill="#071a14" opacity=".84">
             <path d="M0 0h103q-15 183-3 366T132 700H0Z"/>
             <path d="M900 0h-93q7 168 1 333t-42 367h134Z"/>
@@ -308,6 +304,13 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
           </g>
           <g class="zen-forest-fireflies" fill="#c8e9bc"><circle cx="401" cy="322" r="1.2"/><circle cx="544" cy="268" r=".9"/><circle cx="385" cy="426" r=".8"/></g>
         </svg>
+          <svg class="zen-forest-route-art" id="zen-forest-route-art" viewBox="0 0 390 500" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+            <defs><linearGradient id="zforest-route-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#deffe1"/><stop offset="1" stop-color="#8edbb2"/></linearGradient></defs>
+            <path id="zen-forest-route" d="M196 477 C207 415 178 392 190 340 S225 264 196 205 S179 128 199 25" fill="none" stroke="#c6e8d0" stroke-opacity=".12" stroke-width="2.4" stroke-linecap="round" pathLength="100"/>
+            <path id="zen-forest-progress" d="M196 477 C207 415 178 392 190 340 S225 264 196 205 S179 128 199 25" fill="none" stroke="url(#zforest-route-light)" stroke-width="2.6" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+            <g id="zen-forest-waypoints"></g>
+            <g id="zen-forest-traveller"><circle r="8" fill="#bde4c0" opacity=".10"/><circle r="3.6" fill="#c0f8ce" opacity=".42"/><circle r="1.9" fill="#f4fff0"/></g>
+          </svg>
       </div>
       <div class="zen-lake-landscape" aria-hidden="true">
         <svg viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
@@ -1343,6 +1346,23 @@ function zenEditorAction(action){
 
 // Forest Motion and Stillwater are visual projections of the existing Zen timer;
 // all state, pause, skip, and session history continue to use activeZen.
+function zenPositionProgressLane(){
+ if(!activeZen||$('zen-session').hidden)return;
+ var session=$('zen-session'),scene=session.querySelector('.zen-scenery'),focus=session.querySelector('.zen-focus-card'),dock=session.querySelector('.zen-journey-card');
+ if(!scene||!focus||!dock)return;
+ var sceneRect=scene.getBoundingClientRect(),focusRect=focus.getBoundingClientRect(),dockRect=dock.getBoundingClientRect();
+ var top=Math.max(0,Math.ceil(focusRect.bottom-sceneRect.top+10));
+ var bottom=Math.max(0,Math.ceil(sceneRect.bottom-dockRect.top+10));
+ var available=sceneRect.height-top-bottom;
+ session.style.setProperty('--zen-lane-top',top+'px');
+ session.style.setProperty('--zen-lane-bottom',bottom+'px');
+ session.dataset.tightScene=available<170?'true':'false';
+}
+function scheduleZenProgressLane(){
+ if(zenProgressLaneRaf)cancelAnimationFrame(zenProgressLaneRaf);
+ zenProgressLaneRaf=requestAnimationFrame(function(){zenProgressLaneRaf=0;zenPositionProgressLane();});
+}
+var zenProgressLaneRaf=0;
 function zenForestWaypoints(){
  var route=$('zen-forest-route'),holder=$('zen-forest-waypoints');
  if(!route||!holder||!activeZen||activeZen.type!=='stretch')return;
@@ -1400,6 +1420,7 @@ function zenStart(index){
  document.body.dataset.modeOpen='true';
  if(view==='stretch')zenForestWaypoints();
  renderZenSession();
+ scheduleZenProgressLane();
  $('zen-session').scrollTop=0;
  startZenTimer();
 }
@@ -1462,6 +1483,7 @@ function renderZenSession(){
  $('zen-total-progress').setAttribute('aria-valuenow',String(percent));setText('zen-stage-label',done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+percent+' % AV PASSET');
  $('pause-zen').disabled=done;setText('pause-zen',activeZen.running?'Pausa':'Fortsätt');setText('next-zen',done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗');
  if(stageChanged){
+  scheduleZenProgressLane();
   $('zen-stage-list').innerHTML=activeZen.steps.map(function(item,i){var state=i<position.index?'done':i===position.index?'current':'upcoming';return '<button type="button" class="is-'+state+'" data-zen-step="'+i+'" aria-current="'+(i===position.index?'step':'false')+'"><span>'+(i<position.index?'✓':(i+1))+'</span><b>'+clean(item.name)+'</b><small>'+fmtSeconds(item.seconds)+'</small></button>';}).join('');
   activeZen.shownStage=position.index;activeZen.shownDone=done;
  }
