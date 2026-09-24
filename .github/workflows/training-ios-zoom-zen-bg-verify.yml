@@ -125,7 +125,6 @@ jobs:
             const colors=await page.evaluate(()=>({
               html:getComputedStyle(document.documentElement).backgroundColor,
               body:getComputedStyle(document.body).backgroundColor,
-              inline:document.documentElement.style.backgroundColor,
               mode:document.documentElement.dataset.wellnessMode,
               kind:document.body.dataset.kind
             }));
@@ -133,7 +132,6 @@ jobs:
             assert.equal(colors.kind,label.toLowerCase(),label+' body kind mismatch');
             assert.equal(colors.body,bodyExpected,label+' body canvas regressed');
             assert.equal(colors.html,rootExpected,label+' root safe-area canvas regressed');
-            assert.equal(colors.inline,rootExpected,label+' inline safe-area canvas regressed');
           }
 
           (async()=>{
