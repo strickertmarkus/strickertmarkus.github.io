@@ -3,6 +3,8 @@ name: Pulse Field visual verification
 on:
   push:
     paths:
+      - 'budget/auth-gate.js'
+      - 'budget/tests/training-wellness-shell.test.cjs'
       - 'budget/exercise.html'
       - 'budget/archive/exercise.html'
       - 'budget/training-pulse-field.html'
@@ -78,15 +80,28 @@ jobs:
             assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
             assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
+            // Reproduce production's real auth-gate bootstrap with Firebase auth mocked:
+            // old tests stubbed auth-gate.js entirely and missed its injected !important weekday cards.
+            await page.evaluate(()=>{
+              const auth=()=>({setPersistence:()=>Promise.resolve(),onAuthStateChanged:()=>{}});
+              auth.Auth={Persistence:{LOCAL:'local'}};
+              window.firebase={apps:[{}],auth};
+            });
+            await page.addScriptTag({content:fs.readFileSync('budget/auth-gate.js','utf8')});
+            assert.equal(await page.locator('#exercise-profile-critical-v12').count(),0,'Canonical Pulse Field must never receive legacy blue weekday card styles');
+            assert.equal(await page.locator('#exercise-pulse-boot-critical-v82').count(),0,'Canonical Pulse Field must not receive old exercise page boot CSS');
+            assert.equal(await page.locator('script[data-exercise-session-ux-v20]').count(),0,'Canonical Pulse Field must not load 27 legacy exercise enhancements');
             const weekAppearance=await page.locator('.week-day').evaluateAll(days=>days.map(day=>{
               const date=day.querySelector('button.day-date');
               return {tag:day.tagName,background:getComputedStyle(day).backgroundColor,shadow:getComputedStyle(day).boxShadow,dateTag:date?.tagName,dateAppearance:date?getComputedStyle(date).appearance:null};
             }));
             assert.equal(weekAppearance.length,7,'Seven day wrappers should exist');
             assert.ok(weekAppearance.every(day=>day.tag==='DIV'&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'&&day.dateTag==='BUTTON'&&day.dateAppearance==='none'),'Only the actual date button may have a highlighted panel: '+JSON.stringify(weekAppearance));
-            assert.equal(await page.locator('.week-orbit-art').count(),0,'Old animated curve must not sit behind date selectors');
-            assert.equal(await page.locator('.signal-traveler animateMotion').count(),1,'Hero light travels as a small independent marker');
-            assert.equal(await page.locator('.signal-main').evaluate(el=>getComputedStyle(el).animationName),'none','Hero route must not repaint its full dashed stroke every frame');
+            assert.ok(await page.locator('.week-day').evaluateAll(days=>days.every(day=>getComputedStyle(day).backgroundImage==='none')),'No old dark-blue background on weekday cells');
+            assert.equal(await page.locator('.week-orbit-art .week-orbit-light').count(),1,'Original week orbit must remain behind the weekday labels');
+            assert.equal(await page.locator('.week-orbit-light').evaluate(el=>getComputedStyle(el).animationName),'weekSweep','Week orbit line must move independently of the dark-box fix');
+            assert.equal(await page.locator('.signal-traveler').count(),0,'Hero must not replace a moving dashed line with a dot');
+            assert.equal(await page.locator('.signal-main').evaluate(el=>getComputedStyle(el).animationName),'fieldDashFlow','Hero dashed line itself must animate');
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
@@ -385,7 +400,8 @@ jobs:
               assert.ok(Math.abs(zenNav.y-trainingNav.y)<3&&Math.abs(zenNav.width-trainingNav.width)<3&&Math.abs(zenNav.x-trainingNav.x)<3,'Zen '+kind+' toggle bar must match training position on mobile: '+JSON.stringify({zenNav,trainingNav}));
               const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage,root:getComputedStyle(document.documentElement).backgroundColor}));
               assert.equal(scene.top,0,'Zen scenery must start at the top of the mobile viewport');
-              assert.equal(scene.root,kind==='meditation'?'rgb(167, 195, 189)':'rgb(9, 29, 24)','Zen status-bar canvas must match its scenery, without a top edge');
+              assert.equal(await page.locator('meta[name="theme-color"]').getAttribute('content'),kind==='meditation'?'#a8c5be':'#071c1b','Safari top browser tint must match top of current Zen canvas');
+              assert.equal(scene.root,kind==='meditation'?'rgb(168, 197, 190)':'rgb(7, 28, 27)','Zen status-bar canvas must match the top of the actual sky artwork');
               assert.ok(scene.mask.includes('linear-gradient')&&scene.mask.includes('100%')&&/(transparent|rgba\(0, 0, 0, 0\))/.test(scene.mask),'Zen scenery must fade into the page background without a hard boundary: '+scene.mask);
             }
             await browser.close();

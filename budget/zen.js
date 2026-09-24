@@ -21,11 +21,11 @@
   function records(){return S.entries.filter(e=>e.type==='session');}
   function applyKind(next){
     kind=next;allHistory=false;document.body.dataset.kind=kind;
-    document.documentElement.style.backgroundColor=kind==='stretch'?'#091d18':'#a7c3bd';
+    document.documentElement.style.backgroundColor=kind==='stretch'?'#071c1b':'#a8c5be';
     if(/\/zen\.html$/.test(location.pathname)){
       var route=new URL(location.href);
       if(route.searchParams.get('wellness')!==kind){route.searchParams.set('wellness',kind);history.replaceState(history.state,'',route.href);}
-    }document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#091d18':'#a7c3bd';const c=copy[kind];
+    }document.querySelector('meta[name=theme-color]').content=kind==='stretch'?'#071c1b':'#a8c5be';const c=copy[kind];
     $('hero-eyebrow').textContent=c.eyebrow;$('hero-title').innerHTML=c.title;$('hero-description').innerHTML=c.description;$('selected-symbol').textContent=c.symbol;$('start-hint').textContent=c.hint;$('growth-title').textContent=c.growth;$('growth-eyebrow').textContent=c.growthEyebrow;$('collection-title').textContent=c.collection;$('leave-session').textContent=c.home;
     document.querySelectorAll('.kind-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===kind)));savePrefs();renderHome();
   }

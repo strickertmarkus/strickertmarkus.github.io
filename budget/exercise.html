@@ -19,12 +19,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20260924-renderflow-34">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20260924-line-week-35">
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script src="auth-config.js?v=20260922-observatory-records-3"></script>
-  <script src="auth-gate.js?v=20260922-observatory-records-3"></script>
+  <script src="auth-gate.js?v=20260924-canonical-auth-1"></script>
   <script src="firebase-sync.js?v=20260922-pulse-field-1"></script>
   <script defer src="training-pulse-field.js?v=20260924-renderflow-24"></script>
 </head>
@@ -119,9 +119,6 @@
           </defs>
           <path class="signal-ghost" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170"/>
           <path class="signal-main" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170" pathLength="100"/>
-          <circle class="signal-traveler" r="7" fill="url(#field-node)">
-            <animateMotion dur="18s" repeatCount="indefinite" path="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170"/>
-          </circle>
           <g filter="url(#field-glow)">
             <circle cx="318" cy="244" r="9" fill="url(#field-node)"/>
             <circle cx="655" cy="202" r="7" fill="url(#field-node)"/>
@@ -161,6 +158,10 @@
         <button type="button" data-week-shift="1" aria-label="Nästa vecka">›</button>
       </div>
       <div class="week-field-shell">
+        <svg class="week-orbit-art" viewBox="0 0 880 200" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M20 128 C175 30 340 180 505 86 S720 35 860 116"/>
+          <path class="week-orbit-light" d="M20 128 C175 30 340 180 505 86 S720 35 860 116" pathLength="100"/>
+        </svg>
         <div class="week-days" id="week-days"></div>
       </div>
     </section>

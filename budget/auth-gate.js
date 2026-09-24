@@ -20,6 +20,9 @@
   var lowerPath = window.location.pathname.toLowerCase();
   var isLoginPage = lowerPath.endsWith('/budget/login.html') || lowerPath.endsWith('/login.html');
   var isExercisePage = lowerPath.endsWith('/budget/exercise.html') || lowerPath.endsWith('/exercise.html');
+  // The canonical exercise.html is Pulse Field; only the archived original owns
+  // the legacy presentation and exercise enhancement bundle. Authentication stays shared.
+  var isLegacyExercisePage = isExercisePage && !document.documentElement.hasAttribute('data-field-view');
   var isHomePage = lowerPath.endsWith('/budget/home.html') || lowerPath.endsWith('/home.html');
   var isCalendarPage = lowerPath.endsWith('/budget/calendar.html') || lowerPath.endsWith('/calendar.html');
   var isShoppingPage = lowerPath.endsWith('/budget/shopping.html') || lowerPath.endsWith('/shopping.html');
@@ -63,7 +66,7 @@
   var calendarAssetsVersion = '20260903-home-day-timeline-v10';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
-  var pulseDefaultBoot = isExercisePage;
+  var pulseDefaultBoot = isLegacyExercisePage;
   if (pulseDefaultBoot) {
     document.documentElement.classList.add('exercise-concept-pulse-home-v1');
     document.documentElement.classList.remove('exercise-pulse-booting-v82');
@@ -78,7 +81,7 @@
     }
   }
 
-  if (isExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
+  if (isLegacyExercisePage && !document.getElementById('exercise-profile-critical-v12')) {
     var exerciseCritical = document.createElement('style');
     exerciseCritical.id = 'exercise-profile-critical-v12';
     exerciseCritical.textContent =
@@ -161,7 +164,7 @@
     document.head.appendChild(s);
   }
 
-  if (isExercisePage) {
+  if (isLegacyExercisePage) {
     var exerciseManifestV2 = Array.isArray(window.__exerciseAssetManifestV2) && window.__exerciseAssetManifestV2.length
       ? window.__exerciseAssetManifestV2
       : null;
