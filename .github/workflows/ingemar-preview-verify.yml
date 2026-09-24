@@ -586,6 +586,11 @@ jobs:
               await auditZenDial('Meditationsläge '+width+'px');
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/meditation-session-'+width+'.png'});
             }
+            await page.setViewportSize({width:320,height:640});
+            await auditZenDial('Meditationsläge 320x640');
+            await page.locator('#zen-session').evaluate(root=>root.scrollTop=root.scrollHeight);
+            await page.screenshot({path:'test-results/ingemar-demo/meditation-session-320-short-bottom.png'});
+            await page.locator('#zen-session').evaluate(root=>root.scrollTop=0);
             await page.setViewportSize({width:390,height:844});
             assert.match(await page.locator('#zen-breath').textContent(),/ANDAS (IN|UT)/);
             const lakeBefore=Number(await page.locator('#zen-lake-horizon-progress').evaluate(el=>el.style.strokeDashoffset));
