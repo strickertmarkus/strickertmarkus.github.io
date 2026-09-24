@@ -172,8 +172,10 @@ h2 {
 
 .landscape {
   position: absolute;
-  inset: 0 0 auto;
-  height: max(940px,calc(100svh + env(safe-area-inset-top,0px)));
+  left: 0;
+  right: 0;
+  top: calc(0px - env(safe-area-inset-top,0px));
+  height: max(940px,calc(100svh + env(safe-area-inset-top,0px) + env(safe-area-inset-top,0px)));
   overflow: hidden;
   pointer-events: none;
   z-index: -2;
@@ -1461,10 +1463,7 @@ body[data-kind=meditation] .form-error {
 @media (max-width:600px) {
 
   .zen-header {
-    height: calc(78px + env(safe-area-inset-top,0px));
-    min-height: calc(78px + env(safe-area-inset-top,0px));
     gap: 12px;
-    padding: env(safe-area-inset-top,0px) var(--wellness-gutter,20px) 0;
   }
 
   .zen-brand {
@@ -1514,18 +1513,6 @@ body[data-kind=meditation] .form-error {
   .session-view {
     width: 88%;
   }
-
-  .zen-home-switch {
-    min-height: 52px;
-    margin-bottom: 0;
-  }
-
-  .zen-home-switch button {
-    min-height: 52px;
-    gap: 7px;
-    font-size: 12px;
-  }
-  .zen-home-switch button span {font-size:19px}
 
   .hero-copy h1 {
     font-size: clamp(58px,16vw,64px);
@@ -1892,7 +1879,6 @@ body[data-kind=meditation] .form-error {
 @media (max-width:360px) {
 
   .zen-header {
-    padding: env(safe-area-inset-top,0px) var(--wellness-gutter,20px) 0;
     gap: 8px;
   }
 

@@ -6,6 +6,8 @@ on:
       - 'budget/auth-gate.js'
       - 'budget/tests/training-wellness-shell.test.cjs'
       - 'budget/exercise.html'
+      - 'budget/training-mode-shell.css'
+      - 'budget/zen-scene-v3.js'
       - 'budget/archive/exercise.html'
       - 'budget/training-pulse-field.html'
       - 'budget/zen.html'
@@ -384,6 +386,8 @@ jobs:
             assert.equal((await page.locator('#profile-name').textContent()).trim(),'Maja','Old Pulse Field preview URL must redirect to canonical page with profile preserved');
             await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
             const trainingNav=await page.locator('.kind-switch').boundingBox();
+            const shellCss=fs.readFileSync('budget/training-mode-shell.css','utf8');
+            assert.ok(shellCss.includes('.field-header,.zen-header')&&shellCss.includes('.kind-switch,.zen-home-switch'),'Training and Zen must share one mobile shell geometry source');
             const archived=await context.request.get('http://127.0.0.1:4173/budget/archive/exercise.html?tool=start');
             assert.equal(archived.status(),200,'Original session and builder page must remain available in archive');
             const archiveHtml=await archived.text();
@@ -397,9 +401,11 @@ jobs:
               await page.goto('http://127.0.0.1:4173/budget/zen.html?user=maja&wellness='+kind,{waitUntil:'domcontentloaded'});
               await page.waitForSelector('.zen-home-switch');
               const zenNav=await page.locator('.zen-home-switch').boundingBox();
-              assert.ok(Math.abs(zenNav.y-trainingNav.y)<3&&Math.abs(zenNav.width-trainingNav.width)<3&&Math.abs(zenNav.x-trainingNav.x)<3,'Zen '+kind+' toggle bar must match training position on mobile: '+JSON.stringify({zenNav,trainingNav}));
+              assert.ok(Math.abs(zenNav.y-trainingNav.y)<.5&&Math.abs(zenNav.width-trainingNav.width)<.5&&Math.abs(zenNav.x-trainingNav.x)<.5&&Math.abs(zenNav.height-trainingNav.height)<.5,'Zen '+kind+' toggle bar must exactly match Training on mobile: '+JSON.stringify({zenNav,trainingNav}));
               const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage,root:getComputedStyle(document.documentElement).backgroundColor}));
-              assert.equal(scene.top,0,'Zen scenery must start at the top of the mobile viewport');
+              assert.ok(scene.top<=0,'Zen scenery must reach the top of the mobile viewport');
+              const zenCss=fs.readFileSync('budget/zen.css','utf8');
+              assert.ok(zenCss.includes('top: calc(0px - env(safe-area-inset-top,0px))'),'Zen artwork must extend into the real iPhone safe-area instead of replacing it with a flat strip');
               assert.equal(await page.locator('meta[name="theme-color"]').getAttribute('content'),kind==='meditation'?'#a8c5be':'#071c1b','Safari top browser tint must match top of current Zen canvas');
               assert.equal(scene.root,kind==='meditation'?'rgb(168, 197, 190)':'rgb(7, 28, 27)','Zen status-bar canvas must match the top of the actual sky artwork');
               assert.ok(scene.mask.includes('linear-gradient')&&scene.mask.includes('100%')&&/(transparent|rgba\(0, 0, 0, 0\))/.test(scene.mask),'Zen scenery must fade into the page background without a hard boundary: '+scene.mask);

@@ -1,0 +1,30 @@
+/* Shared mobile header and mode-switch geometry.
+   Page-specific files own color/theme; this file owns only placement and size. */
+:root{
+  --training-mode-mobile-gutter:20px;
+  --training-mode-mobile-header:78px;
+  --training-mode-mobile-switch:52px;
+  --training-mode-shell-max:1200px;
+}
+@media(max-width:760px){
+  .field-header,.zen-header{
+    height:calc(var(--training-mode-mobile-header) + env(safe-area-inset-top,0px));
+    min-height:calc(var(--training-mode-mobile-header) + env(safe-area-inset-top,0px));
+  }
+  .field-header{padding:env(safe-area-inset-top,0px) 0 0}
+  .zen-header{padding:env(safe-area-inset-top,0px) var(--training-mode-mobile-gutter) 0}
+  .kind-switch,.zen-home-switch{
+    width:calc(100% - 2 * var(--training-mode-mobile-gutter));
+    max-width:var(--training-mode-shell-max);
+    height:var(--training-mode-mobile-switch);
+    min-height:var(--training-mode-mobile-switch);
+    margin:0 auto;
+  }
+  .kind-switch a,.zen-home-switch button{
+    height:var(--training-mode-mobile-switch);
+    min-height:var(--training-mode-mobile-switch);
+    gap:7px;
+    font-size:12px;
+  }
+  .kind-switch a span,.zen-home-switch button span{font-size:19px}
+}

@@ -52,6 +52,7 @@
     const c=woodland.getContext('2d');
     const sky=c.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#071c1b');sky.addColorStop(.43,'#214b38');sky.addColorStop(1,'#071a14');c.fillStyle=sky;c.fillRect(0,0,W,H);
     glow(c,795,245,470,'126,188,96',.3);
+    for(let i=0;i<22;i++)canopyBlob(c,range(-35,1235),range(-45,105),range(52,116),range(28,68),['#0e2f247a','#153b2870','#214b3066'][i%3]);
     for(let i=0;i<33;i++){const x=range(-40,1240),y=range(485,680),w=range(6,19);stroke(c,[x,y,x+range(-18,18),y-180,x+range(-38,28),95,x+range(-30,25),-30],'rgba(8,31,25,.39)',w);}
     for(let i=0;i<35;i++)canopyBlob(c,range(10,1190),range(110,390),range(45,105),range(28,64),['#12342677','#173e2a66','#214a3060'][i%3]);
     hill(c,614,'#143a28',37,2);hill(c,699,'#0c2b1f',43,4);
