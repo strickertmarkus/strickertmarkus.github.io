@@ -501,26 +501,26 @@ jobs:
               assert.equal(await page.locator('#zen-session-ring').getAttribute('role'),'timer');
             }
             async function compareZenVariants(kind){
-              const label=kind==='stretch'?'Motion':'Stillness';
+              const names={observatory:'Observatory',journey:kind==='stretch'?'Journey':'Horizon',abstract:kind==='stretch'?'Motion':'Stillness'};
               assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),kind);
-              for(const width of [320,390,430]){
-                await page.setViewportSize({width,height:844});
-                await auditNoHorizontalScroll(kind+' Observatory '+width);
-                await auditZenCanvas(kind+' Observatory '+width);
-                if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-observatory-'+width+'.png'});
+              for(const variant of ['observatory','journey','abstract']){
+                await page.locator('[data-zen-variant="'+variant+'"]').click();
+                assert.equal(await page.locator('[data-zen-variant="'+variant+'"]').getAttribute('aria-pressed'),'true');
+                assert.equal(await page.locator('#zen-session').getAttribute('data-zen-variant'),variant);
+                for(const width of [320,390,430]){
+                  await page.setViewportSize({width,height:844});
+                  await auditNoHorizontalScroll(kind+' '+names[variant]+' '+width);
+                  await auditZenCanvas(kind+' '+names[variant]+' '+width);
+                  if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-'+variant+'-'+width+'.png'});
+                }
               }
-              await page.locator('[data-zen-variant="abstract"]').click();
-              assert.equal(await page.locator('[data-zen-variant="abstract"]').getAttribute('aria-pressed'),'true');
-              assert.equal(await page.locator('#zen-session').getAttribute('data-zen-variant'),'abstract');
-              for(const width of [320,390,430]){
-                await page.setViewportSize({width,height:844});
-                await auditZenCanvas(kind+' '+label+' '+width);
-                if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-abstract-'+width+'.png'});
-              }
+              // Short-screen stress check uses the new cinematic option because it has the most scene detail.
+              await page.locator('[data-zen-variant="journey"]').click();
               await page.setViewportSize({width:320,height:640});
-              await auditZenCanvas(kind+' '+label+' short');
+              await auditZenCanvas(kind+' '+names.journey+' short');
               await page.locator('#zen-session').evaluate(root=>root.scrollTop=root.scrollHeight);
-              await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-abstract-320-short.png'});
+              await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-journey-320-short.png'});
+              await page.locator('#zen-session').evaluate(root=>root.scrollTop=0);
               await page.setViewportSize({width:390,height:844});
               await page.locator('[data-zen-variant="observatory"]').click();
               assert.equal(await page.locator('[data-zen-variant="observatory"]').getAttribute('aria-pressed'),'true');
