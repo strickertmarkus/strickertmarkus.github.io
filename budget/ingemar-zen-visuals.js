@@ -5,7 +5,7 @@
   'use strict';
   var KEY='ingemar-zen-visual-style-v1', variants=['observatory','abstract'];
   var root=null, canvas=null, ctx=null, view={kind:'stretch',variant:'observatory',elapsed:0,duration:1,stepFraction:0,breath:0,running:false,done:false,stage:0};
-  var raf=0, width=0, height=0, scale=1, stamp=0, lastFrame=0, reduced=global.matchMedia&&global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var raf=0, width=0, height=0, scale=1, stamp=0, lastFrame=0, needsMeasure=true, reduced=global.matchMedia&&global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
   function color(rgb,a){return 'rgba('+rgb.join(',')+','+a+')';}
   function rgba(hex,a){return color(hex,a);}
@@ -138,6 +138,7 @@
     root.style.setProperty('--zen-art-center-y',(top+room*.5)+'px');
     root.style.setProperty('--zen-art-size',Math.round(Math.min(width*.50,room*.45,245))+'px');
     view.area={x:width*.5,y:top+room*.5,r:Math.max(24,Math.min(width*.43,room*.41,192)),room:room};
+    root.style.setProperty('--zen-breath-label-y',Math.max(top+7,view.area.y-view.area.r-21)+'px');
     var dpr=clamp(global.devicePixelRatio||1,1,1.65),pixelCap=1700000;
     scale=Math.min(dpr,Math.sqrt(pixelCap/(width*height)));
     var w=Math.max(1,Math.round(width*scale)),h=Math.max(1,Math.round(height*scale));
@@ -146,7 +147,8 @@
   function frame(now){
     raf=0;if(!root||root.hidden||!canvas||!ctx)return;
     if(now-lastFrame<33&&view.running&&!reduced){raf=requestAnimationFrame(frame);return;}
-    lastFrame=now;measure();
+    lastFrame=now;
+    if(needsMeasure||canvas.clientWidth!==width||canvas.clientHeight!==height){measure();needsMeasure=false;}
     var v=view,med=v.kind==='meditation',abstract=v.variant==='abstract',center=v.area,r=v.area.r,t=reduced?0:(now-stamp)/1000;
     ctx.clearRect(0,0,width,height);base(width,height,med,center);
     if(abstract){if(med)sphereScene(center,r,v.elapsed/Math.max(v.duration,1),v.breath,t);else ribbonScene(center,r,v.elapsed/Math.max(v.duration,1),v.breath,t);}
@@ -155,6 +157,7 @@
     if(v.running&&!reduced)raf=requestAnimationFrame(frame);
   }
   function draw(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}
+  function refreshLayout(){needsMeasure=true;draw();}
   function switchTo(next){
     if(variants.indexOf(next)<0)return;view.variant=next;
     try{localStorage.setItem(KEY,next);}catch(_){}
@@ -164,11 +167,13 @@
   function init(node,element){
     root=node;canvas=element;ctx=canvas.getContext('2d',{alpha:false});stamp=performance.now();
     switchTo(view.variant);
-    global.addEventListener('resize',draw,{passive:true});
-    if(global.visualViewport)global.visualViewport.addEventListener('resize',draw,{passive:true});
+    global.addEventListener('resize',refreshLayout,{passive:true});
+    if(global.visualViewport)global.visualViewport.addEventListener('resize',refreshLayout,{passive:true});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshLayout);
     document.addEventListener('visibilitychange',function(){if(!document.hidden)draw();});
   }
   function update(data){
+    if(data.stage!==view.stage||data.kind!==view.kind)needsMeasure=true;
     Object.keys(data).forEach(function(k){view[k]=data[k];});
     if(root&&!root.hidden){root.dataset.running=view.running?'true':'false';root.dataset.zenVariant=view.variant;draw();}
     else stop();
