@@ -350,6 +350,7 @@ jobs:
             await page.waitForURL(/\/budget\/exercise\.html\?demo=1&user=maja#training-log/);
             await page.waitForSelector('#insight-chart svg');
             assert.equal((await page.locator('#profile-name').textContent()).trim(),'Maja','Old Pulse Field preview URL must redirect to canonical page with profile preserved');
+            await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
             const trainingNav=await page.locator('.kind-switch').boundingBox();
             const archived=await context.request.get('http://127.0.0.1:4173/budget/archive/exercise.html?tool=start');
             assert.equal(archived.status(),200,'Original session and builder page must remain available in archive');
