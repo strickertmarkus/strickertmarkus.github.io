@@ -574,8 +574,8 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-forest-landscape,.zen-lake-landscape{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .zen-workout[data-kind="meditation"] .zen-forest-landscape,.zen-workout[data-kind="stretch"] .zen-lake-landscape{display:none}
 .zen-forest-landscape svg,.zen-lake-landscape svg{position:absolute;inset:0;width:100%;height:100%;max-height:none;transform:none}
-.zen-forest-route-art{position:absolute;z-index:4;display:block;pointer-events:none;left:50%;width:min(390px,100%);height:max(0px,calc(100% - var(--zen-lane-top,170px) - var(--zen-lane-bottom,160px)));top:var(--zen-lane-top,170px);transform:translateX(-50%);overflow:visible}
-.zen-workout[data-kind="meditation"] .zen-forest-route-art{display:none}
+.zen-workout .zen-scenery > svg.zen-forest-route-art{position:absolute;z-index:4;display:block;pointer-events:none;inset:auto;left:50%;width:min(390px,100%);height:max(0px,calc(100% - var(--zen-lane-top,170px) - var(--zen-lane-bottom,160px)));top:var(--zen-lane-top,170px);transform:translateX(-50%);overflow:visible}
+.zen-workout[data-kind="meditation"] .zen-scenery > svg.zen-forest-route-art{display:none}
 .zen-workout .zen-forest-route-art #zen-forest-progress{filter:drop-shadow(0 0 2px #e3ffe0) drop-shadow(0 0 5px #a6f4bc) drop-shadow(0 0 10px #6bbd8a68);stroke-linecap:round}
 .zen-workout .zen-forest-route-art #zen-forest-traveller{filter:drop-shadow(0 0 3px #f2fff0) drop-shadow(0 0 8px #92deb2)}
 
