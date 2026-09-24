@@ -304,6 +304,9 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
           </g>
           <g class="zen-forest-fireflies" fill="#c8e9bc"><circle cx="401" cy="322" r="1.2"/><circle cx="544" cy="268" r=".9"/><circle cx="385" cy="426" r=".8"/></g>
         </svg>
+
+      </div>
+
           <svg class="zen-forest-route-art" id="zen-forest-route-art" viewBox="0 0 390 500" preserveAspectRatio="none" focusable="false" aria-hidden="true">
             <defs><linearGradient id="zforest-route-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#deffe1"/><stop offset="1" stop-color="#8edbb2"/></linearGradient></defs>
             <path id="zen-forest-route" d="M196 477 C207 415 178 392 190 340 S225 264 196 205 S179 128 199 25" fill="none" stroke="#c6e8d0" stroke-opacity=".12" stroke-width="2.4" stroke-linecap="round" pathLength="100"/>
@@ -311,7 +314,6 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
             <g id="zen-forest-waypoints"></g>
             <g id="zen-forest-traveller"><circle r="8" fill="#bde4c0" opacity=".10"/><circle r="3.6" fill="#c0f8ce" opacity=".42"/><circle r="1.9" fill="#f4fff0"/></g>
           </svg>
-      </div>
       <div class="zen-lake-landscape" aria-hidden="true">
         <svg viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
           <defs>
@@ -1363,6 +1365,8 @@ function scheduleZenProgressLane(){
  zenProgressLaneRaf=requestAnimationFrame(function(){zenProgressLaneRaf=0;zenPositionProgressLane();});
 }
 var zenProgressLaneRaf=0;
+window.addEventListener('resize',scheduleZenProgressLane,{passive:true});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleZenProgressLane,{passive:true});
 function zenForestWaypoints(){
  var route=$('zen-forest-route'),holder=$('zen-forest-waypoints');
  if(!route||!holder||!activeZen||activeZen.type!=='stretch')return;
