@@ -16,6 +16,17 @@
 <link rel="stylesheet" href="zen-session-oasis-v54.css?v=20260911-session-oasis-v56">
 </head>
 <body data-kind="stretch">
+  <script>
+    // Select the Zen scene before its first paint, including the iPhone safe-area canvas.
+    (function(){
+      var mode=new URLSearchParams(location.search).get('wellness');
+      if(mode==='meditation'){
+        document.body.dataset.kind=mode;
+        document.documentElement.style.backgroundColor='#a7c3bd';
+        document.querySelector('meta[name="theme-color"]').content='#a7c3bd';
+      }
+    })();
+  </script>
   <a class="skip-link" href="#zen-main">Till innehållet</a>
   <div class="landscape" aria-hidden="true"><canvas class="landscape-forest"></canvas><div class="landscape-shade"></div></div>
   <header class="zen-header">
