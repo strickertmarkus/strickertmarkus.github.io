@@ -333,8 +333,14 @@ jobs:
           async function verifyMigration(){
             const browser=await webkit.launch(),context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
             const page=await context.newPage();
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
             await page.goto('http://127.0.0.1:4173/budget/training-pulse-field.html?demo=1&user=maja#training-log',{waitUntil:'domcontentloaded'});
             await page.waitForURL(/\/budget\/exercise\.html\?demo=1&user=maja#training-log/);
+            await page.waitForSelector('#insight-chart svg');
             assert.equal((await page.locator('#profile-name').textContent()).trim(),'Maja','Old Pulse Field preview URL must redirect to canonical page with profile preserved');
             const archived=await context.request.get('http://127.0.0.1:4173/budget/archive/exercise.html?tool=start');
             assert.equal(archived.status(),200,'Original session and builder page must remain available in archive');

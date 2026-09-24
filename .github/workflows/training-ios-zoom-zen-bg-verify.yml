@@ -11,6 +11,7 @@ on:
       - 'budget/auth-gate.js'
       - 'budget/pulse-environment/environment.css'
       - 'budget/exercise.html'
+      - 'budget/archive/exercise.html'
       - 'budget/exercise-dashboard.js'
       - 'budget/training-activity.js'
       - 'budget/pulse-observatory/observatory.css'
@@ -31,6 +32,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Stage archived training app for legacy regression
+        run: |
+          # This changes only the disposable CI checkout. Production exercise.html stays Pulse Field.
+          test -f budget/archive/exercise.html
+          sed '/<base href="\.\.\/">/d' budget/archive/exercise.html > budget/exercise.html
+          grep -q 'id="session-modal"' budget/exercise.html
+          grep -q 'id="observatory-build"' budget/exercise.html
 
       - name: Static Training and Zen regression
         run: |
