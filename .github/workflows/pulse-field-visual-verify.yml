@@ -368,7 +368,7 @@ jobs:
               assert.ok(Math.abs(zenNav.y-trainingNav.y)<3&&Math.abs(zenNav.width-trainingNav.width)<3&&Math.abs(zenNav.x-trainingNav.x)<3,'Zen '+kind+' toggle bar must match training position on mobile: '+JSON.stringify({zenNav,trainingNav}));
               const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage}));
               assert.equal(scene.top,0,'Zen scenery must start at the top of the mobile viewport');
-              assert.ok(scene.mask.includes('transparent 100%'),'Zen scenery must fade into the page background without a hard boundary');
+              assert.ok(scene.mask.includes('linear-gradient')&&scene.mask.includes('100%')&&/(transparent|rgba\(0, 0, 0, 0\))/.test(scene.mask),'Zen scenery must fade into the page background without a hard boundary: '+scene.mask);
             }
             await browser.close();
           }
