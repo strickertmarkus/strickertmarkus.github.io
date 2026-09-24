@@ -572,38 +572,40 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout[data-kind="meditation"] .mode-topbar{background:linear-gradient(180deg,#101f29ed,#101f29bb);border-color:#f5dba225}
 .zen-workout .zen-layout{position:relative;isolation:isolate;display:flex;flex:1 1 auto;min-height:0;height:auto;width:100%;max-width:none;margin:0;padding:0;overflow:hidden}
 .zen-workout .zen-session-ambient{position:absolute;z-index:2;inset:0}
-.zen-workout .zen-scenery{position:absolute;inset:0;width:100%;height:100%!important;max-height:none;margin:0!important;border:0;border-radius:0;z-index:0;overflow:hidden;box-shadow:none;background:#0a241c}
+.zen-workout .zen-scenery{position:absolute;inset:0;width:100%;height:100%!important;max-height:none;margin:0!important;border:0;border-radius:0;z-index:0;overflow:hidden;box-shadow:none;background:#10241b}
 .zen-workout[data-kind="meditation"] .zen-scenery{background:#203940;box-shadow:none}
 .zen-workout .zen-scenery .zen-scene-stretch,.zen-workout .zen-scenery .zen-scene-meditation{display:none!important}
 .zen-forest-landscape,.zen-lake-landscape{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .zen-workout[data-kind="meditation"] .zen-forest-landscape,.zen-workout[data-kind="stretch"] .zen-lake-landscape{display:none}
 .zen-forest-landscape svg,.zen-lake-landscape svg{position:absolute;inset:0;width:100%;height:100%;max-height:none;transform:none}
-.zen-workout[data-kind="stretch"] .zen-forest-landscape svg{transform:translateY(var(--zen-forest-camera,0px)) scale(1.045);transform-origin:50% 55%}
-.zen-workout .zen-scenery:after{position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,#04100bc9 0%,#04100869 29%,transparent 47%,#06170e36 62%,#04100bec 100%)}
-.zen-workout[data-kind="meditation"] .zen-scenery:after{background:linear-gradient(180deg,#081821cb 0%,#101e2766 30%,transparent 49%,#07172164 72%,#07151deb 100%)}
+.zen-workout[data-kind="stretch"] .zen-forest-landscape svg{transform:translateY(var(--zen-forest-camera,0px)) scale(1.02);transform-origin:50% 45%}
+.zen-workout .zen-scenery:after{position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,#061610c2 0%,#06180e50 24%,transparent 42%,#06161018 69%,#061610b3 100%),radial-gradient(ellipse 72% 54% at 50% 47%,transparent 38%,#0614108c 100%)}
+.zen-workout[data-kind="meditation"] .zen-scenery:after{background:linear-gradient(180deg,#081821bb 0%,#101e2735 29%,transparent 45%,#07172143 77%,#07151dc4 100%),radial-gradient(ellipse 85% 60% at 50% 45%,transparent 40%,#0818205e 100%)}
 .zen-workout .zen-scenery .scene-sheen{z-index:1;animation:none;opacity:.3}
-.zen-workout .zen-scenery .scene-hint{position:absolute;z-index:3;bottom:clamp(122px,20dvh,170px);left:clamp(12px,2.5vw,32px);letter-spacing:.2em;color:#c2dfbd;font-size:9px;opacity:.69;max-width:50%;white-space:nowrap}
-.zen-workout[data-kind="meditation"] .scene-hint{color:#fcebc4}
-.zen-forest-backtrees{transform-origin:50% 55%;animation:zenForestSway 19s ease-in-out infinite alternate}
-.zen-forest-fronttrees{transform-origin:50% 10%;animation:zenForestSway 24s ease-in-out infinite alternate-reverse}
-.zen-forest-beams{animation:zenForestLight 13s ease-in-out infinite alternate}
-.zen-forest-fireflies circle{fill:#e4ffd1;filter:drop-shadow(0 0 4px #d5ffac) drop-shadow(0 0 9px #8effb2);animation:zenFirefly 5.4s ease-in-out infinite alternate}
-.zen-forest-fireflies circle:nth-child(2n){animation-delay:-2.7s;animation-duration:7.1s}
-.zen-forest-landscape #zen-forest-progress{filter:drop-shadow(0 0 4px #a0f6ab) drop-shadow(0 0 11px #7feaa0);stroke-linecap:round}
-.zen-forest-landscape #zen-forest-traveller{filter:drop-shadow(0 0 6px #d6ffb7) drop-shadow(0 0 15px #80efaa)}
-.zen-forest-waypoint-halo{fill:#a2edaa;opacity:.13;stroke:#b3efb8;stroke-width:1}
-.zen-forest-waypoint-core{fill:#c3d5b6;opacity:.45}
-.zen-forest-waypoint.is-complete .zen-forest-waypoint-halo{fill:#c0f9ad;opacity:.3}
-.zen-forest-waypoint.is-complete .zen-forest-waypoint-core,.zen-forest-waypoint.is-current .zen-forest-waypoint-core{fill:#f5ffe3;opacity:1;filter:drop-shadow(0 0 6px #c8ffaa)}
-.zen-forest-waypoint.is-current .zen-forest-waypoint-halo{opacity:.44;filter:drop-shadow(0 0 9px #a8eeb4)}
-.zen-forest-wayfinder{position:absolute;z-index:3;top:51%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid #b4e8b438;border-radius:999px;background:#061a13ad;box-shadow:0 0 28px #8fe9ac11;backdrop-filter:blur(9px);font-size:10px;letter-spacing:.07em;color:#e4ffe0;white-space:nowrap}
-.zen-forest-wayfinder-mark{color:#beef9e;text-shadow:0 0 12px #bcf5a4}
-.zen-scenery.zen-stage-bloom .zen-forest-wayfinder{animation:zenWaypointBloom .75s cubic-bezier(.22,1,.36,1)}
+
+
+
+
+
+.zen-forest-trunks{filter:drop-shadow(7px 1px 12px #05151033)}
+.zen-forest-distance{filter:blur(2px)}
+.zen-forest-fireflies circle{fill:#c8e9bc;opacity:.65;filter:drop-shadow(0 0 3px #d9f4cf);animation:zenFirefly 8s ease-in-out infinite alternate}
+.zen-forest-fireflies circle:nth-child(2n){animation-delay:-4s}
+.zen-forest-landscape #zen-forest-progress{stroke-linecap:round;filter:drop-shadow(0 0 2px #e3ffe0) drop-shadow(0 0 5px #a6f4bc) drop-shadow(0 0 10px #6bbd8a68)}
+.zen-forest-landscape #zen-forest-traveller{filter:drop-shadow(0 0 3px #f2fff0) drop-shadow(0 0 8px #92deb2)}
+.zen-forest-waypoint-halo{fill:#b5e8c0;opacity:.08;stroke:#b3efb8;stroke-width:.8}
+.zen-forest-waypoint-core{fill:#c3d5b6;opacity:.32}
+.zen-forest-waypoint.is-complete .zen-forest-waypoint-halo{opacity:.17}
+.zen-forest-waypoint.is-complete .zen-forest-waypoint-core,.zen-forest-waypoint.is-current .zen-forest-waypoint-core{fill:#f2ffed;opacity:.94;filter:drop-shadow(0 0 4px #c8ffaa)}
+.zen-forest-waypoint.is-current .zen-forest-waypoint-halo{opacity:.22;filter:drop-shadow(0 0 5px #a8eeb4)}
+
+
+.zen-scenery.zen-stage-bloom 
 .zen-workout .zen-workspace{position:relative;z-index:5;display:flex;flex-direction:column;justify-content:space-between;gap:0;flex:1;min-width:0;min-height:0;width:min(1080px,100%);height:100%;max-width:100%;margin:0 auto!important;padding:clamp(9px,1.8dvh,20px) clamp(12px,3vw,32px) max(9px,env(safe-area-inset-bottom));text-align:center;pointer-events:none;box-sizing:border-box}
 .zen-workout .zen-workspace button{pointer-events:auto}
 .zen-workout .zen-focus-grid{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:0}
 .zen-workout .zen-focus-card{flex:0 1 auto;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(660px,100%);max-width:100%;min-width:0;padding:clamp(8px,2dvh,25px) 14px 6px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;text-align:center;overflow:visible}
-.zen-workout[data-kind="meditation"] .zen-focus-card,.zen-workout .zen-journey-card{background:transparent;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.zen-workout[data-kind="meditation"] .zen-focus-card,.zen-workout .zen-journey-card{position:relative;z-index:6;flex:0 0 auto;width:min(720px,100%);min-width:0;padding:8px 12px 7px;margin:0 auto;border:1px solid rgba(var(--mode-accent-rgb),.15);border-radius:13px;background:linear-gradient(180deg,#071a14b8,#061410c9);text-align:left;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .zen-workout .zen-focus-card:before,.zen-workout .zen-journey-card:before{display:none}
 .zen-workout .zen-focus-copy{width:100%;min-width:0;text-align:center}
 .zen-workout .zen-overline{color:#b4efac;font-size:10px;letter-spacing:.21em;font-weight:720;text-shadow:0 1px 12px #041309}
@@ -620,29 +622,29 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-clock-wrap #zen-breath{font-size:10px;letter-spacing:.11em;color:#bee4ba;margin:0}
 .zen-workout .zen-live-flow{display:none}
 .zen-workout[data-kind="meditation"] .zen-clock-wrap{position:absolute;width:1px;height:1px;min-height:0;min-width:0;padding:0;opacity:0;overflow:hidden;pointer-events:none}
-.zen-lake-sun{transform-origin:461px 324px;opacity:var(--zen-lake-daylight,.7);filter:drop-shadow(0 0 17px #fff1b26b);transition:opacity 3s linear}
+.zen-lake-sun{transform-origin:461px 324px;opacity:var(--zen-lake-daylight,.7);filter:drop-shadow(0 0 10px #fff1b24d);transition:opacity 3s linear}
 .zen-scenery.zen-stage-bloom .zen-lake-sun{animation:zenSunBloom 1.6s ease-out}
-.zen-lake-waterlines{animation:zenLakeCurrent 10s ease-in-out infinite alternate;transform-origin:50% 65%}
-.zen-lake-ripples{transform:translateY(calc((1 - var(--zen-breath-level,0)) * 3px)) scaleX(calc(.72 + var(--zen-breath-level,0) * .45));transform-origin:457px 547px;opacity:calc(.40 + var(--zen-breath-level,0) * .60);filter:drop-shadow(0 0 4px #fff0c38c)}
-.zen-lake-landscape #zen-lake-horizon-progress{filter:drop-shadow(0 0 3px #fff1cc) drop-shadow(0 0 10px #f9db8b);stroke-linecap:round}
-.zen-lake-bamboo{transform-origin:50% 20%;animation:zenForestSway 21s ease-in-out infinite alternate}
+.zen-lake-waterlines{opacity:.42;animation:zenLakeCurrent 15s ease-in-out infinite alternate;transform-origin:50% 65%}
+.zen-lake-ripples{transform:translateY(calc((1 - var(--zen-breath-level,0)) * 2px)) scaleX(calc(.82 + var(--zen-breath-level,0) * .3));transform-origin:457px 547px;opacity:calc(.22 + var(--zen-breath-level,0) * .32);filter:drop-shadow(0 0 2px #fff0c350)}
+.zen-lake-landscape #zen-lake-horizon-progress{filter:drop-shadow(0 0 2px #fff1cc) drop-shadow(0 0 6px #f9db8b75);stroke-linecap:round}
+.zen-lake-bamboo{transform-origin:50% 20%;animation:zenForestSway 26s ease-in-out infinite alternate}
 .zen-lake-breath-guide{position:absolute;z-index:3;top:53%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:7px;width:min(320px,85%);text-align:center;pointer-events:none;text-shadow:0 2px 14px #091b24}
 .zen-lake-breath-guide>span{color:#fff0c3;font-size:clamp(12px,2vw,16px);font-weight:700;letter-spacing:.24em;white-space:nowrap;opacity:calc(.75 + var(--zen-breath-level,0) * .25)}
 .zen-lake-breath-guide>strong{font-size:clamp(27px,4vw,41px);line-height:1;font-weight:330;letter-spacing:.035em;color:#fffaf0;font-variant-numeric:tabular-nums}
 .zen-lake-breath-guide>small{color:#f3e6c1;font-size:10px;letter-spacing:.08em;opacity:.8}
 .zen-workout[data-kind="meditation"] .zen-focus-card{padding-top:clamp(10px,3dvh,32px)}
 .zen-workout .zen-journey-card{position:relative;z-index:6;flex:0 0 auto;width:min(880px,100%);min-width:0;padding:12px 16px 11px;margin:0 auto;border:1px solid rgba(var(--mode-accent-rgb),.18);border-radius:15px;background:linear-gradient(180deg,#061711db,#06110ed9);text-align:left;overflow:hidden}
-.zen-workout[data-kind="meditation"] .zen-journey-card{background:linear-gradient(180deg,#0c2028d8,#0b1b23e8);border-color:#e9dfbd29}
-.zen-workout .zen-next-block{display:flex;align-items:baseline;gap:10px;min-width:0;padding:0 0 6px;border:0}
+.zen-workout[data-kind="meditation"] .zen-journey-card{background:linear-gradient(180deg,#0c2028ad,#0b1b23c6);border-color:#e9dfbd1f}
+.zen-workout .zen-next-block{display:flex;align-items:baseline;gap:9px;min-width:0;padding:0 0 3px;border:0}
 .zen-workout .zen-next-block small{font-size:9px;letter-spacing:.14em;white-space:nowrap}
 .zen-workout .zen-next-block strong{display:block;margin:0;min-width:0;max-width:55%;color:#e9f5e7;font-size:12px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .zen-workout .zen-next-block span{font-size:10px;color:#b0c7b2;white-space:nowrap}
-.zen-workout .zen-stage{position:absolute;top:12px;right:14px;margin:0;font-size:9px;max-width:35%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zen-workout .zen-stage{position:static;display:block;margin:0 0 3px;color:var(--mode-accent);font-size:8px;letter-spacing:.08em;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .zen-workout .zen-total-time{display:flex;align-items:center;justify-content:space-between;font-size:9px;margin:2px 0 5px}
 .zen-workout .zen-progress{height:3px;margin:0 0 8px;border-radius:99px}
-.zen-workout .zen-stage-list{display:flex;flex-wrap:nowrap;align-items:stretch;gap:5px;margin:0;min-height:33px;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
+.zen-workout .zen-stage-list{display:flex;flex-wrap:nowrap;align-items:stretch;gap:4px;margin:0;min-height:27px;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x}
 .zen-workout .zen-stage-list::-webkit-scrollbar{display:none}
-.zen-workout .zen-stage-list button{display:flex;align-items:center;gap:5px;flex:0 0 auto;max-width:min(170px,42%);min-height:31px;padding:5px 9px;border:1px solid #c5e9c624;border-radius:999px;background:#e7fce908;color:#c5d4c5;font-size:10px}
+.zen-workout .zen-stage-list button{display:flex;align-items:center;gap:5px;flex:0 0 auto;max-width:min(168px,43%);min-height:27px;padding:3px 8px;border:1px solid #c5e9c620;border-radius:999px;background:#e7fce905;color:#c5d4c5;font-size:9px}
 .zen-workout .zen-stage-list button>span{flex:0 0 17px;width:17px;height:17px;font-size:8px}
 .zen-workout .zen-stage-list button>b{font-size:9px}
 .zen-workout .zen-stage-list button>small{display:none}
@@ -660,7 +662,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 @keyframes zenForestLight{from{opacity:.045}to{opacity:.11}}
 @keyframes zenFirefly{from{opacity:.25;transform:translateY(4px)}to{opacity:.9;transform:translateY(-7px)}}
 @keyframes zenLakeCurrent{from{transform:translateX(-9px) scaleX(.98)}to{transform:translateX(10px) scaleX(1.02)}}
-@keyframes zenWaypointBloom{0%{opacity:.2;filter:blur(4px);transform:translate(-50%,7px)}100%{opacity:1;filter:none;transform:translate(-50%,0)}}
+100%{opacity:1;filter:none;transform:translate(-50%,0)}}
 @media(max-width:740px){
  .zen-workout .mode-topbar{min-height:49px;padding:7px 9px}
  .zen-workout .zen-workspace{padding:10px 10px max(8px,env(safe-area-inset-bottom))}
@@ -669,20 +671,20 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-workout .zen-description{font-size:11px;line-height:1.43}
  .zen-workout .zen-clock-wrap{padding:6px 13px;min-height:35px;margin-top:0}
  .zen-workout .zen-clock-wrap strong{font-size:26px}
- .zen-forest-wayfinder{top:53%;font-size:9px;padding:6px 10px}
+ 
  .zen-lake-breath-guide{top:54%}
- .zen-workout .zen-journey-card{padding:9px 10px 8px;border-radius:13px}
- .zen-workout .zen-next-block{gap:5px;padding-bottom:5px}
+ .zen-workout .zen-journey-card{padding:7px 10px 6px;border-radius:12px}
+ .zen-workout .zen-next-block{gap:5px;padding-bottom:3px}
  .zen-workout .zen-next-block small{font-size:8px}
  .zen-workout .zen-next-block strong{font-size:10px;max-width:45%}
  .zen-workout .zen-next-block span{font-size:8px}
- .zen-workout .zen-stage{top:10px;right:10px;font-size:8px;max-width:31%}
- .zen-workout .zen-stage-list{min-height:28px;gap:4px}
- .zen-workout .zen-stage-list button{min-height:28px;max-width:42%;padding:4px 7px}
+ .zen-workout .zen-stage{margin:0 0 3px;font-size:8px;max-width:100%}
+ .zen-workout .zen-stage-list{min-height:25px;gap:4px}
+ .zen-workout .zen-stage-list button{min-height:25px;max-width:42%;padding:3px 7px}
  .zen-workout .zen-controls{margin-top:7px;gap:6px}
  .zen-workout .zen-controls button{min-height:43px;padding:8px 5px;font-size:11px}
  .zen-workout .zen-exit{margin-top:3px;padding:3px 9px;font-size:9px}
- .zen-workout .zen-scenery .scene-hint{font-size:8px;bottom:clamp(125px,22dvh,166px);left:11px}
+ 
 }
 @media(max-width:390px){
  .zen-workout .zen-focus-card{padding:4px 2px}
@@ -706,5 +708,5 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-workout .zen-exit{min-height:20px}
 }
 @media(prefers-reduced-motion:reduce){
- .zen-forest-landscape *, .zen-lake-landscape *, .zen-scenery.zen-stage-bloom .zen-forest-wayfinder{animation:none!important;transition:none!important}
+ .zen-forest-landscape *, .zen-lake-landscape *, .zen-scenery.zen-stage-bloom 
 }
