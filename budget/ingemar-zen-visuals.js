@@ -3,7 +3,7 @@
    provided by the existing training engine. */
 (function(global){
   'use strict';
-  var KEY='ingemar-zen-visual-style-v1', variants=['observatory','abstract'];
+  var KEY='ingemar-zen-visual-style-v1', variants=['observatory','journey','abstract'];
   var root=null, canvas=null, ctx=null, view={kind:'stretch',variant:'observatory',elapsed:0,duration:1,stepFraction:0,breath:0,running:false,done:false,stage:0};
   var raf=0, width=0, height=0, scale=1, stamp=0, lastFrame=0, needsMeasure=true, reduced=global.matchMedia&&global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
@@ -128,6 +128,90 @@
     g.addColorStop(0,'rgba(223,188,141,.065)');g.addColorStop(1,'transparent');
     ellipse(x,y+r*1.19,radius*.72,radius*.37,g);
   }
+  function poly(points,paint){
+    ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);
+    for(var i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);
+    ctx.closePath();ctx.fillStyle=paint;ctx.fill();
+  }
+  function forestJourneyScene(center,r,progress,breath,t,w,h){
+    var horizon=clamp(center.y-r*.56,h*.25,h*.58),floor=ctx.createLinearGradient(0,horizon,0,h);
+    var sky=ctx.createLinearGradient(0,0,0,horizon+90);
+    sky.addColorStop(0,'#07120f');sky.addColorStop(.42,'#10251f');sky.addColorStop(.78,'#254139');sky.addColorStop(1,'#526c5d');
+    fill(0,0,w,horizon+100,sky);
+    fill(0,0,w,h,grad(w*.51,horizon*.96,Math.max(w,h)*.46,[[0,'rgba(210,232,202,.14)'],[.30,'rgba(122,163,139,.055)'],[1,'transparent']]));
+    floor.addColorStop(0,'#1b3128');floor.addColorStop(.28,'#11271f');floor.addColorStop(1,'#07140f');fill(0,horizon,w,h-horizon,floor);
+    var drift=Math.sin(progress*Math.PI*1.7)*w*.018;
+    // Far trees are cooler and thinner so the scene reads as depth instead of flat illustration.
+    var far=[.08,.16,.25,.34,.66,.74,.83,.92];
+    for(var i=0;i<far.length;i++){
+      var fx=w*far[i]+drift*(.15+far[i]),fw=Math.max(2.3,w*(.008+(i%3)*.003)),top=-h*.08,baseY=horizon+r*(.25+(i%4)*.10);
+      var tg=ctx.createLinearGradient(fx-fw,0,fx+fw,0);tg.addColorStop(0,'rgba(6,22,17,.45)');tg.addColorStop(.48,'rgba(35,63,51,.70)');tg.addColorStop(1,'rgba(5,17,13,.66)');
+      poly([[fx-fw*.55,top],[fx+fw*.45,top],[fx+fw,baseY],[fx-fw,baseY]],tg);
+    }
+    // Near trunks use lateral shading, which gives them volume without a drawn/outlined look.
+    var trunks=[
+      {x:.04,d:.96,w:.056,lean:.018},{x:.17,d:.74,w:.036,lean:-.012},{x:.29,d:.50,w:.021,lean:.008},
+      {x:.70,d:.48,w:.021,lean:-.009},{x:.82,d:.72,w:.038,lean:.013},{x:.96,d:.98,w:.058,lean:-.018}
+    ];
+    trunks.forEach(function(tree,n){
+      var baseY=horizon+(h-horizon)*tree.d,tw=w*tree.w*(.80+tree.d*.52),x=w*tree.x+drift*tree.d,tx=x+w*tree.lean;
+      var bark=ctx.createLinearGradient(x-tw,0,x+tw,0);
+      bark.addColorStop(0,'rgba(3,13,10,.97)');bark.addColorStop(.30,'rgba(11,31,23,.96)');bark.addColorStop(.54,'rgba(40,64,48,.93)');bark.addColorStop(.77,'rgba(12,31,23,.97)');bark.addColorStop(1,'rgba(2,10,8,.99)');
+      poly([[tx-tw*.42,-20],[tx+tw*.40,-20],[x+tw,baseY],[x-tw,baseY]],bark);
+      strokeLine([[tx+tw*.08,0],[x+tw*.22,baseY]],'rgba(164,192,154,'+(.045+tree.d*.045)+')',Math.max(.7,tw*.045));
+      if(n===0||n===5){
+        ctx.save();ctx.globalAlpha=.38;
+        strokeLine([[tx,88],[tx+(n===0?1:-1)*w*.14,24]],'#0d251c',Math.max(7,tw*.48),0);
+        strokeLine([[tx,148],[tx+(n===0?1:-1)*w*.18,93]],'#0b2119',Math.max(5,tw*.34),0);
+        ctx.restore();
+      }
+    });
+    // Narrow perspective route: scenery cue, not the actual progress meter.
+    var route=[],glow=[];
+    for(var p=0;p<=38;p++){
+      var u=p/38,y=horizon+Math.pow(u,1.58)*(h-horizon+26),amp=w*(.007+u*.030);
+      var x=w*.5+drift*(.12+u*.88)+Math.sin(u*4.2+progress*2.0)*amp;
+      route.push([x,y]);glow.push([x,y]);
+    }
+    strokeLine(glow,'rgba(116,208,155,.085)',clamp(w*.025,7,14),18,'rgba(109,221,158,.22)');
+    strokeLine(route,'rgba(194,240,204,.60)',clamp(w*.0037,1.15,2),6,'rgba(159,232,182,.32)');
+    // Ground texture and fog bands create parallax-like spatial separation.
+    ctx.save();ctx.globalAlpha=.18;
+    for(var k=0;k<14;k++){
+      var yy=horizon+Math.pow((k+1)/14,1.44)*(h-horizon),span=w*(.18+.70*(k/14)),cx=w*.5+Math.sin(k*1.73)*w*.17;
+      strokeLine([[cx-span*.5,yy],[cx+span*.5,yy+Math.sin(k)*2]],'rgba(116,151,126,.20)',.65);
+    }ctx.restore();
+    var mist=ctx.createLinearGradient(0,horizon-30,0,horizon+95);mist.addColorStop(0,'transparent');mist.addColorStop(.5,'rgba(186,208,188,.075)');mist.addColorStop(1,'transparent');fill(0,horizon-30,w,125,mist);
+    fill(0,0,w,h,grad(w*.5,h*.48,Math.max(w,h)*.78,[[0,'transparent'],[.60,'transparent'],[1,'rgba(0,7,5,.68)']]));
+  }
+  function lakeJourneyScene(center,r,progress,breath,t,w,h){
+    var horizon=clamp(center.y-r*.42,h*.29,h*.57),sunX=w*(.50+progress*.025),sunY=horizon-r*(.66-progress*.06);
+    var sky=ctx.createLinearGradient(0,0,0,horizon);
+    sky.addColorStop(0,'#08131f');sky.addColorStop(.34,'#182b36');sky.addColorStop(.68,'#596c69');sky.addColorStop(.90,'#b49b69');sky.addColorStop(1,'#d1b376');fill(0,0,w,horizon,sky);
+    halo(sunX,sunY,r*1.52,[245,207,143],.10+.025*breath);
+    var sun=ctx.createRadialGradient(sunX-r*.17,sunY-r*.17,r*.02,sunX,sunY,r*.32);
+    sun.addColorStop(0,'rgba(255,252,225,.96)');sun.addColorStop(.53,'rgba(250,222,164,.83)');sun.addColorStop(1,'rgba(220,174,105,.18)');
+    ellipse(sunX,sunY,r*.18,r*.18,sun);
+    function mountains(y,shade,seed,amp){
+      var pts=[[0,horizon+34],[0,y]];for(var i=0;i<=10;i++){var u=i/10;pts.push([u*w,y-Math.abs(Math.sin((u*3.7+seed)*Math.PI))*amp*(.55+.45*Math.sin((u+seed)*5.1))]);}pts.push([w,horizon+40]);poly(pts,shade);
+    }
+    mountains(horizon+10,'rgba(36,54,55,.62)',.18,r*.15);
+    mountains(horizon+22,'rgba(25,46,48,.82)',.71,r*.105);
+    var water=ctx.createLinearGradient(0,horizon,0,h);water.addColorStop(0,'#314f53');water.addColorStop(.18,'#203d44');water.addColorStop(.62,'#102934');water.addColorStop(1,'#081b27');fill(0,horizon,w,h-horizon,water);
+    strokeLine([[0,horizon],[w,horizon]],'rgba(245,222,172,.28)',1.1,5,'rgba(244,207,140,.20)');
+    // Broken reflection uses many short horizontal facets rather than a single painted column.
+    for(var j=0;j<28;j++){
+      var u=(j+1)/29,yy=horizon+Math.pow(u,1.35)*(h-horizon),spread=(6+u*u*w*.23)*(1+.06*Math.sin(t*.23+j));
+      var shift=Math.sin(j*2.41+t*.12)*spread*.18,alpha=(.15*(1-u)+.025)*(1+.18*breath);
+      strokeLine([[sunX-spread+shift,yy],[sunX+spread*.58+shift,yy]],'rgba(246,211,151,'+alpha.toFixed(3)+')',Math.max(.55,1.2-u*.4),3,'rgba(245,209,143,.13)');
+    }
+    // Breathing is a nearly imperceptible expansion at the horizon.
+    var bw=w*(.18+.12*breath);strokeLine([[w*.5-bw,horizon+4],[w*.5+bw,horizon+4]],'rgba(250,223,166,'+(.10+.08*breath).toFixed(3)+')',1.2,7,'rgba(247,213,148,.22)');
+    // Shore frames the water while keeping the center unobstructed.
+    poly([[0,h*.67],[w*.15,h*.71],[w*.24,h],[0,h]],'rgba(3,14,17,.76)');
+    poly([[w,h*.65],[w*.86,h*.70],[w*.77,h],[w,h]],'rgba(3,13,17,.78)');
+    fill(0,0,w,h,grad(w*.5,h*.53,Math.max(w,h)*.82,[[0,'transparent'],[.64,'transparent'],[1,'rgba(2,9,15,.57)']]));
+  }
   function measure(){
     if(!root||!canvas)return;
     var box=root.querySelector('.zen-layout').getBoundingClientRect(),focus=root.querySelector('.zen-focus-card').getBoundingClientRect(),dock=root.querySelector('.zen-journey-card').getBoundingClientRect();
@@ -149,11 +233,11 @@
     if(now-lastFrame<33&&view.running&&!reduced){raf=requestAnimationFrame(frame);return;}
     lastFrame=now;
     if(needsMeasure||canvas.clientWidth!==width||canvas.clientHeight!==height){measure();needsMeasure=false;}
-    var v=view,med=v.kind==='meditation',abstract=v.variant==='abstract',center=v.area,r=v.area.r,t=reduced?0:(now-stamp)/1000;
-    ctx.clearRect(0,0,width,height);base(width,height,med,center);
-    if(abstract){if(med)sphereScene(center,r,v.elapsed/Math.max(v.duration,1),v.breath,t);else ribbonScene(center,r,v.elapsed/Math.max(v.duration,1),v.breath,t);}
-    else if(med)horizonScene(center,r,clamp(v.elapsed/Math.max(v.duration,1),0,1),v.breath,t,width);
-    else ringScene(center,r,clamp(v.elapsed/Math.max(v.duration,1),0,1),v.breath,t);
+    var v=view,med=v.kind==='meditation',abstract=v.variant==='abstract',journey=v.variant==='journey',center=v.area,r=v.area.r,t=reduced?0:(now-stamp)/1000;
+    var progress=clamp(v.elapsed/Math.max(v.duration,1),0,1);
+    ctx.clearRect(0,0,width,height);
+    if(journey){if(med)lakeJourneyScene(center,r,progress,v.breath,t,width,height);else forestJourneyScene(center,r,progress,v.breath,t,width,height);}
+    else{base(width,height,med,center);if(abstract){if(med)sphereScene(center,r,progress,v.breath,t);else ribbonScene(center,r,progress,v.breath,t);}else if(med)horizonScene(center,r,progress,v.breath,t,width);else ringScene(center,r,progress,v.breath,t);}
     if(v.running&&!reduced)raf=requestAnimationFrame(frame);
   }
   function draw(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}
