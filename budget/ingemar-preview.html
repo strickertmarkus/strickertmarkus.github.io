@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-visuals-1">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-visuals-2">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -268,6 +268,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   <div class="mode-topbar"><button type="button" class="back" data-action="close-zen">← Lämna</button><div class="mode-identity"><small>INGEMAR / ZEN · EGEN ÅTERHÄMTNING</small><strong id="zen-kind-name">Stretch</strong></div><span class="mode-status" id="zen-status">LIVE · DEMO</span>
     <div class="zen-variant-switch" role="group" aria-label="Välj visuellt träningsläge">
       <button type="button" data-zen-variant="observatory" aria-pressed="true">Observatory</button>
+      <button type="button" data-zen-variant="journey" aria-pressed="false" id="zen-journey-label">Journey</button>
       <button type="button" data-zen-variant="abstract" aria-pressed="false" id="zen-abstract-label">Motion</button>
     </div></div>
   <div class="zen-layout">
@@ -298,7 +299,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   </div>
 </section>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-<script src="ingemar-zen-visuals.js?v=20260924-zen-visuals-1"></script>
+<script src="ingemar-zen-visuals.js?v=20260924-zen-visuals-2"></script>
 <script>
 (function(){
 'use strict';
@@ -1286,6 +1287,7 @@ function zenStart(index){
  $('zen-clock-toggle').setAttribute('aria-pressed','true');
  $('zen-clock-toggle').textContent='Dölj tid';
  document.body.dataset.modeOpen='true';
+ $('zen-journey-label').textContent=view==='meditation'?'Horizon':'Journey';
  $('zen-abstract-label').textContent=view==='meditation'?'Stillness':'Motion';
  renderZenSession();
  $('zen-session').scrollTop=0;
