@@ -588,6 +588,7 @@ jobs:
             await page.locator('[data-view="meditation"]').click();
             await page.locator('#zen-choices [data-zen-index="1"]').click();
             await page.waitForSelector('#zen-session:not([hidden])');
+            assert.equal(await page.locator('#toast').isVisible(),false,'Starting another Zen session clears the previous save toast');
             assert.equal(await page.locator('#zen-session').getAttribute('data-kind'),'meditation');
             assert.equal(await page.locator('#zen-clock').textContent(),'02:00');
             assert.equal(await page.locator('#zen-step-total').textContent(),'AV 02:00');
