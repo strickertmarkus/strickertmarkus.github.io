@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-layout-15">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-visuals-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -265,79 +265,13 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
     <span class="zen-ambient-leaf leaf-a"></span><span class="zen-ambient-leaf leaf-b"></span><span class="zen-ambient-leaf leaf-c"></span>
     <span class="zen-ambient-ripple ripple-a"></span><span class="zen-ambient-ripple ripple-b"></span>
   </div>
-  <div class="mode-topbar"><button type="button" class="back" data-action="close-zen">← Lämna</button><div class="mode-identity"><small>INGEMAR / ZEN · EGEN ÅTERHÄMTNING</small><strong id="zen-kind-name">Stretch</strong></div><span class="mode-status" id="zen-status">LIVE · DEMO</span></div>
+  <div class="mode-topbar"><button type="button" class="back" data-action="close-zen">← Lämna</button><div class="mode-identity"><small>INGEMAR / ZEN · EGEN ÅTERHÄMTNING</small><strong id="zen-kind-name">Stretch</strong></div><span class="mode-status" id="zen-status">LIVE · DEMO</span>
+    <div class="zen-variant-switch" role="group" aria-label="Välj visuellt träningsläge">
+      <button type="button" data-zen-variant="observatory" aria-pressed="true">Observatory</button>
+      <button type="button" data-zen-variant="abstract" aria-pressed="false" id="zen-abstract-label">Motion</button>
+    </div></div>
   <div class="zen-layout">
-    <div class="zen-scenery" aria-hidden="true">
-      <div class="zen-forest-landscape" aria-hidden="true">
-        <svg id="zen-forest-art" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <defs>
-            <linearGradient id="zforest-sky" x2="0" y2="1"><stop stop-color="#12241f"/><stop offset=".45" stop-color="#2d493c"/><stop offset="1" stop-color="#081914"/></linearGradient>
-            <radialGradient id="zforest-sun"><stop stop-color="#c9dbb7" stop-opacity=".45"/><stop offset=".43" stop-color="#9fbfa7" stop-opacity=".13"/><stop offset="1" stop-color="#87ad99" stop-opacity="0"/></radialGradient>
-            <linearGradient id="zforest-trunk" x2="1" y2=".06"><stop stop-color="#071b16"/><stop offset=".40" stop-color="#18382c"/><stop offset=".62" stop-color="#203c30"/><stop offset="1" stop-color="#071711"/></linearGradient>
-          </defs>
-          <path fill="url(#zforest-sky)" d="M0 0h900v700H0z"/>
-          <ellipse cx="464" cy="248" rx="330" ry="278" fill="url(#zforest-sun)"/>
-          <path d="M0 408Q200 385 357 392T641 385T900 404V700H0Z" fill="#162e24" opacity=".48"/>
-          <g class="zen-forest-distance" fill="#102b21" opacity=".56">
-            <path d="M120 0h12l-10 445h-20zM207 0h15l-8 444h-20zM331 0h10l-3 386h-12zM562 0h12l9 407h-23zM694 0h16l13 465h-33zM784 0h12l13 435h-19z"/>
-            <path d="M0 205Q120 165 240 192T470 189T695 184T900 207V0H0Z" opacity=".37"/>
-          </g>
-          <g class="zen-forest-trunks" fill="url(#zforest-trunk)">
-            <path d="M260 0h35q-16 175-4 339t-9 361h-42q19-169 20-327t0-373Z"/>
-            <path d="M294 176q48-86 105-115l9 13q-66 39-114 133Z"/>
-            <path d="M239 279q-26-75-87-108l-3 13q49 43 90 139Z"/>
-            <path d="M604 0h38q-17 173-6 349t23 351h-48q-16-179-12-349t5-351Z"/>
-            <path d="M603 152q-46-70-105-87l-7 13q67 34 112 118Z"/>
-            <path d="M643 267q53-80 112-104l5 12q-71 43-117 133Z"/>
-          </g>
-          <g class="zen-forest-bark" stroke="#a7c4a4" stroke-opacity=".075" stroke-width="2" fill="none">
-            <path d="M275 75q-6 126-2 220t-3 167M285 205q-4 96-2 180M615 40q-10 144 2 260t9 206M628 159q-5 128 0 247"/>
-          </g>
-          <path d="M0 524Q176 474 329 487T603 484T900 518V700H0Z" fill="#10281f" opacity=".55"/>
-          <path d="M0 634Q148 578 281 589T609 581T900 621V700H0Z" fill="#091f19" opacity=".48"/>
-          <g class="zen-forest-foreground" fill="#071a14" opacity=".84">
-            <path d="M0 0h103q-15 183-3 366T132 700H0Z"/>
-            <path d="M900 0h-93q7 168 1 333t-42 367h134Z"/>
-            <path d="M94 338q38-128 117-180l-4 13q-65 81-100 218Z"/>
-            <path d="M810 289q-51-109-128-152l-5 11q81 72 132 193Z"/>
-          </g>
-          <g class="zen-forest-fireflies" fill="#c8e9bc"><circle cx="401" cy="322" r="1.2"/><circle cx="544" cy="268" r=".9"/><circle cx="385" cy="426" r=".8"/></g>
-        </svg>
-
-      </div>
-
-          <svg class="zen-forest-route-art" id="zen-forest-route-art" viewBox="0 0 390 500" preserveAspectRatio="none" focusable="false" aria-hidden="true">
-            <defs><linearGradient id="zforest-route-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#deffe1"/><stop offset="1" stop-color="#8edbb2"/></linearGradient></defs>
-            <path id="zen-forest-route" d="M196 477 C207 415 178 392 190 340 S225 264 196 205 S179 128 199 25" fill="none" stroke="#c6e8d0" stroke-opacity=".12" stroke-width="2.4" stroke-linecap="round" pathLength="100"/>
-            <path id="zen-forest-progress" d="M196 477 C207 415 178 392 190 340 S225 264 196 205 S179 128 199 25" fill="none" stroke="url(#zforest-route-light)" stroke-width="2.6" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
-            <g id="zen-forest-waypoints"></g>
-            <g id="zen-forest-traveller"><circle r="8" fill="#bde4c0" opacity=".10"/><circle r="3.6" fill="#c0f8ce" opacity=".42"/><circle r="1.9" fill="#f4fff0"/></g>
-          </svg>
-      <div class="zen-lake-landscape" aria-hidden="true">
-        <svg viewBox="0 0 900 700" preserveAspectRatio="xMidYMid slice" focusable="false">
-          <defs>
-            <linearGradient id="zlake-sky" x2="0" y2="1"><stop stop-color="#142a34"/><stop offset=".43" stop-color="#6d7770"/><stop offset=".60" stop-color="#d1b87a"/><stop offset="1" stop-color="#172e34"/></linearGradient>
-            <radialGradient id="zlake-light"><stop stop-color="#fff8d5" stop-opacity="1"/><stop offset=".22" stop-color="#f9e5aa" stop-opacity=".64"/><stop offset="1" stop-color="#efdba1" stop-opacity="0"/></radialGradient>
-            <linearGradient id="zlake-water" x2="0" y2="1"><stop stop-color="#6c837e"/><stop offset=".25" stop-color="#273f46"/><stop offset="1" stop-color="#091d2a"/></linearGradient>
-            <linearGradient id="zlake-reflection" x2="0" y2="1"><stop stop-color="#ffedc4" stop-opacity=".52"/><stop offset="1" stop-color="#f7ce79" stop-opacity="0"/></linearGradient>
-          </defs>
-          <path d="M0 0h900v700H0z" fill="url(#zlake-sky)"/>
-          <circle cx="461" cy="324" r="225" fill="url(#zlake-light)"/><circle class="zen-lake-sun" cx="461" cy="324" r="44" fill="#fff1c2"/>
-          <path d="M0 404Q125 364 224 387T452 383T678 382T900 405V458H0Z" fill="#334b4c" opacity=".42"/>
-          <path d="M0 419Q153 394 286 408T622 405T900 419V458H0Z" fill="#233d42" opacity=".58"/>
-          <path d="M0 429Q264 420 450 426T900 422V700H0z" fill="url(#zlake-water)"/>
-          <path d="M448 430Q470 448 465 492T484 586T510 700H395Q435 605 445 536T448 430Z" fill="url(#zlake-reflection)" opacity=".2"/>
-          <g class="zen-lake-waterlines" stroke="#e9dcaa" stroke-linecap="round" fill="none"><path d="M392 457q66-5 135 0M373 486q89-7 175 0M337 532q124-8 233 0M310 596q137-9 289 0" opacity=".22" stroke-width="1.3"/><path d="M410 471h112M399 512h140M373 562h177" opacity=".14" stroke-width="1.5"/></g>
-          <g class="zen-lake-ripples" fill="none" stroke="#f5e5b7"><ellipse cx="457" cy="547" rx="90" ry="14" opacity=".21"/><ellipse cx="457" cy="547" rx="156" ry="25" opacity=".11"/></g>
-          <path d="M0 427H900" stroke="#faedc7" stroke-opacity=".3" stroke-width="1"/>
-          <path id="zen-lake-horizon-progress" d="M0 427H900" stroke="#fff0b4" stroke-width="2.6" stroke-dasharray="900" stroke-dashoffset="900"/>
-          <g fill="#10272b" opacity=".88"><path d="M0 700V410Q64 391 127 458L159 700Z"/><path d="M900 700V405Q839 385 773 465L736 700Z"/></g>
-          <g class="zen-lake-bamboo" stroke="#26493e" stroke-width="3" fill="#26493e" opacity=".45"><path d="M80 0h7v460h-7ZM821 0h7v457h-7Z"/><path d="M80 195Q31 149 11 180Q42 169 80 195ZM828 215Q873 161 897 181Q862 176 828 215Z"/></g>
-        </svg>
-        <div class="zen-lake-breath-guide"><span id="zen-immersion-breath">ANDAS IN</span><strong id="zen-immersion-time">01:00</strong><small>Följ ditt eget tempo</small></div>
-      </div>
-      <div class="scene-sheen"></div>
-    </div>
+    <div class="zen-scenery" aria-hidden="true"><canvas class="zen-visual-canvas" id="zen-visual-canvas"></canvas><span class="zen-visual-breath" id="zen-visual-breath">ANDAS IN</span></div>
     <div class="zen-workspace">
       <div class="zen-focus-grid">
         <div class="zen-focus-card">
@@ -371,6 +305,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
   </div>
 </section>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="ingemar-zen-visuals.js?v=20260924-zen-visuals-1"></script>
 <script>
 (function(){
 'use strict';
@@ -1347,70 +1282,6 @@ function zenEditorAction(action){
 
 // Forest Motion and Stillwater are visual projections of the existing Zen timer;
 // all state, pause, skip, and session history continue to use activeZen.
-function zenPositionProgressLane(){
- if(!activeZen||$('zen-session').hidden)return;
- var session=$('zen-session'),scene=session.querySelector('.zen-scenery'),focus=session.querySelector('.zen-focus-card'),dock=session.querySelector('.zen-journey-card');
- if(!scene||!focus||!dock)return;
- var sceneRect=scene.getBoundingClientRect(),focusRect=focus.getBoundingClientRect(),dockRect=dock.getBoundingClientRect();
- var top=Math.max(0,Math.ceil(focusRect.bottom-sceneRect.top+10));
- var bottom=Math.max(0,Math.ceil(sceneRect.bottom-dockRect.top+10));
- var available=sceneRect.height-top-bottom;
- session.style.setProperty('--zen-lane-top',top+'px');
- session.style.setProperty('--zen-lane-bottom',bottom+'px');
- session.style.setProperty('--zen-breath-y',(top+Math.max(0,available)/2)+'px');
- session.dataset.tightScene=available<170?'true':'false';
-}
-function scheduleZenProgressLane(){
- if(zenProgressLaneRaf)cancelAnimationFrame(zenProgressLaneRaf);
- zenProgressLaneRaf=requestAnimationFrame(function(){zenProgressLaneRaf=0;zenPositionProgressLane();});
-}
-var zenProgressLaneRaf=0;
-window.addEventListener('resize',scheduleZenProgressLane,{passive:true});
-if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleZenProgressLane,{passive:true});
-function zenForestWaypoints(){
- var route=$('zen-forest-route'),holder=$('zen-forest-waypoints');
- if(!route||!holder||!activeZen||activeZen.type!=='stretch')return;
- var length=route.getTotalLength(),steps=activeZen.steps,duration=activeZen.duration,elapsed=0;
- holder.innerHTML=steps.map(function(step,i){
-  var pt=route.getPointAtLength(length*(elapsed/duration));elapsed+=step.seconds;
-  return '<g class="zen-forest-waypoint" data-zen-landmark="'+i+'" transform="translate('+pt.x.toFixed(2)+' '+pt.y.toFixed(2)+')"><circle class="zen-forest-waypoint-halo" r="10"/><circle class="zen-forest-waypoint-core" r="3.1"/></g>';
- }).join('');
- activeZen.forestPathLength=length;
-}
-function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath,done){
- var session=$('zen-session'),med=activeZen.type==='meditation',scene=session.querySelector('.zen-scenery');
- session.dataset.running=activeZen.running&&!done?'true':'false';
- session.style.setProperty('--zen-pass-fraction',passFraction.toFixed(5));
- if(med){
-  session.style.setProperty('--zen-breath-level',breathLevel.toFixed(4));
-  session.style.setProperty('--zen-lake-daylight',(.65+passFraction*.35).toFixed(3));
-  if(scene&&activeZen.visualStage!==position.index){
-   activeZen.visualStage=position.index;
-   scene.classList.remove('zen-stage-bloom');void scene.offsetWidth;scene.classList.add('zen-stage-bloom');
-  }
-  var horizon=$('zen-lake-horizon-progress');
-  if(horizon)horizon.style.strokeDashoffset=String(900*(1-passFraction));
-  setText('zen-immersion-breath',done?'STUNDEN ÄR KLAR':!activeZen.running?'PAUSAD':breath);
-  setText('zen-immersion-time',fmtSeconds(Math.ceil(Math.max(0,position.end-activeZen.elapsed))));
- }else{
-  session.style.setProperty('--zen-forest-camera',(-20*passFraction).toFixed(2)+'px');
-  var route=$('zen-forest-route'),progress=$('zen-forest-progress'),traveller=$('zen-forest-traveller');
-  if(progress)progress.style.strokeDashoffset=String(100*(1-passFraction));
-  if(route&&traveller){
-   var pt=route.getPointAtLength((activeZen.forestPathLength||route.getTotalLength())*passFraction);
-   traveller.setAttribute('transform','translate('+pt.x.toFixed(2)+' '+pt.y.toFixed(2)+')');
-  }
-  if(scene&&activeZen.visualStage!==position.index){
-   activeZen.visualStage=position.index;
-   scene.classList.remove('zen-stage-bloom');void scene.offsetWidth;scene.classList.add('zen-stage-bloom');
-   session.querySelectorAll('.zen-forest-waypoint').forEach(function(point,i){
-    point.classList.toggle('is-complete',i<position.index||done);
-    point.classList.toggle('is-current',i===position.index&&!done);
-   });
-  }
- }
-}
-
 function zenStart(index){
  var routines=zenRoutinesFor(view),routine=routines&&routines[index];
  if(!routine)return;
@@ -1422,9 +1293,8 @@ function zenStart(index){
  $('zen-clock-toggle').setAttribute('aria-pressed','true');
  $('zen-clock-toggle').textContent='Dölj tid';
  document.body.dataset.modeOpen='true';
- if(view==='stretch')zenForestWaypoints();
+ $('zen-abstract-label').textContent=view==='meditation'?'Stillness':'Motion';
  renderZenSession();
- scheduleZenProgressLane();
  $('zen-session').scrollTop=0;
  startZenTimer();
 }
@@ -1482,12 +1352,12 @@ function renderZenSession(){
  setText('zen-breath',done?'BRA GJORT':!activeZen.running?'PAUSAD':med?breath:'MJUK RÖRELSE');
  setText('zen-status',done?'KLART':activeZen.running?'PÅGÅR':'PAUSAD');dial.classList.toggle('is-paused',!activeZen.running);
  var passFraction=Math.max(0,Math.min(1,activeZen.elapsed/activeZen.duration)),percent=Math.round(passFraction*100);
- zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath,done);
+ window.IngemarZenVisuals.update({kind:activeZen.type,elapsed:activeZen.elapsed,duration:activeZen.duration,stepFraction:stepFraction,breath:breathLevel,running:activeZen.running&&!done,done:done,stage:position.index});
+ setText('zen-visual-breath',done?'STUNDEN ÄR KLAR':!activeZen.running?'PAUSAD':breath);
  $('zen-bar').style.width=(passFraction*100)+'%';setText('zen-total-time',fmtSeconds(Math.floor(activeZen.elapsed))+' / '+fmtSeconds(activeZen.duration));setText('zen-total-percent',percent+' %');
  $('zen-total-progress').setAttribute('aria-valuenow',String(percent));setText('zen-stage-label',done?'PASS GENOMFÖRT':(position.index+1)+' / '+activeZen.steps.length+' · '+percent+' % AV PASSET');
  $('pause-zen').disabled=done;setText('pause-zen',activeZen.running?'Pausa':'Fortsätt');setText('next-zen',done||position.index===activeZen.steps.length-1?'Avsluta & spara ✓':med?'Nästa steg ↗':'Nästa rörelse ↗');
  if(stageChanged){
-  scheduleZenProgressLane();
   $('zen-stage-list').innerHTML=activeZen.steps.map(function(item,i){var state=i<position.index?'done':i===position.index?'current':'upcoming';return '<button type="button" class="is-'+state+'" data-zen-step="'+i+'" aria-current="'+(i===position.index?'step':'false')+'"><span>'+(i<position.index?'✓':(i+1))+'</span><b>'+clean(item.name)+'</b><small>'+fmtSeconds(item.seconds)+'</small></button>';}).join('');
   activeZen.shownStage=position.index;activeZen.shownDone=done;
  }
@@ -1514,11 +1384,12 @@ function finishZen(){
  var minutes=Math.max(1,Math.round(activeZen.elapsed/60));
  state.zenHistory.push({id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:minutes,elapsedSeconds:Math.round(activeZen.elapsed),steps:deep(activeZen.steps),notes:''});
  persist();
- stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
+ stopZenTimer();window.IngemarZenVisuals.stop();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
  renderZen();render();toast('Stunden sparades lokalt i demon.');
 }
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
+ if(b.dataset.zenVariant){window.IngemarZenVisuals.switchTo(b.dataset.zenVariant);return;}
  if(b.dataset.view){switchView(b.dataset.view);return;}
  if(b.dataset.weekShift!=null){shiftWeekPlanner(Number(b.dataset.weekShift));return;}
  if(b.dataset.weekCopy!=null){var copyIndex=Number(b.dataset.weekCopy);weekCopyFrom=weekCopyFrom===copyIndex?-1:copyIndex;weekExpandedDay=copyIndex;renderWeekPlanner();return;}
@@ -1602,7 +1473,7 @@ document.addEventListener('click',function(event){
     }
     break;
    case 'pause-zen':if(activeZen){zenTick();if(activeZen.elapsed<activeZen.duration){activeZen.running=!activeZen.running;activeZen.last=Date.now();renderZenSession();if(activeZen.running)startZenTimer();else stopZenTimer();}}break;
-   case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){stopZenTimer();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
+   case 'close-zen':if(activeZen&&confirm('Lämna stunden utan att spara?')){stopZenTimer();window.IngemarZenVisuals.stop();activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;}break;
    case 'finish-zen':finishZen();break;
    case 'next-zen':nextZen();break;
   }
@@ -1648,6 +1519,7 @@ $('history-detail').addEventListener('cancel',function(event){event.preventDefau
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();$('zen-editor').close();zenEditDraft=null;});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
+window.IngemarZenVisuals.init($('zen-session'),$('zen-visual-canvas'));
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 var ppResizeFrame=0,ppLastChartWidth=0;
 window.addEventListener('resize',function(){
