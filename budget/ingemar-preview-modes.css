@@ -599,7 +599,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-clock-wrap #zen-breath{margin:0;font-size:9px;letter-spacing:.07em;color:var(--mode-accent)}
 .zen-workout .zen-clock-wrap #zen-clock-caption,.zen-workout .zen-clock-wrap #zen-step-total{display:none}
 .zen-workout.zen-clock-hidden #zen-clock{visibility:hidden;width:0;overflow:hidden}
-.zen-workout .zen-journey-card{position:relative;flex:0 0 auto;width:min(650px,100%);min-width:0;min-height:0;margin:0 auto;padding:9px 12px 10px;border:1px solid rgba(var(--mode-accent-rgb),.19);border-radius:14px;background:#061610d9;box-shadow:0 10px 24px #0004;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:left;overflow:visible}
+.zen-workout .zen-journey-card{position:relative;flex:0 0 auto;width:min(650px,100%);min-width:0;min-height:0;margin:0 auto;padding:9px 12px 10px;border:1px solid rgba(var(--mode-accent-rgb),.19);border-radius:14px;background:#061610d9;box-shadow:0 10px 24px #0004;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:left;overflow:visible;pointer-events:auto}
 .zen-workout[data-kind="meditation"] .zen-journey-card{background:#101f28df;border-color:#f5dba22a}
 .zen-workout[data-zen-variant="journey"] .zen-journey-card{background:linear-gradient(180deg,#061610a8,#05130fc2);border-color:rgba(181,220,190,.14);box-shadow:0 10px 32px #0005;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .zen-workout[data-kind="meditation"][data-zen-variant="journey"] .zen-journey-card{background:linear-gradient(180deg,#0b1c24a8,#0a1821c8);border-color:#ead39a22}
