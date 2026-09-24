@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-layout-14/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-layout-15/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -237,12 +237,14 @@ test('Refined Zen scene keeps the forest route clear, visible trees and a non-ov
  assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:min\(720px,100%\)/);
  assert.match(css,/\.zen-workout \.zen-forest-route-art #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
  assert.match(css,/\.zen-lake-ripples\{[^}]*opacity:calc\(\.22/);
+ assert.match(css,/\.zen-scenery \.zen-forest-landscape svg,\.zen-scenery \.zen-lake-landscape svg\{/);
+ assert.doesNotMatch(css,/\.zen-scenery svg\{/);
  assert.match(css,/\.zen-forest-trunks\{/);
  assert.match(html,/class="zen-forest-route-art" id="zen-forest-route-art"/);
  assert.match(source[1],/function zenPositionProgressLane\(\)/);
  assert.match(source[1],/scheduleZenProgressLane\(\)/);
  assert.match(source[1],/--zen-breath-y/);
- assert.match(css,/\.zen-forest-route-art\{[^}]*height:max\(0px,calc\(100% - var\(--zen-lane-top/);
+ assert.match(css,/\.zen-workout \.zen-scenery > svg\.zen-forest-route-art\{[^}]*height:max\(0px,calc\(100% - var\(--zen-lane-top/);
  assert.match(css,/\.zen-workout \.zen-stage-list\{display:grid;grid-template-columns:repeat\(auto-fit/);
  assert.match(css,/\.zen-workout \.zen-next-block strong\{[^}]*white-space:normal/);
  assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{[^}]*overflow-y:auto/);
