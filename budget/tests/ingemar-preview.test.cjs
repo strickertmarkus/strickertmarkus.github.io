@@ -247,6 +247,7 @@ test('Refined Zen scene keeps the forest route clear, visible trees and a non-ov
  assert.match(css,/\.zen-workout \.zen-session-dock\{[^}]*pointer-events:auto/);
  assert.match(css,/\.zen-workout \.zen-controls\{[^}]*grid-template-columns:minmax\(0,\.78fr\)/);
  assert.match(source[1],/function zenPositionProgressLane\(\)/);
+ assert.match(source[1],/\$\('toast'\)\.hidden=true;/);
  assert.match(source[1],/scheduleZenProgressLane\(\)/);
  assert.match(source[1],/--zen-breath-y/);
  assert.match(css,/\.zen-workout \.zen-scenery > svg\.zen-forest-route-art\{[^}]*height:max\(0px,calc\(100% - var\(--zen-lane-top/);
