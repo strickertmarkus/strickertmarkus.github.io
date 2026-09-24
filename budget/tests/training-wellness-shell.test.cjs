@@ -198,7 +198,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
   assert.match(zen,/zen\.css\?v=20260921-wellness-cohesion-1/);
-  assert.match(zen,/zen\.js\?v=20260921-wellness-cohesion-1/);
+  assert.match(zen,/zen\.js\?v=20260924-canonical-train-1/);
 });
 
 
