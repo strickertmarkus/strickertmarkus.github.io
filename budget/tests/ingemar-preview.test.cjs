@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-layout-15/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260924-zen-visuals-1/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -204,50 +204,34 @@ test('Zen stretch and meditation support custom routines, editable planned days,
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
 
-test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes with accessible session controls',()=>{
+test('Canvas Zen session switches Observatory and Motion/Stillness without losing pass state',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- for(const id of ['zen-forest-art','zen-forest-route','zen-forest-progress','zen-forest-traveller','zen-forest-waypoints','zen-lake-horizon-progress','zen-immersion-breath','zen-immersion-time','zen-clock-toggle']){
-  assert.match(html,new RegExp('id="'+id+'"'),'Missing immersive scene component '+id);
- }
- for(const fn of ['zenForestWaypoints','zenImmersionFrame']){
-  assert.match(source[1],new RegExp('function '+fn+'\\('));
- }
- assert.match(source[1],/zenImmersionFrame\(position,stepFraction,passFraction,breathLevel,breath,done\)/);
- assert.match(source[1],/if\(view==='stretch'\)zenForestWaypoints\(\)/);
- assert.match(source[1],/activeZen\.forestPathLength/);
- assert.match(source[1],/session\.dataset\.running=activeZen\.running&&!done/);
+ const visuals=fs.readFileSync(path.join(root,'ingemar-zen-visuals.js'),'utf8');
+ new vm.Script(visuals,{filename:'ingemar-zen-visuals.js'});
+ for(const id of ['zen-session','zen-visual-canvas','zen-visual-breath','zen-session-ring','zen-stage-list','zen-clock-toggle'])
+  assert.match(html,new RegExp('id="'+id+'"'));
+ for(const variant of ['observatory','abstract'])
+  assert.match(html,new RegExp('data-zen-variant="'+variant+'"'));
+ assert.match(html,/ingemar-zen-visuals\.js\?v=20260924-zen-visuals-1/);
+ assert.match(source[1],/IngemarZenVisuals\.init\(\$\('zen-session'\),\$\('zen-visual-canvas'\)\)/);
+ assert.match(source[1],/if\(b\.dataset\.zenVariant\)\{window\.IngemarZenVisuals\.switchTo/);
+ assert.match(source[1],/IngemarZenVisuals\.update\(\{kind:activeZen\.type,elapsed:activeZen\.elapsed/);
+ assert.match(source[1],/IngemarZenVisuals\.stop\(\)/);
+ assert.match(source[1],/case 'pause-zen'/);
+ assert.match(source[1],/case 'next-zen'/);
  assert.match(source[1],/case 'toggle-zen-clock'/);
- assert.match(css,/ZEN IMMERSIVE MODES/);
- assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{display:flex;flex-direction:column;min-height:100dvh;height:100dvh/);
- assert.match(css,/\.zen-forest-landscape/);
- assert.match(css,/\.zen-lake-landscape/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(css,/\.zen-workout\.zen-clock-hidden \.zen-lake-breath-guide>strong\{visibility:hidden\}/);
- assert.doesNotMatch(html,/class="zen-scene-stretch"/,'Remove superseded scenery artwork');
-});
-
-test('Refined Zen scene keeps the forest route clear, visible trees and a non-overlapping compact dock',()=>{
- const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/class="zen-forest-trunks"/);
- assert.match(html,/class="zen-forest-distance"/);
- assert.match(html,/id="zen-forest-route" d="M196 477/);
- assert.match(html,/id="zen-forest-progress" d="M196 477/);
- assert.doesNotMatch(html,/zforest-path|zen-forest-wayfinder|zen-scene-hint/);
- assert.match(css,/\.zen-workout \.zen-stage\{position:static;/);
- assert.match(css,/\.zen-workout \.zen-journey-card\{[^}]*width:min\(720px,100%\)/);
- assert.match(css,/\.zen-workout \.zen-forest-route-art #zen-forest-progress\{[^}]*drop-shadow\(0 0 5px #a6f4bc\)/);
- assert.match(css,/\.zen-lake-ripples\{[^}]*opacity:calc\(\.22/);
- assert.match(css,/\.zen-scenery \.zen-forest-landscape svg,\.zen-scenery \.zen-lake-landscape svg\{/);
- assert.doesNotMatch(css,/\.zen-scenery svg\{/);
- assert.match(css,/\.zen-forest-trunks\{/);
- assert.match(html,/class="zen-forest-route-art" id="zen-forest-route-art"/);
- assert.match(source[1],/function zenPositionProgressLane\(\)/);
- assert.match(source[1],/scheduleZenProgressLane\(\)/);
- assert.match(source[1],/--zen-breath-y/);
- assert.match(css,/\.zen-workout \.zen-scenery > svg\.zen-forest-route-art\{[^}]*height:max\(0px,calc\(100% - var\(--zen-lane-top/);
+ assert.match(source[1],/state\.zenHistory\.push\(\{id:uid\(\)/);
+ assert.match(visuals,/ingemar-zen-visual-style-v1/);
+ for(const painter of ['ringScene','horizonScene','ribbonScene','sphereScene'])
+  assert.match(visuals,new RegExp('function '+painter+'\\('));
+ assert.match(visuals,/createRadialGradient/);
+ assert.match(visuals,/getContext\('2d'/);
+ assert.doesNotMatch(html,/zen-forest-landscape|zen-lake-landscape|zen-step-dial|zen-forest-route-art/);
+ assert.match(css,/\.zen-variant-switch\{/);
+ assert.match(css,/\.zen-visual-canvas\{/);
+ assert.match(css,/\.zen-workout \.zen-workspace\{/);
  assert.match(css,/\.zen-workout \.zen-stage-list\{display:grid;grid-template-columns:repeat\(auto-fit/);
- assert.match(css,/\.zen-workout \.zen-next-block strong\{[^}]*white-space:normal/);
- assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{[^}]*overflow-y:auto/);
- assert.match(css,/\.zen-lake-breath-guide\{[^}]*top:var\(--zen-breath-y/);
- assert.doesNotMatch(css,/\.zen-forest-wayfinder\{/);
+ assert.match(css,/@media\(max-width:355px\)/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.doesNotMatch(css,/ZEN IMMERSIVE MODES/);
 });
