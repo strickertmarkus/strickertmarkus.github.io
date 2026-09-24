@@ -296,8 +296,8 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
           </g>
           <path d="M0 524Q176 474 329 487T603 484T900 518V700H0Z" fill="#10281f" opacity=".55"/>
           <path d="M0 634Q148 578 281 589T609 581T900 621V700H0Z" fill="#091f19" opacity=".48"/>
-          <path id="zen-forest-route" d="M446 477 C486 449 510 435 473 411 S413 375 473 351 S524 321 462 301 S409 273 471 249 S523 226 477 205" fill="none" stroke="#abd8b8" stroke-opacity=".16" stroke-width="5" stroke-linecap="round" pathLength="100"/>
-          <path id="zen-forest-progress" d="M446 477 C486 449 510 435 473 411 S413 375 473 351 S524 321 462 301 S409 273 471 249 S523 226 477 205" fill="none" stroke="url(#zforest-trail)" stroke-width="2.7" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+          <path id="zen-forest-route" d="M444 414 C477 395 500 382 467 363 S418 337 473 316 S514 291 463 268 S424 248 470 226 S500 205 477 185" fill="none" stroke="#abd8b8" stroke-opacity=".16" stroke-width="5" stroke-linecap="round" pathLength="100"/>
+          <path id="zen-forest-progress" d="M444 414 C477 395 500 382 467 363 S418 337 473 316 S514 291 463 268 S424 248 470 226 S500 205 477 185" fill="none" stroke="url(#zforest-trail)" stroke-width="2.7" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
           <g id="zen-forest-waypoints"></g>
           <g id="zen-forest-traveller"><circle r="10" fill="#bde4c0" opacity=".1"/><circle r="4.3" fill="#c0f8ce" opacity=".42"/><circle r="2.2" fill="#f4fff0"/></g>
           <g class="zen-forest-foreground" fill="#071a14" opacity=".84">
@@ -332,7 +332,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
         </svg>
         <div class="zen-lake-breath-guide"><span id="zen-immersion-breath">ANDAS IN</span><strong id="zen-immersion-time">01:00</strong><small>Följ ditt eget tempo</small></div>
       </div>
-      <div class="scene-sheen"></div><span class="scene-hint" id="zen-scene-hint">SKOGSLJUS · MJUK RÖRELSE</span>
+      <div class="scene-sheen"></div>
     </div>
     <div class="zen-workspace">
       <div class="zen-focus-grid">
@@ -1393,7 +1393,6 @@ function zenStart(index){
  activeZen={type:view,routineId:routine.id,name:routine.name,steps:deep(routine.steps),duration:routine.steps.reduce(function(sum,step){return sum+step.seconds;},0),elapsed:0,running:true,last:Date.now(),shownStage:-1};
  $('zen-session').dataset.kind=view;
  $('zen-kind-name').textContent=routine.name;
- $('zen-scene-hint').textContent=view==='meditation'?'VATTEN · LJUS · LUGN ANDNING':'SKOGSLJUS · MJUK RÖRELSE';
  $('zen-session').hidden=false;
  $('zen-session').classList.remove('zen-clock-hidden');
  $('zen-clock-toggle').setAttribute('aria-pressed','true');
