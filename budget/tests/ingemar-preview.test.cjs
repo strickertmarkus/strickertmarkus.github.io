@@ -8,7 +8,8 @@ const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(__dirname,'../ingemar-preview.html'),'utf8');
 const source=html.match(/<script>([\s\S]*?)<\/script>/);
 const familyHtml=fs.readFileSync(path.join(root,'ingemar-session/exercise.html'),'utf8');
-const productionHtml=fs.readFileSync(path.join(root,'exercise.html'),'utf8');
+// Pulse Field is now the landing page; the canonical session modal lives in the archived training implementation.
+const productionHtml=fs.readFileSync(path.join(root,'archive/exercise.html'),'utf8');
 function sessionMarkup(text){const start=text.indexOf('<!-- ── SESSION MODE ── -->'),end=text.indexOf('<datalist id="type-suggestions"',start);assert.ok(start>=0&&end>start,'Session markup bounds missing');return text.slice(start,end).trim();}
 test('standalone preview has valid inline JavaScript and does not load Firebase',()=>{
  assert.ok(source,'Preview script missing');
