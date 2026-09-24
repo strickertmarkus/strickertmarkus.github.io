@@ -240,13 +240,17 @@
     else{base(width,height,med,center);if(abstract){if(med)sphereScene(center,r,progress,v.breath,t);else ribbonScene(center,r,progress,v.breath,t);}else if(med)horizonScene(center,r,progress,v.breath,t,width);else ringScene(center,r,progress,v.breath,t);}
     if(v.running&&!reduced)raf=requestAnimationFrame(frame);
   }
-  function draw(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}
-  function refreshLayout(){needsMeasure=true;lastFrame=0;draw();}
+  function draw(force){
+    if(force&&raf){cancelAnimationFrame(raf);raf=0;}
+    if(force)lastFrame=0;
+    if(!raf)raf=requestAnimationFrame(frame);
+  }
+  function refreshLayout(){needsMeasure=true;draw(true);}
   function switchTo(next){
-    if(variants.indexOf(next)<0)return;view.variant=next;needsMeasure=true;lastFrame=0;
+    if(variants.indexOf(next)<0)return;view.variant=next;needsMeasure=true;
     try{localStorage.setItem(KEY,next);}catch(_){}
     if(root){root.dataset.zenVariant=next;root.querySelectorAll('[data-zen-variant]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.zenVariant===next));});}
-    draw();
+    draw(true);
   }
   function init(node,element){
     root=node;canvas=element;ctx=canvas.getContext('2d',{alpha:false});stamp=performance.now();
@@ -259,7 +263,7 @@
   function update(data){
     if(data.stage!==view.stage||data.kind!==view.kind)needsMeasure=true;
     Object.keys(data).forEach(function(k){view[k]=data[k];});
-    if(root&&!root.hidden){root.dataset.running=view.running?'true':'false';root.dataset.zenVariant=view.variant;draw();}
+    if(root&&!root.hidden){root.dataset.running=view.running?'true':'false';root.dataset.zenVariant=view.variant;draw(false);}
     else stop();
   }
   function stop(){if(raf)cancelAnimationFrame(raf);raf=0;}
