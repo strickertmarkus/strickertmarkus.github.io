@@ -462,7 +462,7 @@ jobs:
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-metric3').fill('20');
             await embedded.locator('#day-workout-ex-list .ex-row-item').last().locator('.ex-del').click();
             await embedded.locator('#day-workout-modal [onclick="saveDayWorkoutPlan()"]').click();
-            await page.locator('#field-workspace:not([open])').waitFor({timeout:5000});
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
             const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
             assert.equal(plan[chosenDate].exercises[0].name,'Testpress','The preserved pass builder must save its existing storage schema');
             await page.locator('#next-session-link').click();
@@ -471,7 +471,7 @@ jobs:
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode buttons should render');
             await page.screenshot({path:'test-results/pulse-field/legacy-session-integrated-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
-            await page.locator('#field-workspace:not([open])').waitFor({timeout:5000});
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
             assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Use original seven-day weekly plan editor');
