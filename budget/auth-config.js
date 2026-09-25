@@ -59,8 +59,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   var path = window.location.pathname.toLowerCase();
   /* Nested Pulse/Zen preview shells provide their own asset manifests. */
   var isNestedExerciseShell = path.indexOf('/pulse-environment/') !== -1 || path.indexOf('/pulse-observatory/') !== -1 || path.indexOf('/zen-preview/') !== -1;
-  var isExercise = (path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html')) && !isNestedExerciseShell;
-  if (!isExercise) return;
+  // Pulse Field has its own lightweight dashboard. Only the archived
+  // exercise application needs the legacy first-paint gate and asset manifest.
+  var isLegacyExercise = (path.endsWith('/budget/exercise.html') || path.endsWith('/exercise.html')) &&
+    !isNestedExerciseShell && !document.documentElement.hasAttribute('data-field-view');
+  if (!isLegacyExercise) return;
 
   /* First-paint gate v1: exercise.html still contains the legacy dashboard as
      its base markup. Keep that markup out of the visible first paint until the
