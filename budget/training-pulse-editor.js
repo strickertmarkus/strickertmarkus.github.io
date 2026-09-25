@@ -56,7 +56,6 @@ function showDialog(title,kicker,body,foot){
  dialog.innerHTML='<form id="field-form" method="dialog" novalidate><div class="field-dialog-head"><div><p class="eyebrow">'+text(kicker)+'</p><h2 id="field-dialog-title">'+text(title)+'</h2></div><button type="button" class="field-dialog-close" data-close-field aria-label="Stäng">×</button></div><div class="field-dialog-body">'+body+'<p id="field-form-error" class="field-dialog-error" role="alert"></p></div><div class="field-dialog-foot"><button type="button" class="field-action field-action--quiet" data-close-field>Avbryt</button>'+foot+'</div></form><datalist id="field-exercise-suggestions">'+exerciseSuggestions()+'</datalist><datalist id="field-type-suggestions">'+typeOptions()+'</datalist>';
  dialog.showModal();
  dialog.querySelector('[data-close-field]').addEventListener('click',function(){dialog.close();});
- dialog.addEventListener('click',closeOnBackdrop);
  dialog.querySelector('#field-form').addEventListener('submit',function(event){event.preventDefault();});
 }
 function closeOnBackdrop(event){if(event.target===dialog)dialog.close();}
@@ -385,7 +384,7 @@ function go(action,button){
  else if(action==='log')openWorkout(null,chosenDate());
  else if(action==='week')openWeek(chosenDate());
  else if(action==='records')openRecord();
- else if(action==='start')startSession(chosenDate());
+ else if(action==='start')startSession((button&&button.dataset.fieldDate)||chosenDate());
  else if(action==='edit-day')openBuilder(chosenDate());
  else if(action==='start-day')startSession(chosenDate());
  else if(action==='edit-template')openBuilder(chosenDate(),id);
@@ -401,6 +400,7 @@ function go(action,button){
 }
 function install(){
  dialog=document.createElement('dialog');dialog.id='field-editor-dialog';dialog.className='field-editor';document.body.appendChild(dialog);
+ dialog.addEventListener('click',closeOnBackdrop);
  sessionDialog=document.createElement('dialog');sessionDialog.id='field-session-dialog';sessionDialog.className='field-session';document.body.appendChild(sessionDialog);
  sessionDialog.addEventListener('cancel',function(event){event.preventDefault();endSession();});
  document.addEventListener('click',function(event){
@@ -424,12 +424,6 @@ function install(){
   }
   var pr=event.target.closest('[data-edit-pr]');if(pr&&dialog.contains(pr)){openRecord(pr.dataset.editPr);}
   var day=event.target.closest('[data-day]');if(day)selectedDay(day.dataset.day);
-  var log=event.target.closest('.log-summary');if(log){
-   var card=log.closest('[data-log-card]'),id=card&&card.dataset.workoutId;
-   if(id&&card&&card.classList.contains('is-open')&&!card.querySelector('[data-field-action="edit-log"]')){
-    var target=card.querySelector('.log-detail .exercise-stack');if(target)target.insertAdjacentHTML('beforeend','<div class="field-action-row">'+button('Redigera pass','edit-log').replace('data-field-action="edit-log"','data-field-action="edit-log" data-workout-id="'+text(id)+'"')+'</div>');
-   }
-  }
  });
  window.addEventListener('firebase-sync',function(event){
   if(!event.detail||!['ex_templates','ex_weekTemplates','ex_weekPlans'].includes(event.detail.key))return;
