@@ -442,6 +442,7 @@ jobs:
             await page.locator('#field-type').fill('Helkropp');
             await page.locator('.field-ex-name').fill('Testpress');
             await page.locator('.field-ex-weight').fill('20');
+            await page.locator('.field-ex-sets').fill('2');
             await page.locator('[data-field-action="save-plan"]').click();
             assert.ok(!(await page.locator('#field-editor-dialog').evaluate(el=>el.open)),'Saving a planned workout must close the editor');
             const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
@@ -455,12 +456,12 @@ jobs:
             const workouts=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_wk')));
             assert.equal(workouts.length,1,'Session must save a recorded workout');
             assert.equal(workouts[0].exercises[0].name,'Testpress','Saved session must preserve the exercise');
-            await page.locator('[data-field-action="log"]').first().click();
+            await page.locator('#log-action-link').click();
             await page.locator('#field-notes').fill('Redigerbart pass');
             await page.locator('#field-editor-dialog [data-field-action="save-workout"]').click();
             await page.locator('#log-timeline [data-field-action="edit-log"]').first().click();
             assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Logged workouts must be editable on the new page');
-            assert.equal(await page.locator('#field-notes').inputValue(),'','Expected editor of the existing session, not an unrelated workout');
+            assert.equal(await page.locator('#field-notes').inputValue(),'Redigerbart pass','Existing logged workout must open with its saved notes');
             await page.locator('#field-editor-dialog [data-close-field]').first().click();
             await page.locator('#edit-week-link').click();
             assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Week planner must open in-page');
