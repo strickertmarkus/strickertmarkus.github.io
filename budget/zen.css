@@ -14,6 +14,19 @@
   --ink: #163323;
   --serif: "Cormorant Garamond",Georgia,serif;
   --sans: "DM Sans",system-ui,sans-serif;
+  --zen-browser-edge: none;
+}
+
+/* In a normal iPhone Safari tab the status bar is browser chrome, not part of
+   the page canvas. Blend the existing scene-shade into that chrome instead of
+   showing an abrupt straight boundary at the first paintable pixel. */
+@media (max-width:760px) {
+  :root {
+    --zen-browser-edge: linear-gradient(180deg,#0d1c17 0px,rgba(13,28,23,.94) 6px,rgba(13,28,23,.55) 30px,rgba(13,28,23,0) 72px);
+  }
+  body[data-kind=meditation] {
+    --zen-browser-edge: linear-gradient(180deg,#a8c5be 0px,rgba(168,197,190,.92) 6px,rgba(168,197,190,.52) 30px,rgba(168,197,190,0) 72px);
+  }
 }
 
 html{min-height:100%;background:#071c1b radial-gradient(ellipse 65% 180px at 75% 0%,#23483c,#071c1b 92%) no-repeat}
@@ -198,7 +211,7 @@ h2 {
 }
 
 .landscape .landscape-shade {
-  background: linear-gradient(180deg,#06191233,transparent 24%,#091d1800 52%,var(--bg) 100%),linear-gradient(90deg,#061912ab 0%,#06191266 29%,transparent 72%);
+  background: var(--zen-browser-edge),linear-gradient(180deg,#06191233,transparent 24%,#091d1800 52%,var(--bg) 100%),linear-gradient(90deg,#061912ab 0%,#06191266 29%,transparent 72%);
 }
 
 body[data-kind=meditation] .landscape-forest {
@@ -1542,7 +1555,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .landscape .landscape-shade {
-    background: linear-gradient(0deg,var(--bg) 0%,#091d1880 33%,#091d1820 70%,#091d1877 100%),linear-gradient(90deg,#091d18c2,#091d181a 100%);
+    background: var(--zen-browser-edge),linear-gradient(0deg,var(--bg) 0%,#091d1880 33%,#091d1820 70%,#091d1877 100%),linear-gradient(90deg,#091d18c2,#091d181a 100%);
   }
 
   .quiet-line {
@@ -2071,7 +2084,7 @@ body[data-kind=meditation] .hero-copy h1::after {
 }
 
 body[data-kind=meditation] .landscape .landscape-shade {
-  background: linear-gradient(180deg,rgba(167,195,189,.10),transparent 25%,rgba(167,195,189,0) 58%,var(--bg) 100%),
+  background: var(--zen-browser-edge),linear-gradient(180deg,rgba(167,195,189,.10),transparent 25%,rgba(167,195,189,0) 58%,var(--bg) 100%),
     linear-gradient(90deg,rgba(50,89,88,.17) 0%,rgba(58,97,92,.075) 17%,transparent 42%,transparent 74%,rgba(54,91,98,.08) 100%);
 }
 
