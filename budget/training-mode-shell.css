@@ -11,8 +11,13 @@
     height:calc(var(--training-mode-mobile-header) + env(safe-area-inset-top,0px));
     min-height:calc(var(--training-mode-mobile-header) + env(safe-area-inset-top,0px));
   }
-  .field-header{padding:env(safe-area-inset-top,0px) 0 0}
-  .zen-header{padding:env(safe-area-inset-top,0px) var(--training-mode-mobile-gutter) 0}
+  .field-header,.zen-header{
+    box-sizing:border-box;
+    width:calc(100% - 2 * var(--training-mode-mobile-gutter));
+    max-width:var(--training-mode-shell-max);
+    margin:0 auto;
+    padding:env(safe-area-inset-top,0px) 0 0;
+  }
   .kind-switch,.zen-home-switch{
     width:calc(100% - 2 * var(--training-mode-mobile-gutter));
     max-width:var(--training-mode-shell-max);

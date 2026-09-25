@@ -16,7 +16,8 @@
   --sans: "DM Sans",system-ui,sans-serif;
 }
 
-html{min-height:100%;background:#071c1b}
+html{min-height:100%;background:#071c1b radial-gradient(ellipse 65% 180px at 75% 0%,#23483c,#071c1b 92%) no-repeat}
+html:has(body[data-kind=meditation]){background:#a8c5be radial-gradient(ellipse 65% 180px at 70% 0%,#e1e5c9,#a8c5be 92%) no-repeat}
 
 body {
   isolation: isolate;
@@ -174,11 +175,11 @@ h2 {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(0px - env(safe-area-inset-top,0px));
-  height: max(940px,calc(100svh + env(safe-area-inset-top,0px) + env(safe-area-inset-top,0px)));
+  top: 0;
+  height: max(940px,100svh);
   overflow: hidden;
   pointer-events: none;
-  z-index: -2;
+  z-index: 0;
   -webkit-mask-image: linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.85) 81%,rgba(0,0,0,.44) 91%,transparent 100%);
   mask-image: linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.85) 81%,rgba(0,0,0,.44) 91%,transparent 100%);
 }
@@ -205,6 +206,8 @@ body[data-kind=meditation] .landscape-forest {
 }
 
 .zen-header {
+  position: relative;
+  z-index: 1;
   height: 108px;
   max-width: 1440px;
   margin: auto;
@@ -268,6 +271,8 @@ body[data-kind=meditation] .landscape-forest {
 .icon-button:hover {
   background: rgba(var(--accent-rgb),.1);
 }
+
+#zen-main {position:relative;z-index:1}
 
 .zen-home-switch {
   position: relative;
