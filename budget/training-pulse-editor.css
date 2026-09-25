@@ -16,6 +16,8 @@
 .field-template-card .field-action-row{margin-top:auto;gap:7px}
 .field-template-card .field-action{min-height:36px;padding:6px 10px;font-size:11px}
 .field-day-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.exercise-row[data-field-action]{appearance:none;width:100%;text-align:left;background:transparent;border:0;color:inherit;font:inherit;cursor:pointer;transition:background .2s}
+.exercise-row[data-field-action]:hover,.exercise-row[data-field-action]:focus-visible{background:#ff9a910a;outline:1px solid #ff9a9145;outline-offset:-1px}
 .field-workspace{position:fixed;inset:0;box-sizing:border-box;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;background:#080f17f2;color:#f8e7df;overflow:hidden}
 .field-workspace::backdrop{background:#02050bf0;backdrop-filter:blur(8px)}
 .field-workspace-shell{display:flex;flex-direction:column;width:100%;height:100%;height:100dvh;background:radial-gradient(ellipse at 80% 0%,#402131 0%,#111a24 52%,#080f17 100%)}
