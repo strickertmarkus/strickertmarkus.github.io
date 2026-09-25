@@ -439,6 +439,8 @@ jobs:
             await page.waitForSelector('#field-template-grid');
             await page.locator('#field-templates [data-field-action="build"]').click();
             assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Builder must open in the current document');
+            fs.mkdirSync('test-results/pulse-field',{recursive:true});
+            await page.locator('#field-editor-dialog').screenshot({path:'test-results/pulse-field/native-builder-mobile.png'});
             await page.locator('#field-type').fill('Helkropp');
             await page.locator('.field-ex-name').fill('Testpress');
             await page.locator('.field-ex-weight').fill('20');
@@ -449,6 +451,7 @@ jobs:
             assert.ok(plan&&Object.values(plan).some(p=>p.type==='Helkropp'&&p.exercises.some(e=>e.name==='Testpress'&&e.weight===20)),'New builder must persist the old training plan schema');
             await page.locator('#next-session-link').click();
             assert.ok(await page.locator('#field-session-dialog').evaluate(el=>el.open),'Start must launch an in-page session');
+            await page.locator('#field-session-dialog').screenshot({path:'test-results/pulse-field/native-session-mobile.png'});
             await page.locator('#field-session-dialog [data-field-action="session-start-set"]').click();
             await page.locator('#field-session-dialog [data-field-action="session-finish-set"]').click();
             await page.locator('#field-session-dialog [data-field-action="session-complete"]').click();
@@ -466,6 +469,7 @@ jobs:
             await page.locator('#field-editor-dialog [data-close-field]').first().click();
             await page.locator('#edit-week-link').click();
             assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Week planner must open in-page');
+            await page.locator('#field-editor-dialog').screenshot({path:'test-results/pulse-field/native-week-mobile.png'});
             await page.locator('[data-week-day="mon"]').fill('Kondition');
             await page.locator('[data-field-action="save-week"]').click();
             const weeks=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_weekPlans')));
@@ -475,11 +479,18 @@ jobs:
             await page.locator('#field-pr-value').fill('42');
             await page.locator('#field-editor-dialog [data-field-action="save-pr"]').click();
             assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_prs')).Testpress),42,'Manual records must be editable and saved');
+            await page.locator('.rhythm-section [data-field-action="goals"]').click();
+            await page.locator('#field-goal-week').fill('5');
+            await page.locator('#field-editor-dialog [data-field-action="save-goals"]').click();
+            assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_goals')).weeklyWk),5,'Weekly goals must be editable on the new page');
             await page.locator('#field-templates [data-field-action="build"]').click();
             await page.locator('.field-ex-name').fill('Testcurl');
             await page.locator('#field-template-name').fill('Testmall');
             await page.locator('#field-editor-dialog [data-field-action="save-template"]').click();
             assert.ok(await page.getByText('Testmall').first().isVisible(),'Saved template must appear on new Pulse Field page');
+            await page.locator('#field-template-grid [data-field-action="edit-template"]').first().click();
+            assert.equal(await page.locator('#field-template-name').inputValue(),'Testmall','Template must be editable without navigation');
+            await page.locator('#field-editor-dialog [data-close-field]').first().click();
             assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'No editor should point to the archive');
             assert.deepEqual(errors,[],'Native editor browser errors: '+errors.join(' | '));
             await browser.close();
