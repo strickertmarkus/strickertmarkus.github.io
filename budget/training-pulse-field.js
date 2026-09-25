@@ -242,6 +242,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         '<span class="day-type">'+escapeHtml(type)+'</span></div>';
     }
     byId('week-days').innerHTML=markup;
+    var startLink=byId('next-session-link');
+    if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
 
   function activityBuckets() {
