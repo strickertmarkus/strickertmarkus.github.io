@@ -431,6 +431,7 @@ jobs:
             const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
             const page=await context.newPage(),errors=[];
             page.on('pageerror',e=>errors.push(e.message));
+            page.on('dialog',d=>d.accept());
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
             await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
@@ -474,7 +475,7 @@ jobs:
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
             assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Use original seven-day weekly plan editor');
-            await embedded.locator('#plan-modal [onclick="closeModal('+"'"+'plan-modal'+"'"+')"]').first().click();
+            await embedded.locator('#plan-modal .modal-close').click();
             await page.locator('#log-action-link').click();
             await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
             assert.ok(await embedded.locator('#wk-template-select').count(),'Original log must include template selection and editable exercises');
