@@ -33,6 +33,7 @@ const EXERCISE_KEYS = [
   'ex_templates',
   'ex_weekTemplates',
   'ex_plannedSessions',
+  'ex_weekPlans',
   'ex_prs',
   'ex_plan',
   'ex_vo2'
