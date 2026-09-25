@@ -36,6 +36,22 @@ html[data-field-embedded] body .session-cta{border-color:#ff9a9152!important;col
 html[data-field-embedded] body .session-cta.success{background:#ff657a!important;color:#111620!important}
 html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important}
 html[data-field-embedded] body #toast{border-color:#ff9a9180!important;color:#ffe0d6!important;background:#161c26!important}
+/* Goals are the one non-modal legacy editor; show just its original controls. */
+html[data-field-embedded][data-field-workspace="goals"] body{overflow:auto!important}
+html[data-field-embedded][data-field-workspace="goals"] body .app-wrap{position:relative!important;left:auto!important;top:auto!important;visibility:visible!important;pointer-events:auto!important}
+html[data-field-embedded][data-field-workspace="goals"] body .app-header,
+html[data-field-embedded][data-field-workspace="goals"] body .bg-orb,
+html[data-field-embedded][data-field-workspace="goals"] #pulse-home>*:not(#pulse-goals),
+html[data-field-embedded][data-field-workspace="goals"] body>.fab{display:none!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-home{max-width:780px;padding:12px!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals{display:block!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .goals-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .goal-card{display:block!important;background:#ff9a910a!important;border:1px solid #ff9a9135!important;color:#efe0d6!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .section-hdr{margin-top:0}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .section-hdr h2{font:400 35px/1 "Cormorant Garamond",Georgia,serif;color:#fff1ea}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .section-hdr .btn-sm{background:#ff657a36;color:#ffe9db;border-color:#ff9a9180}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals input{color:#ffe1d4!important;background:#15212c!important;border:1px solid #ff9a9155!important}
+html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .fade-in{opacity:1!important;transform:none!important}
 @media(max-width:600px){
 html[data-field-embedded] body .modal-overlay{padding:8px!important;align-items:center!important}
 html[data-field-embedded] body .modal{max-height:calc(100dvh - 16px);padding:18px 13px;border-radius:14px}
