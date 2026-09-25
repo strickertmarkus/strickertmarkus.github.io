@@ -332,7 +332,7 @@ function renderSession(){
  sessionDialog.innerHTML='<div class="field-dialog-inner"><div class="field-dialog-head"><div><p class="eyebrow">PULSE / PÅGÅENDE PASS</p><h2>'+(finish?'Sammanfattning':text(session.type))+'</h2></div><button type="button" class="field-dialog-close" data-session-close aria-label="Avbryt pass">×</button></div>'+
  '<div class="field-dialog-body"><div class="field-session-time" id="field-pass-clock">'+fmt(sessionElapsed())+'</div>'+
  '<div class="field-session-progress"><span style="width:'+Math.min(100,done/Math.max(1,total)*100)+'%"></span></div>'+
- '<p class="field-session-count">'+(finish?'Pass klart':('Övning '+(session.index+1)+' av '+count+' · Set '+session.set+(ex.kind==='strength'?' / '+Math.max(ex.set,ex.sets):'')))+'</p>'+
+ '<p class="field-session-count">'+(finish?'Pass klart':('Övning '+(session.index+1)+' av '+count+' · Set '+session.set+(ex.kind==='strength'?' / '+Math.max(1,ex.sets):'')))+'</p>'+
  (finish?'<div class="field-form-grid">'+input('field-session-hr','Medelpuls (bpm)','','number','min="0" max="240"')+
  input('field-session-vo2','VO₂ max','','number','min="0" max="100" step="0.1"')+'</div>'+textarea('field-session-notes','Anteckningar','')+
  '<p class="field-hint">'+done+' loggade set. Du kan spara passet i träningsloggen.</p>':
@@ -363,11 +363,23 @@ function nextEx(){
 function sessionAction(action){
  if(!session)return;
  var ex=sessionStateEx();
- if(action==='session-start-set'){session.setStartedAt=Date.now();renderSession();return;}
+ if(action==='session-start-set'){
+  // Preserve user-entered targets when the set begins; the active UI is re-rendered.
+  if(ex.kind==='cardio'){
+   ex.distance=num($('field-session-distance').value);ex.time=num($('field-session-minutes').value);
+  }else{
+   ex.weight=num($('field-session-weight').value);ex.reps=num($('field-session-reps').value);
+  }
+  session.setStartedAt=Date.now();renderSession();return;
+ }
  if(action==='session-finish-set'){
   var elapsed=session.setStartedAt?Math.max(1,Math.floor((Date.now()-session.setStartedAt)/1000)):0;
   var log=ex.kind==='cardio'?{actualDistance:num($('field-session-distance').value),actualTime:num($('field-session-minutes').value),durationSec:elapsed}:
    {actualWeight:num($('field-session-weight').value),actualReps:num($('field-session-reps').value),durationSec:elapsed};
+  // Keep the last set's values as editable defaults for the next one, without
+  // overwriting earlier logged sets (each set can have its own weight/reps).
+  if(ex.kind==='cardio'){ex.distance=log.actualDistance;ex.time=log.actualTime;}
+  else{ex.weight=log.actualWeight;ex.reps=log.actualReps;}
   session.logs[session.index].push(log);session.setStartedAt=0;
   if(ex.kind==='cardio'||session.set>=ex.sets)nextEx();else{session.set++;renderSession();}
   return;
