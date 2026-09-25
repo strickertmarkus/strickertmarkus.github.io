@@ -1,0 +1,47 @@
+/* Pulse Field embedded workspace: presentation only. The archived training
+   runtime remains the sole owner of the original builder/session behavior. */
+html[data-field-embedded]{color-scheme:dark;scroll-behavior:auto!important}
+html[data-field-embedded] body{min-height:100%;background:#0b131bd9!important;color:#f5e6df!important;overflow:hidden!important}
+html[data-field-embedded] body .app-wrap,
+html[data-field-embedded] body>.fab,
+html[data-field-embedded] #archive-return,
+html[data-field-embedded] body>.wellness-zen-host{position:fixed!important;top:-100000px!important;left:-100000px!important;width:100%!important;visibility:hidden!important;pointer-events:none!important}
+html[data-field-embedded] body:before,html[data-field-embedded] body:after{display:none!important}
+html[data-field-embedded] body .modal-overlay{background:transparent!important;backdrop-filter:none!important;padding:12px!important}
+html[data-field-embedded] body .modal-overlay.show{display:flex!important}
+html[data-field-embedded] body .modal{width:min(100%,720px);max-width:720px;max-height:calc(100dvh - 24px);padding:24px;background:#101922f7!important;border:1px solid #ff9a9150!important;border-radius:20px;box-shadow:0 14px 65px #02050a88,0 0 36px #ff657a0d;overscroll-behavior:contain}
+html[data-field-embedded] body .modal h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(27px,5vw,39px);font-weight:500;line-height:1.1;color:#fff0e8;margin-bottom:23px}
+html[data-field-embedded] body .modal .form-group label{color:#e4cac0}
+html[data-field-embedded] body .modal input,
+html[data-field-embedded] body .modal select,
+html[data-field-embedded] body .modal textarea{background:#15212c!important;color:#f9f0e9!important;border:1px solid #ff9a9140!important;border-radius:9px;min-width:0;font-size:16px}
+html[data-field-embedded] body .modal input:focus-visible,
+html[data-field-embedded] body .modal select:focus-visible,
+html[data-field-embedded] body .modal textarea:focus-visible{outline:2px solid #ff9a91!important;outline-offset:2px}
+html[data-field-embedded] body .modal .btn-sm,
+html[data-field-embedded] body .modal .btn-ghost,
+html[data-field-embedded] body .modal .btn-primary,
+html[data-field-embedded] body .modal .ex-kind-btn,
+html[data-field-embedded] body .modal .week-nav-btn{border:1px solid #ff9a9152!important;border-radius:10px!important;background:#ff9a9112!important;color:#ffdbce!important;min-height:38px}
+html[data-field-embedded] body .modal .btn-primary,
+html[data-field-embedded] body .modal .ex-kind-btn.active{background:#ff657a36!important;border-color:#ff9a917a!important;color:#fff4ec!important}
+html[data-field-embedded] body .modal .modal-close{width:38px;height:38px;border-radius:50%!important;color:#ffe6d8!important;border-color:#ff9a9145!important}
+html[data-field-embedded] body .modal .ex-row-item{padding:9px 0;border-bottom:1px solid #ff9a911a}
+html[data-field-embedded] body .session-overlay{background:transparent!important;padding:0!important}
+html[data-field-embedded] body .session-shell{background:radial-gradient(ellipse at 70% 0%,#372332 0%,#131821 46%,#0b131b 100%)!important;color:#f5e7df!important}
+html[data-field-embedded] body .session-card,
+html[data-field-embedded] body .session-top{border-color:#ff9a9130!important;background:#ff9a9109!important}
+html[data-field-embedded] body .session-title{color:#ffd4c5!important}
+html[data-field-embedded] body .session-cta{border-color:#ff9a9152!important;color:#ffdbce!important}
+html[data-field-embedded] body .session-cta.success{background:#ff657a!important;color:#111620!important}
+html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important}
+html[data-field-embedded] body #toast{border-color:#ff9a9180!important;color:#ffe0d6!important;background:#161c26!important}
+@media(max-width:600px){
+html[data-field-embedded] body .modal-overlay{padding:8px!important;align-items:center!important}
+html[data-field-embedded] body .modal{max-height:calc(100dvh - 16px);padding:18px 13px;border-radius:14px}
+html[data-field-embedded] body .ex-row{grid-template-columns:minmax(0,1fr) 48px 48px 54px 25px;gap:4px}
+html[data-field-embedded] body .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 72px 72px 25px}
+html[data-field-embedded] body .ex-row input{padding:7px 4px!important}
+html[data-field-embedded] body .modal-footer{flex-wrap:wrap}
+html[data-field-embedded] body .session-shell{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+}
