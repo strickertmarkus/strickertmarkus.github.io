@@ -53,6 +53,10 @@ function observeEditor(win){
 }
 function connectLegacy(win){
  if(typeof win.openDayWorkoutBuilder!=='function'||typeof win.openWorkoutModal!=='function'||typeof win.startWorkoutSessionForDate!=='function'||!win.DB)throw new Error('Passverktygets funktioner kunde inte startas.');
+ // Place the single embedded-theme sheet after legacy feature styles; the
+ // original session and builder scripts may inject their own rules at boot.
+ var theme=win.document.querySelector('link[href*="training-pulse-embedded.css"]');
+ if(theme)win.document.head.appendChild(theme);
  var set=win.DB.set;
  win.DB.set=function(k,v){set.call(this,k,v);pendingWrites++;changed();};
  observeEditor(win);
@@ -153,6 +157,7 @@ function selectTool(win,tool,button,date){
  return true;
 }
 function runTool(tool,button){
+ if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras. Öppna sidan utan demo=1 för att redigera och spara pass.');return;}
  var date=button&&button.dataset.fieldDate||selectedDate;
  if(tool==='edit-template')tool='editTemplate';
  if(tool==='start-template')tool='startTemplate';
