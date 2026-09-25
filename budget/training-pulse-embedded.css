@@ -11,6 +11,9 @@ html[data-field-embedded] body .modal-overlay{background:transparent!important;b
 html[data-field-embedded] body .modal-overlay.show{display:flex!important}
 html[data-field-embedded] body .modal{width:min(100%,720px);max-width:720px;max-height:calc(100dvh - 24px);padding:24px;background:#101922f7!important;border:1px solid #ff9a9150!important;border-radius:20px;box-shadow:0 14px 65px #02050a88,0 0 36px #ff657a0d;overscroll-behavior:contain}
 html[data-field-embedded] body .modal h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(27px,5vw,39px);font-weight:500;line-height:1.1;color:#fff0e8;margin-bottom:23px}
+html[data-field-embedded] body#pulse-page .modal h2{color:#fff0e8!important}
+html[data-field-embedded] body#pulse-page .modal .form-group>label{color:#edcec3!important}
+html[data-field-embedded] body#pulse-page .modal .btn-primary{color:#fff0e8!important;background:#ff657a42!important;border-color:#ff9a91!important}
 html[data-field-embedded] body .modal .form-group label{color:#e4cac0}
 html[data-field-embedded] body .modal input,
 html[data-field-embedded] body .modal select,
@@ -32,7 +35,10 @@ html[data-field-embedded] body .session-shell{background:radial-gradient(ellipse
 html[data-field-embedded] body .session-card,
 html[data-field-embedded] body .session-top{border-color:#ff9a9130!important;background:#ff9a9109!important}
 html[data-field-embedded] body .session-title{color:#ffd4c5!important}
-html[data-field-embedded] body .session-cta{border-color:#ff9a9152!important;color:#ffdbce!important}
+html[data-field-embedded] body .session-cta{border-color:#ff9a9152!important;background:#ff9a9113!important;color:#ffdbce!important}
+html[data-field-embedded] body .session-cta.primary{background:linear-gradient(125deg,#ff9a91,#e76379)!important;color:#17161e!important;border-color:#ffb3a5!important}
+html[data-field-embedded] body .session-timers .timer-box{border-color:#ff9a9152!important;box-shadow:0 0 20px #ff657a12!important}
+html[data-field-embedded] body .session-table th{color:#ffb6a8!important}
 html[data-field-embedded] body .session-cta.success{background:#ff657a!important;color:#111620!important}
 html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important}
 html[data-field-embedded] body #toast{border-color:#ff9a9180!important;color:#ffe0d6!important;background:#161c26!important}
