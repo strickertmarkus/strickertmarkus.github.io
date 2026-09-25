@@ -1,0 +1,64 @@
+/* Native Pulse Field editor, planner and in-page session presentation.
+   One dialog system; no legacy modals, redirects or CSS overrides. */
+.field-action,.field-editor button,.field-session button{font:inherit;cursor:pointer}
+.field-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid #ff9a9140;border-radius:999px;background:#ff9a9110;color:#ffd6ca;font-size:12px;text-decoration:none;transition:background .2s,border-color .2s}
+.field-action:hover,.field-action:focus-visible{background:#ff9a9126;border-color:#ff9a9180}
+.field-action--primary{border-color:#ff9a9180;background:#ff657a29;color:#fff3ec}
+.field-action--quiet{background:transparent;border-color:#ffffff28;color:#c7cbd1}
+.field-action--danger{color:#ffc4ba;border-color:#ff657a66}
+.field-action:disabled{opacity:.4;cursor:not-allowed}
+.field-action-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field-template-section{position:relative;z-index:2;padding:25px 0 38px;border-top:1px solid #ff9a9124}
+.field-template-section .section-head{margin-bottom:18px}
+.field-template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.field-template-card{display:flex;flex-direction:column;gap:9px;min-width:0;padding:16px;border:1px solid #ff9a912a;border-radius:15px;background:linear-gradient(145deg,#ff657a0b,#0e151ce0)}
+.field-template-card strong{color:#f7e7dd;font:500 18px/1.2 var(--field-serif)}
+.field-template-card>p{margin:0;min-height:32px;color:var(--field-muted);font-size:11px;line-height:1.5}
+.field-template-card .field-action-row{margin-top:auto;gap:7px}
+.field-template-card .field-action{min-height:36px;padding:6px 10px;font-size:11px}
+.field-day-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.field-editor,.field-session{position:fixed;inset:0;box-sizing:border-box;width:min(720px,calc(100vw - 24px));max-width:720px;max-height:min(92dvh,980px);margin:auto;padding:0;border:1px solid #ff9a9150;border-radius:21px;background:#0d141ced;color:#eee9e6;box-shadow:0 26px 95px #000c,0 0 48px #ff657a12;overscroll-behavior:contain;overflow:hidden}
+.field-editor::backdrop,.field-session::backdrop{background:#03070dc7;backdrop-filter:blur(7px)}
+.field-editor form,.field-editor .field-dialog-inner,.field-session .field-dialog-inner{display:flex;flex-direction:column;max-height:min(92dvh,980px);overflow-y:auto;overscroll-behavior:contain}
+.field-dialog-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:22px 24px 12px;background:#0d141cf7;border-bottom:1px solid #ff9a911c}
+.field-dialog-head h2{margin:5px 0;color:#fff0e8;font:400 37px/1 var(--field-serif)}
+.field-dialog-head .eyebrow{font-size:9px}
+.field-dialog-close{flex:0 0 40px;width:40px;height:40px;border:1px solid #ff9a913e;border-radius:50%;background:#ff9a910b;color:#f0d9ce;font-size:20px}
+.field-dialog-body{display:grid;gap:17px;padding:22px 24px}
+.field-dialog-foot{position:sticky;bottom:0;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;padding:14px 24px;border-top:1px solid #ff9a9128;background:#0d141cf8}
+.field-dialog-foot .field-action:first-child{margin-right:auto}
+.field-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field-editor label,.field-session label{display:grid;gap:6px;min-width:0;color:#bbc5cc;font-size:11px}
+.field-editor input,.field-editor select,.field-editor textarea,.field-session input,.field-session select,.field-session textarea{box-sizing:border-box;width:100%;min-width:0;min-height:43px;margin:0;padding:9px 11px;border:1px solid #ff9a9137;border-radius:10px;outline:0;background:#101b25;color:#f9ebe4;color-scheme:dark;font:400 16px/1.3 var(--field-ui)}
+.field-editor input:focus-visible,.field-editor select:focus-visible,.field-editor textarea:focus-visible,.field-session input:focus-visible{border-color:#ff9a91b0;box-shadow:0 0 0 2px #ff657a22}
+.field-editor input::placeholder,.field-session input::placeholder{color:#8794a2}
+.field-editor h3,.field-session h3{margin:0;font:500 22px/1.2 var(--field-serif);color:#ffcec1}
+.field-editor small,.field-editor .field-hint,.field-session .field-hint{color:#9eaab5;font-size:11px;line-height:1.5}
+.field-exercise-list{display:grid;gap:12px}
+.field-exercise-row{display:grid;gap:10px;padding:13px;border:1px solid #ff9a912a;border-radius:14px;background:#ff9a9108}
+.field-exercise-row .field-exercise-head{display:grid;grid-template-columns:minmax(0,1fr) 110px 36px;gap:8px;align-items:end}
+.field-exercise-row .field-exercise-head button{height:40px;width:36px;border:1px solid #ff9a9138;border-radius:9px;background:#ff657a10;color:#ffafa8}
+.field-exercise-row .field-exercise-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.field-exercise-row[data-kind=cardio] .field-strength-only,.field-exercise-row[data-kind=strength] .field-cardio-only{display:none}
+.field-exercise-row[data-kind=cardio] .field-exercise-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.field-inline-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.field-dialog-notice{margin:0;padding:10px 12px;border:1px solid #ff9a912b;border-radius:10px;color:#d6bdb2;font-size:12px}
+.field-dialog-error{min-height:1.3em;margin:0;color:#ffac9a;font-size:12px}
+.field-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.field-week-grid label{font-size:10px;text-align:center}
+.field-week-grid input{padding:8px 6px;font-size:12px}
+.field-week-templates{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:end}
+.field-week-templates .field-action{border-radius:9px}
+.field-record-list{display:grid;gap:8px}
+.field-record-list button{display:flex;align-items:center;justify-content:space-between;min-height:42px;padding:9px 12px;border:1px solid #ff9a9128;border-radius:10px;background:#ffffff08;color:#f3d7cb}
+.field-record-list button small{color:#a9b2ba}
+.field-session .field-dialog-head{position:sticky}
+.field-session .field-session-time{color:#ffb9aa;font:400 45px/1 var(--field-serif);font-variant-numeric:tabular-nums}
+.field-session .field-session-count{color:#bfc4cb;font-size:12px}
+.field-session .field-session-controls{display:flex;flex-wrap:wrap;gap:10px}
+.field-session .field-session-controls button{flex:1 1 120px}
+.field-session .field-session-progress{height:4px;border-radius:20px;background:#ff9a9122;overflow:hidden}
+.field-session .field-session-progress>span{display:block;height:100%;width:0;background:#ff9a91;box-shadow:0 0 15px #ff657a}
+body:has(.field-editor[open]),body:has(.field-session[open]){overflow:hidden}
+@media(max-width:560px){.field-dialog-head{padding:18px 17px 11px}.field-dialog-head h2{font-size:33px}.field-dialog-body{padding:17px;gap:15px}.field-dialog-foot{padding:11px 17px}.field-form-grid{grid-template-columns:1fr 1fr}.field-week-grid{grid-template-columns:1fr}.field-week-grid label{grid-template-columns:36px minmax(0,1fr);align-items:center;text-align:left}.field-week-templates{grid-template-columns:minmax(0,1fr) auto}.field-week-templates .field-action:last-child{grid-column:1/-1}.field-exercise-row .field-exercise-head{grid-template-columns:minmax(0,1fr) 95px 36px}.field-exercise-row .field-exercise-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.field-template-grid{grid-template-columns:minmax(0,1fr)}.field-session .field-session-time{font-size:37px}}
+@media(prefers-reduced-motion:reduce){.field-action{transition:none}.field-editor::backdrop,.field-session::backdrop{backdrop-filter:none}}
