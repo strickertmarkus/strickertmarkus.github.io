@@ -149,6 +149,14 @@ test('Shared header geometry is stable across all wellness themes',()=>{
   assert.doesNotMatch(shellCss,/background:rgba\(7,27,23,\.86\)!important/);
 });
 
+test('Zen uses its existing shade to blend the first paintable pixel with Safari chrome',()=>{
+  assert.match(zenCss, /--zen-browser-edge: linear-gradient\\(180deg,#0d1c17 0px/);
+  assert.match(zenCss, /body\\[data-kind=meditation\\] \\{[\\s\\S]*--zen-browser-edge: linear-gradient\\(180deg,#a8c5be 0px/);
+  const shadeDeclarations=zenCss.match(/background: var\\(--zen-browser-edge\\),linear-gradient/g)||[];
+  assert.equal(shadeDeclarations.length,3,'Default, mobile forest and meditation shade should share one Safari edge transition');
+  assert.doesNotMatch(zenCss,/\\.landscape::(?:before|after)\\s*\\{/,'Do not stack another scene element over the artwork');
+});
+
 test('Zen landscape begins at the app top behind header and shared toggle',()=>{
   assert.match(shell,/zenBackdrop\.classList\.add\('wellness-zen-backdrop'\)/);
   assert.match(shellCss,/\.wellness-zen-backdrop\{position:absolute!important;inset:0 0 auto!important/);
@@ -198,7 +206,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
-  assert.match(zen,/zen\.css\?v=20260925-scene-top-10/);
+  assert.match(zen,/zen\.css\?v=20260925-safari-edge-11/);
   assert.match(zen,/zen\.js\?v=20260924-sky-tint-3/);
 });
 
