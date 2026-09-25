@@ -4,7 +4,6 @@
 'use strict';
 var $=function(id){return document.getElementById(id);};
 if(!$('week-days')||!$('next-session-link'))return;
-var profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
 var demo=new URLSearchParams(location.search).get('demo')==='1';
 var selectedDate=today(),editTemplateId=null,editWorkoutId=null,editRecordName=null;
 var dayKeys=['mon','tue','wed','thu','fri','sat','sun'],dayNames=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
@@ -256,7 +255,7 @@ function saveWeekTemplate(){
  if(!name){error('Ange ett namn på veckomallen.');return;}
  var all=read('weekTemplates',[]);all.push({id:freshId(),name:name,plan:chosenWeekPlan()});
  if(!put('weekTemplates',all))return;
- notify(['weekTemplates']);openWeek(weekDate());toast('Veckomall sparad.');
+ if(saveWeek())toast('Veckomall och veckoplan sparade.');
 }
 function openRecord(name){
  editRecordName=name||null;
@@ -410,7 +409,10 @@ function install(){
    if(action==='add-ex'){event.preventDefault();go(action,button);}return;
   }
   if(button.closest('#field-session-dialog'))return;
-  event.preventDefault();go(action,button);
+  event.preventDefault();
+  var menu=button.closest('#field-menu');
+  if(menu){menu.classList.remove('is-open');menu.setAttribute('aria-hidden','true');var toggle=$('menu-toggle');if(toggle){toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Öppna meny');}}
+  go(action,button);
  });
  document.addEventListener('change',function(event){
   if(event.target.classList.contains('field-ex-kind')){
