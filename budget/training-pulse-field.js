@@ -837,7 +837,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var detail=exercises.length+' övning'+(exercises.length===1?'':'ar');
       var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
         var seconds=exerciseSeconds(workout,exercise,exerciseIndex);
-        return '<div class="exercise-row"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></div>';
+        return '<button type="button" class="exercise-row" data-field-action="edit-exercise" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera '+escapeHtml(normalizeExercise(exercise).name)+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></button>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
