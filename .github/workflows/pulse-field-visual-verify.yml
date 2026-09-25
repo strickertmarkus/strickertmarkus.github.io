@@ -435,7 +435,7 @@ jobs:
             const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
             const page=await context.newPage(),errors=[];
             page.on('pageerror',e=>errors.push(e.message));
-            page.on('dialog',d=>d.accept());
+            page.on('dialog',d=>d.accept(d.type()==='prompt'?'Mallpass':''));
             await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
             await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
             await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
@@ -510,6 +510,28 @@ jobs:
             await embedded.locator('#pr-modal.show').waitFor({timeout:5000});
             assert.ok(await embedded.locator('#pr-name').count(),'Original PR editor must open from the new dashboard');
             await embedded.locator('#pr-modal .modal-close').click();
+            await page.locator('[data-field-action="create-template"]').click();
+            await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
+            assert.equal((await embedded.locator('#wk-modal h2').first().textContent()).trim(),'Skapa mallpass','Creating a template must use the preserved exercise editor');
+            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-name').evaluate(input=>{
+              input.value='Testmallövning';input.dispatchEvent(new Event('input',{bubbles:true}));
+            });
+            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric1').fill('3');
+            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric2').fill('10');
+            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric3').fill('20');
+            await embedded.locator('#wk-modal .modal-footer .btn-primary').last().click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            const template=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_templates'))[0]);
+            assert.equal(template.name,'Mallpass','Original mallpass save must persist the existing storage schema');
+            assert.equal(template.exercises[0].weight,20);
+            await page.locator('#field-template-grid [data-field-action="edit-template"]').first().click();
+            await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
+            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric3').fill('25');
+            await embedded.locator('#wk-modal .modal-footer .btn-primary').last().click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            const changedTemplate=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_templates'))[0]);
+            assert.equal(changedTemplate.id,template.id,'Editing must keep original template identity');
+            assert.equal(changedTemplate.exercises[0].weight,25,'Editing must update existing template rather than creating a duplicate');
             assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'No navigation to archived trainer');
             assert.deepEqual(errors.filter(e=>/training-pulse-editor\.js|field-workspace/.test(e)),[],'Host runtime errors: '+errors.join(' | '));
             await browser.close();
