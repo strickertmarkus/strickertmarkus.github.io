@@ -143,6 +143,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       goals:readJSON('ex_goals',{weeklyWk:4,runDistanceGoal:10,vo2Goal:45}),
       planned:readJSON('ex_plannedSessions',{}),
       plan:readJSON('ex_plan',{mon:'Bröst + Triceps',tue:'Rygg + Biceps',wed:'Ben + Axlar',thu:'Kondition',fri:'Helkropp',sat:'Vila',sun:'Vila'}),
+      weekPlans:readJSON('ex_weekPlans',{}),
       prs:readJSON('ex_prs',{}),
       vo2:readJSON('ex_vo2',[])
     };
@@ -151,7 +152,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function planForDate(value) {
     var key=isoDate(value);
     if (data.planned&&data.planned[key]) return data.planned[key];
-    var d=dateAtNoon(value),index=(d.getDay()+6)%7,type=data.plan&&data.plan[dayKeys[index]];
+    var d=dateAtNoon(value),index=(d.getDay()+6)%7,week=data.weekPlans&&data.weekPlans[isoDate(startOfWeek(d))],type=(week||data.plan||{})[dayKeys[index]];
     if (!type||/^vila$/i.test(type)) return null;
     return {type:type,exercises:[]};
   }
@@ -176,16 +177,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(link.dataset.fieldProfile===profile)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');
     });
     document.title=(profile==='maja'?'Maja':'Markus')+' Träning · Pulse Field';
-    var archiveRoutes={
-      'original-link':{},'menu-original':{},'footer-original':{},
-      'next-session-link':{tool:'start'},'build-session-link':{tool:'build'},'menu-build':{tool:'build'},
-      'edit-week-link':{tool:'week'},'log-action-link':{tool:'log'},'menu-log':{tool:'log'},
-      'menu-records':{tool:'records'}
-    };
-    Object.keys(archiveRoutes).forEach(function(id){
-      var link=byId(id);if(!link)return;
-      link.href=profileHref('archive/exercise.html',archiveRoutes[id])+link.hash;
-    });
+    // All pass tools live in this document. Only cross-section and profile
+    // navigation change URLs; editing controls use native Pulse Field dialogs.
     byId('stretch-link').href=profileHref('zen.html',{wellness:'stretch'});
     byId('meditation-link').href=profileHref('zen.html',{wellness:'meditation'});
     document.querySelector('.field-brand').href=profileHref('home.html');
@@ -201,6 +194,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(plan){found={date:date,plan:plan};break;}
     }
     if(!found){
+      byId('next-session-link').dataset.fieldDate=isoDate(today);
       byId('next-session-title').textContent='Välj dagens rörelse';
       byId('next-session-meta').textContent='Nästa pass · Bygg eller välj ett upplägg';
       return;
@@ -210,7 +204,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var detail=exercises.length?exercises.length+' övning'+(exercises.length===1?'':'ar')+(sets?' · '+sets+' set':''):'Planerat upplägg';
     byId('next-session-title').textContent=found.plan.type||'Planerat pass';
     byId('next-session-meta').textContent=dateLabel+' · '+detail;
-    byId('next-session-link').href=profileHref('archive/exercise.html',{tool:'start'})+'#observatory-templates-title';
+    byId('next-session-link').dataset.fieldDate=isoDate(found.date);
   }
 
   function renderRhythm() {
@@ -842,7 +836,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'<div class="field-action-row"><button type="button" class="field-action" data-field-action="edit-log" data-workout-id="'+escapeHtml(String(workout.id))+'">Redigera pass</button></div></div></div></article>';
     }).join('');
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
@@ -959,7 +953,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     });
     // Firebase can emit one event per storage key at login. Only six keys
     // contribute to this overview; combine their initial burst into one render.
-    var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_prs','ex_vo2']);
+    var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_weekPlans','ex_prs','ex_vo2']);
     var firebaseRenderTimer=0;
     window.addEventListener('firebase-sync',function(event){
       if(!event.detail||!fieldKeys.has(event.detail.key))return;
@@ -969,6 +963,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
         renderAll();
       },80);
     });
+    window.addEventListener('pulse-field:data-change',renderAll);
     var layoutWidth=document.documentElement.clientWidth,resizeTimer;
     window.addEventListener('resize',function(){
       // Ignore mobile Safari toolbar collapse: viewport height changes, chart width does not.
