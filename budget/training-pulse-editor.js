@@ -257,6 +257,31 @@ function saveWeekTemplate(){
  if(!put('weekTemplates',all))return;
  if(saveWeek())toast('Veckomall och veckoplan sparade.');
 }
+function openGoals(){
+ var current=read('goals',{weeklyWk:4,runDistanceGoal:10,vo2Goal:45});
+ var entry=read('vo2',[]).slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date));})[0];
+ var body='<h3>Veckans mål</h3><div class="field-form-grid">'+
+ input('field-goal-week','Träningspass per vecka',num(current.weeklyWk)||4,'number','min="1" max="14" step="1"')+
+ input('field-goal-run','Löpdistans (km)',num(current.runDistanceGoal)||10,'number','min="0.1" max="1000" step="0.1"')+
+ input('field-goal-vo2','VO₂-mål',num(current.vo2Goal)||45,'number','min="10" max="100" step="0.1"')+'</div>'+
+ '<h3>Registrera VO₂</h3><div class="field-form-grid">'+
+ input('field-vo2-date','Datum',today(),'date','')+
+ input('field-vo2-score','VO₂ max',entry&&num(entry.score)||'','number','min="10" max="100" step="0.1"')+
+ '</div><p class="field-hint">Mål sparas per profil. Ett registrerat VO₂-värde uppdaterar mätvärdesgrafen.</p>';
+ showDialog('Mål och VO₂','PULSE / UTVECKLING',body,button('Spara mål','save-goals','field-action--primary')+button('Registrera VO₂','save-vo2'));
+ dialog.querySelector('[data-field-action="save-goals"]').addEventListener('click',function(){
+  var n=num(formValue('field-goal-week')),run=num(formValue('field-goal-run')),vo2=num(formValue('field-goal-vo2'));
+  if(!Number.isInteger(n)||n<1||n>14||run<=0||run>1000||vo2<10||vo2>100){error('Kontrollera målen: 1–14 pass, positiv distans och VO₂ mellan 10 och 100.');return;}
+  var goals=Object.assign({},current,{weeklyWk:n,runDistanceGoal:run,vo2Goal:vo2});
+  if(!put('goals',goals))return;
+  notify(['goals']);dialog.close();toast('Målen är sparade.');
+ });
+ dialog.querySelector('[data-field-action="save-vo2"]').addEventListener('click',function(){
+  var d=formValue('field-vo2-date'),v=num(formValue('field-vo2-score'));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||v<10||v>100){error('Välj datum och VO₂ mellan 10 och 100.');return;}
+  upsertVO2(d,v);notify(['vo2']);dialog.close();toast('VO₂-värdet är sparat.');
+ });
+}
 function openRecord(name){
  editRecordName=name||null;
  var prs=read('prs',{}),value=editRecordName&&prs[editRecordName]||'';
@@ -383,6 +408,7 @@ function go(action,button){
  else if(action==='log')openWorkout(null,chosenDate());
  else if(action==='week')openWeek(chosenDate());
  else if(action==='records')openRecord();
+ else if(action==='goals')openGoals();
  else if(action==='start')startSession((button&&button.dataset.fieldDate)||chosenDate());
  else if(action==='edit-day')openBuilder(chosenDate());
  else if(action==='start-day')startSession(chosenDate());
