@@ -957,7 +957,18 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       var insight=event.target.closest('[data-insight]');if(insight){state.insight=insight.dataset.insight;renderInsight();return;}
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
     });
-    window.addEventListener('firebase-sync',function(){renderAll();showToast('Träningsdata uppdaterad');});
+    // Firebase can emit one event per storage key at login. Only six keys
+    // contribute to this overview; combine their initial burst into one render.
+    var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_prs','ex_vo2']);
+    var firebaseRenderTimer=0;
+    window.addEventListener('firebase-sync',function(event){
+      if(!event.detail||!fieldKeys.has(event.detail.key))return;
+      clearTimeout(firebaseRenderTimer);
+      firebaseRenderTimer=setTimeout(function(){
+        firebaseRenderTimer=0;
+        renderAll();
+      },80);
+    });
     var layoutWidth=document.documentElement.clientWidth,resizeTimer;
     window.addEventListener('resize',function(){
       // Ignore mobile Safari toolbar collapse: viewport height changes, chart width does not.
