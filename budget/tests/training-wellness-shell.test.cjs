@@ -150,11 +150,11 @@ test('Shared header geometry is stable across all wellness themes',()=>{
 });
 
 test('Zen uses its existing shade to blend the first paintable pixel with Safari chrome',()=>{
-  assert.match(zenCss, /--zen-browser-edge: linear-gradient\\(180deg,#0d1c17 0px/);
-  assert.match(zenCss, /body\\[data-kind=meditation\\] \\{[\\s\\S]*--zen-browser-edge: linear-gradient\\(180deg,#a8c5be 0px/);
-  const shadeDeclarations=zenCss.match(/background: var\\(--zen-browser-edge\\),linear-gradient/g)||[];
+  assert.match(zenCss, /--zen-browser-edge: linear-gradient\(180deg,#0d1c17 0px/);
+  assert.match(zenCss, /body\[data-kind=meditation\] \{[\s\S]*--zen-browser-edge: linear-gradient\(180deg,#a8c5be 0px/);
+  const shadeDeclarations=zenCss.match(/background: var\(--zen-browser-edge\),linear-gradient/g)||[];
   assert.equal(shadeDeclarations.length,3,'Default, mobile forest and meditation shade should share one Safari edge transition');
-  assert.doesNotMatch(zenCss,/\\.landscape::(?:before|after)\\s*\\{/,'Do not stack another scene element over the artwork');
+  assert.doesNotMatch(zenCss,/\.landscape::(?:before|after)\s*\{/,'Do not stack another scene element over the artwork');
 });
 
 test('Zen landscape begins at the app top behind header and shared toggle',()=>{
