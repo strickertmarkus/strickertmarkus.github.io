@@ -10,6 +10,7 @@ html[data-field-embedded] body:before,html[data-field-embedded] body:after{displ
 html[data-field-embedded] body .modal-overlay{background:transparent!important;backdrop-filter:none!important;padding:12px!important}
 html[data-field-embedded] body .modal-overlay.show{display:flex!important}
 html[data-field-embedded] body .modal{width:min(100%,720px);max-width:720px;max-height:calc(100dvh - 24px);padding:24px;background:#101922f7!important;border:1px solid #ff9a9150!important;border-radius:20px;box-shadow:0 14px 65px #02050a88,0 0 36px #ff657a0d;overscroll-behavior:contain}
+html[data-field-embedded] body .modal .modal-footer{position:sticky;bottom:-1px;z-index:4;flex-wrap:wrap;padding:13px 0 2px;background:#101922fa;border-top:1px solid #ff9a912b}
 html[data-field-embedded] body .modal h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(27px,5vw,39px);font-weight:500;line-height:1.1;color:#fff0e8;margin-bottom:23px}
 html[data-field-embedded] body#pulse-page .modal h2{color:#fff0e8!important}
 html[data-field-embedded] body#pulse-page .modal .form-group>label{color:#edcec3!important}
