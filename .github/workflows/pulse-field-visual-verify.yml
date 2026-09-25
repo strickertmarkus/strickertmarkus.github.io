@@ -34,6 +34,11 @@ jobs:
         run: |
           python3 -m http.server 4173 --directory . >/tmp/pulse-field-http.log 2>&1 &
           sleep 2
+      - name: Native Pulse Field syntax
+        run: |
+          node --check budget/training-pulse-editor.js
+          node --check budget/training-pulse-field.js
+          node --check budget/firebase-sync.js
       - name: Render desktop and mobile
         run: |
           cat > /tmp/pulse-field-visual.cjs <<'EOF'
@@ -76,9 +81,13 @@ jobs:
             assert.ok(page.url().includes('/budget/exercise.html?demo=1'),'Pulse Field must be served at canonical exercise.html');
             assert.equal(await page.locator('#build-session-link').count(),0,'Second build-pass action must not appear beneath the start circle');
             for(const [id,tool] of [['next-session-link','start'],['menu-build','build'],['edit-week-link','week'],['log-action-link','log']]){
+              const action=await page.locator('#'+id).getAttribute('data-field-action');
               const href=await page.locator('#'+id).getAttribute('href');
-              assert.ok(href.includes('archive/exercise.html?tool='+tool),'Training action '+id+' must reach preserved interactive tooling: '+href);
+              assert.equal(action,tool,'Training action '+id+' must open its native Pulse Field tool');
+              assert.ok(!href.includes('archive/exercise.html'),'Tool must never redirect to archived training: '+href);
             }
+            assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'The Pulse Field page must have no links to the old trainer');
+            assert.ok(await page.locator('#field-template-grid').count(),'Saved templates must be available on the canonical page');
             assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
             assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
@@ -417,10 +426,68 @@ jobs:
             await browser.close();
           }
 
+          async function verifyNativeTools(){
+            const browser=await webkit.launch(),context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+            const page=await context.newPage(),errors=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            await page.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/auth-gate.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('**/firebase-sync.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+            await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+            await page.route('https://fonts.gstatic.com/**',r=>r.abort());
+            await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
+            await page.waitForSelector('#field-template-grid');
+            await page.locator('#field-templates [data-field-action="build"]').click();
+            assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Builder must open in the current document');
+            await page.locator('#field-type').fill('Helkropp');
+            await page.locator('.field-ex-name').fill('Testpress');
+            await page.locator('.field-ex-weight').fill('20');
+            await page.locator('[data-field-action="save-plan"]').click();
+            assert.ok(!(await page.locator('#field-editor-dialog').evaluate(el=>el.open)),'Saving a planned workout must close the editor');
+            const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
+            assert.ok(plan&&Object.values(plan).some(p=>p.type==='Helkropp'&&p.exercises.some(e=>e.name==='Testpress'&&e.weight===20)),'New builder must persist the old training plan schema');
+            await page.locator('#next-session-link').click();
+            assert.ok(await page.locator('#field-session-dialog').evaluate(el=>el.open),'Start must launch an in-page session');
+            await page.locator('#field-session-dialog [data-field-action="session-start-set"]').click();
+            await page.locator('#field-session-dialog [data-field-action="session-finish-set"]').click();
+            await page.locator('#field-session-dialog [data-field-action="session-complete"]').click();
+            await page.locator('#field-session-dialog [data-field-action="session-save"]').click();
+            const workouts=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_wk')));
+            assert.equal(workouts.length,1,'Session must save a recorded workout');
+            assert.equal(workouts[0].exercises[0].name,'Testpress','Saved session must preserve the exercise');
+            await page.locator('[data-field-action="log"]').first().click();
+            await page.locator('#field-notes').fill('Redigerbart pass');
+            await page.locator('#field-editor-dialog [data-field-action="save-workout"]').click();
+            await page.locator('#log-timeline [data-field-action="edit-log"]').first().click();
+            assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Logged workouts must be editable on the new page');
+            assert.equal(await page.locator('#field-notes').inputValue(),'','Expected editor of the existing session, not an unrelated workout');
+            await page.locator('#field-editor-dialog [data-close-field]').first().click();
+            await page.locator('#edit-week-link').click();
+            assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Week planner must open in-page');
+            await page.locator('[data-week-day="mon"]').fill('Kondition');
+            await page.locator('[data-field-action="save-week"]').click();
+            const weeks=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_weekPlans')));
+            assert.ok(weeks&&Object.values(weeks).some(p=>p.mon==='Kondition'),'Week-specific plans must be saved');
+            await page.locator('#records [data-field-action="records"]').click();
+            await page.locator('#field-pr-name').fill('Testpress');
+            await page.locator('#field-pr-value').fill('42');
+            await page.locator('#field-editor-dialog [data-field-action="save-pr"]').click();
+            assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_prs')).Testpress),42,'Manual records must be editable and saved');
+            await page.locator('#field-templates [data-field-action="build"]').click();
+            await page.locator('.field-ex-name').fill('Testcurl');
+            await page.locator('#field-template-name').fill('Testmall');
+            await page.locator('#field-editor-dialog [data-field-action="save-template"]').click();
+            assert.ok(await page.getByText('Testmall').first().isVisible(),'Saved template must appear on new Pulse Field page');
+            assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'No editor should point to the archive');
+            assert.deepEqual(errors,[],'Native editor browser errors: '+errors.join(' | '));
+            await browser.close();
+          }
+
           (async()=>{
             await verify({width:1440,height:960},'desktop',false);
             await verify({width:390,height:844},'mobile',true);
             await verifyMigration();
+            await verifyNativeTools();
             console.log('Pulse Field canonical training, archive routing and desktop/mobile glow verified in WebKit');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
