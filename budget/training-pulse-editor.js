@@ -6,7 +6,7 @@
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
 var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0;
-var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
+var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
 function monday(iso){var d=asDate(iso);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateISO(d);}
@@ -96,31 +96,34 @@ function showWorkspace(tool){
  updateStatus(frame&&legacyReady?'':'Laddar dina passverktyg…');
  if(!dialog.open)dialog.showModal();
 }
-function openTemplateEditor(win,id,date){
- var tpl=win.getTemplates().find(function(t){return String(t.id)===String(id);});
- if(!tpl){notice('Mallpasset finns inte längre.');return false;}
- win.fieldEmbeddedTemplateId=tpl.id;
+function openTemplateEditor(win,id){
+ var tpl=id==null?null:win.getTemplates().find(function(t){return String(t.id)===String(id);});
+ if(id!=null&&!tpl){notice('Mallpasset finns inte längre.');return false;}
+ win.fieldEmbeddedTemplateId=tpl?tpl.id:null;
  win.openWorkoutModal({skipBlank:true});
- win.document.getElementById('wk-type').value=tpl.type||tpl.name||'Övrigt';
- if(tpl.duration)win.document.getElementById('wk-dur').value=tpl.duration;
+ if(tpl){
+  win.document.getElementById('wk-type').value=tpl.type||tpl.name||'Övrigt';
+  if(tpl.duration)win.document.getElementById('wk-dur').value=tpl.duration;
+ }
  var list=win.document.getElementById('ex-list');list.innerHTML='';
- (tpl.exercises||[]).forEach(function(ex){win.addExRow(ex);});
- if(!tpl.exercises||!tpl.exercises.length)win.addExRow();
+ if(tpl&&(tpl.exercises||[]).length)(tpl.exercises||[]).forEach(function(ex){win.addExRow(ex);});
+ else win.addExRow();
  var wk=win.document.getElementById('wk-modal');
  wk.dataset.fieldEditingTemplate='1';
- var title=wk.querySelector('h2');if(title)title.textContent='Redigera mallpass';
+ var title=wk.querySelector('h2');if(title)title.textContent=tpl?'Redigera mallpass':'Skapa mallpass';
  var footer=wk.querySelector('.modal-footer');
  var save=footer.querySelector('[onclick="saveWorkout()"]');if(save)save.hidden=true;
- var special=win.document.createElement('button');special.type='button';special.className='btn-primary';special.textContent='Spara ändringar i mall';
+ var special=win.document.createElement('button');special.type='button';special.className='btn-primary';
+ special.textContent=tpl?'Spara ändringar i mall':'Spara mallpass';
  special.addEventListener('click',function(){
-  var before=win.getTemplates().find(function(t){return String(t.id)===String(id);});
+  var before=win.getTemplates().length;
   win.saveCurrentAsTemplate();
-  var after=win.getTemplates().find(function(t){return String(t.id)===String(id);});
-  if(after&&JSON.stringify(after)!==JSON.stringify(before)){win.closeModal('wk-modal');}
+  if(tpl?win.fieldEmbeddedTemplateId===null:win.getTemplates().length>before){win.closeModal('wk-modal');}
  });
  footer.appendChild(special);
  return true;
 }
+
 function selectTool(win,tool,button,date){
  var iso=date||selectedDate;win.document.documentElement.dataset.fieldWorkspace=tool;
  win.viewedMondayISO=monday(iso);
@@ -141,7 +144,8 @@ function selectTool(win,tool,button,date){
   case 'editRecord':
    var name=button.dataset.recordName,prs=win.getPRs(),value=Number(prs[name]||button.dataset.recordValue||0);
    win.openEditPR(name,value);break;
-  case 'editTemplate':openTemplateEditor(win,button.dataset.templateId,iso);break;
+  case 'createTemplate':openTemplateEditor(win,null);break;
+  case 'editTemplate':openTemplateEditor(win,button.dataset.templateId);break;
   case 'startTemplate':
    var tpl=win.getTemplates().find(function(t){return String(t.id)===String(button.dataset.templateId);});
    if(!tpl){notice('Mallpasset finns inte längre.');return false;}
@@ -160,6 +164,7 @@ function selectTool(win,tool,button,date){
 function runTool(tool,button){
  if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras. Öppna sidan utan demo=1 för att redigera och spara pass.');return;}
  var date=button&&button.dataset.fieldDate||selectedDate;
+ if(tool==='create-template')tool='createTemplate';
  if(tool==='edit-template')tool='editTemplate';
  if(tool==='start-template')tool='startTemplate';
  if(tool==='edit-log')tool='editLog';
