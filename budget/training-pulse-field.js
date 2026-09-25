@@ -15,7 +15,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     insight: 'heart',
     insightMode: 'chart',
     openLogId: null,
-    logTouched: false
+    logTouched: false,
+    logLimit: 12
   };
   var data = {};
 
@@ -815,7 +816,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function renderLog() {
     var workouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
-    }).slice(0,12);
+    });
+    var more=byId('field-log-more');
+    more.hidden=workouts.length<=state.logLimit;
+    if(!more.hidden)more.textContent='Visa fler pass · '+(workouts.length-state.logLimit)+' kvar';
+    workouts=workouts.slice(0,state.logLimit);
     var timeline=byId('log-timeline');
     if(!workouts.length){
       timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
@@ -917,6 +922,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
+    byId('field-log-more').addEventListener('click',function(){state.logLimit+=12;renderLog();});
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
     byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
     byId('record-picker-fields').addEventListener('change',function(event){
