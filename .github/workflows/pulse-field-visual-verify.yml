@@ -460,6 +460,16 @@ jobs:
             }));
             assert.equal(childChrome.pseudo,'none','The archived homepage bootstrap spinner must not cover embedded original tools');
             assert.ok(childChrome.modal>0&&childChrome.modal<=childChrome.viewport+2,'Original builder must fit the mobile workspace: '+JSON.stringify(childChrome));
+            // Legacy modal entrance has a short animation after the iframe boot;
+            // capture the settled interface rather than the empty opening frame.
+            await page.waitForTimeout(650);
+            const modalVisibility=await embedded.locator('#day-workout-modal .modal').evaluate(el=>({
+              display:getComputedStyle(el).display,
+              visibility:getComputedStyle(el).visibility,
+              opacity:Number(getComputedStyle(el).opacity),
+              height:el.getBoundingClientRect().height
+            }));
+            assert.ok(modalVisibility.display!=='none'&&modalVisibility.visibility==='visible'&&modalVisibility.opacity>.9&&modalVisibility.height>180,'Original builder must visibly render after opening: '+JSON.stringify(modalVisibility));
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/legacy-builder-integrated-mobile.png'});
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
