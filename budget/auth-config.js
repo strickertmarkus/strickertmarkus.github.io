@@ -69,8 +69,9 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      its base markup. Keep that markup out of the visible first paint until the
      normal exercise bundle has loaded and the DOM rearrangement pass has run. */
   var exerciseFirstPaintRootV1 = document.documentElement;
-  exerciseFirstPaintRootV1.classList.add('exercise-first-paint-loading-v1');
-  if (!document.getElementById('exercise-first-paint-critical-v1')) {
+  var embeddedFieldWorkspace = exerciseFirstPaintRootV1.hasAttribute('data-field-embedded');
+  if (!embeddedFieldWorkspace) exerciseFirstPaintRootV1.classList.add('exercise-first-paint-loading-v1');
+  if (!embeddedFieldWorkspace && !document.getElementById('exercise-first-paint-critical-v1')) {
     var firstPaintStyleV1 = document.createElement('style');
     firstPaintStyleV1.id = 'exercise-first-paint-critical-v1';
     firstPaintStyleV1.textContent =
