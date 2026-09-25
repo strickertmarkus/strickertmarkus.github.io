@@ -20,6 +20,11 @@
     margin:0 auto;
     padding:env(safe-area-inset-top,0px) 0 0;
     align-items:center;
+    position:relative;
+  }
+  .field-header + .kind-switch,#zen-main > #home-view > .zen-home-switch{
+    margin-top:0;
+    top:0;
   }
   .kind-switch,.zen-home-switch{
     width:calc(100% - 2 * var(--training-mode-mobile-gutter));
@@ -43,5 +48,5 @@
     align-items:center;
     justify-content:center;
   }
-  .kind-switch a span,.zen-home-switch button span{font-size:19px;line-height:1;display:inline-block}
+  .kind-switch a span,.zen-home-switch button span{font-size:19px;line-height:1;display:inline-block;vertical-align:middle}
 }
