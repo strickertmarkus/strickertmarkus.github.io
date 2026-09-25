@@ -459,6 +459,7 @@ jobs:
             await page.locator('#log-action-link').click();
             await page.locator('#field-notes').fill('Redigerbart pass');
             await page.locator('#field-editor-dialog [data-field-action="save-workout"]').click();
+            await page.locator('#log-timeline .log-summary').first().click();
             await page.locator('#log-timeline [data-field-action="edit-log"]').first().click();
             assert.ok(await page.locator('#field-editor-dialog').evaluate(el=>el.open),'Logged workouts must be editable on the new page');
             assert.equal(await page.locator('#field-notes').inputValue(),'Redigerbart pass','Existing logged workout must open with its saved notes');
