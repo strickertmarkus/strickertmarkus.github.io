@@ -14,6 +14,10 @@ on:
       - 'budget/zen.js'
       - 'budget/training-pulse-field.css'
       - 'budget/training-pulse-field.js'
+      - 'budget/training-pulse-editor.js'
+      - 'budget/training-pulse-editor.css'
+      - 'budget/training-pulse-embedded.css'
+      - 'budget/auth-config.js'
       - '.github/workflows/pulse-field-visual-verify.yml'
   workflow_dispatch:
 
@@ -449,6 +453,13 @@ jobs:
             assert.equal(await page.locator('#field-editor-dialog').count(),0,'Duplicate simplified builder must not be present');
             const color=await embedded.locator('#day-workout-modal .modal').evaluate(el=>getComputedStyle(el).backgroundColor);
             assert.ok(color!=='rgb(22, 27, 34)','Embedded old tools should adopt the Pulse Field theme: '+color);
+            const childChrome=await embedded.locator('body').evaluate(el=>({
+              pseudo:getComputedStyle(el,'::after').display,
+              modal:document.getElementById('day-workout-modal').getBoundingClientRect().height,
+              viewport:innerHeight
+            }));
+            assert.equal(childChrome.pseudo,'none','The archived homepage bootstrap spinner must not cover embedded original tools');
+            assert.ok(childChrome.modal>0&&childChrome.modal<=childChrome.viewport+2,'Original builder must fit the mobile workspace: '+JSON.stringify(childChrome));
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/legacy-builder-integrated-mobile.png'});
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
@@ -476,6 +487,11 @@ jobs:
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
             assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Use original seven-day weekly plan editor');
             await embedded.locator('#plan-modal .modal-close').click();
+            await page.locator('#menu-toggle').click();
+            await page.locator('#menu-week-templates').click();
+            await embedded.locator('#template-modal.show').waitFor({timeout:5000});
+            assert.ok(await embedded.locator('#template-pick').count(),'Original week-template editor is available in-page');
+            await embedded.locator('#template-modal .modal-close').click();
             await page.locator('#log-action-link').click();
             await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
             assert.ok(await embedded.locator('#wk-template-select').count(),'Original log must include template selection and editable exercises');
