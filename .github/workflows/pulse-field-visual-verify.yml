@@ -403,10 +403,10 @@ jobs:
               const zenNav=await page.locator('.zen-home-switch').boundingBox();
               assert.ok(Math.abs(zenNav.y-trainingNav.y)<.5&&Math.abs(zenNav.width-trainingNav.width)<.5&&Math.abs(zenNav.x-trainingNav.x)<.5&&Math.abs(zenNav.height-trainingNav.height)<.5,'Zen '+kind+' toggle bar must exactly match Training on mobile: '+JSON.stringify({zenNav,trainingNav}));
               const scene=await page.locator('.landscape').evaluate(el=>({top:el.getBoundingClientRect().top,mask:getComputedStyle(el).maskImage,root:getComputedStyle(document.documentElement).backgroundColor}));
-              assert.ok(Math.abs(scene.top)<.5,'Zen scenery must start at the top of the mobile viewport');
+              assert.ok(scene.top<=.5&&scene.top>=-65,'Zen scenery must extend to or above the top of the mobile viewport: '+scene.top);
               assert.equal(await page.locator('.landscape').evaluate(el=>getComputedStyle(el).zIndex),'0','Zen scene must paint above the document background rather than behind it');
               const zenCss=fs.readFileSync('budget/zen.css','utf8');
-              assert.ok(zenCss.includes('top: 0;'),'Zen artwork must extend into the real iPhone safe-area instead of replacing it with a flat strip');
+              assert.ok(zenCss.includes('top: calc(-1 * env(safe-area-inset-top,0px));'),'Zen artwork must extend into the iPhone safe-area instead of replacing it with a flat strip');
               assert.equal(await page.locator('meta[name="theme-color"]').getAttribute('content'),kind==='meditation'?'#a8c5be':'#071c1b','Safari top browser tint must match top of current Zen canvas');
               assert.equal(scene.root,kind==='meditation'?'rgb(168, 197, 190)':'rgb(7, 28, 27)','Zen status-bar canvas must match the top of the actual sky artwork');
               assert.ok(scene.mask.includes('linear-gradient')&&scene.mask.includes('100%')&&/(transparent|rgba\(0, 0, 0, 0\))/.test(scene.mask),'Zen scenery must fade into the page background without a hard boundary: '+scene.mask);
