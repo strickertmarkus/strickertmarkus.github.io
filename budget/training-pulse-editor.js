@@ -11,9 +11,7 @@ function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
 function monday(iso){var d=asDate(iso);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateISO(d);}
 function dayName(iso){return ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'][(asDate(iso).getDay()+6)%7];}
-function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function read(k,fallback){try{var v=JSON.parse(localStorage.getItem('ex_'+k));return v==null?fallback:v;}catch(_){return fallback;}}
-function changed(){window.dispatchEvent(new CustomEvent('pulse-field:data-change'));renderTemplates();}
+function changed(){window.dispatchEvent(new CustomEvent('pulse-field:data-change'));}
 function notice(t){var node=$('field-toast');if(!node)return;node.textContent=t;node.classList.add('is-visible');clearTimeout(notice.timer);notice.timer=setTimeout(function(){node.classList.remove('is-visible');},2700);}
 function makeDialog(){
  dialog=document.createElement('dialog');
@@ -161,9 +159,9 @@ function selectTool(win,tool,button,date){
  }
  return true;
 }
-function runTool(tool,button){
+function runTool(tool,button,dateOverride){
  if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras. Öppna sidan utan demo=1 för att redigera och spara pass.');return;}
- var date=button&&button.dataset.fieldDate||selectedDate;
+ var date=dateOverride||button&&button.dataset.fieldDate||selectedDate;
  if(tool==='create-template')tool='createTemplate';
  if(tool==='edit-template')tool='editTemplate';
  if(tool==='start-template')tool='startTemplate';
@@ -182,18 +180,7 @@ function runTool(tool,button){
   if(success===false){dialog.close();activeTool='';}
  }).catch(function(e){updateStatus(e.message);});
 }
-function renderTemplates(){
- var grid=$('field-template-grid');if(!grid)return;
- var all=read('templates',[]);
- grid.innerHTML=all.length?all.map(function(t){
-  var count=(t.exercises||[]).length;
-  return '<article class="field-template-card"><strong>'+escapeHtml(t.name||t.type||'Mallpass')+'</strong><p>'+escapeHtml(t.type||'Träning')+' · '+count+' övningar</p><div class="field-action-row">'+
-   '<button type="button" class="field-action field-action--primary" data-field-action="start-template" data-template-id="'+escapeHtml(t.id)+'">Starta</button>'+
-   '<button type="button" class="field-action" data-field-action="edit-template" data-template-id="'+escapeHtml(t.id)+'">Redigera</button></div></article>';
- }).join(''):'<p class="field-template-empty">Inga mallpass sparade ännu. Bygg ditt första pass.</p>';
-}
 function install(){
- renderTemplates();
  document.addEventListener('click',function(event){
   var date=event.target.closest('[data-day]');if(date)selectedDate=date.dataset.day;
   var action=event.target.closest('[data-field-action]');if(!action)return;
@@ -202,8 +189,20 @@ function install(){
   if(menu){menu.classList.remove('is-open');menu.setAttribute('aria-hidden','true');var toggle=$('menu-toggle');if(toggle)toggle.setAttribute('aria-expanded','false');}
   runTool(action.dataset.fieldAction,action);
  });
+ document.addEventListener('keydown',function(event){
+  if(!['Enter',' '].includes(event.key))return;
+  var action=event.target.closest&&event.target.closest('[data-field-action]');
+  if(!action||/^(A|BUTTON)$/.test(action.tagName))return;
+  event.preventDefault();action.click();
+ });
  window.addEventListener('firebase-sync',function(event){
   if(event.detail&&['ex_templates','ex_plannedSessions','ex_weekPlans'].includes(event.detail.key)){changed();}
+ });
+ window.addEventListener('pulse-field:open-tool',function(event){
+  var detail=event.detail||{};
+  if(!detail.tool)return;
+  if(detail.date)selectedDate=detail.date;
+  runTool(detail.tool,null,detail.date||selectedDate);
  });
  var deep=new URLSearchParams(location.search).get('tool');
  if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);

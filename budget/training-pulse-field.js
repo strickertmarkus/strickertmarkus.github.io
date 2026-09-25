@@ -16,7 +16,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     insightMode: 'chart',
     openLogId: null,
     logTouched: false,
-    logLimit: 12
   };
   var data = {};
 
@@ -238,8 +237,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
-      markup+='<div class="'+classes.join(' ')+'">'+
-        '<span class="day-name">'+dayNames[i]+'</span><button type="button" class="day-date" data-day="'+key+'" aria-label="'+dayNames[i]+' '+date.getDate()+'" aria-pressed="'+(key===state.selectedDate)+'">'+date.getDate()+'</button>'+
+      markup+='<div class="'+classes.join(' ')+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(type)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
+        '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
         '<span class="day-type">'+escapeHtml(type)+'</span></div>';
     }
     byId('week-days').innerHTML=markup;
@@ -262,6 +261,45 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return '<text class="chart-axis-unit" x="'+left+'" y="'+(top-12)+'" text-anchor="start">'+escapeHtml(label)+'</text>';
   }
 
+  function chartTipAttrs(title,value,detail) {
+    return ' data-chart-tip="1" data-chart-tip-title="'+escapeHtml(title)+'" data-chart-tip-value="'+escapeHtml(value)+'" data-chart-tip-detail="'+escapeHtml(detail||'')+'" tabindex="0"';
+  }
+  function ensureChartTooltip() {
+    var tip=byId('field-chart-tooltip');
+    if(tip)return tip;
+    tip=document.createElement('div');
+    tip.id='field-chart-tooltip';
+    tip.className='field-chart-tooltip';
+    tip.setAttribute('role','status');
+    tip.setAttribute('aria-live','polite');
+    tip.hidden=true;
+    tip.innerHTML='<strong></strong><span></span><small></small>';
+    document.body.appendChild(tip);
+    return tip;
+  }
+  function showChartTooltip(target,event,pinned) {
+    if(!target)return;
+    var tip=ensureChartTooltip(),rect=target.getBoundingClientRect();
+    tip.querySelector('strong').textContent=target.dataset.chartTipTitle||'';
+    tip.querySelector('span').textContent=target.dataset.chartTipValue||'';
+    var detail=target.dataset.chartTipDetail||'',small=tip.querySelector('small');
+    small.textContent=detail;small.hidden=!detail;
+    tip.hidden=false;tip.classList.add('is-visible');
+    var x=event&&Number.isFinite(event.clientX)&&event.clientX?event.clientX:rect.left+rect.width/2;
+    var y=event&&Number.isFinite(event.clientY)&&event.clientY?event.clientY:rect.top+rect.height/2;
+    var half=Math.min(138,Math.max(84,tip.offsetWidth/2));
+    x=clamp(x,half+8,window.innerWidth-half-8);
+    y=clamp(y-18,52,window.innerHeight-24);
+    tip.style.left=x+'px';tip.style.top=y+'px';
+    clearTimeout(showChartTooltip.timer);
+    if(pinned)showChartTooltip.timer=setTimeout(hideChartTooltip,2600);
+  }
+  function hideChartTooltip() {
+    var tip=byId('field-chart-tooltip');if(!tip)return;
+    tip.classList.remove('is-visible');clearTimeout(showChartTooltip.timer);
+    setTimeout(function(){if(!tip.classList.contains('is-visible'))tip.hidden=true;},160);
+  }
+
   function renderActivity() {
     root.dataset.fieldView=state.activityView;
     byId('activity-week-nav').hidden=state.activityView!=='week';
@@ -279,6 +317,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
       if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
       else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
+      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+(metric==='minutes'?'min':'pass'),state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''))+'/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
     svg+='</svg>';
@@ -351,7 +390,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
-      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"/>';});
+      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+' kg',logDate(point[2].date))+'/>';});
     });
     var daySpan=Math.round((dateAtNoon(dateKeys[dateKeys.length-1])-dateAtNoon(dateKeys[0]))/86400000);
     var tickCount=daySpan===0?1:Math.min(5,daySpan+1);
@@ -589,7 +628,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     svg+=metricChartFrame(width,height,left,right,top,bottom,options,y,min,max);
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line class="metric-goal-line" x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'"/><text class="metric-goal-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
     svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/>'+glowingLine(path,options.color,'');
-    points.forEach(function(point,index){if(index===points.length-1)svg+=glowingPoint(point[0],point[1],5,options.color,'');});
+    points.forEach(function(point,index){
+      if(index===points.length-1)svg+=glowingPoint(point[0],point[1],5,options.color,'');
+      svg+='<circle class="chart-hit-point" cx="'+point[0]+'" cy="'+point[1]+'" r="14"'+chartTipAttrs(logDate(entries[index].date)+(entries[index].type?' · '+entries[index].type:''),valueLabel(entries[index].value),'')+'/>';
+    });
     var last=entries[entries.length-1],lastPoint=points[points.length-1],labelX=clamp(lastPoint[0],left+35,width-right-2),anchor=labelX>width-120?'end':'start';
     svg+='<text class="last-label" x="'+labelX+'" y="'+clamp(lastPoint[1]-14,top+10,height-bottom-10)+'" text-anchor="'+anchor+'" fill="'+options.color+'">'+escapeHtml(valueLabel(last.value))+'</text>';
     var desired=width<480?4:6,indexes=[];
@@ -633,7 +675,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0))return;
       var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
-      svg+=glowingPoint(px,py,4,color,'');
+      svg+=glowingPoint(px,py,4,color,'')+'<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
       if(width<560&&index!==0&&index!==entries.length-1&&index%3!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
       // Alternate labels when successive samples would otherwise occupy the same lane.
@@ -734,7 +776,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     runs.forEach(function(entry){
       var px=x(entry.distance),py=y(entry.value);
       svg+='<circle class="pace-scatter-halo" cx="'+px+'" cy="'+py+'" r="14" fill="url(#pace-scatter-halo-gradient)"/>'+
-        '<circle class="pace-scatter-point" cx="'+px+'" cy="'+py+'" r="4.4"><title>'+escapeHtml(logDate(entry.date)+' · '+formatNumber(entry.distance,2)+' km · '+formatPace(entry.value))+'</title></circle>';
+        '<circle class="pace-scatter-point" cx="'+px+'" cy="'+py+'" r="4.4"'+chartTipAttrs(logDate(entry.date),formatPace(entry.value),formatNumber(entry.distance,2)+' km')+'><title>'+escapeHtml(logDate(entry.date)+' · '+formatNumber(entry.distance,2)+' km · '+formatPace(entry.value))+'</title></circle>';
     });
     return '<div class="pace-distance-title"><strong>Snittakt mot löpdistans</strong><span>PER LÖPPASS</span></div><p class="pace-distance-note">Varje punkt är ett löppass. Snabbare tempo visas högre upp.</p>'+svg+'</svg>';
   }
@@ -816,11 +858,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function renderLog() {
     var workouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
-    });
-    var more=byId('field-log-more');
-    more.hidden=workouts.length<=state.logLimit;
-    if(!more.hidden)more.textContent='Visa fler pass · '+(workouts.length-state.logLimit)+' kvar';
-    workouts=workouts.slice(0,state.logLimit);
+    }).slice(0,12);
     var timeline=byId('log-timeline');
     if(!workouts.length){
       timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
@@ -841,7 +879,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'<div class="field-action-row"><button type="button" class="field-action" data-field-action="edit-log" data-workout-id="'+escapeHtml(String(workout.id))+'">Redigera pass</button></div></div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
@@ -922,7 +960,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
-    byId('field-log-more').addEventListener('click',function(){state.logLimit+=12;renderLog();});
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
     byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
     byId('record-picker-fields').addEventListener('change',function(event){
@@ -951,12 +988,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
     document.addEventListener('click',function(event){
 var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=shiftDate(state.weekStart,number(shift.dataset.weekShift)*7);state.selectedDate=isoDate(state.weekStart);renderWeek();if(state.activityView==='week')renderActivity();return;}
-      var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();return;}
+      var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-day',date:state.selectedDate}}));return;}
       var view=event.target.closest('[data-activity-view]');if(view){state.activityView=view.dataset.activityView;renderActivity();return;}
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
       var insight=event.target.closest('[data-insight]');if(insight){state.insight=insight.dataset.insight;renderInsight();return;}
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
     });
+    byId('week-days').addEventListener('keydown',function(event){
+      var day=event.target.closest('[data-day]');
+      if(!day||!['Enter',' '].includes(event.key))return;
+      event.preventDefault();day.click();
+    });
+    document.addEventListener('pointerover',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
+    document.addEventListener('pointermove',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
+    document.addEventListener('pointerout',function(event){if(event.target.closest&&event.target.closest('[data-chart-tip]')&&!(event.relatedTarget&&event.relatedTarget.closest&&event.relatedTarget.closest('[data-chart-tip]')))hideChartTooltip();});
+    document.addEventListener('focusin',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,null,false);});
+    document.addEventListener('focusout',function(event){if(event.target.closest&&event.target.closest('[data-chart-tip]'))hideChartTooltip();});
+    document.addEventListener('click',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,true);});
     // Firebase can emit one event per storage key at login. Only six keys
     // contribute to this overview; combine their initial burst into one render.
     var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_weekPlans','ex_prs','ex_vo2']);

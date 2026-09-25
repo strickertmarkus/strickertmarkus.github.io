@@ -91,7 +91,11 @@ jobs:
               assert.ok(!href.includes('archive/exercise.html'),'Tool must never redirect to archived training: '+href);
             }
             assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'The Pulse Field page must have no links to the old trainer');
-            assert.ok(await page.locator('#field-template-grid').count(),'Saved templates must be available on the canonical page');
+            assert.equal(await page.locator('.field-template-section').count(),0,'Pulse Field must not add a separate template/button section');
+            assert.equal(await page.locator('.field-day-actions').count(),0,'Week field must use the days themselves instead of extra action buttons');
+            assert.equal(await page.locator('.field-action').count(),0,'The restored Pulse Field composition must not gain generic action pills');
+            assert.equal(await page.locator('#records [data-field-action="records"]').count(),0,'Records must not add a separate New PR button');
+            assert.equal(await page.locator('.rhythm-primary[data-field-action="goals"]').count(),1,'Weekly signal itself should expose goal editing without a new button');
             assert.ok((await page.locator('#stretch-link').getAttribute('href')).includes('zen.html?wellness=stretch'),'Stretch must open preserved Zen functionality');
             assert.ok((await page.locator('#meditation-link').getAttribute('href')).includes('zen.html?wellness=meditation'),'Meditation must open preserved Zen functionality');
             await page.waitForTimeout(950);
@@ -107,16 +111,21 @@ jobs:
             assert.equal(await page.locator('#exercise-pulse-boot-critical-v82').count(),0,'Canonical Pulse Field must not receive old exercise page boot CSS');
             assert.equal(await page.locator('script[data-exercise-session-ux-v20]').count(),0,'Canonical Pulse Field must not load 27 legacy exercise enhancements');
             const weekAppearance=await page.locator('.week-day').evaluateAll(days=>days.map(day=>{
-              const date=day.querySelector('button.day-date');
-              return {tag:day.tagName,background:getComputedStyle(day).backgroundColor,shadow:getComputedStyle(day).boxShadow,dateTag:date?.tagName,dateAppearance:date?getComputedStyle(date).appearance:null};
+              const date=day.querySelector('.day-date');
+              return {tag:day.tagName,role:day.getAttribute('role'),tabIndex:day.tabIndex,background:getComputedStyle(day).backgroundColor,shadow:getComputedStyle(day).boxShadow,dateTag:date?.tagName};
             }));
-            assert.equal(weekAppearance.length,7,'Seven day wrappers should exist');
-            assert.ok(weekAppearance.every(day=>day.tag==='DIV'&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'&&day.dateTag==='BUTTON'&&day.dateAppearance==='none'),'Only the actual date button may have a highlighted panel: '+JSON.stringify(weekAppearance));
+            assert.equal(weekAppearance.length,7,'Seven interactive day targets should exist');
+            assert.ok(weekAppearance.every(day=>day.tag==='DIV'&&day.role==='button'&&day.tabIndex===0&&day.background==='rgba(0, 0, 0, 0)'&&day.shadow==='none'&&day.dateTag==='SPAN'),'Whole days must be direct controls without rendering new day buttons/cards: '+JSON.stringify(weekAppearance));
             assert.ok(await page.locator('.week-day').evaluateAll(days=>days.every(day=>getComputedStyle(day).backgroundImage==='none')),'No old dark-blue background on weekday cells');
             assert.equal(await page.locator('.week-orbit-art .week-orbit-light').count(),1,'Original week orbit must remain behind the weekday labels');
             assert.equal(await page.locator('.week-orbit-light').evaluate(el=>getComputedStyle(el).animationName),'weekSweep','Week orbit line must move independently of the dark-box fix');
             assert.equal(await page.locator('.signal-traveler').count(),0,'Hero must not replace a moving dashed line with a dot');
             assert.equal(await page.locator('.signal-main').evaluate(el=>getComputedStyle(el).animationName),'fieldDashFlow','Hero dashed line itself must animate');
+            const activityHit=page.locator('#activity-chart [data-chart-tip]').first();
+            assert.ok(await activityHit.count(),'Activity chart must expose interactive data regions');
+            await activityHit.click();
+            await page.waitForSelector('#field-chart-tooltip.is-visible');
+            assert.ok((await page.locator('#field-chart-tooltip').innerText()).trim().length>0,'Chart interaction must reveal the themed data tooltip');
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
@@ -442,39 +451,25 @@ jobs:
             await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
-            await page.waitForSelector('#field-template-grid');
-            assert.equal(await page.locator('#field-workspace iframe').count(),0,'The original training app must load only when a tool is opened');
+            await page.waitForSelector('#week-days .week-day[data-day]');
+            assert.equal(await page.locator('#field-workspace iframe').count(),0,'Compact runtime must remain lazy until a natural Pulse Field interaction needs it');
+            assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
             const canonical=page.url();
-            await page.locator('#field-templates [data-field-action="build"]').click();
+
+            const chosen=page.locator('#week-days .week-day[data-day]').nth(2);
+            const chosenDate=await chosen.getAttribute('data-day');
+            await chosen.click();
             const embedded=page.frameLocator('#field-workspace iframe');
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:50000});
-            assert.equal(page.url(),canonical,'Open original pass editor inside Pulse Field without navigation');
-            assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Use the original day workout builder');
-            assert.equal(await page.locator('#field-editor-dialog').count(),0,'Duplicate simplified builder must not be present');
+            assert.equal(page.url(),canonical,'Day editing must stay inside the canonical Pulse Field route');
+            assert.equal(await embedded.locator('#day-workout-date').inputValue(),chosenDate,'Tapped Pulse Field day must open the matching Compact day editor');
+            assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Direct day interaction must reuse the original day workout builder');
+            assert.equal(await page.locator('#field-editor-dialog').count(),0,'No duplicate simplified builder may be created');
+
             const color=await embedded.locator('#day-workout-modal .modal').evaluate(el=>getComputedStyle(el).backgroundColor);
-            assert.ok(color!=='rgb(22, 27, 34)','Embedded old tools should adopt the Pulse Field theme: '+color);
-            const childChrome=await embedded.locator('body').evaluate(el=>({
-              pseudo:getComputedStyle(el,'::after').display,
-              modal:document.getElementById('day-workout-modal').getBoundingClientRect().height,
-              viewport:innerHeight
-            }));
-            assert.equal(childChrome.pseudo,'none','The archived homepage bootstrap spinner must not cover embedded original tools');
-            assert.ok(childChrome.modal>0&&childChrome.modal<=childChrome.viewport+2,'Original builder must fit the mobile workspace: '+JSON.stringify(childChrome));
-            // Legacy modal entrance has a short animation after the iframe boot;
-            // capture the settled interface rather than the empty opening frame.
-            await page.waitForTimeout(650);
-            const modalVisibility=await embedded.locator('#day-workout-modal .modal').evaluate(el=>({
-              display:getComputedStyle(el).display,
-              visibility:getComputedStyle(el).visibility,
-              opacity:Number(getComputedStyle(el).opacity),
-              height:el.getBoundingClientRect().height
-            }));
-            assert.ok(modalVisibility.display!=='none'&&modalVisibility.visibility==='visible'&&modalVisibility.opacity>.9&&modalVisibility.height>180,'Original builder must visibly render after opening: '+JSON.stringify(modalVisibility));
-            fs.mkdirSync('test-results/pulse-field',{recursive:true});
-            await page.screenshot({path:'test-results/pulse-field/legacy-builder-integrated-mobile.png'});
+            assert.ok(color!=='rgb(22, 27, 34)','Embedded Compact tools should adopt the Pulse Field theme: '+color);
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
-            assert.ok(await embedded.locator('#day-workout-ex-list .ex-row-item').count()>=2,'Original editor must add exercise rows');
-            const chosenDate=await embedded.locator('#day-workout-date').inputValue();
+            assert.ok(await embedded.locator('#day-workout-ex-list .ex-row-item').count()>=2,'Original builder must keep add-exercise functionality');
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-name').evaluate(input=>{
               input.value='Testpress';input.dispatchEvent(new Event('input',{bubbles:true}));
             });
@@ -485,55 +480,45 @@ jobs:
             await embedded.locator('#day-workout-modal [onclick="saveDayWorkoutPlan()"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
             const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
-            assert.equal(plan[chosenDate].exercises[0].name,'Testpress','The preserved pass builder must save its existing storage schema');
+            assert.equal(plan[chosenDate].exercises[0].name,'Testpress','Direct day editor must persist the original Compact plan schema');
+
             await page.locator('#next-session-link').click();
             await embedded.locator('#session-modal.show').waitFor({timeout:5000});
-            assert.equal(page.url(),canonical,'Original complete session runtime must remain on the new page');
-            assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode buttons should render');
-            await page.screenshot({path:'test-results/pulse-field/legacy-session-integrated-mobile.png'});
+            assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
+            await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
-            assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Use original seven-day weekly plan editor');
+            assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Existing week-plan link must retain the original seven-day editor');
             await embedded.locator('#plan-modal .modal-close').click();
-            await page.locator('#menu-toggle').click();
-            await page.locator('#menu-week-templates').click();
-            await embedded.locator('#template-modal.show').waitFor({timeout:5000});
-            assert.ok(await embedded.locator('#template-pick').count(),'Original week-template editor is available in-page');
-            await embedded.locator('#template-modal .modal-close').click();
+
             await page.locator('#log-action-link').click();
             await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
-            assert.ok(await embedded.locator('#wk-template-select').count(),'Original log must include template selection and editable exercises');
+            assert.ok(await embedded.locator('#wk-template-select').count(),'Existing log link must retain template selection and editable exercises');
             await embedded.locator('#wk-modal .modal-close').click();
-            await page.locator('#records [data-field-action="records"]').click();
+
+            await page.locator('#menu-toggle').click();
+            await page.locator('#menu-records').click();
             await embedded.locator('#pr-modal.show').waitFor({timeout:5000});
-            assert.ok(await embedded.locator('#pr-name').count(),'Original PR editor must open from the new dashboard');
+            assert.ok(await embedded.locator('#pr-name').count(),'Existing records menu entry must retain the original PR editor');
             await embedded.locator('#pr-modal .modal-close').click();
-            await page.locator('[data-field-action="create-template"]').click();
-            await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
-            assert.equal((await embedded.locator('#wk-modal h2').first().textContent()).trim(),'Skapa mallpass','Creating a template must use the preserved exercise editor');
-            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-name').evaluate(input=>{
-              input.value='Testmallövning';input.dispatchEvent(new Event('input',{bubbles:true}));
-            });
-            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric1').fill('3');
-            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric2').fill('10');
-            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric3').fill('20');
-            await embedded.locator('#wk-modal .modal-footer .btn-primary').last().click();
+
+            await page.locator('.rhythm-primary').click();
+            await page.waitForSelector('#field-workspace[open]');
+            assert.equal(await embedded.locator('html[data-field-workspace="goals"]').count(),1,'Weekly signal itself should open Compact goal editing without a new button');
+            await page.locator('#field-workspace-close').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
-            const template=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_templates'))[0]);
-            assert.equal(template.name,'Mallpass','Original mallpass save must persist the existing storage schema');
-            assert.equal(template.exercises[0].weight,20);
-            await page.locator('#field-template-grid [data-field-action="edit-template"]').first().click();
-            await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
-            await embedded.locator('#wk-modal .ex-list .ex-row-item').first().locator('.ex-metric3').fill('25');
-            await embedded.locator('#wk-modal .modal-footer .btn-primary').last().click();
-            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
-            const changedTemplate=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_templates'))[0]);
-            assert.equal(changedTemplate.id,template.id,'Editing must keep original template identity');
-            assert.equal(changedTemplate.exercises[0].weight,25,'Editing must update existing template rather than creating a duplicate');
-            assert.equal(await page.locator('a[href*="archive/exercise.html"]').count(),0,'No navigation to archived trainer');
-            assert.deepEqual(errors.filter(e=>/training-pulse-editor\.js|field-workspace/.test(e)),[],'Host runtime errors: '+errors.join(' | '));
+
+            const chartHit=page.locator('#activity-chart [data-chart-tip]').first();
+            assert.ok(await chartHit.count(),'Activity graph must expose a direct data hit region');
+            await chartHit.click();
+            await page.waitForSelector('#field-chart-tooltip.is-visible');
+            const tooltipText=(await page.locator('#field-chart-tooltip').innerText()).trim();
+            assert.ok(tooltipText.length>0,'Tapping the graph must reveal its value');
+            assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'Direct functionality must not reintroduce extra action-button layers');
+            assert.deepEqual(errors.filter(e=>/training-pulse-editor\.js|training-pulse-field\.js|field-workspace/.test(e)),[],'Host runtime errors: '+errors.join(' | '));
             await browser.close();
           }
 
@@ -542,7 +527,7 @@ jobs:
             await verify({width:390,height:844},'mobile',true);
             await verifyMigration();
             await verifyLegacyWorkspace();
-            console.log('Pulse Field in-page original builder, session, log, plan and records verified in WebKit');
+            console.log('Pulse Field direct day editing, interactive charts and Compact runtime parity verified in WebKit');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node /tmp/pulse-field-visual.cjs

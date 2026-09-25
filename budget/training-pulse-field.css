@@ -134,6 +134,8 @@ main{position:relative;z-index:2;display:block}
 .rhythm-track i{position:relative;flex:1;height:5px;border-radius:9px;background:#ffffff12;overflow:visible}
 .rhythm-track i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#ff657a,#ffd1ba);box-shadow:0 0 8px #ff9a91,0 0 22px #ff657a80;transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
 .rhythm-track i.is-lit::after{transform:scaleX(1)}
+.rhythm-primary{cursor:pointer;outline:none}
+.rhythm-primary:focus-visible{border-radius:12px;box-shadow:0 0 0 1px #ff9a9155,0 0 22px #ff657a18}
 .rhythm-primary p{margin:0;color:#c99387;font-size:13px}
 .rhythm-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
 .rhythm-stats div{padding:0 20px;border-left:1px solid var(--field-line)}
@@ -163,9 +165,10 @@ main{position:relative;z-index:2;display:block}
 .week-orbit-art path{fill:none;stroke:#ff9a9133;stroke-width:1}
 .week-orbit-art .week-orbit-light{stroke:#ffd2bd;stroke-width:1.7;stroke-linecap:round;stroke-dasharray:1 99;animation:weekSweep 26s linear infinite}
 .week-days{position:relative;z-index:2;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:6px 2px}
+.week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:88px;padding:6px 2px;cursor:pointer;outline:none}
+.week-day:focus-visible .day-date{border-color:#ff9a9180;box-shadow:0 0 0 2px #ff657a18,0 0 18px #ff657a1f}
 .week-day .day-name{color:var(--field-muted);font-size:9px;letter-spacing:1px;text-transform:uppercase}
-.week-day .day-date{position:relative;display:grid;place-items:center;isolation:isolate;width:46px;height:50px;margin-top:3px;padding:0 0 9px;-webkit-appearance:none;appearance:none;border:1px solid transparent;border-radius:12px;background:transparent;color:#d4d7da;font:500 26px/1.1 var(--field-serif);cursor:pointer;transition:background .25s,border-color .25s}
+.week-day .day-date{position:relative;display:grid;place-items:center;isolation:isolate;width:46px;height:50px;margin-top:3px;padding:0 0 9px;border:1px solid transparent;border-radius:12px;background:transparent;color:#d4d7da;font:500 26px/1.1 var(--field-serif);transition:background .25s,border-color .25s}
 .week-day:hover .day-date{background:#ff9a910b}
 .week-day.is-today .day-date{color:var(--field-peach)}
 .week-day.is-selected .day-date{border-color:#ff9a9168;background:radial-gradient(ellipse at 50% 30%,#ff9a9113,#0b1118 78%);color:#ffdacb;animation:weekDateShimmer 4.8s ease-in-out infinite}
@@ -207,6 +210,14 @@ main{position:relative;z-index:2;display:block}
 .metric-goal-line{stroke:#ffffff35;stroke-width:1;stroke-dasharray:3 7;vector-effect:non-scaling-stroke}
 .metric-goal-label{fill:#8b949e}
 .activity-bar{filter:drop-shadow(0 0 5px #ff657a80) drop-shadow(0 0 13px #ff657a45)}
+.chart-hit-zone,.chart-hit-point,.pace-scatter-point,.group-volume-point{cursor:crosshair;pointer-events:all}
+.chart-hit-zone,.chart-hit-point{fill:transparent}
+.field-chart-tooltip{position:fixed;z-index:120;min-width:118px;max-width:min(260px,calc(100vw - 28px));padding:9px 11px;border:1px solid #ff9a9145;border-radius:11px;background:#0c131bea;box-shadow:0 12px 38px #0009,0 0 24px #ff657a18;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transform:translate(-50%,-100%) translateY(-8px);opacity:0;pointer-events:none;transition:opacity .14s ease,transform .14s ease;color:#e9e5e3}
+.field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-13px)}
+.field-chart-tooltip strong,.field-chart-tooltip span,.field-chart-tooltip small{display:block}
+.field-chart-tooltip strong{color:#ffb4a7;font:600 10px/1.3 var(--field-ui);letter-spacing:.45px;text-transform:uppercase}
+.field-chart-tooltip span{margin-top:3px;color:#fff4ef;font:500 16px/1.2 var(--field-serif)}
+.field-chart-tooltip small{margin-top:3px;color:#aeb6bf;font:500 10px/1.35 var(--field-ui)}
 .activity-zero{stroke:#8d98a333;stroke-width:2;stroke-linecap:round}
 .chart-value{fill:#ffd6c4;font:600 10px var(--field-ui);paint-order:stroke;stroke:#080d12;stroke-width:3px;stroke-linejoin:round}
 .line-glow{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.35;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor)}

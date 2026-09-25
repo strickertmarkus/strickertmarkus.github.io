@@ -1,21 +1,5 @@
-/* One lazy-mounted workspace for the original training app. No duplicate
-   builder, set timer, model or training log is implemented in Pulse Field. */
-.field-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid #ff9a9140;border-radius:999px;background:#ff9a9110;color:#ffd6ca;font:500 12px var(--field-ui);text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s}
-.field-action:hover,.field-action:focus-visible{background:#ff9a9126;border-color:#ff9a9180}
-.field-action--primary{border-color:#ff9a9180;background:#ff657a29;color:#fff3ec}
-.field-action--quiet{background:transparent;border-color:#ffffff28;color:#c7cbd1}
-.field-action--danger{color:#ffc4ba;border-color:#ff657a66}
-.field-action:disabled{opacity:.4;cursor:not-allowed}
-.field-action-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.field-template-section{position:relative;z-index:2;padding:25px 0 38px;border-top:1px solid #ff9a9124}
-.field-template-section .section-head{margin-bottom:18px}
-.field-template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
-.field-template-card{display:flex;flex-direction:column;gap:9px;min-width:0;padding:16px;border:1px solid #ff9a912a;border-radius:15px;background:linear-gradient(145deg,#ff657a0b,#0e151ce0)}
-.field-template-card strong{color:#f7e7dd;font:500 18px/1.2 var(--field-serif)}
-.field-template-card>p{margin:0;min-height:32px;color:var(--field-muted);font-size:11px;line-height:1.5}
-.field-template-card .field-action-row{margin-top:auto;gap:7px}
-.field-template-card .field-action{min-height:36px;padding:6px 10px;font-size:11px}
-.field-day-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+/* Pulse Field uses direct manipulation. The preserved Compact runtime is mounted
+   only inside the lazy workspace; no duplicate host-side button/card UI is maintained. */
 .exercise-row[data-field-action]{appearance:none;width:100%;text-align:left;background:transparent;border:0;color:inherit;font:inherit;cursor:pointer;transition:background .2s}
 .exercise-row[data-field-action]:hover,.exercise-row[data-field-action]:focus-visible{background:#ff9a910a;outline:1px solid #ff9a9145;outline-offset:-1px}
 .record-row[data-field-action]{appearance:none;width:100%;text-align:left;background:transparent;border:0;color:inherit;font:inherit;cursor:pointer;transition:background .2s}
@@ -32,4 +16,4 @@
 .field-workspace-status[hidden]{display:none}
 body:has(.field-workspace[open]){overflow:hidden}
 @media(max-width:560px){.field-workspace-header strong{font-size:20px}.field-workspace-header{padding-left:14px;padding-right:14px}}
-@media(prefers-reduced-motion:reduce){.field-action{transition:none}.field-workspace::backdrop{backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){.field-workspace::backdrop{backdrop-filter:none}}
