@@ -38,6 +38,28 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     try{return localStorage.getItem(fieldLayoutKey)==='compact'?'compact':'full';}
     catch(_){return 'full';}
   }
+  function setFieldSceneVisible(visible) {
+    root.dataset.fieldSceneVisible=visible?'true':'false';
+  }
+  function installFieldSceneVisibility() {
+    var hero=document.querySelector('.field-hero');
+    if(!hero)return;
+    var pageVisible=!document.hidden;
+    var heroVisible=true;
+    function syncScene(){setFieldSceneVisible(pageVisible&&heroVisible);}
+    if('IntersectionObserver' in window){
+      var observer=new IntersectionObserver(function(entries){
+        heroVisible=!!(entries[0]&&entries[0].isIntersecting);
+        syncScene();
+      },{root:null,rootMargin:'120px 0px 120px 0px',threshold:0});
+      observer.observe(hero);
+    }
+    document.addEventListener('visibilitychange',function(){
+      pageVisible=!document.hidden;
+      syncScene();
+    });
+    syncScene();
+  }
   function number(value) { var n = Number(value); return Number.isFinite(n) ? n : 0; }
   function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
   function escapeHtml(value) {
@@ -1070,6 +1092,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
 
   function install() {
     setFieldLayout(initialFieldLayout(),false);
+    installFieldSceneVisibility();
     wireProfileLinks();loadData();installEvents();renderAll();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
