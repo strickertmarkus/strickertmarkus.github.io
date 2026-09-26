@@ -455,7 +455,7 @@ jobs:
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#week-days .week-day[data-day]');
-            await page.waitForSelector('#field-workspace iframe',{timeout:5000});
+            await page.locator('#field-workspace iframe').waitFor({state:'attached',timeout:5000});
             assert.equal(await page.locator('#field-workspace').evaluate(el=>el.open),false,'Prewarmed pass tools must stay invisible until requested');
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
             const canonical=page.url();
