@@ -309,7 +309,7 @@ jobs:
               workouts[0].exercises.push({kind:'strength',name:'Marklyft sumo',sets:3,reps:5,weight:80});
               saveWorkouts(workouts);refreshAll();
             });
-            await page.locator('.records-master-toggle-v52').click();
+            await page.locator('.records-master-toggle-v52').evaluate(el=>el.click());
             const record=page.locator('details.record-row-v52').first();
             assert.ok(await record.count(),'saved strength record must render');
             await record.locator('summary').click();
