@@ -20,6 +20,19 @@ const authConfig=read('auth-config.js');
 const environmentCss=read('pulse-environment/environment.css');
 const shellV13=read('exercise-shell-v13.js');
 const builderV7=read('exercise-builder-between-preview-v7.js');
+const builderRows=read('exercise-builder-row-tools-v3.js');
+const builderStyle=read('exercise-builder-style-v5.js');
+const pulseFieldCss=read('training-pulse-field.css');
+
+test('embedded original builder stays lightweight and event driven',()=>{
+  assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*item\.src === 'exercise-points-8-9\.js' \|\| item\.group === 'builder'/);
+  assert.match(authConfig,/__loadEmbeddedSessionAssetsV1/);
+  assert.match(builderRows,/embedded && window\.MutationObserver/);
+  assert.match(builderRows,/syncObserver\.observe\(document\.body/);
+  assert.match(builderStyle,/embedded && window\.MutationObserver/);
+  assert.match(builderV7,/embedded && window\.MutationObserver/);
+  assert.match(pulseFieldCss,/\.field-chart-tooltip\{[^}]*linear-gradient\(145deg,rgba\(77,30,54,/);
+});
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
   assert.match(shell,/canonical=\/\\\/exercise\\\.html\$\//);
