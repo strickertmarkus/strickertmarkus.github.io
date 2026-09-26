@@ -20,6 +20,24 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   var data = {};
 
   function byId(id) { return document.getElementById(id); }
+  var fieldLayoutKey='ex_field_layout_'+profile;
+  function setFieldLayout(mode,persist) {
+    mode=mode==='compact'?'compact':'full';
+    root.dataset.fieldLayout=mode;
+    var button=byId('field-compact-toggle'),compact=mode==='compact';
+    if(button){
+      button.setAttribute('aria-pressed',String(compact));
+      button.setAttribute('aria-label',compact?'Compact vy aktiv. Byt till full Pulse vy':'Aktivera Compact vy');
+      button.title=compact?'Compact vy aktiv':'Compact vy';
+    }
+    if(persist){
+      try{localStorage.setItem(fieldLayoutKey,mode);}catch(_){}
+    }
+  }
+  function initialFieldLayout() {
+    try{return localStorage.getItem(fieldLayoutKey)==='compact'?'compact':'full';}
+    catch(_){return 'full';}
+  }
   function number(value) { var n = Number(value); return Number.isFinite(n) ? n : 0; }
   function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
   function escapeHtml(value) {
@@ -972,6 +990,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
+    var compactToggle=byId('field-compact-toggle');
+    if(compactToggle)compactToggle.addEventListener('click',function(){
+      setFieldLayout(root.dataset.fieldLayout==='compact'?'full':'compact',true);
+    });
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
     byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
     byId('record-picker-fields').addEventListener('change',function(event){
@@ -1047,6 +1069,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
   }
 
   function install() {
+    setFieldLayout(initialFieldLayout(),false);
     wireProfileLinks();loadData();installEvents();renderAll();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
