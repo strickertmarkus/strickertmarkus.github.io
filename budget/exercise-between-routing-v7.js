@@ -7,7 +7,7 @@
   var activeTransition = '';
   var activeState = null;
   var clearTimer = null;
-  var embeddedField = document.documentElement.hasAttribute('data-field-embedded');
+  var embeddedField = document.documentElement.hasAttribute('data-field-embedded') || new URLSearchParams(location.search).get('compactHost') === '1';
 
   function normalizeConfig(raw) {
     raw = raw || {};
