@@ -54,9 +54,17 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(flowPolish,/var embeddedField = document\.documentElement\.hasAttribute\('data-field-embedded'\)/);
   assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return null;/);
   assert.match(flowPolish,/--flow-accent:\$\{embeddedField\?'#ff9a91':'#22D3EE'\}/);
+  assert.match(flowPolish,/session-pretimer-toggle-v2\[aria-pressed="true"\][\s\S]*background:var\(--flow-accent-pale\)/);
+  assert.doesNotMatch(flowPolish,/background:#A5F3FC/);
+  assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*MutationObserver[\s\S]*requestAnimationFrame\(syncEmbeddedSession\)[\s\S]*\} else \{[\s\S]*setInterval\(syncSlow,450\)/);
   assert.match(betweenRouting,/if \(embeddedField\) return;[\s\S]*exercise-between-routing-v7-clarification/);
+  assert.match(betweenRouting,/if \(embeddedField\) \{[\s\S]*MutationObserver[\s\S]*requestAnimationFrame\(syncArchiveRows\)[\s\S]*\} else \{[\s\S]*setInterval\(syncArchiveRows,220\)/);
   assert.match(shellV13,/if\(embeddedField\)\{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return true;/);
   assert.match(pulseFieldJs,/fieldLayoutKey='ex_field_layout_'\+profile/);
+  assert.match(pulseFieldJs,/new IntersectionObserver\([\s\S]*fieldSceneVisible/);
+  assert.doesNotMatch(pulseFieldJs,/addEventListener\('scroll'/);
+  assert.match(pulseFieldCss,/\.space-scene\{position:fixed/);
+  assert.match(pulseFieldCss,/html\[data-field-scene-visible="false"\] \.space-scene\{display:none\}/);
   assert.match(pulseFieldCss,/html\[data-field-layout="compact"\] \.field-canvas,html\[data-field-layout="compact"\] \.space-scene\{display:none\}/);
 });
 
@@ -239,8 +247,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260926-no-builder-pretimer-7/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-no-builder-pretimer-6/);
+  assert.match(exercise,/auth-config\.js\?v=20260926-energy-session-8/);
+  assert.match(exercise,/auth-gate\.js\?v=20260926-energy-session-7/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
