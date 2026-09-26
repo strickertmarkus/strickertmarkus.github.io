@@ -468,6 +468,13 @@ jobs:
             assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Compact mode should suspend the animated cosmic scene');
             await compactToggle.click();
             assert.equal(await page.locator('html').getAttribute('data-field-layout'),'full','Compact control must return to full Pulse mode without archive navigation');
+            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).position),'fixed','Pulse hero scenery must be viewport-fixed rather than scrolling with the document');
+            await page.locator('#activity-field').scrollIntoViewIfNeeded();
+            await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='false',null,{timeout:3000});
+            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Hero scenery must stop rendering after the hero leaves the viewport');
+            await page.locator('.field-hero').scrollIntoViewIfNeeded();
+            await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='true',null,{timeout:3000});
+            assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Hero scenery should resume only when the hero is visible again');
             await page.locator('#field-workspace iframe').waitFor({state:'attached',timeout:5000});
             assert.equal(await page.locator('#field-workspace').evaluate(el=>el.open),false,'Prewarmed pass tools must stay invisible until requested');
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
@@ -555,6 +562,10 @@ jobs:
             await page.evaluate(date=>window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'start',date}})),chosenDate);
             await embedded.locator('#session-modal.show').waitFor({timeout:15000});
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
+            const timerToggle=embedded.locator('#session-pretimer-toggle-v2');
+            assert.equal(await timerToggle.count(),1,'5-second timer should exist only inside the running workout mode');
+            const timerKnob=timerToggle.locator('.session-timer-knob-v48');
+            assert.equal(await timerKnob.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 240, 232)','Embedded 5-second timer knob must use Pulse ivory/coral rather than legacy cyan');
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
