@@ -20,23 +20,52 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   var data = {};
 
   function byId(id) { return document.getElementById(id); }
-  var fieldLayoutKey='ex_field_layout_'+profile;
-  function setFieldLayout(mode,persist) {
-    mode=mode==='compact'?'compact':'full';
-    root.dataset.fieldLayout=mode;
-    var button=byId('field-compact-toggle'),compact=mode==='compact';
-    if(button){
-      button.setAttribute('aria-pressed',String(compact));
-      button.setAttribute('aria-label',compact?'Compact vy aktiv. Byt till full Pulse vy':'Aktivera Compact vy');
-      button.title=compact?'Compact vy aktiv':'Compact vy';
-    }
-    if(persist){
-      try{localStorage.setItem(fieldLayoutKey,mode);}catch(_){}
-    }
+  var compactHost=null;
+  function updateCompactControl(open) {
+    var button=byId('training-overview-toggle');
+    if(!button)return;
+    button.setAttribute('aria-pressed',String(!!open));
+    button.setAttribute('aria-label',open?'Compact vy aktiv. Byt till Pulse Field':'Aktivera Compact vy');
+    button.title=open?'Compact vy aktiv':'Compact vy';
   }
-  function initialFieldLayout() {
-    try{return localStorage.getItem(fieldLayoutKey)==='compact'?'compact':'full';}
-    catch(_){return 'full';}
+  function compactFrameUrl() {
+    var url=new URL('archive/exercise.html',location.href);
+    url.searchParams.set('overview','compact');
+    url.searchParams.set('compactHost','1');
+    url.searchParams.set('v','20260926-original-compact-1');
+    if(profile==='maja')url.searchParams.set('user','maja');
+    return url.href;
+  }
+  function openOriginalCompact() {
+    if(compactHost)return;
+    compactHost=document.createElement('section');
+    compactHost.id='field-compact-host';
+    compactHost.className='field-compact-host';
+    compactHost.setAttribute('aria-label','Compact träningsvy');
+    var frame=document.createElement('iframe');
+    frame.className='field-compact-frame';
+    frame.title='Compact träningsvy';
+    frame.src=compactFrameUrl();
+    frame.setAttribute('loading','eager');
+    compactHost.appendChild(frame);
+    document.body.appendChild(compactHost);
+    document.body.classList.add('field-compact-active');
+    updateCompactControl(true);
+  }
+  function closeOriginalCompact() {
+    if(compactHost){compactHost.remove();compactHost=null;}
+    document.body.classList.remove('field-compact-active');
+    updateCompactControl(false);
+    var button=byId('training-overview-toggle');
+    if(button)button.focus({preventScroll:true});
+  }
+  function installCompactBridge() {
+    window.addEventListener('message',function(event){
+      if(event.origin!==location.origin||!compactHost)return;
+      var frame=compactHost.querySelector('iframe');
+      if(!frame||event.source!==frame.contentWindow)return;
+      if(event.data&&event.data.type==='pulse-field:exit-compact')closeOriginalCompact();
+    });
   }
   function setFieldSceneVisible(visible) {
     root.dataset.fieldSceneVisible=visible?'true':'false';
@@ -1012,10 +1041,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
     function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
-    var compactToggle=byId('field-compact-toggle');
-    if(compactToggle)compactToggle.addEventListener('click',function(){
-      setFieldLayout(root.dataset.fieldLayout==='compact'?'full':'compact',true);
-    });
+    var compactToggle=byId('training-overview-toggle');
+    if(compactToggle)compactToggle.addEventListener('click',openOriginalCompact);
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
     byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
     byId('record-picker-fields').addEventListener('change',function(event){
@@ -1091,7 +1118,8 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
   }
 
   function install() {
-    setFieldLayout(initialFieldLayout(),false);
+    updateCompactControl(false);
+    installCompactBridge();
     installFieldSceneVisibility();
     wireProfileLinks();loadData();installEvents();renderAll();
   }
