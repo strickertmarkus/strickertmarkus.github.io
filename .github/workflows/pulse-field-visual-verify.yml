@@ -52,7 +52,11 @@ jobs:
         run: |
           node --check budget/training-pulse-editor.js
           node --check budget/training-pulse-field.js
+          node --check budget/exercise-dashboard.js
+          node --check budget/exercise-flow-polish-v2.js
+          node --check budget/exercise-between-routing-v7.js
           node --check budget/firebase-sync.js
+          node --test budget/tests/training-wellness-shell.test.cjs budget/tests/training-observatory-identity.test.cjs
       - name: Render desktop and mobile
         run: |
           cat > /tmp/pulse-field-visual.cjs <<'EOF'
