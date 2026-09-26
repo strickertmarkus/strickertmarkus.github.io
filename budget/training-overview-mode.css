@@ -19,7 +19,7 @@
 }
 #training-overview-toggle:hover{color:#c6b1c1;border-color:rgba(255,184,208,.28);background:rgba(255,255,255,.045)}
 #training-overview-toggle:active{transform:scale(.96)}
-#training-overview-toggle:focus-visible{outline:2px solid #9be4e9;outline-offset:4px}
+#training-overview-toggle:focus-visible{outline:2px solid #ff9a91;outline-offset:4px}
 #training-overview-toggle .training-overview-toggle-icon{
   display:block;
   font-size:21px;
@@ -28,13 +28,13 @@
   text-shadow:none;
 }
 #training-overview-toggle[aria-pressed="true"]{
-  color:#9be4e9;
-  border-color:#8adfe76b;
-  background:#67dce914;
-  box-shadow:0 0 12px #56d9e532,inset 0 0 10px #67dce90d;
+  color:#ffb7ab;
+  border-color:#ff9a916b;
+  background:#ff657a14;
+  box-shadow:0 0 12px #ff657a32,inset 0 0 10px #ff9a910d;
 }
 #training-overview-toggle[aria-pressed="true"] .training-overview-toggle-icon{
-  text-shadow:0 0 13px #65deea9c;
+  text-shadow:0 0 13px #ff9a919c;
 }
 html[data-wellness-mode="zen"] #training-overview-toggle{display:none!important}
 
