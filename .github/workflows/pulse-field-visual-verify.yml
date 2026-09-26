@@ -455,15 +455,19 @@ jobs:
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#week-days .week-day[data-day]');
-            assert.equal(await page.locator('#field-workspace iframe').count(),0,'Compact runtime must remain lazy until a natural Pulse Field interaction needs it');
+            await page.waitForSelector('#field-workspace iframe',{timeout:5000});
+            assert.equal(await page.locator('#field-workspace').evaluate(el=>el.open),false,'Prewarmed pass tools must stay invisible until requested');
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
             const canonical=page.url();
+            const embedded=page.frameLocator('#field-workspace iframe');
+            await embedded.locator('body').waitFor({timeout:5000});
 
             const chosen=page.locator('#week-days .week-day[data-day]').nth(2);
             const chosenDate=await chosen.getAttribute('data-day');
+            const openStarted=Date.now();
             await chosen.click();
-            const embedded=page.frameLocator('#field-workspace iframe');
-            await embedded.locator('#day-workout-modal.show').waitFor({timeout:50000});
+            await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
+            assert.ok(Date.now()-openStarted<1500,'Prewarmed day editor should open promptly');
             assert.equal(page.url(),canonical,'Day editing must stay inside the canonical Pulse Field route');
             assert.equal(await embedded.locator('#day-workout-date').inputValue(),chosenDate,'Tapped Pulse Field day must open the matching Compact day editor');
             assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Direct day interaction must reuse the original day workout builder');
@@ -471,14 +475,23 @@ jobs:
             const embeddedBoot=await embedded.locator('html').evaluate(()=>({
               manifest:(window.__exerciseAssetManifestV2||[]).map(item=>item.src),
               hasChart:!!document.querySelector('script[src*="chart.umd"]'),
-              hasActivity:!!document.querySelector('script[src*="training-activity.js"]')
+              hasActivity:!!document.querySelector('script[src*="training-activity.js"]'),
+              hasFirebase:!!document.querySelector('script[src*="firebasejs"],script[src*="firebase-sync"],script[src*="auth-gate"]')
             }));
-            assert.ok(embeddedBoot.manifest.length<=4&&embeddedBoot.manifest.includes('exercise-points-8-9.js'),'Embedded builder boot must stay intentionally small: '+JSON.stringify(embeddedBoot.manifest));
+            assert.deepEqual(embeddedBoot.manifest.slice().sort(),['exercise-builder-between-preview-v7.js','exercise-builder-row-tools-v3.js','exercise-builder-style-v5.js'].sort(),'Embedded boot should execute only the original builder enhancements');
             assert.equal(embeddedBoot.hasChart,false,'Embedded builder must not parse Chart.js before a tool needs charts');
             assert.equal(embeddedBoot.hasActivity,false,'Embedded builder must not load the old dashboard activity runtime');
+            assert.equal(embeddedBoot.hasFirebase,false,'Embedded builder must reuse same-origin storage without booting a second Firebase/auth client');
 
-            const color=await embedded.locator('#day-workout-modal .modal').evaluate(el=>getComputedStyle(el).backgroundColor);
-            assert.ok(color!=='rgb(22, 27, 34)','Embedded Compact tools should adopt the Pulse Field theme: '+color);
+            const mobileLayout=await embedded.locator('#day-workout-modal').evaluate(modal=>{
+              const card=modal.querySelector('.modal'),week=modal.querySelector('.week-nav'),toggle=modal.querySelector('#between-exercise-toggle-panel-v7'),innerClose=modal.querySelector('.modal-close');
+              const w=week.getBoundingClientRect(),t=toggle.getBoundingClientRect(),c=getComputedStyle(card);
+              return {weekBottom:w.bottom,toggleTop:t.top,close:getComputedStyle(innerClose).display,border:c.borderTopWidth,radius:c.borderRadius,width:card.getBoundingClientRect().width,viewport:innerWidth};
+            });
+            assert.ok(mobileLayout.toggleTop>=mobileLayout.weekBottom-1,'Between-exercise control must sit below the week navigation on mobile: '+JSON.stringify(mobileLayout));
+            assert.equal(mobileLayout.close,'none','Full-screen Pulse workspace must not show a duplicate inner close button');
+            assert.equal(mobileLayout.border,'0px','Mobile editor should be one flat workspace rather than a card inside a card');
+            assert.ok(mobileLayout.width>=mobileLayout.viewport-1,'Mobile pass editor should use the full embedded viewport');
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
             assert.ok(await embedded.locator('#day-workout-ex-list .ex-row-item').count()>=2,'Original builder must keep add-exercise functionality');
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-name').evaluate(input=>{
