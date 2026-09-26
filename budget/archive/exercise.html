@@ -8,13 +8,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Träning · bevarade passverktyg</title>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
-  <script src="indexeddb-fallback.js"></script>
-<script src="auth-config.js?v=20260926-embedded-builder-perf-2"></script>
-<script src="auth-gate.js?v=20260926-embedded-builder-perf-2"></script>
-  <script src="firebase-sync.js?v=20260916-profile-theme-2"></script>
+  <script>
+  if(window.__FIELD_EMBEDDED__){
+    document.write('<script src="auth-config.js?v=20260926-embedded-builder-perf-3"><\/script>');
+  }else{
+    document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"><\/script>');
+    document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"><\/script>');
+    document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"><\/script>');
+    document.write('<script src="indexeddb-fallback.js"><\/script>');
+    document.write('<script src="auth-config.js?v=20260926-embedded-builder-perf-3"><\/script>');
+    document.write('<script src="auth-gate.js?v=20260926-embedded-builder-perf-2"><\/script>');
+    document.write('<script src="firebase-sync.js?v=20260916-profile-theme-2"><\/script>');
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
