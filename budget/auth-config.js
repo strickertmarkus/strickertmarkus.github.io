@@ -85,13 +85,13 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     document.head.appendChild(firstPaintStyleV1);
   }
 
-  var pulseDefaultBoot = true;
+  var pulseDefaultBoot = !embeddedFieldWorkspace;
   var exerciseFastVersion = '20260922-observatory-records-3';
 
   /* Loader manifest v2. Network fetches may run concurrently, but auth-gate
      still executes these entries in this exact order. `group` documents the
      ownership so later cleanup can move only proven-independent layers. */
-  var exerciseAssetManifestV2 = [
+  var allExerciseAssetManifestV2 = [
     {src:'exercise-points-8-9.js',attr:'data-exercise-points-8-9',group:'dashboard'},
     {src:'exercise-heart-rate-range.js',attr:'data-exercise-heart-rate-range',group:'dashboard'},
     {src:'exercise-session-enhancements.js',attr:'data-exercise-session-enhancements',group:'session-presentation'},
@@ -120,6 +120,52 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-pulse-flow-motion-v67.js',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
     {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'}
   ];
+  var exerciseAssetManifestV2 = embeddedFieldWorkspace
+    ? allExerciseAssetManifestV2.filter(function (item) {
+        return item.src === 'exercise-points-8-9.js' || item.group === 'builder';
+      })
+    : allExerciseAssetManifestV2;
+
+  /* Embedded Pulse Field opens the original builder immediately but the much
+     larger session presentation bundle only when it is actually needed. This
+     keeps builder buttons responsive without forking any training behavior. */
+  var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
+    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(
+        allExerciseAssetManifestV2.filter(function (item) {
+          return ['session-presentation','session-core','session-transition','session-ux','session-stability','pulse-presentation','motion'].indexOf(item.group) >= 0;
+        })
+      )
+    : [];
+  window.__embeddedSessionAssetManifestV1 = embeddedSessionAssetManifestV1;
+  window.__loadEmbeddedSessionAssetsV1 = function () {
+    if (!embeddedFieldWorkspace || !embeddedSessionAssetManifestV1.length) return Promise.resolve();
+    if (window.__embeddedSessionAssetsPromiseV1) return window.__embeddedSessionAssetsPromiseV1;
+    embeddedSessionAssetManifestV1.forEach(function (item) {
+      var href = item.src + '?v=' + exerciseFastVersion;
+      if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
+      var preload = document.createElement('link');
+      preload.rel = 'preload';
+      preload.as = 'script';
+      preload.href = href;
+      preload.setAttribute('data-embedded-session-preload-v1','true');
+      document.head.appendChild(preload);
+    });
+    window.__embeddedSessionAssetsPromiseV1 = embeddedSessionAssetManifestV1.reduce(function (chain,item) {
+      return chain.then(function () {
+        if (document.querySelector('script[' + item.attr + ']')) return;
+        return new Promise(function (resolve) {
+          var script = document.createElement('script');
+          script.src = item.src + '?v=' + exerciseFastVersion;
+          script.async = false;
+          script.setAttribute(item.attr,'true');
+          script.addEventListener('load',resolve,{once:true});
+          script.addEventListener('error',resolve,{once:true});
+          document.head.appendChild(script);
+        });
+      });
+    },Promise.resolve());
+    return window.__embeddedSessionAssetsPromiseV1;
+  };
   window.__exerciseAssetManifestV2 = exerciseAssetManifestV2;
   window.__exerciseLoaderMetricsV2 = {
     manifestCount:exerciseAssetManifestV2.length,
