@@ -6,6 +6,7 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var TIMER_PREFIX = 'ex_pretimer_v2_' + profile + '_';
+  var embeddedField = document.documentElement.hasAttribute('data-field-embedded');
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (e) { return null; }
@@ -57,7 +58,7 @@
     if (document.getElementById('exercise-flow-polish-v2-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-flow-polish-v2-style';
-    style.textContent = `
+    style.textContent = `:root{--flow-accent:${embeddedField?'#ff9a91':'var(--flow-accent)'};--flow-accent-rgb:${embeddedField?'255,101,122':'34,211,238'};--flow-accent-soft:${embeddedField?'#ffb7ab':'var(--flow-accent-soft)'};--flow-accent-soft-rgb:${embeddedField?'255,183,171':'103,232,249'};--flow-accent-pale:${embeddedField?'#fff0e8':'var(--flow-accent-pale)'};--flow-accent-deep:${embeddedField?'#e76379':'var(--flow-accent-deep)'}}` + `
       /* The retired auto-advance flow hid this entire row. The unified session
          controller deliberately waits for the user when no rest is configured,
          so the decision controls must remain visible and easy to hit. */
@@ -126,35 +127,35 @@
 
       /* Calm blue/cyan state between active sets. */
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) {
-        --accent:#22D3EE !important;
-        --accent-dim:rgba(34,211,238,.13) !important;
-        --accent-glow:rgba(34,211,238,.30) !important;
-        --border-a:rgba(34,211,238,.42) !important;
+        --accent:var(--flow-accent) !important;
+        --accent-dim:rgba(var(--flow-accent-rgb),.13) !important;
+        --accent-glow:rgba(var(--flow-accent-rgb),.30) !important;
+        --border-a:rgba(var(--flow-accent-rgb),.42) !important;
         background:rgba(5,12,22,.97) !important;
       }
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-shell {
         background:
-          radial-gradient(circle at 50% 5%,rgba(34,211,238,.14),transparent 38%),
+          radial-gradient(circle at 50% 5%,rgba(var(--flow-accent-rgb),.14),transparent 38%),
           linear-gradient(180deg,#07121d 0%,#0a111a 58%,#090d14 100%) !important;
       }
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-card {
-        background:rgba(34,211,238,.055) !important;
-        border-color:rgba(34,211,238,.20) !important;
-        box-shadow:0 0 30px rgba(34,211,238,.025) !important;
+        background:rgba(var(--flow-accent-rgb),.055) !important;
+        border-color:rgba(var(--flow-accent-rgb),.20) !important;
+        box-shadow:0 0 30px rgba(var(--flow-accent-rgb),.025) !important;
       }
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .timer-box {
-        background:rgba(34,211,238,.075) !important;
-        border-color:rgba(34,211,238,.28) !important;
+        background:rgba(var(--flow-accent-rgb),.075) !important;
+        border-color:rgba(var(--flow-accent-rgb),.28) !important;
       }
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) #session-current-ex,
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .timer-val,
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) .session-table th {
-        color:#67E8F9 !important;
+        color:var(--flow-accent-soft) !important;
       }
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) #session-controls .session-cta.primary {
-        background:linear-gradient(135deg,#22D3EE,#0EA5E9) !important;
+        background:linear-gradient(135deg,var(--flow-accent),var(--flow-accent-deep)) !important;
         color:#04131a !important;
-        box-shadow:0 8px 25px rgba(34,211,238,.18) !important;
+        box-shadow:0 8px 25px rgba(var(--flow-accent-rgb),.18) !important;
       }
 
       /* The existing overview must remain the final block in Träningsläge. */
@@ -178,18 +179,18 @@
       }
       #session-between-overlay-v2 .bs-heading,
       #session-between-overlay-v2 .bs-value {
-        color:#67E8F9 !important;
+        color:var(--flow-accent-soft) !important;
       }
       #session-between-overlay-v2 .bs-segment {
-        background:rgba(34,211,238,.11) !important;
+        background:rgba(var(--flow-accent-rgb),.11) !important;
       }
       #session-between-overlay-v2 .bs-segment.active {
-        background:#22D3EE !important;
-        box-shadow:0 0 8px rgba(34,211,238,.58) !important;
+        background:var(--flow-accent) !important;
+        box-shadow:0 0 8px rgba(var(--flow-accent-rgb),.58) !important;
       }
       #session-between-overlay-v2 .bs-core {
         background:rgba(5,15,24,.97) !important;
-        border-color:rgba(34,211,238,.20) !important;
+        border-color:rgba(var(--flow-accent-rgb),.20) !important;
       }
       #session-between-overlay-v2 .bs-label { color:#94A3B8 !important; }
       #session-between-overlay-v2 .bs-skip { color:#64748B !important; }
@@ -197,13 +198,13 @@
         width:min(560px,calc(100vw - 32px));
         margin:18px auto 0;
         padding:11px 12px;
-        border:1px solid rgba(34,211,238,.18);
+        border:1px solid rgba(var(--flow-accent-rgb),.18);
         border-radius:12px;
         background:rgba(15,23,42,.72);
         text-align:left;
       }
       .bs-rest-overview-title {
-        color:#67E8F9;
+        color:var(--flow-accent-soft);
         font-size:10px;
         font-weight:800;
         letter-spacing:.7px;
@@ -222,7 +223,7 @@
       .bs-rest-overview-row:first-of-type { border-top:0; }
       .bs-rest-overview-row.current .bs-rest-name { color:#F0F6FC; font-weight:800; }
       .bs-rest-name { color:#94A3B8; overflow-wrap:anywhere; }
-      .bs-rest-progress { color:#67E8F9; font-variant-numeric:tabular-nums; white-space:nowrap; }
+      .bs-rest-progress { color:var(--flow-accent-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
 
       /* Builder + in-session 5-second timer toggles. */
       .pretimer-builder-v2 {
@@ -232,13 +233,13 @@
         align-items:center;
         justify-content:space-between;
         gap:12px;
-        border:1px solid rgba(34,211,238,.22);
+        border:1px solid rgba(var(--flow-accent-rgb),.22);
         border-radius:10px;
-        background:rgba(34,211,238,.04);
+        background:rgba(var(--flow-accent-rgb),.04);
       }
       .pretimer-builder-copy strong {
         display:block;
-        color:#CFFAFE;
+        color:var(--flow-accent-pale);
         font-size:11px;
       }
       .pretimer-builder-copy span {
@@ -250,8 +251,8 @@
       .pretimer-switch,
       .session-pretimer-toggle-v2 {
         appearance:none;
-        border:1px solid rgba(34,211,238,.25);
-        background:rgba(34,211,238,.07);
+        border:1px solid rgba(var(--flow-accent-rgb),.25);
+        background:rgba(var(--flow-accent-rgb),.07);
         color:#A5F3FC;
         border-radius:999px;
         cursor:pointer;
@@ -275,12 +276,12 @@
         transition:transform .18s ease,background .18s ease;
       }
       .pretimer-switch[aria-pressed="true"] {
-        background:rgba(34,211,238,.17);
-        border-color:rgba(34,211,238,.48);
+        background:rgba(var(--flow-accent-rgb),.17);
+        border-color:rgba(var(--flow-accent-rgb),.48);
       }
       .pretimer-switch[aria-pressed="true"]::after {
         transform:translateX(20px);
-        background:#22D3EE;
+        background:var(--flow-accent);
       }
       .session-pretimer-toggle-v2 {
         min-height:38px;
@@ -332,19 +333,19 @@
         transition:transform .2s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
       }
       .session-pretimer-toggle-v2[aria-pressed="true"] {
-        border-color:rgba(34,211,238,.48);
-        background:rgba(34,211,238,.14);
-        color:#67E8F9;
-        box-shadow:0 0 20px rgba(34,211,238,.12),inset 0 0 0 1px rgba(103,232,249,.04);
+        border-color:rgba(var(--flow-accent-rgb),.48);
+        background:rgba(var(--flow-accent-rgb),.14);
+        color:var(--flow-accent-soft);
+        box-shadow:0 0 20px rgba(var(--flow-accent-rgb),.12),inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.04);
       }
       .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
-        background:rgba(34,211,238,.30);
-        box-shadow:inset 0 0 0 1px rgba(103,232,249,.28),0 0 10px rgba(34,211,238,.18);
+        background:rgba(var(--flow-accent-rgb),.30);
+        box-shadow:inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.28),0 0 10px rgba(var(--flow-accent-rgb),.18);
       }
       .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
         transform:translateX(11px);
         background:#A5F3FC;
-        box-shadow:0 0 8px rgba(103,232,249,.75);
+        box-shadow:0 0 8px rgba(var(--flow-accent-soft-rgb),.75);
       }
       #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] {
         border-color:rgba(255,154,61,.46);
@@ -458,6 +459,13 @@
   }
 
   function ensureBuilderTimerToggle() {
+    if (embeddedField) {
+      var obsolete = document.getElementById('pretimer-builder-v2');
+      if (obsolete) obsolete.remove();
+      var movedButton = document.getElementById('pretimer-builder-switch-v2');
+      if (movedButton) movedButton.remove();
+      return null;
+    }
     var modal = document.getElementById('day-workout-modal');
     var list = document.getElementById('day-workout-ex-list');
     if (!modal || !modal.classList.contains('show') || !list || !list.parentElement) return null;
