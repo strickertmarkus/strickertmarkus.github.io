@@ -212,12 +212,14 @@ main{position:relative;z-index:2;display:block}
 .activity-bar{filter:drop-shadow(0 0 5px #ff657a80) drop-shadow(0 0 13px #ff657a45)}
 .chart-hit-zone,.chart-hit-point,.pace-scatter-point,.group-volume-point{cursor:crosshair;pointer-events:all}
 .chart-hit-zone,.chart-hit-point{fill:transparent}
-.field-chart-tooltip{position:fixed;z-index:120;min-width:118px;max-width:min(260px,calc(100vw - 28px));padding:9px 11px;border:1px solid #ff9a9145;border-radius:11px;background:#0c131bea;box-shadow:0 12px 38px #0009,0 0 24px #ff657a18;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transform:translate(-50%,-100%) translateY(-8px);opacity:0;pointer-events:none;transition:opacity .14s ease,transform .14s ease;color:#e9e5e3}
-.field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-13px)}
+.field-chart-tooltip{position:fixed;z-index:120;isolation:isolate;min-width:112px;max-width:min(252px,calc(100vw - 28px));padding:10px 13px 11px;border:1px solid #ff9a9178;border-radius:15px;background:linear-gradient(145deg,rgba(77,30,54,.96),rgba(31,18,31,.97) 58%,rgba(18,19,25,.98));box-shadow:0 14px 42px #000a,0 0 0 1px #ff657a12 inset,0 0 28px #ff657a28;backdrop-filter:blur(16px) saturate(1.16);-webkit-backdrop-filter:blur(16px) saturate(1.16);transform:translate(-50%,-100%) translateY(-7px) scale(.98);opacity:0;pointer-events:none;transition:opacity .13s ease,transform .16s cubic-bezier(.2,.85,.2,1);color:#f7e9e3;overflow:hidden}
+.field-chart-tooltip::before{content:"";position:absolute;z-index:-1;left:12px;right:12px;top:0;height:1px;background:linear-gradient(90deg,transparent,#ffd2bd,#ff657a,transparent);box-shadow:0 0 12px #ff657a80}
+.field-chart-tooltip::after{content:"";position:absolute;z-index:-1;width:70px;height:70px;right:-30px;top:-38px;border-radius:50%;background:radial-gradient(circle,#ff657a2c,transparent 68%)}
+.field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-13px) scale(1)}
 .field-chart-tooltip strong,.field-chart-tooltip span,.field-chart-tooltip small{display:block}
-.field-chart-tooltip strong{color:#ffb4a7;font:600 10px/1.3 var(--field-ui);letter-spacing:.45px;text-transform:uppercase}
-.field-chart-tooltip span{margin-top:3px;color:#fff4ef;font:500 16px/1.2 var(--field-serif)}
-.field-chart-tooltip small{margin-top:3px;color:#aeb6bf;font:500 10px/1.35 var(--field-ui)}
+.field-chart-tooltip strong{color:#ffb9ad;font:650 9px/1.3 var(--field-ui);letter-spacing:.8px;text-transform:uppercase}
+.field-chart-tooltip span{margin-top:3px;color:#fff6f1;font:500 17px/1.15 var(--field-serif);text-shadow:0 0 14px #ff9a9129}
+.field-chart-tooltip small{margin-top:4px;color:#cab8b9;font:500 10px/1.35 var(--field-ui)}
 .activity-zero{stroke:#8d98a333;stroke-width:2;stroke-linecap:round}
 .chart-value{fill:#ffd6c4;font:600 10px var(--field-ui);paint-order:stroke;stroke:#080d12;stroke-width:3px;stroke-linejoin:round}
 .line-glow{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.35;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor)}
@@ -379,7 +381,7 @@ main{position:relative;z-index:2;display:block}
 
 .field-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0 calc(22px + env(safe-area-inset-bottom));border-top:1px solid var(--field-line);color:var(--field-faint);font-size:10px}
 .field-footer a{color:var(--field-muted)}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:50;max-width:calc(100vw - 40px);padding:10px 15px;border:1px solid #ff9a9138;border-radius:999px;background:#111820eb;color:#f1e9e5;font-size:11px;box-shadow:0 12px 40px #0009;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.3s}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:50;max-width:calc(100vw - 40px);padding:10px 16px;border:1px solid #ff9a9160;border-radius:999px;background:linear-gradient(110deg,rgba(65,27,48,.96),rgba(24,20,29,.97));color:#f8e9e2;font-size:11px;box-shadow:0 12px 40px #0009,0 0 22px #ff657a1f;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.3s}
 .toast.is-visible{transform:translate(-50%,0);opacity:1}
 
 @keyframes mainSpillBreath{0%,100%{transform:translate3d(0,0,0);opacity:.66}50%{transform:translate3d(0,-7px,0);opacity:.94}}
