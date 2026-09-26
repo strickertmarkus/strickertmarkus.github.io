@@ -59,12 +59,12 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.doesNotMatch(flowPolish,/background:#A5F3FC/);
   assert.match(flowPolish,/function ensureSessionTimerToggle\(\)[\s\S]*session-pretimer-toggle-v2/);
   assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*pretimer-builder-v2[\s\S]*return null;/);
-  assert.match(flowPolish,/compactHost['"]\) === '1'/);
+  assert.match(flowPolish,/get\('compactHost'\)\s*===\s*'1'/);
   assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*MutationObserver[\s\S]*requestAnimationFrame\(syncEmbeddedSession\)[\s\S]*\} else \{[\s\S]*setInterval\(syncSlow,450\)/);
   assert.match(betweenRouting,/if \(embeddedField\) return;[\s\S]*exercise-between-routing-v7-clarification/);
-  assert.match(betweenRouting,/compactHost['"]\)===? ?'1'/);
+  assert.match(betweenRouting,/get\('compactHost'\)\s*===\s*'1'/);
   assert.match(betweenRouting,/if \(embeddedField\) \{[\s\S]*MutationObserver[\s\S]*requestAnimationFrame\(syncArchiveRows\)[\s\S]*\} else \{[\s\S]*setInterval\(syncArchiveRows,220\)/);
-  assert.match(shellV13,/compactHost['"]\)===? ?'1'/);
+  assert.match(shellV13,/get\('compactHost'\)\s*===\s*'1'/);
   assert.match(shellV13,/if\(embeddedField\)\{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return true;/);
   assert.match(exercise,/id="training-overview-toggle"/);
   assert.doesNotMatch(exercise,/id="field-compact-toggle"/);
@@ -189,12 +189,13 @@ test('one persistent three-mode switch owns the same position in Training Stretc
   assert.match(zen,/data-kind="meditation"/);
 });
 
-test('Compact uses one right-side wellness-row symbol and no dashboard mode switch',()=>{
+test('Compact uses the preserved original dashboard behind one Pulse toggle',()=>{
   assert.match(exercise,/id="training-overview-toggle"/);
   assert.match(overview,/getElementById\('training-overview-toggle'\)/);
-  assert.match(overview,/currentMode\(\) === 'compact' \? 'observatory' : 'compact'/);
+  assert.match(overview,/isCompactHost[\s\S]*pulse-field:exit-compact/);
   assert.match(overviewCss,/#training-overview-toggle\[aria-pressed="true"\]/);
-  assert.match(overviewCss,/#9be4e9/);
+  assert.match(overviewCss,/#ffb7ab/);
+  assert.doesNotMatch(overviewCss,/#9be4e9/);
   assert.doesNotMatch(overview,/training-overview-switch-shell/);
   assert.doesNotMatch(overviewCss,/training-overview-switch-shell/);
   assert.match(shell,/overviewSlot\.appendChild\(overviewToggle\)/);
@@ -233,7 +234,7 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(shellCss,/body\[data-kind="stretch"\] #exercise-user-toggle\{--profile-accent:#d4eea7/);
   assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
   for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
-  assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
+  assert.match(exercise,/firebase-sync\.js\?v=20260925-field-first-paint-1/);
 });
 
 test('rapid Training and Zen requests cancel stale pending transitions',()=>{
