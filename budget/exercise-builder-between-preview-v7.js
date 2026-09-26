@@ -85,7 +85,7 @@
     if (document.getElementById('exercise-builder-between-preview-v7-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-builder-between-preview-v7-style';
-    style.textContent = `
+    style.textContent = `:root{--builder-preview-rgb:${embedded?'255,101,122':'34,211,238'};--builder-preview-bright:${embedded?'#ffb7ab':'var(--builder-preview-bright)'};--builder-preview-strong:${embedded?'#ff8f93':'var(--builder-preview-strong)'};--builder-preview-ink:${embedded?'#1b1118':'var(--builder-preview-ink)'};--builder-profile-accent:${embedded?'#ffb7ab':'var(--builder-profile-accent)'}}` + `
       /* The old builder-only five-second timer switch is replaced by the new
          between-exercises switch. The in-session five-second control remains. */
       #pretimer-builder-v2{display:none!important}
@@ -195,11 +195,11 @@
       #exercise-plan-preview-v7.show{display:grid}
       .plan-preview-card-v7{
         width:min(520px,100%);max-height:min(78dvh,720px);overflow:auto;
-        padding:16px;border:1px solid rgba(34,211,238,.22);border-radius:16px;
+        padding:16px;border:1px solid rgba(var(--builder-preview-rgb),.22);border-radius:16px;
         background:linear-gradient(180deg,#17202a,#111922);box-shadow:0 28px 80px rgba(0,0,0,.55);
       }
       .plan-preview-head-v7{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
-      .plan-preview-kicker-v7{color:#67E8F9;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+      .plan-preview-kicker-v7{color:var(--builder-preview-bright);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
       .plan-preview-title-v7{margin-top:3px;color:#F0F6FC;font-size:18px;font-weight:850;line-height:1.2}
       .plan-preview-date-v7{margin-top:3px;color:#7C8A9B;font-size:10px}
       .plan-preview-close-v7{border:0;background:transparent;color:#64748B;font-size:20px;cursor:pointer;padding:2px 5px}
@@ -217,10 +217,10 @@
       .plan-preview-actions-v7{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}
       .plan-preview-actions-v7 button{min-height:36px;border-radius:8px;padding:7px 12px;font:750 10px/1 Inter,sans-serif;cursor:pointer}
       .plan-preview-back-v7{border:1px solid rgba(148,163,184,.18);background:transparent;color:#A8B6C7}
-      .plan-preview-save-v7{border:1px solid rgba(34,211,238,.42);background:#22D3EE;color:#06141A}
+      .plan-preview-save-v7{border:1px solid rgba(var(--builder-preview-rgb),.42);background:var(--builder-preview-strong);color:var(--builder-preview-ink)}
 
       body.exercise-profile-maja-v7 .brand-text p{color:#F472B6!important}
-      body.exercise-profile-markus-v7 .brand-text p{color:#38BDF8!important}
+      body.exercise-profile-markus-v7 .brand-text p{color:var(--builder-profile-accent)!important}
 
       @media(max-width:600px){
         #day-workout-modal .builder-week-between-v7{
