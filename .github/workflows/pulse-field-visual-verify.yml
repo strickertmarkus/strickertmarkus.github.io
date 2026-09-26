@@ -565,6 +565,7 @@ jobs:
             await embedded.locator('#session-modal.show').waitFor({timeout:15000});
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
             const timerToggle=embedded.locator('#session-pretimer-toggle-v2');
+            await timerToggle.waitFor({state:'attached',timeout:10000});
             assert.equal(await timerToggle.count(),1,'5-second timer should exist only inside the running workout mode');
             const timerKnob=timerToggle.locator('.session-timer-knob-v48');
             assert.equal(await timerKnob.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 240, 232)','Embedded 5-second timer knob must use Pulse ivory/coral rather than legacy cyan');
