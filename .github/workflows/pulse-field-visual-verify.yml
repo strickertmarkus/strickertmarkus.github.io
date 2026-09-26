@@ -20,6 +20,9 @@ on:
       - 'budget/exercise-builder-row-tools-v3.js'
       - 'budget/exercise-builder-style-v5.js'
       - 'budget/exercise-builder-between-preview-v7.js'
+      - 'budget/exercise-flow-polish-v2.js'
+      - 'budget/exercise-between-routing-v7.js'
+      - 'budget/exercise-shell-v13.js'
       - 'budget/auth-config.js'
       - '.github/workflows/pulse-field-visual-verify.yml'
   workflow_dispatch:
@@ -455,6 +458,15 @@ jobs:
             await page.route('https://fonts.gstatic.com/**',r=>r.abort());
             await page.goto('http://127.0.0.1:4173/budget/exercise.html',{waitUntil:'domcontentloaded'});
             await page.waitForSelector('#week-days .week-day[data-day]');
+            const compactToggle=page.locator('#field-compact-toggle');
+            assert.equal(await compactToggle.count(),1,'Native Pulse Field must keep the Compact mode control');
+            assert.equal(await compactToggle.getAttribute('aria-pressed'),'false','Pulse Field should open in full mode unless the user saved Compact');
+            await compactToggle.click();
+            assert.equal(await page.locator('html').getAttribute('data-field-layout'),'compact','Compact control must switch the new Pulse page itself');
+            assert.equal(await compactToggle.getAttribute('aria-pressed'),'true','Compact control should expose pressed state');
+            assert.equal(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Compact mode should suspend decorative Pulse scenery');
+            await compactToggle.click();
+            assert.equal(await page.locator('html').getAttribute('data-field-layout'),'full','Compact control must return to full Pulse mode without archive navigation');
             await page.locator('#field-workspace iframe').waitFor({state:'attached',timeout:5000});
             assert.equal(await page.locator('#field-workspace').evaluate(el=>el.open),false,'Prewarmed pass tools must stay invisible until requested');
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
@@ -472,6 +484,7 @@ jobs:
             assert.equal(await embedded.locator('#day-workout-date').inputValue(),chosenDate,'Tapped Pulse Field day must open the matching Compact day editor');
             assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Direct day interaction must reuse the original day workout builder');
             assert.equal(await page.locator('#field-editor-dialog').count(),0,'No duplicate simplified builder may be created');
+            assert.equal(await embedded.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Embedded Pulse builder must not contain the retired blue 5-second start timer');
             const embeddedBoot=await embedded.locator('html').evaluate(()=>({
               manifest:(window.__exerciseAssetManifestV2||[]).map(item=>item.src),
               hasChart:!!document.querySelector('script[src*="chart.umd"]'),
@@ -543,6 +556,12 @@ jobs:
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse scenery should resume only after the training workspace closes');
+
+            await chosen.click();
+            await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
+            assert.equal(await embedded.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Deferred session enhancements must never re-add the retired 5-second timer to the builder');
+            await page.locator('#field-workspace-close').click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
