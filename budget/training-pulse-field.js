@@ -325,7 +325,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     svg+='</svg>';
     byId('activity-chart').innerHTML=svg;
     byId('activity-chart').setAttribute('aria-label',buckets.map(function(b){return b.label+': '+b[metric]+' '+(metric==='minutes'?'minuter':'pass');}).join('. '));
-    scheduleChartCanvasGlow();
+    scheduleChartCanvasGlow('activity-chart');
   }
 
   function heartData() {
@@ -427,6 +427,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   // layer underneath paints real shadowBlur light.
   var chartGlowMq=window.matchMedia?window.matchMedia('(max-width:760px)'):{matches:true};
   var chartGlowRaf=0;
+  var chartGlowDirty=new Set();
+  var chartMiniGlowDirty=false;
   var chartGlowDpr=Math.min(1.5,Math.max(1,Number(window.devicePixelRatio)||1));
 
   function glowRgb(value,fallback) {
@@ -587,15 +589,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function removeChartCanvasGlow(){
     document.querySelectorAll('canvas.chart-canvas-glow,canvas.log-mini-canvas-glow').forEach(function(canvas){canvas.remove();});
   }
-  function paintAllChartGlows(){
+  function paintScheduledChartGlows(){
     chartGlowRaf=0;
-    if(!chartGlowMq.matches){removeChartCanvasGlow();return;}
-    ['activity-chart','insight-chart','volume-chart'].forEach(function(id){paintChartCanvasGlow(byId(id));});
-    paintMiniIntervalGlows();
+    if(!chartGlowMq.matches){removeChartCanvasGlow();chartGlowDirty.clear();chartMiniGlowDirty=false;return;}
+    var ids=chartGlowDirty.size?Array.from(chartGlowDirty):['activity-chart','insight-chart','volume-chart'];
+    ids.forEach(function(id){paintChartCanvasGlow(byId(id));});
+    if(chartMiniGlowDirty||!chartGlowDirty.size)paintMiniIntervalGlows();
+    chartGlowDirty.clear();chartMiniGlowDirty=false;
   }
-  function scheduleChartCanvasGlow(){
+  function scheduleChartCanvasGlow(id){
+    if(id==='log')chartMiniGlowDirty=true;
+    else if(id)chartGlowDirty.add(id);
+    else {
+      ['activity-chart','insight-chart','volume-chart'].forEach(function(chartId){chartGlowDirty.add(chartId);});
+      chartMiniGlowDirty=true;
+    }
     if(chartGlowRaf)return;
-    chartGlowRaf=requestAnimationFrame(paintAllChartGlows);
+    chartGlowRaf=requestAnimationFrame(paintScheduledChartGlows);
   }
 
   function emptyChart(message) {
@@ -802,7 +812,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     compare.innerHTML=compare.hidden?'':renderPaceDistanceScatter(entries);
     byId('insight-chart').innerHTML=markup;renderInsightTable(entries);
     byId('insight-chart').setAttribute('aria-label',name+'. '+entries.map(function(e){return logDate(e.date)+': '+(e.value==null?'saknas':e.value);}).join('. '));
-    scheduleChartCanvasGlow();
+    scheduleChartCanvasGlow('insight-chart');
   }
 
   function renderVolume() {
@@ -821,7 +831,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     chart.setAttribute('aria-label','Passvolym per träningsgrupp. '+series.map(function(group){
       return group.name+': '+group.entries.map(function(entry){return logDate(entry.date)+' '+Math.round(entry.value)+' kg';}).join(', ');
     }).join('. '));
-    scheduleChartCanvasGlow();
+    scheduleChartCanvasGlow('volume-chart');
   }
 
   function exerciseResult(raw) {
@@ -985,7 +995,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           item.querySelector('.log-detail').hidden=!open;
         });
         if(chartGlowMq.matches)paintMiniIntervalGlows();
-        scheduleChartCanvasGlow();
+        scheduleChartCanvasGlow('log');
       }
     });
     document.addEventListener('click',function(event){
@@ -1001,9 +1011,12 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       if(!day||!['Enter',' '].includes(event.key))return;
       event.preventDefault();day.click();
     });
-    document.addEventListener('pointerover',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
-    document.addEventListener('pointermove',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
-    document.addEventListener('pointerout',function(event){if(event.target.closest&&event.target.closest('[data-chart-tip]')&&!(event.relatedTarget&&event.relatedTarget.closest&&event.relatedTarget.closest('[data-chart-tip]')))hideChartTooltip();});
+    var chartHoverMq=window.matchMedia&&window.matchMedia('(hover:hover) and (pointer:fine)');
+    if(!chartHoverMq||chartHoverMq.matches){
+      document.addEventListener('pointerover',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
+      document.addEventListener('pointermove',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,false);});
+      document.addEventListener('pointerout',function(event){if(event.target.closest&&event.target.closest('[data-chart-tip]')&&!(event.relatedTarget&&event.relatedTarget.closest&&event.relatedTarget.closest('[data-chart-tip]')))hideChartTooltip();});
+    }
     document.addEventListener('focusin',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,null,false);});
     document.addEventListener('focusout',function(event){if(event.target.closest&&event.target.closest('[data-chart-tip]'))hideChartTooltip();});
     document.addEventListener('click',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,true);});
