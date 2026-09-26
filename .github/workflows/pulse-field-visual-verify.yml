@@ -135,6 +135,8 @@ jobs:
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/'+name+'-full.png',fullPage:true});
+            await page.locator('.field-hero').scrollIntoViewIfNeeded();
+            await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='true',null,{timeout:3000});
             await page.locator('.space-scene').screenshot({path:'test-results/pulse-field/'+name+'-hero-scene.png'});
             await page.locator('.start-orbit').screenshot({path:'test-results/pulse-field/'+name+'-start-orbit.png'});
             await page.locator('.rhythm-section').screenshot({path:'test-results/pulse-field/'+name+'-rhythm-stats.png'});
