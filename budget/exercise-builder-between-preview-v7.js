@@ -8,6 +8,9 @@
   var plannedRowConfigs = [];
   var loadedDate = '';
   var syncTimer = null;
+  var syncObserver = null;
+  var syncFrame = 0;
+  var embedded = document.documentElement.hasAttribute('data-field-embedded');
   var originalPersist = null;
   var originalStartBuilder = null;
   var originalLoadBuilder = null;
@@ -604,6 +607,11 @@
     installLoadHook();
   }
 
+  function scheduleSync() {
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(function(){syncFrame=0;sync();});
+  }
+
   function install() {
     if (window.__exerciseBuilderBetweenPreviewV7Installed) return;
     if (!document.getElementById('day-workout-modal')) { setTimeout(install,50); return; }
@@ -614,7 +622,12 @@
     document.addEventListener('input',handleBuilderInput,false);
     document.addEventListener('change',handleBuilderInput,false);
     sync();
-    syncTimer=setInterval(sync,180);
+    if (embedded && window.MutationObserver) {
+      syncObserver = new MutationObserver(scheduleSync);
+      syncObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    } else {
+      syncTimer=setInterval(sync,180);
+    }
     window.__exerciseBuilderBetweenPreviewV7={captureDraft:captureDraft,showPreview:showPreview};
   }
 
