@@ -200,14 +200,16 @@ function runTool(tool,button,dateOverride){
  loadLegacy().then(function(win){
   if(!dialog.open)return;
   var needsSession=tool==='start'||tool==='startTemplate';
-  if(needsSession)updateStatus('Förbereder träningsläget…');
-  return (needsSession?ensureSessionAssets(win):Promise.resolve()).then(function(){
-   if(!dialog.open)return;
-   updateStatus('');
-   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
-   var success=selectTool(win,tool,button,date);
-   if(success===false){dialog.close();activeTool='';}
-  });
+  updateStatus('');
+  if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
+  var success=selectTool(win,tool,button,date);
+  if(success===false){dialog.close();activeTool='';return;}
+  if(needsSession){
+   // The preserved base session is already complete and should open at once.
+   // Presentation enhancements are optional and can finish loading afterward
+   // without blocking the user's tap or making the workspace feel stalled.
+   ensureSessionAssets(win).catch(function(){});
+  }
  }).catch(function(e){updateStatus(e.message);});
 }
 function install(){
