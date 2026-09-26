@@ -5,6 +5,9 @@
 
   var drag = null;
   var syncTimer = null;
+  var syncObserver = null;
+  var syncFrame = 0;
+  var embedded = document.documentElement.hasAttribute('data-field-embedded');
 
   function text(el) {
     return String((el && el.textContent) || '').trim().toLowerCase();
@@ -469,11 +472,22 @@
     if (modal && modal.classList.contains('show')) syncRows();
   }
 
+  function scheduleSync() {
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(function () { syncFrame = 0; sync(); });
+  }
+
   function install() {
     addStyles();
     bindEvents();
     sync();
-    syncTimer = setInterval(sync, 300);
+    if (embedded && window.MutationObserver) {
+      syncObserver = new MutationObserver(scheduleSync);
+      syncObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      ['input','change'].forEach(function(type){document.addEventListener(type,scheduleSync,true);});
+    } else {
+      syncTimer = setInterval(sync, 300);
+    }
     window.__exerciseBuilderRowToolsV3 = { sync:sync, duplicateRow:duplicateRow };
   }
 
