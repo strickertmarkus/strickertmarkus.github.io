@@ -460,7 +460,7 @@ jobs:
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'No extra button panels should be added to the Pulse Field design');
             const canonical=page.url();
             const embedded=page.frameLocator('#field-workspace iframe');
-            await embedded.locator('body').waitFor({timeout:5000});
+            await embedded.locator('body').waitFor({state:'attached',timeout:5000});
 
             const chosen=page.locator('#week-days .week-day[data-day]').nth(2);
             const chosenDate=await chosen.getAttribute('data-day');
