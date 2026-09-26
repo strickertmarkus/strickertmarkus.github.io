@@ -125,7 +125,7 @@
         box-shadow:0 10px 30px rgba(249,115,22,.34) !important;
       }
 
-      /* Calm blue/cyan state between active sets. */
+      /* Calm between-set state; embedded Pulse inherits the coral theme variables. */
       #session-modal.persistent-hype:not(.hype-mode):not(.session-overview-mode) {
         --accent:var(--flow-accent) !important;
         --accent-dim:rgba(var(--flow-accent-rgb),.13) !important;
@@ -173,7 +173,7 @@
         width:100% !important;
       }
 
-      /* Blue rest/between-set overlay, with a compact overview included. */
+      /* Rest/between-set overlay, with a compact overview included. */
       #session-between-overlay-v2 {
         background:rgba(4,11,21,.91) !important;
       }
@@ -344,7 +344,7 @@
       }
       .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
         transform:translateX(11px);
-        background:#A5F3FC;
+        background:var(--flow-accent-pale);
         box-shadow:0 0 8px rgba(var(--flow-accent-soft-rgb),.75);
       }
       #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] {
@@ -610,20 +610,44 @@
     renderRestOverview();
   }
 
+  function syncEmbeddedSession() {
+    ensureSessionTimerToggle();
+    renderRestOverview();
+  }
+
   function install() {
     addStyles();
     ensureSessionTimerToggle();
     relocateWeekActions();
-    setTimeout(syncSlow,0);
-    setInterval(syncSlow,450);
+
+    if (embeddedField) {
+      setTimeout(syncEmbeddedSession,0);
+      var sessionModal=document.getElementById('session-modal');
+      if (sessionModal && window.MutationObserver) {
+        var sessionObserver=new MutationObserver(function () {
+          requestAnimationFrame(syncEmbeddedSession);
+        });
+        sessionObserver.observe(sessionModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
+      }
+      document.addEventListener('click',function (event) {
+        if (event.target && event.target.closest && event.target.closest('#session-modal button')) {
+          requestAnimationFrame(syncEmbeddedSession);
+        }
+      },false);
+    } else {
+      setTimeout(syncSlow,0);
+      setInterval(syncSlow,450);
+    }
 
     document.addEventListener('change',function (event) {
+      if (embeddedField) return;
       if (event.target && event.target.id === 'day-workout-date') {
         setTimeout(function () { syncBuilderTimerToggle(true); },0);
       }
     },false);
 
     document.addEventListener('click',function (event) {
+      if (embeddedField) return;
       var button = event.target && event.target.closest ? event.target.closest('#day-workout-modal button') : null;
       if (!button) return;
       var text = (button.textContent || '').trim().toLowerCase();
