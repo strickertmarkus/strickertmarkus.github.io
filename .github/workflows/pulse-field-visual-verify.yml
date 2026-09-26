@@ -464,7 +464,8 @@ jobs:
             await compactToggle.click();
             assert.equal(await page.locator('html').getAttribute('data-field-layout'),'compact','Compact control must switch the new Pulse page itself');
             assert.equal(await compactToggle.getAttribute('aria-pressed'),'true','Compact control should expose pressed state');
-            assert.equal(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Compact mode should suspend decorative Pulse scenery');
+            assert.equal(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Compact mode should suspend the fixed Pulse background');
+            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Compact mode should suspend the animated cosmic scene');
             await compactToggle.click();
             assert.equal(await page.locator('html').getAttribute('data-field-layout'),'full','Compact control must return to full Pulse mode without archive navigation');
             await page.locator('#field-workspace iframe').waitFor({state:'attached',timeout:5000});
@@ -508,9 +509,11 @@ jobs:
 
             const renderState=await page.locator('body').evaluate(body=>({
               hostCanvas:getComputedStyle(document.querySelector('.field-canvas')).display,
+              hostScene:getComputedStyle(document.querySelector('.space-scene')).display,
               active:body.classList.contains('field-workspace-active')
             }));
-            assert.equal(renderState.hostCanvas,'none','Pulse Field animated scenery must not render behind an open training workspace');
+            assert.equal(renderState.hostCanvas,'none','Pulse Field fixed background must not render behind an open training workspace');
+            assert.equal(renderState.hostScene,'none','Pulse Field animated cosmic scene must not render behind an open training workspace');
             assert.equal(renderState.active,true,'Open training workspace must explicitly suspend the host scenery');
             const embeddedTheme=await embedded.locator('html').evaluate(root=>({
               accent:getComputedStyle(root).getPropertyValue('--accent').trim(),
@@ -555,7 +558,8 @@ jobs:
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
-            assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse scenery should resume only after the training workspace closes');
+            assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse fixed background should resume after the training workspace closes');
+            assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Pulse cosmic scene should resume after the training workspace closes');
 
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
