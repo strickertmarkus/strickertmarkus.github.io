@@ -17,7 +17,7 @@
     if (document.getElementById('exercise-builder-row-tools-v3-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-builder-row-tools-v3-style';
-    style.textContent = `:root{--builder-accent-rgb:${embedded?'255,101,122':'34,211,238'};--builder-accent-bright:${embedded?'#ffb7ab':'var(--builder-accent-bright)'}}` + `
+    style.textContent = `:root{--builder-accent-rgb:${embedded?'255,101,122':'34,211,238'};--builder-accent-bright:${embedded?'#ffb7ab':'#67E8F9'}}` + `
       .week-toolbar button[onclick*="goToCurrentWeek"] { display:none !important; }
       #week-inline-actions-v3 { display:flex; align-items:center; gap:6px; margin-left:auto; flex:0 0 auto; }
       #week-inline-actions-v3 .btn-sm { white-space:nowrap; }
