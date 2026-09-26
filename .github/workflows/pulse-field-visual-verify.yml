@@ -492,6 +492,8 @@ jobs:
             assert.equal(mobileLayout.close,'none','Full-screen Pulse workspace must not show a duplicate inner close button');
             assert.equal(mobileLayout.border,'0px','Mobile editor should be one flat workspace rather than a card inside a card');
             assert.ok(mobileLayout.width>=mobileLayout.viewport-1,'Mobile pass editor should use the full embedded viewport');
+            fs.mkdirSync('test-results/pulse-field',{recursive:true});
+            await page.screenshot({path:'test-results/pulse-field/builder-mobile-clean.png'});
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
             assert.ok(await embedded.locator('#day-workout-ex-list .ex-row-item').count()>=2,'Original builder must keep add-exercise functionality');
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-name').evaluate(input=>{
