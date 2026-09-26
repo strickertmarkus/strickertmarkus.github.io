@@ -30,9 +30,12 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(authConfig,/if \(embeddedFieldWorkspace\) \{[\s\S]*__embeddedBuilderReadyV1[\s\S]*return;/);
   assert.match(authConfig,/__prefetchEmbeddedSessionAssetsV1/);
   assert.match(builderRows,/embedded && window\.MutationObserver/);
-  assert.match(builderRows,/syncObserver\.observe\(document\.body/);
+  assert.match(builderRows,/syncObserver\.observe\(modal,/);
+  assert.doesNotMatch(builderRows,/syncObserver\.observe\(document\.body/);
   assert.match(builderStyle,/embedded && window\.MutationObserver/);
+  assert.match(builderStyle,/observer\.observe\(modal,/);
   assert.match(builderV7,/embedded && window\.MutationObserver/);
+  assert.match(builderV7,/syncObserver\.observe\(modal,/);
   assert.match(pulseFieldCss,/\.field-chart-tooltip\{[^}]*linear-gradient\(145deg,rgba\(77,30,54,/);
 });
 
