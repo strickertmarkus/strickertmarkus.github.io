@@ -5,7 +5,7 @@
 'use strict';
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
-var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionWarmTimer=0;
+var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0;
 var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
@@ -64,17 +64,13 @@ function connectLegacy(win){
  var set=win.DB.set;
  win.DB.set=function(k,v){set.call(this,k,v);pendingWrites++;changed();};
  observeEditor(win);
- clearTimeout(sessionWarmTimer);
- sessionWarmTimer=setTimeout(function(){
-  // Never parse the heavy session presentation bundle while the user is
-  // actively editing a pass. Only prewarm it while the workspace is hidden.
-  if(dialog&&dialog.open)return;
-  var warm=function(){
-   if(dialog&&dialog.open)return;
-   if(typeof win.__loadEmbeddedSessionAssetsV1==='function')win.__loadEmbeddedSessionAssetsV1();
+ clearTimeout(sessionPrefetchTimer);
+ sessionPrefetchTimer=setTimeout(function(){
+  var prefetch=function(){
+   if(typeof win.__prefetchEmbeddedSessionAssetsV1==='function')win.__prefetchEmbeddedSessionAssetsV1();
   };
-  if('requestIdleCallback' in win)win.requestIdleCallback(warm,{timeout:2600});else warm();
- },1100);
+  if('requestIdleCallback' in win)win.requestIdleCallback(prefetch,{timeout:2600});else prefetch();
+ },1800);
 }
 function loadLegacy(){
  if(legacyReady)return legacyReady;
@@ -87,18 +83,23 @@ function loadLegacy(){
   $('field-workspace-container').appendChild(frame);
  }
  legacyReady=new Promise(function(resolve,reject){
-  var expired=setTimeout(function(){reject(new Error('Passverktyget tog för lång tid att ladda. Försök igen.'));},45000);
+  var expired=setTimeout(function(){reject(new Error('Passverktyget tog för lång tid att ladda. Försök igen.'));},15000);
   frame.addEventListener('load',function(){
+   var win;
    try{
-    var win=workspaceWindow();
+    win=workspaceWindow();
     if(!win)throw new Error('Passverktyget måste öppnas från samma webbplats.');
-    connectLegacy(win);clearTimeout(expired);resolve(win);
-   }catch(e){clearTimeout(expired);reject(e);}
+   }catch(e){clearTimeout(expired);reject(e);return;}
+   Promise.resolve(win.__embeddedBuilderReadyV1).then(function(){
+    try{
+     connectLegacy(win);clearTimeout(expired);resolve(win);
+    }catch(e){clearTimeout(expired);reject(e);}
+   },function(e){clearTimeout(expired);reject(e);});
   },{once:true});
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20260925-legacy-workspace-4');
+  url.searchParams.set('v','20260926-builder-fast-5');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){legacyReady=null;updateStatus(e.message);throw e;});
@@ -234,19 +235,15 @@ function install(){
  var deep=new URLSearchParams(location.search).get('tool');
  if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);
 
- // Keep Pulse Field's first paint light, then warm the original builder while
- // the browser is idle so the first real tap does not pay the iframe startup.
+ // The embedded builder is now a small local-only runtime. Start it just after
+ // first paint so tapping Bygg pass or a week day normally opens immediately.
  var warm=function(){
-  if(dialog&&dialog.open)return;
   if(!dialog)makeDialog();
   loadLegacy().catch(function(){});
  };
- window.addEventListener('load',function(){
-  setTimeout(function(){
-   if('requestIdleCallback' in window)requestIdleCallback(warm,{timeout:2400});
-   else warm();
-  },1400);
- },{once:true});
+ var beginWarm=function(){setTimeout(warm,90);};
+ if(document.readyState==='complete')beginWarm();
+ else window.addEventListener('load',beginWarm,{once:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
