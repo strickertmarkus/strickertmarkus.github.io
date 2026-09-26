@@ -241,9 +241,10 @@ function install(){
   if(!dialog)makeDialog();
   loadLegacy().catch(function(){});
  };
- var beginWarm=function(){setTimeout(warm,90);};
- if(document.readyState==='complete')beginWarm();
- else window.addEventListener('load',beginWarm,{once:true});
+ var beginWarm=function(){setTimeout(warm,70);};
+ // install() itself runs at DOMContentLoaded; do not wait for remote fonts,
+ // Firebase or the window load event before preparing the local pass builder.
+ beginWarm();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
