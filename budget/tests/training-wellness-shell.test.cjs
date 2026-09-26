@@ -10,6 +10,7 @@ const overview=read('exercise-dashboard.js');
 const overviewShim=read('training-overview-mode.js');
 const overviewCss=read('training-overview-mode.css');
 const exercise=read('exercise.html');
+const legacyExercise=read('archive/exercise.html');
 const zen=read('zen.html');
 const zenRuntime=read('zen.js');
 const zenCss=read('zen.css');
@@ -254,17 +255,20 @@ test('profile query and intentional browser history survive unified switching',(
 });
 
 test('production pages cache-bust the shared wellness owners',()=>{
-  assert.match(exercise,/training-zen-nav\.css\?v=20260922-observatory-composition-2/);
+  assert.match(legacyExercise,/training-zen-nav\.css\?v=20260922-observatory-composition-2/);
   assert.match(zen,/training-zen-nav\.css\?v=20260924-sky-tint-3/);
-  for(const source of [exercise,zen]){
+  for(const source of [legacyExercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-9/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-original-compact-session-8/);
-  assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-composition-2/);
-  assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
-  assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
-  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
+  assert.match(legacyExercise,/auth-config\.js\?v=20260926-original-compact-session-9/);
+  assert.match(legacyExercise,/auth-gate\.js\?v=20260926-original-compact-session-8/);
+  assert.match(legacyExercise,/training-overview-mode\.js\?v=20260926-original-compact-host-4/);
+  assert.match(legacyExercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
+  assert.match(legacyExercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
+  assert.match(overviewShim,/exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
+  assert.match(exercise,/training-overview-mode\.css\?v=20260926-pulse-compact-host-3/);
+  assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-4/);
+  assert.match(exercise,/auth-gate\.js\?v=20260926-original-compact-session-4/);
   assert.match(zen,/zen\.css\?v=20260925-safari-edge-11/);
   assert.match(zen,/zen\.js\?v=20260924-sky-tint-3/);
 });
