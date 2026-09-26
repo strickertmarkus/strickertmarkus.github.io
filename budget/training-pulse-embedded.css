@@ -4,8 +4,11 @@ html[data-field-embedded]{
   color-scheme:dark;
   scroll-behavior:auto!important;
   --accent:#ff9a91;
-  --accent-dim:rgba(255,101,122,.13);
-  --accent-glow:rgba(255,101,122,.28);
+  --accent-rgb:255,101,122;
+  --accent-soft:#ffb7ab;
+  --accent-pale:#fff0e8;
+  --accent-dim:rgba(var(--accent-rgb),.13);
+  --accent-glow:rgba(var(--accent-rgb),.28);
   --border-a:rgba(255,154,145,.34);
 }
 html[data-field-embedded] body{min-height:100%;background:#0b131b!important;color:#f5e6df!important;overflow:hidden!important}
