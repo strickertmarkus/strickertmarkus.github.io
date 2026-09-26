@@ -80,7 +80,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .field-compact-toggle[aria-pressed=true]{color:#ffb7ab;border-color:#ff9a9178;background:#ff657a17;box-shadow:0 0 16px #ff657a2e,inset 0 0 13px #ff657a12}
 .field-compact-toggle[aria-pressed=true] span{text-shadow:0 0 11px #ff657a8c}
 
-html[data-field-layout="compact"] .field-canvas{display:none}
+html[data-field-layout="compact"] .field-canvas,html[data-field-layout="compact"] .space-scene{display:none}
 html[data-field-layout="compact"] .field-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:34px;min-height:0;padding:30px 0 34px}
 html[data-field-layout="compact"] .hero-stage{display:none}
 html[data-field-layout="compact"] .hero-copy h1{font-size:clamp(62px,7.2vw,88px)}
