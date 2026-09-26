@@ -75,7 +75,8 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(overview,/isCompactHost[\s\S]*pulse-field:exit-compact/);
   assert.match(pulseFieldCss,/\.field-compact-host\{position:fixed/);
   assert.match(pulseFieldCss,/body\.field-compact-active[\s\S]*\.field-canvas,[\s\S]*\.field-main/);
-  assert.match(pulseFieldJs,/new IntersectionObserver\([\s\S]*fieldSceneVisible/);
+  assert.match(pulseFieldJs,/function installFieldSceneVisibility\(\)[\s\S]*new IntersectionObserver/);
+  assert.match(pulseFieldJs,/setFieldSceneVisible\(pageVisible&&heroVisible\)/);
   assert.doesNotMatch(pulseFieldJs,/addEventListener\('scroll'/);
   assert.match(pulseFieldCss,/\.space-scene\{position:fixed/);
   assert.match(pulseFieldCss,/html\[data-field-scene-visible="false"\] \.space-scene\{display:none\}/);
@@ -235,6 +236,7 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
   for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
   assert.match(exercise,/firebase-sync\.js\?v=20260925-field-first-paint-1/);
+  assert.match(legacyExercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
 });
 
 test('rapid Training and Zen requests cancel stale pending transitions',()=>{
@@ -265,7 +267,7 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(legacyExercise,/auth-gate\.js\?v=20260926-original-compact-session-8/);
   assert.match(legacyExercise,/training-overview-mode\.js\?v=20260926-original-compact-host-4/);
   assert.match(legacyExercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
-  assert.match(legacyExercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
+  assert.match(legacyExercise,/training-week-orbit\.js\?v=20260926-original-compact-host-4/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
   assert.match(exercise,/training-overview-mode\.css\?v=20260926-pulse-compact-host-3/);
   assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-4/);
