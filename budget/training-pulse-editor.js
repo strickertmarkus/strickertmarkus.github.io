@@ -5,13 +5,19 @@
 'use strict';
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
-var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0;
+var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionWarmTimer=0;
 var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
 function monday(iso){var d=asDate(iso);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateISO(d);}
 function dayName(iso){return ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'][(asDate(iso).getDay()+6)%7];}
-function changed(){window.dispatchEvent(new CustomEvent('pulse-field:data-change'));}
+function changed(){
+ clearTimeout(changeTimer);
+ changeTimer=setTimeout(function(){
+  changeTimer=0;
+  window.dispatchEvent(new CustomEvent('pulse-field:data-change'));
+ },70);
+}
 function notice(t){var node=$('field-toast');if(!node)return;node.textContent=t;node.classList.add('is-visible');clearTimeout(notice.timer);notice.timer=setTimeout(function(){node.classList.remove('is-visible');},2700);}
 function makeDialog(){
  dialog=document.createElement('dialog');
@@ -58,6 +64,11 @@ function connectLegacy(win){
  var set=win.DB.set;
  win.DB.set=function(k,v){set.call(this,k,v);pendingWrites++;changed();};
  observeEditor(win);
+ clearTimeout(sessionWarmTimer);
+ sessionWarmTimer=setTimeout(function(){
+  var warm=function(){if(typeof win.__loadEmbeddedSessionAssetsV1==='function')win.__loadEmbeddedSessionAssetsV1();};
+  if('requestIdleCallback' in win)win.requestIdleCallback(warm,{timeout:2200});else warm();
+ },1100);
 }
 function loadLegacy(){
  if(legacyReady)return legacyReady;
@@ -122,6 +133,11 @@ function openTemplateEditor(win,id){
  return true;
 }
 
+function ensureSessionAssets(win){
+ if(typeof win.__loadEmbeddedSessionAssetsV1!=='function')return Promise.resolve();
+ return win.__loadEmbeddedSessionAssetsV1();
+}
+
 function selectTool(win,tool,button,date){
  var iso=date||selectedDate;win.document.documentElement.dataset.fieldWorkspace=tool;
  win.viewedMondayISO=monday(iso);
@@ -174,10 +190,15 @@ function runTool(tool,button,dateOverride){
  showWorkspace(tool);
  loadLegacy().then(function(win){
   if(!dialog.open)return;
-  updateStatus('');
-  if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
-  var success=selectTool(win,tool,button,date);
-  if(success===false){dialog.close();activeTool='';}
+  var needsSession=tool==='start'||tool==='startTemplate';
+  if(needsSession)updateStatus('Förbereder träningsläget…');
+  return (needsSession?ensureSessionAssets(win):Promise.resolve()).then(function(){
+   if(!dialog.open)return;
+   updateStatus('');
+   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
+   var success=selectTool(win,tool,button,date);
+   if(success===false){dialog.close();activeTool='';}
+  });
  }).catch(function(e){updateStatus(e.message);});
 }
 function install(){
@@ -206,6 +227,20 @@ function install(){
  });
  var deep=new URLSearchParams(location.search).get('tool');
  if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);
+
+ // Keep Pulse Field's first paint light, then warm the original builder while
+ // the browser is idle so the first real tap does not pay the iframe startup.
+ var warm=function(){
+  if(dialog&&dialog.open)return;
+  if(!dialog)makeDialog();
+  loadLegacy().catch(function(){});
+ };
+ window.addEventListener('load',function(){
+  setTimeout(function(){
+   if('requestIdleCallback' in window)requestIdleCallback(warm,{timeout:2400});
+   else warm();
+  },1400);
+ },{once:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
