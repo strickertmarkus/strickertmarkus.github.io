@@ -12,6 +12,7 @@
   window.__trainingOverviewModeInstalled = true;
 
   var MODES = { observatory:true, compact:true };
+  var isCompactHost = new URLSearchParams(window.location.search).get('compactHost') === '1' && window.parent !== window;
   var styleIds = ['training-observatory-environment','training-observatory-composition'];
   var CONTROL_STYLE_ID = 'training-overview-mode-style';
   var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260916-main-cp8-header-toggle-1';
@@ -52,6 +53,10 @@
     if (headerToggle.dataset.overviewBound === 'true') return headerToggle;
     headerToggle.dataset.overviewBound = 'true';
     headerToggle.addEventListener('click', function () {
+      if (isCompactHost) {
+        window.parent.postMessage({type:'pulse-field:exit-compact'}, window.location.origin);
+        return;
+      }
       setModeWithTransition(currentMode() === 'compact' ? 'observatory' : 'compact');
     });
     function reveal() { headerToggle.hidden = false; }
@@ -68,7 +73,7 @@
     if (!button) return;
     var compact = mode === 'compact';
     button.setAttribute('aria-pressed', compact ? 'true' : 'false');
-    button.setAttribute('aria-label', compact ? 'Compact vy aktiv. Byt till Pulse Observatory' : 'Aktivera Compact vy');
+    button.setAttribute('aria-label', compact ? (isCompactHost ? 'Compact vy aktiv. Byt till Pulse Field' : 'Compact vy aktiv. Byt till Pulse Observatory') : 'Aktivera Compact vy');
     button.title = compact ? 'Compact vy aktiv' : 'Compact vy';
   }
 
@@ -234,6 +239,7 @@
   }
 
   function initialMode() {
+    if (isCompactHost) return 'compact';
     var requested = new URLSearchParams(window.location.search).get('overview');
     return requested === 'compact' ? 'compact' : 'observatory';
   }
