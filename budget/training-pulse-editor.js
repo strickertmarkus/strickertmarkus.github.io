@@ -26,6 +26,7 @@ function makeDialog(){
  document.body.appendChild(dialog);
  $('field-workspace-close').addEventListener('click',requestClose);
  dialog.addEventListener('cancel',function(event){event.preventDefault();requestClose();});
+ dialog.addEventListener('close',function(){document.body.classList.remove('field-workspace-active');});
 }
 function updateStatus(t){var status=$('field-workspace-status');status.hidden=!t;status.textContent=t||'';}
 function workspaceWindow(){
@@ -110,6 +111,7 @@ function showWorkspace(tool){
  activeTool=tool;
  $('field-workspace-title').textContent=actionTitles[tool]||'Passverktyg';
  updateStatus(frame&&legacyReady?'':'Laddar dina passverktyg…');
+ document.body.classList.add('field-workspace-active');
  if(!dialog.open)dialog.showModal();
 }
 function openTemplateEditor(win,id){
