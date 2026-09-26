@@ -90,7 +90,7 @@
         transition:background .20s ease,border-color .20s ease,transform .18s cubic-bezier(.22,1,.36,1);
       }
       #day-workout-ex-list .ex-row-item.builder-row-enhanced-v3 {
-        border-color:rgba(34,211,238,.095) !important;
+        border-color:rgba(var(--builder-accent-rgb,34,211,238),.095) !important;
       }
       #day-workout-ex-list .ex-row-item.is-cardio,
       #wk-modal #ex-list .ex-row-item.is-cardio {
