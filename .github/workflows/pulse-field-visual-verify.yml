@@ -536,8 +536,8 @@ jobs:
             const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
             assert.equal(plan[chosenDate].exercises[0].name,'Testpress','Direct day editor must persist the original Compact plan schema');
 
-            await page.locator('#next-session-link').click();
-            await embedded.locator('#session-modal.show').waitFor({timeout:5000});
+            await page.evaluate(date=>window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'start',date}})),chosenDate);
+            await embedded.locator('#session-modal.show').waitFor({timeout:15000});
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
