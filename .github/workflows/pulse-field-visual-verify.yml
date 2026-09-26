@@ -17,6 +17,9 @@ on:
       - 'budget/training-pulse-editor.js'
       - 'budget/training-pulse-editor.css'
       - 'budget/training-pulse-embedded.css'
+      - 'budget/exercise-builder-row-tools-v3.js'
+      - 'budget/exercise-builder-style-v5.js'
+      - 'budget/exercise-builder-between-preview-v7.js'
       - 'budget/auth-config.js'
       - '.github/workflows/pulse-field-visual-verify.yml'
   workflow_dispatch:
@@ -465,6 +468,14 @@ jobs:
             assert.equal(await embedded.locator('#day-workout-date').inputValue(),chosenDate,'Tapped Pulse Field day must open the matching Compact day editor');
             assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Direct day interaction must reuse the original day workout builder');
             assert.equal(await page.locator('#field-editor-dialog').count(),0,'No duplicate simplified builder may be created');
+            const embeddedBoot=await embedded.locator('html').evaluate(()=>({
+              manifest:(window.__exerciseAssetManifestV2||[]).map(item=>item.src),
+              hasChart:!!document.querySelector('script[src*="chart.umd"]'),
+              hasActivity:!!document.querySelector('script[src*="training-activity.js"]')
+            }));
+            assert.ok(embeddedBoot.manifest.length<=4&&embeddedBoot.manifest.includes('exercise-points-8-9.js'),'Embedded builder boot must stay intentionally small: '+JSON.stringify(embeddedBoot.manifest));
+            assert.equal(embeddedBoot.hasChart,false,'Embedded builder must not parse Chart.js before a tool needs charts');
+            assert.equal(embeddedBoot.hasActivity,false,'Embedded builder must not load the old dashboard activity runtime');
 
             const color=await embedded.locator('#day-workout-modal .modal').evaluate(el=>getComputedStyle(el).backgroundColor);
             assert.ok(color!=='rgb(22, 27, 34)','Embedded Compact tools should adopt the Pulse Field theme: '+color);
@@ -517,6 +528,9 @@ jobs:
             await page.waitForSelector('#field-chart-tooltip.is-visible');
             const tooltipText=(await page.locator('#field-chart-tooltip').innerText()).trim();
             assert.ok(tooltipText.length>0,'Tapping the graph must reveal its value');
+            const tooltipTheme=await page.locator('#field-chart-tooltip').evaluate(el=>({background:getComputedStyle(el).backgroundImage,border:getComputedStyle(el).borderColor,radius:getComputedStyle(el).borderRadius}));
+            assert.ok(tooltipTheme.background.includes('linear-gradient')&&tooltipTheme.background.includes('rgba(77, 30, 54'),'Chart value feedback must use the Pulse plum gradient rather than a blue status box: '+JSON.stringify(tooltipTheme));
+            assert.ok(parseFloat(tooltipTheme.radius)>=14,'Chart tooltip should keep the rounded Pulse presentation');
             assert.equal(await page.locator('.field-template-section,.field-day-actions,.field-action').count(),0,'Direct functionality must not reintroduce extra action-button layers');
             assert.deepEqual(errors.filter(e=>/training-pulse-editor\.js|training-pulse-field\.js|field-workspace/.test(e)),[],'Host runtime errors: '+errors.join(' | '));
             await browser.close();
