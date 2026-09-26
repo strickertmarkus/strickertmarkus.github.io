@@ -1,11 +1,18 @@
 /* Pulse Field embedded workspace: presentation only. The archived training
    runtime remains the sole owner of the original builder/session behavior. */
-html[data-field-embedded]{color-scheme:dark;scroll-behavior:auto!important}
-html[data-field-embedded] body{min-height:100%;background:#0b131bd9!important;color:#f5e6df!important;overflow:hidden!important}
+html[data-field-embedded]{
+  color-scheme:dark;
+  scroll-behavior:auto!important;
+  --accent:#ff9a91;
+  --accent-dim:rgba(255,101,122,.13);
+  --accent-glow:rgba(255,101,122,.28);
+  --border-a:rgba(255,154,145,.34);
+}
+html[data-field-embedded] body{min-height:100%;background:#0b131b!important;color:#f5e6df!important;overflow:hidden!important}
 html[data-field-embedded] body .app-wrap,
 html[data-field-embedded] body>.fab,
 html[data-field-embedded] #archive-return,
-html[data-field-embedded] body>.wellness-zen-host{position:fixed!important;top:-100000px!important;left:-100000px!important;width:100%!important;visibility:hidden!important;pointer-events:none!important}
+html[data-field-embedded] body>.wellness-zen-host{display:none!important}
 html[data-field-embedded] body:before,html[data-field-embedded] body:after{display:none!important}
 html[data-field-embedded] body .modal-overlay{background:transparent!important;backdrop-filter:none!important;padding:12px!important}
 html[data-field-embedded] body .modal-overlay.show{display:flex!important}
@@ -41,11 +48,16 @@ html[data-field-embedded] body .session-cta.primary{background:linear-gradient(1
 html[data-field-embedded] body .session-timers .timer-box{border-color:#ff9a9152!important;box-shadow:0 0 20px #ff657a12!important}
 html[data-field-embedded] body .session-table th{color:#ffb6a8!important}
 html[data-field-embedded] body .session-cta.success{background:#ff657a!important;color:#111620!important}
-html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important}
+html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important;border-color:#ff9a9152!important;background:linear-gradient(180deg,#201824,#111820)!important;box-shadow:0 22px 56px #0009,0 0 0 1px #ff657a10,0 0 28px #ff657a16!important}
+html[data-field-embedded] body .exercise-name-picker-kicker-v1{color:#ffb7ab!important}
+html[data-field-embedded] body .exercise-name-picker-option-v1.is-current{background:#ff657a16!important;color:#fff0e8!important}
+html[data-field-embedded] body .exercise-name-picker-new-v1{color:#ffb7ab!important;background:#ff657a0a!important}
+html[data-field-embedded] body .exercise-name-picker-new-v1:hover,
+html[data-field-embedded] body .exercise-name-picker-new-v1:focus-visible{background:#ff657a1c!important}
 html[data-field-embedded] body #toast{border-color:#ff9a9180!important;color:#ffe0d6!important;background:#161c26!important}
 /* Goals are the one non-modal legacy editor; show just its original controls. */
 html[data-field-embedded][data-field-workspace="goals"] body{overflow:auto!important}
-html[data-field-embedded][data-field-workspace="goals"] body .app-wrap{position:relative!important;left:auto!important;top:auto!important;visibility:visible!important;pointer-events:auto!important}
+html[data-field-embedded][data-field-workspace="goals"] body .app-wrap{display:block!important;position:relative!important;left:auto!important;top:auto!important;visibility:visible!important;pointer-events:auto!important}
 html[data-field-embedded][data-field-workspace="goals"] body .app-header,
 html[data-field-embedded][data-field-workspace="goals"] body .bg-orb,
 html[data-field-embedded][data-field-workspace="goals"] #pulse-home>*:not(#pulse-goals),
@@ -60,7 +72,7 @@ html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .section-hd
 html[data-field-embedded][data-field-workspace="goals"] #pulse-goals input{color:#ffe1d4!important;background:#15212c!important;border:1px solid #ff9a9155!important}
 html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .fade-in{opacity:1!important;transform:none!important}
 @media(max-width:600px){
-html[data-field-embedded] body .modal-overlay{padding:0!important;align-items:stretch!important;background:#0b131b!important}
+html[data-field-embedded] body .modal-overlay{padding:0!important;align-items:stretch!important;background:linear-gradient(180deg,#111823 0%,#0d151f 58%,#0a121a 100%)!important}
 html[data-field-embedded] body .modal{
   width:100%!important;
   max-width:none!important;
@@ -70,7 +82,7 @@ html[data-field-embedded] body .modal{
   padding:20px 16px 18px!important;
   border:0!important;
   border-radius:0!important;
-  background:linear-gradient(180deg,#111823 0%,#0d151f 58%,#0a121a 100%)!important;
+  background:transparent!important;
   box-shadow:none!important;
 }
 html[data-field-embedded] body .modal>.modal-close{display:none!important}
