@@ -223,8 +223,41 @@
       body.exercise-profile-markus-v7 .brand-text p{color:#38BDF8!important}
 
       @media(max-width:600px){
-        #day-workout-modal .builder-week-between-v7{grid-template-columns:minmax(0,1.08fr) minmax(130px,.92fr)!important;column-gap:8px!important}
-        #between-exercise-toggle-panel-v7{min-height:55px;padding:7px 8px}
+        #day-workout-modal .builder-week-between-v7{
+          grid-template-columns:1fr!important;
+          row-gap:9px!important;
+          column-gap:0!important;
+          align-items:stretch!important;
+        }
+        #day-workout-modal .builder-week-between-v7>label{grid-column:1}
+        #day-workout-modal .builder-week-between-v7>.week-nav{
+          grid-column:1;
+          display:grid!important;
+          grid-template-columns:40px minmax(0,1fr) 40px;
+          align-items:center;
+          width:100%;
+          min-width:0;
+          gap:8px;
+        }
+        #day-workout-modal .builder-week-between-v7>.week-nav .week-nav-copy{
+          width:auto!important;
+          min-width:0!important;
+          max-width:none!important;
+          text-align:center;
+        }
+        #day-workout-modal .builder-week-between-v7>.week-nav .week-nav-btn{
+          width:40px!important;
+          min-width:40px!important;
+          height:40px!important;
+          min-height:40px!important;
+          padding:0!important;
+        }
+        #between-exercise-toggle-panel-v7{
+          grid-column:1;
+          width:100%;
+          min-height:50px;
+          padding:8px 10px;
+        }
         .between-toggle-copy-v7 strong{font-size:9px}.between-toggle-copy-v7 span{font-size:7px}
         .between-fields-v7{grid-template-columns:minmax(0,1fr) 78px}.between-fields-v7 .between-name-v7{grid-column:1/-1}
         .per-set-v7{gap:5px;align-items:flex-start;flex-wrap:wrap}
@@ -234,8 +267,6 @@
         .plan-preview-row-v7{grid-template-columns:20px minmax(0,1fr) auto;padding:7px 8px}
       }
       @media(max-width:380px){
-        #day-workout-modal .builder-week-between-v7{grid-template-columns:1fr!important;row-gap:7px!important}
-        #day-workout-modal .builder-week-between-v7>.week-nav,#between-exercise-toggle-panel-v7{grid-column:1}
         .per-set-fields-v7{grid-template-columns:minmax(0,1fr) 64px}.per-set-name-v7{grid-column:1/-1}
       }
     `;
