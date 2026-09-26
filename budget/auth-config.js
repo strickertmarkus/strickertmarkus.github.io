@@ -86,7 +86,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   }
 
   var pulseDefaultBoot = !embeddedFieldWorkspace;
-  var exerciseFastVersion = '20260926-embedded-builder-layout-2';
+  var exerciseFastVersion = '20260926-embedded-builder-layout-3';
 
   /* Loader manifest v2. Network fetches may run concurrently, but auth-gate
      still executes these entries in this exact order. `group` documents the
