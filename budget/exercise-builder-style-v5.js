@@ -221,9 +221,8 @@
     syncUnitLabels();
     if (embedded && window.MutationObserver) {
       var observer = new MutationObserver(scheduleUnitLabelSync);
-      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-      document.addEventListener('input',scheduleUnitLabelSync,true);
-      document.addEventListener('change',scheduleUnitLabelSync,true);
+      var modal = document.getElementById('day-workout-modal');
+      if (modal) observer.observe(modal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     } else {
       setInterval(syncUnitLabels, 250);
     }
