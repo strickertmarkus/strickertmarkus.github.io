@@ -241,7 +241,28 @@
     window.__exerciseBetweenRoutingV7Installed = true;
     addClarificationStyles();
     document.addEventListener('click',handleCapture,true);
-    setInterval(syncArchiveRows,220);
+    if (embeddedField) {
+      document.addEventListener('click',function (event) {
+        if (event.target && event.target.closest && event.target.closest('#session-modal button')) {
+          setTimeout(syncArchiveRows,0);
+        }
+      },false);
+      var sessionModal=document.getElementById('session-modal');
+      if (sessionModal && window.MutationObserver) {
+        var archiveObserver=new MutationObserver(function (records) {
+          var externalChange=records.some(function (record) {
+            return Array.prototype.some.call(record.addedNodes||[],function (node) {
+              return !(node.nodeType===1 && node.matches && node.matches('tr[data-between-custom-archive-v7]'));
+            });
+          });
+          if (externalChange) requestAnimationFrame(syncArchiveRows);
+        });
+        archiveObserver.observe(sessionModal,{subtree:true,childList:true});
+      }
+      setTimeout(syncArchiveRows,0);
+    } else {
+      setInterval(syncArchiveRows,220);
+    }
     window.__exerciseBetweenRoutingV7 = {
       configForTransition:configForTransition,
       normalizeConfig:normalizeConfig
