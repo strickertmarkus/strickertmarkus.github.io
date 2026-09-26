@@ -573,7 +573,8 @@ jobs:
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse fixed background should resume after the training workspace closes');
-            assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Pulse cosmic scene should resume after the training workspace closes');
+            assert.equal(await page.locator('html').getAttribute('data-field-scene-visible'),'false','Cosmic scene should stay suspended when the user returns to an offscreen hero');
+            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Offscreen hero scenery must remain stopped after closing the workspace');
 
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
