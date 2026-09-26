@@ -49,7 +49,7 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(pulseEmbeddedCss,/--accent-rgb:255,101,122/);
   assert.match(pulseEditorJs,/body\.classList\.add\('field-workspace-active'\)/);
   assert.match(pulseEditorJs,/dialog\.addEventListener\('close',[\s\S]*field-workspace-active/);
-  assert.match(pulseEditorCss,/body\.field-workspace-active \.field-canvas\{display:none!important\}/);
+  assert.match(pulseEditorCss,/body\.field-workspace-active \.field-canvas,body\.field-workspace-active \.space-scene\{display:none!important\}/);
   assert.match(pulseEditorCss,/\.field-workspace::backdrop\{background:#02050b;backdrop-filter:none\}/);
   assert.match(flowPolish,/var embeddedField = document\.documentElement\.hasAttribute\('data-field-embedded'\)/);
   assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return null;/);
@@ -57,7 +57,7 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(betweenRouting,/if \(embeddedField\) return;[\s\S]*exercise-between-routing-v7-clarification/);
   assert.match(shellV13,/if\(embeddedField\)\{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return true;/);
   assert.match(pulseFieldJs,/fieldLayoutKey='ex_field_layout_'\+profile/);
-  assert.match(pulseFieldCss,/html\[data-field-layout="compact"\] \.field-canvas\{display:none\}/);
+  assert.match(pulseFieldCss,/html\[data-field-layout="compact"\] \.field-canvas,html\[data-field-layout="compact"\] \.space-scene\{display:none\}/);
 });
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
