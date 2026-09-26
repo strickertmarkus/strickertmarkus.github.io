@@ -2,6 +2,7 @@
   'use strict';
   if(!/\/exercise\.html$/i.test(window.location.pathname))return;
 
+  var embeddedField=document.documentElement.hasAttribute('data-field-embedded');
   function text(v){return String(v||'').trim().toLocaleLowerCase('sv-SE');}
 
   function addStyles(){
@@ -171,6 +172,13 @@
   }
 
   function compactBuilderControls(){
+    if(embeddedField){
+      var legacyTimer=document.getElementById('pretimer-builder-v2');
+      if(legacyTimer)legacyTimer.remove();
+      var legacySwitch=document.getElementById('pretimer-builder-switch-v2');
+      if(legacySwitch)legacySwitch.remove();
+      return true;
+    }
     var modal=document.getElementById('day-workout-modal');
     if(!modal||!modal.classList.contains('show'))return false;
     var panel=document.getElementById('between-exercise-toggle-panel-v7');
