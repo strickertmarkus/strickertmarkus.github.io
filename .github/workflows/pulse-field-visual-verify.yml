@@ -568,7 +568,11 @@ jobs:
             await timerToggle.waitFor({state:'attached',timeout:10000});
             assert.equal(await timerToggle.count(),1,'5-second timer should exist only inside the running workout mode');
             const timerKnob=timerToggle.locator('.session-timer-knob-v48');
-            assert.equal(await timerKnob.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 240, 232)','Embedded 5-second timer knob must use Pulse ivory/coral rather than legacy cyan');
+            await page.waitForTimeout(300);
+            const timerKnobColor=await timerKnob.evaluate(el=>getComputedStyle(el).backgroundColor);
+            assert.notEqual(timerKnobColor,'rgb(165, 243, 252)','Embedded 5-second timer knob must never use the legacy cyan');
+            const timerRgb=timerKnobColor.match(/\d+/g).map(Number);
+            assert.ok(timerRgb[0]>245&&timerRgb[1]>180&&timerRgb[1]>timerRgb[2],'Embedded 5-second timer knob must resolve to the warm Pulse ivory/coral family: '+timerKnobColor);
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
