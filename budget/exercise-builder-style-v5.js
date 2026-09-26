@@ -3,6 +3,14 @@
 
   if (!/\/exercise\.html$/i.test(window.location.pathname)) return;
 
+  var embedded = document.documentElement.hasAttribute('data-field-embedded');
+  var labelSyncFrame = 0;
+
+  function scheduleUnitLabelSync() {
+    if (labelSyncFrame) return;
+    labelSyncFrame = requestAnimationFrame(function(){labelSyncFrame=0;syncUnitLabels();});
+  }
+
   function syncUnitLabels() {
     var modal = document.getElementById('day-workout-modal');
     if (!modal || !modal.classList.contains('show')) return;
@@ -211,7 +219,14 @@
     }, true);
 
     syncUnitLabels();
-    setInterval(syncUnitLabels, 250);
+    if (embedded && window.MutationObserver) {
+      var observer = new MutationObserver(scheduleUnitLabelSync);
+      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      document.addEventListener('input',scheduleUnitLabelSync,true);
+      document.addEventListener('change',scheduleUnitLabelSync,true);
+    } else {
+      setInterval(syncUnitLabels, 250);
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
