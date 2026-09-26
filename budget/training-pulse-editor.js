@@ -66,8 +66,14 @@ function connectLegacy(win){
  observeEditor(win);
  clearTimeout(sessionWarmTimer);
  sessionWarmTimer=setTimeout(function(){
-  var warm=function(){if(typeof win.__loadEmbeddedSessionAssetsV1==='function')win.__loadEmbeddedSessionAssetsV1();};
-  if('requestIdleCallback' in win)win.requestIdleCallback(warm,{timeout:2200});else warm();
+  // Never parse the heavy session presentation bundle while the user is
+  // actively editing a pass. Only prewarm it while the workspace is hidden.
+  if(dialog&&dialog.open)return;
+  var warm=function(){
+   if(dialog&&dialog.open)return;
+   if(typeof win.__loadEmbeddedSessionAssetsV1==='function')win.__loadEmbeddedSessionAssetsV1();
+  };
+  if('requestIdleCallback' in win)win.requestIdleCallback(warm,{timeout:2600});else warm();
  },1100);
 }
 function loadLegacy(){
