@@ -85,7 +85,7 @@
     if (document.getElementById('exercise-builder-between-preview-v7-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-builder-between-preview-v7-style';
-    style.textContent = `:root{--builder-preview-rgb:${embedded?'255,101,122':'34,211,238'};--builder-preview-bright:${embedded?'#ffb7ab':'var(--builder-preview-bright)'};--builder-preview-strong:${embedded?'#ff8f93':'var(--builder-preview-strong)'};--builder-preview-ink:${embedded?'#1b1118':'var(--builder-preview-ink)'};--builder-profile-accent:${embedded?'#ffb7ab':'var(--builder-profile-accent)'}}` + `
+    style.textContent = `:root{--builder-preview-rgb:${embedded?'255,101,122':'34,211,238'};--builder-preview-bright:${embedded?'#ffb7ab':'#67E8F9'};--builder-preview-strong:${embedded?'#ff8f93':'#22D3EE'};--builder-preview-ink:${embedded?'#1b1118':'#06141A'};--builder-profile-accent:${embedded?'#ffb7ab':'#38BDF8'}}` + `
       /* The old builder-only five-second timer switch is replaced by the new
          between-exercises switch. The in-session five-second control remains. */
       #pretimer-builder-v2{display:none!important}
