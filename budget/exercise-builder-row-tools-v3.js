@@ -483,8 +483,8 @@
     sync();
     if (embedded && window.MutationObserver) {
       syncObserver = new MutationObserver(scheduleSync);
-      syncObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-      ['input','change'].forEach(function(type){document.addEventListener(type,scheduleSync,true);});
+      var modal = document.getElementById('day-workout-modal');
+      if (modal) syncObserver.observe(modal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     } else {
       syncTimer = setInterval(sync, 300);
     }
