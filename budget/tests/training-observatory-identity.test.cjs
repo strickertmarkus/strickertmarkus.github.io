@@ -5,7 +5,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
-const html = read('exercise.html');
+const html = read('archive/exercise.html');
 const css = read('pulse-observatory/observatory.css');
 const dashboard = read('exercise-dashboard.js');
 const environmentShim = read('pulse-environment/environment.js');
@@ -62,7 +62,7 @@ test('boot keeps the current shared wellness ownership fresh and CP10 routes das
   assert.match(html, /auth-config\.js\?v=20260926-original-compact-session-9/);
   assert.match(html, /auth-gate\.js\?v=20260926-original-compact-session-8/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260926-original-compact-host-3/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
   assert.match(authConfig, /exerciseFastVersion = '20260926-original-compact-session-7'/);
   assert.match(authGate, /exerciseAssetsVersion = '20260926-original-compact-session-7'/);
 });
