@@ -122,7 +122,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
     ? allExerciseAssetManifestV2.filter(function (item) {
-        return item.src === 'exercise-points-8-9.js' || item.group === 'builder';
+        return item.group === 'builder';
       })
     : allExerciseAssetManifestV2;
 
@@ -130,42 +130,59 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      larger session presentation bundle only when it is actually needed. This
      keeps builder buttons responsive without forking any training behavior. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(
+    ? [
+        {src:'exercise-points-8-9.js',attr:'data-exercise-points-8-9'},
+        {src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}
+      ].concat(
         allExerciseAssetManifestV2.filter(function (item) {
           return ['session-presentation','session-core','session-transition','session-ux','session-stability','pulse-presentation','motion'].indexOf(item.group) >= 0;
         })
       )
     : [];
   window.__embeddedSessionAssetManifestV1 = embeddedSessionAssetManifestV1;
-  window.__loadEmbeddedSessionAssetsV1 = function () {
-    if (!embeddedFieldWorkspace || !embeddedSessionAssetManifestV1.length) return Promise.resolve();
-    if (window.__embeddedSessionAssetsPromiseV1) return window.__embeddedSessionAssetsPromiseV1;
-    embeddedSessionAssetManifestV1.forEach(function (item) {
+
+  function preloadEmbeddedAssets(manifest, marker) {
+    manifest.forEach(function (item) {
       var href = item.src + '?v=' + exerciseFastVersion;
       if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
       var preload = document.createElement('link');
       preload.rel = 'preload';
       preload.as = 'script';
       preload.href = href;
-      preload.setAttribute('data-embedded-session-preload-v1','true');
+      preload.setAttribute(marker,'true');
       document.head.appendChild(preload);
     });
-    window.__embeddedSessionAssetsPromiseV1 = embeddedSessionAssetManifestV1.reduce(function (chain,item) {
+  }
+
+  function loadEmbeddedAssets(manifest) {
+    return manifest.reduce(function (chain,item) {
       return chain.then(function () {
         if (document.querySelector('script[' + item.attr + ']')) return;
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve,reject) {
           var script = document.createElement('script');
           script.src = item.src + '?v=' + exerciseFastVersion;
           script.async = false;
           script.setAttribute(item.attr,'true');
           script.addEventListener('load',resolve,{once:true});
-          script.addEventListener('error',resolve,{once:true});
+          script.addEventListener('error',function(){reject(new Error('Kunde inte ladda '+item.src));},{once:true});
           document.head.appendChild(script);
         });
       });
     },Promise.resolve());
+  }
+
+  window.__prefetchEmbeddedSessionAssetsV1 = function () {
+    if (!embeddedFieldWorkspace) return;
+    preloadEmbeddedAssets(embeddedSessionAssetManifestV1,'data-embedded-session-preload-v1');
+  };
+  window.__loadEmbeddedSessionAssetsV1 = function () {
+    if (!embeddedFieldWorkspace || !embeddedSessionAssetManifestV1.length) return Promise.resolve();
+    if (window.__embeddedSessionAssetsPromiseV1) return window.__embeddedSessionAssetsPromiseV1;
+    preloadEmbeddedAssets(embeddedSessionAssetManifestV1,'data-embedded-session-preload-v1');
+    window.__embeddedSessionAssetsPromiseV1 = loadEmbeddedAssets(embeddedSessionAssetManifestV1);
     return window.__embeddedSessionAssetsPromiseV1;
   };
+
   window.__exerciseAssetManifestV2 = exerciseAssetManifestV2;
   window.__exerciseLoaderMetricsV2 = {
     manifestCount:exerciseAssetManifestV2.length,
@@ -175,6 +192,16 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
       return out;
     },{})
   };
+
+  if (embeddedFieldWorkspace) {
+    preloadEmbeddedAssets(exerciseAssetManifestV2,'data-embedded-builder-preload-v1');
+    window.__embeddedBuilderReadyV1 = loadEmbeddedAssets(exerciseAssetManifestV2).then(function () {
+      window.__exerciseLoaderMetricsV2.bundleReadyAt = (window.performance && performance.now) ? performance.now() : Date.now();
+      window.__exerciseLoaderMetricsV2.bundleMs = Math.round(window.__exerciseLoaderMetricsV2.bundleReadyAt - window.__exerciseLoaderMetricsV2.preloadStartedAt);
+      window.__exerciseLoaderMetricsV2.executionCount = exerciseAssetManifestV2.length;
+    });
+    return;
+  }
 
   /* Start all network transfers together. Script execution remains ordered in
      auth-gate, so this removes waterfall latency without changing dependencies. */
