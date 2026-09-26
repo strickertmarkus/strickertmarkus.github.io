@@ -58,7 +58,7 @@
     if (document.getElementById('exercise-flow-polish-v2-style')) return;
     var style = document.createElement('style');
     style.id = 'exercise-flow-polish-v2-style';
-    style.textContent = `:root{--flow-accent:${embeddedField?'#ff9a91':'var(--flow-accent)'};--flow-accent-rgb:${embeddedField?'255,101,122':'34,211,238'};--flow-accent-soft:${embeddedField?'#ffb7ab':'var(--flow-accent-soft)'};--flow-accent-soft-rgb:${embeddedField?'255,183,171':'103,232,249'};--flow-accent-pale:${embeddedField?'#fff0e8':'var(--flow-accent-pale)'};--flow-accent-deep:${embeddedField?'#e76379':'var(--flow-accent-deep)'}}` + `
+    style.textContent = `:root{--flow-accent:${embeddedField?'#ff9a91':'#22D3EE'};--flow-accent-rgb:${embeddedField?'255,101,122':'34,211,238'};--flow-accent-soft:${embeddedField?'#ffb7ab':'#67E8F9'};--flow-accent-soft-rgb:${embeddedField?'255,183,171':'103,232,249'};--flow-accent-pale:${embeddedField?'#fff0e8':'#CFFAFE'};--flow-accent-deep:${embeddedField?'#e76379':'#0EA5E9'}}` + `
       /* The retired auto-advance flow hid this entire row. The unified session
          controller deliberately waits for the user when no rest is configured,
          so the decision controls must remain visible and easy to hit. */
