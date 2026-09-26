@@ -492,6 +492,33 @@ jobs:
             assert.equal(mobileLayout.close,'none','Full-screen Pulse workspace must not show a duplicate inner close button');
             assert.equal(mobileLayout.border,'0px','Mobile editor should be one flat workspace rather than a card inside a card');
             assert.ok(mobileLayout.width>=mobileLayout.viewport-1,'Mobile pass editor should use the full embedded viewport');
+
+            const renderState=await page.locator('body').evaluate(body=>({
+              hostCanvas:getComputedStyle(document.querySelector('.field-canvas')).display,
+              active:body.classList.contains('field-workspace-active')
+            }));
+            assert.equal(renderState.hostCanvas,'none','Pulse Field animated scenery must not render behind an open training workspace');
+            assert.equal(renderState.active,true,'Open training workspace must explicitly suspend the host scenery');
+            const embeddedTheme=await embedded.locator('html').evaluate(root=>({
+              accent:getComputedStyle(root).getPropertyValue('--accent').trim(),
+              accentRgb:getComputedStyle(root).getPropertyValue('--accent-rgb').trim(),
+              oldDashboard:getComputedStyle(document.querySelector('.app-wrap')).display,
+              overlayBg:getComputedStyle(document.querySelector('#day-workout-modal')).backgroundImage,
+              cardBg:getComputedStyle(document.querySelector('#day-workout-modal .modal')).backgroundColor
+            }));
+            assert.equal(embeddedTheme.accent,'#ff9a91','Embedded original controls must inherit Pulse coral instead of archived cyan');
+            assert.equal(embeddedTheme.accentRgb,'255,101,122','Embedded alpha accents must use Pulse coral RGB');
+            assert.equal(embeddedTheme.oldDashboard,'none','Archived dashboard background must not render behind embedded tools');
+            assert.ok(embeddedTheme.overlayBg.includes('linear-gradient'),'One static workspace background should be owned by the non-scrolling overlay');
+            assert.equal(embeddedTheme.cardBg,'rgba(0, 0, 0, 0)','Scrollable mobile editor must not carry a moving background layer');
+
+            const plus=embedded.locator('.builder-row-plus-v3').first();
+            assert.ok(await plus.count(),'Original row tools should be present');
+            const plusColor=await plus.evaluate(el=>getComputedStyle(el).color);
+            assert.notEqual(plusColor,'rgb(103, 232, 249)','Embedded row action must not retain archived cyan');
+            const betweenColor=await embedded.locator('.between-toggle-copy-v7 strong').evaluate(el=>getComputedStyle(el).color);
+            assert.notEqual(betweenColor,'rgb(103, 232, 249)','Embedded between-exercise UI must not retain archived cyan');
+
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
             await page.screenshot({path:'test-results/pulse-field/builder-mobile-clean.png'});
             await embedded.locator('#day-workout-modal [onclick="addDayWorkoutExRow()"]').click();
@@ -514,6 +541,7 @@ jobs:
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse scenery should resume only after the training workspace closes');
 
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
