@@ -66,6 +66,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(!frame||event.source!==frame.contentWindow)return;
       if(event.data&&event.data.type==='pulse-field:exit-compact')closeOriginalCompact();
     });
+    document.addEventListener('keydown',function(event){
+      if(event.key==='Escape'&&compactHost)closeOriginalCompact();
+    });
   }
   function setFieldSceneVisible(visible) {
     root.dataset.fieldSceneVisible=visible?'true':'false';
