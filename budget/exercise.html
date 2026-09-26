@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="training-pulse-field.css?v=20260926-energy-scene-40">
+  <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-2">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20260926-energy-7">
   <!-- Keep dependency order while allowing the initial Pulse Field markup and scenery to paint. -->
@@ -65,7 +66,7 @@
       <small id="profile-name">Markus Strickert</small>
     </a>
     <div class="field-header-actions">
-      <button class="round-control field-compact-toggle" id="field-compact-toggle" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy"><span aria-hidden="true">◆</span></button>
+      <button id="training-overview-toggle" class="training-overview-toggle" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy"><span class="training-overview-toggle-icon" aria-hidden="true">◆</span></button>
       <a class="version-link" id="original-link" href="#week-field" data-field-action="build">Passverktyg</a>
       <button class="round-control" id="menu-toggle" type="button" aria-label="Öppna meny" aria-expanded="false" aria-controls="field-menu">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12M6 12h12M6 16h12"/></svg>
