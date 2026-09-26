@@ -60,7 +60,7 @@ test('hero has one Zen-sized start action and keeps building in the template sec
 
 test('boot keeps the current shared wellness ownership fresh and CP10 routes dashboard JS to one owner', () => {
   assert.match(html, /auth-config\.js\?v=20260926-embedded-builder-perf-2/);
-  assert.match(html, /auth-gate\.js\?v=20260926-embedded-builder-perf-1/);
+  assert.match(html, /auth-gate\.js\?v=20260926-embedded-builder-perf-2/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
   assert.match(authConfig, /exerciseFastVersion = '20260926-embedded-builder-perf-1'/);
