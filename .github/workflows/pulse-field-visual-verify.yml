@@ -547,18 +547,21 @@ jobs:
             await page.locator('#edit-week-link').click();
             await embedded.locator('#plan-modal.show').waitFor({timeout:5000});
             assert.equal(await embedded.locator('#plan-days input[data-day]').count(),7,'Existing week-plan link must retain the original seven-day editor');
-            await embedded.locator('#plan-modal .modal-close').click();
+            await page.locator('#field-workspace-close').click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
             await page.locator('#log-action-link').click();
             await embedded.locator('#wk-modal.show').waitFor({timeout:5000});
             assert.ok(await embedded.locator('#wk-template-select').count(),'Existing log link must retain template selection and editable exercises');
-            await embedded.locator('#wk-modal .modal-close').click();
+            await page.locator('#field-workspace-close').click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
             await page.locator('#menu-toggle').click();
             await page.locator('#menu-records').click();
             await embedded.locator('#pr-modal.show').waitFor({timeout:5000});
             assert.ok(await embedded.locator('#pr-name').count(),'Existing records menu entry must retain the original PR editor');
-            await embedded.locator('#pr-modal .modal-close').click();
+            await page.locator('#field-workspace-close').click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
             await page.locator('.rhythm-primary').click();
             await page.waitForSelector('#field-workspace[open]');
