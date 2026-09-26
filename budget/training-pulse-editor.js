@@ -39,6 +39,15 @@ function requestClose(){
   if(!win.confirm('Avsluta det pågående passet utan att spara?'))return;
   win.stopSessionMode(false);
  }
+ if(win){
+  var preview=win.document.getElementById('exercise-plan-preview-v7');
+  if(preview)preview.classList.remove('show');
+  win.document.querySelectorAll('.modal-overlay.show').forEach(function(modal){
+   if(modal.id==='session-modal')return;
+   if(typeof win.closeModal==='function'&&modal.id)win.closeModal(modal.id);
+   else modal.classList.remove('show');
+  });
+ }
  if(dialog.open)dialog.close();
  activeTool='';
 }
