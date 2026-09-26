@@ -7,6 +7,7 @@
   var activeTransition = '';
   var activeState = null;
   var clearTimer = null;
+  var embeddedField = document.documentElement.hasAttribute('data-field-embedded');
 
   function normalizeConfig(raw) {
     raw = raw || {};
@@ -170,6 +171,7 @@
   }
 
   function addClarificationStyles() {
+    if (embeddedField) return;
     if (document.getElementById('exercise-between-routing-v7-clarification')) return;
     var style = document.createElement('style');
     style.id = 'exercise-between-routing-v7-clarification';
@@ -178,6 +180,7 @@
   }
 
   function preservePreTimerAfterPreviewSave(button) {
+    if (embeddedField) return false;
     if (!button || !button.closest('[data-preview-save-v7]')) return false;
     var modal = document.getElementById('day-workout-modal');
     var input = document.getElementById('day-workout-date');
