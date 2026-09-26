@@ -75,6 +75,6 @@ test('CP10 dashboard loader keeps current presentation CSS cache keys while JS o
   assert.match(html, /pulse-environment\/environment\.css\?v=20260922-observatory-composition-2/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
   assert.match(html, /training-week-orbit\.css\?v=20260922-observatory-composition-2/);
-  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260922-observatory-composition-2/);
+  assert.match(environmentShim, /exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
   assert.doesNotMatch(environmentShim, /function syncObservatoryStates/);
 });
