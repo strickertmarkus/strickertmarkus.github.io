@@ -15,7 +15,7 @@
   var isCompactHost = new URLSearchParams(window.location.search).get('compactHost') === '1' && window.parent !== window;
   var styleIds = ['training-observatory-environment','training-observatory-composition'];
   var CONTROL_STYLE_ID = 'training-overview-mode-style';
-  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260926-pulse-compact-host-2';
+  var CONTROL_STYLE_URL = 'training-overview-mode.css?v=20260926-pulse-compact-host-3';
   var activeAnimations = [];
   var switchToken = 0;
 
