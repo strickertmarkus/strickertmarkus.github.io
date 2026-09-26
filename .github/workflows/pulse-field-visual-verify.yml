@@ -531,7 +531,8 @@ jobs:
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-metric3').fill('20');
             await embedded.locator('#day-workout-ex-list .ex-row-item').last().locator('.ex-del').click();
             await embedded.locator('#day-workout-modal [onclick="saveDayWorkoutPlan()"]').click();
-            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            await embedded.locator('#exercise-plan-preview-v7.show [data-preview-save-v7]').click();
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             const plan=await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_plannedSessions')));
             assert.equal(plan[chosenDate].exercises[0].name,'Testpress','Direct day editor must persist the original Compact plan schema');
 
@@ -540,7 +541,7 @@ jobs:
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
             await page.screenshot({path:'test-results/pulse-field/direct-day-session-mobile.png'});
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
-            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse scenery should resume only after the training workspace closes');
 
             await page.locator('#edit-week-link').click();
@@ -563,7 +564,7 @@ jobs:
             await page.waitForSelector('#field-workspace[open]');
             assert.equal(await embedded.locator('html[data-field-workspace="goals"]').count(),1,'Weekly signal itself should open Compact goal editing without a new button');
             await page.locator('#field-workspace-close').click();
-            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,{timeout:5000});
+            await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
             const chartHit=page.locator('#activity-chart [data-chart-tip]').first();
             assert.ok(await chartHit.count(),'Activity graph must expose a direct data hit region');
