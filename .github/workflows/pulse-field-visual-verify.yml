@@ -478,7 +478,7 @@ jobs:
             assert.equal(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Original Compact view must suspend the fixed Pulse background');
             assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Original Compact view must suspend the animated Pulse scenery');
             assert.ok((await page.locator('#field-compact-host iframe').getAttribute('src')).includes('overview=compact'),'Compact host must request the preserved original Compact mode');
-            assert.equal(await compactFrame.locator('.brand-text .compact-only').first().innerText(),'Träning','Hosted view must use the preserved Compact dashboard DOM');
+            assert.equal((await compactFrame.locator('.brand-text .compact-only').first().textContent()).trim(),'Träning','Hosted view must use the preserved Compact dashboard DOM');
             await compactFrame.locator('#training-overview-toggle[aria-pressed="true"]').waitFor({state:'attached',timeout:5000});
             assert.equal(await compactFrame.locator('#training-overview-toggle').getAttribute('aria-pressed'),'true','Original Compact toggle must remain active inside the hosted dashboard');
             assert.equal(await compactFrame.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Hosted Compact dashboard must not restore the retired builder 5-second timer');
