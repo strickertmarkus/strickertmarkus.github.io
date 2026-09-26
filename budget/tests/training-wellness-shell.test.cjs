@@ -11,6 +11,7 @@ const overviewShim=read('training-overview-mode.js');
 const overviewCss=read('training-overview-mode.css');
 const exercise=read('exercise.html');
 const legacyExercise=read('archive/exercise.html');
+const exerciseIsPulseField=/data-field-view="history"/.test(exercise);
 const zen=read('zen.html');
 const zenRuntime=read('zen.js');
 const zenCss=read('zen.css');
@@ -235,7 +236,8 @@ test('exercise profile toggle stays compact and follows the active page theme',(
   assert.match(shellCss,/body\[data-kind="stretch"\] #exercise-user-toggle\{--profile-accent:#d4eea7/);
   assert.match(shellCss,/body\[data-kind="meditation"\] #exercise-user-toggle\{--profile-accent:#244739/);
   for(const source of [authGate,shellV13,builderV7]) assert.doesNotMatch(source,/exercise-user-option\[data-user="(?:markus|maja)"\]\.active/);
-  assert.match(exercise,/firebase-sync\.js\?v=20260925-field-first-paint-1/);
+  if(exerciseIsPulseField)assert.match(exercise,/firebase-sync\.js\?v=20260925-field-first-paint-1/);
+  else assert.match(exercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
   assert.match(legacyExercise,/firebase-sync\.js\?v=20260916-profile-theme-2/);
 });
 
@@ -269,9 +271,15 @@ test('production pages cache-bust the shared wellness owners',()=>{
   assert.match(legacyExercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(legacyExercise,/training-week-orbit\.js\?v=20260926-original-compact-host-4/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
-  assert.match(exercise,/training-overview-mode\.css\?v=20260926-pulse-compact-host-3/);
-  assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-4/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-original-compact-session-4/);
+  if(exerciseIsPulseField){
+    assert.match(exercise,/training-overview-mode\.css\?v=20260926-pulse-compact-host-3/);
+    assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-4/);
+    assert.match(exercise,/auth-gate\.js\?v=20260926-original-compact-session-4/);
+  }else{
+    assert.match(exercise,/training-overview-mode\.js\?v=20260926-original-compact-host-4/);
+    assert.match(exercise,/auth-config\.js\?v=20260926-original-compact-session-9/);
+    assert.match(exercise,/auth-gate\.js\?v=20260926-original-compact-session-8/);
+  }
   assert.match(zen,/zen\.css\?v=20260925-safari-edge-11/);
   assert.match(zen,/zen\.js\?v=20260924-sky-tint-3/);
 });
