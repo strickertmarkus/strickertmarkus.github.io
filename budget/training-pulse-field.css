@@ -73,29 +73,17 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .version-link{min-height:40px;display:flex;align-items:center;padding:0 13px;border:1px solid var(--field-line);border-radius:999px;color:var(--field-muted);font-size:11px;letter-spacing:.4px;transition:.25s ease}
 .version-link:hover{border-color:#ff9a9145;color:var(--field-peach);background:#ff657a08}
 .round-control{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #ff9a9124;border-radius:50%;background:#0b1117e6;box-shadow:0 0 22px #ff657a08;cursor:pointer}
-.field-compact-toggle{color:#9d9098;transition:border-color .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease,transform .16s ease}
-.field-compact-toggle span{display:block;font-size:13px;line-height:1;transform:rotate(45deg);text-shadow:none}
-.field-compact-toggle:hover{color:#e1c6be;border-color:#ff9a9150;background:#ff657a0b}
-.field-compact-toggle:active{transform:scale(.96)}
-.field-compact-toggle[aria-pressed=true]{color:#ffb7ab;border-color:#ff9a9178;background:#ff657a17;box-shadow:0 0 16px #ff657a2e,inset 0 0 13px #ff657a12}
-.field-compact-toggle[aria-pressed=true] span{text-shadow:0 0 11px #ff657a8c}
-
-html[data-field-layout="compact"] .field-canvas,html[data-field-layout="compact"] .space-scene{display:none}
 html[data-field-scene-visible="false"] .space-scene{display:none}
-html[data-field-layout="compact"] .field-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:34px;min-height:0;padding:30px 0 34px}
-html[data-field-layout="compact"] .hero-stage{display:none}
-html[data-field-layout="compact"] .hero-copy h1{font-size:clamp(62px,7.2vw,88px)}
-html[data-field-layout="compact"] .field-start-area{margin:0}
-html[data-field-layout="compact"] .start-orbit::after,
-html[data-field-layout="compact"] .start-field-symbol,
-html[data-field-layout="compact"] .rhythm-section::before,
-html[data-field-layout="compact"] .rhythm-section::after,
-html[data-field-layout="compact"] .week-section::before,
-html[data-field-layout="compact"] .week-section::after{animation:none!important}
-html[data-field-layout="compact"] .rhythm-section{background-image:none}
-html[data-field-layout="compact"] .rhythm-section,
-html[data-field-layout="compact"] .field-section{padding-top:28px;padding-bottom:28px}
-html[data-field-layout="compact"] .section-head{margin-bottom:15px}
+.field-compact-host{position:fixed;inset:0;z-index:500;width:100vw;height:100dvh;border:0;background:#0f1219}
+.field-compact-host[hidden]{display:none}
+.field-compact-frame{display:block;width:100%;height:100%;border:0;background:#0f1219}
+body.field-compact-active{overflow:hidden}
+body.field-compact-active .field-canvas,
+body.field-compact-active .space-scene,
+body.field-compact-active .field-header,
+body.field-compact-active .kind-switch,
+body.field-compact-active .field-main,
+body.field-compact-active .field-footer{display:none!important}
 
 .round-control svg{width:21px;fill:none;stroke:#d9dee4;stroke-width:1.6;stroke-linecap:round}
 .field-menu{position:absolute;right:0;top:82px;display:grid;width:min(280px,calc(100vw - 40px));padding:9px;border:1px solid #ff9a9129;border-radius:16px;background:#111820f5;box-shadow:0 22px 65px #000a,0 0 40px #ff657a0c;backdrop-filter:blur(18px);transform:translateY(-8px) scale(.98);transform-origin:top right;opacity:0;visibility:hidden;transition:.24s cubic-bezier(.2,.8,.2,1)}
@@ -427,12 +415,6 @@ main{position:relative;z-index:2;display:block}
 @keyframes weekDateShimmer{0%,100%{text-shadow:0 0 6px #ff9a9146}42%{text-shadow:0 0 12px #ff9a91a6,0 0 21px #ff657a51}}
 
 @media(max-width:760px){
-  html[data-field-layout="compact"] .field-hero{display:flex;min-height:0;padding:24px 0 27px}
-  html[data-field-layout="compact"] .field-start-area{margin:21px 0 0}
-  html[data-field-layout="compact"] .hero-copy h1{font-size:64px}
-  html[data-field-layout="compact"] .rhythm-section,
-  html[data-field-layout="compact"] .field-section{padding-top:25px;padding-bottom:25px}
-
   :root{--field-gutter:20px}
   .version-link{display:none}
   .space-scene{height:calc(78px + env(safe-area-inset-top,0px) + 52px + clamp(460px,calc(100svh - 164px),535px) + 65px);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 calc(50px + env(safe-area-inset-top,0px)),#000 68%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 calc(50px + env(safe-area-inset-top,0px)),#000 68%,transparent 100%)}
