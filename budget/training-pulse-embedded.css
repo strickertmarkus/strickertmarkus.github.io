@@ -60,11 +60,40 @@ html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .section-hd
 html[data-field-embedded][data-field-workspace="goals"] #pulse-goals input{color:#ffe1d4!important;background:#15212c!important;border:1px solid #ff9a9155!important}
 html[data-field-embedded][data-field-workspace="goals"] #pulse-goals .fade-in{opacity:1!important;transform:none!important}
 @media(max-width:600px){
-html[data-field-embedded] body .modal-overlay{padding:8px!important;align-items:center!important}
-html[data-field-embedded] body .modal{max-height:calc(100dvh - 16px);padding:18px 13px;border-radius:14px}
+html[data-field-embedded] body .modal-overlay{padding:0!important;align-items:stretch!important;background:#0b131b!important}
+html[data-field-embedded] body .modal{
+  width:100%!important;
+  max-width:none!important;
+  min-height:100%!important;
+  max-height:100dvh!important;
+  margin:0!important;
+  padding:20px 16px 18px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:linear-gradient(180deg,#111823 0%,#0d151f 58%,#0a121a 100%)!important;
+  box-shadow:none!important;
+}
+html[data-field-embedded] body .modal>.modal-close{display:none!important}
+html[data-field-embedded] body .modal h2{margin:0 0 22px!important;font-size:clamp(31px,9vw,39px)!important}
+html[data-field-embedded] body .modal .form-group{margin-bottom:20px}
+html[data-field-embedded] body .modal .modal-footer{
+  position:sticky!important;
+  left:0;
+  right:0;
+  bottom:-18px!important;
+  z-index:6;
+  flex-wrap:wrap;
+  margin:18px -16px -18px!important;
+  padding:14px 16px calc(13px + env(safe-area-inset-bottom,0px))!important;
+  border-top:1px solid #ff9a912b!important;
+  background:linear-gradient(180deg,rgba(13,21,31,.88),#0d151ffa 24%,#0b131b 100%)!important;
+  box-shadow:0 -14px 30px #071019b8;
+}
+html[data-field-embedded] body #day-workout-modal .modal-footer .btn-primary{flex:1 0 100%;order:3}
+html[data-field-embedded] body #day-workout-modal .modal-footer .btn-ghost,
+html[data-field-embedded] body #day-workout-modal .modal-footer .btn-sm{flex:1 1 calc(50% - 5px);min-width:0}
 html[data-field-embedded] body .ex-row{grid-template-columns:minmax(0,1fr) 48px 48px 54px 25px;gap:4px}
 html[data-field-embedded] body .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 72px 72px 25px}
 html[data-field-embedded] body .ex-row input{padding:7px 4px!important}
-html[data-field-embedded] body .modal-footer{flex-wrap:wrap}
 html[data-field-embedded] body .session-shell{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 }
