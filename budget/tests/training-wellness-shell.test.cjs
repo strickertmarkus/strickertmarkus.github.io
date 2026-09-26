@@ -25,8 +25,10 @@ const builderStyle=read('exercise-builder-style-v5.js');
 const pulseFieldCss=read('training-pulse-field.css');
 
 test('embedded original builder stays lightweight and event driven',()=>{
-  assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*item\.src === 'exercise-points-8-9\.js' \|\| item\.group === 'builder'/);
+  assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*return item\.group === 'builder'/);
   assert.match(authConfig,/__loadEmbeddedSessionAssetsV1/);
+  assert.match(authConfig,/if \(embeddedFieldWorkspace\) \{[\s\S]*__embeddedBuilderReadyV1[\s\S]*return;/);
+  assert.match(authConfig,/__prefetchEmbeddedSessionAssetsV1/);
   assert.match(builderRows,/embedded && window\.MutationObserver/);
   assert.match(builderRows,/syncObserver\.observe\(document\.body/);
   assert.match(builderStyle,/embedded && window\.MutationObserver/);
@@ -213,8 +215,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260926-embedded-builder-perf-2/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-embedded-builder-perf-2/);
+  assert.match(exercise,/auth-config\.js\?v=20260926-embedded-builder-fast-4/);
+  assert.match(exercise,/auth-gate\.js\?v=20260926-embedded-builder-fast-4/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
