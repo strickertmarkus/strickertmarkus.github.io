@@ -2,7 +2,7 @@
   'use strict';
   if(!/\/exercise\.html$/i.test(window.location.pathname))return;
 
-  var embeddedField=document.documentElement.hasAttribute('data-field-embedded');
+  var embeddedField=document.documentElement.hasAttribute('data-field-embedded') || new URLSearchParams(location.search).get('compactHost')==='1';
   function text(v){return String(v||'').trim().toLocaleLowerCase('sv-SE');}
 
   function addStyles(){
