@@ -218,8 +218,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260926-embedded-builder-fast-5/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-embedded-builder-fast-4/);
+  assert.match(exercise,/auth-config\.js\?v=20260926-embedded-builder-theme-6/);
+  assert.match(exercise,/auth-gate\.js\?v=20260926-embedded-builder-theme-5/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
