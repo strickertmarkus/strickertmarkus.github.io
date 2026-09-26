@@ -23,6 +23,9 @@ const builderV7=read('exercise-builder-between-preview-v7.js');
 const builderRows=read('exercise-builder-row-tools-v3.js');
 const builderStyle=read('exercise-builder-style-v5.js');
 const pulseFieldCss=read('training-pulse-field.css');
+const pulseEditorCss=read('training-pulse-editor.css');
+const pulseEditorJs=read('training-pulse-editor.js');
+const pulseEmbeddedCss=read('training-pulse-embedded.css');
 
 test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*return item\.group === 'builder'/);
@@ -37,6 +40,14 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(builderV7,/embedded && window\.MutationObserver/);
   assert.match(builderV7,/syncObserver\.observe\(modal,/);
   assert.match(pulseFieldCss,/\.field-chart-tooltip\{[^}]*linear-gradient\(145deg,rgba\(77,30,54,/);
+  assert.match(builderRows,/--builder-accent-rgb:\$\{embedded\?'255,101,122':'34,211,238'\}/);
+  assert.match(builderV7,/--builder-preview-rgb:\$\{embedded\?'255,101,122':'34,211,238'\}/);
+  assert.match(pulseEmbeddedCss,/body \.app-wrap,[\s\S]*display:none!important/);
+  assert.match(pulseEmbeddedCss,/--accent-rgb:255,101,122/);
+  assert.match(pulseEditorJs,/body\.classList\.add\('field-workspace-active'\)/);
+  assert.match(pulseEditorJs,/dialog\.addEventListener\('close',[\s\S]*field-workspace-active/);
+  assert.match(pulseEditorCss,/body\.field-workspace-active \.field-canvas\{display:none!important\}/);
+  assert.match(pulseEditorCss,/\.field-workspace::backdrop\{background:#02050b;backdrop-filter:none\}/);
 });
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
