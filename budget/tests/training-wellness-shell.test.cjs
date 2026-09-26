@@ -26,6 +26,9 @@ const pulseFieldCss=read('training-pulse-field.css');
 const pulseEditorCss=read('training-pulse-editor.css');
 const pulseEditorJs=read('training-pulse-editor.js');
 const pulseEmbeddedCss=read('training-pulse-embedded.css');
+const flowPolish=read('exercise-flow-polish-v2.js');
+const betweenRouting=read('exercise-between-routing-v7.js');
+const pulseFieldJs=read('training-pulse-field.js');
 
 test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*return item\.group === 'builder'/);
@@ -48,6 +51,13 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(pulseEditorJs,/dialog\.addEventListener\('close',[\s\S]*field-workspace-active/);
   assert.match(pulseEditorCss,/body\.field-workspace-active \.field-canvas\{display:none!important\}/);
   assert.match(pulseEditorCss,/\.field-workspace::backdrop\{background:#02050b;backdrop-filter:none\}/);
+  assert.match(flowPolish,/var embeddedField = document\.documentElement\.hasAttribute\('data-field-embedded'\)/);
+  assert.match(flowPolish,/if \(embeddedField\) \{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return null;/);
+  assert.match(flowPolish,/--flow-accent:\$\{embeddedField\?'#ff9a91':'#22D3EE'\}/);
+  assert.match(betweenRouting,/if \(embeddedField\) return;[\s\S]*exercise-between-routing-v7-clarification/);
+  assert.match(shellV13,/if\(embeddedField\)\{[\s\S]*pretimer-builder-v2[\s\S]*pretimer-builder-switch-v2[\s\S]*return true;/);
+  assert.match(pulseFieldJs,/fieldLayoutKey='ex_field_layout_'\+profile/);
+  assert.match(pulseFieldCss,/html\[data-field-layout="compact"\] \.field-canvas\{display:none\}/);
 });
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
@@ -229,8 +239,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [exercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(exercise,/auth-config\.js\?v=20260926-embedded-builder-theme-6/);
-  assert.match(exercise,/auth-gate\.js\?v=20260926-embedded-builder-theme-5/);
+  assert.match(exercise,/auth-config\.js\?v=20260926-no-builder-pretimer-7/);
+  assert.match(exercise,/auth-gate\.js\?v=20260926-no-builder-pretimer-6/);
   assert.match(exercise,/training-overview-mode\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(exercise,/training-week-orbit\.js\?v=20260922-observatory-composition-2/);
