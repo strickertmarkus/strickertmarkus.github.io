@@ -6,7 +6,7 @@
   var params = new URLSearchParams(window.location.search);
   var profile = (params.get('user') || 'markus').toLowerCase();
   var TIMER_PREFIX = 'ex_pretimer_v2_' + profile + '_';
-  var embeddedField = document.documentElement.hasAttribute('data-field-embedded');
+  var embeddedField = document.documentElement.hasAttribute('data-field-embedded') || new URLSearchParams(location.search).get('compactHost') === '1';
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (e) { return null; }
