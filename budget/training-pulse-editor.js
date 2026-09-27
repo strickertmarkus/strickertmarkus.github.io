@@ -41,12 +41,14 @@ function lockHostScroll(){
   bodyWidth:body.style.width,
   bodyOverflow:body.style.overflow,
   htmlOverflow:html.style.overflow,
-  htmlOverscroll:html.style.overscrollBehavior
+  htmlOverscroll:html.style.overscrollBehavior,
+  htmlScrollBehavior:html.style.scrollBehavior
  };
  body.classList.add('field-workspace-active');
  html.classList.add('field-host-scroll-locked');
  html.style.overflow='hidden';
  html.style.overscrollBehavior='none';
+ html.style.scrollBehavior='auto';
  body.style.position='fixed';
  body.style.top='-'+scrollY+'px';
  body.style.left='0';
@@ -68,7 +70,9 @@ function unlockHostScroll(){
  body.style.overflow=lock.bodyOverflow;
  html.style.overflow=lock.htmlOverflow;
  html.style.overscrollBehavior=lock.htmlOverscroll;
+ html.style.scrollBehavior='auto';
  window.scrollTo(0,lock.y);
+ requestAnimationFrame(function(){html.style.scrollBehavior=lock.htmlScrollBehavior;});
 }
 function workspaceWindow(){
  try{if(!frame||!frame.contentWindow||frame.contentWindow.location.origin!==location.origin)return null;return frame.contentWindow;}catch(_){return null;}
