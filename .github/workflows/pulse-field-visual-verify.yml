@@ -514,8 +514,12 @@ jobs:
             const builderTimer=embedded.locator('#pretimer-builder-switch-v2');
             await builderTimer.waitFor({state:'attached',timeout:5000});
             assert.equal(await builderTimer.count(),1,'Original 5-second start timer option must remain available in the pass builder');
+            const builderTimerBefore=await builderTimer.getAttribute('aria-pressed');
             await builderTimer.click();
-            assert.equal(await builderTimer.getAttribute('aria-pressed'),'true','Builder timer option must remain interactive');
+            const builderTimerAfter=await builderTimer.getAttribute('aria-pressed');
+            assert.notEqual(builderTimerAfter,builderTimerBefore,'Builder timer option must remain interactive');
+            if(builderTimerAfter!=='true')await builderTimer.click();
+            assert.equal(await builderTimer.getAttribute('aria-pressed'),'true','Builder timer should be possible to enable');
             const builderTimerKnob=await builderTimer.evaluate(el=>getComputedStyle(el,'::after').backgroundColor);
             assert.equal(builderTimerKnob,'rgb(255, 154, 145)','Embedded builder timer must use Pulse coral instead of legacy cyan');
             const embeddedBoot=await embedded.locator('html').evaluate(()=>({
