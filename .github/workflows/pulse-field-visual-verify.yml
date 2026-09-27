@@ -521,8 +521,9 @@ jobs:
             assert.notEqual(builderTimerAfter,builderTimerBefore,'Builder timer option must remain interactive');
             if(builderTimerAfter!=='true')await builderTimer.click();
             assert.equal(await builderTimer.getAttribute('aria-pressed'),'true','Builder timer should be possible to enable');
+            await page.waitForTimeout(240);
             const builderTimerKnob=await builderTimer.evaluate(el=>getComputedStyle(el,'::after').backgroundColor);
-            assert.equal(builderTimerKnob,'rgb(255, 154, 145)','Embedded builder timer must use Pulse coral instead of legacy cyan');
+            assert.equal(builderTimerKnob,'rgb(255, 154, 145)','Embedded builder timer must settle on Pulse coral instead of legacy cyan');
             const embeddedBoot=await embedded.locator('html').evaluate(()=>({
               manifest:(window.__exerciseAssetManifestV2||[]).map(item=>item.src),
               hasChart:!!document.querySelector('script[src*="chart.umd"]'),
