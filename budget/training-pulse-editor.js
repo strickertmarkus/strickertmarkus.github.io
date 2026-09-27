@@ -5,7 +5,7 @@
 'use strict';
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
-var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0;
+var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,hostScrollLock=null;
 var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
@@ -26,9 +26,50 @@ function makeDialog(){
  document.body.appendChild(dialog);
  $('field-workspace-close').addEventListener('click',requestClose);
  dialog.addEventListener('cancel',function(event){event.preventDefault();requestClose();});
- dialog.addEventListener('close',function(){document.body.classList.remove('field-workspace-active');});
+ dialog.addEventListener('close',unlockHostScroll);
 }
 function updateStatus(t){var status=$('field-workspace-status');status.hidden=!t;status.textContent=t||'';}
+function lockHostScroll(){
+ if(hostScrollLock)return;
+ var body=document.body,html=document.documentElement,scrollY=window.scrollY||window.pageYOffset||0;
+ hostScrollLock={
+  y:scrollY,
+  bodyPosition:body.style.position,
+  bodyTop:body.style.top,
+  bodyLeft:body.style.left,
+  bodyRight:body.style.right,
+  bodyWidth:body.style.width,
+  bodyOverflow:body.style.overflow,
+  htmlOverflow:html.style.overflow,
+  htmlOverscroll:html.style.overscrollBehavior
+ };
+ body.classList.add('field-workspace-active');
+ html.classList.add('field-host-scroll-locked');
+ html.style.overflow='hidden';
+ html.style.overscrollBehavior='none';
+ body.style.position='fixed';
+ body.style.top='-'+scrollY+'px';
+ body.style.left='0';
+ body.style.right='0';
+ body.style.width='100%';
+ body.style.overflow='hidden';
+}
+function unlockHostScroll(){
+ if(!hostScrollLock)return;
+ var lock=hostScrollLock,body=document.body,html=document.documentElement;
+ hostScrollLock=null;
+ body.classList.remove('field-workspace-active');
+ html.classList.remove('field-host-scroll-locked');
+ body.style.position=lock.bodyPosition;
+ body.style.top=lock.bodyTop;
+ body.style.left=lock.bodyLeft;
+ body.style.right=lock.bodyRight;
+ body.style.width=lock.bodyWidth;
+ body.style.overflow=lock.bodyOverflow;
+ html.style.overflow=lock.htmlOverflow;
+ html.style.overscrollBehavior=lock.htmlOverscroll;
+ window.scrollTo(0,lock.y);
+}
 function workspaceWindow(){
  try{if(!frame||!frame.contentWindow||frame.contentWindow.location.origin!==location.origin)return null;return frame.contentWindow;}catch(_){return null;}
 }
@@ -120,7 +161,7 @@ function showWorkspace(tool){
  activeTool=tool;
  $('field-workspace-title').textContent=actionTitles[tool]||'Passverktyg';
  updateStatus(frame&&legacyReady?'':'Laddar dina passverktyg…');
- document.body.classList.add('field-workspace-active');
+ lockHostScroll();
  if(!dialog.open)dialog.showModal();
 }
 function openTemplateEditor(win,id){
