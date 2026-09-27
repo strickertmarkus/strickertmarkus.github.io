@@ -132,9 +132,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   /* Embedded Pulse Field opens the original builder immediately but the much
      larger session presentation bundle only when it is actually needed. This
-     keeps builder buttons responsive without forking any training behavior. */
+     keeps builder buttons responsive without forking any training behavior.
+     Boot recovery must not run here: its delayed cleanup would erase a newly
+     started session after this on-demand bundle finishes loading. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2, [
+    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2.filter(function(item){return item.group!=='boot-recovery';}), [
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},

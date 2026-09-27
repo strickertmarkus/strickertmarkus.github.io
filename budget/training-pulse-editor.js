@@ -5,7 +5,7 @@
 'use strict';
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
-var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,requestId=0;
+var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,requestId=0,openingTool=false;
 var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
@@ -58,7 +58,7 @@ function requestClose(){
    else modal.classList.remove('show');
   });
  }
- requestId++;
+ requestId++;openingTool=false;
  if(dialog.open)dialog.close();
  activeTool='';
 }
@@ -66,7 +66,7 @@ function observeEditor(win){
  var doc=win.document,watched=new WeakSet();
  function sync(){
   if(doc.getElementById('session-modal').classList.contains('show')){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
-  if(!dialog.open||activeTool==='goals'||win.__embeddedSessionStarting||hasOpenModal(doc))return;
+  if(!dialog.open||activeTool==='goals'||openingTool||win.__embeddedSessionStarting||hasOpenModal(doc))return;
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
   dialog.close();activeTool='';
  }
@@ -240,7 +240,7 @@ function runTool(tool,button,dateOverride){
  if(tool==='week-templates')tool='weekTemplates';
  if(!(tool in actionTitles)){notice('Okänt passverktyg.');return;}
  showWorkspace(tool);
- var request=++requestId;
+ var request=++requestId;openingTool=true;
  loadLegacy().then(function(win){
   if(!dialog.open||request!==requestId)return;
   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
@@ -254,7 +254,7 @@ function runTool(tool,button,dateOverride){
   function openSelectedTool(){
    if(!dialog.open||request!==requestId)return;
    updateStatus('');
-   var success=selectTool(win,tool,button,date);
+   var success=selectTool(win,tool,button,date);openingTool=false;
    if(success===false){dialog.close();activeTool='';}
   }
 
@@ -262,6 +262,7 @@ function runTool(tool,button,dateOverride){
   updateStatus('Förbereder Pulse Flow…');
   return ensureSessionAssets(win).then(openSelectedTool);
  }).catch(function(e){
+  if(request===requestId)openingTool=false;
   if(dialog.open&&request===requestId)updateStatus((e&&e.message?e.message:'Pulse Flow kunde inte startas.')+' Stäng och öppna verktyget för att försöka igen.');
  });
 }

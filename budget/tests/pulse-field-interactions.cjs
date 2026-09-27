@@ -61,7 +61,7 @@ async function verify(browser,mobile){
  await frame.locator('#wk-dur').fill('25');await frame.locator('.ex-metric1').first().fill('2');await frame.locator('.ex-metric2').first().fill('8');await frame.locator('.ex-metric3').first().fill('25');
  await frame.locator('[onclick="saveWorkout()"]').click();await closed(page);
  assert.equal(await frame.evaluate(()=>getWorkouts().length),1);
- await page.waitForSelector('[data-field-action="edit-exercise"]');await page.locator('[data-field-action="edit-exercise"]').first().click();await frame.waitForSelector('#exercise-edit-modal-v9.show');
+ await page.locator('.log-summary').first().click();await page.waitForSelector('[data-field-action="edit-exercise"]');await page.locator('[data-field-action="edit-exercise"]').first().click();await frame.waitForSelector('#exercise-edit-modal-v9.show');
  await frame.locator('[onclick="saveSingleExerciseEdit()"]').click();await closed(page);
  for(const [tool,id] of [['week','plan-modal'],['weekTemplates','template-modal'],['records','pr-modal'],['goals','pulse-goals']]){
   await open(page,tool);await frame.waitForSelector('#'+id);if(tool==='goals'){await frame.locator('#g2-goal').fill('12');await frame.locator('[onclick="saveGoals()"]').click();assert.equal(await frame.evaluate(()=>getGoals().runDistanceGoal),12);}assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),true);await page.locator('#field-workspace-close').click();await closed(page);
@@ -69,6 +69,7 @@ async function verify(browser,mobile){
  await day.click();await frame.waitForSelector('#day-workout-modal.show');await frame.locator('[onclick="startDayWorkoutFromBuilder()"]').click();await frame.waitForSelector('#session-modal.show');
  await frame.waitForFunction(()=>!!window.__embeddedSessionAssetsPromiseV1);await frame.evaluate(()=>window.__embeddedSessionAssetsPromiseV1);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').count(),1);
+ assert.equal(await frame.evaluate(()=>__embeddedSessionAssetManifestV1.some(item=>item.group==='boot-recovery')),false,'Lazy startup must not run page-reload cleanup');
  assert.equal(await frame.evaluate(()=>!!window.__exercisePulseFlowMainV85Installed&&!!window.__exercisePulseFlowEcgGlowV128Installed&&!!window.__exercisePulseFlowCanvasGlowV140Installed),true,'All approved Pulse Flow/ECG owners must be ready');
  assert.equal(await frame.locator('#session-view-toggle').count(),0,'Embedded training stays permanently in Pulse Flow');
  assert.equal(await frame.locator('.pulse-flow-trace-v58').count()>0,true);
