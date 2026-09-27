@@ -481,7 +481,6 @@ jobs:
             assert.equal((await compactFrame.locator('.brand-text .compact-only').first().textContent()).trim(),'Träning','Hosted view must use the preserved Compact dashboard DOM');
             await compactFrame.locator('#training-overview-toggle[aria-pressed="true"]').waitFor({state:'attached',timeout:5000});
             assert.equal(await compactFrame.locator('#training-overview-toggle').getAttribute('aria-pressed'),'true','Original Compact toggle must remain active inside the hosted dashboard');
-            assert.equal(await compactFrame.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Hosted Compact dashboard must not restore the retired builder 5-second timer');
             await compactFrame.locator('#training-overview-toggle').click();
             await page.waitForFunction(()=>!document.getElementById('field-compact-host'),null,{timeout:5000});
             assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('field-compact-active')),false,'Original Compact toggle must return to Pulse Field without navigation');
@@ -509,7 +508,13 @@ jobs:
             assert.equal(await embedded.locator('#day-workout-date').inputValue(),chosenDate,'Tapped Pulse Field day must open the matching Compact day editor');
             assert.equal(await embedded.locator('#day-workout-modal #day-workout-title').count(),1,'Direct day interaction must reuse the original day workout builder');
             assert.equal(await page.locator('#field-editor-dialog').count(),0,'No duplicate simplified builder may be created');
-            assert.equal(await embedded.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Embedded Pulse builder must not contain the retired blue 5-second start timer');
+            const builderTimer=embedded.locator('#pretimer-builder-switch-v2');
+            await builderTimer.waitFor({state:'attached',timeout:5000});
+            assert.equal(await builderTimer.count(),1,'Original 5-second start timer option must remain available in the pass builder');
+            await builderTimer.click();
+            assert.equal(await builderTimer.getAttribute('aria-pressed'),'true','Builder timer option must remain interactive');
+            const builderTimerKnob=await builderTimer.evaluate(el=>getComputedStyle(el,'::after').backgroundColor);
+            assert.equal(builderTimerKnob,'rgb(255, 154, 145)','Embedded builder timer must use Pulse coral instead of legacy cyan');
             const embeddedBoot=await embedded.locator('html').evaluate(()=>({
               manifest:(window.__exerciseAssetManifestV2||[]).map(item=>item.src),
               hasChart:!!document.querySelector('script[src*="chart.umd"]'),
@@ -530,6 +535,11 @@ jobs:
             assert.equal(mobileLayout.close,'none','Full-screen Pulse workspace must not show a duplicate inner close button');
             assert.equal(mobileLayout.border,'0px','Mobile editor should be one flat workspace rather than a card inside a card');
             assert.ok(mobileLayout.width>=mobileLayout.viewport-1,'Mobile pass editor should use the full embedded viewport');
+            const lockedScroll=await page.evaluate(()=>({y:scrollY,position:getComputedStyle(document.body).position,top:getComputedStyle(document.body).top,htmlOverflow:getComputedStyle(document.documentElement).overflow}));
+            assert.equal(lockedScroll.position,'fixed','Opening pass tools must hard-lock the host body on iOS');
+            await page.evaluate(()=>{window.scrollTo(0,document.body.scrollHeight);});
+            await page.waitForTimeout(50);
+            assert.equal(await page.evaluate(()=>scrollY),0,'Host page must not scroll behind the pass builder while body is fixed');
 
             const renderState=await page.locator('body').evaluate(body=>({
               hostCanvas:getComputedStyle(document.querySelector('.field-canvas')).display,
@@ -597,7 +607,7 @@ jobs:
 
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
-            assert.equal(await embedded.locator('#pretimer-builder-v2,#pretimer-builder-switch-v2').count(),0,'Deferred session enhancements must never re-add the retired 5-second timer to the builder');
+            assert.equal(await embedded.locator('#pretimer-builder-switch-v2').count(),1,'Deferred session enhancements must preserve exactly one builder timer control');
             await page.locator('#field-workspace-close').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
 
