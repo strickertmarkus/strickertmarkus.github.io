@@ -28,6 +28,7 @@ on:
       - 'budget/exercise-flow-polish-v2.js'
       - 'budget/exercise-between-routing-v7.js'
       - 'budget/exercise-shell-v13.js'
+      - 'budget/exercise-session-runtime-core-v21.js'
       - 'budget/auth-config.js'
       - '.github/workflows/pulse-field-visual-verify.yml'
   workflow_dispatch:
@@ -602,6 +603,23 @@ jobs:
             await page.evaluate(date=>window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'start',date}})),chosenDate);
             await embedded.locator('#session-modal.show').waitFor({timeout:15000});
             assert.ok(await embedded.locator('#session-controls button').count()>0,'Original workout mode controls must remain available');
+            await embedded.locator('#session-modal.pulse-flow-v58').waitFor({timeout:5000});
+            assert.equal(await embedded.locator('#session-modal.session-overview-mode').count(),0,'Pulse Field training must never fall back to legacy Overview mode');
+            assert.equal(await embedded.locator('html.exercise-concept-pulse-home-v1').count(),1,'Embedded live session must activate the canonical Pulse Flow concept');
+            assert.equal(await embedded.locator('#pulse-flow-live-v58 .pulse-flow-trace-v58').count(),1,'Live training must render the Pulse Flow ECG trace');
+            const pulseRuntime=await embedded.locator('html').evaluate(()=>({
+              pulse:!!window.__exercisePulseFlowV58Installed,
+              motion:!!window.__exercisePulseFlowMainV85Installed,
+              manifest:(window.__embeddedSessionAssetManifestV1||[]).map(item=>item.src),
+              modal:document.getElementById('session-modal')?.className||'',
+              ecgAnimation:getComputedStyle(document.querySelector('#pulse-flow-live-v58 .pulse-flow-trace-v58')).animationName
+            }));
+            assert.equal(pulseRuntime.pulse,true,'Canonical Pulse Flow renderer must be installed');
+            assert.equal(pulseRuntime.motion,true,'Canonical Pulse Flow motion/ECG renderer must be installed');
+            assert.ok(pulseRuntime.manifest.includes('exercise-points-3-6-7.js'),'Embedded session must load the same five-second/runtime compatibility layer as the historical Pulse Flow session');
+            assert.ok(pulseRuntime.manifest.includes('exercise-pulse-flow-v58.js')&&pulseRuntime.manifest.includes('exercise-pulse-flow-motion-v67.js'),'Embedded session manifest must contain the permanent Pulse Flow renderers');
+            assert.ok(pulseRuntime.modal.includes('pulse-flow-v58'),'Live session must stay in Pulse Flow mode: '+pulseRuntime.modal);
+            assert.notEqual(pulseRuntime.ecgAnimation,'none','Pulse Flow ECG trace must remain animated');
             const timerToggle=embedded.locator('#session-pretimer-toggle-v2');
             await timerToggle.waitFor({state:'attached',timeout:10000});
             assert.equal(await timerToggle.count(),1,'5-second timer should exist only inside the running workout mode');
