@@ -69,7 +69,9 @@ async function verify(browser,mobile){
  await day.click();await frame.waitForSelector('#day-workout-modal.show');await frame.locator('[onclick="startDayWorkoutFromBuilder()"]').click();await frame.waitForSelector('#session-modal.show');
  await frame.waitForFunction(()=>!!window.__embeddedSessionAssetsPromiseV1);await frame.evaluate(()=>window.__embeddedSessionAssetsPromiseV1);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').count(),1);
- assert.equal(await frame.evaluate(()=>__embeddedSessionAssetManifestV1.some(item=>item.group==='boot-recovery')),false,'Lazy startup must not run page-reload cleanup');
+ await page.waitForTimeout(850);
+ assert.equal(await page.locator('#field-workspace').evaluate(el=>el.open),true,'Lazy startup must survive delayed page-reload cleanup');
+ assert.equal(await frame.locator('#session-modal.show').count(),1);
  assert.equal(await frame.evaluate(()=>!!window.__exercisePulseFlowMainV85Installed&&!!window.__exercisePulseFlowEcgGlowV128Installed&&!!window.__exercisePulseFlowCanvasGlowV140Installed),true,'All approved Pulse Flow/ECG owners must be ready');
  assert.equal(await frame.locator('#session-view-toggle').count(),0,'Embedded training stays permanently in Pulse Flow');
  assert.equal(await frame.locator('.pulse-flow-trace-v58').count()>0,true);
@@ -82,7 +84,7 @@ async function verify(browser,mobile){
  fs.mkdirSync('test-results/pulse-field',{recursive:true});await page.screenshot({path:'test-results/pulse-field/robust-session-'+(mobile?'mobile':'desktop')+'.png'});
  await page.locator('#field-workspace-close').click();await closed(page);
  await day.click();await frame.waitForSelector('#day-workout-modal.show');assert.equal(await frame.locator('#pretimer-builder-switch-v2').count(),1);
- await page.screenshot({path:'test-results/pulse-field/robust-builder-'+(mobile?'mobile':'desktop')+'.png'});await page.locator('#field-workspace-close').click();await closed(page);
+ await frame.locator('#day-workout-modal .modal h2').waitFor({state:'visible'});await page.waitForTimeout(300);await page.screenshot({path:'test-results/pulse-field/robust-builder-'+(mobile?'mobile':'desktop')+'.png'});await page.locator('#field-workspace-close').click();await closed(page);
  await page.locator('#training-overview-toggle').click();
  const compact=page.frameLocator('#field-compact-host iframe');
  await compact.locator('html[data-training-overview="compact"]').waitFor({state:'attached',timeout:10000});
@@ -94,7 +96,7 @@ async function verify(browser,mobile){
 async function verifyProfileAndRetry(browser){
  const {context,page,errors}=await setup(browser,true,'maja');
  await page.evaluate(()=>{localStorage.setItem('ex_prs',JSON.stringify({Markus:50}));localStorage.setItem('ex_prs_maja',JSON.stringify({Maja:25}));});
- await open(page,'records');const frame=page.frames().find(f=>f.url().includes('embedded=1'));await frame.waitForSelector('#pr-modal.show');
+ await open(page,'records');await page.waitForFunction(()=>document.querySelector('#field-workspace iframe')?.contentWindow.location.href.includes('embedded=1'));const frame=page.frames().find(f=>f.url().includes('embedded=1'));await frame.waitForSelector('#pr-modal.show');
  assert.deepEqual(await frame.evaluate(()=>getPRs()),{Maja:25});await frame.locator('#pr-name').fill('Majatest');await frame.locator('#pr-val').fill('30');await frame.locator('[onclick="savePR()"]').click();await closed(page);
  assert.deepEqual(await frame.evaluate(()=>JSON.parse(localStorage.getItem('ex_prs'))),{Markus:50});assert.equal(await frame.evaluate(()=>JSON.parse(localStorage.getItem('ex_prs_maja')).Majatest),30);
  assert.deepEqual(errors,[]);await context.close();
