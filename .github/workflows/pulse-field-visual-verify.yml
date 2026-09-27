@@ -5,6 +5,7 @@ on:
     paths:
       - 'budget/auth-gate.js'
       - 'budget/tests/training-wellness-shell.test.cjs'
+      - 'budget/tests/training-observatory-identity.test.cjs'
       - 'budget/exercise.html'
       - 'budget/training-mode-shell.css'
       - 'budget/zen-scene-v3.js'
