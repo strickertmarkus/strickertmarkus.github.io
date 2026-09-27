@@ -86,7 +86,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   }
 
   var pulseDefaultBoot = !embeddedFieldWorkspace;
-  var exerciseFastVersion = '20260927-builder-timer-10';
+  var exerciseFastVersion = '20260927-pulse-flow-permanent-13';
 
   /* Loader manifest v2. Network fetches may run concurrently, but auth-gate
      still executes these entries in this exact order. `group` documents the
@@ -134,14 +134,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      larger session presentation bundle only when it is actually needed. This
      keeps builder buttons responsive without forking any training behavior. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [
-        {src:'exercise-points-8-9.js',attr:'data-exercise-points-8-9'},
-        {src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}
-      ].concat(
-        allExerciseAssetManifestV2.filter(function (item) {
-          return ['session-presentation','session-core','session-transition','session-ux','session-stability','pulse-presentation','motion'].indexOf(item.group) >= 0;
-        })
-      )
+    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2)
     : [];
   window.__embeddedSessionAssetManifestV1 = embeddedSessionAssetManifestV1;
 
@@ -182,8 +175,13 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   window.__loadEmbeddedSessionAssetsV1 = function () {
     if (!embeddedFieldWorkspace || !embeddedSessionAssetManifestV1.length) return Promise.resolve();
     if (window.__embeddedSessionAssetsPromiseV1) return window.__embeddedSessionAssetsPromiseV1;
+    document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-concept-ready-v1');
+    document.documentElement.classList.remove('exercise-concept-booting-v1');
     preloadEmbeddedAssets(embeddedSessionAssetManifestV1,'data-embedded-session-preload-v1');
-    window.__embeddedSessionAssetsPromiseV1 = loadEmbeddedAssets(embeddedSessionAssetManifestV1);
+    window.__embeddedSessionAssetsPromiseV1 = loadEmbeddedAssets(embeddedSessionAssetManifestV1).then(function () {
+      document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-concept-ready-v1');
+      return true;
+    });
     return window.__embeddedSessionAssetsPromiseV1;
   };
 
