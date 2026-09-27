@@ -267,18 +267,27 @@ function runTool(tool,button,dateOverride){
  showWorkspace(tool);
  loadLegacy().then(function(win){
   if(!dialog.open)return;
-  var needsSession=tool==='start'||tool==='startTemplate';
-  updateStatus('');
   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
-  var success=selectTool(win,tool,button,date);
-  if(success===false){dialog.close();activeTool='';return;}
-  if(needsSession){
-   // The preserved base session is already complete and should open at once.
-   // Presentation enhancements are optional and can finish loading afterward
-   // without blocking the user's tap or making the workspace feel stalled.
-   ensureSessionAssets(win).catch(function(){});
+
+  var needsSession=tool==='start'||tool==='startTemplate';
+  if(tool==='start'){
+   var planned=win.getPlannedSessions()[date];
+   needsSession=!!(planned&&Array.isArray(planned.exercises)&&planned.exercises.length);
   }
- }).catch(function(e){updateStatus(e.message);});
+
+  function openSelectedTool(){
+   if(!dialog.open)return;
+   updateStatus('');
+   var success=selectTool(win,tool,button,date);
+   if(success===false){dialog.close();activeTool='';}
+  }
+
+  if(!needsSession){openSelectedTool();return;}
+  updateStatus('Förbereder Pulse Flow…');
+  return ensureSessionAssets(win).then(openSelectedTool);
+ }).catch(function(e){
+  updateStatus(e&&e.message?e.message:'Pulse Flow kunde inte startas.');
+ });
 }
 function install(){
  document.addEventListener('click',function(event){
