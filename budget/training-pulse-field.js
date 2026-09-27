@@ -32,7 +32,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var url=new URL('archive/exercise.html',location.href);
     url.searchParams.set('overview','compact');
     url.searchParams.set('compactHost','1');
-    url.searchParams.set('v','20260926-original-compact-1');
+    url.searchParams.set('v','20260927-pulse-robust-2');
     if(profile==='maja')url.searchParams.set('user','maja');
     return url.href;
   }
@@ -49,12 +49,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     frame.setAttribute('loading','eager');
     compactHost.appendChild(frame);
     document.body.appendChild(compactHost);
+    window.TrainingOverlay.acquire('compact');
     document.body.classList.add('field-compact-active');
     updateCompactControl(true);
   }
   function closeOriginalCompact() {
     if(compactHost){compactHost.remove();compactHost=null;}
     document.body.classList.remove('field-compact-active');
+    window.TrainingOverlay.release('compact');
     updateCompactControl(false);
     var button=byId('training-overview-toggle');
     if(button)button.focus({preventScroll:true});
@@ -1034,7 +1036,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){var rows=groups[category].map(function(record){return '<button type="button" class="record-row" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera rekord '+escapeHtml(record.name)+'"><span>'+escapeHtml(record.name)+(record.gain?'<small>+'+formatNumber(record.gain,1)+' kg utveckling</small>':'')+'</span><strong>'+formatKg(record.value)+'</strong></button>';}).join('');return '<details class="record-group"'+(index===0?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>＋</i></summary><div class="record-list">'+rows+'</div></details>';}).join('');
   }
 
+  var renderPending=false;
   function renderAll() {
+    if(window.TrainingOverlay.isLocked()){renderPending=true;return;}
+    renderPending=false;
     loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderVolume();renderLog();renderRecords();
   }
   function showToast(message) {
@@ -1042,8 +1047,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function installEvents() {
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
-    function setMenu(open){menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
+    function setMenu(open){if(open===menu.classList.contains('is-open'))return;if(open)window.TrainingOverlay.acquire('menu');else window.TrainingOverlay.release('menu');menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
+    window.addEventListener('pulse-field:close-menu',function(){setMenu(false);});
+    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&menu.classList.contains('is-open')){setMenu(false);toggle.focus({preventScroll:true});}});
+    menu.addEventListener('click',function(event){if(event.target.closest('a'))setMenu(false);});
     var compactToggle=byId('training-overview-toggle');
     if(compactToggle)compactToggle.addEventListener('click',openOriginalCompact);
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
@@ -1107,6 +1115,8 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       },80);
     });
     window.addEventListener('pulse-field:data-change',renderAll);
+    window.addEventListener('training-overlay:change',function(event){if(event.detail.locked)hideChartTooltip();else if(renderPending)requestAnimationFrame(renderAll);});
+    window.addEventListener('storage',function(event){if(event.key&&fieldKeys.has(profile==='maja'&&event.key.endsWith('_maja')?event.key.slice(0,-5):event.key))renderAll();});
     var layoutWidth=document.documentElement.clientWidth,resizeTimer;
     window.addEventListener('resize',function(){
       // Ignore mobile Safari toolbar collapse: viewport height changes, chart width does not.

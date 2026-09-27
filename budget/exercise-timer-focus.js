@@ -845,7 +845,7 @@
     var ctx = getAudioContext();
     if (!ctx) return;
     prepareAudibleBeep();
-    try { if (ctx.state === 'suspended') ctx.resume(); } catch (_) {}
+    try { if (ctx.state === 'suspended') { var resumed=ctx.resume(); if(resumed&&resumed.catch)resumed.catch(function(){}); } } catch (_) {}
     if (ctx.state !== 'running') return;
     try {
       var now = ctx.currentTime;

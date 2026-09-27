@@ -86,8 +86,7 @@
     var style = document.createElement('style');
     style.id = 'exercise-builder-between-preview-v7-style';
     style.textContent = `:root{--builder-preview-rgb:${embedded?'255,101,122':'34,211,238'};--builder-preview-bright:${embedded?'#ffb7ab':'#67E8F9'};--builder-preview-strong:${embedded?'#ff8f93':'#22D3EE'};--builder-preview-ink:${embedded?'#1b1118':'#06141A'};--builder-profile-accent:${embedded?'#ffb7ab':'#38BDF8'}}` + `
-      /* The old builder-only five-second timer switch is replaced by the new
-         between-exercises switch. The in-session five-second control remains. */
+      /* The shell arranges the shared start timer and between-exercise controls. */
       #pretimer-builder-v2{display:none!important}
       #between-set-global-editor-v2{display:none!important}
 
@@ -194,7 +193,7 @@
       }
       #exercise-plan-preview-v7.show{display:grid}
       .plan-preview-card-v7{
-        width:min(520px,100%);max-height:min(78dvh,720px);overflow:auto;
+        width:min(520px,100%);max-height:min(78dvh,720px);overflow:auto;overscroll-behavior:contain;
         padding:16px;border:1px solid rgba(var(--builder-preview-rgb),.22);border-radius:16px;
         background:linear-gradient(180deg,#17202a,#111922);box-shadow:0 28px 80px rgba(0,0,0,.55);
       }
@@ -285,7 +284,7 @@
     var type = editor.querySelector('[data-global-type-v7]');
     var seconds = editor.querySelector('[data-global-seconds-v7]');
     var name = editor.querySelector('[data-global-name-v7]');
-    if (type) type.value = config.type;
+    if (type && type.value !== config.type) type.value = config.type;
     if (seconds) seconds.value = config.seconds;
     if (name) name.value = config.name;
     var nameWrap = editor.querySelector('.between-name-v7');
@@ -304,7 +303,7 @@
     var weekGroup = weekLabel && weekLabel.closest('.form-group');
     var weekNav = weekGroup && weekGroup.querySelector('.week-nav');
     if (weekGroup && weekNav) {
-      weekGroup.classList.add('builder-week-between-v7');
+      if (!weekGroup.classList.contains('builder-week-between-v7')) weekGroup.classList.add('builder-week-between-v7');
       var togglePanel = document.getElementById('between-exercise-toggle-panel-v7');
       if (!togglePanel) {
         togglePanel = document.createElement('div');
@@ -362,9 +361,9 @@
     var name = panel.querySelector('[data-per-set-name-v7]');
     if (toggle) toggle.setAttribute('aria-pressed',config.enabled ? 'true' : 'false');
     if (fields) fields.hidden = !config.enabled;
-    if (type) type.value = config.type;
+    if (type && type.value !== config.type) type.value = config.type;
     if (seconds && document.activeElement !== seconds) seconds.value = config.seconds;
-    if (name) { name.value = config.name; name.hidden = config.type !== 'custom'; }
+    if (name) { if (document.activeElement !== name && name.value !== config.name) name.value = config.name; name.hidden = config.type !== 'custom'; }
   }
 
   function enhanceRows() {
@@ -660,7 +659,7 @@
     } else {
       syncTimer=setInterval(sync,180);
     }
-    window.__exerciseBuilderBetweenPreviewV7={captureDraft:captureDraft,showPreview:showPreview};
+    window.__exerciseBuilderBetweenPreviewV7={captureDraft:captureDraft,showPreview:showPreview,closePreview:closePreview};
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true});

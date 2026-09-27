@@ -181,7 +181,7 @@
   function unlockAudio() {
     var ctx = getAudioContext();
     if (!ctx) return;
-    try { if (ctx.state === 'suspended') ctx.resume(); } catch (_) {}
+    try { if (ctx.state === 'suspended') { var resumed=ctx.resume(); if(resumed&&resumed.catch)resumed.catch(function(){}); } } catch (_) {}
   }
 
   function beep(second) {

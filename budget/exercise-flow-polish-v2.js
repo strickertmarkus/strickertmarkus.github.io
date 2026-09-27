@@ -277,11 +277,13 @@
       }
       .pretimer-switch[aria-pressed="true"] {
         background:rgba(var(--flow-accent-rgb),.17);
-        border-color:rgba(var(--flow-accent-rgb),.48);
+        border-color:rgba(var(--flow-accent-rgb),.68);
+        box-shadow:0 0 12px rgba(var(--flow-accent-rgb),.34),0 0 24px rgba(var(--flow-accent-rgb),.16);
       }
       .pretimer-switch[aria-pressed="true"]::after {
         transform:translateX(20px);
         background:var(--flow-accent);
+        box-shadow:0 0 5px rgba(var(--flow-accent-soft-rgb),.75),0 0 13px rgba(var(--flow-accent-rgb),.55);
       }
       .session-pretimer-toggle-v2 {
         min-height:38px;

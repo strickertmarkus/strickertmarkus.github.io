@@ -155,7 +155,7 @@
     var input = document.getElementById('day-workout-date');
     if (!input) return;
     var pick = input.closest('.week-pick');
-    if (pick) pick.classList.add('builder-date-picker-hidden-v4');
+    if (pick && !pick.classList.contains('builder-date-picker-hidden-v4')) pick.classList.add('builder-date-picker-hidden-v4');
     var group = input.closest('.form-group');
     var label = group && group.querySelector(':scope > label');
     if (label && /datum och vecka/i.test(label.textContent || '')) label.textContent = 'Vecka';

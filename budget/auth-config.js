@@ -86,7 +86,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   }
 
   var pulseDefaultBoot = !embeddedFieldWorkspace;
-  var exerciseFastVersion = '20260927-pulse-flow-permanent-13';
+  var exerciseFastVersion = '20260927-pulse-robust-2';
 
   /* Loader manifest v2. Network fetches may run concurrently, but auth-gate
      still executes these entries in this exact order. `group` documents the
@@ -134,7 +134,14 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      larger session presentation bundle only when it is actually needed. This
      keeps builder buttons responsive without forking any training behavior. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2)
+    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2, [
+        {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
+        {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
+        {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},
+        {src:'exercise-pulse-flow-ecg-glow-v104.js',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
+        {src:'exercise-pulse-flow-canvas-glow-v130.js',attr:'data-exercise-pulse-flow-canvas-glow-v130'},
+        {src:'exercise-pulse-flow-canvas-glow-v131.js',attr:'data-exercise-pulse-flow-canvas-glow-v131'}
+      ])
     : [];
   window.__embeddedSessionAssetManifestV1 = embeddedSessionAssetManifestV1;
 
@@ -161,7 +168,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
           script.async = false;
           script.setAttribute(item.attr,'true');
           script.addEventListener('load',resolve,{once:true});
-          script.addEventListener('error',function(){reject(new Error('Kunde inte ladda '+item.src));},{once:true});
+          script.addEventListener('error',function(){script.remove();reject(new Error('Kunde inte ladda '+item.src));},{once:true});
           document.head.appendChild(script);
         });
       });
@@ -180,8 +187,9 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     preloadEmbeddedAssets(embeddedSessionAssetManifestV1,'data-embedded-session-preload-v1');
     window.__embeddedSessionAssetsPromiseV1 = loadEmbeddedAssets(embeddedSessionAssetManifestV1).then(function () {
       document.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-concept-ready-v1');
+      window.__embeddedSessionAssetsReadyV1=true;
       return true;
-    });
+    }).catch(function(error){window.__embeddedSessionAssetsPromiseV1=null;throw error;});
     return window.__embeddedSessionAssetsPromiseV1;
   };
 

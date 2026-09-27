@@ -199,10 +199,10 @@
     return true;
   }
 
+  var compactFrame=0,builderObserver=null;
   function scheduleBuilderCompact(){
-    var attempts=0;
-    function run(){attempts++;if(compactBuilderControls()||attempts>=12)return;setTimeout(run,50);}
-    run();
+    if(compactFrame)return;
+    compactFrame=requestAnimationFrame(function(){compactFrame=0;compactBuilderControls();});
   }
 
   function prepare(){
@@ -210,28 +210,17 @@
     arrangeWeekToolbar();
     arrangeGoals();
     syncGoalInput();
-    if(document.getElementById('day-workout-modal')&&document.getElementById('day-workout-modal').classList.contains('show'))scheduleBuilderCompact();
+    var builderModal=document.getElementById('day-workout-modal');
+    if(builderModal&&!builderObserver&&window.MutationObserver){
+      builderObserver=new MutationObserver(function(records){
+        if(builderModal.classList.contains('show')&&records.some(function(record){return record.type==='childList'||record.target===builderModal;}))scheduleBuilderCompact();
+      });
+      builderObserver.observe(builderModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    }
+    scheduleBuilderCompact();
   }
 
   addStyles();
-  document.addEventListener('click',function(event){
-    var button=event.target&&event.target.closest?event.target.closest('button'):null;
-    if(!button)return;
-    var t=text(button.textContent);
-    if(t==='redigera' || t.indexOf('passupplägg')>=0)setTimeout(scheduleBuilderCompact,0);
-  },true);
-  document.addEventListener('change',function(event){
-    if(event.target&&event.target.id==='day-workout-date')setTimeout(scheduleBuilderCompact,0);
-  });
-  var builderModal=document.getElementById('day-workout-modal');
-  if(builderModal&&window.MutationObserver){
-    new MutationObserver(function(records){
-      if(records.some(function(record){return record.type==='attributes'&&record.attributeName==='class';})&&builderModal.classList.contains('show')){
-        scheduleBuilderCompact();
-      }
-    }).observe(builderModal,{attributes:true,attributeFilter:['class']});
-  }
-
   window.__exerciseShellV13={prepare:prepare};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepare,{once:true});
   else prepare();

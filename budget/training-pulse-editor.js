@@ -5,7 +5,7 @@
 'use strict';
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
-var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,hostScrollLock=null;
+var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,requestId=0;
 var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Veckoplan',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
@@ -26,53 +26,16 @@ function makeDialog(){
  document.body.appendChild(dialog);
  $('field-workspace-close').addEventListener('click',requestClose);
  dialog.addEventListener('cancel',function(event){event.preventDefault();requestClose();});
- dialog.addEventListener('close',unlockHostScroll);
+ dialog.addEventListener('close',function(){if(!dialog.open){requestId++;unlockHostScroll();}});
 }
 function updateStatus(t){var status=$('field-workspace-status');status.hidden=!t;status.textContent=t||'';}
 function lockHostScroll(){
- if(hostScrollLock)return;
- var body=document.body,html=document.documentElement,scrollY=window.scrollY||window.pageYOffset||0;
- hostScrollLock={
-  y:scrollY,
-  bodyPosition:body.style.position,
-  bodyTop:body.style.top,
-  bodyLeft:body.style.left,
-  bodyRight:body.style.right,
-  bodyWidth:body.style.width,
-  bodyOverflow:body.style.overflow,
-  htmlOverflow:html.style.overflow,
-  htmlOverscroll:html.style.overscrollBehavior,
-  htmlScrollBehavior:html.style.scrollBehavior
- };
- body.classList.add('field-workspace-active');
- html.classList.add('field-host-scroll-locked');
- html.style.overflow='hidden';
- html.style.overscrollBehavior='none';
- html.style.scrollBehavior='auto';
- body.style.position='fixed';
- body.style.top='-'+scrollY+'px';
- body.style.left='0';
- body.style.right='0';
- body.style.width='100%';
- body.style.overflow='hidden';
+ document.body.classList.add('field-workspace-active');
+ window.TrainingOverlay.acquire('workspace');
 }
 function unlockHostScroll(){
- if(!hostScrollLock)return;
- var lock=hostScrollLock,body=document.body,html=document.documentElement;
- hostScrollLock=null;
- body.classList.remove('field-workspace-active');
- html.classList.remove('field-host-scroll-locked');
- body.style.position=lock.bodyPosition;
- body.style.top=lock.bodyTop;
- body.style.left=lock.bodyLeft;
- body.style.right=lock.bodyRight;
- body.style.width=lock.bodyWidth;
- body.style.overflow=lock.bodyOverflow;
- html.style.overflow=lock.htmlOverflow;
- html.style.overscrollBehavior=lock.htmlOverscroll;
- html.style.scrollBehavior='auto';
- window.scrollTo(0,lock.y);
- requestAnimationFrame(function(){html.style.scrollBehavior=lock.htmlScrollBehavior;});
+ document.body.classList.remove('field-workspace-active');
+ window.TrainingOverlay.release('workspace');
 }
 function workspaceWindow(){
  try{if(!frame||!frame.contentWindow||frame.contentWindow.location.origin!==location.origin)return null;return frame.contentWindow;}catch(_){return null;}
@@ -85,6 +48,8 @@ function requestClose(){
   win.stopSessionMode(false);
  }
  if(win){
+  win.__embeddedSessionStartToken=(win.__embeddedSessionStartToken||0)+1;
+  win.__embeddedSessionStarting=false;
   var preview=win.document.getElementById('exercise-plan-preview-v7');
   if(preview)preview.classList.remove('show');
   win.document.querySelectorAll('.modal-overlay.show').forEach(function(modal){
@@ -93,22 +58,24 @@ function requestClose(){
    else modal.classList.remove('show');
   });
  }
+ requestId++;
  if(dialog.open)dialog.close();
  activeTool='';
 }
 function observeEditor(win){
- var doc=win.document;
- var observer=new MutationObserver(function(changes){
-  if(!dialog.open||activeTool==='goals')return;
-  if(!changes.some(function(c){return c.type==='attributes'&&c.attributeName==='class'&&c.target.classList.contains('modal-overlay');}))return;
-  queueMicrotask(function(){
-   if(!dialog.open||activeTool==='goals'||hasOpenModal(doc))return;
-   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
-   dialog.close();activeTool='';
-  });
- });
- observer.observe(doc.body,{subtree:true,attributes:true,attributeFilter:['class']});
- win.addEventListener('beforeunload',function(){observer.disconnect();legacyReady=null;frame=null;});
+ var doc=win.document,watched=new WeakSet();
+ function sync(){
+  if(doc.getElementById('session-modal').classList.contains('show')){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
+  if(!dialog.open||activeTool==='goals'||win.__embeddedSessionStarting||hasOpenModal(doc))return;
+  if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
+  dialog.close();activeTool='';
+ }
+ var observer=new MutationObserver(sync);
+ function watch(modal){if(!watched.has(modal)){watched.add(modal);observer.observe(modal,{attributes:true,attributeFilter:['class']});}}
+ doc.querySelectorAll('.modal-overlay').forEach(watch);
+ var additions=new MutationObserver(function(records){records.forEach(function(record){Array.from(record.addedNodes).forEach(function(el){if(el.matches&&el.matches('.modal-overlay'))watch(el);});});});
+ additions.observe(doc.body,{childList:true});
+ win.addEventListener('pagehide',function(){observer.disconnect();additions.disconnect();},{once:true});
 }
 function connectLegacy(win){
  if(typeof win.openDayWorkoutBuilder!=='function'||typeof win.openWorkoutModal!=='function'||typeof win.startWorkoutSessionForDate!=='function'||!win.DB)throw new Error('Passverktygets funktioner kunde inte startas.');
@@ -119,6 +86,12 @@ function connectLegacy(win){
  var set=win.DB.set;
  win.DB.set=function(k,v){set.call(this,k,v);pendingWrites++;changed();};
  observeEditor(win);
+ win.addEventListener('pulse-session:loading',function(event){
+  if(!dialog.open)return;
+  var detail=event.detail||{};
+  updateStatus(detail.error||(detail.loading?'Förbereder Pulse Flow…':''));
+  if(!detail.loading&&!detail.error){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
+ });
  clearTimeout(sessionPrefetchTimer);
  sessionPrefetchTimer=setTimeout(function(){
   var prefetch=function(){
@@ -137,9 +110,10 @@ function loadLegacy(){
   frame.setAttribute('loading','eager');
   $('field-workspace-container').appendChild(frame);
  }
+ var loadingFrame=frame;
  legacyReady=new Promise(function(resolve,reject){
   var expired=setTimeout(function(){reject(new Error('Passverktyget tog för lång tid att ladda. Försök igen.'));},15000);
-  frame.addEventListener('load',function(){
+  loadingFrame.addEventListener('load',function(){
    var win;
    try{
     win=workspaceWindow();
@@ -147,6 +121,7 @@ function loadLegacy(){
    }catch(e){clearTimeout(expired);reject(e);return;}
    Promise.resolve(win.__embeddedBuilderReadyV1).then(function(){
     try{
+     if(frame!==loadingFrame)return;
      connectLegacy(win);clearTimeout(expired);resolve(win);
     }catch(e){clearTimeout(expired);reject(e);}
    },function(e){clearTimeout(expired);reject(e);});
@@ -154,10 +129,10 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20260926-builder-fast-5');
+  url.searchParams.set('v','20260927-pulse-robust-2');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
- }).catch(function(e){legacyReady=null;updateStatus(e.message);throw e;});
+ }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
  return legacyReady;
 }
 function showWorkspace(tool){
@@ -171,8 +146,8 @@ function showWorkspace(tool){
 function openTemplateEditor(win,id){
  var tpl=id==null?null:win.getTemplates().find(function(t){return String(t.id)===String(id);});
  if(id!=null&&!tpl){notice('Mallpasset finns inte längre.');return false;}
- win.fieldEmbeddedTemplateId=tpl?tpl.id:null;
  win.openWorkoutModal({skipBlank:true});
+ win.fieldEmbeddedTemplateId=tpl?tpl.id:null;
  if(tpl){
   win.document.getElementById('wk-type').value=tpl.type||tpl.name||'Övrigt';
   if(tpl.duration)win.document.getElementById('wk-dur').value=tpl.duration;
@@ -185,7 +160,7 @@ function openTemplateEditor(win,id){
  var title=wk.querySelector('h2');if(title)title.textContent=tpl?'Redigera mallpass':'Skapa mallpass';
  var footer=wk.querySelector('.modal-footer');
  var save=footer.querySelector('[onclick="saveWorkout()"]');if(save)save.hidden=true;
- var special=win.document.createElement('button');special.type='button';special.className='btn-primary';
+ var special=win.document.createElement('button');special.type='button';special.className='btn-primary';special.dataset.fieldTemplateSave='1';
  special.textContent=tpl?'Spara ändringar i mall':'Spara mallpass';
  special.addEventListener('click',function(){
   var before=win.getTemplates().length;
@@ -265,8 +240,9 @@ function runTool(tool,button,dateOverride){
  if(tool==='week-templates')tool='weekTemplates';
  if(!(tool in actionTitles)){notice('Okänt passverktyg.');return;}
  showWorkspace(tool);
+ var request=++requestId;
  loadLegacy().then(function(win){
-  if(!dialog.open)return;
+  if(!dialog.open||request!==requestId)return;
   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
 
   var needsSession=tool==='start'||tool==='startTemplate';
@@ -276,7 +252,7 @@ function runTool(tool,button,dateOverride){
   }
 
   function openSelectedTool(){
-   if(!dialog.open)return;
+   if(!dialog.open||request!==requestId)return;
    updateStatus('');
    var success=selectTool(win,tool,button,date);
    if(success===false){dialog.close();activeTool='';}
@@ -286,7 +262,7 @@ function runTool(tool,button,dateOverride){
   updateStatus('Förbereder Pulse Flow…');
   return ensureSessionAssets(win).then(openSelectedTool);
  }).catch(function(e){
-  updateStatus(e&&e.message?e.message:'Pulse Flow kunde inte startas.');
+  if(dialog.open&&request===requestId)updateStatus((e&&e.message?e.message:'Pulse Flow kunde inte startas.')+' Stäng och öppna verktyget för att försöka igen.');
  });
 }
 function install(){
@@ -295,7 +271,7 @@ function install(){
   var action=event.target.closest('[data-field-action]');if(!action)return;
   event.preventDefault();
   var menu=action.closest('#field-menu');
-  if(menu){menu.classList.remove('is-open');menu.setAttribute('aria-hidden','true');var toggle=$('menu-toggle');if(toggle)toggle.setAttribute('aria-expanded','false');}
+  if(menu)window.dispatchEvent(new Event('pulse-field:close-menu'));
   runTool(action.dataset.fieldAction,action);
  });
  document.addEventListener('keydown',function(event){

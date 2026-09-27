@@ -10,14 +10,14 @@
   <title>Träning · bevarade passverktyg</title>
   <script>
   if(window.__FIELD_EMBEDDED__){
-    document.write('<script src="auth-config.js?v=20260927-pulse-flow-permanent-16"><\/script>');
+    document.write('<script src="auth-config.js?v=20260927-pulse-robust-2"><\/script>');
   }else{
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"><\/script>');
     document.write('<script src="indexeddb-fallback.js"><\/script>');
-    document.write('<script src="auth-config.js?v=20260927-pulse-flow-permanent-16"><\/script>');
-    document.write('<script src="auth-gate.js?v=20260927-pulse-flow-permanent-15"><\/script>');
+    document.write('<script src="auth-config.js?v=20260927-pulse-robust-2"><\/script>');
+    document.write('<script src="auth-gate.js?v=20260927-pulse-robust-2"><\/script>');
     document.write('<script src="firebase-sync.js?v=20260916-profile-theme-2"><\/script>');
   }
   </script>
@@ -368,7 +368,7 @@
     .empty-icon{font-size:40px;margin-bottom:12px;opacity:.5;}
 
     /* ── MODALS ── */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay{overscroll-behavior:contain;display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:9000;align-items:center;justify-content:center;padding:20px;}
     .modal-overlay.show{display:flex;}
     .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:26px 22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:slideUp .25s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 12px rgba(0,0,0,.28),0 24px 64px rgba(0,0,0,.45);}
     @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
@@ -546,7 +546,8 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:14px;z-index:200;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:9px 13px;border:1px solid #ff9a9170;border-radius:999px;background:#121821f2;color:#ffd2bd!important;font:600 12px Inter,system-ui,sans-serif;text-decoration:none;box-shadow:0 0 16px #ff657a26}
 .archive-return:hover{background:#28202a}
 </style>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20260927-pulse-flow-authority-7">
+<script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20260927-pulse-robust-2">
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -1024,7 +1025,11 @@ if(!window.__FIELD_EMBEDDED__){
 
 <script>
 // ══ DATA ════════════════════════════════════════════════════════
-var DB={get:function(k){return JSON.parse(localStorage.getItem('ex_'+k)||'null');},set:function(k,v){localStorage.setItem('ex_'+k,JSON.stringify(v));}};
+function trainingStorageKey(k){
+  // Embedded tools do not load firebase-sync's profile storage adapter.
+  return 'ex_'+k+(window.__FIELD_EMBEDDED__&&new URLSearchParams(location.search).get('user')==='maja'?'_maja':'');
+}
+var DB={get:function(k){try{return JSON.parse(localStorage.getItem(trainingStorageKey(k))||'null');}catch(_){return null;}},set:function(k,v){localStorage.setItem(trainingStorageKey(k),JSON.stringify(v));}};
 function getWorkouts(){return DB.get('wk')||[];}
 function saveWorkouts(w){DB.set('wk',w);}
 function getGoals(){return DB.get('goals')||{weeklyWk:4,runDistanceGoal:10,vo2Goal:45};}
@@ -2058,6 +2063,23 @@ function startDayWorkoutFromBuilder(){
 }
 
 function startWorkoutSessionForDate(iso){
+  if(window.__FIELD_EMBEDDED__&&!window.__embeddedSessionAssetsReadyV1){
+    if(window.__embeddedSessionStarting)return;
+    var token=window.__embeddedSessionStartToken=(window.__embeddedSessionStartToken||0)+1;
+    window.__embeddedSessionStarting=true;
+    window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{loading:true}}));
+    return window.__loadEmbeddedSessionAssetsV1().then(function(){
+      if(token!==window.__embeddedSessionStartToken)return;
+      window.__embeddedSessionStarting=false;
+      window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{loading:false}}));
+      return window.startWorkoutSessionForDate(iso);
+    }).catch(function(error){
+      if(token!==window.__embeddedSessionStartToken)return;
+      window.__embeddedSessionStarting=false;
+      openDayWorkoutBuilder(dayLabelFromISO(iso),iso);
+      window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{error:'Kunde inte ladda Pulse Flow. Försök starta passet igen.'}}));
+    });
+  }
   var byDate=getPlannedSessions();
   var planned=byDate[iso];
   if(!planned||!(planned.exercises||[]).length){
@@ -2313,6 +2335,7 @@ function saveSessionWorkout(){
 var chartSessions, chartVO2, chartRunPace;
 function getWeekNum(d){var d2=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));d2.setUTCDate(d2.getUTCDate()+4-(d2.getUTCDay()||7));var ys=new Date(Date.UTC(d2.getUTCFullYear(),0,1));return Math.ceil(((d2-ys)/86400000+1)/7);}
 function renderCharts(){
+  if(window.__FIELD_EMBEDDED__||typeof Chart!=='function')return;
   var wks=getWorkouts();
   if(window.renderObservatoryDistance)window.renderObservatoryDistance(wks);
   var weekStats={};
@@ -2666,6 +2689,12 @@ function editWorkout(id){
 // ══ WORKOUT MODAL ════════════════════════════════════════════════
 function openWorkoutModal(options){
   options=options||{};
+  window.fieldEmbeddedTemplateId=null;
+  var workoutModal=document.getElementById('wk-modal');
+  delete workoutModal.dataset.fieldEditingTemplate;
+  workoutModal.querySelectorAll('[data-field-template-save]').forEach(function(button){button.remove();});
+  var saveButton=workoutModal.querySelector('[onclick="saveWorkout()"]');
+  if(saveButton)saveButton.hidden=false;
   if(!options.editing)editingWorkoutId=null;
   editingWorkoutTargetIndex=null;
   var modalTitle=document.querySelector('#wk-modal .modal > h2');
@@ -2920,7 +2949,7 @@ document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListen
 // ══ TOAST ════════════════════════════════════════════════════════
 function showToast(msg){
   var t=document.getElementById('toast');
-  if(!t){t=document.createElement('div');t.id='toast';Object.assign(t.style,{position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',background:'var(--bg2)',border:'1px solid var(--border-a)',color:'var(--accent)',padding:'10px 20px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'Inter,sans-serif'});document.body.appendChild(t);}
+  if(!t){t=document.createElement('div');t.id='toast';Object.assign(t.style,{pointerEvents:'none',position:'fixed',bottom:'90px',left:'50%',transform:'translateX(-50%)',background:'var(--bg2)',border:'1px solid var(--border-a)',color:'var(--accent)',padding:'10px 20px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',boxShadow:'0 4px 20px rgba(0,0,0,.4)',fontFamily:'Inter,sans-serif'});document.body.appendChild(t);}
   t.textContent=msg; t.style.opacity='1'; clearTimeout(t._t); t._t=setTimeout(function(){t.style.opacity='0';},2600);
 }
 
@@ -2931,7 +2960,7 @@ function initFade(){
 }
 
 // ══ REFRESH ALL ══════════════════════════════════════════════════
-function refreshAll(){refreshStats();renderWeekGrid();refreshGoals();renderCharts();renderPRs();renderLog();}
+function refreshAll(){if(window.__FIELD_EMBEDDED__){refreshGoals();return;}refreshStats();renderWeekGrid();refreshGoals();renderCharts();renderPRs();renderLog();}
 
 document.addEventListener('DOMContentLoaded',function(){
   if(!window.__FIELD_EMBEDDED__){refreshAll();initFade();}

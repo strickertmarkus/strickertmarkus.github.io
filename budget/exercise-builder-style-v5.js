@@ -18,7 +18,7 @@
     var list = document.getElementById('day-workout-ex-list');
     var group = list && (list.closest('.form-group') || list.parentElement);
     var label = group && group.querySelector(':scope > label');
-    if (label) {
+    if (label && label.textContent !== 'Övningar') {
       label.textContent = 'Övningar';
     }
 
@@ -26,7 +26,7 @@
     if (globalSeconds) {
       var field = globalSeconds.closest('div');
       var fieldLabel = field && field.querySelector('label');
-      if (fieldLabel) fieldLabel.textContent = 'Tid (sek)';
+      if (fieldLabel && fieldLabel.textContent !== 'Tid (sek)') fieldLabel.textContent = 'Tid (sek)';
       globalSeconds.setAttribute('aria-label', 'Tid mellan övningar i sekunder');
     }
 
