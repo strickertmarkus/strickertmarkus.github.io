@@ -523,7 +523,14 @@ jobs:
               hasActivity:!!document.querySelector('script[src*="training-activity.js"]'),
               hasFirebase:!!document.querySelector('script[src*="firebasejs"],script[src*="firebase-sync"],script[src*="auth-gate"]')
             }));
-            assert.deepEqual(embeddedBoot.manifest.slice().sort(),['exercise-builder-between-preview-v7.js','exercise-builder-row-tools-v3.js','exercise-builder-style-v5.js'].sort(),'Embedded boot should execute only the original builder enhancements');
+            assert.deepEqual(embeddedBoot.manifest.slice().sort(),[
+              'exercise-builder-between-preview-v7.js',
+              'exercise-builder-row-tools-v3.js',
+              'exercise-builder-style-v5.js',
+              'exercise-flow-polish-v2.js',
+              'exercise-between-routing-v7.js',
+              'exercise-shell-v13.js'
+            ].sort(),'Embedded boot should execute only the original builder controls plus the shared timer/shell logic');
             assert.equal(embeddedBoot.hasChart,false,'Embedded builder must not parse Chart.js before a tool needs charts');
             assert.equal(embeddedBoot.hasActivity,false,'Embedded builder must not load the old dashboard activity runtime');
             assert.equal(embeddedBoot.hasFirebase,false,'Embedded builder must reuse same-origin storage without booting a second Firebase/auth client');
