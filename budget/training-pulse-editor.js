@@ -196,9 +196,19 @@ function openTemplateEditor(win,id){
  return true;
 }
 
+function ensurePulseFlow(win){
+ var doc=win.document,modal=doc.getElementById('session-modal');
+ if(!win.__exercisePulseFlowV58Installed||!win.__exercisePulseFlowMainV85Installed||!win.__exercisePulseFlowV58){
+  throw new Error('Pulse Flow kunde inte startas. Träningsläget öppnas inte i ett äldre tema.');
+ }
+ doc.documentElement.classList.add('exercise-concept-pulse-home-v1','exercise-concept-ready-v1');
+ if(modal)modal.classList.remove('session-overview-mode');
+ try{win.__exercisePulseFlowV58.sync();}catch(_){}
+ return true;
+}
 function ensureSessionAssets(win){
- if(typeof win.__loadEmbeddedSessionAssetsV1!=='function')return Promise.resolve();
- return win.__loadEmbeddedSessionAssetsV1();
+ if(typeof win.__loadEmbeddedSessionAssetsV1!=='function')return Promise.reject(new Error('Pulse Flow-sessionen saknar loader.'));
+ return win.__loadEmbeddedSessionAssetsV1().then(function(){return ensurePulseFlow(win);});
 }
 
 function selectTool(win,tool,button,date){
@@ -210,7 +220,11 @@ function selectTool(win,tool,button,date){
   case 'start':
    var planned=win.getPlannedSessions()[iso];
    if(!planned||!(planned.exercises||[]).length){activeTool='build';$('field-workspace-title').textContent='Bygg pass';win.openDayWorkoutBuilder(dayName(iso),iso);}
-   else win.startWorkoutSessionForDate(iso);
+   else {
+    win.startWorkoutSessionForDate(iso);
+    ensurePulseFlow(win);
+    requestAnimationFrame(function(){try{ensurePulseFlow(win);}catch(_){}});
+   }
    break;
   case 'log':win.openWorkoutModal();if(iso){win.document.getElementById('wk-date').value=iso;}break;
   case 'editLog':win.editWorkout(Number(button.dataset.workoutId));break;
@@ -228,7 +242,7 @@ function selectTool(win,tool,button,date){
    if(!tpl){notice('Mallpasset finns inte längre.');return false;}
    var byDate=win.getPlannedSessions();
    byDate[iso]={type:tpl.type||tpl.name||'Träning',exercises:JSON.parse(JSON.stringify(tpl.exercises||[]))};
-   win.savePlannedSessions(byDate);win.startWorkoutSessionForDate(iso);break;
+   win.savePlannedSessions(byDate);win.startWorkoutSessionForDate(iso);ensurePulseFlow(win);requestAnimationFrame(function(){try{ensurePulseFlow(win);}catch(_){}});break;
   case 'goals':
    var main=win.document.getElementById('pulse-goals');
    if(!main)throw new Error('Målredigeringen kunde inte öppnas.');
