@@ -180,7 +180,6 @@
   }
 
   function preservePreTimerAfterPreviewSave(button) {
-    if (embeddedField) return false;
     if (!button || !button.closest('[data-preview-save-v7]')) return false;
     var modal = document.getElementById('day-workout-modal');
     var input = document.getElementById('day-workout-date');
