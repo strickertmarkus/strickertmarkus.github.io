@@ -63,6 +63,6 @@ test('boot keeps the current shared wellness ownership fresh and CP10 routes das
   assert.match(html, /auth-gate\.js\?v=20260927-builder-timer-11/);
   assert.match(html, /pulse-observatory\/observatory\.css\?v=20260922-observatory-composition-2/);
   assert.match(environmentShim, /exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
-  assert.match(authConfig, /exerciseFastVersion = '20260927-builder-timer-9'/);
-  assert.match(authGate, /exerciseAssetsVersion = '20260927-builder-timer-9'/);
+  assert.match(authConfig, /exerciseFastVersion = '20260927-builder-timer-10'/);
+  assert.match(authGate, /exerciseAssetsVersion = '20260927-builder-timer-10'/);
 });
