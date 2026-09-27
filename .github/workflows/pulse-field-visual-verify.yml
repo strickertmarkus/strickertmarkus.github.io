@@ -583,7 +583,9 @@ jobs:
             assert.ok(await plus.count(),'Original row tools should be present');
             const plusColor=await plus.evaluate(el=>getComputedStyle(el).color);
             assert.notEqual(plusColor,'rgb(103, 232, 249)','Embedded row action must not retain archived cyan');
-            const betweenColor=await embedded.locator('.between-toggle-copy-v7 strong').evaluate(el=>getComputedStyle(el).color);
+            const betweenLabel=embedded.locator('.builder-toggle-unit-v13 .builder-toggle-label-v13').filter({hasText:'Mellanövningar'}).first();
+            assert.equal(await betweenLabel.count(),1,'Original builder shell must keep the compact between-exercise control');
+            const betweenColor=await betweenLabel.evaluate(el=>getComputedStyle(el).color);
             assert.notEqual(betweenColor,'rgb(103, 232, 249)','Embedded between-exercise UI must not retain archived cyan');
 
             fs.mkdirSync('test-results/pulse-field',{recursive:true});
