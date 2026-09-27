@@ -504,6 +504,7 @@ jobs:
 
             const chosen=page.locator('#week-days .week-day[data-day]').nth(2);
             const chosenDate=await chosen.getAttribute('data-day');
+            const scrollBeforeOpen=await page.evaluate(()=>scrollY);
             const openStarted=Date.now();
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
@@ -553,7 +554,7 @@ jobs:
             assert.ok(mobileLayout.width>=mobileLayout.viewport-1,'Mobile pass editor should use the full embedded viewport');
             const lockedScroll=await page.evaluate(()=>({y:scrollY,position:document.body.style.position,top:document.body.style.top,htmlOverflow:document.documentElement.style.overflow}));
             assert.equal(lockedScroll.position,'fixed','Opening pass tools must hard-lock the host body on iOS');
-            assert.equal(lockedScroll.top,'-'+lockedScroll.y+'px','Host scroll position must be frozen into the fixed body offset');
+            assert.equal(lockedScroll.top,'-'+scrollBeforeOpen+'px','Host scroll position must be frozen into the fixed body offset');
             assert.equal(lockedScroll.htmlOverflow,'hidden','Root scrolling must be disabled while pass tools are open');
 
             const renderState=await page.locator('body').evaluate(body=>({
