@@ -122,8 +122,12 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
     ? allExerciseAssetManifestV2.filter(function (item) {
-        return item.group === 'builder';
-      })
+        return item.group === 'builder' ||
+          item.src === 'exercise-flow-polish-v2.js' ||
+          item.src === 'exercise-between-routing-v7.js';
+      }).concat([
+        {src:'exercise-shell-v13.js',attr:'data-exercise-shell-v13',group:'builder-shell'}
+      ])
     : allExerciseAssetManifestV2;
 
   /* Embedded Pulse Field opens the original builder immediately but the much
