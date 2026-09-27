@@ -33,7 +33,7 @@ const betweenRouting=read('exercise-between-routing-v7.js');
 const pulseFieldJs=read('training-pulse-field.js');
 
 test('embedded original builder stays lightweight and event driven',()=>{
-  assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*return item\.group === 'builder'/);
+  assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*item\.group === 'builder'[\s\S]*exercise-flow-polish-v2\.js[\s\S]*exercise-between-routing-v7\.js[\s\S]*exercise-shell-v13\.js/);
   assert.match(authConfig,/__loadEmbeddedSessionAssetsV1/);
   assert.match(authConfig,/if \(embeddedFieldWorkspace\) \{[\s\S]*__embeddedBuilderReadyV1[\s\S]*return;/);
   assert.match(authConfig,/__prefetchEmbeddedSessionAssetsV1/);
