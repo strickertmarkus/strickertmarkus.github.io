@@ -384,6 +384,8 @@ jobs:
             assert.equal((await page.locator('#record-podium .record-feature h3').first().textContent()).trim(),alternative.label.trim(),'Featured record selection must survive reload');
             assert.ok(await page.locator('#record-picker').isHidden(),'Editor should start closed after reload');
 
+            await page.locator('.field-hero').scrollIntoViewIfNeeded();
+            await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='true',null,{timeout:3000});
             const before=await animationSnapshot(page);
             await page.waitForTimeout(1800);
             const after=await animationSnapshot(page);
