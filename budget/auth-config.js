@@ -86,7 +86,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   }
 
   var pulseDefaultBoot = !embeddedFieldWorkspace;
-  var exerciseFastVersion = '20260927-builder-timer-9';
+  var exerciseFastVersion = '20260927-builder-timer-10';
 
   /* Loader manifest v2. Network fetches may run concurrently, but auth-gate
      still executes these entries in this exact order. `group` documents the
@@ -374,7 +374,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   if (!document.querySelector('script[data-exercise-shell-v13]')) {
     var shellScript = document.createElement('script');
-    shellScript.src = 'exercise-shell-v13.js?v=20260927-timer-scroll-6';
+    shellScript.src = 'exercise-shell-v13.js?v=20260927-builder-timer-7';
     shellScript.async = false;
     shellScript.setAttribute('data-exercise-shell-v13','true');
     document.head.appendChild(shellScript);
