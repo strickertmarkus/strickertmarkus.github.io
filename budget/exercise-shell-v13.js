@@ -223,6 +223,14 @@
   document.addEventListener('change',function(event){
     if(event.target&&event.target.id==='day-workout-date')setTimeout(scheduleBuilderCompact,0);
   });
+  var builderModal=document.getElementById('day-workout-modal');
+  if(builderModal&&window.MutationObserver){
+    new MutationObserver(function(records){
+      if(records.some(function(record){return record.type==='attributes'&&record.attributeName==='class';})&&builderModal.classList.contains('show')){
+        scheduleBuilderCompact();
+      }
+    }).observe(builderModal,{attributes:true,attributeFilter:['class']});
+  }
 
   window.__exerciseShellV13={prepare:prepare};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepare,{once:true});
