@@ -504,6 +504,7 @@ jobs:
 
             const chosen=page.locator('#week-days .week-day[data-day]').nth(2);
             const chosenDate=await chosen.getAttribute('data-day');
+            await chosen.scrollIntoViewIfNeeded();
             const scrollBeforeOpen=await page.evaluate(()=>scrollY);
             const openStarted=Date.now();
             await chosen.click();
