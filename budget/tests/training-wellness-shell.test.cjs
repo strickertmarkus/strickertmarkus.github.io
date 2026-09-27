@@ -32,6 +32,21 @@ const flowPolish=read('exercise-flow-polish-v2.js');
 const betweenRouting=read('exercise-between-routing-v7.js');
 const pulseFieldJs=read('training-pulse-field.js');
 
+test('embedded training session keeps Pulse Flow as the only live presentation',()=>{
+  assert.match(authConfig,/embeddedSessionAssetManifestV1 = embeddedFieldWorkspace[\s\S]*exercise-timer-focus\.js[\s\S]*allExerciseAssetManifestV2/);
+  assert.match(authConfig,/__loadEmbeddedSessionAssetsV1[\s\S]*exercise-concept-pulse-home-v1/);
+  assert.match(pulseEditorJs,/function ensurePulseFlow\(win\)/);
+  assert.match(pulseEditorJs,/__exercisePulseFlowV58Installed/);
+  assert.match(pulseEditorJs,/__exercisePulseFlowMainV85Installed/);
+  assert.doesNotMatch(pulseEmbeddedCss,/body \.session-shell\{/);
+  assert.doesNotMatch(pulseEmbeddedCss,/body \.session-card,/);
+  assert.doesNotMatch(pulseEmbeddedCss,/body \.session-cta\{/);
+  const runtime=read('exercise-session-runtime-core-v21.js');
+  assert.match(runtime,/embeddedPulseField = document\.documentElement\.hasAttribute\('data-field-embedded'\)/);
+  assert.match(runtime,/if \(embeddedPulseField\) overviewMode = false/);
+  assert.match(runtime,/if \(embeddedPulseField\) modal\.classList\.remove\('session-overview-mode'\)/);
+});
+
 test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(authConfig,/embeddedFieldWorkspace[\s\S]*item\.group === 'builder'[\s\S]*exercise-flow-polish-v2\.js[\s\S]*exercise-between-routing-v7\.js[\s\S]*exercise-shell-v13\.js/);
   assert.match(authConfig,/__loadEmbeddedSessionAssetsV1/);
