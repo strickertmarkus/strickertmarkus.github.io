@@ -41,16 +41,8 @@ html[data-field-embedded] body .modal .btn-primary,
 html[data-field-embedded] body .modal .ex-kind-btn.active{background:#ff657a36!important;border-color:#ff9a917a!important;color:#fff4ec!important}
 html[data-field-embedded] body .modal .modal-close{width:38px;height:38px;border-radius:50%!important;color:#ffe6d8!important;border-color:#ff9a9145!important}
 html[data-field-embedded] body .modal .ex-row-item{padding:9px 0;border-bottom:1px solid #ff9a911a}
-html[data-field-embedded] body .session-overlay{background:transparent!important;padding:0!important}
-html[data-field-embedded] body .session-shell{background:radial-gradient(ellipse at 70% 0%,#372332 0%,#131821 46%,#0b131b 100%)!important;color:#f5e7df!important}
-html[data-field-embedded] body .session-card,
-html[data-field-embedded] body .session-top{border-color:#ff9a9130!important;background:#ff9a9109!important}
-html[data-field-embedded] body .session-title{color:#ffd4c5!important}
-html[data-field-embedded] body .session-cta{border-color:#ff9a9152!important;background:#ff9a9113!important;color:#ffdbce!important}
-html[data-field-embedded] body .session-cta.primary{background:linear-gradient(125deg,#ff9a91,#e76379)!important;color:#17161e!important;border-color:#ffb3a5!important}
-html[data-field-embedded] body .session-timers .timer-box{border-color:#ff9a9152!important;box-shadow:0 0 20px #ff657a12!important}
-html[data-field-embedded] body .session-table th{color:#ffb6a8!important}
-html[data-field-embedded] body .session-cta.success{background:#ff657a!important;color:#111620!important}
+/* Live sessions are not restyled here. Pulse Flow is the single presentation
+   authority for training mode, including ECG, timers, rest and progress. */
 html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important;border-color:#ff9a9152!important;background:linear-gradient(180deg,#201824,#111820)!important;box-shadow:0 22px 56px #0009,0 0 0 1px #ff657a10,0 0 28px #ff657a16!important}
 html[data-field-embedded] body .exercise-name-picker-kicker-v1{color:#ffb7ab!important}
 html[data-field-embedded] body .exercise-name-picker-option-v1.is-current{background:#ff657a16!important;color:#fff0e8!important}
@@ -110,5 +102,4 @@ html[data-field-embedded] body #day-workout-modal .modal-footer .btn-sm{flex:1 1
 html[data-field-embedded] body .ex-row{grid-template-columns:minmax(0,1fr) 48px 48px 54px 25px;gap:4px}
 html[data-field-embedded] body .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 72px 72px 25px}
 html[data-field-embedded] body .ex-row input{padding:7px 4px!important}
-html[data-field-embedded] body .session-shell{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 }
