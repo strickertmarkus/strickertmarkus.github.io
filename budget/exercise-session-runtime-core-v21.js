@@ -5,6 +5,7 @@
   if (window.__exerciseSessionRuntimeCoreV21Installed) return;
   window.__exerciseSessionRuntimeCoreV21Installed = true;
 
+  var embeddedPulseField = document.documentElement.hasAttribute('data-field-embedded');
   var overviewMode = false;
   var sessionToken = null;
   var transitionVisualUntil = 0;
@@ -162,6 +163,10 @@
 
   function ensureToggleButton() {
     var existing = document.getElementById('session-view-toggle');
+    if (embeddedPulseField) {
+      if (existing) existing.remove();
+      return null;
+    }
     if (existing) return existing;
     var top = document.querySelector('#session-modal .session-top');
     var stop = top && top.querySelector('.session-cta');
@@ -224,6 +229,7 @@
     if (!modal) return;
 
     resetForSession(state);
+    if (embeddedPulseField) overviewMode = false;
     var active = !!state;
     var training = active && !overviewMode;
     var running = !!(state && state.setRunning);
@@ -249,6 +255,7 @@
       button.textContent = overviewMode ? 'Träningsläge' : 'Översikt';
       button.setAttribute('aria-pressed',overviewMode ? 'true' : 'false');
     }
+    if (embeddedPulseField) modal.classList.remove('session-overview-mode');
   }
 
   function ensurePauseHint() {
