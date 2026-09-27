@@ -52,17 +52,28 @@
         .week-toolbar .week-nav-copy{min-width:0!important;width:auto!important;flex:1 1 auto!important}
         .week-inline-actions-v13{gap:4px}
         .week-inline-actions-v13 .btn-sm{padding:6px 7px!important;font-size:9px!important}
-        #day-workout-modal .builder-week-between-v7{grid-template-columns:minmax(0,1fr) auto!important;column-gap:8px!important;row-gap:0!important}
-        #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{grid-column:2!important;min-width:124px!important;gap:8px!important}
-        .builder-toggle-unit-v13{min-width:54px;gap:4px}
-        .builder-toggle-label-v13{font-size:7.5px}
+        #day-workout-modal .builder-week-between-v7{grid-template-columns:1fr!important;column-gap:0!important;row-gap:9px!important}
+        #day-workout-modal .builder-week-between-v7>.week-nav{grid-column:1!important}
+        #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{
+          grid-column:1!important;
+          width:100%!important;
+          min-width:0!important;
+          min-height:44px!important;
+          padding:8px 10px!important;
+          border:1px solid rgba(255,154,145,.20)!important;
+          border-radius:10px!important;
+          background:rgba(255,101,122,.035)!important;
+          justify-content:center!important;
+          gap:28px!important;
+        }
+        .builder-toggle-unit-v13{min-width:76px;gap:5px}
+        .builder-toggle-label-v13{font-size:8px;color:#b6a6aa}
       }
       @media(max-width:380px){
         .week-inline-actions-v13 .btn-sm{padding:5px 5px!important;font-size:8px!important}
-        #day-workout-modal .builder-week-between-v7{grid-template-columns:minmax(0,1fr) 118px!important;column-gap:6px!important}
-        #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{grid-column:2!important;min-width:118px!important;gap:6px!important}
-        .builder-toggle-unit-v13{min-width:52px}
-        .builder-toggle-label-v13{font-size:7px;letter-spacing:0}
+        #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{gap:18px!important}
+        .builder-toggle-unit-v13{min-width:70px}
+        .builder-toggle-label-v13{font-size:7.5px;letter-spacing:0}
       }
     `;
     document.head.appendChild(s);
@@ -172,13 +183,6 @@
   }
 
   function compactBuilderControls(){
-    if(embeddedField){
-      var legacyTimer=document.getElementById('pretimer-builder-v2');
-      if(legacyTimer)legacyTimer.remove();
-      var legacySwitch=document.getElementById('pretimer-builder-switch-v2');
-      if(legacySwitch)legacySwitch.remove();
-      return true;
-    }
     var modal=document.getElementById('day-workout-modal');
     if(!modal||!modal.classList.contains('show'))return false;
     var panel=document.getElementById('between-exercise-toggle-panel-v7');
