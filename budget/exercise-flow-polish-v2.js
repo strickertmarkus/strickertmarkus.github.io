@@ -253,7 +253,7 @@
         appearance:none;
         border:1px solid rgba(var(--flow-accent-rgb),.25);
         background:rgba(var(--flow-accent-rgb),.07);
-        color:#A5F3FC;
+        color:var(--flow-accent-pale);
         border-radius:999px;
         cursor:pointer;
         font-family:'Inter',sans-serif;
@@ -362,6 +362,21 @@
         box-shadow:0 0 8px rgba(253,186,116,.72);
       }
 
+      html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] {
+        border-color:rgba(var(--flow-accent-rgb),.48);
+        background:rgba(var(--flow-accent-rgb),.14);
+        color:var(--flow-accent-soft);
+        box-shadow:0 0 20px rgba(var(--flow-accent-rgb),.12),inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.04);
+      }
+      html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
+        background:rgba(var(--flow-accent-rgb),.30);
+        box-shadow:inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.28),0 0 10px rgba(var(--flow-accent-rgb),.18);
+      }
+      html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
+        background:var(--flow-accent-pale);
+        box-shadow:0 0 8px rgba(var(--flow-accent-soft-rgb),.75);
+      }
+
       /* Weekly toolbar: date + Redigera + Mallpass in the row where Denna vecka was. */
       .week-inline-actions-v2 {
         display:flex;
@@ -459,13 +474,6 @@
   }
 
   function ensureBuilderTimerToggle() {
-    if (embeddedField) {
-      var obsolete = document.getElementById('pretimer-builder-v2');
-      if (obsolete) obsolete.remove();
-      var movedButton = document.getElementById('pretimer-builder-switch-v2');
-      if (movedButton) movedButton.remove();
-      return null;
-    }
     var modal = document.getElementById('day-workout-modal');
     var list = document.getElementById('day-workout-ex-list');
     if (!modal || !modal.classList.contains('show') || !list || !list.parentElement) return null;
@@ -610,6 +618,11 @@
     renderRestOverview();
   }
 
+  function syncEmbeddedBuilder() {
+    ensureBuilderTimerToggle();
+    syncBuilderTimerToggle(false);
+  }
+
   function syncEmbeddedSession() {
     ensureSessionTimerToggle();
     renderRestOverview();
@@ -621,7 +634,14 @@
     relocateWeekActions();
 
     if (embeddedField) {
-      setTimeout(syncEmbeddedSession,0);
+      setTimeout(function(){syncEmbeddedBuilder();syncEmbeddedSession();},0);
+      var builderModal=document.getElementById('day-workout-modal');
+      if (builderModal && window.MutationObserver) {
+        var builderObserver=new MutationObserver(function () {
+          requestAnimationFrame(syncEmbeddedBuilder);
+        });
+        builderObserver.observe(builderModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      }
       var sessionModal=document.getElementById('session-modal');
       if (sessionModal && window.MutationObserver) {
         var sessionObserver=new MutationObserver(function () {
@@ -630,9 +650,9 @@
         sessionObserver.observe(sessionModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
       }
       document.addEventListener('click',function (event) {
-        if (event.target && event.target.closest && event.target.closest('#session-modal button')) {
-          requestAnimationFrame(syncEmbeddedSession);
-        }
+        if (!event.target || !event.target.closest) return;
+        if (event.target.closest('#day-workout-modal button')) requestAnimationFrame(syncEmbeddedBuilder);
+        if (event.target.closest('#session-modal button')) requestAnimationFrame(syncEmbeddedSession);
       },false);
     } else {
       setTimeout(syncSlow,0);
@@ -640,14 +660,12 @@
     }
 
     document.addEventListener('change',function (event) {
-      if (embeddedField) return;
       if (event.target && event.target.id === 'day-workout-date') {
         setTimeout(function () { syncBuilderTimerToggle(true); },0);
       }
     },false);
 
     document.addEventListener('click',function (event) {
-      if (embeddedField) return;
       var button = event.target && event.target.closest ? event.target.closest('#day-workout-modal button') : null;
       if (!button) return;
       var text = (button.textContent || '').trim().toLowerCase();
