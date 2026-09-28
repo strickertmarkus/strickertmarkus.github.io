@@ -77,17 +77,17 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(root.dataset.fieldSceneVisible!==next)root.dataset.fieldSceneVisible=next;
   }
   function installFieldSceneVisibility() {
-    var hero=document.querySelector('.field-hero');
-    if(!hero)return;
+    var scene=document.querySelector('.space-scene');
+    if(!scene)return;
     var pageVisible=!document.hidden;
-    var heroVisible=true;
-    function syncScene(){setFieldSceneVisible(pageVisible&&heroVisible);}
+    var sceneVisible=true;
+    function syncScene(){setFieldSceneVisible(pageVisible&&sceneVisible);}
     if('IntersectionObserver' in window){
       var observer=new IntersectionObserver(function(entries){
-        heroVisible=!!(entries[0]&&entries[0].isIntersecting);
+        sceneVisible=!!(entries[0]&&entries[0].isIntersecting);
         syncScene();
-      },{root:null,rootMargin:'120px 0px 120px 0px',threshold:0});
-      observer.observe(hero);
+      },{root:null,rootMargin:'0px',threshold:0});
+      observer.observe(scene);
     }
     document.addEventListener('visibilitychange',function(){
       pageVisible=!document.hidden;

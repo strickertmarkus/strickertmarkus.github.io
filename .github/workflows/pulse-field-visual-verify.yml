@@ -494,8 +494,8 @@ jobs:
             await compactFrame.locator('#training-overview-toggle').click();
             await page.waitForFunction(()=>!document.getElementById('field-compact-host'),null,{timeout:5000});
             assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('field-compact-active')),false,'Original Compact toggle must return to Pulse Field without navigation');
-            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).position),'fixed','Pulse hero scenery must be viewport-fixed rather than scrolling with the document');
-            await page.locator('#activity-field').scrollIntoViewIfNeeded();
+            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).position),'absolute','Pulse top scenery must fade into the original Ambient A continuation');
+            await page.evaluate(()=>scrollTo({top:document.querySelector('.space-scene').offsetHeight+30,behavior:'instant'}));
             await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='false',null,{timeout:3000});
             assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Scroll must preserve the painted background');
             assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),'paused','Offscreen hero must pause background animation');
@@ -645,9 +645,9 @@ jobs:
             await embedded.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse fixed background should resume after the training workspace closes');
-            assert.equal(await page.locator('html').getAttribute('data-field-scene-visible'),'false','Cosmic scene should stay suspended when the user returns to an offscreen hero');
+            await page.waitForFunction(()=>{const r=document.querySelector('.space-scene').getBoundingClientRect();return document.documentElement.dataset.fieldSceneVisible===(r.bottom>0&&r.top<innerHeight?'true':'false');});
             assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Closing a workspace must restore the background at the same scroll position');
-            assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),'paused','Offscreen hero animation must remain paused after closing the workspace');
+            assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),await page.locator('html').getAttribute('data-field-scene-visible')==='true'?'running':'paused','Background clock must match the actual scene visibility');
 
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});

@@ -96,9 +96,9 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(pulseFieldCss,/\.field-compact-host\{position:fixed/);
   assert.match(pulseFieldCss,/body\.field-compact-active[\s\S]*\.field-canvas,[\s\S]*\.field-main/);
   assert.match(pulseFieldJs,/function installFieldSceneVisibility\(\)[\s\S]*new IntersectionObserver/);
-  assert.match(pulseFieldJs,/setFieldSceneVisible\(pageVisible&&heroVisible\)/);
+  assert.match(pulseFieldJs,/setFieldSceneVisible\(pageVisible&&sceneVisible\)/);
   assert.doesNotMatch(pulseFieldJs,/addEventListener\('scroll'/);
-  assert.match(pulseFieldCss,/\.space-scene\{position:fixed/);
+  assert.match(pulseFieldCss,/\.space-scene\{position:absolute/);
   assert.match(pulseFieldCss,/html\[data-field-scene-visible="false"\] \.space-scene \*::after\{animation-play-state:paused!important\}/);
 });
 

@@ -1,4 +1,4 @@
-/* WebKit regression: persistent scroll scenery, nested dialogs and session return.
+/* WebKit regression: fading scroll scenery, nested dialogs and session return.
    All external requests are isolated; no real account data is read or written. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -24,17 +24,26 @@ async function verify(browser,mobile){
  await page.goto(base+'/budget/exercise.html?demo=1');
  await page.waitForSelector('.field-hero');
  await page.evaluate(()=>document.documentElement.style.scrollBehavior='auto');
- for(const selector of ['#activity-field','#log-timeline','#activity-field']){
-  await page.locator(selector).scrollIntoViewIfNeeded();
-  await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='false');
-  const state=await page.locator('.space-scene').evaluate(el=>({display:getComputedStyle(el).display,top:el.getBoundingClientRect().top,paused:[...el.querySelectorAll('*')].filter(n=>getComputedStyle(n).animationName!=='none').every(n=>getComputedStyle(n).animationPlayState==='paused')}));
-  assert.notEqual(state.display,'none');assert.equal(state.top,0);assert.equal(state.paused,true);
-  const times=await page.locator('.space-scene').evaluate(el=>el.getAnimations({subtree:true}).map(a=>a.currentTime));
-  await page.waitForTimeout(180);
-  assert.deepEqual(await page.locator('.space-scene').evaluate(el=>el.getAnimations({subtree:true}).map(a=>a.currentTime)),times,'Paused scenery must retain its frame');
+ const sceneHeight=await page.locator('.space-scene').evaluate(el=>el.offsetHeight);
+ for(const y of [0,Math.round(sceneHeight*.55),sceneHeight+40]){
+  await page.evaluate(y=>scrollTo(0,y),y);
+  await page.waitForFunction(y=>Math.abs(scrollY-y)<2,y);
+  await page.waitForFunction(()=>{const r=document.querySelector('.space-scene').getBoundingClientRect();return document.documentElement.dataset.fieldSceneVisible===(r.bottom>0?'true':'false');});
+  const state=await page.locator('.space-scene').evaluate(el=>({display:getComputedStyle(el).display,position:getComputedStyle(el).position,top:el.getBoundingClientRect().top,mask:getComputedStyle(el).webkitMaskImage,paused:getComputedStyle(el.querySelector('.space-scene__nebula')).animationPlayState==='paused'}));
+  assert.notEqual(state.display,'none');assert.equal(state.position,'absolute');assert.ok(Math.abs(state.top+y)<2,'The top artwork must leave the viewport with its original fade');
+  assert.ok(state.mask.includes('100%')&&state.mask.includes('0)'),'Scene must retain its transparent lower edge');
+  assert.equal(state.paused,y>=sceneHeight);
+  if(y>=sceneHeight){
+   await page.waitForTimeout(50);
+   const times=await page.locator('.space-scene').evaluate(el=>el.getAnimations({subtree:true}).map(a=>a.currentTime));
+   await page.waitForTimeout(180);
+   assert.deepEqual(await page.locator('.space-scene').evaluate(el=>el.getAnimations({subtree:true}).map(a=>a.currentTime)),times,'Offscreen artwork must retain its paused frame');
+  }
  }
+ const spill=await page.locator('.rhythm-section').evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
+ assert.ok(spill.includes('radial-gradient'),'Original Ambient A light must continue below the hero');
  fs.mkdirSync('test-results/pulse-field',{recursive:true});
- await page.screenshot({path:'test-results/pulse-field/scroll-background-'+name+'.png'});
+ await page.locator('.rhythm-section').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/pulse-field/scroll-background-'+name+'.png'});
  await page.evaluate(()=>scrollTo(0,0));await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='true');
  assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),'running');
  for(const kind of ['stretch','meditation']){
