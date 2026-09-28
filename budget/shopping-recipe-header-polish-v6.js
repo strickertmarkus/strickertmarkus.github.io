@@ -8,7 +8,7 @@
     var style = document.createElement('style');
     style.id = 'shopping-recipe-header-polish-v6-style';
     style.textContent = `
-      
+
 
       body #recipes-list .recipe-header {
         display:flex !important;
@@ -144,7 +144,7 @@
       }
 
       @media(max-width:520px) {
-        
+
         body #recipes-list .recipe-header,
         body #recipes-list .recipe-title-wrap,
         body #recipes-list .recipe-name-v4,

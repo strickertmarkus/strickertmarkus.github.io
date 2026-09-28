@@ -71,6 +71,7 @@ async function run(type,name,viewport,layout,offline=false){
      assert.equal(await page.locator('script['+attr+']').count(),1,'duplicate runtime '+attr);
    }
    await page.screenshot({path:'test-results/shopping/'+prefix+'-page.png',fullPage:true});
+   if(name==='webkit-mobile'&&layout==='dashboard'&&!offline)console.log('SHOPPING_PREVIEW:'+ (await page.screenshot()).toString('base64'));
    // Hamburger is reachable and visible in the viewport, even on short screens.
    await page.locator('.nav-btn').click();
    await geometry('#shopping-menu-dialog');
@@ -129,7 +130,8 @@ async function run(type,name,viewport,layout,offline=false){
    await geometry('#recipe-link-popup-v5');
    assert(await page.evaluate(()=>TrainingOverlay.isLocked()));
    const frozen=await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top);
-   await page.mouse.wheel(0,500);
+   if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));
+   else await page.mouse.wheel(0,500);
    assert(Math.abs(await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top)-frozen)<2,'background scrolled');
    await page.locator('#recipe-link-input-v5').fill('javascript:alert(1)');
    await page.locator('[data-link-save-v5]').click();

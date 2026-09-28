@@ -259,10 +259,6 @@
   function closeAllMenus() {
     if (menuDialog && menuDialog.open) menuDialog.close();
     restoreMenu();
-    var tools = document.querySelector('.shopping-tools-wrap');
-    if (tools) tools.classList.remove('open');
-    var toggle = document.querySelector('.minimal-tools-toggle');
-    if (toggle) toggle.setAttribute('aria-expanded','false');
   }
   function setupDropdownHandlers() {
     menuDialog = document.getElementById('shopping-menu-dialog');

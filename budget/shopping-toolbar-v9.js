@@ -13,7 +13,7 @@
       /* Recipe heading and header alignment. All visible controls share one
          38px vertical center line: chevron, title, external-link mark, link
          editor and delete X. */
-      
+
       body.shopping-toolbar-v9 .recipe-header{
         min-height:38px!important;
         display:flex!important;
@@ -105,7 +105,7 @@
       }
 
       @media(max-width:520px){
-            
+
         body.shopping-toolbar-v9 .recipe-header,
         body.shopping-toolbar-v9 .recipe-title-wrap,
         body.shopping-toolbar-v9 .recipe-name-v4,

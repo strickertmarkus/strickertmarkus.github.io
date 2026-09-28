@@ -198,10 +198,10 @@
     return popup;
   }
 
-  function openPopup(recipeId) {
+  function openPopup(recipeId, trigger) {
     var recipe = recipeById(recipeId);
     if (!recipe) return;
-    returnFocus = document.activeElement;
+    returnFocus = trigger || document.activeElement;
     activeRecipeId = Number(recipeId);
     var popup = ensurePopup();
     document.getElementById('recipe-link-title-v5').textContent = recipe.name || 'Recept';
@@ -261,7 +261,7 @@
       if (!recipe) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      openPopup(Number(recipe.dataset.recipeId));
+      openPopup(Number(recipe.dataset.recipeId), linkButton);
       return;
     }
 

@@ -145,7 +145,7 @@
     var style = document.createElement('style');
     style.id = 'shopping-recipes-v4-style';
     style.textContent = `
-      
+
       body.shopping-recipes-v4 .recipe-item{padding:4px 0!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
       body.shopping-recipes-v4 .recipe-header{display:flex;align-items:center;min-height:34px;gap:6px!important;padding:2px 3px!important;border-radius:7px;transition:background-color .16s ease;-webkit-tap-highlight-color:transparent}
       body.shopping-recipes-v4 .recipe-header:active{background:rgba(var(--accent-rgb),.035)}
@@ -162,7 +162,7 @@
       body.shopping-recipes-v4 .recipe-delete-v4:hover{color:#F87171;opacity:1}
       body.shopping-recipes-v4 .recipe-edit-meta-v4:active,body.shopping-recipes-v4 .recipe-delete-v4:active{transform:scale(.88)}
       body.shopping-recipes-v4 .recipe-meta-editor{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:6px;min-width:0}
-      body.shopping-recipes-v4 .recipe-meta-editor input,body.shopping-recipes-v4 .recipe-ingredient input[type="text"],body.shopping-recipes-v4 .recipe-add-item input[type="text"],body.shopping-recipes-v4 .new-recipe-v4 input{min-height:32px;padding:5px 7px!important;border:1px solid rgba(var(--accent-rgb),.32)!important;border-radius:7px!important;background:rgba(var(--accent-rgb),.035)!important;color:var(--text)!important;outline:none!important;font-size:13px!important;min-width:0}
+      body.shopping-recipes-v4 .recipe-meta-editor input,body.shopping-recipes-v4 .recipe-ingredient input[type="text"],body.shopping-recipes-v4 .recipe-add-item input[type="text"],body.shopping-recipes-v4 .new-recipe-v4 input{min-height:32px;padding:5px 7px!important;border:1px solid rgba(var(--accent-rgb),.32)!important;border-radius:7px!important;background:rgba(var(--accent-rgb),.035)!important;color:var(--text)!important;outline:none!important;font-size:16px!important;min-width:0}
       body.shopping-recipes-v4 .recipe-meta-editor input:focus,body.shopping-recipes-v4 .new-recipe-v4 input:focus{border-color:rgba(var(--accent-rgb),.58)!important;box-shadow:0 0 0 2px rgba(var(--accent-rgb),.07)}
       body.shopping-recipes-v4 .new-recipe-v4{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:6px;padding:3px 3px!important}
       body.shopping-recipes-v4 .new-recipe{min-height:34px;padding:3px 5px!important;display:flex;align-items:center;border-radius:7px;font-size:12px}
@@ -172,6 +172,7 @@
       body.shopping-recipes-v4 .recipe-ingredient label{flex:1 1 auto!important;width:100%;min-height:28px;display:flex;align-items:center;padding:4px 5px;border-radius:6px;cursor:text!important}
       body.shopping-recipes-v4 .recipe-ingredient label.done{text-decoration:line-through;color:var(--text-dim)}
       body.shopping-recipes-v4 .recipe-ingredient input[type="checkbox"],body.shopping-recipes-v4 .recipe-add-item input[type="checkbox"]{width:17px!important;height:17px!important;min-width:17px!important;appearance:none;background:transparent;border:1.5px solid var(--accent)!important;border-radius:4px;display:grid;place-content:center}
+      body.shopping-recipes-v4 .recipe-ingredient input[type="checkbox"]:checked{background:var(--accent-dim);box-shadow:0 0 14px var(--accent-glow)}
       body.shopping-recipes-v4 .recipe-ingredient input[type="checkbox"]:checked::before{content:'';width:7px;height:4px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg)}
       body.shopping-recipes-v4 .recipe-add-item{color:var(--text-dim);margin-top:1px}
       body.shopping-recipes-v4 .recipe-add-item input[type="text"]{border-color:transparent!important;background:transparent!important}
