@@ -50,7 +50,7 @@ async function verify(browser,mobile){
   await page.locator('[data-close="builder-dialog"]').click();await page.waitForFunction(()=>!TrainingOverlay.isLocked());
   assert.ok(Math.abs(await page.evaluate(()=>scrollY)-scroll)<2,'Closing Zen builder must restore page position');
   await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(150);
-  const resumed=await page.evaluate(()=>landscapePaints);await page.waitForTimeout(180);assert.ok(await page.evaluate(()=>landscapePaints)>resumed,'Visible canvas must resume');
+  const resumed=await page.evaluate(()=>landscapePaints);await page.waitForFunction(n=>landscapePaints>n,resumed,{timeout:4000});
   await page.locator('#start-button').click();await page.waitForSelector('#session-view:not([hidden])');
   await page.locator('#pause-session').click();assert.equal(await page.evaluate(()=>ZenStore.active.paused),true);
   await page.locator('#leave-session').click();await page.locator('#resume-button').click();await page.waitForSelector('#session-view:not([hidden])');assert.equal(await page.evaluate(()=>ZenStore.active.paused),false);
