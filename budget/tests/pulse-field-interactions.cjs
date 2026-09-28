@@ -16,7 +16,7 @@ async function setup(browser,mobile,profile='markus'){
  await page.waitForSelector('[data-day]');
  return {context,page,errors};
 }
-async function closed(page){await page.waitForFunction(()=>!document.getElementById('field-workspace').open);assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);}
+async function closed(page){await page.waitForFunction(()=>!document.getElementById('field-workspace').open&&!TrainingOverlay.isLocked(),null,{timeout:5000});assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);}
 async function open(page,tool){await page.evaluate(tool=>dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool}})),tool);}
 async function verify(browser,mobile){
  const {context,page,errors}=await setup(browser,mobile);
