@@ -10,6 +10,16 @@
   if(!prefs||typeof prefs!=='object')prefs={};
   const routeKind=new URLSearchParams(location.search).get('wellness');
   let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:'forest',meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false;
+  // Native dialogs manage focus; the shared scroll owner preserves the page
+  // position, including when a confirmation opens over another dialog.
+  const dialogs=Array.from(document.querySelectorAll('dialog.zen-dialog'));
+  const syncDialogScroll=()=>dialogs.forEach(dialog=>{
+    const owner='zen-dialog:'+dialog.id;
+    if(dialog.open)window.TrainingOverlay.acquire(owner);else window.TrainingOverlay.release(owner);
+  });
+  const dialogObserver=new MutationObserver(syncDialogScroll);
+  dialogs.forEach(dialog=>dialogObserver.observe(dialog,{attributes:true,attributeFilter:['open']}));
+  syncDialogScroll();
   const copy={
     stretch:{eyebrow:'RÖRLIGHET',title:'Stretch',description:'Välj ett pass för hela kroppen eller fokusera på ett område.',symbol:'✧',hint:'Övningarna kräver inga redskap.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'},
     meditation:{eyebrow:'ANDNING & FOKUS',title:'Meditation',description:'Välj längd och meditera med andningsguide eller i egen takt.',symbol:'≈',hint:'Andningsguiden kan stängas av under passet.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'}

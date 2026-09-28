@@ -13,6 +13,9 @@ on:
       - 'budget/training-pulse-field.html'
       - 'budget/zen.html'
       - 'budget/zen.js'
+      - 'budget/zen.css'
+      - 'budget/zen-scene-runtime.js'
+      - 'budget/tests/wellness-scroll-stability.cjs'
       - 'budget/training-pulse-field.css'
       - 'budget/training-pulse-field.js'
       - 'budget/training-overview-mode.js'
@@ -494,7 +497,8 @@ jobs:
             assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).position),'fixed','Pulse hero scenery must be viewport-fixed rather than scrolling with the document');
             await page.locator('#activity-field').scrollIntoViewIfNeeded();
             await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='false',null,{timeout:3000});
-            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Hero scenery must stop rendering after the hero leaves the viewport');
+            assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Scroll must preserve the painted background');
+            assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),'paused','Offscreen hero must pause background animation');
             await page.locator('.field-hero').scrollIntoViewIfNeeded();
             await page.waitForFunction(()=>document.documentElement.dataset.fieldSceneVisible==='true',null,{timeout:3000});
             assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Hero scenery should resume only when the hero is visible again');
@@ -642,7 +646,8 @@ jobs:
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});
             assert.notEqual(await page.locator('.field-canvas').evaluate(el=>getComputedStyle(el).display),'none','Pulse fixed background should resume after the training workspace closes');
             assert.equal(await page.locator('html').getAttribute('data-field-scene-visible'),'false','Cosmic scene should stay suspended when the user returns to an offscreen hero');
-            assert.equal(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Offscreen hero scenery must remain stopped after closing the workspace');
+            assert.notEqual(await page.locator('.space-scene').evaluate(el=>getComputedStyle(el).display),'none','Closing a workspace must restore the background at the same scroll position');
+            assert.equal(await page.locator('.space-scene__nebula').evaluate(el=>getComputedStyle(el).animationPlayState),'paused','Offscreen hero animation must remain paused after closing the workspace');
 
             await chosen.click();
             await embedded.locator('#day-workout-modal.show').waitFor({timeout:5000});
@@ -700,6 +705,8 @@ jobs:
           node /tmp/pulse-field-visual.cjs
       - name: Verify popup and builder interactions
         run: node budget/tests/pulse-field-interactions.cjs
+      - name: Verify scroll backgrounds and Zen lifecycle
+        run: node budget/tests/wellness-scroll-stability.cjs
       - name: Upload desktop and mobile screenshots
         if: always()
         uses: actions/upload-artifact@v4

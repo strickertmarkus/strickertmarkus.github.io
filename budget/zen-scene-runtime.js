@@ -13,7 +13,7 @@
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
   }
-  function drawable() { return visible && !document.hidden && !suspended; }
+  function drawable() { return visible && !document.hidden && !suspended && !(window.TrainingOverlay && window.TrainingOverlay.isLocked()); }
   function paint(layer, now) {
     layer.draw(motion.matches ? 0 : now / 1000);
     layer.last = now;
@@ -63,6 +63,7 @@
   }).observe(document.body, { attributes: true, attributeFilter: ['data-kind', 'class'] });
   motion.addEventListener('change', wake);
   document.addEventListener('visibilitychange', wake);
+  window.addEventListener('training-overlay:change', wake);
   window.addEventListener('pagehide', () => { suspended = true; stop(); });
   window.addEventListener('pageshow', () => { suspended = false; wake(); });
 })();

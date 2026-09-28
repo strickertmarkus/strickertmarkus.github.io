@@ -73,7 +73,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
   }
   function setFieldSceneVisible(visible) {
-    root.dataset.fieldSceneVisible=visible?'true':'false';
+    var next=visible?'true':'false';
+    if(root.dataset.fieldSceneVisible!==next)root.dataset.fieldSceneVisible=next;
   }
   function installFieldSceneVisibility() {
     var hero=document.querySelector('.field-hero');

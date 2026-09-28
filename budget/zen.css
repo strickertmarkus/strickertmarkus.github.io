@@ -1200,6 +1200,7 @@ body.is-paused .breathing-field {
 @keyframes forest-breathe{0%,100%{transform:scale(.97);opacity:.7}50%{transform:scale(1.08);opacity:1}}
 
 .zen-dialog {
+  overscroll-behavior: contain;
   color: var(--text);
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1939,7 +1940,9 @@ body[data-kind=meditation] .form-error {
 
 }
 
-body.page-hidden * {
+body.page-hidden *,
+body.page-hidden *::before,
+body.page-hidden *::after {
   animation-play-state: paused !important;
 }
 

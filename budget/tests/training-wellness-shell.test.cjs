@@ -99,7 +99,7 @@ test('embedded original builder stays lightweight and event driven',()=>{
   assert.match(pulseFieldJs,/setFieldSceneVisible\(pageVisible&&heroVisible\)/);
   assert.doesNotMatch(pulseFieldJs,/addEventListener\('scroll'/);
   assert.match(pulseFieldCss,/\.space-scene\{position:fixed/);
-  assert.match(pulseFieldCss,/html\[data-field-scene-visible="false"\] \.space-scene\{display:none\}/);
+  assert.match(pulseFieldCss,/html\[data-field-scene-visible="false"\] \.space-scene \*::after\{animation-play-state:paused!important\}/);
 });
 
 test('CP8 uses one canonical in-page wellness shell without iframe or duplicate full documents',()=>{
@@ -299,8 +299,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
     assert.match(exercise,/auth-config\.js\?v=20260927-pulse-robust-2/);
     assert.match(exercise,/auth-gate\.js\?v=20260927-pulse-robust-2/);
   }
-  assert.match(zen,/zen\.css\?v=20260925-safari-edge-11/);
-  assert.match(zen,/zen\.js\?v=20260924-sky-tint-3/);
+  assert.match(zen,/zen\.css\?v=20260928-scroll-stability-1/);
+  assert.match(zen,/zen\.js\?v=20260928-scroll-stability-1/);
 });
 
 
