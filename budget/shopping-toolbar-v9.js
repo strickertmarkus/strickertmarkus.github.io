@@ -9,21 +9,11 @@
     var style = document.createElement('style');
     style.id = 'shopping-toolbar-v9-style';
     style.textContent = `
-      body.shopping-toolbar-v9 .header-right-top .undo-btn{
-        order:-1!important;width:30px!important;min-width:30px!important;height:34px!important;min-height:34px!important;
-        padding:0!important;margin:0 2px 0 0!important;display:grid!important;place-items:center!important;
-        border:0!important;border-radius:7px!important;background:transparent!important;box-shadow:none!important;
-        color:var(--text-sec)!important;opacity:.78!important;line-height:1!important;
-        transition:color .16s ease,background-color .16s ease,opacity .16s ease,transform .12s ease!important
-      }
-      body.shopping-toolbar-v9 .header-right-top .undo-btn svg{width:18px;height:18px;display:block;pointer-events:none}
-      body.shopping-toolbar-v9 .header-right-top .undo-btn:hover{color:var(--accent)!important;background:rgba(251,191,36,.045)!important;opacity:1!important}
-      body.shopping-toolbar-v9 .header-right-top .undo-btn:active{transform:scale(.90)!important}
 
       /* Recipe heading and header alignment. All visible controls share one
          38px vertical center line: chevron, title, external-link mark, link
          editor and delete X. */
-      body.shopping-toolbar-v9 .section-title{font-size:12px!important;letter-spacing:1.2px!important}
+      
       body.shopping-toolbar-v9 .recipe-header{
         min-height:38px!important;
         display:flex!important;
@@ -88,7 +78,7 @@
         background-repeat:no-repeat;
         background-position:center;
         background-size:17px 17px;
-        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 5h5v5'/%3E%3Cpath d='M10 14 19 5'/%3E%3Cpath d='M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E");
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9a91' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 5h5v5'/%3E%3Cpath d='M10 14 19 5'/%3E%3Cpath d='M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E");
         pointer-events:none;
       }
 
@@ -115,9 +105,7 @@
       }
 
       @media(max-width:520px){
-        body.shopping-toolbar-v9 .header-right-top .undo-btn{width:28px!important;min-width:28px!important;height:33px!important;min-height:33px!important;margin-right:1px!important}
-        body.shopping-toolbar-v9 .header-right-top .undo-btn svg{width:17px;height:17px}
-        body.shopping-toolbar-v9 .section-title{font-size:12px!important}
+            
         body.shopping-toolbar-v9 .recipe-header,
         body.shopping-toolbar-v9 .recipe-title-wrap,
         body.shopping-toolbar-v9 .recipe-name-v4,

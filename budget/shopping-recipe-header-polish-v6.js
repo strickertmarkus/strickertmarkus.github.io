@@ -8,14 +8,7 @@
     var style = document.createElement('style');
     style.id = 'shopping-recipe-header-polish-v6-style';
     style.textContent = `
-      body .section-title {
-        font-size:12px !important;
-        line-height:1.2 !important;
-        font-weight:800 !important;
-        letter-spacing:1.15px !important;
-        margin-top:16px !important;
-        margin-bottom:7px !important;
-      }
+      
 
       body #recipes-list .recipe-header {
         display:flex !important;
@@ -98,7 +91,7 @@
         background-repeat:no-repeat;
         background-position:center;
         background-size:20px 20px;
-        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7'/%3E%3Cpath d='M8 7h9v9'/%3E%3C/svg%3E");
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9a91' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7'/%3E%3Cpath d='M8 7h9v9'/%3E%3C/svg%3E");
         pointer-events:none;
       }
 
@@ -151,7 +144,7 @@
       }
 
       @media(max-width:520px) {
-        body .section-title { font-size:12.5px !important; margin-bottom:8px !important; }
+        
         body #recipes-list .recipe-header,
         body #recipes-list .recipe-title-wrap,
         body #recipes-list .recipe-name-v4,

@@ -1,0 +1,34 @@
+name: Shopping functionality and responsive verification
+on:
+  push:
+    paths:
+      - 'budget/shopping*'
+      - 'budget/tests/shopping*'
+      - '.github/workflows/shopping-verify.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and shell checks
+        run: |
+          for file in budget/shopping*.js; do node --check "$file"; done
+          node --test budget/tests/shopping-shell-v1.test.cjs
+      - name: Install browsers
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit chromium
+      - name: Browser functionality and responsive checks
+        run: |
+          python3 -m http.server 4173 >/tmp/shopping-http.log 2>&1 &
+          node budget/tests/shopping-interactions.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shopping-screenshots
+          path: test-results/shopping

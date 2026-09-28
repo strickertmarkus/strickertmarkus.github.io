@@ -246,35 +246,63 @@
   }
   function escapeAttr(value) { return escapeHtml(value); }
 
+  var menuDialog, menuState = null;
+  function restoreMenu() {
+    if (!menuState) return;
+    var previous = menuState;
+    menuState = null;
+    previous.home.appendChild(previous.menu);
+    previous.button.setAttribute('aria-expanded','false');
+    window.TrainingOverlay.release('shopping-menu');
+    if (previous.button.isConnected) previous.button.focus({preventScroll:true});
+  }
   function closeAllMenus() {
-    document.querySelectorAll('.dropdown-wrapper.open').forEach(function (wrapper) { wrapper.classList.remove('open'); });
-    var tools = document.querySelector('.shopping-tools-wrap.open');
+    if (menuDialog && menuDialog.open) menuDialog.close();
+    restoreMenu();
+    var tools = document.querySelector('.shopping-tools-wrap');
     if (tools) tools.classList.remove('open');
+    var toggle = document.querySelector('.minimal-tools-toggle');
+    if (toggle) toggle.setAttribute('aria-expanded','false');
   }
   function setupDropdownHandlers() {
-    document.addEventListener('click',function (event) {
-      var toggle = event.target.closest('.minimal-tools-toggle');
-      if (toggle) {
-        event.preventDefault();
-        event.stopPropagation();
-        var tools = toggle.closest('.shopping-tools-wrap');
-        if (tools) tools.classList.toggle('open');
-        return;
-      }
-      var button = event.target.closest('.dropdown-btn,.nav-btn');
-      if (button) {
-        var wrapper = button.closest('.dropdown-wrapper');
-        if (wrapper) {
-          event.preventDefault();
-          event.stopPropagation();
-          var wasOpen = wrapper.classList.contains('open');
-          document.querySelectorAll('.dropdown-wrapper.open').forEach(function (other) { if (other !== wrapper) other.classList.remove('open'); });
-          wrapper.classList.toggle('open',!wasOpen);
-          return;
-        }
-      }
-      if (!event.target.closest('.dropdown-wrapper') && !event.target.closest('.shopping-tools-wrap')) closeAllMenus();
+    menuDialog = document.getElementById('shopping-menu-dialog');
+    document.querySelectorAll('.dropdown-btn,.nav-btn').forEach(function (button) {
+      var menu = button.parentElement.querySelector('.dropdown-menu');
+      if (!menu) return;
+      button.setAttribute('aria-haspopup','dialog');
+      button.setAttribute('aria-controls',menu.id);
+      button.setAttribute('aria-expanded','false');
+      button.addEventListener('click',function () {
+        if (menuState && menuState.button === button) { closeAllMenus(); return; }
+        closeAllMenus();
+        menuState = {menu:menu,home:menu.parentElement,button:button};
+        document.getElementById('shopping-menu-title').textContent = button.classList.contains('nav-btn') ? 'Meny' : button.textContent;
+        document.getElementById('shopping-menu-content').appendChild(menu);
+        button.setAttribute('aria-expanded','true');
+        window.TrainingOverlay.acquire('shopping-menu');
+        menuDialog.showModal();
+      });
     });
+    menuDialog.addEventListener('close',function () {
+      // An old close event must not close a newly opened menu.
+      if (!menuDialog.open) restoreMenu();
+    });
+    menuDialog.addEventListener('cancel',function (event) { event.preventDefault(); closeAllMenus(); });
+    menuDialog.addEventListener('click',function (event) {
+      if (event.target.closest('.shopping-menu-close')) closeAllMenus();
+      else if (event.target === menuDialog) {
+        var rect = menuDialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeAllMenus();
+      } else if (event.target.closest('a') && menuState && /^(nav-menu|recipes-dropdown)$/.test(menuState.menu.id)) closeAllMenus();
+    });
+    var toggle = document.querySelector('.minimal-tools-toggle');
+    toggle.setAttribute('aria-controls','shopping-list-tools');
+    toggle.setAttribute('aria-expanded','false');
+    toggle.addEventListener('click',function () {
+      var open = toggle.closest('.shopping-tools-wrap').classList.toggle('open');
+      toggle.setAttribute('aria-expanded',String(open));
+    });
+    window.addEventListener('pagehide',closeAllMenus);
   }
 
   function updateSummary() {
@@ -311,6 +339,7 @@
   }
 
   function handleGlobalKeydown(event) {
+    if (event.defaultPrevented) return;
     if (event.key === 'Escape') {
       closeAllMenus();
       if (selectedItemIds.size) {
@@ -328,12 +357,17 @@
   }
 
   function init() {
+    setupDropdownHandlers();
+    document.querySelector('.logo').addEventListener('keydown',function (event) {
+      if (event.target === this && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault(); window.startEditHeaderTitle();
+      }
+    });
     ensureLists();
     renderHeaderTitle();
     window.renderListsMenu();
     window.renderTemplatesMenu();
     window.renderRecipesDropdown();
-    setupDropdownHandlers();
     setupSummaryObservers();
     document.addEventListener('keydown',handleGlobalKeydown);
     updateSummary();

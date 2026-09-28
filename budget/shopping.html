@@ -2,8 +2,8 @@
 <html lang="sv" data-shopping-layout="dashboard">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0F1219">
+  <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080d12">
   <title>Inköpslista</title>
   <script>
     (function () {
@@ -11,24 +11,24 @@
       document.documentElement.dataset.shoppingLayout = params.get('layout') === 'minimal' ? 'minimal' : 'dashboard';
     })();
   </script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
-  <script src="indexeddb-fallback.js"></script>
-  <script src="auth-config.js"></script>
-  <script src="auth-gate.js?v=20260916-shopping-shell-v1"></script>
-  <script src="firebase-sync.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+  <script defer src="indexeddb-fallback.js"></script>
+  <script defer src="auth-config.js"></script>
+  <script defer src="auth-gate.js?v=20260916-shopping-shell-v1"></script>
+  <script defer src="firebase-sync.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260917-shopping-mobile-popovers-v1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260928-shopping-field-1">
 </head>
 <body>
 <div class="app-wrap">
   <div class="app-header" role="banner">
     <div class="brand">
       <div class="brand-text">
-        <div class="logo" onclick="startEditHeaderTitle()" title="Tryck för att byta namn">Inköpslista</div>
+        <div class="logo" role="button" tabindex="0" onclick="startEditHeaderTitle()" title="Byt namn på inköpssidan">Inköpslista</div>
         <div class="header-meta" id="shopping-header-meta">Huvudlista</div>
       </div>
     </div>
@@ -50,8 +50,8 @@
         <a href="mila.html"><span class="nav-icon" aria-hidden="true">○</span> Milas Milstolpar</a>
         <a href="melker.html"><span class="nav-icon" aria-hidden="true">○</span> Melkers Milstolpar</a>
         <div class="nav-sep"></div>
-        <a class="nav-minimal-preview" href="shopping-minimal.html"><span class="nav-icon" aria-hidden="true">▤</span> Minimal inköpslista · test</a>
-        <a class="nav-dashboard-return" href="shopping.html"><span class="nav-icon" aria-hidden="true">＋</span> Shopping dashboard</a>
+        <a class="nav-minimal-preview" href="shopping-minimal.html"><span class="nav-icon" aria-hidden="true">▤</span> Fokuserad vy</a>
+        <a class="nav-dashboard-return" href="shopping.html"><span class="nav-icon" aria-hidden="true">＋</span> Översiktsvy</a>
       </div>
     </div>
   </div>
@@ -59,8 +59,9 @@
   <main class="wrap">
     <section class="shopping-page-intro" aria-labelledby="shopping-page-title">
       <div class="shopping-page-intro-copy">
-        <h2 id="shopping-page-title">Familjens inköp</h2>
-        <p>Listor, mallar och sparade recept i samma vy.</p>
+        <p class="shopping-eyebrow">HEM &amp; VARDAG</p>
+        <h1 id="shopping-page-title">Familjens <em>inköp.</em></h1>
+        <p>Lite mer ordning. Lite mindre att komma ihåg.</p>
       </div>
     </section>
 
@@ -75,7 +76,7 @@
 
           <div class="shopping-tools-wrap">
             <button class="minimal-tools-toggle" type="button" aria-label="Listverktyg" title="Listverktyg">•••</button>
-            <div class="header-right-top" aria-label="Listverktyg">
+            <div class="header-right-top" id="shopping-list-tools" aria-label="Listverktyg">
               <button class="undo-btn" type="button" onclick="undo()" title="Ångra" aria-label="Ångra senaste ändring">↶</button>
               <div class="dropdown-wrapper">
                 <button class="dropdown-btn" id="mallar-btn" type="button">Mallar</button>
@@ -97,7 +98,7 @@
       </section>
 
       <aside class="shopping-side">
-        <section class="shopping-panel shopping-context-card" aria-label="Shoppingöversikt">
+        <section class="shopping-panel shopping-context-card" aria-label="Inköpsöversikt">
           <span class="context-kicker">Översikt</span>
           <div class="shopping-context-grid">
             <div class="context-stat"><span>Listor</span><strong id="shopping-stat-lists">1</strong></div>
@@ -115,6 +116,17 @@
   </main>
 </div>
 
-<script src="shopping-core-v1.js?v=20260916-shopping-shell-v1"></script>
+<dialog id="shopping-menu-dialog" aria-labelledby="shopping-menu-title">
+  <div class="shopping-menu-heading"><h2 id="shopping-menu-title">Meny</h2><button type="button" class="shopping-menu-close" aria-label="Stäng meny">×</button></div>
+  <div id="shopping-menu-content"></div>
+</dialog>
+<script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
+<script defer src="shopping-core-v1.js?v=20260928-shopping-field-1"></script>
+<script defer src="shopping-list-stability-v8.js?v=20260928-shopping-field-1" data-shopping-list-stability-v8></script>
+<script defer src="shopping-list-engine-v7.js?v=20260928-shopping-field-1" data-shopping-list-engine-v7></script>
+<script defer src="shopping-toolbar-v9.js?v=20260928-shopping-field-1" data-shopping-toolbar-v9></script>
+<script defer src="shopping-recipes-v4.js?v=20260928-shopping-field-1" data-shopping-recipes-v4></script>
+<script defer src="shopping-recipe-link-popup-v5.js?v=20260928-shopping-field-1" data-shopping-recipe-link-popup-v5></script>
+<script defer src="shopping-recipe-header-polish-v6.js?v=20260928-shopping-field-1" data-shopping-recipe-header-polish-v6></script>
 </body>
 </html>
