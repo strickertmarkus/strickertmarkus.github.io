@@ -22,7 +22,7 @@ test('menus and recipe editor use modal top layer and shared scroll ownership',(
 });
 test('background scrolls and fades; controls retain accessible motion and focus',()=>{
   assert.match(css,/--bg:#0F1219/);
-  assert.match(css,/--accent:#ff9a91/);
+  assert.match(css,/--accent:#60A5FA/);
   assert.match(css,/mask-image:linear-gradient/);
   assert.match(css,/focus-visible/);
   assert.match(css,/prefers-reduced-motion/);
