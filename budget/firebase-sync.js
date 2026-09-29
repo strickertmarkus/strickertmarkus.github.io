@@ -19,6 +19,9 @@ const syncQueue = {};
 let remotePollInterval = null;
 let localPollInterval = null;
 const lastKnownValues = {};
+const isShoppingPage = /\/(?:budget\/)?shopping\.html$/i.test(window.location.pathname);
+let shoppingRefreshPromise = null;
+let lastShoppingRefreshAt = 0;
 console.log('[Firebase] firebase-sync.js v9 loaded');
 
 // Save REAL localStorage methods before any monkey-patching.
@@ -175,8 +178,13 @@ async function loadAllFromFirebase() {
       const snapshot = await db.ref(key).get();
       if (snapshot.exists()) {
         const value = snapshot.val();
-        safeSetLocal(key, value);
-        lastKnownValues[key] = value;
+        if (isShoppingPage && key.startsWith('sh_')) {
+          // The shopping UI may already be rendered while the initial fetch runs.
+          handleRemoteUpdate(key, value);
+        } else {
+          safeSetLocal(key, value);
+          lastKnownValues[key] = value;
+        }
         console.log(`[Firebase] Loaded '${key}'`);
       }
     }
@@ -309,6 +317,39 @@ Storage.prototype.setItem = function(key, value) {
     syncToFirebase(mappedKey, value);
   }
 };
+
+/** Refresh shopping data when an iOS Home Screen app returns from suspension. */
+async function refreshShoppingOnResume() {
+  if (!isShoppingPage || !db || !authUser || shoppingRefreshPromise) return;
+  const now = Date.now();
+  if (now - lastShoppingRefreshAt < 2000) return;
+  lastShoppingRefreshAt = now;
+
+  shoppingRefreshPromise = (async () => {
+    for (const key of SYNC_KEYS.filter(key => key.startsWith('sh_'))) {
+      if (syncQueue[key]) continue;
+      const before = lastKnownValues[key];
+      try {
+        const snapshot = await db.ref(key).get();
+        // A local edit made during the fetch takes precedence over this snapshot.
+        if (snapshot.exists() && !syncQueue[key] && lastKnownValues[key] === before) {
+          handleRemoteUpdate(key, snapshot.val());
+        }
+      } catch (error) {
+        console.warn(`[Firebase] Resume refresh failed '${key}':`, error.message);
+        break;
+      }
+    }
+  })();
+  try { await shoppingRefreshPromise; }
+  finally { shoppingRefreshPromise = null; }
+}
+
+window.addEventListener('pageshow', refreshShoppingOnResume);
+window.addEventListener('focus', refreshShoppingOnResume);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshShoppingOnResume();
+});
 
 /** Force reload all data from Firebase */
 async function forceSyncFromFirebase() {
