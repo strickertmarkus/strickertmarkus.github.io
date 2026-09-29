@@ -62,7 +62,8 @@
       return Number(entry && entry.id) === Number(activeListId);
     });
     if (!list) {
-      list = lists[0] || null;
+      var coreId = window.getShoppingActiveListId && window.getShoppingActiveListId();
+      list = lists.find(function(entry){return Number(entry.id) === Number(coreId);}) || lists[0] || null;
       activeListId = list ? list.id : null;
     }
     if (list && !Array.isArray(list.items)) list.items = [];
@@ -786,6 +787,7 @@
       var originalSelect = window.selectList;
       var select = function (id) {
         cancelBlurTimer();
+        commitActive(false);
         state.editingItem = state.editingCategory = state.draft = state.newCategory = null;
         activeListId = id;
         return originalSelect.apply(this, arguments);
@@ -814,7 +816,7 @@
       var del = function () {
         var result = originalDelete.apply(this, arguments);
         var lists = getLists();
-        if (!lists.some(function (list) { return Number(list.id) === Number(activeListId); })) activeListId = lists[0] ? lists[0].id : null;
+        if (!lists.some(function (list) { return Number(list.id) === Number(activeListId); })) activeListId = window.getShoppingActiveListId ? window.getShoppingActiveListId() : (lists[0] ? lists[0].id : null);
         renderItems();
         return result;
       };
@@ -952,7 +954,7 @@
     }
     installed = true;
     var lists = getLists();
-    activeListId = lists[0] ? lists[0].id : null;
+    activeListId = window.getShoppingActiveListId ? window.getShoppingActiveListId() : (lists[0] ? lists[0].id : null);
     document.body.classList.remove('shopping-home-parity-v4', 'shopping-ui-polish-v2');
     document.body.classList.add('shopping-list-engine-v7');
     addStyles();
@@ -966,6 +968,7 @@
     root.addEventListener('focusout', handleFocusOut, false);
     root.addEventListener('change', handleChange, false);
     window.__shoppingListEngineV7 = {
+      commitActive: function(){cancelBlurTimer();commitActive(false);},
       parseCategoryInput: parseCategoryInput,
       upsertRecipeItems: upsertRecipeItems,
       routeRecipeRaw: routeRecipeRaw,

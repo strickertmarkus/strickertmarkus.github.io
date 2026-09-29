@@ -10,7 +10,7 @@ test('both layouts keep the same persisted feature owners',()=>{
     assert.equal(html.split('src="shopping-'+name+'.js?').length-1,1,name);
   }
   assert.match(html,/training-overlay\.js/);
-  assert.match(html,/shopping-field-1/);
+  assert.match(html,/shopping-modes-1/);
   assert.match(css,/data-shopping-layout="minimal"/);
 });
 test('menus and recipe editor use modal top layer and shared scroll ownership',()=>{
@@ -21,7 +21,7 @@ test('menus and recipe editor use modal top layer and shared scroll ownership',(
   assert.doesNotMatch(read('shopping-list-engine-v7.js'),/\.nav-dropdown-wrapper\{/);
 });
 test('background scrolls and fades; controls retain accessible motion and focus',()=>{
-  assert.match(css,/--bg:#080d12/);
+  assert.match(css,/--bg:#0F1219/);
   assert.match(css,/--accent:#ff9a91/);
   assert.match(css,/mask-image:linear-gradient/);
   assert.match(css,/focus-visible/);

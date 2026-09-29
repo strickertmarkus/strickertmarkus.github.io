@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="sv" data-shopping-layout="dashboard">
+<html lang="sv" data-shopping-layout="dashboard" data-list-mode="shopping">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#080d12">
+  <meta name="theme-color" content="#0F1219">
   <title>Inköpslista</title>
   <script>
     (function () {
@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260928-shopping-field-1">
+  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260929-shopping-modes-1">
 </head>
 <body>
 <div class="app-wrap">
@@ -57,19 +57,17 @@
   </div>
 
   <main class="wrap">
-    <section class="shopping-page-intro" aria-labelledby="shopping-page-title">
-      <div class="shopping-page-intro-copy">
-        <p class="shopping-eyebrow">HEM &amp; VARDAG</p>
-        <h1 id="shopping-page-title">Familjens <em>inköp.</em></h1>
-        <p>Lite mer ordning. Lite mindre att komma ihåg.</p>
-      </div>
-    </section>
+    <nav class="shopping-mode-switch" aria-label="Välj lista">
+      <button type="button" data-list-mode-button="shopping" aria-pressed="true">Inköpslista</button>
+      <button type="button" data-list-mode-button="packing" aria-pressed="false">Packlista</button>
+      <button type="button" data-list-mode-button="todo" aria-pressed="false">Att göra</button>
+    </nav>
 
     <div class="shopping-dashboard">
       <section class="shopping-panel shopping-list-panel" aria-labelledby="shopping-current-list">
         <div class="shopping-panel-head">
           <div>
-            <span class="shopping-panel-kicker">Aktiv lista</span>
+
             <div class="shopping-current-list" id="shopping-current-list">Huvudlista</div>
             <div class="shopping-summary" id="shopping-summary">0 kvar · 0 totalt</div>
           </div>
@@ -86,7 +84,7 @@
                 <button class="dropdown-btn" type="button">Listor</button>
                 <div class="dropdown-menu" id="lists-menu"></div>
               </div>
-              <div class="dropdown-wrapper">
+              <div class="dropdown-wrapper shopping-recipe-tool">
                 <button class="dropdown-btn" type="button">Recept</button>
                 <div class="dropdown-menu" id="recipes-dropdown"></div>
               </div>
@@ -121,12 +119,12 @@
   <div id="shopping-menu-content"></div>
 </dialog>
 <script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
-<script defer src="shopping-core-v1.js?v=20260928-shopping-field-1"></script>
-<script defer src="shopping-list-stability-v8.js?v=20260928-shopping-field-1" data-shopping-list-stability-v8></script>
-<script defer src="shopping-list-engine-v7.js?v=20260928-shopping-field-1" data-shopping-list-engine-v7></script>
-<script defer src="shopping-toolbar-v9.js?v=20260928-shopping-field-1" data-shopping-toolbar-v9></script>
-<script defer src="shopping-recipes-v4.js?v=20260928-shopping-field-1" data-shopping-recipes-v4></script>
-<script defer src="shopping-recipe-link-popup-v5.js?v=20260928-shopping-field-1" data-shopping-recipe-link-popup-v5></script>
-<script defer src="shopping-recipe-header-polish-v6.js?v=20260928-shopping-field-1" data-shopping-recipe-header-polish-v6></script>
+<script defer src="shopping-core-v1.js?v=20260929-shopping-modes-1"></script>
+<script defer src="shopping-list-stability-v8.js?v=20260929-shopping-modes-1" data-shopping-list-stability-v8></script>
+<script defer src="shopping-list-engine-v7.js?v=20260929-shopping-modes-1" data-shopping-list-engine-v7></script>
+<script defer src="shopping-toolbar-v9.js?v=20260929-shopping-modes-1" data-shopping-toolbar-v9></script>
+<script defer src="shopping-recipes-v4.js?v=20260929-shopping-modes-1" data-shopping-recipes-v4></script>
+<script defer src="shopping-recipe-link-popup-v5.js?v=20260929-shopping-modes-1" data-shopping-recipe-link-popup-v5></script>
+<script defer src="shopping-recipe-header-polish-v6.js?v=20260929-shopping-modes-1" data-shopping-recipe-header-polish-v6></script>
 </body>
 </html>

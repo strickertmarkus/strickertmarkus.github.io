@@ -4,7 +4,60 @@
   var path = window.location.pathname.toLowerCase();
   if (!path.endsWith('/budget/shopping.html') && !path.endsWith('/shopping.html')) return;
 
+  var modes = {
+    shopping:{title:'Inköpslista',headings:['Maxi','Willys','Hemköp','Lidl','Coop'],id:-101},
+    packing:{title:'Packlista',headings:['Melker','Mila','Maja','Markus','Övrigt'],id:-102},
+    todo:{title:'Att göra',headings:[],id:-103}
+  };
+  var activeMode = 'shopping';
+  try { if (modes[localStorage.getItem('sh_list_mode')]) activeMode = localStorage.getItem('sh_list_mode'); } catch (_) {}
   var activeList = null;
+  function listMode(list) { return modes[list.mode] ? list.mode : 'shopping'; }
+  function modeLists(lists) { return (lists || getLists()).filter(function(list){return listMode(list) === activeMode;}); }
+  function defaultItems(mode) {
+    return modes[mode].headings.map(function(text,index){return {id:modes[mode].id * 100 - index,type:'category',text:text};});
+  }
+  function ensureModeList() {
+    var lists = getLists(), available = modeLists(lists);
+    if (!available.length) {
+      var list = {id:modes[activeMode].id,name:modes[activeMode].title,mode:activeMode,items:defaultItems(activeMode)};
+      lists.push(list);setLists(lists);available = [list];
+    }
+    if (activeMode === 'shopping' && !available[0].modeTemplateInitialized) {
+      var primary = available[0];
+      primary.items = primary.items || [];
+      defaultItems('shopping').forEach(function(heading){
+        if (!primary.items.some(function(item){return item.type === 'category' && item.text === heading.text;})) primary.items.push(heading);
+      });
+      primary.modeTemplateInitialized = true;
+      setLists(lists);
+    }
+    var remembered = Number(localStorage.getItem('sh_selected_' + activeMode));
+    return available.find(function(list){return Number(list.id) === remembered;}) || available[0];
+  }
+  function syncModeUI() {
+    document.documentElement.dataset.listMode = activeMode;
+    document.querySelectorAll('[data-list-mode-button]').forEach(function(button){
+      button.setAttribute('aria-pressed',String(button.dataset.listModeButton === activeMode));
+    });
+    renderHeaderTitle();
+  }
+  function switchMode(mode) {
+    if (!modes[mode] || mode === activeMode) return;
+    // Commit drafts before changing the active storage/list scope.
+    if (window.__shoppingListEngineV7) window.__shoppingListEngineV7.commitActive();
+    activeMode = mode;
+    localStorage.setItem('sh_list_mode',mode);
+    var list = ensureModeList();
+    window.selectList(list.id);
+    syncModeUI();
+    var panel = document.querySelector('.shopping-dashboard');
+    if (panel.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      panel.getAnimations().forEach(function(animation){animation.cancel();});
+      panel.animate([{opacity:.55,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],{duration:180,easing:'ease-out'});
+    }
+  }
+  window.getShoppingActiveListId = function(){return activeList;};
   var undoHistory = [];
   var selectedItemIds = window.selectedItemIds = window.selectedItemIds || new Set();
   var editingHeaderTitle = false;
@@ -28,7 +81,7 @@
     var lists = getLists();
     var list = lists.find(function (entry) { return Number(entry.id) === Number(activeList); });
     if (!list) {
-      list = lists[0] || null;
+      list = modeLists(lists)[0] || null;
       activeList = list ? list.id : null;
     }
     return list;
@@ -40,10 +93,10 @@
     }
     lists.forEach(function (list) {
       if (!Array.isArray(list.items)) list.items = [];
-      list.items = list.items.filter(function (item) { return item && item.text !== '- storlek M'; });
+      list.items = list.items.filter(Boolean);
     });
     setLists(lists);
-    if (activeList == null || !lists.some(function (list) { return Number(list.id) === Number(activeList); })) activeList = lists[0].id;
+    activeList = ensureModeList().id;
   }
 
   window.renderItems = window.renderItems || function () {};
@@ -54,12 +107,22 @@
   };
 
   window.saveState = function saveState() {
-    undoHistory.push(clone(getLists()));
+    undoHistory.push({mode:activeMode,lists:clone(modeLists())});
     if (undoHistory.length > 50) undoHistory.shift();
   };
   window.undo = function undo() {
-    if (!undoHistory.length) return;
-    setLists(undoHistory.pop());
+    var index = undoHistory.map(function(entry){return entry.mode;}).lastIndexOf(activeMode);
+    if (index < 0) return;
+    var previous = undoHistory.splice(index,1)[0];
+    var lists = getLists(), restored = false, next = [];
+    lists.forEach(function(list){
+      if (listMode(list) !== activeMode) next.push(list);
+      else if (!restored) { next.push.apply(next,previous.lists);restored = true; }
+    });
+    if (!restored) next.push.apply(next,previous.lists);
+    setLists(next);
+    currentList();
+    window.renderListsMenu();
     if (typeof window.renderItems === 'function') window.renderItems();
     updateSummary();
   };
@@ -85,17 +148,18 @@
 
   function getSavedTemplates() {
     var templates = readJson('sh_saved_templates', []);
-    return Array.isArray(templates) ? templates : [];
+    var defaults = Object.keys(modes).map(function(mode){return {id:modes[mode].id,name:modes[mode].title,headings:modes[mode].headings,builtin:true};});
+    return defaults.concat(Array.isArray(templates) ? templates.filter(function(template){return !template.builtin;}) : []);
   }
   function getActiveTemplateId() {
-    var raw = localStorage.getItem('sh_active_template_id');
-    return raw ? Number(raw) : null;
+    var raw = localStorage.getItem(activeMode === 'shopping' ? 'sh_active_template_id' : 'sh_active_template_id_' + activeMode);
+    return raw ? Number(raw) : modes[activeMode].id;
   }
   function getTemplateItems() {
     var activeId = getActiveTemplateId();
     var template = getSavedTemplates().find(function (entry) { return Number(entry.id) === Number(activeId); });
     var stamp = Date.now();
-    return (template && Array.isArray(template.headings) ? template.headings : []).map(function (text,index) {
+    return (template && Array.isArray(template.headings) ? template.headings : modes[activeMode].headings).map(function (text,index) {
       return {id:stamp + index,type:'category',text:String(text || '').trim()};
     }).filter(function (item) { return item.text; });
   }
@@ -103,7 +167,7 @@
   window.renderListsMenu = function renderListsMenu() {
     var menu = document.getElementById('lists-menu');
     if (!menu) return;
-    var lists = getLists();
+    var lists = modeLists();
     menu.innerHTML = lists.map(function (list) {
       var active = Number(list.id) === Number(activeList);
       return '<div class="list-menu-row"><a href="#" class="' + (active ? 'active' : '') + '" onclick="selectList(' + list.id + ');return false;">' +
@@ -112,6 +176,7 @@
   };
   window.selectList = function selectList(id) {
     activeList = id;
+    localStorage.setItem('sh_selected_' + activeMode,String(id));
     selectedItemIds.clear();
     window.renderListsMenu();
     if (typeof window.renderItems === 'function') window.renderItems();
@@ -124,7 +189,7 @@
     window.saveState();
     var lists = getLists();
     var id = lists.reduce(function (max,list) { return Math.max(max,Number(list.id) || 0); },0) + 1;
-    lists.push({id:id,name:name.trim(),createdAt:new Date().toISOString().slice(0,10),items:getTemplateItems()});
+    lists.push({id:id,name:name.trim(),mode:activeMode,createdAt:new Date().toISOString().slice(0,10),items:getTemplateItems()});
     setLists(lists);
     activeList = id;
     window.renderListsMenu();
@@ -138,9 +203,9 @@
     if (!target || !confirm('Radera listan "' + (target.name || 'Lista') + '"?')) return;
     window.saveState();
     lists = lists.filter(function (list) { return Number(list.id) !== Number(id); });
-    if (!lists.length) lists.push({id:Date.now(),name:'Huvudlista',createdAt:new Date().toISOString().slice(0,10),items:getTemplateItems()});
+    if (!modeLists(lists).length) lists.push({id:modes[activeMode].id,name:modes[activeMode].title,mode:activeMode,items:defaultItems(activeMode)});
     setLists(lists);
-    if (Number(activeList) === Number(id)) activeList = lists[0].id;
+    if (Number(activeList) === Number(id)) activeList = modeLists(lists)[0].id;
     window.renderListsMenu();
     if (typeof window.renderItems === 'function') window.renderItems();
     updateSummary();
@@ -157,7 +222,7 @@
     else rows += templates.map(function (template) {
       var active = Number(template.id) === Number(activeId);
       return '<div class="list-menu-row"><a href="#" class="' + (active ? 'active' : '') + '" onclick="selectTemplate(' + template.id + ');return false;">' +
-        (active ? '✓ ' : '') + escapeHtml(template.name || 'Mall') + '</a><button class="list-delete-btn" type="button" onclick="deleteTemplate(' + template.id + ');event.stopPropagation();" aria-label="Radera mall">×</button></div>';
+        (active ? '✓ ' : '') + escapeHtml(template.name || 'Mall') + '</a><button class="list-delete-btn" type="button" onclick="deleteTemplate(' + template.id + ');event.stopPropagation();" ' + (template.builtin ? 'hidden' : '') + ' aria-label="Radera mall">×</button></div>';
     }).join('');
     menu.innerHTML = rows;
   };
@@ -175,8 +240,8 @@
     var templates = getSavedTemplates();
     var id = Date.now();
     templates.push({id:id,name:name,headings:headings});
-    localStorage.setItem('sh_saved_templates',JSON.stringify(templates));
-    localStorage.setItem('sh_active_template_id',String(id));
+    localStorage.setItem('sh_saved_templates',JSON.stringify(templates.filter(function(template){return !template.builtin;})));
+    localStorage.setItem(activeMode === 'shopping' ? 'sh_active_template_id' : 'sh_active_template_id_' + activeMode,String(id));
     window.renderTemplatesMenu();
     updateSummary();
     var button = document.getElementById('mallar-btn');
@@ -193,16 +258,16 @@
     }
   };
   window.selectTemplate = function selectTemplate(id) {
-    localStorage.setItem('sh_active_template_id',String(id));
+    localStorage.setItem(activeMode === 'shopping' ? 'sh_active_template_id' : 'sh_active_template_id_' + activeMode,String(id));
     window.renderTemplatesMenu();
     updateSummary();
   };
   window.deleteTemplate = function deleteTemplate(id) {
     var templates = getSavedTemplates().filter(function (template) { return Number(template.id) !== Number(id); });
-    localStorage.setItem('sh_saved_templates',JSON.stringify(templates));
+    localStorage.setItem('sh_saved_templates',JSON.stringify(templates.filter(function(template){return !template.builtin;})));
     if (Number(getActiveTemplateId()) === Number(id)) {
-      if (templates.length) localStorage.setItem('sh_active_template_id',String(templates[0].id));
-      else localStorage.removeItem('sh_active_template_id');
+      if (templates.length) localStorage.setItem(activeMode === 'shopping' ? 'sh_active_template_id' : 'sh_active_template_id_' + activeMode,String(templates[0].id));
+      else localStorage.removeItem(activeMode === 'shopping' ? 'sh_active_template_id' : 'sh_active_template_id_' + activeMode);
     }
     window.renderTemplatesMenu();
     updateSummary();
@@ -211,7 +276,7 @@
   function renderHeaderTitle() {
     var logo = document.querySelector('.logo');
     if (!logo) return;
-    var title = localStorage.getItem('sh_header_title') || 'Inköpslista';
+    var title = localStorage.getItem(activeMode === 'shopping' ? 'sh_header_title' : 'sh_header_title_' + activeMode) || modes[activeMode].title;
     if (editingHeaderTitle) {
       logo.innerHTML = '<input id="header-title-input" type="text" value="' + escapeAttr(title) + '" aria-label="Namn på inköpssidan">';
       var input = document.getElementById('header-title-input');
@@ -236,7 +301,7 @@
   function saveHeaderTitle() {
     if (!editingHeaderTitle) return;
     var input = document.getElementById('header-title-input');
-    localStorage.setItem('sh_header_title',String(input && input.value || '').trim() || 'Inköpslista');
+    localStorage.setItem(activeMode === 'shopping' ? 'sh_header_title' : 'sh_header_title_' + activeMode,String(input && input.value || '').trim() || modes[activeMode].title);
     editingHeaderTitle = false;
     renderHeaderTitle();
   }
@@ -315,7 +380,7 @@
     if (listName) listName.textContent = name;
     if (summary) summary.textContent = remaining + ' kvar · ' + items.length + ' totalt';
     if (headerMeta) headerMeta.textContent = name + ' · ' + remaining + ' kvar';
-    if (statLists) statLists.textContent = String(getLists().length);
+    if (statLists) statLists.textContent = String(modeLists().length);
     if (statTemplates) statTemplates.textContent = String(getSavedTemplates().length);
   }
   window.__shoppingShellV1UpdateSummary = updateSummary;
@@ -360,7 +425,10 @@
       }
     });
     ensureLists();
-    renderHeaderTitle();
+    document.querySelectorAll('[data-list-mode-button]').forEach(function(button){
+      button.addEventListener('click',function(){switchMode(button.dataset.listModeButton);});
+    });
+    syncModeUI();
     window.renderListsMenu();
     window.renderTemplatesMenu();
     window.renderRecipesDropdown();
