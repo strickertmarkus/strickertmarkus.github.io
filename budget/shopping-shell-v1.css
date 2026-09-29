@@ -54,7 +54,6 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 .context-stat{display:flex;flex-direction:column-reverse;gap:1px}
 .context-stat span{font-size:11px;color:var(--text-sec)}
 .context-stat strong{font:400 32px/1.2 var(--serif);color:var(--accent-soft)}
-.context-note{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);color:var(--text-sec);font-size:11px;line-height:1.7}
 #items-list,#recipes-list{min-width:0}
 /* Menus are hosted in a native modal top layer, outside transformed ancestors. */
 .dropdown-menu{display:none}

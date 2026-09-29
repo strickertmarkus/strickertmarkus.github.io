@@ -162,6 +162,14 @@ async function run(type,name,viewport,layout,offline=false){
    await switchTo('packing');
    assert.match(await page.locator('#items-list').innerText(),/Solhatt/);
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Boka tid/);
+   await toolbar();await page.locator('.undo-btn').click();
+   assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt/);
+   await switchTo('todo');
+   assert.match(await page.locator('#items-list').innerText(),/Boka tid/);
+   await switchTo('packing');
+   await page.locator('[data-action="add-item"]').first().click();
+   await page.locator('.shopping-draft-editor').fill('Solhatt');
+   await switchTo('todo');await switchTo('packing');
    await page.reload({waitUntil:'networkidle'});
    await page.waitForFunction(()=>window.__shoppingRecipeLinkPopupV5Installed);
    assert.equal(await page.title(),'Packlista');

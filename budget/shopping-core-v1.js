@@ -50,6 +50,8 @@
     localStorage.setItem('sh_list_mode',mode);
     var list = ensureModeList();
     window.selectList(list.id);
+    window.renderTemplatesMenu();
+    window.renderRecipes();
     syncModeUI();
     var panel = document.querySelector('.shopping-dashboard');
     if (panel.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -192,6 +194,7 @@
     lists.push({id:id,name:name.trim(),mode:activeMode,createdAt:new Date().toISOString().slice(0,10),items:getTemplateItems()});
     setLists(lists);
     activeList = id;
+    localStorage.setItem('sh_selected_' + activeMode,String(id));
     window.renderListsMenu();
     if (typeof window.renderItems === 'function') window.renderItems();
     updateSummary();
