@@ -71,7 +71,6 @@ async function run(type,name,viewport,layout,offline=false){
      assert.equal(await page.locator('script['+attr+']').count(),1,'duplicate runtime '+attr);
    }
    await page.screenshot({path:'test-results/shopping/'+prefix+'-page.png',fullPage:true});
-   if(name==='webkit-mobile'&&layout==='dashboard'&&!offline)console.log('SHOPPING_PREVIEW:'+ (await page.screenshot()).toString('base64'));
    // Hamburger is reachable and visible in the viewport, even on short screens.
    await page.locator('.nav-btn').click();
    await geometry('#shopping-menu-dialog');
