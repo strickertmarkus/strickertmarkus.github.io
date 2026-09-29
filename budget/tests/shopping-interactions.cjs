@@ -126,6 +126,7 @@ async function run(type,name,viewport,layout,offline=false){
    await edit.click();
    await page.waitForFunction(()=>document.querySelector('#recipe-link-popup-v5').open);
    await geometry('#recipe-link-popup-v5');
+   await page.screenshot({path:'test-results/shopping/'+prefix+'-recipe.png'});
    assert(await page.evaluate(()=>TrainingOverlay.isLocked()));
    const frozen=await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top);
    if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));
