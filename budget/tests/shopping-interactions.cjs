@@ -15,7 +15,7 @@ const mockFirebase=String.raw`
 })();`;
 async function run(type,name,viewport,layout,offline=false){
  const browser=await type.launch();
- const context=await browser.newContext({viewport,hasTouch:viewport.width<700,isMobile:viewport.width<700,reducedMotion:'reduce'});
+ const context=await browser.newContext({viewport,hasTouch:viewport.width<700,isMobile:viewport.width<700,reducedMotion:viewport.width>=1000?'no-preference':'reduce'});
  const page=await context.newPage();
  page.setDefaultTimeout(10000);
  const errors=[];
@@ -47,11 +47,7 @@ async function run(type,name,viewport,layout,offline=false){
    });
    assert(result.x>=-1&&result.right<=result.w+1&&result.y>=-1&&result.bottom<=result.h+1,selector+' outside viewport '+JSON.stringify(result));
  }
- async function toolbar(){
-   if(layout==='minimal'&&await page.locator('.minimal-tools-toggle').getAttribute('aria-expanded')!=='true')await page.locator('.minimal-tools-toggle').click();
- }
  async function openMenu(label){
-   await toolbar();
    await page.locator('.dropdown-btn').filter({hasText:label}).click();
    await page.waitForFunction(()=>document.querySelector('#shopping-menu-dialog').open);
    await geometry('#shopping-menu-dialog');
@@ -62,7 +58,10 @@ async function run(type,name,viewport,layout,offline=false){
  }
  async function storeValue(key){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);}
  try{
-   await page.goto(origin+'/budget/shopping.html?layout='+layout,{waitUntil:'networkidle'});
+   await page.goto(origin+'/budget/shopping.html',{waitUntil:'networkidle'});
+   assert.equal(await page.locator('.shopping-mode-switch button svg').count(),3);
+   assert.equal(await page.locator('a[href="shopping-minimal.html"]').count(),0);
+
    await page.waitForFunction(()=>window.__shoppingRecipeLinkPopupV5Installed&&window.__shoppingListEngineV7);
    assert.equal(await page.locator('#items-list .list-item').count(),36);
    assert.equal(await page.locator('#recipes-list .recipe-item').count(),2);
@@ -102,7 +101,7 @@ async function run(type,name,viewport,layout,offline=false){
    assert.match(await page.locator('#shopping-summary').innerText(),/1 kvar/);
    await page.locator('[data-item-id="201"] [data-action="delete-item"]').click();
    assert(!(await storeValue('sh_lists'))[1].items.some(x=>x.id===201));
-   await toolbar();await page.locator('.undo-btn').click();
+   await page.locator('.undo-btn').click();
    assert((await storeValue('sh_lists'))[1].items.some(x=>x.id===201));
    // Save and select templates, create and delete a list.
    await openMenu('Listor');await page.locator('#lists-menu a').filter({hasText:'Huvudlista'}).click();await closed();
@@ -148,7 +147,13 @@ async function run(type,name,viewport,layout,offline=false){
    await page.locator('#new-recipe-ingredient-v4-7').press('Enter');
    assert((await storeValue('sh_recipes_v3')).recipes.find(x=>x.id===7).items.includes('Basilika'));
    // Mode templates are persistent lists, and unfinished edits stay in their own mode.
-   const switchTo=async mode=>{await page.locator('[data-list-mode-button="'+mode+'"]').click();};
+   const switchTo=async mode=>{
+     const button=page.locator('[data-list-mode-button="'+mode+'"]');
+     await button.click();
+     assert.equal(await button.getAttribute('aria-pressed'),'true');
+     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+     assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+   };
    await switchTo('packing');
    assert.equal(await page.title(),'Packlista');
    assert.deepEqual(await page.locator('#items-list .category-title:not(.new-category)').allTextContents(),['Melker','Mila','Maja','Markus','Övrigt']);
@@ -162,7 +167,7 @@ async function run(type,name,viewport,layout,offline=false){
    await switchTo('packing');
    assert.match(await page.locator('#items-list').innerText(),/Solhatt/);
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Boka tid/);
-   await toolbar();await page.locator('.undo-btn').click();
+   await page.locator('.undo-btn').click();
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt/);
    await switchTo('todo');
    assert.match(await page.locator('#items-list').innerText(),/Boka tid/);
@@ -176,9 +181,10 @@ async function run(type,name,viewport,layout,offline=false){
    assert.match(await page.locator('#items-list').innerText(),/Solhatt/);
    await switchTo('todo');
    assert.match(await page.locator('#items-list').innerText(),/Boka tid/);
-   await toolbar();await page.locator('.undo-btn').click();
+   await page.locator('.undo-btn').click();
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt/);
    await switchTo('shopping');
+   assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
    for(const heading of ['Maxi','Willys','Hemköp','Lidl','Coop'])assert((await page.locator('#items-list .category-title').allTextContents()).includes(heading));
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt|Boka tid/);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -197,7 +203,7 @@ async function run(type,name,viewport,layout,offline=false){
 (async()=>{
  for(const [type,browserName] of [[webkit,'webkit'],[chromium,'chromium']]){
    for(const [name,viewport] of [['mobile',{width:390,height:844}],['desktop',{width:1440,height:960}],['short',{width:667,height:375}]]){
-     for(const layout of ['dashboard','minimal'])await run(type,browserName+'-'+name,viewport,layout);
+     await run(type,browserName+'-'+name,viewport,'dashboard');
    }
  }
  await run(webkit,'webkit-mobile',{width:390,height:844},'dashboard',true);

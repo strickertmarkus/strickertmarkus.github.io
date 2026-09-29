@@ -56,7 +56,7 @@
     var panel = document.querySelector('.shopping-dashboard');
     if (panel.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       panel.getAnimations().forEach(function(animation){animation.cancel();});
-      panel.animate([{opacity:.55,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],{duration:180,easing:'ease-out'});
+      panel.animate([{opacity:.55,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],{duration:220,easing:'cubic-bezier(.22,1,.36,1)'});
     }
   }
   window.getShoppingActiveListId = function(){return activeList;};
@@ -358,13 +358,6 @@
         var rect = menuDialog.getBoundingClientRect();
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeAllMenus();
       } else if (event.target.closest('a') && menuState && /^(nav-menu|recipes-dropdown)$/.test(menuState.menu.id)) closeAllMenus();
-    });
-    var toggle = document.querySelector('.minimal-tools-toggle');
-    toggle.setAttribute('aria-controls','shopping-list-tools');
-    toggle.setAttribute('aria-expanded','false');
-    toggle.addEventListener('click',function () {
-      var open = toggle.closest('.shopping-tools-wrap').classList.toggle('open');
-      toggle.setAttribute('aria-expanded',String(open));
     });
     window.addEventListener('pagehide',closeAllMenus);
   }

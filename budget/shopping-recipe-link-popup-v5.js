@@ -85,7 +85,7 @@
         width:34px!important;height:36px!important;min-width:34px!important;
         display:grid!important;place-items:center!important;padding:0!important;
         border:0!important;background:transparent!important;box-shadow:none!important;
-        opacity:.78!important;line-height:1!important;color:#7F8DA0!important;
+        opacity:.78!important;line-height:1!important;color:var(--text-sec)!important;
         -webkit-tap-highlight-color:transparent!important
       }
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4{
@@ -129,19 +129,19 @@
       .recipe-link-card-v5{padding:22px}
       .recipe-link-head-v5{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
       .recipe-link-kicker-v5{font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--accent)}
-      .recipe-link-title-v5{margin-top:2px;font-size:15px;font-weight:750;color:#F0F6FC;overflow-wrap:anywhere}
-      .recipe-link-close-v5{border:0;background:transparent;color:#7F8DA0;font-size:22px;line-height:1;padding:1px 4px;cursor:pointer}
-      .recipe-link-card-v5 label{display:block;margin-bottom:5px;color:#8B949E;font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.45px}
+      .recipe-link-title-v5{margin-top:2px;font-size:15px;font-weight:750;color:var(--text);overflow-wrap:anywhere}
+      .recipe-link-close-v5{border:0;background:transparent;color:var(--text-sec);width:40px;min-height:40px;font-size:22px;line-height:1;padding:4px;cursor:pointer}
+      .recipe-link-card-v5 label{display:block;margin-bottom:5px;color:var(--text-sec);font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.45px}
       .recipe-link-card-v5 input{
         width:100%;height:40px;padding:8px 10px;border:1px solid rgba(var(--accent-rgb),.28);border-radius:8px;
-        background:#202833;color:#F0F6FC;outline:none;font:500 14px/1.2 'Inter',sans-serif
+        background:var(--bg3);color:var(--text);outline:none;font:500 14px/1.2 'Inter',sans-serif
       }
       .recipe-link-card-v5 input:focus{border-color:rgba(var(--accent-rgb),.62);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.08)}
       .recipe-link-error-v5{min-height:16px;margin-top:4px;color:#F87171;font-size:9px}
       .recipe-link-actions-v5{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:9px}
-      .recipe-link-actions-v5 button{min-height:34px;padding:6px 10px;border-radius:7px;font:700 10px/1 'Inter',sans-serif;cursor:pointer}
+      .recipe-link-actions-v5 button{min-height:40px;padding:8px 12px;border-radius:12px;font:600 12px/1 'Inter',sans-serif;cursor:pointer}
       .recipe-link-remove-v5{margin-right:auto;border:0!important;background:transparent!important;color:#F87171!important;padding-left:0!important}
-      .recipe-link-cancel-v5{border:1px solid rgba(255,255,255,.09);background:transparent;color:#9AA8B8}
+      .recipe-link-cancel-v5{border:1px solid rgba(255,255,255,.09);background:transparent;color:var(--text-sec)}
       .recipe-link-save-v5{border:1px solid rgba(var(--accent-rgb),.38);background:rgba(var(--accent-rgb),.14);color:var(--accent)}
       @media(max-width:520px){
         body.shopping-recipe-link-popup-v5 .recipe-header{padding-right:78px!important}
