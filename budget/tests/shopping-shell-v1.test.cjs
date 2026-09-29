@@ -10,7 +10,7 @@ test('list modes keep the same persisted feature owners',()=>{
     assert.equal(html.split('src="shopping-'+name+'.js?').length-1,1,name);
   }
   assert.match(html,/training-overlay\.js/);
-  assert.match(html,/orange-icons-1/);
+  assert.match(html,/orange-icons-2/);
   assert.doesNotMatch(html+css,/minimal-tools|data-shopping-layout|Fokuserad vy/);
 });
 test('menus and recipe editor use modal top layer and shared scroll ownership',()=>{

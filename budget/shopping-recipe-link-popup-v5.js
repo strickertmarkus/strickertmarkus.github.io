@@ -109,7 +109,7 @@
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:active{color:var(--accent)!important;opacity:1!important}
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:hover::before,
       body.shopping-recipe-link-popup-v5 .recipe-edit-meta-v4:active::before{
-        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9a91' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.6 13.4a4 4 0 0 0 5.66 0l2.14-2.14a4 4 0 1 0-5.66-5.66l-1.22 1.22'/%3E%3Cpath d='M13.4 10.6a4 4 0 0 0-5.66 0L5.6 12.74a4 4 0 1 0 5.66 5.66l1.22-1.22'/%3E%3C/svg%3E");
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FDBA74' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.6 13.4a4 4 0 0 0 5.66 0l2.14-2.14a4 4 0 1 0-5.66-5.66l-1.22 1.22'/%3E%3Cpath d='M13.4 10.6a4 4 0 0 0-5.66 0L5.6 12.74a4 4 0 1 0 5.66 5.66l1.22-1.22'/%3E%3C/svg%3E");
       }
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4:hover,
       body.shopping-recipe-link-popup-v5 .recipe-delete-v4:active{color:#F87171!important;opacity:1!important}
