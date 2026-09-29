@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260929-orange-icons-2">
+  <link rel="stylesheet" href="shopping-shell-v1.css?v=20260929-balanced-header-1">
 </head>
 <body>
 <div class="app-wrap">
@@ -26,6 +26,12 @@
         <div class="header-meta" id="shopping-header-meta">Huvudlista</div>
       </div>
     </div>
+
+    <nav class="shopping-mode-switch" aria-label="Välj lista">
+      <button type="button" data-list-mode-button="shopping" aria-pressed="true" aria-label="Inköpslista" title="Inköpslista"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 4h2l2 11h11l3-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></button>
+      <button type="button" data-list-mode-button="packing" aria-pressed="false" aria-label="Packlista" title="Packlista"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="6" width="14" height="15" rx="3"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M9 10v7m6-7v7"/></svg></button>
+      <button type="button" data-list-mode-button="todo" aria-pressed="false" aria-label="Att göra" title="Att göra"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 2 2 3-4m3 3h10M3 13l2 2 3-4m3 3h10M3 20l2 2 3-4m3 3h10"/></svg></button>
+    </nav>
 
     <div class="dropdown-wrapper nav-dropdown-wrapper">
       <button class="nav-btn" type="button" aria-label="Meny" title="Meny">☰</button>
@@ -48,11 +54,6 @@
   </div>
 
   <main class="wrap">
-    <nav class="shopping-mode-switch" aria-label="Välj lista">
-      <button type="button" data-list-mode-button="shopping" aria-pressed="true" aria-label="Inköpslista" title="Inköpslista"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 4h2l2 11h11l3-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></button>
-      <button type="button" data-list-mode-button="packing" aria-pressed="false" aria-label="Packlista" title="Packlista"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="6" width="14" height="15" rx="3"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M9 10v7m6-7v7"/></svg></button>
-      <button type="button" data-list-mode-button="todo" aria-pressed="false" aria-label="Att göra" title="Att göra"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 2 2 3-4m3 3h10M3 13l2 2 3-4m3 3h10M3 20l2 2 3-4m3 3h10"/></svg></button>
-    </nav>
 
     <div class="shopping-dashboard">
       <section class="shopping-panel shopping-list-panel" aria-labelledby="shopping-current-list">

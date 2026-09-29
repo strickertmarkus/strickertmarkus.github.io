@@ -69,6 +69,9 @@ async function run(type,name,viewport,layout,offline=false){
    for(const attr of ['data-shopping-list-engine-v7','data-shopping-recipes-v4','data-shopping-recipe-link-popup-v5','data-shopping-recipe-header-polish-v6']){
      assert.equal(await page.locator('script['+attr+']').count(),1,'duplicate runtime '+attr);
    }
+   assert.equal(await page.locator('.app-header .shopping-mode-switch').count(),1);
+   const headerRects=await page.locator('.app-header').evaluate(el=>Array.from(el.children).map(c=>{const r=c.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};}));
+   assert(headerRects[0].right<=headerRects[1].left&&headerRects[1].right<=headerRects[2].left,'header controls overlap');
    await page.screenshot({path:'test-results/shopping/'+prefix+'-page.png',fullPage:true});
    // Hamburger is reachable and visible in the viewport, even on short screens.
    await page.locator('.nav-btn').click();
@@ -152,8 +155,8 @@ async function run(type,name,viewport,layout,offline=false){
      const button=page.locator('[data-list-mode-button="'+mode+'"]');
      await button.click();
      assert.equal(await button.getAttribute('aria-pressed'),'true');
-     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
-     assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),{shopping:'rgb(253, 186, 116)',packing:'rgb(74, 222, 128)',todo:'rgb(96, 165, 250)'}[mode]);
+     assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(244, 241, 239)');
    };
    await switchTo('packing');
    assert.equal(await page.title(),'Packlista');
@@ -185,7 +188,7 @@ async function run(type,name,viewport,layout,offline=false){
    await page.locator('.undo-btn').click();
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt/);
    await switchTo('shopping');
-   assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+   assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(244, 241, 239)');
    for(const heading of ['Maxi','Willys','Hemköp','Lidl','Coop'])assert((await page.locator('#items-list .category-title').allTextContents()).includes(heading));
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt|Boka tid/);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -203,7 +206,7 @@ async function run(type,name,viewport,layout,offline=false){
 }
 (async()=>{
  for(const [type,browserName] of [[webkit,'webkit'],[chromium,'chromium']]){
-   for(const [name,viewport] of [['mobile',{width:390,height:844}],['desktop',{width:1440,height:960}],['short',{width:667,height:375}]]){
+   for(const [name,viewport] of [['narrow',{width:320,height:700}],['mobile',{width:390,height:844}],['desktop',{width:1440,height:960}],['short',{width:667,height:375}]]){
      await run(type,browserName+'-'+name,viewport,'dashboard');
    }
  }
