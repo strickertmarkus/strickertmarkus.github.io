@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260924-zen-restored-dock-2">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-breath-sun-chime-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -322,7 +322,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
             <linearGradient id="zlake-reflection" x2="0" y2="1"><stop stop-color="#ffedc4" stop-opacity=".52"/><stop offset="1" stop-color="#f7ce79" stop-opacity="0"/></linearGradient>
           </defs>
           <path d="M0 0h900v700H0z" fill="url(#zlake-sky)"/>
-          <circle cx="461" cy="324" r="225" fill="url(#zlake-light)"/><circle class="zen-lake-sun" cx="461" cy="324" r="44" fill="#fff1c2"/>
+          <circle class="zen-lake-sun-aura" cx="461" cy="324" r="225" fill="url(#zlake-light)"/><circle class="zen-lake-sun" id="zen-lake-sun" cx="461" cy="324" r="44" fill="#fff1c2"/>
           <path d="M0 404Q125 364 224 387T452 383T678 382T900 405V458H0Z" fill="#334b4c" opacity=".42"/>
           <path d="M0 419Q153 394 286 408T622 405T900 419V458H0Z" fill="#233d42" opacity=".58"/>
           <path d="M0 429Q264 420 450 426T900 422V700H0z" fill="url(#zlake-water)"/>
@@ -1379,11 +1379,50 @@ function zenForestWaypoints(){
  }).join('');
  activeZen.forestPathLength=length;
 }
+var zenAudioContext=null;
+function ensureZenAudio(){
+ var Context=window.AudioContext||window.webkitAudioContext;
+ if(!Context)return null;
+ try{
+  if(!zenAudioContext)zenAudioContext=new Context();
+  if(zenAudioContext.state==='suspended'){
+   var resumed=zenAudioContext.resume();
+   if(resumed&&typeof resumed.catch==='function')resumed.catch(function(){});
+  }
+  return zenAudioContext;
+ }catch(error){return null;}
+}
+function zenBreathChime(phase){
+ var ctx=ensureZenAudio();
+ if(!ctx)return;
+ function play(){
+  var start=ctx.currentTime+.012,base=phase==='in'?659.25:523.25;
+  [1,2.01].forEach(function(mult,index){
+   var osc=ctx.createOscillator(),gain=ctx.createGain(),peak=index?.011:.025,decay=index?.42:.72;
+   osc.type='sine';osc.frequency.setValueAtTime(base*mult,start);
+   gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(peak,start+.018);gain.gain.exponentialRampToValueAtTime(.0001,start+decay);
+   osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+decay+.03);
+  });
+ }
+ if(ctx.state==='running'){play();return;}
+ if(ctx.state==='suspended'){
+  var resumed=ctx.resume();
+  if(resumed&&typeof resumed.then==='function')resumed.then(play).catch(function(){});
+ }
+}
+function syncZenBreathCue(phase,done){
+ var session=$('zen-session'),next=done||!activeZen.running||activeZen.type!=='meditation'?'idle':phase;
+ session.dataset.breathPhase=next;
+ if(next==='idle'||activeZen.lastBreathPhase===next)return;
+ activeZen.lastBreathPhase=next;
+ zenBreathChime(next);
+}
 function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath,done){
  var session=$('zen-session'),med=activeZen.type==='meditation',scene=session.querySelector('.zen-scenery');
  session.dataset.running=activeZen.running&&!done?'true':'false';
  session.style.setProperty('--zen-pass-fraction',passFraction.toFixed(5));
  if(med){
+  syncZenBreathCue(breath==='ANDAS IN'?'in':breath==='ANDAS UT'?'out':'idle',done);
   session.style.setProperty('--zen-breath-level',breathLevel.toFixed(4));
   session.style.setProperty('--zen-lake-daylight',(.65+passFraction*.35).toFixed(3));
   if(scene&&activeZen.visualStage!==position.index){
@@ -1416,7 +1455,8 @@ function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath
 function zenStart(index){
  var routines=zenRoutinesFor(view),routine=routines&&routines[index];
  if(!routine)return;
- activeZen={type:view,routineId:routine.id,name:routine.name,steps:deep(routine.steps),duration:routine.steps.reduce(function(sum,step){return sum+step.seconds;},0),elapsed:0,running:true,last:Date.now(),shownStage:-1};
+ activeZen={type:view,routineId:routine.id,name:routine.name,steps:deep(routine.steps),duration:routine.steps.reduce(function(sum,step){return sum+step.seconds;},0),elapsed:0,running:true,last:Date.now(),shownStage:-1,lastBreathPhase:null};
+ if(view==='meditation')ensureZenAudio();
  $('zen-session').dataset.kind=view;
  $('zen-kind-name').textContent=routine.name;
  $('zen-session').hidden=false;
