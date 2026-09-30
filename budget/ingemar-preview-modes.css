@@ -622,7 +622,10 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-clock-wrap #zen-breath{font-size:10px;letter-spacing:.11em;color:#bee4ba;margin:0}
 .zen-workout .zen-live-flow{display:none}
 .zen-workout[data-kind="meditation"] .zen-clock-wrap{position:absolute;width:1px;height:1px;min-height:0;min-width:0;padding:0;opacity:0;overflow:hidden;pointer-events:none}
-.zen-lake-sun{transform-origin:461px 324px;opacity:var(--zen-lake-daylight,.7);filter:drop-shadow(0 0 10px #fff1b24d);transition:opacity 3s linear}
+.zen-lake-sun-aura{transform-box:fill-box;transform-origin:center;transform:scale(calc(.90 + var(--zen-breath-level,0) * .16));opacity:calc(.54 + var(--zen-breath-level,0) * .46);filter:drop-shadow(0 0 15px #ffe8a85c);will-change:transform,opacity}
+.zen-lake-sun{transform-box:fill-box;transform-origin:center;transform:scale(calc(.82 + var(--zen-breath-level,0) * .28));opacity:var(--zen-lake-daylight,.7);filter:drop-shadow(0 0 11px #fff1b275) drop-shadow(0 0 28px #f6d88f35);transition:opacity 3s linear,fill .7s ease;will-change:transform,opacity}
+.zen-workout[data-breath-phase="in"] .zen-lake-sun{fill:#fff9df}
+.zen-workout[data-breath-phase="out"] .zen-lake-sun{fill:#ffe7ae}
 .zen-scenery.zen-stage-bloom .zen-lake-sun{animation:zenSunBloom 1.6s ease-out}
 .zen-lake-waterlines{opacity:.42;animation:zenLakeCurrent 15s ease-in-out infinite alternate;transform-origin:50% 65%}
 .zen-lake-ripples{transform:translateY(calc((1 - var(--zen-breath-level,0)) * 2px)) scaleX(calc(.82 + var(--zen-breath-level,0) * .3));transform-origin:457px 547px;opacity:calc(.22 + var(--zen-breath-level,0) * .32);filter:drop-shadow(0 0 2px #fff0c350)}
@@ -713,4 +716,5 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 }
 @media(prefers-reduced-motion:reduce){
  .zen-forest-landscape *, .zen-lake-landscape *, .zen-forest-route-art *, .zen-scenery.zen-stage-bloom .zen-lake-sun{animation:none!important;transition:none!important}
+ .zen-lake-sun,.zen-lake-sun-aura{transform:none!important}
 }
