@@ -943,13 +943,9 @@ function lockBuilderBackground(){
 }
 function unlockBuilderBackground(){
  if(document.body.dataset.builderOpen!=='true')return;
- var restoreY=builderScrollY;
  delete document.body.dataset.builderOpen;
  document.body.style.top='';
- window.scrollTo({top:restoreY,behavior:'instant'});
- requestAnimationFrame(function(){requestAnimationFrame(function(){
-  if(document.body.dataset.builderOpen!=='true')window.scrollTo({top:restoreY,behavior:'instant'});
- });});
+ window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
 function weekTemplates(){if(!Array.isArray(state.weekTemplates))state.weekTemplates=seedWeekTemplates();return state.weekTemplates;}
 function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,exercises:deep(planValue.exercises||[])};}

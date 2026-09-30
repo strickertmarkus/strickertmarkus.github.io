@@ -484,10 +484,13 @@ jobs:
             assert.equal(await page.locator('#zen-editor').evaluate(el=>el.open),true,'Zen builder opens as a real mobile dialog');
             assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen),'true','Zen builder must lock the background');
             assert.equal(await page.evaluate(()=>getComputedStyle(document.body).position),'fixed','Zen builder background uses fixed body lock');
+            const zenLockedTop=await page.evaluate(()=>document.body.style.top);
+            assert.equal(zenLockedTop,-preZenBuilderY+'px','Zen builder must freeze the page at its pre-open scroll position');
             await auditNoHorizontalScroll('Stretch-passbyggare');
             await page.locator('#zen-edit-name').fill('Kvällsrörlighet');
             await page.locator('#zen-editor').evaluate(dialog=>{dialog.scrollTop=Math.min(dialog.scrollHeight-dialog.clientHeight,180);});
             assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen),'true','Scrolling inside Zen builder must keep the background locked');
+            assert.equal(await page.evaluate(()=>document.body.style.top),zenLockedTop,'Scrolling the Zen builder must not move the locked background');
             await page.screenshot({path:'test-results/ingemar-demo/zen-builder-compact-390.png'});
             await page.locator('#zen-edit-steps [data-zen-step-row="0"] [data-zen-step-field="name"]').fill('Mjuka axlar');
             await page.locator('#zen-edit-steps [data-zen-step-row="0"] [data-zen-step-field="seconds"]').fill('90');
@@ -497,8 +500,7 @@ jobs:
             await page.locator('[data-zen-action="save-editor"]').click();
             assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen||''),'','Closing Zen builder releases the background lock');
             assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).position),'fixed');
-            await waitAnimationFrames(3);
-            assert.equal(await page.evaluate(()=>window.scrollY),preZenBuilderY,'Closing Zen builder restores the page position after native dialog focus restoration');
+            assert.equal(await page.evaluate(()=>document.body.style.top),'','Closing Zen builder clears the fixed-body offset');
             assert.equal(await page.locator('#zen-choices .zen-library-card').count(),4,'Custom stretch routine added');
             const customStretchId=await page.locator('#zen-choices [data-zen-edit]').last().getAttribute('data-zen-edit');
             await page.locator('#zen-choices [data-zen-edit]').last().click();
