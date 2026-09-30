@@ -514,6 +514,8 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-editor-dialog .modal-head .x{flex:0 0 38px}
 .zen-editor-dialog .modal-head>div,.zen-editor-dialog .modal-body,.zen-editor-dialog .modal-actions,.zen-editor-dialog .modal-actions .right,.zen-editor-dialog .zen-editor-steps-heading>div,.zen-editor-dialog .zen-editor-meta,.zen-editor-dialog .zen-step-editor,.zen-editor-dialog .zen-step-fields{min-width:0;max-width:100%}
 .zen-editor-dialog .modal-body{overflow-x:hidden}
+.zen-editor-dialog,.zen-editor-dialog *{box-sizing:border-box}
+.zen-editor-dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
 .zen-editor-dialog .modal-head h2,.zen-editor-dialog .zen-editor-steps-heading strong,.zen-step-editor label{overflow-wrap:anywhere}
 .zen-editor-dialog input[type="date"],.zen-editor-dialog input[type="number"]{min-height:44px}
 .zen-editor-dialog .field{display:grid;gap:5px;min-width:0;margin:0 0 9px;color:#bac5c6;font-size:11px;font-weight:680}
@@ -555,7 +557,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-editor-dialog .modal-body{padding:10px 9px 13px}
  .zen-editor-dialog .modal-actions{display:grid;grid-template-columns:1fr}
  .zen-editor-dialog .modal-actions>.ghost{justify-self:start}
- .zen-editor-dialog .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+ .zen-editor-dialog .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
  .zen-editor-dialog .modal-actions .right button{min-width:0;width:100%;padding:10px 7px}
  .zen-editor-dialog #zen-edit-save-start:not([hidden]){grid-column:1/-1;order:-1}
  .zen-editor-dialog #zen-edit-delete[hidden] ~ .primary{grid-column:1/-1}

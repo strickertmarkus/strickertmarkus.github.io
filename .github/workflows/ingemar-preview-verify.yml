@@ -115,6 +115,33 @@ jobs:
               assert.ok(result.html<=result.width+1&&result.body<=result.width+1&&result.invalid.length===0,
                 label+' horizontally overflows: '+JSON.stringify(result));
             }
+            async function auditPopupRows(label,rootSelector,rowSelectors){
+              const audit=await page.locator(rootSelector).evaluate((root,rowSelectors)=>{
+                const visible=el=>el&&el.getClientRects().length>0&&getComputedStyle(el).visibility!=='hidden'&&getComputedStyle(el).display!=='none';
+                const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+                const overlaps=(a,b)=>a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1;
+                const issues=[];
+                rowSelectors.forEach(selector=>{
+                  root.querySelectorAll(selector).forEach((row,rowIndex)=>{
+                    if(!visible(row))return;
+                    const rr=rect(row);
+                    const controls=[...row.children].filter(el=>visible(el)&&/^(BUTTON|SELECT|INPUT|TEXTAREA)$/.test(el.tagName));
+                    controls.forEach((el,index)=>{
+                      const r=rect(el),style=getComputedStyle(el);
+                      if(r.left<rr.left-1||r.right>rr.right+1)issues.push({selector,rowIndex,type:'outside-row',index,rect:r,row:rr});
+                      if(el.scrollWidth>el.clientWidth+1&&style.whiteSpace!=='nowrap')issues.push({selector,rowIndex,type:'text-overflow',index,scroll:el.scrollWidth,client:el.clientWidth,text:el.textContent||el.value||''});
+                    });
+                    for(let i=0;i<controls.length;i++)for(let j=i+1;j<controls.length;j++){
+                      const a=rect(controls[i]),b=rect(controls[j]);if(overlaps(a,b))issues.push({selector,rowIndex,type:'overlap',i,j,a,b});
+                    }
+                  });
+                });
+                return {issues,root:rect(root),viewport:innerWidth,scroll:root.scrollWidth,client:root.clientWidth};
+              },rowSelectors);
+              assert.ok(audit.root.left>=-1&&audit.root.right<=audit.viewport+1,label+' dialog outside viewport: '+JSON.stringify(audit));
+              assert.ok(audit.scroll<=audit.client+1,label+' dialog scrolls horizontally: '+JSON.stringify(audit));
+              assert.deepEqual(audit.issues,[],label+' control rows overlap/overflow: '+JSON.stringify(audit.issues));
+            }
             for(const width of [320,360,390,430,768,1440]){
               await page.setViewportSize({width,height:width===1440?960:844});
               await auditNoHorizontalScroll('Startsida '+width+'px');
@@ -129,6 +156,8 @@ jobs:
             assert.match(await page.locator('#week-planner-summary').textContent(),/\d+ pass planerade/);
             assert.equal(await page.locator('[data-week-source]').count(),0,'Daily dropdowns are intentionally removed from the primary planning flow');
             await auditNoHorizontalScroll('Veckoplanerare 390px');
+            await auditPopupRows('Veckoplanerare 390px','#week-planner',['.week-template-tools','.week-planner-actions .right']);
+            await page.screenshot({path:'test-results/ingemar-demo/week-planner-390.png'});
 
             await page.locator('[data-week-toggle-day="0"]').click();
             assert.equal(await page.locator('[data-week-day="0"] .week-day-editor').isVisible(),true,'Snabbplanera should expose obvious controls in the day card');
@@ -142,6 +171,13 @@ jobs:
             await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').click();
             assert.equal(await page.locator('[data-week-day="0"] [data-week-exercise="0:'+encodeURIComponent('Hantelcurl')+'"]').getAttribute('aria-pressed'),'true');
             await auditNoHorizontalScroll('Veckodagens synliga snabbval 390px');
+            await auditPopupRows('Öppnad veckodag 390px','#week-planner',['.week-day-type-grid','.week-day-tools','.week-planner-actions .right']);
+            await page.screenshot({path:'test-results/ingemar-demo/week-planner-day-open-390.png'});
+            await page.setViewportSize({width:320,height:844});
+            await auditNoHorizontalScroll('Öppnad veckodag 320px');
+            await auditPopupRows('Öppnad veckodag 320px','#week-planner',['.week-day-type-grid','.week-day-tools','.week-planner-actions .right']);
+            await page.screenshot({path:'test-results/ingemar-demo/week-planner-day-open-320.png'});
+            await page.setViewportSize({width:390,height:844});
 
             await page.locator('[data-week-copy="0"]').click();
             assert.equal(await page.locator('[data-week-day="0"] .week-copy-destinations').isVisible(),true,'Copy action should immediately show destination days');
@@ -172,6 +208,12 @@ jobs:
             assert.equal(await page.locator('#week-planner').evaluate(el=>el.open),false);
             assert.equal(await page.locator('#build-date').isDisabled(),true,'Editing a week day must not silently move it to another date');
             assert.equal(await page.locator('#builder-start-from-builder').isVisible(),false,'A week draft must be saved before a session can start');
+            await auditPopupRows('Datumets fulla passbyggare 390px','#builder',['.builder-template-tools','.modal-actions .right','.metric-pills']);
+            await page.screenshot({path:'test-results/ingemar-demo/week-day-builder-390.png'});
+            await page.setViewportSize({width:320,height:844});
+            await auditPopupRows('Datumets fulla passbyggare 320px','#builder',['.builder-template-tools','.modal-actions .right','.metric-pills']);
+            await page.screenshot({path:'test-results/ingemar-demo/week-day-builder-320.png'});
+            await page.setViewportSize({width:390,height:844});
             await page.locator('[data-set="0:0:weight"]').fill('61');
             await page.locator('[data-action="save-plan"]').click();
             await page.waitForFunction(()=>document.querySelector('#week-planner').open);
@@ -268,6 +310,7 @@ jobs:
             for(const width of [320,360,375,390,430,600,768]){
               await page.setViewportSize({width,height:844});
               await auditBuilder('Passbyggare '+width+'px');
+              await auditPopupRows('Passbyggare '+width+'px','#builder',['.builder-template-tools','.modal-actions .right','.metric-pills']);
               if(width===320||width===390)await page.screenshot({path:'test-results/ingemar-demo/builder-'+width+'.png'});
             }
             await page.setViewportSize({width:320,height:700});
@@ -433,6 +476,17 @@ jobs:
             await page.waitForFunction(()=>document.getElementById('family-session-frame').hidden);
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
+            await page.locator('#history .history-row').first().click();
+            await page.waitForSelector('#history-detail[open]');
+            await auditNoHorizontalScroll('Träningslogg popup 390px');
+            await auditPopupRows('Träningslogg popup 390px','#history-detail',['.modal-actions']);
+            await page.screenshot({path:'test-results/ingemar-demo/history-detail-390.png'});
+            await page.setViewportSize({width:320,height:844});
+            await auditNoHorizontalScroll('Träningslogg popup 320px');
+            await auditPopupRows('Träningslogg popup 320px','#history-detail',['.modal-actions']);
+            await page.screenshot({path:'test-results/ingemar-demo/history-detail-320.png'});
+            await page.locator('[data-action="close-history"]').last().click();
+            await page.setViewportSize({width:390,height:844});
             await page.locator('[data-view="stretch"]').click();
             async function auditZenLogDialog(kind,width){
               await page.setViewportSize({width,height:844});
@@ -509,6 +563,14 @@ jobs:
             const plannedZenDate=await page.locator('#zen-week [data-zen-day]').first().getAttribute('data-zen-day');
             await page.locator('#zen-week [data-zen-day]').first().click();
             assert.equal(await page.locator('#zen-day-dialog').evaluate(el=>el.open),true);
+            await auditNoHorizontalScroll('Zen dagplanering 390px');
+            await auditPopupRows('Zen dagplanering 390px','#zen-day-dialog',['.modal-actions .right']);
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-390.png'});
+            await page.setViewportSize({width:320,height:844});
+            await auditNoHorizontalScroll('Zen dagplanering 320px');
+            await auditPopupRows('Zen dagplanering 320px','#zen-day-dialog',['.modal-actions .right']);
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-320.png'});
+            await page.setViewportSize({width:390,height:844});
             await page.locator('#zen-day-routine').selectOption(customStretchId);
             await page.locator('[data-zen-action="save-day"]').click();
             assert.equal(await page.evaluate(date=>JSON.parse(localStorage.getItem('ingemar-pulse-demo-v1')).zenPlans.stretch[date],plannedZenDate),customStretchId,'Zen daily plan persists');
