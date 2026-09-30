@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260930-breath-audio-volume-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260930-water-breath-audio-1/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -209,7 +209,7 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  for(const id of ['zen-forest-art','zen-forest-route','zen-forest-progress','zen-forest-traveller','zen-forest-waypoints','zen-lake-horizon-progress','zen-lake-sun','zen-immersion-breath','zen-immersion-time','zen-clock-toggle','zen-audio-control','zen-audio-volume','zen-audio-volume-value']){
   assert.match(html,new RegExp('id="'+id+'"'),'Missing immersive scene component '+id);
  }
- for(const fn of ['zenForestWaypoints','readZenAudioVolume','syncZenAudioVolumeControl','setZenAudioVolume','ensureZenAudio','zenBreathChime','syncZenBreathCue','zenImmersionFrame']){
+ for(const fn of ['zenForestWaypoints','readZenAudioVolume','syncZenAudioVolumeControl','setZenAudioVolume','zenReverbImpulse','ensureZenAudio','stopZenBreathSound','zenBreathPhaseSound','syncZenBreathCue','zenImmersionFrame']){
   assert.match(source[1],new RegExp('function '+fn+'\\('));
  }
  assert.match(source[1],/zenImmersionFrame\(position,stepFraction,passFraction,breathLevel,breath,done\)/);
@@ -218,12 +218,18 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(source[1],/session\.dataset\.running=activeZen\.running&&!done/);
  assert.match(source[1],/session\.dataset\.breathPhase=next/);
  assert.match(source[1],/window\.AudioContext\|\|window\.webkitAudioContext/);
- assert.match(source[1],/ZEN_AUDIO_VOLUME_KEY='ingemar-zen-audio-volume-v1'/);
+ assert.match(source[1],/ZEN_AUDIO_VOLUME_KEY='ingemar-zen-audio-volume-v2'/);
+ assert.match(source[1],/return Number\.isFinite\(stored\)&&stored>=0&&stored<=1\?stored:1/);
  assert.match(source[1],/zenAudioMaster=zenAudioContext\.createGain\(\)/);
+ assert.match(source[1],/zenAudioReverb=zenAudioContext\.createConvolver\(\)/);
+ assert.match(source[1],/zenAudioReverb\.buffer=zenReverbImpulse\(zenAudioContext\)/);
+ assert.match(source[1],/zenAudioReverb\.connect\(zenAudioWet\)/);
  assert.match(source[1],/zenAudioMaster\.connect\(zenAudioContext\.destination\)/);
  assert.match(source[1],/localStorage\.setItem\(ZEN_AUDIO_VOLUME_KEY,String\(zenAudioVolume\)\)/);
- assert.match(source[1],/gain\.gain\.exponentialRampToValueAtTime\(peak,start\+attack\)/);
- assert.match(source[1],/gain\.gain\.exponentialRampToValueAtTime\(\.0001,start\+attack\+release\)/);
+ assert.match(source[1],/duration=phase==='in'\?4:6/);
+ assert.match(source[1],/drop\.frequency\.exponentialRampToValueAtTime\(base\*1\.08,start\+\.24\)/);
+ assert.match(source[1],/voiceGain\.gain\.exponentialRampToValueAtTime\(\.0001,start\+duration\)/);
+ assert.match(source[1],/stopZenBreathSound\(\.18\)/);
  assert.match(source[1],/if\(el\.id==='zen-audio-volume'\)\{setZenAudioVolume\(Number\(el\.value\)\/100,true\);return;\}/);
  assert.match(source[1],/activeZen\.lastBreathPhase=next/);
  assert.match(source[1],/breath==='ANDAS IN'\?'in':breath==='ANDAS UT'\?'out':'idle'/);
@@ -236,7 +242,10 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(css,/\.zen-lake-sun\{[^}]*--zen-breath-level/);
  assert.match(css,/\.zen-audio-control\{display:none\}/);
  assert.match(css,/\.zen-workout\[data-kind="meditation"\] \.zen-audio-control\{[^}]*display:grid/);
- assert.match(css,/\.zen-audio-control input\[type="range"\]\{[^}]*accent-color:#f0d27e/);
+ assert.match(css,/\.zen-audio-control input\[type="range"\]\{[^}]*-webkit-appearance:none[^}]*calc\(100% - 18px\) 3px/);
+ assert.match(css,/::-webkit-slider-thumb\{[^}]*width:18px[^}]*background:#f0d27e/);
+ assert.match(html,/id="zen-audio-volume" type="range"[^>]*value="100"/);
+ assert.match(html,/id="zen-audio-volume-value"[^>]*>100 %<\/output>/);
  assert.match(html,/<strong class="zen-lake-time" id="zen-immersion-time">01:00<\/strong><div class="zen-lake-breath-guide">/);
  assert.match(css,/\.zen-lake-time\{[^}]*top:var\(--zen-time-y,38%\)[^}]*transform:translate\(-50%,-100%\)/);
  assert.match(css,/\.zen-lake-breath-guide\{[^}]*top:var\(--zen-breath-y,62%\)[^}]*transform:translateX\(-50%\)/);
