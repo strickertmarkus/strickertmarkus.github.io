@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-breath-sun-chime-5">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-breath-audio-volume-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -365,7 +365,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
             <div class="mode-progress zen-progress" id="zen-total-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="zen-bar"></div></div>
             <div class="zen-stage-list" id="zen-stage-list" aria-label="Passets steg"></div>
           </aside>
-          <div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="secondary zen-clock-toggle" data-action="toggle-zen-clock" id="zen-clock-toggle" aria-pressed="true">Dölj tid</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
+          <div class="zen-audio-control" id="zen-audio-control"><label for="zen-audio-volume">Ljud</label><input id="zen-audio-volume" type="range" min="0" max="100" step="5" value="55" aria-label="Volym för andningsljud"><output id="zen-audio-volume-value" for="zen-audio-volume">55 %</output></div><div class="zen-controls"><button type="button" class="secondary" data-action="pause-zen" id="pause-zen">Pausa</button><button type="button" class="secondary zen-clock-toggle" data-action="toggle-zen-clock" id="zen-clock-toggle" aria-pressed="true">Dölj tid</button><button type="button" class="primary" data-action="next-zen" id="next-zen">Nästa rörelse ↗</button></div>
           <button type="button" class="ghost zen-exit" data-action="finish-zen" id="finish-zen">Avsluta och spara stund ✓</button>
         </div>
       </div>
@@ -377,6 +377,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 (function(){
 'use strict';
 var KEY='ingemar-pulse-demo-v1';
+var ZEN_AUDIO_VOLUME_KEY='ingemar-zen-audio-volume-v1';
 var DAYS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 var TYPES=['Push','Pull','Kondition'];
 var ZEN_ROUTINES={
@@ -1400,12 +1401,38 @@ function zenForestWaypoints(){
  }).join('');
  activeZen.forestPathLength=length;
 }
-var zenAudioContext=null;
+var zenAudioContext=null,zenAudioMaster=null,zenAudioVolume=readZenAudioVolume();
+function readZenAudioVolume(){
+ try{
+  var stored=Number(localStorage.getItem(ZEN_AUDIO_VOLUME_KEY));
+  return Number.isFinite(stored)&&stored>=0&&stored<=1?stored:.55;
+ }catch(error){return .55;}
+}
+function syncZenAudioVolumeControl(){
+ var slider=$('zen-audio-volume'),value=$('zen-audio-volume-value'),percent=Math.round(zenAudioVolume*100);
+ if(slider)slider.value=String(percent);
+ if(value)value.textContent=percent+' %';
+}
+function setZenAudioVolume(value,persistValue){
+ zenAudioVolume=Math.max(0,Math.min(1,Number(value)||0));
+ if(zenAudioMaster&&zenAudioContext){
+  var now=zenAudioContext.currentTime;
+  zenAudioMaster.gain.cancelScheduledValues(now);
+  zenAudioMaster.gain.setTargetAtTime(zenAudioVolume,now,.035);
+ }
+ if(persistValue)try{localStorage.setItem(ZEN_AUDIO_VOLUME_KEY,String(zenAudioVolume));}catch(error){}
+ syncZenAudioVolumeControl();
+}
 function ensureZenAudio(){
  var Context=window.AudioContext||window.webkitAudioContext;
  if(!Context)return null;
  try{
   if(!zenAudioContext)zenAudioContext=new Context();
+  if(!zenAudioMaster){
+   zenAudioMaster=zenAudioContext.createGain();
+   zenAudioMaster.gain.value=zenAudioVolume;
+   zenAudioMaster.connect(zenAudioContext.destination);
+  }
   if(zenAudioContext.state==='suspended'){
    var resumed=zenAudioContext.resume();
    if(resumed&&typeof resumed.catch==='function')resumed.catch(function(){});
@@ -1415,14 +1442,20 @@ function ensureZenAudio(){
 }
 function zenBreathChime(phase){
  var ctx=ensureZenAudio();
- if(!ctx)return;
+ if(!ctx||!zenAudioMaster||zenAudioVolume<=0)return;
  function play(){
-  var start=ctx.currentTime+.012,base=phase==='in'?659.25:523.25;
-  [1,2.01].forEach(function(mult,index){
-   var osc=ctx.createOscillator(),gain=ctx.createGain(),peak=index?.011:.025,decay=index?.42:.72;
-   osc.type='sine';osc.frequency.setValueAtTime(base*mult,start);
-   gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(peak,start+.018);gain.gain.exponentialRampToValueAtTime(.0001,start+decay);
-   osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+decay+.03);
+  var start=ctx.currentTime+.018,base=phase==='in'?659.25:523.25;
+  var attack=phase==='in'?.52:.68,release=phase==='in'?1.55:2.05;
+  [1,1.5].forEach(function(mult,index){
+   var osc=ctx.createOscillator(),gain=ctx.createGain(),peak=index?.014:.045;
+   osc.type='sine';
+   osc.frequency.setValueAtTime(base*mult*(phase==='in'?.985:1.015),start);
+   osc.frequency.exponentialRampToValueAtTime(base*mult,start+attack);
+   gain.gain.setValueAtTime(.0001,start);
+   gain.gain.exponentialRampToValueAtTime(peak,start+attack);
+   gain.gain.setValueAtTime(peak,start+attack+.08);
+   gain.gain.exponentialRampToValueAtTime(.0001,start+attack+release);
+   osc.connect(gain);gain.connect(zenAudioMaster);osc.start(start);osc.stop(start+attack+release+.06);
   });
  }
  if(ctx.state==='running'){play();return;}
@@ -1477,7 +1510,7 @@ function zenStart(index){
  var routines=zenRoutinesFor(view),routine=routines&&routines[index];
  if(!routine)return;
  activeZen={type:view,routineId:routine.id,name:routine.name,steps:deep(routine.steps),duration:routine.steps.reduce(function(sum,step){return sum+step.seconds;},0),elapsed:0,running:true,last:Date.now(),shownStage:-1,lastBreathPhase:null};
- if(view==='meditation')ensureZenAudio();
+ if(view==='meditation'){ensureZenAudio();syncZenAudioVolumeControl();}
  $('zen-session').dataset.kind=view;
  $('zen-kind-name').textContent=routine.name;
  $('zen-session').hidden=false;
@@ -1698,6 +1731,7 @@ document.addEventListener('pointerdown',function(event){
 document.addEventListener('change',function(event){if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);});
 document.addEventListener('input',function(event){
  var el=event.target;
+ if(el.id==='zen-audio-volume'){setZenAudioVolume(Number(el.value)/100,true);return;}
  if($('zen-editor').open&&zenEditDraft&&$('zen-editor').contains(el)){
   syncZenEditor();
   $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(zenEditDraft.steps)/60)+' min · '+zenEditDraft.steps.length+' steg';
