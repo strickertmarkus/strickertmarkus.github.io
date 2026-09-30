@@ -498,7 +498,7 @@ jobs:
                 const rect=sel=>{const r=root.querySelector(sel).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width};};
                 const buttons=Array.from(root.querySelectorAll('#zen-stage-list button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
                 const actionButtons=Array.from(root.querySelectorAll('.zen-controls button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
-                return {focus:rect('.zen-focus-card'),dock:rect('.zen-session-dock'),journey:rect('.zen-journey-card'),controls:rect('.zen-controls'),
+                return {scene:rect('.zen-scenery'),focus:rect('.zen-focus-card'),dock:rect('.zen-session-dock'),journey:rect('.zen-journey-card'),controls:rect('.zen-controls'),
                   exit:rect('.zen-exit'),lane:rect('.zen-forest-route-art'),breath:rect('.zen-lake-breath-guide'),
                   timer:rect('.zen-lake-time'),sun:rect('#zen-lake-sun'),
                   stageList:rect('#zen-stage-list'),buttons,actionButtons,
@@ -525,12 +525,17 @@ jobs:
                 assert.ok(geo.lane.height>=120&&geo.lane.top>=geo.focus.bottom+3&&geo.lane.bottom<=geo.dock.top-3,
                   label+' forest path must stop before the reserved action dock: '+JSON.stringify(geo));
               }else{
+                const sunScale=Math.max(geo.scene.width/900,geo.scene.height/700);
+                const sunCenter=(geo.sun.top+geo.sun.bottom)/2;
+                const maxSunRadius=44*sunScale*1.20;
                 assert.ok(geo.breath.top>=geo.focus.bottom-1&&geo.breath.bottom<=geo.dock.top+1,
                   label+' meditation breathing guide must remain clear of controls: '+JSON.stringify(geo));
                 assert.ok(geo.timer.top>=geo.focus.bottom+8,
                   label+' meditation timer must stay below the focus text block: '+JSON.stringify(geo));
-                assert.ok(geo.timer.bottom<=geo.sun.top-8,
-                  label+' meditation timer must stay visibly above the breathing sun: '+JSON.stringify(geo));
+                assert.ok(geo.timer.bottom<=sunCenter-maxSunRadius-8,
+                  label+' meditation timer must stay above the fully expanded breathing sun: '+JSON.stringify({geo,maxSunRadius}));
+                assert.ok(geo.breath.top>=sunCenter+maxSunRadius+10,
+                  label+' meditation breathing cue must stay below the fully expanded breathing sun: '+JSON.stringify({geo,maxSunRadius}));
               }
               if(kind==='stretch'){
                 assert.equal(await page.locator('.zen-forest-landscape').isVisible(),true,'Forest Motion landscape is visible');
