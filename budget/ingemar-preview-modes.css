@@ -516,28 +516,28 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-editor-dialog .modal-body{overflow-x:hidden}
 .zen-editor-dialog .modal-head h2,.zen-editor-dialog .zen-editor-steps-heading strong,.zen-step-editor label{overflow-wrap:anywhere}
 .zen-editor-dialog input[type="date"],.zen-editor-dialog input[type="number"]{min-height:44px}
-.zen-editor-dialog .field{display:grid;gap:7px;min-width:0;margin:0 0 12px;color:#bac5c6;font-size:11px;font-weight:680}
+.zen-editor-dialog .field{display:grid;gap:5px;min-width:0;margin:0 0 9px;color:#bac5c6;font-size:11px;font-weight:680}
 .zen-editor-dialog .field input,.zen-editor-dialog .field textarea,.zen-editor-dialog .field select,.zen-editor-dialog .zen-step-editor input,.zen-editor-dialog .zen-step-editor textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;border:1px solid rgba(var(--zen-accent-rgb),.23);border-radius:11px;background:#ffffff06;color:#f3f7f5;padding:11px 12px;font:500 16px Inter,system-ui,sans-serif;outline:none;appearance:auto}
 .zen-editor-dialog .field textarea,.zen-editor-dialog .zen-step-editor textarea{resize:vertical;line-height:1.5}
 .zen-editor-dialog input:focus-visible,.zen-editor-dialog textarea:focus-visible,.zen-editor-dialog select:focus-visible{border-color:var(--zen-accent);box-shadow:0 0 15px rgba(var(--zen-accent-rgb),.1)}
-.zen-editor-meta{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(110px,.8fr);gap:8px}
+.zen-editor-meta{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(110px,.8fr);gap:6px}
 .zen-editor-meta>.field:first-child{grid-column:1/-1}
-.zen-editor-steps-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:18px 0 12px}
+.zen-editor-steps-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:12px 0 8px}
 .zen-editor-steps-heading strong{display:block;color:var(--zen-ink);font-size:14px;margin-top:7px;font-weight:570}
 .zen-editor-steps-heading>span{color:var(--zen-accent);font-size:11px;white-space:nowrap}
-.zen-editor-steps{display:grid;gap:10px}
-.zen-step-editor{border:1px solid rgba(var(--zen-accent-rgb),.17);background:linear-gradient(145deg,rgba(var(--zen-accent-rgb),.055),#ffffff02);border-radius:14px;padding:12px;min-width:0}
-.zen-step-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.zen-editor-steps{display:grid;gap:7px}
+.zen-step-editor{border:1px solid rgba(var(--zen-accent-rgb),.17);background:linear-gradient(145deg,rgba(var(--zen-accent-rgb),.055),#ffffff02);border-radius:13px;padding:10px;min-width:0}
+.zen-step-editor-head{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:7px}
 .zen-step-editor-head>span{font-size:9px;letter-spacing:.13em;font-weight:800;color:var(--zen-accent)}
 .zen-step-editor-tools{display:flex;gap:5px}
 .zen-step-editor-tools button{min-width:31px;min-height:29px;border:1px solid rgba(var(--zen-accent-rgb),.2);border-radius:9px;background:#ffffff07;color:var(--zen-ink);font-size:17px}
 .zen-step-editor-tools button:disabled{opacity:.25;cursor:default}
-.zen-step-fields{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(100px,.7fr);gap:9px}
-.zen-step-editor label{min-width:0;display:grid;gap:6px;margin-bottom:10px;color:#aebdbc;font-size:10px;font-weight:600}
+.zen-step-fields{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(100px,.7fr);gap:7px}
+.zen-step-editor label{min-width:0;display:grid;gap:4px;margin-bottom:7px;color:#aebdbc;font-size:10px;font-weight:600}
 .zen-step-editor label:last-child{margin-bottom:0}
-.zen-add-step{margin-top:12px;width:100%;border-style:dashed}
-.zen-editor-dialog .zen-edit-note{font-size:10px;line-height:1.55;margin:14px 0}
-.zen-editor-dialog .primary,.zen-editor-dialog .secondary{border:1px solid rgba(var(--zen-accent-rgb),.48);border-radius:12px;background:rgba(var(--zen-accent-rgb),.13);color:var(--zen-ink);padding:11px 15px;font-size:11px;font-weight:750}
+.zen-add-step{margin-top:8px;width:100%;border-style:dashed}
+.zen-editor-dialog .zen-edit-note{font-size:10px;line-height:1.45;margin:9px 0}
+.zen-editor-dialog .primary,.zen-editor-dialog .secondary{border:1px solid rgba(var(--zen-accent-rgb),.48);border-radius:12px;background:rgba(var(--zen-accent-rgb),.13);color:var(--zen-ink);padding:9px 12px;font-size:11px;font-weight:750}
 .zen-editor-dialog .primary{background:linear-gradient(115deg,rgba(var(--zen-accent-rgb),.93),rgba(var(--zen-accent-rgb),.66));color:#09130d}
 .zen-editor-dialog[data-kind="meditation"] .primary{color:#261e0d}
 .zen-editor-dialog .ghost{color:#aab7b8}
@@ -551,19 +551,19 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-choices .zen-library-card .zen-choice{min-height:111px;padding:12px}
  .zen-library-tools{padding:0 6px 7px;gap:5px}
  .zen-library-tools button{font-size:9px}
- .zen-editor-dialog .modal-head{padding:14px}
- .zen-editor-dialog .modal-body{padding:13px 11px 18px}
+ .zen-editor-dialog .modal-head{padding:11px 12px}
+ .zen-editor-dialog .modal-body{padding:10px 9px 13px}
  .zen-editor-dialog .modal-actions{display:grid;grid-template-columns:1fr}
  .zen-editor-dialog .modal-actions>.ghost{justify-self:start}
  .zen-editor-dialog .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
- .zen-editor-dialog .modal-actions .right button{min-width:0;width:100%;padding:12px 7px}
+ .zen-editor-dialog .modal-actions .right button{min-width:0;width:100%;padding:10px 7px}
  .zen-editor-dialog #zen-edit-save-start:not([hidden]){grid-column:1/-1;order:-1}
  .zen-editor-dialog #zen-edit-delete[hidden] ~ .primary{grid-column:1/-1}
 }
 @media(max-width:560px){
  .zen-editor-meta,.zen-step-fields{grid-template-columns:minmax(0,1fr)}
  .zen-editor-meta>.field:first-child{grid-column:auto}
- .zen-step-editor{padding:10px}
+ .zen-step-editor{padding:8px}
  .zen-step-editor-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
  .zen-editor-steps-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end}
  .zen-editor-dialog .modal-actions .right{grid-template-columns:minmax(0,1fr)}

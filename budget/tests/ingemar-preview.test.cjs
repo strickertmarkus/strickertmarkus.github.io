@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260930-zen-log-mobile-1/);
+ assert.match(html,/ingemar-preview-modes\\.css\\?v=20260930-builder-scroll-lock-1/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -302,4 +302,19 @@ test('Refined Zen scene keeps the forest route clear, visible trees and a non-ov
  assert.match(css,/\.zen-workout:not\(\[hidden\]\)\{[^}]*overflow-y:auto/);
  assert.match(css,/\.zen-lake-breath-guide\{[^}]*top:var\(--zen-breath-y/);
  assert.doesNotMatch(css,/\.zen-forest-wayfinder\{/);
+});
+
+test('pass builders keep edit mode through blur/scroll, lock the background, and stay compact on mobile',()=>{
+ const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
+ assert.doesNotMatch(source[1],/\$\('exercise-list'\)\.addEventListener\('focusout'/);
+ assert.match(source[1],/function beginBuilderFreeExerciseName\(index\)[\s\S]*builderFreeExerciseIndex=index;renderBuilder\(\)/);
+ assert.match(source[1],/function openZenRoutineEditor\([\s\S]*renderZenEditor\(\);lockBuilderBackground\(\);\$\('zen-editor'\)\.showModal\(\)/);
+ assert.match(source[1],/function openZenHistoryEditor\([\s\S]*renderZenEditor\(\);lockBuilderBackground\(\);\$\('zen-editor'\)\.showModal\(\)/);
+ assert.match(source[1],/\$\('zen-editor'\)\.addEventListener\('close',function\(\)\{unlockBuilderBackground\(\);\}\)/);
+ assert.match(html,/#builder \.builder-date-control\{[^}]*height:44px/);
+ assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?#builder \.modal-body\{padding:10px 9px 13px\}/);
+ assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?#builder \.exercise-card\{padding:9px;margin:8px 0\}/);
+ assert.match(css,/\.zen-editor-dialog \.field\{[^}]*margin:0 0 9px/);
+ assert.match(css,/\.zen-editor-steps-heading\{[^}]*margin:12px 0 8px/);
+ assert.match(css,/@media\(max-width:740px\)\{[\s\S]*?\.zen-editor-dialog \.modal-body\{padding:10px 9px 13px\}/);
 });
