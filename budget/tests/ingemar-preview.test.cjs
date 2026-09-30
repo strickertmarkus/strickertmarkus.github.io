@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260930-breath-sun-chime-4/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260930-breath-sun-chime-5/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -229,8 +229,14 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(css,/\.zen-lake-sun\{[^}]*--zen-breath-level/);
  assert.match(html,/<strong class="zen-lake-time" id="zen-immersion-time">01:00<\/strong><div class="zen-lake-breath-guide">/);
  assert.match(css,/\.zen-lake-time\{[^}]*top:var\(--zen-time-y,38%\)[^}]*transform:translate\(-50%,-100%\)/);
- assert.match(html,/expandedSunTop=sunCenter-\(44\*svgScale\*1\.20\)/);
+ assert.match(css,/\.zen-lake-breath-guide\{[^}]*top:var\(--zen-breath-y,62%\)[^}]*transform:translateX\(-50%\)/);
+ assert.doesNotMatch(css,/\.zen-lake-breath-guide\{[^}]*translate\(-50%,-50%\)/);
+ assert.match(html,/expandedSunRadius=44\*svgScale\*1\.20/);
+ assert.match(html,/expandedSunTop=sunCenter-expandedSunRadius/);
+ assert.match(html,/expandedSunBottom=sunCenter\+expandedSunRadius/);
+ assert.match(html,/maxBreathTop=sceneRect\.height-bottom-breathRect\.height-16/);
  assert.match(html,/session\.style\.setProperty\('--zen-time-y',timerBottom\.toFixed\(1\)\+'px'\)/);
+ assert.match(html,/session\.style\.setProperty\('--zen-breath-y',breathTop\.toFixed\(1\)\+'px'\)/);
  assert.doesNotMatch(css,/\.zen-lake-breath-guide>strong\{/);
  assert.doesNotMatch(html,/\.zen-timer\{|\.zen-count\{|\.zen-ring\{/);
  assert.match(css,/\[data-breath-phase="in"\] \.zen-lake-sun/);
