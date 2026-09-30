@@ -104,7 +104,7 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-breath-sun-chime-4">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-breath-sun-chime-5">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -1359,18 +1359,27 @@ function zenPositionProgressLane(){
  var available=sceneRect.height-top-bottom;
  session.style.setProperty('--zen-lane-top',top+'px');
  session.style.setProperty('--zen-lane-bottom',bottom+'px');
- session.style.setProperty('--zen-breath-y',(top+Math.max(0,available)/2)+'px');
  if(activeZen.type==='meditation'){
-  var timer=$('zen-immersion-time'),sun=$('zen-lake-sun');
-  if(timer&&sun){
-   var timerRect=timer.getBoundingClientRect(),sunRect=sun.getBoundingClientRect();
+  var timer=$('zen-immersion-time'),sun=$('zen-lake-sun'),breathGuide=session.querySelector('.zen-lake-breath-guide');
+  if(timer&&sun&&breathGuide){
+   var timerRect=timer.getBoundingClientRect(),sunRect=sun.getBoundingClientRect(),breathRect=breathGuide.getBoundingClientRect();
    var svgScale=Math.max(sceneRect.width/900,sceneRect.height/700);
    var sunCenter=(sunRect.top+sunRect.bottom)/2-sceneRect.top;
-   var expandedSunTop=sunCenter-(44*svgScale*1.20);
+   var expandedSunRadius=44*svgScale*1.20;
+   var expandedSunTop=sunCenter-expandedSunRadius;
+   var expandedSunBottom=sunCenter+expandedSunRadius;
    var minTimerBottom=top+timerRect.height+12;
    var timerBottom=Math.max(minTimerBottom,expandedSunTop-18);
+   var breathTop=expandedSunBottom+20;
+   var maxBreathTop=sceneRect.height-bottom-breathRect.height-16;
+   if(maxBreathTop>=expandedSunBottom+12)breathTop=Math.min(breathTop,maxBreathTop);
+   else breathTop=expandedSunBottom+12;
    session.style.setProperty('--zen-time-y',timerBottom.toFixed(1)+'px');
+   session.style.setProperty('--zen-breath-y',breathTop.toFixed(1)+'px');
   }
+ }else{
+  session.style.removeProperty('--zen-time-y');
+  session.style.removeProperty('--zen-breath-y');
  }
  session.dataset.tightScene=available<170?'true':'false';
 }
