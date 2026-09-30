@@ -15,6 +15,8 @@
   var remoteWriteTimer = null;
   var applyingRemote = false;
   var metaBlurTimer = null;
+  var remoteRefreshPromise = null;
+  var lastRemoteRefreshAt = 0;
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
   function escapeHtml(value) {
@@ -82,7 +84,12 @@
     var payload = JSON.stringify(normalizeStore(store));
     remoteWriteTimer = setTimeout(function () {
       remoteWriteTimer = null;
-      try { remoteRef.set(payload); } catch (_) {}
+      try {
+        remoteRef.set(payload).catch(function (error) {
+          console.warn('[Recipes] Firebase write failed:', error);
+          // Keep the local copy; retry after the app is foregrounded.
+        });
+      } catch (error) { console.warn('[Recipes] Firebase write failed:', error); }
     }, 180);
   }
 
@@ -92,6 +99,35 @@
     catch (_) { return normalizeStore(null); }
   }
 
+  function reconcileSnapshot(snapshot) {
+    var local = readStore();
+    if (!snapshot.exists()) {
+      if (local.recipes.length) scheduleRemoteWrite(local);
+      return;
+    }
+    var remote = parseRemote(snapshot.val());
+    if (remote.updatedAt > local.updatedAt || !local.recipes.length) {
+      applyingRemote = true;
+      try { writeStore(remote, false); }
+      finally { applyingRemote = false; }
+      renderAllRecipes();
+    } else if (local.updatedAt > remote.updatedAt) {
+      // A local edit made while offline still needs to reach Firebase.
+      scheduleRemoteWrite(local);
+    }
+  }
+
+  function refreshRemote() {
+    if (!remoteRef || remoteRefreshPromise) return remoteRefreshPromise;
+    var now = Date.now();
+    if (now - lastRemoteRefreshAt < 1500) return;
+    lastRemoteRefreshAt = now;
+    remoteRefreshPromise = remoteRef.get().then(reconcileSnapshot).catch(function (error) {
+      console.warn('[Recipes] Firebase refresh failed:', error);
+    }).finally(function () { remoteRefreshPromise = null; });
+    return remoteRefreshPromise;
+  }
+
   function bindFirebase() {
     if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) return;
     var auth;
@@ -99,29 +135,27 @@
     var attached = false;
     function attach(user) {
       if (!user || attached) return;
-      attached = true;
       try { remoteRef = firebase.database().ref(FIREBASE_KEY); } catch (_) { return; }
-      remoteRef.get().then(function (snapshot) {
-        var local = readStore();
-        if (!snapshot.exists()) {
-          if (local.recipes.length) scheduleRemoteWrite(local);
-          return;
-        }
-        var remote = parseRemote(snapshot.val());
-        if (remote.updatedAt > local.updatedAt || !local.recipes.length) {
-          applyingRemote = true; writeStore(remote, false); applyingRemote = false; renderAllRecipes();
-        } else if (local.updatedAt > remote.updatedAt) scheduleRemoteWrite(local);
-      }).catch(function () {});
+      attached = true;
+      refreshRemote();
       remoteRef.on('value', function (snapshot) {
         if (!snapshot.exists()) return;
         var remote = parseRemote(snapshot.val());
         var local = readStore();
         if (remote.updatedAt <= local.updatedAt) return;
-        applyingRemote = true; writeStore(remote, false); applyingRemote = false; renderAllRecipes();
-      }, function () {});
+        applyingRemote = true;
+        try { writeStore(remote, false); }
+        finally { applyingRemote = false; }
+        renderAllRecipes();
+      }, function (error) { console.warn('[Recipes] Firebase listener failed:', error); });
     }
     if (auth.currentUser) attach(auth.currentUser);
     auth.onAuthStateChanged(attach);
+    window.addEventListener('pageshow', refreshRemote);
+    window.addEventListener('focus', refreshRemote);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) refreshRemote();
+    });
   }
 
   function engine() { return window.__shoppingListEngineV7 || null; }
