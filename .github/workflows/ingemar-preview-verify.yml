@@ -498,7 +498,7 @@ jobs:
                 const rect=sel=>{const r=root.querySelector(sel).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width};};
                 const buttons=Array.from(root.querySelectorAll('#zen-stage-list button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
                 const actionButtons=Array.from(root.querySelectorAll('.zen-controls button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
-                return {scene:rect('.zen-scenery'),focus:rect('.zen-focus-card'),dock:rect('.zen-session-dock'),journey:rect('.zen-journey-card'),controls:rect('.zen-controls'),
+                return {scene:rect('.zen-scenery'),focus:rect('.zen-focus-card'),dock:rect('.zen-session-dock'),journey:rect('.zen-journey-card'),controls:rect('.zen-controls'),audio:rect('.zen-audio-control'),
                   exit:rect('.zen-exit'),lane:rect('.zen-forest-route-art'),breath:rect('.zen-lake-breath-guide'),
                   timer:rect('.zen-lake-time'),sun:rect('#zen-lake-sun'),
                   stageList:rect('#zen-stage-list'),buttons,actionButtons,
@@ -536,6 +536,8 @@ jobs:
                   label+' meditation timer must stay above the fully expanded breathing sun: '+JSON.stringify({geo,maxSunRadius}));
                 assert.ok(geo.breath.top>=sunCenter+maxSunRadius+10,
                   label+' meditation breathing cue must stay below the fully expanded breathing sun: '+JSON.stringify({geo,maxSunRadius}));
+                assert.ok(inside(geo.audio,geo.dock)&&geo.journey.bottom<=geo.audio.top+1&&geo.audio.bottom<=geo.controls.top+1,
+                  label+' meditation audio control must stay inside the dock without overlapping progress or actions: '+JSON.stringify(geo));
               }
               if(kind==='stretch'){
                 assert.equal(await page.locator('.zen-forest-landscape').isVisible(),true,'Forest Motion landscape is visible');
@@ -549,6 +551,10 @@ jobs:
                 assert.equal(await page.locator('#zen-immersion-breath').isVisible(),true);
                 assert.equal(await page.locator('#zen-lake-horizon-progress').count(),1);
                 assert.equal(await page.locator('#zen-clock-toggle').isVisible(),true);
+                assert.equal(await page.locator('#zen-audio-control').isVisible(),true,'Meditation volume control is visible');
+                await page.locator('#zen-audio-volume').evaluate(el=>{el.value='35';el.dispatchEvent(new Event('input',{bubbles:true}));});
+                assert.equal((await page.locator('#zen-audio-volume-value').textContent()).trim(),'35 %','Meditation volume output follows the slider');
+                assert.equal(await page.evaluate(()=>localStorage.getItem('ingemar-zen-audio-volume-v1')),'0.35','Meditation volume persists locally');
               }
             }
             const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
