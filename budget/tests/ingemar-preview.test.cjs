@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260930-water-breath-audio-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260930-zen-log-mobile-1/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -200,6 +200,11 @@ test('Zen stretch and meditation support custom routines, editable planned days,
  assert.match(css,/\.zen-editor-dialog\{/);
  assert.match(css,/\.zen-library-card\{/);
  assert.match(css,/\.zen-step-editor\{/);
+ assert.match(css,/\.zen-editor-dialog \.field input,[^\n]*font:500 16px Inter/);
+ assert.match(css,/\.zen-editor-dialog \.modal-body\{overflow-x:hidden\}/);
+ assert.match(css,/\.zen-history \.zen-history-row>div\{flex:1;min-width:0\}/);
+ assert.match(css,/@media\(max-width:560px\)\{[\s\S]*?\.zen-editor-meta,\.zen-step-fields\{grid-template-columns:minmax\(0,1fr\)\}/);
+ assert.match(css,/@media\(max-width:560px\)\{[\s\S]*?\.zen-history \.zen-history-row\{flex-direction:column;align-items:flex-start/);
  assert.match(css,/@media\(max-width:740px\)/);
  assert.doesNotMatch(html,/firebase-app-compat|firebase-sync\.js|auth-gate\.js/);
 });
