@@ -654,6 +654,11 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-workout .zen-stage-list button>b{display:none}
 .zen-workout .zen-stage-list button>small{display:none}
 .zen-workout .zen-stage-list button[aria-current="step"]{background:rgba(var(--mode-accent-rgb),.17);border-color:rgba(var(--mode-accent-rgb),.7);box-shadow:0 0 15px rgba(var(--mode-accent-rgb),.13)}
+.zen-audio-control{display:none}
+.zen-workout[data-kind="meditation"] .zen-audio-control{position:relative;z-index:2;display:grid;grid-template-columns:auto minmax(72px,1fr) 38px;align-items:center;gap:8px;width:100%;margin:2px 0 2px;padding:2px 7px;color:#eadfbf;font-size:9px;letter-spacing:.06em}
+.zen-audio-control label{font-weight:650;white-space:nowrap}
+.zen-audio-control input[type="range"]{width:100%;min-width:0;height:24px;margin:0;accent-color:#f0d27e;cursor:pointer}
+.zen-audio-control output{min-width:38px;text-align:right;color:#f6e7c7;font-variant-numeric:tabular-nums;white-space:nowrap}
 .zen-workout .zen-controls{position:relative;z-index:2;flex:0 0 auto;display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);width:100%;max-width:100%;gap:6px;margin:4px 0 0}
 .zen-workout .zen-controls button{min-width:0;min-height:40px;padding:7px 10px;border-radius:999px;font-size:11px;box-shadow:none}
 .zen-workout .zen-clock-toggle{display:none}
@@ -686,6 +691,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-workout .zen-stage{margin:0 0 3px;font-size:8px;max-width:100%}
  .zen-workout .zen-stage-list{min-height:26px;gap:4px}
  .zen-workout .zen-stage-list button{min-height:26px;max-width:none;padding:3px}
+ .zen-workout[data-kind="meditation"] .zen-audio-control{grid-template-columns:auto minmax(64px,1fr) 34px;gap:6px;padding:1px 4px;font-size:8.5px}
  .zen-workout .zen-controls{margin-top:3px;gap:5px}
  .zen-workout .zen-controls button{min-height:38px;padding:7px 5px;font-size:10px}
  .zen-workout .zen-exit{margin-top:2px;padding:2px 8px;font-size:8.5px}
