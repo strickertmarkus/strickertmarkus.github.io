@@ -219,6 +219,8 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(source[1],/session\.dataset\.breathPhase=next/);
  assert.match(source[1],/window\.AudioContext\|\|window\.webkitAudioContext/);
  assert.match(source[1],/ZEN_AUDIO_VOLUME_KEY='ingemar-zen-audio-volume-v2'/);
+ assert.match(source[1],/var raw=localStorage\.getItem\(ZEN_AUDIO_VOLUME_KEY\)/);
+ assert.match(source[1],/if\(raw===null\)return 1/);
  assert.match(source[1],/return Number\.isFinite\(stored\)&&stored>=0&&stored<=1\?stored:1/);
  assert.match(source[1],/zenAudioMaster=zenAudioContext\.createGain\(\)/);
  assert.match(source[1],/zenAudioReverb=zenAudioContext\.createConvolver\(\)/);
