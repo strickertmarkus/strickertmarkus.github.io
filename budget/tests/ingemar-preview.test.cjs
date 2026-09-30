@@ -332,6 +332,7 @@ test('all Ingemar planning dialogs use bounded non-overlapping mobile control ro
  assert.match(html,/#builder \.builder-template-delete\{grid-column:1\/-1\}/);
  assert.match(html,/\.week-day-type-grid button\{[^}]*white-space:normal[^}]*overflow-wrap:anywhere/);
  assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?\.week-day-tools\{width:100%;display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?\.week-planner-actions\{position:static;display:grid/);
  assert.match(html,/@media\(max-width:360px\)\{[\s\S]*?\.week-day-type-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/\.zen-editor-dialog \.modal-actions button\{[^}]*white-space:normal[^}]*overflow-wrap:anywhere/);
  assert.match(css,/@media\(max-width:740px\)\{[\s\S]*?\.zen-editor-dialog \.modal-actions \.right\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\);gap:6px/);
