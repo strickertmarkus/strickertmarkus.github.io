@@ -176,6 +176,13 @@ jobs:
             await page.setViewportSize({width:320,height:844});
             await auditNoHorizontalScroll('Öppnad veckodag 320px');
             await auditPopupRows('Öppnad veckodag 320px','#week-planner',['.week-day-type-grid','.week-day-tools','.week-planner-actions .right']);
+            const weekFooterGeometry=await page.locator('#week-planner').evaluate(dialog=>{
+              const editor=dialog.querySelector('[data-week-day="0"] .week-day-editor').getBoundingClientRect();
+              const footer=dialog.querySelector('.week-planner-actions').getBoundingClientRect();
+              return {editorBottom:editor.bottom,footerTop:footer.top,footerPosition:getComputedStyle(dialog.querySelector('.week-planner-actions')).position};
+            });
+            assert.equal(weekFooterGeometry.footerPosition,'static','Mobile week planner footer must stay in normal flow');
+            assert.ok(weekFooterGeometry.footerTop>=weekFooterGeometry.editorBottom-1,'Mobile week planner footer must not cover the expanded day: '+JSON.stringify(weekFooterGeometry));
             await page.screenshot({path:'test-results/ingemar-demo/week-planner-day-open-320.png'});
             await page.setViewportSize({width:390,height:844});
 
