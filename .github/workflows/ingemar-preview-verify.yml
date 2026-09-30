@@ -500,6 +500,7 @@ jobs:
                 const actionButtons=Array.from(root.querySelectorAll('.zen-controls button')).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};});
                 return {focus:rect('.zen-focus-card'),dock:rect('.zen-session-dock'),journey:rect('.zen-journey-card'),controls:rect('.zen-controls'),
                   exit:rect('.zen-exit'),lane:rect('.zen-forest-route-art'),breath:rect('.zen-lake-breath-guide'),
+                  timer:rect('.zen-lake-time'),sun:rect('#zen-lake-sun'),
                   stageList:rect('#zen-stage-list'),buttons,actionButtons,
                   scrollHeight:root.scrollHeight,clientHeight:root.clientHeight,scrollable:getComputedStyle(root).overflowY};
               });
@@ -526,6 +527,10 @@ jobs:
               }else{
                 assert.ok(geo.breath.top>=geo.focus.bottom-1&&geo.breath.bottom<=geo.dock.top+1,
                   label+' meditation breathing guide must remain clear of controls: '+JSON.stringify(geo));
+                assert.ok(geo.timer.top>=geo.focus.bottom+8,
+                  label+' meditation timer must stay below the focus text block: '+JSON.stringify(geo));
+                assert.ok(geo.timer.bottom<=geo.sun.top-8,
+                  label+' meditation timer must stay visibly above the breathing sun: '+JSON.stringify(geo));
               }
               if(kind==='stretch'){
                 assert.equal(await page.locator('.zen-forest-landscape').isVisible(),true,'Forest Motion landscape is visible');
