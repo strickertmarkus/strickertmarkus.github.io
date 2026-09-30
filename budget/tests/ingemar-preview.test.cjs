@@ -310,7 +310,9 @@ test('pass builders keep edit mode through blur/scroll, lock the background, and
  assert.match(source[1],/function beginBuilderFreeExerciseName\(index\)[\s\S]*builderFreeExerciseIndex=index;renderBuilder\(\)/);
  assert.match(source[1],/function openZenRoutineEditor\([\s\S]*renderZenEditor\(\);lockBuilderBackground\(\);\$\('zen-editor'\)\.showModal\(\)/);
  assert.match(source[1],/function openZenHistoryEditor\([\s\S]*renderZenEditor\(\);lockBuilderBackground\(\);\$\('zen-editor'\)\.showModal\(\)/);
- assert.match(source[1],/\$\('zen-editor'\)\.addEventListener\('close',function\(\)\{unlockBuilderBackground\(\);\}\)/);
+ assert.match(source[1],/function closeZenEditor\(\)\{[\s\S]*editor\.close\(\);[\s\S]*unlockBuilderBackground\(\);/);
+ assert.match(source[1],/if\(action==='close-editor'\)\{closeZenEditor\(\);zenEditDraft=null;return;\}/);
+ assert.doesNotMatch(source[1],/\$\('zen-editor'\)\.addEventListener\('close'/);
  assert.match(source[1],/function unlockBuilderBackground\(\)[\s\S]*requestAnimationFrame\(function\(\)\{requestAnimationFrame\(function\(\)/);
  assert.match(html,/#builder \.builder-date-control\{[^}]*height:44px/);
  assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?#builder \.modal-body\{padding:10px 9px 13px\}/);

@@ -1270,6 +1270,11 @@ function openZenHistoryEditor(id){
  zenEditDraft.steps=zenLogSteps(zenEditDraft);
  renderZenEditor();lockBuilderBackground();$('zen-editor').showModal();$('zen-edit-name').focus({preventScroll:true});
 }
+function closeZenEditor(){
+ var editor=$('zen-editor');
+ if(editor.open)editor.close();
+ unlockBuilderBackground();
+}
 function saveZenEditor(startAfterSave){
  if(!zenEditDraft)return;
  syncZenEditor();
@@ -1297,7 +1302,7 @@ function saveZenEditor(startAfterSave){
   if(index>=0)routines[index]=deep(zenEditDraft);else routines.push(deep(zenEditDraft));
  }
  var savedId=zenEditDraft.id,savedKind=zenEditKind,savedHistory=zenEditMode==='history';
- persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(savedHistory?'Loggen sparades.':'Passet sparades.');
+ persist();closeZenEditor();zenEditDraft=null;renderZen();toast(savedHistory?'Loggen sparades.':'Passet sparades.');
  if(startAfterSave&&!savedHistory){
   var startIndex=zenRoutinesFor(savedKind).findIndex(function(item){return item.id===savedId;});
   if(startIndex>=0)zenStart(startIndex);
@@ -1316,7 +1321,7 @@ function removeZenEntry(){
   state.zenRoutines[kind]=zenRoutinesFor(kind).filter(function(item){return item.id!==zenEditId;});
   Object.keys(state.zenPlans[kind]).forEach(function(date){if(state.zenPlans[kind][date]===zenEditId)state.zenPlans[kind][date]=null;});
  }
- persist();$('zen-editor').close();zenEditDraft=null;renderZen();toast(history?'Loggposten togs bort.':'Passet togs bort.');
+ persist();closeZenEditor();zenEditDraft=null;renderZen();toast(history?'Loggposten togs bort.':'Passet togs bort.');
 }
 function openZenDay(date,routineId){
  zenDayKind=view;zenDayDate=date||dayISO(new Date());
@@ -1344,7 +1349,7 @@ function zenEditorAction(action){
  if(action==='create'){openZenRoutineEditor(view);return;}
  if(action==='log'){openZenHistoryEditor();return;}
  if(action==='current-week'){zenWeekMonday=weekStart(dayISO(new Date()));renderZen();return;}
- if(action==='close-editor'){$('zen-editor').close();zenEditDraft=null;return;}
+ if(action==='close-editor'){closeZenEditor();zenEditDraft=null;return;}
  if(action==='close-day'){$('zen-day-dialog').close();return;}
  if(action==='add-step'){
   syncZenEditor();if(zenEditDraft.steps.length>=20){toast('Högst 20 steg per pass.');return;}
@@ -1800,8 +1805,7 @@ $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
-$('zen-editor').addEventListener('cancel',function(event){event.preventDefault();$('zen-editor').close();zenEditDraft=null;});
-$('zen-editor').addEventListener('close',function(){unlockBuilderBackground();});
+$('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
