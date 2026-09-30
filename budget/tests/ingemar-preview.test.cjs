@@ -236,7 +236,7 @@ test('Forest Motion and Stillwater have distinct fullscreen stage-synced scenes 
  assert.match(css,/\[data-breath-phase="in"\] \.zen-lake-sun/);
  assert.match(css,/\[data-breath-phase="out"\] \.zen-lake-sun/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(css,/\.zen-workout\.zen-clock-hidden \.zen-lake-breath-guide>strong\{visibility:hidden\}/);
+ assert.match(css,/\.zen-workout\.zen-clock-hidden \.zen-lake-time\{visibility:hidden\}/);
  assert.doesNotMatch(html,/class="zen-scene-stretch"/,'Remove superseded scenery artwork');
 });
 
