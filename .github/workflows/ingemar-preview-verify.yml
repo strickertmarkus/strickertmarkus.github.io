@@ -427,6 +427,50 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#history .history-row').count()>0,true);
             await page.locator('[data-view="stretch"]').click();
+            async function auditZenLogDialog(kind,width){
+              await page.setViewportSize({width,height:844});
+              if(await page.locator('#zen-view').getAttribute('data-kind')!==kind)await page.locator('[data-view="'+kind+'"]').click();
+              await page.locator('[data-zen-action="log"]').click();
+              await page.waitForSelector('#zen-editor[open]');
+              assert.equal(await page.locator('#zen-editor').getAttribute('data-kind'),kind,kind+' log editor keeps the correct theme');
+              await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+              const audit=await page.locator('#zen-editor').evaluate(dialog=>{
+                const visible=el=>!el.hidden&&getComputedStyle(el).display!=='none'&&el.getClientRects().length>0;
+                const rect=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};};
+                const controls=Array.from(dialog.querySelectorAll('input,textarea,select')).filter(visible).map(el=>({
+                  tag:el.tagName,id:el.id||el.getAttribute('data-zen-step-field')||'',fontSize:parseFloat(getComputedStyle(el).fontSize),rect:rect(el)
+                }));
+                const meta=Array.from(dialog.querySelectorAll('.zen-editor-meta>.field')).filter(visible).map(rect);
+                const stepFields=Array.from(dialog.querySelectorAll('.zen-step-fields>label')).filter(visible).map(rect);
+                const actions=Array.from(dialog.querySelectorAll('.zen-editor-actions button')).filter(visible).map(rect);
+                const dr=dialog.getBoundingClientRect();
+                return {dialog:rect(dialog),controls,meta,stepFields,actions,scrollWidth:dialog.scrollWidth,clientWidth:dialog.clientWidth,
+                  viewportWidth:innerWidth,dialogLeft:dr.left,dialogRight:dr.right};
+              });
+              const overlaps=(a,b)=>a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1;
+              assert.ok(audit.scrollWidth<=audit.clientWidth+1,kind+' '+width+'px Zen log must not scroll horizontally: '+JSON.stringify(audit));
+              assert.ok(audit.dialogLeft>=-1&&audit.dialogRight<=audit.viewportWidth+1,kind+' '+width+'px Zen log stays inside viewport');
+              assert.ok(audit.controls.every(item=>item.fontSize>=16),kind+' '+width+'px editable controls must be at least 16px to prevent iOS focus zoom: '+JSON.stringify(audit.controls));
+              assert.ok(audit.controls.every(item=>item.rect.left>=audit.dialog.left-1&&item.rect.right<=audit.dialog.right+1),kind+' '+width+'px editable controls stay inside dialog');
+              for(const group of [audit.meta,audit.stepFields,audit.actions])for(let i=0;i<group.length;i++)for(let j=i+1;j<group.length;j++){
+                assert.equal(overlaps(group[i],group[j]),false,kind+' '+width+'px Zen log boxes must not overlap: '+JSON.stringify(group));
+              }
+              const scaleBefore=await page.evaluate(()=>visualViewport?visualViewport.scale:1);
+              await page.locator('#zen-edit-name').focus();
+              await page.locator('#zen-edit-name').fill('Mobiltest');
+              await page.locator('#zen-edit-notes').focus();
+              await page.locator('#zen-edit-notes').fill('Kontroll av mobil layout');
+              await page.waitForTimeout(120);
+              const scaleAfter=await page.evaluate(()=>visualViewport?visualViewport.scale:1);
+              assert.ok(Math.abs(scaleBefore-1)<.02&&Math.abs(scaleAfter-1)<.02,kind+' '+width+'px Zen log focus must not zoom the viewport: '+JSON.stringify({scaleBefore,scaleAfter}));
+              await page.screenshot({path:'test-results/ingemar-demo/'+kind+'-log-editor-'+width+'.png'});
+              await page.locator('#zen-editor .modal-head [data-zen-action="close-editor"]').click();
+              await page.waitForFunction(()=>!document.getElementById('zen-editor').open);
+            }
+            await auditZenLogDialog('stretch',390);
+            await auditZenLogDialog('meditation',390);
+            await auditZenLogDialog('stretch',320);
+            await page.setViewportSize({width:390,height:844});
             // Zen routines support builder CRUD, persistent day-specific planning, and editable logs.
             await page.locator('[data-zen-action="create"]').click();
             assert.equal(await page.locator('#zen-editor').evaluate(el=>el.open),true,'Zen builder opens as a real mobile dialog');
