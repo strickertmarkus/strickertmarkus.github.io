@@ -1404,7 +1404,9 @@ function zenForestWaypoints(){
 var zenAudioContext=null,zenAudioMaster=null,zenAudioReverb=null,zenAudioDry=null,zenAudioWet=null,zenAudioVoice=null,zenAudioVolume=readZenAudioVolume();
 function readZenAudioVolume(){
  try{
-  var stored=Number(localStorage.getItem(ZEN_AUDIO_VOLUME_KEY));
+  var raw=localStorage.getItem(ZEN_AUDIO_VOLUME_KEY);
+  if(raw===null)return 1;
+  var stored=Number(raw);
   return Number.isFinite(stored)&&stored>=0&&stored<=1?stored:1;
  }catch(error){return 1;}
 }
