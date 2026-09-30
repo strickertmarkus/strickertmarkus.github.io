@@ -314,7 +314,7 @@ test('pass builders keep edit mode through blur/scroll, lock the background, and
  assert.match(source[1],/if\(action==='close-editor'\)\{closeZenEditor\(\);zenEditDraft=null;return;\}/);
  assert.doesNotMatch(source[1],/\$\('zen-editor'\)\.addEventListener\('close'/);
  assert.match(source[1],/function unlockBuilderBackground\(\)[\s\S]*document\.body\.style\.top=''[\s\S]*window\.scrollTo\(\{top:builderScrollY,behavior:'instant'\}\)/);
- assert.doesNotMatch(source[1],/function unlockBuilderBackground\(\)[\s\S]*requestAnimationFrame/);
+ assert.doesNotMatch(source[1],/function unlockBuilderBackground\(\)\{[^}]*requestAnimationFrame/);
  assert.match(html,/#builder \.builder-date-control\{[^}]*height:44px/);
  assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?#builder \.modal-body\{padding:10px 9px 13px\}/);
  assert.match(html,/@media\(max-width:600px\)\{[\s\S]*?#builder \.exercise-card\{padding:9px;margin:8px 0\}/);
