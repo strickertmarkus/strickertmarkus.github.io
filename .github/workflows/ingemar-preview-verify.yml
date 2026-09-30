@@ -552,9 +552,14 @@ jobs:
                 assert.equal(await page.locator('#zen-lake-horizon-progress').count(),1);
                 assert.equal(await page.locator('#zen-clock-toggle').isVisible(),true);
                 assert.equal(await page.locator('#zen-audio-control').isVisible(),true,'Meditation volume control is visible');
-                await page.locator('#zen-audio-volume').evaluate(el=>{el.value='35';el.dispatchEvent(new Event('input',{bubbles:true}));});
-                assert.equal((await page.locator('#zen-audio-volume-value').textContent()).trim(),'35 %','Meditation volume output follows the slider');
-                assert.equal(await page.evaluate(()=>localStorage.getItem('ingemar-zen-audio-volume-v1')),'0.35','Meditation volume persists locally');
+                assert.equal(await page.locator('#zen-audio-volume').inputValue(),'100','Meditation audio defaults to full volume');
+                assert.equal((await page.locator('#zen-audio-volume-value').textContent()).trim(),'100 %','Meditation volume label defaults to 100 percent');
+                await page.locator('#zen-audio-volume').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
+                assert.equal((await page.locator('#zen-audio-volume-value').textContent()).trim(),'0 %','Meditation volume reaches its lower endpoint');
+                assert.equal(await page.evaluate(()=>localStorage.getItem('ingemar-zen-audio-volume-v2')),'0','Zero volume persists locally');
+                await page.locator('#zen-audio-volume').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}));});
+                assert.equal((await page.locator('#zen-audio-volume-value').textContent()).trim(),'100 %','Meditation volume reaches its upper endpoint');
+                assert.equal(await page.evaluate(()=>localStorage.getItem('ingemar-zen-audio-volume-v2')),'1','Full volume persists locally');
               }
             }
             const initialStretchArc=Number(await page.locator('#zen-step-arc').getAttribute('stroke-dashoffset'));
