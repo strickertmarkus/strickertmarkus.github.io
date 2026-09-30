@@ -42,9 +42,6 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
  .week-template-tools select,.week-template-tools button:last-child{grid-column:1}
  .week-day-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .week-planner-actions .right{grid-template-columns:minmax(0,1fr)}
- #builder .builder-template-tools{grid-template-columns:minmax(0,1fr)}
- #builder .builder-template-tools select,#builder .builder-template-delete{grid-column:1}
- #builder .modal-actions .right{grid-template-columns:minmax(0,1fr)}
 }
 /* Ingemar passbyggare: one vertical scroll surface, no horizontal scrollbar. */
 #builder{width:min(660px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
@@ -119,6 +116,11 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
  #builder .modal-actions>.ghost{justify-self:start}
  #builder .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
  #builder .modal-actions .right button{width:100%;padding:10px 5px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+}
+@media(max-width:360px){
+ #builder .builder-template-tools{grid-template-columns:minmax(0,1fr)}
+ #builder .builder-template-tools select,#builder .builder-template-delete{grid-column:1}
+ #builder .modal-actions .right{grid-template-columns:minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
