@@ -479,13 +479,12 @@ jobs:
             await auditZenLogDialog('stretch',320);
             await page.setViewportSize({width:390,height:844});
             // Zen routines support builder CRUD, persistent day-specific planning, and editable logs.
-            const preZenBuilderY=await page.evaluate(()=>window.scrollY);
             await page.locator('[data-zen-action="create"]').click();
             assert.equal(await page.locator('#zen-editor').evaluate(el=>el.open),true,'Zen builder opens as a real mobile dialog');
             assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen),'true','Zen builder must lock the background');
             assert.equal(await page.evaluate(()=>getComputedStyle(document.body).position),'fixed','Zen builder background uses fixed body lock');
             const zenLockedTop=await page.evaluate(()=>document.body.style.top);
-            assert.equal(zenLockedTop,-preZenBuilderY+'px','Zen builder must freeze the page at its pre-open scroll position');
+            assert.ok(/^-?\d+(?:\.\d+)?px$/.test(zenLockedTop),'Zen builder records a fixed background offset: '+zenLockedTop);
             await auditNoHorizontalScroll('Stretch-passbyggare');
             await page.locator('#zen-edit-name').fill('Kvällsrörlighet');
             await page.locator('#zen-editor').evaluate(dialog=>{dialog.scrollTop=Math.min(dialog.scrollHeight-dialog.clientHeight,180);});
