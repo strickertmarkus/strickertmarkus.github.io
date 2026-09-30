@@ -153,7 +153,7 @@ test('push/pull analytics track load, balance and exercise progression from demo
 
 test('shared family iframe and Zen remain mobile friendly',()=>{
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
- assert.match(html,/ingemar-preview-modes\.css\?v=20260930-popup-layout-1/);
+ assert.match(html,/ingemar-preview-modes\.css\?v=20260930-zen-day-compact-1/);
  assert.match(css,/\.family-session-frame\{position:fixed;inset:0;z-index:55/);
  assert.match(css,/\.mode-screen\{[\s\S]*overflow-x:hidden/);assert.match(css,/@media\(max-width:900px\)/);assert.match(css,/@media\(max-width:360px\)/);assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(html,/<section id="zen-session" class="mode-screen zen-workout"/);assert.match(source[1],/function nextZen\(\)/);assert.match(source[1],/function selectZenStep\(index\)/);
@@ -189,6 +189,10 @@ test('Zen stretch and meditation support custom routines, editable planned days,
  const css=fs.readFileSync(path.join(root,'ingemar-preview-modes.css'),'utf8');
  for(const kind of ['stretch','meditation'])assert.match(source[1],new RegExp("zenRoutinesFor\\(kind\\)"));
  for(const id of ['zen-editor','zen-edit-name','zen-edit-steps','zen-edit-date','zen-edit-notes','zen-edit-minutes','zen-day-dialog','zen-day-date','zen-day-routine'])assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/class="modal-actions zen-day-actions"[^>]*><button[^>]*data-zen-action="close-day"[^>]*>Avbryt<\/button><button[^>]*data-zen-action="start-day"[^>]*>Starta pass ↗<\/button><button[^>]*data-zen-action="save-day"[^>]*>Spara dagen ✓<\/button>/);
+ assert.match(css,/#zen-day-dialog\{width:min\(520px,calc\(100dvw - 20px\)\)\}/);
+ assert.match(css,/#zen-day-dialog \.zen-day-actions\{display:grid;grid-template-columns:minmax\(0,\.82fr\) minmax\(0,1\.18fr\);gap:7px;margin-top:8px/);
+ assert.match(css,/#zen-day-dialog \.zen-day-actions>\[data-zen-action="save-day"\]\{grid-column:1\/-1;grid-row:2\}/);
  for(const action of ['create','log','add-step','save-editor','save-start','delete-entry','save-day','start-day'])assert.match(html,new RegExp('data-zen-action="'+action+'"'));
  for(const fn of ['ensureZenData','zenPlanForDate','zenRoutinesFor','openZenRoutineEditor','openZenHistoryEditor','syncZenEditor','renderZenEditor','saveZenEditor','removeZenEntry','openZenDay','saveZenDay','zenEditorAction'])assert.match(source[1],new RegExp('function '+fn+'\\('));
  assert.match(source[1],/state\.zenPlans\[zenDayKind\]\[date\]=routine\?routine\.id:null/);

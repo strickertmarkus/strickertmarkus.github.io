@@ -125,7 +125,7 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-popup-layout-1">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1">
 </head>
 <body>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><span class="demo">DEMO · FAKE DATA</span></div></header>
@@ -264,7 +264,7 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 <dialog id="zen-day-dialog" class="zen-editor-dialog" aria-labelledby="zen-day-title">
  <div class="modal-head"><div><span class="eyebrow" id="zen-day-kind">STRETCH · VECKOPLAN</span><h2 id="zen-day-title">Planera dag</h2></div><button type="button" class="x" data-zen-action="close-day" aria-label="Stäng">×</button></div>
  <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen sparas lokalt och kan ändras när som helst.</p>
- <div class="modal-actions"><button type="button" class="ghost" data-zen-action="close-day">Avbryt</button><div class="right"><button type="button" class="secondary" data-zen-action="start-day">Starta pass ↗</button><button type="button" class="primary" data-zen-action="save-day">Spara dagen ✓</button></div></div></div>
+ <div class="modal-actions zen-day-actions"><button type="button" class="ghost" data-zen-action="close-day">Avbryt</button><button type="button" class="secondary" data-zen-action="start-day">Starta pass ↗</button><button type="button" class="primary" data-zen-action="save-day">Spara dagen ✓</button></div></div>
 </dialog>
 <dialog id="week-planner" aria-labelledby="week-planner-title">
  <div class="modal-head"><div><span class="eyebrow">VECKOPLANERARE · INGEMAR</span><h2 id="week-planner-title">Planera vecka</h2></div><button type="button" class="x" data-action="close-week-planner" aria-label="Stäng">×</button></div>

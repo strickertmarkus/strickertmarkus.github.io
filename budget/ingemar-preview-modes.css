@@ -545,6 +545,17 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
 .zen-editor-dialog .ghost{color:#aab7b8}
 .zen-editor-dialog #zen-edit-delete{border-color:#db748047;color:#eab1b6;background:#db74800b}
 .zen-editor-dialog .zen-editor-actions .right{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+#zen-day-dialog{width:min(520px,calc(100dvw - 20px))}
+#zen-day-dialog .modal-head{padding:11px 13px}
+#zen-day-dialog .modal-body{padding:11px 12px 13px}
+#zen-day-dialog .field{margin-bottom:8px;gap:4px}
+#zen-day-dialog .field input,#zen-day-dialog .field select{min-height:44px;padding:9px 11px}
+#zen-day-dialog .hint{margin:2px 0 10px;font-size:10px;line-height:1.4}
+#zen-day-dialog .zen-day-actions{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:7px;margin-top:8px;align-items:stretch}
+#zen-day-dialog .zen-day-actions button{width:100%;min-width:0;min-height:42px;padding:9px 8px;justify-self:stretch}
+#zen-day-dialog .zen-day-actions>[data-zen-action="close-day"]{grid-column:1;grid-row:1}
+#zen-day-dialog .zen-day-actions>[data-zen-action="start-day"]{grid-column:2;grid-row:1}
+#zen-day-dialog .zen-day-actions>[data-zen-action="save-day"]{grid-column:1/-1;grid-row:2}
 @media(max-width:740px){
  .zen-section-head{align-items:flex-start;flex-direction:column;gap:8px}
  .zen-section-actions{justify-content:flex-start;gap:6px}
@@ -569,6 +580,7 @@ body[data-overview="meditation"] .topnav button[aria-selected="true"]{background
  .zen-step-editor-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
  .zen-editor-steps-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end}
  .zen-editor-dialog .modal-actions .right{grid-template-columns:minmax(0,1fr)}
+ #zen-day-dialog .zen-day-actions{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr)}
  .zen-editor-dialog #zen-edit-save-start:not([hidden]),.zen-editor-dialog #zen-edit-delete[hidden] ~ .primary{grid-column:auto}
  .zen-history .zen-history-row{flex-direction:column;align-items:flex-start;gap:8px}
  .zen-history .zen-history-row .metric{align-self:flex-start;text-align:left}

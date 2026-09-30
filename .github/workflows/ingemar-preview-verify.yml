@@ -571,12 +571,24 @@ jobs:
             await page.locator('#zen-week [data-zen-day]').first().click();
             assert.equal(await page.locator('#zen-day-dialog').evaluate(el=>el.open),true);
             await auditNoHorizontalScroll('Zen dagplanering 390px');
-            await auditPopupRows('Zen dagplanering 390px','#zen-day-dialog',['.modal-actions .right']);
-            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-390.png'});
+            async function auditZenDayActions(label){
+              const geo=await page.locator('#zen-day-dialog').evaluate(dialog=>{
+                const rect=action=>{const r=dialog.querySelector('[data-zen-action="'+action+'"]').getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+                return {cancel:rect('close-day'),start:rect('start-day'),save:rect('save-day')};
+              });
+              assert.ok(Math.abs(geo.cancel.top-geo.start.top)<2&&Math.abs(geo.cancel.bottom-geo.start.bottom)<2,label+' cancel/start must share one compact row: '+JSON.stringify(geo));
+              assert.ok(geo.cancel.right<=geo.start.left-4,label+' cancel/start must not overlap: '+JSON.stringify(geo));
+              assert.ok(geo.save.top>=Math.max(geo.cancel.bottom,geo.start.bottom)+4,label+' save must sit below the compact action row: '+JSON.stringify(geo));
+              assert.ok(geo.save.left<=geo.cancel.left+1&&geo.save.right>=geo.start.right-1,label+' save must span the full action width: '+JSON.stringify(geo));
+            }
+            await auditPopupRows('Zen dagplanering 390px','#zen-day-dialog',['.zen-day-actions']);
+            await auditZenDayActions('Stretch dagplanering 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-stretch-390.png'});
             await page.setViewportSize({width:320,height:844});
             await auditNoHorizontalScroll('Zen dagplanering 320px');
-            await auditPopupRows('Zen dagplanering 320px','#zen-day-dialog',['.modal-actions .right']);
-            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-320.png'});
+            await auditPopupRows('Zen dagplanering 320px','#zen-day-dialog',['.zen-day-actions']);
+            await auditZenDayActions('Stretch dagplanering 320px');
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-stretch-320.png'});
             await page.setViewportSize({width:390,height:844});
             await page.locator('#zen-day-routine').selectOption(customStretchId);
             await page.locator('[data-zen-action="save-day"]').click();
@@ -779,6 +791,18 @@ jobs:
             assert.match(await page.locator('#zen-choices').textContent(),/Sjöandning/);
             const meditationId=await page.locator('#zen-choices [data-zen-edit]').last().getAttribute('data-zen-edit');
             await page.locator('#zen-week [data-zen-day]').first().click();
+            assert.equal(await page.locator('#zen-day-dialog').getAttribute('data-kind'),'meditation','Meditation day popup keeps the warm theme');
+            await page.setViewportSize({width:390,height:844});
+            await auditNoHorizontalScroll('Meditation dagplanering 390px');
+            await auditPopupRows('Meditation dagplanering 390px','#zen-day-dialog',['.zen-day-actions']);
+            await auditZenDayActions('Meditation dagplanering 390px');
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-meditation-390.png'});
+            await page.setViewportSize({width:320,height:844});
+            await auditNoHorizontalScroll('Meditation dagplanering 320px');
+            await auditPopupRows('Meditation dagplanering 320px','#zen-day-dialog',['.zen-day-actions']);
+            await auditZenDayActions('Meditation dagplanering 320px');
+            await page.screenshot({path:'test-results/ingemar-demo/zen-day-dialog-meditation-320.png'});
+            await page.setViewportSize({width:390,height:844});
             await page.locator('#zen-day-routine').selectOption(meditationId);
             await page.locator('[data-zen-action="save-day"]').click();
             await page.locator('[data-zen-action="log"]').click();
