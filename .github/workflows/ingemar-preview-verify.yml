@@ -497,7 +497,8 @@ jobs:
             await page.locator('[data-zen-action="save-editor"]').click();
             assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen||''),'','Closing Zen builder releases the background lock');
             assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).position),'fixed');
-            assert.equal(await page.evaluate(()=>window.scrollY),preZenBuilderY,'Closing Zen builder restores the page position');
+            await waitAnimationFrames(3);
+            assert.equal(await page.evaluate(()=>window.scrollY),preZenBuilderY,'Closing Zen builder restores the page position after native dialog focus restoration');
             assert.equal(await page.locator('#zen-choices .zen-library-card').count(),4,'Custom stretch routine added');
             const customStretchId=await page.locator('#zen-choices [data-zen-edit]').last().getAttribute('data-zen-edit');
             await page.locator('#zen-choices [data-zen-edit]').last().click();
