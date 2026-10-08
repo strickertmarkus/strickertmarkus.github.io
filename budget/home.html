@@ -13,6 +13,8 @@
 <script src="auth-config.js"></script>
 <script src="auth-gate.js?v=20260903-home-day-timeline-v10"></script>
   <script src="firebase-sync.js"></script>
+  <script defer src="family-todos-v1.js?v=20261008-1"></script>
+  <script defer src="family-todos-ui-v1.js?v=20261008-1"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
@@ -952,6 +954,8 @@
         <ul class="shopping-list" id="shopping-items" onclick="event.stopPropagation()"></ul>
         <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
       </article>
+
+      <article class="widget backup-copy" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
 
     </div>
   </div>
@@ -1964,6 +1968,7 @@ function syncMobileWidgetOrder() {
   var underCalendarWidgets = document.querySelector('.under-calendar-widgets');
   var sidebar = document.querySelector('.sidebar');
   var shoppingWidget = document.getElementById('shopping-widget');
+  var todoWidget = document.getElementById('family-todo-home');
   if (!transferWidget || !underCalendarWidgets || !sidebar || !shoppingWidget) return;
 
   if (!transferOriginalParent) {
@@ -1976,6 +1981,7 @@ function syncMobileWidgetOrder() {
     if (transferWidget.parentElement !== sidebar) {
       shoppingWidget.insertAdjacentElement('afterend', transferWidget);
     }
+    if (todoWidget) shoppingWidget.insertAdjacentElement('afterend', todoWidget);
     underCalendarWidgets.style.display = 'none';
     return;
   }
