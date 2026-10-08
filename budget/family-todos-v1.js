@@ -127,18 +127,22 @@
   }
   function importLegacy(cal,shopping) {
     var imported={};
+    var calendarFingerprints=new Set();
+    function fingerprint(t){return String(t.text||'').toLocaleLowerCase('sv-SE')+'|'+t.member+'|'+t.done+'|'+(t.dueDate||'');}
     (Array.isArray(cal)?cal:[]).forEach(function(row,i){
       if(!row||!string(row.text))return;
       var id='legacy_cal_'+String(row.id==null?i:row.id).replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+i;
       imported[id]=normalize({id:id,text:row.text,member:row.member,done:row.done,priority:row.priority,
         dueDate:row.dueDate,createdAt:Number(row.id)||Date.now()},id);
+      calendarFingerprints.add(fingerprint(imported[id]));
     });
     (Array.isArray(shopping)?shopping:[]).filter(function(x){return x&&x.mode==='todo';}).forEach(function(list){
       (list.items||[]).forEach(function(item,i){
         if(!item||item.type==='category'||!string(item.text))return;
         var id='legacy_sh_'+String(list.id).replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+String(item.id==null?i:item.id).replace(/[^a-zA-Z0-9_-]/g,'_');
-        imported[id]=normalize({id:id,text:item.text,member:item.member,done:item.checked,priority:item.priority,
+        var migrated=normalize({id:id,text:item.text,member:item.member,done:item.checked,priority:item.priority,
           dueDate:item.dueDate},id);
+        if(!calendarFingerprints.has(fingerprint(migrated))) imported[id]=migrated;
       });
     });
     return imported;
