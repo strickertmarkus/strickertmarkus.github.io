@@ -11,6 +11,8 @@
 <script src="auth-config.js"></script>
 <script src="auth-gate.js?v=20260902-native-multiday-v3"></script>
   <script src="firebase-sync.js"></script>
+  <script defer src="family-todos-v1.js?v=20261008-1"></script>
+  <script defer src="family-todos-ui-v1.js?v=20261008-1"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
@@ -572,23 +574,7 @@
         </div>
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">
-          <span>✅ Att göra</span>
-        </div>
-        <div id="todo-list"></div>
-        <div class="todo-add-row">
-          <input type="text" class="todo-input" id="todo-input" placeholder="Ny uppgift…" onkeydown="if(event.key==='Enter')addTodo()">
-          <select class="todo-member-sel" id="todo-member">
-            <option value="family">👨‍👩‍👧‍👦</option>
-            <option value="markus">🔵</option>
-            <option value="maja">🩷</option>
-            <option value="mila">💗</option>
-            <option value="melker">🟢</option>
-          </select>
-          <button class="btn-xs" onclick="addTodo()">+</button>
-        </div>
-      </div>
+      <div class="sidebar-section"><div id="family-todo-calendar" aria-label="Familjens att-göra-lista"></div></div>
       <div class="sidebar-section" id="trip-section">
         <div class="sidebar-title">
           <span>✈️ Kommande resa</span>
@@ -1095,49 +1081,8 @@ function deleteCurrentEvent() {
   showToast('Händelse borttagen');
 }
 
-// ── TODOS ─────────────────────────────────────────────────────
-function renderTodos() {
-  var todos = getTodos();
-  var list = document.getElementById('todo-list');
-  if (!todos.length) { list.innerHTML=''; return; }
-  var html='';
-  todos.forEach(function(t,i){
-    var col=getMemberColor(t.member||'family');
-    html+='<div class="todo-item">';
-    html+='<div class="todo-check'+(t.done?' done':'')+'\" onclick="toggleTodo('+i+')" style="'+(t.done?'background:'+col+';border-color:'+col:'border-color:'+col)+'">'+(t.done?'✓':'')+'</div>';
-    html+='<div class="todo-text'+(t.done?' done':'')+'\" style="border-left:2px solid '+col+';padding-left:6px">'+escHtml(t.text)+'</div>';
-    html+='<button class="todo-del" onclick="deleteTodo('+i+')">✕</button>';
-    html+='</div>';
-  });
-  list.innerHTML=html;
-}
-
-function addTodo() {
-  var text = document.getElementById('todo-input').value.trim();
-  if (!text) return;
-  var member = document.getElementById('todo-member').value;
-  var todos = getTodos();
-  todos.push({ id: Date.now(), text: text, member: member, done: false });
-  DB.set('todos', todos);
-  document.getElementById('todo-input').value='';
-  renderTodos();
-}
-
-function toggleTodo(idx) {
-  var todos = getTodos();
-  if (todos[idx]) todos[idx].done = !todos[idx].done;
-  DB.set('todos', todos);
-  renderTodos();
-}
-
-function deleteTodo(idx) {
-  var todos = getTodos();
-  todos.splice(idx,1);
-  DB.set('todos', todos);
-  renderTodos();
-}
-
-function focusTodoInput() { document.getElementById('todo-input').focus(); }
+// ── TODOS: gemensam vy och Firebase-store i family-todos-* ──
+function renderTodos(){ if(window.FamilyTodosUI) window.FamilyTodosUI.render('calendar'); }
 
 // ── MEMBER FILTER ─────────────────────────────────────────────
 document.querySelectorAll('.member-chip').forEach(function(chip){
