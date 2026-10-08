@@ -51,7 +51,7 @@
       // Home deliberately reuses the native shopping widget controls and spacing.
       // Optional metadata stays collapsed instead of occupying permanent rows.
       root.innerHTML='<div class="widget-head ft-home-head">'+
-        '<div class="widget-title">Att göra</div>'+
+        '<div class="widget-title"><a class="ft-home-title-link" href="shopping.html?mode=todo">Att göra</a></div>'+
         '<div class="ft-home-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra" disabled>↶</button>'+
         '<div class="badge" data-ft-count>0 kvar</div></div></div>'+
         '<form class="ft-add-form" data-ft-add>'+
@@ -188,7 +188,7 @@
       #family-todo-home.ft-home{min-width:0}
       #family-todo-home.ft-home .widget-head{margin-bottom:12px}
       #family-todo-home.ft-home .widget-title{font-size:12px;letter-spacing:.8px;line-height:1.4;font-weight:700;text-transform:uppercase;color:#FDBA74}
-      #family-todo-home.ft-home .ft-home-head-actions{display:flex;align-items:center;gap:7px}
+      #family-todo-home.ft-home .ft-home-title-link{color:inherit;text-decoration:none}\n      #family-todo-home.ft-home .ft-home-title-link:hover{color:var(--accent,#FDBA74)}\n      #family-todo-home.ft-home .ft-home-title-link:focus-visible{outline:2px solid var(--accent,#FDBA74);outline-offset:3px}\n      #family-todo-home.ft-home .ft-home-head-actions{display:flex;align-items:center;gap:7px}
       #family-todo-home.ft-home .badge{font-size:11px;white-space:nowrap}
       #family-todo-home.ft-home .ft-undo{width:25px;height:25px;min-width:25px;border:0;border-radius:7px;background:none;color:var(--text-sec,#8B949E);font-size:17px;cursor:pointer}
       #family-todo-home.ft-home .ft-undo:disabled{display:none}
