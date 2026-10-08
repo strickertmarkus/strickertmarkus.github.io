@@ -92,7 +92,7 @@ body[data-kind=meditation] #clock-toggle{display:block;font-size:10px}
 body[data-kind=meditation] #session-audio{grid-row:2;background:#173e38f0}
 body[data-kind=meditation] #session-ending{background:#183f3944}
 .session-view.clock-hidden .session-clock{visibility:hidden}
-.session-view.controls-asleep .session-top,.session-view.controls-asleep .session-bottom,.session-view.controls-asleep .session-next{opacity:0;visibility:hidden;pointer-events:none}
+.session-view.controls-asleep .session-top,.session-view.controls-asleep .session-controls,.session-view.controls-asleep .session-meta>:not(.session-clock),.session-view.controls-asleep #session-audio,.session-view.controls-asleep .session-next{opacity:0;visibility:hidden;pointer-events:none}
 #reveal-session-controls{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);border:1px solid #f3dca23b;background:#193e3755;color:#e9e2ca}
 #reveal-session-controls[hidden]{display:none}
 @keyframes session-entry{from{opacity:0}to{opacity:1}}

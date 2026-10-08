@@ -70,7 +70,9 @@ async function geometry(page,kind,size){
  // Complete a short actual routine using the browser's clock, including quiet ending.
  const ctx=await context(browser,{width:390,height:844}),page=await ctx.newPage();
  await page.goto(base+'/budget/zen.html?wellness=meditation');await page.waitForFunction(()=>window.ZenStore?.ready);
- await page.clock.install();await page.locator('#start-button').click();await page.clock.runFor(1100);await page.clock.fastForward(610000);await page.clock.runFor(300);await page.waitForSelector('#session-ending:not([hidden])');
+ await page.clock.install();await page.locator('#start-button').click();await page.clock.runFor(1100);await page.clock.fastForward(9500);
+ assert.equal(await page.locator('#pause-session').isVisible(),false,'meditation controls should recede when idle');assert.equal(await page.locator('#session-clock').isVisible(),true,'the visible-clock preference must survive idle controls');
+ await page.screenshot({animations:'disabled',path:`${out}/meditation-idle.png`});await page.locator('#reveal-session-controls').click();await page.clock.fastForward(610000);await page.clock.runFor(300);await page.waitForSelector('#session-ending:not([hidden])');
  await page.screenshot({animations:'disabled',path:`${out}/meditation-ending.png`});await page.locator('#show-session-summary').click();await page.locator('#save-session').click();
  assert.equal(await page.evaluate(()=>ZenStore.entries.find(e=>!e.demo&&e.type==='session').seconds),600);await ctx.close();
  }finally{await browser.close();}
