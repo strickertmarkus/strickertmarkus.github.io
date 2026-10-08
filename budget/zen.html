@@ -18,9 +18,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script defer src="auth-config.js"></script><script defer src="auth-gate.js?v=20260924-canonical-auth-1"></script>
-  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-model.js?v=20261008-unique-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-demo-v4.js?v=20260910-demo-light-v4"></script><script defer src="zen.js?v=20261008-unique-1"></script><script defer src="zen-effects-v4.js?v=20260913-cleanup"></script><script defer src="zen-session-scene.js?v=20261008-unique-1"></script>
+  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-model.js?v=20261008-unique-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-demo-v4.js?v=20260910-demo-light-v4"></script><script defer src="zen.js?v=20261008-unique-1"></script><script defer src="zen-effects-v4.js?v=20260913-cleanup"></script><script defer src="zen-session-scene.js?v=20261008-glow-2"></script>
 
-<link rel="stylesheet" href="zen-session.css?v=20261008-unique-1">
+<link rel="stylesheet" href="zen-session.css?v=20261008-glow-2">
 <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
 </head>
 <body data-kind="stretch">
@@ -60,7 +60,7 @@
       <div class="session-top"><button class="text-button" id="leave-session">← Till startsidan</button><span id="session-routine-name"></span><button class="text-button" id="sound-toggle" aria-pressed="false">Klang av</button></div>
       <div class="session-layout">
         <div class="session-copy"><p class="eyebrow" id="session-overline">RÖRELSE</p><h1 id="session-title" tabindex="-1">Stående avslappning</h1><span id="session-side"></span><p id="session-cue" class="session-cue"></p></div>
-        <div class="session-stage" id="breathing-field"><canvas id="session-pose" role="img" aria-label="Aktuell stretchposition"></canvas><div class="session-sun" aria-hidden="true"><span></span></div><p id="session-stage-caption">Hitta din position</p></div>
+        <div class="session-stage" id="breathing-field"><canvas id="session-pose" role="img" aria-label="Aktuell stretchposition"></canvas><div class="session-sun" aria-hidden="true"><canvas id="session-sun-surface"></canvas></div><p id="session-stage-caption">Hitta din position</p></div>
         <div class="session-guidance"><p id="breath-label" aria-live="polite">Återstående tid</p><p id="session-phase-detail"></p><div class="session-clock"><strong id="session-clock">1:00</strong><small id="clock-caption">kvar i rörelsen</small></div></div>
         <div class="session-next"><span class="next-eyebrow">NÄSTA GLÄNTA</span><p id="next-step" class="next-step"></p></div>
       </div>
