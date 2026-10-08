@@ -20,7 +20,7 @@
     return '<span class="ft-due'+(overdue?' ft-late':now?' ft-today':'')+'">'+label+esc(d.slice(8,10)+'/'+d.slice(5,7))+'</span>';
   }
   function row(t,mode) {
-    var isEdit=editingId===t.id&&mode!=='home';
+    var isEdit=editingId===t.id;
     var assigned=MEMBERS.find(function(m){return m[0]===t.member;});
     var priority=t.priority!=='normal'?'<span class="ft-priority '+t.priority+'">'+esc(PRIORITY[t.priority])+'</span>':'';
     var checked=t.done?' is-done':'';
