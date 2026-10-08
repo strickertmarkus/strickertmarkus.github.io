@@ -10,7 +10,12 @@
     todo:{title:'Att göra',headings:[],id:-103}
   };
   var activeMode = 'shopping';
-  try { if (modes[localStorage.getItem('sh_list_mode')]) activeMode = localStorage.getItem('sh_list_mode'); } catch (_) {}
+  // Home opens Shopping directly in the Att göra tab.
+  try {
+    var requestedMode = new URLSearchParams(window.location.search).get('mode');
+    if (modes[requestedMode]) activeMode = requestedMode;
+    else if (modes[localStorage.getItem('sh_list_mode')]) activeMode = localStorage.getItem('sh_list_mode');
+  } catch (_) {}
   var activeList = null;
   function listMode(list) { return modes[list.mode] ? list.mode : 'shopping'; }
   function modeLists(lists) { return (lists || getLists()).filter(function(list){return listMode(list) === activeMode;}); }
