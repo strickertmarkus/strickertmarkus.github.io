@@ -27,6 +27,19 @@ jobs:
       - name: Check Zen JavaScript syntax
         run: |
           node --check budget/zen.js
-          node --check budget/zen-session-oasis-v54.js
+          node --check budget/zen-session-scene.js
       - name: Run Zen tests
-        run: node --test budget/tests/zen.test.cjs budget/tests/zen-session-oasis.test.cjs
+        run: node --test budget/tests/zen.test.cjs budget/tests/zen-session.test.cjs
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+      - name: Verify distinct sessions on mobile and desktop
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/zen-http.log 2>&1 &
+          node budget/tests/zen-session-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zen-session-screenshots
+          path: test-results/zen-sessions

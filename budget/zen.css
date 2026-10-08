@@ -1,5 +1,5 @@
 /* Zen home, scenes and controls. Cascade order is intentional.
-   Timed-session presentation remains in zen-session-oasis-v54.css. */
+   Timed-session presentation is owned by zen-session.css. */
 
 :root {
   color-scheme: dark;
@@ -880,240 +880,6 @@ body[data-kind=meditation] .day-fill {
   border-radius: 30px 30px 5px 5px;
 }
 
-.session-view {
-  max-width: 1180px;
-  width: 89%;
-  margin: auto;
-  min-height: calc(100svh - 108px);
-  display: flex;
-  flex-direction: column;
-}
-
-.session-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 8px 0 25px;
-}
-
-.session-top>span {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.session-center {
-  flex: 1;
-  text-align: center;
-  padding: 12px 0 0;
-}
-
-.session-center h1 {
-  font-size: clamp(43px,5.5vw,67px);
-  line-height: 1.15;
-  margin: 13px 0 14px;
-  letter-spacing: -1.5px;
-}
-
-.session-cue {
-  max-width: 530px;
-  min-height: 48px;
-  margin: 0 auto;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.8;
-}
-
-.breathing-field {
-  --breath-scale: 1;
-  position: relative;
-  width: 300px;
-  height: 300px;
-  display: grid;
-  place-items: center;
-  margin: 13px auto;
-}
-
-.breath-halo,
-.breath-ring {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.breath-halo {
-  inset: 27px;
-  background: radial-gradient(ellipse,rgba(var(--accent-rgb),.06),rgba(var(--accent-rgb),.025) 65%,transparent 73%);
-  box-shadow: 0 0 65px rgba(var(--accent-rgb),.08);
-  animation: forest-breathe 12s ease-in-out infinite;
-}
-
-.breath-ring {
-  inset: 24px;
-  border: 1px solid rgba(var(--accent-rgb),.2);
-  box-shadow: 0 0 20px rgba(var(--accent-rgb),.05),inset 0 0 20px rgba(var(--accent-rgb),.04);
-}
-
-.ring-2 {
-  inset: 8px;
-  border-color: rgba(var(--accent-rgb),.08);
-}
-
-.ring-3 {
-  inset: 44px;
-  border-color: rgba(var(--accent-rgb),.06);
-}
-
-.session-clock {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-}
-
-.session-clock>span {
-  font: italic 23px var(--serif);
-  color: var(--muted);
-}
-
-.session-clock strong {
-  font-family: var(--serif);
-  font-size: 66px;
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: 1px;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 28px rgba(var(--accent-rgb),.23);
-}
-
-.session-clock small {
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: .4px;
-}
-
-.next-step {
-  font-size: 11px;
-  color: var(--muted);
-  min-height: 38px;
-}
-
-.next-step button {
-  font-size: 11px;
-  min-height: 32px;
-}
-
-.session-bottom {
-  max-width: 650px;
-  width: 100%;
-  margin: 22px auto 0;
-  padding-bottom: max(22px,env(safe-area-inset-bottom));
-}
-
-.session-progress {
-  height: 2px;
-  border-radius: 5px;
-  background: var(--line);
-  overflow: visible;
-  margin-bottom: 20px;
-}
-
-.session-progress>span {
-  display: block;
-  width: 0;
-  height: 100%;
-  background: var(--accent);
-  box-shadow: 0 0 12px rgba(var(--accent-rgb),.5);
-  transition: width .3s linear;
-}
-
-.session-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.session-controls>span {
-  font-size: 10px;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  min-width: 90px;
-}
-
-.session-controls>.text-button {
-  min-width: 90px;
-  text-align: right;
-}
-
-.pause-button {
-  border: 1px solid rgba(var(--accent-rgb),.4);
-  border-radius: 999px;
-  background: rgba(var(--accent-rgb),.08);
-  padding: 11px 32px;
-  min-height: 46px;
-  min-width: 130px;
-  font-size: 12px;
-  box-shadow: 0 0 22px rgba(var(--accent-rgb),.05);
-}
-
-.session-footnote {
-  text-align: center;
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 22px;
-}
-
-body.in-session .landscape {
-  position: fixed;
-  height: 100svh;
-}
-
-body.in-session .landscape-shade {
-  background: linear-gradient(90deg,#071b18c9,#071b189e),linear-gradient(0deg,var(--bg),transparent 80%);
-}
-
-body.in-session .fireflies {
-  position: fixed;
-  height: 80vh;
-  left: 0;
-  opacity: .6;
-}
-
-body.in-session[data-kind=meditation] .landscape-shade {
-  background: linear-gradient(90deg,#a7c3bd8c,#a7c3bd4d),linear-gradient(0deg,var(--bg),transparent 80%);
-}
-
-body.in-session[data-kind=meditation] .breath-ring {
-  transform: scale(var(--breath-scale));
-  border-color: #678f7429;
-  box-shadow: 0 0 24px #d4ebc033;
-}
-
-body.in-session[data-kind=meditation] .breath-halo {
-  animation: none;
-  background: radial-gradient(ellipse,#dcecc15c,#b1d3bd26 65%,transparent 75%);
-  box-shadow: 0 0 70px #d9edb747;
-  transform: scale(var(--breath-scale));
-}
-
-body.in-session[data-kind=meditation] .ring-2 {
-  transform: scale(calc(var(--breath-scale) * 1.06));
-}
-
-body.in-session[data-kind=meditation] .ring-3 {
-  transform: scale(calc(var(--breath-scale) * .94));
-}
-
-body.is-paused .breath-halo {
-  animation-play-state: paused;
-}
-
-body.is-paused .breathing-field {
-  opacity: .65;
-}
-
 .complete-view {
   max-width: 480px;
   margin: 30px auto 60px;
@@ -1197,7 +963,7 @@ body.is-paused .breathing-field {
   margin-top: 15px;
 }
 
-@keyframes forest-breathe{0%,100%{transform:scale(.97);opacity:.7}50%{transform:scale(1.08);opacity:1}}
+
 
 .zen-dialog {
   overscroll-behavior: contain;
@@ -1410,7 +1176,6 @@ body[data-kind=meditation] .form-error {
   to { opacity: 1; transform: none; }
 }
 
-.session-view,
 .complete-view {
   animation: arrive .8s ease-out;
 }
@@ -1527,10 +1292,6 @@ body[data-kind=meditation] .form-error {
 
   .zen-header .wellness-nav .wellness-symbol {
     font-size: 18px;
-  }
-
-  .session-view {
-    width: 88%;
   }
 
   .hero-copy h1 {
@@ -1738,86 +1499,7 @@ body[data-kind=meditation] .form-error {
     margin-top: 5px;
   }
 
-  .session-view {
-    min-height: calc(100svh - 92px);
-  }
 
-  .session-top {
-    padding: 0 0 15px;
-    gap: 8px;
-  }
-
-  .session-top>.text-button {
-    font-size: 10px;
-  }
-
-  .session-top>span {
-    font-size: 9px;
-    max-width: 135px;
-    text-align: center;
-  }
-
-  .session-center {
-    padding: 15px 0 0;
-  }
-
-  .session-center h1 {
-    font-size: 41px;
-    letter-spacing: -1px;
-    margin: 10px 0 12px;
-  }
-
-  .session-cue {
-    font-size: 12px;
-    max-width: 330px;
-    min-height: 65px;
-  }
-
-  .breathing-field {
-    width: 270px;
-    height: 270px;
-    margin: 10px auto;
-  }
-
-  .session-clock strong {
-    font-size: 60px;
-  }
-
-  .session-clock>span {
-    font-size: 22px;
-  }
-
-  .session-bottom {
-    margin-top: 15px;
-  }
-
-  .session-footnote {
-    font-size: 9px;
-    margin-top: 17px;
-  }
-
-  .session-controls {
-    gap: 10px;
-  }
-
-  .session-controls>span,
-  .session-controls>.text-button {
-    font-size: 10px;
-    min-width: 75px;
-  }
-
-  .pause-button {
-    min-width: 108px;
-    padding: 10px 25px;
-  }
-
-  .session-center .eyebrow {
-    font-size: 9px;
-  }
-
-  .next-step {
-    font-size: 10px;
-  }
 
   .complete-view {
     margin: 22px auto 40px;
@@ -1933,10 +1615,7 @@ body[data-kind=meditation] .form-error {
     display: none;
   }
 
-  .breath-halo,
-  .breath-ring {
-    transform: none !important;
-  }
+
 
 }
 
@@ -1982,9 +1661,7 @@ body[data-kind=meditation] .complete-view textarea {
   background: #c4daca40;
 }
 
-body[data-kind=meditation] .session-clock strong {
-  text-shadow: 0 0 30px #d8edb78c;
-}
+
 
 @media (max-width:600px) {
 

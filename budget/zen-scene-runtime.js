@@ -13,7 +13,7 @@
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
   }
-  function drawable() { return visible && !document.hidden && !suspended && !(window.TrainingOverlay && window.TrainingOverlay.isLocked()); }
+  function drawable() { return !inSession && visible && !document.hidden && !suspended && !(window.TrainingOverlay && window.TrainingOverlay.isLocked()); }
   function paint(layer, now) {
     layer.draw(motion.matches ? 0 : now / 1000);
     layer.last = now;

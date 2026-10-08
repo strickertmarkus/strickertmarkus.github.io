@@ -31,10 +31,20 @@
       ((r.kind==='stretch'&&Array.isArray(r.steps)&&r.steps.length>0&&r.steps.length<=20&&r.steps.every(s=>s&&typeof s.name==='string'&&s.name.length<=100&&typeof s.cue==='string'&&s.cue.length<=500&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600))||
       (r.kind==='meditation'&&Number.isInteger(r.seconds)&&r.seconds>=60&&r.seconds<=3600&&['breath','silent'].includes(r.guidance)));
   }
-  function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,paused:false};}
+  function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,workMs:0,workAnchor:now,paused:false};}
   function elapsed(s,now){return Math.min(duration(s.routine)*1000,Math.max(0,s.elapsedMs+(s.paused?0:Math.max(0,now-s.anchor))));}
-  function pause(s,now){return {...s,elapsedMs:elapsed(s,now),anchor:now,paused:true};}
-  function resume(s,now){return {...s,anchor:now,paused:false};}
+  function practiced(s,now){
+    if(!Number.isFinite(s.workMs))return elapsed(s,now);
+    return s.workMs+(s.paused?0:Math.min(Math.max(0,now-(s.workAnchor??s.anchor)),Math.max(0,duration(s.routine)*1000-s.elapsedMs)));
+  }
+  function pause(s,now){return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:elapsed(s,now),anchor:now,paused:true};}
+  function resume(s,now){return {...s,anchor:now,workAnchor:now,paused:false};}
+  function seek(s,index,now){
+    if(s.routine.kind!=='stretch')return s;
+    const target=Math.max(0,Math.min(s.routine.steps.length-1,index));
+    const offset=s.routine.steps.slice(0,target).reduce((n,step)=>n+step.seconds*1000,0);
+    return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:offset,anchor:now};
+  }
   function position(s,now){
     const spent=elapsed(s,now)/1000,total=duration(s.routine);
     if(s.routine.kind==='meditation')return {index:0,spent,total,remaining:Math.max(0,total-spent),done:spent>=total};
@@ -61,5 +71,5 @@
     return e.type==='session'&&['stretch','meditation'].includes(e.kind)&&typeof e.name==='string'&&e.name.length<=80&&Number.isFinite(e.completedAt)&&e.completedAt>0&&e.completedAt<=8640000000000000&&Number.isFinite(e.seconds)&&e.seconds>=1&&e.seconds<=12000&&typeof e.note==='string'&&e.note.length<=500&&['','lighter','calm','present'].includes(e.feeling);
   }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {poses,routines,duration,start,elapsed,pause,resume,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {poses,routines,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });

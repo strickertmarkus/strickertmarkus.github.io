@@ -299,8 +299,8 @@ test('production pages cache-bust the shared wellness owners',()=>{
     assert.match(exercise,/auth-config\.js\?v=20260927-pulse-robust-2/);
     assert.match(exercise,/auth-gate\.js\?v=20260927-pulse-robust-2/);
   }
-  assert.match(zen,/zen\.css\?v=20260928-scroll-stability-1/);
-  assert.match(zen,/zen\.js\?v=20260928-scroll-stability-1/);
+  assert.match(zen,/zen\.css\?v=20261008-unique-1/);
+  assert.match(zen,/zen\.js\?v=20261008-unique-1/);
 });
 
 
