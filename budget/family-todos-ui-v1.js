@@ -95,7 +95,8 @@
     // Keep inline editing text and focus intact during incoming Firebase updates.
     if(editingId&&root.contains(document.activeElement)&&document.activeElement.closest('.ft-editor'))return;
     var all=store.list(),active=all.filter(function(t){return !t.done;}).length;
-    root.querySelector('[data-ft-count]').textContent=active+' kvar · '+all.length+' totalt';
+    var sync=store.status();
+    root.querySelector('[data-ft-count]').textContent=active+' kvar · '+all.length+' totalt'+(sync==='offline'?' · Offline':sync==='connecting'?' · Synkar…':'');
     var undo=root.querySelector('[data-act="undo"]');if(undo)undo.disabled=!store.canUndo();
     var filtered=all.slice();
     if(mode==='home')filtered=filtered.filter(function(t){return !t.done;}).slice(0,5);
@@ -178,6 +179,7 @@
         old(date);
         var list=document.getElementById('day-events-list');if(!list)return;
         var tasks=store.list().filter(function(t){return !t.done&&t.dueDate===date;});
+        if(tasks.length){var empty=list.querySelector('.empty-sidebar');if(empty)empty.remove();}
         tasks.forEach(function(t){
           var reminder=document.createElement('div');reminder.className='ft-calendar-reminder';
           reminder.textContent='Att göra · '+t.text+' · '+(PRIORITY[t.priority]||'Normal');
