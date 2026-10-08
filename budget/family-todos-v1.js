@@ -193,7 +193,8 @@
     if(!window.firebase||!firebase.auth||!firebase.database){status='offline';notify();return;}
     firebase.auth().onAuthStateChanged(function(user){if(user)connect(user);else{connected=false;status='local';notify();}});
   }
-  window.addEventListener('pageshow',refresh);
+  window.addEventListener('pageshow',function(){if(!initialized&&window.firebase&&firebase.auth&&firebase.auth().currentUser)connect(firebase.auth().currentUser);else refresh();});
+  window.addEventListener('online',function(){if(!initialized&&window.firebase&&firebase.auth&&firebase.auth().currentUser)connect(firebase.auth().currentUser);else {refresh();flush();}});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
   window.FamilyTodos={list:list,get:function(id){return tasks[id]||null;},add:add,update:update,toggle:toggle,remove:remove,
     undo:undo,canUndo:function(){return history.length>0;},status:function(){return status;},
