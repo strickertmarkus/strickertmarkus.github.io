@@ -24,10 +24,11 @@
     var assigned=MEMBERS.find(function(m){return m[0]===t.member;});
     var priority=t.priority!=='normal'?'<span class="ft-priority '+t.priority+'">'+esc(PRIORITY[t.priority])+'</span>':'';
     var checked=t.done?' is-done':'';
+    var showMeta=mode!=='home'||t.member!=='family'||t.priority!=='normal'||!!t.dueDate;
     var content='<div class="ft-task'+checked+'" data-id="'+esc(t.id)+'" style="--ft-member:'+COLORS[t.member]+'">'+
       '<button type="button" class="ft-check" data-act="toggle" data-id="'+esc(t.id)+'" aria-label="'+(t.done?'Återaktivera':'Klarmarkera')+' '+esc(t.text)+'">'+(t.done?'✓':'')+'</button>'+
       '<div class="ft-task-body"><button type="button" class="ft-task-title" data-act="edit" data-id="'+esc(t.id)+'">'+esc(t.text)+'</button>'+
-      '<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div></div>'+
+      (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
       (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera">⋯</button>')+
       '</div>';
     if(isEdit){
@@ -46,6 +47,25 @@
     var compact=mode==='home',shop=mode==='shopping';
     root.classList.add('family-todos', 'ft-'+mode);
     root.dataset.familyTodosMode=mode;
+    if (compact) {
+      // Home deliberately reuses the native shopping widget controls and spacing.
+      // Optional metadata stays collapsed instead of occupying permanent rows.
+      root.innerHTML='<div class="widget-head ft-home-head">'+
+        '<div class="widget-title">Att göra</div>'+
+        '<div class="ft-home-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra" disabled>↶</button>'+
+        '<div class="badge" data-ft-count>0 kvar</div></div></div>'+
+        '<form class="ft-add-form" data-ft-add>'+
+        '<div class="shopping-input-row ft-home-input-row">'+
+        '<input class="shopping-input" type="text" name="text" maxlength="240" placeholder="Lägg till uppgift..." aria-label="Ny uppgift" autocomplete="off" required>'+
+        '<button type="submit" class="btn ft-home-add-btn">Lägg till</button></div>'+
+        '<button type="button" class="ft-options-toggle" data-act="options" aria-expanded="false" aria-controls="family-todo-home-options">+ Ansvarig, prioritet och datum</button>'+
+        '<div class="ft-add-options" id="family-todo-home-options" hidden>'+
+        '<label>Ansvarig<select name="member" aria-label="Ansvarig">'+memberOpts('family')+'</select></label>'+
+        '<label>Prioritet<select name="priority" aria-label="Prioritet">'+prioOpts('normal')+'</select></label>'+
+        '<label>Förfallodatum<input type="date" name="dueDate" aria-label="Förfallodatum"></label></div></form>'+
+        '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
+        '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a>';
+    } else {
     root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(compact?'Att göra':shop?'Familjens att-göra-lista':'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
       '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra">↶</button>'+
@@ -59,6 +79,7 @@
       '<select data-ft-status aria-label="Visa uppgifter"><option value="all">Aktiva och klara</option><option value="active">Aktiva</option><option value="done">Klarmarkerade</option></select></div>':'')+
       '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
       (compact?'<a class="ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a>':'');
+    }
     var form=root.querySelector('[data-ft-add]');
     form.addEventListener('submit',function(event){
       event.preventDefault();
@@ -69,6 +90,13 @@
     root.addEventListener('click',function(event){
       var target=event.target.closest('[data-act]');if(!target||!root.contains(target))return;
       var id=target.dataset.id,action=target.dataset.act;
+      if(action==='options'){
+        var panel=root.querySelector('.ft-add-options');
+        var opening=!!panel.hidden;
+        panel.hidden=!opening;
+        target.setAttribute('aria-expanded',String(opening));
+        return;
+      }
       if(action==='toggle'){store.toggle(id);return;}
       if(action==='undo'){editingId=null;store.undo();return;}
       if(action==='edit'){editingId=editingId===id?null:id;render(mode);var input=root.querySelector('.ft-editor input[name="text"]');if(input)input.focus();return;}
@@ -96,10 +124,12 @@
     if(editingId&&root.contains(document.activeElement)&&document.activeElement.closest('.ft-editor'))return;
     var all=store.list(),active=all.filter(function(t){return !t.done;}).length;
     var sync=store.status();
-    root.querySelector('[data-ft-count]').textContent=active+' kvar · '+all.length+' totalt'+(sync==='offline'?' · Offline':sync==='connecting'?' · Synkar…':'');
+    var counter=root.querySelector('[data-ft-count]');
+    counter.textContent=mode==='home' ? active+' kvar'+(sync==='offline'?' · offline':'') : active+' kvar · '+all.length+' totalt'+(sync==='offline'?' · Offline':sync==='connecting'?' · Synkar…':'');
+    if(mode==='home')counter.title=active+' kvar · '+all.length+' totalt';
     var undo=root.querySelector('[data-act="undo"]');if(undo)undo.disabled=!store.canUndo();
     var filtered=all.slice();
-    if(mode==='home')filtered=filtered.filter(function(t){return !t.done;}).slice(0,5);
+    if(mode==='home')filtered=filtered.slice(0,5);
     else{
       var owner=root.querySelector('[data-ft-member]'),status=root.querySelector('[data-ft-status]');
       if(owner&&owner.value!=='all')filtered=filtered.filter(function(t){return t.member===owner.value;});
@@ -107,7 +137,7 @@
       if(status&&status.value==='done')filtered=filtered.filter(function(t){return t.done;});
     }
     listRoot.innerHTML=filtered.length?filtered.map(function(t){return row(t,mode);}).join(''):
-      '<div class="ft-empty">'+(all.length?'Inga uppgifter matchar filtret.':'Inga uppgifter ännu. Lägg till den första ovan.')+'</div>';
+      '<div class="ft-empty">'+(all.length?'Inga uppgifter matchar filtret.':mode==='home'?'Inga uppgifter ännu. Lägg till den första här.':'Inga uppgifter ännu. Lägg till den första ovan.')+'</div>';
   }
   function installStyles(){
     if(document.getElementById('family-todos-v1-css'))return;
@@ -153,6 +183,43 @@
       .ft-cal-day-indicator{display:inline-block;width:5px;height:5px;background:#fbbf24;box-shadow:0 0 9px #fbbf24;border-radius:50%;vertical-align:middle;margin-left:5px}
       .ft-calendar-reminder{margin:8px 0;padding:8px;border-left:2px solid #fbbf24;background:rgba(251,191,36,.04);border-radius:5px;font-size:12px}
       @media(max-width:520px){.ft-shopping{padding:14px 11px;border-radius:12px}.ft-add-options{grid-template-columns:1fr 1fr}.ft-add-options input{grid-column:1 / -1}.ft-editor-fields{grid-template-columns:1fr}.ft-editor-fields label:last-child{grid-column:auto}.family-todos input,.family-todos select{font-size:16px}.ft-add-options select,.ft-add-options input,.ft-filters select{font-size:14px;min-height:39px;height:39px}.ft-shopping .ft-title{font-size:17px}}
+
+      /* Home: match #shopping-widget instead of reusing the full-page form. */
+      #family-todo-home.ft-home{min-width:0}
+      #family-todo-home.ft-home .widget-head{margin-bottom:12px}
+      #family-todo-home.ft-home .widget-title{font-size:12px;letter-spacing:.8px;line-height:1.4;font-weight:700;text-transform:uppercase;color:#FDBA74}
+      #family-todo-home.ft-home .ft-home-head-actions{display:flex;align-items:center;gap:7px}
+      #family-todo-home.ft-home .badge{font-size:11px;white-space:nowrap}
+      #family-todo-home.ft-home .ft-undo{width:25px;height:25px;min-width:25px;border:0;border-radius:7px;background:none;color:var(--text-sec,#8B949E);font-size:17px;cursor:pointer}
+      #family-todo-home.ft-home .ft-undo:disabled{display:none}
+      #family-todo-home.ft-home .ft-undo:not(:disabled):hover{color:var(--accent,#FDBA74)}
+      #family-todo-home.ft-home .ft-add-form{display:block;margin-bottom:0}
+      #family-todo-home.ft-home .shopping-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;margin-bottom:0}
+      #family-todo-home.ft-home .shopping-input{background:transparent;min-width:0;border-radius:8px;padding:9px 10px;min-height:0;font-size:13px}
+      #family-todo-home.ft-home .shopping-input::placeholder{font-size:13px;color:var(--text-sec,#8B949E)}
+      #family-todo-home.ft-home .btn{min-height:0;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap;border-radius:8px}
+      #family-todo-home.ft-home .ft-options-toggle{display:inline-block;margin:7px 0 0;padding:2px 0;border:0;background:none;color:var(--text-sec,#8B949E);font-size:11px;line-height:1.3;text-align:left;cursor:pointer}
+      #family-todo-home.ft-home .ft-options-toggle[aria-expanded="true"]{color:var(--accent,#FDBA74)}
+      #family-todo-home.ft-home .ft-add-options[hidden]{display:none!important}
+      #family-todo-home.ft-home .ft-add-options{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:10px 0 0;padding:10px;border-radius:9px;border:1px solid var(--border,rgba(255,255,255,.08));background:rgba(255,255,255,.018)}
+      #family-todo-home.ft-home .ft-add-options label{display:grid;gap:4px;min-width:0;font-size:11px;color:var(--text-sec,#8B949E)}
+      #family-todo-home.ft-home .ft-add-options label:last-child{grid-column:1/-1}
+      #family-todo-home.ft-home .ft-add-options input,#family-todo-home.ft-home .ft-add-options select{min-height:35px;height:35px;max-width:100%;background:transparent;border-radius:7px;padding:5px 7px;font-size:12px}
+      #family-todo-home.ft-home .ft-list{max-height:280px;overflow:auto;margin-top:5px}
+      #family-todo-home.ft-home .ft-empty{padding:12px 2px 6px;font-size:13px;color:var(--text-sec,#8B949E)}
+      #family-todo-home.ft-home .ft-task{grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;padding:8px 3px;border-bottom:1px solid var(--border,rgba(255,255,255,.07))}
+      #family-todo-home.ft-home .ft-check{width:16px;height:16px;margin:0;border-radius:4px;font-size:11px}
+      #family-todo-home.ft-home .ft-task-title{font-size:13px;font-weight:500;line-height:1.4}
+      #family-todo-home.ft-home .ft-task-meta{margin-top:2px}
+      #family-todo-home.ft-home .ft-bottom-link{display:inline-flex;justify-content:flex-start;gap:7px;width:auto;margin-top:10px;font-size:11px;line-height:1.5;color:var(--text-sec,#8B949E);text-decoration:none}
+      #family-todo-home.ft-home .ft-bottom-link:hover{color:var(--accent,#FDBA74)}
+      #family-todo-home.ft-home .ft-editor{margin:8px 0 12px 20px;padding:10px}
+      @media(max-width:520px){
+        #family-todo-home.ft-home .shopping-input{font-size:16px}
+        #family-todo-home.ft-home .shopping-input::placeholder{font-size:13px}
+        #family-todo-home.ft-home .ft-add-options select,#family-todo-home.ft-home .ft-add-options input{min-height:38px;height:38px;font-size:16px}
+      }
+
       @media(prefers-reduced-motion:reduce){.family-todos *{transition:none!important}}
     `;
     document.head.appendChild(style);
