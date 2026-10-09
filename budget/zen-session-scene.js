@@ -140,7 +140,7 @@
    if(lit)glow(p,x,y,20,'184,245,123',.32);
    p.save();if(lit){p.shadowColor='#cbff92';p.shadowBlur=9;}
    // Center each leaf on the exact timer path, so contact and flash coincide.
-   const angle=a+.6,size=21;
+   const angle=a,size=25;
    leaf(p,x-Math.cos(angle)*size/2,y-Math.sin(angle)*size/2,size,angle,lit?'#e4ffb7':'#85ad62');
    line(p,[[x-Math.cos(angle)*7,y-Math.sin(angle)*7],[x+Math.cos(angle)*7,y+Math.sin(angle)*7]],lit?'#709b43':'#c2df9388',.8);p.restore();
    if(!reduced.matches&&age>=0&&age<1.35){
@@ -183,7 +183,7 @@
    // Waterfall at the far right, outside the breathing guide and controls.
    for(let i=0;i<12;i++){const x=width*.91+Math.sin(i*2)*width*.025,y=height*.46;line(c,[[x,y],[x+Math.sin(t*1.4+i)*2,height*.62]],`rgba(206,230,204,${.035+i%3*.015})`,1.3);}
   }else{
-   for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const alpha=.14+.22*(1+Math.sin(t*.8+i))/2;glow(c,x,y,9,'201,242,137',alpha*.45);ellipse(c,x,y,1.1,1.1,`rgba(219,251,160,${alpha})`);}
+   for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const alpha=.14+.22*(1+Math.sin(t*.8+i))/2;glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
    for(let i=0;i<9;i++){const x=(i*137.3+t*7)%width,y=(i*101+t*8)%(height*.8);leaf(c,x,y,4+ i%3,Math.sin(t*.3+i),'#b6d17d30');}
    drawPose(t,now);
   }
@@ -204,7 +204,7 @@
    previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
    $('session-stage-caption').textContent=next.step.id==='rest'?'Låt kroppen landa':next.step.id?.includes('side-')?'Längd genom hela sidan':'En rörelse. Ett andetag i taget.';
-   $('session-trail').replaceChildren(...next.steps.map((step,i)=>{const li=document.createElement('li');li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;}));
+   $('session-trail').replaceChildren(...next.steps.map((step,i)=>{const li=document.createElement('li');li.style.flex=String(step.seconds||1);li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;}));
   }
   if(next.done)$('session-trail').querySelectorAll('li').forEach(li=>{li.dataset.state='done';li.removeAttribute('aria-current');});
   if(next.phase==='Andas ut'&&old.phase!==next.phase&&!reduced.matches)ripples.push({x:width*.5,y:height*.65,at:performance.now()});

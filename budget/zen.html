@@ -18,9 +18,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script defer src="auth-config.js"></script><script defer src="auth-gate.js?v=20260924-canonical-auth-1"></script>
-  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-model.js?v=20261008-unique-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-demo-v4.js?v=20260910-demo-light-v4"></script><script defer src="zen.js?v=20261009-session-1"></script><script defer src="zen-effects-v4.js?v=20260913-cleanup"></script><script defer src="zen-session-scene.js?v=20261009-motion-1"></script>
+  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-model.js?v=20261008-unique-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-demo-v4.js?v=20260910-demo-light-v4"></script><script defer src="zen.js?v=20261009-session-1"></script><script defer src="zen-effects-v4.js?v=20260913-cleanup"></script><script defer src="zen-session-scene.js?v=20261009-clock-leaves-1"></script>
 
-<link rel="stylesheet" href="zen-session.css?v=20261008-glow-4">
+<link rel="stylesheet" href="zen-session.css?v=20261009-unified-trail-1">
 <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
 </head>
 <body data-kind="stretch">
@@ -65,8 +65,7 @@
         <div class="session-next"><span class="next-eyebrow">NÄSTA GLÄNTA</span><p id="next-step" class="next-step"></p></div>
       </div>
       <div class="session-bottom">
-        <ol id="session-trail" aria-label="Passets övningar"></ol>
-        <div class="session-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="session-progress-fill"></span></div>
+        <div class="session-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="session-progress-fill"></span><ol id="session-trail" aria-label="Passets övningar"></ol></div>
         <div class="session-controls"><button class="text-button" id="previous-step" aria-label="Föregående övning">← Föregående</button><button class="pause-button" id="pause-session">Pausa</button><button class="text-button" id="following-step" aria-label="Nästa övning">Nästa →</button><button class="text-button" id="finish-session">Avsluta</button></div>
         <div class="session-meta"><span id="session-elapsed">0:00 / 8:00</span><p class="session-footnote" id="session-footnote"></p><button class="text-button" id="clock-toggle" aria-pressed="true">Dölj tiden</button></div>
         <details id="session-audio"><summary>Ljud &amp; volym</summary><label for="session-volume">Volym <output id="volume-value">100 %</output></label><input id="session-volume" type="range" min="0" max="100" value="100"></details>
