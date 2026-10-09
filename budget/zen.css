@@ -1717,31 +1717,6 @@ body[data-kind=meditation] .zen-brand>span:first-child {
   text-shadow: 0 0 18px rgba(255,239,166,.42);
 }
 
-#zen-demo-badge-v4 {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 15px;
-  padding: 6px 10px;
-  border: 1px solid rgba(var(--accent-rgb),.22);
-  border-radius: 999px;
-  background: rgba(var(--accent-rgb),.055);
-  color: var(--muted);
-  font-size: 9px;
-  letter-spacing: .55px;
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px);
-}
-
-#zen-demo-badge-v4:before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px 2px rgba(var(--accent-rgb),.38);
-}
-
 body {
   position: relative;
 }
@@ -1996,11 +1971,6 @@ body[data-kind=meditation] .hero-copy h1::after {
 
 body[data-kind=meditation] .hero-description {
   color: #294f47;
-}
-
-body[data-kind=meditation] #zen-demo-badge-v4 {
-  background: rgba(203,224,214,.16);
-  border-color: rgba(45,87,74,.24);
 }
 
 body[data-kind=meditation] #home-view::before {
@@ -2725,3 +2695,12 @@ body[data-kind=meditation] #home-view #start-label{color:#f7e3a5;text-shadow:0 1
  #home-view #start-button{transition:none}
  #home-view #start-button::after{animation:none}
 }
+
+/* Searchable movement catalogue uses the existing builder surface. */
+.pose-library{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.pose-library input,.pose-library select{font-size:16px;min-width:0;width:100%}
+.pose-library select{background:#17382b;color:#e1edd5;border:1px solid var(--line);border-radius:10px;padding:12px}
+body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34}
+.pose-library #pose-group{margin-top:8px}
+.pose-library .add-step{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.pose-library .subtle-text{font-size:12px;line-height:1.6;margin:10px 0}

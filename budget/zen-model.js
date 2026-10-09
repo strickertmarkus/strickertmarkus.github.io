@@ -1,20 +1,9 @@
 (function(root,factory){
   'use strict';
-  if(typeof module==='object'&&module.exports)module.exports=factory();else root.ZenModel=factory();
-})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  if(typeof module==='object'&&module.exports)module.exports=factory(require('./zen-stretch-library.js'));else root.ZenModel=factory(root.ZenStretch);
+})(typeof globalThis!=='undefined'?globalThis:this,function(library){
   'use strict';
-  const poses=[
-    {id:'arrive',name:'Stående avslappning',cue:'Stå bekvämt. Låt axlarna sjunka och känn fötterna mot marken.'},
-    {id:'neck',name:'Axelrullningar',cue:'Rulla axlarna långsamt bakåt. Släpp ned dem mellan varje rörelse.'},
-    {id:'side-left',name:'Sidosträck · vänster',cue:'Sträck höger arm uppåt och luta mjukt åt vänster. Andas normalt.'},
-    {id:'side-right',name:'Sidosträck · höger',cue:'Sträck vänster arm uppåt och luta mjukt åt höger. Håll axlarna avslappnade.'},
-    {id:'cat',name:'Katt & ko',cue:'På alla fyra: runda ryggen långsamt, mjukna sedan åt andra hållet. Följ din egen takt.'},
-    {id:'child',name:'Barnets position',cue:'Låt höfterna sjunka bakåt mot hälarna. Vila överkroppen där det känns bekvämt.'},
-    {id:'hip-left',name:'Höftöppnare · vänster',cue:'Vänster fot fram, höger knä i golvet på ett mjukt underlag. För vikten varsamt framåt.'},
-    {id:'hip-right',name:'Höftöppnare · höger',cue:'Höger fot fram, vänster knä i golvet på ett mjukt underlag. Hitta ett behagligt läge.'},
-    {id:'fold',name:'Sittande framåtfällning',cue:'Sitt med benen framför dig och lätt böjda knän. Fäll fram från höften så långt det känns mjukt.'},
-    {id:'rest',name:'Liggande vila',cue:'Lägg dig bekvämt på rygg. Släpp vikten mot underlaget och låt andetagen komma av sig själva.'}
-  ];
+  const poses=library.poses;
   const makeSteps=(ids,seconds)=>ids.map(id=>({...poses.find(p=>p.id===id),seconds}));
   const routines=[
     {id:'forest',kind:'stretch',name:'Helkropp',description:'8 övningar för axlar, rygg och ben.',steps:makeSteps(['arrive','neck','side-left','side-right','cat','child','fold','rest'],60)},

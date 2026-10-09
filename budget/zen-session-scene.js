@@ -66,54 +66,6 @@
   snapshot.kind==='meditation'?shore():forest();
   const pr=poseCanvas.getBoundingClientRect();poseCanvas.width=Math.max(1,Math.round(pr.width*dpr));poseCanvas.height=Math.max(1,Math.round(pr.height*dpr));p.setTransform(dpr,0,0,dpr,0,0);paint(performance.now());
  }
- // Anatomical silhouettes are drawn as shaded, joined forms, never a generic timer icon.
- const poses={
-  arrive:{head:[150,50],torso:[[150,86],[150,158]],arms:[[[134,91],[126,135],[124,166]],[[166,91],[174,135],[176,166]]],legs:[[[141,159],[137,210],[130,261]],[[159,159],[163,210],[170,261]]]},
-  neck:{head:[150,50],torso:[[150,86],[150,158]],arms:[[[134,91],[118,125],[115,157]],[[166,91],[181,125],[185,157]]],legs:[[[141,159],[137,210],[130,261]],[[159,159],[163,210],[170,261]]]},
-  'side-left':{head:[120,52],torso:[[127,87],[150,156]],arms:[[[111,92],[103,132],[117,167]],[[141,81],[139,41],[110,16]]],legs:[[[142,158],[129,211],[114,261]],[[157,158],[172,210],[183,261]]]},
-  'side-right':{mirror:'side-left'},
-  cat:{head:[91,127],torso:[[111,145],[189,142]],arms:[[[113,150],[109,196],[103,229]],[[125,151],[120,192],[118,229]]],legs:[[[186,146],[191,223],[230,226]],[[175,148],[175,212],[215,216]]]},
-  child:{head:[104,197],torso:[[126,190],[183,171]],arms:[[[126,195],[86,217],[45,222]],[[130,186],[90,205],[46,211]]],legs:[[[182,177],[159,225],[215,222]],[[185,169],[173,214],[216,210]]]},
-  'hip-left':{head:[127,65],torso:[[135,98],[153,169]],arms:[[[120,109],[101,149],[98,185]],[[149,107],[161,148],[131,176]]],legs:[[[146,171],[100,182],[82,252]],[[160,176],[193,248],[244,249]]]},
-  'hip-right':{mirror:'hip-left'},
-  fold:{head:[139,158],torso:[[134,183],[92,221]],arms:[[[143,185],[179,206],[214,224]],[[126,177],[171,196],[210,216]]],legs:[[[93,224],[161,233],[234,232]],[[95,214],[163,218],[231,219]]]},
-  rest:{head:[55,208],torso:[[89,214],[161,218]],arms:[[[93,222],[129,240],[166,238]],[[93,203],[129,194],[164,200]]],legs:[[[159,222],[208,234],[259,239]],[[159,211],[210,214],[260,217]]]}
- };
- // Animate the joints of each exercise; the shared motion clock freezes on pause.
- function animatedPose(key,t){
-  const source=poses[key];if(!source)return null;
-  const pose={head:[...source.head],torso:source.torso.map(v=>[...v]),arms:source.arms.map(a=>a.map(v=>[...v])),legs:source.legs.map(a=>a.map(v=>[...v]))};
-  if(reduced.matches)return pose;
-  const cycle=t*TAU/6,breathe=Math.sin(t*TAU/7),ease=(1-Math.cos(cycle))/2;
-  const upper=[pose.head,...pose.torso.slice(0,-1),...pose.arms.flat()];
-  const rotate=(points,pivot,angle)=>points.forEach(v=>{const x=v[0]-pivot[0],y=v[1]-pivot[1];v[0]=pivot[0]+x*Math.cos(angle)-y*Math.sin(angle);v[1]=pivot[1]+x*Math.sin(angle)+y*Math.cos(angle);});
-  if(key==='neck'){
-   // Shoulders lift, sweep back and release; elbows and hands follow the joints.
-   pose.arms.forEach((arm,i)=>{const side=i?1:-1,dx=side*7*Math.sin(cycle),dy=-12*ease;
-    arm.forEach((v,j)=>{v[0]+=dx*[1,.75,.45][j];v[1]+=dy*[1,.85,.65][j];});
-   });
-   pose.torso[0][1]-=3*ease;
-  }else if(key==='side-left'){
-   rotate(upper,pose.torso[1],-.12*Math.sin(cycle));
-  }else if(key==='cat'){
-   const arch=18*Math.sin(cycle);
-   pose.torso.splice(1,0,[150,143-arch]);pose.head[1]+=arch*.45;pose.head[0]+=arch*.15;
-   pose.arms.forEach(a=>a[0][1]-=arch*.12);
-  }else if(key==='child'){
-   rotate(upper,pose.torso[1],-.08*ease);pose.torso[1][0]+=3*ease;
-  }else if(key==='hip-left'){
-   const shift=-9*ease;upper.forEach(v=>v[0]+=shift);pose.torso[1][0]+=shift;
-   pose.legs.forEach(leg=>leg[0][0]+=shift);
-  }else if(key==='fold'){
-   rotate(upper,pose.torso[1],.13*ease);
-  }else if(key==='rest'){
-   pose.torso[0][1]-=2*breathe;pose.arms.forEach(a=>a[0][1]-=breathe);
-  }else{
-   pose.torso[0][1]-=2*breathe;pose.head[1]-=breathe;
-   pose.arms.forEach(a=>a.forEach((v,j)=>v[1]-=breathe*(2-j*.5)));
-  }
-  return pose;
- }
  function torso(points,color,width){
   p.strokeStyle=color;p.lineWidth=width;p.lineCap='round';p.beginPath();p.moveTo(...points[0]);
   if(points.length===3)p.quadraticCurveTo(...points[1],...points[2]);else p.lineTo(...points[1]);p.stroke();
@@ -157,20 +109,19 @@
   // The movement stays readable, but sits quietly inside the timer garden.
   p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha=.76;
   ellipse(p,150,268,78,9,'#b5d78413');ellipse(p,150,270,61,3,'#d8eca51f');
-  const key=snapshot.step?.id,poseKey=poses[key]?.mirror||key;
-  if(poses[key]?.mirror){p.translate(300,0);p.scale(-1,1);}
-  const pose=animatedPose(poseKey,t-poseStarted);
+  const key=snapshot.step?.id;
+  const pose=window.ZenStretch.frame(key,t-poseStarted,reduced.matches);
   if(!pose){glow(p,150,150,90,'168,216,125',.18);p.fillStyle='#daecc6';p.font='italic 25px Georgia';p.textAlign='center';p.fillText('Din rörelse',150,145);p.font='12px sans-serif';p.fillText('Följ din egen instruktion',150,170);p.restore();return;}
   const cloth=p.createLinearGradient(110,80,177,230);cloth.addColorStop(0,'#e5edc4');cloth.addColorStop(.45,'#a5bd90');cloth.addColorStop(1,'#6b9271');
   // Curved joints and shared shoulder roots keep the silhouette connected in motion.
   const limb=(points,color,weight)=>{p.strokeStyle=color;p.lineWidth=weight;p.lineCap='round';p.lineJoin='round';p.beginPath();p.moveTo(...points[0]);for(let i=1;i<points.length-1;i++){const a=points[i],n=points[i+1];p.quadraticCurveTo(...a,(a[0]+n[0])/2,(a[1]+n[1])/2);}p.lineTo(...points.at(-1));p.stroke();};
   p.shadowColor='#d9ffc0';p.shadowBlur=5;
-  for(const leg of pose.legs){limb(leg,cloth,17);const end=leg[2];line(p,[[end[0],end[1]],[end[0]+(end[0]>150?8:-8),end[1]+2]],'#bbd1a6',8);}
+  for(const [i,leg] of pose.legs.entries()){limb(leg,cloth,17);const end=leg[2],angle=pose.feet[i].angle;line(p,[end,[end[0]+Math.cos(angle)*12,end[1]+Math.sin(angle)*12]],'#bbd1a6',8);}
   const skinLimb=p.createLinearGradient(110,60,190,230);skinLimb.addColorStop(0,'#e3e8c0');skinLimb.addColorStop(.5,'#bbd0a5');skinLimb.addColorStop(1,'#8aaa86');
-  for(const arm of pose.arms){limb([pose.torso[0],...arm],skinLimb,12);ellipse(p,arm[2][0],arm[2][1],5,6,skinLimb);}
+  for(const [i,arm] of pose.arms.entries()){limb([pose.torso[0],...arm],skinLimb,12);const a=pose.hands[i].angle;line(p,[arm[2],[arm[2][0]+Math.cos(a)*10,arm[2][1]+Math.sin(a)*10]],skinLimb,7);}
   line(p,[[pose.head[0],pose.head[1]+14],pose.torso[0]],skinLimb,12);
   p.shadowBlur=0;torso(pose.torso,cloth,35);
-  const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,-.05);
+  const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,pose.headAngle-.05);
   p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso.at(-1)[0]-11,pose.torso.at(-1)[1]);p.stroke();
   if(key?.startsWith('side'))glow(p,144,133,25,'210,255,143',.22);
   if(key?.startsWith('hip'))glow(p,150,172,24,'210,255,143',.25);
