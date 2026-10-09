@@ -1,0 +1,44 @@
+name: Ingemar private account verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/ingemar.html'
+      - 'budget/ingemar-account.js'
+      - 'budget/ingemar-preview-modes.css'
+      - 'budget/tests/ingemar-account.test.cjs'
+      - 'budget/tests/ingemar-account-browser.cjs'
+      - '.github/workflows/ingemar-account-verify.yml'
+  workflow_dispatch:
+
+jobs:
+  account:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate personal Firebase account
+        run: |
+          node --check budget/ingemar-account.js
+          node --test budget/tests/ingemar-account.test.cjs
+      - name: Install WebKit
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/ingemar-account-http.log 2>&1 &
+          sleep 2
+      - name: Verify isolated login, sync and mobile visuals
+        run: node budget/tests/ingemar-account-browser.cjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingemar-account-ui
+          path: test-results/ingemar-private/
+          if-no-files-found: warn
