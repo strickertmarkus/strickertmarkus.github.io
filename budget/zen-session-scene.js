@@ -72,25 +72,27 @@
  }
  function drawPose(t,now){
   const w=poseCanvas.width/dpr,h=poseCanvas.height/dpr;if(w<2||h<2)return;p.clearRect(0,0,w,h);
-  const s=Math.min(w/340,h/330),cx=w/2,cy=h*.48;
+  const s=Math.min(w/350,h/350),cx=w/2,cy=h*.5;
   p.save();p.translate(cx-150*s,cy-148*s);p.scale(s,s);
   // Interpolate the latest authoritative timing snapshot between its 200ms updates.
   // No second session clock: pause, step changes and tab recovery still come from zen.js.
   const drift=snapshot.paused||snapshot.preparing||snapshot.done?0:Math.max(0,now-sampledAt)/1000/(snapshot.step?.seconds||1);
   const progress=snapshot.done?1:Math.min(1,(snapshot.stepProgress||0)+drift);
-  const hit=Math.min(15,Math.floor(progress*16));
+  const hit=Math.min(15,Math.floor(progress*15));
   if(hit>lastLeaf){if(lastLeaf>=0&&hit-lastLeaf===1)leafFlashes[hit]=t;lastLeaf=hit;}
   const orbit=(a)=>[150+Math.cos(a)*139,148+Math.sin(a)*144];
-  const arc=()=>{p.beginPath();p.ellipse(150,148,139,144,0,-Math.PI/2,-Math.PI/2+TAU*progress);};
+  // Match Pulse Flow: a 260° sweep with the opening below the figure.
+  const start=140*Math.PI/180,sweep=260*Math.PI/180;
+  const arc=(fraction=progress)=>{p.beginPath();p.ellipse(150,148,139,144,0,start,start+sweep*fraction);};
   p.save();
-  p.beginPath();p.ellipse(150,148,139,144,0,0,TAU);p.strokeStyle='#93c46644';p.lineWidth=1.1;p.stroke();
+  arc(1);p.lineCap='round';p.strokeStyle='#93c46644';p.lineWidth=1.1;p.stroke();
   // Broad bloom, a saturated core, then a fine bright filament.
   p.shadowColor='#b9ff6c';p.shadowBlur=22;p.strokeStyle='#9de55f55';p.lineWidth=6;arc();p.stroke();
   p.shadowBlur=12;p.strokeStyle='#c9f996';p.lineWidth=2.1;arc();p.stroke();
   p.shadowBlur=0;p.strokeStyle='#efffd0';p.lineWidth=.65;arc();p.stroke();
   p.restore();
   for(let i=0;i<16;i++){
-   const a=-Math.PI/2+i/16*TAU,[x,y]=orbit(a),lit=i/16<=progress,age=t-leafFlashes[i];
+   const a=start+i/15*sweep,[x,y]=orbit(a),lit=i/15<=progress,age=t-leafFlashes[i];
    if(lit)glow(p,x,y,20,'184,245,123',.32);
    p.save();if(lit){p.shadowColor='#cbff92';p.shadowBlur=9;}
    // Center each leaf on the exact timer path, so contact and flash coincide.
@@ -104,8 +106,8 @@
     p.beginPath();p.arc(x,y,12+q*19,0,TAU);p.stroke();p.restore();
    }
   }
-  const [tipX,tipY]=orbit(-Math.PI/2+TAU*progress);
-  glow(p,tipX,tipY,24,'193,255,139',.5);ellipse(p,tipX,tipY,2.3,2.3,'#f0ffd2');
+  const [tipX,tipY]=orbit(start+sweep*progress);
+  glow(p,tipX,tipY,30,'193,255,139',.72);glow(p,tipX,tipY,13,'227,255,175',.95);ellipse(p,tipX,tipY,4.2,4.2,'#f4ffdc');
   // The movement stays readable, but sits quietly inside the timer garden.
   p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha=.76;
   ellipse(p,150,268,78,9,'#b5d78413');ellipse(p,150,270,61,3,'#d8eca51f');
@@ -123,9 +125,14 @@
   p.shadowBlur=0;torso(pose.torso,cloth,35);
   const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,pose.headAngle-.05);
   p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso.at(-1)[0]-11,pose.torso.at(-1)[1]);p.stroke();
-  if(key?.startsWith('side'))glow(p,144,133,25,'210,255,143',.22);
-  if(key?.startsWith('hip'))glow(p,150,172,24,'210,255,143',.25);
-  if(key==='neck')for(const arm of pose.arms)glow(p,...arm[0],12,'210,255,143',.2);
+  // Soft localized muscle light follows the animated joints, not fixed canvas coordinates.
+  for(const region of pose.highlights){
+   const strength=reduced.matches?.8:.72+.12*Math.sin(t*TAU/8);
+   p.save();p.globalAlpha=strength;p.shadowColor='#d4ff88';p.shadowBlur=18;
+   line(p,[region.a,region.b],'#caff8177',region.r*1.5);p.shadowBlur=6;
+   line(p,[region.a,region.b],'#edffc7b0',region.r*.5);
+   glow(p,(region.a[0]+region.b[0])/2,(region.a[1]+region.b[1])/2,region.r*2,'199,255,114',.32);p.restore();
+  }
   p.restore();
  }
  function paintSessionProgress(now){

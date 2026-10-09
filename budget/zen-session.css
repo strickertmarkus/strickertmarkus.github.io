@@ -1,7 +1,7 @@
 /* Each runner owns its whole viewport. Home scenery is suspended by the runtime. */
 body.in-session .landscape,body.in-session .zen-header,body#pulse-page.in-session #pulse-header,body.in-session .wellness-kind-switch{display:none!important}
 body[data-session-view=session]{overflow:hidden}
-.session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
+.session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto var(--pose-size) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
 #session-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .session-top{position:relative;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;border-bottom:1px solid #b9db941c;padding-bottom:12px}
 .session-top>span{font-size:11px;text-transform:uppercase;letter-spacing:2px;text-align:center}
@@ -9,14 +9,14 @@ body[data-session-view=session]{overflow:hidden}
 .session-view .text-button{font:500 12px var(--sans);min-height:44px;padding:8px 12px;border-radius:24px;color:var(--soft)}
 .session-view button:focus-visible,.session-view summary:focus-visible{outline:2px solid var(--light);outline-offset:4px}
 .session-view button:hover{color:var(--ink)}
-.session-layout{display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(150px,1fr) auto;align-items:center;justify-items:center;gap:8px;width:100%;max-width:900px;margin:auto;height:100%;min-height:0;padding:20px 0 14px}
+.session-layout{--pose-size:min(360px,calc(100vw - 40px),44svh);display:grid;grid-template-columns:1fr;grid-template-rows:auto var(--pose-size) auto;align-items:center;justify-items:center;gap:8px;width:100%;max-width:900px;margin:auto;height:auto;min-height:0;padding:20px 0 14px}
 .session-copy{grid-column:1;grid-row:1;max-width:600px;text-align:center}
 .session-view .eyebrow{color:var(--light);font-size:10px;letter-spacing:3px;margin:0 0 20px}
 .session-copy h1{font:400 clamp(36px,4.2vw,66px)/1.03 var(--serif);letter-spacing:-1px;margin:0;text-wrap:balance}
 #session-side{display:inline-block;margin:22px 0 0;font-size:10px;letter-spacing:2px;color:var(--light);text-transform:uppercase}
 #session-side:empty{display:none}
 .session-cue{font-size:13px;line-height:1.85;color:var(--soft);margin:16px auto 0;max-width:460px}
-.session-stage{grid-column:1;grid-row:2;position:relative;width:100%;height:100%;max-width:480px;max-height:460px;min-height:0;align-self:center}
+.session-stage{grid-column:1;grid-row:2;position:relative;width:var(--pose-size);height:var(--pose-size);max-width:100%;min-height:var(--pose-size);align-self:center}
 #session-pose{position:absolute;inset:0;width:100%;height:100%;display:block}
 #session-stage-caption{text-align:center;font:italic 17px var(--serif);color:#c5dfad;margin:10px 0 0;min-height:22px}
 body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-detail{display:none}
@@ -74,12 +74,12 @@ body.is-paused .session-stage{opacity:.65}
 /* Meditation: a quiet horizontal shore, with an empty center around the sun. */
 body[data-kind=meditation] .session-view{--ink:#f5ecd6;--soft:#cbdbcf;--light:#f3dca2;background:#183f39}
 body[data-kind=meditation] .session-top{border:0;opacity:.85}
-body[data-kind=meditation] .session-layout{display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(100px,1fr) auto auto;justify-items:center;gap:12px;max-width:900px;position:relative;padding:24px 0 8px}
+body[data-kind=meditation] .session-layout{height:100%;display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(100px,1fr) auto auto;justify-items:center;gap:12px;max-width:900px;position:relative;padding:24px 0 8px}
 body[data-kind=meditation] .session-copy{text-align:center;max-width:100%;position:static;grid-column:1;grid-row:1;width:100%}
 body[data-kind=meditation] .session-copy h1{font:400 clamp(25px,3vw,38px) var(--serif);letter-spacing:.4px}
 body[data-kind=meditation] .session-copy .eyebrow{font-size:9px;letter-spacing:4px;margin-bottom:10px}
 body[data-kind=meditation] .session-cue,body[data-kind=meditation] #session-pose,body[data-kind=meditation] #session-stage-caption,body[data-kind=meditation] #session-side{display:none}
-body[data-kind=meditation] .session-stage{grid-column:1;grid-row:2;width:auto;height:min(23vh,245px,100%);max-width:100%;margin:0;position:relative;aspect-ratio:1}
+body[data-kind=meditation] .session-stage{min-height:0;grid-column:1;grid-row:2;width:auto;height:min(23vh,245px,100%);max-width:100%;margin:0;position:relative;aspect-ratio:1}
 .session-sun{position:absolute;inset:12%;border-radius:50%;box-shadow:0 0 22px #ffde9666,0 0 65px #ffd17b38,0 0 135px #ffc76b24;transform:scale(var(--breath-scale,1));transition:transform .22s linear;will-change:transform;isolation:isolate}
 body[data-kind=meditation] .session-sun{display:block}
 .session-sun:before{content:'';position:absolute;inset:-70%;border-radius:50%;z-index:-1;background:radial-gradient(circle,#fff3c733 0%,#ffe3a220 27%,#ffc4770c 47%,transparent 68%)}
@@ -112,13 +112,13 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  .session-top{gap:6px;padding-bottom:5px;min-height:44px}
  .session-top>span{font-size:9px;letter-spacing:1px;max-width:130px}
  .session-view .session-top .text-button{font-size:10px;padding:8px 0}
- .session-layout{grid-template-columns:1fr;grid-template-rows:auto minmax(140px,1fr) auto;gap:5px;max-width:460px;padding:14px 0 12px}
+ .session-layout{grid-template-columns:1fr;grid-template-rows:auto var(--pose-size) auto;gap:5px;max-width:460px;padding:14px 0 12px}
  .session-copy{grid-column:1;grid-row:1;max-width:100%;text-align:center}
  .session-view .eyebrow{margin-bottom:9px;font-size:9px;letter-spacing:2.5px}
  .session-copy h1{font-size:clamp(29px,8vw,41px);line-height:1.07}
  #session-side{margin:10px 0 0;font-size:9px}
  .session-cue{margin:10px auto 0;font-size:11px;line-height:1.6;max-width:320px}
- .session-stage{grid-column:1;grid-row:2;max-height:360px;min-height:140px}
+ .session-stage{grid-column:1;grid-row:2}
  #session-stage-caption{font-size:15px;margin-top:8px}
  .session-guidance{grid-column:1;grid-row:3;text-align:center;padding:0}
  #breath-label{font-size:17px;margin-bottom:5px}
@@ -150,8 +150,8 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  body[data-kind=meditation] .session-meta{padding-top:5px}
 }
 @media(max-height:690px) and (max-width:760px){
- .session-layout{padding-top:6px;grid-template-rows:auto minmax(0,1fr) auto}
- .session-stage{min-height:0}
+ .session-layout{padding-top:6px;grid-template-rows:auto var(--pose-size) auto}
+ .session-stage{min-height:var(--pose-size)}
  .session-copy h1{font-size:28px}
  .session-cue{font-size:10px;margin-top:6px}
  #session-side{margin-top:6px}
@@ -164,3 +164,11 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
 }
 @media(max-height:500px) and (min-width:761px){.session-view{min-height:500px;position:absolute}.session-stage{max-height:270px}}
 @media(prefers-reduced-motion:reduce){.session-view,.session-view.step-changing .session-copy,.session-view.step-changing #session-pose{animation:none}.session-sun,#session-progress-fill{transition:none}}
+
+body[data-kind=stretch] .session-view{display:flex;flex-direction:column;justify-content:space-between}
+body[data-kind=stretch] .session-top,body[data-kind=stretch] .session-layout,body[data-kind=stretch] .session-bottom{flex:0 0 auto}
+body[data-kind=stretch] .session-layout{margin:0 auto}
+body[data-kind=stretch] .session-copy{min-height:140px}
+body[data-kind=stretch] .session-copy h1{overflow-wrap:anywhere}
+body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(25px,6vw,36px);line-height:1.08}
+body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:11px;line-height:1.5;margin-top:8px}

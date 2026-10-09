@@ -86,7 +86,7 @@
  const byId=new Map(poses.map(p=>[p.id,p])),byFamily=new Map(families.map(f=>[f.id,f]));
  function frame(id,t=0,reduced=false){
   const entry=byId.get(id);if(!entry)return null;const family=byFamily.get(entry.family),p=clone(family.rig);
-  const cycle=t*Math.PI/3,w=Math.sin(cycle),q=(1-Math.cos(cycle))/2,b=Math.sin(t*Math.PI*2/7),m=family.motion;
+  const cycle=t*Math.PI/4,w=Math.sin(cycle)*1.55,q=(1-Math.cos(cycle))*.78,b=Math.sin(t*Math.PI*2/8),m=family.motion;
   const upper=[p.head,...p.torso.slice(0,-1),...p.arms.flat()];
   const rotate=(points,pivot,a)=>points.forEach(v=>{const x=v[0]-pivot[0],y=v[1]-pivot[1];v[0]=pivot[0]+x*Math.cos(a)-y*Math.sin(a);v[1]=pivot[1]+x*Math.sin(a)+y*Math.cos(a);});
   p.headAngle=0;p.hands=p.arms.map(a=>({angle:Math.atan2(a[2][1]-a[1][1],a[2][0]-a[1][0])}));
@@ -123,6 +123,26 @@
    else {p.torso[0][1]-=2*b;p.head[1]-=b;p.arms.forEach(a=>a[0][1]-=b);}
   }
   if(entry.side==='right'){[p.head,...p.torso,...p.arms.flat(),...p.legs.flat()].forEach(v=>v[0]=300-v[0]);p.headAngle=-p.headAngle;p.hands.forEach(h=>h.angle=Math.PI-h.angle);p.feet.forEach(f=>f.angle=Math.PI-f.angle);}
+  const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+  const torsoAt=t=>p.torso.length===3?mix(mix(p.torso[0],p.torso[1],t),mix(p.torso[1],p.torso[2],t),t):mix(p.torso[0],p.torso[1],t);
+  p.highlights=[];
+  const mark=(a,b,r=11)=>p.highlights.push({a:[...a],b:[...b],r});
+  const segment=(limb,a,b,r=10)=>mark(mix(limb[0],limb[1],a),mix(limb[0],limb[1],b),r);
+  const arms=entry.side?[p.arms[0]]:p.arms,legs=entry.side?[p.legs[0]]:p.legs;
+  if(family.id==='hip')segment(p.legs[1],0,.45,14);
+  else if(m==='cobra'||m==='sphinx'){mark(torsoAt(.45),torsoAt(.88),12);const a=torsoAt(.38),b=torsoAt(.78);mark([a[0],a[1]+12],[b[0],b[1]+12],10);}
+  else if(m.startsWith('neck')||m==='chin')mark(mix(p.head,p.torso[0],.6),p.torso[0],11);
+  else if(['shoulders','armHold','armCircles','goalpost','hug','eagle'].includes(m))arms.forEach(a=>segment(a,0,.35,12));
+  else if(m==='overhead'||m==='biceps')arms.forEach(a=>segment(a,.22,.8,10));
+  else if(m==='chest')mark(mix(p.arms[0][0],p.torso[0],.5),mix(p.arms[1][0],p.torso[0],.5),15);
+  else if(['wristFlex','wristExtend','wrists','prayer','palm'].includes(m))arms.forEach(a=>mark(mix(a[1],a[2],.6),a[2],9));
+  else if(['calf','soleus'].includes(m))segment([p.legs[1][1],p.legs[1][2]],.2,.75,12);
+  else if(['ankle','anklePump','toes','instep'].includes(m))legs.forEach(a=>mark(mix(a[1],a[2],.85),a[2],10));
+  else if(m==='quad')segment(p.legs[family.id==='side-quad'?1:0],.15,.85,13);
+  else if(m==='hamstring'||['fold','hurdler','half-split','standing-fold','wide-fold'].includes(family.id))legs.forEach(a=>segment(a,.15,.8,13));
+  else if(['butterfly','frog','adductor','sideLunge'].includes(m))legs.forEach(a=>segment(a,.12,.65,12));
+  else if(['figureFour','glute','kneeChest'].includes(m)||family.id==='ninety-ninety')legs.forEach(a=>segment(a,0,.25,17));
+  else if(['side','twist','thread','book','cat','child','puppy','pelvis','kneeSway'].includes(m))mark(torsoAt(m==='puppy'?.05:.35),torsoAt(m==='puppy'?.45:.85),13);
   return p;
  }
  return {poses,frame,families:families.map(({id,name,group})=>({id,name,group}))};
