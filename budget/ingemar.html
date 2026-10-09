@@ -128,6 +128,7 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1">
 
 <style id="ingemar-account-styles">
+html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
 html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] body>main,html[data-ingemar-auth="locked"] body>dialog,html[data-ingemar-auth="locked"] #toast,html[data-ingemar-auth="locked"] #zen-session{visibility:hidden!important}
 #ingemar-account-gate{position:fixed;z-index:100001;inset:0;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 16%,#3c1c30,#10141e 63%,#090d14);color:#f4e7ed;padding:24px 15px;font-family:Inter,system-ui,sans-serif}#ingemar-account-gate[hidden]{display:none!important}
 #ingemar-account-gate .account-card{width:min(430px,100%);padding:26px 23px;background:linear-gradient(140deg,#1b1b27,#10141e);border:1px solid #b65d7950;border-radius:23px;box-shadow:0 20px 65px #0009}
