@@ -99,7 +99,7 @@
     const phase=session.paused?'Pausat':preparing?'Gör dig redo':guided?(cycle<4?'Andas in':'Andas ut'):isStretch?(session.routine.steps[p.index].id==='rest'?'Släpp efter':'Håll mjukt'):'Egen andning';
     if(phase!==lastPhase){$('breath-label').textContent=phase;lastPhase=phase;}
     const scale=guided&&!preparing?.84+.23*(cycle<4?(1-Math.cos(Math.PI*cycle/4))/2:(1+Math.cos(Math.PI*(cycle-4)/6))/2):1;$('breathing-field').style.setProperty('--breath-scale',scale.toFixed(4));
-    $('session-clock').textContent=preparing?String(Math.ceil((session.anchor-now)/1000)):fmt(p.remaining);$('clock-caption').textContent=isStretch?'kvar i rörelsen':'kvar av passet';$('session-elapsed').textContent=fmt(Math.floor(M.practiced(session,now)/1000))+' aktiv tid';$('session-progress-fill').style.width=(p.spent/p.total*100)+'%';document.querySelector('.session-progress').setAttribute('aria-valuenow',String(Math.round(p.spent/p.total*100)));
+    $('session-clock').textContent=preparing?String(Math.ceil((session.anchor-now)/1000)):fmt(p.remaining);$('clock-caption').textContent=isStretch?'kvar i rörelsen':'kvar av passet';$('session-elapsed').textContent=fmt(Math.floor(M.practiced(session,now)/1000))+' aktiv tid';document.querySelector('.session-progress').setAttribute('aria-valuenow',String(Math.round(p.spent/p.total*100)));
     $('pause-session').textContent=session.paused?'Fortsätt':'Pausa';document.body.classList.toggle('is-paused',session.paused);$('session-footnote').textContent=isStretch?'Rör dig mjukt. Backa om något känns obehagligt.':'Du får alltid andas i din egen takt.';document.title=fmt(p.total-p.spent)+' · '+session.routine.name+' · Zen';
     const step=isStretch?session.routine.steps[p.index]:null;
     $('session-phase-detail').textContent=session.paused?'Ta den tid du behöver':preparing?'Hitta en bekväm position':guided?(cycle<4?'4 SEKUNDER · IN':'6 SEKUNDER · UT'):isStretch?'Följ din egen andning':'Ingenting att prestera';
@@ -123,17 +123,28 @@
     if(S.put(record)){pendingRecord=null;session=null;S.setActive(null);showView('home');renderHome();$('hero-title').setAttribute('tabindex','-1');$('hero-title').focus();toast('Passet är sparat.');}
   }
   function updateSound(){$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Klang på':'Klang av';$('sound-toggle').setAttribute('aria-pressed',String(sound));}
+  function mixedAudioContext(){
+    // Fail silent when audio mixing cannot be requested; preserve external music.
+    try{
+      if(!navigator.audioSession)return null;
+      navigator.audioSession.type='ambient';
+      if(navigator.audioSession.type!=='ambient')return null;
+      const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;
+      if(!audioContext)audioContext=new Audio();
+      if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+      return audioContext;
+    }catch(_){return null;}
+  }
   function chime(){
     if(!sound||document.hidden)return;
-    try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;if(!audioContext)audioContext=new Audio();if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});const now=audioContext.currentTime;[392,784,1176].forEach((f,i)=>{const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();oscillator.type='sine';oscillator.frequency.value=f;gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.075*(volume/100)/(i+1),now+.03);gain.gain.exponentialRampToValueAtTime(.0001,now+2.7);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(now);oscillator.stop(now+3);});}catch(_){sound=false;updateSound();toast('Klang kunde inte startas i den här webbläsaren.');}
+    try{if(!mixedAudioContext())return;const now=audioContext.currentTime;[392,784,1176].forEach((f,i)=>{const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();oscillator.type='sine';oscillator.frequency.value=f;gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.075*(volume/100)/(i+1),now+.03);gain.gain.exponentialRampToValueAtTime(.0001,now+2.7);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(now);oscillator.stop(now+3);});}catch(_){sound=false;updateSound();toast('Klang kunde inte startas i den här webbläsaren.');}
   }
   let breathTone=null,breathGain=null;
   function updateBreathAudio(active,cycle=0){
     if(!sound||document.hidden||view!=='session'||ending)active=false;
     try{
       if(active){
-        const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
-        if(!audioContext)audioContext=new Audio();
+        if(!mixedAudioContext())return;
         if(!breathTone){breathTone=audioContext.createOscillator();breathGain=audioContext.createGain();breathGain.gain.value=0;breathTone.connect(breathGain);breathGain.connect(audioContext.destination);breathTone.start();}
         breathTone.frequency.setTargetAtTime(cycle<4?392:294,audioContext.currentTime,.5);
       }

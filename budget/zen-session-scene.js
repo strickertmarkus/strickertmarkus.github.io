@@ -172,8 +172,16 @@
   if(key==='neck')for(const arm of pose.arms)glow(p,...arm[0],12,'210,255,143',.2);
   p.restore();
  }
+ function paintSessionProgress(now){
+  if(snapshot.kind!=='stretch')return;
+  const total=(snapshot.steps||[]).reduce((n,step)=>n+step.seconds,0);
+  const remaining=(snapshot.step?.seconds||0)*(1-(snapshot.stepProgress||0));
+  const drift=snapshot.paused||snapshot.preparing||snapshot.done?0:Math.min(Math.max(0,remaining),Math.max(0,now-sampledAt)/1000);
+  const progress=snapshot.done?1:Math.min(1,(snapshot.progress||0)+(total?drift/total:0));
+  $('session-progress-fill').style.width=(progress*100)+'%';
+ }
  function paint(now){
-  if(!active)return;const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
+  if(!active)return;paintSessionProgress(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
   if(snapshot.kind==='meditation'){
    const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.61;
    const scale=snapshot.scale||1;
@@ -204,11 +212,15 @@
    previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
    $('session-stage-caption').textContent=next.step.id==='rest'?'Låt kroppen landa':next.step.id?.includes('side-')?'Längd genom hela sidan':'En rörelse. Ett andetag i taget.';
-   $('session-trail').replaceChildren(...next.steps.map((step,i)=>{const li=document.createElement('li');li.style.flex=String(step.seconds||1);li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;}));
+   const total=next.steps.reduce((n,step)=>n+step.seconds,0);let offset=0;
+   const leaves=next.steps.map((step,i)=>{const li=document.createElement('li');li.style.left=(offset/total*100)+'%';offset+=step.seconds;li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;});
+   const end=document.createElement('li');end.style.left='100%';end.title='Passet klart';end.setAttribute('aria-label','Passet klart');end.dataset.state='waiting';end.appendChild(document.createElement('span'));leaves.push(end);
+   $('session-trail').replaceChildren(...leaves);
   }
   if(next.done)$('session-trail').querySelectorAll('li').forEach(li=>{li.dataset.state='done';li.removeAttribute('aria-current');});
   if(next.phase==='Andas ut'&&old.phase!==next.phase&&!reduced.matches)ripples.push({x:width*.5,y:height*.65,at:performance.now()});
   if(next.paused!==old.paused||next.done!==old.done){showControls();wake();}
+  paintSessionProgress(performance.now());
   if(reduced.matches||next.paused)paint(performance.now());
  });
  document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();lastLeaf=-1;leafFlashes.fill(-Infinity);const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').appendChild(clock);previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});

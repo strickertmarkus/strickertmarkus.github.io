@@ -170,6 +170,12 @@
   }
 
   function getAudioContext() {
+    // External music takes priority. Never request exclusive playback.
+    try {
+      if (!navigator.audioSession) return null;
+      navigator.audioSession.type = 'ambient';
+      if (navigator.audioSession.type !== 'ambient') return null;
+    } catch (_) { return null; }
     if (audioContext) return audioContext;
     var Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return null;

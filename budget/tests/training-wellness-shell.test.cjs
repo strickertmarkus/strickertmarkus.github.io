@@ -284,23 +284,23 @@ test('production pages cache-bust the shared wellness owners',()=>{
   for(const source of [legacyExercise,zen]){
     assert.match(source,/training-zen-nav\.js\?v=20260921-wellness-cohesion-1/);
   }
-  assert.match(legacyExercise,/auth-config\.js\?v=20260927-pulse-robust-2/);
-  assert.match(legacyExercise,/auth-gate\.js\?v=20260927-pulse-robust-2/);
+  assert.match(legacyExercise,/auth-config\.js\?v=20261009-music-1/);
+  assert.match(legacyExercise,/auth-gate\.js\?v=20261009-music-1/);
   assert.match(legacyExercise,/training-overview-mode\.js\?v=20260926-original-compact-host-4/);
   assert.match(legacyExercise,/pulse-environment\/environment\.js\?v=20260922-observatory-composition-2/);
   assert.match(legacyExercise,/training-week-orbit\.js\?v=20260926-original-compact-host-4/);
   assert.match(overviewShim,/exercise-dashboard\.js\?v=20260926-original-compact-host-4/);
   if(exerciseIsPulseField){
     assert.match(exercise,/training-overview-mode\.css\?v=20260926-pulse-compact-host-3/);
-    assert.match(exercise,/auth-config\.js\?v=20260927-pulse-robust-2/);
-    assert.match(exercise,/auth-gate\.js\?v=20260927-pulse-robust-2/);
+    assert.match(exercise,/auth-config\.js\?v=20261009-music-1/);
+    assert.match(exercise,/auth-gate\.js\?v=20261009-music-1/);
   }else{
     assert.match(exercise,/training-overview-mode\.js\?v=20260926-original-compact-host-4/);
-    assert.match(exercise,/auth-config\.js\?v=20260927-pulse-robust-2/);
-    assert.match(exercise,/auth-gate\.js\?v=20260927-pulse-robust-2/);
+    assert.match(exercise,/auth-config\.js\?v=20261009-music-1/);
+    assert.match(exercise,/auth-gate\.js\?v=20261009-music-1/);
   }
   assert.match(zen,/zen\.css\?v=20261008-unique-1/);
-  assert.match(zen,/zen\.js\?v=20261009-session-1/);
+  assert.match(zen,/zen\.js\?v=20261009-music-progress-1/);
 });
 
 

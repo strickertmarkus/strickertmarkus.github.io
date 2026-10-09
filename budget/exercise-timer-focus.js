@@ -6,7 +6,6 @@
 
   var audioContext = null;
   var audioBus = null;
-  var audioSessionRestoreTimer = null;
   var lastCardioToken = '';
   var collapsedCardioToken = '';
   var lastRestKey = '';
@@ -799,6 +798,12 @@
   }
 
   function getAudioContext() {
+    // External music takes priority. Never request exclusive playback.
+    try {
+      if (!navigator.audioSession) return null;
+      navigator.audioSession.type = 'ambient';
+      if (navigator.audioSession.type !== 'ambient') return null;
+    } catch (_) { return null; }
     if (audioContext) return audioContext;
     var Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return null;
@@ -828,23 +833,9 @@
     } catch (_) {}
   }
 
-  function prepareAudibleBeep() {
-    try {
-      if (navigator.audioSession && 'type' in navigator.audioSession) {
-        navigator.audioSession.type = 'playback';
-        if (audioSessionRestoreTimer) clearTimeout(audioSessionRestoreTimer);
-        audioSessionRestoreTimer = setTimeout(function () {
-          try { navigator.audioSession.type = 'ambient'; } catch (_) {}
-          audioSessionRestoreTimer = null;
-        },320);
-      }
-    } catch (_) {}
-  }
-
   function beep(finalBeat) {
     var ctx = getAudioContext();
     if (!ctx) return;
-    prepareAudibleBeep();
     try { if (ctx.state === 'suspended') { var resumed=ctx.resume(); if(resumed&&resumed.catch)resumed.catch(function(){}); } } catch (_) {}
     if (ctx.state !== 'running') return;
     try {
