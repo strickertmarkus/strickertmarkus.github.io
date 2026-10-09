@@ -128,7 +128,7 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1">
 
 <style id="ingemar-account-styles">
-html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] body>main,html[data-ingemar-auth="locked"] body>dialog,html[data-ingemar-auth="locked"] #zen-session{visibility:hidden!important}
+html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] body>main,html[data-ingemar-auth="locked"] body>dialog,html[data-ingemar-auth="locked"] #toast,html[data-ingemar-auth="locked"] #zen-session{visibility:hidden!important}
 #ingemar-account-gate{position:fixed;z-index:100001;inset:0;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 16%,#3c1c30,#10141e 63%,#090d14);color:#f4e7ed;padding:24px 15px;font-family:Inter,system-ui,sans-serif}#ingemar-account-gate[hidden]{display:none!important}
 #ingemar-account-gate .account-card{width:min(430px,100%);padding:26px 23px;background:linear-gradient(140deg,#1b1b27,#10141e);border:1px solid #b65d7950;border-radius:23px;box-shadow:0 20px 65px #0009}
 #ingemar-account-gate .account-kicker{color:#da929f;font-size:10px;letter-spacing:.18em;font-weight:800}#ingemar-account-gate h1{font-size:clamp(25px,6vw,34px);line-height:1.15;margin:15px 0 10px}
@@ -281,7 +281,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="section-head zen-section-head"><h2>Träningslogg</h2><div class="zen-section-actions"><span class="hint">Tryck på ett pass för detaljer eller redigering</span><button type="button" class="zen-inline-action" data-zen-action="log">＋ Registrera pass</button></div></div>
   <div class="history zen-history" id="zen-history"></div>
 </section>
-<p class="notice">Detta är en fristående förhandsvisning. All data är påhittad och lagras endast lokalt i denna webbläsare. Inget Firebase-konto eller någon synkning används.</p>
+<p class="notice">Du är inloggad på din personliga träningssida. Pass, träningslogg och planering synkas med ditt Firebase-konto.</p>
 </main>
 
 <dialog id="zen-editor" class="zen-editor-dialog" aria-labelledby="zen-editor-title">
@@ -296,13 +296,13 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="zen-editor-steps-heading"><div><span class="eyebrow">PASSINNEHÅLL</span><strong>Steg, längd och instruktioner</strong></div><span id="zen-editor-duration">0 min</span></div>
   <div id="zen-edit-steps" class="zen-editor-steps"></div>
   <button type="button" class="zen-inline-action zen-add-step" data-zen-action="add-step">＋ Lägg till steg</button>
-  <p class="hint zen-edit-note">Alla ändringar sparas lokalt. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
+  <p class="hint zen-edit-note">Ändringarna synkas till ditt konto. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
   <div class="modal-actions zen-editor-actions"><button type="button" class="ghost" data-zen-action="close-editor">Avbryt</button><div class="right"><button type="button" class="secondary" id="zen-edit-delete" data-zen-action="delete-entry" hidden>Ta bort</button><button type="button" class="secondary" id="zen-edit-save-start" data-zen-action="save-start">Spara &amp; starta ↗</button><button type="button" class="primary" data-zen-action="save-editor">Spara pass ✓</button></div></div>
  </div>
 </dialog>
 <dialog id="zen-day-dialog" class="zen-editor-dialog" aria-labelledby="zen-day-title">
  <div class="modal-head"><div><span class="eyebrow" id="zen-day-kind">STRETCH · VECKOPLAN</span><h2 id="zen-day-title">Planera dag</h2></div><button type="button" class="x" data-zen-action="close-day" aria-label="Stäng">×</button></div>
- <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen sparas lokalt och kan ändras när som helst.</p>
+ <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen synkas med ditt konto och kan ändras när som helst.</p>
  <div class="modal-actions zen-day-actions"><button type="button" class="ghost" data-zen-action="close-day">Avbryt</button><button type="button" class="secondary" data-zen-action="start-day">Starta pass ↗</button><button type="button" class="primary" data-zen-action="save-day">Spara dagen ✓</button></div></div>
 </dialog>
 <dialog id="week-planner" aria-labelledby="week-planner-title">
@@ -927,7 +927,7 @@ function unlockBuilderBackground(){
  document.body.style.top='';
  window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
-function weekTemplates(){if(!Array.isArray(state.weekTemplates))state.weekTemplates=seedWeekTemplates();return state.weekTemplates;}
+function weekTemplates(){if(!Array.isArray(state.weekTemplates))state.weekTemplates=[];return state.weekTemplates;}
 function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,exercises:deep(planValue.exercises||[])};}
 function standardWeekPlan(type){return {type:type,name:type+' · Fokus',exercises:template(type)};}
 function weekDraftFromMonday(monday){return DAYS.map(function(_,i){return weekPlanClone(state.plans[offset(monday,i)]||null);});}
