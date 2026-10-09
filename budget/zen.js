@@ -21,7 +21,7 @@
   dialogs.forEach(dialog=>dialogObserver.observe(dialog,{attributes:true,attributeFilter:['open']}));
   syncDialogScroll();
   const copy={
-    stretch:{eyebrow:'RÖRLIGHET',title:'Stretch',description:'Välj ett pass för hela kroppen eller fokusera på ett område.',symbol:'✧',hint:'Välj bland 57 rörelser. Använd mjukt underlag och stöd vid behov.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'},
+    stretch:{eyebrow:'RÖRLIGHET',title:'Stretch',description:'Välj ett pass för hela kroppen eller fokusera på ett område.',symbol:'✧',hint:'Välj en mall efter ditt träningspass eller bygg ditt eget.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'},
     meditation:{eyebrow:'ANDNING & FOKUS',title:'Meditation',description:'Välj längd och meditera med andningsguide eller i egen takt.',symbol:'≈',hint:'Andningsguiden kan stängas av under passet.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'}
   };
   let volume=Number.isFinite(prefs.volume)?Math.max(0,Math.min(100,prefs.volume)):100,prepare=prefs.prepare===true,ending=false,breathOffset=0;
@@ -65,7 +65,14 @@
     document.querySelector('.start-ring-meta').textContent=$('selected-meta').textContent;
     $('start-button').setAttribute('aria-label','Starta '+r.name+', '+$('selected-meta').textContent);
     const symbols=kind==='stretch'?['✧','⌁','⋮']:['≈','◌','○'];
-    $('routines').innerHTML=routines().filter(r=>r.kind===kind).map((r,i)=>'<article class="ritual-card"><button class="ritual-choice" data-select="'+escape(r.id)+'" aria-label="Välj och konfigurera '+escape(r.name)+'" title="Välj och konfigurera" aria-pressed="'+(r.id===chosen().id)+'"><span class="ritual-top"><span class="ritual-glyph" aria-hidden="true">'+symbols[i%3]+'</span><span class="ritual-time">'+mins(M.duration(r))+' MIN'+(i>2?' · EGET PASS':'')+'</span></span><strong>'+escape(r.name)+'</strong><span class="ritual-description">'+escape(r.description||(kind==='stretch'?'Egna övningar och tider.':'Egen längd och vägledning.'))+'</span>'+(kind==='meditation'?'<span class="ritual-selection" aria-hidden="true">✓</span>':'')+'</button>'+(i>2?'<div class="ritual-tools"><button class="text-button" data-edit="'+escape(r.id)+'">Redigera</button><button class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button></div>':'')+'</article>').join('');
+    const builtin=r=>M.routines.some(p=>p.id===r.id),category=$('routine-category').value;
+    $('routine-filter').hidden=kind!=='stretch';
+    const visible=routines().filter(r=>r.kind===kind&&(kind!=='stretch'||category==='all'||(category==='own'?!builtin(r):builtin(r)&&(r.category||'base')===category)));
+    $('routines').innerHTML=visible.map((r,i)=>{
+      const own=!builtin(r);
+      return '<article class="ritual-card"><button class="ritual-choice" data-select="'+escape(r.id)+'" aria-label="Välj och konfigurera '+escape(r.name)+'" title="Välj och konfigurera" aria-pressed="'+(r.id===chosen().id)+'"><span class="ritual-top"><span class="ritual-glyph" aria-hidden="true">'+symbols[i%3]+'</span><span class="ritual-time">'+mins(M.duration(r))+' MIN · '+(own?'EGEN MALL':'MALL')+'</span></span><strong>'+escape(r.name)+'</strong><span class="ritual-description">'+escape(r.description||(kind==='stretch'?'Egna övningar och tider.':'Egen längd och vägledning.'))+'</span>'+(kind==='meditation'?'<span class="ritual-selection" aria-hidden="true">✓</span>':'')+'</button><div class="ritual-tools"><button class="text-button" data-edit="'+escape(r.id)+'">'+(own?'Redigera':'Anpassa som egen')+'</button>'+(own?'<button class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button>':'')+'</div></article>';
+    }).join('')||'<p class="history-empty">Inga egna mallar ännu. Välj Skapa pass eller anpassa en färdig mall.</p>';
+
     const st=M.stats(records(),kind,Date.now()),weekly=st.week.reduce((n,d)=>n+d.minutes,0);$('weekly-minutes').innerHTML=escape(Number(weekly.toFixed(1)).toLocaleString('sv-SE'))+'<small>minuter</small>';$('weekly-copy').textContent=weekly?'Sammanlagd tid denna vecka.':'Inga pass sparade denna vecka.';$('total-minutes').textContent=st.minutes;$('total-sessions').textContent=st.count;$('streak-days').textContent=st.streak;
     const days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],max=Math.max(10,...st.week.map(d=>d.minutes));
     $('week-chart').innerHTML=st.week.map((d,i)=>'<div class="day-column '+(d.date===M.localDate(Date.now())?'today':'')+'"><span class="day-minutes">'+(d.minutes?Number(d.minutes.toFixed(1)).toLocaleString('sv-SE'):'·')+'</span><div class="day-track"><span class="day-fill '+(!d.minutes?'empty':'')+'" style="height:'+Math.max(4,d.minutes/max*100)+'%"></span></div><span class="day-label">'+days[i]+'</span></div>').join('');
@@ -183,7 +190,7 @@
     const previous=$('pose-select').value;
     $('pose-select').innerHTML=matches.length?[...new Set(matches.map(p=>p.group))].map(g=>'<optgroup label="'+escape(g)+'">'+matches.filter(p=>p.group===g).map(p=>'<option value="'+p.id+'">'+escape(p.name)+'</option>').join('')+'</optgroup>').join(''):'<option value="">Inga matchande övningar</option>';
     if(matches.some(p=>p.id===previous))$('pose-select').value=previous;
-    $('pose-count').textContent=matches.length+' valbara alternativ · 57 rörelser, med sidvarianter';
+    $('pose-count').textContent=matches.length+' valbara alternativ · '+window.ZenStretch.families.length+' rörelser, med sidvarianter';
     $('add-pose').disabled=!matches.length||builder.steps.length>=20;updatePoseDescription();
   }
   function updatePoseDescription(){const pose=M.poses.find(p=>p.id===$('pose-select').value);$('pose-description').textContent=pose?pose.cue:'Prova en annan sökning eller muskelgrupp.';}
@@ -200,11 +207,12 @@
   const selectedRoutine=document.querySelector('.selected-routine');
   selectedRoutine.onclick=()=>{if(kind==='stretch')openBuilder(chosen(),false);};
   selectedRoutine.onkeydown=e=>{if(kind==='stretch'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openBuilder(chosen(),false);}};
+  $('routine-category').onchange=renderHome;
   $('create-routine').onclick=()=>openBuilder(kind==='stretch'?{id:id(),kind,name:'',steps:[{...M.poses[0],seconds:60},{...M.poses.find(p=>p.id==='rest'),seconds:60}]}:{id:id(),kind,name:'',seconds:600,guidance:'breath'},true);
   $('builder-steps').oninput=e=>{if(e.target.matches('[data-step-time]')){builder.steps[Number(e.target.dataset.stepTime)].seconds=Number(e.target.value);builderTotal();}};
   $('builder-steps').onclick=e=>{const b=e.target.closest('button');if(!b)return;for(const [attr,delta]of [['up',-1],['down',1]])if(b.dataset[attr]!==undefined){const i=Number(b.dataset[attr]),j=i+delta;if(j>=0&&j<builder.steps.length)[builder.steps[i],builder.steps[j]]=[builder.steps[j],builder.steps[i]];}if(b.dataset.removeStep!==undefined&&builder.steps.length>1)builder.steps.splice(Number(b.dataset.removeStep),1);renderBuilder();};
   $('add-pose').onclick=()=>{const pose=M.poses.find(p=>p.id===$('pose-select').value);if(pose&&builder.steps.length<20){builder.steps.push({...pose,seconds:60});renderBuilder();}};$('meditation-minutes').oninput=builderTotal;
-  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;$('builder-dialog').close();renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
+  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;if(kind==='stretch')$('routine-category').value='own';$('builder-dialog').close();renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
   $('start-button').onclick=startSession;
   $('resume-button').onclick=()=>{if(S.active){const s=S.active;openSession(s.paused?M.resume(s,Date.now()):s);S.setActive(session);}};
   $('discard-button').onclick=()=>confirm('Avbryta det pågående passet?','Passet sparas inte i historiken.','Avbryt passet',()=>{session=null;S.setActive(null);});

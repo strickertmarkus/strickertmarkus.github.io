@@ -5,13 +5,26 @@
   'use strict';
   const poses=library.poses;
   const makeSteps=(ids,seconds)=>ids.map(id=>({...poses.find(p=>p.id===id),seconds}));
+  const stretchTemplate=(id,name,category,description,ids)=>({id,kind:'stretch',name,category,description,steps:makeSteps(ids,60)});
   const routines=[
     {id:'forest',kind:'stretch',name:'Helkropp',description:'8 övningar för axlar, rygg och ben.',steps:makeSteps(['arrive','neck','side-left','side-right','cat','child','fold','rest'],60)},
     {id:'shoulders',kind:'stretch',name:'Axlar & överkropp',description:'5 övningar med fokus på överkroppen.',steps:makeSteps(['arrive','neck','side-left','side-right','child'],60)},
     {id:'roots',kind:'stretch',name:'Höfter & rygg',description:'6 övningar, 2 minuter per övning.',steps:makeSteps(['cat','child','hip-left','hip-right','fold','rest'],120)},
     {id:'water',kind:'meditation',name:'Guidad andning',description:'10 minuter med andningsguide.',seconds:600,guidance:'breath'},
     {id:'light',kind:'meditation',name:'Kort meditation',description:'5 minuter med andningsguide.',seconds:300,guidance:'breath'},
-    {id:'silence',kind:'meditation',name:'Utan guide',description:'15 minuter med timer och egen andning.',seconds:900,guidance:'silent'}
+    {id:'silence',kind:'meditation',name:'Utan guide',description:'15 minuter med timer och egen andning.',seconds:900,guidance:'silent'},
+    stretchTemplate("chest-short","Bröst & triceps · Kort","chest","6 minuter med bröstöppning, axlar och triceps.",["neck", "chest-open", "triceps-left", "triceps-right", "goalpost", "rest"]),
+    stretchTemplate("chest-standard","Bröst & triceps · Fokus","chest","8 minuter med extra utrymme för axlarna.",["neck", "chest-open", "triceps-left", "triceps-right", "goalpost", "cross-arm-left", "cross-arm-right", "rest"]),
+    stretchTemplate("chest-long","Bröst & triceps · Lugn avslutning","chest","12 minuter med bröst, triceps och sidorna av ryggen.",["arrive", "neck", "chest-open", "triceps-left", "triceps-right", "goalpost", "cross-arm-left", "cross-arm-right", "puppy", "lat-reach-left", "lat-reach-right", "rest"]),
+    stretchTemplate("back-short","Biceps & rygg · Kort","back","6 minuter för framsida arm, rygg och sidor.",["biceps", "cat", "child", "lat-reach-left", "lat-reach-right", "rest"]),
+    stretchTemplate("back-standard","Biceps & rygg · Fokus","back","8 minuter med rotation för bröstryggen.",["biceps", "cat", "child", "lat-reach-left", "lat-reach-right", "thread-left", "thread-right", "rest"]),
+    stretchTemplate("back-long","Biceps & rygg · Lugn avslutning","back","12 minuter med biceps, skuldror och ryggrotation.",["arrive", "biceps", "cat", "child", "lat-reach-left", "lat-reach-right", "thread-left", "thread-right", "self-hug", "open-book-left", "open-book-right", "rest"]),
+    stretchTemplate("legs-short","Axlar, mage & ben · Kort","legs","8 minuter med axlar, framsida bål, höfter och lår.",["neck", "cross-arm-left", "cross-arm-right", "sphinx", "hip-left", "hip-right", "fold", "rest"]),
+    stretchTemplate("legs-standard","Axlar, mage & ben · Helhet","legs","12 minuter som även ger framsida lår och vader plats.",["neck", "cross-arm-left", "cross-arm-right", "sphinx", "hip-left", "hip-right", "fold", "standing-quad-left", "standing-quad-right", "calf-left", "calf-right", "rest"]),
+    stretchTemplate("legs-long","Axlar, mage & ben · Lugn avslutning","legs","16 minuter med hela underkroppen, bål och axlar.",["neck", "cross-arm-left", "cross-arm-right", "sphinx", "hip-left", "hip-right", "fold", "standing-quad-left", "standing-quad-right", "calf-left", "calf-right", "lat-reach-left", "lat-reach-right", "butterfly", "knee-sways", "rest"]),
+    stretchTemplate("cardio-run","Efter löpning","cardio","8 minuter med vader, framsida och baksida lår samt höfter.",["standing-quad-left", "standing-quad-right", "calf-left", "calf-right", "hip-left", "hip-right", "fold", "rest"]),
+    stretchTemplate("cardio-cross","Efter crosstrainer","cardio","8 minuter med höfter, säte, bröst och rygg.",["hip-left", "hip-right", "figure-four-left", "figure-four-right", "chest-open", "cat", "side-left", "side-right"]),
+    stretchTemplate("cardio-long","Kondition · Lugn avslutning","cardio","12 minuter med extra fokus på vader och säte.",["standing-quad-left", "standing-quad-right", "calf-left", "calf-right", "hip-left", "hip-right", "fold", "soleus-left", "soleus-right", "figure-four-left", "figure-four-right", "rest"]),
   ];
   const duration=r=>r.kind==='stretch'?r.steps.reduce((sum,s)=>sum+s.seconds,0):r.seconds;
   const clone=o=>JSON.parse(JSON.stringify(o));

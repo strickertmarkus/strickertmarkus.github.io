@@ -81,6 +81,7 @@
  add("wrist-circles","Handledscirklar","Armar & händer","Håll underarmarna framför dig och rulla handlederna långsamt.",stand,"wrists",{"arms": [[[134, 91], [117, 137], [116, 103]], [[166, 91], [183, 137], [184, 103]]]},false);
  add("palm-rock","Handledsgungning på alla fyra","Armar & händer","På alla fyra med handflatorna i golvet: för vikten försiktigt framåt och tillbaka.","cat","palm",{},false);
 
+ add('biceps','Bicepsstretch med raka armar','Armar & händer','För raka armar en liten bit bakom kroppen med handflatorna framåt. Håll axlarna sänkta och lyft bara så långt det känns mjukt.',stand,'biceps',{arms:[[[134,91],[112,131],[95,172]],[[166,91],[184,131],[205,172]]]});
  const poses=families.flatMap(f=>f.paired?['left','right'].map(side=>({id:f.id+'-'+side,name:f.name+' · '+(side==='left'?'vänster':'höger'),cue:f.cue,group:f.group,family:f.id,side})): [{id:f.id,name:f.name,cue:f.cue,group:f.group,family:f.id}]);
  const byId=new Map(poses.map(p=>[p.id,p])),byFamily=new Map(families.map(f=>[f.id,f]));
  function frame(id,t=0,reduced=false){
@@ -103,6 +104,7 @@
    else if(m==='twist'){upper.forEach(v=>v[0]=150+(v[0]-150)*Math.cos(.4*w)+7*w);p.headAngle=.1*w;}
    else if(m==='book'){rotate(p.arms[1].slice(1),p.arms[1][0],-1.35*q);p.headAngle=-.12*q;}
    else if(m==='thread'){p.arms[0].slice(1).forEach(v=>v[0]+=12*q);p.torso[0][1]+=3*q;}
+   else if(m==='biceps'){p.arms.forEach((a,i)=>rotate(a.slice(1),a[0],(i?1:-1)*.08*q));}
    else if(m==='armCircles'){p.arms.forEach((a,i)=>a.slice(1).forEach((v,j)=>{v[0]+=(i?1:-1)*5*Math.cos(cycle);v[1]+=(j+1)*7*w;}));}
    else if(['armHold','overhead','chest','goalpost','hug','eagle','prayer'].includes(m)){p.arms.forEach((a,i)=>rotate(a.slice(1),a[0],(i?1:-1)*.07*q));if(m==='prayer')p.arms.forEach(a=>a[2][1]+=8*q);p.torso[0][1]-=b;}
    else if(m==='pelvis'){p.torso.at(-1)[1]-=4*q;p.legs.forEach(a=>a[0][1]-=4*q);}
