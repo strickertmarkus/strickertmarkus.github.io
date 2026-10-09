@@ -89,5 +89,5 @@ test('Firebase sync is scoped by authenticated UID and persists across account s
   await new Promise(resolve=>setImmediate(resolve));
   listener({uid:'ingemar-uid-1',email:'example1@test.invalid'});
   await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(pages[pages.length-1],data);
+  assert.equal(JSON.stringify(pages[pages.length-1]),JSON.stringify(data));
 });
