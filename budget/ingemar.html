@@ -1654,7 +1654,7 @@ function finishZen(){
  state.zenHistory.push({id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:minutes,elapsedSeconds:Math.round(activeZen.elapsed),steps:deep(activeZen.steps),notes:''});
  persist();
  stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
- renderZen();render();toast('Stunden sparades lokalt i demon.');
+ renderZen();render();toast('Stunden sparas på ditt konto.');
 }
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
