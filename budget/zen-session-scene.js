@@ -30,6 +30,8 @@
   // Soft moss terraces, fine luminous roots and floating pollen.
   for(let j=0;j<4;j++){b.strokeStyle=['#477d2933','#75974a33','#a1b86a18','#6a8e3d22'][j];b.lineWidth=1;b.beginPath();for(let x=0;x<width;x+=4){const y=height*(.8+j*.04)+Math.sin(x/width*6+j)*height*.025;x?b.lineTo(x,y):b.moveTo(x,y);}b.stroke();}
   for(let i=0;i<180;i++){const x=random()*width,y=height*(.78+random()*.2);leaf(b,x,y,3+random()*12,random()*TAU,i%4?'#496a3122':'#a4c67a44');}
+  // A quiet veil softens trunks behind the movement while the edges stay luminous.
+  b.save();b.translate(width*.5,height*.43);b.scale(width*.48,height*.47);const veil=b.createRadialGradient(0,0,.1,0,0,1);veil.addColorStop(0,'#0b241bb8');veil.addColorStop(.55,'#0b241b80');veil.addColorStop(1,'#0b241b00');b.fillStyle=veil;b.fillRect(-1,-1,2,2);b.restore();
   const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#03120e99');shade.addColorStop(.23,'#03120e11');shade.addColorStop(.7,'#03120e00');shade.addColorStop(1,'#03120ecc');b.fillStyle=shade;b.fillRect(0,0,width,height);
  }
  function shore(){
@@ -160,11 +162,14 @@
   const pose=animatedPose(poseKey,t-poseStarted);
   if(!pose){glow(p,150,150,90,'168,216,125',.18);p.fillStyle='#daecc6';p.font='italic 25px Georgia';p.textAlign='center';p.fillText('Din rörelse',150,145);p.font='12px sans-serif';p.fillText('Följ din egen instruktion',150,170);p.restore();return;}
   const cloth=p.createLinearGradient(110,80,177,230);cloth.addColorStop(0,'#e5edc4');cloth.addColorStop(.45,'#a5bd90');cloth.addColorStop(1,'#6b9271');
-  for(const leg of pose.legs){line(p,leg,'#213f2c',20);line(p,leg,cloth,15);const end=leg[2];line(p,[[end[0],end[1]],[end[0]+(end[0]>150?9:-9),end[1]+2]],'#c6d7a9',9);}
-  torso(pose.torso,'#294936',39);torso(pose.torso,cloth,33);
-  // Shoulder band and gently shaded head make the figure legible at phone sizes.
-  for(const arm of pose.arms){line(p,arm,'#244530',14);line(p,arm,'#c6d8af',10);ellipse(p,arm[2][0],arm[2][1],5,6,'#dae4bc');}
-  line(p,[[pose.head[0],pose.head[1]+14],pose.torso[0]],'#c2d1a4',10);
+  // Curved joints and shared shoulder roots keep the silhouette connected in motion.
+  const limb=(points,color,weight)=>{p.strokeStyle=color;p.lineWidth=weight;p.lineCap='round';p.lineJoin='round';p.beginPath();p.moveTo(...points[0]);for(let i=1;i<points.length-1;i++){const a=points[i],n=points[i+1];p.quadraticCurveTo(...a,(a[0]+n[0])/2,(a[1]+n[1])/2);}p.lineTo(...points.at(-1));p.stroke();};
+  p.shadowColor='#d9ffc0';p.shadowBlur=5;
+  for(const leg of pose.legs){limb(leg,cloth,17);const end=leg[2];line(p,[[end[0],end[1]],[end[0]+(end[0]>150?8:-8),end[1]+2]],'#bbd1a6',8);}
+  const skinLimb=p.createLinearGradient(110,60,190,230);skinLimb.addColorStop(0,'#e3e8c0');skinLimb.addColorStop(.5,'#bbd0a5');skinLimb.addColorStop(1,'#8aaa86');
+  for(const arm of pose.arms){limb([pose.torso[0],...arm],skinLimb,12);ellipse(p,arm[2][0],arm[2][1],5,6,skinLimb);}
+  line(p,[[pose.head[0],pose.head[1]+14],pose.torso[0]],skinLimb,12);
+  p.shadowBlur=0;torso(pose.torso,cloth,35);
   const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,-.05);
   p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso.at(-1)[0]-11,pose.torso.at(-1)[1]);p.stroke();
   if(key?.startsWith('side'))glow(p,144,133,25,'210,255,143',.22);
@@ -191,7 +196,7 @@
    // Waterfall at the far right, outside the breathing guide and controls.
    for(let i=0;i<12;i++){const x=width*.91+Math.sin(i*2)*width*.025,y=height*.46;line(c,[[x,y],[x+Math.sin(t*1.4+i)*2,height*.62]],`rgba(206,230,204,${.035+i%3*.015})`,1.3);}
   }else{
-   for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const alpha=.14+.22*(1+Math.sin(t*.8+i))/2;glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
+   for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const edge=Math.min(1,Math.abs(x-width*.5)/(width*.36));const alpha=(.14+.22*(1+Math.sin(t*.8+i))/2)*(.12+.88*edge*edge);glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
    for(let i=0;i<9;i++){const x=(i*137.3+t*7)%width,y=(i*101+t*8)%(height*.8);leaf(c,x,y,4+ i%3,Math.sin(t*.3+i),'#b6d17d30');}
    drawPose(t,now);
   }
@@ -211,11 +216,17 @@
   if(next.kind==='stretch'&&next.index!==previousIndex&&next.step){
    previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
-   $('session-stage-caption').textContent=next.step.id==='rest'?'Låt kroppen landa':next.step.id?.includes('side-')?'Längd genom hela sidan':'En rörelse. Ett andetag i taget.';
+
    const total=next.steps.reduce((n,step)=>n+step.seconds,0);let offset=0;
    const leaves=next.steps.map((step,i)=>{const li=document.createElement('li');li.style.left=(offset/total*100)+'%';offset+=step.seconds;li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;});
    const end=document.createElement('li');end.style.left='100%';end.title='Passet klart';end.setAttribute('aria-label','Passet klart');end.dataset.state='waiting';end.appendChild(document.createElement('span'));leaves.push(end);
    $('session-trail').replaceChildren(...leaves);
+  }
+  if(next.kind==='stretch'&&next.step){
+   const cues=next.step.id==='rest'?['Låt kroppen landa','Ge andetaget plats']:next.step.id?.includes('side-')?['Längd genom hela sidan','Låt axlarna sjunka','Följ din egen andning']:['Hitta mjukhet i rörelsen','Följ din egen andning','Släpp spänningen lite till'];
+   const cue=next.paused?'Ta den tid du behöver':next.preparing?'Hitta din position':cues[Math.min(cues.length-1,Math.floor((next.stepProgress||0)*cues.length))];
+   const caption=$('session-stage-caption');if(caption.textContent!==cue){caption.getAnimations().forEach(a=>a.cancel());caption.textContent=cue;if(!reduced.matches)caption.animate([{opacity:0,transform:'translateY(3px)'},{opacity:1,transform:'none'}],{duration:900,easing:'ease-out'});}
+   host.querySelector('.session-next').classList.toggle('next-imminent',!next.paused&&!next.preparing&&next.index<next.steps.length-1&&(1-next.stepProgress)*next.step.seconds<=5);
   }
   if(next.done)$('session-trail').querySelectorAll('li').forEach(li=>{li.dataset.state='done';li.removeAttribute('aria-current');});
   if(next.phase==='Andas ut'&&old.phase!==next.phase&&!reduced.matches)ripples.push({x:width*.5,y:height*.65,at:performance.now()});
@@ -223,8 +234,9 @@
   paintSessionProgress(performance.now());
   if(reduced.matches||next.paused)paint(performance.now());
  });
- document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();lastLeaf=-1;leafFlashes.fill(-Infinity);const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').appendChild(clock);previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
+ document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();lastLeaf=-1;leafFlashes.fill(-Infinity);const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').prepend(clock);const next=host.querySelector('.session-next');next.classList.remove('next-imminent');if(e.detail.kind==='stretch')host.querySelector('.session-bottom').prepend(next);else host.querySelector('.session-layout').appendChild(next);$('session-audio').open=false;previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
  const sceneSizeObserver=new ResizeObserver(()=>{if(active)resize();});sceneSizeObserver.observe(host);sceneSizeObserver.observe($('breathing-field'));
+ host.addEventListener('pointerdown',e=>{const audio=$('session-audio');if(audio.open&&!audio.contains(e.target))audio.open=false;});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('session-audio').open){$('session-audio').open=false;$('session-audio').querySelector('summary').focus();}});
  document.addEventListener('visibilitychange',wake);reduced.addEventListener('change',wake);
  window.addEventListener('pagehide',()=>{cancelAnimationFrame(frame);clearTimeout(idle);});window.addEventListener('pageshow',wake);
 })();

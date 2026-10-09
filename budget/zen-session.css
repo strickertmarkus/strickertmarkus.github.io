@@ -3,31 +3,33 @@ body.in-session .landscape,body.in-session .zen-header,body#pulse-page.in-sessio
 body[data-session-view=session]{overflow:hidden}
 .session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
 #session-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-.session-top{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;border-bottom:1px solid #b9db941c;padding-bottom:12px}
+.session-top{position:relative;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;border-bottom:1px solid #b9db941c;padding-bottom:12px}
 .session-top>span{font-size:11px;text-transform:uppercase;letter-spacing:2px;text-align:center}
 .session-view button{color:inherit;touch-action:manipulation}
 .session-view .text-button{font:500 12px var(--sans);min-height:44px;padding:8px 12px;border-radius:24px;color:var(--soft)}
 .session-view button:focus-visible,.session-view summary:focus-visible{outline:2px solid var(--light);outline-offset:4px}
 .session-view button:hover{color:var(--ink)}
-.session-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,1.25fr) minmax(0,.6fr);grid-template-rows:1fr auto;align-items:center;gap:8px 28px;width:100%;max-width:1320px;margin:auto;height:100%;min-height:0}
-.session-copy{grid-column:1;grid-row:1;max-width:350px}
+.session-layout{display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(150px,1fr) auto;align-items:center;justify-items:center;gap:8px;width:100%;max-width:900px;margin:auto;height:100%;min-height:0;padding:20px 0 14px}
+.session-copy{grid-column:1;grid-row:1;max-width:600px;text-align:center}
 .session-view .eyebrow{color:var(--light);font-size:10px;letter-spacing:3px;margin:0 0 20px}
 .session-copy h1{font:400 clamp(36px,4.2vw,66px)/1.03 var(--serif);letter-spacing:-1px;margin:0;text-wrap:balance}
 #session-side{display:inline-block;margin:22px 0 0;font-size:10px;letter-spacing:2px;color:var(--light);text-transform:uppercase}
 #session-side:empty{display:none}
-.session-cue{font-size:13px;line-height:1.85;color:var(--soft);margin:20px 0 0;max-width:340px}
-.session-stage{grid-column:2;grid-row:1 / 3;position:relative;width:100%;height:100%;max-height:620px;min-height:0;align-self:center}
+.session-cue{font-size:13px;line-height:1.85;color:var(--soft);margin:16px auto 0;max-width:460px}
+.session-stage{grid-column:1;grid-row:2;position:relative;width:100%;height:100%;max-width:480px;max-height:460px;min-height:0;align-self:center}
 #session-pose{position:absolute;inset:0;width:100%;height:100%;display:block}
-#session-stage-caption{position:absolute;bottom:6%;left:0;width:100%;text-align:center;font:italic 16px var(--serif);color:#c5dfad;margin:0}
-.session-guidance{grid-column:3;grid-row:1;text-align:center}
+#session-stage-caption{text-align:center;font:italic 17px var(--serif);color:#c5dfad;margin:10px 0 0;min-height:22px}
+body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-detail{display:none}
+.session-guidance{grid-column:1;grid-row:3;text-align:center}
 #breath-label{font:italic 24px var(--serif);margin:0 0 10px;color:var(--light)}
 #session-phase-detail{font-size:10px;color:var(--soft);letter-spacing:1px;min-height:16px;margin:0 0 14px}
 .session-clock{display:flex;flex-direction:column;align-items:center;gap:8px}
 .session-clock strong{font:400 clamp(40px,4vw,64px)/1 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:1px}
 .session-clock small{font-size:10px;color:var(--soft)}
-.session-next{grid-column:1;grid-row:2;align-self:start;margin-bottom:35px;border-left:1px solid #c5e4a64d;padding:0 0 0 18px}
+.session-next{grid-column:1 / -1;text-align:center;margin:0;padding:0;transition:color 1s,text-shadow 1s;min-height:28px}
+.session-next.next-imminent{color:#e3ffc0;text-shadow:0 0 16px #c4ff8f99}
 .next-eyebrow{font-size:9px;letter-spacing:2.5px;color:var(--light)}
-.next-step{font:400 21px var(--serif);margin:8px 0;color:var(--ink)}
+.next-step{font:400 14px var(--serif);margin:4px 0 8px;color:inherit}
 .session-bottom{width:100%;max-width:1060px;margin:0 auto;position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;align-items:center}
 #session-trail{position:relative;width:100%;height:24px;list-style:none;padding:0;margin:0}
 #session-trail li{width:24px;height:24px;position:absolute;top:0;transform:translateX(-50%);display:grid;place-items:center}
@@ -40,11 +42,17 @@ body[data-session-view=session]{overflow:hidden}
 #session-progress-fill:after{content:'';position:absolute;right:-2px;top:-1.5px;width:4px;height:4px;border-radius:50%;background:#edffcb;box-shadow:0 0 10px #d7ff9a}
 .session-controls{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;gap:24px}
 .pause-button{min-width:146px;min-height:50px;padding:12px 28px;border-radius:60% 40% 58% 42% / 50%;background:#bce99813;border:1px solid #c7ef9166;font:500 13px var(--sans);box-shadow:inset 0 0 22px #c7ef9110,0 0 32px #c7ef9108}
-.session-meta{grid-column:1;grid-row:3;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;font-size:10px;color:var(--soft);min-height:35px}
+.session-meta{grid-column:1 / -1;grid-row:4;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;font-size:10px;color:var(--soft);min-height:35px}
 .session-footnote{margin:0;text-align:center;font-size:10px}
 #clock-toggle{display:none}
-#session-audio{grid-column:2;grid-row:3;align-self:start;text-align:left;background:#112c23ed;border:1px solid #bedb902d;border-radius:16px;font-size:11px;max-width:230px}
-#session-audio summary{min-height:44px;padding:14px 18px;cursor:pointer}
+#session-audio{position:relative;text-align:left;font-size:11px;color:var(--soft)}
+#session-audio summary{width:44px;height:44px;display:grid;place-items:center;cursor:pointer;list-style:none;border-radius:50%}
+#session-audio summary::-webkit-details-marker{display:none}
+#session-audio[open] summary{background:#c7ef9112;color:var(--ink)}
+#session-audio .sound-waves,#session-audio[data-enabled=true] .sound-muted{display:none}
+#session-audio[data-enabled=true] .sound-waves{display:block}
+.audio-panel{position:absolute;right:0;top:calc(100% + 12px);width:min(250px,80vw);background:#10281ff7;border:1px solid #bedb903d;border-radius:18px;box-shadow:0 12px 42px #0006,0 0 25px #baff7709;padding:12px 0 0;backdrop-filter:blur(18px)}
+.session-view .audio-panel #sound-toggle{margin:0 18px 8px;padding:8px 16px;border:1px solid #bedb9040;width:calc(100% - 36px);color:var(--ink)}
 #session-audio label{display:flex;justify-content:space-between;gap:12px;padding:5px 18px}
 #session-volume{width:calc(100% - 36px);margin:10px 18px 20px;accent-color:#b5d795;padding:0;height:24px;min-height:24px;border:0}
 #restart-step{grid-column:1 / -1;display:block;margin:0 auto}
@@ -90,7 +98,7 @@ body[data-kind=meditation] #session-trail,body[data-kind=meditation] .session-pr
 body[data-kind=meditation] .pause-button{width:64px;height:64px;min-width:64px;min-height:64px;border-radius:50%;padding:0;background:#eedf9f0c;border-color:#f2dea258}
 body[data-kind=meditation] .session-meta{grid-row:2;justify-content:space-between;gap:10px}
 body[data-kind=meditation] #clock-toggle{display:block;font-size:10px}
-body[data-kind=meditation] #session-audio{grid-row:2;background:#173e38f0}
+body[data-kind=meditation] .audio-panel{background:#173e38f7}
 body[data-kind=meditation] #session-ending{background:#183f3944}
 .session-view.clock-hidden .session-clock{visibility:hidden}
 .session-view.controls-asleep .session-top,.session-view.controls-asleep .session-controls,.session-view.controls-asleep .session-meta>:not(.session-clock),.session-view.controls-asleep #session-audio,.session-view.controls-asleep .session-next{opacity:0;visibility:hidden;pointer-events:none}
@@ -104,23 +112,23 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  .session-top{gap:6px;padding-bottom:5px;min-height:44px}
  .session-top>span{font-size:9px;letter-spacing:1px;max-width:130px}
  .session-view .session-top .text-button{font-size:10px;padding:8px 0}
- .session-layout{grid-template-columns:1fr 1fr;grid-template-rows:auto minmax(140px,1fr) auto auto;gap:5px 10px;max-width:460px;padding-top:14px}
- .session-copy{grid-column:1 / 3;grid-row:1;max-width:100%;text-align:center}
+ .session-layout{grid-template-columns:1fr;grid-template-rows:auto minmax(140px,1fr) auto;gap:5px;max-width:460px;padding:14px 0 12px}
+ .session-copy{grid-column:1;grid-row:1;max-width:100%;text-align:center}
  .session-view .eyebrow{margin-bottom:9px;font-size:9px;letter-spacing:2.5px}
  .session-copy h1{font-size:clamp(29px,8vw,41px);line-height:1.07}
  #session-side{margin:10px 0 0;font-size:9px}
  .session-cue{margin:10px auto 0;font-size:11px;line-height:1.6;max-width:320px}
- .session-stage{grid-column:1 / 3;grid-row:2;max-height:360px;min-height:140px}
- #session-stage-caption{bottom:1%;font-size:13px}
- .session-guidance{grid-column:1;grid-row:3;text-align:left;padding:6px 0 8px}
+ .session-stage{grid-column:1;grid-row:2;max-height:360px;min-height:140px}
+ #session-stage-caption{font-size:15px;margin-top:8px}
+ .session-guidance{grid-column:1;grid-row:3;text-align:center;padding:0}
  #breath-label{font-size:17px;margin-bottom:5px}
  #session-phase-detail{font-size:9px;min-height:0;margin:0 0 5px}
- .session-clock{align-items:flex-start;flex-direction:row;gap:8px;align-items:baseline}
- .session-clock strong{font-size:35px}
- .session-clock small{font-size:9px;max-width:70px;line-height:1.3}
- .session-next{grid-column:2;grid-row:3;margin:10px 0 0;padding-left:12px}
+ .session-clock{align-items:center;flex-direction:column;gap:4px}
+ .session-clock strong{font-size:43px}
+ .session-clock small{font-size:9px;line-height:1.3;letter-spacing:.5px}
+ .session-next{grid-column:1 / -1;margin:0;padding:0}
  .next-eyebrow{font-size:8px;letter-spacing:1.5px}
- .next-step{font-size:17px;line-height:1.2;margin:6px 0}
+ .next-step{font-size:14px;line-height:1.2;margin:4px 0 8px}
  .session-bottom{padding-top:6px;gap:5px 10px}
  #session-trail{padding:0}
  .session-progress{margin-bottom:10px}
@@ -129,8 +137,7 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  .pause-button{min-width:94px;min-height:46px;padding:10px 16px}
  .session-meta{min-height:28px;gap:8px;font-size:9px}
  .session-footnote{font-size:8px;max-width:205px;text-align:right}
- #session-audio{font-size:9px;max-width:min(210px,42vw)}
- #session-audio summary{padding:12px;min-height:44px}
+ #session-audio{font-size:11px}
  body[data-kind=meditation] .session-layout{padding-top:18px;max-width:100%;gap:8px}
  body[data-kind=meditation] .session-copy{align-self:start}
  body[data-kind=meditation] .session-stage{min-height:0;margin:0;width:auto;height:min(23vh,200px,100%)}
@@ -140,8 +147,6 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  body[data-kind=meditation] .session-next{align-self:center}
  body[data-kind=meditation] .session-bottom{padding-top:16px}
  body[data-kind=meditation] .session-controls{justify-content:center;gap:20px}
- body[data-kind=meditation] #session-audio{align-self:start}
- body[data-kind=meditation] #session-audio summary{font-size:9px;padding:12px 8px}
  body[data-kind=meditation] .session-meta{padding-top:5px}
 }
 @media(max-height:690px) and (max-width:760px){
@@ -150,7 +155,7 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  .session-copy h1{font-size:28px}
  .session-cue{font-size:10px;margin-top:6px}
  #session-side{margin-top:6px}
- #session-stage-caption{display:none}
+ #session-stage-caption{font-size:13px;margin-top:5px}
  .session-view .eyebrow{margin-bottom:5px}
  body[data-kind=meditation] .session-layout{padding-top:8px;gap:5px}
  body[data-kind=meditation] .session-stage{width:auto;height:min(130px,100%);margin:0}

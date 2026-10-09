@@ -91,7 +91,7 @@
     const now=Date.now(),p=M.position(session,now);
     if(p.done){if(!ending){ending=true;session=M.pause(session,now);S.setActive(session);$('session-ending').hidden=false;$('session-view').classList.add('session-finished');document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=true);$('session-ending-title').focus();updateBreathAudio(false);document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind,paused:true,done:true,progress:1}}));chime();}return;}
     const isStretch=session.routine.kind==='stretch',preparing=!session.paused&&now<session.anchor;
-    if(isStretch&&lastStep!==p.index){lastStep=p.index;const step=session.routine.steps[p.index];$('session-overline').textContent='RÖRELSE '+(p.index+1)+' AV '+session.routine.steps.length;$('session-title').textContent=step.name;$('session-cue').textContent=step.cue;$('next-step').textContent=p.index+1<session.routine.steps.length?'Sedan · '+session.routine.steps[p.index+1].name:'Sista övningen i passet.';if(p.index>0)chime();}
+    if(isStretch&&lastStep!==p.index){lastStep=p.index;const step=session.routine.steps[p.index];$('session-overline').textContent='RÖRELSE '+(p.index+1)+' AV '+session.routine.steps.length;$('session-title').textContent=step.name;$('session-cue').textContent=step.cue;$('next-step').textContent=p.index+1<session.routine.steps.length?'Härnäst · '+session.routine.steps[p.index+1].name:'Sista övningen i passet.';if(p.index>0)chime();}
     if(!isStretch){$('session-overline').textContent='MEDITATION';$('session-title').textContent=session.routine.guidance==='breath'?'Guidad andning':'Meditation utan guide';$('session-cue').textContent=session.routine.guidance==='breath'?'Andas in i 4 sekunder och ut i 6. Byt till egen andning om rytmen inte känns bekväm.':'Rikta uppmärksamheten mot andningen. När du märker att du tänker på annat, återgå till andetagen.';
       const action=session.routine.guidance==='breath'?'Byt till egen andning':'Visa andningsguide';if(!$('guidance-toggle')||$('guidance-toggle').textContent!==action)$('next-step').innerHTML='<button class="text-button" id="guidance-toggle">'+action+'</button>';
     }
@@ -122,7 +122,7 @@
     if(!pendingRecord)return;const record={...pendingRecord,note:$('session-note').value.trim(),updatedAt:Date.now()};
     if(S.put(record)){pendingRecord=null;session=null;S.setActive(null);showView('home');renderHome();$('hero-title').setAttribute('tabindex','-1');$('hero-title').focus();toast('Passet är sparat.');}
   }
-  function updateSound(){$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Klang på':'Klang av';$('sound-toggle').setAttribute('aria-pressed',String(sound));}
+  function updateSound(){$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Ljud på':'Ljud av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
   function mixedAudioContext(){
     // Fail silent when audio mixing cannot be requested; preserve external music.
     try{
