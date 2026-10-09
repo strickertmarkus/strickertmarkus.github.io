@@ -452,6 +452,9 @@ jobs:
                   await page.locator('#session-view').waitFor({state:'visible'});
                   await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));
                   assert.equal(await page.locator('#session-view').isVisible(),true,kind+' start action');
+                  assert.equal(await page.locator('#pulse-header').isVisible(),false,'home header must leave the session');
+                  assert.equal(await page.locator('.wellness-kind-switch').isVisible(),false,'home navigation must leave the session');
+                  await page.screenshot({animations:'disabled',path:'test-results/observatory/'+kind+'-session-390.png'});
                   await page.locator('#pause-session').click();
                   await page.waitForFunction(()=>document.querySelector('#pause-session').textContent==='Fortsätt').catch(async error=>{
                     console.log('Pause diagnostic',kind,await page.evaluate(()=>({text:document.querySelector('#pause-session').textContent,active:ZenStore.active,locked:TrainingOverlay.isLocked(),body:document.body.className})),errors);
@@ -459,6 +462,7 @@ jobs:
                   });
                   await page.locator('#leave-session').click();
                   assert.equal(await page.locator('#resume-banner').isVisible(),true);
+                  assert.equal(await page.locator('#pulse-header').isVisible(),true,'home header must return');
                   await page.locator('#resume-button').click();
                   await page.locator('#session-view').waitFor({state:'visible'});
                   await page.waitForFunction(()=>!document.body.classList.contains('oasis-entering'));

@@ -74,6 +74,8 @@ async function geometry(page,kind,size){
  assert.equal(await page.locator('#pause-session').isVisible(),false,'meditation controls should recede when idle');assert.equal(await page.locator('#session-clock').isVisible(),true,'the visible-clock preference must survive idle controls');
  await page.screenshot({animations:'disabled',path:`${out}/meditation-idle.png`});await page.locator('#reveal-session-controls').click();await page.clock.fastForward(610000);await page.clock.runFor(300);await page.waitForSelector('#session-ending:not([hidden])');
  await page.screenshot({animations:'disabled',path:`${out}/meditation-ending.png`});await page.locator('#show-session-summary').click();await page.locator('#save-session').click();
- assert.equal(await page.evaluate(()=>ZenStore.entries.find(e=>!e.demo&&e.type==='session').seconds),600);await ctx.close();
+ assert.equal(await page.evaluate(()=>ZenStore.entries.find(e=>!e.demo&&e.type==='session').seconds),600);
+ await page.locator('#start-button').click();await page.locator('#leave-session').click();await page.locator('#discard-button').click();await page.locator('#confirm-yes').click();
+ await page.reload();await page.waitForFunction(()=>ZenStore.ready);assert.equal(await page.evaluate(()=>ZenStore.active),null,'discarded sessions must not return after pagehide/reload');await ctx.close();
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

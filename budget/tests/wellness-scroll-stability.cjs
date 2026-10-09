@@ -65,6 +65,7 @@ async function verify(browser,mobile){
   await page.locator('#leave-session').click();await page.locator('#resume-button').click();await page.waitForSelector('#session-view:not([hidden])');assert.equal(await page.evaluate(()=>ZenStore.active.paused),false);
   await page.evaluate(()=>{dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));});
   assert.ok(await page.evaluate(()=>ZenStore.active),'Returning from page cache must preserve the active session');
+  await page.waitForFunction(()=>ZenModel.practiced(ZenStore.active,Date.now())>=1100);
   await page.locator('#finish-session').click();await page.waitForSelector('#confirm-dialog[open]');await page.locator('#confirm-yes').click();
   await page.waitForSelector('#complete-view:not([hidden])');await page.locator('#save-session').click();
   await page.waitForSelector('#home-view:not([hidden])');assert.equal(await page.evaluate(()=>ZenStore.active),null);

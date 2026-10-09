@@ -1,5 +1,5 @@
 /* Each runner owns its whole viewport. Home scenery is suspended by the runtime. */
-body.in-session .landscape,body.in-session .zen-header{display:none}
+body.in-session .landscape,body.in-session .zen-header,body#pulse-page.in-session #pulse-header,body.in-session .wellness-kind-switch{display:none!important}
 body[data-session-view=session]{overflow:hidden}
 .session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
 #session-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}

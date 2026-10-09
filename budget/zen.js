@@ -171,7 +171,7 @@
   $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;$('builder-dialog').close();renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
   $('start-button').onclick=startSession;
   $('resume-button').onclick=()=>{if(S.active){const s=S.active;openSession(s.paused?M.resume(s,Date.now()):s);S.setActive(session);}};
-  $('discard-button').onclick=()=>confirm('Avbryta det pågående passet?','Passet sparas inte i historiken.','Avbryt passet',()=>S.setActive(null));
+  $('discard-button').onclick=()=>confirm('Avbryta det pågående passet?','Passet sparas inte i historiken.','Avbryt passet',()=>{session=null;S.setActive(null);});
   $('pause-session').onclick=()=>{if(!session||ending)return;if(session.paused){breathOffset=M.position(session,Date.now()).spent;session=M.resume(session,Date.now()+(session.routine.kind==='meditation'?3000:0));}else session=M.pause(session,Date.now());S.setActive(session);tick();};
   $('leave-session').onclick=()=>{session=M.pause(session,Date.now());S.setActive(session);showView('home');renderHome();};
   $('next-step').onclick=e=>{if(e.target.id==='guidance-toggle'){session.routine.guidance=session.routine.guidance==='breath'?'silent':'breath';breathOffset=M.position(session,Date.now()).spent;S.setActive(session);tick();}};
