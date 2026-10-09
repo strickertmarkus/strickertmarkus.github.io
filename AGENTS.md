@@ -22,6 +22,17 @@
    - Ask one concise question if the target, intended result, or technical behavior is genuinely ambiguous.
    - Do not ask for confirmation when the request and desired result are already clear.
 
+## Design iteration mode
+
+When the user is still choosing or refining the visual style, prioritize short design iterations. This mode takes precedence over the full verification requirements below until the user says the style is settled or requests full verification.
+
+- Make the requested visual changes, review the diff, and run syntax checks for changed JavaScript.
+- Do one focused browser preview of the affected state, normally at 390 px for mobile UI. Inspect a screenshot; for animation inspect two phases or a short recording.
+- Do not run broad regression suites, exhaustive viewport matrices, or repeated CI polling during style exploration. Automatically triggered CI may continue in the background and does not block delivery of the design iteration.
+- Check deployment once; only call the update published when deployment success is confirmed. Otherwise provide its actual status without waiting in a polling loop.
+- Fix obvious breakage discovered in the focused preview. Defer unrelated legacy issues and broad verification until the visual style is approved, and state any relevant unverified limitations briefly.
+- Once the user approves the style, perform the full verification and final-response gate below.
+
 ## Fast execution strategy
 
 4. **Plan first, then make one coherent change.**
@@ -108,7 +119,7 @@
 
 ## Final-response gate
 
-Before replying that a repository task is complete, confirm:
+For final verification after the style is settled (not design iterations), confirm:
 
 - [ ] This file was read before making changes.
 - [ ] Latest relevant files and repository state were inspected.

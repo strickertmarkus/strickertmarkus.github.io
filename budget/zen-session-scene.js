@@ -6,7 +6,7 @@
  if(!host||!canvas)return;
  const c=canvas.getContext('2d'),p=poseCanvas.getContext('2d'),still=document.createElement('canvas'),b=still.getContext('2d');
  const leafFlashes=Array(16).fill(-Infinity);
- let sampledAt=0,lastLeaf=-1;
+ let sampledAt=0,lastLeaf=-1,poseStarted=0;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let width=0,height=0,dpr=1,frame=0,last=0,active=false,snapshot={},previousIndex=-1,previousKind='',ripples=[],pointer={x:0,y:0},idle=0,transitionTimer=0,motionTime=0,keyboardMode=false;
  const TAU=Math.PI*2;
@@ -77,6 +77,45 @@
   fold:{head:[139,158],torso:[[134,183],[92,221]],arms:[[[143,185],[179,206],[214,224]],[[126,177],[171,196],[210,216]]],legs:[[[93,224],[161,233],[234,232]],[[95,214],[163,218],[231,219]]]},
   rest:{head:[55,208],torso:[[89,214],[161,218]],arms:[[[93,222],[129,240],[166,238]],[[93,203],[129,194],[164,200]]],legs:[[[159,222],[208,234],[259,239]],[[159,211],[210,214],[260,217]]]}
  };
+ // Animate the joints of each exercise; the shared motion clock freezes on pause.
+ function animatedPose(key,t){
+  const source=poses[key];if(!source)return null;
+  const pose={head:[...source.head],torso:source.torso.map(v=>[...v]),arms:source.arms.map(a=>a.map(v=>[...v])),legs:source.legs.map(a=>a.map(v=>[...v]))};
+  if(reduced.matches)return pose;
+  const cycle=t*TAU/6,breathe=Math.sin(t*TAU/7),ease=(1-Math.cos(cycle))/2;
+  const upper=[pose.head,...pose.torso.slice(0,-1),...pose.arms.flat()];
+  const rotate=(points,pivot,angle)=>points.forEach(v=>{const x=v[0]-pivot[0],y=v[1]-pivot[1];v[0]=pivot[0]+x*Math.cos(angle)-y*Math.sin(angle);v[1]=pivot[1]+x*Math.sin(angle)+y*Math.cos(angle);});
+  if(key==='neck'){
+   // Shoulders lift, sweep back and release; elbows and hands follow the joints.
+   pose.arms.forEach((arm,i)=>{const side=i?1:-1,dx=side*7*Math.sin(cycle),dy=-12*ease;
+    arm.forEach((v,j)=>{v[0]+=dx*[1,.75,.45][j];v[1]+=dy*[1,.85,.65][j];});
+   });
+   pose.torso[0][1]-=3*ease;
+  }else if(key==='side-left'){
+   rotate(upper,pose.torso[1],-.12*Math.sin(cycle));
+  }else if(key==='cat'){
+   const arch=18*Math.sin(cycle);
+   pose.torso.splice(1,0,[150,143-arch]);pose.head[1]+=arch*.45;pose.head[0]+=arch*.15;
+   pose.arms.forEach(a=>a[0][1]-=arch*.12);
+  }else if(key==='child'){
+   rotate(upper,pose.torso[1],-.08*ease);pose.torso[1][0]+=3*ease;
+  }else if(key==='hip-left'){
+   const shift=-9*ease;upper.forEach(v=>v[0]+=shift);pose.torso[1][0]+=shift;
+   pose.legs.forEach(leg=>leg[0][0]+=shift);
+  }else if(key==='fold'){
+   rotate(upper,pose.torso[1],.13*ease);
+  }else if(key==='rest'){
+   pose.torso[0][1]-=2*breathe;pose.arms.forEach(a=>a[0][1]-=breathe);
+  }else{
+   pose.torso[0][1]-=2*breathe;pose.head[1]-=breathe;
+   pose.arms.forEach(a=>a.forEach((v,j)=>v[1]-=breathe*(2-j*.5)));
+  }
+  return pose;
+ }
+ function torso(points,color,width){
+  p.strokeStyle=color;p.lineWidth=width;p.lineCap='round';p.beginPath();p.moveTo(...points[0]);
+  if(points.length===3)p.quadraticCurveTo(...points[1],...points[2]);else p.lineTo(...points[1]);p.stroke();
+ }
  function drawPose(t,now){
   const w=poseCanvas.width/dpr,h=poseCanvas.height/dpr;if(w<2||h<2)return;p.clearRect(0,0,w,h);
   const s=Math.min(w/340,h/330),cx=w/2,cy=h*.48;
@@ -98,15 +137,17 @@
   p.restore();
   for(let i=0;i<16;i++){
    const a=-Math.PI/2+i/16*TAU,[x,y]=orbit(a),lit=i/16<=progress,age=t-leafFlashes[i];
-   if(lit)glow(p,x,y,14,'184,245,123',.26);
+   if(lit)glow(p,x,y,20,'184,245,123',.32);
    p.save();if(lit){p.shadowColor='#cbff92';p.shadowBlur=9;}
    // Center each leaf on the exact timer path, so contact and flash coincide.
-   leaf(p,x-Math.cos(a+.6)*5,y-Math.sin(a+.6)*5,10,a+.6,lit?'#e4ffb7':'#537b43');p.restore();
+   const angle=a+.6,size=21;
+   leaf(p,x-Math.cos(angle)*size/2,y-Math.sin(angle)*size/2,size,angle,lit?'#e4ffb7':'#85ad62');
+   line(p,[[x-Math.cos(angle)*7,y-Math.sin(angle)*7],[x+Math.cos(angle)*7,y+Math.sin(angle)*7]],lit?'#709b43':'#c2df9388',.8);p.restore();
    if(!reduced.matches&&age>=0&&age<1.35){
     const q=age/1.35,alpha=Math.sin(Math.PI*Math.min(1,q*3))*(1-q);
     glow(p,x,y,22+q*10,'220,255,162',alpha*.6);
     p.save();p.strokeStyle=`rgba(218,255,158,${(1-q)*.9})`;p.lineWidth=1.4*(1-q)+.35;p.shadowColor='#c2ff83';p.shadowBlur=13;
-    p.beginPath();p.arc(x,y,7+q*17,0,TAU);p.stroke();p.restore();
+    p.beginPath();p.arc(x,y,12+q*19,0,TAU);p.stroke();p.restore();
    }
   }
   const [tipX,tipY]=orbit(-Math.PI/2+TAU*progress);
@@ -114,21 +155,21 @@
   // The movement stays readable, but sits quietly inside the timer garden.
   p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha=.76;
   ellipse(p,150,268,78,9,'#b5d78413');ellipse(p,150,270,61,3,'#d8eca51f');
-  const key=snapshot.step?.id;let pose=poses[key];if(pose?.mirror){p.translate(300,0);p.scale(-1,1);pose=poses[pose.mirror];}
+  const key=snapshot.step?.id,poseKey=poses[key]?.mirror||key;
+  if(poses[key]?.mirror){p.translate(300,0);p.scale(-1,1);}
+  const pose=animatedPose(poseKey,t-poseStarted);
   if(!pose){glow(p,150,150,90,'168,216,125',.18);p.fillStyle='#daecc6';p.font='italic 25px Georgia';p.textAlign='center';p.fillText('Din rörelse',150,145);p.font='12px sans-serif';p.fillText('Följ din egen instruktion',150,170);p.restore();return;}
-  const sway=reduced.matches?0:Math.sin(t*.7)*1.5;
-  p.translate(sway,0);
   const cloth=p.createLinearGradient(110,80,177,230);cloth.addColorStop(0,'#e5edc4');cloth.addColorStop(.45,'#a5bd90');cloth.addColorStop(1,'#6b9271');
   for(const leg of pose.legs){line(p,leg,'#213f2c',20);line(p,leg,cloth,15);const end=leg[2];line(p,[[end[0],end[1]],[end[0]+(end[0]>150?9:-9),end[1]+2]],'#c6d7a9',9);}
-  line(p,pose.torso,'#294936',39);line(p,pose.torso,cloth,33);
+  torso(pose.torso,'#294936',39);torso(pose.torso,cloth,33);
   // Shoulder band and gently shaded head make the figure legible at phone sizes.
   for(const arm of pose.arms){line(p,arm,'#244530',14);line(p,arm,'#c6d8af',10);ellipse(p,arm[2][0],arm[2][1],5,6,'#dae4bc');}
   line(p,[[pose.head[0],pose.head[1]+14],pose.torso[0]],'#c2d1a4',10);
   const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,-.05);
-  p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso[1][0]-11,pose.torso[1][1]);p.stroke();
+  p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso.at(-1)[0]-11,pose.torso.at(-1)[1]);p.stroke();
   if(key?.startsWith('side'))glow(p,144,133,25,'210,255,143',.22);
   if(key?.startsWith('hip'))glow(p,150,172,24,'210,255,143',.25);
-  if(key==='neck'){for(const x of [126,174]){p.strokeStyle='#e5ffab99';p.lineWidth=1.2;p.beginPath();p.arc(x,100,12,t*.3,t*.3+4.6);p.stroke();}}
+  if(key==='neck')for(const arm of pose.arms)glow(p,...arm[0],12,'210,255,143',.2);
   p.restore();
  }
  function paint(now){
@@ -160,7 +201,7 @@
   if(next.index!==old.index||(next.stepProgress||0)<(old.stepProgress||0)-.01){lastLeaf=-1;leafFlashes.fill(-Infinity);}
   if(next.kind!==previousKind){previousKind=next.kind;previousIndex=-1;resize();showControls();}
   if(next.kind==='stretch'&&next.index!==previousIndex&&next.step){
-   previousIndex=next.index;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
+   previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
    $('session-stage-caption').textContent=next.step.id==='rest'?'Låt kroppen landa':next.step.id?.includes('side-')?'Längd genom hela sidan':'En rörelse. Ett andetag i taget.';
    $('session-trail').replaceChildren(...next.steps.map((step,i)=>{const li=document.createElement('li');li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;}));
