@@ -33,7 +33,7 @@
   function setGate(visible){
     document.documentElement.dataset.ingemarAuth=visible?'locked':'ready';
     const gate=el('ingemar-account-gate');
-    if(gate)gate.hidden=!visible;
+    if(gate){gate.hidden=!visible;gate.dataset.signedIn=API.user?'true':'false';}
   }
   function localKey(){return LOCAL_PREFIX+currentUid;}
   function cache(value){try{localStorage.setItem(localKey(),value);}catch(_){}}
@@ -84,6 +84,7 @@
   async function activate(user){
     teardown();
     if(!user){setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
+    setGate(true);
     const token=generation;
     currentUid=user.uid;
     API.user={uid:user.uid,email:user.email||''};
@@ -174,6 +175,8 @@
     if(register)register.addEventListener('click',()=>signIn(true));
     const logoutButton=el('ingemar-logout');
     if(logoutButton)logoutButton.addEventListener('click',()=>logout().catch(()=>message('Kunde inte logga ut.',true)));
+    const gateLogout=el('ingemar-gate-logout');
+    if(gateLogout)gateLogout.addEventListener('click',()=>logout().catch(()=>message('Kunde inte byta konto.',true)));
     try{
       if(!window.firebase||!window.FIREBASE_CONFIG)throw Error('Firebase SDK eller konfiguration saknas');
       app=firebase.apps.find(a=>a.name==='ingemar-personal')||firebase.initializeApp(window.FIREBASE_CONFIG,'ingemar-personal');
