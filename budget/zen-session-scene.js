@@ -35,18 +35,48 @@
   b.save();b.translate(width*.5,height*.43);b.scale(width*.48,height*.47);const veil=b.createRadialGradient(0,0,.1,0,0,1);veil.addColorStop(0,'#0b241bb8');veil.addColorStop(.55,'#0b241b80');veil.addColorStop(1,'#0b241b00');b.fillStyle=veil;b.fillRect(-1,-1,2,2);b.restore();
   const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#03120e99');shade.addColorStop(.23,'#03120e11');shade.addColorStop(.7,'#03120e00');shade.addColorStop(1,'#03120ecc');b.fillStyle=shade;b.fillRect(0,0,width,height);
  }
+ // Cached atmospheric depth; only mist and water are animated per frame.
  function shore(){
-  const sky=b.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#102f2a');sky.addColorStop(.38,'#486f60');sky.addColorStop(.6,'#698d78');sky.addColorStop(.61,'#365f51');sky.addColorStop(1,'#082d29');b.fillStyle=sky;b.fillRect(0,0,width,height);
-  glow(b,width*.5,height*.35,height*.6,'248,216,149',.14);
-  // Receding hills and a separate lower water plane leave room around the guide.
-  for(let j=0;j<4;j++){b.fillStyle=['#31584c66','#244b4055','#173f3666','#143b3288'][j];b.beginPath();b.moveTo(0,height*.62);for(let x=0;x<=width+10;x+=10)b.lineTo(x,height*(.43+j*.048)-Math.sin(x/width*5+j)*height*.04);b.lineTo(width,height*.63);b.lineTo(0,height*.63);b.fill();}
-  for(const side of [-1,1])for(let i=0;i<7;i++){
-   const x=side<0?width*(.015+i*.018):width*(.985-i*.018),lean=side*(10+i*5),top=-50+random()*height*.22,base=height*(.71+random()*.12),thick=4+random()*6;
-   line(b,[[x,base],[x+lean,top]],i<3?'#092d26':'#1c4a37',thick+3);line(b,[[x-2,base],[x+lean-2,top]],'#65835a55',1.4);
-   for(let y=base-40;y>top;y-=52){const xx=x+lean*(base-y)/(base-top);line(b,[[xx-thick*.6,y],[xx+thick*.6,y]],'#9eb38044',2);if(random()>.48)for(let l=0;l<5;l++)leaf(b,xx,y,18+random()*30,(side<0?-.4:3.5)+(random()-.5),l%2?'#163f2e':'#285d3c');}
+  const horizon=height*.59;
+  const sky=b.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#071f23');sky.addColorStop(.42,'#345650');sky.addColorStop(.59,'#698076');sky.addColorStop(.64,'#294b47');sky.addColorStop(1,'#061f23');b.fillStyle=sky;b.fillRect(0,0,width,height);
+  glow(b,width*.52,height*.4,height*.52,'227,210,158',.16);
+  // Uneven distant tree canopies dissolve into the humid air.
+  for(let depth=0;depth<3;depth++){
+   b.save();b.filter=`blur(${5-depth*1.7}px)`;b.fillStyle=['#47645e','#304f48','#203e39'][depth];
+   b.beginPath();b.moveTo(-10,horizon+20);
+   for(let x=-10;x<width+15;x+=3){const edge=Math.pow(Math.abs(x/width-.52)*2,1.6);const y=horizon-height*(.035+edge*(.10+depth*.025))+Math.sin(x*.017+depth*3)*height*.013+Math.sin(x*.073+depth)*3+random()*4;b.lineTo(x,y);}
+   b.lineTo(width+15,horizon+20);b.closePath();b.fill();b.restore();
+   b.save();b.translate(width*.5,horizon-depth*height*.023);b.scale(width*.85,height*.07);glow(b,0,0,1,'190,207,183',.17);b.restore();
   }
-  for(let i=0;i<16;i++){const side=i%2?-1:1,x=side<0?random()*width*.14:width-random()*width*.14,y=height*(.57+random()*.09);ellipse(b,x,y,12+random()*40,8+random()*20,'#16382d');ellipse(b,x,y-4,10+random()*30,4+random()*8,'#64826755');}
-  const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#0b282977');shade.addColorStop(.6,'#0b282900');shade.addColorStop(1,'#062721aa');b.fillStyle=shade;b.fillRect(0,0,width,height);
+  const water=b.createLinearGradient(0,horizon,0,height);water.addColorStop(0,'#57736b');water.addColorStop(.12,'#2b514b');water.addColorStop(.55,'#133a36');water.addColorStop(1,'#071f23');b.fillStyle=water;b.fillRect(0,horizon,width,height-horizon);
+  // Distant reflected trunks: muted, vertically stretched, broken by the water.
+  for(let i=0;i<100;i++){const x=random()*width,z=Math.abs(x/width-.5)*2;line(b,[[x,horizon],[x+random()*8-4,horizon+height*(.01+random()*.12)*z]],'#112f2920',1+random()*4);}
+  // Asymmetrical slender bamboo, with narrow pointed leaves rather than a flat border.
+  for(const side of [-1,1])for(let i=0;i<(side<0?5:3);i++){
+   const x=side<0?width*(-.025+i*.024):width*(1.01-i*.026),lean=side*(8+random()*25),base=height*(.73+random()*.09),top=-50,thick=3+random()*5;
+   const stalk=b.createLinearGradient(x-thick,0,x+thick,0);stalk.addColorStop(0,'#071f20');stalk.addColorStop(.5,'#284a3c');stalk.addColorStop(.8,'#3a5741');stalk.addColorStop(1,'#0a2928');
+   line(b,[[x,base],[x+lean,top]],stalk,thick);line(b,[[x+thick*.28,base],[x+lean+thick*.28,top]],'#b0b78622',.6);
+   for(let y=base-30;y>top;y-=64+random()*35){
+    const xx=x+lean*(base-y)/(base-top);line(b,[[xx-thick*.5,y],[xx+thick*.5,y-1]],'#a6b28a40',1);
+    if(random()<.5)continue;
+    const reach=(side<0?1:-1)*(20+random()*45),tip=xx+reach,by=y-12-random()*25;
+    line(b,[[xx,y],[xx+reach*.45,y-8],[tip,by]],'#36563e',.8);
+    for(let j=0;j<7;j++){
+     const f=.25+j*.1,lx=xx+reach*f,ly=y+(by-y)*f,angle=(side<0?0:Math.PI)+(j%2?-.65:.8);
+     b.save();b.translate(lx,ly);b.rotate(angle);b.scale(1,.32);leaf(b,0,0,16+random()*23,0,j%3?'#163a30':'#48634a');b.restore();
+    }
+   }
+  }
+  // Irregular low stone banks; mineral texture and moss catch only grazing light.
+  for(const side of [-1,1])for(let i=0;i<5;i++){
+   const x=side<0?random()*width*.1:width-random()*width*.08,y=height*(.72+i*.018),rx=18+random()*32,ry=9+random()*14;
+   const rock=b.createLinearGradient(0,y-ry,0,y+ry);rock.addColorStop(0,'#41534a');rock.addColorStop(.23,'#263d35');rock.addColorStop(1,'#0a2524');b.fillStyle=rock;b.beginPath();
+   for(let k=0;k<=12;k++){const a=k/12*TAU,r=.8+random()*.2;const px=x+Math.cos(a)*rx*r,py=y+Math.sin(a)*ry*r;k?b.lineTo(px,py):b.moveTo(px,py);}b.closePath();b.fill();
+   for(let k=0;k<35;k++)ellipse(b,x+(random()-.5)*rx*1.4,y-ry*.45+random()*ry*.4,.4+random(),.3,'#a0ab6c24');
+  }
+  // Fine atmospheric grain, fixed in the cache (no animated noise flicker).
+  for(let i=0;i<width*height/65;i++)ellipse(b,random()*width,random()*height,.4,.4,i%2?'#e6dfbc09':'#00191b10');
+  const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#061b2380');shade.addColorStop(.38,'#061b2300');shade.addColorStop(.68,'#061b2322');shade.addColorStop(1,'#031a21bb');b.fillStyle=shade;b.fillRect(0,0,width,height);
  }
  function makeSun(){
   const surface=$('session-sun-surface');if(!surface)return;surface.width=384;surface.height=384;
@@ -169,13 +199,20 @@
  function paint(now){
   if(!active)return;paintSessionProgress(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
   if(snapshot.kind==='meditation'){
-   const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.61;
+   const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.59;
    const scale=snapshot.scale||1;
-   for(let i=0;i<58;i++){const z=i/58,y=horizon+z*height*.35,w=(12+z*90)*scale,offset=Math.sin(i*2+t*.8)*w*.28;const alpha=(1-z)*(.025+.045*Math.sin(i*5+t)**2);line(c,[[sx-w+offset,y],[sx+w+offset,y]],`rgba(253,228,170,${alpha})`,1+z*2);}
-   for(let i=0;i<20;i++){const y=horizon+(i/20)*height*.37,x=(i*117.1%width);line(c,[[x,y],[x+25+Math.sin(t*.3+i)*12,y]],'#d3ead214',.7);}
-   for(const r of ripples){const age=(now-r.at)/1000;if(age>7)continue;const q=age/7;c.save();c.globalAlpha=(1-q)*.25;c.strokeStyle='#efdfaf';c.lineWidth=1;c.beginPath();c.ellipse(r.x,r.y,12+q*width*.5,3+q*height*.09,0,0,TAU);c.stroke();c.restore();}ripples=ripples.filter(r=>now-r.at<7000);
-   // Waterfall at the far right, outside the breathing guide and controls.
-   for(let i=0;i<12;i++){const x=width*.91+Math.sin(i*2)*width*.025,y=height*.46;line(c,[[x,y],[x+Math.sin(t*1.4+i)*2,height*.62]],`rgba(206,230,204,${.035+i%3*.015})`,1.3);}
+   // Broad low bloom under a broken path of light. Breathing gently widens the reflection.
+   c.save();c.translate(sx,horizon+height*.12);c.scale(width*.30*scale,height*.24);glow(c,0,0,1,'236,207,144',.075*scale);c.restore();
+   for(let i=0;i<125;i++){
+    const z=i/125,y=horizon+Math.pow(z,1.35)*height*.39,w=(5+z*z*width*.32)*scale;
+    const wave=Math.sin(i*2.39+t*.36)+Math.sin(i*.71-t*.21),offset=wave*w*.23;
+    const alpha=(1-z)*(.025+.095*Math.pow((1+Math.sin(i*1.7+t*.45))/2,3));
+    for(let j=0;j<3;j++){const a=-1+j*.7,span=.15+.3*(1+Math.sin(i*3+j))/2;line(c,[[sx+offset+w*a,y],[sx+offset+w*(a+span),y]],`rgba(244,219,168,${alpha})`,.5+z*1.1);}
+   }
+   for(let i=0;i<45;i++){const z=i/45,y=horizon+z*height*.4,x=(i*117.1%width)+Math.sin(t*.15+i)*4;line(c,[[x,y],[x+8+z*30,y]],`rgba(151,183,168,${.02+z*.035})`,.6);}
+   // Mist drifts at three different speeds and stays below the breathing sun.
+   for(let i=0;i<3;i++){c.save();c.translate(width*(.25+i*.28)+Math.sin(t*.045+i*2)*width*.13,horizon-height*(.025+i*.027));c.scale(width*(.55+i*.12),height*.035);glow(c,0,0,1,'196,207,185',.08);c.restore();}
+   for(const r of ripples){const age=(now-r.at)/1000;if(age>7)continue;const q=age/7;c.save();c.globalAlpha=(1-q)*.10;c.strokeStyle='#dfd4ab';c.lineWidth=.65;c.beginPath();c.ellipse(r.x,r.y,12+q*width*.42,2+q*height*.032,0,0,TAU);c.stroke();c.restore();}ripples=ripples.filter(r=>now-r.at<7000);
   }else{
    for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const edge=Math.min(1,Math.abs(x-width*.5)/(width*.36));const alpha=(.14+.22*(1+Math.sin(t*.8+i))/2)*(.12+.88*edge*edge);glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
    for(let i=0;i<9;i++){const x=(i*137.3+t*7)%width,y=(i*101+t*8)%(height*.8);leaf(c,x,y,4+ i%3,Math.sin(t*.3+i),'#b6d17d30');}

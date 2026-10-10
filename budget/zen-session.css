@@ -78,11 +78,11 @@ body[data-kind=meditation] .session-copy h1{font:400 clamp(25px,3vw,38px) var(--
 body[data-kind=meditation] .session-copy .eyebrow{font-size:9px;letter-spacing:4px;margin-bottom:10px}
 body[data-kind=meditation] .session-cue,body[data-kind=meditation] #session-pose,body[data-kind=meditation] #session-stage-caption,body[data-kind=meditation] #session-side{display:none}
 body[data-kind=meditation] .session-stage{min-height:0;grid-column:1;grid-row:2;width:auto;height:min(23vh,245px,100%);max-width:100%;margin:0;position:relative;aspect-ratio:1}
-.session-sun{position:absolute;inset:12%;border-radius:50%;box-shadow:0 0 22px #ffde9666,0 0 65px #ffd17b38,0 0 135px #ffc76b24;transform:scale(var(--breath-scale,1));transition:transform .22s linear;will-change:transform;isolation:isolate}
+.session-sun{position:absolute;inset:12%;border-radius:50%;box-shadow:0 0 14px #ffde9644,0 0 55px #ffd17b28,0 0 120px #ffc76b18;transform:scale(var(--breath-scale,1));transition:transform .22s linear;will-change:transform;isolation:isolate}
 body[data-kind=meditation] .session-sun{display:block}
-.session-sun:before{content:'';position:absolute;inset:-70%;border-radius:50%;z-index:-1;background:radial-gradient(circle,#fff3c733 0%,#ffe3a220 27%,#ffc4770c 47%,transparent 68%)}
-.session-sun:after{content:'';position:absolute;inset:-1%;border-radius:50%;box-shadow:0 0 7px #ffebaf8c,inset 0 0 4px #ffedaf55;pointer-events:none}
-#session-sun-surface{display:block;width:100%;height:100%;border-radius:50%}
+.session-sun:before{content:'';position:absolute;inset:-95%;border-radius:50%;z-index:-1;background:radial-gradient(circle,#fff3c733 0%,#ffe3a220 27%,#ffc4770c 47%,transparent 68%)}
+.session-sun:after{content:'';position:absolute;inset:-8%;border-radius:48% 52% 47% 53%;background:radial-gradient(ellipse,#ffe5ad00 54%,#ffe5ad17 65%,#ffe5ad00 74%);filter:blur(5px);pointer-events:none}
+#session-sun-surface{display:block;width:100%;height:100%;border-radius:50%;filter:blur(.65px);opacity:.88}
 body[data-kind=meditation] .session-guidance{grid-column:1;grid-row:3;text-align:center;margin:0;min-height:65px}
 body[data-kind=meditation] #breath-label{font-size:clamp(32px,4vw,48px);margin-bottom:8px;letter-spacing:.5px;color:#fff3cf}
 body[data-kind=meditation] #session-phase-detail{font-size:11px;letter-spacing:2px;color:#dbe6d8}
