@@ -5,8 +5,7 @@
  const $=id=>document.getElementById(id),host=$('session-view'),canvas=$('session-landscape'),poseCanvas=$('session-pose');
  if(!host||!canvas)return;
  const c=canvas.getContext('2d'),p=poseCanvas.getContext('2d'),still=document.createElement('canvas'),b=still.getContext('2d');
- const leafFlashes=Array(16).fill(-Infinity);
- let sampledAt=0,lastLeaf=-1,poseStarted=0;
+ let sampledAt=0,poseStarted=0;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let width=0,height=0,dpr=1,frame=0,last=0,active=false,snapshot={},previousIndex=-1,previousKind='',ripples=[],pointer={x:0,y:0},idle=0,transitionTimer=0,motionTime=0,keyboardMode=false;
  const TAU=Math.PI*2;
@@ -78,8 +77,6 @@
   // No second session clock: pause, step changes and tab recovery still come from zen.js.
   const drift=snapshot.paused||snapshot.preparing||snapshot.done?0:Math.max(0,now-sampledAt)/1000/(snapshot.step?.seconds||1);
   const progress=snapshot.done?1:Math.min(1,(snapshot.stepProgress||0)+drift);
-  const hit=Math.min(15,Math.floor(progress*15));
-  if(hit>lastLeaf){if(lastLeaf>=0&&hit-lastLeaf===1)leafFlashes[hit]=t;lastLeaf=hit;}
   const orbit=(a)=>[150+Math.cos(a)*139,148+Math.sin(a)*144];
   // Match Pulse Flow: a 260° sweep with the opening below the figure.
   const start=140*Math.PI/180,sweep=260*Math.PI/180;
@@ -91,21 +88,6 @@
   p.shadowBlur=12;p.strokeStyle='#c9f996';p.lineWidth=2.1;arc();p.stroke();
   p.shadowBlur=0;p.strokeStyle='#efffd0';p.lineWidth=.65;arc();p.stroke();
   p.restore();
-  for(let i=0;i<16;i++){
-   const a=start+i/15*sweep,[x,y]=orbit(a),lit=i/15<=progress,age=t-leafFlashes[i];
-   if(lit)glow(p,x,y,20,'184,245,123',.32);
-   p.save();if(lit){p.shadowColor='#cbff92';p.shadowBlur=9;}
-   // Center each leaf on the exact timer path, so contact and flash coincide.
-   const angle=a,size=25;
-   leaf(p,x-Math.cos(angle)*size/2,y-Math.sin(angle)*size/2,size,angle,lit?'#e4ffb7':'#85ad62');
-   line(p,[[x-Math.cos(angle)*7,y-Math.sin(angle)*7],[x+Math.cos(angle)*7,y+Math.sin(angle)*7]],lit?'#709b43':'#c2df9388',.8);p.restore();
-   if(!reduced.matches&&age>=0&&age<1.35){
-    const q=age/1.35,alpha=Math.sin(Math.PI*Math.min(1,q*3))*(1-q);
-    glow(p,x,y,22+q*10,'220,255,162',alpha*.6);
-    p.save();p.strokeStyle=`rgba(218,255,158,${(1-q)*.9})`;p.lineWidth=1.4*(1-q)+.35;p.shadowColor='#c2ff83';p.shadowBlur=13;
-    p.beginPath();p.arc(x,y,12+q*19,0,TAU);p.stroke();p.restore();
-   }
-  }
   const [tipX,tipY]=orbit(start+sweep*progress);
   glow(p,tipX,tipY,30,'193,255,139',.72);glow(p,tipX,tipY,13,'227,255,175',.95);ellipse(p,tipX,tipY,4.2,4.2,'#f4ffdc');
   // The movement stays readable, but sits quietly inside the timer garden.
@@ -169,14 +151,14 @@
  host.addEventListener('keydown',()=>{keyboardMode=true;showControls();});$('reveal-session-controls').onclick=showControls;$('session-audio').addEventListener('toggle',showControls);
  document.addEventListener('zen:session-frame',e=>{
   const next=e.detail,old=snapshot;snapshot=next;sampledAt=performance.now();
-  if(next.index!==old.index||(next.stepProgress||0)<(old.stepProgress||0)-.01){lastLeaf=-1;leafFlashes.fill(-Infinity);}
   if(next.kind!==previousKind){previousKind=next.kind;previousIndex=-1;resize();showControls();}
   if(next.kind==='stretch'&&next.index!==previousIndex&&next.step){
+   const advance=previousIndex>=0&&next.index>previousIndex;
    previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
 
    const total=next.steps.reduce((n,step)=>n+step.seconds,0);let offset=0;
-   const leaves=next.steps.map((step,i)=>{const li=document.createElement('li');li.style.left=(offset/total*100)+'%';offset+=step.seconds;li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index)li.setAttribute('aria-current','step');li.appendChild(document.createElement('span'));return li;});
+   const leaves=next.steps.map((step,i)=>{const li=document.createElement('li');li.style.left=(offset/total*100)+'%';offset+=step.seconds;li.title=step.name;li.setAttribute('aria-label',(i+1)+'. '+step.name+(i<next.index?' · avklarad':''));li.dataset.state=i<next.index?'done':'waiting';if(i===next.index){li.setAttribute('aria-current','step');if(advance)li.classList.add('step-arrived');}li.appendChild(document.createElement('span'));return li;});
    const end=document.createElement('li');end.style.left='100%';end.title='Passet klart';end.setAttribute('aria-label','Passet klart');end.dataset.state='waiting';end.appendChild(document.createElement('span'));leaves.push(end);
    $('session-trail').replaceChildren(...leaves);
   }
@@ -192,7 +174,7 @@
   paintSessionProgress(performance.now());
   if(reduced.matches||next.paused)paint(performance.now());
  });
- document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();lastLeaf=-1;leafFlashes.fill(-Infinity);const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').prepend(clock);const next=host.querySelector('.session-next');next.classList.remove('next-imminent');if(e.detail.kind==='stretch')host.querySelector('.session-bottom').prepend(next);else host.querySelector('.session-layout').appendChild(next);$('session-audio').open=false;previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
+ document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').prepend(clock);const next=host.querySelector('.session-next');next.classList.remove('next-imminent');if(e.detail.kind==='stretch')host.querySelector('.session-bottom').prepend(next);else host.querySelector('.session-layout').appendChild(next);$('session-audio').open=false;previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
  const sceneSizeObserver=new ResizeObserver(()=>{if(active)resize();});sceneSizeObserver.observe(host);sceneSizeObserver.observe($('breathing-field'));
  host.addEventListener('pointerdown',e=>{const audio=$('session-audio');if(audio.open&&!audio.contains(e.target))audio.open=false;});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('session-audio').open){$('session-audio').open=false;$('session-audio').querySelector('summary').focus();}});
  document.addEventListener('visibilitychange',wake);reduced.addEventListener('change',wake);

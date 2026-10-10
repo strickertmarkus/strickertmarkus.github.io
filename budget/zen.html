@@ -18,9 +18,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script defer src="auth-config.js"></script><script defer src="auth-gate.js?v=20260924-canonical-auth-1"></script>
-  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-stretch-library.js?v=20261009-motion-1"></script><script defer src="zen-model.js?v=20261009-templates-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-builder-sort.js?v=20261009-motion-1"></script><script defer src="zen.js?v=20261009-ding-1"></script><script defer src="zen-effects-v4.js?v=20261009-library-1"></script><script defer src="zen-session-scene.js?v=20261009-motion-1"></script>
+  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-stretch-library.js?v=20261009-motion-1"></script><script defer src="zen-model.js?v=20261009-templates-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-builder-sort.js?v=20261009-motion-1"></script><script defer src="zen.js?v=20261009-ding-1"></script><script defer src="zen-effects-v4.js?v=20261009-library-1"></script><script defer src="zen-session-scene.js?v=20261010-compact-1"></script>
 
-<link rel="stylesheet" href="zen-session.css?v=20261009-motion-1">
+<link rel="stylesheet" href="zen-session.css?v=20261010-compact-1">
 <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
 </head>
 <body data-kind="stretch">
@@ -67,8 +67,7 @@
       <div class="session-bottom">
         <div class="session-progress" role="progressbar" aria-label="Passets förlopp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="session-progress-fill"></span><ol id="session-trail" aria-label="Passets övningar"></ol></div>
         <div class="session-controls"><button class="text-button" id="previous-step" aria-label="Föregående övning">← Föregående</button><button class="pause-button" id="pause-session">Pausa</button><button class="text-button" id="following-step" aria-label="Nästa övning">Nästa →</button><button class="text-button" id="finish-session">Avsluta</button></div>
-        <div class="session-meta"><span id="session-elapsed">0:00 / 8:00</span><p class="session-footnote" id="session-footnote"></p><button class="text-button" id="clock-toggle" aria-pressed="true">Dölj tiden</button></div>
-        <button class="text-button" id="restart-step" hidden>Börja om övningen</button>
+        <div class="session-meta"><span id="session-elapsed">0:00 / 8:00</span><p class="session-footnote" id="session-footnote"></p><button class="text-button" id="restart-step" hidden>Börja om övningen</button><button class="text-button" id="clock-toggle" aria-pressed="true">Dölj tiden</button></div>
       </div>
       <button id="reveal-session-controls" class="text-button" hidden>Visa kontroller</button>
       <div id="session-ending" role="dialog" aria-modal="true" aria-labelledby="session-ending-title" hidden><p class="eyebrow">DIN STUND</p><h2 id="session-ending-title" tabindex="-1">Passet är klart.</h2><p>Stanna en stund om du vill.</p><button class="primary-button" id="show-session-summary">Till sammanfattningen →</button></div>

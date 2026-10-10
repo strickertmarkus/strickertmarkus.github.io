@@ -1,7 +1,7 @@
 /* Each runner owns its whole viewport. Home scenery is suspended by the runtime. */
 body.in-session .landscape,body.in-session .zen-header,body#pulse-page.in-session #pulse-header,body.in-session .wellness-kind-switch{display:none!important}
 body[data-session-view=session]{overflow:hidden}
-.session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto var(--pose-size) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
+.session-view{--ink:#e7f6d9;--soft:#a4bc9b;--light:#c7ef91;position:fixed;inset:0;z-index:30;width:100%;height:100svh;height:100dvh;overflow:auto;color:var(--ink);background:#061a14;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding: max(18px,env(safe-area-inset-top)) clamp(20px,5vw,84px) max(18px,env(safe-area-inset-bottom));animation:session-entry .8s ease both}
 #session-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .session-top{position:relative;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;border-bottom:1px solid #b9db941c;padding-bottom:12px}
 .session-top>span{font-size:11px;text-transform:uppercase;letter-spacing:2px;text-align:center}
@@ -165,10 +165,27 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
 @media(max-height:500px) and (min-width:761px){.session-view{min-height:500px;position:absolute}.session-stage{max-height:270px}}
 @media(prefers-reduced-motion:reduce){.session-view,.session-view.step-changing .session-copy,.session-view.step-changing #session-pose{animation:none}.session-sun,#session-progress-fill{transition:none}}
 
-body[data-kind=stretch] .session-view{display:flex;flex-direction:column;justify-content:space-between}
-body[data-kind=stretch] .session-top,body[data-kind=stretch] .session-layout,body[data-kind=stretch] .session-bottom{flex:0 0 auto}
-body[data-kind=stretch] .session-layout{margin:0 auto}
-body[data-kind=stretch] .session-copy{min-height:140px}
+body[data-kind=stretch] .session-layout{--pose-size:max(150px,min(300px,calc(100vw - 40px),calc(100svh - 430px)));height:100%;margin:0 auto;grid-template-rows:minmax(0,1fr) var(--pose-size) auto;gap:3px;padding:5px 0}
+body[data-kind=stretch] .session-copy{min-height:0;max-height:100%;overflow:auto;overscroll-behavior:contain;width:100%;scrollbar-width:thin}
+body[data-kind=stretch] .session-copy .eyebrow{margin-bottom:6px}
+body[data-kind=stretch] #session-side{margin-top:6px}
+body[data-kind=stretch] .session-cue{margin-top:7px;line-height:1.5}
+body[data-kind=stretch] .session-clock{flex-direction:row;align-items:baseline;justify-content:center;gap:8px}
+body[data-kind=stretch] .session-clock strong{font-size:38px}
+body[data-kind=stretch] #session-stage-caption{font-size:14px;min-height:18px;margin:4px 0 0}
+body[data-kind=stretch] .session-bottom{gap:3px 10px;padding-top:4px}
+body[data-kind=stretch] .session-progress{margin-bottom:3px}
+body[data-kind=stretch] .next-step{font-size:13px;margin:2px 0 4px}
+body[data-kind=stretch] .session-meta{min-height:44px;flex-wrap:nowrap;gap:8px}
+body[data-kind=stretch] #restart-step{margin:0;padding:6px 0;font-size:10px}
+body[data-kind=stretch].is-paused .session-footnote{display:none}
 body[data-kind=stretch] .session-copy h1{overflow-wrap:anywhere}
 body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(25px,6vw,36px);line-height:1.08}
 body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:11px;line-height:1.5;margin-top:8px}
+
+#session-trail li.step-arrived::after{content:'';position:absolute;inset:1px;border-radius:50%;border:1px solid #e4ffc0;box-shadow:0 0 12px #caff8d,inset 0 0 10px #caff8d88;pointer-events:none;animation:trail-arrival 1.25s ease-out both}
+#session-trail li.step-arrived span{animation:trail-leaf-glow 1.25s ease-out both}
+@keyframes trail-arrival{0%{opacity:0;transform:scale(.6)}15%{opacity:1}100%{opacity:0;transform:scale(2.7)}}
+@keyframes trail-leaf-glow{0%,100%{box-shadow:0 0 22px #c8ff93}25%{background:#f5ffdd;box-shadow:0 0 10px #f1ffc8,0 0 30px #d0ff8f,0 0 48px #adf765}}
+@media(max-height:720px){body[data-kind=stretch] .session-copy h1,body[data-kind=stretch] .session-copy.is-long h1{font-size:24px}body[data-kind=stretch] .session-cue,body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:10px;line-height:1.4}body[data-kind=stretch] .session-clock strong{font-size:34px}}
+@media(prefers-reduced-motion:reduce){#session-trail li.step-arrived::after{display:none}#session-trail li.step-arrived span{animation:none}}
