@@ -1,0 +1,42 @@
+name: Recipe sync read-only diagnosis
+on:
+  push:
+    branches: [diagnose/recipe-sync-20261010]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save firebase-admin@13
+      - name: Inspect recipe sync metadata and rules without changing data
+        run: |
+          node <<'NODE'
+          const {initializeApp,cert}=require('firebase-admin/app');
+          const {getDatabase}=require('firebase-admin/database');
+          const {getSecurityRules}=require('firebase-admin/security-rules');
+          (async()=>{
+            if(!process.env.FIREBASE_SERVICE_ACCOUNT_JSON)throw Error('Firebase service account secret is not configured');
+            const account=JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+            const app=initializeApp({credential:cert(account),databaseURL:'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'});
+            const db=getDatabase(app);
+            for(const key of ['sh_recipes_v3','sh_lists']){
+              const snap=await db.ref(key).get();
+              let value=snap.val();
+              const type=typeof value;
+              try { if(type==='string')value=JSON.parse(value); } catch{}
+              console.log(JSON.stringify({key,exists:snap.exists(),type,version:value?.version||null,count:Array.isArray(value)?value.length:value?.recipes?.length??null,updatedAt:value?.updatedAt||null}));
+            }
+            try {
+              const rules=await getSecurityRules(app).getDatabaseRules();
+              console.log('RULES '+rules.source.replace(/[A-Za-z0-9_-]{20,}/g,'[redacted-identifier]'));
+            }catch(e){console.log('RULES_ERROR '+e.code+' '+e.message);}
+            await app.delete();
+          })().catch(e=>{console.error(e.message);process.exitCode=1;});
+          NODE
