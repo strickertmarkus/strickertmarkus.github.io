@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const source = fs.readFileSync(__dirname + '/../shopping-recipes-v4.js', 'utf8').replace('  function engine()', '  window.recipeTest = {mergeStores, saveRecipes, readStore, reconcileSnapshot, bindFirebase, refreshRemote};\n  function engine()');
+const source = fs.readFileSync(__dirname + '/../shopping-recipes-v4.js', 'utf8').replace('  function engine()', '  window.recipeTest = {mergeStores, saveRecipes, readStore, reconcileSnapshot, bindFirebase, refreshRemote, newRecipeId, status:()=>({message:syncMessage,failed:syncFailed})};\n  function engine()');
 const recipe = (id, name, updatedAt = 0) => ({id, name, url:'', items:[], updatedAt});
 const store = (recipes, updatedAt = 0, deleted = {}) => ({version:5, updatedAt, recipes, deleted});
 function client(initial, server) {
@@ -10,7 +10,7 @@ function client(initial, server) {
   const timers = [];
   const snap = () => ({exists:()=>server.value != null, val:()=>server.value});
   const ref = {
-    get:async()=>snap(), on(){}, off(){},
+    get:async()=>{if(server.readFail)throw {code:'PERMISSION_DENIED'};return snap();}, on(){}, off(){},
     async transaction(update) {
       if (server.fail) throw Error('offline');
       server.value = update(server.value);
@@ -18,7 +18,7 @@ function client(initial, server) {
     }
   };
   const document = {readyState:'loading', hidden:false, addEventListener(){}, getElementById(){return null;}};
-  const window = {location:{pathname:'/budget/shopping.html'}, addEventListener(){}};
+  const window = {crypto:require('node:crypto').webcrypto, location:{pathname:'/budget/shopping.html'}, addEventListener(){}};
   const firebase = {auth:()=>({onAuthStateChanged:fn=>fn({uid:'fixture'})}), database:()=>({ref:()=>ref})};
   vm.runInNewContext(source, {window, document, firebase, localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)}, URL, Set, Map, Date, console:{warn(){}}, setInterval(){}, setTimeout(fn){timers.push(fn);return fn;}, clearTimeout(fn){const i=timers.indexOf(fn);if(i>=0)timers.splice(i,1);}});
   return {...window.recipeTest, async flush(){while(timers.length){timers.shift()(); await new Promise(setImmediate);}}, async attach(){window.recipeTest.bindFirebase();await new Promise(setImmediate);}};
@@ -62,4 +62,22 @@ test('deleting the last recipe propagates an empty collection',async()=>{
   c.saveRecipes([]);await c.flush();
   assert.equal(JSON.parse(server.value).recipes.length,0);
   assert(JSON.parse(server.value).deleted['1']>1);
+});
+
+test('new recipes get different IDs on phones starting from the same collection',()=>{
+  const a=client(store([recipe(1,'Shared')]),{}),b=client(store([recipe(1,'Shared')]),{});
+  const ids=Array.from({length:100},()=>[a.newRecipeId(),b.newRecipeId()]).flat();
+  assert(ids.every(Number.isSafeInteger));
+  assert.equal(new Set(ids).size,ids.length);
+  assert(!ids.includes(1));
+});
+test('permission denial is visible and a later successful refresh clears it',async()=>{
+  const initial=store([recipe(1,'Local',1)],1);
+  const server={readFail:true,value:JSON.stringify(initial)};
+  const c=client(initial,server);await c.attach();
+  assert.equal(c.status().failed,true);
+  assert.match(c.status().message,/Firebase nekar åtkomst/);
+  c.reconcileSnapshot({val:()=>server.value});
+  assert.equal(c.status().failed,false);
+  assert.equal(c.status().message,'Recept synkade');
 });

@@ -104,3 +104,10 @@ Recipe sync repair (2026-10-10):
 - Legacy arrays/version 4 collections are merged by ID, preserving missing older additions.
 - Firebase transactions merge each write against current shared data; no collection-wide set.
 - Five-second visible-page polling and resume/online refresh retry failed uploads.
+
+Recipe database access repair (2026-10-10):
+- Live diagnosis confirmed sh_recipes_v3 was absent and had no Firebase access rule.
+- Only that database rule is added: read/write require auth != null; value must be a string.
+- Existing unrelated database rules are preserved.
+- Recipe status displays actual permission/connection failures and offers retry.
+- New recipe IDs use browser cryptographic randomness instead of a per-phone counter.

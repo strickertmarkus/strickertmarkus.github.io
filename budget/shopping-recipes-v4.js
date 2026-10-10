@@ -16,6 +16,9 @@
   var metaBlurTimer = null;
   var remoteRefreshPromise = null;
   var lastRemoteRefreshAt = 0;
+  var writesInFlight = 0;
+  var syncMessage = 'Ansluter recept…';
+  var syncFailed = false;
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
   function escapeHtml(value) {
@@ -24,6 +27,48 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function escapeAttr(value) { return escapeHtml(value); }
+
+  function showSyncStatus(message, failed) {
+    syncMessage = message; syncFailed = !!failed;
+    var element = document.getElementById('recipe-sync-status');
+    if (!element) return;
+    element.querySelector('span').textContent = message;
+    element.dataset.failed = String(syncFailed);
+    element.querySelector('button').hidden = !syncFailed;
+  }
+  function syncError(error) {
+    var code = String(error && (error.code || error.message) || '').toLowerCase();
+    var reason = /permission|denied/.test(code) ? 'Firebase nekar åtkomst' :
+      /auth|token/.test(code) ? 'inloggningen behöver förnyas' : 'anslutningen misslyckades';
+    showSyncStatus('Receptsynk stoppad · ' + reason, true);
+    console.warn('[Recipes] Sync failed:', error);
+  }
+  function installSyncStatus() {
+    var root = document.getElementById('recipes-list');
+    if (!root || document.getElementById('recipe-sync-status')) return;
+    var element = document.createElement('div');
+    element.id = 'recipe-sync-status';
+    element.setAttribute('role', 'status');
+    element.innerHTML = '<span></span><button type="button" hidden>Försök igen</button>';
+    element.querySelector('button').addEventListener('click', function () {
+      lastRemoteRefreshAt = 0;
+      showSyncStatus('Kontrollerar receptsynken…', false);
+      refreshRemote();
+    });
+    root.parentNode.insertBefore(element, root);
+    showSyncStatus(syncMessage, syncFailed);
+  }
+  function newRecipeId() {
+    var values = new Uint32Array(2);
+    var id;
+    do {
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(values);
+        id = (values[0] & 0x1fffff) * 4294967296 + values[1];
+      } else id = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+    } while (!id || readStore().recipes.some(function (recipe) { return recipe.id === id; }));
+    return id;
+  }
 
   function normalizeUrl(value) {
     var raw = String(value || '').trim();
@@ -115,19 +160,24 @@
   }
 
   function scheduleRemoteWrite() {
-    if (!remoteRef) return;
+    if (!remoteRef) { showSyncStatus('Sparat på telefonen · väntar på anslutning', true); return; }
+    showSyncStatus('Synkar recept…', false);
     if (remoteWriteTimer) clearTimeout(remoteWriteTimer);
     var target = remoteRef;
     remoteWriteTimer = setTimeout(function () {
       remoteWriteTimer = null;
       // Merge against the server atomically; two phones adding recipes cannot
       // replace one another's collection. Local data remains available on failure.
+      writesInFlight++;
       target.transaction(function (value) {
         if (target !== remoteRef) return;
         return JSON.stringify(mergeStores(parseRemote(value), readStore()));
       }, undefined, false).then(function (result) {
         if (target === remoteRef && result.committed) reconcileSnapshot(result.snapshot);
-      }).catch(function (error) { console.warn('[Recipes] Firebase write failed:', error); });
+      }).catch(syncError).finally(function () {
+        writesInFlight--;
+        if (!writesInFlight && !remoteWriteTimer && !syncFailed) showSyncStatus('Recept synkade', false);
+      });
     }, 180);
   }
   function parseRemote(value) {
@@ -144,6 +194,7 @@
       renderAllRecipes();
     }
     if (JSON.stringify(merged) !== JSON.stringify(remote)) scheduleRemoteWrite();
+    else if (!writesInFlight && !remoteWriteTimer) showSyncStatus('Recept synkade', false);
   }
   function refreshRemote() {
     if (!remoteRef || remoteRefreshPromise) return remoteRefreshPromise;
@@ -154,7 +205,7 @@
     remoteRefreshPromise = target.get().then(function (snapshot) {
       if (target === remoteRef) reconcileSnapshot(snapshot);
     }).catch(function (error) {
-      console.warn('[Recipes] Firebase refresh failed:', error);
+      syncError(error);
     }).finally(function () { remoteRefreshPromise = null; });
     return remoteRefreshPromise;
   }
@@ -162,19 +213,23 @@
   function bindFirebase() {
     var auth;
     try {
-      if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) return;
+      if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) {
+        showSyncStatus('Recept sparas på telefonen · Firebase kunde inte laddas', true);
+        setTimeout(bindFirebase, 3000); return;
+      }
       auth = firebase.auth();
     } catch (_) { setTimeout(bindFirebase, 1000); return; }
     function attach(user) {
       if (remoteRef) remoteRef.off('value', reconcileSnapshot);
       remoteRef = null;
       if (remoteWriteTimer) clearTimeout(remoteWriteTimer);
+      remoteWriteTimer = null;
       lastRemoteRefreshAt = 0;
-      if (!user) return;
+      if (!user) { showSyncStatus('Logga in för att synka recept', true); return; }
       try { remoteRef = firebase.database().ref(FIREBASE_KEY); } catch (_) { return; }
       refreshRemote();
       remoteRef.on('value', reconcileSnapshot, function (error) {
-        console.warn('[Recipes] Firebase listener failed:', error);
+        syncError(error);
       });
     }
     auth.onAuthStateChanged(attach);
@@ -211,6 +266,9 @@
     style.id = 'shopping-recipes-v4-style';
     style.textContent = `
 
+      #recipe-sync-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:0 0 12px;color:var(--text-sec);font-size:11px;line-height:1.5}
+      #recipe-sync-status[data-failed="true"]{color:var(--accent)}
+      #recipe-sync-status button{border:1px solid var(--border);border-radius:7px;padding:5px 9px;background:var(--accent-dim);color:var(--accent);cursor:pointer;font:inherit}
       body.shopping-recipes-v4 .recipe-item{padding:4px 0!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
       body.shopping-recipes-v4 .recipe-header{display:flex;align-items:center;min-height:34px;gap:6px!important;padding:2px 3px!important;border-radius:7px;transition:background-color .16s ease;-webkit-tap-highlight-color:transparent}
       body.shopping-recipes-v4 .recipe-header:active{background:rgba(var(--accent-rgb),.035)}
@@ -365,7 +423,7 @@
     var url = normalizeUrl(rawUrl);
     if (rawUrl && !url) { focusNow(urlInput); return; }
     var list = recipes();
-    var id = list.reduce(function (max, r) { return Math.max(max, Number(r.id) || 0); }, 0) + 1;
+    var id = newRecipeId();
     list.push({id:id, name:name, url:url, items:[]});
     addingRecipe = false;
     openIds.add(id);
@@ -528,6 +586,7 @@
     document.body.classList.add('shopping-recipes-v4');
     addStyles();
     installGlobals();
+    installSyncStatus();
     window.saveShoppingRecipes = saveRecipes;
     root.addEventListener('click', handleRootClick, false);
     root.addEventListener('keydown', handleRootKeydown, false);
