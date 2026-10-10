@@ -27,7 +27,6 @@ body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-det
 .session-clock strong{font:400 clamp(40px,4vw,64px)/1 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:1px}
 .session-clock small{font-size:10px;color:var(--soft)}
 .session-next{grid-column:1 / -1;text-align:center;margin:0;padding:0;transition:color 1s,text-shadow 1s;min-height:28px}
-.session-next.next-imminent{color:#e3ffc0;text-shadow:0 0 16px #c4ff8f99}
 .next-eyebrow{font-size:9px;letter-spacing:2.5px;color:var(--light)}
 .next-step{font:400 14px var(--serif);margin:4px 0 8px;color:inherit}
 .session-bottom{width:100%;max-width:1060px;margin:0 auto;position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;align-items:center}
@@ -176,6 +175,17 @@ body[data-kind=stretch] .session-bottom::before{content:'';position:absolute;z-i
 body[data-kind=stretch] .pause-button{border-color:#d7f3ac99;box-shadow:inset 0 0 22px #c7ef9118,0 0 20px #c7ef9118}
 body[data-kind=stretch] .session-guidance{transform:translateY(-14px)}
 body[data-kind=stretch] .session-progress{margin-bottom:3px}
+body[data-kind=stretch] .session-next{position:relative;height:28px;transition:height .45s cubic-bezier(.22,1,.36,1)}
+body[data-kind=stretch] .session-next.has-preview{height:88px}
+.stretch-next-preview{position:absolute;inset:0;margin:auto;max-width:360px;display:flex;align-items:center;gap:8px;padding:0 15px 0 3px;text-align:left;border:1px solid #c1e99348;border-radius:18px;background:linear-gradient(115deg,#234931ed,#0b271eed);box-shadow:inset 0 1px 0 #e7ffcb14,0 0 25px #b9f27d12;opacity:0;visibility:hidden;transform:translateY(10px) scale(.97);transition:opacity .4s,transform .45s cubic-bezier(.22,1,.36,1),visibility .4s;pointer-events:none;overflow:hidden}
+body[data-kind=stretch] .has-preview .stretch-next-preview{opacity:1;visibility:visible;transform:none}
+#next-pose{width:86px;height:86px;flex:0 0 86px;filter:drop-shadow(0 0 8px #c2ee8830)}
+.next-preview-copy{min-width:0;flex:1}
+#next-preview-name{font:400 19px/1.15 var(--serif);color:var(--ink);margin:6px 0 0;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.next-preview-arrow{color:var(--light);font-size:18px;opacity:.7}
+body[data-kind=stretch] .session-next .next-step{transition:opacity .2s}
+body[data-kind=stretch] .session-next.has-preview .next-step{opacity:0;visibility:hidden}
+@media(prefers-reduced-motion:reduce){.stretch-next-preview,body[data-kind=stretch] .session-next{transition:none}}
 body[data-kind=stretch] .next-step{font-size:13px;margin:2px 0 4px}
 body[data-kind=stretch] .session-meta{min-height:44px;flex-wrap:nowrap;gap:8px}
 body[data-kind=stretch] #restart-step{margin:0;padding:6px 0;font-size:10px}
