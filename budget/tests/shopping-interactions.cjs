@@ -7,7 +7,7 @@ const mockFirebase=String.raw`
 (function(){
  const user={uid:'shopping-fixture'};
  const snapshot={val:()=>null,exists:()=>false};
- const ref={on(){},off(){},set:()=>Promise.resolve(),once:()=>Promise.resolve(snapshot),get:()=>Promise.resolve(snapshot),update:()=>Promise.resolve()};
+ const ref={on(){},off(){},set:()=>Promise.resolve(),once:()=>Promise.resolve(snapshot),get:()=>Promise.resolve(snapshot),transaction:async fn=>({committed:true,snapshot:{exists:()=>true,val:()=>fn(null)}}),update:()=>Promise.resolve()};
  ref.child=()=>ref;
  const auth={currentUser:user,setPersistence:()=>Promise.resolve(),onAuthStateChanged:fn=>{setTimeout(()=>fn(user),0);return ()=>{};}};
  const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'local'}};

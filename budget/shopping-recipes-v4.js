@@ -13,7 +13,6 @@
   var addIngredientFocusId = null;
   var remoteRef = null;
   var remoteWriteTimer = null;
-  var applyingRemote = false;
   var metaBlurTimer = null;
   var remoteRefreshPromise = null;
   var lastRemoteRefreshAt = 0;
@@ -43,6 +42,7 @@
       id: Number(recipe.id) || (Date.now() + index),
       name: String(recipe.name || '').trim() || 'Recept',
       url: normalizeUrl(recipe.url || ''),
+      updatedAt: Number(recipe.updatedAt) || 0,
       items: Array.isArray(recipe.items)
         ? recipe.items.map(function (item) { return String(item || '').trim(); }).filter(Boolean)
         : []
@@ -50,107 +50,138 @@
   }
 
   function normalizeStore(raw) {
-    if (Array.isArray(raw)) return { version:4, updatedAt:0, recipes:raw.map(normalizeRecipe) };
+    if (Array.isArray(raw)) raw = {recipes:raw};
     raw = raw && typeof raw === 'object' ? raw : {};
+    var stamp = Number(raw.updatedAt) || 0;
+    var deleted = {};
+    Object.keys(raw.deleted || {}).forEach(function (id) {
+      deleted[id] = Number(raw.deleted[id]) || 0;
+    });
     return {
-      version:4,
-      updatedAt:Number(raw.updatedAt) || 0,
-      recipes:Array.isArray(raw.recipes) ? raw.recipes.map(normalizeRecipe) : []
+      version:5, updatedAt:stamp, deleted:deleted,
+      recipes:(Array.isArray(raw.recipes) ? raw.recipes : []).map(function (recipe, index) {
+        var next = normalizeRecipe(recipe, index);
+        // Legacy collections had one timestamp for the entire collection.
+        if (raw.version !== 5) next.updatedAt = next.updatedAt || stamp;
+        return next;
+      })
     };
   }
 
   function readStore() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? normalizeStore(JSON.parse(raw)) : normalizeStore(null);
-    } catch (_) { return normalizeStore(null); }
+    try { return normalizeStore(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')); }
+    catch (_) { return normalizeStore(null); }
   }
   function recipes() { return clone(readStore().recipes); }
-
-  function writeStore(store, syncRemote) {
-    store = normalizeStore(store);
-    if (!store.updatedAt) store.updatedAt = Date.now();
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (_) {}
-    if (syncRemote !== false && !applyingRemote) scheduleRemoteWrite(store);
+  function writeStore(store) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeStore(store))); } catch (_) {}
+  }
+  function recipeContent(recipe) {
+    return JSON.stringify([recipe.name, recipe.url, recipe.items]);
+  }
+  function mergeStores(remote, local) {
+    remote = normalizeStore(remote); local = normalizeStore(local);
+    var merged = {version:5, updatedAt:Math.max(remote.updatedAt, local.updatedAt), deleted:{}, recipes:[]};
+    [remote, local].forEach(function (store) {
+      Object.keys(store.deleted).forEach(function (id) {
+        merged.deleted[id] = Math.max(merged.deleted[id] || 0, store.deleted[id]);
+      });
+    });
+    var byId = new Map();
+    remote.recipes.concat(local.recipes).forEach(function (recipe) {
+      var previous = byId.get(recipe.id);
+      if (!previous || recipe.updatedAt > previous.updatedAt) byId.set(recipe.id, recipe);
+    });
+    byId.forEach(function (recipe) {
+      if (!Object.prototype.hasOwnProperty.call(merged.deleted, recipe.id) ||
+          recipe.updatedAt > merged.deleted[recipe.id]) merged.recipes.push(recipe);
+    });
+    return merged;
   }
   function saveRecipes(nextRecipes) {
-    writeStore({version:4, updatedAt:Date.now(), recipes:nextRecipes}, true);
+    var previous = readStore();
+    var stamp = Math.max(Date.now(), previous.updatedAt + 1);
+    var next = normalizeStore({version:5, updatedAt:stamp, deleted:previous.deleted, recipes:nextRecipes});
+    next.recipes.forEach(function (recipe) {
+      var old = previous.recipes.find(function (item) { return item.id === recipe.id; });
+      recipe.updatedAt = old && recipeContent(old) === recipeContent(recipe) ? old.updatedAt : stamp;
+    });
+    previous.recipes.forEach(function (recipe) {
+      if (!next.recipes.some(function (item) { return item.id === recipe.id; })) next.deleted[recipe.id] = stamp;
+    });
+    writeStore(next);
+    scheduleRemoteWrite();
     renderAllRecipes();
   }
 
-  function scheduleRemoteWrite(store) {
+  function scheduleRemoteWrite() {
     if (!remoteRef) return;
     if (remoteWriteTimer) clearTimeout(remoteWriteTimer);
-    var payload = JSON.stringify(normalizeStore(store));
+    var target = remoteRef;
     remoteWriteTimer = setTimeout(function () {
       remoteWriteTimer = null;
-      try {
-        remoteRef.set(payload).catch(function (error) {
-          console.warn('[Recipes] Firebase write failed:', error);
-          // Keep the local copy; retry after the app is foregrounded.
-        });
-      } catch (error) { console.warn('[Recipes] Firebase write failed:', error); }
+      // Merge against the server atomically; two phones adding recipes cannot
+      // replace one another's collection. Local data remains available on failure.
+      target.transaction(function (value) {
+        if (target !== remoteRef) return;
+        return JSON.stringify(mergeStores(parseRemote(value), readStore()));
+      }, undefined, false).then(function (result) {
+        if (target === remoteRef && result.committed) reconcileSnapshot(result.snapshot);
+      }).catch(function (error) { console.warn('[Recipes] Firebase write failed:', error); });
     }, 180);
   }
-
   function parseRemote(value) {
     if (value == null) return normalizeStore(null);
     try { return normalizeStore(typeof value === 'string' ? JSON.parse(value) : value); }
     catch (_) { return normalizeStore(null); }
   }
-
   function reconcileSnapshot(snapshot) {
     var local = readStore();
-    if (!snapshot.exists()) {
-      if (local.recipes.length) scheduleRemoteWrite(local);
-      return;
-    }
     var remote = parseRemote(snapshot.val());
-    if (remote.updatedAt > local.updatedAt || !local.recipes.length) {
-      applyingRemote = true;
-      try { writeStore(remote, false); }
-      finally { applyingRemote = false; }
+    var merged = mergeStores(remote, local);
+    if (JSON.stringify(merged) !== JSON.stringify(local)) {
+      writeStore(merged);
       renderAllRecipes();
-    } else if (local.updatedAt > remote.updatedAt) {
-      // A local edit made while offline still needs to reach Firebase.
-      scheduleRemoteWrite(local);
     }
+    if (JSON.stringify(merged) !== JSON.stringify(remote)) scheduleRemoteWrite();
   }
-
   function refreshRemote() {
     if (!remoteRef || remoteRefreshPromise) return remoteRefreshPromise;
     var now = Date.now();
     if (now - lastRemoteRefreshAt < 1500) return;
     lastRemoteRefreshAt = now;
-    remoteRefreshPromise = remoteRef.get().then(reconcileSnapshot).catch(function (error) {
+    var target = remoteRef;
+    remoteRefreshPromise = target.get().then(function (snapshot) {
+      if (target === remoteRef) reconcileSnapshot(snapshot);
+    }).catch(function (error) {
       console.warn('[Recipes] Firebase refresh failed:', error);
     }).finally(function () { remoteRefreshPromise = null; });
     return remoteRefreshPromise;
   }
 
   function bindFirebase() {
-    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) return;
     var auth;
-    try { auth = firebase.auth(); } catch (_) { return; }
-    var attached = false;
+    try {
+      if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) return;
+      auth = firebase.auth();
+    } catch (_) { setTimeout(bindFirebase, 1000); return; }
     function attach(user) {
-      if (!user || attached) return;
+      if (remoteRef) remoteRef.off('value', reconcileSnapshot);
+      remoteRef = null;
+      if (remoteWriteTimer) clearTimeout(remoteWriteTimer);
+      lastRemoteRefreshAt = 0;
+      if (!user) return;
       try { remoteRef = firebase.database().ref(FIREBASE_KEY); } catch (_) { return; }
-      attached = true;
       refreshRemote();
-      remoteRef.on('value', function (snapshot) {
-        if (!snapshot.exists()) return;
-        var remote = parseRemote(snapshot.val());
-        var local = readStore();
-        if (remote.updatedAt <= local.updatedAt) return;
-        applyingRemote = true;
-        try { writeStore(remote, false); }
-        finally { applyingRemote = false; }
-        renderAllRecipes();
-      }, function (error) { console.warn('[Recipes] Firebase listener failed:', error); });
+      remoteRef.on('value', reconcileSnapshot, function (error) {
+        console.warn('[Recipes] Firebase listener failed:', error);
+      });
     }
-    if (auth.currentUser) attach(auth.currentUser);
     auth.onAuthStateChanged(attach);
+    // Safari/PWA sockets can stop delivering events after suspension.
+    // Polling also retries local edits whose previous upload failed.
+    setInterval(function () { if (!document.hidden) refreshRemote(); }, 5000);
+    window.addEventListener('online', refreshRemote);
     window.addEventListener('pageshow', refreshRemote);
     window.addEventListener('focus', refreshRemote);
     document.addEventListener('visibilitychange', function () {
@@ -497,6 +528,7 @@
     document.body.classList.add('shopping-recipes-v4');
     addStyles();
     installGlobals();
+    window.saveShoppingRecipes = saveRecipes;
     root.addEventListener('click', handleRootClick, false);
     root.addEventListener('keydown', handleRootKeydown, false);
     root.addEventListener('focusout', handleRootFocusOut, false);

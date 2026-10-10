@@ -18,7 +18,7 @@ jobs:
       - name: Syntax and shell checks
         run: |
           for file in budget/shopping*.js; do node --check "$file"; done
-          node --test budget/tests/shopping-shell-v1.test.cjs
+          node --test budget/tests/shopping-shell-v1.test.cjs budget/tests/shopping-recipe-sync.test.cjs
       - name: Install browsers
         run: |
           npm install --no-save playwright

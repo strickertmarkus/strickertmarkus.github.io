@@ -5,7 +5,6 @@
   if (!path.endsWith('/budget/shopping.html') && !path.endsWith('/shopping.html')) return;
 
   var STORAGE_KEY = 'sh_recipes_v3';
-  var FIREBASE_KEY = 'sh_recipes_v3';
   var activeRecipeId = null;
   var returnFocus = null;
 
@@ -39,16 +38,8 @@
     var url = normalizeUrl(rawUrl);
     if (String(rawUrl || '').trim() && !url) return false;
     recipe.url = url;
-    store.version = 4;
-    store.updatedAt = Date.now();
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (_) {}
-    try {
-      if (typeof firebase !== 'undefined' && firebase.database) {
-        firebase.database().ref(FIREBASE_KEY).set(JSON.stringify(store));
-      }
-    } catch (_) {}
-    try { if (typeof window.renderRecipes === 'function') window.renderRecipes(); } catch (_) {}
-    try { if (typeof window.renderRecipesDropdown === 'function') window.renderRecipesDropdown(); } catch (_) {}
+    if (typeof window.saveShoppingRecipes !== 'function') return false;
+    window.saveShoppingRecipes(store.recipes);
     return true;
   }
 

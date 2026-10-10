@@ -97,3 +97,10 @@ Legacy files still present in repo but NOT loaded for current Shopping interacti
 - shopping-recipe-category-bridge-v7.js
 
 SHOPPING.HTML STATUS: V9 + RECIPE LINK POPUP V5C ACTIVE / READY FOR VISUAL VERIFICATION
+
+Recipe sync repair (2026-10-10):
+- V4 renderer owns all writes, including link-popup edits, through saveShoppingRecipes.
+- Same sh_recipes_v3 key, version 5 payload adds per-recipe updatedAt and deletion markers.
+- Legacy arrays/version 4 collections are merged by ID, preserving missing older additions.
+- Firebase transactions merge each write against current shared data; no collection-wide set.
+- Five-second visible-page polling and resume/online refresh retry failed uploads.
