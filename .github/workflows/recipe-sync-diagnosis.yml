@@ -1,11 +1,11 @@
-name: Recipe sync read-only diagnosis
+name: Repair recipe Firebase access
 on:
   push:
     branches: [diagnose/recipe-sync-20261010]
 permissions:
   contents: read
 jobs:
-  diagnose:
+  repair:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     env:
@@ -15,15 +15,39 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save firebase-admin@13
-      - name: Read database rules
+      - name: Add authenticated recipe access and verify the real database
         run: |
           node <<'NODE'
+          const assert=require('node:assert/strict');
           const {initializeApp,cert,deleteApp}=require('firebase-admin/app');
           const {getDatabase}=require('firebase-admin/database');
           (async()=>{
-            const app=initializeApp({credential:cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)),databaseURL:'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'});
-            const db=getDatabase(app);
-            console.log('RULES '+(await db.getRules()).replace(/[A-Za-z0-9_-]{20,}/g,'[redacted-identifier]'));
-            await deleteApp(app);
+            const options={credential:cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)),databaseURL:'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'};
+            const app=initializeApp(options), db=getDatabase(app);
+            const before=await db.getRulesJSON();
+            const expected={'.read':'auth != null','.write':'auth != null','.validate':'newData.isString()'};
+            const existing=before.rules.sh_recipes_v3;
+            if(existing)assert.deepEqual(existing,expected,'Recipe rule already exists; refusing to replace an unrelated rule');
+            const next=JSON.parse(JSON.stringify(before));
+            next.rules.sh_recipes_v3=expected;
+            assert.deepEqual(await db.getRulesJSON(),before,'Rules changed during diagnosis; refusing a stale update');
+            await db.setRules(next);
+            const after=await db.getRulesJSON();
+            assert.deepEqual(after.rules.sh_recipes_v3,expected);
+            delete after.rules.sh_recipes_v3;
+            const unchanged=JSON.parse(JSON.stringify(before));delete unchanged.rules.sh_recipes_v3;
+            assert.deepEqual(after,unchanged,'Unrelated rules must remain identical');
+            console.log('PASS: only sh_recipes_v3 changed; reads/writes require authentication; payload must be a string.');
+            const a=initializeApp({...options,databaseAuthVariableOverride:{uid:'recipe-sync-check-a'}},'recipe-check-a');
+            const b=initializeApp({...options,databaseAuthVariableOverride:{uid:'recipe-sync-check-b'}},'recipe-check-b');
+            const ref=getDatabase(a).ref('sh_recipes_v3');
+            const result=await ref.transaction(current=>current===null?JSON.stringify({version:5,updatedAt:0,deleted:{},recipes:[]}):current,undefined,false);
+            assert(result.committed);
+            const snapshot=await getDatabase(b).ref('sh_recipes_v3').get();
+            assert(snapshot.exists());
+            console.log('PASS: authenticated transaction committed; second authenticated connection can read recipes. No sample recipes added.');
+            const value=JSON.parse(snapshot.val());
+            console.log('Saved recipe count: '+(value.recipes||value).length);
+            await Promise.all([deleteApp(a),deleteApp(b),deleteApp(app)]);
           })().catch(e=>{console.error(e.message);process.exitCode=1;});
           NODE
