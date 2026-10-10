@@ -33,9 +33,9 @@ body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-det
 .session-bottom{width:100%;max-width:1060px;margin:0 auto;position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 18px;align-items:center}
 #session-trail{position:relative;width:100%;height:24px;list-style:none;padding:0;margin:0}
 #session-trail li{width:24px;height:24px;position:absolute;top:0;transform:translateX(-50%);display:grid;place-items:center}
-#session-trail li span{position:relative;background:#142d21;width:9px;height:9px;border:1px solid #759c62;border-radius:70% 0 70% 0;transform:rotate(-25deg);transition:background .6s,box-shadow .6s}
-#session-trail li[data-state=done] span{background:#b4dc7c;box-shadow:0 0 14px #baff7766}
-#session-trail li[aria-current=step] span{width:14px;height:14px;background:#deffb9;box-shadow:0 0 22px #c8ff93}
+#session-trail li span{position:relative;background:transparent;width:8px;height:8px;border:1px solid #759c6288;border-radius:70% 0 70% 0;transform:rotate(-25deg);transition:background .6s,box-shadow .6s}
+#session-trail li[data-state=done] span{background:#96b975;border-color:#9bbb7c;box-shadow:0 0 7px #baff7733}
+#session-trail li[aria-current=step] span{width:12px;height:12px;background:#deffb9;box-shadow:0 0 18px #c8ff93;animation:trail-current-breath 3.8s ease-in-out infinite}
 .session-progress{grid-column:1 / -1;position:relative;width:100%;max-width:650px;justify-self:center;overflow:visible;margin-bottom:10px}
 .session-progress:before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#bbe99130}
 #session-progress-fill{position:absolute;left:0;top:50%;display:block;height:1px;background:var(--light);box-shadow:0 0 8px var(--light)}
@@ -68,8 +68,7 @@ body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-det
 .session-finished .session-top,.session-finished .session-copy,.session-finished .session-guidance,.session-finished .session-next,.session-finished .session-bottom{visibility:hidden;opacity:0}
 .session-finished .session-sun{opacity:.25}
 .session-view.is-rest .session-copy{opacity:.8}
-.session-view.step-changing .session-copy{animation:session-copy-in .65s ease both}
-.session-view.step-changing #session-pose{animation:session-pose-in .7s ease both}
+.session-view.step-changing .session-copy{animation:session-copy-in .55s ease both}
 body.is-paused .session-stage{opacity:.65}
 /* Meditation: a quiet horizontal shore, with an empty center around the sun. */
 body[data-kind=meditation] .session-view{--ink:#f5ecd6;--soft:#cbdbcf;--light:#f3dca2;background:#183f39}
@@ -106,7 +105,6 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
 #reveal-session-controls[hidden]{display:none}
 @keyframes session-entry{from{opacity:0}to{opacity:1}}
 @keyframes session-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes session-pose-in{from{opacity:.2;transform:translateX(12px)}to{opacity:1;transform:none}}
 @media(max-width:760px){
  .session-view{padding: max(10px,env(safe-area-inset-top)) 20px max(12px,env(safe-area-inset-bottom))}
  .session-top{gap:6px;padding-bottom:5px;min-height:44px}
@@ -163,7 +161,7 @@ body[data-kind=meditation] #session-ending{background:#183f3944}
  body[data-kind=meditation] .session-guidance{margin:0;min-height:54px}
 }
 @media(max-height:500px) and (min-width:761px){.session-view{min-height:500px;position:absolute}.session-stage{max-height:270px}}
-@media(prefers-reduced-motion:reduce){.session-view,.session-view.step-changing .session-copy,.session-view.step-changing #session-pose{animation:none}.session-sun,#session-progress-fill{transition:none}}
+@media(prefers-reduced-motion:reduce){.session-view,.session-view.step-changing .session-copy{animation:none}.session-sun,#session-progress-fill{transition:none}}
 
 body[data-kind=stretch] .session-layout{--pose-size:max(150px,min(300px,calc(100vw - 40px),calc(100svh - 430px)));height:100%;margin:0 auto;grid-template-rows:minmax(0,1fr) var(--pose-size) auto;gap:3px;padding:5px 0}
 body[data-kind=stretch] .session-copy{min-height:0;max-height:100%;overflow:auto;overscroll-behavior:contain;width:100%;scrollbar-width:thin}
@@ -173,7 +171,10 @@ body[data-kind=stretch] .session-cue{margin-top:7px;line-height:1.5}
 body[data-kind=stretch] .session-clock{flex-direction:row;align-items:baseline;justify-content:center;gap:8px}
 body[data-kind=stretch] .session-clock strong{font-size:38px}
 body[data-kind=stretch] #session-stage-caption{font-size:14px;min-height:18px;margin:4px 0 0}
-body[data-kind=stretch] .session-bottom{gap:3px 10px;padding-top:4px}
+body[data-kind=stretch] .session-bottom{gap:3px 10px;padding-top:4px;isolation:isolate}
+body[data-kind=stretch] .session-bottom::before{content:'';position:absolute;z-index:-1;inset:-12px -20px 0;pointer-events:none;background:linear-gradient(180deg,transparent,#061b13c9 42%,#061b13ed);border-radius:30px 30px 0 0}
+body[data-kind=stretch] .pause-button{border-color:#d7f3ac99;box-shadow:inset 0 0 22px #c7ef9118,0 0 20px #c7ef9118}
+body[data-kind=stretch] .session-guidance{transform:translateY(-14px)}
 body[data-kind=stretch] .session-progress{margin-bottom:3px}
 body[data-kind=stretch] .next-step{font-size:13px;margin:2px 0 4px}
 body[data-kind=stretch] .session-meta{min-height:44px;flex-wrap:nowrap;gap:8px}
@@ -184,8 +185,11 @@ body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(25px,6vw,36px);
 body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:11px;line-height:1.5;margin-top:8px}
 
 #session-trail li.step-arrived::after{content:'';position:absolute;inset:1px;border-radius:50%;border:1px solid #e4ffc0;box-shadow:0 0 12px #caff8d,inset 0 0 10px #caff8d88;pointer-events:none;animation:trail-arrival 1.25s ease-out both}
-#session-trail li.step-arrived span{animation:trail-leaf-glow 1.25s ease-out both}
+#session-trail li.step-arrived span{animation:trail-leaf-glow 1.25s ease-out both,trail-current-breath 3.8s ease-in-out 1.25s infinite}
 @keyframes trail-arrival{0%{opacity:0;transform:scale(.6)}15%{opacity:1}100%{opacity:0;transform:scale(2.7)}}
 @keyframes trail-leaf-glow{0%,100%{box-shadow:0 0 22px #c8ff93}25%{background:#f5ffdd;box-shadow:0 0 10px #f1ffc8,0 0 30px #d0ff8f,0 0 48px #adf765}}
 @media(max-height:720px){body[data-kind=stretch] .session-copy h1,body[data-kind=stretch] .session-copy.is-long h1{font-size:24px}body[data-kind=stretch] .session-cue,body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:10px;line-height:1.4}body[data-kind=stretch] .session-clock strong{font-size:34px}}
 @media(prefers-reduced-motion:reduce){#session-trail li.step-arrived::after{display:none}#session-trail li.step-arrived span{animation:none}}
+
+@keyframes trail-current-breath{0%,100%{filter:brightness(1);box-shadow:0 0 12px #c8ff9366}50%{filter:brightness(1.15);box-shadow:0 0 21px #c8ff93aa}}
+@media(prefers-reduced-motion:reduce){#session-trail li[aria-current=step] span{animation:none}}

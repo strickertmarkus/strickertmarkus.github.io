@@ -120,6 +120,7 @@
    else if(m==='toes'||m==='instep'){p.torso.forEach(v=>v[1]+=3*q);p.head[1]+=3*q;p.feet.forEach(f=>f.angle+=(m==='toes'?-.3:.2)*q);}
    else if(m==='wristFlex'||m==='wristExtend'){p.hands[0].angle+=(m==='wristFlex'?1:-1)*(.55+.2*q);}
    else if(m==='wrists'){p.hands.forEach((h,i)=>h.angle+=(i?1:-1)*.8*w);}
+   else if(family.id==='rest'){const breath=(1-Math.cos(t*Math.PI/4))/2;p.torso[0][1]-=4*breath;p.arms.forEach(a=>a[0][1]-=2*breath);}
    else {p.torso[0][1]-=2*b;p.head[1]-=b;p.arms.forEach(a=>a[0][1]-=b);}
   }
   if(entry.side==='right'){[p.head,...p.torso,...p.arms.flat(),...p.legs.flat()].forEach(v=>v[0]=300-v[0]);p.headAngle=-p.headAngle;p.hands.forEach(h=>h.angle=Math.PI-h.angle);p.feet.forEach(f=>f.angle=Math.PI-f.angle);}

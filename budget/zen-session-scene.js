@@ -5,7 +5,8 @@
  const $=id=>document.getElementById(id),host=$('session-view'),canvas=$('session-landscape'),poseCanvas=$('session-pose');
  if(!host||!canvas)return;
  const c=canvas.getContext('2d'),p=poseCanvas.getContext('2d'),still=document.createElement('canvas'),b=still.getContext('2d');
- let sampledAt=0,poseStarted=0;
+ let sampledAt=0,poseStarted=0,poseTransition=null;
+ const poseBounds=new Map();
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let width=0,height=0,dpr=1,frame=0,last=0,active=false,snapshot={},previousIndex=-1,previousKind='',ripples=[],pointer={x:0,y:0},idle=0,transitionTimer=0,motionTime=0,keyboardMode=false;
  const TAU=Math.PI*2;
@@ -72,7 +73,8 @@
  function drawPose(t,now){
   const w=poseCanvas.width/dpr,h=poseCanvas.height/dpr;if(w<2||h<2)return;p.clearRect(0,0,w,h);
   const s=Math.min(w/350,h/350),cx=w/2,cy=h*.5;
-  p.save();p.translate(cx-150*s,cy-148*s);p.scale(s,s);
+  const blend=poseTransition&&!snapshot.paused&&!reduced.matches?Math.min(1,(now-poseTransition.at)/550):1;
+  p.save();p.globalAlpha=blend;p.translate(cx-150*s,cy-148*s);p.scale(s,s);
   // Interpolate the latest authoritative timing snapshot between its 200ms updates.
   // No second session clock: pause, step changes and tab recovery still come from zen.js.
   const drift=snapshot.paused||snapshot.preparing||snapshot.done?0:Math.max(0,now-sampledAt)/1000/(snapshot.step?.seconds||1);
@@ -82,20 +84,32 @@
   const start=140*Math.PI/180,sweep=260*Math.PI/180;
   const arc=(fraction=progress)=>{p.beginPath();p.ellipse(150,148,139,144,0,start,start+sweep*fraction);};
   p.save();
-  arc(1);p.lineCap='round';p.strokeStyle='#93c46644';p.lineWidth=1.1;p.stroke();
+  arc(1);p.lineCap='round';p.strokeStyle='#a3cb7880';p.lineWidth=1.5;p.stroke();
   // Broad bloom, a saturated core, then a fine bright filament.
   p.shadowColor='#b9ff6c';p.shadowBlur=22;p.strokeStyle='#9de55f55';p.lineWidth=6;arc();p.stroke();
   p.shadowBlur=12;p.strokeStyle='#c9f996';p.lineWidth=2.1;arc();p.stroke();
   p.shadowBlur=0;p.strokeStyle='#efffd0';p.lineWidth=.65;arc();p.stroke();
   p.restore();
+  // Short luminous wake gives the moving point a clear direction.
+  p.save();p.lineCap='round';
+  for(let i=0;i<18;i++){const end=progress-i*.0025,begin=Math.max(0,end-.003);if(end<=0)break;p.beginPath();p.ellipse(150,148,139,144,0,start+sweep*begin,start+sweep*end);p.strokeStyle=`rgba(232,255,184,${.8*(1-i/18)})`;p.lineWidth=3.4*(1-i/24);p.shadowColor='#ceff8f';p.shadowBlur=10;p.stroke();}p.restore();
   const [tipX,tipY]=orbit(start+sweep*progress);
   glow(p,tipX,tipY,30,'193,255,139',.72);glow(p,tipX,tipY,13,'227,255,175',.95);ellipse(p,tipX,tipY,4.2,4.2,'#f4ffdc');
   // The movement stays readable, but sits quietly inside the timer garden.
-  p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha=.76;
-  ellipse(p,150,268,78,9,'#b5d78413');ellipse(p,150,270,61,3,'#d8eca51f');
+  p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha*=.76;
   const key=snapshot.step?.id;
   const pose=window.ZenStretch.frame(key,t-poseStarted,reduced.matches);
   if(!pose){glow(p,150,150,90,'168,216,125',.18);p.fillStyle='#daecc6';p.font='italic 25px Georgia';p.textAlign='center';p.fillText('Din rörelse',150,145);p.font='12px sans-serif';p.fillText('Följ din egen instruktion',150,170);p.restore();return;}
+  if(!poseBounds.has(key)){
+   const neutral=window.ZenStretch.frame(key,0,true),points=[...neutral.torso,...neutral.arms.flat(),...neutral.legs.flat(),[neutral.head[0]-16,neutral.head[1]-21],[neutral.head[0]+16,neutral.head[1]+21]];
+   const xs=points.map(v=>v[0]),ys=points.map(v=>v[1]);poseBounds.set(key,{x:(Math.min(...xs)+Math.max(...xs))/2,y:(Math.min(...ys)+Math.max(...ys))/2,bottom:Math.max(...ys)});
+  }
+  const bounds=poseBounds.get(key);p.translate(150-bounds.x,148-bounds.y);
+  if(key==='rest'){
+   const breath=reduced.matches?.5:(1-Math.cos((t-poseStarted)*TAU/8))/2;
+   p.save();p.translate(bounds.x,bounds.bottom+13);p.scale(1,.2);glow(p,0,0,100+breath*22,'192,237,139',.13+breath*.12);p.restore();
+  }
+  ellipse(p,bounds.x,bounds.bottom+15,78,7,'#b5d78413');ellipse(p,bounds.x,bounds.bottom+17,61,3,'#d8eca51f');
   const cloth=p.createLinearGradient(110,80,177,230);cloth.addColorStop(0,'#e5edc4');cloth.addColorStop(.45,'#a5bd90');cloth.addColorStop(1,'#6b9271');
   // Curved joints and shared shoulder roots keep the silhouette connected in motion.
   const limb=(points,color,weight)=>{p.strokeStyle=color;p.lineWidth=weight;p.lineCap='round';p.lineJoin='round';p.beginPath();p.moveTo(...points[0]);for(let i=1;i<points.length-1;i++){const a=points[i],n=points[i+1];p.quadraticCurveTo(...a,(a[0]+n[0])/2,(a[1]+n[1])/2);}p.lineTo(...points.at(-1));p.stroke();};
@@ -110,12 +124,13 @@
   // Soft localized muscle light follows the animated joints, not fixed canvas coordinates.
   for(const region of pose.highlights){
    const strength=reduced.matches?.8:.72+.12*Math.sin(t*TAU/8);
-   p.save();p.globalAlpha=strength;p.shadowColor='#d4ff88';p.shadowBlur=18;
+   p.save();p.globalAlpha*=strength;p.shadowColor='#d4ff88';p.shadowBlur=18;
    line(p,[region.a,region.b],'#caff8177',region.r*1.5);p.shadowBlur=6;
    line(p,[region.a,region.b],'#edffc7b0',region.r*.5);
    glow(p,(region.a[0]+region.b[0])/2,(region.a[1]+region.b[1])/2,region.r*2,'199,255,114',.32);p.restore();
   }
   p.restore();
+  if(poseTransition&&blend<1){p.save();p.globalAlpha=1-blend;p.drawImage(poseTransition.image,0,0,w,h);p.restore();}else poseTransition=null;
  }
  function paintSessionProgress(now){
   if(snapshot.kind!=='stretch')return;
@@ -154,6 +169,12 @@
   if(next.kind!==previousKind){previousKind=next.kind;previousIndex=-1;resize();showControls();}
   if(next.kind==='stretch'&&next.index!==previousIndex&&next.step){
    const advance=previousIndex>=0&&next.index>previousIndex;
+   if(previousIndex>=0&&!reduced.matches&&!next.paused){
+    poseTransition=null;
+    // Finish the outgoing arc visually; timing immediately continues in the new step.
+    snapshot={...old,stepProgress:advance?1:old.stepProgress};drawPose(motionTime,performance.now());snapshot=next;
+    const image=document.createElement('canvas');image.width=poseCanvas.width;image.height=poseCanvas.height;image.getContext('2d').drawImage(poseCanvas,0,0);poseTransition={image,at:performance.now()};
+   }else poseTransition=null;
    previousIndex=next.index;poseStarted=motionTime;host.classList.remove('step-changing');void host.offsetWidth;host.classList.add('step-changing');clearTimeout(transitionTimer);transitionTimer=setTimeout(()=>host.classList.remove('step-changing'),700);
    host.classList.toggle('is-rest',next.step.id==='rest');poseCanvas.setAttribute('aria-label',next.step.name+' — '+next.step.cue);
 
@@ -174,7 +195,7 @@
   paintSessionProgress(performance.now());
   if(reduced.matches||next.paused)paint(performance.now());
  });
- document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';snapshot={kind:e.detail.kind};sampledAt=performance.now();const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').prepend(clock);const next=host.querySelector('.session-next');next.classList.remove('next-imminent');if(e.detail.kind==='stretch')host.querySelector('.session-bottom').prepend(next);else host.querySelector('.session-layout').appendChild(next);$('session-audio').open=false;previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
+ document.addEventListener('zen:session-view',e=>{active=e.detail.view==='session';poseTransition=null;snapshot={kind:e.detail.kind};sampledAt=performance.now();const clock=host.querySelector('.session-clock');host.querySelector(e.detail.kind==='meditation'?'.session-meta':'.session-guidance').prepend(clock);const next=host.querySelector('.session-next');next.classList.remove('next-imminent');if(e.detail.kind==='stretch')host.querySelector('.session-bottom').prepend(next);else host.querySelector('.session-layout').appendChild(next);$('session-audio').open=false;previousKind='';previousIndex=-1;motionTime=0;clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;if(active){resize();showControls();}wake();});
  const sceneSizeObserver=new ResizeObserver(()=>{if(active)resize();});sceneSizeObserver.observe(host);sceneSizeObserver.observe($('breathing-field'));
  host.addEventListener('pointerdown',e=>{const audio=$('session-audio');if(audio.open&&!audio.contains(e.target))audio.open=false;});host.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('session-audio').open){$('session-audio').open=false;$('session-audio').querySelector('summary').focus();}});
  document.addEventListener('visibilitychange',wake);reduced.addEventListener('change',wake);
