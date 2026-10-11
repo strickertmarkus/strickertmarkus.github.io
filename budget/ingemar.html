@@ -131,6 +131,12 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
 html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] body>main,html[data-ingemar-auth="locked"] body>dialog,html[data-ingemar-auth="locked"] #toast,html[data-ingemar-auth="locked"] #zen-session{visibility:hidden!important}
 #ingemar-account-gate{position:fixed;z-index:100001;inset:0;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 16%,#3c1c30,#10141e 63%,#090d14);color:#f4e7ed;padding:24px 15px;font-family:Inter,system-ui,sans-serif}#ingemar-account-gate[hidden]{display:none!important}
+#ingemar-account-gate[data-phase="restoring"] .account-card,#ingemar-account-gate[data-phase="loading"] .account-card{display:none!important}
+#ingemar-account-gate:not([data-phase="restoring"]):not([data-phase="loading"]) #ingemar-account-loading{display:none!important}
+#ingemar-account-loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px;color:#d6b7c1;text-align:center;font-size:12px;letter-spacing:.04em}
+.ingemar-account-spinner{width:36px;height:36px;border-radius:50%;border:2px solid #cb738c30;border-top-color:#d2758d;animation:ingemarAccountSpin .9s linear infinite;box-shadow:0 0 25px #a8466220}
+@keyframes ingemarAccountSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.ingemar-account-spinner{animation:none}}
 #ingemar-account-gate .account-card{width:min(430px,100%);padding:26px 23px;background:linear-gradient(140deg,#1b1b27,#10141e);border:1px solid #b65d7950;border-radius:23px;box-shadow:0 20px 65px #0009}
 #ingemar-account-gate .account-kicker{color:#da929f;font-size:10px;letter-spacing:.18em;font-weight:800}#ingemar-account-gate h1{font-size:clamp(25px,6vw,34px);line-height:1.15;margin:15px 0 10px}
 #ingemar-account-gate .account-sub{color:#bdb0bc;font-size:13px;line-height:1.6;margin:0 0 18px}
@@ -151,10 +157,11 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script src="auth-config.js"></script>
 <script src="ingemar-records.js?v=20261011-shared-pr-1"></script>
-<script src="ingemar-account.js?v=20261011-session-save-3"></script>
+<script src="ingemar-account.js?v=20261011-no-login-flash-4"></script>
 </head>
 <body>
-<section id="ingemar-account-gate" aria-label="Ingemars personliga inloggning" data-signed-in="false">
+<section id="ingemar-account-gate" aria-label="Ingemars träning" data-signed-in="false" data-phase="restoring">
+ <div id="ingemar-account-loading" role="status" aria-live="polite"><span class="ingemar-account-spinner" aria-hidden="true"></span><span>Öppnar din träning…</span></div>
  <div class="account-card">
   <div class="account-kicker">PULSEFLOW · INGEMARS TRÄNING</div>
   <h1>Din träning. Dina framsteg.</h1>
