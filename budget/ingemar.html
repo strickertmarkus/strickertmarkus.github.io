@@ -127,6 +127,35 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1">
 
+<style id="ingemar-log-editor-styles">
+/* Training log controls share the existing Ingemar dialog design and field sizes. */
+.log-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#history-editor{width:min(740px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overscroll-behavior:contain}
+#history-editor .modal-body{min-width:0;overflow-x:hidden}
+.log-editor-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.log-editor-exercise .exercise-head{gap:10px;flex-wrap:wrap}
+.log-editor-exercise .exercise-head h3{font-size:12px;color:#d89fae}
+.log-editor-tools{display:flex;gap:6px;flex-wrap:wrap}
+.log-editor-tools .mini{padding:7px 9px}
+.log-editor-set-row{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 48px 32px;gap:5px;align-items:center;margin:7px 0}
+.log-editor-set-row input{min-width:0;text-align:center;padding:9px 4px}
+.log-editor-set-row input[type=checkbox]{width:19px;height:19px;min-height:19px;margin:auto;accent-color:#be637d;cursor:pointer}
+.log-editor-set-row .mini{min-width:0;padding:6px 0;min-height:36px}
+.log-editor-set-head{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 48px 32px;gap:5px;align-items:center;font-size:9px;text-align:center;color:#ac9da9}
+.log-editor-set-row input:disabled{opacity:.6}
+#history-editor .modal-actions{align-items:center}
+#history-editor .modal-actions .right{margin-left:auto}
+.log-editor-danger{color:#ff9bac!important;border-color:#ff839254!important}
+.log-editor-empty{color:#a79aa9;font-size:12px;padding:9px 0}
+@media(max-width:480px){
+ .log-editor-meta{grid-template-columns:1fr 1fr;gap:8px}
+ .log-editor-meta .field{margin-bottom:9px}
+ .log-editor-set-row,.log-editor-set-head{grid-template-columns:19px minmax(0,1fr) minmax(0,1fr) 39px 26px;gap:3px}
+ .log-editor-set-row input{padding:10px 2px}
+ .log-editor-set-row .mini{font-size:15px}
+ #history-editor .modal-actions .right{width:100%;justify-content:flex-end}
+}
+</style>
 <style id="ingemar-account-styles">
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
 html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] body>main,html[data-ingemar-auth="locked"] body>dialog,html[data-ingemar-auth="locked"] #toast,html[data-ingemar-auth="locked"] #zen-session{visibility:hidden!important}
@@ -236,7 +265,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
     </div>
   </section>
   <div class="section-head"><h2>Personliga rekord</h2></div><p class="hint">Maxvikten från dina genomförda styrkeset sparas automatiskt per övning.</p><div id="personal-records" class="history" aria-live="polite"></div>
-  <div class="section-head"><h2>Träningslogg</h2></div><div class="history" id="history"></div>
+  <div class="section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
   <div class="zen-dashboard-hero">
@@ -328,7 +357,21 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  </div>
 </dialog>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
-<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog>
+<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button><div class="right"><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
+<dialog id="history-editor" aria-labelledby="history-editor-title">
+ <div class="modal-head"><div><span class="eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div>
+ <div class="modal-body">
+  <div class="log-editor-meta">
+   <div class="field"><label for="log-edit-date">Datum</label><input id="log-edit-date" data-log-field="date" type="date"></div>
+   <div class="field"><label for="log-edit-type">Träningsform</label><select id="log-edit-type" data-log-field="type"><option value="Push">Push</option><option value="Pull">Pull</option><option value="Kondition">Kondition</option><option value="Övrigt">Övrigt</option></select></div>
+   <div class="field"><label for="log-edit-name">Passnamn</label><input id="log-edit-name" data-log-field="name" maxlength="70" placeholder="Passnamn"></div>
+   <div class="field"><label for="log-edit-minutes">Längd (min)</label><input id="log-edit-minutes" data-log-field="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric"></div>
+  </div>
+  <div id="log-edit-exercises"></div>
+  <button type="button" class="secondary" data-action="log-add-exercise">＋ Lägg till övning</button>
+  <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
+ </div>
+</dialog>
 <iframe id="family-session-frame" class="family-session-frame" src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
 <section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
   <div class="zen-session-ambient" aria-hidden="true">
@@ -1181,7 +1224,9 @@ function sendFamilySession(){var frame=familySessionFrame();if(!familySessionRea
 function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
 function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;familySessionFrame().hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
 window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
+var selectedHistoryId='',historyEditDraft=null,historyEditId='';
 function openHistory(id){
+ selectedHistoryId=id;
  var workout=state.history.find(function(h){return h.id===id;});
  if(!workout)return;
  $('history-detail-title').textContent=workout.name||workout.type;
@@ -1192,6 +1237,140 @@ function openHistory(id){
    e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:#acffcb" aria-label="Klart">✓</span></div>';}).join('')+'</article>';
  }).join('');
  $('history-detail').showModal();
+}
+// Keep completed sets separate from planned/uncompleted sets, as on the family log.
+function logEditorSet(source){
+ return {id:source&&source.id||uid(),weight:Math.max(0,Number(source&&source.weight)||0),
+  reps:Math.max(0,Math.round(Number(source&&source.reps)||0)),
+  minutes:Math.max(0,Number(source&&source.minutes)||0),
+  done:source?!!source.done:true,skipped:source?!!source.skipped:false};
+}
+function logEditorExercise(mode){
+ return {id:uid(),name:'',mode:mode==='min'?'min':'kg',sets:[logEditorSet()]};
+}
+function renderHistoryEditor(){
+ if(!historyEditDraft)return;
+ var w=historyEditDraft;
+ $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
+ $('log-edit-date').value=w.date;
+ $('log-edit-type').value=['Push','Pull','Kondition','Övrigt'].includes(w.type)?w.type:'Övrigt';
+ $('log-edit-name').value=w.name||'';
+ $('log-edit-minutes').value=w.minutes;
+ $('log-edit-delete').hidden=!historyEditId;
+ $('log-edit-exercises').innerHTML=w.exercises.map(function(ex,i){
+  var timed=ex.mode==='min';
+  return '<article class="exercise-card log-editor-exercise" data-log-exercise="'+i+'">'+
+   '<div class="exercise-head"><h3>ÖVNING '+(i+1)+'</h3><div class="log-editor-tools">'+
+   '<button type="button" class="mini" data-log-move="'+i+':-1" '+(i===0?'disabled':'')+' aria-label="Flytta övning upp">↑</button>'+
+   '<button type="button" class="mini" data-log-move="'+i+':1" '+(i===w.exercises.length-1?'disabled':'')+' aria-label="Flytta övning ned">↓</button>'+
+   '<button type="button" class="mini" data-log-remove-ex="'+i+'" aria-label="Ta bort övning">Ta bort</button></div></div>'+
+   '<div class="exercise-fields"><label class="field"><span class="set-label">Övning</span><input data-log-name="'+i+'" maxlength="90" placeholder="Övningsnamn" aria-label="Övning '+(i+1)+'" value="'+clean(ex.name)+'"></label>'+
+   '<label class="field"><span class="set-label">Mätning</span><select data-log-mode="'+i+'" aria-label="Mätning övning '+(i+1)+'"><option value="kg" '+(!timed?'selected':'')+'>kg × reps</option><option value="min" '+(timed?'selected':'')+'>Minuter</option></select></label></div>'+
+   '<div class="log-editor-set-head"><span>#</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'REPS (VALFRITT)':'REPS')+'</span><span>KLART</span><span></span></div>'+
+   ex.sets.map(function(set,j){return '<div class="log-editor-set-row" data-log-set-row="'+i+':'+j+'"><span class="set-number">'+(j+1)+'</span>'+
+    '<input type="number" min="0" max="9999" step="0.5" inputmode="decimal" data-log-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?set.minutes:set.weight)+'" aria-label="'+(timed?'Minuter':'Vikt')+' set '+(j+1)+'">'+
+    '<input type="number" min="0" max="9999" step="1" inputmode="numeric" data-log-set="'+i+':'+j+':reps" value="'+set.reps+'" aria-label="Reps set '+(j+1)+'">'+
+    '<input type="checkbox" data-log-done="'+i+':'+j+'" '+(set.done&&!set.skipped?'checked':'')+' aria-label="Set '+(j+1)+' genomfört">'+
+    '<button type="button" class="mini" data-log-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'">×</button></div>';}).join('')+
+   '<button type="button" class="mini" data-log-add-set="'+i+'">＋ Lägg till set</button></article>';
+ }).join('')||'<p class="log-editor-empty">Lägg till minst en övning.</p>';
+}
+function openHistoryEditor(id){
+ if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return;}
+ var old=id?state.history.find(function(w){return String(w.id)===String(id);}):null;
+ if(id&&!old){toast('Passet hittades inte.');return;}
+ historyEditId=id||'';
+ historyEditDraft=old?deep(old):{id:uid(),date:dayISO(new Date()),type:'Push',name:'',minutes:30,exercises:[logEditorExercise('kg')]};
+ historyEditDraft.exercises=(Array.isArray(historyEditDraft.exercises)?historyEditDraft.exercises:[]).map(function(ex){
+  ex=deep(ex);ex.id=ex.id||uid();ex.mode=ex.mode==='min'?'min':'kg';
+  ex.sets=(Array.isArray(ex.sets)?ex.sets:[]).map(logEditorSet);return ex;
+ });
+ renderHistoryEditor();
+ lockBuilderBackground();
+ $('history-editor').showModal();
+ $('log-edit-name').focus({preventScroll:true});
+}
+function closeHistoryEditor(){
+ if($('history-editor').open)$('history-editor').close();
+ historyEditDraft=null;historyEditId='';
+ unlockBuilderBackground();
+}
+function updateHistoryEditorField(element){
+ var w=historyEditDraft;if(!w)return;
+ if(element.dataset.logField){
+  var field=element.dataset.logField;
+  if(field==='minutes')w.minutes=Number(element.value);
+  else w[field]=element.value;
+ }else if(element.dataset.logName!=null){
+  var ex=w.exercises[Number(element.dataset.logName)];if(ex)ex.name=element.value;
+ }else if(element.dataset.logSet){
+  var parts=element.dataset.logSet.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
+  if(set)set[parts[2]]=Number(element.value);
+ }else if(element.dataset.logDone){
+  var parts=element.dataset.logDone.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
+  if(set){set.done=element.checked;set.skipped=false;}
+ }
+}
+function mutateHistoryEditor(action,button){
+ if(!historyEditDraft)return;
+ var list=historyEditDraft.exercises;
+ if(action==='add-exercise'){
+  if(list.length>=16){toast('Högst 16 övningar per pass.');return;}
+  list.push(logEditorExercise(historyEditDraft.type==='Kondition'?'min':'kg'));
+ }else if(action==='add-set'){
+  var ex=list[Number(button.dataset.logAddSet)];
+  if(!ex||ex.sets.length>=20){toast('Högst 20 set per övning.');return;}
+  var last=ex.sets[ex.sets.length-1];ex.sets.push(logEditorSet(last?Object.assign({},last,{id:uid()}):null));
+ }else if(action==='remove-set'){
+  var parts=button.dataset.logRemoveSet.split(':'),ex=list[Number(parts[0])];
+  if(ex)ex.sets.splice(Number(parts[1]),1);
+ }else if(action==='remove-ex')list.splice(Number(button.dataset.logRemoveEx),1);
+ else if(action==='move'){
+  var parts=button.dataset.logMove.split(':'),from=Number(parts[0]),to=from+Number(parts[1]);
+  if(to<0||to>=list.length)return;
+  var item=list.splice(from,1)[0];list.splice(to,0,item);
+ }else if(action==='mode'){
+  var ex=list[Number(button.dataset.logMode)];if(ex)ex.mode=button.value;
+ }
+ renderHistoryEditor();
+}
+function saveHistoryEditor(){
+ if(!historyEditDraft)return;
+ var w=historyEditDraft;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(w.date)||dayISO(dayFrom(w.date))!==w.date){toast('Välj ett giltigt datum.');return;}
+ if(!String(w.name||'').trim()||w.name.length>70){toast('Ange ett passnamn (högst 70 tecken).');return;}
+ if(!Number.isInteger(w.minutes)||w.minutes<1||w.minutes>1440){toast('Ange passtid mellan 1 och 1440 minuter.');return;}
+ if(!w.exercises.length||w.exercises.length>16){toast('Passet måste ha 1–16 övningar.');return;}
+ for(var ex of w.exercises){
+  ex.name=String(ex.name||'').trim();
+  if(!ex.name||ex.name.length>90||!ex.sets.length||ex.sets.length>20){toast('Ange övningsnamn och minst ett set per övning.');return;}
+  for(var set of ex.sets){
+   var amount=ex.mode==='min'?set.minutes:set.weight;
+   if(!Number.isFinite(amount)||amount<0||amount>9999||!Number.isInteger(set.reps)||set.reps<0||set.reps>9999){
+    toast('Ange giltig vikt/tid och repetitioner.');return;
+   }
+   if(set.done&&!set.skipped&&(ex.mode==='min'&&amount<=0||ex.mode==='kg'&&set.reps<=0)){
+    toast('Genomförda set behöver tid eller repetitioner.');return;
+   }
+  }
+ }
+ var index=state.history.findIndex(function(item){return String(item.id)===String(historyEditId);});
+ w.name=w.name.trim();
+ if(index>=0)state.history[index]=deep(w);else state.history.push(deep(w));
+ // Manual edits can lower a record, so rebuild PRs from completed history.
+ state.prs=window.IngemarRecords.collect(state.history,{});
+ persist();render();
+ closeHistoryEditor();
+ toast('Passet uppdaterades · synkar med Firebase.');
+}
+function deleteHistoryEditor(){
+ if(!historyEditId||!historyEditDraft)return;
+ if(!confirm('Ta bort det sparade passet permanent? Detta påverkar även personliga rekord.'))return;
+ state.history=state.history.filter(function(w){return String(w.id)!==String(historyEditId);});
+ state.prs=window.IngemarRecords.collect(state.history,{});
+ persist();render();
+ closeHistoryEditor();
+ toast('Passet togs bort · synkar med Firebase.');
 }
 function zenStepAt(elapsed){
  if(!activeZen)return {index:0,start:0,end:0,step:null};
@@ -1689,6 +1868,10 @@ document.addEventListener('click',function(event){
  if(b.dataset.analyticsMetric){analyticsMetric=b.dataset.analyticsMetric;renderPushPullAnalytics();return;}
  if(b.dataset.analyticsExercise!=null){analyticsExercise=b.dataset.analyticsExercise;renderPushPullAnalytics();return;}
  if(b.dataset.history){openHistory(b.dataset.history);return;}
+ if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
+ if(b.dataset.logRemoveSet!=null){mutateHistoryEditor('remove-set',b);return;}
+ if(b.dataset.logRemoveEx!=null){mutateHistoryEditor('remove-ex',b);return;}
+ if(b.dataset.logMove!=null){mutateHistoryEditor('move',b);return;}
  if(b.dataset.day){selected=b.dataset.day;render();openBuilder();return;}
  if(b.dataset.choice){openBuilder(b.dataset.choice);return;}
  if(b.dataset.zenWeekShift!=null){zenWeekMonday=offset(zenWeekMonday,7*Number(b.dataset.zenWeekShift));renderZen();return;}
@@ -1747,7 +1930,13 @@ document.addEventListener('click',function(event){
     break;
    case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget har sparats.');}break;
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
-   case 'close-history':$('history-detail').close();break;
+   case 'close-history':$('history-detail').close();selectedHistoryId='';break;
+   case 'new-history':openHistoryEditor('');break;
+   case 'edit-history':if(selectedHistoryId){$('history-detail').close();openHistoryEditor(selectedHistoryId);}break;
+   case 'cancel-history-edit':closeHistoryEditor();break;
+   case 'log-add-exercise':mutateHistoryEditor('add-exercise',b);break;
+   case 'log-save':saveHistoryEditor();break;
+   case 'log-delete':deleteHistoryEditor();break;
    
    case 'toggle-zen-clock':
     if(activeZen){
@@ -1782,10 +1971,17 @@ document.addEventListener('pointerdown',function(event){
  if(event.target.closest&&event.target.closest('.builder-exercise-name-control'))return;
  closeBuilderExercisePicker();
 });
-document.addEventListener('change',function(event){if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);});
+document.addEventListener('change',function(event){
+ if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);
+ if(historyEditDraft&&$('history-editor').open&&$('history-editor').contains(event.target)){
+  if(event.target.dataset.logMode!=null)mutateHistoryEditor('mode',event.target);
+  else updateHistoryEditorField(event.target);
+ }
+});
 document.addEventListener('input',function(event){
  var el=event.target;
  if(el.id==='zen-audio-volume'){setZenAudioVolume(Number(el.value)/100,true);return;}
+ if(historyEditDraft&&$('history-editor').open&&$('history-editor').contains(el)&&el.dataset.logMode==null)updateHistoryEditorField(el);
  if($('zen-editor').open&&zenEditDraft&&$('zen-editor').contains(el)){
   syncZenEditor();
   $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(zenEditDraft.steps)/60)+' min · '+zenEditDraft.steps.length+' steg';
@@ -1796,7 +1992,9 @@ $('week-planner').addEventListener('cancel',function(event){event.preventDefault
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
-$('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();});
+$('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();selectedHistoryId='';});
+$('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
+$('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';unlockBuilderBackground();});
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen){event.preventDefault();event.returnValue='';}});
