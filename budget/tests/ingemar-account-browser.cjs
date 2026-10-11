@@ -195,7 +195,7 @@ const fs=require('node:fs');
  assert.equal(await page.locator('#stat-week-goal').textContent(),'5');
  // iPhone: the date field must stay inside its dialog and never summon a keyboard on open.
  await page.locator('[data-action="new-record"]').click();
- assert.equal(await page.locator('#pr-editor').evaluate(el=>!el.contains(document.activeElement)),true,'PR editor must not autofocus');
+ assert.equal(await page.locator('#pr-editor').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'PR editor must not autofocus any editable input');
  assert.equal(await page.locator('#pr-editor .compact-date-control').evaluate(el=>{
    const r=el.getBoundingClientRect(),dlg=el.closest('dialog').getBoundingClientRect();
    return r.left>=dlg.left&&r.right<=dlg.right+1&&el.scrollWidth<=el.clientWidth+1;
@@ -204,7 +204,7 @@ const fs=require('node:fs');
  await page.screenshot({path:'test-results/ingemar-private/record-date-iphone-390.png'});
  await page.locator('#pr-editor .modal-head [data-action="cancel-record"]').click();
  await page.locator('[data-choice="Pull"]').click();
- assert.equal(await page.locator('#builder').evaluate(el=>!el.contains(document.activeElement)),true,'Builder must not autofocus');
+ assert.equal(await page.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Builder must not autofocus any editable input');
  await page.screenshot({path:'test-results/ingemar-private/builder-iphone-390.png'});
  await page.setViewportSize({width:320,height:740});
  const template320=await page.locator('#builder .builder-template-tools').evaluate(el=>{
@@ -292,7 +292,7 @@ const fs=require('node:fs');
  await androidPage.waitForSelector('html[data-ingemar-auth="ready"]');
  await androidPage.locator('[data-choice="Pull"]').click();
  assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),true);
- assert.equal(await androidPage.locator('#builder').evaluate(el=>!el.contains(document.activeElement)),true,'Opening builder must not focus editable inputs');
+ assert.equal(await androidPage.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Opening builder must not focus editable inputs');
  await androidPage.screenshot({path:'test-results/ingemar-private/builder-android-412.png'});
  const layout=await androidPage.locator('#builder .builder-template-tools').evaluate(el=>{
   const p=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,h:r.height,inside:r.left>=p.left-1&&r.right<=p.right+1};});
