@@ -441,6 +441,7 @@ async function verifyTouchDrag(page,label){
  await androidPage.reload({waitUntil:'domcontentloaded'});await androidPage.waitForFunction(()=>IngemarAccount.canEdit);
  await androidPage.locator('#personal-records').scrollIntoViewIfNeeded();
  assert.match(await androidPage.locator('[data-pr-panel="Push"] .pr-gain').textContent(),/\+5 kg/);
+ assert.match(await androidPage.locator('[data-pr-panel="Push"] .pr-row').evaluate(el=>getComputedStyle(el).backgroundImage),/linear-gradient/,'Record rows must use the dark theme, not the native button fill');
  await androidPage.screenshot({path:'test-results/ingemar-private/compact-records-push-android.png'});
  await androidPage.locator('[data-pr-filter="Pull"]').click();
  assert.match(await androidPage.locator('[data-pr-panel="Pull"]').textContent(),/Sittande rodd/);
