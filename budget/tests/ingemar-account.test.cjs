@@ -14,7 +14,7 @@ test('Ingemar production page has a shared login and no demo history bootstrap',
   assert.ok(source,'Ingemar training inline script exists');
   new vm.Script(source[1],{filename:'ingemar.html'});
   assert.match(html,/data-ingemar-auth="locked"/);
-  assert.match(html,/id="ingemar-account-form"/);
+  assert.match(html,/id="ingemar-account-form" hidden/,'Login controls must stay hidden until auth restoration resolves');
   assert.match(html,/ingemar-account\.js\?/);
   assert.match(source[1],/function emptyState\(\)/);
   assert.match(source[1],/window\.IngemarAccount\.save\(state\)/);
@@ -112,11 +112,11 @@ test('Demo URL now opens the real profile and neither page exposes outgoing navi
 });
 
 function loginFixture(mode){
- const elements={},timers=new Map();let timerId=0,listener,readMode=mode,writes=0;
+ const elements={},timers=new Map();let timerId=0,listener,readMode=mode,writes=0,subscriptions=0;
  const el=id=>elements[id]||(elements[id]={value:'',dataset:{},textContent:'',handlers:{},addEventListener(type,fn){this.handlers[type]=fn;}});
  const document={getElementById:el,documentElement:{dataset:{}},addEventListener(){}};
  const read=()=>readMode==='denied'?Promise.reject({code:'PERMISSION_DENIED'}):readMode==='pending'?new Promise(()=>{}):Promise.resolve({val:()=>null});
- const ref={on(type,fn,fail){if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok')fn({val:()=>null});},off(){},get:read,set(){writes++;return Promise.resolve();}};
+ const ref={on(type,fn,fail){subscriptions++;if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok'||readMode==='write-denied')fn({val:()=>null});},off(){},get:read,set(){writes++;return readMode==='write-denied'?Promise.reject({code:'PERMISSION_DENIED'}):Promise.resolve();}};
  const auth={setPersistence:async()=>{},onAuthStateChanged(fn){listener=fn;fn(null);},async signInWithEmailAndPassword(){listener({uid:'fixture',email:'test@example.invalid'});},async signOut(){listener(null);}};
  const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
  const firebase={apps:[],initializeApp:()=>({}),auth:authFn,database:()=>({ref:()=>ref})};
@@ -124,7 +124,7 @@ function loginFixture(mode){
  vm.runInNewContext(manager,{window,document,firebase,localStorage:{getItem:()=>null,setItem(){}},console,setTimeout(fn,ms){timers.set(++timerId,{fn,ms});return timerId;},clearTimeout(id){timers.delete(id);},setInterval(){return 1;}});
  window.IngemarAccount.connect({apply(){},serialize:()=>'{"plans":{},"history":[],"zenHistory":[]}'});
  el('ingemar-login-email').value='test@example.invalid';el('ingemar-login-password').value='test-password';
- return {window,document,el,timers,setMode(value){readMode=value;},writes:()=>writes,async login(){el('ingemar-account-form').handlers.submit({preventDefault(){}});await new Promise(resolve=>setImmediate(resolve));}};
+ return {window,document,el,timers,setMode(value){readMode=value;},writes:()=>writes,subscriptions:()=>subscriptions,async login(){el('ingemar-account-form').handlers.submit({preventDefault(){}});await new Promise(resolve=>setImmediate(resolve));}};
 }
 test('Successful authentication cannot overwrite a database permission error; retry recovers',async()=>{
  const f=loginFixture('denied');await f.login();
@@ -132,11 +132,13 @@ test('Successful authentication cannot overwrite a database permission error; re
  assert.equal(f.el('ingemar-account-message').dataset.error,'true');
  assert.equal(f.window.IngemarAccount.canEdit,false);
  assert.equal(f.el('ingemar-account-gate').dataset.signedIn,'true');
+ assert.equal(f.el('ingemar-account-form').hidden,true,'Signed-in retry gate must not request credentials again');
  assert.equal(f.writes(),0,'No writes when database access is denied');
  f.setMode('ok');f.el('ingemar-retry').handlers.click();
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(f.window.IngemarAccount.canEdit,true);
  assert.equal(f.document.documentElement.dataset.ingemarAuth,'ready');
+ assert.equal(f.subscriptions(),2,'Retry must restore the realtime subscription');
 });
 test('Unresponsive database produces a bounded error instead of endless loading',async()=>{
  const f=loginFixture('pending');await f.login();
@@ -144,4 +146,14 @@ test('Unresponsive database produces a bounded error instead of endless loading'
  assert.match(f.el('ingemar-account-message').textContent,/databasen svarar inte/);
  assert.equal(f.window.IngemarAccount.canEdit,false);
  assert.equal(f.writes(),0);
+});
+
+test('Denied Firebase writes remain pending and display a visible error',async()=>{
+ const f=loginFixture('write-denied');await f.login();
+ assert.equal(f.window.IngemarAccount.canEdit,true);
+ assert.equal(f.window.IngemarAccount.save({plans:{},history:[],zenHistory:[{id:'zen-save-test'}]}),true);
+ await new Promise(resolve=>setTimeout(resolve,550));
+ assert.equal(f.writes(),1);
+ assert.match(f.el('ingemar-sync-status').textContent,/Firebase nekade sparningen/);
+ assert.equal(f.el('ingemar-sync-status').dataset.error,'true');
 });
