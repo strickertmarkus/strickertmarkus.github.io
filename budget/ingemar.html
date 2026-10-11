@@ -130,7 +130,10 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 <style id="ingemar-log-editor-styles">
 /* Training log controls share the existing Ingemar dialog design and field sizes. */
 #pr-editor{width:min(480px,calc(100dvw - 20px));max-height:calc(100dvh - 20px)}
-.pr-record-actions{display:flex;gap:7px;align-items:center}
+.pr-section-head,.log-section-head{flex-wrap:wrap}
+#personal-records .history-row{flex-wrap:wrap}
+#personal-records .history-row>div:first-child{min-width:0;flex:1 1 120px}
+.pr-record-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;min-width:0;margin-left:auto}
 .pr-record-actions .mini{white-space:nowrap}
 .stat-goal-tools{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
@@ -271,8 +274,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </section>
-  <div class="section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><p class="hint">Maxvikten från genomförda set sparas automatiskt. Äldre rekord kan registreras manuellt.</p><div id="personal-records" class="history" aria-live="polite"></div>
-  <div class="section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
+  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><p class="hint">Maxvikten från genomförda set sparas automatiskt. Äldre rekord kan registreras manuellt.</p><div id="personal-records" class="history" aria-live="polite"></div>
+  <div class="section-head log-section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
   <div class="zen-dashboard-hero">
@@ -1421,14 +1424,14 @@ function saveHistoryEditor(){
    }
   }
  }
- var index=state.history.findIndex(function(item){return String(item.id)===String(historyEditId);});
+ var index=state.history.findIndex(function(item){return String(item.id)===String(historyEditId);}),isNew=index<0;
  w.name=w.name.trim();
  if(index>=0)state.history[index]=deep(w);else state.history.push(deep(w));
  // Manual edits can lower a record, so rebuild PRs from completed history.
  state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
  persist();render();
  closeHistoryEditor();
- toast('Passet uppdaterades · synkar med Firebase.');
+ toast(isNew?'Passet loggades · synkar med Firebase.':'Passet uppdaterades · synkar med Firebase.');
 }
 function deleteHistoryEditor(){
  if(!historyEditId||!historyEditDraft)return;
