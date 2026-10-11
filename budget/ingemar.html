@@ -848,7 +848,7 @@ function render(){
   return {label:'v'+isoWeekNumber(first),value:state.history.filter(function(h){return h.date>=first&&h.date<last;}).length};
  });
  $('bars').innerHTML=glowBarsMarkup(trainingBars,'training');selectGlowBar($('bars').querySelector('[data-bar-index="'+(trainingBars.length-1)+'"]'));
- $('history').innerHTML=state.history.slice().sort(historyNewestFirst).slice(0,12).map(function(h){return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa alla set för '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+h.exercises.length+' övningar · Tryck för setdetaljer</small></div><span class="metric">'+h.minutes+' min<br>'+h.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0)+' set ↗</span></button>';}).join('')||'<p class="hint">Inga pass ännu.</p>';
+ $('history').innerHTML=state.history.slice().sort(historyNewestFirst).map(function(h){return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa alla set för '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+h.exercises.length+' övningar · Tryck för setdetaljer</small></div><span class="metric">'+h.minutes+' min<br>'+h.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done;}).length;},0)+' set ↗</span></button>';}).join('')||'<p class="hint">Inga pass ännu.</p>';
  renderPushPullAnalytics();
 }
 function switchView(next){
@@ -1234,7 +1234,7 @@ function openHistory(id){
  $('history-detail-body').innerHTML=workout.exercises.map(function(e){
   var timed=e.mode==='min';
   return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.length+' set'+(!timed&&state.prs[window.IngemarRecords.key(e.name)]?' · PR '+state.prs[window.IngemarRecords.key(e.name)].weight+' kg':'')+'</span></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span></span></div>'+
-   e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:#acffcb" aria-label="Klart">✓</span></div>';}).join('')+'</article>';
+   e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:'+(set.done&&!set.skipped?'#acffcb':'#ad8794')+'" aria-label="'+(set.done&&!set.skipped?'Klart':'Inte genomfört')+'">'+(set.done&&!set.skipped?'✓':'–')+'</span></div>';}).join('')+'</article>';
  }).join('');
  $('history-detail').showModal();
 }
