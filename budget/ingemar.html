@@ -129,6 +129,10 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 
 <style id="ingemar-log-editor-styles">
 /* Training log controls share the existing Ingemar dialog design and field sizes. */
+.stat-goal-tools{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
+.stat-goal-tools span{white-space:nowrap}
+
 .log-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #history-editor{width:min(740px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overscroll-behavior:contain}
 #history-editor .modal-body{min-width:0;overflow-x:hidden}
@@ -232,7 +236,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   </div>
   <div class="section-head"><h2>Välj träningspass</h2><span class="hint">Bygg eller redigera ett pass</span></div>
   <div class="choices"><button type="button" class="choice push" data-choice="Push"><span class="glyph">↗</span><b>Push</b><small>Bröst · Axlar · Triceps</small></button><button type="button" class="choice pull" data-choice="Pull"><span class="glyph">↙</span><b>Pull</b><small>Rygg · Biceps</small></button><button type="button" class="choice cardio" data-choice="Kondition"><span class="glyph">⌁</span><b>Kondition</b><small>Intervaller · Distans · Tid</small></button></div>
-  <div class="stats"><div class="panel stat"><div class="stat-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub">av 4 planerade</div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
+  <div class="stats"><div class="panel stat"><div class="stat-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="build">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="week" id="week" aria-label="Veckans pass"></div>
   <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
   <div class="section-head"><h2>Framsteg</h2><span class="hint">Historik – senaste sju veckorna</span></div><div class="panel training-chart-panel"><div class="training-chart-head"><div><div class="eyebrow">GENOMFÖRDA TRÄNINGSPASS</div><strong>7 veckor i rörelse</strong></div><span>Tryck på en stapel för exakt värde</span></div><div class="pulse-bar-shell"><div class="bars" id="bars" aria-label="Träningspass per vecka"></div><div class="chart-inspect bar-inspect" id="bars-inspect" role="status" aria-live="polite"></div></div></div>
@@ -839,6 +843,7 @@ function render(){
  var weekAgo=offset(weekStart(today),-0),weekEnd=offset(weekAgo,7);
  var weekHistory=state.history.filter(function(h){return h.date>=weekAgo&&h.date<weekEnd;});
  $('stat-week').textContent=weekHistory.length;
+ $('stat-week-goal').textContent=Math.max(1,Math.min(14,Number(state.goal)||4));
  $('stat-total').textContent=state.history.length+state.zenHistory.length;
  $('stat-minutes').innerHTML=weekHistory.reduce(function(n,h){return n+h.minutes;},0)+'<small>min</small>';
  var recent=state.history.slice().sort(historyNewestFirst)[0];
@@ -1867,6 +1872,10 @@ document.addEventListener('click',function(event){
  if(b.dataset.analyticsType){analyticsType=b.dataset.analyticsType;analyticsExercise='';renderPushPullAnalytics();return;}
  if(b.dataset.analyticsMetric){analyticsMetric=b.dataset.analyticsMetric;renderPushPullAnalytics();return;}
  if(b.dataset.analyticsExercise!=null){analyticsExercise=b.dataset.analyticsExercise;renderPushPullAnalytics();return;}
+ if(b.dataset.goalAdjust!=null){
+  state.goal=Math.max(1,Math.min(14,(Number(state.goal)||4)+Number(b.dataset.goalAdjust)));
+  persist();render();return;
+ }
  if(b.dataset.history){openHistory(b.dataset.history);return;}
  if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
  if(b.dataset.logRemoveSet!=null){mutateHistoryEditor('remove-set',b);return;}
