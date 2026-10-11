@@ -30,10 +30,10 @@ jobs:
         run: |
           node --check budget/ingemar-account.js
           node --test budget/tests/ingemar-account.test.cjs
-      - name: Install WebKit
+      - name: Install mobile browsers
         run: |
           npm install --no-save playwright
-          npx playwright install --with-deps webkit
+          npx playwright install --with-deps webkit chromium
       - name: Serve site
         run: |
           python3 -m http.server 4173 --directory . >/tmp/ingemar-account-http.log 2>&1 &
