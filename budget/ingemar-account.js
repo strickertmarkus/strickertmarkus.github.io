@@ -18,12 +18,15 @@
   let app,auth,db,recordRef=null,recordHandler=null,client=null,connected=false;
   let generation=0,writeTimer=null,dirty=false,saving=false,lastLocal='',lastRemote='',retryTimer=null;
   let loginBusy=false,loadTimer=null,refreshPending=false,readAttempt=0;
+  let authResolved=false,persistenceReady=Promise.resolve(),persistenceWarning=false,writeWatchdog=null;
 
   function el(id){return document.getElementById(id);}
   function text(id,value){const node=el(id);if(node)node.textContent=value;}
   function setStatus(status){
     API.status=status;
     text('ingemar-sync-status',status);
+    const indicator=el('ingemar-sync-status');
+    if(indicator)indicator.dataset.error=/nekad|misslyckades|Kunde inte|åtkomst saknas/i.test(status)?'true':'false';
   }
   function message(value,error){
     const node=el('ingemar-account-message');
@@ -33,6 +36,8 @@
     document.documentElement.dataset.ingemarAuth=visible?'locked':'ready';
     const gate=el('ingemar-account-gate');
     if(gate){gate.hidden=!visible;gate.dataset.signedIn=API.user?'true':'false';}
+    const form=el('ingemar-account-form');
+    if(form)form.hidden=!authResolved||!!API.user;
   }
   function localKey(){return LOCAL_KEY;}
   function cache(value){try{localStorage.setItem(localKey(),value);}catch(_){}}
@@ -68,7 +73,7 @@
     const password=el('ingemar-login-password').value||'';
     if(!email||password.length<6){message('Ange e-postadress och lösenord (minst sex tecken).',true);return;}
     setBusy(true);message(register?'Skapar ditt konto…':'Loggar in…');
-    const operation=register?auth.createUserWithEmailAndPassword(email,password):auth.signInWithEmailAndPassword(email,password);
+    const operation=persistenceReady.then(()=>register?auth.createUserWithEmailAndPassword(email,password):auth.signInWithEmailAndPassword(email,password));
     operation.then(()=>{el('ingemar-login-password').value='';})
       .catch(error=>message(errorMessage(error),true))
       .finally(()=>setBusy(false));
@@ -82,11 +87,12 @@
   function loadFailed(error){
     stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true);
     setStatus(/permission.denied/i.test(error&&error.code||'')?'Firebase-åtkomst saknas':'Kunde inte hämta träningsdata');
-    message(errorMessage(error),true);
+    message(errorMessage(error)+(API.user&&/permission.denied/i.test(error&&error.code||'')?' (UID: '+API.user.uid+')':''),true);
   }
   function teardown(){
     generation++;readAttempt++;stopLoadTimer();refreshPending=false;
     if(writeTimer){clearTimeout(writeTimer);writeTimer=null;}
+    if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
     if(recordRef&&recordHandler)recordRef.off('value',recordHandler);
     recordRef=null;recordHandler=null;API.ready=false;API.user=null;
     connected=false;dirty=false;saving=false;lastLocal='';lastRemote='';
@@ -121,7 +127,7 @@
         lastRemote=raw||'';
         lastLocal=chosen||client.serialize();cache(lastLocal);
         stopLoadTimer();API.ready=true;connected=true;setGate(false);message('');
-        setStatus(dirty?'Lokala ändringar väntar på synk':'Synkat via Firebase');
+        setStatus(dirty?'Lokala ändringar väntar på synk':persistenceWarning?'Synkat · inloggning kan behöva upprepas':'Synkat via Firebase');
         if(dirty)queueWrite();
         return;
       }
@@ -137,7 +143,8 @@
       if(token!==generation)return;
       loadFailed(error);
     });
-    refresh();
+    // The initial value listener supplies the first snapshot and stays live.
+    // Avoid an additional competing get() while Firebase restores its cache.
   }
   async function refresh(){
     const ref=recordRef,handler=recordHandler;
@@ -158,16 +165,24 @@
     if(!API.canEdit||!recordRef||saving||!dirty)return;
     const token=generation,raw=lastLocal,ref=recordRef;
     saving=true;
+    if(writeWatchdog)clearTimeout(writeWatchdog);
+    writeWatchdog=setTimeout(()=>{
+      if(token===generation&&saving)setStatus('Sparat lokalt · väntar på Firebase');
+    },10000);
     try{
       await ref.set(raw);
       if(token!==generation)return;
       saving=false;
+      if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
       if(raw===lastLocal){
         setDirty(false);lastRemote=raw;setStatus('Synkat via Firebase');
       }else queueWrite();
     }catch(error){
       if(token!==generation)return;
-      saving=false;setStatus('Sparat på enheten · väntar på Firebase');
+      saving=false;
+      if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
+      if(/permission.denied/i.test(error&&error.code||''))setStatus('Firebase nekade sparningen · kontrollera kontobehörighet');
+      else setStatus('Sparat lokalt · synkningen misslyckades');
       console.warn('[Ingemar] Synkning misslyckades',error);
     }
   }
@@ -194,19 +209,31 @@
     const logoutButton=el('ingemar-logout');
     if(logoutButton)logoutButton.addEventListener('click',()=>logout().catch(()=>message('Kunde inte logga ut.',true)));
     const retry=el('ingemar-retry');
-    if(retry)retry.addEventListener('click',()=>{if(API.user){message('Försöker hämta träningsdata igen…');watchLoad();refresh();}});
+    if(retry)retry.addEventListener('click',()=>{if(API.user){
+      const user=auth&&auth.currentUser||API.user;
+      message('Återansluter till Firebase…');
+      activate(user).catch(loadFailed);
+    }});
     const gateLogout=el('ingemar-gate-logout');
     if(gateLogout)gateLogout.addEventListener('click',()=>logout().catch(()=>message('Kunde inte byta konto.',true)));
     try{
       if(!window.firebase||!window.FIREBASE_CONFIG)throw Error('Firebase SDK eller konfiguration saknas');
       app=firebase.apps.find(a=>a.name==='[DEFAULT]')||firebase.initializeApp(window.FIREBASE_CONFIG);
       auth=firebase.auth(app);db=firebase.database(app);
-      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(error=>console.warn('[Ingemar] Auth persistence',error));
-      auth.onAuthStateChanged(user=>activate(user).catch(error=>loadFailed(error)),error=>{teardown();message(errorMessage(error),true);});
-      retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();else refresh();},3000);
+      // Wait until durable sign-in persistence is configured before resolving
+      // the restored session or accepting new credentials.
+      persistenceReady=auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .catch(error=>{persistenceWarning=true;console.warn('[Ingemar] Lokal inloggningslagring saknas',error);});
+      persistenceReady.then(()=>{
+        auth.onAuthStateChanged(user=>{
+          authResolved=true;
+          activate(user).catch(error=>loadFailed(error));
+        },error=>{authResolved=true;teardown();message(errorMessage(error),true);});
+      });
+      retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
       window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
       window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
       document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
-    }catch(error){message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
+    }catch(error){authResolved=true;setGate(true);message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
   }
 })();
