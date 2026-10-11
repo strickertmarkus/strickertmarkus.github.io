@@ -158,7 +158,12 @@ test('Denied Firebase writes remain pending and display a visible error',async()
  const f=loginFixture('write-denied');await f.login();
  assert.equal(f.window.IngemarAccount.canEdit,true);
  assert.equal(f.window.IngemarAccount.save({plans:{},history:[],zenHistory:[{id:'zen-save-test'}]}),true);
- await new Promise(resolve=>setTimeout(resolve,550));
+ // The fixture intercepts timeouts rather than running them automatically.
+ // Flush the debounced Firebase write deterministically.
+ const pending=[...f.timers.values()].find(t=>t.ms===450);
+ assert.ok(pending,'Save should queue its 450ms Firebase write');
+ await pending.fn();
+ await new Promise(resolve=>setImmediate(resolve));
  assert.equal(f.writes(),1);
  assert.match(f.el('ingemar-sync-status').textContent,/Firebase nekade sparningen/);
  assert.equal(f.el('ingemar-sync-status').dataset.error,'true');
