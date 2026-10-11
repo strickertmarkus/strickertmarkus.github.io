@@ -162,6 +162,37 @@ const fs=require('node:fs');
  await page.locator('[data-action="cancel-history-edit"]').click();
  await page.setViewportSize({width:390,height:844});
 
+ // Manual PRs remain editable without changing completed workout set data.
+ await page.locator('[data-action="new-record"]').click();
+ await page.locator('#pr-edit-name').fill('Marklyft');
+ await page.locator('#pr-edit-weight').fill('120');
+ await page.locator('#pr-edit-date').fill('2026-10-01');
+ await page.screenshot({path:'test-results/ingemar-private/pr-editor-390.png'});
+ await page.locator('[data-action="save-record"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.manualPrs?.['marklyft']?.weight===120 && data.prs?.['marklyft']?.weight===120;
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.match(await page.locator('#personal-records').textContent(),/Marklyft/);
+ await page.locator('[data-pr-edit="Marklyft"]').click();
+ assert.equal(await page.locator('#pr-edit-remove').isVisible(),true);
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-action="remove-record"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return !data.manualPrs?.marklyft && !data.prs?.marklyft;
+ });
+ // Weekly target must be configurable and survive reload too.
+ await page.locator('[data-goal-adjust="1"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.goal===5;
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.equal(await page.locator('#stat-week-goal').textContent(),'5');
  await page.setViewportSize({width:320,height:740});
  await page.locator('#personal-records').scrollIntoViewIfNeeded();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
@@ -186,7 +217,7 @@ const fs=require('node:fs');
  await page.evaluate(()=>localStorage.removeItem('__deny_ingemar'));
  await page.locator('#ingemar-retry').click();
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
- assert.match(await page.locator('#personal-records').textContent(),/Max 52,5 kg/);
+ assert.match(await page.locator('#personal-records').textContent(),/Max 47,5 kg/);
  assert.deepEqual(errors,[],errors.join(' | '));
  await browser.close();console.log('Shared Ingemar profile, login, save, records, reload and mobile visuals passed');
 })().catch(err=>{console.error(err);process.exit(1);});
