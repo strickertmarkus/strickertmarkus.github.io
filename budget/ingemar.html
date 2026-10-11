@@ -129,6 +129,9 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 
 <style id="ingemar-log-editor-styles">
 /* Training log controls share the existing Ingemar dialog design and field sizes. */
+#pr-editor{width:min(480px,calc(100dvw - 20px));max-height:calc(100dvh - 20px)}
+.pr-record-actions{display:flex;gap:7px;align-items:center}
+.pr-record-actions .mini{white-space:nowrap}
 .stat-goal-tools{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
 .stat-goal-tools span{white-space:nowrap}
@@ -268,7 +271,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </section>
-  <div class="section-head"><h2>Personliga rekord</h2></div><p class="hint">Maxvikten från dina genomförda styrkeset sparas automatiskt per övning.</p><div id="personal-records" class="history" aria-live="polite"></div>
+  <div class="section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><p class="hint">Maxvikten från genomförda set sparas automatiskt. Äldre rekord kan registreras manuellt.</p><div id="personal-records" class="history" aria-live="polite"></div>
   <div class="section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
@@ -362,6 +365,16 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 </dialog>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button><div class="right"><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
+<dialog id="pr-editor" aria-labelledby="pr-editor-title">
+ <div class="modal-head"><div><span class="eyebrow">PERSONLIGA REKORD · INGEMAR</span><h2 id="pr-editor-title">Registrera rekord</h2></div><button type="button" class="x" data-action="cancel-record" aria-label="Stäng">×</button></div>
+ <div class="modal-body">
+  <p class="hint">Lägg till ett äldre rekord som saknas i loggen. Rekord från genomförda styrkeset uppdateras automatiskt.</p>
+  <div class="field"><label for="pr-edit-name">Övning</label><input id="pr-edit-name" maxlength="90" placeholder="Exempelvis Bänkpress"></div>
+  <div class="field"><label for="pr-edit-weight">Rekordvikt (kg)</label><input id="pr-edit-weight" type="number" inputmode="decimal" min="0.5" max="9999" step="0.5"></div>
+  <div class="field"><label for="pr-edit-date">Datum (valfritt)</label><input id="pr-edit-date" type="date"></div>
+  <div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="remove-record" id="pr-edit-remove" hidden>Ta bort manuellt rekord</button><div class="right"><button type="button" class="secondary" data-action="cancel-record">Avbryt</button><button type="button" class="primary" data-action="save-record">Spara rekord ✓</button></div></div>
+ </div>
+</dialog>
 <dialog id="history-editor" aria-labelledby="history-editor-title">
  <div class="modal-head"><div><span class="eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div>
  <div class="modal-body">
@@ -802,12 +815,23 @@ function ensureZenData(value){
  value.zenHistory.forEach(function(item){if(!item.id)item.id=uid();});
  return value;
 }
-function emptyState(){return ensureZenData({plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],prs:{},goal:4});}
+function emptyState(){return ensureZenData({plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],prs:{},manualPrs:{},goal:4});}
+function migrateManualPrs(value){
+ var manual=value&&value.manualPrs&&typeof value.manualPrs==='object'&&!Array.isArray(value.manualPrs)?deep(value.manualPrs):{};
+ var fromHistory=window.IngemarRecords.collect(value.history,{});
+ Object.keys(value.prs||{}).forEach(function(key){
+  var item=value.prs[key],id=window.IngemarRecords.key(item&&item.name||key);
+  if(item&&id&&!fromHistory[id]&&!manual[id]&&Number.isFinite(Number(item.weight))&&Number(item.weight)>0)
+   manual[id]={name:String(item.name||key),weight:Number(item.weight),date:item.date||''};
+ });
+ return manual;
+}
 function normalizeAccountState(value){
  if(!value)return emptyState();
  if(typeof value!=='object'||Array.isArray(value)||!value.plans||!Array.isArray(value.history)||!Array.isArray(value.zenHistory))throw Error('Ogiltiga träningsuppgifter');
  return ensureZenData({
   plans:value.plans,history:value.history,zenHistory:value.zenHistory,prs:window.IngemarRecords.collect(value.history,value.prs),
+  manualPrs:migrateManualPrs(value),
   templates:Array.isArray(value.templates)?value.templates:[],
   weekTemplates:Array.isArray(value.weekTemplates)?value.weekTemplates:[],
   goal:typeof value.goal==='number'?value.goal:4,zenRoutines:value.zenRoutines,
@@ -816,7 +840,7 @@ function normalizeAccountState(value){
 }
 function load(){return emptyState();}
 var state=load(),selected=dayISO(new Date()),view='training',draft=null,activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
-function persist(){state.prs=window.IngemarRecords.collect(state.history,state.prs);if(!window.IngemarAccount.save(state))toast('Vänta på att kontot ansluts.');}
+function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state))toast('Vänta på att kontot ansluts.');}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
@@ -828,8 +852,8 @@ function glowBarsMarkup(points,kind){
 }
 function selectGlowBar(button){if(!button)return;var kind=button.dataset.chartBar,holder=kind==='training'?'bars':'zen-bars';$(holder).querySelectorAll('[data-chart-bar]').forEach(function(item){item.setAttribute('aria-pressed',String(item===button));});$(holder+'-inspect').textContent=button.dataset.barLabel+' · '+button.dataset.barValue+' '+(kind==='training'?'pass':'stunder');}
 function renderRecords(){
- state.prs=window.IngemarRecords.collect(state.history,state.prs);
- $('personal-records').innerHTML=Object.values(state.prs).sort(function(a,b){return a.name.localeCompare(b.name,'sv');}).map(function(record){return '<div class="history-row"><div><strong>'+clean(record.name)+'</strong><small>Personligt rekord'+(record.date?' · '+pretty(record.date):'')+'</small></div><span class="metric">Max '+record.weight.toLocaleString('sv-SE')+' kg</span></div>';}).join('')||'<p class="hint">Ditt första rekord visas när du sparar ett pass med genomförda styrkeset.</p>';
+ state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
+ $('personal-records').innerHTML=Object.values(state.prs).sort(function(a,b){return a.name.localeCompare(b.name,'sv');}).map(function(record){return '<div class="history-row"><div><strong>'+clean(record.name)+'</strong><small>Personligt rekord'+(record.date?' · '+pretty(record.date):'')+'</small></div><div class="pr-record-actions"><span class="metric">Max '+record.weight.toLocaleString('sv-SE')+' kg</span><button type="button" class="mini" data-pr-edit="'+clean(record.name)+'" aria-label="Redigera rekord för '+clean(record.name)+'">Redigera</button></div></div>';}).join('')||'<p class="hint">Ditt första rekord visas när du sparar ett pass med genomförda styrkeset eller lägger till ett äldre rekord.</p>';
 }
 function render(){
  renderRecords();
@@ -1230,6 +1254,44 @@ function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=f
 function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;familySessionFrame().hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
 window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
 var selectedHistoryId='',historyEditDraft=null,historyEditId='';
+var recordEditKey='';
+function openRecordEditor(name){
+ if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return;}
+ var key=window.IngemarRecords.key(name),manual=state.manualPrs&&state.manualPrs[key],record=state.prs[key];
+ recordEditKey=key;
+ $('pr-editor-title').textContent=record?'Redigera rekord':'Lägg till rekord';
+ $('pr-edit-name').value=record?record.name:(name||'');
+ $('pr-edit-weight').value=record?record.weight:'';
+ $('pr-edit-date').value=record&&record.date||'';
+ $('pr-edit-remove').hidden=!manual;
+ lockBuilderBackground();$('pr-editor').showModal();$('pr-edit-name').focus({preventScroll:true});
+}
+function closeRecordEditor(){
+ if($('pr-editor').open)$('pr-editor').close();
+ recordEditKey='';unlockBuilderBackground();
+}
+function saveRecordEditor(){
+ var name=String($('pr-edit-name').value||'').trim(),
+     weight=Number($('pr-edit-weight').value),date=$('pr-edit-date').value,
+     key=window.IngemarRecords.key(name);
+ if(!name||name.length>90){toast('Ange en övning (högst 90 tecken).');return;}
+ if(!Number.isFinite(weight)||weight<=0||weight>9999){toast('Ange en giltig rekordvikt i kg.');return;}
+ if(date&&(!/^\d{4}-\d{2}-\d{2}$/.test(date)||dayISO(dayFrom(date))!==date)){toast('Ange ett giltigt datum.');return;}
+ var logged=window.IngemarRecords.collect(state.history,{})[key];
+ if(logged&&weight<logged.weight){
+  toast('Ett högre rekord finns i träningsloggen. Redigera det loggade setet för att korrigera.');return;
+ }
+ if(!state.manualPrs)state.manualPrs={};
+ if(recordEditKey&&recordEditKey!==key)delete state.manualPrs[recordEditKey];
+ state.manualPrs[key]={name:name,weight:weight,date:date};
+ persist();render();closeRecordEditor();toast('Rekordet sparas i Firebase.');
+}
+function removeRecordEditor(){
+ if(!recordEditKey||!state.manualPrs||!state.manualPrs[recordEditKey])return;
+ if(!confirm('Ta bort det manuella rekordet? Rekord från träningsloggen påverkas inte.'))return;
+ delete state.manualPrs[recordEditKey];
+ persist();render();closeRecordEditor();toast('Manuellt rekord borttaget · synkar.');
+}
 function openHistory(id){
  selectedHistoryId=id;
  var workout=state.history.find(function(h){return h.id===id;});
@@ -1363,7 +1425,7 @@ function saveHistoryEditor(){
  w.name=w.name.trim();
  if(index>=0)state.history[index]=deep(w);else state.history.push(deep(w));
  // Manual edits can lower a record, so rebuild PRs from completed history.
- state.prs=window.IngemarRecords.collect(state.history,{});
+ state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
  persist();render();
  closeHistoryEditor();
  toast('Passet uppdaterades · synkar med Firebase.');
@@ -1372,7 +1434,7 @@ function deleteHistoryEditor(){
  if(!historyEditId||!historyEditDraft)return;
  if(!confirm('Ta bort det sparade passet permanent? Detta påverkar även personliga rekord.'))return;
  state.history=state.history.filter(function(w){return String(w.id)!==String(historyEditId);});
- state.prs=window.IngemarRecords.collect(state.history,{});
+ state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
  persist();render();
  closeHistoryEditor();
  toast('Passet togs bort · synkar med Firebase.');
@@ -1876,6 +1938,7 @@ document.addEventListener('click',function(event){
   state.goal=Math.max(1,Math.min(14,(Number(state.goal)||4)+Number(b.dataset.goalAdjust)));
   persist();render();return;
  }
+ if(b.dataset.prEdit!=null){openRecordEditor(b.dataset.prEdit);return;}
  if(b.dataset.history){openHistory(b.dataset.history);return;}
  if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
  if(b.dataset.logRemoveSet!=null){mutateHistoryEditor('remove-set',b);return;}
@@ -1941,6 +2004,10 @@ document.addEventListener('click',function(event){
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
    case 'close-history':$('history-detail').close();selectedHistoryId='';break;
    case 'new-history':openHistoryEditor('');break;
+   case 'new-record':openRecordEditor('');break;
+   case 'cancel-record':closeRecordEditor();break;
+   case 'save-record':saveRecordEditor();break;
+   case 'remove-record':removeRecordEditor();break;
    case 'edit-history':if(selectedHistoryId){$('history-detail').close();openHistoryEditor(selectedHistoryId);}break;
    case 'cancel-history-edit':closeHistoryEditor();break;
    case 'log-add-exercise':mutateHistoryEditor('add-exercise',b);break;
@@ -2003,6 +2070,8 @@ $('builder').addEventListener('cancel',function(event){event.preventDefault();to
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
+$('pr-editor').addEventListener('cancel',function(event){event.preventDefault();closeRecordEditor();});
+$('pr-editor').addEventListener('close',function(){recordEditKey='';unlockBuilderBackground();});
 $('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';unlockBuilderBackground();});
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
