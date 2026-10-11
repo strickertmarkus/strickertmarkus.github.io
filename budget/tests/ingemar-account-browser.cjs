@@ -92,6 +92,8 @@ const fs=require('node:fs');
  await page.waitForFunction(()=>IngemarAccount.canEdit);
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')).goal),7,'Newer remote data must replace old cache');
  assert.equal(await page.locator('main').evaluate(el=>el.inert),false);
+ // Restore the fixture goal so later weekly-target checks remain independent.
+ await page.evaluate(()=>{const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const data=JSON.parse(db.ex_ingemar);data.goal=4;db.ex_ingemar=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify(db));window.__deliverIngemar();});
  await page.locator('[data-view="stretch"]').click();
  assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Zen log survives reload');
  await page.locator('#ingemar-logout').click();
