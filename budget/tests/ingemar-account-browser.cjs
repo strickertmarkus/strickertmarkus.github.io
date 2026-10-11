@@ -111,7 +111,57 @@ const fs=require('node:fs');
  await page.locator('[data-history="test-real-session"]').click();
  assert.match(await page.locator('#history-detail').textContent(),/PR 52.5 kg/);
  await page.screenshot({path:'test-results/ingemar-private/record-details-390.png'});
- await page.locator('#history-detail').evaluate(el=>el.close());
+ // Training log supports full CRUD and automatically rebuilds PRs on edits.
+ await page.locator('[data-action="edit-history"]').click();
+ assert.equal(await page.locator('#history-editor').evaluate(el=>el.open),true);
+ assert.equal(await page.locator('#log-edit-name').inputValue(),'Push · Styrka');
+ await page.screenshot({path:'test-results/ingemar-private/log-edit-390.png'});
+ await page.locator('[data-log-set="0:1:weight"]').fill('47.5');
+ await page.locator('[data-action="log-save"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.prs?.['bänkpress']?.weight===47.5 && data.history.find(h=>h.id==='test-real-session')?.exercises[0].sets[1].weight===47.5;
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.match(await page.locator('#personal-records').textContent(),/Max 47,5 kg/,'Edited weights must update PRs after reload');
+ await page.locator('[data-action="new-history"]').click();
+ assert.equal(await page.locator('#history-editor').evaluate(el=>el.open),true);
+ await page.locator('#log-edit-name').fill('Nyregistrerat styrkepass');
+ await page.locator('#log-edit-minutes').fill('25');
+ await page.locator('[data-log-name="0"]').fill('Hantelpress');
+ await page.locator('[data-log-set="0:0:weight"]').fill('24');
+ await page.locator('[data-log-set="0:0:reps"]').fill('12');
+ await page.screenshot({path:'test-results/ingemar-private/log-new-390.png'});
+ await page.locator('[data-action="log-save"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.history.length===2 && data.prs?.['hantelpress']?.weight===24;
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.match(await page.locator('#history').textContent(),/Nyregistrerat styrkepass/,'Manually logged workout survives reload');
+ const newId=await page.evaluate(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.history.find(w=>w.name==='Nyregistrerat styrkepass').id;
+ });
+ await page.locator('[data-history="'+newId+'"]').click();
+ await page.locator('[data-action="edit-history"]').click();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-action="log-delete"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.history.length===1 && !data.prs?.hantelpress && data.prs?.['bänkpress']?.weight===47.5;
+ });
+ await page.setViewportSize({width:320,height:740});
+ await page.locator('[data-history="test-real-session"]').click();
+ await page.locator('[data-action="edit-history"]').click();
+ await page.screenshot({path:'test-results/ingemar-private/log-edit-320.png'});
+ assert.equal(await page.locator('#history-editor').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Log editor may not overflow horizontally at 320px');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Document may not scroll horizontally when editing logs');
+ await page.locator('[data-action="cancel-history-edit"]').click();
+ await page.setViewportSize({width:390,height:844});
+
  await page.setViewportSize({width:320,height:740});
  await page.locator('#personal-records').scrollIntoViewIfNeeded();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
