@@ -504,6 +504,9 @@
       .log-detail-box .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 74px 74px 24px;}
       .log-detail-box .ex-row input{padding:6px 7px;font-size:11px;}
     }
+    /* iOS Safari zooms focused fields below 16px. This session runs inside
+       its own iframe, so the parent dialog rules do not apply here. */
+    input:not([type=checkbox]),select,textarea{font-size:16px!important;min-width:0;max-width:100%}
   </style>
 <style>html,body{margin:0;min-height:100%;background:#080D14}body{overflow:hidden}#toast[hidden]{display:none!important}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483600;padding:10px 16px;border:1px solid rgba(103,232,249,.25);border-radius:999px;background:#0a1119;color:#cffafe;font:600 12px Inter,sans-serif;box-shadow:0 10px 35px #0008}</style>
 </head>
