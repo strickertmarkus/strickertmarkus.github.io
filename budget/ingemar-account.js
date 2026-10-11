@@ -32,12 +32,20 @@
     const node=el('ingemar-account-message');
     if(node){node.textContent=value||'';node.dataset.error=error?'true':'false';}
   }
-  function setGate(visible){
+  function setGate(visible,phase){
     document.documentElement.dataset.ingemarAuth=visible?'locked':'ready';
     const gate=el('ingemar-account-gate');
-    if(gate){gate.hidden=!visible;gate.dataset.signedIn=API.user?'true':'false';}
+    const currentPhase=!visible?'ready':(phase||(authResolved?(API.user?'loading':'login'):'restoring'));
+    if(gate){
+      gate.hidden=!visible;
+      gate.dataset.phase=currentPhase;
+      gate.dataset.signedIn=API.user?'true':'false';
+      gate.setAttribute('aria-label',currentPhase==='login'?'Logga in på Ingemars träning':'Ingemars träning');
+    }
+    // Do not reveal the credentials form during Firebase initialization or
+    // while a previously authenticated account is fetching its data.
     const form=el('ingemar-account-form');
-    if(form)form.hidden=!authResolved||!!API.user;
+    if(form)form.hidden=currentPhase!=='login';
   }
   function localKey(){return LOCAL_KEY;}
   function cache(value){try{localStorage.setItem(localKey(),value);}catch(_){}}
@@ -85,7 +93,7 @@
     loadTimer=setTimeout(()=>{if(token===generation&&!API.ready)loadFailed({code:'load-timeout'});},12000);
   }
   function loadFailed(error){
-    stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true);
+    stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true,'error');
     setStatus(/permission.denied/i.test(error&&error.code||'')?'Firebase-åtkomst saknas':'Kunde inte hämta träningsdata');
     message(errorMessage(error)+(API.user&&/permission.denied/i.test(error&&error.code||'')?' (UID: '+API.user.uid+')':''),true);
   }
@@ -96,15 +104,15 @@
     if(recordRef&&recordHandler)recordRef.off('value',recordHandler);
     recordRef=null;recordHandler=null;API.ready=false;API.user=null;
     connected=false;dirty=false;saving=false;lastLocal='';lastRemote='';
-    setGate(true);
+    setGate(true,'restoring');
     if(client)client.apply(null);
   }
   async function activate(user){
     teardown();
-    if(!user){setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
+    if(!user){setGate(true,'login');setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
     const token=generation;
     API.user={uid:user.uid,email:user.email||''};
-    setGate(true);watchLoad();
+    setGate(true,'loading');watchLoad();
     message('Hämtar dina träningsuppgifter…');setStatus('Ansluter till Firebase…');
     recordRef=db.ref(ROOT);
     const ref=recordRef;
@@ -228,12 +236,12 @@
         auth.onAuthStateChanged(user=>{
           authResolved=true;
           activate(user).catch(error=>loadFailed(error));
-        },error=>{authResolved=true;teardown();message(errorMessage(error),true);});
+        },error=>{authResolved=true;teardown();setGate(true,'error');message(errorMessage(error),true);});
       });
       retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
       window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
       window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
       document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
-    }catch(error){authResolved=true;setGate(true);message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
+    }catch(error){authResolved=true;setGate(true,'error');message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
   }
 })();
