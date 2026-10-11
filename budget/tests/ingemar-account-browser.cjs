@@ -28,9 +28,9 @@ const fs=require('node:fs');
      signOut:async()=>{localStorage.removeItem(AUTHKEY);auth.currentUser=null;authListener?.(null);}
    };
    function ref(path){return {
-     on(type,cb){observers.set(path,cb);queueMicrotask(()=>cb({val:()=>getDb()[path]||null}));},
+     on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);queueMicrotask(()=>cb({val:()=>getDb()[path]||null}));},
      off(){observers.delete(path);},
-     async get(){return {val:()=>getDb()[path]||null};},
+     async get(){if(localStorage.getItem('__deny_ingemar'))throw {code:'PERMISSION_DENIED'};return {val:()=>getDb()[path]||null};},
      async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));
        const cb=observers.get(path);if(cb)cb({val:()=>db[path]});},
    };}
@@ -113,6 +113,24 @@ const fs=require('node:fs');
  await page.setViewportSize({width:1280,height:900});
  await page.locator('#personal-records').scrollIntoViewIfNeeded();
  await page.screenshot({path:'test-results/ingemar-private/records-desktop.png'});
+ assert.deepEqual(errors,[],errors.join(' | '));
+ await page.setViewportSize({width:390,height:844});
+ await page.locator('#ingemar-logout').click();
+ await page.waitForSelector('html[data-ingemar-auth="locked"]');
+ await page.evaluate(()=>localStorage.setItem('__deny_ingemar','1'));
+ await page.locator('#ingemar-login-email').fill('ingemar-fixture@test.invalid');
+ await page.locator('#ingemar-login-password').fill('testing-12345');
+ await page.locator('#ingemar-login-submit').click();
+ await page.waitForFunction(()=>document.getElementById('ingemar-account-message').textContent.includes('Firebase nekar åtkomst'));
+ assert.equal(await page.locator('#ingemar-account-message').getAttribute('data-error'),'true');
+ assert.equal(await page.locator('#ingemar-retry').isVisible(),true);
+ assert.equal(await page.locator('main').isVisible(),false);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+ await page.screenshot({path:'test-results/ingemar-private/permission-denied-390.png',fullPage:true});
+ await page.evaluate(()=>localStorage.removeItem('__deny_ingemar'));
+ await page.locator('#ingemar-retry').click();
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.match(await page.locator('#personal-records').textContent(),/Max 52,5 kg/);
  assert.deepEqual(errors,[],errors.join(' | '));
  await browser.close();console.log('Shared Ingemar profile, login, save, records, reload and mobile visuals passed');
 })().catch(err=>{console.error(err);process.exit(1);});

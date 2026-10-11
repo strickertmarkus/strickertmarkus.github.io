@@ -17,7 +17,7 @@
   window.IngemarAccount=API;
   let app,auth,db,recordRef=null,recordHandler=null,client=null,connected=false;
   let generation=0,writeTimer=null,dirty=false,saving=false,lastLocal='',lastRemote='',retryTimer=null;
-  let loginBusy=false;
+  let loginBusy=false,loadTimer=null,refreshPending=false,readAttempt=0;
 
   function el(id){return document.getElementById(id);}
   function text(id,value){const node=el(id);if(node)node.textContent=value;}
@@ -52,7 +52,8 @@
     if(code==='auth/invalid-credential'||code==='auth/wrong-password'||code==='auth/user-not-found')return 'Fel e-post eller lösenord.';
     if(code==='auth/operation-not-allowed')return 'E-postinloggning måste aktiveras i Firebase Authentication.';
     if(code==='auth/too-many-requests')return 'För många försök. Vänta en stund.';
-    if(code==='PERMISSION_DENIED'||code==='permission_denied')return 'Databasåtkomst nekades. Kontrollera reglerna för ex_ingemar.';
+    if(/permission.denied/i.test(code))return 'Du är inloggad, men Firebase nekar åtkomst till Ingemars träningsdata (ex_ingemar). Databasregeln behöver ge ditt och Ingemars konto behörighet. Ett nytt konto ändrar inte regeln.';
+    if(code==='load-timeout')return 'Du är inloggad, men databasen svarar inte. Kontrollera anslutningen och välj Försök igen.';
     return 'Det gick inte att ansluta. Försök igen.';
   }
   function setBusy(busy){
@@ -68,12 +69,23 @@
     if(!email||password.length<6){message('Ange e-postadress och lösenord (minst sex tecken).',true);return;}
     setBusy(true);message(register?'Skapar ditt konto…':'Loggar in…');
     const operation=register?auth.createUserWithEmailAndPassword(email,password):auth.signInWithEmailAndPassword(email,password);
-    operation.then(()=>{el('ingemar-login-password').value='';message('Kontot är anslutet. Hämtar dina uppgifter…');})
+    operation.then(()=>{el('ingemar-login-password').value='';})
       .catch(error=>message(errorMessage(error),true))
       .finally(()=>setBusy(false));
   }
+  function stopLoadTimer(){if(loadTimer){clearTimeout(loadTimer);loadTimer=null;}}
+  function watchLoad(){
+    stopLoadTimer();
+    const token=generation;
+    loadTimer=setTimeout(()=>{if(token===generation&&!API.ready)loadFailed({code:'load-timeout'});},12000);
+  }
+  function loadFailed(error){
+    stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true);
+    setStatus(/permission.denied/i.test(error&&error.code||'')?'Firebase-åtkomst saknas':'Kunde inte hämta träningsdata');
+    message(errorMessage(error),true);
+  }
   function teardown(){
-    generation++;
+    generation++;readAttempt++;stopLoadTimer();refreshPending=false;
     if(writeTimer){clearTimeout(writeTimer);writeTimer=null;}
     if(recordRef&&recordHandler)recordRef.off('value',recordHandler);
     recordRef=null;recordHandler=null;API.ready=false;API.user=null;
@@ -84,9 +96,9 @@
   async function activate(user){
     teardown();
     if(!user){setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
-    setGate(true);
     const token=generation;
     API.user={uid:user.uid,email:user.email||''};
+    setGate(true);watchLoad();
     message('Hämtar dina träningsuppgifter…');setStatus('Ansluter till Firebase…');
     recordRef=db.ref(ROOT);
     const ref=recordRef;
@@ -94,28 +106,28 @@
       if(token!==generation)return;
       const record=snapshot.val();
       const raw=typeof record==='string'?record:'';
-      if(record!==null&&typeof record!=='string'){setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
+      if(record!==null&&typeof record!=='string'){stopLoadTimer();setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
       if(!API.ready){
         let chosen=raw;
         const unsent=pendingLocal()&&readCache();
         if(unsent){chosen=unsent;setDirty(true);}
         if(chosen){
           try{client.apply(JSON.parse(chosen));}catch(error){
-            console.warn('[Ingemar] Kunde inte tolka synkad data',error);
+            stopLoadTimer();console.warn('[Ingemar] Kunde inte tolka synkad data',error);
             message('Sparade uppgifter kunde inte läsas. Kontakta administratören innan du ändrar något.',true);
             setStatus('Fel vid inläsning');return;
           }
         }else client.apply(null);
         lastRemote=raw||'';
         lastLocal=chosen||client.serialize();cache(lastLocal);
-        API.ready=true;connected=true;setGate(false);
+        stopLoadTimer();API.ready=true;connected=true;setGate(false);message('');
         setStatus(dirty?'Lokala ändringar väntar på synk':'Synkat via Firebase');
         if(dirty)queueWrite();
         return;
       }
       if(!dirty&&!saving&&raw!==lastRemote){
         try{client.apply(raw?JSON.parse(raw):null);lastLocal=raw||client.serialize();cache(lastLocal);}
-        catch(error){console.warn('[Ingemar] Ogiltig fjärrdata',error);setStatus('Fel vid uppdatering');}
+        catch(error){console.warn('[Ingemar] Ogiltig fjärrdata',error);setStatus('Fel vid uppdatering');return;}
       }
       lastRemote=raw||'';
       if(!dirty&&!saving)setStatus('Synkat via Firebase');
@@ -123,16 +135,17 @@
     recordHandler=handler;
     ref.on('value',handler,function(error){
       if(token!==generation)return;
-      connected=false;setGate(true);
-      setStatus('Firebase-åtkomst saknas');
-      message(errorMessage(error),true);
+      loadFailed(error);
     });
-    text('ingemar-account-email',user.email||'Mitt konto');
+    refresh();
   }
   async function refresh(){
     const ref=recordRef,handler=recordHandler;
-    if(!ref||!handler||saving||dirty)return;
-    try{const snapshot=await ref.get();if(ref===recordRef)handler(snapshot);}catch(_){/* Retry on the next poll; pending writes remain local. */}
+    if(!ref||!handler||saving||(dirty&&API.ready)||refreshPending)return;
+    refreshPending=true;const attempt=++readAttempt;
+    try{const snapshot=await ref.get();if(ref===recordRef&&attempt===readAttempt)handler(snapshot);}
+    catch(error){if(ref===recordRef&&attempt===readAttempt&&!API.ready)loadFailed(error);}
+    finally{if(ref===recordRef&&attempt===readAttempt)refreshPending=false;}
   }
   function queueWrite(){
     if(!API.canEdit||!dirty)return;
@@ -180,6 +193,8 @@
     if(register)register.addEventListener('click',()=>signIn(true));
     const logoutButton=el('ingemar-logout');
     if(logoutButton)logoutButton.addEventListener('click',()=>logout().catch(()=>message('Kunde inte logga ut.',true)));
+    const retry=el('ingemar-retry');
+    if(retry)retry.addEventListener('click',()=>{if(API.user){message('Försöker hämta träningsdata igen…');watchLoad();refresh();}});
     const gateLogout=el('ingemar-gate-logout');
     if(gateLogout)gateLogout.addEventListener('click',()=>logout().catch(()=>message('Kunde inte byta konto.',true)));
     try{
@@ -187,7 +202,7 @@
       app=firebase.apps.find(a=>a.name==='[DEFAULT]')||firebase.initializeApp(window.FIREBASE_CONFIG);
       auth=firebase.auth(app);db=firebase.database(app);
       auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(error=>console.warn('[Ingemar] Auth persistence',error));
-      auth.onAuthStateChanged(user=>activate(user),error=>{teardown();message(errorMessage(error),true);});
+      auth.onAuthStateChanged(user=>activate(user).catch(error=>loadFailed(error)),error=>{teardown();message(errorMessage(error),true);});
       retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();else refresh();},3000);
       window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
       window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});

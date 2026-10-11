@@ -110,3 +110,38 @@ test('Demo URL now opens the real profile and neither page exposes outgoing navi
  assert.doesNotMatch(html,/<a\s[^>]*href=/i);
  assert.doesNotMatch(redirect,/seed\(|localStorage/);
 });
+
+function loginFixture(mode){
+ const elements={},timers=new Map();let timerId=0,listener,readMode=mode,writes=0;
+ const el=id=>elements[id]||(elements[id]={value:'',dataset:{},textContent:'',handlers:{},addEventListener(type,fn){this.handlers[type]=fn;}});
+ const document={getElementById:el,documentElement:{dataset:{}},addEventListener(){}};
+ const read=()=>readMode==='denied'?Promise.reject({code:'PERMISSION_DENIED'}):readMode==='pending'?new Promise(()=>{}):Promise.resolve({val:()=>null});
+ const ref={on(type,fn,fail){if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok')fn({val:()=>null});},off(){},get:read,set(){writes++;return Promise.resolve();}};
+ const auth={setPersistence:async()=>{},onAuthStateChanged(fn){listener=fn;fn(null);},async signInWithEmailAndPassword(){listener({uid:'fixture',email:'test@example.invalid'});},async signOut(){listener(null);}};
+ const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
+ const firebase={apps:[],initializeApp:()=>({}),auth:authFn,database:()=>({ref:()=>ref})};
+ const window={firebase,FIREBASE_CONFIG:{},addEventListener(){},confirm:()=>true};
+ vm.runInNewContext(manager,{window,document,firebase,localStorage:{getItem:()=>null,setItem(){}},console,setTimeout(fn,ms){timers.set(++timerId,{fn,ms});return timerId;},clearTimeout(id){timers.delete(id);},setInterval(){return 1;}});
+ window.IngemarAccount.connect({apply(){},serialize:()=>'{"plans":{},"history":[],"zenHistory":[]}'});
+ el('ingemar-login-email').value='test@example.invalid';el('ingemar-login-password').value='test-password';
+ return {window,document,el,timers,setMode(value){readMode=value;},writes:()=>writes,async login(){el('ingemar-account-form').handlers.submit({preventDefault(){}});await new Promise(resolve=>setImmediate(resolve));}};
+}
+test('Successful authentication cannot overwrite a database permission error; retry recovers',async()=>{
+ const f=loginFixture('denied');await f.login();
+ assert.match(f.el('ingemar-account-message').textContent,/Firebase nekar åtkomst/);
+ assert.equal(f.el('ingemar-account-message').dataset.error,'true');
+ assert.equal(f.window.IngemarAccount.canEdit,false);
+ assert.equal(f.el('ingemar-account-gate').dataset.signedIn,'true');
+ assert.equal(f.writes(),0,'No writes when database access is denied');
+ f.setMode('ok');f.el('ingemar-retry').handlers.click();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(f.window.IngemarAccount.canEdit,true);
+ assert.equal(f.document.documentElement.dataset.ingemarAuth,'ready');
+});
+test('Unresponsive database produces a bounded error instead of endless loading',async()=>{
+ const f=loginFixture('pending');await f.login();
+ const timeout=[...f.timers.values()].find(t=>t.ms===12000);assert.ok(timeout);timeout.fn();
+ assert.match(f.el('ingemar-account-message').textContent,/databasen svarar inte/);
+ assert.equal(f.window.IngemarAccount.canEdit,false);
+ assert.equal(f.writes(),0);
+});

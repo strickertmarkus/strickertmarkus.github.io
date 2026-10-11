@@ -1,69 +1,38 @@
-# Ingemars egen träningssida – Firebase
+# Ingemars träningssida – aktuell Firebase-konfiguration
 
-## Öppna
+Sida: https://strickertmarkus.github.io/budget/ingemar.html
+Den tidigare demolänken öppnar samma sida. Fiktiva pass importeras inte.
 
-- Sida: `https://strickertmarkus.github.io/budget/ingemar.html`
-- Separat förhandsvisning (demodata): `/budget/ingemar-preview.html` (påverkas inte)
-- Eget konto skapas via **Skapa konto** på Ingemars sida. Därefter loggar han in med sin egen e-post och sitt lösenord.
-- Kontrollera i Firebase Console → Authentication → Sign-in method att **Email/Password** är aktiverat. Det här kan inte aktiveras från GitHub.
+## Konto och data
 
-## Databas
+Sidan använder projektet `frick-budget`, dess standardapp och Email/Password-inloggning, precis som familjens sidor. Ingemar kan skapa ett eget Authentication-konto. Att skapa kontot ger inte automatiskt tillgång till databasen.
 
-Firebase-projektet är samma som familjen redan använder (`frick-budget`), men sidan använder en **namngiven Firebase-app** (`ingemar-personal`) med separat autentiseringssession. Träningsdata sparas i Realtime Database under:
+Ingemars gemensamma profil ligger i Realtime Database på **`ex_ingemar`**, som en JSON-sträng med pass, planer, mallar, stretch/meditation och personliga rekord. Markus och Ingemar ska båda få läsa och skriva just denna nod. De äldre personliga uppgifterna under `ingemar_v1/<uid>/state` är orörda och används inte av denna version.
 
-```
-ingemar_v1/<firebase-auth-uid>/state
-  json: "{...alla träningspass, planer, mallar, stretch/meditation-logg...}"
-  updatedAt: Firebase server timestamp
-```
+## Behörighet – konfigurera i Firebase Console
 
-**Viktigt: aktivera säkerhetsregler innan sidan används för privata uppgifter.** Utan Firebase-regler som spärrar andra användare är en URL och användar-ID inte tillräckligt för integritet. Vi har ingen anslutning som får skriva reglerna direkt till det befintliga Firebase-projektet; ändra därför reglerna i Firebase Console → Realtime Database → Rules.
+Vi har ingen anslutning som kan läsa eller publicera projektets databasregler. Kontrollera därför aktuella regler innan ändring:
 
-Infoga följande **gren i befintliga `rules`**, utan att ersätta eller ta bort någon av familjens andra regler:
+1. Skapa Ingemars konto via sidan eller Authentication → Users.
+2. Hämta **User UID** för både Ingemars och Markus befintliga konto i Authentication → Users. Lösenord behövs inte.
+3. Öppna Realtime Database → Rules. Lägg till följande gren i det befintliga `rules`-objektet. Ersätt de två platshållarna med verifierade UID-värden. Behåll övriga regler.
 
 ```json
-"ingemar_v1": {
-  "$uid": {
-    ".read": "auth != null && auth.uid === $uid",
-    ".write": "auth != null && auth.uid === $uid"
-  }
+"ex_ingemar": {
+  ".read": "auth != null && (auth.uid === 'INGEMARS_UID' || auth.uid === 'MARKUS_UID')",
+  ".write": "auth != null && (auth.uid === 'INGEMARS_UID' || auth.uid === 'MARKUS_UID')"
 }
 ```
 
-Exempel endast för en databas som saknar andra regler:
+Publicera inte exemplet med platshållarna kvar. Granska också föräldraregler: en bredare tillåtelse på roten kan inte begränsas med denna barnregel. Att ta bort sidlänkar skyddar inte familjens andra data; reglerna måste även neka Ingemars konto åtkomst till de andra noderna om sådan åtkomst inte önskas. Ändra inte andra kontons befintliga behörighet utan att granska reglerna först.
 
-```json
-{
-  "rules": {
-    "ingemar_v1": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
-      }
-    }
-  }
-}
-```
+Testa läsa/skriva `ex_ingemar` med båda godkända UID:erna samt nekad åtkomst med ett annat UID i Rules Playground. Kontrollera därefter sparande och omladdning på sidan med båda riktiga kontona.
 
-Observera att en mer tillåtande regel **högre upp** (t.ex. `".read": true` eller `".write": true` under `rules`) kan tillåta åtkomst trots regler på barnnoden. Kontrollera därför även befintliga föräldraregler. Testa i Rules Playground med Ingemars UID och ett annat autentiserat UID: endast den förstnämnda ska kunna läsa och skriva hans gren.
+## Fel vid inloggning
 
-## Vad som synkas
+- **Firebase nekar åtkomst:** inloggningen fungerar, men databasreglerna måste kontrolleras enligt ovan. Ett nytt konto löser inte en saknad regel.
+- **Databasen svarar inte:** kontrollera nätanslutningen och välj **Försök igen**.
+- Inloggningsbekräftelsen får aldrig skriva över ett databasfel. Träningsvyn öppnas först när profilen har lästs korrekt.
+- Synk och rekord är testade med simulerad Firebase i WebKit. Riktiga regler och synk mellan produktionskonton måste verifieras separat.
 
-- Träningsplaner och egna pass
-- Genomförda styrke-/konditionspass och statistik
-- Träningsmallar, veckomallar och mål
-- Stretch och meditation: pass, dagplanering och loggar
-
-Första gången Ingemar loggar in börjar sidan **tom på historiska pass**, men standardövningar och färdiga Stretch/Meditation-rutiner finns tillgängliga. Förhandsvisningens **fiktiva loggar importeras inte automatiskt**.
-
-Data cachelagras per Firebase-UID i samma webbläsare. Vid nätverksproblem visas synkstatus och lokala ändringar försöker synkas på nytt. På flera samtidiga enheter används senaste skrivna kompletta datamängden (inte konfliktfri sammanslagning av parallella redigeringar), så undvik att redigera samma pass på två enheter samtidigt.
-
-## Om något inte fungerar
-
-1. Kontrollera att rätt Firebase-konto används i Ingemars inloggning.
-2. Kontrollera att Email/Password är aktivt.
-3. Kontrollera reglerna ovan inklusive att inga öppna föräldraregler gör datan läsbar.
-4. När Firebase ger `permission_denied`, låser sidan datavyn i stället för att ange att allt är synkat.
-5. Förändringar på `ingemar-preview.html` påverkar inte data på `ingemar.html`.
-
-Ingen API-hemlighet eller lösenord ska läggas in i GitHub. Firebase web-konfigurationen är en publik klientkonfiguration, inte en säkerhetsregel.
+Ändringar cachelagras lokalt och försöker synkas på nytt. Senaste kompletta skrivning gäller vid samtidiga redigeringar; detta är inte konfliktfri sammanslagning.
