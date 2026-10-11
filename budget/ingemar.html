@@ -1284,6 +1284,10 @@ function saveRecordEditor(){
  if(logged&&weight<logged.weight){
   toast('Ett högre rekord finns i träningsloggen. Redigera det loggade setet för att korrigera.');return;
  }
+ if(logged&&!state.manualPrs?.[recordEditKey]&&key===recordEditKey
+   &&weight===logged.weight&&date===(logged.date||'')){
+  closeRecordEditor();toast('Rekordet uppdateras redan automatiskt från träningsloggen.');return;
+ }
  if(!state.manualPrs)state.manualPrs={};
  if(recordEditKey&&recordEditKey!==key)delete state.manualPrs[recordEditKey];
  state.manualPrs[key]={name:name,weight:weight,date:date};
@@ -1297,7 +1301,7 @@ function removeRecordEditor(){
 }
 function openHistory(id){
  selectedHistoryId=id;
- var workout=state.history.find(function(h){return h.id===id;});
+ var workout=state.history.find(function(h){return String(h.id)===String(id);});
  if(!workout)return;
  $('history-detail-title').textContent=workout.name||workout.type;
  $('history-detail-sub').textContent=pretty(workout.date)+' · '+workout.minutes+' min · '+workout.type;
