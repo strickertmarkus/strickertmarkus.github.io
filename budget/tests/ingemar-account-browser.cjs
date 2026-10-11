@@ -159,7 +159,7 @@ const fs=require('node:fs');
  await page.screenshot({path:'test-results/ingemar-private/log-edit-320.png'});
  assert.equal(await page.locator('#history-editor').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Log editor may not overflow horizontally at 320px');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Document may not scroll horizontally when editing logs');
- await page.locator('[data-action="cancel-history-edit"]').click();
+ await page.locator('#history-editor .modal-actions [data-action="cancel-history-edit"]').click();
  await page.setViewportSize({width:390,height:844});
 
  // Manual PRs remain editable without changing completed workout set data.
