@@ -16,6 +16,30 @@ async function screenshotDuringBoot(page,path){
  finally{if(previous===undefined)delete process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY;else process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY=previous;}
 }
 
+async function verifyTouchDrag(page,label){
+ const cards=page.locator('#exercise-list > .exercise-card');
+ const names=await cards.locator('[data-exercise-name-input]').evaluateAll(els=>els.map(el=>el.value));
+ const handle=page.locator('[data-drag-exercise="0"]');await handle.scrollIntoViewIfNeeded();
+ const point=await handle.evaluate(el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2};});
+ await handle.dispatchEvent('pointerdown',{pointerId:91,pointerType:'touch',isPrimary:true,button:0,buttons:1,clientX:point.x,clientY:point.y});
+ const first=await page.locator('.builder-drag-ghost').boundingBox();
+ assert.equal(await page.locator('#builder > .builder-drag-ghost').count(),1,'Preview must belong to modal top layer');
+ await page.evaluate(p=>document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,pointerId:91,pointerType:'touch',clientX:p.x+18,clientY:p.y+65})),point);
+ const moved=await page.locator('.builder-drag-ghost').boundingBox();
+ assert.ok(Math.abs(moved.x-first.x-18)<2&&Math.abs(moved.y-first.y-65)<2,'Exercise must follow finger in both axes');
+ await page.screenshot({path:'test-results/ingemar-private/drag-follow-'+label+'.png'});
+ const scroll=await page.locator('#builder').evaluate(el=>el.scrollTop);
+ await page.evaluate(()=>{const r=document.getElementById('builder').getBoundingClientRect();document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,pointerId:91,pointerType:'touch',clientX:r.left+100,clientY:r.bottom-8}));});
+ await page.waitForFunction(before=>document.getElementById('builder').scrollTop>before+10,scroll);
+ await page.evaluate(()=>document.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:91,pointerType:'touch'})));
+ assert.equal(await page.locator('.builder-drag-ghost').count(),0);
+ assert.deepEqual(await cards.locator('[data-exercise-name-input]').evaluateAll(els=>els.map(el=>el.value)),names,'Cancelling drag must preserve order');
+ await handle.scrollIntoViewIfNeeded();
+ const start=await handle.evaluate(el=>{const r=el.getBoundingClientRect();return{x:r.left+10,y:r.top+10};});
+ await handle.dispatchEvent('pointerdown',{pointerId:92,pointerType:'touch',button:0,buttons:1,clientX:start.x,clientY:start.y});
+ await page.evaluate(()=>{const d=document.getElementById('builder');d.scrollTop=d.scrollHeight;const r=d.getBoundingClientRect();document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,pointerId:92,pointerType:'touch',clientX:r.left+100,clientY:r.bottom-5}));document.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:92,pointerType:'touch'}));});
+ assert.deepEqual(await cards.locator('[data-exercise-name-input]').evaluateAll(els=>els.map(el=>el.value)),names.slice(1).concat(names[0]),'Drop must persist exercise order');
+}
 (async()=>{
  const browser=await webkit.launch();
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -138,6 +162,15 @@ async function screenshotDuringBoot(page,path){
  assert.equal(await page.locator('#family-session-frame').getAttribute('src'),null);
  await page.locator('[data-choice="Push"]').click();
  await page.locator('#builder-start-from-builder').click();
+ await page.waitForSelector('#plan-preview[open]');
+ assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+ assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).plans).length),0,'Preview must not save the plan');
+ assert.match(await page.locator('#plan-preview-list').textContent(),/Bänkpress/);
+ await page.screenshot({path:'test-results/ingemar-private/plan-preview-390.png'});
+ await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
+ assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+ await page.locator('#builder-start-from-builder').click();
+ await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
@@ -223,6 +256,7 @@ async function screenshotDuringBoot(page,path){
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
  assert.match(await page.locator('#personal-records').textContent(),/Marklyft/);
+ await page.locator('[data-pr-filter="Pull"]').click();
  await page.locator('[data-pr-edit="Marklyft"]').click();
  assert.equal(await page.locator('#pr-edit-remove').isVisible(),true);
  page.once('dialog',dialog=>dialog.accept());
@@ -397,6 +431,61 @@ async function screenshotDuringBoot(page,path){
  await androidPage.screenshot({path:'test-results/ingemar-private/builder-android-432.png'});
  assert.equal(await androidPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
  assert.deepEqual(androidErrors,[],androidErrors.join(' | '));
+ // Focused records, preview and touch drag coverage on the existing Android page.
+ await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await androidPage.evaluate(()=>{
+  const make=(id,date,type,name,mode,values)=>({id,date,type,name:type,minutes:30,exercises:[{name,mode,sets:values.map(v=>({weight:mode==='kg'?v:0,minutes:mode==='min'?v:0,reps:8,done:true}))}]});
+  const data={plans:{},zenHistory:[],manualPrs:{},history:[make('p1','2026-10-01','Push','Bänkpress','kg',[40,50]),make('p2','2026-10-02','Push','Bänkpress','kg',[40,55]),make('pull','2026-10-02','Pull','Sittande rodd med smalt kabelhandtag','kg',[30,45]),make('run','2026-10-02','Kondition','Löpning','min',[10,15])]};
+  const raw=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify({ex_ingemar:raw}));localStorage.setItem('ex_ingemar',raw);localStorage.setItem('ex_ingemar_pending','0');
+ });
+ await androidPage.reload({waitUntil:'domcontentloaded'});await androidPage.waitForFunction(()=>IngemarAccount.canEdit);
+ await androidPage.locator('#personal-records').scrollIntoViewIfNeeded();
+ assert.match(await androidPage.locator('[data-pr-panel="Push"] .pr-gain').textContent(),/\+5 kg/);
+ await androidPage.screenshot({path:'test-results/ingemar-private/compact-records-push-android.png'});
+ await androidPage.locator('[data-pr-filter="Pull"]').click();
+ assert.match(await androidPage.locator('[data-pr-panel="Pull"]').textContent(),/Sittande rodd/);
+ await androidPage.locator('[data-pr-filter="Kondition"]').click();
+ assert.match(await androidPage.locator('[data-pr-panel="Kondition"]').textContent(),/25 min/);
+ await androidPage.screenshot({path:'test-results/ingemar-private/compact-records-cardio-android.png'});
+ await androidPage.locator('[data-pr-panel="Kondition"] .pr-row').click();
+ assert.match(await androidPage.locator('#history-detail-title').textContent(),/Kondition/);
+ await androidPage.locator('#history-detail .modal-head [data-action="close-history"]').click();
+ await androidPage.locator('[data-pr-filter="Push"]').click();await androidPage.locator('[data-pr-edit="Bänkpress"]').click();
+ await androidPage.locator('#pr-edit-weight').fill('60');await androidPage.locator('[data-action="save-record"]').click();
+ await androidPage.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).manualPrs?.['bänkpress']?.weight===60);
+ await androidPage.reload({waitUntil:'domcontentloaded'});await androidPage.waitForFunction(()=>IngemarAccount.canEdit);
+ assert.match(await androidPage.locator('[data-pr-panel="Push"] .pr-gain').textContent(),/\+5 kg/);
+ await androidPage.locator('[data-choice="Push"]').click();
+ await verifyTouchDrag(androidPage,'android');
+ await androidPage.locator('#builder-save-plan').click();await androidPage.waitForSelector('#plan-preview[open]');
+ await androidPage.screenshot({path:'test-results/ingemar-private/plan-preview-android.png'});
+ await androidPage.locator('#preview-save').click();
+ await androidPage.waitForFunction(()=>Object.keys(JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).plans).length===1);
+ assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),false);
+ // Verify the same compact rows and drag preview in iPhone WebKit at narrow widths.
+ const recordState=await androidContext.storageState();
+ const recordContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,storageState:recordState});
+ await recordContext.addInitScript(installFirebase);
+ await recordContext.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// stub'}));
+ await recordContext.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+ const recordPage=await recordContext.newPage();await recordPage.goto('http://127.0.0.1:4173/budget/ingemar.html');await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ for(const width of [390,320,1280]){
+  await recordPage.setViewportSize({width,height:width===1280?900:844});
+  await recordPage.locator('#personal-records').scrollIntoViewIfNeeded();
+  await recordPage.locator('[data-pr-filter="Pull"]').click();
+  assert.equal(await recordPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  assert.equal(await recordPage.locator('[data-pr-panel="Pull"] .pr-row').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+  await recordPage.screenshot({path:'test-results/ingemar-private/compact-records-'+width+'.png'});
+ }
+ await recordPage.setViewportSize({width:390,height:844});await recordPage.locator('[data-choice="Push"]').click();
+ await verifyTouchDrag(recordPage,'iphone');
+ await recordPage.locator('#builder-save-plan').click();await recordPage.waitForSelector('#plan-preview[open]');
+ await recordPage.setViewportSize({width:320,height:740});
+ assert.equal(await recordPage.locator('#plan-preview').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+ await recordPage.screenshot({path:'test-results/ingemar-private/plan-preview-320.png'});
+ await recordPage.locator('#plan-preview .modal-head [data-action="preview-back"]').click();
+ assert.equal(await recordPage.locator('#builder').evaluate(el=>el.open),true);
+ await recordContext.close();
  await android.close();
  await browser.close();console.log('Ingemar sync, records and iPhone/Android dialogs passed');
 })().catch(err=>{console.error(err);process.exit(1);});

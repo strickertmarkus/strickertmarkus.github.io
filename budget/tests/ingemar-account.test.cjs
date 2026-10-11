@@ -230,3 +230,33 @@ for(const owner of ['saved-user','different-user','signed-out'])test('Local star
  assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
  assert.equal(storage.has('ex_ingemar_verified_uid'),false);
 });
+
+test('Record increases compare workout maxima, respect chronology and rebuild after corrections',()=>{
+ const workout=(date,weights,type='Push')=>({id:date,date,type,exercises:[{name:'Bänkpress',mode:'kg',sets:weights.map(weight=>({weight,reps:8,done:true}))}]});
+ const history=[workout('2026-10-03',[30,55,45]),workout('2026-10-01',[25,50]),workout('2026-10-02',[45])];
+ let pr=IngemarRecords.collect(history)['bänkpress'];
+ assert.equal(pr.weight,55);assert.equal(pr.previousWeight,50);assert.equal(pr.gain,5);assert.equal(pr.group,'Push');
+ assert.equal(IngemarRecords.collect([history[0]])['bänkpress'].gain,0,'Warm-up sets in the first workout are not earlier PRs');
+ history[0].exercises[0].sets[1].weight=47.5;
+ pr=IngemarRecords.collect(history)['bänkpress'];assert.equal(pr.weight,50);assert.equal(pr.gain,0);
+ assert.equal(IngemarRecords.group('Marklyft'),'Pull');
+ assert.equal(IngemarRecords.group('Min egen övning','Pull'),'Pull');
+});
+test('Manual record increases persist, corrections do not invent gains and group overrides survive',()=>{
+ let manual=IngemarRecords.manualRecord(null,'Marklyft',100,'2026-10-01','Pull');
+ let pr=IngemarRecords.collect([],{marklyft:manual}).marklyft;assert.equal(pr.gain,0);
+ manual=IngemarRecords.manualRecord(pr,'Marklyft',105,'2026-10-02','Pull');
+ pr=IngemarRecords.collect([],JSON.parse(JSON.stringify({marklyft:manual}))).marklyft;
+ assert.equal(pr.gain,5);assert.equal(pr.previousWeight,100);assert.equal(pr.group,'Pull');
+ manual=IngemarRecords.manualRecord(pr,'Marklyft',103,'2026-10-02','Push');
+ pr=IngemarRecords.collect([],{marklyft:manual}).marklyft;assert.equal(pr.gain,3);assert.equal(pr.group,'Push');
+ manual=IngemarRecords.manualRecord(pr,'Marklyft',95,'2026-10-02','Pull');
+ assert.equal(IngemarRecords.collect([],{marklyft:manual}).marklyft.gain,0);
+});
+test('Cardio records use completed minutes per exercise and never mix in kilograms',()=>{
+ const w=(id,date,minutes)=>({id,date,type:'Kondition',exercises:[{name:'Löpning',mode:'min',sets:minutes.map(minutes=>({minutes,done:true}))}]});
+ const old=w('a','2026-10-01',[10,10]),latest=w('b','2026-10-03',[15,10]);latest.exercises[0].sets.push({minutes:999,done:true,skipped:true},{minutes:999,done:false});
+ const pr=IngemarRecords.cardio([latest,old,{...w('demo','2026-10-04',[999]),demo:true}])['löpning'];
+ assert.equal(pr.minutes,25);assert.equal(pr.gain,5);assert.equal(pr.group,'Kondition');assert.equal(pr.workoutId,'b');
+ assert.equal(Object.keys(IngemarRecords.collect([latest,old])).length,0);
+});

@@ -141,10 +141,16 @@ dialog input:not([type=checkbox]),dialog select,dialog textarea{font-size:16px!i
 dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;min-width:0;box-sizing:border-box}
 #history-editor .log-editor-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pr-section-head,.log-section-head{flex-wrap:wrap}
-#personal-records .history-row{flex-wrap:wrap}
-#personal-records .history-row>div:first-child{min-width:0;flex:1 1 120px}
-.pr-record-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;min-width:0;margin-left:auto}
-.pr-record-actions .mini{white-space:nowrap}
+#personal-records{--pr-accent:#d48b99}
+.pr-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0 0 10px;padding:4px;border:1px solid #ffffff10;border-radius:13px;background:#ffffff03}
+.pr-filter{min-width:0;min-height:40px;padding:7px 5px;border:1px solid transparent;border-radius:9px;background:transparent;color:#a29aa5;font-size:11px;font-weight:650}
+.pr-filter[data-pr-filter="Pull"]{--pr-accent:#a4c9c3}.pr-filter[data-pr-filter="Kondition"]{--pr-accent:#d9ae89}
+.pr-filter[aria-pressed=true]{background:#ffffff08;border-color:#ffffff18;color:var(--pr-accent)}.pr-filter span{margin-left:5px;font-size:9px;opacity:.7}
+.pr-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.pr-panel[hidden]{display:none}
+.pr-row{display:grid;grid-template-columns:minmax(0,1fr) max-content 14px;align-items:center;gap:10px;min-width:0;width:100%;min-height:58px;padding:10px 12px;text-align:left;color:var(--text);border:1px solid #ffffff12;border-radius:12px;background:linear-gradient(130deg,#ffffff04,#ffffff015)}
+.pr-row:hover{border-color:#bd697c60;background:#9c3e5309}.pr-name{min-width:0}.pr-name strong{display:block;font-size:12px;font-weight:600;overflow-wrap:anywhere;line-height:1.35}.pr-name small{display:block;color:#908995;font-size:9px;margin-top:3px}
+.pr-value{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;font-weight:650;color:#e4bac4}.pr-value small{display:block;font-size:9px;font-weight:500;margin-top:3px}.pr-gain{color:#a5d4b5}.pr-edit-icon{width:14px;height:14px;color:#a1808e}.pr-empty{grid-column:1/-1;margin:4px 0;font-size:11px;line-height:1.6;color:#9c909d}
+@media(max-width:740px){.pr-panel{grid-template-columns:minmax(0,1fr)}.pr-section-head h2{font-size:20px}.pr-section-head>.secondary{font-size:11px;padding:9px 11px}}
 .stat-goal-tools{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
 .stat-goal-tools span{white-space:nowrap}
@@ -200,6 +206,9 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 .account-strip{display:flex;align-items:center;gap:8px;min-width:0}#ingemar-sync-status[data-error="true"]{color:#ff9bac}#ingemar-sync-status{display:inline-flex;align-items:center;max-width:210px;font-size:10px;line-height:1.3;color:#cfa0b1}
 #ingemar-logout{border:1px solid #c0708845;color:#e0adbf;border-radius:999px;padding:7px 11px;background:transparent;font-size:10px;font-weight:700;white-space:nowrap}
 @media(max-width:740px){.account-strip{order:2;margin-left:auto}#ingemar-sync-status{max-width:125px;font-size:9px}#ingemar-logout{font-size:9px;padding:6px 8px}#ingemar-account-gate .account-card{padding:23px 17px}}
+#plan-preview{width:min(660px,calc(100dvw - 24px))}#plan-preview-meta{margin:6px 0 0}#plan-preview-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:#ddafba;font-size:11px}#plan-preview-summary span{border:1px solid #a7566b33;border-radius:8px;padding:7px 10px;background:#a7566b08}
+#plan-preview-list{list-style:none;padding:0;margin:0;display:grid;gap:9px}.plan-preview-exercise{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:12px;border:1px solid #ffffff13;border-radius:13px;background:#ffffff025}.plan-preview-number{color:#c17a8d;font-size:12px;padding-top:2px}.plan-preview-exercise h3{font-size:13px;margin:0 0 8px;overflow-wrap:anywhere}.plan-preview-sets{display:flex;flex-wrap:wrap;gap:5px}.plan-preview-sets span{font-size:11px;padding:5px 7px;border-radius:7px;background:#ffffff05;color:#d4c4cf}.plan-preview-sets small{color:#8c8290;margin-right:5px;font-size:9px}
+#plan-preview .modal-actions{position:sticky;bottom:-25px;padding:14px 0 0;background:#111520;gap:10px}#plan-preview .modal-actions .right{margin-left:auto}@media(max-width:740px){#plan-preview .modal-actions{bottom:-14px}#plan-preview .modal-actions .right{width:100%}#plan-preview .modal-actions .right button{flex:1;font-size:11px;padding:12px 8px}}
 </style>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
@@ -281,7 +290,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </section>
-  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><p class="hint">Maxvikten från genomförda set sparas automatiskt. Äldre rekord kan registreras manuellt.</p><div id="personal-records" class="history" aria-live="polite"></div>
+  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><p class="hint">Maxvikt och längsta konditionstid från sparade pass. Tryck på ett rekord för att redigera.</p><div id="personal-records" aria-live="polite"></div>
   <div class="section-head log-section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
@@ -374,12 +383,17 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  </div>
 </dialog>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="plan-preview" aria-labelledby="plan-preview-title">
+ <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
+ <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
+</dialog>
 <dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button><div class="right"><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
 <dialog id="pr-editor" aria-labelledby="pr-editor-title">
  <div class="modal-head"><div><span class="eyebrow">PERSONLIGA REKORD · INGEMAR</span><h2 id="pr-editor-title">Registrera rekord</h2></div><button type="button" class="x" data-action="cancel-record" aria-label="Stäng">×</button></div>
  <div class="modal-body">
   <p class="hint">Lägg till ett äldre rekord som saknas i loggen. Rekord från genomförda styrkeset uppdateras automatiskt.</p>
   <div class="field"><label for="pr-edit-name">Övning</label><input id="pr-edit-name" maxlength="90" placeholder="Exempelvis Bänkpress"></div>
+  <div class="field"><label for="pr-edit-group">Träningsform</label><select id="pr-edit-group"><option>Push</option><option>Pull</option><option>Kondition</option></select></div>
   <div class="field"><label for="pr-edit-weight">Rekordvikt (kg)</label><input id="pr-edit-weight" type="number" inputmode="decimal" min="0.5" max="9999" step="0.5"></div>
   <div class="field"><label for="pr-edit-date">Datum (valfritt)</label><div class="compact-date-control"><span class="compact-date-label" data-date-label-for="pr-edit-date" aria-hidden="true"></span><input id="pr-edit-date" type="date"></div></div>
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="remove-record" id="pr-edit-remove" hidden>Ta bort manuellt rekord</button><div class="right"><button type="button" class="secondary" data-action="cancel-record">Avbryt</button><button type="button" class="primary" data-action="save-record">Spara rekord ✓</button></div></div>
@@ -515,7 +529,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 </section>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script src="auth-config.js"></script>
-<script src="ingemar-records.js?v=20261011-shared-pr-1"></script>
+<script src="ingemar-records.js?v=20261011-compact-pr-2"></script>
 <script src="ingemar-account.js?v=20261011-local-first-2"></script>
 <script>
 (function(){
@@ -839,7 +853,7 @@ function migrateManualPrs(value){
  Object.keys(value.prs||{}).forEach(function(key){
   var item=value.prs[key],id=window.IngemarRecords.key(item&&item.name||key);
   if(item&&id&&!fromHistory[id]&&!manual[id]&&Number.isFinite(Number(item.weight))&&Number(item.weight)>0)
-   manual[id]={name:String(item.name||key),weight:Number(item.weight),date:item.date||''};
+   manual[id]=Object.assign({},item,{name:String(item.name||key),weight:Number(item.weight),date:item.date||''});
  });
  return manual;
 }
@@ -868,9 +882,25 @@ function glowBarsMarkup(points,kind){
  return points.map(function(point,i){var height=point.value?Math.max(7,Math.round(point.value/max*100)):3;return '<button type="button" class="zen-style-bar-cell" data-chart-bar="'+kind+'" data-bar-index="'+i+'" data-bar-label="'+clean(point.label)+'" data-bar-value="'+point.value+'" aria-label="'+clean(point.label)+': '+point.value+' '+(kind==='training'?'pass':'stunder')+'" aria-pressed="false"><span class="zen-style-bar-value">'+(point.value||'·')+'</span><span class="zen-style-bar-track"><span class="zen-style-bar-fill'+(point.value?'':' is-empty')+'" style="height:'+height+'%"><i></i></span></span><span class="zen-style-bar-label">'+clean(point.label)+'</span></button>';}).join('');
 }
 function selectGlowBar(button){if(!button)return;var kind=button.dataset.chartBar,holder=kind==='training'?'bars':'zen-bars';$(holder).querySelectorAll('[data-chart-bar]').forEach(function(item){item.setAttribute('aria-pressed',String(item===button));});$(holder+'-inspect').textContent=button.dataset.barLabel+' · '+button.dataset.barValue+' '+(kind==='training'?'pass':'stunder');}
+var recordGroup='Push',recordGroupChosen=false;
+function selectRecordGroup(group){
+ recordGroup=group;
+ $('personal-records').querySelectorAll('[data-pr-filter]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.prFilter===group));});
+ $('personal-records').querySelectorAll('[data-pr-panel]').forEach(function(panel){panel.hidden=panel.dataset.prPanel!==group;});
+}
 function renderRecords(){
  state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
- $('personal-records').innerHTML=Object.values(state.prs).sort(function(a,b){return a.name.localeCompare(b.name,'sv');}).map(function(record){return '<div class="history-row"><div><strong>'+clean(record.name)+'</strong><small>Personligt rekord'+(record.date?' · '+pretty(record.date):'')+'</small></div><div class="pr-record-actions"><span class="metric">Max '+record.weight.toLocaleString('sv-SE')+' kg</span><button type="button" class="mini" data-pr-edit="'+clean(record.name)+'" aria-label="Redigera rekord för '+clean(record.name)+'">Redigera</button></div></div>';}).join('')||'<p class="hint">Ditt första rekord visas när du sparar ett pass med genomförda styrkeset eller lägger till ett äldre rekord.</p>';
+ var records=Object.values(state.prs).concat(Object.values(window.IngemarRecords.cardio(state.history))),groups=['Push','Pull','Kondition'];
+ var icon='<svg class="pr-edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg>';
+ var filters='<div class="pr-filters" role="group" aria-label="Rekord per träningsform">'+groups.map(function(group){return '<button type="button" class="pr-filter" data-pr-filter="'+group+'" aria-pressed="'+String(recordGroup===group)+'" aria-controls="pr-panel-'+group+'">'+group+'<span>'+records.filter(function(r){return r.group===group;}).length+'</span></button>';}).join('')+'</div>';
+ $('personal-records').innerHTML=filters+groups.map(function(group){
+  var rows=records.filter(function(record){return record.group===group;}).sort(function(a,b){return a.name.localeCompare(b.name,'sv');});
+  return '<div id="pr-panel-'+group+'" class="pr-panel" data-pr-panel="'+group+'"'+(recordGroup===group?'':' hidden')+'>'+rows.map(function(record){
+   var timed=record.minutes!=null,unit=timed?' min':' kg',value=timed?record.minutes:record.weight;
+   var action=timed?'data-history="'+clean(record.workoutId)+'"':'data-pr-edit="'+clean(record.name)+'"';
+   return '<button type="button" class="pr-row" '+action+' aria-label="'+(timed?'Öppna passet för ':'Redigera rekord för ')+clean(record.name)+'"><span class="pr-name"><strong>'+clean(record.name)+'</strong><small>'+(record.date?pretty(record.date):'Datum saknas')+'</small></span><span class="pr-value">'+(timed?'':'Max ')+value.toLocaleString('sv-SE',{maximumFractionDigits:2})+unit+(record.gain>0?'<small class="pr-gain" title="Ökning från föregående rekord">+'+record.gain.toLocaleString('sv-SE',{maximumFractionDigits:2})+unit+'</small>':timed?'<small>Längsta tid</small>':'')+'</span>'+icon+'</button>';
+  }).join('')+(rows.length?'':'<p class="pr-empty">'+(group==='Kondition'?'Ditt första tidsrekord visas när du sparar genomförd konditionsträning.':'Inga rekord i '+group+' ännu. Spara ett styrkepass eller lägg till ett rekord.')+'</p>')+'</div>';
+ }).join('');
 }
 function render(){
  renderRecords();
@@ -1179,7 +1209,7 @@ function updateDraftFromBuilderInputs(){
  if(!$('builder').open||!draft)return;
  var name=$('build-name');if(name)draft.name=name.value;
  var date=$('build-date');if(date&&/^\d{4}-\d\d-\d\d$/.test(date.value))draft.date=date.value;
- document.querySelectorAll('#builder [data-name],[data-set]').forEach(updateDraftField);
+ document.querySelectorAll('#exercise-list [data-name],#exercise-list [data-set]').forEach(updateDraftField);
 }
 function copyDraftExercise(index){
  if(!draft||index<0||index>=draft.exercises.length)return;
@@ -1194,28 +1224,43 @@ function moveDraftExercise(from,to){
 function builderDragCards(){return Array.prototype.slice.call(document.querySelectorAll('#exercise-list > .exercise-card'));}
 function clearBuilderDragTarget(){builderDragCards().forEach(function(card){card.classList.remove('builder-drag-target');});}
 function startBuilderDrag(event,handle){
- if(!draft||!handle||event.button>0)return;
+ if(!draft||!handle||event.button>0||builderDrag)return;
  var card=handle.closest('.exercise-card'),index=Number(card&&card.dataset.exercise);if(!card||!Number.isFinite(index))return;
  updateDraftFromBuilderInputs();closeBuilderExercisePicker();var rect=card.getBoundingClientRect(),ghost=card.cloneNode(true);
- ghost.removeAttribute('data-exercise');ghost.classList.add('builder-drag-ghost');ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';document.body.appendChild(ghost);
- card.classList.add('builder-drag-source');builderDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost,offsetY:event.clientY-rect.top,left:rect.left,width:rect.width};
+ ghost.removeAttribute('data-exercise');ghost.querySelectorAll('[id]').forEach(function(el){el.removeAttribute('id');});ghost.inert=true;ghost.setAttribute('aria-hidden','true');
+ ghost.classList.add('builder-drag-ghost');ghost.style.left=rect.left+'px';ghost.style.top=rect.top+'px';ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';
+ // A modal lives in the browser top layer; its drag preview must live there too.
+ $('builder').appendChild(ghost);
+ card.classList.add('builder-drag-source');builderDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost,startX:event.clientX,startY:event.clientY,x:event.clientX,y:event.clientY,frame:0,lastTime:0};
  if(handle.setPointerCapture)try{handle.setPointerCapture(event.pointerId);}catch(e){}
- event.preventDefault();
+ builderDrag.frame=requestAnimationFrame(scrollBuilderDrag);event.preventDefault();
+}
+function positionBuilderDrag(){
+ if(!builderDrag)return;
+ var drag=builderDrag;drag.ghost.style.transform='translate3d('+(drag.x-drag.startX)+'px,'+(drag.y-drag.startY)+'px,0)';
+ var others=builderDragCards().filter(function(card){return card!==drag.card;}),to=0;
+ others.forEach(function(card){var r=card.getBoundingClientRect();if(drag.y>r.top+r.height/2)to++;});
+ drag.to=Math.max(0,Math.min(draft.exercises.length-1,to));clearBuilderDragTarget();
+ var target=others[Math.min(drag.to,Math.max(0,others.length-1))];if(target)target.classList.add('builder-drag-target');
+}
+function scrollBuilderDrag(time){
+ if(!builderDrag)return;
+ var drag=builderDrag,dialog=$('builder'),rect=dialog.getBoundingClientRect(),head=dialog.querySelector('.modal-head').getBoundingClientRect(),top=Math.max(rect.top,head.bottom),bottom=Math.min(innerHeight,rect.bottom),edge=65;
+ var speed=drag.y<top+edge?-Math.min(1,(top+edge-drag.y)/edge):drag.y>bottom-edge?Math.min(1,(drag.y-bottom+edge)/edge):0;
+ var elapsed=drag.lastTime?Math.min(32,time-drag.lastTime):16;drag.lastTime=time;
+ if(speed){dialog.scrollTop+=speed*elapsed*.55;positionBuilderDrag();}
+ drag.frame=requestAnimationFrame(scrollBuilderDrag);
 }
 function moveBuilderDrag(event){
  if(!builderDrag||event.pointerId!==builderDrag.pointerId)return;
- var y=event.clientY-builderDrag.offsetY;builderDrag.ghost.style.transform='translate3d(0,'+(y-parseFloat(builderDrag.ghost.style.top||0))+'px,0) scale(1.012)';
- var others=builderDragCards().filter(function(card){return card!==builderDrag.card;}),to=0;
- others.forEach(function(card){var r=card.getBoundingClientRect();if(event.clientY>r.top+r.height/2)to++;});
- builderDrag.to=Math.max(0,Math.min(draft.exercises.length-1,to));clearBuilderDragTarget();
- var target=others[Math.min(builderDrag.to,Math.max(0,others.length-1))];if(target)target.classList.add('builder-drag-target');
- event.preventDefault();
+ builderDrag.x=event.clientX;builderDrag.y=event.clientY;positionBuilderDrag();event.preventDefault();
 }
 function endBuilderDrag(event){
  if(!builderDrag||event&&event.pointerId!==builderDrag.pointerId)return;
- var stateDrag=builderDrag;builderDrag=null;clearBuilderDragTarget();if(stateDrag.ghost&&stateDrag.ghost.parentNode)stateDrag.ghost.remove();if(stateDrag.card)stateDrag.card.classList.remove('builder-drag-source');
- if(stateDrag.from!==stateDrag.to)moveDraftExercise(stateDrag.from,stateDrag.to);
+ var drag=builderDrag;builderDrag=null;cancelAnimationFrame(drag.frame);clearBuilderDragTarget();drag.ghost.remove();drag.card.classList.remove('builder-drag-source');
+ if(event&&event.type==='pointerup'&&drag.from!==drag.to)moveDraftExercise(drag.from,drag.to);
 }
+
 function openBuilder(type){
  builderWeekIndex=-1;
  var existing=plan(selected);
@@ -1250,16 +1295,39 @@ function updateDraftField(el){
  if(el.dataset.name!=null){draft.exercises[Number(el.dataset.name)].name=el.value;return;}
  if(el.dataset.set){var ids=el.dataset.set.split(':'),set=draft.exercises[Number(ids[0])].sets[Number(ids[1])],field=ids[2];set[field]=Math.max(0,Math.min(999,Number(el.value)||0));}
 }
-function saveDraft(){
+function validateDraft(){
  if(!draft)return false;
+ updateDraftFromBuilderInputs();
  if(!/^\d{4}-\d\d-\d\d$/.test(draft.date)){toast('Välj ett giltigt datum.');return false;}
  draft.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
  if(!draft.exercises.length||draft.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge varje övning och lägg till minst ett set.');return false;}
  if(draft.exercises.some(function(e){return e.sets.some(function(s){return e.mode==='kg'&&s.reps<=0||e.mode==='min'&&s.minutes<=0;});})){toast('Ange repetitioner eller minuter för varje set.');return false;}
  draft.name=draft.name.trim()||draft.type;
+ return true;
+}
+function saveDraft(){
+ if(!validateDraft())return false;
  if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;return true;}
  state.plans[draft.date]={type:draft.type,name:draft.name,exercises:deep(draft.exercises)};
  selected=draft.date;persist();render();return true;
+}
+function openPlanPreview(startAfter){
+ if(!validateDraft())return;
+ $('plan-preview-title').textContent=draft.name;
+ $('plan-preview-meta').textContent=pretty(draft.date)+' · '+draft.type;
+ var sets=0,minutes=0;draft.exercises.forEach(function(ex){sets+=ex.sets.length;if(ex.mode==='min')ex.sets.forEach(function(set){minutes+=Number(set.minutes)||0;});});
+ $('plan-preview-summary').innerHTML='<span>'+draft.exercises.length+' övningar</span><span>'+sets+' set</span>'+(minutes?'<span>'+minutes.toLocaleString('sv-SE')+' min kondition</span>':'');
+ $('plan-preview-list').innerHTML=draft.exercises.map(function(ex,index){return '<li class="plan-preview-exercise"><span class="plan-preview-number">'+pad(index+1)+'</span><div><h3>'+clean(ex.name)+'</h3><div class="plan-preview-sets">'+ex.sets.map(function(set,i){return '<span><small>'+pad(i+1)+'</small>'+(ex.mode==='min'?Number(set.minutes).toLocaleString('sv-SE')+' min':Number(set.weight).toLocaleString('sv-SE')+' kg × '+set.reps)+'</span>';}).join('')+'</div></div></li>';}).join('');
+ $('preview-save').textContent=builderWeekIndex>=0?'Spara i veckoplanen':'Spara pass';
+ $('preview-start').hidden=builderWeekIndex>=0;
+ $('preview-save').className=startAfter?'secondary':'primary';$('preview-start').className=startAfter?'primary':'secondary';
+ $('plan-preview').showModal();
+}
+function confirmPlanPreview(startAfter){
+ if(startAfter&&builderWeekIndex>=0)return;
+ if(!saveDraft())return;
+ var weekSave=builderWeekIndex>=0;$('plan-preview').close();$('builder').close();draft=null;
+ if(startAfter)start();else toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget har sparats.');
 }
 var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
 function familySessionFrame(){return $('family-session-frame');}
@@ -1272,7 +1340,8 @@ var recordEditKey='';
 function openRecordEditor(name){
  if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return;}
  var key=window.IngemarRecords.key(name),manual=state.manualPrs&&state.manualPrs[key],record=state.prs[key];
- recordEditKey=key;
+ recordEditKey=key;recordGroupChosen=false;
+ $('pr-edit-group').value=record?record.group:recordGroup;
  $('pr-editor-title').textContent=record?'Redigera rekord':'Lägg till rekord';
  $('pr-edit-name').value=record?record.name:(name||'');
  $('pr-edit-weight').value=record?record.weight:'';
@@ -1296,12 +1365,13 @@ function saveRecordEditor(){
   toast('Ett högre rekord finns i träningsloggen. Redigera det loggade setet för att korrigera.');return;
  }
  if(logged&&!state.manualPrs?.[recordEditKey]&&key===recordEditKey
-   &&weight===logged.weight&&date===(logged.date||'')){
+   &&weight===logged.weight&&date===(logged.date||'')&&$('pr-edit-group').value===logged.group){
   closeRecordEditor();toast('Rekordet uppdateras redan automatiskt från träningsloggen.');return;
  }
  if(!state.manualPrs)state.manualPrs={};
  if(recordEditKey&&recordEditKey!==key)delete state.manualPrs[recordEditKey];
- state.manualPrs[key]={name:name,weight:weight,date:date};
+ state.manualPrs[key]=window.IngemarRecords.manualRecord(state.prs[key],name,weight,date,$('pr-edit-group').value);
+ recordGroup=$('pr-edit-group').value;
  persist();render();closeRecordEditor();toast('Rekordet sparas i Firebase.');
 }
 function removeRecordEditor(){
@@ -1956,6 +2026,7 @@ document.addEventListener('click',function(event){
   state.goal=Math.max(1,Math.min(14,(Number(state.goal)||4)+Number(b.dataset.goalAdjust)));
   persist();render();return;
  }
+ if(b.dataset.prFilter!=null){selectRecordGroup(b.dataset.prFilter);return;}
  if(b.dataset.prEdit!=null){openRecordEditor(b.dataset.prEdit);return;}
  if(b.dataset.history){openHistory(b.dataset.history);return;}
  if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
@@ -2018,8 +2089,11 @@ document.addEventListener('click',function(event){
     draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));
     builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
-   case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget har sparats.');}break;
-   case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
+   case 'save-plan':openPlanPreview(false);break;
+   case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}openPlanPreview(true);break;
+   case 'preview-back':$('plan-preview').close();break;
+   case 'preview-save':confirmPlanPreview(false);break;
+   case 'preview-start':confirmPlanPreview(true);break;
    case 'close-history':$('history-detail').close();selectedHistoryId='';break;
    case 'new-history':openHistoryEditor('');break;
    case 'new-record':openRecordEditor('');break;
@@ -2055,6 +2129,7 @@ $('exercise-list').addEventListener('pointerdown',function(event){
 document.addEventListener('pointermove',moveBuilderDrag,{passive:false});
 document.addEventListener('pointerup',endBuilderDrag);
 document.addEventListener('pointercancel',endBuilderDrag);
+document.addEventListener('lostpointercapture',endBuilderDrag);
 $('exercise-list').addEventListener('click',function(event){
  var input=event.target.closest&&event.target.closest('[data-exercise-name-input]');
  if(!input||input.dataset.exerciseNameFree==='1')return;
@@ -2086,10 +2161,13 @@ document.addEventListener('input',function(event){
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
+$('plan-preview').addEventListener('cancel',function(event){event.preventDefault();$('plan-preview').close();});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
+$('pr-edit-group').addEventListener('change',function(){recordGroupChosen=true;});
+$('pr-edit-name').addEventListener('input',function(){if(!recordEditKey&&!recordGroupChosen)$('pr-edit-group').value=window.IngemarRecords.group(this.value);});
 $('pr-editor').addEventListener('cancel',function(event){event.preventDefault();closeRecordEditor();});
 $('pr-editor').addEventListener('close',function(){recordEditKey='';unlockBuilderBackground();});
 $('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';unlockBuilderBackground();});
