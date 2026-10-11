@@ -14,6 +14,9 @@ test('Ingemar production page has a shared login and no demo history bootstrap',
   assert.ok(source,'Ingemar training inline script exists');
   new vm.Script(source[1],{filename:'ingemar.html'});
   assert.match(html,/data-ingemar-auth="locked"/);
+  assert.match(html,/data-phase="restoring"/,'First paint must never be a login card');
+  assert.match(html,/id="ingemar-account-loading"/);
+  assert.match(html,/#ingemar-account-gate\[data-phase="restoring"\] \.account-card/);
   assert.match(html,/id="ingemar-account-form" hidden/,'Login controls must stay hidden until auth restoration resolves');
   assert.match(html,/ingemar-account\.js\?/);
   assert.match(source[1],/function emptyState\(\)/);
@@ -27,7 +30,7 @@ test('Firebase data remains isolated from Maja/Markus and shared across authenti
   const remote=new Map(),local=new Map(),callbacks=new Map(),elements={};
   const getElementById=id=>elements[id]||(elements[id]={
     id,value:'',textContent:'',dataset:{},hidden:false,disabled:false,
-    handlers:{},addEventListener(ev,fn){this.handlers[ev]=fn;}
+    handlers:{},addEventListener(ev,fn){this.handlers[ev]=fn;},setAttribute(name,value){this[name]=value;}
   });
   const document={documentElement:{dataset:{}},getElementById,addEventListener(){}};
   const storage={getItem:key=>local.has(key)?local.get(key):null,setItem:(key,v)=>{local.set(key,String(v));}};
@@ -66,10 +69,12 @@ test('Firebase data remains isolated from Maja/Markus and shared across authenti
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(window.IngemarAccount.canEdit,false);
   assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+  assert.equal(getElementById('ingemar-account-gate').dataset.phase,'login');
   listener({uid:'ingemar-uid-1',email:'example1@test.invalid'});
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(window.IngemarAccount.canEdit,true);
   assert.equal(document.documentElement.dataset.ingemarAuth,'ready');
+  assert.equal(getElementById('ingemar-account-gate').dataset.phase,'ready');
   assert.deepEqual(apps.map(a=>a.name),['[DEFAULT]']);
   const data={plans:{'2026-10-09':{name:'Styrka'}},history:[{id:'run1'}],zenHistory:[{id:'zen1'}]};
   window.IngemarAccount.save(data);
@@ -113,7 +118,7 @@ test('Demo URL now opens the real profile and neither page exposes outgoing navi
 
 function loginFixture(mode){
  const elements={},timers=new Map();let timerId=0,listener,readMode=mode,writes=0,subscriptions=0;
- const el=id=>elements[id]||(elements[id]={value:'',dataset:{},textContent:'',handlers:{},addEventListener(type,fn){this.handlers[type]=fn;}});
+ const el=id=>elements[id]||(elements[id]={value:'',dataset:{},textContent:'',handlers:{},hidden:false,addEventListener(type,fn){this.handlers[type]=fn;},setAttribute(name,value){this[name]=value;}});
  const document={getElementById:el,documentElement:{dataset:{}},addEventListener(){}};
  const read=()=>readMode==='denied'?Promise.reject({code:'PERMISSION_DENIED'}):readMode==='pending'?new Promise(()=>{}):Promise.resolve({val:()=>null});
  const ref={on(type,fn,fail){subscriptions++;if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok'||readMode==='write-denied')fn({val:()=>null});},off(){},get:read,set(){writes++;return readMode==='write-denied'?Promise.reject({code:'PERMISSION_DENIED'}):Promise.resolve();}};
@@ -133,6 +138,7 @@ test('Successful authentication cannot overwrite a database permission error; re
  assert.equal(f.window.IngemarAccount.canEdit,false);
  assert.equal(f.el('ingemar-account-gate').dataset.signedIn,'true');
  assert.equal(f.el('ingemar-account-form').hidden,true,'Signed-in retry gate must not request credentials again');
+ assert.equal(f.el('ingemar-account-gate').dataset.phase,'error');
  assert.equal(f.writes(),0,'No writes when database access is denied');
  f.setMode('ok');f.el('ingemar-retry').handlers.click();
  await new Promise(resolve=>setImmediate(resolve));
@@ -156,4 +162,26 @@ test('Denied Firebase writes remain pending and display a visible error',async()
  assert.equal(f.writes(),1);
  assert.match(f.el('ingemar-sync-status').textContent,/Firebase nekade sparningen/);
  assert.equal(f.el('ingemar-sync-status').dataset.error,'true');
+});
+
+test('Restoring a signed-in profile never reveals the login form during Firebase loading',async()=>{
+ let deliverAuth,deliverSnapshot;
+ const elements={};const el=id=>elements[id]||(elements[id]={dataset:{},hidden:id==='ingemar-account-form',textContent:'',setAttribute(){},addEventListener(){}});
+ const document={documentElement:{dataset:{ingemarAuth:'locked'}},getElementById:el,addEventListener(){}};
+ const auth={async setPersistence(){},onAuthStateChanged(fn){deliverAuth=fn;},currentUser:{uid:'saved-user',email:'saved@test.invalid'}};
+ const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
+ const firebase={apps:[],initializeApp(){return{name:'[DEFAULT]'}},auth:authFn,database:()=>({ref:()=>({on(type,cb){deliverSnapshot=cb;},off(){},get(){return Promise.resolve({val:()=>null});}})})};
+ const window={firebase,FIREBASE_CONFIG:{},addEventListener(){}};
+ vm.runInNewContext(manager,{window,document,firebase,localStorage:{getItem:()=>null,setItem(){}},console,setTimeout,clearTimeout,setInterval(){return 1;}});
+ window.IngemarAccount.connect({apply(){},serialize(){return '{"plans":{},"history":[],"zenHistory":[]}';}});
+ await new Promise(resolve=>setImmediate(resolve));
+ deliverAuth(auth.currentUser);
+ assert.equal(el('ingemar-account-gate').dataset.phase,'loading');
+ assert.equal(el('ingemar-account-form').hidden,true);
+ assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+ deliverSnapshot({val:()=>null});
+ assert.equal(el('ingemar-account-gate').dataset.phase,'ready');
+ assert.equal(el('ingemar-account-gate').hidden,true);
+ assert.equal(el('ingemar-account-form').hidden,true);
+ assert.equal(window.IngemarAccount.canEdit,true);
 });
