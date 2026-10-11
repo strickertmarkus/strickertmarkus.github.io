@@ -1,11 +1,10 @@
-/* Ingemar's personal Firebase Auth and Realtime Database adapter.
- * This module deliberately uses a named app, independent of the family's
- * default Firebase app. Data always lives under the authenticated user's UID.
- * Database rules MUST enforce auth.uid === $uid for this path. */
+/* Ingemar uses the family's default Firebase login and a dedicated shared
+ * top-level record, just like the separate Maja/Markus training keys.
+ * Only Ingemar's data is loaded here; existing private UID data is untouched. */
 (function () {
   'use strict';
-  const ROOT='ingemar_v1';
-  const LOCAL_PREFIX='ingemar_account_v1_';
+  const ROOT='ex_ingemar';
+  const LOCAL_KEY='ex_ingemar';
   const API={
     ready:false,
     user:null,
@@ -18,7 +17,7 @@
   window.IngemarAccount=API;
   let app,auth,db,recordRef=null,recordHandler=null,client=null,connected=false;
   let generation=0,writeTimer=null,dirty=false,saving=false,lastLocal='',lastRemote='',retryTimer=null;
-  let currentUid='',loginBusy=false;
+  let loginBusy=false;
 
   function el(id){return document.getElementById(id);}
   function text(id,value){const node=el(id);if(node)node.textContent=value;}
@@ -35,7 +34,7 @@
     const gate=el('ingemar-account-gate');
     if(gate){gate.hidden=!visible;gate.dataset.signedIn=API.user?'true':'false';}
   }
-  function localKey(){return LOCAL_PREFIX+currentUid;}
+  function localKey(){return LOCAL_KEY;}
   function cache(value){try{localStorage.setItem(localKey(),value);}catch(_){}}
   function readCache(){try{return localStorage.getItem(localKey());}catch(_){return null;}}
   function setDirty(value){
@@ -53,7 +52,7 @@
     if(code==='auth/invalid-credential'||code==='auth/wrong-password'||code==='auth/user-not-found')return 'Fel e-post eller lösenord.';
     if(code==='auth/operation-not-allowed')return 'E-postinloggning måste aktiveras i Firebase Authentication.';
     if(code==='auth/too-many-requests')return 'För många försök. Vänta en stund.';
-    if(code==='PERMISSION_DENIED'||code==='permission_denied')return 'Databasåtkomst nekades. Kontrollera reglerna för ingemar_v1.';
+    if(code==='PERMISSION_DENIED'||code==='permission_denied')return 'Databasåtkomst nekades. Kontrollera reglerna för ex_ingemar.';
     return 'Det gick inte att ansluta. Försök igen.';
   }
   function setBusy(busy){
@@ -78,23 +77,24 @@
     if(writeTimer){clearTimeout(writeTimer);writeTimer=null;}
     if(recordRef&&recordHandler)recordRef.off('value',recordHandler);
     recordRef=null;recordHandler=null;API.ready=false;API.user=null;
-    connected=false;dirty=false;saving=false;currentUid='';lastLocal='';lastRemote='';
+    connected=false;dirty=false;saving=false;lastLocal='';lastRemote='';
     setGate(true);
+    if(client)client.apply(null);
   }
   async function activate(user){
     teardown();
     if(!user){setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
     setGate(true);
     const token=generation;
-    currentUid=user.uid;
     API.user={uid:user.uid,email:user.email||''};
     message('Hämtar dina träningsuppgifter…');setStatus('Ansluter till Firebase…');
-    recordRef=db.ref(ROOT+'/'+user.uid+'/state');
+    recordRef=db.ref(ROOT);
     const ref=recordRef;
     const handler=function(snapshot){
       if(token!==generation)return;
       const record=snapshot.val();
-      const raw=record && typeof record.json==='string'?record.json:null;
+      const raw=typeof record==='string'?record:'';
+      if(record!==null&&typeof record!=='string'){setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
       if(!API.ready){
         let chosen=raw;
         const unsent=pendingLocal()&&readCache();
@@ -107,14 +107,14 @@
           }
         }else client.apply(null);
         lastRemote=raw||'';
-        lastLocal=chosen||client.serialize();
+        lastLocal=chosen||client.serialize();cache(lastLocal);
         API.ready=true;connected=true;setGate(false);
         setStatus(dirty?'Lokala ändringar väntar på synk':'Synkat via Firebase');
         if(dirty)queueWrite();
         return;
       }
-      if(!dirty&&!saving&&raw&&raw!==lastRemote){
-        try{client.apply(JSON.parse(raw));lastLocal=raw;cache(raw);}
+      if(!dirty&&!saving&&raw!==lastRemote){
+        try{client.apply(raw?JSON.parse(raw):null);lastLocal=raw||client.serialize();cache(lastLocal);}
         catch(error){console.warn('[Ingemar] Ogiltig fjärrdata',error);setStatus('Fel vid uppdatering');}
       }
       lastRemote=raw||'';
@@ -129,6 +129,11 @@
     });
     text('ingemar-account-email',user.email||'Mitt konto');
   }
+  async function refresh(){
+    const ref=recordRef,handler=recordHandler;
+    if(!ref||!handler||saving||dirty)return;
+    try{const snapshot=await ref.get();if(ref===recordRef)handler(snapshot);}catch(_){/* Retry on the next poll; pending writes remain local. */}
+  }
   function queueWrite(){
     if(!API.canEdit||!dirty)return;
     if(writeTimer)clearTimeout(writeTimer);
@@ -141,7 +146,7 @@
     const token=generation,raw=lastLocal,ref=recordRef;
     saving=true;
     try{
-      await ref.set({json:raw,updatedAt:firebase.database.ServerValue.TIMESTAMP});
+      await ref.set(raw);
       if(token!==generation)return;
       saving=false;
       if(raw===lastLocal){
@@ -179,14 +184,14 @@
     if(gateLogout)gateLogout.addEventListener('click',()=>logout().catch(()=>message('Kunde inte byta konto.',true)));
     try{
       if(!window.firebase||!window.FIREBASE_CONFIG)throw Error('Firebase SDK eller konfiguration saknas');
-      app=firebase.apps.find(a=>a.name==='ingemar-personal')||firebase.initializeApp(window.FIREBASE_CONFIG,'ingemar-personal');
+      app=firebase.apps.find(a=>a.name==='[DEFAULT]')||firebase.initializeApp(window.FIREBASE_CONFIG);
       auth=firebase.auth(app);db=firebase.database(app);
       auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(error=>console.warn('[Ingemar] Auth persistence',error));
       auth.onAuthStateChanged(user=>activate(user),error=>{teardown();message(errorMessage(error),true);});
-      retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},10000);
-      window.addEventListener('online',()=>{if(dirty)queueWrite();});
-      window.addEventListener('pageshow',()=>{if(dirty)queueWrite();});
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&dirty)queueWrite();});
+      retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();else refresh();},3000);
+      window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
+      window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
     }catch(error){message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
   }
 })();

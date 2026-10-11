@@ -2,7 +2,7 @@
 <html lang="sv" data-ingemar-auth="locked">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090d14"><title>Ingemars träning · Mitt konto</title>
+<meta name="theme-color" content="#090d14"><title>Ingemars träning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -150,14 +150,15 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script src="auth-config.js"></script>
-<script src="ingemar-account.js?v=20261009-private-v1"></script>
+<script src="ingemar-records.js?v=20261011-shared-pr-1"></script>
+<script src="ingemar-account.js?v=20261011-shared-pr-1"></script>
 </head>
 <body>
 <section id="ingemar-account-gate" aria-label="Ingemars personliga inloggning" data-signed-in="false">
  <div class="account-card">
   <div class="account-kicker">PULSEFLOW · INGEMARS TRÄNING</div>
-  <h1>Din träning. Ditt konto.</h1>
-  <p class="account-sub">Logga in med ett eget konto och synka pass, planer, logg, stretch och meditation mellan enheter.</p>
+  <h1>Din träning. Dina framsteg.</h1>
+  <p class="account-sub">Logga in för att spara och synka Ingemars pass, planer och personliga rekord mellan enheter.</p>
   <form id="ingemar-account-form">
    <label for="ingemar-login-email">E-post</label><input id="ingemar-login-email" type="email" autocomplete="email" required>
    <label for="ingemar-login-password">Lösenord</label><input id="ingemar-login-password" type="password" autocomplete="current-password" minlength="6" required>
@@ -165,7 +166,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   </form>
   <div id="ingemar-account-message" role="status" aria-live="polite">Ansluter till Firebase…</div>
   <button id="ingemar-gate-logout" type="button">Byt konto / logga ut</button>
-  <p class="account-private">Separat Firebase-inloggning och användarspecifik träningsdata.</p>
+  <p class="account-private">Ingemars träningsdata sparas separat från Maja och Markus. Markus kan också komma åt den här profilen.</p>
  </div>
 </section>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
@@ -226,6 +227,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </section>
+  <div class="section-head"><h2>Personliga rekord</h2></div><p class="hint">Maxvikten från dina genomförda styrkeset sparas automatiskt per övning.</p><div id="personal-records" class="history" aria-live="polite"></div>
   <div class="section-head"><h2>Träningslogg</h2></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
@@ -282,7 +284,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="section-head zen-section-head"><h2>Träningslogg</h2><div class="zen-section-actions"><span class="hint">Tryck på ett pass för detaljer eller redigering</span><button type="button" class="zen-inline-action" data-zen-action="log">＋ Registrera pass</button></div></div>
   <div class="history zen-history" id="zen-history"></div>
 </section>
-<p class="notice">Du är inloggad på din personliga träningssida. Pass, träningslogg och planering synkas med ditt Firebase-konto.</p>
+<p class="notice">Du är inloggad på din personliga träningssida. Pass, träningslogg och planering synkas med Ingemars profil i Firebase.</p>
 </main>
 
 <dialog id="zen-editor" class="zen-editor-dialog" aria-labelledby="zen-editor-title">
@@ -297,13 +299,13 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="zen-editor-steps-heading"><div><span class="eyebrow">PASSINNEHÅLL</span><strong>Steg, längd och instruktioner</strong></div><span id="zen-editor-duration">0 min</span></div>
   <div id="zen-edit-steps" class="zen-editor-steps"></div>
   <button type="button" class="zen-inline-action zen-add-step" data-zen-action="add-step">＋ Lägg till steg</button>
-  <p class="hint zen-edit-note">Ändringarna synkas till ditt konto. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
+  <p class="hint zen-edit-note">Ändringarna synkas till Ingemars profil. Originalpass kan redigeras utan att befintliga loggposter skrivs över.</p>
   <div class="modal-actions zen-editor-actions"><button type="button" class="ghost" data-zen-action="close-editor">Avbryt</button><div class="right"><button type="button" class="secondary" id="zen-edit-delete" data-zen-action="delete-entry" hidden>Ta bort</button><button type="button" class="secondary" id="zen-edit-save-start" data-zen-action="save-start">Spara &amp; starta ↗</button><button type="button" class="primary" data-zen-action="save-editor">Spara pass ✓</button></div></div>
  </div>
 </dialog>
 <dialog id="zen-day-dialog" class="zen-editor-dialog" aria-labelledby="zen-day-title">
  <div class="modal-head"><div><span class="eyebrow" id="zen-day-kind">STRETCH · VECKOPLAN</span><h2 id="zen-day-title">Planera dag</h2></div><button type="button" class="x" data-zen-action="close-day" aria-label="Stäng">×</button></div>
- <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen synkas med ditt konto och kan ändras när som helst.</p>
+ <div class="modal-body"><label class="field">Datum<input type="date" id="zen-day-date"></label><label class="field">Pass<select id="zen-day-routine"></select></label><p class="hint">Välj pass eller vilodag. Planeringen synkas med Ingemars profil och kan ändras när som helst.</p>
  <div class="modal-actions zen-day-actions"><button type="button" class="ghost" data-zen-action="close-day">Avbryt</button><button type="button" class="secondary" data-zen-action="start-day">Starta pass ↗</button><button type="button" class="primary" data-zen-action="save-day">Spara dagen ✓</button></div></div>
 </dialog>
 <dialog id="week-planner" aria-labelledby="week-planner-title">
@@ -317,7 +319,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med ditt konto.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button></div></div></dialog>
 <iframe id="family-session-frame" class="family-session-frame" src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
 <section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
@@ -745,12 +747,12 @@ function ensureZenData(value){
  value.zenHistory.forEach(function(item){if(!item.id)item.id=uid();});
  return value;
 }
-function emptyState(){return ensureZenData({plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],goal:4});}
+function emptyState(){return ensureZenData({plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],prs:{},goal:4});}
 function normalizeAccountState(value){
  if(!value)return emptyState();
  if(typeof value!=='object'||Array.isArray(value)||!value.plans||!Array.isArray(value.history)||!Array.isArray(value.zenHistory))throw Error('Ogiltiga träningsuppgifter');
  return ensureZenData({
-  plans:value.plans,history:value.history,zenHistory:value.zenHistory,
+  plans:value.plans,history:value.history,zenHistory:value.zenHistory,prs:window.IngemarRecords.collect(value.history,value.prs),
   templates:Array.isArray(value.templates)?value.templates:[],
   weekTemplates:Array.isArray(value.weekTemplates)?value.weekTemplates:[],
   goal:typeof value.goal==='number'?value.goal:4,zenRoutines:value.zenRoutines,
@@ -759,7 +761,7 @@ function normalizeAccountState(value){
 }
 function load(){return emptyState();}
 var state=load(),selected=dayISO(new Date()),view='training',draft=null,activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
-function persist(){if(!window.IngemarAccount.save(state))toast('Vänta på att kontot ansluts.');}
+function persist(){state.prs=window.IngemarRecords.collect(state.history,state.prs);if(!window.IngemarAccount.save(state))toast('Vänta på att kontot ansluts.');}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
@@ -770,7 +772,12 @@ function glowBarsMarkup(points,kind){
  return points.map(function(point,i){var height=point.value?Math.max(7,Math.round(point.value/max*100)):3;return '<button type="button" class="zen-style-bar-cell" data-chart-bar="'+kind+'" data-bar-index="'+i+'" data-bar-label="'+clean(point.label)+'" data-bar-value="'+point.value+'" aria-label="'+clean(point.label)+': '+point.value+' '+(kind==='training'?'pass':'stunder')+'" aria-pressed="false"><span class="zen-style-bar-value">'+(point.value||'·')+'</span><span class="zen-style-bar-track"><span class="zen-style-bar-fill'+(point.value?'':' is-empty')+'" style="height:'+height+'%"><i></i></span></span><span class="zen-style-bar-label">'+clean(point.label)+'</span></button>';}).join('');
 }
 function selectGlowBar(button){if(!button)return;var kind=button.dataset.chartBar,holder=kind==='training'?'bars':'zen-bars';$(holder).querySelectorAll('[data-chart-bar]').forEach(function(item){item.setAttribute('aria-pressed',String(item===button));});$(holder+'-inspect').textContent=button.dataset.barLabel+' · '+button.dataset.barValue+' '+(kind==='training'?'pass':'stunder');}
+function renderRecords(){
+ state.prs=window.IngemarRecords.collect(state.history,state.prs);
+ $('personal-records').innerHTML=Object.values(state.prs).sort(function(a,b){return a.name.localeCompare(b.name,'sv');}).map(function(record){return '<div class="history-row"><div><strong>'+clean(record.name)+'</strong><small>Personligt rekord'+(record.date?' · '+pretty(record.date):'')+'</small></div><span class="metric">Max '+record.weight.toLocaleString('sv-SE')+' kg</span></div>';}).join('')||'<p class="hint">Ditt första rekord visas när du sparar ett pass med genomförda styrkeset.</p>';
+}
 function render(){
+ renderRecords();
  var p=plan(selected),type=nextType();
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
  $('orbit-summary').textContent=p?p.exercises.length+' övningar · '+p.exercises.reduce(function(n,e){return n+e.sets.length;},0)+' set':'Välj eller bygg ett pass';
@@ -1050,7 +1057,7 @@ function builderTemplates(){if(!Array.isArray(state.templates))state.templates=[
 function renderBuilderTemplates(){
  var templates=builderTemplates(),select=$('builder-template-select');
  select.innerHTML='<option value="">'+(templates.length?'Välj mallpass':'Inga mallpass ännu')+'</option>'+templates.map(function(item){return '<option value="'+clean(item.id)+'" '+(String(item.id)===String(builderTemplateId)?'selected':'')+'>'+clean(item.name)+'</option>';}).join('');
- $('builder-template-hint').textContent=templates.length?templates.length+' sparade mallpass · synkas med ditt konto':'Mallar synkas med ditt konto.';
+ $('builder-template-hint').textContent=templates.length?templates.length+' sparade mallpass · synkas med Ingemars profil':'Mallar synkas med Ingemars profil.';
 }
 function saveBuilderTemplate(){
  if(!draft)return;
@@ -1165,7 +1172,7 @@ function familySessionFrame(){return $('family-session-frame');}
 function sendFamilySession(){var frame=familySessionFrame();if(!familySessionReady||!familySessionOpen||!pendingFamilySession||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'ingemar-family-session-start',workout:deep(pendingFamilySession.workout),date:pendingFamilySession.date},location.origin);pendingFamilySession=null;}
 function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
 function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;familySessionFrame().hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
-window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset sparas på ditt konto.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
+window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
 function openHistory(id){
  var workout=state.history.find(function(h){return h.id===id;});
  if(!workout)return;
@@ -1173,7 +1180,7 @@ function openHistory(id){
  $('history-detail-sub').textContent=pretty(workout.date)+' · '+workout.minutes+' min · '+workout.type;
  $('history-detail-body').innerHTML=workout.exercises.map(function(e){
   var timed=e.mode==='min';
-  return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.length+' set</span></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span></span></div>'+
+  return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.length+' set'+(!timed&&state.prs[window.IngemarRecords.key(e.name)]?' · PR '+state.prs[window.IngemarRecords.key(e.name)].weight+' kg':'')+'</span></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span></span></div>'+
    e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:#acffcb" aria-label="Klart">✓</span></div>';}).join('')+'</article>';
  }).join('');
  $('history-detail').showModal();
@@ -1655,7 +1662,7 @@ function finishZen(){
  state.zenHistory.push({id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:minutes,elapsedSeconds:Math.round(activeZen.elapsed),steps:deep(activeZen.steps),notes:''});
  persist();
  stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;
- renderZen();render();toast('Stunden sparas på ditt konto.');
+ renderZen();render();toast('Stunden sparas i Ingemars profil.');
 }
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
@@ -1730,7 +1737,7 @@ document.addEventListener('click',function(event){
     draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));
     builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
-   case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget sparades lokalt i demon.');}break;
+   case 'save-plan':if(saveDraft()){var weekSave=builderWeekIndex>=0;$('builder').close();draft=null;toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget har sparats.');}break;
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}if(saveDraft()){$('builder').close();draft=null;start();}break;
    case 'close-history':$('history-detail').close();break;
    
@@ -1797,7 +1804,7 @@ window.addEventListener('resize',function(){
 },{passive:true});
 if(ppChartGlowMq.addEventListener)ppChartGlowMq.addEventListener('change',schedulePpChartGlow);
 render();
-window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);selected=dayISO(new Date());render();},serialize:function(){return JSON.stringify(state);}});
+window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);selected=dayISO(new Date());render();if(view!=='training')renderZen();},serialize:function(){return JSON.stringify(state);}});
 })();
 </script>
 </body>
