@@ -7,7 +7,12 @@ async function screenshotDuringBoot(page,path){
  // capture the painted view while deferred SDK requests are deliberately held.
  const previous=process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY;
  process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY='1';
- try{await page.screenshot({path});}
+ try{
+   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+   const geometry=await page.evaluate(()=>[...document.querySelectorAll('#training-view > .section-head,#training-view > .choices')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:innerWidth};}));
+   assert.ok(geometry.every(r=>r.left>=0&&r.right<=r.width+1),'Early view must stay inside the mobile viewport: '+JSON.stringify(geometry));
+   await page.screenshot({path});
+ }
  finally{if(previous===undefined)delete process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY;else process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY=previous;}
 }
 
