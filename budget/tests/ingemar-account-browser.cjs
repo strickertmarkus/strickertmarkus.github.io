@@ -15,7 +15,7 @@ const fs=require('node:fs');
    function user(){const email=localStorage.getItem(AUTHKEY);return email?{uid:emailToUid(email),email}:null;}
    const auth={
      currentUser:user(),
-     setPersistence:async()=>{},
+     setPersistence:async()=>{await new Promise(resolve=>setTimeout(resolve,350));},
      onAuthStateChanged(fn){authListener=fn;queueMicrotask(()=>fn(user()));return()=>{};},
      signInWithEmailAndPassword:async(email,password)=>{
        if(password.length<6)throw {code:'auth/invalid-credential'};
@@ -47,6 +47,9 @@ const fs=require('node:fs');
  await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html',{waitUntil:'domcontentloaded'});
  await page.waitForURL('**/budget/ingemar.html');
  assert.equal(await page.title(),'Ingemars träning');
+ assert.equal(await page.locator('#ingemar-account-loading').isVisible(),true,'Initial load must show spinner, not credentials');
+ assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false,'Do not flash the login card on first paint');
+ await page.screenshot({path:'test-results/ingemar-private/boot-loader-390.png'});
  assert.equal(await page.locator('#ingemar-account-gate').isVisible(),true);
  assert.equal(await page.locator('main').isVisible(),false);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+2),true,'Login should not scroll the hidden training page');
@@ -75,6 +78,9 @@ const fs=require('node:fs');
  assert.equal(saved.history,1,'Finishing Zen stores the session in Ingemar account');
  await page.screenshot({path:'test-results/ingemar-private/synced-390.png',fullPage:true});
  await page.reload({waitUntil:'domcontentloaded'});
+ assert.equal(await page.locator('#ingemar-account-loading').isVisible(),true,'Signed-in reload must show loader');
+ assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false,'Signed-in reload must never show the login panel');
+ await page.screenshot({path:'test-results/ingemar-private/reload-loader-390.png'});
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
  await page.locator('[data-view="stretch"]').click();
  assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Zen log survives reload');
