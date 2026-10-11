@@ -215,7 +215,7 @@ const fs=require('node:fs');
  });
  assert.equal(template320,true,'All builder template buttons must fit 320px');
  await page.screenshot({path:'test-results/ingemar-private/builder-iphone-320.png'});
- await page.locator('#builder [data-action="close-builder"]').click();
+ await page.locator('#builder .modal-head [data-action="close-builder"]').click();
  await page.setViewportSize({width:390,height:844});
  await page.setViewportSize({width:320,height:740});
  await page.locator('#personal-records').scrollIntoViewIfNeeded();
@@ -314,7 +314,7 @@ const fs=require('node:fs');
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1','Exercise editing mode must persist after scrolling');
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').inputValue(),'Testövning Android');
  assert.equal(await androidPage.evaluate(()=>[...document.querySelectorAll('dialog input:not([type=checkbox]),dialog select,dialog textarea')].every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)),true,'Android form fonts must be at least 16px');
- await androidPage.locator('#builder [data-action="close-builder"]').click();
+ await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await androidPage.locator('[data-action="new-record"]').click();
  const dateOK=await androidPage.locator('#pr-editor .compact-date-control').evaluate(el=>{
    const r=el.getBoundingClientRect(),dlg=el.closest('dialog').getBoundingClientRect();
