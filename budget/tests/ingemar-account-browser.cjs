@@ -2,6 +2,15 @@
 const {webkit,chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+async function screenshotDuringBoot(page,path){
+ // FontFaceSet.ready waits for document loading too. These screenshots must
+ // capture the painted view while deferred SDK requests are deliberately held.
+ const previous=process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY;
+ process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY='1';
+ try{await page.screenshot({path});}
+ finally{if(previous===undefined)delete process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY;else process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY=previous;}
+}
+
 (async()=>{
  const browser=await webkit.launch();
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -92,7 +101,7 @@ const fs=require('node:fs');
  assert.equal(await page.locator('#ingemar-account-loading').isVisible(),false);
  assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false);
  assert.equal(await page.locator('main').isVisible(),true);
- await page.screenshot({path:'test-results/ingemar-private/before-firebase-390.png'});
+ await screenshotDuringBoot(page,'test-results/ingemar-private/before-firebase-390.png');
  releaseSdk();
  await page.waitForLoadState('domcontentloaded');
  await page.unroute('https://www.gstatic.com/firebasejs/**',delayedSdk);
@@ -288,7 +297,7 @@ const fs=require('node:fs');
  assert.match(await reopenedPage.locator('#personal-records').textContent(),/Max 47,5 kg/);
  assert.equal(await reopenedPage.evaluate(()=>IngemarAccount.canEdit),false);
  assert.equal(await reopenedPage.locator('main').evaluate(el=>el.inert),true);
- await reopenedPage.screenshot({path:'test-results/ingemar-private/reopened-before-firebase-390.png'});
+ await screenshotDuringBoot(reopenedPage,'test-results/ingemar-private/reopened-before-firebase-390.png');
  releaseReopened();
  await reopenedPage.waitForFunction(()=>IngemarAccount.canEdit);
  await reopenedPage.locator('#ingemar-logout').click();
