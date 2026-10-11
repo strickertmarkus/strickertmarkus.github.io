@@ -36,6 +36,7 @@
   function setGate(visible,phase){
     document.documentElement.dataset.ingemarAuth=visible?'locked':'ready';
     const main=el('ingemar-main');if(main)main.inert=!API.ready;
+    const logoutButton=el('ingemar-logout');if(logoutButton)logoutButton.disabled=!authResolved;
     const gate=el('ingemar-account-gate');
     const currentPhase=!visible?'ready':(phase||(authResolved?(API.user?'loading':'login'):'restoring'));
     if(gate){
@@ -51,13 +52,17 @@
   }
   function localKey(){return LOCAL_KEY;}
   function cache(value){try{localStorage.setItem(localKey(),value);if(API.user)localStorage.setItem(CACHE_OWNER,API.user.uid);}catch(_){}}
+  function forgetVerifiedCache(){try{localStorage.removeItem(CACHE_OWNER);}catch(_){}}
   function showVerifiedCache(){
     try{
-      if(localStorage.getItem(CACHE_OWNER)!==API.user.uid)return;
+      const owner=localStorage.getItem(CACHE_OWNER);
+      if(!owner||(API.user&&owner!==API.user.uid))return;
+      // This is a read-only copy already stored on this device, never proof
+      // of authentication. Only a fresh authorized snapshot enables saving.
       const raw=readCache();if(!raw)return;
       const value=JSON.parse(raw);if(!value||typeof value!=='object'||Array.isArray(value))return;
       client.apply(value);setGate(false);
-      setStatus('Visar sparad data · synkar…');
+      setStatus(API.user?'Visar sparad data · synkar…':'Visar sparad data · kontrollerar inloggning…');
     }catch(_){/* Invalid or unavailable cache falls back to the server. */}
   }
   function readCache(){try{return localStorage.getItem(localKey());}catch(_){return null;}}
@@ -104,7 +109,7 @@
     loadTimer=setTimeout(()=>{if(token===generation&&!API.ready)loadFailed({code:'load-timeout'});},12000);
   }
   function loadFailed(error){
-    if(/permission.denied/i.test(error&&error.code||'')){try{localStorage.removeItem(CACHE_OWNER);}catch(_){}}
+    if(/permission.denied/i.test(error&&error.code||''))forgetVerifiedCache();
     stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true,'error');
     setStatus(/permission.denied/i.test(error&&error.code||'')?'Firebase-åtkomst saknas':'Kunde inte hämta träningsdata');
     message(errorMessage(error)+(API.user&&/permission.denied/i.test(error&&error.code||'')?' (UID: '+API.user.uid+')':''),true);
@@ -121,7 +126,7 @@
   }
   async function activate(user){
     teardown();
-    if(!user){setGate(true,'login');setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
+    if(!user){forgetVerifiedCache();setGate(true,'login');setStatus('Inte inloggad');message('Logga in för att öppna din träningssida.');return;}
     const token=generation;
     API.user={uid:user.uid,email:user.email||''};
     setGate(true,'loading');watchLoad();
@@ -223,6 +228,7 @@
   }
   function connect(adapter){
     client=adapter;
+    showVerifiedCache();
     const login=el('ingemar-account-form');
     if(login)login.addEventListener('submit',event=>{event.preventDefault();signIn(false);});
     const register=el('ingemar-register-submit');
@@ -237,24 +243,30 @@
     }});
     const gateLogout=el('ingemar-gate-logout');
     if(gateLogout)gateLogout.addEventListener('click',()=>logout().catch(()=>message('Kunde inte byta konto.',true)));
-    try{
-      if(!window.firebase||!window.FIREBASE_CONFIG)throw Error('Firebase SDK eller konfiguration saknas');
-      app=firebase.apps.find(a=>a.name==='[DEFAULT]')||firebase.initializeApp(window.FIREBASE_CONFIG);
-      auth=firebase.auth(app);db=firebase.database(app);
-      // Wait until durable sign-in persistence is configured before resolving
-      // the restored session or accepting new credentials.
-      persistenceReady=auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .catch(error=>{persistenceWarning=true;console.warn('[Ingemar] Lokal inloggningslagring saknas',error);});
-      persistenceReady.then(()=>{
-        auth.onAuthStateChanged(user=>{
-          authResolved=true;
-          activate(user).catch(error=>loadFailed(error));
-        },error=>{authResolved=true;teardown();setGate(true,'error');message(errorMessage(error),true);});
-      });
-      retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
-      window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
-      window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
-    }catch(error){authResolved=true;setGate(true,'error');message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
+    function startFirebase(){
+      try{
+        if(!window.firebase||!window.FIREBASE_CONFIG)throw Error('Firebase SDK eller konfiguration saknas');
+        app=firebase.apps.find(a=>a.name==='[DEFAULT]')||firebase.initializeApp(window.FIREBASE_CONFIG);
+        auth=firebase.auth(app);db=firebase.database(app);
+        // Wait until durable sign-in persistence is configured before resolving
+        // the restored session or accepting new credentials.
+        persistenceReady=auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+          .catch(error=>{persistenceWarning=true;console.warn('[Ingemar] Lokal inloggningslagring saknas',error);});
+        persistenceReady.then(()=>{
+          auth.onAuthStateChanged(user=>{
+            authResolved=true;
+            activate(user).catch(error=>loadFailed(error));
+          },error=>{authResolved=true;forgetVerifiedCache();teardown();setGate(true,'error');message(errorMessage(error),true);});
+        });
+        retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
+        window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
+        window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
+      }catch(error){authResolved=true;setGate(true,'error');message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}
+    }
+    // The local view must render independently of deferred Firebase downloads
+    // and Auth initialization. DOMContentLoaded is only the network adapter's gate.
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startFirebase,{once:true});
+    else startFirebase();
   }
 })();

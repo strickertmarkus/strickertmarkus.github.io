@@ -5,7 +5,7 @@ const fs=require('node:fs');
 (async()=>{
  const browser=await webkit.launch();
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
- await context.addInitScript(()=>{
+ const installFirebase=()=>{
    // Firebase test double: never connects to a real account or database.
    const DBKEY='__ingemar_test_db',AUTHKEY='__ingemar_test_account';
    const observers=new Map();
@@ -38,7 +38,8 @@ const fs=require('node:fs');
    const dbFn=()=>({ref});dbFn.ServerValue={TIMESTAMP:1234};
    const apps=[];
    window.firebase={apps,initializeApp(config,name){const app={name:name||'[DEFAULT]'};apps.push(app);return app;},auth:authFn,database:dbFn};
- });
+ };
+ await context.addInitScript(installFirebase);
  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Firebase isolated test double installed by Playwright'}));
  await context.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
  await context.route('https://fonts.gstatic.com/**',r=>r.abort());
@@ -78,11 +79,24 @@ const fs=require('node:fs');
  assert.equal(saved.history,1,'Finishing Zen stores the session in Ingemar account');
  await page.screenshot({path:'test-results/ingemar-private/synced-390.png',fullPage:true});
  await page.evaluate(()=>{localStorage.setItem('__delay_ingemar','1');const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const data=JSON.parse(db.ex_ingemar);data.goal=7;db.ex_ingemar=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify(db));});
- await page.reload({waitUntil:'domcontentloaded'});
- assert.equal(await page.locator('#ingemar-account-loading').isVisible(),true,'Signed-in reload must show loader');
- assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false,'Signed-in reload must never show the login panel');
- await page.screenshot({path:'test-results/ingemar-private/reload-loader-390.png'});
- await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ // Keep every Firebase SDK request pending: local rendering must not wait for
+ // SDK downloads, DOMContentLoaded, Auth persistence, or the first snapshot.
+ let releaseSdk;const sdkGate=new Promise(resolve=>{releaseSdk=resolve;});
+ const delayedSdk=async route=>{await sdkGate;await route.fulfill({status:200,contentType:'application/javascript',body:'// isolated Firebase stub'});};
+ await page.route('https://www.gstatic.com/firebasejs/**',delayedSdk);
+ await page.reload({waitUntil:'commit'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]',{timeout:2000});
+ assert.notEqual(await page.evaluate(()=>document.readyState),'complete','View must render before deferred SDKs finish');
+ assert.equal(await page.evaluate(()=>firebase.apps.length),0,'No Firebase initialization before the local view');
+ assert.equal(await page.evaluate(()=>IngemarAccount.user),null,'Auth has not yet restored');
+ assert.equal(await page.locator('#ingemar-account-loading').isVisible(),false);
+ assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false);
+ assert.equal(await page.locator('main').isVisible(),true);
+ await page.screenshot({path:'test-results/ingemar-private/before-firebase-390.png'});
+ releaseSdk();
+ await page.waitForLoadState('domcontentloaded');
+ await page.unroute('https://www.gstatic.com/firebasejs/**',delayedSdk);
+ await page.waitForFunction(()=>!!IngemarAccount.user);
  assert.equal(await page.evaluate(()=>IngemarAccount.canEdit),false,'Cache may be visible while the first remote snapshot is pending');
  assert.equal(await page.locator('main').evaluate(el=>el.inert),true);
  assert.match(await page.locator('#ingemar-sync-status').textContent(),/Visar sparad data/);
@@ -262,6 +276,27 @@ const fs=require('node:fs');
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
  assert.match(await page.locator('#personal-records').textContent(),/Max 47,5 kg/);
  assert.deepEqual(errors,[],errors.join(' | '));
+ // Reopen with persisted storage and no warm JS/Auth memory.
+ const reopened=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,storageState:await context.storageState()});
+ await reopened.addInitScript(installFirebase);
+ let releaseReopened;const reopenedGate=new Promise(resolve=>{releaseReopened=resolve;});
+ await reopened.route('https://www.gstatic.com/firebasejs/**',async route=>{await reopenedGate;await route.fulfill({status:200,contentType:'application/javascript',body:'// isolated Firebase stub'});});
+ await reopened.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
+ const reopenedPage=await reopened.newPage();
+ await reopenedPage.goto('http://127.0.0.1:4173/budget/ingemar.html',{waitUntil:'commit'});
+ await reopenedPage.waitForSelector('html[data-ingemar-auth="ready"]',{timeout:2000});
+ assert.match(await reopenedPage.locator('#personal-records').textContent(),/Max 47,5 kg/);
+ assert.equal(await reopenedPage.evaluate(()=>IngemarAccount.canEdit),false);
+ assert.equal(await reopenedPage.locator('main').evaluate(el=>el.inert),true);
+ await reopenedPage.screenshot({path:'test-results/ingemar-private/reopened-before-firebase-390.png'});
+ releaseReopened();
+ await reopenedPage.waitForFunction(()=>IngemarAccount.canEdit);
+ await reopenedPage.locator('#ingemar-logout').click();
+ await reopenedPage.waitForSelector('html[data-ingemar-auth="locked"]');
+ assert.equal(await reopenedPage.evaluate(()=>localStorage.getItem('ex_ingemar_verified_uid')),null);
+ await reopenedPage.reload({waitUntil:'domcontentloaded'});
+ assert.equal(await reopenedPage.locator('main').isVisible(),false,'Signed-out browser must not restore the profile');
+ await reopened.close();
  // Android phone: touch scrolling must not close the exercise picker or edit mode.
  const android=await chromium.launch();
  const androidContext=await android.newContext({viewport:{width:412,height:915},deviceScaleFactor:2.75,isMobile:true,hasTouch:true});

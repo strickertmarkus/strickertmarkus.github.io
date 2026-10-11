@@ -191,19 +191,32 @@ test('Restoring a signed-in profile never reveals the login form during Firebase
  assert.equal(window.IngemarAccount.canEdit,true);
 });
 
-for(const owner of ['saved-user','different-user'])test('Cached startup waits for authentication and never overwrites remote data: '+owner,async()=>{
+for(const owner of ['saved-user','different-user','signed-out'])test('Local startup precedes Firebase but editing waits for authorization: '+owner,async()=>{
  let deliverAuth,deliverSnapshot,deny,applied,writes=0;
  const storage=new Map([['ex_ingemar_verified_uid',owner],['ex_ingemar',JSON.stringify({goal:3})]]);
  const elements={};const el=id=>elements[id]||(elements[id]={dataset:{},hidden:true,textContent:'',setAttribute(){},addEventListener(){}});
- const document={documentElement:{dataset:{ingemarAuth:'locked'}},getElementById:el,addEventListener(){}};
+ const events={};
+ const document={readyState:'loading',documentElement:{dataset:{ingemarAuth:'locked'}},getElementById:el,addEventListener(name,fn){events[name]=fn;}};
  const auth={async setPersistence(){},onAuthStateChanged(fn){deliverAuth=fn;}};
  const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
  const firebase={apps:[],initializeApp(){return{name:'[DEFAULT]'}},auth:authFn,database:()=>({ref:()=>({on(type,cb,fail){deliverSnapshot=cb;deny=fail;},off(){},set(){writes++;}})})};
  const window={firebase,FIREBASE_CONFIG:{},addEventListener(){}};
  vm.runInNewContext(manager,{window,document,firebase,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},console,setTimeout,clearTimeout,setInterval(){return 1;}});
  window.IngemarAccount.connect({apply(value){applied=value;},serialize:()=>JSON.stringify(applied)});
+ assert.equal(document.documentElement.dataset.ingemarAuth,'ready','Local copy renders before Firebase initialization');
+ assert.equal(applied.goal,3);
+ assert.equal(el('ingemar-main').inert,true);
+ assert.equal(window.IngemarAccount.save({goal:99}),false);
+ assert.equal(deliverAuth,undefined,'SDK initialization must not block local rendering');
+ events.DOMContentLoaded();
  await new Promise(resolve=>setImmediate(resolve));
- assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+ if(owner==='signed-out'){
+   deliverAuth(null);
+   assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+   assert.equal(applied,null);
+   assert.equal(storage.has('ex_ingemar_verified_uid'),false,'Signed-out sessions cannot restore local view next time');
+   return;
+ }
  deliverAuth({uid:'saved-user'});
  assert.equal(document.documentElement.dataset.ingemarAuth,owner==='saved-user'?'ready':'locked');
  assert.equal(el('ingemar-main').inert,true);
