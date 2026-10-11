@@ -190,3 +190,30 @@ test('Restoring a signed-in profile never reveals the login form during Firebase
  assert.equal(el('ingemar-account-form').hidden,true);
  assert.equal(window.IngemarAccount.canEdit,true);
 });
+
+for(const owner of ['saved-user','different-user'])test('Cached startup waits for authentication and never overwrites remote data: '+owner,async()=>{
+ let deliverAuth,deliverSnapshot,deny,applied,writes=0;
+ const storage=new Map([['ex_ingemar_verified_uid',owner],['ex_ingemar',JSON.stringify({goal:3})]]);
+ const elements={};const el=id=>elements[id]||(elements[id]={dataset:{},hidden:true,textContent:'',setAttribute(){},addEventListener(){}});
+ const document={documentElement:{dataset:{ingemarAuth:'locked'}},getElementById:el,addEventListener(){}};
+ const auth={async setPersistence(){},onAuthStateChanged(fn){deliverAuth=fn;}};
+ const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
+ const firebase={apps:[],initializeApp(){return{name:'[DEFAULT]'}},auth:authFn,database:()=>({ref:()=>({on(type,cb,fail){deliverSnapshot=cb;deny=fail;},off(){},set(){writes++;}})})};
+ const window={firebase,FIREBASE_CONFIG:{},addEventListener(){}};
+ vm.runInNewContext(manager,{window,document,firebase,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},console,setTimeout,clearTimeout,setInterval(){return 1;}});
+ window.IngemarAccount.connect({apply(value){applied=value;},serialize:()=>JSON.stringify(applied)});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+ deliverAuth({uid:'saved-user'});
+ assert.equal(document.documentElement.dataset.ingemarAuth,owner==='saved-user'?'ready':'locked');
+ assert.equal(el('ingemar-main').inert,true);
+ assert.equal(window.IngemarAccount.save({goal:99}),false);
+ deliverSnapshot({val:()=>JSON.stringify({goal:7})});
+ assert.equal(applied.goal,7,'Fresh server data replaces cache');
+ assert.equal(el('ingemar-main').inert,false);
+ assert.equal(window.IngemarAccount.canEdit,true);
+ assert.equal(writes,0,'Merely showing cache must not upload it');
+ deny({code:'PERMISSION_DENIED'});
+ assert.equal(document.documentElement.dataset.ingemarAuth,'locked');
+ assert.equal(storage.has('ex_ingemar_verified_uid'),false);
+});

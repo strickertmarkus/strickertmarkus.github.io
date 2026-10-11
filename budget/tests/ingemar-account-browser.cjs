@@ -28,7 +28,7 @@ const fs=require('node:fs');
      signOut:async()=>{localStorage.removeItem(AUTHKEY);auth.currentUser=null;authListener?.(null);}
    };
    function ref(path){return {
-     on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);queueMicrotask(()=>cb({val:()=>getDb()[path]||null}));},
+     on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);const deliver=()=>cb({val:()=>getDb()[path]||null});if(localStorage.getItem('__delay_ingemar'))window.__deliverIngemar=deliver;else queueMicrotask(deliver);},
      off(){observers.delete(path);},
      async get(){if(localStorage.getItem('__deny_ingemar'))throw {code:'PERMISSION_DENIED'};return {val:()=>getDb()[path]||null};},
      async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));
@@ -77,11 +77,21 @@ const fs=require('node:fs');
  assert.equal(saved.path,'ex_ingemar');
  assert.equal(saved.history,1,'Finishing Zen stores the session in Ingemar account');
  await page.screenshot({path:'test-results/ingemar-private/synced-390.png',fullPage:true});
+ await page.evaluate(()=>{localStorage.setItem('__delay_ingemar','1');const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const data=JSON.parse(db.ex_ingemar);data.goal=7;db.ex_ingemar=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify(db));});
  await page.reload({waitUntil:'domcontentloaded'});
  assert.equal(await page.locator('#ingemar-account-loading').isVisible(),true,'Signed-in reload must show loader');
  assert.equal(await page.locator('#ingemar-account-gate .account-card').isVisible(),false,'Signed-in reload must never show the login panel');
  await page.screenshot({path:'test-results/ingemar-private/reload-loader-390.png'});
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.equal(await page.evaluate(()=>IngemarAccount.canEdit),false,'Cache may be visible while the first remote snapshot is pending');
+ assert.equal(await page.locator('main').evaluate(el=>el.inert),true);
+ assert.match(await page.locator('#ingemar-sync-status').textContent(),/Visar sparad data/);
+ assert.equal(await page.locator('#family-session-frame').getAttribute('src'),null,'Session assets must not load on refresh');
+ await page.screenshot({path:'test-results/ingemar-private/cached-startup-390.png'});
+ await page.evaluate(()=>{localStorage.removeItem('__delay_ingemar');window.__deliverIngemar();});
+ await page.waitForFunction(()=>IngemarAccount.canEdit);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')).goal),7,'Newer remote data must replace old cache');
+ assert.equal(await page.locator('main').evaluate(el=>el.inert),false);
  await page.locator('[data-view="stretch"]').click();
  assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Zen log survives reload');
  await page.locator('#ingemar-logout').click();
@@ -95,6 +105,13 @@ const fs=require('node:fs');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2),true,'No unintended mobile horizontal overflow');
  assert.deepEqual(errors,[],errors.join(' | '));
  await page.locator('[data-view="training"]').click();
+ assert.equal(await page.locator('#family-session-frame').getAttribute('src'),null);
+ await page.locator('[data-choice="Push"]').click();
+ await page.locator('#builder-start-from-builder').click();
+ await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
+ await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
+ await page.waitForSelector('#family-session-frame',{state:'hidden'});
  // Use the real session bridge/save handler and verify that logged set weights become PRs.
  await page.evaluate(()=>{
   const frame=document.getElementById('family-session-frame');
@@ -269,7 +286,7 @@ const fs=require('node:fs');
      signOut:async()=>{localStorage.removeItem(AUTHKEY);auth.currentUser=null;authListener?.(null);}
    };
    function ref(path){return {
-     on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);queueMicrotask(()=>cb({val:()=>getDb()[path]||null}));},
+     on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);const deliver=()=>cb({val:()=>getDb()[path]||null});if(localStorage.getItem('__delay_ingemar'))window.__deliverIngemar=deliver;else queueMicrotask(deliver);},
      off(){observers.delete(path);},
      async get(){if(localStorage.getItem('__deny_ingemar'))throw {code:'PERMISSION_DENIED'};return {val:()=>getDb()[path]||null};},
      async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));

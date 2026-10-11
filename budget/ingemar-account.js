@@ -5,6 +5,7 @@
   'use strict';
   const ROOT='ex_ingemar';
   const LOCAL_KEY='ex_ingemar';
+  const CACHE_OWNER=LOCAL_KEY+'_verified_uid';
   const API={
     ready:false,
     user:null,
@@ -34,6 +35,7 @@
   }
   function setGate(visible,phase){
     document.documentElement.dataset.ingemarAuth=visible?'locked':'ready';
+    const main=el('ingemar-main');if(main)main.inert=!API.ready;
     const gate=el('ingemar-account-gate');
     const currentPhase=!visible?'ready':(phase||(authResolved?(API.user?'loading':'login'):'restoring'));
     if(gate){
@@ -48,7 +50,16 @@
     if(form)form.hidden=currentPhase!=='login';
   }
   function localKey(){return LOCAL_KEY;}
-  function cache(value){try{localStorage.setItem(localKey(),value);}catch(_){}}
+  function cache(value){try{localStorage.setItem(localKey(),value);if(API.user)localStorage.setItem(CACHE_OWNER,API.user.uid);}catch(_){}}
+  function showVerifiedCache(){
+    try{
+      if(localStorage.getItem(CACHE_OWNER)!==API.user.uid)return;
+      const raw=readCache();if(!raw)return;
+      const value=JSON.parse(raw);if(!value||typeof value!=='object'||Array.isArray(value))return;
+      client.apply(value);setGate(false);
+      setStatus('Visar sparad data · synkar…');
+    }catch(_){/* Invalid or unavailable cache falls back to the server. */}
+  }
   function readCache(){try{return localStorage.getItem(localKey());}catch(_){return null;}}
   function setDirty(value){
     dirty=value;
@@ -93,6 +104,7 @@
     loadTimer=setTimeout(()=>{if(token===generation&&!API.ready)loadFailed({code:'load-timeout'});},12000);
   }
   function loadFailed(error){
+    if(/permission.denied/i.test(error&&error.code||'')){try{localStorage.removeItem(CACHE_OWNER);}catch(_){}}
     stopLoadTimer();readAttempt++;refreshPending=false;connected=false;API.ready=false;setGate(true,'error');
     setStatus(/permission.denied/i.test(error&&error.code||'')?'Firebase-åtkomst saknas':'Kunde inte hämta träningsdata');
     message(errorMessage(error)+(API.user&&/permission.denied/i.test(error&&error.code||'')?' (UID: '+API.user.uid+')':''),true);
@@ -114,20 +126,21 @@
     API.user={uid:user.uid,email:user.email||''};
     setGate(true,'loading');watchLoad();
     message('Hämtar dina träningsuppgifter…');setStatus('Ansluter till Firebase…');
+    showVerifiedCache();
     recordRef=db.ref(ROOT);
     const ref=recordRef;
     const handler=function(snapshot){
       if(token!==generation)return;
       const record=snapshot.val();
       const raw=typeof record==='string'?record:'';
-      if(record!==null&&typeof record!=='string'){stopLoadTimer();setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
+      if(record!==null&&typeof record!=='string'){setGate(true,'error');stopLoadTimer();setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
       if(!API.ready){
         let chosen=raw;
         const unsent=pendingLocal()&&readCache();
         if(unsent){chosen=unsent;setDirty(true);}
         if(chosen){
           try{client.apply(JSON.parse(chosen));}catch(error){
-            stopLoadTimer();console.warn('[Ingemar] Kunde inte tolka synkad data',error);
+            setGate(true,'error');stopLoadTimer();console.warn('[Ingemar] Kunde inte tolka synkad data',error);
             message('Sparade uppgifter kunde inte läsas. Kontakta administratören innan du ändrar något.',true);
             setStatus('Fel vid inläsning');return;
           }

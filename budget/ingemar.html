@@ -201,12 +201,12 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #ingemar-logout{border:1px solid #c0708845;color:#e0adbf;border-radius:999px;padding:7px 11px;background:transparent;font-size:10px;font-weight:700;white-space:nowrap}
 @media(max-width:740px){.account-strip{order:2;margin-left:auto}#ingemar-sync-status{max-width:125px;font-size:9px}#ingemar-logout{font-size:9px;padding:6px 8px}#ingemar-account-gate .account-card{padding:23px 17px}}
 </style>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
-<script src="auth-config.js"></script>
-<script src="ingemar-records.js?v=20261011-shared-pr-1"></script>
-<script src="ingemar-account.js?v=20261011-no-login-flash-4"></script>
+<script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+<script defer src="auth-config.js"></script>
+<script defer src="ingemar-records.js?v=20261011-shared-pr-1"></script>
+<script defer src="ingemar-account.js?v=20261011-fast-start-1"></script>
 </head>
 <body>
 <section id="ingemar-account-gate" aria-label="Ingemars träning" data-signed-in="false" data-phase="restoring">
@@ -227,7 +227,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  </div>
 </section>
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
-<main>
+<main id="ingemar-main">
 <section id="training-view">
   <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><button type="button" class="primary" data-action="start">Starta valt pass ↗</button><button type="button" class="secondary" data-action="build">Bygg pass</button></div></div>
     <div class="zen-flow-visual training-flow-visual" aria-hidden="true">
@@ -402,7 +402,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
-<iframe id="family-session-frame" class="family-session-frame" src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
+<iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
 <section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
   <div class="zen-session-ambient" aria-hidden="true">
     <span class="zen-ambient-orb orb-a"></span><span class="zen-ambient-orb orb-b"></span>
@@ -518,7 +518,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 </section>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
-(function(){
+document.addEventListener('DOMContentLoaded',function(){
 'use strict';
 var ZEN_AUDIO_VOLUME_KEY='ingemar-zen-audio-volume-v2';
 var DAYS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
@@ -1265,7 +1265,7 @@ var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
 function familySessionFrame(){return $('family-session-frame');}
 function sendFamilySession(){var frame=familySessionFrame();if(!familySessionReady||!familySessionOpen||!pendingFamilySession||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'ingemar-family-session-start',workout:deep(pendingFamilySession.workout),date:pendingFamilySession.date},location.origin);pendingFamilySession=null;}
 function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
-function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;familySessionFrame().hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
+function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;var frame=familySessionFrame();if(!frame.getAttribute('src')){frame.src=frame.dataset.src;toast('Öppnar träningsläget…');}frame.hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
 window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
 var selectedHistoryId='',historyEditDraft=null,historyEditId='';
 var recordEditKey='';
@@ -2109,7 +2109,7 @@ window.addEventListener('resize',function(){
 if(ppChartGlowMq.addEventListener)ppChartGlowMq.addEventListener('change',schedulePpChartGlow);
 render();
 window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);selected=dayISO(new Date());render();if(view!=='training')renderZen();},serialize:function(){return JSON.stringify(state);}});
-})();
+},{once:true});
 </script>
 </body>
 </html>
