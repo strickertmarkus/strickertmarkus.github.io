@@ -1,10 +1,15 @@
-name: Ingemar private account verification
+name: Ingemar shared profile verification
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
       - 'budget/ingemar.html'
+      - 'budget/ingemar-preview.html'
+      - 'budget/ingemar-records.js'
+      - 'budget/ingemar-session/exercise.html'
       - 'budget/ingemar-account.js'
       - 'budget/ingemar-preview-modes.css'
       - 'budget/tests/ingemar-account.test.cjs'
@@ -21,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate personal Firebase account
+      - name: Validate shared profile and personal records
         run: |
           node --check budget/ingemar-account.js
           node --test budget/tests/ingemar-account.test.cjs
@@ -33,7 +38,7 @@ jobs:
         run: |
           python3 -m http.server 4173 --directory . >/tmp/ingemar-account-http.log 2>&1 &
           sleep 2
-      - name: Verify isolated login, sync and mobile visuals
+      - name: Verify login, shared sync, records and mobile visuals
         run: node budget/tests/ingemar-account-browser.cjs
       - name: Upload screenshots
         if: always()

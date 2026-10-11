@@ -30,21 +30,23 @@ const fs=require('node:fs');
    function ref(path){return {
      on(type,cb){observers.set(path,cb);queueMicrotask(()=>cb({val:()=>getDb()[path]||null}));},
      off(){observers.delete(path);},
-     async set(value){const db=getDb();db[path]={json:value.json,updatedAt:1234};localStorage.setItem(DBKEY,JSON.stringify(db));
+     async get(){return {val:()=>getDb()[path]||null};},
+     async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));
        const cb=observers.get(path);if(cb)cb({val:()=>db[path]});},
    };}
    const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
    const dbFn=()=>({ref});dbFn.ServerValue={TIMESTAMP:1234};
    const apps=[];
-   window.firebase={apps,initializeApp(config,name){const app={name};apps.push(app);return app;},auth:authFn,database:dbFn};
+   window.firebase={apps,initializeApp(config,name){const app={name:name||'[DEFAULT]'};apps.push(app);return app;},auth:authFn,database:dbFn};
  });
  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Firebase isolated test double installed by Playwright'}));
  await context.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
  await context.route('https://fonts.gstatic.com/**',r=>r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  fs.mkdirSync('test-results/ingemar-private',{recursive:true});
- await page.goto('http://127.0.0.1:4173/budget/ingemar.html',{waitUntil:'domcontentloaded'});
- assert.equal(await page.title(),'Ingemars träning · Mitt konto');
+ await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html',{waitUntil:'domcontentloaded'});
+ await page.waitForURL('**/budget/ingemar.html');
+ assert.equal(await page.title(),'Ingemars träning');
  assert.equal(await page.locator('#ingemar-account-gate').isVisible(),true);
  assert.equal(await page.locator('main').isVisible(),false);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+2),true,'Login should not scroll the hidden training page');
@@ -57,7 +59,7 @@ const fs=require('node:fs');
  assert.equal(await page.locator('main').isVisible(),true);
  assert.match(await page.locator('#ingemar-sync-status').textContent(),/Synkat/);
  const details=await page.evaluate(()=>({apps:firebase.apps.map(a=>a.name),db:JSON.parse(localStorage.getItem('__ingemar_test_db')||'{}')}));
- assert.deepEqual(details.apps,['ingemar-personal']);
+ assert.deepEqual(details.apps,['[DEFAULT]']);
  assert.equal(Object.keys(details.db).length,0,'Empty account should not receive seeded fake data');
  await page.locator('[data-view="stretch"]').click();
  await page.locator('#zen-main-start').click();
@@ -67,9 +69,9 @@ const fs=require('node:fs');
  await page.waitForFunction(()=>Object.keys(JSON.parse(localStorage.getItem('__ingemar_test_db')||'{}')).length===1);
  const saved=await page.evaluate(()=>{
     const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const path=Object.keys(db)[0];
-    return {path,history:JSON.parse(db[path].json).zenHistory.length};
+    return {path,history:JSON.parse(db[path]).zenHistory.length};
  });
- assert.equal(saved.path,'ingemar_v1/fixture-ingemar-fixture-test-invalid/state');
+ assert.equal(saved.path,'ex_ingemar');
  assert.equal(saved.history,1,'Finishing Zen stores the session in Ingemar account');
  await page.screenshot({path:'test-results/ingemar-private/synced-390.png',fullPage:true});
  await page.reload({waitUntil:'domcontentloaded'});
@@ -83,8 +85,34 @@ const fs=require('node:fs');
  await page.locator('#ingemar-register-submit').click();
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
  await page.locator('[data-view="stretch"]').click();
- assert.doesNotMatch(await page.locator('#zen-history').textContent(),/sparad stund/,'Second account must not see first account log');
+ assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Markus can read the same Ingemar profile with his own login');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2),true,'No unintended mobile horizontal overflow');
  assert.deepEqual(errors,[],errors.join(' | '));
- await browser.close();console.log('Separate Ingemar account, registration, Zen Firebase sync, reload and UID isolation passed');
+ await page.locator('[data-view="training"]').click();
+ // Use the real session bridge/save handler and verify that logged set weights become PRs.
+ await page.evaluate(()=>{
+  const frame=document.getElementById('family-session-frame');
+  const workout={id:'test-real-session',date:'2026-10-11',type:'Push',name:'Push · Styrka',minutes:35,exercises:[{name:'Bänkpress',mode:'kg',sets:[{weight:45,reps:8,done:true},{weight:52.5,reps:6,done:true}]},{name:'Triceps kabeldrag',mode:'kg',sets:[{weight:22.5,reps:10,done:true}]}]};
+  window.dispatchEvent(new MessageEvent('message',{origin:location.origin,source:frame.contentWindow,data:{type:'ingemar-family-session-saved',workout}}));
+ });
+ await page.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).prs?.['bänkpress']?.weight===52.5);
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForSelector('html[data-ingemar-auth="ready"]');
+ assert.match(await page.locator('#personal-records').textContent(),/Max 52,5 kg/);
+ assert.equal(await page.locator('a[href]').count(),0,'No links to other pages');
+ await page.locator('#personal-records').scrollIntoViewIfNeeded();
+ await page.screenshot({path:'test-results/ingemar-private/records-390.png'});
+ await page.locator('[data-history="test-real-session"]').click();
+ assert.match(await page.locator('#history-detail').textContent(),/PR 52.5 kg/);
+ await page.screenshot({path:'test-results/ingemar-private/record-details-390.png'});
+ await page.locator('#history-detail').evaluate(el=>el.close());
+ await page.setViewportSize({width:320,height:740});
+ await page.locator('#personal-records').scrollIntoViewIfNeeded();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+ await page.screenshot({path:'test-results/ingemar-private/records-320.png'});
+ await page.setViewportSize({width:1280,height:900});
+ await page.locator('#personal-records').scrollIntoViewIfNeeded();
+ await page.screenshot({path:'test-results/ingemar-private/records-desktop.png'});
+ assert.deepEqual(errors,[],errors.join(' | '));
+ await browser.close();console.log('Shared Ingemar profile, login, save, records, reload and mobile visuals passed');
 })().catch(err=>{console.error(err);process.exit(1);});

@@ -8,7 +8,7 @@ const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'ingemar.html'),'utf8');
 const manager=fs.readFileSync(path.join(root,'ingemar-account.js'),'utf8');
 
-test('Ingemar production page has a private login and no demo history bootstrap',()=>{
+test('Ingemar production page has a shared login and no demo history bootstrap',()=>{
   new vm.Script(manager,{filename:'ingemar-account.js'});
   const source=html.match(/<script>([\s\S]*?)<\/script>/);
   assert.ok(source,'Ingemar training inline script exists');
@@ -23,7 +23,7 @@ test('Ingemar production page has a private login and no demo history bootstrap'
   assert.doesNotMatch(html,/DEMO · FAKE DATA|Återställ demodata/);
 });
 
-test('Firebase sync is scoped by authenticated UID and persists across account switching',async()=>{
+test('Firebase data remains isolated from Maja/Markus and shared across authenticated accounts',async()=>{
   const remote=new Map(),local=new Map(),callbacks=new Map(),elements={};
   const getElementById=id=>elements[id]||(elements[id]={
     id,value:'',textContent:'',dataset:{},hidden:false,disabled:false,
@@ -34,7 +34,8 @@ test('Firebase sync is scoped by authenticated UID and persists across account s
   const userRef=path=>({
     on(event,fn){callbacks.set(path,fn);queueMicrotask(()=>fn({val:()=>remote.get(path)||null}));},
     off(){callbacks.delete(path);},
-    async set(value){remote.set(path,{json:value.json,updatedAt:1234});const fn=callbacks.get(path);if(fn)fn({val:()=>remote.get(path)});},
+    async get(){return {val:()=>remote.get(path)||null};},
+    async set(value){remote.set(path,value);const fn=callbacks.get(path);if(fn)fn({val:()=>remote.get(path)});},
   });
   let listener;
   const auth={
@@ -47,7 +48,7 @@ test('Firebase sync is scoped by authenticated UID and persists across account s
   const dbFn=()=>({ref:userRef});dbFn.ServerValue={TIMESTAMP:1234};
   const apps=[];const firebase={
     apps,
-    initializeApp(config,name){const app={name};apps.push(app);return app;},
+    initializeApp(config,name){const app={name:name||'[DEFAULT]'};apps.push(app);return app;},
     auth:authFn,database:dbFn
   };
   const window={
@@ -69,13 +70,13 @@ test('Firebase sync is scoped by authenticated UID and persists across account s
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(window.IngemarAccount.canEdit,true);
   assert.equal(document.documentElement.dataset.ingemarAuth,'ready');
-  assert.deepEqual(apps.map(a=>a.name),['ingemar-personal']);
+  assert.deepEqual(apps.map(a=>a.name),['[DEFAULT]']);
   const data={plans:{'2026-10-09':{name:'Styrka'}},history:[{id:'run1'}],zenHistory:[{id:'zen1'}]};
   window.IngemarAccount.save(data);
   await new Promise(resolve=>setTimeout(resolve,550));
-  assert.equal(remote.get('ingemar_v1/ingemar-uid-1/state').json,JSON.stringify(data));
+  assert.equal(remote.get('ex_ingemar'),JSON.stringify(data));
   assert.equal(window.IngemarAccount.status,'Synkat via Firebase');
-  assert.equal(local.get('ingemar_account_v1_ingemar-uid-1'),JSON.stringify(data));
+  assert.equal(local.get('ex_ingemar'),JSON.stringify(data));
   listener(null);
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(window.IngemarAccount.canEdit,false);
@@ -83,11 +84,29 @@ test('Firebase sync is scoped by authenticated UID and persists across account s
   listener({uid:'ingemar-uid-2',email:'example2@test.invalid'});
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(window.IngemarAccount.canEdit,true);
-  assert.equal(pages[pages.length-1],null);
-  assert.equal(remote.has('ingemar_v1/ingemar-uid-2/state'),false);
+  assert.equal(JSON.stringify(pages[pages.length-1]),JSON.stringify(data));
+  assert.deepEqual([...remote.keys()],['ex_ingemar']);
   listener(null);
   await new Promise(resolve=>setImmediate(resolve));
   listener({uid:'ingemar-uid-1',email:'example1@test.invalid'});
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(JSON.stringify(pages[pages.length-1]),JSON.stringify(data));
+});
+
+require('../ingemar-records.js');
+test('PRs use completed max weights, never demos, skipped sets, plans or cardio',()=>{
+ const ex=(name,weights,extra={})=>({name,mode:'kg',sets:weights.map(weight=>({weight,reps:8,done:true})),...extra});
+ const history=[{date:'2026-10-11',exercises:[ex('Bänkpress',[40,55,45]),ex(' BÄNKPRESS ',[60]),ex('Rodd',[35,42.5]),ex('Löpning',[200],{mode:'min'}),ex('Ej klart',[90],{sets:[{weight:90,reps:8,done:false}]}),ex('Överhoppat',[100],{sets:[{weight:100,reps:8,done:true,skipped:true}]})]}, {demo:true,exercises:[ex('Bänkpress',[999])]}];
+ const records=globalThis.IngemarRecords.collect(history);
+ assert.equal(records['bänkpress'].weight,60);
+ assert.equal(records.rodd.weight,42.5);
+ assert.equal(Object.keys(records).length,2);
+ assert.equal(globalThis.IngemarRecords.collect([{exercises:[ex('Bänkpress',[30])]}],records)['bänkpress'].weight,60);
+ assert.equal(globalThis.IngemarRecords.collect([{exercises:[ex('Bänkpress',[62.5])]}],records)['bänkpress'].weight,62.5);
+});
+test('Demo URL now opens the real profile and neither page exposes outgoing navigation',()=>{
+ const redirect=fs.readFileSync(path.join(root,'ingemar-preview.html'),'utf8');
+ assert.match(redirect,/location.replace\('ingemar.html'/);
+ assert.doesNotMatch(html,/<a\s[^>]*href=/i);
+ assert.doesNotMatch(redirect,/seed\(|localStorage/);
 });
