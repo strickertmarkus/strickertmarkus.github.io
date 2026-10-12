@@ -205,7 +205,8 @@
    const sy=sun.top+sun.height/2-rect.top;
    // Interpolate the runner's breathing snapshot; pause and reduced motion keep the light still.
    const drift=snapshot.paused||snapshot.preparing||reduced.matches?0:Math.min(.25,Math.max(0,now-sampledAt)/1000);
-   const cycle=((snapshot.cycle||0)+drift)%10;
+   const breathing=snapshot.breathing;
+   const phaseProgress=breathing?Math.min(1,breathing.progress+drift/breathing.seconds):0;
    const breath=(scale-.84)/.23,light=Math.max(0,Math.min(1,breath));
    c.save();c.globalCompositeOperation='screen';
    glow(c,sx,sy,Math.min(width*.85,height*.43),'255,239,174',.09+light*.07);
@@ -216,8 +217,8 @@
     beam.addColorStop(0,'rgba(255,239,176,0)');beam.addColorStop(.17,'rgba(255,239,176,.055)');beam.addColorStop(.5,'rgba(255,243,193,.028)');beam.addColorStop(1,'rgba(255,243,193,0)');
     c.fillStyle=beam;c.beginPath();c.moveTo(x,0);c.lineTo(x+width*.025,0);c.lineTo(x-width*.20,horizon+height*.16);c.lineTo(x-width*.32,horizon+height*.16);c.closePath();c.fill();
    }
-   if(snapshot.guided&&!snapshot.preparing&&!reduced.matches){
-    const q=cycle<4?cycle/4:(cycle-4)/6;
+   if(snapshot.guided&&!snapshot.preparing&&!reduced.matches&&['inhale','exhale'].includes(breathing?.id)){
+    const q=phaseProgress;
     const radius=sun.width*.38*scale+q*Math.min(width*.65,240),alpha=Math.sin(q*Math.PI)*.14;
     const wave=c.createRadialGradient(sx,sy,radius*.28,sx,sy,radius);
     wave.addColorStop(0,'rgba(255,246,196,0)');wave.addColorStop(.48,`rgba(255,240,169,${alpha*.4})`);wave.addColorStop(.72,`rgba(255,246,196,${alpha})`);wave.addColorStop(1,'rgba(255,246,196,0)');

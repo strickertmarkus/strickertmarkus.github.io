@@ -37,9 +37,10 @@ jobs:
       - name: Verify distinct sessions on mobile and desktop
         run: |
           python3 -m http.server 4173 --directory . >/tmp/zen-http.log 2>&1 &
+          node budget/tests/zen-meditation-builder-browser.cjs
           node budget/tests/zen-session-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zen-session-screenshots
-          path: test-results/zen-sessions
+          path: test-results/zen-*

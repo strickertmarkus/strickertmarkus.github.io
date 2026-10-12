@@ -28,10 +28,33 @@
   ];
   const duration=r=>r.kind==='stretch'?r.steps.reduce((sum,s)=>sum+s.seconds,0):r.seconds;
   const clone=o=>JSON.parse(JSON.stringify(o));
+  const defaultBreathing={inhale:4,holdIn:0,exhale:6,holdOut:0};
+  const breathingSettings=r=>({...defaultBreathing,...r.breathing});
+  function breathingValid(r){
+    if(r.breathing!==undefined&&(!r.breathing||typeof r.breathing!=='object'||Array.isArray(r.breathing)))return false;
+    const b=breathingSettings(r);
+    return Object.keys(defaultBreathing).every(k=>Number.isInteger(b[k])&&b[k]>=(k==='inhale'||k==='exhale'?1:0)&&b[k]<=30);
+  }
+  function breathState(r,elapsed){
+    const b=breathingSettings(r),phases=[['inhale','Andas in',b.inhale],['holdIn','Andningspaus',b.holdIn],['exhale','Andas ut',b.exhale],['holdOut','Andningspaus',b.holdOut]].filter(p=>p[2]>0);
+    const total=phases.reduce((n,p)=>n+p[2],0),cycle=Math.max(0,elapsed)%total;
+    let offset=0;
+    for(const [id,label,seconds] of phases){
+      if(cycle<offset+seconds){const progress=(cycle-offset)/seconds,smooth=(1-Math.cos(Math.PI*progress))/2;
+        const expansion=id==='inhale'?smooth:id==='exhale'?1-smooth:id==='holdIn'?1:0;
+        return {id,label,seconds,progress,cycle,total,scale:.84+.23*expansion};
+      }offset+=seconds;
+    }
+  }
+  function breathingSummary(r){
+    if(r.guidance==='silent')return 'Egen andning · utan guide';
+    const b=breathingSettings(r);
+    return [b.inhale+' s in',b.holdIn?b.holdIn+' s paus':null,b.exhale+' s ut',b.holdOut?b.holdOut+' s paus':null].filter(Boolean).join(' · ');
+  }
   function routineValid(r){
     return !!r&&typeof r.id==='string'&&r.id.length<100&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=80&&
       ((r.kind==='stretch'&&Array.isArray(r.steps)&&r.steps.length>0&&r.steps.length<=20&&r.steps.every(s=>s&&typeof s.name==='string'&&s.name.length<=100&&typeof s.cue==='string'&&s.cue.length<=500&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600))||
-      (r.kind==='meditation'&&Number.isInteger(r.seconds)&&r.seconds>=60&&r.seconds<=3600&&['breath','silent'].includes(r.guidance)));
+      (r.kind==='meditation'&&Number.isInteger(r.seconds)&&r.seconds>=60&&r.seconds<=3600&&['breath','silent'].includes(r.guidance)&&breathingValid(r)));
   }
   function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,workMs:0,workAnchor:now,paused:false};}
   function elapsed(s,now){return Math.min(duration(s.routine)*1000,Math.max(0,s.elapsedMs+(s.paused?0:Math.max(0,now-s.anchor))));}
@@ -73,5 +96,5 @@
     return e.type==='session'&&['stretch','meditation'].includes(e.kind)&&typeof e.name==='string'&&e.name.length<=80&&Number.isFinite(e.completedAt)&&e.completedAt>0&&e.completedAt<=8640000000000000&&Number.isFinite(e.seconds)&&e.seconds>=1&&e.seconds<=12000&&typeof e.note==='string'&&e.note.length<=500&&['','lighter','calm','present'].includes(e.feeling);
   }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {poses,routines,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });

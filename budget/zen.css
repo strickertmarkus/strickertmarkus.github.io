@@ -1044,6 +1044,18 @@ textarea {
   margin: 18px 0;
 }
 
+.meditation-rhythm{min-width:0;margin:22px 0 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--accent-rgb),.035)}
+.meditation-rhythm legend{font:500 19px var(--serif);padding:0 8px;color:var(--text)}
+.breath-presets{display:flex;flex-wrap:wrap;gap:6px}
+.breath-presets button{flex:1;min-height:44px;white-space:nowrap;padding:8px;border:1px solid var(--line);border-radius:24px;background:transparent;color:var(--text);font-size:12px}
+.breath-presets button[aria-pressed=true]{background:rgba(var(--accent-rgb),.13);box-shadow:0 0 16px rgba(var(--accent-rgb),.1);border-color:var(--muted)}
+.breath-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
+.breath-fields input{width:100%;font-size:16px}
+.breath-fields label{line-height:1.5}
+.breath-summary{font-size:13px;line-height:1.8;color:var(--text);padding:12px 0;border-bottom:1px solid var(--line)}
+.meditation-rhythm .subtle-text{font-size:12px;line-height:1.6;margin:12px 0 0}
+body[data-kind=meditation] #builder-dialog{background:#b9cec5}
+
 .builder-step {
   display: grid;
   grid-template-columns: 36px minmax(0,1fr) 72px 38px;
