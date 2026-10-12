@@ -69,8 +69,9 @@ body[data-kind=stretch] #breath-label,body[data-kind=stretch] #session-phase-det
 .session-view.is-rest .session-copy{opacity:.8}
 .session-view.step-changing .session-copy{animation:session-copy-in .55s ease both}
 body.is-paused .session-stage{opacity:.65}
+body[data-kind=meditation][data-session-view=session]{background:#081f23}
 /* Meditation: a quiet horizontal shore, with an empty center around the sun. */
-body[data-kind=meditation] .session-view{--ink:#f5ecd6;--soft:#cbdbcf;--light:#f3dca2;background:#183f39}
+body[data-kind=meditation] .session-view{--ink:#f5ecd6;--soft:#cbdbcf;--light:#fff0b5;background:#081f23}
 body[data-kind=meditation] .session-top{border:0;opacity:.85}
 body[data-kind=meditation] .session-layout{height:100%;display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(100px,1fr) auto auto;justify-items:center;gap:12px;max-width:900px;position:relative;padding:24px 0 8px}
 body[data-kind=meditation] .session-copy{text-align:center;max-width:100%;position:static;grid-column:1;grid-row:1;width:100%}
@@ -78,11 +79,11 @@ body[data-kind=meditation] .session-copy h1{font:400 clamp(25px,3vw,38px) var(--
 body[data-kind=meditation] .session-copy .eyebrow{font-size:9px;letter-spacing:4px;margin-bottom:10px}
 body[data-kind=meditation] .session-cue,body[data-kind=meditation] #session-pose,body[data-kind=meditation] #session-stage-caption,body[data-kind=meditation] #session-side{display:none}
 body[data-kind=meditation] .session-stage{min-height:0;grid-column:1;grid-row:2;width:auto;height:min(23vh,245px,100%);max-width:100%;margin:0;position:relative;aspect-ratio:1}
-.session-sun{position:absolute;inset:12%;border-radius:50%;box-shadow:0 0 14px #ffde9644,0 0 55px #ffd17b28,0 0 120px #ffc76b18;transform:scale(var(--breath-scale,1));transition:transform .22s linear;will-change:transform;isolation:isolate}
+.session-sun{position:absolute;inset:12%;border-radius:50%;box-shadow:0 0 18px #fff1b34d,0 0 65px #ffec9f30,0 0 130px #fff3be18;transform:scale(var(--breath-scale,1));transition:transform .22s linear;will-change:transform;isolation:isolate}
 body[data-kind=meditation] .session-sun{display:block}
-.session-sun:before{content:'';position:absolute;inset:-95%;border-radius:50%;z-index:-1;background:radial-gradient(circle,#fff3c733 0%,#ffe3a220 27%,#ffc4770c 47%,transparent 68%)}
-.session-sun:after{content:'';position:absolute;inset:-8%;border-radius:48% 52% 47% 53%;background:radial-gradient(ellipse,#ffe5ad00 54%,#ffe5ad17 65%,#ffe5ad00 74%);filter:blur(5px);pointer-events:none}
-#session-sun-surface{display:block;width:100%;height:100%;border-radius:50%;filter:blur(.65px);opacity:.88}
+.session-sun:before{content:'';position:absolute;inset:-95%;border-radius:50%;z-index:-1;background:radial-gradient(ellipse at 48% 45%,#fff5cc40 0%,#fff0b526 27%,#ffeeb610 47%,transparent 68%)}
+.session-sun:after{content:'';position:absolute;inset:-8%;border-radius:48% 52% 47% 53%;background:radial-gradient(ellipse,#fff5ce00 35%,#fff1bd20 58%,#fff5ce00 76%);filter:blur(5px);pointer-events:none}
+#session-sun-surface{display:block;width:100%;height:100%;border-radius:50%;filter:blur(1px);opacity:.78}
 body[data-kind=meditation] .session-guidance{grid-column:1;grid-row:3;text-align:center;margin:0;min-height:65px}
 body[data-kind=meditation] #breath-label{font-size:clamp(32px,4vw,48px);margin-bottom:8px;letter-spacing:.5px;color:#fff3cf}
 body[data-kind=meditation] #session-phase-detail{font-size:11px;letter-spacing:2px;color:#dbe6d8}

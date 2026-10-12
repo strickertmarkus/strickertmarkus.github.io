@@ -76,7 +76,8 @@
   }
   // Fine atmospheric grain, fixed in the cache (no animated noise flicker).
   for(let i=0;i<width*height/65;i++)ellipse(b,random()*width,random()*height,.4,.4,i%2?'#e6dfbc09':'#00191b10');
-  const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#061b2380');shade.addColorStop(.38,'#061b2300');shade.addColorStop(.68,'#061b2322');shade.addColorStop(1,'#031a21bb');b.fillStyle=shade;b.fillRect(0,0,width,height);
+  // Meet the browser chrome and safe areas with the same petrol shade, without a cut edge.
+  const shade=b.createLinearGradient(0,0,0,height);shade.addColorStop(0,'#081f23');shade.addColorStop(.10,'#081f2340');shade.addColorStop(.38,'#081f2300');shade.addColorStop(.72,'#081f2322');shade.addColorStop(1,'#081f23');b.fillStyle=shade;b.fillRect(0,0,width,height);
  }
  function makeSun(){
   const surface=$('session-sun-surface');if(!surface)return;surface.width=384;surface.height=384;
@@ -86,7 +87,7 @@
   for(let y=0;y<384;y++)for(let x=0;x<384;x++){
    const r=Math.hypot((x-191.5)/191.5,(y-191.5)/191.5),i=(y*384+x)*4;if(r>1)continue;
    const limb=Math.pow(Math.max(0,1-r*r),.24),grain=(noise(x/2.3,y/2.3)-.5)*8+(noise(x/13,y/13)-.5)*6;
-   pixels.data[i]=255;pixels.data[i+1]=183+limb*61+grain;pixels.data[i+2]=87+limb*94+grain*1.4;pixels.data[i+3]=Math.min(255,(1-r)*384*255);
+   pixels.data[i]=255;pixels.data[i+1]=225+limb*25+grain*.6;pixels.data[i+2]=151+limb*57+grain;pixels.data[i+3]=Math.min(255,(1-r)*110*255);
   }
   ctx.putImageData(pixels,0,0);
  }
@@ -201,18 +202,40 @@
   if(snapshot.kind==='meditation'){
    const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.59;
    const scale=snapshot.scale||1;
+   const sy=sun.top+sun.height/2-rect.top;
+   // Interpolate the runner's breathing snapshot; pause and reduced motion keep the light still.
+   const drift=snapshot.paused||snapshot.preparing||reduced.matches?0:Math.min(.25,Math.max(0,now-sampledAt)/1000);
+   const cycle=((snapshot.cycle||0)+drift)%10;
+   const breath=(scale-.84)/.23,light=Math.max(0,Math.min(1,breath));
+   c.save();c.globalCompositeOperation='screen';
+   glow(c,sx,sy,Math.min(width*.85,height*.43),'255,239,174',.09+light*.07);
+   // Shafts of pale sunlight echo the home scene, with very slow movement.
+   for(let i=0;i<3;i++){
+    const x=sx+width*(.13+i*.08)+Math.sin(t*.06+i)*width*.015;
+    const beam=c.createLinearGradient(x,height*.04,x-width*.20,horizon+height*.16);
+    beam.addColorStop(0,'rgba(255,239,176,0)');beam.addColorStop(.17,'rgba(255,239,176,.055)');beam.addColorStop(.5,'rgba(255,243,193,.028)');beam.addColorStop(1,'rgba(255,243,193,0)');
+    c.fillStyle=beam;c.beginPath();c.moveTo(x,0);c.lineTo(x+width*.025,0);c.lineTo(x-width*.20,horizon+height*.16);c.lineTo(x-width*.32,horizon+height*.16);c.closePath();c.fill();
+   }
+   if(snapshot.guided&&!snapshot.preparing&&!reduced.matches){
+    const q=cycle<4?cycle/4:(cycle-4)/6;
+    const radius=sun.width*.38*scale+q*Math.min(width*.65,240),alpha=Math.sin(q*Math.PI)*.14;
+    const wave=c.createRadialGradient(sx,sy,radius*.28,sx,sy,radius);
+    wave.addColorStop(0,'rgba(255,246,196,0)');wave.addColorStop(.48,`rgba(255,240,169,${alpha*.4})`);wave.addColorStop(.72,`rgba(255,246,196,${alpha})`);wave.addColorStop(1,'rgba(255,246,196,0)');
+    c.fillStyle=wave;c.fillRect(sx-radius,sy-radius,radius*2,radius*2);
+   }
+   c.restore();
    // Broad low bloom under a broken path of light. Breathing gently widens the reflection.
-   c.save();c.translate(sx,horizon+height*.12);c.scale(width*.30*scale,height*.24);glow(c,0,0,1,'236,207,144',.075*scale);c.restore();
+   c.save();c.translate(sx,horizon+height*.12);c.scale(width*.30*scale,height*.24);glow(c,0,0,1,'255,239,177',.11*scale);c.restore();
    for(let i=0;i<125;i++){
     const z=i/125,y=horizon+Math.pow(z,1.35)*height*.39,w=(5+z*z*width*.32)*scale;
     const wave=Math.sin(i*2.39+t*.36)+Math.sin(i*.71-t*.21),offset=wave*w*.23;
     const alpha=(1-z)*(.025+.095*Math.pow((1+Math.sin(i*1.7+t*.45))/2,3));
-    for(let j=0;j<3;j++){const a=-1+j*.7,span=.15+.3*(1+Math.sin(i*3+j))/2;line(c,[[sx+offset+w*a,y],[sx+offset+w*(a+span),y]],`rgba(244,219,168,${alpha})`,.5+z*1.1);}
+    for(let j=0;j<3;j++){const a=-1+j*.7,span=.15+.3*(1+Math.sin(i*3+j))/2;line(c,[[sx+offset+w*a,y],[sx+offset+w*(a+span),y]],`rgba(255,243,190,${alpha*1.25})`,.5+z*1.1);}
    }
    for(let i=0;i<45;i++){const z=i/45,y=horizon+z*height*.4,x=(i*117.1%width)+Math.sin(t*.15+i)*4;line(c,[[x,y],[x+8+z*30,y]],`rgba(151,183,168,${.02+z*.035})`,.6);}
    // Mist drifts at three different speeds and stays below the breathing sun.
    for(let i=0;i<3;i++){c.save();c.translate(width*(.25+i*.28)+Math.sin(t*.045+i*2)*width*.13,horizon-height*(.025+i*.027));c.scale(width*(.55+i*.12),height*.035);glow(c,0,0,1,'196,207,185',.08);c.restore();}
-   for(const r of ripples){const age=(now-r.at)/1000;if(age>7)continue;const q=age/7;c.save();c.globalAlpha=(1-q)*.10;c.strokeStyle='#dfd4ab';c.lineWidth=.65;c.beginPath();c.ellipse(r.x,r.y,12+q*width*.42,2+q*height*.032,0,0,TAU);c.stroke();c.restore();}ripples=ripples.filter(r=>now-r.at<7000);
+   for(const r of ripples){const age=t-r.at;if(age>7)continue;const q=age/7;c.save();c.globalAlpha=(1-q)*.10;c.strokeStyle='#dfd4ab';c.lineWidth=.65;c.beginPath();c.ellipse(r.x,r.y,12+q*width*.42,2+q*height*.032,0,0,TAU);c.stroke();c.restore();}ripples=ripples.filter(r=>t-r.at<7);
   }else{
    for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const edge=Math.min(1,Math.abs(x-width*.5)/(width*.36));const alpha=(.14+.22*(1+Math.sin(t*.8+i))/2)*(.12+.88*edge*edge);glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
    for(let i=0;i<9;i++){const x=(i*137.3+t*7)%width,y=(i*101+t*8)%(height*.8);leaf(c,x,y,4+ i%3,Math.sin(t*.3+i),'#b6d17d30');}
@@ -254,7 +277,7 @@
   }
   updateNextPreview();
   if(next.done)$('session-trail').querySelectorAll('li').forEach(li=>{li.dataset.state='done';li.removeAttribute('aria-current');});
-  if(next.phase==='Andas ut'&&old.phase!==next.phase&&!reduced.matches)ripples.push({x:width*.5,y:height*.65,at:performance.now()});
+  if(next.phase==='Andas ut'&&old.phase!==next.phase&&!reduced.matches)ripples.push({x:width*.5,y:height*.65,at:motionTime});
   if(next.paused!==old.paused||next.done!==old.done){showControls();wake();}
   paintSessionProgress(performance.now());
   if(reduced.matches||next.paused)paint(performance.now());
