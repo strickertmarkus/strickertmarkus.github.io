@@ -34,6 +34,8 @@
     else frame = requestAnimationFrame(loop);
   }
   function resize() {
+    const box=host.getBoundingClientRect();
+    if(box.width<1||box.height<1)return; // Preserve the last complete frame while the scene is hidden.
     layers.forEach(layer => layer.resize());
     wake();
   }
@@ -56,6 +58,7 @@
     if (next !== kind) {
       outgoing = kind; kind = next; fadeUntil = performance.now() + 1600;
       layers.forEach(layer => { if (layer.onModeChange) layer.onModeChange(); });
+      resize();
       window.ZenSceneRuntime.invalidate();
       wake();
     }
@@ -65,5 +68,5 @@
   document.addEventListener('visibilitychange', wake);
   window.addEventListener('training-overlay:change', wake);
   window.addEventListener('pagehide', () => { suspended = true; stop(); });
-  window.addEventListener('pageshow', () => { suspended = false; wake(); });
+  window.addEventListener('pageshow', () => { suspended = false; resize(); });
 })();

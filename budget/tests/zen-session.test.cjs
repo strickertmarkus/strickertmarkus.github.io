@@ -40,3 +40,15 @@ test('meditation timings validate and survive persistence, merge and pause',()=>
  assert.equal(M.breathState(saved.routine,M.position(saved,start+900000).spent).id,'exhale');
  const resumed=M.resume(saved,start+20000);assert.equal(M.position(resumed,start+23000).spent,12);
 });
+test('editable milestones stay separate by kind and reset through tombstones',()=>{
+ const defaults=M.milestones('stretch');assert.equal(defaults.length,4);
+ const entry={id:'milestone_stretch_1',type:'milestone',updatedAt:10,milestone:{kind:'stretch',slot:1,name:'Mina 12 pass',metric:'count',goal:12}};
+ assert.ok(M.entryValid(entry));const merged=M.merge({}, {[entry.id]:entry});
+ assert.equal(M.milestones('stretch',Object.values(merged))[1].goal,12);
+ assert.equal(M.milestones('meditation',Object.values(merged))[1].goal,5);
+ for(const goal of [0,-1,1.5,100001,NaN])assert.equal(M.entryValid({...entry,milestone:{...entry.milestone,goal}}),false);
+ assert.equal(M.entryValid({...entry,id:'milestone_meditation_1'}),false);
+ assert.equal(M.entryValid({...entry,milestone:{...entry.milestone,metric:'unknown'}}),false);
+ const reset=M.merge(merged,{[entry.id]:{id:entry.id,deleted:true,updatedAt:11}});
+ assert.equal(M.milestones('stretch',Object.values(reset))[1].goal,5);
+});

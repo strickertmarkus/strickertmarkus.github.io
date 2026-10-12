@@ -336,6 +336,13 @@
     });
   }
 
+  document.addEventListener('zen:home-rendered',function(){
+    if(!directZen&&mode!=='zen')return;
+    zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
+    syncCanvasTheme(zenKind);
+    updateUnifiedSwitch(zenKind);
+  });
+
   if(directZen&&!canonical){
     zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
     document.documentElement.dataset.wellnessMode='zen';
@@ -357,12 +364,6 @@
       button.addEventListener('touchstart',warmZenAssets,{once:true,passive:true});
     });
   }
-  document.addEventListener('zen:home-rendered',function(){
-    if(mode!=='zen')return;
-    zenKind=document.body.dataset.kind==='meditation'?'meditation':'stretch';
-    syncCanvasTheme(zenKind);
-    updateUnifiedSwitch(zenKind);
-  });
   if('requestIdleCallback' in window)window.requestIdleCallback(warmZenAssets,{timeout:1200});
   else window.setTimeout(warmZenAssets,1000);
   window.addEventListener('popstate',function(){requestDestination(destinationFromURL(),{history:'none'});});

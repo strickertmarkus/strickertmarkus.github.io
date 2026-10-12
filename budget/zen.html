@@ -6,11 +6,11 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ctext y='48' font-size='54'%3E✧%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-zen-nav.css?v=20261012-solar-bloom-1"><link rel="stylesheet" href="zen.css?v=20261012-meditation-builder-1">
+  <link rel="stylesheet" href="training-zen-nav.css?v=20261012-solar-bloom-1"><link rel="stylesheet" href="zen.css?v=20261012-milestones-1">
   <script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
   <!-- The visible canvas is independent of authentication and must paint first. -->
   <script defer src="zen-waterfall-v47.js?v=20260913-cleanup"></script>
-  <script defer src="zen-scene-runtime.js?v=20261008-unique-1"></script>
+  <script defer src="zen-scene-runtime.js?v=20261012-milestones-1"></script>
   <script defer src="zen-scene-v3.js?v=20260924-full-scene-4"></script>
   <script defer src="zen-classic-tree-v22.js?v=20260913-cleanup"></script>
   <script defer src="zen-meditation-scene-v34.js?v=20260913-cleanup"></script>
@@ -18,7 +18,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script defer src="auth-config.js"></script><script defer src="auth-gate.js?v=20260924-canonical-auth-1"></script>
-  <script defer src="training-zen-nav.js?v=20260921-wellness-cohesion-1"></script><script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-meditation-builder-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-builder-sort.js?v=20261009-motion-1"></script><script defer src="zen.js?v=20261012-meditation-builder-1"></script><script defer src="zen-effects-v4.js?v=20261009-library-1"></script><script defer src="zen-session-scene.js?v=20261012-meditation-builder-1"></script>
+  <script defer src="training-zen-nav.js?v=20261012-milestones-1"></script><script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="zen-builder-sort.js?v=20261009-motion-1"></script><script defer src="zen.js?v=20261012-milestones-1"></script><script defer src="zen-effects-v4.js?v=20261009-library-1"></script><script defer src="zen-session-scene.js?v=20261012-meditation-builder-1"></script>
 
 <link rel="stylesheet" href="zen-session.css?v=20261012-solar-bloom-1">
 <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
@@ -74,6 +74,13 @@
     </section>
     <section id="complete-view" class="complete-view" hidden aria-labelledby="complete-title"><span class="complete-symbol" aria-hidden="true">✧</span><p class="eyebrow">SAMMANFATTNING</p><h1 id="complete-title" tabindex="-1">Passet<br><em>avslutat.</em></h1><p id="complete-summary"></p><fieldset class="feelings"><legend>Hur kändes passet?</legend><button data-feeling="lighter" aria-pressed="false">Lite lättare</button><button data-feeling="calm" aria-pressed="false">Lugnare</button><button data-feeling="present" aria-pressed="false">Mer närvarande</button></fieldset><label class="note-label" for="session-note">Anteckning <span>valfritt</span></label><textarea id="session-note" maxlength="500" rows="2" placeholder="Skriv en anteckning om passet…"></textarea><button class="primary-button" id="save-session">Spara pass <span aria-hidden="true">✧</span></button><button class="text-button" id="cancel-complete">Lämna utan att spara</button></section>
   </main>
+  <dialog id="milestone-dialog" class="zen-dialog" aria-labelledby="milestone-title"><form id="milestone-form">
+<div class="dialog-heading"><div><p class="eyebrow" id="milestone-kind">MEDITATION</p><h2 id="milestone-title" tabindex="-1" autofocus>Redigera milstolpe</h2></div><button type="button" data-close="milestone-dialog" class="icon-button" aria-label="Stäng">×</button></div>
+<label for="milestone-name">Namn</label><input id="milestone-name" required maxlength="80" autocomplete="off">
+<label for="milestone-metric">Vad vill du räkna?</label><select id="milestone-metric"><option value="count">Antal sparade pass</option><option value="minutes">Minuter totalt</option><option value="days">Olika dagar med pass</option><option value="streak">Dagar i rad med pass</option></select>
+<label for="milestone-goal">Målantal</label><input id="milestone-goal" type="number" min="1" max="100000" step="1" inputmode="numeric" required>
+<p class="subtle-text">Framstegen räknas automatiskt från dina sparade pass för den här sidan.</p>
+<div class="builder-footer"><button type="button" class="text-button" id="milestone-reset">Återställ standard</button><button type="submit" class="primary-button">Spara milstolpe</button></div><p id="milestone-error" class="form-error" role="alert"></p></form></dialog>
   <dialog id="builder-dialog" class="zen-dialog" aria-labelledby="builder-title"><form id="builder-form"><div class="dialog-heading"><div><p class="eyebrow" id="builder-eyebrow">EGET PASS</p><h2 id="builder-title" tabindex="-1" autofocus>Anpassa pass</h2></div><button type="button" data-close="builder-dialog" class="icon-button" aria-label="Stäng">×</button></div><label for="routine-name">Namn</label><input id="routine-name" required maxlength="80" autocomplete="off"><div id="stretch-builder"><p class="subtle-text">Välj övningar och tider. Dra i greppet för att ändra ordning.</p><div id="builder-steps"></div><p id="builder-sort-status" class="sr-only" aria-live="polite"></p><div class="pose-library"><label for="pose-search">Övningsbibliotek</label><input id="pose-search" type="search" placeholder="Sök övning eller muskelgrupp" autocomplete="off"><label class="sr-only" for="pose-group">Muskelgrupp</label><select id="pose-group"><option value="">Alla muskelgrupper</option></select><p id="pose-count" class="subtle-text" aria-live="polite"></p><div class="add-step"><label class="sr-only" for="pose-select">Lägg till rörelse</label><select id="pose-select"></select><button type="button" class="secondary-button" id="add-pose">Lägg till</button></div><p id="pose-description" class="subtle-text"></p></div></div><div id="meditation-builder" hidden>
 <label for="meditation-minutes">Passlängd · minuter</label><input id="meditation-minutes" type="number" min="1" max="60" step="1" value="10" inputmode="numeric" required>
 <label for="meditation-guidance">Vägledning</label><select id="meditation-guidance"><option value="breath">Guidad andning</option><option value="silent">Utan guide · egen andning</option></select>

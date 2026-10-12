@@ -84,8 +84,8 @@
     const days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],max=Math.max(10,...st.week.map(d=>d.minutes));
     $('week-chart').innerHTML=st.week.map((d,i)=>'<div class="day-column '+(d.date===M.localDate(Date.now())?'today':'')+'"><span class="day-minutes">'+(d.minutes?Number(d.minutes.toFixed(1)).toLocaleString('sv-SE'):'·')+'</span><div class="day-track"><span class="day-fill '+(!d.minutes?'empty':'')+'" style="height:'+Math.max(4,d.minutes/max*100)+'%"></span></div><span class="day-label">'+days[i]+'</span></div>').join('');
     $('week-chart').setAttribute('aria-label','Minuter denna vecka: '+st.week.map((d,i)=>days[i]+' '+Number(d.minutes.toFixed(1))).join(', '));
-    const milestones=kind==='stretch'?[['✧','Första passet','1 sparat pass',st.count,1],['⌁','5 pass','5 sparade pass',st.count,5],['✦','60 minuter','60 minuter totalt',st.minutes,60],['∞','10 dagar','10 olika dagar',st.days,10]]:[['◌','Första passet','1 sparat pass',st.count,1],['≈','5 pass','5 sparade pass',st.count,5],['☼','60 minuter','60 minuter totalt',st.minutes,60],['∞','10 dagar','10 olika dagar',st.days,10]];
-    $('collection').innerHTML=milestones.map(([symbol,name,desc,value,goal])=>'<article class="keepsake '+(value>=goal?'unlocked':'')+'"><span class="keepsake-symbol" aria-hidden="true">'+symbol+'</span><h3>'+name+'</h3><p>'+desc+'</p><small>'+(value>=goal?'Uppnått':Math.min(value,goal)+' / '+goal)+'</small></article>').join('');
+    const symbolsMilestone=kind==='stretch'?['✧','⌁','✦','∞']:['◌','≈','☼','∞'];
+    $('collection').innerHTML=M.milestones(kind,S.entries).map(m=>{const value=st[m.metric],done=value>=m.goal;return '<article class="keepsake '+(done?'unlocked':'')+'"><span class="keepsake-symbol" aria-hidden="true">'+symbolsMilestone[m.slot]+'</span><h3>'+escape(m.name)+'</h3><p>'+m.goal+' '+M.milestoneMetrics[m.metric]+'</p><small>'+(done?'Uppnått':Math.min(value,m.goal)+' / '+m.goal)+'</small><button class="text-button milestone-edit" data-milestone="'+m.slot+'" aria-label="Redigera '+escape(m.name)+'">Redigera</button></article>';}).join('');
     const history=records().filter(r=>r.kind===kind).sort((a,b)=>b.completedAt-a.completedAt);$('history-more').hidden=history.length<=5;$('history-more').textContent=allHistory?'Visa färre':'Visa alla ('+history.length+')';
     $('history').innerHTML=history.length?(allHistory?history:history.slice(0,5)).map(r=>'<article class="history-row"><span class="small-symbol" aria-hidden="true">'+copy[kind].symbol+'</span><div><h3>'+escape(r.name)+'</h3><time datetime="'+new Date(r.completedAt).toISOString()+'">'+new Date(r.completedAt).toLocaleString('sv-SE',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</time>'+(r.feeling?'<p>'+escape(feelingLabel(r.feeling))+'</p>':'')+(r.note?'<p class="history-note">'+escape(r.note)+'</p>':'')+'</div><span class="history-length">'+mins(r.seconds)+' min</span><button class="text-button" data-delete="'+escape(r.id)+'" aria-label="Ta bort '+escape(r.name)+'">×</button></article>').join(''):'<p class="history-empty">Inga sparade pass ännu.</p>';
     $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
@@ -206,6 +206,23 @@
   }
   function updatePoseDescription(){const pose=M.poses.find(p=>p.id===$('pose-select').value);$('pose-description').textContent=pose?pose.cue:'Prova en annan sökning eller muskelgrupp.';}
   $('pose-search').oninput=renderPoseOptions;$('pose-group').onchange=renderPoseOptions;$('pose-select').onchange=updatePoseDescription;
+  let milestoneDraft=null;
+  $('collection').onclick=e=>{
+    const button=e.target.closest('[data-milestone]');if(!button)return;
+    milestoneDraft=M.milestones(kind,S.entries)[Number(button.dataset.milestone)];
+    $('milestone-name').value=milestoneDraft.name;$('milestone-metric').value=milestoneDraft.metric;$('milestone-goal').value=milestoneDraft.goal;
+    $('milestone-kind').textContent=kind==='stretch'?'STRETCH':'MEDITATION';$('milestone-error').textContent='';$('milestone-reset').hidden=!milestoneDraft.custom;
+    $('milestone-dialog').showModal();$('milestone-title').focus({preventScroll:true});
+  };
+  $('milestone-form').onsubmit=e=>{
+    e.preventDefault();if(!milestoneDraft)return;
+    const m={kind:milestoneDraft.kind,slot:milestoneDraft.slot,name:$('milestone-name').value.trim(),metric:$('milestone-metric').value,goal:Number($('milestone-goal').value)};
+    if(!M.milestoneValid(m)){$('milestone-error').textContent='Ange ett namn och ett helt målantal mellan 1 och 100 000.';return;}
+    if(S.put({id:milestoneDraft.id,type:'milestone',milestone:m,updatedAt:Date.now()})){$('milestone-dialog').close();renderHome();toast('Milstolpen är uppdaterad.');}else $('milestone-error').textContent='Vänta tills ditt konto har laddats.';
+  };
+  $('milestone-reset').onclick=()=>{
+    if(milestoneDraft&&S.remove(milestoneDraft.id)){$('milestone-dialog').close();renderHome();toast('Standardmilstolpen är återställd.');}
+  };
   const breathKeys=['inhale','holdIn','exhale','holdOut'];
   function readBreathing(){return Object.fromEntries(breathKeys.map(k=>[k,$('breath-'+k).value===''?NaN:Number($('breath-'+k).value)]));}
   function updateBreathingBuilder(){

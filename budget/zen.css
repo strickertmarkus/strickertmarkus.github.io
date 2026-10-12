@@ -1044,6 +1044,13 @@ textarea {
   margin: 18px 0;
 }
 
+#milestone-form>input,#milestone-form>select{width:100%;font-size:16px}
+#milestone-title{font-size:clamp(24px,5vw,32px);line-height:1.1}
+#milestone-dialog .subtle-text{margin:16px 0;line-height:1.6}
+#milestone-dialog .builder-footer{flex-wrap:wrap;gap:10px}
+#milestone-dialog .primary-button{margin-left:auto}
+body[data-kind=meditation] #milestone-dialog{background:#b9cec5}
+.keepsake .milestone-edit{display:block;margin:10px auto 0;min-height:44px;padding:8px 12px;font-size:12px}
 .meditation-rhythm{min-width:0;margin:22px 0 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--accent-rgb),.035)}
 .meditation-rhythm legend{font:500 19px var(--serif);padding:0 8px;color:var(--text)}
 .breath-presets{display:flex;flex-wrap:wrap;gap:6px}

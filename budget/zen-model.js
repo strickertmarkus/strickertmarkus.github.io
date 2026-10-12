@@ -89,12 +89,21 @@
     let streak=0;while(days.has(localDate(cursor))){streak++;cursor.setDate(cursor.getDate()-1);}
     return {count:selected.length,minutes:Math.round(selected.reduce((sum,r)=>sum+r.seconds/60,0)),streak,days:days.size,week:week(records,kind,now)};
   }
+  const milestoneMetrics={count:'sparade pass',minutes:'minuter totalt',days:'olika dagar',streak:'dagar i rad'};
+  function milestoneValid(m){return !!m&&['stretch','meditation'].includes(m.kind)&&Number.isInteger(m.slot)&&m.slot>=0&&m.slot<4&&typeof m.name==='string'&&m.name.trim().length>0&&m.name.length<=80&&Object.hasOwn(milestoneMetrics,m.metric)&&Number.isInteger(m.goal)&&m.goal>=1&&m.goal<=100000;}
+  function milestones(kind,entries=[]){
+    return [['Första passet','count',1],['5 pass','count',5],['60 minuter','minutes',60],['10 dagar','days',10]].map(([name,metric,goal],slot)=>{
+      const id='milestone_'+kind+'_'+slot,entry=entries.find(e=>e.id===id&&!e.deleted&&e.type==='milestone'&&milestoneValid(e.milestone));
+      return {id,...(entry?entry.milestone:{kind,slot,name,metric,goal}),custom:!!entry};
+    });
+  }
   function entryValid(e){
     if(!e||typeof e.id!=='string'||!/^[A-Za-z0-9_-]{1,100}$/.test(e.id)||['__proto__','constructor','prototype'].includes(e.id)||!Number.isFinite(e.updatedAt)||e.updatedAt<0)return false;
     if(e.deleted===true)return true;
+    if(e.type==='milestone')return milestoneValid(e.milestone)&&e.id==='milestone_'+e.milestone.kind+'_'+e.milestone.slot;
     if(e.type==='routine')return routineValid(e.routine)&&e.routine.id===e.id;
     return e.type==='session'&&['stretch','meditation'].includes(e.kind)&&typeof e.name==='string'&&e.name.length<=80&&Number.isFinite(e.completedAt)&&e.completedAt>0&&e.completedAt<=8640000000000000&&Number.isFinite(e.seconds)&&e.seconds>=1&&e.seconds<=12000&&typeof e.note==='string'&&e.note.length<=500&&['','lighter','calm','present'].includes(e.feeling);
   }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });
