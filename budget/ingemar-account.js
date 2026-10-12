@@ -3,6 +3,43 @@
  * Only Ingemar's data is loaded here; existing private UID data is untouched. */
 (function () {
   'use strict';
+  // Three-way merge: only changes relative to the device's acknowledged base
+  // are applied. Arrays with IDs are records, never a replace-all collection.
+  function merge(base,local,remote){
+    const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+    if(equal(base,local))return remote;
+    if(equal(base,remote)||equal(local,remote))return local;
+    if(local===undefined)return undefined;
+    if(Array.isArray(local)&&Array.isArray(remote)&&[...(base||[]),...local,...remote].every(x=>x&&x.id!=null)){
+      const map=a=>Object.fromEntries((a||[]).map(x=>[String(x.id),x]));
+      const values=merge(map(base),map(local),map(remote));
+      const order=equal((base||[]).map(x=>x.id),local.map(x=>x.id))?remote:local;
+      return [...new Set([...order,...local,...remote].map(x=>String(x.id)))].filter(id=>values[id]!==undefined).map(id=>values[id]);
+    }
+    if(local&&remote&&typeof local==='object'&&typeof remote==='object'&&!Array.isArray(local)&&!Array.isArray(remote)){
+      const out={};for(const key of new Set([...Object.keys(base||{}),...Object.keys(local),...Object.keys(remote)])){
+        const value=merge(base&&base[key],local[key],remote[key]);if(value!==undefined)out[key]=value;
+      }return out;
+    }
+    // A concurrent deletion must not erase a newer edit.
+    return local;
+  }
+  function mergeProfile(base,local,remote){
+    const result=merge(base,local,remote);
+    // Two devices may replace the same day/template. Keep the other version
+    // as a reusable template instead of silently losing that workout.
+    function preserve(a,b,c,label){
+      if(!b||!c||!b.exercises||!c.exercises||JSON.stringify(a)===JSON.stringify(b)||JSON.stringify(a)===JSON.stringify(c)||JSON.stringify(b)===JSON.stringify(c))return;
+      const text=JSON.stringify(c);let hash=2166136261;for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
+      const id='recovered-'+label+'-'+(hash>>>0).toString(36);
+      result.templates=result.templates||[];
+      if(!result.templates.some(t=>t.id===id))result.templates.push({id,name:(c.name||c.type)+' · sparad version',type:c.type,exercises:c.exercises});
+    }
+    for(const date of Object.keys(local.plans||{}))preserve((base.plans||{})[date],local.plans[date],(remote.plans||{})[date],date);
+    for(const item of local.templates||[])preserve((base.templates||[]).find(x=>x.id===item.id),item,(remote.templates||[]).find(x=>x.id===item.id),item.id);
+    return result;
+  }
+  window.IngemarMerge=mergeProfile;
   const ROOT='ex_ingemar';
   const LOCAL_KEY='ex_ingemar';
   const CACHE_OWNER=LOCAL_KEY+'_verified_uid';
@@ -17,6 +54,7 @@
   };
   window.IngemarAccount=API;
   let app,auth,db,recordRef=null,recordHandler=null,client=null,connected=false;
+  let baseRaw='',pendingKey=LOCAL_KEY+'_journal';
   let generation=0,writeTimer=null,dirty=false,saving=false,lastLocal='',lastRemote='',retryTimer=null;
   let loginBusy=false,loadTimer=null,refreshPending=false,readAttempt=0;
   let authResolved=false,persistenceReady=Promise.resolve(),persistenceWarning=false,writeWatchdog=null;
@@ -51,7 +89,7 @@
     if(form)form.hidden=currentPhase!=='login';
   }
   function localKey(){return LOCAL_KEY;}
-  function cache(value){try{localStorage.setItem(localKey(),value);if(API.user)localStorage.setItem(CACHE_OWNER,API.user.uid);}catch(_){}}
+  function cache(value){try{localStorage.setItem(localKey(),value);if(API.user)localStorage.setItem(CACHE_OWNER,API.user.uid);return true;}catch(_){setStatus('Kunde inte spara på enheten · håll sidan öppen');return false;}}
   function forgetVerifiedCache(){try{localStorage.removeItem(CACHE_OWNER);}catch(_){}}
   function showVerifiedCache(){
     try{
@@ -141,8 +179,11 @@
       if(record!==null&&typeof record!=='string'){setGate(true,'error');stopLoadTimer();setStatus('Fel vid inläsning');message('Sparade uppgifter har ett oväntat format.',true);return;}
       if(!API.ready){
         let chosen=raw;
-        const unsent=pendingLocal()&&readCache();
-        if(unsent){chosen=unsent;setDirty(true);}
+        let journal=null;
+        try{journal=JSON.parse(localStorage.getItem(pendingKey)||'null');}catch(_){}
+        const unsent=journal&&journal.local||pendingLocal()&&readCache();
+        if(unsent){try{chosen=JSON.stringify(mergeProfile(JSON.parse(journal&&journal.base||'{}'),JSON.parse(unsent),JSON.parse(raw||'{}')));setDirty(true);}catch(error){loadFailed(error);return;}}
+        baseRaw=raw||'{}';
         if(chosen){
           try{client.apply(JSON.parse(chosen));}catch(error){
             setGate(true,'error');stopLoadTimer();console.warn('[Ingemar] Kunde inte tolka synkad data',error);
@@ -154,13 +195,14 @@
         lastLocal=chosen||client.serialize();cache(lastLocal);
         stopLoadTimer();API.ready=true;connected=true;setGate(false);message('');
         setStatus(dirty?'Lokala ändringar väntar på synk':persistenceWarning?'Synkat · inloggning kan behöva upprepas':'Synkat via Firebase');
-        if(dirty)queueWrite();
+        if(dirty){saveJournal();queueWrite();}
         return;
       }
       if(!dirty&&!saving&&raw!==lastRemote){
         try{client.apply(raw?JSON.parse(raw):null);lastLocal=raw||client.serialize();cache(lastLocal);}
         catch(error){console.warn('[Ingemar] Ogiltig fjärrdata',error);setStatus('Fel vid uppdatering');return;}
       }
+      if(!dirty&&!saving)baseRaw=raw||'{}';
       lastRemote=raw||'';
       if(!dirty&&!saving)setStatus('Synkat via Firebase');
     };
@@ -189,20 +231,29 @@
   async function flush(){
     writeTimer=null;
     if(!API.canEdit||!recordRef||saving||!dirty)return;
-    const token=generation,raw=lastLocal,ref=recordRef;
+    const token=generation,raw=lastLocal,base=baseRaw,ref=recordRef;
     saving=true;
     if(writeWatchdog)clearTimeout(writeWatchdog);
     writeWatchdog=setTimeout(()=>{
       if(token===generation&&saving)setStatus('Sparat lokalt · väntar på Firebase');
     },10000);
     try{
-      await ref.set(raw);
+      const result=await ref.transaction(current=>{
+        if(current!==null&&typeof current!=='string')throw Error('Invalid remote data');
+        return JSON.stringify(mergeProfile(JSON.parse(base||'{}'),JSON.parse(raw),JSON.parse(current||'{}')));
+      },undefined,false);
+      if(!result.committed)throw Error('Transaction aborted');
+      const committed=result.snapshot.val();
       if(token!==generation)return;
       saving=false;
       if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
-      if(raw===lastLocal){
-        setDirty(false);lastRemote=raw;setStatus('Synkat via Firebase');
-      }else queueWrite();
+      baseRaw=committed;lastRemote=committed;
+      lastLocal=JSON.stringify(mergeProfile(JSON.parse(raw),JSON.parse(lastLocal),JSON.parse(committed)));
+      client.apply(JSON.parse(lastLocal));cache(lastLocal);
+      if(lastLocal===committed){
+        setDirty(false);try{localStorage.removeItem(pendingKey);}catch(_){}
+        setStatus('Synkat via Firebase');
+      }else{saveJournal();queueWrite();}
     }catch(error){
       if(token!==generation)return;
       saving=false;
@@ -212,12 +263,16 @@
       console.warn('[Ingemar] Synkning misslyckades',error);
     }
   }
+  function saveJournal(){
+    try{localStorage.setItem(pendingKey,JSON.stringify({base:baseRaw,local:lastLocal}));return true;}
+    catch(_){setStatus('Kunde inte spara på enheten · håll sidan öppen');return false;}
+  }
   function save(value){
     if(!API.canEdit)return false;
     let raw;
     try{raw=JSON.stringify(value);}catch(_){return false;}
     if(raw===lastLocal&&!dirty)return true;
-    lastLocal=raw;cache(raw);setDirty(true);queueWrite();
+    lastLocal=raw;setDirty(true);const durable=saveJournal();cache(raw);queueWrite();if(!durable)setStatus('Kunde inte spara på enheten · håll sidan öppen');
     return true;
   }
   async function logout(){
@@ -260,6 +315,8 @@
         });
         retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
         window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
+        window.addEventListener('pagehide',()=>{if(dirty)flush();});
+        window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
         window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
         document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
       }catch(error){authResolved=true;setGate(true,'error');message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}

@@ -378,11 +378,11 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="week-planner-guide" aria-label="Så planerar du veckan"><span><b>1</b><em>Välj dag</em></span><i></i><span><b>2</b><em>Välj pass &amp; övningar</em></span><i></i><span><b>3</b><em>Spara veckan</em></span></div>
   <div class="week-planner-overview"><div><small>VECKAN JUST NU</small><strong id="week-planner-summary">0 pass planerade</strong></div><span id="week-planner-summary-sub">Tryck Snabbplanera på en dag för att börja.</span></div>
   <details class="week-template-drawer"><summary><span>Återanvänd en hel vecka</span><small>Veckomallar</small></summary><div class="week-template-drawer-body"><div class="week-template-tools"><select id="week-template-select" aria-label="Välj sparad veckomall"></select><button type="button" class="secondary" data-action="apply-week-template">Använd</button><button type="button" class="secondary" data-action="save-week-template">Spara veckan som mall</button><button type="button" class="ghost" data-action="delete-week-template">Ta bort</button></div><small class="week-planner-hint" id="week-template-hint">Planera flera dagar och återanvänd hela veckan senare.</small></div></details>
-  <div class="week-planner-days" id="week-planner-days" aria-label="Veckans sju dagar"></div>
-  <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Avbryt</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
+  <p class="hint">Ändringar sparas automatiskt. Du kan stänga eller byta vecka.</p><div class="week-planner-days" id="week-planner-days" aria-label="Veckans sju dagar"></div>
+  <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Stäng</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Avbryt</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><select id="builder-template-select" aria-label="Välj sparat mallpass"></select><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="plan-preview" aria-labelledby="plan-preview-title">
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
@@ -530,7 +530,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script src="auth-config.js"></script>
 <script src="ingemar-records.js?v=20261011-compact-pr-2"></script>
-<script src="ingemar-account.js?v=20261011-local-first-2"></script>
+<script src="ingemar-account.js?v=20261012-durable-1"></script>
 <script>
 (function(){
 'use strict';
@@ -846,7 +846,7 @@ function ensureZenData(value){
  value.zenHistory.forEach(function(item){if(!item.id)item.id=uid();});
  return value;
 }
-function emptyState(){return ensureZenData({plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],prs:{},manualPrs:{},goal:4});}
+function emptyState(){return ensureZenData({builderDrafts:{},plans:{},history:[],zenHistory:[],templates:[],weekTemplates:[],prs:{},manualPrs:{},goal:4});}
 function migrateManualPrs(value){
  var manual=value&&value.manualPrs&&typeof value.manualPrs==='object'&&!Array.isArray(value.manualPrs)?deep(value.manualPrs):{};
  var fromHistory=window.IngemarRecords.collect(value.history,{});
@@ -860,18 +860,18 @@ function migrateManualPrs(value){
 function normalizeAccountState(value){
  if(!value)return emptyState();
  if(typeof value!=='object'||Array.isArray(value)||!value.plans||!Array.isArray(value.history)||!Array.isArray(value.zenHistory))throw Error('Ogiltiga träningsuppgifter');
- return ensureZenData({
-  plans:value.plans,history:value.history,zenHistory:value.zenHistory,prs:window.IngemarRecords.collect(value.history,value.prs),
+ return ensureZenData(Object.assign({},value,{
+  builderDrafts:value.builderDrafts||{},plans:value.plans,history:value.history,zenHistory:value.zenHistory,prs:window.IngemarRecords.collect(value.history,value.prs),
   manualPrs:migrateManualPrs(value),
   templates:Array.isArray(value.templates)?value.templates:[],
   weekTemplates:Array.isArray(value.weekTemplates)?value.weekTemplates:[],
   goal:typeof value.goal==='number'?value.goal:4,zenRoutines:value.zenRoutines,
   zenPlans:value.zenPlans,zenDeletedDemoIds:value.zenDeletedDemoIds
- });
+ }));
 }
 function load(){return emptyState();}
-var state=load(),selected=dayISO(new Date()),view='training',draft=null,activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
-function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state))toast('Vänta på att kontot ansluts.');}
+var state=load(),selected=dayISO(new Date()),view='training',draft=null,builderBase=null,activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
+function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
@@ -908,7 +908,7 @@ function render(){
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
  $('orbit-summary').textContent=p?p.exercises.length+' övningar · '+p.exercises.reduce(function(n,e){return n+e.sets.length;},0)+' set':'Välj eller bygg ett pass';
  var today=dayISO(new Date()),monday=weekStart(selected);
- $('week').innerHTML=DAYS.map(function(name,i){var date=offset(monday,i),entry=plan(date),t=entry?entry.type:'Vila';
+ $('week').innerHTML=DAYS.map(function(name,i){var date=offset(monday,i),entry=plan(date),t=state.builderDrafts[date]?'Utkast':entry?entry.type:'Vila';
   return '<button type="button" class="day'+(date===today?' today':'')+'" data-day="'+date+'" aria-pressed="'+(date===selected)+'"><small>'+name+'</small><strong>'+dayFrom(date).getDate()+'</strong><span>'+clean(t)+'</span></button>';
  }).join('');
  var weekAgo=offset(weekStart(today),-0),weekEnd=offset(weekAgo,7);
@@ -1073,12 +1073,20 @@ function setWeekDayType(index,type){if(!weekDraft||index<0||index>6)return;if(ty
 function toggleWeekExercise(index,name){var entry=weekDraft&&weekDraft[index];if(!entry||!name)return;var key=exerciseNameKey(name),at=entry.exercises.findIndex(function(ex){return exerciseNameKey(ex.name)===key;});if(at>=0)entry.exercises.splice(at,1);else{if(entry.exercises.length>=16){toast('Högst 16 övningar per dag.');return;}var preset=weekExercisePreset(entry.type,name);if(!preset){toast('Öppna full passbyggare för en helt ny övning.');return;}entry.exercises.push(preset);}weekDraftDirty=true;weekExpandedDay=index;renderWeekPlanner();}
 function applyWeekDayTemplate(index,id){var item=builderTemplates().find(function(t){return String(t.id)===String(id);});if(!item)return;weekDraft[index]={type:item.type,name:item.name,exercises:deep(item.exercises)};weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();}
 function weekPlannerSummaryText(){var sessions=weekDraft.filter(Boolean),exercises=sessions.reduce(function(n,item){return n+(item.exercises||[]).length;},0),sets=sessions.reduce(function(n,item){return n+(item.exercises||[]).reduce(function(sum,ex){return sum+(ex.sets||[]).length;},0);},0);return {main:sessions.length+' pass planerade',sub:exercises+' övningar · '+sets+' set · '+(7-sessions.length)+' vilodag'+(7-sessions.length===1?'':'ar')};}
+function mergeEditedPlan(date,base,edited){var merged=window.IngemarMerge({plans:{[date]:base||undefined}},{plans:{[date]:edited}},{plans:{[date]:state.plans[date]}});if(merged.templates)merged.templates.forEach(function(t){if(!state.templates.some(function(x){return x.id===t.id;}))state.templates.push(t);});return merged.plans[date];}
+function preserveReplacedPlan(date,next){var old=state.plans[date];if(old&&next&&old.name!==next.name){state.templates.push({id:uid(),name:old.name,type:old.type,exercises:deep(old.exercises)});}}
+function commitWeekDraft(){
+ if(!weekDraft||!weekDraftDirty)return true;
+ DAYS.forEach(function(_,i){if(JSON.stringify(weekDraft[i])===JSON.stringify(weekBase[i]))return;var date=offset(weekPlannerMonday,i);if(weekDraft[i]){preserveReplacedPlan(date,weekDraft[i]);state.plans[date]=mergeEditedPlan(date,weekBase[i],weekPlanClone(weekDraft[i]));}else delete state.plans[date];});
+ if(!persist())return false;weekBase=deep(weekDraft);weekDraftDirty=false;return true;
+}
 function renderWeekPlanner(){
+ commitWeekDraft();
  if(!weekDraft||!weekPlannerMonday)return;$('week-planner-label').textContent='Vecka '+isoWeekNumber(weekPlannerMonday);$('week-planner-range').textContent=weekRangeText(weekPlannerMonday);renderWeekTemplates();var summary=weekPlannerSummaryText();$('week-planner-summary').textContent=summary.main;$('week-planner-summary-sub').textContent=summary.sub;
  $('week-planner-days').innerHTML=DAYS.map(function(day,i){var date=offset(weekPlannerMonday,i),entry=weekDraft[i],sets=entry?(entry.exercises||[]).reduce(function(n,e){return n+(e.sets||[]).length;},0):0,expanded=weekExpandedDay===i,type=entry?entry.type:'Vila',typeClass=entry?entry.type.toLocaleLowerCase('sv-SE'):'rest';var preview=entry&&entry.exercises.length?entry.exercises.slice(0,3).map(function(ex){return ex.name;}).join(' · ')+(entry.exercises.length>3?' +'+(entry.exercises.length-3):''):'Ingen träning planerad';var typeButtons=TYPES.concat(['Vila']).map(function(option){return '<button type="button" data-week-type="'+i+':'+option+'" aria-pressed="'+String(type===option)+'">'+(option==='Kondition'?'Kond.':option)+'</button>';}).join('');var exerciseButtons=entry?weekExerciseChoices(entry).map(function(name){var chosen=entry.exercises.some(function(ex){return exerciseNameKey(ex.name)===exerciseNameKey(name);});return '<button type="button" data-week-exercise="'+i+':'+encodeURIComponent(name)+'" aria-pressed="'+String(chosen)+'">'+clean(name)+'</button>';}).join(''):'<span class="hint">Välj Push, Pull eller Kondition först.</span>';var templateButtons=builderTemplates().map(function(item){return '<button type="button" data-week-day-template="'+i+':'+clean(item.id)+'">'+clean(item.name)+'</button>';}).join('');var copyDest=weekCopyFrom===i?'<div class="week-copy-destinations"><span>Kopiera passet till</span>'+DAYS.map(function(targetDay,targetIndex){return targetIndex===i?'':'<button type="button" data-week-copy-target="'+targetIndex+'">'+targetDay+'</button>';}).join('')+'</div>':'';
   return '<article class="week-planner-day is-'+typeClass+(weekCopyFrom===i?' is-copy-source':'')+'" data-week-day="'+i+'" data-week-date="'+date+'" data-week-plan-type="'+type+'"><div class="week-day-card-top"><button type="button" class="week-day-open" data-week-edit="'+i+'" aria-label="Öppna full passbyggare för '+day+'"><span class="week-day-date"><small>'+day+'</small><strong>'+dayFrom(date).getDate()+'</strong></span><span class="week-day-pass"><span class="week-day-kind">'+clean(type)+'</span><strong>'+(entry?clean(entry.name):'Ingen träning')+'</strong><small>'+clean(preview)+'</small></span><span class="week-day-open-arrow">↗</span></button><button type="button" class="week-planner-drag" data-week-drag="'+i+'" aria-label="Håll och dra '+day+'"><span class="week-planner-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button></div><button type="button" class="week-day-quick" data-week-toggle-day="'+i+'" aria-expanded="'+expanded+'"><span><b>Snabbplanera</b> · '+(entry?(entry.exercises||[]).length+' övningar · '+sets+' set':'välj pass med ett tryck')+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button><div class="week-day-editor" '+(expanded?'':'hidden')+'><div class="week-planner-step"><div class="week-planner-step-head"><b>1 · VÄLJ PASS</b><span>Ett tryck räcker</span></div><div class="week-day-type-grid">'+typeButtons+'</div></div><div class="week-planner-step"><div class="week-planner-step-head"><b>2 · VÄLJ ÖVNINGAR</b><span>Tryck för på / av</span></div><div class="week-exercise-grid">'+exerciseButtons+'</div>'+(templateButtons?'<div class="week-day-template-chips">'+templateButtons+'</div>':'')+'</div><div class="week-planner-step"><div class="week-planner-step-head"><b>3 · FINJUSTERING</b><span>Valfritt</span></div><div class="week-day-builder-row"><button type="button" class="week-day-open-builder" data-week-edit="'+i+'">'+(entry?'Set, vikter & detaljer ↗':'Bygg ett eget pass ↗')+'</button><div class="week-day-tools"><button type="button" data-week-copy="'+i+'">'+(weekCopyFrom===i?'Avbryt kopiering':'Kopiera pass')+'</button><button type="button" class="week-day-clear" data-week-clear="'+i+'">Rensa dag</button></div></div>'+copyDest+'</div></div></article>';}).join('');
 }
-function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;weekExpandedDay=-1;renderWeekPlanner();}
+function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekBase=deep(weekDraft);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;weekExpandedDay=-1;renderWeekPlanner();}
 function openWeekPlanner(){if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));$('week-planner').showModal();}
 function openWeekDayBuilder(index){
  if(!weekDraft||index<0||index>6||builderWeekIndex>=0)return;
@@ -1086,8 +1094,8 @@ function openWeekDayBuilder(index){
  if(!TYPES.includes(kind))kind='Push';
  builderWeekIndex=index;weekExpandedDay=index;
  weekPlannerScrollY=$('week-planner').scrollTop;
- draft=entry?deep(entry):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
- draft.date=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
+ draft=state.builderDrafts[date]?deep(state.builderDrafts[date]):entry?deep(entry):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
+ builderBase=deep(entry||null);draft.date=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+DAYS[index]+' · '+pretty(date);
  $('build-date').disabled=true;
  $('builder-save-plan').textContent='Spara i veckoplanen';
@@ -1101,29 +1109,29 @@ function restoreWeekPlannerFromBuilder(){
  $('builder-start-from-builder').hidden=false;
  renderWeekPlanner();$('week-planner').showModal();$('week-planner').scrollTop=weekPlannerScrollY;
 }
-function closeWeekPlanner(){endWeekDrag();if(weekDraftDirty&&!confirm('Stäng veckoplaneraren utan att spara ändringarna?'))return;weekDraft=null;weekDraftDirty=false;weekCopyFrom=-1;$('week-planner').close();}
-function shiftWeekPlanner(delta){if(weekDraftDirty&&!confirm('Byta vecka utan att spara ändringarna?'))return;loadWeekPlannerMonday(offset(weekPlannerMonday,Number(delta)*7));}
-function currentWeekPlanner(){if(weekDraftDirty&&!confirm('Gå till denna vecka utan att spara ändringarna?'))return;loadWeekPlannerMonday(weekStart(dayISO(new Date())));}
+function closeWeekPlanner(){endWeekDrag();if(!commitWeekDraft())return;weekDraft=null;weekDraftDirty=false;weekCopyFrom=-1;$('week-planner').close();render();}
+function shiftWeekPlanner(delta){if(!commitWeekDraft())return;loadWeekPlannerMonday(offset(weekPlannerMonday,Number(delta)*7));}
+function currentWeekPlanner(){if(!commitWeekDraft())return;loadWeekPlannerMonday(weekStart(dayISO(new Date())));}
 function copyWeekDay(from,to){if(!weekDraft||from<0||to<0||from>6||to>6||from===to)return;weekDraft[to]=weekPlanClone(weekDraft[from]);weekDraftDirty=true;weekCopyFrom=-1;weekExpandedDay=to;renderWeekPlanner();}
 function swapWeekDays(from,to){if(!weekDraft||from<0||to<0||from>6||to>6||from===to)return;var temp=weekDraft[from];weekDraft[from]=weekDraft[to];weekDraft[to]=temp;weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
 function clearWeekDay(index){if(!weekDraft||index<0||index>6)return;weekDraft[index]=null;weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
 function clearWeekPlanner(){if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;weekDraft=weekDraft.map(function(){return null;});weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
 function saveWholeWeek(){
  if(!weekDraft||!weekPlannerMonday)return;
- DAYS.forEach(function(_,i){var date=offset(weekPlannerMonday,i),entry=weekDraft[i];if(entry)state.plans[date]=weekPlanClone(entry);else delete state.plans[date];});
+ if(!commitWeekDraft())return;
  var savedMonday=weekPlannerMonday,today=dayISO(new Date());selected=today>=savedMonday&&today<=offset(savedMonday,6)?today:savedMonday;
  persist();weekDraftDirty=false;render();$('week-planner').close();weekDraft=null;toast('Hela vecka '+isoWeekNumber(savedMonday)+' sparades.');
 }
 function saveWeekTemplate(){
  if(!weekDraft)return;
  var name=prompt('Namn på veckomallen:','Push / Pull · vecka');if(!name)return;
- var item={id:'week-tpl-'+Date.now(),name:name.trim()||'Veckomall',days:weekDraft.map(weekPlanClone)};
+ var item={id:uid(),name:name.trim()||'Veckomall',days:weekDraft.map(weekPlanClone)};
  weekTemplates().push(item);weekTemplateId=item.id;persist();renderWeekTemplates();toast('Veckomall sparad.');
 }
 function applyWeekTemplate(){
  var id=$('week-template-select').value,item=weekTemplates().find(function(t){return String(t.id)===String(id);});
  if(!item){toast('Välj en veckomall först.');return;}
- weekTemplateId=item.id;weekDraft=(item.days||[]).slice(0,7).map(weekPlanClone);while(weekDraft.length<7)weekDraft.push(null);weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();toast('Veckomallen är inläst – spara veckan när du är nöjd.');
+ weekTemplateId=item.id;weekDraft=DAYS.map(function(_,i){return weekPlanClone(item.days&&item.days[i]||weekDraft[i]);});while(weekDraft.length<7)weekDraft.push(null);weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();toast('Veckomallen har sparats i veckan.');
 }
 function deleteWeekTemplate(){
  var id=$('week-template-select').value,item=weekTemplates().find(function(t){return String(t.id)===String(id);});
@@ -1190,7 +1198,7 @@ function saveBuilderTemplate(){
  if(!copy.exercises.length||copy.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge övningarna innan du sparar mallen.');return;}
  var name=prompt('Namn på mallpass:',copy.name.trim()||copy.type+' · Mall');
  if(!name)return;
- var item={id:'tpl-'+Date.now(),name:name.trim()||copy.type+' · Mall',type:copy.type,exercises:deep(copy.exercises)};
+ var item={id:uid(),name:name.trim()||copy.type+' · Mall',type:copy.type,exercises:deep(copy.exercises)};
  builderTemplates().push(item);builderTemplateId=item.id;persist();renderBuilderTemplates();toast('Mallpass sparat.');
 }
 function applyBuilderTemplate(){
@@ -1263,11 +1271,11 @@ function endBuilderDrag(event){
 
 function openBuilder(type){
  builderWeekIndex=-1;
- var existing=plan(selected);
+ var existing=state.builderDrafts[selected]||plan(selected);builderBase=deep(plan(selected));
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
- draft=existing&&existing.type===kind?deep(existing):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
- draft.date=selected;
+ draft=existing?deep(existing):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
+ draft.date=selected;kind=draft.type;
  builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+kind.toLowerCase()+'pass';
  $('build-date').disabled=false;$('builder-save-plan').textContent='Spara upplägg';$('builder-start-from-builder').hidden=false;
@@ -1276,6 +1284,7 @@ function openBuilder(type){
  $('builder').showModal();
 }
 function renderBuilder(){
+ if($('builder').open)keepBuilderDraft();
  renderBuilderTemplates();
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
@@ -1288,6 +1297,8 @@ function renderBuilder(){
  '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' individuella set · '+(timed?'tidsbaserat':'viktbaserat')+'</span></div></article>';
  }).join('');
 }
+function keepBuilderDraft(){if(!draft||!window.IngemarAccount.canEdit)return;state.builderDrafts[draft.date]=deep(draft);persist();}
+function closeBuilder(){updateDraftFromBuilderInputs();keepBuilderDraft();endBuilderDrag();draft=null;$('builder').close();render();toast('Utkast sparat – fortsätt genom att öppna dagen igen.');}
 function updateDraftField(el){
  if(!draft)return;
  if(el.id==='build-date'){if(/^\d{4}-\d\d-\d\d$/.test(el.value)){draft.date=el.value;$('build-date-text').textContent=builderDateText(el.value);}return;}
@@ -1307,9 +1318,10 @@ function validateDraft(){
 }
 function saveDraft(){
  if(!validateDraft())return false;
- if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;return true;}
- state.plans[draft.date]={type:draft.type,name:draft.name,exercises:deep(draft.exercises)};
- selected=draft.date;persist();render();return true;
+ if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;delete state.builderDrafts[draft.date];return commitWeekDraft();}
+ preserveReplacedPlan(draft.date,draft);
+ state.plans[draft.date]=mergeEditedPlan(draft.date,builderBase,{type:draft.type,name:draft.name,exercises:deep(draft.exercises)});
+ delete state.builderDrafts[draft.date];selected=draft.date;if(!persist())return false;render();return true;
 }
 function openPlanPreview(startAfter){
  if(!validateDraft())return;
@@ -1327,7 +1339,7 @@ function confirmPlanPreview(startAfter){
  if(startAfter&&builderWeekIndex>=0)return;
  if(!saveDraft())return;
  var weekSave=builderWeekIndex>=0;$('plan-preview').close();$('builder').close();draft=null;
- if(startAfter)start();else toast(weekSave?'Passet uppdaterades i veckoutkastet.':'Passupplägget har sparats.');
+ if(startAfter)start();else toast(weekSave?'Passet har sparats i veckoplanen.':'Passupplägget har sparats.');
 }
 var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
 function familySessionFrame(){return $('family-session-frame');}
@@ -2060,7 +2072,7 @@ document.addEventListener('click',function(event){
   return;
  }
  if(b.dataset.exerciseNew!=null){beginBuilderFreeExerciseName(Number(b.dataset.exerciseNew));return;}
- if(b.dataset.type){var t=b.dataset.type;draft.type=t;draft.name=t+' · Fokus';draft.exercises=template(t);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+t.toLowerCase()+'pass';renderBuilder();return;}
+ if(b.dataset.type){var t=b.dataset.type;updateDraftFromBuilderInputs();draft.type=t;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+t.toLowerCase()+'pass';renderBuilder();return;}
  if(b.dataset.mode){var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];e.sets.forEach(function(s){if(e.mode==='min'&&!s.minutes)s.minutes=5;if(e.mode==='kg'&&!s.reps)s.reps=10;});builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
  if(b.dataset.removeSet){var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
@@ -2079,7 +2091,7 @@ document.addEventListener('click',function(event){
    case 'delete-week-template':deleteWeekTemplate();break;
    case 'build':openBuilder();break;
    case 'start':start();break;
-   case 'close-builder':endBuilderDrag();draft=null;$('builder').close();break;
+   case 'close-builder':closeBuilder();break;
    case 'apply-template':applyBuilderTemplate();break;
    case 'save-template':saveBuilderTemplate();break;
    case 'delete-template':deleteBuilderTemplate();break;
@@ -2157,12 +2169,12 @@ document.addEventListener('input',function(event){
   syncZenEditor();
   $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(zenEditDraft.steps)/60)+' min · '+zenEditDraft.steps.length+' steg';
  }
- if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set))updateDraftField(el);
+ if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set)){updateDraftField(el);keepBuilderDraft();}
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
 $('plan-preview').addEventListener('cancel',function(event){event.preventDefault();$('plan-preview').close();});
-$('builder').addEventListener('cancel',function(event){event.preventDefault();toast('Använd Stäng eller Avbryt för att inte tappa ändringar.');});
+$('builder').addEventListener('cancel',function(event){event.preventDefault();closeBuilder();});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
@@ -2186,7 +2198,7 @@ window.addEventListener('resize',function(){
 },{passive:true});
 if(ppChartGlowMq.addEventListener)ppChartGlowMq.addEventListener('change',schedulePpChartGlow);
 render();
-window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);selected=dayISO(new Date());render();if(view!=='training')renderZen();},serialize:function(){return JSON.stringify(state);}});
+window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);render();if(view!=='training')renderZen();},serialize:function(){return JSON.stringify(state);}});
 })();
 </script>
 </body>

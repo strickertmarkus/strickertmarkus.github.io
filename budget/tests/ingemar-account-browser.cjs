@@ -69,6 +69,7 @@ async function verifyTouchDrag(page,label){
      on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);const deliver=()=>cb({val:()=>getDb()[path]||null});if(localStorage.getItem('__delay_ingemar'))window.__deliverIngemar=deliver;else queueMicrotask(deliver);},
      off(){observers.delete(path);},
      async get(){if(localStorage.getItem('__deny_ingemar'))throw {code:'PERMISSION_DENIED'};return {val:()=>getDb()[path]||null};},
+     async transaction(update){const db=getDb(),value=update(db[path]||null);db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));const cb=observers.get(path);if(cb)cb({val:()=>value});return {committed:true,snapshot:{val:()=>value}};},
      async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));
        const cb=observers.get(path);if(cb)cb({val:()=>db[path]});},
    };}
@@ -374,6 +375,7 @@ async function verifyTouchDrag(page,label){
      on(type,cb,fail){if(localStorage.getItem('__deny_ingemar')){fail({code:'PERMISSION_DENIED'});return;}observers.set(path,cb);const deliver=()=>cb({val:()=>getDb()[path]||null});if(localStorage.getItem('__delay_ingemar'))window.__deliverIngemar=deliver;else queueMicrotask(deliver);},
      off(){observers.delete(path);},
      async get(){if(localStorage.getItem('__deny_ingemar'))throw {code:'PERMISSION_DENIED'};return {val:()=>getDb()[path]||null};},
+     async transaction(update){const db=getDb(),value=update(db[path]||null);db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));const cb=observers.get(path);if(cb)cb({val:()=>value});return {committed:true,snapshot:{val:()=>value}};},
      async set(value){const db=getDb();db[path]=value;localStorage.setItem(DBKEY,JSON.stringify(db));
        const cb=observers.get(path);if(cb)cb({val:()=>db[path]});},
    };}
@@ -436,7 +438,7 @@ async function verifyTouchDrag(page,label){
  await androidPage.evaluate(()=>{
   const make=(id,date,type,name,mode,values)=>({id,date,type,name:type,minutes:30,exercises:[{name,mode,sets:values.map(v=>({weight:mode==='kg'?v:0,minutes:mode==='min'?v:0,reps:8,done:true}))}]});
   const data={plans:{},zenHistory:[],manualPrs:{},history:[make('p1','2026-10-01','Push','Bänkpress','kg',[40,50]),make('p2','2026-10-02','Push','Bänkpress','kg',[40,55]),make('pull','2026-10-02','Pull','Sittande rodd med smalt kabelhandtag','kg',[30,45]),make('run','2026-10-02','Kondition','Löpning','min',[10,15])]};
-  const raw=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify({ex_ingemar:raw}));localStorage.setItem('ex_ingemar',raw);localStorage.setItem('ex_ingemar_pending','0');
+  const raw=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify({ex_ingemar:raw}));localStorage.setItem('ex_ingemar',raw);localStorage.setItem('ex_ingemar_pending','0');localStorage.removeItem('ex_ingemar_journal');
  });
  await androidPage.reload({waitUntil:'domcontentloaded'});await androidPage.waitForFunction(()=>IngemarAccount.canEdit);
  await androidPage.locator('#personal-records').scrollIntoViewIfNeeded();
@@ -486,6 +488,36 @@ async function verifyTouchDrag(page,label){
  await recordPage.screenshot({path:'test-results/ingemar-private/plan-preview-320.png'});
  await recordPage.locator('#plan-preview .modal-head [data-action="preview-back"]').click();
  assert.equal(await recordPage.locator('#builder').evaluate(el=>el.open),true);
+ // Drafts, sequential templates and week edits must survive closing and reload.
+ await recordPage.setViewportSize({width:390,height:844});
+ await recordPage.locator('#build-name').fill('Ben – sparat utkast');
+ await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ await recordPage.locator('[data-action="build"]').click();
+ assert.equal(await recordPage.locator('#build-name').inputValue(),'Ben – sparat utkast');
+ for(const name of ['Ben A','Ben B','Rygg C']){
+  recordPage.once('dialog',dialog=>dialog.accept(name));
+  await recordPage.locator('[data-action="save-template"]').click();
+ }
+ await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await recordPage.locator('[data-action="plan-week"]').click();
+ for(const i of [0,1,2,3,4]){
+  await recordPage.locator('[data-week-toggle-day="'+i+'"]').click();
+  await recordPage.locator('[data-week-type="'+i+':Push"]').click();
+ }
+ await recordPage.locator('[data-week-edit="0"]').click();
+ await recordPage.locator('#build-name').fill('Ben måndag');
+ await recordPage.locator('#builder-save-plan').click();await recordPage.locator('#preview-save').click();
+ await recordPage.waitForSelector('#week-planner[open]');
+ await recordPage.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();
+ await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ const durable=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')));
+ assert.ok(durable.templates.some(x=>x.name==='Ben A'));assert.ok(durable.templates.some(x=>x.name==='Ben B'));assert.ok(durable.templates.some(x=>x.name==='Rygg C'));
+ assert.ok(Object.values(durable.plans).some(x=>x.name==='Ben måndag'));
+ assert.ok(Object.keys(durable.plans).length>=5);
+ await recordPage.locator('[data-action="plan-week"]').click();
+ assert.equal(await recordPage.locator('#week-planner').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
+ await recordPage.screenshot({path:'test-results/ingemar-private/durable-week-iphone.png'});
  await recordContext.close();
  await android.close();
  await browser.close();console.log('Ingemar sync, records and iPhone/Android dialogs passed');

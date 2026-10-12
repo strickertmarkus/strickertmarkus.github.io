@@ -38,7 +38,7 @@ test('Firebase data remains isolated from Maja/Markus and shared across authenti
     on(event,fn){callbacks.set(path,fn);queueMicrotask(()=>fn({val:()=>remote.get(path)||null}));},
     off(){callbacks.delete(path);},
     async get(){return {val:()=>remote.get(path)||null};},
-    async set(value){remote.set(path,value);const fn=callbacks.get(path);if(fn)fn({val:()=>remote.get(path)});},
+    async transaction(update){const value=update(remote.get(path)||null);remote.set(path,value);const fn=callbacks.get(path);if(fn)fn({val:()=>remote.get(path)});return {committed:true,snapshot:{val:()=>value}};},
   });
   let listener;
   const auth={
@@ -121,7 +121,7 @@ function loginFixture(mode){
  const el=id=>elements[id]||(elements[id]={value:'',dataset:{},textContent:'',handlers:{},hidden:false,addEventListener(type,fn){this.handlers[type]=fn;},setAttribute(name,value){this[name]=value;}});
  const document={getElementById:el,documentElement:{dataset:{}},addEventListener(){}};
  const read=()=>readMode==='denied'?Promise.reject({code:'PERMISSION_DENIED'}):readMode==='pending'?new Promise(()=>{}):Promise.resolve({val:()=>null});
- const ref={on(type,fn,fail){subscriptions++;if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok'||readMode==='write-denied')fn({val:()=>null});},off(){},get:read,set(){writes++;return readMode==='write-denied'?Promise.reject({code:'PERMISSION_DENIED'}):Promise.resolve();}};
+ const ref={on(type,fn,fail){subscriptions++;if(readMode==='denied')fail({code:'PERMISSION_DENIED'});else if(readMode==='ok'||readMode==='write-denied')fn({val:()=>null});},off(){},get:read,transaction(update){writes++;return readMode==='write-denied'?Promise.reject({code:'PERMISSION_DENIED'}):Promise.resolve({committed:true,snapshot:{val:()=>update(null)}});}};
  const auth={setPersistence:async()=>{},onAuthStateChanged(fn){listener=fn;fn(null);},async signInWithEmailAndPassword(){listener({uid:'fixture',email:'test@example.invalid'});},async signOut(){listener(null);}};
  const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
  const firebase={apps:[],initializeApp:()=>({}),auth:authFn,database:()=>({ref:()=>ref})};
@@ -259,4 +259,50 @@ test('Cardio records use completed minutes per exercise and never mix in kilogra
  const pr=IngemarRecords.cardio([latest,old,{...w('demo','2026-10-04',[999]),demo:true}])['löpning'];
  assert.equal(pr.minutes,25);assert.equal(pr.gain,5);assert.equal(pr.group,'Kondition');assert.equal(pr.workoutId,'b');
  assert.equal(Object.keys(IngemarRecords.collect([latest,old])).length,0);
+});
+
+test('Concurrent devices retain additions, edits and explicit deletions without replacing collections',()=>{
+ const window={};vm.runInNewContext(manager,{window});const merge=window.IngemarMerge;
+ const copy=x=>JSON.parse(JSON.stringify(x));
+ const base={plans:{a:{name:'Ben',exercises:[]}},templates:[{id:'old',name:'Old'}],history:[]};
+ const a=copy(base),b=copy(base);a.templates.push({id:'a',name:'Ben'});b.templates.push({id:'b',name:'Pull'});
+ a.plans.b={name:'Push'};b.plans.c={name:'Kondition'};
+ let result=merge(base,a,b);
+ assert.deepEqual(Object.keys(result.plans).sort(),['a','b','c']);
+ assert.deepEqual(Array.from(result.templates,x=>x.id).sort(),['a','b','old']);
+ const deletion=copy(base);deletion.templates=[];
+ result=merge(base,deletion,result);
+ assert.deepEqual(Array.from(result.templates,x=>x.id).sort(),['a','b'],'Only the explicitly deleted record is removed');
+ for(let i=0;i<200;i++){
+  const local=copy(base);local.plans['day-'+i]={name:'Pass '+i};local.templates.push({id:'tpl-'+i,name:'Mall '+i});
+  result=merge(base,local,result);
+ }
+ assert.equal(Object.keys(result.plans).length,203);assert.equal(result.templates.length,202);
+});
+
+test('Edits made while an earlier transaction is in flight survive its acknowledgement and reload',async()=>{
+ const remote={value:JSON.stringify({plans:{},history:[],zenHistory:[],templates:[]})},storage=new Map();
+ let deliver,resolveWrite,applied;
+ const timers=[];
+ const el=()=>({dataset:{},setAttribute(){},addEventListener(){}});
+ const document={documentElement:{dataset:{}},getElementById:el,addEventListener(){}};
+ const ref={on(_,cb){deliver=cb;cb({val:()=>remote.value});},off(){},transaction(update){return new Promise(resolve=>{resolveWrite=()=>{remote.value=update(remote.value);deliver({val:()=>remote.value});resolve({committed:true,snapshot:{val:()=>remote.value}});};});}};
+ const auth={setPersistence:async()=>{},onAuthStateChanged(cb){cb({uid:'test'});}};
+ const authFn=()=>auth;authFn.Auth={Persistence:{LOCAL:'LOCAL'}};
+ const firebase={apps:[],initializeApp:()=>({}),auth:authFn,database:()=>({ref:()=>ref})};
+ const window={firebase,FIREBASE_CONFIG:{},addEventListener(){}};
+ vm.runInNewContext(manager,{window,document,firebase,console,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout(fn,ms){timers.push({fn,ms});return timers.length;},clearTimeout(){},setInterval(){}});
+ window.IngemarAccount.connect({apply:x=>applied=x,serialize:()=>JSON.stringify(applied)});
+ await new Promise(r=>setImmediate(r));
+ const first=JSON.parse(remote.value);first.templates.push({id:'one',name:'Ben'});
+ window.IngemarAccount.save(first);const pending=timers.find(t=>t.ms===450).fn();
+ const second=JSON.parse(JSON.stringify(first));second.templates.push({id:'two',name:'Pull'});window.IngemarAccount.save(second);
+ const other=JSON.parse(remote.value);other.plans.tomorrow={name:'Annan mobil'};remote.value=JSON.stringify(other);
+ resolveWrite();await pending;
+ assert.equal(applied.templates.length,2);assert.equal(applied.plans.tomorrow.name,'Annan mobil');
+ const journal=JSON.parse(storage.get('ex_ingemar_journal'));
+ const recovered=window.IngemarMerge(JSON.parse(journal.base),JSON.parse(journal.local),JSON.parse(remote.value));
+ assert.equal(recovered.templates.length,2);assert.equal(recovered.plans.tomorrow.name,'Annan mobil');
+ const final=timers.filter(t=>t.ms===450).at(-1).fn();resolveWrite();await final;
+ assert.equal(JSON.parse(remote.value).templates.length,2);assert.equal(storage.has('ex_ingemar_journal'),false);
 });
