@@ -505,7 +505,7 @@ async function verifyTouchDrag(page,label){
   await recordPage.locator('[data-week-toggle-day="'+i+'"]').click();
   await recordPage.locator('[data-week-type="'+i+':Push"]').click();
  }
- await recordPage.locator('[data-week-edit="0"]').click();
+ await recordPage.locator('.week-day-open[data-week-edit="0"]').click();
  await recordPage.locator('#build-name').fill('Ben måndag');
  await recordPage.locator('#builder-save-plan').click();await recordPage.locator('#preview-save').click();
  await recordPage.waitForSelector('#week-planner[open]');
