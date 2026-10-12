@@ -64,7 +64,7 @@
         '<label>Prioritet<select name="priority" aria-label="Prioritet">'+prioOpts('normal')+'</select></label>'+
         '<label>Förfallodatum<input type="date" name="dueDate" aria-label="Förfallodatum"></label></div></form>'+
         '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
-        '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a>';
+        '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a> <a class="tap-hint ft-bottom-link" style="margin-left:16px;color:var(--accent,#FDBA74)" href="travel.html">Reseplanerare <span aria-hidden="true">↗</span></a>';
     } else {
     root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(compact?'Att göra':shop?'Familjens att-göra-lista':'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
