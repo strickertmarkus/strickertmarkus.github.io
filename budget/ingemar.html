@@ -530,7 +530,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script src="auth-config.js"></script>
 <script src="ingemar-records.js?v=20261011-compact-pr-2"></script>
-<script src="ingemar-account.js?v=20261012-durable-1"></script>
+<script src="ingemar-account.js?v=20261012-durable-2"></script>
 <script>
 (function(){
 'use strict';
@@ -1069,7 +1069,7 @@ function renderWeekTemplates(){
 }
 function weekExerciseChoices(entry){var names=exerciseNameCatalog(entry.type,entry.type==='Kondition'?'min':'kg').map(function(item){return item.name;});template(entry.type).forEach(function(ex){if(!names.some(function(name){return exerciseNameKey(name)===exerciseNameKey(ex.name);})){names.push(ex.name);}});(entry.exercises||[]).forEach(function(ex){if(!names.some(function(name){return exerciseNameKey(name)===exerciseNameKey(ex.name);})){names.push(ex.name);}});return names;}
 function weekExercisePreset(type,name){var key=exerciseNameKey(name),items=template(type);state.history.slice().reverse().forEach(function(workout){if(workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});Object.keys(state.plans).sort().forEach(function(date){var workout=state.plans[date];if(workout&&workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});builderTemplates().forEach(function(workout){if(workout.type===type)(workout.exercises||[]).forEach(function(ex){if(exerciseNameKey(ex.name)===key)items.push(ex);});});var found=items.find(function(ex){return exerciseNameKey(ex.name)===key;});if(!found)return null;var copy=deep(found);copy.id=uid();copy.sets=(copy.sets||[]).map(function(set){set.id=uid();set.done=false;return set;});return copy;}
-function setWeekDayType(index,type){if(!weekDraft||index<0||index>6)return;if(type==='Vila')weekDraft[index]=null;else if(TYPES.indexOf(type)>=0&&(!weekDraft[index]||weekDraft[index].type!==type))weekDraft[index]=standardWeekPlan(type);weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();}
+function setWeekDayType(index,type){if(!weekDraft||index<0||index>6)return;if(type==='Vila'){weekDraft[index]=null;delete state.builderDrafts[offset(weekPlannerMonday,index)];}else if(TYPES.indexOf(type)>=0&&(!weekDraft[index]||weekDraft[index].type!==type))weekDraft[index]=standardWeekPlan(type);weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();}
 function toggleWeekExercise(index,name){var entry=weekDraft&&weekDraft[index];if(!entry||!name)return;var key=exerciseNameKey(name),at=entry.exercises.findIndex(function(ex){return exerciseNameKey(ex.name)===key;});if(at>=0)entry.exercises.splice(at,1);else{if(entry.exercises.length>=16){toast('Högst 16 övningar per dag.');return;}var preset=weekExercisePreset(entry.type,name);if(!preset){toast('Öppna full passbyggare för en helt ny övning.');return;}entry.exercises.push(preset);}weekDraftDirty=true;weekExpandedDay=index;renderWeekPlanner();}
 function applyWeekDayTemplate(index,id){var item=builderTemplates().find(function(t){return String(t.id)===String(id);});if(!item)return;weekDraft[index]={type:item.type,name:item.name,exercises:deep(item.exercises)};weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();}
 function weekPlannerSummaryText(){var sessions=weekDraft.filter(Boolean),exercises=sessions.reduce(function(n,item){return n+(item.exercises||[]).length;},0),sets=sessions.reduce(function(n,item){return n+(item.exercises||[]).reduce(function(sum,ex){return sum+(ex.sets||[]).length;},0);},0);return {main:sessions.length+' pass planerade',sub:exercises+' övningar · '+sets+' set · '+(7-sessions.length)+' vilodag'+(7-sessions.length===1?'':'ar')};}
@@ -1114,8 +1114,8 @@ function shiftWeekPlanner(delta){if(!commitWeekDraft())return;loadWeekPlannerMon
 function currentWeekPlanner(){if(!commitWeekDraft())return;loadWeekPlannerMonday(weekStart(dayISO(new Date())));}
 function copyWeekDay(from,to){if(!weekDraft||from<0||to<0||from>6||to>6||from===to)return;weekDraft[to]=weekPlanClone(weekDraft[from]);weekDraftDirty=true;weekCopyFrom=-1;weekExpandedDay=to;renderWeekPlanner();}
 function swapWeekDays(from,to){if(!weekDraft||from<0||to<0||from>6||to>6||from===to)return;var temp=weekDraft[from];weekDraft[from]=weekDraft[to];weekDraft[to]=temp;weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
-function clearWeekDay(index){if(!weekDraft||index<0||index>6)return;weekDraft[index]=null;weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
-function clearWeekPlanner(){if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;weekDraft=weekDraft.map(function(){return null;});weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
+function clearWeekDay(index){if(!weekDraft||index<0||index>6)return;weekDraft[index]=null;delete state.builderDrafts[offset(weekPlannerMonday,index)];weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
+function clearWeekPlanner(){if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;weekDraft=weekDraft.map(function(_,i){delete state.builderDrafts[offset(weekPlannerMonday,i)];return null;});weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
 function saveWholeWeek(){
  if(!weekDraft||!weekPlannerMonday)return;
  if(!commitWeekDraft())return;

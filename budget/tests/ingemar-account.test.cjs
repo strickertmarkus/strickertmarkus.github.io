@@ -306,3 +306,17 @@ test('Edits made while an earlier transaction is in flight survive its acknowled
  const final=timers.filter(t=>t.ms===450).at(-1).fn();resolveWrite();await final;
  assert.equal(JSON.parse(remote.value).templates.length,2);assert.equal(storage.has('ex_ingemar_journal'),false);
 });
+
+test('Concurrent workout versions remain available and exercise reordering survives another edit',()=>{
+ const window={};vm.runInNewContext(manager,{window});
+ const ex=id=>({id,name:id,sets:[{id:id+'-set',weight:20,reps:8}]});
+ const base={plans:{today:{name:'Ben',type:'Push',exercises:[ex('a'),ex('b')]}},templates:[]};
+ const local=JSON.parse(JSON.stringify(base)),remote=JSON.parse(JSON.stringify(base));
+ local.plans.today.exercises.reverse();remote.plans.today.exercises[0].sets[0].weight=25;
+ const result=window.IngemarMerge(base,local,remote);
+ assert.equal(result.plans.today.exercises[0].id,'b');
+ assert.equal(result.plans.today.exercises[1].sets[0].weight,25);
+ assert.equal(result.templates.length,1);assert.match(result.templates[0].name,/sparad version/);
+ const again=window.IngemarMerge(base,local,result);
+ assert.equal(new Set(again.templates.map(x=>x.id)).size,again.templates.length);
+});

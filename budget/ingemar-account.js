@@ -54,7 +54,7 @@
   };
   window.IngemarAccount=API;
   let app,auth,db,recordRef=null,recordHandler=null,client=null,connected=false;
-  let baseRaw='',pendingKey=LOCAL_KEY+'_journal';
+  let localDurable=true,baseRaw='',pendingKey=LOCAL_KEY+'_journal';
   let generation=0,writeTimer=null,dirty=false,saving=false,lastLocal='',lastRemote='',retryTimer=null;
   let loginBusy=false,loadTimer=null,refreshPending=false,readAttempt=0;
   let authResolved=false,persistenceReady=Promise.resolve(),persistenceWarning=false,writeWatchdog=null;
@@ -235,7 +235,7 @@
     saving=true;
     if(writeWatchdog)clearTimeout(writeWatchdog);
     writeWatchdog=setTimeout(()=>{
-      if(token===generation&&saving)setStatus('Sparat lokalt · väntar på Firebase');
+      if(token===generation&&saving)setStatus(localDurable?'Sparat lokalt · väntar på Firebase':'Inte sparat ännu · håll sidan öppen');
     },10000);
     try{
       const result=await ref.transaction(current=>{
@@ -259,13 +259,13 @@
       saving=false;
       if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
       if(/permission.denied/i.test(error&&error.code||''))setStatus('Firebase nekade sparningen · kontrollera kontobehörighet');
-      else setStatus('Sparat lokalt · synkningen misslyckades');
+      else setStatus(localDurable?'Sparat lokalt · synkningen misslyckades':'Kunde inte spara · håll sidan öppen');
       console.warn('[Ingemar] Synkning misslyckades',error);
     }
   }
   function saveJournal(){
-    try{localStorage.setItem(pendingKey,JSON.stringify({base:baseRaw,local:lastLocal}));return true;}
-    catch(_){setStatus('Kunde inte spara på enheten · håll sidan öppen');return false;}
+    try{localStorage.setItem(pendingKey,JSON.stringify({base:baseRaw,local:lastLocal}));localDurable=true;return true;}
+    catch(_){localDurable=false;setStatus('Kunde inte spara på enheten · håll sidan öppen');return false;}
   }
   function save(value){
     if(!API.canEdit)return false;
@@ -316,7 +316,7 @@
         retryTimer=setInterval(()=>{if(dirty&&!saving&&!writeTimer&&API.canEdit)queueWrite();},3000);
         window.addEventListener('online',()=>{if(dirty)queueWrite();else refresh();});
         window.addEventListener('pagehide',()=>{if(dirty)flush();});
-        window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
+        window.addEventListener('beforeunload',event=>{if(dirty&&!localDurable){event.preventDefault();event.returnValue='';}});
         window.addEventListener('pageshow',()=>{if(dirty)queueWrite();else refresh();});
         document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(dirty)queueWrite();else refresh();}});
       }catch(error){authResolved=true;setGate(true,'error');message(errorMessage(error),true);setStatus('Kan inte starta Firebase');}

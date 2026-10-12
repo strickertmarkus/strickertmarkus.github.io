@@ -493,7 +493,7 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('#build-name').fill('Ben – sparat utkast');
  await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
- await recordPage.locator('[data-action="build"]').click();
+ await recordPage.getByRole('button',{name:'Redigera vald dag',exact:true}).click();
  assert.equal(await recordPage.locator('#build-name').inputValue(),'Ben – sparat utkast');
  for(const name of ['Ben A','Ben B','Rygg C']){
   recordPage.once('dialog',dialog=>dialog.accept(name));
