@@ -689,27 +689,29 @@ function syncIngemarRestColor(){
   if(betweenExercises)rest.dataset.ingemarBetween='exercise';
   else delete rest.dataset.ingemarBetween;
 }
-var ingemarRestObserver=null,ingemarRestMountObserver=null;
+var ingemarRestObserver=null;
 function watchIngemarRestColor(){
- if(ingemarRestObserver)return;
- var rest=document.getElementById('session-between-overlay-v2');
- if(!rest){
-  if(!ingemarRestMountObserver&&document.body){
-   ingemarRestMountObserver=new MutationObserver(function(){
-    if(!document.getElementById('session-between-overlay-v2'))return;
-    ingemarRestMountObserver.disconnect();
-    ingemarRestMountObserver=null;
-    watchIngemarRestColor();
-   });
-   ingemarRestMountObserver.observe(document.body,{childList:true,subtree:true});
+ if(ingemarRestObserver||!document.body)return;
+ ingemarRestObserver=new MutationObserver(function(records){
+  for(var i=0;i<records.length;i++){
+   var record=records[i],target=record.target;
+   if(target&&target.id==='session-between-overlay-v2'){
+    syncIngemarRestColor();return;
+   }
+   if(target&&target.classList&&target.classList.contains('bs-label')){
+    syncIngemarRestColor();return;
+   }
+   if(record.type==='childList'){
+    for(var j=0;j<record.addedNodes.length;j++){
+     var added=record.addedNodes[j];
+     if(added.nodeType===1&&(added.id==='session-between-overlay-v2'||added.querySelector&&added.querySelector('#session-between-overlay-v2'))){
+      syncIngemarRestColor();return;
+     }
+    }
+   }
   }
-  return;
- }
- var observer=new MutationObserver(syncIngemarRestColor);
- observer.observe(rest,{attributes:true,attributeFilter:['class','data-between-type']});
- var label=rest.querySelector('.bs-label');
- if(label)observer.observe(label,{childList:true,characterData:true,subtree:true});
- ingemarRestObserver=observer;
+ });
+ ingemarRestObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-between-type']});
  syncIngemarRestColor();
 }
 function syncIngemarSessionTone(){
