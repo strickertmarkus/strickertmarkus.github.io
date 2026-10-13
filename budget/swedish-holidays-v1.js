@@ -41,7 +41,7 @@
 
   function weekdayBetween(year, month, startDay, endDay, weekday) {
     for (var d = startDay; d <= endDay; d++) {
-      if (new Date(Date.UTC(year, month - 1, d)).getUTCDay() === weekday) return dateISO(year, month, d);
+      if (new Date(Date.UTC(year, month - 1, d)).getUTCDay() === weekday) return fromUTC(new Date(Date.UTC(year, month - 1, d)));
     }
     return '';
   }
@@ -76,17 +76,8 @@
     var midsummer = weekdayBetween(year, 6, 20, 26, 6);
     add(offset(midsummer, -1), 'Midsommarafton', 'tradition', 'Högtidsafton, inte allmän helgdag');
     add(midsummer, 'Midsommardagen', 'official');
-    var allSaints = weekdayBetween(year, 10, 31, 37, 6);
-    // Oct 31-Nov 6 is a seven-day range crossing the month boundary.
-    if (!allSaints) {
-      for (var novemberDay = 1; novemberDay <= 6; novemberDay++) {
-        if (new Date(Date.UTC(year, 10, novemberDay)).getUTCDay() === 6) {
-          allSaints = dateISO(year, 11, novemberDay);
-          break;
-        }
-      }
-    }
-    add(allSaints, 'Alla helgons dag', 'official');
+    // UTC dates overflow from Oct into November for the Nov 1-6 possibilities.
+    add(weekdayBetween(year, 10, 31, 37, 6), 'Alla helgons dag', 'official');
 
     tradition(2, 14, 'Alla hjärtans dag');
     tradition(3, 8, 'Internationella kvinnodagen', 'Temadag');
