@@ -101,6 +101,18 @@
     '</button>';
   }
 
+  function holidayItems(dateISO) {
+    return window.SwedishHolidays ? window.SwedishHolidays.get(dateISO) : [];
+  }
+
+  function holidayMarkup(dateISO) {
+    return holidayItems(dateISO).map(function (holiday) {
+      return '<div class="home-calendar-holiday-note ' + esc(holiday.type) + '">' +
+        '<strong>' + esc(holiday.name) + '</strong><small>' + esc(holiday.detail) + '</small>' +
+      '</div>';
+    }).join('');
+  }
+
   function setSelectedDay(dayIso) {
     window.selectedDate = dayIso;
     var input = document.getElementById('ev-date');
@@ -134,6 +146,7 @@
     var title = date.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long' });
     title = title.charAt(0).toUpperCase() + title.slice(1);
     var untimed = events.filter(function (event) { return eventStartHour(event) < 0; });
+    var dayHolidayMarkup = holidayMarkup(dayIso);
     var timed = events.filter(function (event) { return eventStartHour(event) >= 0; });
     var hours = [];
     for (var hour = 0; hour < 24; hour++) hours.push(dayHourMarkup(hour, dayIso, timed));
@@ -141,7 +154,7 @@
       '<section class="home-cal-day-v11" data-date="' + dayIso + '">' +
         '<div class="home-cal-alt-head-v11"><div><span>Dagvy</span><strong>' + esc(title) + '</strong></div>' +
         '<button type="button" class="home-cal-add-v11" data-add-date="' + dayIso + '">+ Händelse</button></div>' +
-        (untimed.length ? '<div class="home-cal-day-all-day-v12"><span>Hela dagen</span><div>' + untimed.map(function (event) { return eventMarkup(event, true); }).join('') + '</div></div>' : '') +
+        (untimed.length || dayHolidayMarkup ? '<div class="home-cal-day-all-day-v12"><span>Hela dagen</span><div>' + dayHolidayMarkup + untimed.map(function (event) { return eventMarkup(event, true); }).join('') + '</div></div>' : '') +
         '<div class="home-cal-day-hours-v12" aria-label="Tidslinje för ' + esc(title) + '">' +
           hours.join('') +
         '</div>' +
@@ -165,13 +178,16 @@
       var dayIso = iso(date);
       var events = eventsForDate(date);
       var isToday = dayIso === iso(new Date());
+      var weekHolidayMarkup = holidayMarkup(dayIso);
+      var weekHolidays = holidayItems(dayIso);
+      var holidayKind = weekHolidays.some(function(h) { return h.type === 'official'; }) ? 'official' : (weekHolidays.length ? 'tradition' : '');
       var weekday = date.toLocaleDateString('sv-SE', { weekday:'short' }).replace('.', '');
       var label = date.toLocaleDateString('sv-SE', { day:'numeric', month:'short' }).replace('.', '');
       rows.push(
-        '<section class="home-cal-week-day-v11' + (isToday ? ' today' : '') + '" data-date="' + dayIso + '">' +
+        '<section class="home-cal-week-day-v11' + (isToday ? ' today' : '') + (holidayKind ? ' swedish-holiday-' + holidayKind : '') + '" data-date="' + dayIso + '">' +
           '<button type="button" class="home-cal-week-date-v11" data-pick-date="' + dayIso + '"><span>' + esc(weekday) + '</span><strong>' + esc(label) + '</strong></button>' +
           '<div class="home-cal-week-events-v11">' +
-            (events.length ? events.map(function (ev) { return eventMarkup(ev, true); }).join('') : '<span class="home-cal-week-empty-v11">Inget planerat</span>') +
+            weekHolidayMarkup + (events.length ? events.map(function (ev) { return eventMarkup(ev, true); }).join('') : (weekHolidayMarkup ? '' : '<span class="home-cal-week-empty-v11">Inget planerat</span>')) +
           '</div>' +
         '</section>'
       );
@@ -459,6 +475,7 @@
     }
 
     window.addEventListener('firebase-sync', scheduleRender);
+    window.addEventListener('swedish-holidays-change', scheduleRender);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true });
