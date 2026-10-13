@@ -933,6 +933,7 @@ function renderPushPullAnalytics(){
 function ensureZenData(value){
  // Keep dismissed suggestions separate from historical workouts and saved plans.
  if(!value.hiddenExerciseOptions||typeof value.hiddenExerciseOptions!=='object'||Array.isArray(value.hiddenExerciseOptions))value.hiddenExerciseOptions={};
+ if(!value.exerciseOptions||typeof value.exerciseOptions!=='object'||Array.isArray(value.exerciseOptions))value.exerciseOptions={};
  if(!value.zenRoutines)value.zenRoutines={};
  ['stretch','meditation'].forEach(function(kind){
   if(!Array.isArray(value.zenRoutines[kind]))value.zenRoutines[kind]=ZEN_ROUTINES[kind].map(function(item,i){var routine=deep(item);routine.id='zen-base-'+kind+'-'+i;return routine;});
@@ -1165,16 +1166,49 @@ function exerciseCatalogSources(){
 }
 function exerciseNameCatalog(type,mode){
  var targetTimed=mode==='min'||type==='Kondition',seen=Object.create(null),items=[];
+ function addName(rawName){
+  var name=cleanExerciseName(rawName),key=exerciseNameKey(name);
+  if(!key||seen[key]||state.hiddenExerciseOptions[exerciseCatalogId(type,targetTimed?'min':'kg',name)])return;
+  seen[key]=true;items.push({name:name,mode:targetTimed?'min':'kg'});
+ }
+ // Typed exercise names persist independently of completed or saved workouts.
+ Object.keys(state.exerciseOptions||{}).forEach(function(id){
+  var item=state.exerciseOptions[id];
+  if(!item||item.type!==type||(item.mode==='min')!==targetTimed)return;
+  addName(item.name);
+ });
  exerciseCatalogSources().forEach(function(record){
   (record.exercises||[]).forEach(function(item){
    var timed=item.mode==='min'||record.type==='Kondition';
    if(targetTimed?!timed:(timed||record.type!==type))return;
-   var name=cleanExerciseName(item.name),key=exerciseNameKey(name);
-   if(!key||seen[key]||state.hiddenExerciseOptions[exerciseCatalogId(type,targetTimed?'min':'kg',name)])return;
-   seen[key]=true;items.push({name:name,mode:targetTimed?'min':'kg'});
+   addName(item.name);
   });
  });
  return items.sort(function(a,b){return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});});
+}
+function rememberTypedExerciseName(index){
+ var input=document.querySelector('#builder [data-exercise-name-input="'+index+'"]');
+ var ex=draft&&draft.exercises[index];
+ if(!ex||!input||input.dataset.exerciseNameFree!=='1'||input.dataset.exerciseNameEdited!=='1')return false;
+ var name=cleanExerciseName(input.value).slice(0,65);
+ if(!name)return false;
+ ex.name=name;
+ var mode=ex.mode==='min'||draft.type==='Kondition'?'min':'kg';
+ var id=exerciseCatalogId(draft.type,mode,name),existing=state.exerciseOptions[id],changed=false;
+ if(!existing||existing.name!==name||existing.type!==draft.type||existing.mode!==mode){
+  state.exerciseOptions[id]={name:name,type:draft.type,mode:mode};changed=true;
+ }
+ // Intentionally typing an option again restores it after previous dismissal.
+ if(state.hiddenExerciseOptions[id]){state.hiddenExerciseOptions[id]=false;changed=true;}
+ delete input.dataset.exerciseNameEdited;
+ if(changed){persist();refreshBuilderExerciseMenu(index);}
+ return changed;
+}
+function rememberAllTypedExerciseNames(){
+ if(!draft||!document.getElementById('builder').open)return;
+ document.querySelectorAll('#builder [data-exercise-name-input][data-exercise-name-edited="1"]').forEach(function(input){
+  rememberTypedExerciseName(Number(input.dataset.exerciseNameInput));
+ });
 }
 function builderExerciseNameMenuMarkup(ex,index){
  var catalog=exerciseNameCatalog(draft.type,ex.mode),current=exerciseNameKey(ex.name);
@@ -1209,6 +1243,7 @@ function removeBuilderExerciseOption(index,name){
  });
 }
 function setBuilderExercisePicker(index){
+ if(index>=0)refreshBuilderExerciseMenu(index);
  builderOpenExerciseIndex=index;
  document.querySelectorAll('#builder [data-exercise-menu]').forEach(function(menu){
   var show=Number(menu.dataset.exerciseMenu)===index;
@@ -1452,7 +1487,7 @@ function renderBuilderTemplates(){
 }
 function saveBuilderTemplate(){
  if(!draft)return;
- updateDraftFromBuilderInputs();
+ updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();
  var copy=deep(draft);copy.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
  if(!copy.exercises.length||copy.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge övningarna innan du sparar mallen.');return;}
  var name=prompt('Namn på mallpass:',copy.name.trim()||copy.type+' · Mall');
@@ -1614,7 +1649,7 @@ function renderBuilder(){
  }).join('');
 }
 function keepBuilderDraft(){if(!draft||!window.IngemarAccount.canEdit)return;state.builderDrafts[draft.date]=deep(draft);persist();}
-function closeBuilder(){updateDraftFromBuilderInputs();keepBuilderDraft();endBuilderDrag();draft=null;$('builder').close();render();toast('Utkast sparat – fortsätt genom att öppna dagen igen.');}
+function closeBuilder(){updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();keepBuilderDraft();endBuilderDrag();draft=null;$('builder').close();render();toast('Utkast sparat – fortsätt genom att öppna dagen igen.');}
 function updateDraftField(el){
  if(!draft)return;
  if(el.id==='build-date'){if(/^\d{4}-\d\d-\d\d$/.test(el.value)){draft.date=el.value;$('build-date-text').textContent=builderDateText(el.value);}return;}
@@ -1625,6 +1660,7 @@ function updateDraftField(el){
 function validateDraft(){
  if(!draft)return false;
  updateDraftFromBuilderInputs();
+ rememberAllTypedExerciseNames();
  if(!/^\d{4}-\d\d-\d\d$/.test(draft.date)){toast('Välj ett giltigt datum.');return false;}
  draft.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
  if(!draft.exercises.length||draft.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge varje övning och lägg till minst ett set.');return false;}
@@ -2605,6 +2641,10 @@ document.addEventListener('click',function(event){
  closeBuilderExercisePicker();
 });
 document.addEventListener('change',function(event){
+ if(event.target.dataset.exerciseNameInput!=null&&$('builder').open&&draft){
+  updateDraftField(event.target);
+  rememberTypedExerciseName(Number(event.target.dataset.exerciseNameInput));
+ }
  if(event.target.dataset.betweenEdit&&$('builder').open&&draft)updateBuilderBetweenField(event.target);
  if(event.target.id==='builder-template-select'){var option=event.target.selectedOptions[0];setText('builder-template-selected',option?option.textContent:'Välj mallpass');}
  if(event.target.type==='date')syncDateDisplay(event.target.id);
@@ -2623,7 +2663,10 @@ document.addEventListener('input',function(event){
   syncZenEditor();
   $('zen-editor-duration').textContent=Math.ceil(zenStepDuration(zenEditDraft.steps)/60)+' min · '+zenEditDraft.steps.length+' steg';
  }
- if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set)){updateDraftField(el);keepBuilderDraft();}
+ if($('builder').open&&draft&&(el.id==='build-date'||el.id==='build-name'||el.dataset.name!=null||el.dataset.set)){
+  if(el.dataset.exerciseNameInput!=null&&el.dataset.exerciseNameFree==='1')el.dataset.exerciseNameEdited='1';
+  updateDraftField(el);keepBuilderDraft();
+ }
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;});
