@@ -115,7 +115,7 @@
     .cal-section { padding-right: 1.5rem; position: relative; }
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 4px; }
     .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .cal-cell:hover { border-color: rgba(255,255,255,.14); }
     .cal-cell.has-events:hover { border-color: rgba(253,186,116,.52); background: rgba(253,186,116,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
@@ -199,8 +199,10 @@
     .cal-event-preview { display:flex;flex-direction:column;gap:2px;min-width:0;width:100%;margin-top:auto;padding-top:3px; }
     .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
+    .cal-event-preview-more-mobile { display:none; }
     @media(max-width:768px) {
-      .cal-cell.has-events { min-height:76px; }
+      /* Keep event days at the same base height as every other day. */
+      .cal-cell.has-events { min-height:56px; }
       .cal-event-preview-title { font-size:9px;line-height:12px;height:14px;padding:1px 2px 1px 3px; }
       .cal-event-preview-more { font-size:9px;line-height:10px;min-height:10px; }
     }
@@ -224,6 +226,12 @@
     .event-item:last-child { border-bottom: none; }
     .event-item:hover { background: var(--surface-h); }
     .event-bar { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
+    /* Same glowing member dot used by the Att göra list. */
+    #upcoming-list .upcoming-event-item { display:block; }
+    #upcoming-list .upcoming-event-item .event-info { width:100%; }
+    #upcoming-list .upcoming-event-details { display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;margin-top:4px;color:var(--text-sec);font-size:10px;line-height:1.4; }
+    #upcoming-list .upcoming-member-dot { display:inline-block;width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:var(--member-color);box-shadow:0 0 9px var(--member-color); }
+    #upcoming-list .upcoming-event-when { color:var(--text-sec); }
     .event-info { flex: 1; min-width: 0; }
     .event-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-meta { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
@@ -865,6 +873,19 @@
         margin-bottom: 16px;
       }
     }
+    /* Dense month grid on phones: nearly square cells, never taller
+       just because a day has more events. One title + remaining count;
+       the popup retains the complete event list. */
+    @media (max-width: 600px) {
+      .cal-grid { grid-auto-rows:clamp(48px,12.2vw,60px); }
+      .cal-cell, .cal-cell.has-events { min-height:0; padding:4px 3px; border-radius:8px; }
+      .cal-num { line-height:1.1; margin-bottom:0; }
+      .cal-event-preview { gap:1px; padding-top:0; }
+      .cal-event-preview-title { height:13px;line-height:11px;font-size:9px;padding:1px 2px 1px 3px; }
+      .cal-event-preview-title:nth-child(n+2) { display:none; }
+      .cal-event-preview-more { display:none; }
+      .cal-event-preview-more-mobile { display:block;color:#B8C2CF;font-size:9px;font-weight:800;line-height:9px;min-height:9px;padding-left:2px; }
+    }
   </style>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
 <script src="home-calendar-views-v11.js?v=20261013-holidays-1" data-home-calendar-views-v11="true"></script>
@@ -1412,6 +1433,7 @@ function renderMonth() {
       }).join('');
       html += '<div class="cal-event-preview" aria-hidden="true">' + previewRows +
         (dayEvs.length > 2 ? '<span class="cal-event-preview-more">+' + (dayEvs.length - 2) + ' till</span>' : '') +
+        (dayEvs.length > 1 ? '<span class="cal-event-preview-more-mobile">+' + (dayEvs.length - 1) + ' till</span>' : '') +
         '</div>';
       cell.title = dayEvs.length + (dayEvs.length === 1 ? ' händelse' : ' händelser') +
         ': ' + dayEvs.map(function(ev) { return ev.title || 'Händelse'; }).join(', ');
@@ -1490,7 +1512,7 @@ function renderUpcoming() {
     var p=ev.date.split('-');
     var dateStr=p[2]+'/'+p[1];
     var timeLabel = formatEventTimeRange(ev);
-    html+='<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="event-meta">'+dateStr+(timeLabel?' · '+timeLabel:'')+'</div><div class="event-assignee">'+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</div></div></div>';
+    html+='<div class="event-item upcoming-event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-info"><div class="event-title">'+(ev.emoji||'')+'&nbsp;'+escHtml(ev.title)+'</div><div class="upcoming-event-details"><span class="upcoming-member-dot" style="--member-color:'+col+'" aria-hidden="true"></span><span>'+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</span><span class="upcoming-event-when">· '+dateStr+(timeLabel?' · '+timeLabel:'')+'</span></div></div></div>';
   });
   if (list) list.innerHTML=html;
 }
