@@ -207,8 +207,8 @@ async function verifyTouchDrag(page,label){
  assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
- // Regression: this iframe lives one folder below the canonical Markus/Maja
- // engine. All shared scripts must load from /budget/, never return a 404.
+ // The iframe declares <base href="../">, so relative canonical module URLs
+ // must resolve to /budget/ and initialize the actual timer and rest engines.
  const engineLoad=await page.evaluate(()=>{
   const w=document.getElementById('family-session-frame').contentWindow;
   const scripts=Array.from(w.document.querySelectorAll('script[src]'));
