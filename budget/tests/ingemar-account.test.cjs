@@ -334,3 +334,47 @@ test('Concurrent workout versions remain available and exercise reordering survi
  const again=window.IngemarMerge(base,local,result);
  assert.equal(new Set(again.templates.map(x=>x.id)).size,again.templates.length);
 });
+
+test('Week planner keeps named drafts, protects last exercise and ignores cancelled drag',()=>{
+ const source=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+ function functionText(name){
+  const match=source.match(new RegExp('^function '+name+'\\([^\\n]*\\)\\{[\\s\\S]*?^\\}', 'm'));
+  assert.ok(match,'Missing production function '+name);return match[0];
+ }
+ const monday='2026-10-12',tuesday='2026-10-13',notices=[];
+ const plan=(type,name)=>({type,name,exercises:[{name:'Bänkpress',mode:'kg',sets:[{reps:10,weight:50}]}]});
+ const state={builderDrafts:{[monday]:plan('Push','Eget utkast')},templates:[]};
+ const ctx={state,weekPlannerMonday:monday,weekDraft:[plan('Push','Ben'),plan('Push','Rygg'),null,null,null,null,null],
+  weekDraftDirty:false,weekExpandedDay:-1,weekCopyFrom:-1,weekDrag:null,
+  TYPES:['Push','Pull','Kondition'],DAYS:['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],
+  offset:(d,n)=>{const dt=new Date(d+'T12:00:00Z');dt.setUTCDate(dt.getUTCDate()+n);return dt.toISOString().slice(0,10);},
+  standardWeekPlan:type=>plan(type,type+' · Fokus'),
+  renderWeekPlanner(){},exerciseNameKey:s=>String(s).toLowerCase(),weekExercisePreset(){return null},
+  toast:s=>notices.push(s),builderTemplates:()=>[{id:'tpl',...plan('Kondition','Mallens namn')}],
+  deep:x=>JSON.parse(JSON.stringify(x)),
+  document:{documentElement:{classList:{remove(){}}},removeEventListener(){}},
+  clearWeekDragTarget(){},swapCalls:0
+ };
+ vm.runInNewContext(['setWeekDayType','toggleWeekExercise','applyWeekDayTemplate','swapWeekDays','endWeekDrag'].map(functionText).join('\n'),ctx);
+ ctx.setWeekDayType(0,'Pull');
+ assert.equal(ctx.weekDraft[0].name,'Ben');
+ assert.equal(ctx.weekDraft[0].type,'Pull');
+ assert.equal(state.builderDrafts[monday].type,'Pull','Old autosaved builder must not restore stale form');
+ ctx.toggleWeekExercise(0,'Bänkpress');
+ assert.equal(ctx.weekDraft[0].exercises.length,1,'Cannot leave a planned session with no exercise');
+ assert.match(notices.at(-1),/minst en övning/);
+ ctx.applyWeekDayTemplate(0,'tpl');
+ assert.equal(ctx.weekDraft[0].name,'Mallens namn');
+ assert.equal(state.builderDrafts[monday],undefined,'Applying a template must invalidate the older draft');
+ state.builderDrafts[monday]=plan('Pull','Utkast mån');
+ state.builderDrafts[tuesday]=plan('Push','Utkast tis');
+ ctx.swapWeekDays(0,1);
+ assert.equal(ctx.weekDraft[0].name,'Rygg');
+ assert.equal(ctx.weekDraft[1].name,'Mallens namn');
+ assert.equal(state.builderDrafts[monday].name,'Utkast tis');
+ assert.equal(state.builderDrafts[tuesday].name,'Utkast mån');
+ const before=ctx.weekDraft.map(x=>x&&x.name);
+ ctx.weekDrag={pointerId:91,from:0,to:1,ghost:{parentNode:true,remove(){}},card:{classList:{remove(){}}}};
+ ctx.endWeekDrag({pointerId:91,type:'pointercancel'});
+ assert.equal(JSON.stringify(ctx.weekDraft.map(x=>x&&x.name)),JSON.stringify(before));
+});
