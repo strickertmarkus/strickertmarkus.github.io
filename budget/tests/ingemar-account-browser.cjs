@@ -111,6 +111,11 @@ async function verifyTouchDrag(page,label){
  await page.waitForSelector('#zen-session:not([hidden])');
  await page.screenshot({path:'test-results/ingemar-private/stretch-390.png'});
  await page.locator('[data-action="finish-zen"]').click();
+ assert.equal(await page.locator('#zen-complete').evaluate(el=>el.open),true,'Finishing Zen opens a save summary');
+ await page.locator('#zen-complete-notes').fill('Avslappnande stretch');
+ await page.locator('[name="zen-feeling"][value="calm"]').check();
+ await page.screenshot({path:'test-results/ingemar-private/zen-complete-stretch-390.png'});
+ await page.locator('[data-action="zen-complete-save"]').click();
  await page.waitForFunction(()=>Object.keys(JSON.parse(localStorage.getItem('__ingemar_test_db')||'{}')).length===1);
  const saved=await page.evaluate(()=>{
     const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const path=Object.keys(db)[0];
@@ -118,6 +123,11 @@ async function verifyTouchDrag(page,label){
  });
  assert.equal(saved.path,'ex_ingemar');
  assert.equal(saved.history,1,'Finishing Zen stores the session in Ingemar account');
+ const stretchRecord=await page.evaluate(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).zenHistory[0]);
+ assert.equal(stretchRecord.notes,'Avslappnande stretch');
+ assert.equal(stretchRecord.feeling,'calm');
+ assert.equal(await page.locator('#zen-session').isVisible(),false);
+
  await page.screenshot({path:'test-results/ingemar-private/synced-390.png',fullPage:true});
  await page.evaluate(()=>{localStorage.setItem('__delay_ingemar','1');const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const data=JSON.parse(db.ex_ingemar);data.goal=7;db.ex_ingemar=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify(db));});
  // Keep every Firebase SDK request pending: local rendering must not wait for
@@ -899,6 +909,27 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('[data-zen-action="save-editor"]').click();
  assert.match(await recordPage.locator('#zen-choices').textContent(),/QA Meditation/);
  const meditationId=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')).zenRoutines.meditation.find(r=>r.name==='QA Meditation').id);
+ await recordPage.locator('[data-zen-edit="'+meditationId+'"]').click();
+ await recordPage.locator('#zen-edit-prep').check();
+ await recordPage.locator('#zen-edit-inhale').fill('5');
+ await recordPage.locator('#zen-edit-exhale').fill('5');
+ await recordPage.locator('[data-zen-action="save-editor"]').click();
+ const meditationCard=recordPage.locator('.zen-library-card').filter({hasText:'QA Meditation'});
+ await meditationCard.locator('[data-zen-index]').click();
+ await recordPage.waitForSelector('#zen-session:not([hidden])');
+ assert.equal(await recordPage.locator('#zen-guidance-toggle').getAttribute('aria-pressed'),'true');
+ assert.equal(await recordPage.locator('#zen-clock').textContent(),'5','5-second preparation starts before meditation');
+ const sessionBounds=await recordPage.locator('#zen-session').evaluate(el=>{const box=el.getBoundingClientRect();return {left:box.left,right:box.right,width:innerWidth,height:box.height,vh:innerHeight};});
+ assert.ok(sessionBounds.left>=0 && sessionBounds.right<=sessionBounds.width+1 && sessionBounds.height<=sessionBounds.vh+1,'Zen pass should fit full mobile viewport');
+ await recordPage.screenshot({path:'test-results/ingemar-private/meditation-immersive-390.png'});
+ await recordPage.locator('#zen-guidance-toggle').click();
+ assert.equal(await recordPage.locator('#zen-guidance-toggle').getAttribute('aria-pressed'),'false');
+ await recordPage.locator('[data-action="finish-zen"]').click();
+ await recordPage.locator('#zen-complete-notes').fill('Egen rytm och bra fokus');
+ await recordPage.locator('[data-action="zen-complete-save"]').click();
+ assert.equal(await recordPage.locator('#zen-session').isVisible(),false);
+ const medLog=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')).zenHistory);
+ assert.equal(medLog.find(entry=>entry.name==='QA Meditation').notes,'Egen rytm och bra fokus');
  await recordPage.locator('[data-zen-edit="'+meditationId+'"]').click();
  recordPage.once('dialog',dialog=>dialog.accept());
  await recordPage.locator('[data-zen-action="delete-entry"]').click();
