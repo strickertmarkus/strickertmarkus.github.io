@@ -259,7 +259,15 @@ async function verifyTouchDrag(page,label){
  snap=await sessionSnapshot();
  assert.equal(snap.tone,'','Transition must not retain the active Push/Pull theme');
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan övningar/);
- await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-between-overlay-v2[data-ingemar-between="exercise"]'));
+ await page.waitForTimeout(150);
+ const betweenState=await frame.locator('#session-between-overlay-v2').evaluate(el=>({
+  visible:el.classList.contains('show'),
+  label:el.querySelector('.bs-label')?.textContent,
+  flag:el.dataset.ingemarBetween||'',
+  canSync:typeof el.ownerDocument.defaultView.syncIngemarRestColor,
+  html:el.ownerDocument.documentElement.getAttribute('data-ingemar-session-tone')
+ }));
+ assert.equal(betweenState.flag,'exercise','Green transition must activate automatically: '+JSON.stringify(betweenState));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(betweenGreen,'#34d399','Configured between-exercise rest turns green');
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
