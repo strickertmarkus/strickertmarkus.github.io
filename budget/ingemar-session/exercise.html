@@ -566,6 +566,23 @@
     html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"] .pf-arc-progress-v80{
       stroke:#34D399!important;
     }
+    /* Accent overrides only the ACTIVE Ingemar Push/Pull button.
+       All rest, completion and countdown colors stay owned by Markus/Maja's
+       canonical shared session CSS. */
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show[data-ingemar-tone]:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"]{
+      color:var(--ingemar-tone-soft)!important;
+      border-color:rgba(var(--ingemar-tone-rgb),.62)!important;
+      background:linear-gradient(135deg,rgba(var(--ingemar-tone-rgb),.17),rgba(var(--ingemar-tone-rgb),.085))!important;
+      box-shadow:inset 0 0 0 1px rgba(var(--ingemar-tone-rgb),.14),0 0 13px rgba(var(--ingemar-tone-rgb),.22)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show[data-ingemar-tone]:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48{
+      background:rgba(var(--ingemar-tone-rgb),.33)!important;
+      box-shadow:inset 0 0 0 1px rgba(var(--ingemar-tone-rgb),.39),0 0 12px rgba(var(--ingemar-tone-rgb),.24)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show[data-ingemar-tone]:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48{
+      background:var(--ingemar-tone-soft)!important;
+      box-shadow:0 0 9px rgba(var(--ingemar-tone-rgb),.65)!important;
+    }
     /* The shared cardio countdown keeps its original single red palette;
        only Push/Pull strength sessions receive Ingemar's custom color. */
     #session-modal[data-ingemar-tone] .session-cta.primary{box-shadow:0 9px 26px rgba(var(--ingemar-tone-rgb),.20)!important;}
@@ -731,18 +748,7 @@ function syncIngemarSessionTone(){
  var tone=!inactive&&current&&current.kind==='strength'?(st.type==='Pull'?'pull':st.type==='Push'?'push':''):'';
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
- // Use the original shared 5 s toggle artwork. Set only its palette variables
- // at the element itself, because newer shared CSS owns its color declaration.
- var timerToggle=document.getElementById('session-pretimer-toggle-v2');
- if(timerToggle){
-  if(tone){
-   timerToggle.style.setProperty('--pf-rgb',tone==='pull'?'34,211,238':'230,92,102','important');
-   timerToggle.style.setProperty('--pf-soft',tone==='pull'?'#CFFAFE':'#f29ba1','important');
-  }else{
-   timerToggle.style.removeProperty('--pf-rgb');
-   timerToggle.style.removeProperty('--pf-soft');
-  }
- }
+
  watchIngemarRestColor();syncIngemarRestColor();
 }
 function renderSessionMode(){
