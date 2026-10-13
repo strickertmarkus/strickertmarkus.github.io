@@ -255,8 +255,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #ingemar-logout{border:1px solid #c0708845;color:#e0adbf;border-radius:999px;padding:7px 11px;background:transparent;font-size:10px;font-weight:700;white-space:nowrap}
 @media(max-width:740px){.account-strip{order:2;margin-left:auto}#ingemar-sync-status{max-width:125px;font-size:9px}#ingemar-logout{font-size:9px;padding:6px 8px}#ingemar-account-gate .account-card{padding:23px 17px}}
 #plan-preview{width:min(660px,calc(100dvw - 24px));--preview-rgb:230,92,102;--preview-soft:#f29ba1}
-#plan-preview[data-preview-tone="pull"]{--preview-rgb:148,232,235;--preview-soft:#cef9fa}
-#plan-preview[data-preview-tone="cardio"]{--preview-rgb:255,189,130;--preview-soft:#ffe0c2}
+#plan-preview[data-preview-tone="pull"]{--preview-rgb:34,211,238;--preview-soft:#CFFAFE}
+#plan-preview[data-preview-tone="cardio"]{--preview-rgb:251,146,60;--preview-soft:#FED7AA}
 #plan-preview .modal-head .eyebrow{color:var(--preview-soft)}
 #plan-preview-meta{margin:6px 0 0}
 #plan-preview-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:var(--preview-soft);font-size:11px}
@@ -268,10 +268,10 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 .plan-preview-sets{display:flex;flex-wrap:wrap;gap:5px}
 .plan-preview-sets span{font-size:11px;padding:5px 7px;border-radius:7px;background:#ffffff05;color:#d4c4cf}
 .plan-preview-sets small{color:#8c8290;margin-right:5px;font-size:9px}
-#plan-preview .plan-preview-exercise[data-preview-kind="cardio"]{border-color:#ffbd8247;background:#ffbd8209}
+#plan-preview .plan-preview-exercise[data-preview-kind="cardio"]{border-color:#FB923C47;background:#FB923C0D}
 #plan-preview .plan-preview-exercise[data-preview-kind="cardio"] .plan-preview-number,
-#plan-preview .plan-preview-exercise[data-preview-kind="cardio"] h3{color:#ffe0c2}
-#plan-preview .plan-preview-exercise[data-preview-kind="cardio"] .plan-preview-sets span{border:1px solid #ffbd8230;background:#ffbd8210;color:#ffe0c2}
+#plan-preview .plan-preview-exercise[data-preview-kind="cardio"] h3{color:#FED7AA}
+#plan-preview .plan-preview-exercise[data-preview-kind="cardio"] .plan-preview-sets span{border:1px solid #FB923C30;background:#FB923C10;color:#FED7AA}
 #plan-preview .modal-actions .primary{background:var(--preview-soft);border-color:rgba(var(--preview-rgb),.62);color:#0a1018}
 #plan-preview .modal-actions{position:sticky;bottom:-25px;padding:14px 0 0;background:#111520;gap:10px}#plan-preview .modal-actions .right{margin-left:auto}@media(max-width:740px){#plan-preview .modal-actions{bottom:-14px}#plan-preview .modal-actions .right{width:100%}#plan-preview .modal-actions .right button{flex:1;font-size:11px;padding:12px 8px}}
 .training-week-nav{display:flex;align-items:center;gap:5px;max-width:100%;margin:-3px 0 9px;padding:0;border:0;background:none;box-shadow:none}
@@ -496,7 +496,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
-<iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar&v=20261013-shared-engine-imports" title="Träningsläge" hidden></iframe>
+<iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar&v=20261013-session-colors-and-timer" title="Träningsläge" hidden></iframe>
 <section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
   <div class="zen-session-ambient" aria-hidden="true">
     <span class="zen-ambient-orb orb-a"></span><span class="zen-ambient-orb orb-b"></span>
@@ -1662,7 +1662,7 @@ var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
 function familySessionFrame(){return $('family-session-frame');}
 function sendFamilySession(){var frame=familySessionFrame();if(!familySessionReady||!familySessionOpen||!pendingFamilySession||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'ingemar-family-session-start',workout:deep(pendingFamilySession.workout),date:pendingFamilySession.date},location.origin);pendingFamilySession=null;}
 function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
-function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;var frame=familySessionFrame();if(!frame.getAttribute('src')){frame.src=frame.dataset.src;toast('Öppnar träningsläget…');}frame.hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
+function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;var frame=familySessionFrame();if(!frame.getAttribute('src')){frame.src=frame.dataset.src;}frame.hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
 window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
 var selectedHistoryId='',historyEditDraft=null,historyEditId='';
 var recordEditKey='';
