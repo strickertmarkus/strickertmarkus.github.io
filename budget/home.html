@@ -125,6 +125,44 @@
     .cal-num { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .cal-cell.today .cal-num { color: var(--accent); }
 
+    /* Swedish holidays: rendered as calendar metadata, never as Firebase events. */
+    .home-cal-topline { display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:28px;margin-bottom:8px; }
+    .home-cal-topline .cal-week-number { margin-bottom:0; }
+    .home-cal-holidays-toggle { display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:10px;font-weight:700;color:#B5AFC0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
+    .home-cal-holidays-toggle input { position:absolute;opacity:0;width:1px;height:1px;pointer-events:none; }
+    .home-cal-holidays-switch { width:25px;height:14px;display:inline-block;position:relative;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);transition:background .2s,border-color .2s; }
+    .home-cal-holidays-switch::before { content:'';position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#94A3B8;transition:transform .2s,background .2s; }
+    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch { background:rgba(253,186,116,.24);border-color:rgba(253,186,116,.55); }
+    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch::before { background:#FDBA74;transform:translateX(11px); }
+    .home-cal-holidays-toggle input:focus-visible + .home-cal-holidays-switch { outline:2px solid #FDBA74;outline-offset:3px; }
+    .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0; }
+    .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#A78BFA;box-shadow:0 0 8px rgba(167,139,250,.26); }
+    .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.3); }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today):not(.selected) { border-color:rgba(242,139,144,.25)!important;background:rgba(242,139,144,.055)!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today):not(.selected) { border-color:rgba(167,139,250,.23)!important;background:rgba(167,139,250,.045)!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today) .cal-num { color:#F2A2A6!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today) .cal-num { color:#C3AFFC!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.is-sunday:not(.today):not(.swedish-holiday-official):not(.swedish-holiday-tradition) .cal-num { color:#E6A0A5!important; }
+    .home-holiday-item { display:grid;grid-template-columns:4px minmax(0,1fr);gap:9px;align-items:stretch;padding:7px 0;min-width:0; }
+    .home-holiday-item + .home-holiday-item { border-top:1px solid rgba(255,255,255,.045); }
+    .home-holiday-item-bar { border-radius:3px;background:#A78BFA; }
+    .home-holiday-item.official .home-holiday-item-bar { background:#F28B90; }
+    .home-holiday-item strong { display:block;font-size:12px;line-height:1.35;color:#D0BFFF;overflow-wrap:anywhere; }
+    .home-holiday-item.official strong { color:#FFC0C3; }
+    .home-holiday-item small { display:block;font-size:10px;color:var(--text-sec);margin-top:2px;line-height:1.4; }
+    .home-day-popover .home-holiday-item { border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:2px; }
+    .home-calendar-holiday-note { display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 7px;padding:6px 9px;border:1px solid rgba(167,139,250,.22);border-radius:9px;background:rgba(167,139,250,.055);color:#C9B9FF;font-size:11px;line-height:1.4;min-width:0; }
+    .home-calendar-holiday-note.official { border-color:rgba(242,139,144,.23);background:rgba(242,139,144,.06);color:#FFC0C3; }
+    .home-calendar-holiday-note small { color:var(--text-sec);font-size:10px; }
+    .home-cal-week-day-v11.swedish-holiday-official:not(.today) { border-color:rgba(242,139,144,.2); }
+    .home-cal-week-day-v11.swedish-holiday-tradition:not(.today) { border-color:rgba(167,139,250,.2); }
+    .home-cal-day-holidays { display:grid;gap:5px;min-width:0; }
+    @media(max-width:480px) {
+      .home-cal-holidays-toggle { font-size:10px;gap:5px; }
+      .home-cal-holidays-switch { flex-shrink:0; }
+      .cal-holiday-mark { width:5px;height:5px;flex-basis:5px; }
+    }
+
     .cal-week-number {
       margin-bottom: 8px;
       font-size: 10px;
@@ -795,7 +833,8 @@
       }
     }
   </style>
-<script src="home-calendar-views-v11.js?v=20260903-home-day-timeline-v10" data-home-calendar-views-v11="true"></script>
+<script src="swedish-holidays-v1.js?v=20261013-1"></script>
+<script src="home-calendar-views-v11.js?v=20261013-holidays-1" data-home-calendar-views-v11="true"></script>
 <script src="home-calendar-theme-v12.js?v=20260903-home-day-timeline-v10" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20260903-home-day-timeline-v10"></script>
@@ -860,7 +899,14 @@
   <div class="main-layout">
     <!-- CALENDAR -->
     <div class="cal-section">
-      <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
+      <div class="home-cal-topline">
+        <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
+        <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
+          <input type="checkbox" id="home-show-holidays" checked>
+          <span class="home-cal-holidays-switch" aria-hidden="true"></span>
+          <span>Högtider</span>
+        </label>
+      </div>
       <div class="cal-weekdays">
         <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
         <div class="cal-wd">Tor</div><div class="cal-wd">Fre</div><div class="cal-wd">Lör</div><div class="cal-wd">Sön</div>
@@ -1311,12 +1357,19 @@ function renderMonth() {
     var dayEvs = events.filter(function(ev){ return ev.date===dateISO && isEventVisible(ev); });
     var isToday = dateISO===today;
     var isSel = dateISO===selectedDate;
+    var holidays = window.SwedishHolidays ? window.SwedishHolidays.get(dateISO) : [];
+    var holidayType = holidays.some(function(h){return h.type==='official';}) ? 'official' : (holidays.length ? 'tradition' : '');
+    var isSunday = new Date(year, month, d).getDay() === 0;
 
     var cell = document.createElement('div');
-    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '');
+    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '') + (isSunday ? ' is-sunday' : '') + (holidayType ? ' swedish-holiday-' + holidayType : '');
     cell.dataset.date = dateISO;
+    cell.setAttribute('role', 'button');
+    cell.tabIndex = 0;
+    cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
 
-    var html = '<div class="cal-num">'+d+'</div>';
+    var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div>' +
+      (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') + '</div>';
     if (dayEvs.length) {
       var firstEvent = dayEvs[0];
       var firstColor = getMemberColor(firstEvent.member);
@@ -1327,10 +1380,10 @@ function renderMonth() {
             + '</div>';
     }
     cell.innerHTML = html;
-    (function(iso, evs){
+    (function(iso, evs, hasHoliday){
       cell.addEventListener('click', function(e){
         e.stopPropagation();
-        if (evs.length) {
+        if (evs.length || hasHoliday) {
           selectedDate = iso;
           document.getElementById('day-panel').classList.remove('show');
           renderMonth();
@@ -1342,7 +1395,10 @@ function renderMonth() {
         selectDay(iso);
       });
       cell.addEventListener('dblclick', function(e){ e.stopPropagation(); openEventModal(iso); });
-    })(dateISO, dayEvs.slice(0,5));
+      cell.addEventListener('keydown', function(e) {
+        if (e.target === cell && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); cell.click(); }
+      });
+    })(dateISO, dayEvs.slice(0,5), holidays.length > 0);
     grid.appendChild(cell);
   }
 
@@ -1365,8 +1421,11 @@ function renderDayEvents(dateISO) {
   var events = expandRepeating(getEvents(), currentDate.getFullYear(), currentDate.getMonth());
   var dayEvs = events.filter(function(ev){ return ev.date===dateISO && isEventVisible(ev); });
   var list = document.getElementById('day-events-list');
-  if (!dayEvs.length) { list.innerHTML='<div class="empty-sidebar">Inga händelser. Tryck + för att lägga till.</div>'; return; }
-  var html='';
+  var dayHolidays = window.SwedishHolidays ? window.SwedishHolidays.get(dateISO) : [];
+  if (!dayEvs.length && !dayHolidays.length) { list.innerHTML='<div class="empty-sidebar">Inga händelser. Tryck + för att lägga till.</div>'; return; }
+  var html = dayHolidays.map(function(h){
+    return '<div class="home-holiday-item ' + escHtml(h.type) + '"><div class="home-holiday-item-bar"></div><div><strong>' + escHtml(h.name) + '</strong><small>' + escHtml(h.detail) + '</small></div></div>';
+  }).join('');
   dayEvs.forEach(function(ev){
     var col = getMemberColor(ev.member);
     var timeLabel = formatEventTimeRange(ev);
@@ -1412,10 +1471,14 @@ function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
 
   dateEl.textContent = dayISO.split('-').reverse().join('/');
   if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(dayISO);
-  if (!dayEvents.length) {
+  var holidayItems = window.SwedishHolidays ? window.SwedishHolidays.get(dayISO) : [];
+  var holidayMarkup = holidayItems.map(function(h) {
+    return '<div class="home-holiday-item ' + escHtml(h.type) + '"><div class="home-holiday-item-bar"></div><div><strong>' + escHtml(h.name) + '</strong><small>' + escHtml(h.detail) + '</small></div></div>';
+  }).join('');
+  if (!dayEvents.length && !holidayItems.length) {
     listEl.innerHTML = '<div class="home-day-popover-empty">Inga händelser denna dag.</div>';
   } else {
-    listEl.innerHTML = dayEvents.map(function(ev){
+    listEl.innerHTML = holidayMarkup + dayEvents.map(function(ev){
       var color = getMemberColor(ev.member);
       var memberTxt = ev.member && ev.member !== 'family' ? (ev.member.charAt(0).toUpperCase() + ev.member.slice(1)) : 'Familj';
       var meta = memberTxt + (ev.time ? ' · ' + ev.time : '');
@@ -2499,6 +2562,16 @@ document.addEventListener('DOMContentLoaded', function() {
   initCalendarFlatpickr();
   loadNotifSettings();
   syncMobileWidgetOrder();
+  var holidayToggle = document.getElementById('home-show-holidays');
+  if (holidayToggle && window.SwedishHolidays) {
+    holidayToggle.checked = window.SwedishHolidays.isEnabled();
+    holidayToggle.addEventListener('change', function () {
+      window.SwedishHolidays.setEnabled(holidayToggle.checked);
+      closeDayEventsPopup();
+      if (selectedDate) renderDayEvents(selectedDate);
+      renderMonth();
+    });
+  }
   renderMonth();
   renderTrip();
   renderShoppingWidget();
