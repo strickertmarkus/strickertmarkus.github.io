@@ -689,11 +689,22 @@ function syncIngemarRestColor(){
   if(betweenExercises)rest.dataset.ingemarBetween='exercise';
   else delete rest.dataset.ingemarBetween;
 }
-var ingemarRestObserver=null;
+var ingemarRestObserver=null,ingemarRestMountObserver=null;
 function watchIngemarRestColor(){
  if(ingemarRestObserver)return;
  var rest=document.getElementById('session-between-overlay-v2');
- if(!rest)return;
+ if(!rest){
+  if(!ingemarRestMountObserver&&document.body){
+   ingemarRestMountObserver=new MutationObserver(function(){
+    if(!document.getElementById('session-between-overlay-v2'))return;
+    ingemarRestMountObserver.disconnect();
+    ingemarRestMountObserver=null;
+    watchIngemarRestColor();
+   });
+   ingemarRestMountObserver.observe(document.body,{childList:true,subtree:true});
+  }
+  return;
+ }
  var observer=new MutationObserver(syncIngemarRestColor);
  observer.observe(rest,{attributes:true,attributeFilter:['class','data-between-type']});
  var label=rest.querySelector('.bs-label');
