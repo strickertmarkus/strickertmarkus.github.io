@@ -411,6 +411,18 @@ async function verifyTouchDrag(page,label){
  await androidPage.locator('[data-choice="Pull"]').click();
  assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),true);
  assert.equal(await androidPage.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Opening builder must not focus editable inputs');
+ // Builder type colors must match the selected Push/Pull/Kondition palette from the week planner.
+ const typeColors={Push:'rgb(242, 155, 161)',Pull:'rgb(206, 249, 250)',Kondition:'rgb(255, 224, 194)'};
+ for(const [type,expected] of Object.entries(typeColors)){
+   await androidPage.locator('#builder [data-type="'+type+'"]').click();
+   const button=androidPage.locator('#builder [data-type="'+type+'"]');
+   assert.equal(await button.getAttribute('aria-pressed'),'true');
+   const actual=await button.evaluate(el=>({text:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor}));
+   assert.equal(actual.text,expected,'Builder '+type+' should have the matching weekly theme color');
+   assert.notEqual(actual.background,'rgba(0, 0, 0, 0)','Builder '+type+' must have a tinted active background');
+   await androidPage.screenshot({path:'test-results/ingemar-private/builder-type-'+type.toLowerCase()+'-android.png'});
+ }
+ await androidPage.locator('#builder [data-type="Pull"]').click();
  await androidPage.screenshot({path:'test-results/ingemar-private/builder-android-412.png'});
  const layout=await androidPage.locator('#builder .builder-template-tools').evaluate(el=>{
   const p=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,h:r.height,inside:r.left>=p.left-1&&r.right<=p.right+1};});
@@ -531,6 +543,8 @@ async function verifyTouchDrag(page,label){
   await recordPage.screenshot({path:'test-results/ingemar-private/compact-records-'+width+'.png'});
  }
  await recordPage.setViewportSize({width:390,height:844});await recordPage.locator('[data-choice="Push"]').click();
+ assert.equal(await recordPage.locator('#builder [data-type="Push"]').evaluate(el=>getComputedStyle(el).color),'rgb(242, 155, 161)','WebKit Push type must use week planner palette');
+ await recordPage.screenshot({path:'test-results/ingemar-private/builder-push-themed-iphone-390.png'});
  await verifyTouchDrag(recordPage,'iphone');
  await recordPage.locator('#builder-save-plan').click();await recordPage.waitForSelector('#plan-preview[open]');
  await recordPage.setViewportSize({width:320,height:740});
