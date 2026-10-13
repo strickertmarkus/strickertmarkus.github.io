@@ -1,0 +1,41 @@
+name: Training timers and energy verification
+on:
+  push:
+    paths:
+      - 'budget/exercise-*.js'
+      - 'budget/training-pulse-editor.*'
+      - 'budget/tests/training-energy*'
+      - '.github/workflows/training-energy-verify.yml'
+  workflow_dispatch:
+jobs:
+  session:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps webkit
+      - name: Session verification
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/training-http.log 2>&1 &
+          node budget/tests/training-energy-browser.cjs
+      - name: Upload session screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-energy-screenshots
+          path: test-results/training-energy
+      - name: Review thumbnails
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import pathlib, base64
+          for p in sorted(pathlib.Path('test-results/training-energy').glob('*.jpg')):
+            if '390' in p.name or '320' in p.name and 'session' in p.name:
+              print('SCREENSHOT_START '+p.name)
+              print(base64.b64encode(p.read_bytes()).decode())
+              print('SCREENSHOT_END')
+          PY

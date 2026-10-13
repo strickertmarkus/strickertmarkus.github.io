@@ -18,6 +18,32 @@
     var perfRoot = document.documentElement;
     var perfActive = false;
     var perfModalObserver = null;
+    var energySaving = false;
+    try { energySaving = localStorage.getItem('exercise-energy-saving') === '1'; } catch (_) {}
+    window.__exerciseEnergySaving = energySaving;
+
+    function syncEnergyButton() {
+      var modal=perfSessionModal(),top=modal&&modal.querySelector('.session-top');
+      if(!top)return;
+      var button=document.getElementById('session-energy-toggle');
+      if(!button){
+        button=document.createElement('button');button.id='session-energy-toggle';button.type='button';
+        button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="16" height="12" rx="3"/><path d="M21 10v4M12 8l-4 5h4l-1 3 5-6h-4z"/></svg>';
+        button.addEventListener('click',function(){
+          energySaving=!energySaving;
+          window.__exerciseEnergySaving=energySaving;
+          try{localStorage.setItem('exercise-energy-saving',energySaving?'1':'0');}catch(_){}
+          syncEnergyButton();
+          document.dispatchEvent(new CustomEvent('exercise:energy-change',{detail:{enabled:energySaving}}));
+        });
+        top.insertBefore(button,top.lastElementChild);
+      }
+      button.setAttribute('aria-pressed',String(energySaving));
+      button.setAttribute('aria-label',energySaving?'Stäng av energisparläge':'Aktivera energisparläge');
+      button.title=energySaving?'Energisparläge på':'Energisparläge av';
+      perfRoot.classList.toggle('exercise-energy-saving',energySaving&&perfSessionActive());
+    }
+
     var perfBackgroundSources = [
       'exercise-points-8-9.js',
       'exercise-heart-rate-range.js',
@@ -51,8 +77,15 @@
         'exercise-between-sets.js',
         'exercise-session-ux-v20.js'
       ]);
-      for (var i = 0; i < known.length; i++) {
-        if (stack.indexOf(known[i]) >= 0) return known[i];
+      // Ignore this detector and the setInterval wrapper itself. Otherwise
+      // every timer looks like this background file and sleeps during a pass.
+      var callers = stack.split('\n').filter(function (line) {
+        return known.some(function (file) { return line.indexOf(file) >= 0; });
+      }).slice(2);
+      for (var i = 0; i < callers.length; i++) {
+        for (var j = 0; j < known.length; j++) {
+          if (callers[i].indexOf(known[j]) >= 0) return known[j];
+        }
       }
       return '';
     }
@@ -122,6 +155,26 @@
         style = document.createElement('style');
         style.id = 'exercise-performance-v125-style';
         style.textContent = `
+          #session-modal #session-energy-toggle {
+            display:grid;place-items:center;width:40px;height:40px;min-width:40px;padding:8px;
+            border:1px solid rgba(var(--pf-rgb,251,146,60),.3);border-radius:50%;
+            background:rgba(var(--pf-rgb,251,146,60),.06);color:var(--pf-soft,#FED7AA);
+            box-shadow:0 0 12px rgba(var(--pf-rgb,251,146,60),.12);cursor:pointer;
+          }
+          #session-modal #session-energy-toggle svg { width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round; }
+          #session-modal #session-energy-toggle[aria-pressed="true"] {
+            color:#A7F3D0;border-color:#34D39988;background:#34D39916;box-shadow:0 0 15px #34D39930;
+          }
+          #session-modal #session-energy-toggle:focus-visible { outline:2px solid #A7F3D0;outline-offset:3px; }
+          html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus),
+          html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *,
+          html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *::before,
+          html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *::after {
+            animation-play-state:paused!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+          }
+          html.exercise-energy-saving body #session-modal::before,
+          html.exercise-energy-saving body #session-modal::after { animation-play-state:paused!important; }
+          html.exercise-energy-saving body #session-modal .session-top { backdrop-filter:none!important;-webkit-backdrop-filter:none!important; }
           /* The live session sits outside .app-wrap in exercise.html. Hiding
              the covered dashboard preserves its layout/state but lets Safari
              stop painting/compositing charts and cards underneath the modal. */
@@ -170,6 +223,7 @@
 
     function perfSyncMode() {
       var active = perfSessionActive();
+      syncEnergyButton();
       if (active === perfActive) return;
       perfActive = active;
       window.__exerciseSessionPerformanceActive = active;

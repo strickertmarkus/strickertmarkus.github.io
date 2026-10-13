@@ -256,7 +256,8 @@
           });
           if (externalChange) requestAnimationFrame(syncArchiveRows);
         });
-        archiveObserver.observe(sessionModal,{subtree:true,childList:true});
+        var planTable=document.getElementById('session-plan-table');
+        if(planTable)archiveObserver.observe(planTable,{subtree:true,childList:true});
       }
       setTimeout(syncArchiveRows,0);
     } else {

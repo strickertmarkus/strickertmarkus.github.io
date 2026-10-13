@@ -361,6 +361,12 @@
   function startOverlay(config, button) {
     config = normalizeConfig(config);
     if (config.type === 'none') return false;
+    var restOwner = window.__exerciseSessionTransitionStabilityV142;
+    if (config.type === 'rest' && restOwner && restOwner.beginRest) {
+      var text = String(button && button.textContent || '').trim().toLowerCase();
+      var kind = text.indexOf('extra set') === 0 ? 'extra' : text.indexOf('övning klar') === 0 ? 'finish' : 'next';
+      return restOwner.beginRest(getState(),kind,config);
+    }
     var overlay = ensureOverlay();
     if (!overlay) return false;
 
@@ -377,7 +383,8 @@
       if (!overlayActive) return;
       var remain = Math.max(0, deadline - Date.now());
       var value = document.getElementById('bs-overlay-value');
-      if (value) value.textContent = formatTime(remain / 1000);
+      var label = formatTime(remain / 1000);
+      if (value && value.textContent !== label) value.textContent = label;
       var activeCount = Math.max(0, Math.min(60, Math.ceil(60 * remain / totalMs)));
       overlay.querySelectorAll('.bs-segment').forEach(function (seg, idx) {
         seg.classList.toggle('active', idx < activeCount);
@@ -425,7 +432,7 @@
         button.click();
       } else if (config.type === 'rest') {
         var text = String(button.textContent || '').trim().toLowerCase();
-        var kind = text.indexOf('övning klar') === 0 ? 'finish' : 'next';
+        var kind = text.indexOf('extra set') === 0 ? 'extra' : text.indexOf('övning klar') === 0 ? 'finish' : 'next';
         var controller = window.__exerciseSessionControllerV46;
         if (controller && typeof controller.armRestTransition === 'function') {
           controller.armRestTransition(kind);

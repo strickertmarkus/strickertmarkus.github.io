@@ -40,11 +40,6 @@
     ].join('|');
   }
 
-  function formatClock(seconds) {
-    var whole = Math.max(0, Math.floor(Number(seconds) || 0));
-    return String(Math.floor(whole / 60)).padStart(2,'0') + ':' + String(whole % 60).padStart(2,'0');
-  }
-
   function ensureStyle() {
     if (document.getElementById('exercise-timer-focus-style')) return;
 
@@ -106,6 +101,13 @@
         opacity:.84!important;
       }
 
+      /* Overtime uses the existing timer, including its SVG/canvas palette. */
+      html body #session-modal #session-countdown-ring.is-overtime {
+        --pf-accent:#34D399!important;--pf-soft:#A7F3D0!important;--pf-rgb:52,211,153!important;
+      }
+      html body #session-modal #session-countdown-ring.is-overtime #session-countdown-value {
+        color:#A7F3D0!important;text-shadow:0 0 16px #34d39955!important;
+      }
       /* ---- Inline cardio timer ---- */
       #session-countdown-ring {
         touch-action:manipulation;
@@ -173,25 +175,6 @@
       html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .session-countdown-label,
       html:not(.cardio-focus-active):not(.cardio-focus-dragging) body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-pause-hint {
         transform:translateX(-1px)!important;
-      }
-
-      .cardio-inline-plus {
-        display:none;
-        margin-top:5px;
-        color:#FCA5A5;
-        font-size:10px;
-        font-weight:850;
-        font-variant-numeric:tabular-nums;
-        text-align:center;
-      }
-      .cardio-inline-plus.show { display:block; }
-      .cardio-inline-plus .plus-word {
-        margin-left:4px;
-        color:#A78B91;
-        font-size:8px;
-        font-weight:800;
-        letter-spacing:.7px;
-        text-transform:uppercase;
       }
 
       /* ---- Focus chrome; the timer itself remains the live compact timer ---- */
@@ -360,16 +343,6 @@
         height:29px!important;
         margin-top:9px!important;
       }
-      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .cardio-inline-plus {
-        margin-top:10px!important;
-        font-size:14px!important;
-      }
-      html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring .cardio-inline-plus .plus-word {
-        margin-left:6px!important;
-        font-size:10px!important;
-        letter-spacing:1px!important;
-      }
-
       @media(max-width:390px) {
         .cardio-focus-title { top:calc(59dvh - min(150px,40vw) - 88px);gap:10px; }
         html.cardio-focus-active body #session-modal.pulse-flow-v58.show.cardio-countdown-active:not(.session-overview-mode) #session-countdown-ring {
@@ -446,21 +419,6 @@
       collapseFocus();
     });
     return overlay;
-  }
-
-  function ensureInlinePlus() {
-    var copy = document.querySelector('#session-countdown-ring .session-countdown-copy');
-    if (!copy) return null;
-
-    var plus = document.getElementById('cardio-inline-plus');
-    if (!plus) {
-      plus = document.createElement('div');
-      plus.id = 'cardio-inline-plus';
-      plus.className = 'cardio-inline-plus';
-      plus.innerHTML = '<span class="plus-time">+ 00:00</span><span class="plus-word">plustid</span>';
-      copy.appendChild(plus);
-    }
-    return plus;
   }
 
   function isTouchLike() {
@@ -880,13 +838,13 @@
     var exercise = currentExercise(state);
     var timed = isTimedCardio(state,exercise);
     var overlay = ensureFocusChrome();
-    var plus = ensureInlinePlus();
     var desktopToggle = ensureDesktopToggle();
 
     if (!timed) {
       lastCardioToken = '';
       collapsedCardioToken = '';
-      if (plus) plus.classList.remove('show');
+      var idleRing = document.getElementById('session-countdown-ring');
+      if (idleRing) idleRing.classList.remove('is-overtime');
       if (desktopToggle) desktopToggle.hidden = true;
       setFocus(false);
       return;
@@ -903,18 +861,17 @@
     var total = Math.max(1,Number(exercise.time) * 60);
     var elapsed = elapsedForState(state,now);
     var remainingRaw = total - elapsed;
-    var overtime = Math.max(0,elapsed - total);
     var second = Math.ceil(remainingRaw);
     if (second >= 1 && second <= 5) beepOnce('cardio|' + token,second);
 
     var name = document.getElementById('cardio-focus-name');
-    if (name) name.textContent = exercise.name || 'Kondition';
+    if (name && name.textContent !== (exercise.name || 'Kondition')) name.textContent = exercise.name || 'Kondition';
 
-    if (plus) {
-      plus.classList.toggle('show',overtime >= 0.05);
-      var plusTime = plus.querySelector('.plus-time');
-      if (plusTime) plusTime.textContent = '+ ' + formatClock(overtime);
-    }
+    // Collapse once at the deadline, including timed custom between exercises.
+    // Remember this token so later ticks cannot reopen the focus view.
+    var ring = document.getElementById('session-countdown-ring');
+    if (ring) ring.classList.toggle('is-overtime',remainingRaw <= 0);
+    if (remainingRaw <= 0) collapsedCardioToken = token;
 
     var modal = document.getElementById('session-modal');
     var pre = document.getElementById('session-pre-timer');
@@ -1150,7 +1107,6 @@
     document.documentElement.classList.remove('cardio-focus-dragging');
     ensureStyle();
     ensureFocusChrome();
-    ensureInlinePlus();
     installAudioUnlock();
     installTimerGestures();
     installImmediateFocusSync();

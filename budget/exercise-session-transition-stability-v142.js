@@ -163,11 +163,11 @@
       finishRest();
       return;
     }
-    activeRest.raf = requestAnimationFrame(paintRest);
+    activeRest.timer = setTimeout(paintRest,Math.min(remain,250));
   }
 
   function cancelRest(hideOverlay) {
-    if (activeRest && activeRest.raf) cancelAnimationFrame(activeRest.raf);
+    if (activeRest && activeRest.timer) clearTimeout(activeRest.timer);
     activeRest = null;
 
     var overlay = document.getElementById('session-between-overlay-v2');
@@ -178,13 +178,14 @@
       overlay.removeAttribute('data-between-type');
     }
     overlay.removeAttribute('data-transition-stability-rest-v142');
+    delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;
     if (overlay.dataset.autoRestV118 === 'true' && owned) overlay.removeAttribute('data-auto-rest-v118');
   }
 
   function finishRest() {
     if (!activeRest) return;
     var pending = activeRest;
-    if (pending.raf) cancelAnimationFrame(pending.raf);
+    if (pending.timer) clearTimeout(pending.timer);
     activeRest = null;
 
     var overlay = document.getElementById('session-between-overlay-v2');
@@ -192,6 +193,7 @@
       overlay.classList.remove('show');
       overlay.removeAttribute('data-between-type');
       overlay.removeAttribute('data-transition-stability-rest-v142');
+      delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;
       overlay.removeAttribute('data-auto-rest-v118');
     }
 
@@ -199,6 +201,8 @@
       try {
         if (pending.kind === 'next' && typeof window.startNextSet === 'function') {
           window.startNextSet();
+        } else if (pending.kind === 'extra' && typeof window.addExtraSet === 'function') {
+          window.addExtraSet();
         } else if (pending.kind === 'finish' && typeof window.finishCurrentExercise === 'function') {
           window.finishCurrentExercise();
         }
@@ -235,7 +239,7 @@
       currentSet:Math.max(1,Number(state.currentSet) || 1),
       totalMs:totalMs,
       deadline:Date.now() + totalMs,
-      raf:0
+      timer:0
     };
 
     var heading = document.getElementById('bs-overlay-heading');
@@ -243,6 +247,8 @@
     var label = overlay.querySelector('.bs-label');
     if (label) label.textContent = kind === 'finish' ? 'Mellan övningar' : 'Mellan set';
 
+    overlay.dataset.restDeadline=String(activeRest.deadline);
+    overlay.dataset.restTotalMs=String(activeRest.totalMs);
     overlay.dataset.betweenType = 'rest';
     overlay.dataset.transitionStabilityRestV142 = 'true';
     overlay.classList.add('show');
@@ -388,6 +394,16 @@
     wrapAfter('startCurrentSet');
     wrapAfter('startNextSet');
     wrapAfter('finishCurrentExercise');
+    wrapAfter('stopSessionMode');
+    document.addEventListener('visibilitychange',function () {
+      if (document.hidden && activeRest) {
+        clearTimeout(activeRest.timer);
+        activeRest.timer=0;
+      } else if (activeRest) {
+        clearTimeout(activeRest.timer);
+        paintRest();
+      }
+    });
 
     document.addEventListener('click',relevantClick,false);
     installObservers();
@@ -395,7 +411,8 @@
 
     window.__exerciseSessionTransitionStabilityV142 = {
       sync:syncTransition,
-      ensureOverlay:ensureOverlay
+      ensureOverlay:ensureOverlay,
+      beginRest:beginRest
     };
   }
 

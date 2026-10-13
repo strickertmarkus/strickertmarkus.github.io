@@ -65,7 +65,9 @@ function requestClose(){
 function observeEditor(win){
  var doc=win.document,watched=new WeakSet();
  function sync(){
-  if(doc.getElementById('session-modal').classList.contains('show')){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
+  var sessionOpen=doc.getElementById('session-modal').classList.contains('show');
+  dialog.classList.toggle('field-workspace-session',sessionOpen);
+  if(sessionOpen){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
   if(!dialog.open||activeTool==='goals'||openingTool||win.__embeddedSessionStarting||hasOpenModal(doc))return;
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
   dialog.close();activeTool='';
@@ -129,7 +131,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20260927-pulse-robust-2');
+  url.searchParams.set('v','20261013-session-energy-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});

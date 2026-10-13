@@ -62,7 +62,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20261009-music-1';
+  var exerciseAssetsVersion = '20261013-session-energy-1';
   var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20261013-home-swedish-holidays-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';

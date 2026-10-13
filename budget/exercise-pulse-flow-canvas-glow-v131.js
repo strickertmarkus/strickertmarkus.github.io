@@ -54,7 +54,7 @@
   function loadTransitionStability() {
     if (document.querySelector('script[data-exercise-session-transition-stability-v142]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-session-transition-stability-v142.js?v=20260913-training-cleanup-timers';
+    script.src = 'exercise-session-transition-stability-v142.js?v=20261013-session-energy-1';
     script.async = false;
     script.setAttribute('data-exercise-session-transition-stability-v142','true');
     document.head.appendChild(script);
