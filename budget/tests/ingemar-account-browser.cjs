@@ -614,7 +614,7 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
  // Remove a saved arrangement directly from its day, without deleting a logged workout.
  const savedCalendarDate=await recordPage.evaluate(()=>{
-  const date=document.querySelector('#week [data-day]').dataset.day;
+  const date=document.querySelectorAll('#week [data-day]')[6].dataset.day;
   const data=JSON.parse(localStorage.getItem('ex_ingemar'));
   const source=Object.values(data.plans)[0];
   if(!source)throw Error('Saved plan fixture missing');
