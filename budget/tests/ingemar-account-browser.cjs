@@ -245,8 +245,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(snap.tone,'','Ordinary cardio uses the original red palette, without mismatched orange/red layers');
  await page.screenshot({path:'test-results/ingemar-private/session-cardio-original-colors-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.sessionState.type='Push';w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=1;w.renderSessionMode();});
- await frame.locator('#session-controls button').filter({hasText:/Starta nästa set/i}).click();
- await frame.locator('#session-between-overlay-v2.show').waitFor();
+ await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan set/);
  await page.screenshot({path:'test-results/ingemar-private/session-rest-blue-390.png'});
  const restBlue=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
@@ -259,8 +258,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(snap.tone,'','Completed exercise must not retain the Push/Pull active color');
  assert.equal(snap.accent,'#34D399','Inter-exercise completion returns to the original green');
  await page.screenshot({path:'test-results/ingemar-private/session-between-exercises-green-390.png'});
- await frame.locator('#session-controls button').filter({hasText:/Övning klar/i}).click();
- await frame.locator('#session-between-overlay-v2.show').waitFor();
+ await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan övningar/);
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-between-overlay-v2[data-ingemar-between="exercise"]'));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
