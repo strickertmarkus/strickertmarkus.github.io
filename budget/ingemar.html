@@ -1732,6 +1732,9 @@ window.addEventListener('message',function(event){
    clearFamilySessionTimers();
    pendingFamilySession=null;familySessionAttempt=0;
    frame.removeAttribute('aria-busy');
+   if($('toast').textContent==='Öppnar träningsläget…'){
+    clearTimeout(toastTimer);$('toast').hidden=true;
+   }
   }
   return;
  }
