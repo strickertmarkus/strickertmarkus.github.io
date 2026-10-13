@@ -178,7 +178,7 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'push');
  assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').count(),1);
- assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(255, 224, 194)');
+ assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(254, 215, 170)');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-mixed-cardio-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-mode="0:kg"]').click();
