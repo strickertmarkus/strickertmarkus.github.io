@@ -126,8 +126,6 @@
     .cal-cell.today .cal-num { color: var(--accent); }
 
     /* Swedish holidays: rendered as calendar metadata, never as Firebase events. */
-    .home-cal-topline { display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:28px;margin-bottom:8px; }
-    .home-cal-topline .cal-week-number { margin-bottom:0; }
     .home-cal-holidays-toggle { display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:10px;font-weight:700;color:#B5AFC0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
     .home-cal-holidays-toggle input { position:absolute;opacity:0;width:1px;height:1px;pointer-events:none; }
     .home-cal-holidays-switch { width:25px;height:14px;display:inline-block;position:relative;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);transition:background .2s,border-color .2s; }
@@ -899,14 +897,12 @@
   <div class="main-layout">
     <!-- CALENDAR -->
     <div class="cal-section">
-      <div class="home-cal-topline">
-        <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
-        <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
-          <input type="checkbox" id="home-show-holidays" checked>
-          <span class="home-cal-holidays-switch" aria-hidden="true"></span>
-          <span>Högtider</span>
-        </label>
-      </div>
+      <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
+      <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
+        <input type="checkbox" id="home-show-holidays" checked>
+        <span class="home-cal-holidays-switch" aria-hidden="true"></span>
+        <span>Högtider</span>
+      </label>
       <div class="cal-weekdays">
         <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
         <div class="cal-wd">Tor</div><div class="cal-wd">Fre</div><div class="cal-wd">Lör</div><div class="cal-wd">Sön</div>
