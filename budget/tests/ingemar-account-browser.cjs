@@ -24,6 +24,7 @@ async function verifyTouchDrag(page,label){
  await handle.dispatchEvent('pointerdown',{pointerId:91,pointerType:'touch',isPrimary:true,button:0,buttons:1,clientX:point.x,clientY:point.y});
  const first=await page.locator('.builder-drag-ghost').boundingBox();
  assert.equal(await page.locator('#builder > .builder-drag-ghost').count(),1,'Preview must belong to modal top layer');
+ assert.equal(await page.locator('html.ingemar-builder-drag-active').count(),1,'Drag must disable page text selection');
  await page.evaluate(p=>document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,pointerId:91,pointerType:'touch',clientX:p.x+18,clientY:p.y+65})),point);
  const moved=await page.locator('.builder-drag-ghost').boundingBox();
  assert.ok(Math.abs(moved.x-first.x-18)<2&&Math.abs(moved.y-first.y-65)<2,'Exercise must follow finger in both axes');
@@ -33,6 +34,7 @@ async function verifyTouchDrag(page,label){
  await page.waitForFunction(before=>document.getElementById('builder').scrollTop>before+10,scroll);
  await page.evaluate(()=>document.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:91,pointerType:'touch'})));
  assert.equal(await page.locator('.builder-drag-ghost').count(),0);
+ assert.equal(await page.locator('html.ingemar-builder-drag-active').count(),0,'Cancel must restore normal text selection');
  assert.deepEqual(await cards.locator('[data-exercise-name-input]').evaluateAll(els=>els.map(el=>el.value)),names,'Cancelling drag must preserve order');
  await handle.scrollIntoViewIfNeeded();
  const start=await handle.evaluate(el=>{const r=el.getBoundingClientRect();return{x:r.left+10,y:r.top+10};});
@@ -408,11 +410,15 @@ async function verifyTouchDrag(page,label){
  assert.equal(layout.allFit,true);
  await androidPage.locator('[data-exercise-name-input="0"]').click();
  assert.equal(await androidPage.locator('[data-exercise-menu="0"]').isVisible(),true);
+ await androidPage.locator('[data-exercise-name-input="0"]').click();
+ assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').evaluate(el=>!el.readOnly&&document.activeElement===el),true,'Second tap must enable typing and focus the exercise name');
+ await androidPage.locator('[data-exercise-name-input="0"]').fill('Redigerat namn');
+ await androidPage.locator('[data-exercise-picker="0"]').click();
  await androidPage.locator('#builder').evaluate(el=>{el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));el.scrollTop+=200;});
  assert.equal(await androidPage.locator('[data-exercise-menu="0"]').isVisible(),true,'Scroll start must preserve exercise chooser');
  await androidPage.locator('[data-exercise-new="0"]').click();
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1');
- assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').evaluate(el=>document.activeElement!==el),true,'New exercise must not summon keyboard automatically');
+ assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').evaluate(el=>document.activeElement===el),true,'New exercise must focus the input as explicitly requested');
  await androidPage.locator('[data-exercise-name-input="0"]').fill('Testövning Android');
  await androidPage.locator('#builder').evaluate(el=>{el.scrollTop+=350;el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));});
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1','Exercise editing mode must persist after scrolling');
@@ -518,6 +524,50 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('[data-action="plan-week"]').click();
  assert.equal(await recordPage.locator('#week-planner').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true);
  await recordPage.screenshot({path:'test-results/ingemar-private/durable-week-iphone.png'});
+ // Full week-planner drag: the preview must be above the dialog and a cancelled
+ // drag must never shuffle the stored week.
+ await recordPage.evaluate(()=>document.querySelector('[data-week-type="1:Pull"]').click());
+ const weekLabels=()=>recordPage.locator('#week-planner-days .week-day-pass strong').evaluateAll(nodes=>nodes.map(n=>n.textContent));
+ const beforeWeek=await weekLabels();
+ assert.notEqual(beforeWeek[0],beforeWeek[1],'Week drag fixture needs distinct labels');
+ const dragDay=async(pointerId,endType)=>{
+   const from=await recordPage.locator('[data-week-drag="0"]').boundingBox();
+   const to=await recordPage.locator('#week-planner-days [data-week-day="1"]').boundingBox();
+   const p={pointerId,pointerType:'touch',isPrimary:true,button:0,buttons:1,clientX:from.x+from.width/2,clientY:from.y+from.height/2};
+   await recordPage.locator('[data-week-drag="0"]').dispatchEvent('pointerdown',p);
+   assert.equal(await recordPage.locator('#week-planner > .week-planner-drag-ghost').count(),1,'Planner drag preview must render in top layer');
+   assert.equal(await recordPage.locator('html.ingemar-builder-drag-active').count(),1);
+   await recordPage.evaluate(q=>document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,pointerId:q.pointerId,pointerType:'touch',clientX:q.x,clientY:q.y})),{pointerId,x:to.x+to.width/2,y:to.y+to.height/2});
+   await recordPage.evaluate(q=>document.dispatchEvent(new PointerEvent(q.type,{bubbles:true,cancelable:true,pointerId:q.pointerId,pointerType:'touch'})),{type:endType,pointerId});
+   assert.equal(await recordPage.locator('#week-planner > .week-planner-drag-ghost').count(),0);
+   assert.equal(await recordPage.locator('html.ingemar-builder-drag-active').count(),0);
+ };
+ await dragDay(94,'pointercancel');
+ assert.deepEqual(await weekLabels(),beforeWeek,'Cancelled week drag must preserve original day order');
+ await dragDay(95,'pointerup');
+ const swapped=await weekLabels();
+ assert.equal(swapped[0],beforeWeek[1],'Dropped week drag must reorder first day');
+ assert.equal(swapped[1],beforeWeek[0],'Dropped week drag must reorder second day');
+ await recordPage.screenshot({path:'test-results/ingemar-private/week-reordered-iphone.png'});
+ await recordPage.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();
+ await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ await recordPage.locator('[data-action="plan-week"]').click();
+ assert.deepEqual((await weekLabels()).slice(0,2),swapped.slice(0,2),'Reordered days must survive reload');
+ await recordPage.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();
+ // Week navigation and category selection may never erase the chosen pass name.
+ const displayWeek=await recordPage.locator('#training-week-label').textContent();
+ await recordPage.locator('[data-training-week-shift="1"]').click();
+ assert.notEqual(await recordPage.locator('#training-week-label').textContent(),displayWeek);
+ await recordPage.locator('[data-training-week-today]').click();
+ assert.equal(await recordPage.locator('#training-week-label').textContent(),displayWeek);
+ await recordPage.locator('[data-choice="Pull"]').click();
+ await recordPage.locator('#build-name').fill('Eget passnamn');
+ await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await recordPage.locator('[data-choice="Push"]').click();
+ assert.equal(await recordPage.locator('[data-type="Push"]').getAttribute('aria-pressed'),'true','Explicit choice must override prior Pull category');
+ assert.equal(await recordPage.locator('#build-name').inputValue(),'Eget passnamn','Category change must retain custom pass name');
+ await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
  await recordContext.close();
  await android.close();
  await browser.close();console.log('Ingemar sync, records and iPhone/Android dialogs passed');
