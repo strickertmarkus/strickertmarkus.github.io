@@ -128,11 +128,13 @@
     /* Swedish holidays: rendered as calendar metadata, never as Firebase events. */
     .home-cal-holidays-toggle { display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:10px;font-weight:700;color:#B5AFC0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
     .home-cal-holidays-toggle input { position:absolute;opacity:0;width:1px;height:1px;pointer-events:none; }
-    .home-cal-holidays-switch { width:25px;height:14px;display:inline-block;position:relative;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);transition:background .2s,border-color .2s; }
-    .home-cal-holidays-switch::before { content:'';position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#94A3B8;transition:transform .2s,background .2s; }
-    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch { background:rgba(253,186,116,.24);border-color:rgba(253,186,116,.55); }
-    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch::before { background:#FDBA74;transform:translateX(11px); }
-    .home-cal-holidays-toggle input:focus-visible + .home-cal-holidays-switch { outline:2px solid #FDBA74;outline-offset:3px; }
+    .home-cal-holidays-switch { width:25px;height:14px;display:inline-block;position:relative;flex:0 0 auto;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);box-shadow:inset 0 1px 2px rgba(0,0,0,.15);transition:background .2s,border-color .2s,box-shadow .22s ease; }
+    .home-cal-holidays-switch::before { content:'';position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#94A3B8;box-shadow:0 1px 2px rgba(0,0,0,.24);transition:transform .2s,background .2s,box-shadow .22s ease; }
+    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch { background:rgba(var(--home-view-rgb,253,186,116),.24);border-color:rgba(var(--home-view-rgb,253,186,116),.62);box-shadow:0 0 0 1px rgba(var(--home-view-rgb,253,186,116),.10),0 0 11px rgba(var(--home-view-rgb,253,186,116),.26),inset 0 0 7px rgba(var(--home-view-rgb,253,186,116),.16); }
+    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch::before { background:var(--home-view-accent,#FDBA74);transform:translateX(11px);box-shadow:0 0 5px rgba(var(--home-view-rgb,253,186,116),.92),0 0 10px rgba(var(--home-view-rgb,253,186,116),.65); }
+    .home-cal-holidays-toggle input:focus-visible + .home-cal-holidays-switch { outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px; }
+    .home-cal-holidays-toggle:has(input:checked) > span:last-child { color:var(--home-view-accent-soft,#FDBA74);text-shadow:0 0 8px rgba(var(--home-view-rgb,253,186,116),.20); }
+    @media(prefers-reduced-motion:reduce){ .home-cal-holidays-switch,.home-cal-holidays-switch::before { transition:none; } }
     .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0; }
     .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#A78BFA;box-shadow:0 0 8px rgba(167,139,250,.26); }
     .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.3); }
@@ -183,6 +185,10 @@
       padding-top: 54px;
     }
     .sidebar-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+    /* Shopping, tasks and transfers are sibling widgets on mobile.
+       Match the 14px spacing already used by sidebar sections, without
+       adding extra space between a section and its following widget. */
+    .sidebar > .widget + .widget { margin-top: 14px; }
     .sidebar-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
     .sidebar-title .btn-xs,
     .sidebar-title a.btn-xs { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
