@@ -116,13 +116,12 @@
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); grid-auto-rows:1fr; gap: 4px; }
-    /* Swipe track is mounted only while dragging; it preserves the same day
-       grid, styling and widths as the normal calendar. */
-    .cal-month-swipe-viewport { position:relative; width:100%; overflow:hidden; }
-    .cal-month-swipe-track { display:flex; align-items:flex-start; width:100%; transform:translate3d(-100%,0,0); will-change:transform; }
-    .cal-month-swipe-track > .cal-grid { flex:0 0 100%; width:100%; min-width:0; }
-    .cal-month-swipe-preview { pointer-events:none; user-select:none; -webkit-user-select:none; }
-    @media(prefers-reduced-motion:reduce) { .cal-month-swipe-track { transition:none!important; } }
+    /* Neighbor grids overlay the calendar only while swiping, leaving the
+       actual touch target in place (important for iOS Safari). */
+    .cal-month-swipe-preview { position:absolute;pointer-events:none;user-select:none;-webkit-user-select:none;will-change:transform; }
+    @media(prefers-reduced-motion:reduce) {
+      .cal-month-swipe-preview { transition:none!important; }
+    }
     .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .cal-cell:hover { border-color: rgba(255,255,255,.14); }
     .cal-cell.has-events:hover { border-color: rgba(253,186,116,.52); background: rgba(253,186,116,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
@@ -1629,52 +1628,68 @@ function installMonthSwipe() {
       document.body.dataset.homeCalendarView === 'month';
   }
 
-  function neighborMonth(offset) {
+  function monthOffset(offset) {
     return new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1);
   }
 
-  function setPosition(track, distance) {
-    track.style.transform = 'translate3d(calc(-100% + ' + Math.round(distance) + 'px),0,0)';
+  function place(node, pixels) {
+    node.style.transform = 'translate3d(' + Math.round(pixels) + 'px,0,0)';
   }
 
   function mount() {
     if (mounted || !grid.parentNode) return;
-    // Render the adjacent months only after a clear horizontal movement
-    // is detected. Normal taps/vertical scrolling create no extra DOM.
-    var parent = grid.parentNode;
-    var height = grid.getBoundingClientRect().height;
-    var viewport = document.createElement('div');
-    viewport.className = 'cal-month-swipe-viewport';
-    viewport.style.height = Math.ceil(height) + 'px';
-    var track = document.createElement('div');
-    track.className = 'cal-month-swipe-track';
+    // The touched grid is never reparented or replaced during a gesture.
+    // Only when dragging horizontally do we render lightweight neighbors.
+    var stage = grid.parentNode;
+    var stageRect = stage.getBoundingClientRect();
+    var gridRect = grid.getBoundingClientRect();
+    var width = gridRect.width;
     var prev = document.createElement('div');
     var next = document.createElement('div');
     prev.className = 'cal-grid cal-month-swipe-preview';
     next.className = 'cal-grid cal-month-swipe-preview';
-    prev.setAttribute('aria-hidden','true');
-    next.setAttribute('aria-hidden','true');
-    var p = neighborMonth(-1), n = neighborMonth(1);
-    populateMonthGrid(prev, p.getFullYear(), p.getMonth(), false);
-    populateMonthGrid(next, n.getFullYear(), n.getMonth(), false);
-    parent.insertBefore(viewport, grid);
-    viewport.appendChild(track);
-    track.appendChild(prev);
-    track.appendChild(grid);
-    track.appendChild(next);
-    mounted = { viewport:viewport, track:track };
-    setPosition(track, 0);
+    prev.setAttribute('aria-hidden', 'true');
+    next.setAttribute('aria-hidden', 'true');
+    var before = monthOffset(-1), after = monthOffset(1);
+    populateMonthGrid(prev,before.getFullYear(),before.getMonth(),false);
+    populateMonthGrid(next,after.getFullYear(),after.getMonth(),false);
+    var priorPosition = stage.style.position;
+    var priorOverflow = stage.style.overflow;
+    stage.style.position = 'relative';
+    stage.style.overflow = 'hidden';
+    [prev,next].forEach(function(node) {
+      node.style.top = Math.round(gridRect.top-stageRect.top) + 'px';
+      node.style.left = Math.round(gridRect.left-stageRect.left) + 'px';
+      node.style.width = width + 'px';
+      stage.appendChild(node);
+    });
+    mounted = {
+      stage:stage,prev:prev,next:next,width:width,
+      priorPosition:priorPosition,priorOverflow:priorOverflow
+    };
+    position(0);
   }
 
-  function restore(going) {
+  function position(dx) {
+    if (!mounted) return;
+    var m = mounted;
+    var drag = Math.max(-m.width, Math.min(m.width, dx));
+    place(grid,drag);
+    place(m.prev,drag-m.width);
+    place(m.next,drag+m.width);
+  }
+
+  function cleanup(delta) {
     var m = mounted;
     if (!m) return;
     mounted = null;
-    if (m.viewport.parentNode) {
-      m.viewport.parentNode.insertBefore(grid, m.viewport);
-      m.viewport.remove();
-    }
-    if (going) changeMonth(going);
+    grid.style.transform = '';
+    grid.style.transition = '';
+    m.prev.remove();
+    m.next.remove();
+    m.stage.style.position = m.priorPosition;
+    m.stage.style.overflow = m.priorOverflow;
+    if (delta) changeMonth(delta);
   }
 
   function settle(direction) {
@@ -1682,24 +1697,24 @@ function installMonthSwipe() {
       if (direction) changeMonth(direction);
       return;
     }
-    var m = mounted;
-    var done = false;
-    var fallback;
+    var m = mounted, finished = false, fallback;
     function finish() {
-      if (done) return;
-      done = true;
+      if (finished) return;
+      finished = true;
       clearTimeout(fallback);
-      restore(direction);
+      cleanup(direction);
     }
     var reduced = false;
     try { reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (_) {}
     if (reduced) { finish(); return; }
-    var w = m.viewport.clientWidth;
-    m.track.style.transition = 'transform 220ms cubic-bezier(.22,.72,.19,1)';
-    setPosition(m.track, direction ? -direction * w : 0);
-    m.track.addEventListener('transitionend', function(e) {
-      if (e.target === m.track && e.propertyName === 'transform') finish();
-    });
+    var transition = 'transform 220ms cubic-bezier(.22,.72,.19,1)';
+    grid.style.transition = transition;
+    m.prev.style.transition = transition;
+    m.next.style.transition = transition;
+    position(direction ? -direction*m.width : 0);
+    grid.addEventListener('transitionend', function(e) {
+      if (e.target === grid && e.propertyName === 'transform') finish();
+    }, { once:true });
     fallback = setTimeout(finish, 290);
   }
 
@@ -1709,27 +1724,22 @@ function installMonthSwipe() {
       return;
     }
     var t = event.touches[0];
-    gesture = { x:t.clientX, y:t.clientY, id:t.identifier, axis:null, dx:0 };
+    gesture = { x:t.clientX,y:t.clientY,id:t.identifier,axis:null };
   }, { passive:true });
 
   grid.addEventListener('touchmove', function(event) {
     if (!gesture || event.touches.length !== 1 || !inMonthView()) return;
     var t = event.touches[0];
     if (t.identifier !== gesture.id) return;
-    var dx = t.clientX - gesture.x, dy = t.clientY - gesture.y;
+    var dx = t.clientX-gesture.x,dy = t.clientY-gesture.y;
     if (gesture.axis === null && Math.max(Math.abs(dx),Math.abs(dy)) > 9) {
-      gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.3 ? 'x' : 'y';
+      gesture.axis = Math.abs(dx) > Math.abs(dy)*1.3 ? 'x' : 'y';
     }
-    if (gesture.axis !== 'x') return; // native vertical page scroll
+    if (gesture.axis !== 'x') return;
     if (event.cancelable) event.preventDefault();
     suppressClickUntil = Date.now() + 400;
-    gesture.dx = dx;
     mount();
-    if (mounted) {
-      // Small resistance at the edges, keeping the preview aligned to the finger.
-      var max = mounted.viewport.clientWidth;
-      setPosition(mounted.track, Math.max(-max,Math.min(max,dx)));
-    }
+    position(dx);
   }, { passive:false });
 
   grid.addEventListener('touchend', function(event) {
@@ -1747,12 +1757,11 @@ function installMonthSwipe() {
       return touch.identifier === g.id;
     });
     if (!t) { settle(0); return; }
-    var dx = t.clientX - g.x, dy = t.clientY - g.y;
-    var width = (mounted && mounted.viewport.clientWidth) || grid.clientWidth;
+    var dx = t.clientX-g.x,dy = t.clientY-g.y;
+    var width = (mounted && mounted.width) || grid.clientWidth;
     var threshold = Math.max(44,Math.min(65,width*.13));
-    var direction = Math.abs(dx) >= threshold && Math.abs(dx) > Math.abs(dy)*1.3
-      ? (dx < 0 ? 1 : -1) : 0;
-    settle(direction);
+    settle(Math.abs(dx) >= threshold && Math.abs(dx) > Math.abs(dy)*1.3
+      ? (dx < 0 ? 1 : -1) : 0);
   }, { passive:false });
 
   grid.addEventListener('touchcancel', function() {
