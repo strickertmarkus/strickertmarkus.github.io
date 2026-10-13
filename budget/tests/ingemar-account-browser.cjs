@@ -298,7 +298,11 @@ async function verifyTouchDrag(page,label){
       &&!!iframe.contentWindow?.sessionState&&iframe.contentDocument?.getElementById('session-modal')?.classList.contains('show');
   },null,{timeout:14000});
   assert.equal(await page.locator('#family-session-frame').getAttribute('aria-busy'),null,'Acknowledged session clears loading state');
-  if(cycle===1)await page.screenshot({path:'test-results/ingemar-private/session-reopened-iphone-390.png'});
+  if(cycle===1){
+   const screenshot=await page.screenshot({path:'test-results/ingemar-private/session-reopened-iphone-390.png'});
+   assert.ok(screenshot.length>25000,'The reopened workout must render visible content, not a blank iframe');
+   assert.equal(await page.frameLocator('#family-session-frame').locator('#session-current-ex').isVisible(),true);
+  }
   await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
   await page.waitForSelector('#family-session-frame',{state:'hidden'});
  }
