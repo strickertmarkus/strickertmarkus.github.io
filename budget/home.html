@@ -115,7 +115,7 @@
     .cal-section { padding-right: 1.5rem; position: relative; }
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 4px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); grid-auto-rows:1fr; gap: 4px; }
     .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .cal-cell:hover { border-color: rgba(255,255,255,.14); }
     .cal-cell.has-events:hover { border-color: rgba(253,186,116,.52); background: rgba(253,186,116,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
