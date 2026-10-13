@@ -1,0 +1,35 @@
+name: Diagnose travel access policy
+on:
+  push:
+    branches: ['diagnose/travel-access-20261013']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save firebase-admin@13
+      - name: Inspect rule structure without data or credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          node <<'JS'
+          const admin=require('firebase-admin');
+          (async()=>{
+            const app=admin.initializeApp({credential:admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)),databaseURL:'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'});
+            try{
+              const data=await app.database().getRulesJSON();
+              console.log('TOP_KEYS',Object.keys(data));
+              const rules=data.rules||data;
+              const inspect=(path,node)=>console.log(JSON.stringify({path,exists:!!node,keys:node?Object.keys(node):[],read:summary(node?.['.read']),write:summary(node?.['.write'])}));
+              function summary(v){return {type:typeof v,boolean:typeof v==='boolean'?v:null,authenticated:typeof v==='string'&&v.includes('auth'),referencesData:typeof v==='string'&&/root|data|child/.test(v)};}
+              inspect('root',rules);
+              for(const name of ['family_todos_v2','family_travel_v1','sh_lists','sh_recipes_v3']){inspect(name,rules[name]);inspect(name+'/items',rules[name]?.items);}
+            }finally{await app.delete();}
+          })().catch(e=>{console.error(e.message);process.exitCode=1;});
+          JS
