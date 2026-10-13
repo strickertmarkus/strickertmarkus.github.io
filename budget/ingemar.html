@@ -209,6 +209,15 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #plan-preview{width:min(660px,calc(100dvw - 24px))}#plan-preview-meta{margin:6px 0 0}#plan-preview-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:#ddafba;font-size:11px}#plan-preview-summary span{border:1px solid #a7566b33;border-radius:8px;padding:7px 10px;background:#a7566b08}
 #plan-preview-list{list-style:none;padding:0;margin:0;display:grid;gap:9px}.plan-preview-exercise{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:12px;border:1px solid #ffffff13;border-radius:13px;background:#ffffff025}.plan-preview-number{color:#c17a8d;font-size:12px;padding-top:2px}.plan-preview-exercise h3{font-size:13px;margin:0 0 8px;overflow-wrap:anywhere}.plan-preview-sets{display:flex;flex-wrap:wrap;gap:5px}.plan-preview-sets span{font-size:11px;padding:5px 7px;border-radius:7px;background:#ffffff05;color:#d4c4cf}.plan-preview-sets small{color:#8c8290;margin-right:5px;font-size:9px}
 #plan-preview .modal-actions{position:sticky;bottom:-25px;padding:14px 0 0;background:#111520;gap:10px}#plan-preview .modal-actions .right{margin-left:auto}@media(max-width:740px){#plan-preview .modal-actions{bottom:-14px}#plan-preview .modal-actions .right{width:100%}#plan-preview .modal-actions .right button{flex:1;font-size:11px;padding:12px 8px}}
+.training-week-nav{display:grid;grid-template-columns:40px minmax(0,1fr) 40px auto;align-items:center;gap:7px;width:min(100%,455px);max-width:100%;margin:0 0 14px;padding:5px;border:1px solid #a64e6538;border-radius:15px;background:linear-gradient(120deg,#b3486012,#ffffff03 64%);box-shadow:inset 0 1px #ffffff06}
+.training-week-arrow,.training-week-today{display:grid;place-items:center;min-width:0;min-height:39px;border:1px solid #b968793d;border-radius:10px;background:#ad526019;color:#ecc4ce}
+.training-week-arrow{font-size:23px;line-height:1}.training-week-arrow:hover,.training-week-today:hover{border-color:#cf778d8b;background:#af556132}
+.training-week-period{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;text-align:center;gap:3px}
+.training-week-period strong{display:block;color:#f5d5de;font-size:13px;font-weight:750;letter-spacing:.015em;font-variant-numeric:tabular-nums}
+.training-week-period span{display:block;color:#aa9ba7;font-size:10px;line-height:1.35;font-variant-numeric:tabular-nums;white-space:normal}
+.training-week-today{padding:0 11px;font-size:10px;font-weight:750;white-space:nowrap}
+.training-week-nav.is-current .training-week-period strong:after{content:'NU';margin-left:7px;padding:2px 5px;border-radius:5px;background:#b64b6326;color:#d88c9e;font-size:8px;letter-spacing:.09em;vertical-align:middle}
+@media(max-width:420px){.training-week-nav{grid-template-columns:36px minmax(0,1fr) 36px auto;gap:4px;padding:4px}.training-week-arrow,.training-week-today{min-height:38px}.training-week-today{padding:0 8px;font-size:9px}.training-week-period strong{font-size:12px}.training-week-period span{font-size:9px}}
 </style>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
@@ -259,7 +268,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="section-head"><h2>Välj träningspass</h2><span class="hint">Bygg eller redigera ett pass</span></div>
   <div class="choices"><button type="button" class="choice push" data-choice="Push"><span class="glyph">↗</span><b>Push</b><small>Bröst · Axlar · Triceps</small></button><button type="button" class="choice pull" data-choice="Pull"><span class="glyph">↙</span><b>Pull</b><small>Rygg · Biceps</small></button><button type="button" class="choice cardio" data-choice="Kondition"><span class="glyph">⌁</span><b>Kondition</b><small>Intervaller · Distans · Tid</small></button></div>
   <div class="stats"><div class="panel stat"><div class="stat-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
-  <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="build">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="week" id="week" aria-label="Veckans pass"></div>
+  <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="build">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
   <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
   <div class="section-head"><h2>Framsteg</h2><span class="hint">Historik – senaste sju veckorna</span></div><div class="panel training-chart-panel"><div class="training-chart-head"><div><div class="eyebrow">GENOMFÖRDA TRÄNINGSPASS</div><strong>7 veckor i rörelse</strong></div><span>Tryck på en stapel för exakt värde</span></div><div class="pulse-bar-shell"><div class="bars" id="bars" aria-label="Träningspass per vecka"></div><div class="chart-inspect bar-inspect" id="bars-inspect" role="status" aria-live="polite"></div></div></div>
   <div class="section-head pp-section-head"><div><div class="eyebrow">PUSH / PULL · BELASTNING</div><h2>Jämför utvecklingen</h2></div><span class="hint">Senaste åtta veckorna</span></div>
@@ -605,6 +614,15 @@ function isoWeekNumber(iso){
  var d=dayFrom(iso),target=new Date(d.valueOf());target.setHours(0,0,0,0);target.setDate(target.getDate()+3-((target.getDay()+6)%7));
  var first=new Date(target.getFullYear(),0,4);return 1+Math.round(((target-first)/86400000-3+((first.getDay()+6)%7))/7);
 }
+function trainingWeekRangeText(monday){
+ var last=offset(monday,6),startYear=dayFrom(monday).getFullYear(),endYear=dayFrom(last).getFullYear();
+ return pretty(monday)+(startYear!==endYear?' '+startYear:'')+' – '+pretty(last)+' '+endYear;
+}
+function shiftTrainingWeek(delta){
+ if(!Number.isInteger(delta)||Math.abs(delta)!==1)return;
+ selected=offset(selected,delta*7);render();
+}
+function showCurrentTrainingWeek(){selected=dayISO(new Date());render();}
 function strengthWeeks(){
  var monday=weekStart(dayISO(new Date()));
  return Array.from({length:8},function(_,i){var start=offset(monday,-(7-i)*7),end=offset(start,7);return {start:start,end:end,label:'v'+isoWeekNumber(start)};});
@@ -908,6 +926,9 @@ function render(){
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
  $('orbit-summary').textContent=p?p.exercises.length+' övningar · '+p.exercises.reduce(function(n,e){return n+e.sets.length;},0)+' set':'Välj eller bygg ett pass';
  var today=dayISO(new Date()),monday=weekStart(selected);
+ setText('training-week-label','Vecka '+isoWeekNumber(monday));
+ setText('training-week-range',trainingWeekRangeText(monday));
+ $('training-week-nav').classList.toggle('is-current',monday===weekStart(today));
  $('week').innerHTML=DAYS.map(function(name,i){var date=offset(monday,i),entry=plan(date),t=state.builderDrafts[date]?'Utkast':entry?entry.type:'Vila';
   return '<button type="button" class="day'+(date===today?' today':'')+'" data-day="'+date+'" aria-pressed="'+(date===selected)+'"><small>'+name+'</small><strong>'+dayFrom(date).getDate()+'</strong><span>'+clean(t)+'</span></button>';
  }).join('');
@@ -2021,6 +2042,8 @@ function finishZen(){
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
  if(b.dataset.view){switchView(b.dataset.view);return;}
+ if(b.dataset.trainingWeekShift!=null){shiftTrainingWeek(Number(b.dataset.trainingWeekShift));return;}
+ if(b.dataset.trainingWeekToday!=null){showCurrentTrainingWeek();return;}
  if(b.dataset.weekShift!=null){shiftWeekPlanner(Number(b.dataset.weekShift));return;}
  if(b.dataset.weekCopy!=null){var copyIndex=Number(b.dataset.weekCopy);weekCopyFrom=weekCopyFrom===copyIndex?-1:copyIndex;weekExpandedDay=copyIndex;renderWeekPlanner();return;}
  if(b.dataset.weekCopyTarget!=null){copyWeekDay(weekCopyFrom,Number(b.dataset.weekCopyTarget));return;}
