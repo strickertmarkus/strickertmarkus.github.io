@@ -352,9 +352,9 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   </div>
 
   <div class="stats zen-stats">
-    <div class="panel stat"><div class="stat-label">Denna vecka</div><strong id="zen-stat-week">0</strong><div class="sub" id="zen-stat-week-sub">av 4 planerade</div></div>
+    <div class="panel stat"><div class="stat-label" id="zen-stat-week-label">Denna vecka</div><strong id="zen-stat-week">0</strong><div class="sub" id="zen-stat-week-sub">av 4 planerade</div></div>
     <div class="panel stat"><div class="stat-label">Totalt antal</div><strong id="zen-stat-total">0</strong><div class="sub" id="zen-stat-total-sub">stretchstunder</div></div>
-    <div class="panel stat"><div class="stat-label">Tid denna vecka</div><strong id="zen-stat-minutes">0<small>min</small></strong><div class="sub">återhämtning</div></div>
+    <div class="panel stat"><div class="stat-label" id="zen-stat-time-label">Tid denna vecka</div><strong id="zen-stat-minutes">0<small>min</small></strong><div class="sub">återhämtning</div></div>
     <div class="panel stat"><div class="stat-label">Senaste stund</div><strong id="zen-stat-last">–</strong><div class="sub" id="zen-stat-last-kind">Inget registrerat</div></div>
   </div>
 
@@ -932,6 +932,11 @@ function undoDelete(){
  var item=undoPending;if(!item||Date.now()>item.expires)return;
  undoPending=null;clearTimeout(toastTimer);item.restore();toast('Återställt.');
 }
+document.querySelectorAll('dialog').forEach(function(dialog){
+ dialog.addEventListener('close',function(){
+  if(undoPending&&$('toast').parentNode===dialog)placeToast();
+ });
+});
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
 function nextType(){var p=plan(selected);return p?p.type:fallbackType(selected);}
@@ -1028,6 +1033,8 @@ function renderZen(){
  $('zen-flow-kicker').textContent=med?'NÄSTA MEDITATION':'NÄSTA STRETCH';
  $('zen-flow-name').textContent=nextRoutine?nextRoutine.name:'Bygg ditt första pass';
  $('zen-flow-meta').textContent=nextRoutine?nextRoutine.minutes+' min · '+nextRoutine.steps.length+' steg':'Lägg till en stund för att komma igång';
+ setText('zen-stat-week-label','Vecka '+isoWeekNumber(monday));
+ setText('zen-stat-time-label','Tid vecka '+isoWeekNumber(monday));
  $('zen-stat-week').textContent=weekHistory.length;
  $('zen-stat-week-sub').textContent='genomförda vecka '+isoWeekNumber(monday);
  $('zen-stat-total').textContent=all.length;
@@ -1235,7 +1242,15 @@ function clearWeekDay(index){
  if(!weekDraft||index<0||index>6)return;
  var monday=weekPlannerMonday,before=deep(weekDraft),drafts=DAYS.map(function(_,i){return deep(state.builderDrafts[offset(monday,i)]||null);});
  weekDraft[index]=null;delete state.builderDrafts[offset(monday,index)];weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();
- offerUndo('Dagen rensades.',function(){undoWeekChange(monday,before,drafts);});
+ offerUndo('Dagen rensades.',function(){
+  var date=offset(monday,index);
+  if(before[index])state.plans[date]=deep(before[index]);else delete state.plans[date];
+  if(drafts[index])state.builderDrafts[date]=deep(drafts[index]);else delete state.builderDrafts[date];
+  if(weekDraft&&weekPlannerMonday===monday){
+   weekDraft[index]=deep(before[index]);weekDraftDirty=true;renderWeekPlanner();
+  }else persist();
+  render();
+ });
 }
 function clearWeekPlanner(){
  if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;
