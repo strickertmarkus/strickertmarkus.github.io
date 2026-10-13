@@ -882,8 +882,11 @@
        almost full-bleed horizontally, and all 7 day columns share the
        SAME cell proportions regardless of how many events they contain. */
     @media (max-width: 600px) {
-      .cal-section { margin-left:-14px; margin-right:-14px; }
-      .cal-grid { gap:2px; grid-auto-rows:auto; container-type:inline-size; }
+      /* The calendar and all following cards share one consistent outer edge.
+         Compared to before, the calendar narrows while shopping/todo cards widen. */
+      .main-layout { padding-left:12px; padding-right:12px; }
+      .cal-section { margin-left:0; margin-right:0; }
+      .cal-grid { gap:2px; grid-auto-rows:auto; container-type:inline-size; touch-action:pan-y pinch-zoom; }
       .cal-cell, .cal-cell.has-events {
         box-sizing:border-box; aspect-ratio:1 / 1.16; height:auto;
         min-height:0; min-width:0; padding:4px 3px; border-radius:8px;
@@ -1563,8 +1566,65 @@ function renderUpcoming() {
 }
 
 // ── MONTH NAV ─────────────────────────────────────────────────
-function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); closeDayEventsPopup(); renderMonth(); }
-function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); selectedDate=null; document.getElementById('day-panel').classList.remove('show'); closeDayEventsPopup(); renderMonth(); }
+function changeMonth(delta) {
+  // Move through actual calendar months, including when today is the 29th-31st.
+  currentDate.setDate(1);
+  currentDate.setMonth(currentDate.getMonth() + delta);
+  selectedDate = null;
+  document.getElementById('day-panel').classList.remove('show');
+  closeDayEventsPopup();
+  renderMonth();
+}
+function prevMonth() { changeMonth(-1); }
+function nextMonth() { changeMonth(1); }
+
+// Month grid swipe: left = next month, right = previous month.
+// Only react to an intentional single-finger horizontal gesture.
+// Do not interfere with vertical page scrolling, popovers or the day/week views.
+function installMonthSwipe() {
+  var grid = document.getElementById('cal-grid');
+  if (!grid || grid.dataset.monthSwipeBound === '1') return;
+  grid.dataset.monthSwipeBound = '1';
+  var gesture = null;
+  var suppressClickUntil = 0;
+
+  grid.addEventListener('touchstart', function(event) {
+    gesture = null;
+    if (event.touches.length !== 1 ||
+        (document.body.dataset.homeCalendarView && document.body.dataset.homeCalendarView !== 'month')) return;
+    var touch = event.touches[0];
+    gesture = { x:touch.clientX, y:touch.clientY, id:touch.identifier };
+  }, { passive:true });
+
+  grid.addEventListener('touchend', function(event) {
+    if (!gesture) return;
+    var start = gesture;
+    gesture = null;
+    if (event.touches.length || !event.changedTouches.length ||
+        (document.body.dataset.homeCalendarView && document.body.dataset.homeCalendarView !== 'month')) return;
+    var touch = Array.prototype.find.call(event.changedTouches, function(t) {
+      return t.identifier === start.id;
+    });
+    if (!touch) return;
+    var dx = touch.clientX - start.x;
+    var dy = touch.clientY - start.y;
+    var threshold = Math.max(44, Math.min(65, grid.clientWidth * .13));
+    if (Math.abs(dx) < threshold || Math.abs(dx) <= Math.abs(dy) * 1.35) return;
+    // Suppress the synthetic click following a completed swipe to avoid
+    // unintentionally selecting a day in the new month.
+    suppressClickUntil = Date.now() + 350;
+    if (event.cancelable) event.preventDefault();
+    changeMonth(dx < 0 ? 1 : -1);
+  }, { passive:false });
+
+  grid.addEventListener('touchcancel', function() { gesture = null; }, { passive:true });
+  grid.addEventListener('click', function(event) {
+    if (Date.now() < suppressClickUntil) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+}
 
 function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
   var widget = document.querySelector('.cal-section');
@@ -2681,6 +2741,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   renderMonth();
+  installMonthSwipe();
   renderTrip();
   renderShoppingWidget();
   renderHeaderMeta();
