@@ -39,12 +39,12 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 .week-planner-guide{display:grid;grid-template-columns:auto 1fr auto 1fr auto;gap:8px;align-items:center;margin:2px 2px 14px}.week-planner-guide span{display:flex;align-items:center;gap:6px;color:#9b98a5;font-size:9px;font-weight:700;white-space:nowrap}.week-planner-guide b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid #ad415951;background:#ad41590b;color:#c5889b;font-size:9px}.week-planner-guide em{font-style:normal}.week-planner-guide i{height:1px;background:linear-gradient(90deg,#ad41592c,#94e8eb28)}
 .week-planner-overview{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px;padding:12px 14px;border:1px solid #ffffff12;border-radius:14px;background:linear-gradient(135deg,#ad415908,#94e8eb05)}.week-planner-overview small{display:block;color:#817d8b;font-size:8px;letter-spacing:.13em}.week-planner-overview strong{display:block;margin-top:5px;font-size:17px;font-weight:620}.week-planner-overview>span{max-width:270px;color:#918d9b;font-size:10px;line-height:1.4;text-align:right}
 .week-template-drawer{margin:0 0 13px;border:1px solid #ffffff10;border-radius:12px;background:#ffffff06;overflow:hidden}.week-template-drawer summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;color:#b9b5c0;font-size:10px;font-weight:700;cursor:pointer}.week-template-drawer summary::-webkit-details-marker{display:none}.week-template-drawer summary:after{content:"⌄";color:#777f8c;font-size:13px}.week-template-drawer[open] summary:after{transform:rotate(180deg)}.week-template-drawer summary small{margin-left:auto;color:#6f7784;font-size:8px;letter-spacing:.09em;text-transform:uppercase}.week-template-drawer-body{padding:0 11px 11px;border-top:1px solid #ffffff0d}.week-template-tools{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:7px;align-items:center;padding-top:10px}.week-template-tools select{height:42px}.week-template-tools button{min-height:42px;white-space:nowrap}.week-planner-hint{display:block;margin-top:7px;color:#7f8793;font-size:9px}
-.week-planner-days{display:grid;gap:9px}.week-planner-day{--day-accent:#aeb8c5;--day-rgb:174,184,197;position:relative;border:1px solid rgba(var(--day-rgb),.18);border-radius:16px;background:linear-gradient(145deg,rgba(var(--day-rgb),.045),#ffffff06 52%,transparent);overflow:hidden;transition:border-color .18s,box-shadow .18s,opacity .16s}.week-planner-day:before{content:"";position:absolute;left:0;top:17px;bottom:17px;width:2px;border-radius:9px;background:var(--day-accent);box-shadow:0 0 13px rgba(var(--day-rgb),.42);opacity:.58}.week-planner-day.is-push{--day-accent:#e65c66;--day-rgb:230,92,102}.week-planner-day.is-pull{--day-accent:#94e8eb;--day-rgb:148,232,235}.week-planner-day.is-kondition{--day-accent:#ffbd82;--day-rgb:255,189,130}.week-planner-day.is-copy-source{border-color:rgba(var(--day-rgb),.58)}.week-planner-day.is-drag-source{opacity:.22}.week-planner-day.is-drag-target{border-color:#94e8eb80;background:#94e8eb0c;box-shadow:0 0 25px #55d7df15}
+.week-planner-days{display:grid;gap:9px}.week-planner-day{--day-accent:#aeb8c5;--day-rgb:174,184,197;position:relative;border:1px solid rgba(var(--day-rgb),.18);border-radius:16px;background:linear-gradient(145deg,rgba(var(--day-rgb),.045),#ffffff06 52%,transparent);overflow:hidden;transition:border-color .18s,box-shadow .18s,opacity .16s}.week-planner-day:before{content:"";position:absolute;left:0;top:17px;bottom:17px;width:2px;border-radius:9px;background:var(--day-accent);box-shadow:0 0 13px rgba(var(--day-rgb),.42);opacity:.58}.week-planner-day.is-push{--day-accent:#e65c66;--day-rgb:230,92,102}.week-planner-day.is-pull{--day-accent:#67E8F9;--day-rgb:34,211,238}.week-planner-day.is-kondition{--day-accent:#ffbd82;--day-rgb:255,189,130}.week-planner-day.is-copy-source{border-color:rgba(var(--day-rgb),.58)}.week-planner-day.is-drag-source{opacity:.22}.week-planner-day.is-drag-target{border-color:#94e8eb80;background:#94e8eb0c;box-shadow:0 0 25px #55d7df15}
 .week-day-card-top{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:7px;align-items:stretch;padding:10px 10px 7px}.week-day-open{width:100%;display:grid;grid-template-columns:54px minmax(0,1fr) 18px;gap:10px;align-items:center;padding:0;border:0;background:transparent;color:inherit;text-align:left}.week-day-date{display:flex;flex-direction:column;align-items:flex-start}.week-day-date small{color:#85818f;font-size:8px;letter-spacing:.12em;text-transform:uppercase}.week-day-date strong{margin-top:3px;color:#e9e3e8;font-size:15px;font-weight:730}.week-day-pass{min-width:0}.week-day-kind{display:inline-flex;align-items:center;gap:5px;color:var(--day-accent);font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.week-day-kind:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--day-accent);box-shadow:0 0 8px var(--day-accent)}.week-day-pass strong{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:650}.week-day-pass small{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8d8995;font-size:9px}.week-day-open-arrow{color:#676f7c;font-size:13px}
 .week-planner-drag{width:38px;height:100%;min-height:52px;padding:0;border:1px solid #ffffff14;border-radius:10px;background:#ffffff09;color:#8b929e;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;display:grid;place-items:center}.week-planner-drag:active{color:#d9fcfd;border-color:#94e8eb62}.week-planner-drag-bars{width:14px;display:grid;gap:3px;pointer-events:none}.week-planner-drag-bars i{height:2px;border-radius:99px;background:currentColor}
 .week-day-quick{width:calc(100% - 20px);margin:0 10px 9px;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;padding:7px 10px;border:1px solid rgba(var(--day-rgb),.14);border-radius:10px;background:rgba(var(--day-rgb),.035);color:#aaa5b2;font-size:9px;font-weight:700}.week-day-quick>span:first-child{min-width:0;overflow-wrap:anywhere;line-height:1.25}.week-day-quick>span:last-child{flex:0 0 auto}.week-day-quick b{color:var(--day-accent);font-size:10px}
 .week-day-editor{margin:0 10px 10px;padding:12px;border:1px solid rgba(var(--day-rgb),.16);border-radius:13px;background:#080d15a8}.week-day-editor[hidden]{display:none!important}.week-planner-step+.week-planner-step{margin-top:14px;padding-top:13px;border-top:1px solid #ffffff0d}.week-planner-step-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:10px;margin-bottom:8px}.week-planner-step-head b{min-width:0;color:#dcd4da;font-size:10px;letter-spacing:.07em;overflow-wrap:anywhere}.week-planner-step-head span{min-width:0;color:#777f8b;font-size:9px;text-align:right;white-space:normal;overflow-wrap:anywhere}
-.week-day-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.week-day-type-grid button{min-width:0;max-width:100%;min-height:36px;padding:7px 5px;border:1px solid #ffffff13;border-radius:10px;background:#ffffff09;color:#8e929b;font-size:9px;font-weight:750;white-space:normal;overflow-wrap:anywhere;line-height:1.15}.week-day-type-grid button[data-week-type$=":Push"][aria-pressed=true],#builder .type-pills button[data-type="Push"][aria-pressed=true]{border-color:#e65c667a;background:#e65c661d;color:#f29ba1}.week-day-type-grid button[data-week-type$=":Pull"][aria-pressed=true],#builder .type-pills button[data-type="Pull"][aria-pressed=true]{border-color:#94e8eb5e;background:#94e8eb10;color:#cef9fa}.week-day-type-grid button[data-week-type$=":Kondition"][aria-pressed=true],#builder .type-pills button[data-type="Kondition"][aria-pressed=true]{border-color:#ffbd825e;background:#ffbd8210;color:#ffe0c2}.week-day-type-grid button[data-week-type$=":Vila"][aria-pressed=true]{border-color:#ffffff2b;background:#ffffff08;color:#d4d7dc}
+.week-day-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.week-day-type-grid button{min-width:0;max-width:100%;min-height:36px;padding:7px 5px;border:1px solid #ffffff13;border-radius:10px;background:#ffffff09;color:#8e929b;font-size:9px;font-weight:750;white-space:normal;overflow-wrap:anywhere;line-height:1.15}.week-day-type-grid button[data-week-type$=":Push"][aria-pressed=true],#builder .type-pills button[data-type="Push"][aria-pressed=true]{border-color:#e65c667a;background:#e65c661d;color:#f29ba1}.week-day-type-grid button[data-week-type$=":Pull"][aria-pressed=true],#builder .type-pills button[data-type="Pull"][aria-pressed=true]{border-color:#67E8F95e;background:#67E8F910;color:#CFFAFE}.week-day-type-grid button[data-week-type$=":Kondition"][aria-pressed=true],#builder .type-pills button[data-type="Kondition"][aria-pressed=true]{border-color:#ffbd825e;background:#ffbd8210;color:#ffe0c2}.week-day-type-grid button[data-week-type$=":Vila"][aria-pressed=true]{border-color:#ffffff2b;background:#ffffff08;color:#d4d7dc}
 .week-exercise-grid{display:flex;flex-wrap:wrap;gap:6px}.week-exercise-grid button{min-width:0;max-width:100%;min-height:31px;padding:6px 9px;border:1px solid #ffffff13;border-radius:999px;background:#ffffff09;color:#898f99;font-size:9px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}.week-exercise-grid button[aria-pressed=true]{border-color:rgba(var(--day-rgb),.52);background:rgba(var(--day-rgb),.1);color:var(--day-accent)}.week-exercise-grid button[aria-pressed=true]:before{content:"✓";margin-right:5px}.week-day-template-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.week-day-template-chips:empty{display:none}.week-day-template-chips button{min-width:0;max-width:100%;min-height:29px;padding:5px 8px;border:1px dashed #ffffff20;border-radius:9px;background:transparent;color:#8c929c;font-size:8px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
 .week-day-builder-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}.week-day-open-builder{width:100%;min-width:0;max-width:100%;min-height:39px;border:1px solid rgba(var(--day-rgb),.42);border-radius:10px;background:rgba(var(--day-rgb),.08);color:var(--day-accent);padding:8px 11px;font-size:10px;font-weight:750;white-space:normal;overflow-wrap:anywhere;line-height:1.2}.week-day-tools{display:flex;gap:6px;flex-wrap:wrap}.week-day-tools button{min-width:0;max-width:100%;min-height:34px;padding:6px 9px;border:1px solid #ffffff13;border-radius:9px;background:#ffffff09;color:#9298a2;font-size:9px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}.week-day-tools .week-day-clear{color:#8d4c64}.week-copy-destinations{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:8px;padding:8px;border:1px solid #94e8eb25;border-radius:10px;background:#94e8eb06}.week-copy-destinations span{width:100%;color:#8fa9ad;font-size:8px;letter-spacing:.08em;text-transform:uppercase}.week-copy-destinations button{min-width:38px;min-height:30px;padding:5px 7px;border:1px solid #94e8eb32;border-radius:8px;background:#94e8eb08;color:#aeeaec;font-size:9px}
 .week-planner-actions{position:sticky;bottom:-1px;z-index:2;padding:13px 0 2px;background:linear-gradient(180deg,transparent,#101521 21%)}.week-planner-actions .primary{white-space:normal;overflow-wrap:anywhere;box-shadow:0 0 23px #982f4518}.week-planner-drag-ghost{position:fixed!important;top:0;left:0;width:min(250px,66vw);padding:13px 15px;border-radius:13px;z-index:2147482600!important;pointer-events:none!important;margin:0!important;opacity:.98;background:#121a26!important;border:1px solid #94e8eb78!important;box-shadow:0 18px 45px #000c,0 0 28px #58d8df20!important;will-change:transform}.week-planner-drag-ghost strong,.week-planner-drag-ghost small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.week-planner-drag-ghost strong{font-size:12px;color:#daf9fa}.week-planner-drag-ghost small{margin-top:4px;font-size:10px;color:#a1acb8}
@@ -255,7 +255,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #ingemar-logout{border:1px solid #c0708845;color:#e0adbf;border-radius:999px;padding:7px 11px;background:transparent;font-size:10px;font-weight:700;white-space:nowrap}
 @media(max-width:740px){.account-strip{order:2;margin-left:auto}#ingemar-sync-status{max-width:125px;font-size:9px}#ingemar-logout{font-size:9px;padding:6px 8px}#ingemar-account-gate .account-card{padding:23px 17px}}
 #plan-preview{width:min(660px,calc(100dvw - 24px));--preview-rgb:230,92,102;--preview-soft:#f29ba1}
-#plan-preview[data-preview-tone="pull"]{--preview-rgb:148,232,235;--preview-soft:#cef9fa}
+#plan-preview[data-preview-tone="pull"]{--preview-rgb:34,211,238;--preview-soft:#CFFAFE}
 #plan-preview[data-preview-tone="cardio"]{--preview-rgb:255,189,130;--preview-soft:#ffe0c2}
 #plan-preview .modal-head .eyebrow{color:var(--preview-soft)}
 #plan-preview-meta{margin:6px 0 0}
@@ -496,7 +496,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
-<iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar" title="Träningsläge" hidden></iframe>
+<iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar&v=20261013-session-ready-ack-1" title="Träningsläge" hidden></iframe>
 <section id="zen-session" class="mode-screen zen-workout" data-kind="stretch" aria-labelledby="zen-session-title" hidden>
   <div class="zen-session-ambient" aria-hidden="true">
     <span class="zen-ambient-orb orb-a"></span><span class="zen-ambient-orb orb-b"></span>
@@ -1659,11 +1659,99 @@ function confirmPlanPreview(startAfter){
  if(startAfter)start();else toast(weekSave?'Passet har sparats i veckoplanen.':'Passupplägget har sparats.');
 }
 var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
+var familySessionAttempt=0,familySessionSerial=0,familySessionRetryTimer=0,familySessionTimeout=0;
 function familySessionFrame(){return $('family-session-frame');}
-function sendFamilySession(){var frame=familySessionFrame();if(!familySessionReady||!familySessionOpen||!pendingFamilySession||!frame.contentWindow)return;frame.contentWindow.postMessage({type:'ingemar-family-session-start',workout:deep(pendingFamilySession.workout),date:pendingFamilySession.date},location.origin);pendingFamilySession=null;}
-function closeFamilySession(){var frame=familySessionFrame();familySessionOpen=false;pendingFamilySession=null;frame.hidden=true;delete document.body.dataset.modeOpen;}
-function start(){var p=plan(selected);if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}pendingFamilySession={workout:deep(p),date:selected};familySessionOpen=true;var frame=familySessionFrame();if(!frame.getAttribute('src')){frame.src=frame.dataset.src;toast('Öppnar träningsläget…');}frame.hidden=false;document.body.dataset.modeOpen='true';sendFamilySession();}
-window.addEventListener('message',function(event){var frame=familySessionFrame();if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;if(event.data.type==='ingemar-family-session-ready'){familySessionReady=true;sendFamilySession();return;}if(event.data.type==='ingemar-family-session-saved'){if(event.data.workout){state.history.push(event.data.workout);persist();}closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;}if(event.data.type==='ingemar-family-session-closed'){closeFamilySession();toast('Passet avslutades utan att sparas.');}});
+function clearFamilySessionTimers(){
+ clearTimeout(familySessionRetryTimer);clearTimeout(familySessionTimeout);
+ familySessionRetryTimer=0;familySessionTimeout=0;
+}
+function closeFamilySession(){
+ clearFamilySessionTimers();
+ var frame=familySessionFrame();
+ familySessionOpen=false;pendingFamilySession=null;familySessionAttempt=0;
+ frame.hidden=true;frame.removeAttribute('aria-busy');
+ delete document.body.dataset.modeOpen;
+}
+function failFamilySessionStart(message){
+ if(!familySessionOpen||!pendingFamilySession)return;
+ closeFamilySession();
+ toast(message||'Träningsläget kunde inte öppnas. Försök igen.');
+}
+function sendFamilySession(){
+ var frame=familySessionFrame(),pending=pendingFamilySession;
+ if(!familySessionReady||!familySessionOpen||!pending||!frame.contentWindow)return;
+ if(familySessionAttempt>=5){
+  failFamilySessionStart('Träningsläget svarade inte. Försök starta igen.');
+  return;
+ }
+ familySessionAttempt++;
+ frame.contentWindow.postMessage({
+  type:'ingemar-family-session-start',
+  requestId:pending.requestId,
+  workout:deep(pending.workout),date:pending.date
+ },location.origin);
+ clearTimeout(familySessionRetryTimer);
+ familySessionRetryTimer=setTimeout(function(){
+  if(familySessionOpen&&pendingFamilySession&&pendingFamilySession.requestId===pending.requestId)sendFamilySession();
+ },1800);
+}
+function start(){
+ if(familySessionOpen)return;
+ var p=plan(selected);
+ if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}
+ var requestId='ingemar-'+Date.now()+'-'+(++familySessionSerial);
+ pendingFamilySession={workout:deep(p),date:selected,requestId:requestId};
+ familySessionAttempt=0;familySessionOpen=true;
+ var frame=familySessionFrame();
+ frame.hidden=false;frame.setAttribute('aria-busy','true');
+ document.body.dataset.modeOpen='true';
+ if(!frame.getAttribute('src')){
+  familySessionReady=false;
+  frame.src=frame.dataset.src;
+ }
+ if(familySessionReady)sendFamilySession();
+ else toast('Öppnar träningsläget…');
+ clearTimeout(familySessionTimeout);
+ familySessionTimeout=setTimeout(function(){
+  if(familySessionOpen&&pendingFamilySession&&pendingFamilySession.requestId===requestId){
+   failFamilySessionStart('Träningsläget kunde inte laddas. Försök igen.');
+  }
+ },12000);
+}
+window.addEventListener('message',function(event){
+ var frame=familySessionFrame();
+ if(event.origin!==location.origin||event.source!==frame.contentWindow||!event.data)return;
+ var message=event.data;
+ if(message.type==='ingemar-family-session-ready'){
+  familySessionReady=true;
+  if(familySessionOpen&&pendingFamilySession&&familySessionAttempt===0)sendFamilySession();
+  return;
+ }
+ if(message.type==='ingemar-family-session-started'){
+  if(familySessionOpen&&pendingFamilySession&&message.requestId===pendingFamilySession.requestId){
+   clearFamilySessionTimers();
+   pendingFamilySession=null;familySessionAttempt=0;
+   frame.removeAttribute('aria-busy');
+   if($('toast').textContent==='Öppnar träningsläget…'){
+    clearTimeout(toastTimer);$('toast').hidden=true;
+   }
+  }
+  return;
+ }
+ if(message.type==='ingemar-family-session-start-error'){
+  if(familySessionOpen&&pendingFamilySession&&message.requestId===pendingFamilySession.requestId){
+   failFamilySessionStart('Passet kunde inte startas. Försök igen.');
+  }
+  return;
+ }
+ if(message.type==='ingemar-family-session-saved'){
+  if(message.workout){state.history.push(message.workout);persist();}
+  closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;
+ }
+ if(message.type==='ingemar-family-session-closed'){
+  closeFamilySession();toast('Passet avslutades utan att sparas.');
+ }
+});
 var selectedHistoryId='',historyEditDraft=null,historyEditId='';
 var recordEditKey='';
 function openRecordEditor(name){

@@ -510,7 +510,7 @@
     /* Ingemar: exercise-level color is presentation only. Shared timers, transitions
        and completion state remain owned by the existing session runtime. */
     #session-modal[data-ingemar-tone="push"]{--ingemar-tone:#e65c66;--ingemar-tone-soft:#f29ba1;--ingemar-tone-rgb:230,92,102}
-    #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#94e8eb;--ingemar-tone-soft:#cef9fa;--ingemar-tone-rgb:148,232,235}
+    #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#67E8F9;--ingemar-tone-soft:#CFFAFE;--ingemar-tone-rgb:34,211,238}
     /* More specific than the older intro/ready/between-set theme rules,
        which intentionally use !important for the other family profiles. */
     #session-modal[data-ingemar-tone],
@@ -898,7 +898,46 @@ function demoPlanToFamily(plan){
   return Object.assign({kind:'strength',sets:Math.max(1,sets.length),reps:Number(first.reps)||0,weight:Number(first.weight)||0},common);
  })};
 }
-window.addEventListener('message',function(event){if(event.origin!==location.origin||event.source!==parent||!event.data||event.data.type!=='ingemar-family-session-start')return;var payload=event.data,plan=payload.workout||{},date=payload.date||new Date().toISOString().slice(0,10);hostSessionName=plan.name||plan.type||'Träning';plannedSessions=Object.create(null);plannedSessions[date]=demoPlanToFamily(plan);if(sessionState)productionStopSessionMode(false);startWorkoutSessionForDate(date);});
+var lastHandledFamilyStartId='';
+function acknowledgeRenderedFamilySession(requestId){
+ // The parent must not consider the iframe visible before WebKit has painted it.
+ requestAnimationFrame(function(){
+  requestAnimationFrame(function(){
+   var modal=document.getElementById('session-modal');
+   var visible=!!sessionState&&!!modal&&modal.classList.contains('show')
+     &&getComputedStyle(modal).display!=='none'&&modal.getBoundingClientRect().height>100;
+   parent.postMessage({
+    type:visible?'ingemar-family-session-started':'ingemar-family-session-start-error',
+    requestId:requestId
+   },location.origin);
+  });
+ });
+}
+window.addEventListener('message',function(event){
+ if(event.origin!==location.origin||event.source!==parent||!event.data||event.data.type!=='ingemar-family-session-start')return;
+ var payload=event.data,requestId=String(payload.requestId||'');
+ // A delayed acknowledgement must never reset a workout that already started.
+ if(requestId&&lastHandledFamilyStartId===requestId&&sessionState){
+  acknowledgeRenderedFamilySession(requestId);
+  return;
+ }
+ try{
+  var plan=payload.workout||{},date=payload.date||new Date().toISOString().slice(0,10);
+  hostSessionName=plan.name||plan.type||'Träning';
+  plannedSessions=Object.create(null);
+  plannedSessions[date]=demoPlanToFamily(plan);
+  if(sessionState)productionStopSessionMode(false);
+  startWorkoutSessionForDate(date);
+  if(!sessionState||sessionState.date!==date||!document.getElementById('session-modal').classList.contains('show')){
+   throw new Error('Träningsläget öppnades inte');
+  }
+  lastHandledFamilyStartId=requestId;
+  acknowledgeRenderedFamilySession(requestId);
+ }catch(error){
+  console.error('Ingemar session start failed:',error);
+  parent.postMessage({type:'ingemar-family-session-start-error',requestId:requestId},location.origin);
+ }
+});
 window.addEventListener('DOMContentLoaded',function(){parent.postMessage({type:'ingemar-family-session-ready'},location.origin);},{once:true});
 </script>
 <!-- Shared Markus/Maja source that creates the actual 5-second countdown DOM and ring. -->
