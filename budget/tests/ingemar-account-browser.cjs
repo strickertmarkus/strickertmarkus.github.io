@@ -287,6 +287,13 @@ async function verifyTouchDrag(page,label){
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.sessionState.type='Push';w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=1;w.renderSessionMode();});
  await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan set/);
+ // Let the shared timer morph release its temporary hidden target.
+ await page.waitForTimeout(550);
+ const restVisual=await frame.locator('#session-between-overlay-v2').evaluate(el=>{
+  const value=el.querySelector('.bs-value'),copy=el.querySelector('.bs-copy');
+  return {value:value?.textContent,opacity:getComputedStyle(copy).opacity,visibility:getComputedStyle(copy).visibility,hiddenTarget:el.querySelectorAll('.pf-timer-morph-target-v86').length};
+ });
+ assert.equal(restVisual.visibility,'visible','Between-set countdown text should not be hidden: '+JSON.stringify(restVisual));
  await page.screenshot({path:'test-results/ingemar-private/session-rest-blue-390.png'});
  const restBlue=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(restBlue,'#22D3EE','Rest between sets must stay the original cyan/blue');
@@ -322,6 +329,12 @@ async function verifyTouchDrag(page,label){
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(betweenGreen.toLowerCase(),'#34d399','Configured between-exercise rest turns green');
  assert.equal(await frame.locator('#session-between-overlay-v2.show').isVisible(),true,'Green between-exercise overlay must still be visible during screenshot');
+ await page.waitForTimeout(550);
+ const greenVisual=await frame.locator('#session-between-overlay-v2').evaluate(el=>{
+  const value=el.querySelector('.bs-value'),copy=el.querySelector('.bs-copy');
+  return {value:value?.textContent,opacity:getComputedStyle(copy).opacity,visibility:getComputedStyle(copy).visibility,hiddenTarget:el.querySelectorAll('.pf-timer-morph-target-v86').length};
+ });
+ assert.equal(greenVisual.visibility,'visible','Green between-exercise countdown text should not be hidden: '+JSON.stringify(greenVisual));
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
