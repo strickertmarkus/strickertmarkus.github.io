@@ -148,9 +148,7 @@
     .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#2DD4BF;box-shadow:0 0 8px rgba(45,212,191,.43); }
     .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.38); }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today):not(.selected) { border-color:rgba(242,139,144,.38)!important;background:rgba(242,139,144,.055)!important; }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today):not(.selected) { border-color:rgba(45,212,191,.43)!important;background:rgba(45,212,191,.065)!important; }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today) .cal-num { color:#F2A2A6!important; }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today) .cal-num { color:#5EEAD4!important; }
     /* Selection keeps the border visible, including on holidays and today's date.
        The original :not(.selected) rules excluded clicked holidays entirely. */
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.selected:not(.empty),
@@ -163,12 +161,6 @@
       border-color:rgba(242,139,144,.9)!important;
       background:rgba(242,139,144,.09)!important;
       box-shadow:inset 0 0 0 1px rgba(242,139,144,.23),0 0 13px rgba(242,139,144,.22)!important;
-    }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition.selected,
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition.selected:hover {
-      border-color:rgba(45,212,191,.92)!important;
-      background:rgba(45,212,191,.105)!important;
-      box-shadow:inset 0 0 0 1px rgba(45,212,191,.24),0 0 13px rgba(45,212,191,.25)!important;
     }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.is-sunday:not(.today):not(.swedish-holiday-official):not(.swedish-holiday-tradition) .cal-num { color:#E6A0A5!important; }
     .home-holiday-item { display:grid;grid-template-columns:4px minmax(0,1fr);gap:9px;align-items:stretch;padding:7px 0;min-width:0; }
@@ -183,7 +175,6 @@
     .home-calendar-holiday-note.official { border-color:rgba(242,139,144,.23);background:rgba(242,139,144,.06);color:#FFC0C3; }
     .home-calendar-holiday-note small { color:var(--text-sec);font-size:10px; }
     .home-cal-week-day-v11.swedish-holiday-official:not(.today) { border-color:rgba(242,139,144,.2); }
-    .home-cal-week-day-v11.swedish-holiday-tradition:not(.today) { border-color:rgba(45,212,191,.45); }
     .home-cal-day-holidays { display:grid;gap:5px;min-width:0; }
     @media(max-width:480px) {
       .home-cal-holidays-toggle { font-size:10px;gap:5px; }
@@ -1498,14 +1489,15 @@ function populateMonthGrid(grid, year, month, interactive) {
     cell.tabIndex = interactive ? 0 : -1;
     if (interactive) cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
 
-    // Holidays are presented exactly like event chips, but remain local
-    // calendar metadata and are never written to Firebase or counted as family events.
-    var items = holidays.map(function(h) {
-      return { label:getHolidayPreviewLabel(h), title:h.name,
-        color:h.type === 'official' ? '#F28B90' : '#2DD4BF', isHoliday:true };
-    }).concat(dayEvs.map(function(ev) {
+    // Family events always get the two visible slots first. Holidays remain
+    // available as lower-priority chips and in the full day popup.
+    // They are local calendar metadata, never Firebase event records.
+    var items = dayEvs.map(function(ev) {
       return { label:getCalendarPreviewLabel(ev), title:ev.title || 'Händelse',
         color:getMemberColor(ev.member), isHoliday:false };
+    }).concat(holidays.map(function(h) {
+      return { label:getHolidayPreviewLabel(h), title:h.name,
+        color:h.type === 'official' ? '#F28B90' : '#2DD4BF', isHoliday:true };
     }));
     var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div><span class="cal-num-right">' +
       (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') +
