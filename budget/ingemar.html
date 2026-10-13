@@ -64,12 +64,17 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 #builder .builder-exercise-name-input{padding-right:42px;cursor:pointer;touch-action:manipulation}
 #builder .builder-exercise-name-input[data-exercise-name-free="1"]{cursor:text}
 #builder .builder-exercise-name-chevron{position:absolute;right:5px;top:5px;width:34px;height:calc(100% - 10px);min-height:0;border:0;border-left:1px solid #ffffff16;border-radius:8px;background:#ffffff05;color:#d8c3cc;font-size:16px}
-#builder .builder-exercise-name-menu{position:absolute;z-index:8;left:0;right:0;top:calc(100% + 6px);max-height:min(260px,42dvh);overflow-y:auto;overflow-x:hidden;border:1px solid #a34b664d;border-radius:13px;background:#101621f7;box-shadow:0 18px 48px #000b,0 0 22px #90344f16;padding:7px;overscroll-behavior:contain}
+#builder .builder-exercise-name-menu{position:absolute;z-index:8;left:0;right:0;top:calc(100% + 6px);max-height:min(260px,42dvh);overflow-y:auto;overflow-x:hidden;border:1px solid #a34b664d;border-radius:13px;background:#101621;box-shadow:0 18px 48px #000b,0 0 22px #90344f16;padding:7px;overscroll-behavior:contain}
 #builder .builder-exercise-name-menu[hidden]{display:none!important}
 #builder .builder-exercise-name-menu-head{display:flex;justify-content:space-between;gap:8px;padding:5px 7px 8px;color:#d5c0c7;font-size:10px;font-weight:700;letter-spacing:.05em}
 #builder .builder-exercise-name-menu-head small{color:#8f93a3;font-size:9px;font-weight:600;letter-spacing:0}
 #builder .builder-exercise-name-option,#builder .builder-exercise-name-new{display:block;width:100%;min-width:0;border:0;border-radius:9px;background:transparent;color:#eee5e9;text-align:left;padding:8px 9px;font-size:12px;overflow-wrap:anywhere}
 #builder .builder-exercise-name-option:hover,#builder .builder-exercise-name-option.is-current{background:#ad415914;color:#ce93a1}
+#builder .builder-exercise-option-row{display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:center;gap:3px;border-radius:9px;min-width:0}
+#builder .builder-exercise-option-row .builder-exercise-name-option{min-width:0;min-height:37px;padding:7px 9px}
+#builder .builder-exercise-option-remove{display:grid;place-items:center;width:36px;min-width:36px;min-height:37px;padding:0;border:0;border-radius:8px;background:transparent;color:#ac8291;font-size:20px;line-height:1;touch-action:manipulation}
+#builder .builder-exercise-option-remove:hover,#builder .builder-exercise-option-remove:focus-visible{background:#bd5c7022;color:#f5becf}
+#builder .builder-exercise-option-remove:focus-visible{outline:2px solid #c87e92;outline-offset:-2px}
 #builder .builder-exercise-name-new{margin-top:5px;border-top:1px solid #ffffff12;border-radius:0;color:#ba6179;font-weight:750;cursor:text;touch-action:manipulation}
 #builder .builder-template-tools{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:7px;align-items:center}
 #builder .builder-template-tools .builder-template-select-wrap{position:relative;min-width:0;max-width:100%;height:40px;border:1px solid #ffffff27;border-radius:12px;background:#0f1520;overflow:hidden}
@@ -80,9 +85,9 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 #builder .builder-template-tools button{min-width:0;max-width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 8px}
 #builder .builder-template-hint{display:block;margin-top:5px;color:#7f8796;font-size:9.5px;line-height:1.4}
 #builder .field{margin-bottom:11px}
-#builder .exercise-head{gap:6px;margin-bottom:8px}
-#builder .set-row{margin:4px 0}
-#builder .exercise-foot{margin-top:7px;gap:7px}
+#builder .exercise-head{gap:6px;margin-bottom:5px}
+#builder .set-row{margin:2px 0}
+#builder .exercise-foot{margin-top:6px;gap:7px}
 #builder .modal-actions{margin-top:14px}
 #builder .builder-row-title{display:flex;align-items:center;gap:8px;min-width:0}
 #builder .builder-row-title h3{margin:0}
@@ -98,10 +103,10 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .exercise-card.builder-drag-target{border-color:#94e8eb70;box-shadow:0 0 0 1px #94e8eb20,0 0 24px #59d7de12}
 .builder-drag-ghost{position:fixed!important;z-index:2147482500!important;pointer-events:none!important;margin:0!important;opacity:.96;transform-origin:center center;background:#121a26!important;border:1px solid #94e8eb77!important;box-shadow:0 20px 46px #000c,0 0 25px #58d7df18!important;will-change:transform}
 @media(max-width:600px){
- #builder .modal-head{padding:12px 12px;gap:8px}
+ #builder .modal-head{padding:10px 12px;gap:8px;background:#171b27}
  #builder .modal-head .x{flex:0 0 34px}
  #builder .modal-head h2{overflow-wrap:anywhere}
- #builder .modal-body{padding:10px 9px 13px}
+ #builder .modal-body{padding:8px 9px 13px}
  #builder .type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
  #builder .builder-template-tools{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
  #builder .builder-template-tools .builder-template-select-wrap{grid-column:1/-1}
@@ -109,19 +114,19 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
  #builder .builder-template-delete{grid-column:auto;border:1px solid #ae647340;border-radius:14px;background:#ffffff09}
  #builder .builder-row-copy,#builder .builder-row-drag{width:34px;height:32px;min-width:34px;min-height:32px}
  #builder .type-pills .pill{width:100%;padding:8px 3px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
- #builder .exercise-card{padding:9px;margin:8px 0}
+ #builder .exercise-card{padding:9px 10px;margin:7px 0;border-radius:14px}
  #builder .exercise-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
  #builder .exercise-head h3{overflow-wrap:anywhere}
- #builder .exercise-fields{grid-template-columns:minmax(0,1fr);gap:6px}
+ #builder .exercise-fields{grid-template-columns:minmax(0,1fr);gap:5px;margin-bottom:7px}
  #builder .metric-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
- #builder .metric-pills .pill{width:100%;padding:8px 5px;white-space:normal;overflow-wrap:anywhere}
+ #builder .metric-pills .pill{width:100%;min-height:36px;padding:6px 5px;white-space:normal;overflow-wrap:anywhere}
  #builder .set-header,#builder .set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 28px;gap:4px}
- #builder .set-header{font-size:9px}
+ #builder .set-header{font-size:9px;margin:5px 0 3px}
  #builder .set-header span{overflow-wrap:anywhere}
- #builder .set-row input{width:100%;padding:8px 2px;font-size:16px}
+ #builder .set-row input{width:100%;min-height:40px;padding:5px 2px;font-size:16px}
  #builder .set-row .remove-set{width:28px;min-height:40px;padding:0}
- #builder .exercise-foot{flex-direction:column;align-items:flex-start;gap:8px}
- #builder .exercise-foot span{overflow-wrap:anywhere}
+ #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+ #builder .exercise-foot span{overflow-wrap:anywhere;font-size:10px}
  #builder .modal-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
  #builder .modal-actions>.ghost{justify-self:start}
  #builder .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
@@ -874,6 +879,8 @@ function renderPushPullAnalytics(){
  schedulePpChartGlow();
 }
 function ensureZenData(value){
+ // Keep dismissed suggestions separate from historical workouts and saved plans.
+ if(!value.hiddenExerciseOptions||typeof value.hiddenExerciseOptions!=='object'||Array.isArray(value.hiddenExerciseOptions))value.hiddenExerciseOptions={};
  if(!value.zenRoutines)value.zenRoutines={};
  ['stretch','meditation'].forEach(function(kind){
   if(!Array.isArray(value.zenRoutines[kind]))value.zenRoutines[kind]=ZEN_ROUTINES[kind].map(function(item,i){var routine=deep(item);routine.id='zen-base-'+kind+'-'+i;return routine;});
@@ -1068,6 +1075,7 @@ function renderZen(){
 function deep(v){return JSON.parse(JSON.stringify(v));}
 function cleanExerciseName(name){return String(name||'').replace(/\s+/g,' ').trim();}
 function exerciseNameKey(name){return cleanExerciseName(name).toLocaleLowerCase('sv-SE');}
+function exerciseCatalogId(type,mode,name){return type+'|'+(mode==='min'||type==='Kondition'?'min':'kg')+'|'+encodeURIComponent(exerciseNameKey(name));}
 function exerciseCatalogSources(){
  var records=[];
  state.history.slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''));}).forEach(function(item){
@@ -1086,19 +1094,43 @@ function exerciseNameCatalog(type,mode){
    var timed=item.mode==='min'||record.type==='Kondition';
    if(targetTimed?!timed:(timed||record.type!==type))return;
    var name=cleanExerciseName(item.name),key=exerciseNameKey(name);
-   if(!key||seen[key])return;
+   if(!key||seen[key]||state.hiddenExerciseOptions[exerciseCatalogId(type,targetTimed?'min':'kg',name)])return;
    seen[key]=true;items.push({name:name,mode:targetTimed?'min':'kg'});
   });
  });
  return items.sort(function(a,b){return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});});
 }
-function builderExerciseNameMarkup(ex,index){
- var catalog=exerciseNameCatalog(draft.type,ex.mode),current=exerciseNameKey(ex.name),free=builderFreeExerciseIndex===index,open=builderOpenExerciseIndex===index;
+function builderExerciseNameMenuMarkup(ex,index){
+ var catalog=exerciseNameCatalog(draft.type,ex.mode),current=exerciseNameKey(ex.name);
  var options=catalog.map(function(item){
-  return '<button type="button" class="builder-exercise-name-option'+(exerciseNameKey(item.name)===current?' is-current':'')+'" data-exercise-option="'+index+'" data-exercise-name="'+clean(item.name)+'" data-exercise-mode="'+item.mode+'">'+clean(item.name)+'</button>';
+  var active=exerciseNameKey(item.name)===current;
+  return '<div class="builder-exercise-option-row">'
+    +'<button type="button" class="builder-exercise-name-option'+(active?' is-current':'')+'" data-exercise-option="'+index+'" data-exercise-name="'+clean(item.name)+'" data-exercise-mode="'+item.mode+'">'+clean(item.name)+'</button>'
+    +'<button type="button" class="builder-exercise-option-remove" data-exercise-remove-option="'+index+'" data-exercise-name="'+clean(item.name)+'" aria-label="Ta bort '+clean(item.name)+' från övningslistan" title="Ta bort från övningslistan">×</button></div>';
  }).join('');
  if(!options)options='<div class="hint" style="padding:9px">Inga registrerade övningar i den här kategorin ännu.</div>';
- return '<div class="builder-exercise-name-control"><input type="text" id="builder-exercise-name-'+index+'" class="builder-exercise-name-input" aria-label="Övningens namn" maxlength="65" data-name="'+index+'" data-exercise-name-input="'+index+'" value="'+clean(ex.name)+'" '+(free?'data-exercise-name-free="1"':'readonly')+' autocomplete="off" aria-haspopup="listbox" aria-expanded="'+open+'"><button type="button" class="builder-exercise-name-chevron" data-exercise-picker="'+index+'" aria-label="Välj övning">⌄</button><div class="builder-exercise-name-menu" data-exercise-menu="'+index+'" role="listbox" '+(open?'':'hidden')+'><div class="builder-exercise-name-menu-head"><span>Välj övning</span><small>'+clean(draft.type)+' · '+catalog.length+' registrerade</small></div>'+options+'<label for="builder-exercise-name-'+index+'" class="builder-exercise-name-new" data-exercise-new="'+index+'">＋ Ny övning</label></div></div>';
+ return '<div class="builder-exercise-name-menu-head"><span>Välj övning</span><small>'+clean(draft.type)+' · '+catalog.length+' registrerade</small></div>'
+   +options+'<label for="builder-exercise-name-'+index+'" class="builder-exercise-name-new" data-exercise-new="'+index+'">＋ Ny övning</label>';
+}
+function builderExerciseNameMarkup(ex,index){
+ var free=builderFreeExerciseIndex===index,open=builderOpenExerciseIndex===index;
+ return '<div class="builder-exercise-name-control"><input type="text" id="builder-exercise-name-'+index+'" class="builder-exercise-name-input" aria-label="Övningens namn" maxlength="65" data-name="'+index+'" data-exercise-name-input="'+index+'" value="'+clean(ex.name)+'" '+(free?'data-exercise-name-free="1"':'readonly')+' autocomplete="off" aria-haspopup="listbox" aria-expanded="'+open+'"><button type="button" class="builder-exercise-name-chevron" data-exercise-picker="'+index+'" aria-label="Välj övning">⌄</button><div class="builder-exercise-name-menu" data-exercise-menu="'+index+'" role="listbox" '+(open?'':'hidden')+'>'+builderExerciseNameMenuMarkup(ex,index)+'</div></div>';
+}
+function refreshBuilderExerciseMenu(index){
+ var ex=draft&&draft.exercises[index],menu=document.querySelector('#builder [data-exercise-menu="'+index+'"]');
+ if(ex&&menu)menu.innerHTML=builderExerciseNameMenuMarkup(ex,index);
+}
+function removeBuilderExerciseOption(index,name){
+ var ex=draft&&draft.exercises[index],cleanName=cleanExerciseName(name);
+ if(!ex||!cleanName||!exerciseNameCatalog(draft.type,ex.mode).some(function(item){return exerciseNameKey(item.name)===exerciseNameKey(cleanName);}))return;
+ if(!confirm('Vill du ta bort "'+cleanName+'" från övningslistan?\nTidigare sparade pass och träningsloggar påverkas inte.'))return;
+ var key=exerciseCatalogId(draft.type,ex.mode,cleanName);
+ state.hiddenExerciseOptions[key]=true;
+ if(!persist()){delete state.hiddenExerciseOptions[key];return;}
+ refreshBuilderExerciseMenu(index);
+ offerUndo('"'+cleanName+'" togs bort från listan.',function(){
+  delete state.hiddenExerciseOptions[key];persist();refreshBuilderExerciseMenu(index);
+ });
 }
 function setBuilderExercisePicker(index){
  builderOpenExerciseIndex=index;
@@ -1454,7 +1486,7 @@ function renderBuilder(){
   var timed=e.mode==='min';
   return '<article class="exercise-card" data-exercise="'+i+'"><div class="exercise-head"><div class="builder-row-title"><h3>ÖVNING '+(i+1)+'</h3></div><div class="builder-row-tools"><button type="button" class="builder-row-copy" data-copy-exercise="'+i+'" aria-label="Kopiera övning '+(i+1)+'" title="Kopiera övning">＋</button><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="mini" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort</button></div></div><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
   e.sets.map(function(s,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="'+(timed?'0.5':'0.5')+'" aria-label="Set '+(j+1)+' '+(timed?'tid i minuter':'vikt i kg')+'" data-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'"><input type="number" inputmode="numeric" min="0" max="999" step="1" aria-label="Set '+(j+1)+' '+(timed?'valfria minuter eller mål':'repetitioner')+'" data-set="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="remove-set" data-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'" '+(e.sets.length<=1?'disabled':'')+'>×</button></div>';}).join('')+
- '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' individuella set · '+(timed?'tidsbaserat':'viktbaserat')+'</span></div></article>';
+ '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div></article>';
  }).join('');
 }
 function keepBuilderDraft(){if(!draft||!window.IngemarAccount.canEdit)return;state.builderDrafts[draft.date]=deep(draft);persist();}
@@ -2243,6 +2275,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.zenIndex!=null){zenStart(Number(b.dataset.zenIndex));return;}
  if(b.dataset.zenStep!=null){selectZenStep(Number(b.dataset.zenStep));return;}
  if(b.dataset.exercisePicker!=null){var pickerIndex=Number(b.dataset.exercisePicker);setBuilderExercisePicker(builderOpenExerciseIndex===pickerIndex?-1:pickerIndex);return;}
+ if(b.dataset.exerciseRemoveOption!=null){removeBuilderExerciseOption(Number(b.dataset.exerciseRemoveOption),b.dataset.exerciseName);return;}
  if(b.dataset.exerciseOption!=null){
   var optionIndex=Number(b.dataset.exerciseOption),optionExercise=draft&&draft.exercises[optionIndex];
   if(optionExercise){optionExercise.name=cleanExerciseName(b.dataset.exerciseName);optionExercise.mode=b.dataset.exerciseMode||optionExercise.mode;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();}
