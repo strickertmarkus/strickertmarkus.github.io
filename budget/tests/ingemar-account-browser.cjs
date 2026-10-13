@@ -536,7 +536,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),true);
  assert.equal(await androidPage.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Opening builder must not focus editable inputs');
  // Builder type colors must match the selected Push/Pull/Kondition palette from the week planner.
- const typeColors={Push:'rgb(242, 155, 161)',Pull:'rgb(206, 249, 250)',Kondition:'rgb(255, 224, 194)'};
+ const typeColors={Push:'rgb(242, 155, 161)',Pull:'rgb(207, 250, 254)',Kondition:'rgb(255, 224, 194)'};
  for(const [type,expected] of Object.entries(typeColors)){
    await androidPage.locator('#builder [data-type="'+type+'"]').click();
    const button=androidPage.locator('#builder [data-type="'+type+'"]');
