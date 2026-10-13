@@ -612,6 +612,52 @@ async function verifyTouchDrag(page,label){
  assert.equal(await recordPage.locator('#build-name').inputValue(),'Eget passnamn','Category change must retain custom pass name');
  await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
+ // Remove a saved arrangement directly from its day, without deleting a logged workout.
+ const savedCalendarDate=await recordPage.evaluate(()=>{
+  const date=document.querySelectorAll('#week [data-day]')[6].dataset.day;
+  const data=JSON.parse(localStorage.getItem('ex_ingemar'));
+  const source=Object.values(data.plans)[0];
+  if(!source)throw Error('Saved plan fixture missing');
+  data.plans[date]={...source,name:'QA kalenderpass'};
+  data.builderDrafts={...(data.builderDrafts||{}),[date]:{...source,name:'QA kalenderutkast',date}};
+  const serialized=JSON.stringify(data);
+  localStorage.setItem('ex_ingemar',serialized);
+  const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));
+  db.ex_ingemar=serialized;
+  localStorage.setItem('__ingemar_test_db',JSON.stringify(db));
+  return date;
+ });
+ await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ const deleteDay=recordPage.locator('[data-delete-day-plan="'+savedCalendarDate+'"]');
+ assert.equal(await deleteDay.isVisible(),true,'Saved calendar plan has its own delete control');
+ assert.equal(await deleteDay.getAttribute('title'),'Ta bort sparat passupplägg');
+ await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-delete-button-iphone.png'});
+ const calendarBefore=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')));
+ recordPage.once('dialog',dialog=>dialog.dismiss());
+ await deleteDay.click();
+ assert.equal(await deleteDay.count(),1,'Cancel keeps saved calendar arrangement');
+ assert.equal(await recordPage.locator('#builder').evaluate(el=>el.open),false,'Delete cross must not open pass builder');
+ recordPage.once('dialog',dialog=>dialog.accept());
+ await deleteDay.click();
+ assert.equal(await deleteDay.count(),0,'Confirmed removal hides calendar delete cross');
+ const calendarRemoved=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')));
+ assert.equal(calendarRemoved.plans[savedCalendarDate],undefined,'Saved plan removed');
+ assert.equal(calendarRemoved.builderDrafts[savedCalendarDate],undefined,'Old draft cannot resurrect deleted arrangement');
+ assert.deepEqual(calendarRemoved.history,calendarBefore.history,'Completed workouts must not change');
+ assert.deepEqual(calendarRemoved.templates,calendarBefore.templates,'Templates must not change');
+ assert.equal(await recordPage.locator('#week').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Calendar must fit mobile');
+ await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-deleted-iphone.png'});
+ await recordPage.locator('[data-action="undo-delete"]').click();
+ assert.equal(await deleteDay.count(),1,'Undo restores saved arrangement');
+ const calendarRestored=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')));
+ assert.equal(calendarRestored.plans[savedCalendarDate].name,'QA kalenderpass');
+ assert.equal(calendarRestored.builderDrafts[savedCalendarDate].name,'QA kalenderutkast');
+ // A confirmed deletion must also survive a full browser reload.
+ recordPage.once('dialog',dialog=>dialog.accept());
+ await deleteDay.click();
+ await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
+ assert.equal(await recordPage.locator('[data-delete-day-plan="'+savedCalendarDate+'"]').count(),0,'Plan deletion persists after reload');
+ assert.equal(await recordPage.locator('[data-day="'+savedCalendarDate+'"]').isVisible(),true,'Calendar day remains editable');
  // Selected-week statistics must follow the visible calendar week.
  const weekStats=()=>recordPage.evaluate(()=>{
   const monday=document.querySelector('#week [data-day]').dataset.day;
