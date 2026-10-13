@@ -512,7 +512,10 @@
     #session-modal[data-ingemar-tone="push"]{--ingemar-tone:#e65c66;--ingemar-tone-soft:#f29ba1;--ingemar-tone-rgb:230,92,102}
     #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#94e8eb;--ingemar-tone-soft:#cef9fa;--ingemar-tone-rgb:148,232,235}
     #session-modal[data-ingemar-tone="cardio"]{--ingemar-tone:#ffbd82;--ingemar-tone-soft:#ffe0c2;--ingemar-tone-rgb:255,189,130}
-    #session-modal[data-ingemar-tone]{
+    /* More specific than the older intro/ready/between-set theme rules,
+       which intentionally use !important for the other family profiles. */
+    #session-modal[data-ingemar-tone],
+    html.exercise-concept-pulse-home-v1[data-ingemar-session-tone] body #session-modal.pulse-flow-v58[data-ingemar-tone]{
       --accent:var(--ingemar-tone)!important;
       --accent-rgb:var(--ingemar-tone-rgb)!important;
       --accent-dim:rgba(var(--ingemar-tone-rgb),.13)!important;
