@@ -378,3 +378,19 @@ test('Week planner keeps named drafts, protects last exercise and ignores cancel
  ctx.endWeekDrag({pointerId:91,type:'pointercancel'});
  assert.equal(JSON.stringify(ctx.weekDraft.map(x=>x&&x.name)),JSON.stringify(before));
 });
+
+test('Two authenticated devices can add distinct manually typed exercise options without losing either',()=>{
+ const window={};vm.runInNewContext(manager,{window});
+ const merge=window.IngemarMerge;
+ const base={plans:{},history:[],zenHistory:[],exerciseOptions:{},hiddenExerciseOptions:{}};
+ const idA='Pull|kg|redigerat%20namn',idB='Push|kg|ny%20styrke%C3%B6vning';
+ const local=JSON.parse(JSON.stringify(base)),remote=JSON.parse(JSON.stringify(base));
+ local.exerciseOptions[idA]={type:'Pull',mode:'kg',name:'Redigerat namn'};
+ remote.exerciseOptions[idB]={type:'Push',mode:'kg',name:'Ny styrkeövning'};
+ const merged=merge(base,local,remote);
+ assert.equal(merged.exerciseOptions[idA].name,'Redigerat namn');
+ assert.equal(merged.exerciseOptions[idB].name,'Ny styrkeövning');
+ merged.hiddenExerciseOptions[idA]=true;
+ const unhidden=JSON.parse(JSON.stringify(merged));unhidden.hiddenExerciseOptions[idA]=false;
+ assert.equal(merge(merged,unhidden,merged).hiddenExerciseOptions[idA],false,'Explicit retyping can restore a dismissed option');
+});
