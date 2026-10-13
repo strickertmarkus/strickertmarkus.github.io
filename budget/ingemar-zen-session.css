@@ -26,13 +26,13 @@
 #zen-session .zen-overline{font:600 10px Inter,system-ui,sans-serif;letter-spacing:.26em;color:var(--mode-accent)}
 #zen-session h1{color:inherit;font:400 clamp(33px,5vw,66px)/1.1 Georgia,serif;letter-spacing:-.02em;text-shadow:0 0 27px rgba(var(--mode-accent-rgb),.14);margin:10px 0 5px}
 #zen-session .zen-description{margin:9px auto 0;max-width:480px;color:#d4e0cf;font:400 13px/1.7 Inter,system-ui,sans-serif}
-#zen-session .zen-clock-wrap{--clock-size:clamp(150px,24dvh,240px);margin:0;min-width:0;background:none!important}
+#zen-session .zen-clock-wrap{--clock-size:clamp(150px,24dvh,240px);margin:0;min-width:0;min-height:0;padding:4px 0;border:0!important;border-radius:0;box-shadow:none!important;background:none!important}
 #zen-session .zen-clock-wrap strong{font:400 clamp(39px,5vw,59px)/1 Georgia,serif;color:var(--mode-accent)}
 #zen-session .zen-clock-wrap small{font-family:Inter,system-ui,sans-serif;font-weight:500}
 #zen-session .zen-live-flow{width:min(230px,80%);display:flex;gap:12px;margin:0;align-items:center}
 #zen-session .zen-live-flow span{flex:1}
 #zen-session .zen-live-flow i{display:block;width:70px}
-#zen-session .zen-session-dock{width:min(780px,100%);margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+#zen-session .zen-session-dock{width:min(780px,100%);margin:0;padding:0;border:0!important;border-radius:0;background:none!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;display:flex;flex-direction:column;align-items:center;gap:10px}
 #zen-session .zen-journey-card{width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:center;padding:6px 0 0;border:0;border-radius:0;background:none!important;box-shadow:none}
 #zen-session .zen-next-block{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;min-width:0;padding:5px 0;border:0;text-align:center;font-family:Inter,system-ui,sans-serif}
 #zen-session .zen-next-block strong{margin:0;font:400 15px Georgia,serif;color:var(--mode-accent)}
