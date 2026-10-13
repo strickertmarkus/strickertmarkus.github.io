@@ -209,15 +209,15 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #plan-preview{width:min(660px,calc(100dvw - 24px))}#plan-preview-meta{margin:6px 0 0}#plan-preview-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:#ddafba;font-size:11px}#plan-preview-summary span{border:1px solid #a7566b33;border-radius:8px;padding:7px 10px;background:#a7566b08}
 #plan-preview-list{list-style:none;padding:0;margin:0;display:grid;gap:9px}.plan-preview-exercise{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:12px;border:1px solid #ffffff13;border-radius:13px;background:#ffffff025}.plan-preview-number{color:#c17a8d;font-size:12px;padding-top:2px}.plan-preview-exercise h3{font-size:13px;margin:0 0 8px;overflow-wrap:anywhere}.plan-preview-sets{display:flex;flex-wrap:wrap;gap:5px}.plan-preview-sets span{font-size:11px;padding:5px 7px;border-radius:7px;background:#ffffff05;color:#d4c4cf}.plan-preview-sets small{color:#8c8290;margin-right:5px;font-size:9px}
 #plan-preview .modal-actions{position:sticky;bottom:-25px;padding:14px 0 0;background:#111520;gap:10px}#plan-preview .modal-actions .right{margin-left:auto}@media(max-width:740px){#plan-preview .modal-actions{bottom:-14px}#plan-preview .modal-actions .right{width:100%}#plan-preview .modal-actions .right button{flex:1;font-size:11px;padding:12px 8px}}
-.training-week-nav{display:grid;grid-template-columns:40px minmax(0,1fr) 40px auto;align-items:center;gap:7px;width:min(100%,455px);max-width:100%;margin:0 0 14px;padding:5px;border:1px solid #a64e6538;border-radius:15px;background:linear-gradient(120deg,#b3486012,#ffffff03 64%);box-shadow:inset 0 1px #ffffff06}
-.training-week-arrow,.training-week-today{display:grid;place-items:center;min-width:0;min-height:39px;border:1px solid #b968793d;border-radius:10px;background:#ad526019;color:#ecc4ce}
-.training-week-arrow{font-size:23px;line-height:1}.training-week-arrow:hover,.training-week-today:hover{border-color:#cf778d8b;background:#af556132}
-.training-week-period{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;text-align:center;gap:3px}
-.training-week-period strong{display:block;color:#f5d5de;font-size:13px;font-weight:750;letter-spacing:.015em;font-variant-numeric:tabular-nums}
-.training-week-period span{display:block;color:#aa9ba7;font-size:10px;line-height:1.35;font-variant-numeric:tabular-nums;white-space:normal}
-.training-week-today{padding:0 11px;font-size:10px;font-weight:750;white-space:nowrap}
-.training-week-nav.is-current .training-week-period strong:after{content:'NU';margin-left:7px;padding:2px 5px;border-radius:5px;background:#b64b6326;color:#d88c9e;font-size:8px;letter-spacing:.09em;vertical-align:middle}
-@media(max-width:420px){.training-week-nav{grid-template-columns:36px minmax(0,1fr) 36px auto;gap:4px;padding:4px}.training-week-arrow,.training-week-today{min-height:38px}.training-week-today{padding:0 8px;font-size:9px}.training-week-period strong{font-size:12px}.training-week-period span{font-size:9px}}
+.training-week-nav{display:flex;align-items:center;gap:5px;max-width:100%;margin:-3px 0 9px;padding:0;border:0;background:none;box-shadow:none}
+.training-week-arrow,.training-week-today{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:30px;height:32px;min-height:32px;border:0;border-radius:8px;background:transparent;color:#d6a3b0;padding:0}
+.training-week-arrow{font-size:23px;line-height:1}.training-week-arrow:hover,.training-week-today:hover{background:#b1536618;color:#f2cbd6}
+.training-week-period{display:flex;flex:0 1 auto;align-items:baseline;justify-content:center;gap:7px;min-width:0;text-align:center;white-space:nowrap}
+.training-week-period strong{display:inline;color:#efd1da;font-size:12px;font-weight:750;letter-spacing:0;font-variant-numeric:tabular-nums}
+.training-week-period span{display:inline;color:#9f97a3;font-size:10px;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
+.training-week-today{margin-left:1px;padding:0 6px;font-size:10px;font-weight:650;white-space:nowrap;color:#b995a2}
+.training-week-nav.is-current .training-week-today{opacity:.5}
+@media(max-width:420px){.training-week-nav{gap:3px}.training-week-arrow{min-width:27px;height:30px;min-height:30px}.training-week-period{gap:5px}.training-week-period strong{font-size:11px}.training-week-period span{font-size:9px}.training-week-today{font-size:9px;padding:0 4px}}
 </style>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
@@ -615,8 +615,11 @@ function isoWeekNumber(iso){
  var first=new Date(target.getFullYear(),0,4);return 1+Math.round(((target-first)/86400000-3+((first.getDay()+6)%7))/7);
 }
 function trainingWeekRangeText(monday){
- var last=offset(monday,6),startYear=dayFrom(monday).getFullYear(),endYear=dayFrom(last).getFullYear();
- return pretty(monday)+(startYear!==endYear?' '+startYear:'')+' – '+pretty(last)+' '+endYear;
+ var first=dayFrom(monday),last=dayFrom(offset(monday,6));
+ var startMonth=first.toLocaleDateString('sv-SE',{month:'short'}),endMonth=last.toLocaleDateString('sv-SE',{month:'short'});
+ if(first.getFullYear()!==last.getFullYear())return first.getDate()+' '+startMonth+' '+first.getFullYear()+' – '+last.getDate()+' '+endMonth+' '+last.getFullYear();
+ if(first.getMonth()===last.getMonth())return first.getDate()+'–'+last.getDate()+' '+endMonth;
+ return first.getDate()+' '+startMonth+' – '+last.getDate()+' '+endMonth;
 }
 function shiftTrainingWeek(delta){
  if(!Number.isInteger(delta)||Math.abs(delta)!==1)return;
