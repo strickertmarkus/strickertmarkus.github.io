@@ -197,13 +197,13 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder-pre-timer-toggle').click();
  await page.locator('#builder [data-between-toggle="global"]').click();
  await page.locator('#builder-between-type').selectOption('rest');
- await page.locator('#builder-between-seconds').fill('4');
+ await page.locator('#builder-between-seconds').fill('18');
  await page.locator('#builder [data-between-toggle="0"]').click();
  await page.locator('#builder [data-between-edit="0:type"]').selectOption('rest');
  await page.locator('#builder [data-between-edit="0:seconds"]').fill('3');
  await page.screenshot({path:'test-results/ingemar-private/builder-between-settings-iphone.png'});
  await page.locator('#builder-start-from-builder').click();
- assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 4 s/);
+ assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 18 s/);
  assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
@@ -244,7 +244,7 @@ async function verifyTouchDrag(page,label){
  let snap=await sessionSnapshot();
  assert.equal(snap.pretimer,true,'The canonical 5-second timer DOM must actually be installed');
  assert.equal(snap.enabled,true);
- assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,4);
+ assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,18);
  assert.equal(snap.perSet.type,'rest');assert.equal(snap.perSet.seconds,3);
  assert.equal(snap.tone,'','Fresh pass must retain the original green intro, not a red override');
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
@@ -263,6 +263,8 @@ async function verifyTouchDrag(page,label){
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
  assert.deepEqual([snap.tone,snap.accent],['pull','#22D3EE'],'Pull must use Markus/Maja bright cyan while active');
+ const toggleColor=await frame.locator('#session-pretimer-toggle-v2').evaluate(el=>getComputedStyle(el).color);
+ assert.equal(toggleColor,'rgb(207, 250, 254)','Pull 5s toggle must match the original cyan/blue palette');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -305,6 +307,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(betweenState.flag,'exercise','Green transition must activate automatically: '+JSON.stringify(betweenState));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(betweenGreen.toLowerCase(),'#34d399','Configured between-exercise rest turns green');
+ assert.equal(await frame.locator('#session-between-overlay-v2.show').isVisible(),true,'Green between-exercise overlay must still be visible during screenshot');
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
