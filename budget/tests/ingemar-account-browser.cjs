@@ -498,6 +498,8 @@ async function verifyTouchDrag(page,label){
  assert.equal(await androidPage.locator('#builder [data-action="undo-delete"]').isVisible(),true,'Picker removal can be undone');
  await androidPage.locator('#builder [data-action="undo-delete"]').click();
  assert.equal(await androidPage.locator('[data-exercise-remove-option="0"][data-exercise-name="Bänkpress"]').count(),1,'Undo restores dropdown option');
+ await androidPage.locator('[data-exercise-picker="0"]').click();
+ assert.equal(await savedOption.isVisible(),true,'Restored choice must be visible when dropdown is reopened');
  androidPage.once('dialog',dialog=>dialog.accept());
  await androidPage.locator('[data-exercise-remove-option="0"][data-exercise-name="Bänkpress"]').click();
  await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
