@@ -1495,9 +1495,9 @@ function populateMonthGrid(grid, year, month, interactive) {
     var cell = document.createElement('div');
     cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '') + (isSunday ? ' is-sunday' : '') + (holidayType ? ' swedish-holiday-' + holidayType : '');
     cell.dataset.date = dateISO;
-    cell.setAttribute('role', 'button');
-    cell.tabIndex = 0;
-    cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
+    if (interactive) cell.setAttribute('role', 'button');
+    cell.tabIndex = interactive ? 0 : -1;
+    if (interactive) cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
 
     // Holidays are presented exactly like event chips, but remain local
     // calendar metadata and are never written to Firebase or counted as family events.
@@ -1521,7 +1521,7 @@ function populateMonthGrid(grid, year, month, interactive) {
         (items.length > 2 ? '<span class="cal-event-preview-more">+' + (items.length - 2) + ' till</span>' : '') +
         '</div>';
       cell.title = items.map(function(item) { return item.title; }).join(', ');
-      cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ', ' + cell.title);
+      if (interactive) cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ', ' + cell.title);
     }
     cell.innerHTML = html;
     if (interactive) (function(iso, evs, hasHoliday){
