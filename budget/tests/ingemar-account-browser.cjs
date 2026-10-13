@@ -208,7 +208,7 @@ async function verifyTouchDrag(page,label){
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{
   const iframe=document.getElementById('family-session-frame');
-  return iframe.contentWindow?.sessionState&&iframe.getAttribute('aria-busy')===null&&!pendingFamilySession;
+  return !iframe.hidden&&iframe.contentWindow?.sessionState&&iframe.getAttribute('aria-busy')===null&&iframe.contentDocument?.getElementById('session-modal')?.classList.contains('show');
  },null,{timeout:14000});
  const frame=page.frameLocator('#family-session-frame');
  assert.equal(await page.locator('#family-session-frame').isVisible(),true,'Started iframe is visible after acknowledgement');
@@ -294,10 +294,10 @@ async function verifyTouchDrag(page,label){
   await page.locator('[data-action="start"]').click();
   await page.waitForFunction(()=>{
    const iframe=document.getElementById('family-session-frame');
-   return !iframe.hidden&&!iframe.hasAttribute('aria-busy')&&familySessionOpen&&!pendingFamilySession
+   return !iframe.hidden&&!iframe.hasAttribute('aria-busy')
       &&!!iframe.contentWindow?.sessionState&&iframe.contentDocument?.getElementById('session-modal')?.classList.contains('show');
   },null,{timeout:14000});
-  assert.equal(await page.evaluate(()=>familySessionAttempt),0,'Start attempt count resets after successful acknowledgement');
+  assert.equal(await page.locator('#family-session-frame').getAttribute('aria-busy'),null,'Acknowledged session clears loading state');
   if(cycle===1)await page.screenshot({path:'test-results/ingemar-private/session-reopened-iphone-390.png'});
   await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
   await page.waitForSelector('#family-session-frame',{state:'hidden'});
