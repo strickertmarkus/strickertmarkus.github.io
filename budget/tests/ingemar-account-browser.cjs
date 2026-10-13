@@ -565,7 +565,14 @@ async function verifyTouchDrag(page,label){
  await androidPage.locator('[data-exercise-name-input="0"]').click();
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').evaluate(el=>!el.readOnly&&document.activeElement===el),true,'Second tap must enable typing and focus the exercise name');
  await androidPage.locator('[data-exercise-name-input="0"]').fill('Redigerat namn');
+ // Editing the existing name directly, without "+ Ny övning", must register it.
  await androidPage.locator('[data-exercise-picker="0"]').click();
+ assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Redigerat namn"]').isVisible(),true,
+  'Directly typed exercise name must appear in the dropdown immediately');
+ await androidPage.waitForFunction(()=>{
+  const state=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return Object.values(state.exerciseOptions||{}).some(o=>o.name==='Redigerat namn'&&o.type==='Pull'&&o.mode==='kg');
+ });
  await androidPage.locator('#builder').evaluate(el=>{el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));el.scrollTop+=200;});
  assert.equal(await androidPage.locator('[data-exercise-menu="0"]').isVisible(),true,'Scroll start must preserve exercise chooser');
  await androidPage.locator('[data-exercise-new="0"]').click();
@@ -575,7 +582,27 @@ async function verifyTouchDrag(page,label){
  await androidPage.locator('#builder').evaluate(el=>{el.scrollTop+=350;el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));});
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1','Exercise editing mode must persist after scrolling');
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').inputValue(),'Testövning Android');
+ await androidPage.locator('[data-exercise-picker="0"]').click();
+ assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Testövning Android"]').isVisible(),true,
+  'New name typed through the free field must immediately appear as a suggestion');
+ assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Redigerat namn"]').count(),1);
+ await androidPage.screenshot({path:'test-results/ingemar-private/typed-exercise-options-android-412.png'});
  assert.equal(await androidPage.evaluate(()=>[...document.querySelectorAll('dialog input:not([type=checkbox]),dialog select,dialog textarea')].every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)),true,'Android form fonts must be at least 16px');
+ await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await androidPage.waitForFunction(()=>{
+  const state=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return Object.values(state.exerciseOptions||{}).some(o=>o.name==='Testövning Android'&&o.type==='Pull');
+ });
+ await androidPage.reload({waitUntil:'domcontentloaded'});
+ await androidPage.waitForFunction(()=>IngemarAccount.canEdit);
+ await androidPage.locator('[data-choice="Pull"]').click();
+ await androidPage.locator('[data-exercise-name-input="0"]').click();
+ assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Testövning Android"]').isVisible(),true,
+  'Exercise added only through typing must persist across reload, without saving its workout');
+ assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Redigerat namn"]').count(),1,
+  'Previous manually typed option must also remain');
+ assert.equal(await androidPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+ await androidPage.screenshot({path:'test-results/ingemar-private/typed-exercise-options-reloaded-android-412.png'});
  await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await androidPage.locator('[data-action="new-record"]').click();
  const dateOK=await androidPage.locator('#pr-editor .compact-date-control').evaluate(el=>{
