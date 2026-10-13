@@ -1451,8 +1451,18 @@ function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
   document.getElementById('month-label').textContent = MONTHS[month] + ' ' + year;
-  var weekEl = document.getElementById('calendar-week-number');
-  if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(new Date());
+  var weekEl = document.getElementById('calendar-week-number') ||
+    document.getElementById('calendar-week-number-v2');
+  if (weekEl && (!document.body.dataset.homeCalendarView ||
+      document.body.dataset.homeCalendarView === 'month')) {
+    // Match the toolbar's week anchor: today's ISO week when looking at
+    // this month, otherwise the ISO week containing the month's first day.
+    // This runs for both swipe and arrow navigation.
+    var now = new Date();
+    var weekAnchor = (year === now.getFullYear() && month === now.getMonth())
+      ? now : new Date(year, month, 1);
+    weekEl.textContent = 'Vecka ' + getISOWeekNumber(weekAnchor);
+  }
   populateMonthGrid(document.getElementById('cal-grid'), year, month, true);
   renderUpcoming();
 }
