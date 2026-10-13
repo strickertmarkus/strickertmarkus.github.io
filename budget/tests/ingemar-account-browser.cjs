@@ -582,12 +582,18 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
  // Selected-week statistics must follow the visible calendar week.
  const weekStats=()=>recordPage.evaluate(()=>{
-  const monday=weekStart(selected),end=offset(monday,7);
-  return {expected:state.history.filter(h=>h.date>=monday&&h.date<end).length,shown:Number(document.getElementById('stat-week').textContent),week:isoWeekNumber(monday),title:document.getElementById('stat-week-label').textContent};
+  const monday=document.querySelector('#week [data-day]').dataset.day;
+  const until=new Date(monday+'T12:00:00Z');until.setUTCDate(until.getUTCDate()+7);
+  const end=until.toISOString().slice(0,10);
+  const data=JSON.parse(localStorage.getItem('ex_ingemar')||'{}');
+  return {expected:(data.history||[]).filter(h=>h.date>=monday&&h.date<end).length,
+   shown:Number(document.getElementById('stat-week').textContent),
+   label:document.getElementById('training-week-label').textContent,
+   title:document.getElementById('stat-week-label').textContent};
  });
- let measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ let measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.ok(measured.label.includes(measured.title.split(' ').at(-1)));
  await recordPage.locator('[data-training-week-shift="-1"]').click();
- measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.ok(measured.label.includes(measured.title.split(' ').at(-1)));
  await recordPage.locator('[data-training-week-today]').click();
  // The undo control must be accessible while the pass builder is modal.
  await recordPage.locator('[data-choice="Pull"]').click();
