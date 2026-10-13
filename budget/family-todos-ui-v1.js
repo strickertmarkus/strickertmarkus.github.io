@@ -28,6 +28,7 @@
     var content='<div class="ft-task'+checked+'" data-id="'+esc(t.id)+'" style="--ft-member:'+COLORS[t.member]+'">'+
       '<button type="button" class="ft-check" data-act="toggle" data-id="'+esc(t.id)+'" aria-label="'+(t.done?'Återaktivera':'Klarmarkera')+' '+esc(t.text)+'">'+(t.done?'✓':'')+'</button>'+
       '<div class="ft-task-body"><button type="button" class="ft-task-title" data-act="edit" data-id="'+esc(t.id)+'">'+esc(t.text)+'</button>'+
+      (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' ↗</a>':'')+
       (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
       (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera">⋯</button>')+
       '</div>';
@@ -180,7 +181,7 @@
       #family-todo-shopping{display:none}
       html[data-list-mode="todo"] .shopping-dashboard{display:none!important}
       html[data-list-mode="todo"] #family-todo-shopping{display:block}
-      .ft-cal-day-indicator{display:inline-block;width:5px;height:5px;background:#fbbf24;box-shadow:0 0 9px #fbbf24;border-radius:50%;vertical-align:middle;margin-left:5px}
+      .ft-trip-link{display:block;color:var(--accent,#FDBA74);font-size:11px;margin-top:4px}.ft-cal-day-indicator{display:inline-block;width:5px;height:5px;background:#fbbf24;box-shadow:0 0 9px #fbbf24;border-radius:50%;vertical-align:middle;margin-left:5px}
       .ft-calendar-reminder{margin:8px 0;padding:8px;border-left:2px solid #fbbf24;background:rgba(251,191,36,.04);border-radius:5px;font-size:12px}
       @media(max-width:520px){.ft-shopping{padding:14px 11px;border-radius:12px}.ft-add-options{grid-template-columns:1fr 1fr}.ft-add-options input{grid-column:1 / -1}.ft-editor-fields{grid-template-columns:1fr}.ft-editor-fields label:last-child{grid-column:auto}.family-todos input,.family-todos select{font-size:16px}.ft-add-options select,.ft-add-options input,.ft-filters select{font-size:14px;min-height:39px;height:39px}.ft-shopping .ft-title{font-size:17px}}
 

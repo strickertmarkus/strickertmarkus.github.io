@@ -2,7 +2,7 @@ name: Travel planner verification
 on:
   push:
     branches: [main]
-    paths: ['budget/travel*', 'budget/tests/travel*', 'budget/family-todos-ui-v1.js', '.github/workflows/travel-verify.yml']
+    paths: ['budget/travel*', 'budget/tests/travel*', 'budget/family-todos-ui-v1.js', 'budget/family-todos-v1.js', 'budget/scripts/travel-access.cjs', '.github/workflows/travel-verify.yml']
   workflow_dispatch:
 jobs:
   travel:
@@ -15,10 +15,13 @@ jobs:
           node-version: '22'
       - run: |
           node --check budget/travel.js
+          node --check budget/travel-model.js
+          node --check budget/travel-home.js
+          node --check budget/family-todos-v1.js
           node --check budget/travel-store.js
           node --test budget/tests/travel.test.cjs
       - run: |
-          npm install --no-save playwright
+          npm install --no-save playwright firebase-admin@13
           npx playwright install --with-deps webkit chromium
       - run: |
           python3 -m http.server 4173 >/tmp/travel-http.log 2>&1 &
@@ -29,3 +32,7 @@ jobs:
         with:
           name: travel-ui
           path: test-results/travel/
+      - name: Verify shared travel access
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: node budget/scripts/travel-access.cjs

@@ -11,6 +11,9 @@
   var MEMBERS = ['family','markus','maja','melker','mila'];
   var PRIORITIES = ['normal','important','urgent'];
   var listeners = [];
+  var providers = [];
+  function external(id){return providers.find(function(p){return p.owns(id);});}
+  function externalPut(id,patch){var p=external(id),before=p.list().find(function(t){return t.id===id;});history.push({provider:p,id:id,previous:before});Promise.resolve(p.update(id,patch)).catch(function(){window.alert("Ändringen kunde inte sparas. Försök igen.");});return id;}
   var tasks = read(CACHE,{});
   var pending = read(PENDING,{});
   var history = [];
@@ -49,7 +52,7 @@
   }
   function visible(){return Object.keys(tasks).map(function(id){return tasks[id];}).filter(function(t){return t.text&&!t.deleted;});}
   function list() {
-    return visible().sort(function(a,b){
+    return visible().concat(providers.flatMap(function(p){return p.list();})).sort(function(a,b){
       if (a.done!==b.done) return a.done?1:-1;
       var p={urgent:0,important:1,normal:2};
       if(p[a.priority]!==p[b.priority])return p[a.priority]-p[b.priority];
@@ -95,11 +98,12 @@
     var id='task_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
     return put(id,{text:text,member:member||'family',priority:priority||'normal',dueDate:dueDate||'',done:false,deleted:false});
   }
-  function update(id,patch){if(!tasks[id]||tasks[id].deleted)return;return put(id,patch);}
-  function toggle(id){if(tasks[id])update(id,{done:!tasks[id].done});}
-  function remove(id){if(tasks[id])put(id,{deleted:true});}
+  function update(id,patch){if(external(id))return externalPut(id,patch);if(!tasks[id]||tasks[id].deleted)return;return put(id,patch);}
+  function toggle(id){var p=external(id);if(p){var t=p.list().find(function(x){return x.id===id;});if(t)return externalPut(id,{done:!t.done});return;}if(tasks[id])update(id,{done:!tasks[id].done});}
+  function remove(id){if(external(id))return externalPut(id,{deleted:true});if(tasks[id])put(id,{deleted:true});}
   function undo(){
     var entry=history.pop();if(!entry)return;
+    if(entry.provider){Promise.resolve(entry.provider.update(entry.id,Object.assign({},entry.previous,{deleted:false}))).catch(function(){window.alert("Kunde inte ångra. Försök igen.");});return;}
     if(!entry.previous)put(entry.id,{deleted:true},false);
     else put(entry.id,{text:entry.previous.text,member:entry.previous.member,done:entry.previous.done,
       priority:entry.previous.priority,dueDate:entry.previous.dueDate,deleted:entry.previous.deleted},false);
@@ -200,8 +204,9 @@
   window.addEventListener('pageshow',function(){if(!initialized&&window.firebase&&firebase.auth&&firebase.auth().currentUser)connect(firebase.auth().currentUser);else refresh();});
   window.addEventListener('online',function(){if(!initialized&&window.firebase&&firebase.auth&&firebase.auth().currentUser)connect(firebase.auth().currentUser);else {refresh();flush();}});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
-  window.FamilyTodos={list:list,get:function(id){return tasks[id]||null;},add:add,update:update,toggle:toggle,remove:remove,
-    undo:undo,canUndo:function(){return history.length>0;},status:function(){return status;},
+  window.FamilyTodos={list:list,get:function(id){var p=external(id);return p?p.list().find(function(t){return t.id===id;})||null:tasks[id]||null;},add:add,update:update,toggle:toggle,remove:remove,
+    undo:undo,canUndo:function(){return history.length>0;},status:function(){return providers.some(function(p){return p.status()==='offline';})?'offline':status;},
+    addProvider:function(provider){providers.push(provider);provider.subscribe(notify);notify();},
     subscribe:function(fn){listeners.push(fn);fn();return function(){listeners=listeners.filter(function(cb){return cb!==fn;});};},
     refresh:refresh};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
