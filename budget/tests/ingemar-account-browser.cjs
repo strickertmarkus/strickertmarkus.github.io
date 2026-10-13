@@ -568,6 +568,38 @@ async function verifyTouchDrag(page,label){
  assert.equal(await recordPage.locator('#build-name').inputValue(),'Eget passnamn','Category change must retain custom pass name');
  await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
+ // Selected-week statistics must follow the visible calendar week.
+ const weekStats=()=>recordPage.evaluate(()=>{
+  const monday=weekStart(selected),end=offset(monday,7);
+  return {expected:state.history.filter(h=>h.date>=monday&&h.date<end).length,shown:Number(document.getElementById('stat-week').textContent),week:isoWeekNumber(monday),title:document.getElementById('stat-week-label').textContent};
+ });
+ let measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ await recordPage.locator('[data-training-week-shift="-1"]').click();
+ measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ await recordPage.locator('[data-training-week-today]').click();
+ // The undo control must be accessible while the pass builder is modal.
+ await recordPage.locator('[data-choice="Pull"]').click();
+ const exerciseCount=await recordPage.locator('#exercise-list > .exercise-card').count();
+ assert.ok(exerciseCount>1,'Fixture must have multiple exercises');
+ await recordPage.locator('[data-remove-exercise="1"]').click();
+ assert.equal(await recordPage.locator('#exercise-list > .exercise-card').count(),exerciseCount-1);
+ assert.equal(await recordPage.locator('#builder [data-action="undo-delete"]').isVisible(),true);
+ await recordPage.screenshot({path:'test-results/ingemar-private/undo-exercise-iphone.png'});
+ await recordPage.locator('#builder [data-action="undo-delete"]').click();
+ assert.equal(await recordPage.locator('#exercise-list > .exercise-card').count(),exerciseCount);
+ await recordPage.locator('#builder .modal-head [data-action="close-builder"]').click();
+ await recordPage.locator('[data-action="plan-week"]').click();
+ await recordPage.locator('[data-week-toggle-day="0"]').click();
+ await recordPage.locator('[data-week-clear="0"]').click();
+ assert.equal(await recordPage.locator('#week-planner [data-action="undo-delete"]').isVisible(),true);
+ await recordPage.screenshot({path:'test-results/ingemar-private/undo-week-iphone.png'});
+ await recordPage.locator('#week-planner [data-action="undo-delete"]').click();
+ assert.notEqual(await recordPage.locator('#week-planner [data-week-day="0"] .week-day-pass strong').textContent(),'Ingen träning');
+ await recordPage.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();
+ assert.equal(await recordPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+ // Status must distinguish confirmed remote saving from local-only and pending.
+ await recordPage.waitForFunction(()=>document.getElementById('ingemar-sync-status').dataset.syncState==='synced');
+ assert.match(await recordPage.locator('#ingemar-sync-status').textContent(),/Firebase/);
  // Both Zen pages need the same durable create / edit / plan / log / delete behavior.
  await recordPage.locator('[data-view="stretch"]').click();
  await recordPage.locator('[data-zen-action="create"]').click();
@@ -600,6 +632,13 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('#zen-edit-name').fill('QA Meditation');
  await recordPage.locator('[data-zen-step-field="name"]').first().fill('Andning QA');
  await recordPage.locator('[data-zen-action="save-editor"]').click();
+ assert.match(await recordPage.locator('#zen-choices').textContent(),/QA Meditation/);
+ const meditationId=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')).zenRoutines.meditation.find(r=>r.name==='QA Meditation').id);
+ await recordPage.locator('[data-zen-edit="'+meditationId+'"]').click();
+ recordPage.once('dialog',dialog=>dialog.accept());
+ await recordPage.locator('[data-zen-action="delete-entry"]').click();
+ assert.equal(await recordPage.locator('[data-action="undo-delete"]').isVisible(),true);
+ await recordPage.locator('[data-action="undo-delete"]').click();
  assert.match(await recordPage.locator('#zen-choices').textContent(),/QA Meditation/);
  await recordPage.screenshot({path:'test-results/ingemar-private/zen-builder-review-iphone.png'});
  await recordContext.close();
