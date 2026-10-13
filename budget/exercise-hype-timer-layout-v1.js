@@ -472,6 +472,9 @@
     var overtime = elapsed >= total;
     var ring = document.getElementById('session-countdown-ring');
     if (ring) ring.classList.toggle('is-overtime',overtime);
+    var label=wrap.querySelector('.session-countdown-label');
+    var caption=overtime?'Övertid':'Tid kvar';
+    if(label&&label.textContent!==caption)label.textContent=caption;
     setText('session-countdown-value', overtime ? '+ ' + Math.floor(elapsed - total) : formatClock(Math.ceil(remaining)));
 
     var activeCount = Math.max(0, Math.min(60, Math.ceil(60 * remaining / total)));
@@ -532,7 +535,7 @@
     liveFrame = 0;
     if (document.hidden) return;
     paintLiveTimers();
-    if (getState() || unifiedPretimer) {
+    if (!liveFrame && (getState() || unifiedPretimer)) {
       // Only the five-second gate needs smooth updates. Clock text changes
       // once per second; all elapsed time is still derived from timestamps.
       var delay = unifiedPretimer && !window.__exerciseEnergySaving ? 32 : 100;

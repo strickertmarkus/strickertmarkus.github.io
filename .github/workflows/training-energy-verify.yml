@@ -21,6 +21,7 @@ jobs:
       - name: Session verification
         run: |
           python3 -m http.server 4173 --directory . >/tmp/training-http.log 2>&1 &
+          node --test budget/tests/training-energy-unit.cjs
           node budget/tests/training-energy-browser.cjs
       - name: Upload session screenshots
         if: always()

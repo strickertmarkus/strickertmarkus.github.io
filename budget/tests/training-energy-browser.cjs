@@ -50,7 +50,7 @@ async function verify(width,profile){
  }
  await stop();
  await start([{kind:'cardio',name:'Löpning',time:1,distance:1}]);
- await frame.waitForSelector('html.cardio-focus-active');
+ await frame.waitForSelector('html.cardio-focus-active',{state:'attached'});
  await frame.evaluate(()=>{sessionState.setStartedAt=Date.now()-59500;updateSessionTimers();});
  await frame.waitForSelector('#session-countdown-ring.is-overtime');
  await frame.waitForFunction(()=>!document.documentElement.classList.contains('cardio-focus-active'));
