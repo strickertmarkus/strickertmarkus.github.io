@@ -200,6 +200,10 @@
     .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
     .cal-event-preview-more-mobile { display:none; }
+    .cal-short-title-field { margin-top:-3px; }
+    .cal-short-title-field .cal-short-title-optional { color:var(--text-sec);font-weight:400;text-transform:none;letter-spacing:0; }
+    .cal-short-title-field small { display:block;margin-top:5px;font-size:10px;line-height:1.4;color:var(--text-sec); }
+    .cal-short-title-field input { max-width:100%; }
     @media(max-width:768px) {
       /* Keep event days at the same base height as every other day. */
       .cal-cell.has-events { min-height:56px; }
@@ -873,18 +877,26 @@
         margin-bottom: 16px;
       }
     }
-    /* Dense month grid on phones: nearly square cells, never taller
-       just because a day has more events. One title + remaining count;
-       the popup retains the complete event list. */
+    /* All dates have the SAME square geometry. On mobile the calendar
+       may use 8px of its surrounding gutter on each side, but never
+       grows any individual day according to its event count. */
     @media (max-width: 600px) {
-      .cal-grid { grid-auto-rows:clamp(48px,12.2vw,60px); }
-      .cal-cell, .cal-cell.has-events { min-height:0; padding:4px 3px; border-radius:8px; }
+      .cal-section { margin-left:-8px; margin-right:-8px; }
+      .cal-grid { gap:2px; grid-auto-rows:auto; container-type:inline-size; }
+      .cal-cell, .cal-cell.has-events { aspect-ratio:1 / 1; height:auto; min-height:0; min-width:0; padding:4px 3px; border-radius:8px; }
       .cal-num { line-height:1.1; margin-bottom:0; }
       .cal-event-preview { gap:1px; padding-top:0; }
       .cal-event-preview-title { height:13px;line-height:11px;font-size:9px;padding:1px 2px 1px 3px; }
       .cal-event-preview-title:nth-child(n+2) { display:none; }
       .cal-event-preview-more { display:none; }
       .cal-event-preview-more-mobile { display:block;color:#B8C2CF;font-size:9px;font-weight:800;line-height:9px;min-height:9px;padding-left:2px; }
+    }
+    /* A container query uses the calendar's actual usable width, rather
+       than phone model or viewport breakpoint. */
+    @container (min-width:470px) {
+      .cal-cell .cal-event-preview-title:nth-child(2) { display:block; }
+      .cal-cell .cal-event-preview-more { display:block; }
+      .cal-cell .cal-event-preview-more-mobile { display:none; }
     }
   </style>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
@@ -1098,6 +1110,11 @@
     <div class="form-group">
       <label>Titel</label>
       <input type="text" id="ev-title" placeholder="Vad händer?">
+    </div>
+    <div class="form-group cal-short-title-field">
+      <label for="ev-short-title">Kort kalendertext <span class="cal-short-title-optional">(valfri)</span></label>
+      <input type="text" id="ev-short-title" maxlength="18" autocomplete="off" placeholder="T.ex. Tandl., BVC, Fotboll">
+      <small>Visas i månadsvyn. Lämna tomt för automatisk förkortning.</small>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -1381,6 +1398,29 @@ function formatEventTimeRange(ev) {
 }
 
 // ── RENDER MONTH ──────────────────────────────────────────────
+// Short labels are presentation-only. Stored full event titles stay intact.
+// These conservative Swedish shorthands help existing events immediately.
+function getCalendarPreviewLabel(ev) {
+  var manual = String(ev && ev.shortTitle || '').trim();
+  if (manual) return manual;
+  var full = String(ev && ev.title || 'Händelse').trim();
+  var parts = full.split(/\s+/);
+  var first = parts[0] || full;
+  var known = {
+    'tandläkaren':'Tandl.', 'tandläkare':'Tandl.', 'tandläkarbesök':'Tandl.',
+    'förskolan':'Försk.', 'förskola':'Försk.', 'föräldramöte':'Föräldram.',
+    'läkarbesök':'Läkare', 'vaccination':'Vaccin.', 'fotbollsträning':'Fotboll',
+    'gymnastik':'Gymnast.', 'träning':'Träning', 'födelsedag':'Födelsed.',
+    'hämtning':'Hämta', 'lämning':'Lämna', 'sjukhusbesök':'Sjukhus',
+    'besiktning':'Besiktn.'
+  };
+  var key = first.toLocaleLowerCase('sv-SE').replace(/[.,!?:;]+$/, '');
+  if (Object.prototype.hasOwnProperty.call(known,key)) return known[key];
+  if (full.length <= 14) return full;
+  if (first.length > 10) return first.slice(0,8) + '.';
+  return first;
+}
+
 function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
@@ -1427,7 +1467,7 @@ function renderMonth() {
       // Do not include the separate event emoji in these narrow month cells.
       var previewRows = dayEvs.slice(0, 2).map(function(ev) {
         var color = getMemberColor(ev.member);
-        var label = String(ev.title || 'Händelse').trim() || 'Händelse';
+        var label = getCalendarPreviewLabel(ev);
         return '<span class="cal-event-preview-title" style="--preview-color:' + color +
           '" title="' + escHtml(label) + '">' + escHtml(label) + '</span>';
       }).join('');
@@ -1622,6 +1662,7 @@ function openEventModal(dateOverride) {
   document.getElementById('edit-event-id').value='';
   document.getElementById('modal-title-text').textContent='Ny händelse';
   document.getElementById('ev-title').value='';
+  document.getElementById('ev-short-title').value='';
   document.getElementById('ev-date').value = dateOverride || selectedDate || todayISO();
   document.getElementById('ev-time').value='';
   document.getElementById('ev-end-date').value='';
@@ -1644,6 +1685,7 @@ function editEvent(id) {
   document.getElementById('edit-event-id').value = id;
   document.getElementById('modal-title-text').textContent = 'Redigera händelse';
   document.getElementById('ev-title').value = ev.title;
+  document.getElementById('ev-short-title').value = ev.shortTitle || '';
   document.getElementById('ev-date').value = ev.date;
   document.getElementById('ev-time').value = ev.time||'';
   document.getElementById('ev-end-date').value = ev.endDate||'';
@@ -1702,6 +1744,7 @@ function saveEvent() {
     id: editId || String(Date.now()),
     date: startDate,
     title: title,
+    shortTitle: document.getElementById('ev-short-title').value.trim().slice(0,18),
     time: startTime,
     endDate: endDate,
     endTime: endTime,
