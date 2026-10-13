@@ -251,6 +251,18 @@ async function verifyTouchDrag(page,label){
  const restBlue=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(restBlue,'#22D3EE','Rest between sets must stay the original cyan/blue');
  await frame.locator('#session-between-overlay-v2.show').click();
+ // Wait for the asynchronous next-set transition before moving to the final
+ // exercise set. Otherwise the previous click overwrites our test state.
+ await page.waitForFunction(()=>{
+  const w=document.getElementById('family-session-frame').contentWindow;
+  return w?.sessionState?.currentSet>=2&&!w.sessionState.awaitingDecision;
+ },null,{timeout:7500});
+ const followupTimer=frame.locator('#session-pre-timer.show');
+ if(await followupTimer.count())await followupTimer.click();
+ await page.waitForFunction(()=>{
+  const w=document.getElementById('family-session-frame').contentWindow;
+  return !!w?.sessionState?.setRunning;
+ },null,{timeout:7500});
  // End the current exercise: the original Markus/Maja inter-exercise status is green.
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=w.sessionState.exercises[0].plannedSets;w.renderSessionMode();});
  // With configured automatic rest, Markus/Maja proceed directly to the
@@ -259,7 +271,6 @@ async function verifyTouchDrag(page,label){
  snap=await sessionSnapshot();
  assert.equal(snap.tone,'','Transition must not retain the active Push/Pull theme');
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan övningar/);
- await page.waitForTimeout(150);
  const betweenState=await frame.locator('#session-between-overlay-v2').evaluate(el=>({
   visible:el.classList.contains('show'),
   label:el.querySelector('.bs-label')?.textContent,
