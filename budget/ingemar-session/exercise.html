@@ -708,7 +708,7 @@ function syncIngemarSessionTone(){
  var firstReady=index===0&&Math.max(1,Number(st.currentSet)||1)===1&&!st.setRunning&&!st.awaitingDecision&&!(st.logs||[]).some(function(a){return Array.isArray(a)&&a.length;});
  var pre=document.getElementById('session-pre-timer'),rest=document.getElementById('session-between-overlay-v2');
  var transition=st.awaitingDecision&&current&&Math.max(1,Number(st.currentSet)||1)>=Math.max(1,Number(current.plannedSets)||1)&&index<st.exercises.length-1;
- var inactive=firstReady||transition||(pre&&pre.classList.contains('show'))||(rest&&rest.classList.contains('show'));
+ var inactive=!st.setRunning||firstReady||transition||(rest&&rest.classList.contains('show'));
  var tone=!inactive&&current&&current.kind==='strength'?(st.type==='Pull'?'pull':st.type==='Push'?'push':''):'';
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
