@@ -84,7 +84,13 @@ async function verifyTouchDrag(page,label){
  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Firebase isolated test double installed by Playwright'}));
  await context.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
  await context.route('https://fonts.gstatic.com/**',r=>r.abort());
- const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await context.newPage(),errors=[],missingSharedAssets=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('response',response=>{
+  if(response.status()!==404)return;
+  const pathname=new URL(response.url()).pathname;
+  if(/\/budget\/(?:ingemar-session\/)?exercise-[^/]+\.js$/.test(pathname))missingSharedAssets.push(pathname);
+ });
  fs.mkdirSync('test-results/ingemar-private',{recursive:true});
  await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html',{waitUntil:'domcontentloaded'});
  await page.waitForURL('**/budget/ingemar.html');
@@ -229,6 +235,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(engineLoad.timerNode,true,'Canonical 5 s timer must exist');
  assert.equal(engineLoad.headerToggle,true,'Session header must have a 5 s toggle');
  assert.equal(engineLoad.restApi,true,'Between-exercise controller must execute');
+ assert.deepEqual(missingSharedAssets,[],'No exercise scripts may return HTTP 404');
  const frame=page.frameLocator('#family-session-frame');
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
  const sessionSnapshot=()=>page.evaluate(()=>{
@@ -250,6 +257,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
  await frame.locator('#session-controls button').filter({hasText:/Starta (pass|set)/i}).first().click();
  await frame.locator('#session-pre-timer.show').waitFor();
+ assert.equal(await frame.locator('#session-pre-timer.show').evaluate(el=>getComputedStyle(el).display),'grid','5s overlay must actually render visibly');
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').isVisible(),true,'5 s header control must match Markus/Maja');
