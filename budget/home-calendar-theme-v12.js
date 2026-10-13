@@ -195,15 +195,15 @@
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-cal-week-day-v11.today .home-cal-week-date-v11 strong {
         color:var(--home-view-accent) !important;
       }
+      /* The calendar preview should be a flat surface, not a beveled glass card. */
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover {
-        background:
-          linear-gradient(180deg,rgba(var(--home-view-rgb),.05),rgba(var(--home-view-rgb),.014)),
-          rgba(15,18,25,.985) !important;
-        border-color:rgba(var(--home-view-rgb),.26) !important;
-        border-radius:10px !important;
-        box-shadow:0 8px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
-        backdrop-filter:blur(12px) !important;
-        -webkit-backdrop-filter:blur(12px) !important;
+        background:#171C24 !important;
+        background-image:none !important;
+        border:1px solid rgba(var(--home-view-rgb),.23) !important;
+        border-radius:12px !important;
+        box-shadow:0 12px 28px rgba(0,0,0,.33) !important;
+        backdrop-filter:none !important;
+        -webkit-backdrop-filter:none !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .home-day-popover-title {
         color:var(--home-view-accent) !important;
