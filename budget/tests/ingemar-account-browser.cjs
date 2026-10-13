@@ -253,12 +253,11 @@ async function verifyTouchDrag(page,label){
  await frame.locator('#session-between-overlay-v2.show').click();
  // End the current exercise: the original Markus/Maja inter-exercise status is green.
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=w.sessionState.exercises[0].plannedSets;w.renderSessionMode();});
- await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-exercise-complete-v116'));
- snap=await sessionSnapshot();
- assert.equal(snap.tone,'','Completed exercise must not retain the Push/Pull active color');
- assert.equal(snap.accent,'#34D399','Inter-exercise completion returns to the original green');
- await page.screenshot({path:'test-results/ingemar-private/session-between-exercises-green-390.png'});
+ // With configured automatic rest, Markus/Maja proceed directly to the
+ // between-exercises timer; there is no separately held completion screen.
  await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
+ snap=await sessionSnapshot();
+ assert.equal(snap.tone,'','Transition must not retain the active Push/Pull theme');
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan övningar/);
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-between-overlay-v2[data-ingemar-between="exercise"]'));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
