@@ -190,32 +190,82 @@ async function verifyTouchDrag(page,label){
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-type="Push"]').click();
  assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
+ // Use the SAME settings as Markus/Maja. Both the builder and iframe must retain them.
+ assert.equal(await page.locator('#builder-pre-timer-toggle').getAttribute('aria-pressed'),'true','5-second pre-timer is enabled by default');
+ await page.locator('#builder-pre-timer-toggle').click();
+ assert.equal(await page.locator('#builder-pre-timer-toggle').getAttribute('aria-pressed'),'false');
+ await page.locator('#builder-pre-timer-toggle').click();
+ await page.locator('#builder [data-between-toggle="global"]').click();
+ await page.locator('#builder-between-type').selectOption('rest');
+ await page.locator('#builder-between-seconds').fill('4');
+ await page.locator('#builder [data-between-toggle="0"]').click();
+ await page.locator('#builder [data-between-edit="0:type"]').selectOption('rest');
+ await page.locator('#builder [data-between-edit="0:seconds"]').fill('3');
+ await page.screenshot({path:'test-results/ingemar-private/builder-between-settings-iphone.png'});
  await page.locator('#builder-start-from-builder').click();
+ assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 4 s/);
+ assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ const frame=page.frameLocator('#family-session-frame');
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
- const sessionTheme=()=>page.evaluate(()=>{
-  const win=document.getElementById('family-session-frame').contentWindow;
-  const modal=win.document.getElementById('session-modal');
-  const css=win.getComputedStyle(modal);
-  return {tone:modal.dataset.ingemarTone,restTone:win.document.documentElement.dataset.ingemarSessionTone,
-   accent:css.getPropertyValue('--pf-accent').trim(),rgb:css.getPropertyValue('--pf-rgb').trim(),
-   type:win.sessionState.type,kind:win.sessionState.exercises[win.sessionState.exerciseIndex]?.kind,
-   overflow:win.document.documentElement.scrollWidth>win.innerWidth+1};
+ const sessionSnapshot=()=>page.evaluate(()=>{
+  const w=document.getElementById('family-session-frame').contentWindow,modal=w.document.getElementById('session-modal'),css=w.getComputedStyle(modal);
+  return {type:w.sessionState?.type,kind:w.sessionState?.exercises[w.sessionState.exerciseIndex]?.kind,
+   tone:modal.dataset.ingemarTone||'',accent:css.getPropertyValue('--pf-accent').trim(),
+   pretimer:!!w.document.getElementById('session-pre-timer'),
+   enabled:w.getPlannedSessions()[w.sessionState.date]?.preTimerEnabled,
+   between:w.getPlannedSessions()[w.sessionState.date]?.betweenExercises,
+   perSet:w.getPlannedSessions()[w.sessionState.date]?.exercises[0]?.betweenSets,
+   overflow:w.document.documentElement.scrollWidth>w.innerWidth+1};
  });
- let theme=await sessionTheme();
- assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type,theme.overflow],['push','#e65c66','230,92,102','Push',false]);
+ let snap=await sessionSnapshot();
+ assert.equal(snap.pretimer,true,'The canonical 5-second timer DOM must actually be installed');
+ assert.equal(snap.enabled,true);
+ assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,4);
+ assert.equal(snap.perSet.type,'rest');assert.equal(snap.perSet.seconds,3);
+ assert.equal(snap.tone,'','Fresh pass must retain the original green intro, not a red override');
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
+ await frame.locator('#session-controls button').filter({hasText:/Starta (pass|set)/i}).first().click();
+ await frame.locator('#session-pre-timer.show').waitFor();
+ assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
+ assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
+ await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
+ await frame.locator('#session-pre-timer.show').click();
+ await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
+ snap=await sessionSnapshot();
+ assert.deepEqual([snap.tone,snap.accent,snap.type,snap.overflow],['push','#e65c66','Push',false]);
+ await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
- theme=await sessionTheme();
- assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type],['pull','#94e8eb','148,232,235','Pull'],'Pull changes visuals without restarting timer');
+ snap=await sessionSnapshot();
+ assert.deepEqual([snap.tone,snap.accent],['pull','#94e8eb'],'Pull should be cyan while active');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
- theme=await sessionTheme();
- assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type,theme.kind],['cardio','#ffbd82','255,189,130','Pull','cardio'],'Intermediate cardio is orange, workout remains Pull');
- await page.screenshot({path:'test-results/ingemar-private/session-intermediate-cardio-orange-390.png'});
- await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.renderSessionMode();});
- assert.equal((await sessionTheme()).tone,'pull','Theme returns to Pull after cardio');
+ snap=await sessionSnapshot();
+ assert.equal(snap.tone,'','Ordinary cardio uses the original red palette, without mismatched orange/red layers');
+ await page.screenshot({path:'test-results/ingemar-private/session-cardio-original-colors-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.sessionState.type='Push';w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=1;w.renderSessionMode();});
+ await frame.locator('#session-controls button').filter({hasText:/Starta nästa set/i}).click();
+ await frame.locator('#session-between-overlay-v2.show').waitFor();
+ assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan set/);
+ await page.screenshot({path:'test-results/ingemar-private/session-rest-blue-390.png'});
+ const restBlue=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
+ assert.equal(restBlue,'#22D3EE','Rest between sets must stay the original cyan/blue');
+ await frame.locator('#session-between-overlay-v2.show').click();
+ // End the current exercise: the original Markus/Maja inter-exercise status is green.
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=w.sessionState.exercises[0].plannedSets;w.renderSessionMode();});
+ await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-exercise-complete-v116'));
+ snap=await sessionSnapshot();
+ assert.equal(snap.tone,'','Completed exercise must not retain the Push/Pull active color');
+ assert.equal(snap.accent,'#34D399','Inter-exercise completion returns to the original green');
+ await page.screenshot({path:'test-results/ingemar-private/session-between-exercises-green-390.png'});
+ await frame.locator('#session-controls button').filter({hasText:/Övning klar/i}).click();
+ await frame.locator('#session-between-overlay-v2.show').waitFor();
+ assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan övningar/);
+ await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-between-overlay-v2[data-ingemar-between="exercise"]'));
+ const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
+ assert.equal(betweenGreen,'#34d399','Configured between-exercise rest turns green');
+ await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
  // Use the real session bridge/save handler and verify that logged set weights become PRs.
