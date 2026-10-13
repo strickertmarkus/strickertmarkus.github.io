@@ -136,27 +136,43 @@
     .home-cal-holidays-toggle:has(input:checked) > span:last-child { color:var(--home-view-accent-soft,#FDBA74);text-shadow:0 0 8px rgba(var(--home-view-rgb,253,186,116),.20); }
     @media(prefers-reduced-motion:reduce){ .home-cal-holidays-switch,.home-cal-holidays-switch::before { transition:none; } }
     .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0; }
-    /* Champagne-gold for traditions; coral remains reserved for official red days. */
-    .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#D8B47B;box-shadow:0 0 7px rgba(216,180,123,.27); }
-    .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.3); }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today):not(.selected) { border-color:rgba(242,139,144,.25)!important;background:rgba(242,139,144,.055)!important; }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today):not(.selected) { border-color:rgba(216,180,123,.24)!important;background:rgba(216,180,123,.040)!important; }
+    /* Traditions use bright teal, distinct from the coral official holidays. */
+    .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#2DD4BF;box-shadow:0 0 8px rgba(45,212,191,.43); }
+    .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.38); }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today):not(.selected) { border-color:rgba(242,139,144,.38)!important;background:rgba(242,139,144,.055)!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today):not(.selected) { border-color:rgba(45,212,191,.43)!important;background:rgba(45,212,191,.065)!important; }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official:not(.today) .cal-num { color:#F2A2A6!important; }
-    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today) .cal-num { color:#E2C295!important; }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition:not(.today) .cal-num { color:#5EEAD4!important; }
+    /* Selection keeps the border visible, including on holidays and today's date.
+       The original :not(.selected) rules excluded clicked holidays entirely. */
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.selected:not(.empty) {
+      border-color:rgba(var(--home-view-rgb,253,186,116),.75)!important;
+      box-shadow:inset 0 0 0 1px rgba(var(--home-view-rgb,253,186,116),.12),0 0 12px rgba(var(--home-view-rgb,253,186,116),.15)!important;
+    }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-official.selected {
+      border-color:rgba(242,139,144,.9)!important;
+      background:rgba(242,139,144,.09)!important;
+      box-shadow:inset 0 0 0 1px rgba(242,139,144,.23),0 0 13px rgba(242,139,144,.22)!important;
+    }
+    html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.swedish-holiday-tradition.selected {
+      border-color:rgba(45,212,191,.92)!important;
+      background:rgba(45,212,191,.105)!important;
+      box-shadow:inset 0 0 0 1px rgba(45,212,191,.24),0 0 13px rgba(45,212,191,.25)!important;
+    }
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .cal-cell.is-sunday:not(.today):not(.swedish-holiday-official):not(.swedish-holiday-tradition) .cal-num { color:#E6A0A5!important; }
     .home-holiday-item { display:grid;grid-template-columns:4px minmax(0,1fr);gap:9px;align-items:stretch;padding:7px 0;min-width:0; }
     .home-holiday-item + .home-holiday-item { border-top:1px solid rgba(255,255,255,.045); }
-    .home-holiday-item-bar { border-radius:3px;background:#D8B47B; }
+    .home-holiday-item-bar { border-radius:3px;background:#2DD4BF; }
     .home-holiday-item.official .home-holiday-item-bar { background:#F28B90; }
-    .home-holiday-item strong { display:block;font-size:12px;line-height:1.35;color:#E2C295;overflow-wrap:anywhere; }
+    .home-holiday-item strong { display:block;font-size:12px;line-height:1.35;color:#5EEAD4;overflow-wrap:anywhere; }
     .home-holiday-item.official strong { color:#FFC0C3; }
     .home-holiday-item small { display:block;font-size:10px;color:var(--text-sec);margin-top:2px;line-height:1.4; }
     .home-day-popover .home-holiday-item { border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:2px; }
-    .home-calendar-holiday-note { display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 7px;padding:6px 9px;border:1px solid rgba(216,180,123,.23);border-radius:9px;background:rgba(216,180,123,.05);color:#E2C295;font-size:11px;line-height:1.4;min-width:0; }
+    .home-calendar-holiday-note { display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 7px;padding:6px 9px;border:1px solid rgba(45,212,191,.40);border-radius:9px;background:rgba(45,212,191,.085);color:#5EEAD4;font-size:11px;line-height:1.4;min-width:0; }
     .home-calendar-holiday-note.official { border-color:rgba(242,139,144,.23);background:rgba(242,139,144,.06);color:#FFC0C3; }
     .home-calendar-holiday-note small { color:var(--text-sec);font-size:10px; }
     .home-cal-week-day-v11.swedish-holiday-official:not(.today) { border-color:rgba(242,139,144,.2); }
-    .home-cal-week-day-v11.swedish-holiday-tradition:not(.today) { border-color:rgba(216,180,123,.22); }
+    .home-cal-week-day-v11.swedish-holiday-tradition:not(.today) { border-color:rgba(45,212,191,.45); }
     .home-cal-day-holidays { display:grid;gap:5px;min-width:0; }
     @media(max-width:480px) {
       .home-cal-holidays-toggle { font-size:10px;gap:5px; }
@@ -175,17 +191,16 @@
     .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
     .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .cal-dot-more { font-size: 9px; color: var(--text-dim); align-self: center; }
-    /* Month overview: up to three unique family-color dots plus the total number of events.
-       Event details stay in the day popup rather than truncating titles on narrow phones. */
-    .cal-activity-summary { display:flex;align-items:center;justify-content:space-between;gap:3px;margin-top:auto;padding-top:4px;width:100%;min-width:0; }
-    .cal-activity-dots { display:flex;align-items:center;gap:4px;flex:1 1 auto;min-width:0; }
-    .cal-activity-dot { display:block;width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--activity-color);box-shadow:0 0 7px color-mix(in srgb,var(--activity-color) 57%,transparent); }
-    .cal-activity-count { color:#CCD5E1;font-size:10px;font-weight:800;line-height:1;letter-spacing:-.2px;flex:0 0 auto;min-width:9px;text-align:right;font-variant-numeric:tabular-nums; }
-    @media(max-width:768px) { .cal-activity-dot { width:5px;height:5px;flex-basis:5px; } .cal-activity-dots { gap:3px; } .cal-activity-summary { padding-top:3px;gap:2px; } .cal-activity-count { font-size:9px; } }
-    .cal-event-pill { font-size: 10px; font-weight: 600; border-radius: 4px; padding: 2px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 5px; }
-    .cal-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
-    .cal-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; flex: 1 1 auto; }
-    .cal-pill-more { font-size: 9px; font-weight: 700; opacity: .85; margin-left: auto; }
+    /* Compact month overview: two readable event chips and an optional +N.
+       Full titles and event editing remain in the existing day popup. */
+    .cal-event-preview { display:flex;flex-direction:column;gap:2px;min-width:0;width:100%;margin-top:auto;padding-top:3px; }
+    .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
+    .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
+    @media(max-width:768px) {
+      .cal-cell.has-events { min-height:76px; }
+      .cal-event-preview-title { font-size:9px;line-height:12px;height:14px;padding:1px 2px 1px 3px; }
+      .cal-event-preview-more { font-size:9px;line-height:10px;min-height:10px; }
+    }
 
     /* ── SIDEBAR ── */
     .sidebar {
@@ -1384,18 +1399,17 @@ function renderMonth() {
     var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div>' +
       (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') + '</div>';
     if (dayEvs.length) {
-      // A dot identifies a represented family member, while the number counts
-      // all events. Avoid repeated identical dots for the same member.
-      var memberColors = [];
-      dayEvs.forEach(function(ev) {
+      // Render two compact labels instead of a truncated single-character title.
+      // Do not include the separate event emoji in these narrow month cells.
+      var previewRows = dayEvs.slice(0, 2).map(function(ev) {
         var color = getMemberColor(ev.member);
-        if (memberColors.indexOf(color) === -1) memberColors.push(color);
-      });
-      var activityDots = memberColors.slice(0, 3).map(function(color) {
-        return '<span class="cal-activity-dot" style="--activity-color:' + color + '"></span>';
+        var label = String(ev.title || 'Händelse').trim() || 'Händelse';
+        return '<span class="cal-event-preview-title" style="--preview-color:' + color +
+          '" title="' + escHtml(label) + '">' + escHtml(label) + '</span>';
       }).join('');
-      html += '<div class="cal-activity-summary" aria-hidden="true"><span class="cal-activity-dots">' +
-        activityDots + '</span><span class="cal-activity-count">' + dayEvs.length + '</span></div>';
+      html += '<div class="cal-event-preview" aria-hidden="true">' + previewRows +
+        (dayEvs.length > 2 ? '<span class="cal-event-preview-more">+' + (dayEvs.length - 2) + ' till</span>' : '') +
+        '</div>';
       cell.title = dayEvs.length + (dayEvs.length === 1 ? ' händelse' : ' händelser') +
         ': ' + dayEvs.map(function(ev) { return ev.title || 'Händelse'; }).join(', ');
       cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ', ' + cell.title);
