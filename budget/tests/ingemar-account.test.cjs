@@ -355,7 +355,7 @@ test('Week planner keeps named drafts, protects last exercise and ignores cancel
   document:{documentElement:{classList:{remove(){}}},removeEventListener(){}},
   clearWeekDragTarget(){},moveWeekDrag(){},swapCalls:0
  };
- vm.runInNewContext(['setWeekDayType','toggleWeekExercise','applyWeekDayTemplate','swapWeekDays','endWeekDrag'].map(functionText).join('\n'),ctx);
+ vm.runInNewContext(['normalizeBetweenOption','setWeekDayType','toggleWeekExercise','applyWeekDayTemplate','swapWeekDays','endWeekDrag'].map(functionText).join('\n'),ctx);
  ctx.setWeekDayType(0,'Pull');
  assert.equal(ctx.weekDraft[0].name,'Ben');
  assert.equal(ctx.weekDraft[0].type,'Pull');
