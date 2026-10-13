@@ -1190,7 +1190,10 @@ function startWeekDrag(event,handle){
  var entry=weekDraft[index],ghost=document.createElement('div');
  ghost.className='week-planner-drag-ghost';
  ghost.innerHTML='<strong>'+DAYS[index]+' · '+(entry?clean(entry.name):'Vila')+'</strong><small>'+(entry?entry.exercises.length+' övningar':'Ingen träning')+'</small>';
- document.body.appendChild(ghost);
+ // A modal lives in the browser top layer; keep the preview there too.
+ $('week-planner').appendChild(ghost);
+ document.documentElement.classList.add('ingemar-builder-drag-active');
+ var selection=window.getSelection&&window.getSelection();if(selection)selection.removeAllRanges();
  card.classList.add('is-drag-source');
  weekDrag={pointerId:event.pointerId,from:index,to:index,card:card,ghost:ghost};
  positionWeekDrag(event);
@@ -1222,11 +1225,12 @@ function moveWeekDrag(event){
 function endWeekDrag(event){
  if(!weekDrag||event&&event.pointerId!=null&&event.pointerId!==weekDrag.pointerId)return;
  var dragState=weekDrag;weekDrag=null;
+ document.documentElement.classList.remove('ingemar-builder-drag-active');
  document.removeEventListener('pointermove',moveWeekDrag);
  document.removeEventListener('pointerup',endWeekDrag);
  document.removeEventListener('pointercancel',endWeekDrag);
  clearWeekDragTarget();if(dragState.ghost&&dragState.ghost.parentNode)dragState.ghost.remove();if(dragState.card)dragState.card.classList.remove('is-drag-source');
- if(dragState.from!==dragState.to)swapWeekDays(dragState.from,dragState.to);
+ if(event&&event.type==='pointerup'&&dragState.from!==dragState.to)swapWeekDays(dragState.from,dragState.to);
 }
 function builderTemplates(){if(!Array.isArray(state.templates))state.templates=[];return state.templates;}
 function renderBuilderTemplates(){
@@ -1321,6 +1325,9 @@ function openBuilder(type){
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
  draft=existing?deep(existing):{type:kind,name:kind+' · Fokus',exercises:template(kind)};
+ // Explicitly choosing Push/Pull/Kondition must actually change the form,
+ // without erasing a saved custom name, selected sets or earlier work.
+ if(type&&TYPES.includes(type))draft.type=type;
  draft.date=selected;kind=draft.type;
  builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+kind.toLowerCase()+'pass';
