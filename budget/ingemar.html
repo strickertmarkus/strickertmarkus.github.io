@@ -1222,8 +1222,27 @@ function swapWeekDays(from,to){
  var temp=weekDraft[from];weekDraft[from]=weekDraft[to];weekDraft[to]=temp;
  weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();
 }
-function clearWeekDay(index){if(!weekDraft||index<0||index>6)return;weekDraft[index]=null;delete state.builderDrafts[offset(weekPlannerMonday,index)];weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
-function clearWeekPlanner(){if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;weekDraft=weekDraft.map(function(_,i){delete state.builderDrafts[offset(weekPlannerMonday,i)];return null;});weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();}
+function undoWeekChange(monday,days,drafts){
+ DAYS.forEach(function(_,i){
+  var date=offset(monday,i);
+  if(days[i])state.plans[date]=deep(days[i]);else delete state.plans[date];
+  if(drafts[i])state.builderDrafts[date]=deep(drafts[i]);else delete state.builderDrafts[date];
+ });
+ if(weekDraft&&weekPlannerMonday===monday){weekDraft=deep(days);weekBase=deep(days);weekDraftDirty=false;renderWeekPlanner();}
+ persist();render();
+}
+function clearWeekDay(index){
+ if(!weekDraft||index<0||index>6)return;
+ var monday=weekPlannerMonday,before=deep(weekDraft),drafts=DAYS.map(function(_,i){return deep(state.builderDrafts[offset(monday,i)]||null);});
+ weekDraft[index]=null;delete state.builderDrafts[offset(monday,index)];weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();
+ offerUndo('Dagen rensades.',function(){undoWeekChange(monday,before,drafts);});
+}
+function clearWeekPlanner(){
+ if(!weekDraft||!confirm('Rensa alla sju dagar i den här veckan?'))return;
+ var monday=weekPlannerMonday,before=deep(weekDraft),drafts=DAYS.map(function(_,i){return deep(state.builderDrafts[offset(monday,i)]||null);});
+ weekDraft=weekDraft.map(function(_,i){delete state.builderDrafts[offset(monday,i)];return null;});weekDraftDirty=true;weekCopyFrom=-1;renderWeekPlanner();
+ offerUndo('Veckan rensades.',function(){undoWeekChange(monday,before,drafts);});
+}
 function saveWholeWeek(){
  if(!weekDraft||!weekPlannerMonday)return;
  if(!commitWeekDraft())return;
@@ -1245,7 +1264,11 @@ function deleteWeekTemplate(){
  var id=$('week-template-select').value,item=weekTemplates().find(function(t){return String(t.id)===String(id);});
  if(!item){toast('Välj en veckomall först.');return;}
  if(!confirm('Ta bort veckomallen '+item.name+'?'))return;
- state.weekTemplates=weekTemplates().filter(function(t){return String(t.id)!==String(id);});weekTemplateId='';persist();renderWeekTemplates();toast('Veckomall borttagen.');
+ var removed=deep(item);
+ state.weekTemplates=weekTemplates().filter(function(t){return String(t.id)!==String(removed.id);});weekTemplateId='';persist();renderWeekTemplates();offerUndo('Veckomall borttagen.',function(){
+  if(!weekTemplates().some(function(t){return String(t.id)===String(removed.id);}))weekTemplates().push(removed);
+  weekTemplateId=removed.id;persist();renderWeekTemplates();
+ });
 }
 function weekPlannerCards(){return Array.prototype.slice.call(document.querySelectorAll('#week-planner-days > .week-planner-day'));}
 function clearWeekDragTarget(){weekPlannerCards().forEach(function(card){card.classList.remove('is-drag-target');});}
@@ -1324,7 +1347,11 @@ function deleteBuilderTemplate(){
  var id=$('builder-template-select').value;if(!id){toast('Välj ett mallpass först.');return;}
  var item=builderTemplates().find(function(t){return String(t.id)===String(id);});
  if(!item||!confirm('Ta bort mallpasset '+item.name+'?'))return;
- state.templates=builderTemplates().filter(function(t){return String(t.id)!==String(id);});builderTemplateId='';persist();renderBuilderTemplates();toast('Mallpass borttaget.');
+ state.templates=builderTemplates().filter(function(t){return String(t.id)!==String(id);});builderTemplateId='';persist();renderBuilderTemplates();
+ var removed=deep(item);offerUndo('Mallpass borttaget.',function(){
+  if(!builderTemplates().some(function(t){return String(t.id)===String(removed.id);}))builderTemplates().push(removed);
+  builderTemplateId=removed.id;persist();renderBuilderTemplates();
+ });
 }
 function updateDraftFromBuilderInputs(){
  if(!$('builder').open||!draft)return;
@@ -1651,11 +1678,14 @@ function saveHistoryEditor(){
 function deleteHistoryEditor(){
  if(!historyEditId||!historyEditDraft)return;
  if(!confirm('Ta bort det sparade passet permanent? Detta påverkar även personliga rekord.'))return;
+ var removed=deep(state.history.find(function(w){return String(w.id)===String(historyEditId);}));
  state.history=state.history.filter(function(w){return String(w.id)!==String(historyEditId);});
  state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
- persist();render();
- closeHistoryEditor();
- toast('Passet togs bort · synkar med Firebase.');
+ persist();render();closeHistoryEditor();
+ offerUndo('Träningspasset togs bort.',function(){
+  if(removed&&!state.history.some(function(w){return String(w.id)===String(removed.id);}))state.history.push(removed);
+  persist();render();
+ });
 }
 function zenStepAt(elapsed){
  if(!activeZen)return {index:0,start:0,end:0,step:null};
@@ -1768,7 +1798,9 @@ function removeZenEntry(){
  if(!zenEditDraft||!zenEditId)return;
  var history=zenEditMode==='history',kind=zenEditKind;
  if(!history&&zenRoutinesFor(kind).length===1){toast('Behåll minst ett pass eller skapa ett nytt innan du tar bort detta.');return;}
- if(!confirm(history?'Ta bort denna loggpost permanent?':'Ta bort passet och dess planerade dagar? Tidigare genomförda pass behålls i loggen.'))return;
+ if(!confirm(history?'Ta bort denna loggpost?':'Ta bort passet och dess planerade dagar? Tidigare genomförda pass behålls i loggen.'))return;
+ var savedEntry=history?deep(state.zenHistory.find(function(item){return item.id===zenEditId;})):deep(zenRoutineForId(kind,zenEditId));
+ var savedPlans=history?null:deep(state.zenPlans[kind]);
  if(history){
   var old=state.zenHistory.find(function(item){return item.id===zenEditId;});
   if(old&&old.demo&&!state.zenDeletedDemoIds.includes(old.id))state.zenDeletedDemoIds.push(old.id);
@@ -1777,7 +1809,17 @@ function removeZenEntry(){
   state.zenRoutines[kind]=zenRoutinesFor(kind).filter(function(item){return item.id!==zenEditId;});
   Object.keys(state.zenPlans[kind]).forEach(function(date){if(state.zenPlans[kind][date]===zenEditId)state.zenPlans[kind][date]=null;});
  }
- persist();closeZenEditor();zenEditDraft=null;renderZen();toast(history?'Loggposten togs bort.':'Passet togs bort.');
+ persist();closeZenEditor();zenEditDraft=null;renderZen();
+ offerUndo(history?'Loggposten togs bort.':'Passet togs bort.',function(){
+  if(history){
+   if(savedEntry&&!state.zenHistory.some(function(item){return item.id===savedEntry.id;}))state.zenHistory.push(savedEntry);
+   if(savedEntry&&savedEntry.demo)state.zenDeletedDemoIds=state.zenDeletedDemoIds.filter(function(id){return id!==savedEntry.id;});
+  }else{
+   if(savedEntry&&!zenRoutinesFor(kind).some(function(item){return item.id===savedEntry.id;}))zenRoutinesFor(kind).push(savedEntry);
+   state.zenPlans[kind]=savedPlans;
+  }
+  persist();renderZen();
+ });
 }
 function openZenDay(date,routineId){
  zenDayKind=view;zenDayDate=date||dayISO(new Date());
@@ -2196,7 +2238,18 @@ document.addEventListener('click',function(event){
  if(b.dataset.mode){var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];e.sets.forEach(function(s){if(e.mode==='min'&&!s.minutes)s.minutes=5;if(e.mode==='kg'&&!s.reps)s.reps=10;});builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
  if(b.dataset.removeSet){var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
- if(b.dataset.removeExercise!=null){if(draft.exercises.length>1)draft.exercises.splice(Number(b.dataset.removeExercise),1);renderBuilder();return;}
+ if(b.dataset.removeExercise!=null){
+  var removeIndex=Number(b.dataset.removeExercise);
+  if(draft&&draft.exercises.length>1&&removeIndex>=0&&removeIndex<draft.exercises.length){
+   updateDraftFromBuilderInputs();var removedExercise=deep(draft.exercises[removeIndex]),removedDate=draft.date;
+   draft.exercises.splice(removeIndex,1);renderBuilder();
+   offerUndo('Övningen togs bort.',function(){
+    if(draft&&draft.date===removedDate){draft.exercises.splice(Math.min(removeIndex,draft.exercises.length),0,removedExercise);renderBuilder();}
+    else{var saved=state.builderDrafts[removedDate];if(saved){saved.exercises.splice(Math.min(removeIndex,saved.exercises.length),0,removedExercise);persist();render();}}
+   });
+  }
+  return;
+ }
  if(b.dataset.copyExercise!=null){copyDraftExercise(Number(b.dataset.copyExercise));return;}
  if(b.dataset.done){var at=b.dataset.done.split(':');toggleCompletedSet(Number(at[0]),Number(at[1]));return;}
  if(b.dataset.action){
