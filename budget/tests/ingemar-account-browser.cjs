@@ -185,7 +185,7 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder [data-type="Pull"]').click();
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'pull');
- assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#cef9fa');
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#CFFAFE');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-pull-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-type="Push"]').click();
@@ -213,8 +213,8 @@ async function verifyTouchDrag(page,label){
   const w=document.getElementById('family-session-frame').contentWindow;
   const scripts=Array.from(w.document.querySelectorAll('script[src]'));
   return {
-   count:scripts.length,
-   invalid:scripts.map(x=>new URL(x.src).pathname).filter(x=>!x.startsWith('/budget/exercise-')),
+   count:scripts.filter(x=>/\/exercise-[^/]+\.js$/.test(new URL(x.src).pathname)).length,
+   invalid:scripts.filter(x=>/\/exercise-[^/]+\.js$/.test(new URL(x.src).pathname)).map(x=>new URL(x.src).pathname).filter(x=>!x.startsWith('/budget/exercise-')),
    resources:w.performance.getEntriesByType('resource').filter(x=>/\/exercise-[^/]+\.js/.test(new URL(x.name).pathname)).length,
    timerController:!!w.__exerciseSessionControllerV46,
    timerNode:!!w.document.getElementById('session-pre-timer'),
@@ -222,7 +222,7 @@ async function verifyTouchDrag(page,label){
    restApi:!!w.__exerciseBetweenRoutingV7
   };
  });
- assert.equal(engineLoad.count,28,'All shared training modules must be referenced');
+ assert.ok(engineLoad.count>=28,'Canonical shared engine must load its 28 modules, including dynamic additions');
  assert.deepEqual(engineLoad.invalid,[],'Each shared import resolves from /budget/');
  assert.ok(engineLoad.resources>=28,'Training modules must actually be fetched by the browser');
  assert.equal(engineLoad.timerController,true,'Canonical timer controller must execute');
@@ -252,6 +252,8 @@ async function verifyTouchDrag(page,label){
  await frame.locator('#session-pre-timer.show').waitFor();
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
+ assert.equal(await frame.locator('#session-pretimer-toggle-v2').isVisible(),true,'5 s header control must match Markus/Maja');
+ assert.equal(await page.locator('#toast').isVisible(),false,'First 5 s countdown must not be covered by an opening toast');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
@@ -260,7 +262,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
- assert.deepEqual([snap.tone,snap.accent],['pull','#94e8eb'],'Pull should be cyan while active');
+ assert.deepEqual([snap.tone,snap.accent],['pull','#22D3EE'],'Pull must use Markus/Maja bright cyan while active');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -302,7 +304,7 @@ async function verifyTouchDrag(page,label){
  }));
  assert.equal(betweenState.flag,'exercise','Green transition must activate automatically: '+JSON.stringify(betweenState));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
- assert.equal(betweenGreen,'#34d399','Configured between-exercise rest turns green');
+ assert.equal(betweenGreen.toLowerCase(),'#34d399','Configured between-exercise rest turns green');
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
