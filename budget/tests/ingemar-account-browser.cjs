@@ -207,6 +207,28 @@ async function verifyTouchDrag(page,label){
  assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ // Regression: this iframe lives one folder below the canonical Markus/Maja
+ // engine. All shared scripts must load from /budget/, never return a 404.
+ const engineLoad=await page.evaluate(()=>{
+  const w=document.getElementById('family-session-frame').contentWindow;
+  const scripts=Array.from(w.document.querySelectorAll('script[src]'));
+  return {
+   count:scripts.length,
+   invalid:scripts.map(x=>new URL(x.src).pathname).filter(x=>!x.startsWith('/budget/exercise-')),
+   resources:w.performance.getEntriesByType('resource').filter(x=>/\/exercise-[^/]+\.js/.test(new URL(x.name).pathname)).length,
+   timerController:!!w.__exerciseSessionControllerV46,
+   timerNode:!!w.document.getElementById('session-pre-timer'),
+   headerToggle:!!w.document.getElementById('session-pretimer-toggle-v2'),
+   restApi:!!w.__exerciseBetweenRoutingV7
+  };
+ });
+ assert.equal(engineLoad.count,28,'All shared training modules must be referenced');
+ assert.deepEqual(engineLoad.invalid,[],'Each shared import resolves from /budget/');
+ assert.ok(engineLoad.resources>=28,'Training modules must actually be fetched by the browser');
+ assert.equal(engineLoad.timerController,true,'Canonical timer controller must execute');
+ assert.equal(engineLoad.timerNode,true,'Canonical 5 s timer must exist');
+ assert.equal(engineLoad.headerToggle,true,'Session header must have a 5 s toggle');
+ assert.equal(engineLoad.restApi,true,'Between-exercise controller must execute');
  const frame=page.frameLocator('#family-session-frame');
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
  const sessionSnapshot=()=>page.evaluate(()=>{
