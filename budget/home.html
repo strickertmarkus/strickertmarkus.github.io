@@ -1621,38 +1621,145 @@ function installMonthSwipe() {
   if (!grid || grid.dataset.monthSwipeBound === '1') return;
   grid.dataset.monthSwipeBound = '1';
   var gesture = null;
+  var mounted = null;
   var suppressClickUntil = 0;
 
+  function inMonthView() {
+    return !document.body.dataset.homeCalendarView ||
+      document.body.dataset.homeCalendarView === 'month';
+  }
+
+  function neighborMonth(offset) {
+    return new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1);
+  }
+
+  function setPosition(track, distance) {
+    track.style.transform = 'translate3d(calc(-100% + ' + Math.round(distance) + 'px),0,0)';
+  }
+
+  function mount() {
+    if (mounted || !grid.parentNode) return;
+    // Render the adjacent months only after a clear horizontal movement
+    // is detected. Normal taps/vertical scrolling create no extra DOM.
+    var parent = grid.parentNode;
+    var height = grid.getBoundingClientRect().height;
+    var viewport = document.createElement('div');
+    viewport.className = 'cal-month-swipe-viewport';
+    viewport.style.height = Math.ceil(height) + 'px';
+    var track = document.createElement('div');
+    track.className = 'cal-month-swipe-track';
+    var prev = document.createElement('div');
+    var next = document.createElement('div');
+    prev.className = 'cal-grid cal-month-swipe-preview';
+    next.className = 'cal-grid cal-month-swipe-preview';
+    prev.setAttribute('aria-hidden','true');
+    next.setAttribute('aria-hidden','true');
+    var p = neighborMonth(-1), n = neighborMonth(1);
+    populateMonthGrid(prev, p.getFullYear(), p.getMonth(), false);
+    populateMonthGrid(next, n.getFullYear(), n.getMonth(), false);
+    parent.insertBefore(viewport, grid);
+    viewport.appendChild(track);
+    track.appendChild(prev);
+    track.appendChild(grid);
+    track.appendChild(next);
+    mounted = { viewport:viewport, track:track };
+    setPosition(track, 0);
+  }
+
+  function restore(going) {
+    var m = mounted;
+    if (!m) return;
+    mounted = null;
+    if (m.viewport.parentNode) {
+      m.viewport.parentNode.insertBefore(grid, m.viewport);
+      m.viewport.remove();
+    }
+    if (going) changeMonth(going);
+  }
+
+  function settle(direction) {
+    if (!mounted) {
+      if (direction) changeMonth(direction);
+      return;
+    }
+    var m = mounted;
+    var done = false;
+    var fallback;
+    function finish() {
+      if (done) return;
+      done = true;
+      clearTimeout(fallback);
+      restore(direction);
+    }
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (_) {}
+    if (reduced) { finish(); return; }
+    var w = m.viewport.clientWidth;
+    m.track.style.transition = 'transform 220ms cubic-bezier(.22,.72,.19,1)';
+    setPosition(m.track, direction ? -direction * w : 0);
+    m.track.addEventListener('transitionend', function(e) {
+      if (e.target === m.track && e.propertyName === 'transform') finish();
+    });
+    fallback = setTimeout(finish, 290);
+  }
+
   grid.addEventListener('touchstart', function(event) {
-    gesture = null;
-    if (event.touches.length !== 1 ||
-        (document.body.dataset.homeCalendarView && document.body.dataset.homeCalendarView !== 'month')) return;
-    var touch = event.touches[0];
-    gesture = { x:touch.clientX, y:touch.clientY, id:touch.identifier };
+    if (mounted || !inMonthView() || event.touches.length !== 1) {
+      gesture = null;
+      return;
+    }
+    var t = event.touches[0];
+    gesture = { x:t.clientX, y:t.clientY, id:t.identifier, axis:null, dx:0 };
   }, { passive:true });
+
+  grid.addEventListener('touchmove', function(event) {
+    if (!gesture || event.touches.length !== 1 || !inMonthView()) return;
+    var t = event.touches[0];
+    if (t.identifier !== gesture.id) return;
+    var dx = t.clientX - gesture.x, dy = t.clientY - gesture.y;
+    if (gesture.axis === null && Math.max(Math.abs(dx),Math.abs(dy)) > 9) {
+      gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.3 ? 'x' : 'y';
+    }
+    if (gesture.axis !== 'x') return; // native vertical page scroll
+    if (event.cancelable) event.preventDefault();
+    suppressClickUntil = Date.now() + 400;
+    gesture.dx = dx;
+    mount();
+    if (mounted) {
+      // Small resistance at the edges, keeping the preview aligned to the finger.
+      var max = mounted.viewport.clientWidth;
+      setPosition(mounted.track, Math.max(-max,Math.min(max,dx)));
+    }
+  }, { passive:false });
 
   grid.addEventListener('touchend', function(event) {
     if (!gesture) return;
-    var start = gesture;
+    var g = gesture;
     gesture = null;
-    if (event.touches.length || !event.changedTouches.length ||
-        (document.body.dataset.homeCalendarView && document.body.dataset.homeCalendarView !== 'month')) return;
-    var touch = Array.prototype.find.call(event.changedTouches, function(t) {
-      return t.identifier === start.id;
-    });
-    if (!touch) return;
-    var dx = touch.clientX - start.x;
-    var dy = touch.clientY - start.y;
-    var threshold = Math.max(44, Math.min(65, grid.clientWidth * .13));
-    if (Math.abs(dx) < threshold || Math.abs(dx) <= Math.abs(dy) * 1.35) return;
-    // Suppress the synthetic click following a completed swipe to avoid
-    // unintentionally selecting a day in the new month.
-    suppressClickUntil = Date.now() + 350;
+    if (g.axis !== 'x') return;
+    suppressClickUntil = Date.now() + 400;
     if (event.cancelable) event.preventDefault();
-    changeMonth(dx < 0 ? 1 : -1);
+    if (!event.changedTouches.length || event.touches.length) {
+      settle(0);
+      return;
+    }
+    var t = Array.prototype.find.call(event.changedTouches, function(touch) {
+      return touch.identifier === g.id;
+    });
+    if (!t) { settle(0); return; }
+    var dx = t.clientX - g.x, dy = t.clientY - g.y;
+    var width = (mounted && mounted.viewport.clientWidth) || grid.clientWidth;
+    var threshold = Math.max(44,Math.min(65,width*.13));
+    var direction = Math.abs(dx) >= threshold && Math.abs(dx) > Math.abs(dy)*1.3
+      ? (dx < 0 ? 1 : -1) : 0;
+    settle(direction);
   }, { passive:false });
 
-  grid.addEventListener('touchcancel', function() { gesture = null; }, { passive:true });
+  grid.addEventListener('touchcancel', function() {
+    gesture = null;
+    settle(0);
+  }, { passive:true });
+
   grid.addEventListener('click', function(event) {
     if (Date.now() < suppressClickUntil) {
       event.preventDefault();
