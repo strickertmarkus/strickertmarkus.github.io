@@ -201,7 +201,6 @@
     .cal-event-preview { display:flex;flex-direction:column;gap:2px;min-width:0;width:100%;margin-top:auto;padding-top:3px; }
     .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
-    .cal-event-preview-more-mobile { display:none; }
     .cal-short-title-field { margin-top:-3px; }
     .cal-short-title-field .cal-short-title-optional { color:var(--text-sec);font-weight:400;text-transform:none;letter-spacing:0; }
     .cal-short-title-field small { display:block;margin-top:5px;font-size:10px;line-height:1.4;color:var(--text-sec); }
@@ -896,13 +895,12 @@
       .cal-event-preview { gap:2px; padding-top:0; margin-top:auto; }
       .cal-event-preview-title { height:14px;line-height:12px;font-size:9px;padding:1px 2px 1px 3px; }
       .cal-event-preview-title:nth-child(2) { display:block; }
-      .cal-event-preview-more,.cal-event-preview-more-mobile { display:none; }
+      .cal-event-preview-more { display:none; }
     }
     /* On larger cells the standard "+N" can appear below the two titles. */
     @container (min-width:470px) {
       .cal-cell .cal-event-preview-title:nth-child(2) { display:block; }
       .cal-cell .cal-event-preview-more { display:block; }
-      .cal-cell .cal-event-preview-more-mobile { display:none; }
       .cal-cell .cal-cell-extra { display:none; }
     }
   </style>
