@@ -236,6 +236,18 @@ async function verifyTouchDrag(page,label){
   const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
   return data.history.length===1 && !data.prs?.hantelpress && data.prs?.['bänkpress']?.weight===47.5;
  });
+ assert.equal(await page.locator('[data-action="undo-delete"]').isVisible(),true,'Deleting a workout must offer Undo');
+ await page.locator('[data-action="undo-delete"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.history.some(w=>w.name==='Nyregistrerat styrkepass')&&data.prs?.['hantelpress']?.weight===24;
+ });
+ await page.screenshot({path:'test-results/ingemar-private/undo-history-webkit.png'});
+ await page.locator('[data-history="'+newId+'"]').click();
+ await page.locator('[data-action="edit-history"]').click();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-action="log-delete"]').click();
+ await page.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).history.length===1);
  await page.setViewportSize({width:320,height:740});
  await page.locator('[data-history="test-real-session"]').click();
  await page.locator('[data-action="edit-history"]').click();
