@@ -507,6 +507,63 @@
     /* iOS Safari zooms focused fields below 16px. This session runs inside
        its own iframe, so the parent dialog rules do not apply here. */
     input:not([type=checkbox]),select,textarea{font-size:16px!important;min-width:0;max-width:100%}
+    /* Ingemar: exercise-level color is presentation only. Shared timers, transitions
+       and completion state remain owned by the existing session runtime. */
+    #session-modal[data-ingemar-tone="push"]{--ingemar-tone:#e65c66;--ingemar-tone-soft:#f29ba1;--ingemar-tone-rgb:230,92,102}
+    #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#94e8eb;--ingemar-tone-soft:#cef9fa;--ingemar-tone-rgb:148,232,235}
+    #session-modal[data-ingemar-tone="cardio"]{--ingemar-tone:#ffbd82;--ingemar-tone-soft:#ffe0c2;--ingemar-tone-rgb:255,189,130}
+    /* More specific than the older intro/ready/between-set theme rules,
+       which intentionally use !important for the other family profiles. */
+    #session-modal[data-ingemar-tone],
+    html.exercise-concept-pulse-home-v1[data-ingemar-session-tone] body #session-modal.pulse-flow-v58[data-ingemar-tone]{
+      --accent:var(--ingemar-tone)!important;
+      --accent-rgb:var(--ingemar-tone-rgb)!important;
+      --accent-dim:rgba(var(--ingemar-tone-rgb),.13)!important;
+      --accent-glow:rgba(var(--ingemar-tone-rgb),.30)!important;
+      --border-a:rgba(var(--ingemar-tone-rgb),.36)!important;
+      --pf-accent:var(--ingemar-tone)!important;
+      --pf-soft:var(--ingemar-tone-soft)!important;
+      --pf-rgb:var(--ingemar-tone-rgb)!important;
+    }
+    #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode),
+    #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode){
+      --accent:var(--ingemar-tone)!important;
+      --accent-rgb:var(--ingemar-tone-rgb)!important;
+      --accent-dim:rgba(var(--ingemar-tone-rgb),.13)!important;
+      --accent-glow:rgba(var(--ingemar-tone-rgb),.30)!important;
+      --border-a:rgba(var(--ingemar-tone-rgb),.36)!important;
+      background:rgba(8,12,20,.96)!important;
+    }
+    #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .session-card,
+    #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode) .session-card{
+      background:rgba(var(--ingemar-tone-rgb),.065)!important;
+      border-color:rgba(var(--ingemar-tone-rgb),.25)!important;
+      box-shadow:0 0 30px rgba(var(--ingemar-tone-rgb),.035)!important;
+    }
+    #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .timer-box,
+    #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode) .timer-box{
+      background:rgba(var(--ingemar-tone-rgb),.10)!important;
+      border-color:rgba(var(--ingemar-tone-rgb),.35)!important;
+    }
+    #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .session-top{
+      border-bottom-color:rgba(var(--ingemar-tone-rgb),.21)!important;
+    }
+    #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .session-cta.primary,
+    #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode) #session-controls .session-cta.primary{
+      background:linear-gradient(115deg,var(--ingemar-tone),var(--ingemar-tone-soft))!important;
+      border-color:transparent!important;
+      color:#0a1018!important;
+      box-shadow:0 9px 28px rgba(var(--ingemar-tone-rgb),.23)!important;
+    }
+    html[data-ingemar-session-tone="push"] #session-between-overlay-v2.pulse-flow-rest-v58{
+      --pf-accent:#e65c66!important;--pf-soft:#f29ba1!important;--pf-rgb:230,92,102!important;
+    }
+    html[data-ingemar-session-tone="pull"] #session-between-overlay-v2.pulse-flow-rest-v58{
+      --pf-accent:#94e8eb!important;--pf-soft:#cef9fa!important;--pf-rgb:148,232,235!important;
+    }
+    html[data-ingemar-session-tone="cardio"] #session-between-overlay-v2.pulse-flow-rest-v58{
+      --pf-accent:#ffbd82!important;--pf-soft:#ffe0c2!important;--pf-rgb:255,189,130!important;
+    }
   </style>
 <style>html,body{margin:0;min-height:100%;background:#080D14}body{overflow:hidden}#toast[hidden]{display:none!important}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483600;padding:10px 16px;border:1px solid rgba(103,232,249,.25);border-radius:999px;background:#0a1119;color:#cffafe;font:600 12px Inter,sans-serif;box-shadow:0 10px 35px #0008}</style>
 </head>
@@ -625,8 +682,17 @@ function updateSessionTimers(){
   if(setEl)setEl.textContent=fmtSec(setSec);
 }
 
+function syncIngemarSessionTone(){
+  var modal=document.getElementById('session-modal');
+  if(!modal||!sessionState)return;
+  var current=sessionState.exercises[sessionState.exerciseIndex]||null;
+  var tone=current?(current.kind==='cardio'?'cardio':sessionState.type==='Pull'?'pull':sessionState.type==='Push'?'push':'cardio'):'';
+  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
+  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
+}
 function renderSessionMode(){
   if(!sessionState)return;
+  syncIngemarSessionTone();
   var doneAll=sessionState.exerciseIndex>=sessionState.exercises.length;
   var subtitle=document.getElementById('session-subtitle');
   subtitle.textContent=fmtDate(sessionState.date)+' - '+sessionState.type;
@@ -770,6 +836,9 @@ function stopSessionMode(confirmClose){
   }
   stopSessionTimerLoop();
   sessionState=null;
+  var modal=document.getElementById('session-modal');
+  if(modal)delete modal.dataset.ingemarTone;
+  delete document.documentElement.dataset.ingemarSessionTone;
   closeModal('session-modal');
 }
 

@@ -169,13 +169,53 @@ async function verifyTouchDrag(page,label){
  assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
  assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).plans).length),0,'Preview must not save the plan');
  assert.match(await page.locator('#plan-preview-list').textContent(),/Bänkpress/);
+ assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'push','Push preview must use red palette');
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#f29ba1');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
+ // Use the real builder mode toggle: a timed exercise in Push gets an orange row.
+ await page.locator('#builder [data-mode="0:min"]').click();
+ await page.locator('#builder-start-from-builder').click();
+ assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'push');
+ assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').count(),1);
+ assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(255, 224, 194)');
+ await page.screenshot({path:'test-results/ingemar-private/plan-preview-mixed-cardio-390.png'});
+ await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
+ await page.locator('#builder [data-mode="0:kg"]').click();
+ await page.locator('#builder [data-type="Pull"]').click();
+ await page.locator('#builder-start-from-builder').click();
+ assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'pull');
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#cef9fa');
+ await page.screenshot({path:'test-results/ingemar-private/plan-preview-pull-390.png'});
+ await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
+ await page.locator('#builder [data-type="Push"]').click();
  assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
  await page.locator('#builder-start-from-builder').click();
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
+ const sessionTheme=()=>page.evaluate(()=>{
+  const win=document.getElementById('family-session-frame').contentWindow;
+  const modal=win.document.getElementById('session-modal');
+  const css=win.getComputedStyle(modal);
+  return {tone:modal.dataset.ingemarTone,restTone:win.document.documentElement.dataset.ingemarSessionTone,
+   accent:css.getPropertyValue('--pf-accent').trim(),rgb:css.getPropertyValue('--pf-rgb').trim(),
+   type:win.sessionState.type,kind:win.sessionState.exercises[win.sessionState.exerciseIndex]?.kind,
+   overflow:win.document.documentElement.scrollWidth>win.innerWidth+1};
+ });
+ let theme=await sessionTheme();
+ assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type,theme.overflow],['push','#e65c66','230,92,102','Push',false]);
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
+ theme=await sessionTheme();
+ assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type],['pull','#94e8eb','148,232,235','Pull'],'Pull changes visuals without restarting timer');
+ await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
+ theme=await sessionTheme();
+ assert.deepEqual([theme.tone,theme.accent,theme.rgb,theme.type,theme.kind],['cardio','#ffbd82','255,189,130','Pull','cardio'],'Intermediate cardio is orange, workout remains Pull');
+ await page.screenshot({path:'test-results/ingemar-private/session-intermediate-cardio-orange-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.renderSessionMode();});
+ assert.equal((await sessionTheme()).tone,'pull','Theme returns to Pull after cardio');
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
  // Use the real session bridge/save handler and verify that logged set weights become PRs.
