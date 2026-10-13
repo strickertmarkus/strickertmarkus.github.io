@@ -185,7 +185,7 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder [data-type="Pull"]').click();
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'pull');
- assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#cef9fa');
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#CFFAFE');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-pull-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-type="Push"]').click();
@@ -206,8 +206,12 @@ async function verifyTouchDrag(page,label){
  assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 4 s/);
  assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
- await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ await page.waitForFunction(()=>{
+  const iframe=document.getElementById('family-session-frame');
+  return iframe.contentWindow?.sessionState&&iframe.getAttribute('aria-busy')===null&&!pendingFamilySession;
+ },null,{timeout:14000});
  const frame=page.frameLocator('#family-session-frame');
+ assert.equal(await page.locator('#family-session-frame').isVisible(),true,'Started iframe is visible after acknowledgement');
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
  const sessionSnapshot=()=>page.evaluate(()=>{
   const w=document.getElementById('family-session-frame').contentWindow,modal=w.document.getElementById('session-modal'),css=w.getComputedStyle(modal);
@@ -238,7 +242,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
- assert.deepEqual([snap.tone,snap.accent],['pull','#94e8eb'],'Pull should be cyan while active');
+ assert.deepEqual([snap.tone,snap.accent],['pull','#67E8F9'],'Pull must match the shared Markus/Maja blue rest tone');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -284,6 +288,20 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
+ // Reopen the same saved pass multiple times through the visible Start action.
+ // The parent must wait for an acknowledgement and not drop a start message.
+ for(let cycle=0;cycle<3;cycle++){
+  await page.locator('[data-action="start"]').click();
+  await page.waitForFunction(()=>{
+   const iframe=document.getElementById('family-session-frame');
+   return !iframe.hidden&&!iframe.hasAttribute('aria-busy')&&familySessionOpen&&!pendingFamilySession
+      &&!!iframe.contentWindow?.sessionState&&iframe.contentDocument?.getElementById('session-modal')?.classList.contains('show');
+  },null,{timeout:14000});
+  assert.equal(await page.evaluate(()=>familySessionAttempt),0,'Start attempt count resets after successful acknowledgement');
+  if(cycle===1)await page.screenshot({path:'test-results/ingemar-private/session-reopened-iphone-390.png'});
+  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
+  await page.waitForSelector('#family-session-frame',{state:'hidden'});
+ }
  // Use the real session bridge/save handler and verify that logged set weights become PRs.
  await page.evaluate(()=>{
   const frame=document.getElementById('family-session-frame');
