@@ -30,7 +30,7 @@ Export includes deleted records, referenced files and covers. Import uses new re
 
 ## Shared access
 
-The workflow runs `scripts/travel-access.cjs` using the existing repository Firebase credential. If `family_travel_v1` lacks rules, it installs only that branch using the existing authenticated `family_todos_v2` read/write policy, preserving other branches. Existing travel access is preserved. No family data or credentials are printed. Missing credentials/policy fail verification instead of claiming cloud sync works.
+The workflow runs `scripts/travel-access.cjs` using the existing repository Firebase credential. If `family_travel_v1` or `family_todos_v2` lacks rules, it installs authenticated read/write rules using the existing shared task policy or the authenticated recipe policy. Existing branches are preserved. Limited authenticated probes read and null-write unique nonexistent paths; no sample records are created. No family data or credentials are printed. Missing credentials/policy fail verification instead of claiming cloud sync works.
 
 ## Verification
 
