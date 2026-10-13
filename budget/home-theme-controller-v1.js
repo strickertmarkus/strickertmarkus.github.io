@@ -378,8 +378,7 @@
         background:rgba(var(--home-view-rgb),.11) !important;
         border-color:rgba(var(--home-view-rgb),.34) !important;
       }
-      html[data-home-surface-theme="true"] body .flatpickr-calendar,
-      html[data-home-surface-theme="true"] body .home-day-popover {
+      html[data-home-surface-theme="true"] body .flatpickr-calendar {
         background:
           radial-gradient(480px 170px at 50% 0,rgba(var(--home-view-rgb),.10),transparent 72%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
@@ -396,8 +395,7 @@
         border-bottom-color:rgba(96,165,250,.24) !important;
       }
       html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 #event-modal .modal,
-      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .flatpickr-calendar,
-      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .home-day-popover {
+      html.home-finance-orange-v3[data-home-surface-theme="true"] body.home-calendar-polish-v5 .flatpickr-calendar {
         background:
           radial-gradient(560px 190px at 50% -30px,rgba(96,165,250,.13),transparent 70%),
           linear-gradient(180deg,var(--home-theme-strong),var(--home-theme-page)) !important;
@@ -486,18 +484,16 @@
         .home-color-wheel-v1::after { inset:8px; }
       }
 
+      /* Flat calendar preview in every color/surface mode.
+         Keep glass treatments for overlays that are not calendar previews. */
       html body .home-day-popover {
-        background:
-          linear-gradient(180deg,rgba(var(--home-view-rgb),.05),rgba(var(--home-view-rgb),.014)),
-          rgba(15,18,25,.985) !important;
-        border-color:rgba(var(--home-view-rgb),.26) !important;
-        border-radius:10px !important;
-        box-shadow:0 8px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
-      }
-      html[data-home-surface-theme="true"] body .home-day-popover {
-        background:
-          linear-gradient(180deg,rgba(var(--home-view-rgb),.065),rgba(var(--home-view-rgb),.018)),
-          var(--home-theme-page) !important;
+        background:var(--home-theme-panel,#171C24) !important;
+        background-image:none !important;
+        border-color:rgba(var(--home-view-rgb),.23) !important;
+        border-radius:12px !important;
+        box-shadow:0 12px 28px rgba(0,0,0,.33) !important;
+        backdrop-filter:none !important;
+        -webkit-backdrop-filter:none !important;
       }
       html body .home-day-popover-week,
       html body .day-panel-week {
