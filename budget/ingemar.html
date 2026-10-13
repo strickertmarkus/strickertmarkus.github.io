@@ -166,7 +166,7 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-2">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
 <style id="ingemar-log-editor-styles">
 /* Training log controls share the existing Ingemar dialog design and field sizes. */
@@ -2349,8 +2349,9 @@ function zenImmersionFrame(position,stepFraction,passFraction,breathLevel,breath
   }
   var horizon=$('zen-lake-horizon-progress');
   if(horizon)horizon.style.strokeDashoffset=String(900*(1-passFraction));
-  setText('zen-immersion-breath',done?'STUNDEN ÄR KLAR':!activeZen.running?'PAUSAD':breath);
-  setText('zen-immersion-time',fmtSeconds(Math.ceil(Math.max(0,position.end-activeZen.elapsed))));
+  var preparing=activeZen.running&&activeZen.preparingUntil>Date.now();
+  setText('zen-immersion-breath',done?'STUNDEN ÄR KLAR':preparing?'GÖR DIG REDO':!activeZen.running?'PAUSAD':breath);
+  setText('zen-immersion-time',preparing?String(Math.ceil((activeZen.preparingUntil-Date.now())/1000)):fmtSeconds(Math.ceil(Math.max(0,position.end-activeZen.elapsed))));
  }else{
   session.style.setProperty('--zen-forest-camera',(-20*passFraction).toFixed(2)+'px');
   var route=$('zen-forest-route'),progress=$('zen-forest-progress'),traveller=$('zen-forest-traveller');
@@ -2465,7 +2466,7 @@ function selectZenStep(index){
  activeZen.last=Date.now();activeZen.preparingUntil=0;activeZen.shownStage=-1;
  renderZenSession();
 }
-function finishZen(){if(!activeZen||$('zen-complete').open)return;zenTick();activeZen.running=false;stopZenTimer();stopZenBreathSound(.18);setText('zen-complete-summary',activeZen.name+' · '+(Math.round(activeZen.elapsed/6)/10).toLocaleString('sv-SE')+' min');$('zen-complete-notes').value='';$('zen-complete').querySelectorAll('[name="zen-feeling"]').forEach(function(el){el.checked=false;});$('zen-complete').showModal();}
+function finishZen(){if(!activeZen||$('zen-complete').open)return;zenTick();activeZen.running=false;stopZenTimer();stopZenBreathSound(.18);setText('zen-complete-summary',activeZen.name+' · '+(activeZen.elapsed<60?Math.max(1,Math.round(activeZen.elapsed))+' s':(Math.round(activeZen.elapsed/6)/10).toLocaleString('sv-SE')+' min'));$('zen-complete-notes').value='';$('zen-complete').querySelectorAll('[name="zen-feeling"]').forEach(function(el){el.checked=false;});$('zen-complete').showModal();}
 function saveZenComplete(){if(!activeZen)return;var seconds=Math.max(1,Math.round(activeZen.elapsed)),feeling=$('zen-complete').querySelector('[name="zen-feeling"]:checked');var item={id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:Math.max(1,Math.ceil(seconds/60)),elapsedSeconds:seconds,steps:deep(activeZen.steps),notes:$('zen-complete-notes').value.trim(),feeling:feeling?feeling.value:''};state.zenHistory.push(item);if(!persist()){state.zenHistory.pop();return;}$('zen-complete').close();stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();render();toast('Stunden sparades i Ingemars profil.');}
 function discardZenComplete(){if(!activeZen||!confirm('Lämna utan att spara stunden?'))return;$('zen-complete').close();stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();}
 document.addEventListener('click',function(event){

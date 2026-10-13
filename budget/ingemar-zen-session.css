@@ -57,8 +57,8 @@
 #zen-session[data-kind=stretch] .zen-audio-control,#zen-session[data-kind=stretch] .zen-guidance-toggle{display:none}
 #zen-session[data-kind=meditation] .zen-forest-route-art,#zen-session[data-kind=meditation] .zen-stage-list{display:none}
 #zen-session[data-kind=meditation] .zen-clock-wrap{--clock-size:clamp(120px,18dvh,170px)}
+#zen-session[data-kind=meditation] .zen-lake-sun{filter:drop-shadow(0 0 24px #fff1b2c0) drop-shadow(0 0 55px #f3db9188)}
 #zen-session[data-kind=meditation] h1{font-size:clamp(29px,4vw,42px)}
-#zen-session[data-kind=meditation] .zen-lake-landscape .zen-lake-time,#zen-session[data-kind=meditation] .zen-lake-landscape .zen-lake-breath-guide{display:none}
 .zen-editor-session-options{padding:10px;border:1px solid #ffffff16;border-radius:13px;margin:8px 0 14px;display:grid;gap:9px}
 .zen-editor-session-options label{min-width:0;color:#b8c8b9;font-size:11px;display:block}
 .zen-editor-session-options .zen-prep-option{display:flex;align-items:center;gap:8px}
