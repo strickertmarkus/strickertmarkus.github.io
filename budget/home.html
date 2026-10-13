@@ -135,7 +135,9 @@
     .home-cal-holidays-toggle input:focus-visible + .home-cal-holidays-switch { outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px; }
     .home-cal-holidays-toggle:has(input:checked) > span:last-child { color:var(--home-view-accent-soft,#FDBA74);text-shadow:0 0 8px rgba(var(--home-view-rgb,253,186,116),.20); }
     @media(prefers-reduced-motion:reduce){ .home-cal-holidays-switch,.home-cal-holidays-switch::before { transition:none; } }
-    .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0; }
+    .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:2px;min-width:0; }
+    .cal-num-right { display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;min-width:0; }
+    .cal-cell-extra { display:none;color:#B8C2CF;font-size:9px;font-weight:800;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums; }
     /* Traditions use bright teal, distinct from the coral official holidays. */
     .cal-holiday-mark { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#2DD4BF;box-shadow:0 0 8px rgba(45,212,191,.43); }
     .cal-cell.swedish-holiday-official .cal-holiday-mark { background:#F28B90;box-shadow:0 0 8px rgba(242,139,144,.38); }
@@ -877,26 +879,31 @@
         margin-bottom: 16px;
       }
     }
-    /* All dates have the SAME square geometry. On mobile the calendar
-       may use 8px of its surrounding gutter on each side, but never
-       grows any individual day according to its event count. */
+    /* A little more room for the entire month on phones:
+       almost full-bleed horizontally, and all 7 day columns share the
+       SAME cell proportions regardless of how many events they contain. */
     @media (max-width: 600px) {
-      .cal-section { margin-left:-8px; margin-right:-8px; }
+      .cal-section { margin-left:-14px; margin-right:-14px; }
       .cal-grid { gap:2px; grid-auto-rows:auto; container-type:inline-size; }
-      .cal-cell, .cal-cell.has-events { aspect-ratio:1 / 1; height:auto; min-height:0; min-width:0; padding:4px 3px; border-radius:8px; }
+      .cal-cell, .cal-cell.has-events {
+        box-sizing:border-box; aspect-ratio:1 / 1.16; height:auto;
+        min-height:0; min-width:0; padding:4px 3px; border-radius:8px;
+      }
       .cal-num { line-height:1.1; margin-bottom:0; }
-      .cal-event-preview { gap:1px; padding-top:0; }
-      .cal-event-preview-title { height:13px;line-height:11px;font-size:9px;padding:1px 2px 1px 3px; }
-      .cal-event-preview-title:nth-child(n+2) { display:none; }
-      .cal-event-preview-more { display:none; }
-      .cal-event-preview-more-mobile { display:block;color:#B8C2CF;font-size:9px;font-weight:800;line-height:9px;min-height:9px;padding-left:2px; }
+      .cal-num-row { gap:1px; }
+      .cal-num-right { gap:2px; }
+      .cal-cell-extra { display:inline-block; }
+      .cal-event-preview { gap:2px; padding-top:0; margin-top:auto; }
+      .cal-event-preview-title { height:14px;line-height:12px;font-size:9px;padding:1px 2px 1px 3px; }
+      .cal-event-preview-title:nth-child(2) { display:block; }
+      .cal-event-preview-more,.cal-event-preview-more-mobile { display:none; }
     }
-    /* A container query uses the calendar's actual usable width, rather
-       than phone model or viewport breakpoint. */
+    /* On larger cells the standard "+N" can appear below the two titles. */
     @container (min-width:470px) {
       .cal-cell .cal-event-preview-title:nth-child(2) { display:block; }
       .cal-cell .cal-event-preview-more { display:block; }
       .cal-cell .cal-event-preview-more-mobile { display:none; }
+      .cal-cell .cal-cell-extra { display:none; }
     }
   </style>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
@@ -1460,8 +1467,9 @@ function renderMonth() {
     cell.tabIndex = 0;
     cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
 
-    var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div>' +
-      (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') + '</div>';
+    var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div><span class="cal-num-right">' +
+      (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') +
+      (dayEvs.length > 2 ? '<span class="cal-cell-extra" aria-hidden="true">+' + (dayEvs.length - 2) + '</span>' : '') + '</span></div>';
     if (dayEvs.length) {
       // Render two compact labels instead of a truncated single-character title.
       // Do not include the separate event emoji in these narrow month cells.
@@ -1473,7 +1481,6 @@ function renderMonth() {
       }).join('');
       html += '<div class="cal-event-preview" aria-hidden="true">' + previewRows +
         (dayEvs.length > 2 ? '<span class="cal-event-preview-more">+' + (dayEvs.length - 2) + ' till</span>' : '') +
-        (dayEvs.length > 1 ? '<span class="cal-event-preview-more-mobile">+' + (dayEvs.length - 1) + ' till</span>' : '') +
         '</div>';
       cell.title = dayEvs.length + (dayEvs.length === 1 ? ' händelse' : ' händelser') +
         ': ' + dayEvs.map(function(ev) { return ev.title || 'Händelse'; }).join(', ');
