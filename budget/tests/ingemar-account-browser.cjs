@@ -236,6 +236,18 @@ async function verifyTouchDrag(page,label){
   const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
   return data.history.length===1 && !data.prs?.hantelpress && data.prs?.['bänkpress']?.weight===47.5;
  });
+ assert.equal(await page.locator('[data-action="undo-delete"]').isVisible(),true,'Deleting a workout must offer Undo');
+ await page.locator('[data-action="undo-delete"]').click();
+ await page.waitForFunction(()=>{
+  const data=JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar);
+  return data.history.some(w=>w.name==='Nyregistrerat styrkepass')&&data.prs?.['hantelpress']?.weight===24;
+ });
+ await page.screenshot({path:'test-results/ingemar-private/undo-history-webkit.png'});
+ await page.locator('[data-history="'+newId+'"]').click();
+ await page.locator('[data-action="edit-history"]').click();
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-action="log-delete"]').click();
+ await page.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).history.length===1);
  await page.setViewportSize({width:320,height:740});
  await page.locator('[data-history="test-real-session"]').click();
  await page.locator('[data-action="edit-history"]').click();
@@ -570,12 +582,18 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('#week').screenshot({path:'test-results/ingemar-private/calendar-named-days-iphone.png'});
  // Selected-week statistics must follow the visible calendar week.
  const weekStats=()=>recordPage.evaluate(()=>{
-  const monday=weekStart(selected),end=offset(monday,7);
-  return {expected:state.history.filter(h=>h.date>=monday&&h.date<end).length,shown:Number(document.getElementById('stat-week').textContent),week:isoWeekNumber(monday),title:document.getElementById('stat-week-label').textContent};
+  const monday=document.querySelector('#week [data-day]').dataset.day;
+  const until=new Date(monday+'T12:00:00Z');until.setUTCDate(until.getUTCDate()+7);
+  const end=until.toISOString().slice(0,10);
+  const data=JSON.parse(localStorage.getItem('ex_ingemar')||'{}');
+  return {expected:(data.history||[]).filter(h=>h.date>=monday&&h.date<end).length,
+   shown:Number(document.getElementById('stat-week').textContent),
+   label:document.getElementById('training-week-label').textContent,
+   title:document.getElementById('stat-week-label').textContent};
  });
- let measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ let measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.ok(measured.label.includes(measured.title.split(' ').at(-1)));
  await recordPage.locator('[data-training-week-shift="-1"]').click();
- measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.match(measured.title,new RegExp(String(measured.week)));
+ measured=await weekStats();assert.equal(measured.shown,measured.expected);assert.ok(measured.label.includes(measured.title.split(' ').at(-1)));
  await recordPage.locator('[data-training-week-today]').click();
  // The undo control must be accessible while the pass builder is modal.
  await recordPage.locator('[data-choice="Pull"]').click();

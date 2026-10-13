@@ -353,7 +353,7 @@ test('Week planner keeps named drafts, protects last exercise and ignores cancel
   toast:s=>notices.push(s),builderTemplates:()=>[{id:'tpl',...plan('Kondition','Mallens namn')}],
   deep:x=>JSON.parse(JSON.stringify(x)),
   document:{documentElement:{classList:{remove(){}}},removeEventListener(){}},
-  clearWeekDragTarget(){},swapCalls:0
+  clearWeekDragTarget(){},moveWeekDrag(){},swapCalls:0
  };
  vm.runInNewContext(['setWeekDayType','toggleWeekExercise','applyWeekDayTemplate','swapWeekDays','endWeekDrag'].map(functionText).join('\n'),ctx);
  ctx.setWeekDayType(0,'Pull');
