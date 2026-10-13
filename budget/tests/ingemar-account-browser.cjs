@@ -271,6 +271,12 @@ async function verifyTouchDrag(page,label){
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
  assert.deepEqual([snap.tone,snap.accent],['pull','#22D3EE'],'Pull must use Markus/Maja bright cyan while active');
+ // The canonical toggle animates its color for 180ms; do not sample the
+ // previous Push red on the same animation frame as the Pull switch.
+ await page.waitForFunction(()=>{
+  const el=document.getElementById('family-session-frame')?.contentDocument?.getElementById('session-pretimer-toggle-v2');
+  return el&&getComputedStyle(el).color==='rgb(207, 250, 254)';
+ },null,{timeout:2000});
  const toggleColor=await frame.locator('#session-pretimer-toggle-v2').evaluate(el=>getComputedStyle(el).color);
  assert.equal(toggleColor,'rgb(207, 250, 254)','Pull 5s toggle must match the original cyan/blue palette');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
