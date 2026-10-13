@@ -84,7 +84,13 @@ async function verifyTouchDrag(page,label){
  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Firebase isolated test double installed by Playwright'}));
  await context.route('https://fonts.googleapis.com/**',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
  await context.route('https://fonts.gstatic.com/**',r=>r.abort());
- const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await context.newPage(),errors=[],missingSharedAssets=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('response',response=>{
+  if(response.status()!==404)return;
+  const pathname=new URL(response.url()).pathname;
+  if(/\/budget\/(?:ingemar-session\/)?exercise-[^/]+\.js$/.test(pathname))missingSharedAssets.push(pathname);
+ });
  fs.mkdirSync('test-results/ingemar-private',{recursive:true});
  await page.goto('http://127.0.0.1:4173/budget/ingemar-preview.html',{waitUntil:'domcontentloaded'});
  await page.waitForURL('**/budget/ingemar.html');
@@ -178,14 +184,14 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'push');
  assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').count(),1);
- assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(255, 224, 194)');
+ assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(254, 215, 170)');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-mixed-cardio-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-mode="0:kg"]').click();
  await page.locator('#builder [data-type="Pull"]').click();
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'pull');
- assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#cef9fa');
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#CFFAFE');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-pull-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
  await page.locator('#builder [data-type="Push"]').click();
@@ -197,16 +203,39 @@ async function verifyTouchDrag(page,label){
  await page.locator('#builder-pre-timer-toggle').click();
  await page.locator('#builder [data-between-toggle="global"]').click();
  await page.locator('#builder-between-type').selectOption('rest');
- await page.locator('#builder-between-seconds').fill('4');
+ await page.locator('#builder-between-seconds').fill('18');
  await page.locator('#builder [data-between-toggle="0"]').click();
  await page.locator('#builder [data-between-edit="0:type"]').selectOption('rest');
  await page.locator('#builder [data-between-edit="0:seconds"]').fill('3');
  await page.screenshot({path:'test-results/ingemar-private/builder-between-settings-iphone.png'});
  await page.locator('#builder-start-from-builder').click();
- assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 4 s/);
+ assert.match(await page.locator('#plan-preview-summary').textContent(),/Mellan övningar: Vila · 18 s/);
  assert.match(await page.locator('#plan-preview-list').textContent(),/Mellan set: Vila · 3 s/);
  await page.locator('#preview-start').click();
  await page.waitForFunction(()=>{const frame=document.getElementById('family-session-frame');return frame.contentWindow?.sessionState!=null;});
+ // The iframe declares <base href="../">, so relative canonical module URLs
+ // must resolve to /budget/ and initialize the actual timer and rest engines.
+ const engineLoad=await page.evaluate(()=>{
+  const w=document.getElementById('family-session-frame').contentWindow;
+  const scripts=Array.from(w.document.querySelectorAll('script[src]'));
+  return {
+   count:scripts.filter(x=>/\/exercise-[^/]+\.js$/.test(new URL(x.src).pathname)).length,
+   invalid:scripts.filter(x=>/\/exercise-[^/]+\.js$/.test(new URL(x.src).pathname)).map(x=>new URL(x.src).pathname).filter(x=>!x.startsWith('/budget/exercise-')),
+   resources:w.performance.getEntriesByType('resource').filter(x=>/\/exercise-[^/]+\.js/.test(new URL(x.name).pathname)).length,
+   timerController:!!w.__exerciseSessionControllerV46,
+   timerNode:!!w.document.getElementById('session-pre-timer'),
+   headerToggle:!!w.document.getElementById('session-pretimer-toggle-v2'),
+   restApi:!!w.__exerciseBetweenRoutingV7
+  };
+ });
+ assert.ok(engineLoad.count>=28,'Canonical shared engine must load its 28 modules, including dynamic additions');
+ assert.deepEqual(engineLoad.invalid,[],'Each shared import resolves from /budget/');
+ assert.ok(engineLoad.resources>=28,'Training modules must actually be fetched by the browser');
+ assert.equal(engineLoad.timerController,true,'Canonical timer controller must execute');
+ assert.equal(engineLoad.timerNode,true,'Canonical 5 s timer must exist');
+ assert.equal(engineLoad.headerToggle,true,'Session header must have a 5 s toggle');
+ assert.equal(engineLoad.restApi,true,'Between-exercise controller must execute');
+ assert.deepEqual(missingSharedAssets,[],'No exercise scripts may return HTTP 404');
  const frame=page.frameLocator('#family-session-frame');
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentDocument?.querySelector('#session-modal.pulse-flow-v58'));
  const sessionSnapshot=()=>page.evaluate(()=>{
@@ -222,14 +251,17 @@ async function verifyTouchDrag(page,label){
  let snap=await sessionSnapshot();
  assert.equal(snap.pretimer,true,'The canonical 5-second timer DOM must actually be installed');
  assert.equal(snap.enabled,true);
- assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,4);
+ assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,18);
  assert.equal(snap.perSet.type,'rest');assert.equal(snap.perSet.seconds,3);
  assert.equal(snap.tone,'','Fresh pass must retain the original green intro, not a red override');
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
  await frame.locator('#session-controls button').filter({hasText:/Starta (pass|set)/i}).first().click();
  await frame.locator('#session-pre-timer.show').waitFor();
+ assert.equal(await frame.locator('#session-pre-timer.show').evaluate(el=>getComputedStyle(el).display),'grid','5s overlay must actually render visibly');
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
+ assert.equal(await frame.locator('#session-pretimer-toggle-v2').isVisible(),true,'5 s header control must match Markus/Maja');
+ assert.equal(await page.locator('#toast').isVisible(),false,'First 5 s countdown must not be covered by an opening toast');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
@@ -238,7 +270,15 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
- assert.deepEqual([snap.tone,snap.accent],['pull','#94e8eb'],'Pull should be cyan while active');
+ assert.deepEqual([snap.tone,snap.accent],['pull','#22D3EE'],'Pull must use Markus/Maja bright cyan while active');
+ // The canonical toggle animates its color for 180ms; do not sample the
+ // previous Push red on the same animation frame as the Pull switch.
+ await page.waitForFunction(()=>{
+  const el=document.getElementById('family-session-frame')?.contentDocument?.getElementById('session-pretimer-toggle-v2');
+  return el&&getComputedStyle(el).color==='rgb(207, 250, 254)';
+ },null,{timeout:2000});
+ const toggleColor=await frame.locator('#session-pretimer-toggle-v2').evaluate(el=>getComputedStyle(el).color);
+ assert.equal(toggleColor,'rgb(207, 250, 254)','Pull 5s toggle must match the original cyan/blue palette');
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -247,6 +287,13 @@ async function verifyTouchDrag(page,label){
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.sessionState.type='Push';w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=1;w.renderSessionMode();});
  await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
  assert.match(await frame.locator('#session-between-overlay-v2 .bs-label').textContent(),/Mellan set/);
+ // Let the shared timer morph release its temporary hidden target.
+ await page.waitForTimeout(550);
+ const restVisual=await frame.locator('#session-between-overlay-v2').evaluate(el=>{
+  const value=el.querySelector('.bs-value'),copy=el.querySelector('.bs-copy');
+  return {value:value?.textContent,opacity:getComputedStyle(copy).opacity,visibility:getComputedStyle(copy).visibility,hiddenTarget:el.querySelectorAll('.pf-timer-morph-target-v86').length};
+ });
+ assert.equal(restVisual.visibility,'visible','Between-set countdown text should not be hidden: '+JSON.stringify(restVisual));
  await page.screenshot({path:'test-results/ingemar-private/session-rest-blue-390.png'});
  const restBlue=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
  assert.equal(restBlue,'#22D3EE','Rest between sets must stay the original cyan/blue');
@@ -280,7 +327,14 @@ async function verifyTouchDrag(page,label){
  }));
  assert.equal(betweenState.flag,'exercise','Green transition must activate automatically: '+JSON.stringify(betweenState));
  const betweenGreen=await frame.locator('#session-between-overlay-v2').evaluate(el=>el.ownerDocument.defaultView.getComputedStyle(el).getPropertyValue('--pf-between-accent').trim());
- assert.equal(betweenGreen,'#34d399','Configured between-exercise rest turns green');
+ assert.equal(betweenGreen.toLowerCase(),'#34d399','Configured between-exercise rest turns green');
+ assert.equal(await frame.locator('#session-between-overlay-v2.show').isVisible(),true,'Green between-exercise overlay must still be visible during screenshot');
+ await page.waitForTimeout(550);
+ const greenVisual=await frame.locator('#session-between-overlay-v2').evaluate(el=>{
+  const value=el.querySelector('.bs-value'),copy=el.querySelector('.bs-copy');
+  return {value:value?.textContent,opacity:getComputedStyle(copy).opacity,visibility:getComputedStyle(copy).visibility,hiddenTarget:el.querySelectorAll('.pf-timer-morph-target-v86').length};
+ });
+ assert.equal(greenVisual.visibility,'visible','Green between-exercise countdown text should not be hidden: '+JSON.stringify(greenVisual));
  await page.screenshot({path:'test-results/ingemar-private/session-green-transition-390.png'});
  await page.evaluate(()=>document.getElementById('family-session-frame').contentWindow.stopSessionMode(false));
  await page.waitForSelector('#family-session-frame',{state:'hidden'});
@@ -518,7 +572,7 @@ async function verifyTouchDrag(page,label){
  assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),true);
  assert.equal(await androidPage.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Opening builder must not focus editable inputs');
  // Builder type colors must match the selected Push/Pull/Kondition palette from the week planner.
- const typeColors={Push:'rgb(242, 155, 161)',Pull:'rgb(206, 249, 250)',Kondition:'rgb(255, 224, 194)'};
+ const typeColors={Push:'rgb(242, 155, 161)',Pull:'rgb(207, 250, 254)',Kondition:'rgb(254, 215, 170)'};
  for(const [type,expected] of Object.entries(typeColors)){
    await androidPage.locator('#builder [data-type="'+type+'"]').click();
    const button=androidPage.locator('#builder [data-type="'+type+'"]');

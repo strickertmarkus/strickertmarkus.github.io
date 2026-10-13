@@ -510,7 +510,7 @@
     /* Ingemar: exercise-level color is presentation only. Shared timers, transitions
        and completion state remain owned by the existing session runtime. */
     #session-modal[data-ingemar-tone="push"]{--ingemar-tone:#e65c66;--ingemar-tone-soft:#f29ba1;--ingemar-tone-rgb:230,92,102}
-    #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#94e8eb;--ingemar-tone-soft:#cef9fa;--ingemar-tone-rgb:148,232,235}
+    #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#22D3EE;--ingemar-tone-soft:#CFFAFE;--ingemar-tone-rgb:34,211,238}
     /* More specific than the older intro/ready/between-set theme rules,
        which intentionally use !important for the other family profiles. */
     #session-modal[data-ingemar-tone],
@@ -554,11 +554,17 @@
       color:#0a1018!important;
       box-shadow:0 9px 28px rgba(var(--ingemar-tone-rgb),.23)!important;
     }
-    /* Markus/Maja transition semantics: rest between sets is cyan/blue;
-       the transition BETWEEN completed exercises is green. */
-    html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"]{
-      --pf-accent:#34d399!important;--pf-soft:#a7f3d0!important;--pf-rgb:52,211,153!important;
-      --pf-between-accent:#34d399!important;--pf-between-soft:#a7f3d0!important;--pf-between-rgb:52,211,153!important;
+    /* Shared Markus/Maja palette: blue recovery, orange strength/cardio
+       countdowns, and green only for a transition between exercises. */
+    html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"]{
+      --pf-accent:#34D399!important;--pf-soft:#A7F3D0!important;--pf-rgb:52,211,153!important;
+      --pf-between-accent:#34D399!important;--pf-between-soft:#A7F3D0!important;--pf-between-rgb:52,211,153!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"] :is(.bs-heading,.bs-value,.bs-label,.pf-ecg-v80){
+      color:#A7F3D0!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"] .pf-arc-progress-v80{
+      stroke:#34D399!important;
     }
     /* The shared cardio countdown keeps its original single red palette;
        only Push/Pull strength sessions receive Ingemar's custom color. */
@@ -725,6 +731,25 @@ function syncIngemarSessionTone(){
  var tone=!inactive&&current&&current.kind==='strength'?(st.type==='Pull'?'pull':st.type==='Push'?'push':''):'';
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
+ // Shared Markus/Maja CSS owns the button's shape and motion. Adjust only
+ // Ingemar's active Push/Pull palette after the runtime has created the toggle.
+ // Direct properties avoid stale colors from legacy hype selectors.
+ var toggle=document.getElementById('session-pretimer-toggle-v2');
+ if(toggle){
+  var parts=[toggle,toggle.querySelector('.session-timer-track-v48'),toggle.querySelector('.session-timer-knob-v48')];
+  var props=['color','border-color','background','box-shadow'];
+  parts.forEach(function(el){if(el)props.forEach(function(prop){el.style.removeProperty(prop);});});
+  if(tone&&toggle.getAttribute('aria-pressed')==='true'){
+   var rgb=tone==='pull'?'34,211,238':'230,92,102';
+   var light=tone==='pull'?'#CFFAFE':'#f29ba1';
+   toggle.style.setProperty('color',light,'important');
+   toggle.style.setProperty('border-color','rgba('+rgb+',.62)','important');
+   toggle.style.setProperty('background','linear-gradient(135deg,rgba('+rgb+',.17),rgba('+rgb+',.085))','important');
+   toggle.style.setProperty('box-shadow','inset 0 0 0 1px rgba('+rgb+',.14),0 0 13px rgba('+rgb+',.22)','important');
+   if(parts[1])parts[1].style.setProperty('background','rgba('+rgb+',.33)','important');
+   if(parts[2])parts[2].style.setProperty('background',light,'important');
+  }
+ }
  watchIngemarRestColor();syncIngemarRestColor();
 }
 function renderSessionMode(){
