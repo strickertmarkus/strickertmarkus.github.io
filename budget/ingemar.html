@@ -213,7 +213,14 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 #ingemar-account-gate button:disabled{opacity:.5}#ingemar-account-message{min-height:24px;margin:14px 0 0;color:#b4d5c1;font-size:12px;line-height:1.5}#ingemar-account-message[data-error=true]{color:#ff9bac}
 #ingemar-account-gate .account-private{margin:12px 0 0;font-size:11px;color:#9196a7;line-height:1.5}
 #ingemar-retry,#ingemar-gate-logout{display:none;width:100%;margin-top:9px;background:transparent!important}#ingemar-account-gate[data-signed-in=true] #ingemar-gate-logout,#ingemar-account-gate[data-signed-in=true] #ingemar-retry{display:block}
-.account-strip{display:flex;align-items:center;gap:8px;min-width:0}#ingemar-sync-status[data-error="true"]{color:#ff9bac}#ingemar-sync-status{display:inline-flex;align-items:center;max-width:210px;font-size:10px;line-height:1.3;color:#cfa0b1}
+.account-strip{display:flex;align-items:center;gap:8px;min-width:0}#ingemar-sync-status[data-error="true"]{color:#ff9bac}#ingemar-sync-status{display:inline-flex;align-items:center;gap:5px;max-width:210px;font-size:10px;line-height:1.3;color:#cfa0b1}
+#ingemar-sync-status:before{content:"";display:inline-block;width:6px;height:6px;min-width:6px;border-radius:50%;background:#aa8796}
+#ingemar-sync-status[data-sync-state="synced"]{color:#a6d8bb}#ingemar-sync-status[data-sync-state="synced"]:before{background:#85d9a7}
+#ingemar-sync-status[data-sync-state="pending"]{color:#f5cd99}#ingemar-sync-status[data-sync-state="pending"]:before{background:#e4aa68}
+#ingemar-sync-status[data-sync-state="error"]{color:#ff9bac}#ingemar-sync-status[data-sync-state="error"]:before{background:#ff8295}
+.toast:has([data-action="undo-delete"]){display:flex;align-items:center;justify-content:center;gap:11px;width:max-content;max-width:calc(100vw - 24px);padding:8px 10px 8px 14px;line-height:1.3}
+.toast [data-action="undo-delete"]{flex:0 0 auto;border:1px solid #d48fa777;background:#b9557030;color:#ffdae5;border-radius:8px;min-height:35px;padding:6px 11px;font-size:12px;font-weight:750}
+.toast [data-action="undo-delete"]:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 #ingemar-logout{border:1px solid #c0708845;color:#e0adbf;border-radius:999px;padding:7px 11px;background:transparent;font-size:10px;font-weight:700;white-space:nowrap}
 @media(max-width:740px){.account-strip{order:2;margin-left:auto}#ingemar-sync-status{max-width:125px;font-size:9px}#ingemar-logout{font-size:9px;padding:6px 8px}#ingemar-account-gate .account-card{padding:23px 17px}}
 #plan-preview{width:min(660px,calc(100dvw - 24px))}#plan-preview-meta{margin:6px 0 0}#plan-preview-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:#ddafba;font-size:11px}#plan-preview-summary span{border:1px solid #a7566b33;border-radius:8px;padding:7px 10px;background:#a7566b08}
@@ -251,7 +258,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <p class="account-private">Ingemars träningsdata sparas separat från Maja och Markus. Markus kan också komma åt den här profilen.</p>
  </div>
 </section>
-<header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
+<header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" aria-live="polite" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
 <main id="ingemar-main">
 <section id="training-view">
   <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><button type="button" class="primary" data-action="start">Starta valt pass ↗</button><button type="button" class="secondary" data-action="build">Bygg pass</button></div></div>
@@ -277,10 +284,10 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   </div>
   <div class="section-head"><h2>Välj träningspass</h2><span class="hint">Bygg eller redigera ett pass</span></div>
   <div class="choices"><button type="button" class="choice push" data-choice="Push"><span class="glyph">↗</span><b>Push</b><small>Bröst · Axlar · Triceps</small></button><button type="button" class="choice pull" data-choice="Pull"><span class="glyph">↙</span><b>Pull</b><small>Rygg · Biceps</small></button><button type="button" class="choice cardio" data-choice="Kondition"><span class="glyph">⌁</span><b>Kondition</b><small>Intervaller · Distans · Tid</small></button></div>
-  <div class="stats"><div class="panel stat"><div class="stat-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
+  <div class="stats"><div class="panel stat"><div class="stat-label" id="stat-week-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="build">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
   <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
-  <div class="section-head"><h2>Framsteg</h2><span class="hint">Historik – senaste sju veckorna</span></div><div class="panel training-chart-panel"><div class="training-chart-head"><div><div class="eyebrow">GENOMFÖRDA TRÄNINGSPASS</div><strong>7 veckor i rörelse</strong></div><span>Tryck på en stapel för exakt värde</span></div><div class="pulse-bar-shell"><div class="bars" id="bars" aria-label="Träningspass per vecka"></div><div class="chart-inspect bar-inspect" id="bars-inspect" role="status" aria-live="polite"></div></div></div>
+  <div class="section-head"><h2>Framsteg</h2><span class="hint">Historik – fram till vald vecka</span></div><div class="panel training-chart-panel"><div class="training-chart-head"><div><div class="eyebrow">GENOMFÖRDA TRÄNINGSPASS</div><strong>7 veckor i rörelse</strong></div><span>Tryck på en stapel för exakt värde</span></div><div class="pulse-bar-shell"><div class="bars" id="bars" aria-label="Träningspass per vecka"></div><div class="chart-inspect bar-inspect" id="bars-inspect" role="status" aria-live="polite"></div></div></div>
   <div class="section-head pp-section-head"><div><div class="eyebrow">PUSH / PULL · BELASTNING</div><h2>Jämför utvecklingen</h2></div><span class="hint">Senaste åtta veckorna</span></div>
   <section class="pp-analytics" aria-label="Push och Pull träningsanalys">
     <div class="panel pp-volume-panel">
@@ -903,7 +910,28 @@ function normalizeAccountState(value){
 function load(){return emptyState();}
 var state=load(),selected=dayISO(new Date()),view='training',draft=null,builderBase=null,activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
 function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
-function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);}
+var undoPending=null;
+function placeToast(){
+ var host=Array.from(document.querySelectorAll('dialog[open]')).pop()||document.body;
+ if($('toast').parentNode!==host)host.appendChild($('toast'));
+}
+function toast(message){
+ undoPending=null;clearTimeout(toastTimer);placeToast();
+ $('toast').textContent=message;$('toast').hidden=false;
+ toastTimer=setTimeout(function(){$('toast').hidden=true;},2700);
+}
+function offerUndo(message,restore){
+ clearTimeout(toastTimer);placeToast();
+ undoPending={restore:restore,expires:Date.now()+10000};
+ var bar=$('toast');bar.replaceChildren();
+ var label=document.createElement('span');label.textContent=message;bar.appendChild(label);
+ var button=document.createElement('button');button.type='button';button.dataset.action='undo-delete';button.textContent='Ångra';button.setAttribute('aria-label','Ångra borttagning');bar.appendChild(button);
+ bar.hidden=false;toastTimer=setTimeout(function(){undoPending=null;bar.hidden=true;},10000);
+}
+function undoDelete(){
+ var item=undoPending;if(!item||Date.now()>item.expires)return;
+ undoPending=null;clearTimeout(toastTimer);item.restore();toast('Återställt.');
+}
 function plan(date){return state.plans[date]||null;}
 function fallbackType(date){return ['Push','Pull','Kondition','Push','Pull','Kondition','Vila'][(dayFrom(date).getDay()+6)%7];}
 function nextType(){var p=plan(selected);return p?p.type:fallbackType(selected);}
@@ -945,8 +973,9 @@ function render(){
  $('week').innerHTML=DAYS.map(function(name,i){var date=offset(monday,i),entry=plan(date),dayDraft=state.builderDrafts[date],display=dayDraft||entry,label=display?String(display.name||'').trim()||display.type:'Vila',kind=display&&display.type||'Vila';
   return '<button type="button" class="day'+(date===today?' today':'')+'" data-day="'+date+'" aria-label="'+clean(name+' '+dayFrom(date).getDate()+': '+label+' ('+kind+')')+'" title="'+clean(label+' · '+kind)+'" aria-pressed="'+(date===selected)+'"><small>'+name+'</small><strong>'+dayFrom(date).getDate()+'</strong><span>'+clean(label)+'</span></button>';
  }).join('');
- var weekAgo=offset(weekStart(today),-0),weekEnd=offset(weekAgo,7);
+ var weekAgo=monday,weekEnd=offset(weekAgo,7);
  var weekHistory=state.history.filter(function(h){return h.date>=weekAgo&&h.date<weekEnd;});
+ setText('stat-week-label','Pass vecka '+isoWeekNumber(monday));
  $('stat-week').textContent=weekHistory.length;
  $('stat-week-goal').textContent=Math.max(1,Math.min(14,Number(state.goal)||4));
  $('stat-total').textContent=state.history.length+state.zenHistory.length;
@@ -954,7 +983,7 @@ function render(){
  var recent=state.history.slice().sort(historyNewestFirst)[0];
  $('stat-last').textContent=recent?pretty(recent.date):'–';$('stat-last-kind').textContent=recent?recent.type:'Inget registrerat';
  var trainingBars=Array.from({length:7},function(_,i){
-  var first=offset(weekStart(today),-(6-i)*7),last=offset(first,7);
+  var first=offset(monday,-(6-i)*7),last=offset(first,7);
   return {label:'v'+isoWeekNumber(first),value:state.history.filter(function(h){return h.date>=first&&h.date<last;}).length};
  });
  $('bars').innerHTML=glowBarsMarkup(trainingBars,'training');selectGlowBar($('bars').querySelector('[data-bar-index="'+(trainingBars.length-1)+'"]'));
@@ -2172,6 +2201,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.done){var at=b.dataset.done.split(':');toggleCompletedSet(Number(at[0]),Number(at[1]));return;}
  if(b.dataset.action){
   switch(b.dataset.action){
+   case 'undo-delete':undoDelete();break;
    case 'plan-week':openWeekPlanner();break;
    case 'close-week-planner':closeWeekPlanner();break;
    case 'current-week':currentWeekPlanner();break;
