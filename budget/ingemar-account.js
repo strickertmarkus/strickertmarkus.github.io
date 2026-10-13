@@ -9,7 +9,8 @@
     const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
     if(equal(base,local))return remote;
     if(equal(base,remote)||equal(local,remote))return local;
-    if(local===undefined)return undefined;
+    // Preserve a newer remote edit if this device deleted a stale version.
+    if(local===undefined)return remote;
     if(Array.isArray(local)&&Array.isArray(remote)&&[...(base||[]),...local,...remote].every(x=>x&&x.id!=null)){
       const map=a=>Object.fromEntries((a||[]).map(x=>[String(x.id),x]));
       const values=merge(map(base),map(local),map(remote));
