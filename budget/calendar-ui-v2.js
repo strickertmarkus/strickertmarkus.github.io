@@ -185,8 +185,13 @@
       toolbar = document.createElement('div');
       toolbar.className = 'calendar-toolbar-v2';
       var weekdays = section.querySelector('.cal-weekdays');
-      if (weekdays) section.insertBefore(toolbar, weekdays);
-      else section.insertBefore(toolbar, section.firstChild);
+      // The Home view controller may already have moved the weekday row
+      // into its view stage. Insert before the direct child in either case.
+      var insertionPoint = weekdays;
+      while (insertionPoint && insertionPoint.parentElement !== section) {
+        insertionPoint = insertionPoint.parentElement;
+      }
+      section.insertBefore(toolbar, insertionPoint || section.firstChild);
     }
 
     var week = document.getElementById('calendar-week-number');
