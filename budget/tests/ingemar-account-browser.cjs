@@ -173,19 +173,15 @@ async function verifyTouchDrag(page,label){
  assert.equal(await page.locator('#plan-preview').evaluate(el=>getComputedStyle(el).getPropertyValue('--preview-soft').trim()),'#f29ba1');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
- // Cardio in a Push/Pull workout gets an orange row, without changing the pass type.
- await page.evaluate(()=>{
-  const ex=JSON.parse(JSON.stringify(draft.exercises[0]));
-  ex.name='Konditionsintervall QA';ex.mode='min';ex.sets=[{weight:0,reps:0,minutes:3,done:false}];
-  draft.exercises.push(ex);
- });
+ // Use the real builder mode toggle: a timed exercise in Push gets an orange row.
+ await page.locator('#builder [data-mode="0:min"]').click();
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'push');
  assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').count(),1);
  assert.equal(await page.locator('#plan-preview [data-preview-kind="cardio"]').evaluate(el=>getComputedStyle(el.querySelector('h3')).color),'rgb(255, 224, 194)');
  await page.screenshot({path:'test-results/ingemar-private/plan-preview-mixed-cardio-390.png'});
  await page.locator('#plan-preview .modal-actions [data-action="preview-back"]').click();
- await page.evaluate(()=>{draft.exercises.pop();});
+ await page.locator('#builder [data-mode="0:kg"]').click();
  await page.locator('#builder [data-type="Pull"]').click();
  await page.locator('#builder-start-from-builder').click();
  assert.equal(await page.locator('#plan-preview').getAttribute('data-preview-tone'),'pull');
