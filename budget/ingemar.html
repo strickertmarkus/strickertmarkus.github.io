@@ -134,7 +134,24 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
  #builder .set-row .remove-set{width:28px;min-height:36px;padding:0}
  #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
  #builder .exercise-foot span{overflow-wrap:anywhere;font-size:9px}
- /* Safari zooms focused inputs below 16px; keep the editable numeric fields at 16px on iPhone. */
+ 
+/* Compact transition controls share Ingemar's builder layout, not the separate training iframe. */
+#builder .builder-session-settings{display:grid;gap:7px;margin:3px 0 12px}
+#builder .builder-session-option{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:8px 10px;background:#121824;border:1px solid #ffffff19;border-radius:11px}
+#builder .builder-session-option strong{display:block;font-size:11px;color:#e4c3ce}
+#builder .builder-session-option small{display:block;font-size:9px;margin-top:2px;color:#898e9e;line-height:1.35}
+#builder .builder-session-option button{flex:0 0 auto;min-width:48px;min-height:32px;padding:5px 10px;border:1px solid #ffffff29;border-radius:999px;background:#ffffff09;color:#a8a8b6;font-size:11px;font-weight:750}
+#builder .builder-session-option button[aria-pressed=true]{color:#bdf0f1;border-color:#94e8eb70;background:#94e8eb17}
+#builder .builder-session-fields{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:6px;min-width:0;margin:0 0 3px;padding:3px 0}
+#builder .builder-session-fields[hidden],#builder .builder-session-fields [hidden]{display:none!important}
+#builder .builder-session-fields label{display:flex;flex-direction:column;gap:4px;color:#9f9daa;font-size:9px;font-weight:750;min-width:0}
+#builder .builder-session-fields select,#builder .builder-session-fields input{min-width:0;width:100%;height:36px;min-height:36px;padding:5px 8px;border-radius:8px;background:#0e1520;font-size:16px}
+#builder .builder-session-fields .builder-between-name{grid-column:1/-1}
+#builder .builder-exercise-between{margin-top:7px;border-top:1px solid #ffffff13;padding-top:6px}
+#builder .builder-exercise-between .builder-session-option{padding:5px 7px;background:#ffffff04;border-color:#ffffff10}
+#builder .builder-exercise-between .builder-session-fields{padding:6px 1px 0}
+
+/* Safari zooms focused inputs below 16px; keep the editable numeric fields at 16px on iPhone. */
 @supports (-webkit-touch-callout: none){#builder .set-row input{font-size:16px}}
 #builder .modal-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
  #builder .modal-actions>.ghost{justify-self:start}
@@ -439,7 +456,16 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Stäng</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div>
+<div class="builder-session-settings" aria-label="Inställningar för träningspass">
+ <div class="builder-session-option"><span><strong>5 s starttimer</strong><small>Nedräkning innan varje set startas</small></span><button type="button" id="builder-pre-timer-toggle" data-builder-pre-timer aria-pressed="true">På</button></div>
+ <div class="builder-session-option"><span><strong>Mellan övningar</strong><small>Vila eller valfri övning innan nästa övning</small></span><button type="button" id="builder-between-toggle" data-between-toggle="global" aria-pressed="false">Av</button></div>
+ <div class="builder-session-fields" id="builder-between-fields" hidden>
+  <label>Aktivitet<select id="builder-between-type" data-between-edit="global:type"><option value="rest">Vila</option><option value="custom">Valfri övning</option></select></label>
+  <label>Tid (sek)<input type="number" inputmode="numeric" id="builder-between-seconds" min="1" max="3600" step="1" data-between-edit="global:seconds" value="60"></label>
+  <label class="builder-between-name" id="builder-between-name-wrap" hidden>Övning<input id="builder-between-name" maxlength="80" data-between-edit="global:name" placeholder="Exempelvis hopprep"></label>
+ </div>
+</div><div id="exercise-list"></div><button type="button" class="secondary" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="plan-preview" aria-labelledby="plan-preview-title">
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
@@ -1221,7 +1247,7 @@ function unlockBuilderBackground(){
  window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
 function weekTemplates(){if(!Array.isArray(state.weekTemplates))state.weekTemplates=[];return state.weekTemplates;}
-function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,exercises:deep(planValue.exercises||[])};}
+function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,exercises:deep(planValue.exercises||[]),betweenExercises:normalizeBetweenOption(planValue.betweenExercises),preTimerEnabled:planValue.preTimerEnabled!==false};}
 function standardWeekPlan(type){return {type:type,name:type+' · Fokus',exercises:template(type)};}
 function weekDraftFromMonday(monday){return DAYS.map(function(_,i){return weekPlanClone(state.plans[offset(monday,i)]||null);});}
 function weekRangeText(monday){return pretty(monday)+' – '+pretty(offset(monday,6));}
@@ -1258,12 +1284,12 @@ function toggleWeekExercise(index,name){
 function applyWeekDayTemplate(index,id){
  var item=builderTemplates().find(function(t){return String(t.id)===String(id);});if(!item||!weekDraft||index<0||index>6)return;
  delete state.builderDrafts[offset(weekPlannerMonday,index)];
- weekDraft[index]={type:item.type,name:item.name,exercises:deep(item.exercises)};
+ weekDraft[index]={type:item.type,name:item.name,exercises:deep(item.exercises),betweenExercises:normalizeBetweenOption(item.betweenExercises),preTimerEnabled:item.preTimerEnabled!==false};
  weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();
 }
 function weekPlannerSummaryText(){var sessions=weekDraft.filter(Boolean),exercises=sessions.reduce(function(n,item){return n+(item.exercises||[]).length;},0),sets=sessions.reduce(function(n,item){return n+(item.exercises||[]).reduce(function(sum,ex){return sum+(ex.sets||[]).length;},0);},0);return {main:sessions.length+' pass planerade',sub:exercises+' övningar · '+sets+' set · '+(7-sessions.length)+' vilodag'+(7-sessions.length===1?'':'ar')};}
 function mergeEditedPlan(date,base,edited){var merged=window.IngemarMerge({plans:{[date]:base||undefined}},{plans:{[date]:edited}},{plans:{[date]:state.plans[date]}});if(merged.templates)merged.templates.forEach(function(t){if(!state.templates.some(function(x){return x.id===t.id;}))state.templates.push(t);});return merged.plans[date];}
-function preserveReplacedPlan(date,next){var old=state.plans[date];if(old&&next&&old.name!==next.name){state.templates.push({id:uid(),name:old.name,type:old.type,exercises:deep(old.exercises)});}}
+function preserveReplacedPlan(date,next){var old=state.plans[date];if(old&&next&&old.name!==next.name){state.templates.push({id:uid(),name:old.name,type:old.type,exercises:deep(old.exercises),betweenExercises:normalizeBetweenOption(old.betweenExercises),preTimerEnabled:old.preTimerEnabled!==false});}}
 function commitWeekDraft(){
  if(!weekDraft||!weekDraftDirty)return true;
  DAYS.forEach(function(_,i){if(JSON.stringify(weekDraft[i])===JSON.stringify(weekBase[i]))return;var date=offset(weekPlannerMonday,i);if(weekDraft[i]){preserveReplacedPlan(date,weekDraft[i]);state.plans[date]=mergeEditedPlan(date,weekBase[i],weekPlanClone(weekDraft[i]));}else delete state.plans[date];});
@@ -1431,14 +1457,14 @@ function saveBuilderTemplate(){
  if(!copy.exercises.length||copy.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge övningarna innan du sparar mallen.');return;}
  var name=prompt('Namn på mallpass:',copy.name.trim()||copy.type+' · Mall');
  if(!name)return;
- var item={id:uid(),name:name.trim()||copy.type+' · Mall',type:copy.type,exercises:deep(copy.exercises)};
+ var item={id:uid(),name:name.trim()||copy.type+' · Mall',type:copy.type,exercises:deep(copy.exercises),betweenExercises:normalizeBetweenOption(copy.betweenExercises),preTimerEnabled:copy.preTimerEnabled!==false};
  builderTemplates().push(item);builderTemplateId=item.id;persist();renderBuilderTemplates();toast('Mallpass sparat.');
 }
 function applyBuilderTemplate(){
  if(!draft)return;
  var id=$('builder-template-select').value,item=builderTemplates().find(function(t){return String(t.id)===String(id);});
  if(!item){toast('Välj ett mallpass först.');return;}
- builderTemplateId=item.id;draft.type=item.type;draft.name=item.name;draft.exercises=deep(item.exercises);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+draft.type.toLowerCase()+'pass';renderBuilder();toast('Mallpass inläst.');
+ builderTemplateId=item.id;draft.type=item.type;draft.name=item.name;draft.exercises=deep(item.exercises);draft.betweenExercises=normalizeBetweenOption(item.betweenExercises);draft.preTimerEnabled=item.preTimerEnabled!==false;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+draft.type.toLowerCase()+'pass';renderBuilder();toast('Mallpass inläst.');
 }
 function deleteBuilderTemplate(){
  var id=$('builder-template-select').value;if(!id){toast('Välj ett mallpass först.');return;}
@@ -1525,8 +1551,56 @@ function openBuilder(type){
  lockBuilderBackground();
  $('builder').showModal();
 }
+function normalizeBetweenOption(raw){
+ var source=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ var type=source.type==='custom'?'custom':source.type==='rest'?'rest':'none';
+ var enabled=source.enabled!==false&&type!=='none';
+ return {enabled:enabled,type:enabled?type:'none',seconds:Math.max(1,Math.min(3600,Math.round(Number(source.seconds)||(type==='custom'?30:60)))),name:type==='custom'?String(source.name||'').trim().slice(0,80):''};
+}
+function betweenDescription(cfg){cfg=normalizeBetweenOption(cfg);return !cfg.enabled?'Av':(cfg.type==='custom'?(cfg.name||'Valfri övning'):'Vila')+' · '+cfg.seconds+' s';}
+function builderBetweenFieldsHtml(key,cfg){
+ cfg=normalizeBetweenOption(cfg);var isGlobal=key==='global';
+ return '<div class="builder-session-fields" data-between-fields="'+key+'" '+(cfg.enabled?'':'hidden')+'>'
+ +'<label>Aktivitet<select data-between-edit="'+key+':type"><option value="rest" '+(cfg.type==='custom'?'':'selected')+'>Vila</option><option value="custom" '+(cfg.type==='custom'?'selected':'')+'>Valfri övning</option></select></label>'
+ +'<label>Tid (sek)<input type="number" min="1" max="3600" step="1" inputmode="numeric" data-between-edit="'+key+':seconds" value="'+cfg.seconds+'"></label>'
+ +'<label class="builder-between-name" '+(cfg.type==='custom'?'':'hidden')+'>Övning<input maxlength="80" data-between-edit="'+key+':name" value="'+clean(cfg.name)+'" placeholder="Exempelvis hopprep"></label></div>';
+}
+function builderBetweenOption(key,cfg){cfg=normalizeBetweenOption(cfg);return '<div class="builder-exercise-between"><div class="builder-session-option"><span><strong>Mellan set</strong><small>'+clean(betweenDescription(cfg))+'</small></span><button type="button" data-between-toggle="'+key+'" aria-pressed="'+cfg.enabled+'">'+(cfg.enabled?'På':'Av')+'</button></div>'+builderBetweenFieldsHtml(key,cfg)+'</div>';}
+function refreshBuilderSessionOptions(){
+ if(!draft)return;
+ var cfg=normalizeBetweenOption(draft.betweenExercises),timer=$('builder-pre-timer-toggle'),toggle=$('builder-between-toggle');
+ timer.setAttribute('aria-pressed',String(draft.preTimerEnabled!==false));timer.textContent=draft.preTimerEnabled===false?'Av':'På';
+ toggle.setAttribute('aria-pressed',String(cfg.enabled));toggle.textContent=cfg.enabled?'På':'Av';
+ $('builder-between-fields').hidden=!cfg.enabled;$('builder-between-type').value=cfg.type==='custom'?'custom':'rest';
+ $('builder-between-seconds').value=cfg.seconds;$('builder-between-name').value=cfg.name;
+ $('builder-between-name-wrap').hidden=cfg.type!=='custom';
+}
+function updateBuilderBetweenField(el){
+ if(!draft||!el||!el.dataset.betweenEdit)return;
+ var spec=el.dataset.betweenEdit.split(':'),key=spec[0],field=spec[1];
+ var target=key==='global'?draft.betweenExercises:(draft.exercises[Number(key)]||{}).betweenSets;
+ var cfg=normalizeBetweenOption(target);
+ if(field==='type'){cfg.type=el.value==='custom'?'custom':'rest';cfg.enabled=true;if(cfg.type!=='custom')cfg.name='';}
+ else if(field==='seconds'){cfg.seconds=Math.max(1,Math.min(3600,Math.round(Number(el.value)||cfg.seconds)));}
+ else if(field==='name'){cfg.name=String(el.value||'').slice(0,80);}
+ if(key==='global')draft.betweenExercises=cfg;
+ else if(draft.exercises[Number(key)])draft.exercises[Number(key)].betweenSets=cfg;
+ if(field==='type'){var wrap=el.closest('.builder-session-fields');var nameWrap=wrap&&wrap.querySelector('.builder-between-name');if(nameWrap)nameWrap.hidden=cfg.type!=='custom';}
+ keepBuilderDraft();
+}
+function toggleBuilderBetween(key){
+ if(!draft)return;
+ var ex=key==='global'?null:draft.exercises[Number(key)];
+ if(key!=='global'&&!ex)return;
+ var cfg=normalizeBetweenOption(ex?ex.betweenSets:draft.betweenExercises);
+ cfg.enabled=!cfg.enabled;cfg.type=cfg.enabled?(cfg.type==='none'?'rest':cfg.type):'none';
+ if(ex)ex.betweenSets=cfg;else draft.betweenExercises=cfg;
+ renderBuilder();keepBuilderDraft();
+}
+
 function renderBuilder(){
  if($('builder').open)keepBuilderDraft();
+ refreshBuilderSessionOptions();
  renderBuilderTemplates();
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
@@ -1536,7 +1610,7 @@ function renderBuilder(){
   var timed=e.mode==='min';
   return '<article class="exercise-card" data-exercise="'+i+'"><div class="exercise-head"><div class="builder-row-title"><h3>ÖVNING '+(i+1)+'</h3></div><div class="builder-row-tools"><button type="button" class="builder-row-copy" data-copy-exercise="'+i+'" aria-label="Kopiera övning '+(i+1)+'" title="Kopiera övning">＋</button><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="mini" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort</button></div></div><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
   e.sets.map(function(s,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="'+(timed?'0.5':'0.5')+'" aria-label="Set '+(j+1)+' '+(timed?'tid i minuter':'vikt i kg')+'" data-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?s.minutes:s.weight)+'"><input type="number" inputmode="numeric" min="0" max="999" step="1" aria-label="Set '+(j+1)+' '+(timed?'valfria minuter eller mål':'repetitioner')+'" data-set="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="remove-set" data-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'" '+(e.sets.length<=1?'disabled':'')+'>×</button></div>';}).join('')+
- '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div></article>';
+ '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div>'+(timed?'':builderBetweenOption(String(i),e.betweenSets))+'</article>';
  }).join('');
 }
 function keepBuilderDraft(){if(!draft||!window.IngemarAccount.canEdit)return;state.builderDrafts[draft.date]=deep(draft);persist();}
@@ -1562,7 +1636,7 @@ function saveDraft(){
  if(!validateDraft())return false;
  if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;delete state.builderDrafts[draft.date];return commitWeekDraft();}
  preserveReplacedPlan(draft.date,draft);
- state.plans[draft.date]=mergeEditedPlan(draft.date,builderBase,{type:draft.type,name:draft.name,exercises:deep(draft.exercises)});
+ state.plans[draft.date]=mergeEditedPlan(draft.date,builderBase,{type:draft.type,name:draft.name,exercises:deep(draft.exercises),betweenExercises:normalizeBetweenOption(draft.betweenExercises),preTimerEnabled:draft.preTimerEnabled!==false});
  delete state.builderDrafts[draft.date];selected=draft.date;if(!persist())return false;render();return true;
 }
 function openPlanPreview(startAfter){
@@ -1571,8 +1645,8 @@ function openPlanPreview(startAfter){
  $('plan-preview-title').textContent=draft.name;
  $('plan-preview-meta').textContent=pretty(draft.date)+' · '+draft.type;
  var sets=0,minutes=0;draft.exercises.forEach(function(ex){sets+=ex.sets.length;if(ex.mode==='min')ex.sets.forEach(function(set){minutes+=Number(set.minutes)||0;});});
- $('plan-preview-summary').innerHTML='<span>'+draft.exercises.length+' övningar</span><span>'+sets+' set</span>'+(minutes?'<span>'+minutes.toLocaleString('sv-SE')+' min kondition</span>':'');
- $('plan-preview-list').innerHTML=draft.exercises.map(function(ex,index){return '<li class="plan-preview-exercise" data-preview-kind="'+(ex.mode==='min'?'cardio':'strength')+'"><span class="plan-preview-number">'+pad(index+1)+'</span><div><h3>'+clean(ex.name)+'</h3><div class="plan-preview-sets">'+ex.sets.map(function(set,i){return '<span><small>'+pad(i+1)+'</small>'+(ex.mode==='min'?Number(set.minutes).toLocaleString('sv-SE')+' min':Number(set.weight).toLocaleString('sv-SE')+' kg × '+set.reps)+'</span>';}).join('')+'</div></div></li>';}).join('');
+ $('plan-preview-summary').innerHTML='<span>'+draft.exercises.length+' övningar</span><span>'+sets+' set</span>'+(minutes?'<span>'+minutes.toLocaleString('sv-SE')+' min kondition</span>':'')+(draft.preTimerEnabled===false?'<span>5 s timer av</span>':'<span>5 s starttimer</span>')+(normalizeBetweenOption(draft.betweenExercises).enabled?'<span>Mellan övningar: '+clean(betweenDescription(draft.betweenExercises))+'</span>':'');
+ $('plan-preview-list').innerHTML=draft.exercises.map(function(ex,index){return '<li class="plan-preview-exercise" data-preview-kind="'+(ex.mode==='min'?'cardio':'strength')+'"><span class="plan-preview-number">'+pad(index+1)+'</span><div><h3>'+clean(ex.name)+'</h3><div class="plan-preview-sets">'+ex.sets.map(function(set,i){return '<span><small>'+pad(i+1)+'</small>'+(ex.mode==='min'?Number(set.minutes).toLocaleString('sv-SE')+' min':Number(set.weight).toLocaleString('sv-SE')+' kg × '+set.reps)+'</span>';}).join('')+'</div>'+(normalizeBetweenOption(ex.betweenSets).enabled?'<div class="plan-preview-between">Mellan set: '+clean(betweenDescription(ex.betweenSets))+'</div>':'')+'</div></li>';}).join('');
  $('preview-save').textContent=builderWeekIndex>=0?'Spara i veckoplanen':'Spara pass';
  $('preview-start').hidden=builderWeekIndex>=0;
  $('preview-save').className=startAfter?'secondary':'primary';$('preview-start').className=startAfter?'primary':'secondary';
@@ -2334,6 +2408,8 @@ document.addEventListener('click',function(event){
   return;
  }
  if(b.dataset.exerciseNew!=null){beginBuilderFreeExerciseName(Number(b.dataset.exerciseNew),true,true);return;}
+ if(b.dataset.builderPreTimer!=null){draft.preTimerEnabled=draft.preTimerEnabled===false;refreshBuilderSessionOptions();keepBuilderDraft();return;}
+ if(b.dataset.betweenToggle!=null){updateDraftFromBuilderInputs();toggleBuilderBetween(b.dataset.betweenToggle);return;}
  if(b.dataset.type){var t=b.dataset.type;updateDraftFromBuilderInputs();draft.type=t;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;$('builder-title').textContent='Bygg '+t.toLowerCase()+'pass';renderBuilder();return;}
  if(b.dataset.mode){var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];e.sets.forEach(function(s){if(e.mode==='min'&&!s.minutes)s.minutes=5;if(e.mode==='kg'&&!s.reps)s.reps=10;});builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
@@ -2441,6 +2517,7 @@ document.addEventListener('click',function(event){
  closeBuilderExercisePicker();
 });
 document.addEventListener('change',function(event){
+ if(event.target.dataset.betweenEdit&&$('builder').open&&draft)updateBuilderBetweenField(event.target);
  if(event.target.id==='builder-template-select'){var option=event.target.selectedOptions[0];setText('builder-template-selected',option?option.textContent:'Välj mallpass');}
  if(event.target.type==='date')syncDateDisplay(event.target.id);
  if(event.target.id==='build-date'&&$('builder').open&&draft)updateDraftField(event.target);
@@ -2451,6 +2528,7 @@ document.addEventListener('change',function(event){
 });
 document.addEventListener('input',function(event){
  var el=event.target;
+ if(el.dataset.betweenEdit&&$('builder').open&&draft)updateBuilderBetweenField(el);
  if(el.id==='zen-audio-volume'){setZenAudioVolume(Number(el.value)/100,true);return;}
  if(historyEditDraft&&$('history-editor').open&&$('history-editor').contains(el)&&el.dataset.logMode==null)updateHistoryEditorField(el);
  if($('zen-editor').open&&zenEditDraft&&$('zen-editor').contains(el)){

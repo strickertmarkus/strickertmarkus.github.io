@@ -511,7 +511,6 @@
        and completion state remain owned by the existing session runtime. */
     #session-modal[data-ingemar-tone="push"]{--ingemar-tone:#e65c66;--ingemar-tone-soft:#f29ba1;--ingemar-tone-rgb:230,92,102}
     #session-modal[data-ingemar-tone="pull"]{--ingemar-tone:#94e8eb;--ingemar-tone-soft:#cef9fa;--ingemar-tone-rgb:148,232,235}
-    #session-modal[data-ingemar-tone="cardio"]{--ingemar-tone:#ffbd82;--ingemar-tone-soft:#ffe0c2;--ingemar-tone-rgb:255,189,130}
     /* More specific than the older intro/ready/between-set theme rules,
        which intentionally use !important for the other family profiles. */
     #session-modal[data-ingemar-tone],
@@ -555,15 +554,15 @@
       color:#0a1018!important;
       box-shadow:0 9px 28px rgba(var(--ingemar-tone-rgb),.23)!important;
     }
-    html[data-ingemar-session-tone="push"] #session-between-overlay-v2.pulse-flow-rest-v58{
-      --pf-accent:#e65c66!important;--pf-soft:#f29ba1!important;--pf-rgb:230,92,102!important;
+    /* Markus/Maja transition semantics: rest between sets is cyan/blue;
+       the transition BETWEEN completed exercises is green. */
+    html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"]{
+      --pf-accent:#34d399!important;--pf-soft:#a7f3d0!important;--pf-rgb:52,211,153!important;
+      --pf-between-accent:#34d399!important;--pf-between-soft:#a7f3d0!important;--pf-between-rgb:52,211,153!important;
     }
-    html[data-ingemar-session-tone="pull"] #session-between-overlay-v2.pulse-flow-rest-v58{
-      --pf-accent:#94e8eb!important;--pf-soft:#cef9fa!important;--pf-rgb:148,232,235!important;
-    }
-    html[data-ingemar-session-tone="cardio"] #session-between-overlay-v2.pulse-flow-rest-v58{
-      --pf-accent:#ffbd82!important;--pf-soft:#ffe0c2!important;--pf-rgb:255,189,130!important;
-    }
+    /* The shared cardio countdown keeps its original single red palette;
+       only Push/Pull strength sessions receive Ingemar's custom color. */
+    #session-modal[data-ingemar-tone] .session-cta.primary{box-shadow:0 9px 26px rgba(var(--ingemar-tone-rgb),.20)!important;}
   </style>
 <style>html,body{margin:0;min-height:100%;background:#080D14}body{overflow:hidden}#toast[hidden]{display:none!important}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483600;padding:10px 16px;border:1px solid rgba(103,232,249,.25);border-radius:999px;background:#0a1119;color:#cffafe;font:600 12px Inter,sans-serif;box-shadow:0 10px 35px #0008}</style>
 </head>
@@ -682,13 +681,51 @@ function updateSessionTimers(){
   if(setEl)setEl.textContent=fmtSec(setSec);
 }
 
+function syncIngemarRestColor(){
+  var rest=document.getElementById('session-between-overlay-v2');
+  if(!rest)return;
+  var label=rest.querySelector('.bs-label');
+  var betweenExercises=rest.classList.contains('show')&&label&&/mellan övningar/i.test(label.textContent||'');
+  if(betweenExercises)rest.dataset.ingemarBetween='exercise';
+  else delete rest.dataset.ingemarBetween;
+}
+var ingemarRestObserver=null;
+function watchIngemarRestColor(){
+ if(ingemarRestObserver||!document.body)return;
+ ingemarRestObserver=new MutationObserver(function(records){
+  for(var i=0;i<records.length;i++){
+   var record=records[i],target=record.target;
+   if(target&&target.id==='session-between-overlay-v2'){
+    syncIngemarRestColor();return;
+   }
+   if(target&&target.classList&&target.classList.contains('bs-label')){
+    syncIngemarRestColor();return;
+   }
+   if(record.type==='childList'){
+    for(var j=0;j<record.addedNodes.length;j++){
+     var added=record.addedNodes[j];
+     if(added.nodeType===1&&(added.id==='session-between-overlay-v2'||added.querySelector&&added.querySelector('#session-between-overlay-v2'))){
+      syncIngemarRestColor();return;
+     }
+    }
+   }
+  }
+ });
+ ingemarRestObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-between-type']});
+ syncIngemarRestColor();
+}
 function syncIngemarSessionTone(){
-  var modal=document.getElementById('session-modal');
-  if(!modal||!sessionState)return;
-  var current=sessionState.exercises[sessionState.exerciseIndex]||null;
-  var tone=current?(current.kind==='cardio'?'cardio':sessionState.type==='Pull'?'pull':sessionState.type==='Push'?'push':'cardio'):'';
-  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
-  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
+ var modal=document.getElementById('session-modal');
+ if(!modal||!sessionState)return;
+ var st=sessionState,index=Number(st.exerciseIndex)||0,current=st.exercises[index]||null;
+ var firstReady=index===0&&Math.max(1,Number(st.currentSet)||1)===1&&!st.setRunning&&!st.awaitingDecision&&!(st.logs||[]).some(function(a){return Array.isArray(a)&&a.length;});
+ var pre=document.getElementById('session-pre-timer'),rest=document.getElementById('session-between-overlay-v2');
+ var transition=st.awaitingDecision&&current&&Math.max(1,Number(st.currentSet)||1)>=Math.max(1,Number(current.plannedSets)||1)&&index<st.exercises.length-1;
+ var inactive=!st.setRunning||firstReady||transition||(rest&&rest.classList.contains('show'));
+ var tone=!inactive&&current&&current.kind==='strength'?(st.type==='Pull'?'pull':st.type==='Push'?'push':''):'';
+ if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
+ else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
+ watchIngemarRestColor();syncIngemarRestColor();
 }
 function renderSessionMode(){
   if(!sessionState)return;
@@ -847,10 +884,25 @@ function sessionToIngemarWorkout(){if(!sessionState)return null;var exercises=[]
 function saveSessionWorkout(){var workout=sessionToIngemarWorkout();if(!workout){showToast('Inga set loggade ännu.');return;}hostSaving=true;parent.postMessage({type:'ingemar-family-session-saved',workout:workout},location.origin);stopSessionMode(false);hostSaving=false;}
 var productionStopSessionMode=stopSessionMode;
 stopSessionMode=function(confirmClose){var hadSession=!!sessionState;productionStopSessionMode(confirmClose);if(hadSession&&!sessionState&&!hostSaving)parent.postMessage({type:'ingemar-family-session-closed'},location.origin);};
-function demoPlanToFamily(plan){return {type:plan.type||'Övrigt',exercises:(plan.exercises||[]).map(function(ex){var sets=Array.isArray(ex.sets)?ex.sets:[],first=sets[0]||{};if(ex.mode==='min')return {kind:'cardio',name:ex.name||'',distance:0,time:Number(first.minutes)||0};return {kind:'strength',name:ex.name||'',sets:Math.max(1,sets.length),reps:Number(first.reps)||0,weight:Number(first.weight)||0};})};}
+function familyBetweenOption(value){
+ var cfg=value&&typeof value==='object'?value:{};
+ var type=cfg.type==='custom'?'custom':cfg.type==='rest'?'rest':'none';
+ return {enabled:cfg.enabled!==false&&type!=='none',type:cfg.enabled===false?'none':type,seconds:Math.max(1,Math.min(3600,Math.round(Number(cfg.seconds)||(type==='custom'?30:60)))),name:type==='custom'?String(cfg.name||'').trim():''};
+}
+function demoPlanToFamily(plan){
+ return {type:plan.type||'Övrigt',preTimerEnabled:plan.preTimerEnabled!==false,betweenExercises:familyBetweenOption(plan.betweenExercises),
+ exercises:(plan.exercises||[]).map(function(ex){
+  var sets=Array.isArray(ex.sets)?ex.sets:[],first=sets[0]||{};
+  var common={name:ex.name||'',betweenSets:familyBetweenOption(ex.betweenSets)};
+  if(ex.mode==='min')return Object.assign({kind:'cardio',distance:0,time:Number(first.minutes)||0},common);
+  return Object.assign({kind:'strength',sets:Math.max(1,sets.length),reps:Number(first.reps)||0,weight:Number(first.weight)||0},common);
+ })};
+}
 window.addEventListener('message',function(event){if(event.origin!==location.origin||event.source!==parent||!event.data||event.data.type!=='ingemar-family-session-start')return;var payload=event.data,plan=payload.workout||{},date=payload.date||new Date().toISOString().slice(0,10);hostSessionName=plan.name||plan.type||'Träning';plannedSessions=Object.create(null);plannedSessions[date]=demoPlanToFamily(plan);if(sessionState)productionStopSessionMode(false);startWorkoutSessionForDate(date);});
 window.addEventListener('DOMContentLoaded',function(){parent.postMessage({type:'ingemar-family-session-ready'},location.origin);},{once:true});
 </script>
+<!-- Shared Markus/Maja source that creates the actual 5-second countdown DOM and ring. -->
+<script defer src="exercise-points-3-6-7.js?v=20261013-ingemar-parity-1"></script>
 <script defer src="exercise-timer-focus.js?v=20260918-cp11-reactive-timer-1"></script>
 <script defer src="exercise-session-enhancements.js?v=20260922-observatory-records-3" data-exercise-session-enhancements="true"></script>
 <script defer src="exercise-session-runtime-core-v21.js?v=20260922-observatory-records-3" data-exercise-session-runtime-core-v21="true"></script>
