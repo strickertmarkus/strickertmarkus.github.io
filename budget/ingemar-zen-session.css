@@ -1,0 +1,107 @@
+/* Full-screen Stretch/Meditation runner; one coherent style layer, reused Zen artwork. */
+#zen-session.zen-workout{--mode-accent:#c7ef91;--mode-accent-rgb:199,239,145;position:fixed;inset:0;z-index:80;display:block;width:100%;height:100dvh;max-width:none;overflow:auto;overflow-x:hidden;overscroll-behavior:contain;isolation:isolate;background:#061a14;color:#e7f6d9;font-family:Georgia,serif}
+#zen-session.zen-workout[hidden]{display:none!important}
+#zen-session.zen-workout[data-kind=meditation]{--mode-accent:#fff0b5;--mode-accent-rgb:255,240,181;background:#081f23;color:#f5ecd6}
+#zen-session .zen-session-ambient{display:none}
+#zen-session .mode-topbar{position:relative;z-index:6;width:100%;min-height:56px;padding:max(12px,env(safe-area-inset-top)) clamp(16px,5vw,70px) 10px;background:transparent!important;border-bottom:1px solid rgba(var(--mode-accent-rgb),.14);box-shadow:none;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#zen-session .mode-topbar .mode-identity{font-family:Inter,system-ui,sans-serif;text-align:center}
+#zen-session .mode-topbar .mode-identity small{display:none}
+#zen-session .mode-topbar .mode-identity strong{font-size:11px;letter-spacing:.14em;font-weight:500;text-transform:uppercase}
+#zen-session .mode-topbar .mode-status{color:var(--mode-accent);font:600 10px Inter,system-ui,sans-serif;min-width:40px;text-align:right}
+#zen-session .mode-topbar .back{min-width:60px;padding:8px 0;border:0;background:transparent;color:#b5c6ae;border-radius:0;font:500 11px Inter,system-ui,sans-serif;text-align:left}
+#zen-session .zen-layout{position:static;display:block;padding:0;max-width:none;width:100%;min-height:calc(100dvh - 56px)}
+#zen-session .zen-scenery{position:fixed;z-index:0;inset:0;width:100%;height:100dvh;max-height:none;min-height:0;border-radius:0;margin:0;opacity:.67;pointer-events:none;box-shadow:none;background:#061a14}
+#zen-session[data-kind=meditation] .zen-scenery{opacity:.9;background:#081f23}
+#zen-session .zen-scenery:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#061a14ad 0%,#061a1420 40%,#061a14c5 100%);pointer-events:none}
+#zen-session[data-kind=meditation] .zen-scenery:after{background:linear-gradient(180deg,#081f23bb 0%,#081f2350 32%,#081f23dc 94%)}
+#zen-session .zen-forest-landscape,#zen-session .zen-lake-landscape{position:absolute;inset:0;width:100%;height:100%}
+#zen-session .zen-scenery .zen-forest-landscape svg,#zen-session .zen-scenery .zen-lake-landscape svg{transform:none}
+#zen-session .zen-forest-route-art{position:absolute;left:50%;top:22%;width:min(56vw,340px);height:66%;transform:translateX(-50%);opacity:.5}
+#zen-session .zen-scenery .scene-sheen{display:none}
+#zen-session .zen-workspace{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-height:calc(100dvh - 56px);margin:0;padding:22px clamp(15px,5vw,56px) max(18px,env(safe-area-inset-bottom))}
+#zen-session .zen-focus-grid{width:min(900px,100%);max-width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+#zen-session .zen-focus-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;max-width:750px;padding:12px 0;text-align:center;border:0;border-radius:0;background:none!important;box-shadow:none}
+#zen-session .zen-focus-card:before,#zen-session .zen-journey-card:before{display:none}
+#zen-session .zen-focus-copy{width:100%;max-width:620px;text-align:center}
+#zen-session .zen-overline{font:600 10px Inter,system-ui,sans-serif;letter-spacing:.26em;color:var(--mode-accent)}
+#zen-session h1{color:inherit;font:400 clamp(33px,5vw,66px)/1.1 Georgia,serif;letter-spacing:-.02em;text-shadow:0 0 27px rgba(var(--mode-accent-rgb),.14);margin:10px 0 5px}
+#zen-session .zen-description{margin:9px auto 0;max-width:480px;color:#d4e0cf;font:400 13px/1.7 Inter,system-ui,sans-serif}
+#zen-session .zen-clock-wrap{--clock-size:clamp(150px,24dvh,240px);margin:0;min-width:0;background:none!important}
+#zen-session .zen-clock-wrap strong{font:400 clamp(39px,5vw,59px)/1 Georgia,serif;color:var(--mode-accent)}
+#zen-session .zen-clock-wrap small{font-family:Inter,system-ui,sans-serif;font-weight:500}
+#zen-session .zen-live-flow{width:min(230px,80%);display:flex;gap:12px;margin:0;align-items:center}
+#zen-session .zen-live-flow span{flex:1}
+#zen-session .zen-live-flow i{display:block;width:70px}
+#zen-session .zen-session-dock{width:min(780px,100%);margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+#zen-session .zen-journey-card{width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:center;padding:6px 0 0;border:0;border-radius:0;background:none!important;box-shadow:none}
+#zen-session .zen-next-block{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;min-width:0;padding:5px 0;border:0;text-align:center;font-family:Inter,system-ui,sans-serif}
+#zen-session .zen-next-block strong{margin:0;font:400 15px Georgia,serif;color:var(--mode-accent)}
+#zen-session .zen-next-block small,#zen-session .zen-next-block span{font-size:10px;letter-spacing:.02em;color:#b7c6b6}
+#zen-session .zen-stage{font:600 9px Inter,system-ui,sans-serif;letter-spacing:.17em;text-align:center;margin:4px 0}
+#zen-session .zen-total-time{margin:2px auto;max-width:550px;width:100%;font:400 10px Inter,system-ui,sans-serif}
+#zen-session .zen-progress{width:100%;max-width:550px;margin:0 auto 2px;background:rgba(var(--mode-accent-rgb),.14);height:3px}
+#zen-session .zen-stage-list{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;max-width:100%;max-height:64px;overflow:auto;margin:0 auto;padding:3px 0}
+#zen-session .zen-stage-list button{width:auto;min-width:38px;max-width:145px;min-height:34px;display:flex;align-items:center;gap:5px;padding:5px 6px;font:400 10px Inter,system-ui,sans-serif}
+#zen-session .zen-stage-list button>b{max-width:95px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#zen-session .zen-stage-list button>small{display:none}
+#zen-session .zen-stage-list button>span{width:18px;height:18px;flex:0 0 18px}
+#zen-session .zen-previous-step{align-self:center;margin:3px 0;padding:8px 12px;background:none;border:0;color:#b7c5af;font:500 11px Inter,system-ui,sans-serif}
+#zen-session .zen-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;max-width:none;margin:4px auto 0}
+#zen-session .zen-controls button{min-width:0;min-height:44px;padding:10px 18px;background:transparent;border:1px solid rgba(var(--mode-accent-rgb),.25);border-radius:30px;color:#e8f2df;font:500 12px Inter,system-ui,sans-serif}
+#zen-session .zen-controls #pause-zen{min-width:132px;background:rgba(var(--mode-accent-rgb),.1);border-color:rgba(var(--mode-accent-rgb),.5)}
+#zen-session .zen-controls #next-zen{color:var(--mode-accent)}
+#zen-session .zen-exit{font:400 11px Inter,system-ui,sans-serif;margin:0 auto;color:#bccabb}
+#zen-session .zen-audio-control{display:flex;align-items:center;gap:9px;justify-content:center;width:min(350px,100%);margin:0 auto}
+#zen-session .zen-audio-control input{width:150px;min-width:0;min-height:20px;height:24px;padding:0;accent-color:var(--mode-accent)}
+#zen-session .zen-audio-control label,#zen-session .zen-audio-control output{font:400 10px Inter,system-ui,sans-serif}
+#zen-session[data-kind=stretch] .zen-audio-control,#zen-session[data-kind=stretch] .zen-guidance-toggle{display:none}
+#zen-session[data-kind=meditation] .zen-forest-route-art,#zen-session[data-kind=meditation] .zen-stage-list{display:none}
+#zen-session[data-kind=meditation] .zen-clock-wrap{--clock-size:clamp(120px,18dvh,170px)}
+#zen-session[data-kind=meditation] h1{font-size:clamp(29px,4vw,42px)}
+#zen-session[data-kind=meditation] .zen-lake-landscape .zen-lake-time,#zen-session[data-kind=meditation] .zen-lake-landscape .zen-lake-breath-guide{display:none}
+.zen-editor-session-options{padding:10px;border:1px solid #ffffff16;border-radius:13px;margin:8px 0 14px;display:grid;gap:9px}
+.zen-editor-session-options label{min-width:0;color:#b8c8b9;font-size:11px;display:block}
+.zen-editor-session-options .zen-prep-option{display:flex;align-items:center;gap:8px}
+.zen-editor-session-options input[type=checkbox]{width:18px;height:18px;margin:0;min-height:18px;accent-color:#a9dcb7}
+.zen-editor-session-options #zen-edit-breath-options{min-width:0;display:grid;gap:6px}
+.zen-editor-session-options #zen-edit-breath-options[hidden]{display:none}
+.zen-editor-session-options .zen-rhythm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.zen-editor-session-options .zen-rhythm-grid input{margin-top:4px}
+.zen-complete-dialog{max-width:min(540px,calc(100dvw - 24px))}
+.zen-complete-dialog .modal-head{padding:14px}
+.zen-complete-summary{font:400 19px Georgia,serif;color:#d7edd1}
+.zen-feeling-options{border:0;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:7px}
+.zen-feeling-options legend{font-size:12px;color:#c4d6ca;margin-bottom:8px}
+.zen-feeling-options label{display:flex;align-items:center;gap:5px;padding:8px;border:1px solid #ffffff20;border-radius:10px;font-size:11px}
+.zen-feeling-options input{width:18px;height:18px;min-height:18px;accent-color:#c3e7ae}
+@media(max-width:760px){
+ #zen-session .mode-topbar{min-height:50px;padding:max(8px,env(safe-area-inset-top)) 12px 6px}
+ #zen-session .zen-workspace{min-height:calc(100dvh - 50px);padding:8px 16px max(10px,env(safe-area-inset-bottom))}
+ #zen-session .zen-focus-grid{gap:4px}
+ #zen-session .zen-focus-card{gap:6px;padding:0}
+ #zen-session h1{font-size:clamp(28px,8vw,42px);margin:4px 0}
+ #zen-session .zen-description{margin:4px auto 0;font-size:11px;line-height:1.4}
+ #zen-session .zen-clock-wrap{--clock-size:clamp(142px,24dvh,190px)}
+ #zen-session .zen-journey-card{gap:3px;padding:0}
+ #zen-session .zen-next-block{gap:6px;padding:2px 0}
+ #zen-session .zen-stage-list{max-height:68px}
+ #zen-session .zen-stage-list button{max-width:110px;font-size:9px}
+ #zen-session .zen-controls{gap:6px}
+ #zen-session .zen-controls button{padding:8px 10px;font-size:10px;min-height:42px}
+ #zen-session .zen-controls #pause-zen{min-width:93px}
+ #zen-session .zen-audio-control{gap:6px}
+ #zen-session .zen-audio-control input{max-width:110px}
+ #zen-session .zen-exit,#zen-session .zen-previous-step{font-size:10px}
+ .zen-editor-session-options .zen-rhythm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .zen-complete-dialog .modal-actions .right{display:flex;flex-wrap:wrap}
+}
+@media(max-height:700px) and (max-width:760px){
+ #zen-session .zen-clock-wrap{--clock-size:115px}
+ #zen-session .zen-focus-card{gap:3px}
+ #zen-session .zen-description{font-size:10px}
+ #zen-session .zen-stage-list{max-height:44px}
+ #zen-session .zen-stage-list button{min-height:28px}
+ #zen-session .zen-journey-card{gap:1px}
+ #zen-session .zen-controls button{min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){#zen-session *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
