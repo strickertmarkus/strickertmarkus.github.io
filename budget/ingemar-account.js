@@ -64,9 +64,20 @@
   function text(id,value){const node=el(id);if(node)node.textContent=value;}
   function setStatus(status){
     API.status=status;
-    text('ingemar-sync-status',status);
     const indicator=el('ingemar-sync-status');
-    if(indicator)indicator.dataset.error=/nekad|misslyckades|Kunde inte|åtkomst saknas/i.test(status)?'true':'false';
+    if(!indicator)return;
+    const failed=/nekad|misslyckades|Kunde inte|åtkomst saknas|Fel vid/i.test(status);
+    const synced=/^Synkat/i.test(status);
+    const waiting=dirty||/väntar|synkar|sparar|ansluter|kontrollerar/i.test(status);
+    indicator.dataset.syncState=failed?'error':synced?'synced':waiting?'pending':'idle';
+    indicator.dataset.error=failed?'true':'false';
+    let visible=status;
+    if(status==='Synkat via Firebase')visible='Synkat · Firebase';
+    else if(status==='Sparar ändringar…')visible='Sparar · väntar på Firebase';
+    else if(status==='Lokala ändringar väntar på synk')visible='Sparat på enheten · väntar på Firebase';
+    else if(status==='Sparat lokalt · synkningen misslyckades')visible='Sparat på enheten · ej synkat';
+    indicator.textContent=visible;
+    indicator.title=status;
   }
   function message(value,error){
     const node=el('ingemar-account-message');
