@@ -1076,6 +1076,8 @@ function beginBuilderFreeExerciseName(index,clearName){
  builderFreeExerciseIndex=index;setBuilderExercisePicker(-1);
  var input=document.querySelector('#builder [data-exercise-name-input="'+index+'"]');
  if(!input)return;
+ // A focused readonly input can otherwise fail to summon the iOS keyboard.
+ if(input.readOnly)input.blur();
  input.readOnly=false;input.dataset.exerciseNameFree='1';
  input.value=ex.name||'';
  // Focus within the user click, rather than rerendering and losing the keyboard.
