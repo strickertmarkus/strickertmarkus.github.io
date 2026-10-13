@@ -280,6 +280,20 @@ test('Concurrent devices retain additions, edits and explicit deletions without 
  assert.equal(Object.keys(result.plans).length,203);assert.equal(result.templates.length,202);
 });
 
+test('An outdated deletion never erases an exercise or template edited by another device',()=>{
+ const window={};vm.runInNewContext(manager,{window});const merge=window.IngemarMerge;
+ const base={plans:{monday:{id:'m',name:'Ben',type:'Push',exercises:[{id:'e',name:'Marklyft',sets:[{id:'s',weight:80,reps:5}]}]}},templates:[{id:'t',name:'Måndag',type:'Push',exercises:[]}]};
+ const local=JSON.parse(JSON.stringify(base)),remote=JSON.parse(JSON.stringify(base));
+ local.templates=[];local.plans.monday.exercises=[]; // Device A removed stale copies.
+ remote.templates[0].name='Nyare mall';remote.plans.monday.exercises[0].sets[0].weight=90;
+ const result=merge(base,local,remote);
+ assert.equal(result.templates[0].name,'Nyare mall');
+ assert.equal(result.plans.monday.exercises[0].sets[0].weight,90);
+ const noRemoteEdit=merge(base,local,base);
+ assert.equal(noRemoteEdit.templates.length,0,'Uncontested removal still works');
+ assert.equal(noRemoteEdit.plans.monday.exercises.length,0);
+});
+
 test('Edits made while an earlier transaction is in flight survive its acknowledgement and reload',async()=>{
  const remote={value:JSON.stringify({plans:{},history:[],zenHistory:[],templates:[]})},storage=new Map();
  let deliver,resolveWrite,applied;
