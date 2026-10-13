@@ -116,6 +116,13 @@
     .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
     .cal-wd { font-size: 10px; font-weight: 700; color: var(--text-sec); text-align: center; padding: 6px 0; text-transform: uppercase; letter-spacing: .5px; }
     .cal-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); grid-auto-rows:1fr; gap: 4px; }
+    /* Swipe track is mounted only while dragging; it preserves the same day
+       grid, styling and widths as the normal calendar. */
+    .cal-month-swipe-viewport { position:relative; width:100%; overflow:hidden; }
+    .cal-month-swipe-track { display:flex; align-items:flex-start; width:100%; transform:translate3d(-100%,0,0); will-change:transform; }
+    .cal-month-swipe-track > .cal-grid { flex:0 0 100%; width:100%; min-width:0; }
+    .cal-month-swipe-preview { pointer-events:none; user-select:none; -webkit-user-select:none; }
+    @media(prefers-reduced-motion:reduce) { .cal-month-swipe-track { transition:none!important; } }
     .cal-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-height: 82px; padding: 8px 6px 6px; cursor: pointer; transition: border-color .2s, background .2s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .cal-cell:hover { border-color: rgba(255,255,255,.14); }
     .cal-cell.has-events:hover { border-color: rgba(253,186,116,.52); background: rgba(253,186,116,.10); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.24); }
@@ -200,6 +207,7 @@
        Full titles and event editing remain in the existing day popup. */
     .cal-event-preview { display:flex;flex-direction:column;gap:2px;min-width:0;width:100%;margin-top:auto;padding-top:3px; }
     .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
+    .cal-event-preview-title.is-holiday { box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--preview-color) 20%,transparent),0 0 7px color-mix(in srgb,var(--preview-color) 13%,transparent); }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
     .cal-short-title-field { margin-top:-3px; }
     .cal-short-title-field .cal-short-title-optional { color:var(--text-sec);font-weight:400;text-transform:none;letter-spacing:0; }
@@ -1429,21 +1437,44 @@ function getCalendarPreviewLabel(ev) {
   return first;
 }
 
+function getHolidayPreviewLabel(holiday) {
+  var abbreviations = {
+    'Kristi himmelsfärdsdag':'Kristi him.',
+    'Alla helgons dag':'Alla helgons',
+    'Sveriges nationaldag':'Nationaldag',
+    'Trettondedag jul':'Trettondag',
+    'Internationella kvinnodagen':'Kvinnodagen',
+    'Valborgsmässoafton':'Valborg',
+    'Midsommarafton':'Midsommar',
+    'Midsommardagen':'Midsommar',
+    'Annandag påsk':'Ann. påsk',
+    'Annandag jul':'Ann. jul',
+    'Första advent':'1:a advent',
+    'Andra advent':'2:a advent',
+    'Tredje advent':'3:e advent',
+    'Fjärde advent':'4:e advent'
+  };
+  return abbreviations[holiday.name] || getCalendarPreviewLabel({ title:holiday.name });
+}
+
 function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
   document.getElementById('month-label').textContent = MONTHS[month] + ' ' + year;
   var weekEl = document.getElementById('calendar-week-number');
+  if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(new Date());
+  populateMonthGrid(document.getElementById('cal-grid'), year, month, true);
+  renderUpcoming();
+}
 
+// One renderer for the visible month and the neighboring swipe previews.
+function populateMonthGrid(grid, year, month, interactive) {
   var daysInMonth = new Date(year, month+1, 0).getDate();
   var rawFirst = new Date(year, month, 1).getDay();
   var firstDay = rawFirst === 0 ? 6 : rawFirst - 1;
   var today = todayISO();
   var events = expandRepeating(getEvents(), year, month);
 
-  if (weekEl) weekEl.textContent = 'Vecka ' + getISOWeekNumber(new Date());
-
-  var grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
 
   for (var e=0; e<firstDay; e++) {
@@ -1468,27 +1499,32 @@ function renderMonth() {
     cell.tabIndex = 0;
     cell.setAttribute('aria-label', dateISO + (holidays.length ? ', ' + holidays.map(function(h){return h.name;}).join(', ') : ''));
 
+    // Holidays are presented exactly like event chips, but remain local
+    // calendar metadata and are never written to Firebase or counted as family events.
+    var items = holidays.map(function(h) {
+      return { label:getHolidayPreviewLabel(h), title:h.name,
+        color:h.type === 'official' ? '#F28B90' : '#2DD4BF', isHoliday:true };
+    }).concat(dayEvs.map(function(ev) {
+      return { label:getCalendarPreviewLabel(ev), title:ev.title || 'Händelse',
+        color:getMemberColor(ev.member), isHoliday:false };
+    }));
     var html = '<div class="cal-num-row"><div class="cal-num">'+d+'</div><span class="cal-num-right">' +
       (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') +
-      (dayEvs.length > 2 ? '<span class="cal-cell-extra" aria-hidden="true">+' + (dayEvs.length - 2) + '</span>' : '') + '</span></div>';
-    if (dayEvs.length) {
-      // Render two compact labels instead of a truncated single-character title.
-      // Do not include the separate event emoji in these narrow month cells.
-      var previewRows = dayEvs.slice(0, 2).map(function(ev) {
-        var color = getMemberColor(ev.member);
-        var label = getCalendarPreviewLabel(ev);
-        return '<span class="cal-event-preview-title" style="--preview-color:' + color +
-          '" title="' + escHtml(label) + '">' + escHtml(label) + '</span>';
+      (items.length > 2 ? '<span class="cal-cell-extra" aria-hidden="true">+' + (items.length - 2) + '</span>' : '') + '</span></div>';
+    if (items.length) {
+      var previewRows = items.slice(0, 2).map(function(item) {
+        return '<span class="cal-event-preview-title' + (item.isHoliday ? ' is-holiday' : '') +
+          '" style="--preview-color:' + item.color + '" title="' + escHtml(item.title) +
+          '">' + escHtml(item.label) + '</span>';
       }).join('');
       html += '<div class="cal-event-preview" aria-hidden="true">' + previewRows +
-        (dayEvs.length > 2 ? '<span class="cal-event-preview-more">+' + (dayEvs.length - 2) + ' till</span>' : '') +
+        (items.length > 2 ? '<span class="cal-event-preview-more">+' + (items.length - 2) + ' till</span>' : '') +
         '</div>';
-      cell.title = dayEvs.length + (dayEvs.length === 1 ? ' händelse' : ' händelser') +
-        ': ' + dayEvs.map(function(ev) { return ev.title || 'Händelse'; }).join(', ');
+      cell.title = items.map(function(item) { return item.title; }).join(', ');
       cell.setAttribute('aria-label', cell.getAttribute('aria-label') + ', ' + cell.title);
     }
     cell.innerHTML = html;
-    (function(iso, evs, hasHoliday){
+    if (interactive) (function(iso, evs, hasHoliday){
       cell.addEventListener('click', function(e){
         e.stopPropagation();
         if (evs.length || hasHoliday) {
@@ -1510,7 +1546,6 @@ function renderMonth() {
     grid.appendChild(cell);
   }
 
-  renderUpcoming();
 }
 
 function selectDay(dateISO) {
