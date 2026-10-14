@@ -681,6 +681,13 @@
       flex:1 1 80px!important;min-width:0!important;
       grid-column:auto!important;
     }
+    /* No lingering 180 ms green/cyan colour interpolation when Ingemar
+       switches from Starta passet to a themed ready/active set. */
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show #session-pretimer-toggle-v2,
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show #session-pretimer-toggle-v2 .session-timer-track-v48,
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show #session-pretimer-toggle-v2 .session-timer-knob-v48{
+      transition:none!important;
+    }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show .session-top #session-pretimer-toggle-v2{
       box-sizing:border-box!important;display:inline-flex!important;
       flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
