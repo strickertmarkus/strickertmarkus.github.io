@@ -848,74 +848,47 @@
     var list = getActiveList(lists);
     if (!list) return;
     var changed = false;
-    rawItems.forEach(function (rawText) {
-      var parsed = parseCategoryInput(rawText);
-      if (!parsed.text) return;
-      var existing = list.items.find(function (entry) { return entry && entry.type !== 'category' && norm(entry.text) === norm(parsed.text); });
+    rawItems.forEach(function(rawText) {
+      var text = normalizeItemText(rawText);
+      if (!text) return;
+      var existing = list.items.find(function(entry) {
+        return entry && entry.type !== 'category' && norm(entry.text) === norm(text);
+      });
       if (existing) {
-        if (typeof checked === 'boolean') existing.checked = !!checked;
-        if (parsed.category) {
-          var oldIndex = list.items.indexOf(existing);
-          list.items.splice(oldIndex, 1);
-          var catIndex = findCategoryIndex(list.items, parsed.category);
-          if (catIndex >= 0) insertAtCategoryEnd(list.items, list.items[catIndex].id, existing);
-          else insertUncategorized(list.items, existing);
+        if (typeof checked === 'boolean' && !!existing.checked !== !!checked) {
+          existing.checked = !!checked;
+          changed = true;
         }
-        changed = true;
         return;
       }
-      var item = { id: Date.now() + Math.random(), type: 'item', text: parsed.text, checked: !!checked };
-      if (parsed.category) {
-        var targetIndex = findCategoryIndex(list.items, parsed.category);
-        if (targetIndex >= 0) insertAtCategoryEnd(list.items, list.items[targetIndex].id, item);
-        else insertUncategorized(list.items, item);
-      } else {
-        var firstCategory = list.items.find(function (entry) { return entry && entry.type === 'category'; });
-        if (firstCategory) insertAtCategoryEnd(list.items, firstCategory.id, item);
-        else list.items.push(item);
-      }
+      var item = { id:Date.now() + Math.random(), type:'item', text:text, checked:!!checked };
+      var firstCategory = list.items.find(function(entry) { return entry && entry.type === 'category'; });
+      if (firstCategory) insertAtCategoryEnd(list.items,firstCategory.id,item);
+      else list.items.push(item);
       changed = true;
     });
-    if (changed) saveLists(lists, true);
+    if (changed) saveLists(lists,true);
   }
 
   function routeRecipeRaw(rawText) {
-    var parsed = parseCategoryInput(rawText);
-    if (!parsed.category || !parsed.text) return;
-    var lists = getLists();
-    var list = getActiveList(lists);
-    if (!list) return;
-    var raw = String(rawText || '').trim();
-    var rawItem = null;
-    for (var i = list.items.length - 1; i >= 0; i--) {
-      var entry = list.items[i];
-      if (entry && entry.type !== 'category' && String(entry.text || '').trim() === raw) {
-        rawItem = entry;
-        list.items.splice(i, 1);
-        break;
-      }
-    }
-    if (!rawItem) return;
-    rawItem.text = parsed.text;
-    var existing = list.items.find(function (entry) { return entry && entry.type !== 'category' && norm(entry.text) === norm(parsed.text); });
-    var target = existing || rawItem;
-    if (existing) {
-      existing.checked = !!rawItem.checked;
-      var existingIndex = list.items.indexOf(existing);
-      if (existingIndex >= 0) list.items.splice(existingIndex, 1);
-    }
-    var targetIndex = findCategoryIndex(list.items, parsed.category);
-    if (targetIndex >= 0) insertAtCategoryEnd(list.items, list.items[targetIndex].id, target);
-    else insertUncategorized(list.items, target);
-    saveLists(lists, true);
+    // Compatibility hook for recipe integrations. Parentheses are now literal
+    // ingredient text, never a request to move an item between store headings.
   }
 
   function rawIngredientChecked(rawText) {
-    var parsed = parseCategoryInput(rawText);
+    var text = normalizeItemText(rawText);
     var list = getActiveList(getLists());
     if (!list) return false;
-    var item = list.items.find(function (entry) { return entry && entry.type !== 'category' && norm(entry.text) === norm(parsed.text); });
+    var item = list.items.find(function(entry) {
+      return entry && entry.type !== 'category' && norm(entry.text) === norm(text);
+    });
     return !!(item && item.checked);
+  }
+
+  function parseCategoryInput(value) {
+    // Keep the previous public helper's output shape for integrations.
+    // The category mapping itself is deliberately disabled.
+    return { text:normalizeItemText(value), category:'' };
   }
 
   function install() {
