@@ -78,38 +78,58 @@
     if (!ul || !count) return;
 
     count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
-    if (!items.length) {
-      ul.innerHTML = '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>';
-      return;
-    }
 
-    var html = '';
-    var lastCategory = null;
-
-    items.forEach(function (item) {
-      var category = String(item.category || '').trim();
-      if (category !== lastCategory) {
-        if (category) {
-          html += '<li class="shopping-category-heading" aria-label="Kategori ' + escapeHtml(category) + '">' +
-            escapeHtml(category) +
-          '</li>';
-        }
-        lastCategory = category;
+    // Read actual category rows rather than deriving headings from items:
+    // empty stores must be visible too, just like on shopping.html.
+    var sections = [];
+    var uncategorized = [];
+    var activeSection = null;
+    (list && Array.isArray(list.items) ? list.items : []).forEach(function (entry) {
+      if (!entry) return;
+      if (entry.type === 'category') {
+        var name = String(entry.text || '').trim();
+        if (!name) { activeSection = null; return; }
+        activeSection = { name:name, items:[] };
+        sections.push(activeSection);
+      } else if (String(entry.text || '').trim()) {
+        if (activeSection) activeSection.items.push(entry);
+        else uncategorized.push(entry);
       }
+    });
 
+    // Keep all five standard store headings on Home even if a historical
+    // list is missing one. This fallback only affects presentation, not
+    // the saved list or Firebase category data.
+    var defaults = ['Maxi','Willys','Hemköp','Lidl','Coop'];
+    defaults.forEach(function (name) {
+      var exists = sections.some(function (section) {
+        return section.name.toLocaleLowerCase('sv-SE') === name.toLocaleLowerCase('sv-SE');
+      });
+      if (!exists) sections.push({ name:name, items:[] });
+    });
+
+    function itemHtml(item) {
       var rawText = String(item.text || '');
-      var rawTextAttr = escapeHtml(rawText);
-      html += '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
+      return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
         '<input type="checkbox" ' + (item.checked ? 'checked' : '') +
           ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
-        '<span class="txt" data-raw-text="' + rawTextAttr +
+        '<span class="txt" data-raw-text="' + escapeHtml(rawText) +
           '" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' +
           escapeHtml(rawText) +
         '</span>' +
         '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
       '</li>';
-    });
+    }
 
+    var html = !items.length
+      ? '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>'
+      : '';
+    uncategorized.forEach(function (item) { html += itemHtml(item); });
+    sections.forEach(function (section) {
+      html += '<li class="shopping-category-heading" aria-label="Kategori ' + escapeHtml(section.name) + '">' +
+        escapeHtml(section.name) + '</li>';
+      section.items.forEach(function (item) { html += itemHtml(item); });
+    });
     ul.innerHTML = html;
   }
 
