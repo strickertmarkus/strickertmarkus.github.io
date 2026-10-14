@@ -293,7 +293,7 @@ async function verifyTouchDrag(page,label){
  };
  snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#e65c66',rgb:'230,92,102',text:'rgb(242, 155, 161)',rgbText:'rgb(230, 92, 102)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
- snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67E8F9',rgb:'34,211,238',text:'rgb(207, 250, 254)',rgbText:'rgb(103, 232, 249)'});
+ snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67E8F9',rgb:'34,211,238',text:'rgb(207, 250, 254)',rgbText:'rgb(34, 211, 238)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
  snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#EF4444',rgb:'239,68,68',text:'rgb(252, 165, 165)',rgbText:'rgb(239, 68, 68)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
