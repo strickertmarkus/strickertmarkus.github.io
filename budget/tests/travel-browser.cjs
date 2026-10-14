@@ -30,6 +30,15 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  await markusInline.fill('Laddare');await markusInline.press('Enter');
  await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Laddare'&&x.owner==='Markus'));
  assert.equal(await page.locator('.packing-group[data-drop-group="Markus"] [data-item]').count(),2);
+
+ await page.locator('[data-action=pack-new-heading]').click();
+ await page.locator('#packing-new-heading [name=title]').fill('Leksaker');
+ await page.locator('#packing-new-heading [name=title]').press('Enter');
+ await page.waitForFunction(()=>document.querySelector('.packing-group[data-drop-group="Leksaker"]'));
+ assert((await page.evaluate(()=>TravelStore.list().find(x=>x.type==='trip').packingCategories)).includes('Leksaker'));
+ await page.locator('.packing-group[data-drop-group="Leksaker"] .packing-inline-add [name=title]').fill('Gosedjur');
+ await page.locator('.packing-group[data-drop-group="Leksaker"] .packing-inline-add [name=title]').press('Enter');
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Gosedjur'&&x.category==='Leksaker'));
  await page.locator('.packing-filter>summary').click();await page.locator('[data-filter=packingGroup]').selectOption('category');
  const clothesInline=page.locator('.packing-group[data-drop-group="Kläder"] .packing-inline-add [name=title]');
  await clothesInline.fill('Regnjacka');await clothesInline.press('Enter');
@@ -82,6 +91,6 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  // A denied cloud write stays durably queued and survives a reload.
  deny=true;await page.evaluate(()=>TravelStore.add('note',TravelStore.list().find(x=>x.title==='Ny resa').id,{title:'Offline utkast',notes:'Behåll'}));await page.waitForFunction(()=>TravelStore.status().includes('behörighet'));await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>TravelStore.list().some(x=>x.title==='Offline utkast'));deny=false;await page.evaluate(()=>TravelStore.flush());await page.waitForFunction(()=>TravelStore.status()==='Synkat med familjen');
  await tab(page,'note');await page.locator('#add').click();await page.locator('#edit-form [name=title]').fill('Återställ utkast');await page.locator('#close').click();await page.locator('#add').click();assert.equal(await page.locator('#edit-form [name=title]').inputValue(),'Återställ utkast');await geometry(page);await page.locator('#close').click();
- for(const width of [320,1280]){await page.setViewportSize({width,height:900});await tab(page,'overview');await geometry(page);await page.screenshot({path:output+'/overview-'+width+'.png',fullPage:true});await tab(page,'booking');await page.locator('#add').click();await page.locator('#edit-form [name=category]').selectOption('Flyg');await geometry(page);assert.equal(await page.locator('#edit-form [name=arrivalTimezone]').count(),1);await page.screenshot({path:output+'/booking-editor-'+width+'.png'});await page.locator('#close').click();}
+ for(const width of [320,1280]){await page.setViewportSize({width,height:900});await tab(page,'packing');await geometry(page);await page.screenshot({path:output+'/packing-'+width+'.png',fullPage:true});await tab(page,'overview');await geometry(page);await page.screenshot({path:output+'/overview-'+width+'.png',fullPage:true});await tab(page,'booking');await page.locator('#add').click();await page.locator('#edit-form [name=category]').selectOption('Flyg');await geometry(page);assert.equal(await page.locator('#edit-form [name=arrivalTimezone]').count(),1);await page.screenshot({path:output+'/booking-editor-'+width+'.png'});await page.locator('#close').click();}
  const home=await ctx.newPage();await home.goto(base+'/budget/home.html',{waitUntil:'domcontentloaded'});await home.waitForSelector('.ft-trip-link');await home.locator('#family-todo-home').screenshot({path:output+'/home-tasks-390.png'});assert(await home.locator('#family-todo-home').evaluate(el=>el.scrollWidth<=el.clientWidth+1));await home.close();assert.deepEqual(errors,[]);await ctx2.close();await ctx.close();await browser.close();console.log('Travel workflows: packing/templates, tasks/Home/two devices, drag/time shifts, budget/refunds, bookings, map, notes, multi-upload, offline files, backup, duplicate and durable retry passed.');
 })().catch(e=>{console.error(e);process.exit(1);});
