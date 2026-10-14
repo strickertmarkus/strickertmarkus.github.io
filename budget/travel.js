@@ -236,7 +236,7 @@ async function click(event){const b=event.target.closest('button');if(!b)return;
  if(act==='undo'&&undoAction){const undo=undoAction;undoAction=null;await undo();$('toast').hidden=true;}
  if(act==='trip-tools')tripTools();if(act==='duplicate')duplicatePanel();
  if(act==='archive'){await S.patch(tripId,{archived:!trip().archived});$('utility').close();render(true);}
- if(act==='print')printTrip();if(act==='templates')templatePanel();
+ if(act==='print')printTrip();if(act==='templates'){document.querySelector('.packing-filter')?.removeAttribute('open');templatePanel();}
  if(act==='pack-new-heading'){addingPackingHeading=true;render(true);$('packing-new-heading')?.elements.title.focus({preventScroll:true});return;}
  if(act==='pack-cancel-heading'){addingPackingHeading=false;render(true);return;}
  if(act==='schedule-today'){day=currentDay();if(!availableDays().includes(day))return openEditor('activity',null,{date:day,timing:'flex'});render(true);}
