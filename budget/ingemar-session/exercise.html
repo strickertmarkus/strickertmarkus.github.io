@@ -656,17 +656,17 @@
       color:var(--ingemar-workout-accent)!important;
     }
     /* Use the same theme on the small 5 s switch after the green intro. */
-    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"]{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) body #session-pretimer-toggle-v2#session-pretimer-toggle-v2#session-pretimer-toggle-v2[aria-pressed="true"]{
       color:var(--ingemar-workout-soft)!important;
       border-color:rgba(var(--ingemar-workout-rgb),.62)!important;
       background:linear-gradient(135deg,rgba(var(--ingemar-workout-rgb),.17),rgba(var(--ingemar-workout-rgb),.075))!important;
       box-shadow:inset 0 0 0 1px rgba(var(--ingemar-workout-rgb),.16),0 0 15px rgba(var(--ingemar-workout-rgb),.19)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) body #session-pretimer-toggle-v2#session-pretimer-toggle-v2#session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48{
       background:rgba(var(--ingemar-workout-rgb),.32)!important;
       box-shadow:inset 0 0 0 1px rgba(var(--ingemar-workout-rgb),.38),0 0 10px rgba(var(--ingemar-workout-rgb),.25)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) body #session-pretimer-toggle-v2#session-pretimer-toggle-v2#session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48{
       background:var(--ingemar-workout-soft)!important;
       box-shadow:0 0 8px rgba(var(--ingemar-workout-rgb),.8)!important;
     }
@@ -887,8 +887,13 @@ function syncIngemarSessionTone(){
   delete modal.dataset.ingemarWorkoutTone;
   delete document.documentElement.dataset.ingemarWorkoutTone;
  }
- if(intro)modal.dataset.ingemarIntro='true';
- else delete modal.dataset.ingemarIntro;
+ if(intro){
+  modal.dataset.ingemarIntro='true';
+  document.documentElement.dataset.ingemarIntro='true';
+ }else{
+  delete modal.dataset.ingemarIntro;
+  delete document.documentElement.dataset.ingemarIntro;
+ }
  if(readyTone)modal.dataset.ingemarReadyTone=readyTone;
  else delete modal.dataset.ingemarReadyTone;
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
