@@ -92,7 +92,7 @@ async function verify(width,profile){
  await frame.locator('#session-controls .primary').click();
  await frame.locator('#session-controls .primary').click();
  await frame.waitForFunction(()=>!!sessionState.__betweenCustomRuntimeV3);
- await frame.locator('#session-controls .primary').click();
+ // The transition click starts the custom exercise through the normal gate.
  await frame.waitForFunction(()=>sessionState.setRunning);
  await frame.waitForSelector('#session-countdown-ring.is-overtime');
  await frame.waitForFunction(()=>!document.documentElement.classList.contains('cardio-focus-active'));
