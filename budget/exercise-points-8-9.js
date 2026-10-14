@@ -170,10 +170,10 @@
           html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *,
           html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *::before,
           html.exercise-energy-saving body :is(#session-modal,#session-between-overlay-v2,#session-pre-timer,#cardio-focus) *::after {
-            animation-play-state:paused!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+            animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
           }
           html.exercise-energy-saving body #session-modal::before,
-          html.exercise-energy-saving body #session-modal::after { animation-play-state:paused!important; }
+          html.exercise-energy-saving body #session-modal::after { animation:none!important; }
           html.exercise-energy-saving body #session-modal .session-top { backdrop-filter:none!important;-webkit-backdrop-filter:none!important; }
           /* The live session sits outside .app-wrap in exercise.html. Hiding
              the covered dashboard preserves its layout/state but lets Safari

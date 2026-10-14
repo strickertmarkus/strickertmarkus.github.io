@@ -98,6 +98,9 @@ async function verify(width,profile){
  await frame.waitForFunction(()=>!document.documentElement.classList.contains('cardio-focus-active'));
  assert.equal(await frame.evaluate(()=>!!sessionState.__betweenCustomRuntimeV3),true);
  const timerRect=await frame.locator('#session-countdown-ring').boundingBox();assert.ok(timerRect.width<220,'custom overtime collapses '+JSON.stringify(timerRect));
+ // Pausing an entrance animation at opacity zero would pass geometry checks.
+ const visibleOpacity=await frame.locator('#session-countdown-value').evaluate(n=>{let opacity=1;for(let p=n;p;p=p.parentElement)opacity*=Number(getComputedStyle(p).opacity);return opacity;});
+ assert.ok(visibleOpacity>.9,'custom overtime must remain visually visible in energy mode');
  await shot('between-overtime');
  await frame.locator('#session-controls .primary').click();
  await frame.waitForFunction(()=>!sessionState.__betweenCustomRuntimeV3);
