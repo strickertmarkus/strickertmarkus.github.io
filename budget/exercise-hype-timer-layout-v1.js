@@ -9,7 +9,6 @@
   window.__exerciseSessionControllerV46Installed = true;
 
   var liveFrame = 0;
-  var lastPaintAt = 0;
   var unifiedPretimer = null;
 
   function addStyles() {
@@ -30,7 +29,7 @@
       }
       #session-modal.show .session-top {
         display:grid !important;
-        grid-template-columns:minmax(104px,1fr) auto auto auto !important;
+        grid-template-columns:minmax(104px,1fr) repeat(4,auto) !important;
         align-items:center !important;
         gap:7px !important;
       }
@@ -294,11 +293,12 @@
 
       @media(max-width:600px) {
         #session-modal.show .session-top {
-          grid-template-columns:minmax(94px,1fr) auto auto auto !important;
+          grid-template-columns:1fr repeat(3,auto) !important;
           gap:5px !important;
           padding-left:12px !important;
           padding-right:12px !important;
         }
+        #session-modal.show .session-top > div:first-child { grid-column:1 / -1!important; }
         #session-modal.show .session-top .session-view-toggle {
           min-height:36px !important;
           padding:7px 8px !important;
@@ -351,7 +351,7 @@
 
       @media(max-width:360px) {
         #session-modal.show .session-top {
-          grid-template-columns:minmax(0,1fr) auto auto !important;
+          grid-template-columns:1fr repeat(3,auto) !important;
         }
         #session-modal.show .session-top > div:first-child {
           grid-column:1 / -1 !important;
@@ -469,7 +469,13 @@
     var end = state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : now;
     var elapsed = Math.max(0, (end - Number(state.setStartedAt)) / 1000);
     var remaining = Math.max(0, total - elapsed);
-    setText('session-countdown-value', formatClock(Math.ceil(remaining)));
+    var overtime = elapsed >= total;
+    var ring = document.getElementById('session-countdown-ring');
+    if (ring) ring.classList.toggle('is-overtime',overtime);
+    var label=wrap.querySelector('.session-countdown-label');
+    var caption=overtime?'Övertid':'Tid kvar';
+    if(label&&label.textContent!==caption)label.textContent=caption;
+    setText('session-countdown-value', overtime ? '+ ' + Math.floor(elapsed - total) : formatClock(Math.ceil(remaining)));
 
     var activeCount = Math.max(0, Math.min(60, Math.ceil(60 * remaining / total)));
     if (wrap.dataset.activeCountV46 === String(activeCount)) return;
@@ -525,13 +531,16 @@
     paintPretimer(now);
   }
 
-  function liveLoop(frameTime) {
-    if (frameTime - lastPaintAt >= 32) {
-      lastPaintAt = frameTime;
-      paintLiveTimers();
+  function liveLoop() {
+    liveFrame = 0;
+    if (document.hidden) return;
+    paintLiveTimers();
+    if (!liveFrame && (getState() || unifiedPretimer)) {
+      // Only the five-second gate needs smooth updates. Clock text changes
+      // once per second; all elapsed time is still derived from timestamps.
+      var delay = unifiedPretimer && !window.__exerciseEnergySaving ? 32 : 100;
+      liveFrame = setTimeout(liveLoop,delay);
     }
-    if (getState() || unifiedPretimer) liveFrame = requestAnimationFrame(liveLoop);
-    else liveFrame = 0;
   }
 
   function startUnifiedTimerLoop() {
@@ -539,15 +548,12 @@
       paintLiveTimers();
       return;
     }
-    lastPaintAt = 0;
-    liveFrame = requestAnimationFrame(liveLoop);
-    paintLiveTimers();
+    if (!document.hidden) liveLoop();
   }
 
   function stopUnifiedTimerLoop() {
-    if (liveFrame) cancelAnimationFrame(liveFrame);
+    if (liveFrame) clearTimeout(liveFrame);
     liveFrame = 0;
-    lastPaintAt = 0;
     cancelUnifiedPretimer();
     var state = getState();
     if (state) delete state.__restTransitionPendingV48;
@@ -630,7 +636,7 @@
 
   function armRestTransition(kind) {
     var state = getState();
-    if (!state || (kind !== 'next' && kind !== 'finish')) return;
+    if (!state || (kind !== 'next' && kind !== 'finish' && kind !== 'extra')) return;
     state.__restTransitionPendingV48 = {
       passToken:String(state.passStartedAt || ''),
       exerciseIndex:Number(state.exerciseIndex),
@@ -653,6 +659,7 @@
     var state = getState();
     var exercise = currentExercise(state);
     if (!state || !exercise || state.setRunning || !state.awaitingDecision) return;
+    consumeRestTransition(state, 'extra');
     exercise.plannedSets = Math.max(1, Number(exercise.plannedSets) || 1) + 1;
     state.currentSet = Math.max(1, Number(state.currentSet) || 1) + 1;
     state.awaitingDecision = false;
@@ -730,6 +737,10 @@
     syncSessionChrome();
     if (getState()) startUnifiedTimerLoop();
     document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        clearTimeout(liveFrame);
+        liveFrame = 0;
+      }
       if (!document.hidden && getState()) {
         paintLiveTimers();
         startUnifiedTimerLoop();

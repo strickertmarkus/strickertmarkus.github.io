@@ -110,7 +110,7 @@
       cells = [
         ['Runda', String(state.currentSet || 1)],
         ['Distans', ex.distance ? ex.distance + ' km' : '—'],
-        ['Tid (min)', ex.time ? ex.time + ' min' : '—']
+        [Number(ex.time)<1?'Tid (s)':'Tid (min)', ex.time ? (Number(ex.time)<1?Math.round(Number(ex.time)*60)+' s':Number(Number(ex.time).toFixed(2))+' min') : '—']
       ];
     } else {
       cells = [

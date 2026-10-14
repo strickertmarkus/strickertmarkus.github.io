@@ -82,7 +82,7 @@ async function verify(browser,mobile){
  assert.equal(await frame.locator('#session-modal').evaluate(el=>el.classList.contains('pulse-flow-active-v58')),true);
 
  fs.mkdirSync('test-results/pulse-field',{recursive:true});await page.screenshot({path:'test-results/pulse-field/robust-session-'+(mobile?'mobile':'desktop')+'.png'});
- await page.locator('#field-workspace-close').click();await closed(page);
+ await frame.locator('#session-modal .session-top [onclick="stopSessionMode(true)"]').click();await closed(page);
  await day.click();await frame.waitForSelector('#day-workout-modal.show');assert.equal(await frame.locator('#pretimer-builder-switch-v2').count(),1);
  await frame.locator('#day-workout-modal .modal h2').waitFor({state:'visible'});await page.waitForTimeout(300);await page.screenshot({path:'test-results/pulse-field/robust-builder-'+(mobile?'mobile':'desktop')+'.png'});await page.locator('#field-workspace-close').click();await closed(page);
  await page.locator('#training-overview-toggle').click();

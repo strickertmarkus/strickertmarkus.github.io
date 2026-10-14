@@ -649,7 +649,9 @@
         var sessionObserver=new MutationObserver(function () {
           requestAnimationFrame(syncEmbeddedSession);
         });
-        sessionObserver.observe(sessionModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-pressed']});
+        sessionObserver.observe(sessionModal,{attributes:true,attributeFilter:['class']});
+        var controls=document.getElementById('session-controls');
+        if(controls)sessionObserver.observe(controls,{subtree:true,childList:true});
       }
       document.addEventListener('click',function (event) {
         if (!event.target || !event.target.closest) return;

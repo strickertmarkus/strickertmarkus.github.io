@@ -7,6 +7,7 @@
   var STYLE_ID = 'exercise-pulse-flow-canvas-glow-v140-style';
   var mobileMq = window.matchMedia ? window.matchMedia('(max-width:600px)') : { matches:true };
   var rafId = 0;
+  var slowTimer = 0;
   var modalObserver = null;
   var installObserver = null;
   var DPR = Math.min(1.5, Math.max(1, Number(window.devicePixelRatio) || 1));
@@ -159,26 +160,6 @@
     if (ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
   }
 
-  function pointToCanvas(path,point,canvasRect,scale) {
-    var ctm = null;
-    try { ctm = path.getScreenCTM(); } catch (_) {}
-    if (ctm && window.DOMPoint) {
-      var p = new DOMPoint(point.x,point.y).matrixTransform(ctm);
-      return { x:(p.x-canvasRect.left)*scale, y:(p.y-canvasRect.top)*scale };
-    }
-
-    var svg = path.ownerSVGElement;
-    var svgRect = svg ? svg.getBoundingClientRect() : canvasRect;
-    var vb = svg && svg.viewBox && svg.viewBox.baseVal;
-    var vx = vb ? vb.x : 0, vy = vb ? vb.y : 0;
-    var vw = vb && vb.width ? vb.width : svgRect.width;
-    var vh = vb && vb.height ? vb.height : svgRect.height;
-    return {
-      x:((svgRect.left-canvasRect.left) + ((point.x-vx)/vw)*svgRect.width)*scale,
-      y:((svgRect.top-canvasRect.top) + ((point.y-vy)/vh)*svgRect.height)*scale
-    };
-  }
-
   function samplePath(path,canvasRect,scale,steps) {
     if (!path || typeof path.getTotalLength !== 'function' || typeof path.getPointAtLength !== 'function') return null;
     var len = 0;
@@ -186,10 +167,13 @@
     if (!(len > 0)) return null;
     steps = Math.max(4,steps || 24);
     var pts = [], totalPx = 0, prev = null;
+    var matrix = path.getScreenCTM();
+    if (!matrix) return null;
     for (var i=0;i<=steps;i++) {
       var p = null;
       try { p = path.getPointAtLength(len * i / steps); } catch (_) { return null; }
-      var q = pointToCanvas(path,p,canvasRect,scale);
+      var q = {x:(matrix.a*p.x+matrix.c*p.y+matrix.e-canvasRect.left)*scale,
+               y:(matrix.b*p.x+matrix.d*p.y+matrix.f-canvasRect.top)*scale};
       if (prev) totalPx += Math.hypot(q.x-prev.x,q.y-prev.y);
       pts.push(q);
       prev = q;
@@ -240,6 +224,7 @@
     if (!svg) return;
 
     var canvas = ensureCanvas(signal,'pf-canvas-mini-v130');
+    if (!canvas.getClientRects().length) return;
     var size = sizeCanvas(canvas);
     if (!size) return;
     var ctx = canvas.getContext('2d');
@@ -255,7 +240,7 @@
 
   function paintMiniEcgs() {
     document.querySelectorAll('#session-countdown-ring .pf-ecg-v80').forEach(function (signal) {
-      paintMini(signal,parseRgb(signal.closest('#session-modal') || signal,'--pf-rgb',[239,68,68]));
+      paintMini(signal,parseRgb(signal.closest('#session-countdown-ring') || signal,'--pf-rgb',[239,68,68]));
     });
     document.querySelectorAll('#session-between-overlay-v2 .pf-ecg-v80').forEach(function (signal) {
       paintMini(signal,parseRgb(signal.closest('#session-between-overlay-v2') || signal,'--pf-between-rgb',[34,211,238]));
@@ -263,12 +248,13 @@
   }
 
   function paintArc(ring,varName,fallback) {
-    if (!ring) return;
+    if (!ring || !ring.getClientRects().length) return;
     var svg = ring.querySelector(':scope > .pf-arc-svg-v80');
     var path = svg && svg.querySelector('.pf-arc-progress-v80');
     if (!svg || !path || !path.getAttribute('d')) return;
 
     var canvas = ensureCanvas(ring,'pf-canvas-arc-v130');
+    if (!canvas.getClientRects().length) return;
     var size = sizeCanvas(canvas);
     if (!size) return;
     var ctx = canvas.getContext('2d');
@@ -308,17 +294,21 @@
     }
     paintMiniEcgs();
     paintArcs();
-    rafId = requestAnimationFrame(frame);
+    if (window.__exerciseEnergySaving) slowTimer = setTimeout(function(){slowTimer=0;frame();},1000);
+    else rafId = requestAnimationFrame(frame);
   }
 
   function syncLoop() {
     removeLegacyLargeCanvas();
     if (isSessionVisible()) {
-      if (!rafId) rafId = requestAnimationFrame(frame);
+      // Class mutations must not bypass the energy-saving cadence.
+      if (!rafId && !slowTimer) rafId = requestAnimationFrame(frame);
     } else {
+      var wasRunning = rafId || slowTimer;
       if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(slowTimer);slowTimer=0;
       rafId = 0;
-      clearAll();
+      if (wasRunning) clearAll();
     }
   }
 
@@ -345,6 +335,22 @@
       installObserver.observe(document.documentElement,{childList:true,subtree:true});
     }
     document.addEventListener('visibilitychange',syncLoop,{passive:true});
+    // Repaint discrete timer state changes immediately, without waking on
+    // unrelated class writes or resuming continuous animation in energy mode.
+    var timerRing=document.getElementById('session-countdown-ring'),timerState='';
+    var timerObserver=new MutationObserver(function () {
+      var next=String(document.documentElement.classList.contains('cardio-focus-active'))+'|'+String(timerRing&&timerRing.classList.contains('is-overtime'));
+      if(next===timerState)return;
+      timerState=next;
+      clearTimeout(slowTimer);slowTimer=0;
+      syncLoop();
+    });
+    timerObserver.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    if(timerRing)timerObserver.observe(timerRing,{attributes:true,attributeFilter:['class']});
+    document.addEventListener('exercise:energy-change',function () {
+      clearTimeout(slowTimer);slowTimer=0;
+      syncLoop();
+    });
     if (mobileMq.addEventListener) mobileMq.addEventListener('change',syncLoop);
     else if (mobileMq.addListener) mobileMq.addListener(syncLoop);
     window.addEventListener('resize',syncLoop,{passive:true});

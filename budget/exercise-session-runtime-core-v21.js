@@ -318,6 +318,9 @@
 
     var timedCardio = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0 && state.setStartedAt);
     if (!timedCardio) return;
+    // The controller owns countdown/overtime text and segments. This module
+    // only paints pause controls once the controller is installed.
+    if (window.__exerciseSessionControllerV46Installed) return;
 
     var totalSeconds = Number(ex.time) * 60;
     var elapsed = pausedElapsedSeconds(state);

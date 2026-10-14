@@ -360,13 +360,10 @@
     document.head.appendChild(style);
   }
 
-  var lastLoopRender = 0;
-  function loop(now) {
-    if (!lastLoopRender || now - lastLoopRender >= 120) {
-      lastLoopRender = now;
-      renderCanonicalProgress();
-    }
-    requestAnimationFrame(loop);
+  var progressFrame = 0;
+  function scheduleProgress() {
+    if (progressFrame || document.hidden) return;
+    progressFrame=requestAnimationFrame(function(){progressFrame=0;renderCanonicalProgress();});
   }
 
   function install() {
@@ -374,7 +371,14 @@
     window.__exerciseProgressConsistencyV91Installed = true;
     addStyles();
     ensureProgressShell();
-    requestAnimationFrame(loop);
+    var modal=document.getElementById('session-modal');
+    var controls=document.getElementById('session-controls');
+    var observer=new MutationObserver(scheduleProgress);
+    if(modal)observer.observe(modal,{attributes:true,attributeFilter:['class']});
+    if(controls)observer.observe(controls,{subtree:true,childList:true});
+    document.addEventListener('visibilitychange',scheduleProgress);
+    document.addEventListener('click',function(event){if(event.target.closest('#session-modal,#session-between-overlay-v2'))scheduleProgress();});
+    scheduleProgress();
     window.__exerciseProgressConsistencyV10 = {
       calculate:calculate,
       render:renderCanonicalProgress,
