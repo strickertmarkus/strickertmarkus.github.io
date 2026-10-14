@@ -626,19 +626,30 @@
     #session-modal[data-ingemar-workout-tone="cardio"]{
       --ingemar-workout-accent:#fb923c;--ingemar-workout-soft:#fed7aa;--ingemar-workout-rgb:251,146,60;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer.show{
+    /* The full-screen 5 s overlay may be hoisted by shared runners, so
+       expose its colour tokens on the document as well as the session modal. */
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="push"]{
+      --ingemar-workout-accent:#e65c66;--ingemar-workout-soft:#f29ba1;--ingemar-workout-rgb:230,92,102;
+    }
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="pull"]{
+      --ingemar-workout-accent:#67e8f9;--ingemar-workout-soft:#cffafe;--ingemar-workout-rgb:34,211,238;
+    }
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="cardio"]{
+      --ingemar-workout-accent:#fb923c;--ingemar-workout-soft:#fed7aa;--ingemar-workout-rgb:251,146,60;
+    }
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer.show{
       --concept-timer-rgb:var(--ingemar-workout-rgb)!important;
       background:#080d14!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer-ring{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring{
       background:conic-gradient(var(--ingemar-workout-accent) var(--pre-smooth-progress,0deg),rgba(var(--ingemar-workout-rgb),.14) 0deg)!important;
       box-shadow:0 0 35px rgba(var(--ingemar-workout-rgb),.23)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer-ring::before{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring::before{
       background:#0c121b!important;
       border-color:rgba(var(--ingemar-workout-rgb),.28)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer-ring::after{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring::after{
       background:var(--ingemar-workout-accent)!important;
       box-shadow:0 0 8px rgba(var(--ingemar-workout-rgb),.65)!important;
     }
@@ -646,7 +657,7 @@
       color:var(--ingemar-workout-soft)!important;
       text-shadow:0 0 16px rgba(var(--ingemar-workout-rgb),.24)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer .session-pre-label{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer .session-pre-label{
       color:var(--ingemar-workout-soft)!important;
     }
     /* Compact header controls: override the shared grid's full-width mobile
@@ -859,8 +870,13 @@ function syncIngemarSessionTone(){
  var workoutTone=st.type==='Push'?'push':st.type==='Pull'?'pull':st.type==='Kondition'?'cardio':'';
  var intro=firstReady&&!resting&&!(pre&&pre.classList.contains('show'));
  var readyTone=!firstReady&&!st.setRunning&&!resting&&!transition&&current?workoutTone:'';
- if(workoutTone)modal.dataset.ingemarWorkoutTone=workoutTone;
- else delete modal.dataset.ingemarWorkoutTone;
+ if(workoutTone){
+  modal.dataset.ingemarWorkoutTone=workoutTone;
+  document.documentElement.dataset.ingemarWorkoutTone=workoutTone;
+ }else{
+  delete modal.dataset.ingemarWorkoutTone;
+  delete document.documentElement.dataset.ingemarWorkoutTone;
+ }
  if(intro)modal.dataset.ingemarIntro='true';
  else delete modal.dataset.ingemarIntro;
  if(readyTone)modal.dataset.ingemarReadyTone=readyTone;
