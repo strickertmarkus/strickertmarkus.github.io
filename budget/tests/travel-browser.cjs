@@ -25,7 +25,7 @@ async function checkPackingFilter(page){
  });
  assert(bounds.left>=bounds.minX-1&&bounds.right<=bounds.maxX+1,'Filter extends beyond horizontal viewport: '+JSON.stringify(bounds));
  assert(bounds.top>=bounds.minY-1&&bounds.bottom<=bounds.maxY+1,'Filter extends beyond vertical viewport: '+JSON.stringify(bounds));
- await page.locator('#section-title').click();
+ await page.mouse.click(3,8);
  assert.equal(await page.locator('.packing-filter[open]').count(),0,'Outside tap did not close filter');
  await trigger.click();
  await page.keyboard.press('Escape');
