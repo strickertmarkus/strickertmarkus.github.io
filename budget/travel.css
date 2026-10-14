@@ -14,3 +14,53 @@
 .packing-inline-add:focus-within input{border-color:#fdba7448;background:#fdba7408}
 .packing-inline-add button{flex:none;min-width:38px;width:38px;min-height:38px;padding:0;border-color:transparent;color:var(--accent);background:transparent;font-size:21px}
 .packing-inline-add button:hover,.packing-inline-add button:focus-visible{background:#fdba740a;border-color:#fdba7440}
+
+
+/* Compact packlista — scoped so the rest of the travel planner keeps its design. */
+#workspace:has(.packing-tools) .section-head{margin:17px 0 9px}
+#workspace:has(.packing-tools) .section-head button#add{display:none}
+.packing-summary{display:flex;align-items:center;gap:14px;padding:8px 3px!important;border:0!important;border-radius:0!important;background:none!important;margin:0 0 2px!important}
+.packing-summary>strong{font-size:13px!important;font-weight:550;white-space:nowrap;color:var(--muted)}
+.packing-summary>.metric-bar{flex:1;min-width:25px;height:4px;margin:0}
+.packing-tools{position:relative;z-index:3;display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:2px 0 9px}
+.packing-tools>.pack-heading-button,.packing-filter>summary{display:flex;align-items:center;justify-content:center;min-height:35px;padding:5px 12px;font-size:12px;line-height:1.3;border:1px solid var(--line);border-radius:9px;background:#ffffff05;color:var(--ink);white-space:nowrap}
+.packing-tools>.pack-heading-button{color:var(--accent);border-color:#fdba7438}
+.packing-filter{position:relative}
+.packing-filter>summary{list-style:none;cursor:pointer}
+.packing-filter>summary::-webkit-details-marker{display:none}
+.packing-filter[open]>summary{color:var(--accent);border-color:#fdba7448}
+.packing-filter-panel{position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:min(310px,calc(100vw - 34px));max-height:min(60dvh,480px);overflow:auto;padding:14px;background:#161b22;border:1px solid #fdba7438;border-radius:13px;box-shadow:0 14px 40px #000a;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.packing-filter-panel label{display:grid;gap:4px;min-width:0;font-size:11px;color:var(--muted)}
+.packing-filter-panel select{width:100%;min-height:40px;padding:6px 8px;font-size:16px}
+.packing-filter-caption{grid-column:1/-1;color:var(--muted);font-size:11px;padding-top:2px}
+.packing-jumps{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.packing-jumps button{min-height:34px;text-align:left;padding:6px 9px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.packing-filter-footer{grid-column:1/-1;padding-top:5px;border-top:1px solid var(--line)}
+.packing-filter-footer button{width:100%;min-height:36px;font-size:12px}
+.packing-new-heading{display:flex;align-items:center;gap:6px;margin:5px 0 10px;padding:4px 0;border-bottom:1px solid #fdba7440}
+.packing-new-heading input{flex:1;width:auto;min-height:39px;border:0;background:transparent;font-size:16px;padding:5px 8px}
+.packing-new-heading button{min-height:34px;padding:5px 11px;font-size:12px}
+.packing-new-heading .pack-cancel-heading{color:var(--muted);border:0;background:transparent}
+.packing-group{min-height:0;scroll-margin-top:20px}
+.packing-group>.day-heading{display:flex;align-items:baseline;gap:9px;margin:10px 1px 0;padding:7px 4px 6px;font-size:12px;line-height:1.2;font-weight:750;letter-spacing:.65px;text-transform:uppercase;color:var(--accent);border-bottom:1px solid #fdba7430}
+.packing-group>.day-heading:after{display:none}
+.packing-group>.day-heading small{font-size:11px;font-weight:400;letter-spacing:0;color:var(--muted)}
+.packing-group .check-row{display:grid;grid-template-columns:18px minmax(0,1fr) 30px 27px;align-items:center;gap:8px;min-height:41px;margin:0;padding:5px 4px;border-bottom:1px solid #ffffff12;background:transparent}
+.packing-group .check-row .info{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.packing-group .check-row .title{font-size:14px;line-height:1.4;min-width:0;overflow-wrap:anywhere}
+.packing-group .check-row .packing-qty{display:inline;font-size:11px;line-height:1.2;margin:0;color:var(--muted);white-space:nowrap}
+.packing-group .check-row input[type=checkbox]{appearance:none;-webkit-appearance:none;display:grid;place-content:center;width:17px;height:17px;min-width:17px;min-height:17px;margin:0;padding:0;border:1px solid #94a3b8b8;border-radius:4px;background:transparent;box-shadow:inset 0 1px 0 #ffffff0d;cursor:pointer}
+.packing-group .check-row input[type=checkbox]::before{content:'';display:block;width:8px;height:5px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:translateY(-1px) rotate(-45deg) scale(0);transition:transform .12s ease}
+.packing-group .check-row input[type=checkbox]:checked{border-color:var(--accent);background:#fdba740b;box-shadow:0 0 0 2px #fdba7425,0 0 12px #fdba742a}
+.packing-group .check-row input[type=checkbox]:checked::before{transform:translateY(-1px) rotate(-45deg) scale(1)}
+.packing-group .check-row .pack-edit,.packing-group .check-row .handle{display:grid;place-items:center;margin:0;width:29px;min-width:0;min-height:31px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:15px;line-height:1}
+.packing-group .check-row .handle{font-size:20px;width:27px;touch-action:none}
+.packing-group .check-row.done .title{color:var(--muted);text-decoration:line-through}
+.packing-inline-add{display:grid;grid-template-columns:18px minmax(0,1fr) 30px 27px;align-items:center;gap:8px;min-height:39px;margin:0;padding:2px 4px;border-bottom:1px solid #ffffff12}
+.packing-inline-add::before{content:'+';font-size:16px;color:var(--muted);text-align:center}
+.packing-inline-add input{grid-column:2;min-height:35px;width:100%;padding:4px 3px;border:1px solid transparent;border-radius:6px;background:transparent;font-size:16px;line-height:1.4}
+.packing-inline-add input::placeholder{color:var(--muted);opacity:.70}
+.packing-inline-add:focus-within input{background:#fdba7407;border-color:#fdba742c}
+.packing-inline-add button{grid-column:3;min-width:30px;width:30px;min-height:32px;height:32px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--accent);font-size:19px}
+.packing-inline-add button:focus-visible,.packing-inline-add button:hover{background:#fdba7410}
+@media(max-width:440px){.packing-summary{padding:6px 2px!important}.packing-group>.day-heading{margin-top:8px}.packing-group .check-row{gap:7px;padding:4px 3px;min-height:40px}.packing-inline-add{gap:7px;padding:2px 3px;min-height:39px}}
