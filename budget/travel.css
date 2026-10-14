@@ -77,3 +77,6 @@
 .packing-group .check-row .pack-delete:hover,.packing-group .check-row .pack-delete:focus-visible{color:#ffb4aa;background:#ffb4aa0d;opacity:1}
 .packing-group .check-row .packing-qty{cursor:text}
 .packing-group .check-row .pack-quantity-input{display:inline-block;width:66px;min-width:0;min-height:31px;padding:3px 5px;border:1px solid #fdba7470;border-radius:6px;background:#fdba7409;color:var(--ink);font-size:16px;line-height:1.2;outline:none}
+
+/* Prevent iOS text zoom while keeping non-editing list rows compact. */
+.packing-group .pack-item-text[contenteditable=true],.packing-group .pack-group-name[contenteditable=true]{font-size:16px;line-height:1.45}
