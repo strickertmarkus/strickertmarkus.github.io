@@ -7,6 +7,7 @@ const remember=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(_){t
 const query=new URLSearchParams(location.search);
 let tripId=query.get('trip')||read('travel-selected-v2','')||localStorage.getItem('travel-selected')||'',tab=query.get('tab')||'overview',tripFilter='Alla';
 let lastRenderKey='';
+let addingPackingHeading=false;
 let day='',daysWide=false,editing=null,drag=null,map=null,mapRows=[],viewerIndex=0,toastTimer,undoAction=null,renderPending=false;
 const filters={packingStatus:'all',packingOwner:'',packingGroup:'owner',taskOwner:'',taskStatus:'all',budget:'plan',placeCategory:'',placeStatus:'',placeDay:'',photoDay:'',documentCategory:''};
 const tabs=[['overview','Översikt','RESAN I KORTHET'],['activity','Schema','DAG FÖR DAG'],['packing','Packlista','EN SAK I TAGET'],['task','Att göra','INFÖR RESAN'],['expense','Budget','RESKASSAN'],['booking','Bokningar','FRÅN AVGÅNG TILL INCHECKNING'],['place','Platser & karta','HIT VILL VI'],['photo','Bilder','UTSIKTER & MINNEN'],['document','Dokument','BILJETTER & BILAGOR'],['note','Anteckningar','IDÉER ATT SPARA']];
@@ -28,7 +29,7 @@ const actions=x=>btn('data-edit="'+esc(x.id)+'"','Redigera')+link(x.url)+(x.loca
 const linked=(x,key)=>{const r=S.get(x[key]);return r&&!r.deleted?btn('data-edit="'+esc(r.id)+'"',esc(r.title),'text-button'):'';};
 function toast(text,undo){clearTimeout(toastTimer);undoAction=undo||null;$('toast').innerHTML='<span>'+esc(text)+'</span>'+(undo?btn('data-action="undo"','Ångra'):'');$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,undo?12000:5000);}
 function utility(title,body){$('utility-title').textContent=title;$('utility-body').innerHTML=body;if(!$('utility').open)$('utility').showModal();$('utility-title').focus({preventScroll:true});}
-function setTab(next){tab=next;render();const u=new URL(location.href);u.searchParams.set('trip',tripId);u.searchParams.set('tab',tab);history.replaceState(null,'',u);}
+function setTab(next){tab=next;addingPackingHeading=false;render();const u=new URL(location.href);u.searchParams.set('trip',tripId);u.searchParams.set('tab',tab);history.replaceState(null,'',u);}
 function tick(){const t=trip();if(!t||!$('countdown'))return;const c=S.countdown(t.departureISO||t.departure,t.endDate,Date.now(),t.timezone);$('countdown').innerHTML='<p>'+esc(c.label)+'</p><div class="digits">'+c.parts.map((n,i)=>'<div><strong>'+String(n).padStart(2,'0')+'</strong><small>'+['dagar','timmar','minuter','sekunder'][i]+'</small></div>').join('')+'</div>';}
 function render(force=false){
  $('sync').textContent=S.status();$('sync').classList.toggle('error',/saknas|blockerad|Kunde/.test(S.status()));
@@ -41,7 +42,7 @@ function render(force=false){
  const currentURL=new URL(location.href);currentURL.searchParams.set('trip',tripId);currentURL.searchParams.set('tab',tab);history.replaceState(null,'',currentURL);
  const t=trip();$('hero').innerHTML='<div class="hero">'+(t.coverId?'<img class="hero-cover" data-file="'+esc(t.coverId)+'" alt="">':t.coverURL?'<img class="hero-cover" src="'+esc(S.safeURL(t.coverURL))+'" alt="">':'')+'<div><span class="eyebrow">'+esc(t.destination||'ER RESA')+' · '+M.tripState(t)+'</span><h2>'+esc(t.title)+'</h2><p class="meta">'+esc((t.departure||'').slice(0,10))+' — '+esc(t.endDate||'')+'</p><p class="meta">'+esc(t.travelers||'')+'</p><div class="hero-actions">'+btn('data-edit="'+esc(t.id)+'"','Redigera resa')+btn('data-action="trip-tools"','Hantera resa')+'</div></div><div class="countdown" id="countdown"></div></div>';tick();
  $('tabs').innerHTML=tabs.map(([key,label])=>btn('data-tab="'+key+'" aria-current="'+(tab===key?'page':'false')+'"',label,tab===key?'active':'')).join('');
- const desc=tabs.find(x=>x[0]===tab);$('section-title').textContent=desc[1];$('section-kicker').textContent=desc[2];$('add').hidden=tab==='overview';$('add').textContent='+ '+({photo:'Lägg till bilder',packing:'Lägg till sak',task:'Ny uppgift',expense:filters.budget==='plan'?'Planera kostnad':'Ny utgift'}[tab]||'Lägg till '+names[tab]);
+ const desc=tabs.find(x=>x[0]===tab);$('section-title').textContent=desc[1];$('section-kicker').textContent=desc[2];$('add').hidden=tab==='overview'||tab==='packing';$('add').textContent='+ '+({photo:'Lägg till bilder',packing:'Lägg till sak',task:'Ny uppgift',expense:filters.budget==='plan'?'Planera kostnad':'Ny utgift'}[tab]||'Lägg till '+names[tab]);
  map?.remove();map=null;const views={overview:overview,activity:schedule,packing:packing,task:tasks,expense:expenses,booking:bookings,place:places,photo:photos,document:documents,note:notes};$('content').innerHTML=views[tab]();hydrateImages();if(tab==='place')loadMap();if(tab==='document')checkFiles();
 }
 function metric(label,value,detail,to,filter=''){return '<button class="card metric metric-link" data-go="'+to+'" '+filter+'><small>'+label+'</small><strong>'+value+'</strong><p>'+detail+'</p></button>';}
@@ -56,22 +57,42 @@ function scheduleHour(h,d,rows){const time=M.clock(h*60);return '<div class="hou
 function schedule(){const days=availableDays();if(!day||!days.includes(day))day=days.includes(currentDay())?currentDay():days[0];const shown=daysWide?days.slice(days.indexOf(day),days.indexOf(day)+3):[day];
  return '<p class="caption muted">Alla tider visas i '+esc(trip().timezone||'Europe/Stockholm')+'</p><div class="schedule-tools">'+btn('data-action="schedule-today"','Idag')+'<label>Välj dag<input type="date" id="schedule-date" value="'+day+'"></label>'+btn('data-action="schedule-width" aria-pressed="'+daysWide+'"',daysWide?'En dag':'Flera dagar','desktop-only')+'</div><div class="day-picker">'+days.map(d=>btn('data-day="'+d+'"',esc(new Date(d+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'})),d===day?'active':'')).join('')+'</div><div class="schedule-days '+(daysWide?'multiple':'')+'">'+shown.map(d=>{const rows=list('activity').filter(x=>x.date===d).sort(M.activitySort);return '<section class="schedule-day" data-drop-day="'+d+'"><h3>'+d+'</h3><div class="flexible-zone" data-drop-date="'+d+'" data-drop-time=""><small>HELDAG & FLEXIBELT</small>'+rows.filter(x=>x.timing!=='timed').map(agenda).join('')+btn('data-slot="'+d+'|"','+ Utan bestämd tid','add-slot')+'</div><div class="timeline">'+'<details class="night-hours" '+(rows.some(x=>x.time&&x.time<'07:00')?'open':'')+'><summary>Natt · 00:00–06:00</summary>'+Array.from({length:7},(_,h)=>scheduleHour(h,d,rows)).join('')+'</details>'+Array.from({length:17},(_,h)=>scheduleHour(h+7,d,rows)).join('')+'</div></section>';}).join('')+'</div>';}
 function quickForm(type){const draft=read('travel-quick-'+tripId+'-'+type,{});return '<form id="quick-add" class="quick-add" data-type="'+type+'"><input value="'+esc(draft.title||'')+'" name="title" required maxlength="500" autocomplete="off" placeholder="'+(type==='packing'?'Lägg till något att packa…':'Vad behöver göras?')+'" aria-label="'+(type==='packing'?'Ny packsak':'Ny uppgift')+'">'+(type==='packing'?'<input name="quantity" type="number" min="1" value="'+esc(draft.quantity||1)+'" aria-label="Antal">':'')+'<select name="owner" aria-label="Ansvarig">'+opts(members(),draft.owner||(type==='packing'?filters.packingOwner||'Övrigt':filters.taskOwner),'Ansvarig')+'</select>'+btn('data-quick-submit','+','primary')+'</form>';}
-function packingRow(x){return '<div class="check-row '+(x.done?'done':'')+'" data-item="'+esc(x.id)+'"><input type="checkbox" data-check="'+esc(x.id)+'" '+(x.done?'checked':'')+' aria-label="Packat '+esc(x.title)+'"><div class="info"><span class="title">'+esc(x.title)+'</span><small>'+esc(x.quantity||1)+' '+esc(x.unit||'st')+' · '+esc(x.owner||'Övrigt')+' · '+esc(x.category||'Övrigt')+'</small></div>'+btn('data-edit="'+esc(x.id)+'" aria-label="Ändra '+esc(x.title)+'"','Ändra')+btn('data-drag="'+esc(x.id)+'" aria-label="Dra '+esc(x.title)+'"','⠿','handle')+'</div>';}
-
+function packingRow(x){
+ const more=Number(x.quantity||1)!==1||x.unit&&x.unit!=='st' ? '<small class="packing-qty">'+esc(x.quantity||1)+' '+esc(x.unit||'st')+'</small>' : '';
+ return '<div class="check-row '+(x.done?'done':'')+'" data-item="'+esc(x.id)+'"><input type="checkbox" data-check="'+esc(x.id)+'" '+(x.done?'checked':'')+' aria-label="Packat '+esc(x.title)+'"><div class="info"><span class="title">'+esc(x.title)+'</span>'+more+'</div>'+btn('data-edit="'+esc(x.id)+'" aria-label="Ändra '+esc(x.title)+'"','✎','pack-edit')+btn('data-drag="'+esc(x.id)+'" aria-label="Dra '+esc(x.title)+'"','⠿','handle')+'</div>';
+}
+function packingHeadings(key){
+ const fixed=key==='owner'?members():['Kläder','Hygien','Teknik','Friluftsliv','Övrigt'];
+ const extra=key==='category'?(trip()?.packingCategories||'').split(',').map(x=>x.trim()).filter(Boolean):[];
+ return [...new Set([...fixed,...extra,...list('packing').map(x=>x[key]||'Övrigt')])];
+}
 function inlinePackingForm(group,key){
  const draftKey='travel-pack-inline-'+tripId+'-'+key+'-'+group;
- return '<form class="packing-inline-add" data-pack-key="'+esc(key)+'" data-pack-group="'+esc(group)+'"><input name="title" type="text" value="'+esc(read(draftKey,''))+'" maxlength="500" autocomplete="off" placeholder="+ Lägg till sak…" aria-label="Lägg till packsak för '+esc(group)+'"><button type="submit" aria-label="Lägg till packsak för '+esc(group)+'">+</button></form>';
+ return '<form class="packing-inline-add" data-pack-key="'+esc(key)+'" data-pack-group="'+esc(group)+'"><input name="title" type="text" value="'+esc(read(draftKey,''))+'" maxlength="500" autocomplete="off" placeholder="Lägg till sak…" aria-label="Lägg till packsak för '+esc(group)+'"><button type="submit" aria-label="Lägg till packsak för '+esc(group)+'">+</button></form>';
 }
 function packingSummary(all){
  const done=all.filter(x=>x.done).length;
- return '<strong>'+done+' av '+all.length+' packade</strong>'+bar(done,all.length)+'<div class="person-progress">'+members().filter(n=>all.some(x=>x.owner===n)).map(n=>{const p=all.filter(x=>x.owner===n);return '<button data-owner="'+esc(n)+'">'+esc(n)+' <span>'+p.filter(x=>x.done).length+'/'+p.length+'</span>'+bar(p.filter(x=>x.done).length,p.length)+'</button>';}).join('')+'</div>';
+ return '<strong>'+done+' av '+all.length+' packade</strong>'+bar(done,all.length);
 }
 function refreshPackingSummary(){
  const summary=document.querySelector('.packing-summary');
  if(summary)summary.innerHTML=packingSummary(list('packing'));
 }
-function packing(){const all=list('packing');const rows=all.filter(x=>(!filters.packingOwner||x.owner===filters.packingOwner)&&(filters.packingStatus==='all'||!!x.done===(filters.packingStatus==='done'))).sort((a,b)=>Number(a.order||0)-Number(b.order||0));const key=filters.packingGroup,groups=[...new Set([...(key==='owner'?members():['Kläder','Hygien','Teknik','Friluftsliv','Övrigt']),...rows.map(x=>x[key]||'Övrigt')])];
- return '<div class="packing-summary">'+packingSummary(all)+'</div><div class="filters">'+selectFilter('packingGroup','Gruppera',[['owner','Person'],['category','Kategori']])+selectFilter('packingStatus','Visa',[['all','Alla'],['todo','Kvar att packa'],['done','Packat']])+selectFilter('packingOwner','Person',members(),'Alla')+btn('data-action="templates"','Packmallar')+btn('data-edit="'+tripId+'"','Ändra grupper','text-button')+'</div>'+quickForm('packing')+groups.map(g=>{const items=rows.filter(x=>(x[key]||'Övrigt')===g),open=items.filter(x=>!x.done),closed=items.filter(x=>x.done);return '<section class="packing-group" data-drop-group="'+esc(g)+'"><div class="day-heading">'+esc(g)+' <small>'+items.length+'</small></div>'+open.map(packingRow).join('')+inlinePackingForm(g,key)+(closed.length?'<details '+(filters.packingStatus==='done'?'open':'')+'><summary>Packat · '+closed.length+'</summary>'+closed.map(packingRow).join('')+'</details>':'')+(!items.length?'<p class="drop-hint">Dra hit eller lägg till en sak.</p>':'')+'</section>';}).join('');}
+function packing(){
+ const all=list('packing'),rows=all.filter(x=>filters.packingStatus==='all'||!!x.done===(filters.packingStatus==='done')).sort((a,b)=>Number(a.order||0)-Number(b.order||0));
+ const key=filters.packingGroup,groups=packingHeadings(key);
+ return '<div class="packing-summary">'+packingSummary(all)+'</div>'+
+ '<div class="packing-tools">'+
+ '<details class="packing-filter"><summary>☷ Filter</summary><div class="packing-filter-panel">'+
+ '<label>Gruppera<select data-filter="packingGroup">'+opts([['owner','Person'],['category','Kategori']],filters.packingGroup)+'</select></label>'+
+ '<label>Visa<select data-filter="packingStatus">'+opts([['all','Alla'],['todo','Kvar att packa'],['done','Packat']],filters.packingStatus)+'</select></label>'+
+ '<span class="packing-filter-caption">Hoppa till rubrik</span><div class="packing-jumps">'+groups.map(g=>btn('data-pack-jump="'+esc(g)+'"',esc(g))).join('')+'</div>'+
+ '<div class="packing-filter-footer">'+btn('data-action="templates"','Packmallar')+'</div></div></details>'+
+ btn('data-action="pack-new-heading" aria-expanded="'+addingPackingHeading+'"','+ Rubrik','pack-heading-button')+
+ '</div>'+
+ (addingPackingHeading?'<form id="packing-new-heading" class="packing-new-heading"><input name="title" maxlength="60" required autocomplete="off" placeholder="Rubrikens namn…" aria-label="Ny rubrik"><button class="primary" type="submit" aria-label="Spara rubrik">✓</button>'+btn('data-action="pack-cancel-heading"','Avbryt','pack-cancel-heading')+'</form>':'')+
+ '<div class="packing-groups">'+groups.map(g=>{const items=rows.filter(x=>(x[key]||'Övrigt')===g);return '<section class="packing-group" data-drop-group="'+esc(g)+'"><div class="day-heading">'+esc(g)+' <small>'+items.length+'</small></div>'+items.map(packingRow).join('')+inlinePackingForm(g,key)+'</section>';}).join('')+'</div>';
+}
 function taskRow(x){return '<div class="check-row '+(x.done?'done':'')+'"><input type="checkbox" data-check="'+esc(x.id)+'" '+(x.done?'checked':'')+' aria-label="Klarmarkera '+esc(x.title)+'"><div class="info"><span class="title">'+esc(x.title)+'</span><small>'+esc([x.owner,x.date].filter(Boolean).join(' · '))+'</small>'+linked(x,'bookingId')+'</div>'+btn('data-edit="'+esc(x.id)+'"','Ändra')+'</div>';}
 function tasks(){const rows=list('task').filter(x=>(!filters.taskOwner||x.owner===filters.taskOwner)&&(filters.taskStatus==='all'||!!x.done===(filters.taskStatus==='done')));const group=x=>x.taskKind==='unsorted'?'Behöver sorteras':x.done?'Klart':x.date&&x.date<currentDay()?'Försenat':x.date&&x.date<=M.addDays(currentDay(),7)?'Snart':'Senare';return '<div class="filters">'+selectFilter('taskOwner','Ansvarig',members(),'Alla')+selectFilter('taskStatus','Visa',[['all','Alla'],['todo','Kvar'],['done','Klart']])+'</div>'+quickForm('task')+['Behöver sorteras','Försenat','Snart','Senare','Klart'].map(g=>{const items=rows.filter(x=>group(x)===g).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));if(!items.length)return '';return '<section><div class="day-heading">'+g+' · '+items.length+'</div>'+(g==='Behöver sorteras'?'<p class="muted">Äldre poster är kvar. Välj var varje post hör hemma.</p>':'')+items.map(x=>taskRow(x)+(g==='Behöver sorteras'?'<div class="inline-actions">'+btn('data-classify="'+x.id+'|packing"','Till packlistan')+btn('data-classify="'+x.id+'|task"','Behåll som uppgift')+'</div>':'')).join('')+'</section>';}).join('')+(!rows.length?empty('Inga uppgifter här ännu. Lägg till den första ovan.'):'');}
 function expenses(){const rows=list('expense'),plans=list('categoryBudget'),sum=M.budget(rows,plans),balance=M.settlement(rows);const cats=[...new Set([...M.categories,...Object.keys(sum.groups)])];return '<div class="segmented">'+[['plan','Planera'],['actual','Utgifter'],['split','Fördelning']].map(([key,label])=>btn('data-budget="'+key+'"',label,filters.budget===key?'active':'')).join('')+'</div><div class="grid budget-summary"><article class="card metric"><small>TOTAL BUDGET</small><strong>'+money(trip().budget)+'</strong>'+btn('data-edit="'+tripId+'"','Ändra budget','text-button')+'</article><article class="card metric"><small>BETALAT</small><strong>'+money(sum.actual)+'</strong></article><article class="card metric"><small>KVAR</small><strong class="'+(sum.actual>Number(trip().budget)?'warning':'')+'">'+money(Number(trip().budget||0)-sum.actual)+'</strong></article></div>'+(filters.budget==='plan'?'<div class="section-subhead"><p>Fördelat: '+money(sum.planned)+'</p>'+btn('data-new="categoryBudget"','+ Egen kategori')+'</div><div class="budget-categories">'+cats.map(c=>{const p=plans.find(x=>x.title===c),s=sum.groups[c]||{planned:0,actual:0};return '<article class="budget-category"><div><h3>'+esc(c)+'</h3><small>'+money(s.actual)+' förbrukat · '+money(s.planned-s.actual)+' kvar</small>'+bar(s.actual,s.planned)+'</div>'+btn('data-category="'+esc(c)+'"'+(p?' data-category-id="'+p.id+'"':''),money(s.planned)+' ✎')+'</article>';}).join('')+'</div><div class="day-heading">Planerade kostnader</div>'+rows.filter(x=>x.planned!=null&&Number(x.planned)>0).map(expenseRow).join(''):filters.budget==='actual'?'<p class="muted caption">Negativt belopp registrerar en återbetalning. Valutakursen sparas med varje betalning.</p><div class="expense-list">'+(rows.filter(x=>x.actual!=null).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(expenseRow).join('')||empty('Inga betalningar registrerade ännu.'))+'</div>':'<p class="muted">Endast utgifter med betalare och fördelning ingår. Positivt saldo betyder att personen har lagt ut mer än sin andel.</p><div class="split-list">'+Object.entries(balance.balances).map(([n,b])=>'<article class="budget-category"><div><h3>'+esc(n)+'</h3><small>Betalat '+money(balance.paid[n]||0)+'</small></div><strong>'+money(b)+'</strong></article>').join('')+'</div><p class="caption muted">'+rows.filter(x=>x.actual!=null&&(!x.payer||!x.splits?.length)).length+' betalningar saknar fullständig fördelning.</p>');}
@@ -173,13 +194,14 @@ async function scheduleSource(id){const x=S.get(id);const existing=list('activit
 async function click(event){const b=event.target.closest('button');if(!b)return;try{
  if(b.dataset.close){$(b.dataset.close).close();return;}
  if(b.dataset.new)return openEditor(b.dataset.new);
- if(b.dataset.trip){tripId=b.dataset.trip;day='';remember('travel-selected-v2',tripId);return render(true);}
+ if(b.dataset.trip){tripId=b.dataset.trip;day='';addingPackingHeading=false;remember('travel-selected-v2',tripId);return render(true);}
  if(b.dataset.tripFilter){tripFilter=b.dataset.tripFilter;return render(true);}
  if(b.dataset.tab)return setTab(b.dataset.tab);
  if(b.dataset.go){if(b.dataset.status){if(b.dataset.go==='packing')filters.packingStatus=b.dataset.status;if(b.dataset.go==='task')filters.taskStatus=b.dataset.status;}return setTab(b.dataset.go);}
  if(b.dataset.edit)return openEditor(S.get(b.dataset.edit).type,b.dataset.edit);
  if(b.dataset.day){day=b.dataset.day;return render(true);}
  if(b.dataset.slot!==undefined){const [date,time]=b.dataset.slot.split('|');return openEditor('activity',null,{date,time,timing:time?'timed':'flex'});}
+ if(b.dataset.packJump!==undefined){document.querySelector('.packing-filter')?.removeAttribute('open');const section=[...document.querySelectorAll('.packing-group')].find(x=>x.dataset.dropGroup===b.dataset.packJump);section?.scrollIntoView({behavior:'smooth',block:'start'});return;}
  if(b.dataset.owner){filters.packingOwner=b.dataset.owner;return render(true);}
  if(b.dataset.budget){filters.budget=b.dataset.budget;return render(true);}
  if(b.dataset.category)return openEditor('categoryBudget',b.dataset.categoryId,{title:b.dataset.category});
@@ -215,6 +237,8 @@ async function click(event){const b=event.target.closest('button');if(!b)return;
  if(act==='trip-tools')tripTools();if(act==='duplicate')duplicatePanel();
  if(act==='archive'){await S.patch(tripId,{archived:!trip().archived});$('utility').close();render(true);}
  if(act==='print')printTrip();if(act==='templates')templatePanel();
+ if(act==='pack-new-heading'){addingPackingHeading=true;render(true);$('packing-new-heading')?.elements.title.focus({preventScroll:true});return;}
+ if(act==='pack-cancel-heading'){addingPackingHeading=false;render(true);return;}
  if(act==='schedule-today'){day=currentDay();if(!availableDays().includes(day))return openEditor('activity',null,{date:day,timing:'flex'});render(true);}
  if(act==='schedule-width'){daysWide=!daysWide;render(true);}
  if(act==='discard-draft'){localStorage.removeItem(editing.key);drawEditor({...editing.base});$('form-error').textContent='Utkastet är återställt.';}
@@ -226,12 +250,41 @@ $('edit-form').addEventListener('input',keepDraft);
 document.addEventListener('input',e=>{const f=e.target.closest('#quick-add');if(f)remember('travel-quick-'+tripId+'-'+f.dataset.type,Object.fromEntries(new FormData(f)));const inline=e.target.closest('.packing-inline-add');if(inline)remember('travel-pack-inline-'+tripId+'-'+inline.dataset.packKey+'-'+inline.dataset.packGroup,e.target.value);});
 $('editor').addEventListener('cancel',()=>{keepDraft();editing=null;});
 document.addEventListener('change',async e=>{const el=e.target;try{
- if(el.dataset.check){await S.patch(el.dataset.check,{done:el.checked});render(true);}
+ if(el.dataset.check){
+  const done=el.checked,id=el.dataset.check;
+  await S.patch(id,{done});
+  if(tab==='packing'&&filters.packingStatus==='all'&&el.isConnected){
+   el.closest('.check-row')?.classList.toggle('done',done);
+   refreshPackingSummary();
+  }else render(true);
+ }
  if(el.dataset.filter){filters[el.dataset.filter]=el.value;render(true);}
  if(el.id==='schedule-date'){day=el.value;if(!availableDays().includes(day)){openEditor('activity',null,{date:day,timing:'flex'});}else render(true);}
  if(el.closest('#edit-form')&&editing){if(el.name==='upload')editing.uploads=[...el.files];if(['timing','entryKind'].includes(el.name)||(editing.type==='booking'&&el.name==='category')){const data=formData();editing.uploads=[...($('edit-form').elements.upload?.files||editing.uploads)];drawEditor(data);keepDraft();}if(el.name==='currency'&&editing.type==='expense'&&el.value===trip().currency){$('edit-form').elements.rate.value=1;keepDraft();}}
  if(el.id==='import'){const file=el.files[0];if(!file)return;if(file.size>30*1024*1024)throw Error('Backupen får vara högst 30 MB.');const data=JSON.parse(await file.text());S.validateBackup(data);if(confirm('Importera som nya kopior? Befintliga resor behålls.')){await S.importBackup(data);render(true);toast('Backup importerad.');}el.value='';}
  }catch(err){toast(err.message);}});
+
+
+document.addEventListener('submit',async e=>{
+ const form=e.target;
+ if(form.id!=='packing-new-heading')return;
+ e.preventDefault();
+ const value=form.elements.title.value.trim().replace(/,/g,' ');
+ if(!value)return;
+ const key=filters.packingGroup,field=key==='owner'?'packingPeople':'packingCategories',selectedTrip=tripId;
+ const current=packingHeadings(key);
+ if(current.some(x=>x.toLocaleLowerCase('sv-SE')===value.toLocaleLowerCase('sv-SE'))){toast('Rubriken finns redan.');return;}
+ const old=key==='owner'?(trip()?.packingPeople||M.people.join(', ')):(trip()?.packingCategories||'');
+ const next=[...old.split(',').map(x=>x.trim()).filter(Boolean),value];
+ try{
+  await S.patch(selectedTrip,{[field]:next.join(', ')});
+  addingPackingHeading=false;
+  render(true);
+  const section=[...document.querySelectorAll('.packing-group')].find(x=>x.dataset.dropGroup===value);
+  section?.scrollIntoView({block:'center',behavior:'smooth'});
+  section?.querySelector('.packing-inline-add input')?.focus({preventScroll:true});
+ }catch(err){toast(err.message||'Kunde inte spara rubriken.');}
+});
 
 document.addEventListener('submit',async e=>{
  const form=e.target;
