@@ -28,14 +28,11 @@
     return String(value || '').trim().toLocaleLowerCase('sv-SE');
   }
 
-  function parseCategoryInput(value) {
-    var cleaned = String(value == null ? '' : value).replace(/\u00a0/g, ' ').trim();
-    var match = cleaned.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
-    if (!match) return { text: cleaned, category: '' };
-    var text = String(match[1] || '').trim();
-    var category = String(match[2] || '').trim();
-    if (!text || !category) return { text: cleaned, category: '' };
-    return { text: text, category: category };
+  function normalizeItemText(value) {
+    // Treat everything, including (parentheses), as literal item text.
+    // Only capitalize the first letter; preserve the rest exactly.
+    var text = String(value == null ? '' : value).replace(/\u00a0/g, ' ').trim();
+    return text.replace(/\p{L}/u, function(letter) { return letter.toLocaleUpperCase('sv-SE'); });
   }
 
   function getLists() {
@@ -68,13 +65,6 @@
     }
     if (list && !Array.isArray(list.items)) list.items = [];
     return list;
-  }
-
-  function findCategoryIndex(items, name) {
-    var target = norm(name);
-    return (items || []).findIndex(function (item) {
-      return item && item.type === 'category' && norm(item.text) === target;
-    });
   }
 
   function categoryIdBeforeIndex(items, index) {
@@ -116,8 +106,8 @@
 
   function insertNewItem(rawText, checked, anchor, options) {
     options = options || {};
-    var parsed = parseCategoryInput(rawText);
-    if (!parsed.text) return null;
+    var text = normalizeItemText(rawText);
+    if (!text) return null;
 
     var lists = getLists();
     var list = getActiveList(lists);
@@ -128,19 +118,12 @@
     var item = {
       id: Date.now() + Math.random(),
       type: 'item',
-      text: parsed.text,
+      text: text,
       checked: !!checked
     };
     var actualCategoryId = null;
 
-    if (parsed.category) {
-      var targetIndex = findCategoryIndex(list.items, parsed.category);
-      if (targetIndex >= 0) {
-        actualCategoryId = insertAtCategoryEnd(list.items, list.items[targetIndex].id, item);
-      } else {
-        insertUncategorized(list.items, item);
-      }
-    } else if (anchor && anchor.afterItemId != null) {
+    if (anchor && anchor.afterItemId != null) {
       var afterResult = insertAfterItem(list.items, anchor.afterItemId, item);
       if (afterResult.found) {
         actualCategoryId = afterResult.categoryId;
@@ -161,7 +144,7 @@
 
   function updateExistingItem(id, rawText, options) {
     options = options || {};
-    var parsed = parseCategoryInput(rawText);
+    var text = normalizeItemText(rawText);
     var lists = getLists();
     var list = getActiveList(lists);
     if (!list) return null;
@@ -173,9 +156,9 @@
     var item = list.items[index];
     var oldText = String(item.text || '').trim();
     var originalCategoryId = categoryIdBeforeIndex(list.items, index + 1);
-    var changed = parsed.text !== oldText || !!parsed.category;
+    var changed = text !== oldText;
 
-    if (!parsed.text) {
+    if (!text) {
       if (options.undo !== false) pushUndo();
       list.items.splice(index, 1);
       saveLists(lists, options.render !== false);
@@ -185,18 +168,7 @@
     if (!changed) return { item: item, itemId: item.id, categoryId: originalCategoryId, changed: false };
     if (options.undo !== false) pushUndo();
 
-    if (parsed.category) {
-      list.items.splice(index, 1);
-      item.text = parsed.text;
-      var targetIndex = findCategoryIndex(list.items, parsed.category);
-      var actualCategoryId = null;
-      if (targetIndex >= 0) actualCategoryId = insertAtCategoryEnd(list.items, list.items[targetIndex].id, item);
-      else insertUncategorized(list.items, item);
-      saveLists(lists, options.render !== false);
-      return { item: item, itemId: item.id, categoryId: actualCategoryId, changed: true };
-    }
-
-    item.text = parsed.text;
+    item.text = text;
     saveLists(lists, options.render !== false);
     return { item: item, itemId: item.id, categoryId: originalCategoryId, changed: true };
   }
