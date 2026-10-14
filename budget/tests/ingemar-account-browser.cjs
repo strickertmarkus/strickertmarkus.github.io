@@ -226,7 +226,7 @@ async function verifyTouchDrag(page,label){
  const sessionSnapshot=()=>page.evaluate(()=>{
   const w=document.getElementById('family-session-frame').contentWindow,modal=w.document.getElementById('session-modal'),css=w.getComputedStyle(modal);
   return {type:w.sessionState?.type,kind:w.sessionState?.exercises[w.sessionState.exerciseIndex]?.kind,
-   tone:modal.dataset.ingemarTone||'',accent:css.getPropertyValue('--pf-accent').trim(),
+   tone:modal.dataset.ingemarTone||'',readyTone:modal.dataset.ingemarReadyTone||'',accent:css.getPropertyValue('--pf-accent').trim(),
    pretimer:!!w.document.getElementById('session-pre-timer'),
    enabled:w.getPlannedSessions()[w.sessionState.date]?.preTimerEnabled,
    between:w.getPlannedSessions()[w.sessionState.date]?.betweenExercises,
@@ -238,7 +238,20 @@ async function verifyTouchDrag(page,label){
  assert.equal(snap.enabled,true);
  assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,4);
  assert.equal(snap.perSet.type,'rest');assert.equal(snap.perSet.seconds,3);
- assert.equal(snap.tone,'','Fresh pass must retain the original green intro, not a red override');
+ assert.equal(snap.tone,'','Waiting for Starta pass must not use the active-set color state');
+ assert.deepEqual([snap.readyTone,snap.accent],['push','#b54452'],'Push ready view uses darker red');
+ await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
+ snap=await sessionSnapshot();
+ assert.deepEqual([snap.readyTone,snap.accent],['pull','#278da9'],'Pull ready view uses darker blue');
+ await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Kondition';w.sessionState.exercises[0].kind='cardio';w.renderSessionMode();});
+ snap=await sessionSnapshot();
+ assert.deepEqual([snap.readyTone,snap.accent],['cardio','#bd702d'],'Cardio ready view uses darker orange');
+ await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.renderSessionMode();});
+ snap=await sessionSnapshot();
+ assert.deepEqual([snap.readyTone,snap.accent],['push','#b54452'],'Restore Push and its darker ready tone');
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
  await frame.locator('#session-controls button').filter({hasText:/Starta (pass|set)/i}).first().click();
  await frame.locator('#session-pre-timer.show').waitFor();
@@ -249,6 +262,7 @@ async function verifyTouchDrag(page,label){
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
  snap=await sessionSnapshot();
  assert.deepEqual([snap.tone,snap.accent,snap.type,snap.overflow],['push','#e65c66','Push',false]);
+ assert.equal(snap.readyTone,'','Active Push set must not keep the darkened ready tone');
  await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();

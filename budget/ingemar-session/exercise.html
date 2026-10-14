@@ -554,6 +554,58 @@
       color:#0a1018!important;
       box-shadow:0 9px 28px rgba(var(--ingemar-tone-rgb),.23)!important;
     }
+    /* Ingemar-only ready/waiting state: one step deeper than each workout tone.
+       This does not recolor running sets, actual rest timers, or family profiles. */
+    #session-modal[data-ingemar-ready-tone="push"]{
+      --ingemar-ready-accent:#b54452;--ingemar-ready-soft:#dc7b88;--ingemar-ready-rgb:181,68,82;
+    }
+    #session-modal[data-ingemar-ready-tone="pull"]{
+      --ingemar-ready-accent:#278da9;--ingemar-ready-soft:#68c9dd;--ingemar-ready-rgb:39,141,169;
+    }
+    #session-modal[data-ingemar-ready-tone="cardio"]{
+      --ingemar-ready-accent:#bd702d;--ingemar-ready-soft:#e9a05c;--ingemar-ready-rgb:189,112,45;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode){
+      --accent:var(--ingemar-ready-accent)!important;
+      --accent-rgb:var(--ingemar-ready-rgb)!important;
+      --accent-dim:rgba(var(--ingemar-ready-rgb),.12)!important;
+      --accent-glow:rgba(var(--ingemar-ready-rgb),.26)!important;
+      --border-a:rgba(var(--ingemar-ready-rgb),.32)!important;
+      --pf-accent:var(--ingemar-ready-accent)!important;
+      --pf-soft:var(--ingemar-ready-soft)!important;
+      --pf-rgb:var(--ingemar-ready-rgb)!important;
+      background:#080d14!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .session-shell{
+      background:
+        radial-gradient(740px 360px at 50% -85px,rgba(var(--ingemar-ready-rgb),.13),transparent 67%),
+        radial-gradient(480px 280px at 90% 43%,rgba(var(--ingemar-ready-rgb),.04),transparent 72%),
+        linear-gradient(180deg,#0c1019,#0a1018 52%,#090d14)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .session-card{
+      background:rgba(var(--ingemar-ready-rgb),.05)!important;
+      border-color:rgba(var(--ingemar-ready-rgb),.21)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .timer-box{
+      background:rgba(var(--ingemar-ready-rgb),.085)!important;
+      border-color:rgba(var(--ingemar-ready-rgb),.28)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .timer-val,
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) #session-current-ex,
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .session-table th{
+      color:var(--ingemar-ready-soft)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) #session-controls .session-cta.primary{
+      background:linear-gradient(115deg,var(--ingemar-ready-accent),var(--ingemar-ready-soft))!important;
+      border-color:transparent!important;color:#0a1018!important;
+      box-shadow:0 8px 25px rgba(var(--ingemar-ready-rgb),.17)!important;
+    }
+    /* Keep 'Extra set' from inheriting the old persistent orange on ready screens. */
+    html.exercise-concept-pulse-home-v1 body #session-modal.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) #session-controls .session-cta.warn{
+      background:rgba(var(--ingemar-ready-rgb),.12)!important;
+      border-color:rgba(var(--ingemar-ready-rgb),.35)!important;
+      color:var(--ingemar-ready-soft)!important;
+    }
     /* Markus/Maja transition semantics: rest between sets is cyan/blue;
        the transition BETWEEN completed exercises is green. */
     html.exercise-concept-pulse-home-v1 #session-between-overlay-v2.pulse-flow-rest-v58[data-ingemar-between="exercise"]{
@@ -721,8 +773,16 @@ function syncIngemarSessionTone(){
  var firstReady=index===0&&Math.max(1,Number(st.currentSet)||1)===1&&!st.setRunning&&!st.awaitingDecision&&!(st.logs||[]).some(function(a){return Array.isArray(a)&&a.length;});
  var pre=document.getElementById('session-pre-timer'),rest=document.getElementById('session-between-overlay-v2');
  var transition=st.awaitingDecision&&current&&Math.max(1,Number(st.currentSet)||1)>=Math.max(1,Number(current.plannedSets)||1)&&index<st.exercises.length-1;
- var inactive=!st.setRunning||firstReady||transition||(rest&&rest.classList.contains('show'));
+ var resting=!!(rest&&rest.classList.contains('show'));
+ var inactive=!st.setRunning||firstReady||transition||resting;
  var tone=!inactive&&current&&current.kind==='strength'?(st.type==='Pull'?'pull':st.type==='Push'?'push':''):'';
+ // Ingemar only: show a darker version of the current workout theme
+ // while waiting to start a set. Actual rest and inter-exercise transitions
+ // retain the shared blue/green palette.
+ var readyTone=!st.setRunning&&!resting&&!transition&&current
+   ?(st.type==='Push'?'push':st.type==='Pull'?'pull':st.type==='Kondition'?'cardio':''):'';
+ if(readyTone){modal.dataset.ingemarReadyTone=readyTone;}
+ else{delete modal.dataset.ingemarReadyTone;}
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
  watchIngemarRestColor();syncIngemarRestColor();
