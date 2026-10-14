@@ -129,7 +129,12 @@ async function finishPackingEdit(el,openNext=false,cancel=false){
  const value=cancel?edit.original:String(el.textContent||'').replace(/\u00a0/g,' ').trim();
  el.removeAttribute('contenteditable');el.classList.remove('pack-editing');el.setAttribute('tabindex','0');
  if(cancel||value===edit.original){el.textContent=edit.original;if(openNext)packingFocusNext(edit);return;}
- if(!value){el.textContent=edit.original;toast('Texten får inte vara tom.');return;}
+ if(!value){
+  el.textContent=edit.original;
+  if(edit.type==='item')await removePackingItem(edit.id);
+  else toast('Rubriken får inte vara tom.');
+  return;
+ }
  if(edit.type==='heading'){
   if(value.length>60||value.includes(',')){el.textContent=edit.original;toast('Rubriken får vara högst 60 tecken och inte innehålla kommatecken.');return;}
   if(packingHeadings(filters.packingGroup).some(x=>x!==edit.original&&x.toLocaleLowerCase('sv-SE')===value.toLocaleLowerCase('sv-SE'))){el.textContent=edit.original;toast('Rubriken finns redan.');return;}
@@ -139,8 +144,7 @@ async function finishPackingEdit(el,openNext=false,cancel=false){
  if(openNext)packingFocusNext(edit);
  try{
   await task;
-  if(!openNext&&edit.type==='heading'&&tab==='packing'&&edit.tripId===tripId)render(true);
-  else packingRenderFingerprint();
+  packingRenderFingerprint();
  }catch(error){el.textContent=edit.original;toast(error.message||'Kunde inte spara ändringen.');render(true);}
 }
 async function renamePackingHeading(before,after,key){
