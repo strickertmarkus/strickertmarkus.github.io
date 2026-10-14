@@ -1165,7 +1165,7 @@ function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p
 function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtSec(sec){sec=Math.max(0,Math.floor(sec||0));var m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function formatCardioTime(min){return min?min+' min':'—';}
+function formatCardioTime(min){return min?(Number(min)<1?Math.round(Number(min)*60)+' s':Number(Number(min).toFixed(2))+' min'):'—';}
 function isRunningLabel(value){
   return /(^|[^a-zåäö])(löp|jogg|running|run|treadmill|löpband)/i.test(String(value||''));
 }

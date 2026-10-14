@@ -622,7 +622,7 @@ function normalizeExercise(ex){ex=ex||{};var kind=ex.kind||((ex.distance||ex.tim
 function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p[1];}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtSec(sec){sec=Math.max(0,Math.floor(sec||0));var m=Math.floor(sec/60),s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function formatCardioTime(min){return min?min+' min':'—';}
+function formatCardioTime(min){return min?(Number(min)<1?Math.round(Number(min)*60)+' s':Number(Number(min).toFixed(2))+' min'):'—';}
 function getPlannedSessions(){return plannedSessions;}
 function savePlannedSessions(next){plannedSessions=next&&typeof next==='object'?next:Object.create(null);}
 function closeModal(id){var modal=document.getElementById(id);if(modal)modal.classList.remove('show');}
@@ -946,7 +946,7 @@ window.addEventListener('DOMContentLoaded',function(){parent.postMessage({type:'
 <script defer src="exercise-session-enhancements.js?v=20260922-observatory-records-3" data-exercise-session-enhancements="true"></script>
 <script defer src="exercise-session-runtime-core-v21.js?v=20261013-session-energy-1" data-exercise-session-runtime-core-v21="true"></script>
 <script defer src="exercise-session-theme-stability.js?v=20260922-observatory-records-3" data-exercise-session-theme-stability="true"></script>
-<script defer src="exercise-session-stable-details.js?v=20260922-observatory-records-3" data-exercise-session-stable-details="true"></script>
+<script defer src="exercise-session-stable-details.js?v=20261013-session-energy-1" data-exercise-session-stable-details="true"></script>
 <script defer src="exercise-between-routing-v7.js?v=20261013-session-energy-1" data-exercise-between-routing-v7="true"></script>
 <script defer src="exercise-between-custom-exercise-v3.js?v=20260922-observatory-records-3" data-exercise-between-custom-exercise-v3="true"></script>
 <script defer src="exercise-between-sets.js?v=20261013-session-energy-1" data-exercise-between-sets-v2="true"></script>

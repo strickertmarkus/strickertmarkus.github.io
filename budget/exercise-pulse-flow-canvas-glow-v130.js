@@ -335,6 +335,18 @@
       installObserver.observe(document.documentElement,{childList:true,subtree:true});
     }
     document.addEventListener('visibilitychange',syncLoop,{passive:true});
+    // Repaint discrete timer state changes immediately, without waking on
+    // unrelated class writes or resuming continuous animation in energy mode.
+    var timerRing=document.getElementById('session-countdown-ring'),timerState='';
+    var timerObserver=new MutationObserver(function () {
+      var next=String(document.documentElement.classList.contains('cardio-focus-active'))+'|'+String(timerRing&&timerRing.classList.contains('is-overtime'));
+      if(next===timerState)return;
+      timerState=next;
+      clearTimeout(slowTimer);slowTimer=0;
+      syncLoop();
+    });
+    timerObserver.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    if(timerRing)timerObserver.observe(timerRing,{attributes:true,attributeFilter:['class']});
     document.addEventListener('exercise:energy-change',function () {
       clearTimeout(slowTimer);slowTimer=0;
       syncLoop();
