@@ -898,6 +898,35 @@ function syncIngemarSessionTone(){
  else delete modal.dataset.ingemarReadyTone;
  if(tone){modal.dataset.ingemarTone=tone;document.documentElement.dataset.ingemarSessionTone=tone;}
  else{delete modal.dataset.ingemarTone;delete document.documentElement.dataset.ingemarSessionTone;}
+ // Shared session modules use inline !important green/cyan styling for the
+ // toggle. Apply this Ingemar-only palette to the actual button so CSS
+ // precedence or relocation never leaves the wrong colour on a ready screen.
+ var toggle=document.getElementById('session-pretimer-toggle-v2');
+ if(toggle){
+  var enabled=toggle.getAttribute('aria-pressed')==='true';
+  var selected=!!workoutTone&&!intro&&enabled;
+  var toggleColor=selected?'var(--ingemar-workout-soft)':intro&&enabled?'#a7f3d0':'';
+  var toggleRgb=selected?'var(--ingemar-workout-rgb)':intro&&enabled?'52,211,153':'';
+  var track=toggle.querySelector('.session-timer-track-v48'),knob=toggle.querySelector('.session-timer-knob-v48');
+  if(toggleColor){
+   toggle.style.setProperty('color',toggleColor,'important');
+   toggle.style.setProperty('border-color','rgba('+toggleRgb+',.62)','important');
+   toggle.style.setProperty('background','linear-gradient(135deg,rgba('+toggleRgb+',.17),rgba('+toggleRgb+',.075))','important');
+   toggle.style.setProperty('box-shadow','inset 0 0 0 1px rgba('+toggleRgb+',.16),0 0 15px rgba('+toggleRgb+',.19)','important');
+   if(track){
+    track.style.setProperty('background','rgba('+toggleRgb+',.32)','important');
+    track.style.setProperty('box-shadow','inset 0 0 0 1px rgba('+toggleRgb+',.38),0 0 10px rgba('+toggleRgb+',.25)','important');
+   }
+   if(knob){
+    knob.style.setProperty('background',toggleColor,'important');
+    knob.style.setProperty('box-shadow','0 0 8px rgba('+toggleRgb+',.8)','important');
+   }
+  }else{
+   ['color','border-color','background','box-shadow'].forEach(function(key){toggle.style.removeProperty(key);});
+   if(track)['background','box-shadow'].forEach(function(key){track.style.removeProperty(key);});
+   if(knob)['background','box-shadow'].forEach(function(key){knob.style.removeProperty(key);});
+  }
+ }
  watchIngemarRestColor();syncIngemarRestColor();
 }
 function renderSessionMode(){
