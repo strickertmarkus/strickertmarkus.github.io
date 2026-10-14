@@ -260,43 +260,42 @@ async function verifyTouchDrag(page,label){
  assert.ok(snap.toggleRect&&snap.toggleRect.height<=38&&snap.toggleRect.width<=90,'5s toggle fits in compact topbar: '+JSON.stringify(snap.toggleRect));
  await page.screenshot({path:'test-results/ingemar-private/session-green-intro-390.png'});
  const ensureReadyTheme=async(type,kind,expected)=>{
-  await page.evaluate(({type,kind})=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type=type;w.sessionState.exercises[0].kind=kind;w.sessionState.currentSet=2;w.renderSessionMode();},{type,kind});
+  await page.evaluate(({type,kind})=>{
+   const w=document.getElementById('family-session-frame').contentWindow;
+   w.sessionState.type=type;
+   w.sessionState.exercises[0].kind=kind;
+   w.sessionState.currentSet=2;
+   w.sessionState.setRunning=false;
+   w.renderSessionMode();
+  },{type,kind});
   const state=await sessionSnapshot();
-  assert.equal(state.intro,'','Ready between sets must not be green intro');
-  assert.equal(state.readyTone,expected.tone,'Ready theme must match '+type);
-  assert.equal(state.accent,expected.accent,'Keep bright normal '+type+' accent');
-  assert.equal(state.readyBackground,neutralBackground,'Background must stay identical between themes: '+type);
-  assert.equal(state.cardBackground,neutralCard,'Main panel fill must not recolour with theme: '+type);
-  assert.equal(state.timerBackground,neutralTimer,'Timer panel fill must not recolour with theme: '+type);
-  assert.ok(state.ctaBackground.includes(expected.rgbText),'Starta set button, not the background, should take the '+type+' accent: '+state.ctaBackground);
-  assert.equal(state.ctaColor,'rgb(255, 255, 255)','Darker buttons need readable white text: '+type);
-  assert.equal(state.pretimerAccent,expected.accent,'5 s line/dot/text palette matches '+type);
-  assert.equal(state.pretimerRGB,expected.rgb,'5 s timer light effects match '+type);
-  assert.equal(state.pretimerRing,'none','No obsolete circle or square conic-gradient should cover the 5 s line');
-  if(state.toggleColor!==expected.text){
-   const debug=await page.evaluate(()=>{
-    const w=document.getElementById('family-session-frame').contentWindow;
-    const modal=w.document.getElementById('session-modal');
-    const toggle=w.document.getElementById('session-pretimer-toggle-v2');
-    const before={aria:toggle?.getAttribute('aria-pressed'),inline:toggle?.style.cssText,color:w.getComputedStyle(toggle).color,parent:toggle?.parentElement?.className,
-      rootTone:w.document.documentElement.dataset.ingemarWorkoutTone,rootIntro:w.document.documentElement.dataset.ingemarIntro,
-      modalTone:modal.dataset.ingemarWorkoutTone,modalIntro:modal.dataset.ingemarIntro,soft:w.getComputedStyle(toggle).getPropertyValue('--ingemar-workout-soft'),
-      matches:toggle?.matches('html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) body #session-pretimer-toggle-v2#session-pretimer-toggle-v2#session-pretimer-toggle-v2[aria-pressed="true"]')};
-    w.syncIngemarSessionTone();
-    const after={inline:toggle?.style.cssText,color:w.getComputedStyle(toggle).color};
-    return {before,after};
-   });
-   console.error('INGEMAR_TOGGLE_THEME_DEBUG '+JSON.stringify(debug));
-  }
-  assert.equal(state.toggleColor,expected.text,'5 s toggle colour follows '+type);
-  assert.ok(state.headerHeight<=85&&state.toggleRect?.width<=90,'Compact header stays compact in '+type);
+  assert.equal(state.intro,'','Starta set must not use the initial green intro');
+  assert.equal(state.readyTone,'','There is no separate darkened ready-state palette');
+  assert.equal(state.tone,expected.tone,'Ready and active sets must use the same palette: '+type);
+  assert.equal(state.accent,expected.accent,'Ready colour must equal the original active set: '+type);
+  assert.equal(state.readyBackground,neutralBackground,'Backdrop must stay unchanged: '+type);
+  assert.equal(state.cardBackground,neutralCard,'Panel fill must not change: '+type);
+  assert.equal(state.timerBackground,neutralTimer,'Timer fill must not change: '+type);
+  assert.ok(state.ctaBackground.includes(expected.rgbText),'Starta set button should use original '+type+' colour: '+state.ctaBackground);
+  assert.equal(state.pretimerAccent,expected.accent.toLowerCase(),'5 s countdown uses original '+type+' colour');
+  assert.equal(state.pretimerRGB,expected.rgb,'5 s countdown glow uses original '+type+' colour');
+  assert.equal(state.pretimerRing,'none','Keep the existing line-based countdown');
+  assert.equal(state.toggleColor,expected.text,'5 s switch uses original '+type+' colour');
+  assert.ok(state.headerHeight<=85&&state.toggleRect?.width<=90,'Compact header in '+type);
+  // Check the same active accent without advancing timers or altering Firebase.
+  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=true;w.renderSessionMode();});
+  const running=await sessionSnapshot();
+  assert.equal(running.accent,state.accent,'Colour must not shift after Starta set: '+type);
+  assert.equal(running.tone,state.tone,'The active set retains the ready theme: '+type);
+  assert.equal(running.readyBackground,state.readyBackground,'Background stays fixed when set begins: '+type);
+  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=false;w.renderSessionMode();});
   return state;
  };
- snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#a83959',rgb:'168,57,89',text:'rgb(240, 178, 194)',rgbText:'rgb(168, 57, 89)'});
+ snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#e65c66',rgb:'230,92,102',text:'rgb(242, 155, 161)',rgbText:'rgb(230, 92, 102)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
- snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#247cae',rgb:'36,124,174',text:'rgb(185, 229, 251)',rgbText:'rgb(36, 124, 174)'});
+ snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67E8F9',rgb:'34,211,238',text:'rgb(207, 250, 254)',rgbText:'rgb(103, 232, 249)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
- snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#b96221',rgb:'185,98,33',text:'rgb(255, 218, 173)',rgbText:'rgb(185, 98, 33)'});
+ snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#ef4444',rgb:'239,68,68',text:'rgb(252, 165, 165)',rgbText:'rgb(239, 68, 68)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.sessionState.currentSet=1;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -307,15 +306,15 @@ async function verifyTouchDrag(page,label){
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
  snap=await sessionSnapshot();
- assert.equal(snap.pretimerAccent,'#a83959','The 5s line and dot use the new wine-red Push accent');
- assert.equal(snap.pretimerRGB,'168,57,89','5s visual effects use wine-red Push');
+ assert.equal(snap.pretimerAccent,'#e65c66','The 5s line/dot use original Push red');
+ assert.equal(snap.pretimerRGB,'230,92,102','The 5s effects use original Push red');
  assert.equal(snap.pretimerRing,'none','The 5s timer must remain the original linear format, without a square conic ring');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
  snap=await sessionSnapshot();
  assert.deepEqual([snap.tone,snap.accent,snap.type,snap.overflow],['push','#e65c66','Push',false]);
- assert.equal(snap.readyTone,'','Active Push set must not keep the darkened ready tone');
+ assert.equal(snap.readyTone,'','Active Push and Starta set have no separate darker palette');
  await page.screenshot({path:'test-results/ingemar-private/session-push-red-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
  snap=await sessionSnapshot();
