@@ -905,8 +905,13 @@ function syncIngemarSessionTone(){
  if(toggle){
   var enabled=toggle.getAttribute('aria-pressed')==='true';
   var selected=!!workoutTone&&!intro&&enabled;
-  var toggleColor=selected?'var(--ingemar-workout-soft)':intro&&enabled?'#a7f3d0':'';
-  var toggleRgb=selected?'var(--ingemar-workout-rgb)':intro&&enabled?'52,211,153':'';
+  // Use resolved literals for this tiny switch. WebKit can retain a stale
+  // inherited text colour when an inline !important colour uses var(...).
+  var palette=workoutTone==='push'?{soft:'#f29ba1',rgb:'230,92,102'}
+    :workoutTone==='pull'?{soft:'#cffafe',rgb:'34,211,238'}
+    :{soft:'#fed7aa',rgb:'251,146,60'};
+  var toggleColor=selected?palette.soft:intro&&enabled?'#a7f3d0':'';
+  var toggleRgb=selected?palette.rgb:intro&&enabled?'52,211,153':'';
   var track=toggle.querySelector('.session-timer-track-v48'),knob=toggle.querySelector('.session-timer-knob-v48');
   if(toggleColor){
    toggle.style.setProperty('color',toggleColor,'important');
