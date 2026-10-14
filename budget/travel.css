@@ -64,3 +64,16 @@
 .packing-inline-add button{grid-column:3;min-width:30px;width:30px;min-height:32px;height:32px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--accent);font-size:19px}
 .packing-inline-add button:focus-visible,.packing-inline-add button:hover{background:#fdba7410}
 @media(max-width:440px){.packing-summary{padding:6px 2px!important}.packing-group>.day-heading{margin-top:8px}.packing-group .check-row{gap:7px;padding:4px 3px;min-height:40px}.packing-inline-add{gap:7px;padding:2px 3px;min-height:39px}}
+
+
+/* Shopping-list interaction parity: inline titles, inline heading rename, quiet delete. */
+.packing-group .check-row .pack-item-text{display:inline-flex;align-items:center;min-height:27px;padding:3px 7px;margin:-3px -7px;border:1px solid transparent;border-radius:6px;cursor:text;outline:none;user-select:text;-webkit-user-select:text;white-space:pre-wrap;overflow-wrap:anywhere}
+.packing-group .check-row .pack-item-text[contenteditable=true]{background:#fdba740b;border-color:#fdba748f;box-shadow:0 0 0 2px #fdba7414;color:var(--ink);text-decoration:none}
+.packing-group .check-row.done .pack-item-text[contenteditable=true]{color:var(--ink);text-decoration:none}
+.packing-group .pack-group-name{display:inline-block;min-height:20px;min-width:12px;max-width:100%;padding:3px 5px;margin:-3px -5px;border:1px solid transparent;border-radius:5px;cursor:text;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
+.packing-group .pack-group-name[contenteditable=true]{color:var(--accent);background:#fdba740c;border-color:#fdba745c;text-transform:none;letter-spacing:normal;box-shadow:0 0 0 2px #fdba7414}
+.packing-group .pack-group-name:focus-visible,.packing-group .pack-item-text:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.packing-group .check-row .pack-delete{display:grid;place-items:center;width:29px;min-height:31px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:13px;line-height:1;opacity:.65}
+.packing-group .check-row .pack-delete:hover,.packing-group .check-row .pack-delete:focus-visible{color:#ffb4aa;background:#ffb4aa0d;opacity:1}
+.packing-group .check-row .packing-qty{cursor:text}
+.packing-group .check-row .pack-quantity-input{display:inline-block;width:66px;min-width:0;min-height:31px;padding:3px 5px;border:1px solid #fdba7470;border-radius:6px;background:#fdba7409;color:var(--ink);font-size:16px;line-height:1.2;outline:none}
