@@ -322,7 +322,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-pull-cyan-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='cardio';w.sessionState.exercises[0].time=3;w.renderSessionMode();});
  snap=await sessionSnapshot();
- assert.equal(snap.tone,'','Ordinary cardio uses the original red palette, without mismatched orange/red layers');
+ assert.deepEqual([snap.tone,snap.accent],['cardio','#EF4444'],'Running cardio and Starta set share the original red palette');
  await page.screenshot({path:'test-results/ingemar-private/session-cardio-original-colors-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.exercises[0].kind='strength';w.sessionState.type='Push';w.sessionState.setRunning=false;w.sessionState.awaitingDecision=true;w.sessionState.currentSet=1;w.renderSessionMode();});
  await frame.locator('#session-between-overlay-v2.show').waitFor({timeout:7500});
