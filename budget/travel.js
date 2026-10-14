@@ -256,6 +256,8 @@ document.addEventListener('change',async e=>{const el=e.target;try{
   if(tab==='packing'&&filters.packingStatus==='all'&&el.isConnected){
    el.closest('.check-row')?.classList.toggle('done',done);
    refreshPackingSummary();
+   lastRenderKey=JSON.stringify([tripId,tab,tripFilter,day,daysWide,filters,S.list()]);
+   renderPending=false;
   }else render(true);
  }
  if(el.dataset.filter){filters[el.dataset.filter]=el.value;render(true);}
@@ -302,12 +304,15 @@ document.addEventListener('submit',async e=>{
   const id=await S.add('packing',selectedTrip,row);
   // Keep the actual input node in place: iOS must not lose keyboard focus after Enter.
   if(form.isConnected&&selectedTrip===tripId&&tab==='packing'){
-   form.insertAdjacentHTML('beforebegin',packingRow(S.get(id)));
-   const groupSection=form.closest('.packing-group');
-   const count=groupSection.querySelector('.day-heading small');
-   if(count)count.textContent=String(Number(count.textContent||0)+1);
-   groupSection.querySelector('.drop-hint')?.remove();
+   if(filters.packingStatus!=='done'){
+    form.insertAdjacentHTML('beforebegin',packingRow(S.get(id)));
+    const count=form.closest('.packing-group')?.querySelector('.day-heading small');
+    if(count)count.textContent=String(Number(count.textContent||0)+1);
+   }
    refreshPackingSummary();
+   // The saved list is already reflected in the DOM; do not tear down the active iOS input.
+   lastRenderKey=JSON.stringify([tripId,tab,tripFilter,day,daysWide,filters,S.list()]);
+   renderPending=false;
   }
  }catch(err){
   if(form.isConnected&&!input.value)input.value=title;
