@@ -637,28 +637,38 @@
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="cardio"]{
       --ingemar-workout-accent:#fb923c;--ingemar-workout-soft:#fed7aa;--ingemar-workout-rgb:251,146,60;
     }
-    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer.show{
+    /* The shared v67 timer is a light 5 s LINE, not a circular ring.
+       Only override its colour tokens; never restore the retired conic
+       circle/pseudo-elements or distort its established geometry. */
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer{
+      --concept-timer-accent:var(--ingemar-workout-accent)!important;
+      --concept-timer-soft:var(--ingemar-workout-soft)!important;
       --concept-timer-rgb:var(--ingemar-workout-rgb)!important;
-      background:#080d14!important;
     }
-    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring{
-      background:conic-gradient(var(--ingemar-workout-accent) var(--pre-smooth-progress,0deg),rgba(var(--ingemar-workout-rgb),.14) 0deg)!important;
-      box-shadow:0 0 35px rgba(var(--ingemar-workout-rgb),.23)!important;
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer.show{
+      background:radial-gradient(400px 270px at 50% 48%,rgba(var(--ingemar-workout-rgb),.08),transparent 72%),#080d14!important;
     }
-    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring::before{
-      background:#0c121b!important;
-      border-color:rgba(var(--ingemar-workout-rgb),.28)!important;
-    }
-    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-ring::after{
-      background:var(--ingemar-workout-accent)!important;
-      box-shadow:0 0 8px rgba(var(--ingemar-workout-rgb),.65)!important;
-    }
-    html.exercise-concept-pulse-home-v1 body #session-modal[data-ingemar-workout-tone] #session-pre-timer-value{
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer #session-pre-timer-value{
       color:var(--ingemar-workout-soft)!important;
-      text-shadow:0 0 16px rgba(var(--ingemar-workout-rgb),.24)!important;
+      text-shadow:0 0 15px rgba(var(--ingemar-workout-rgb),.24)!important;
     }
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer .session-pre-label{
+      color:var(--ingemar-workout-accent)!important;
+    }
+    /* Use the same theme on the small 5 s switch after the green intro. */
+    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"]{
       color:var(--ingemar-workout-soft)!important;
+      border-color:rgba(var(--ingemar-workout-rgb),.62)!important;
+      background:linear-gradient(135deg,rgba(var(--ingemar-workout-rgb),.17),rgba(var(--ingemar-workout-rgb),.075))!important;
+      box-shadow:inset 0 0 0 1px rgba(var(--ingemar-workout-rgb),.16),0 0 15px rgba(var(--ingemar-workout-rgb),.19)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48{
+      background:rgba(var(--ingemar-workout-rgb),.32)!important;
+      box-shadow:inset 0 0 0 1px rgba(var(--ingemar-workout-rgb),.38),0 0 10px rgba(var(--ingemar-workout-rgb),.25)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) .session-top #session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48{
+      background:var(--ingemar-workout-soft)!important;
+      box-shadow:0 0 8px rgba(var(--ingemar-workout-rgb),.8)!important;
     }
     /* Compact header controls: override the shared grid's full-width mobile
        row and cap the 5 s toggle so it never consumes the top of the screen. */
