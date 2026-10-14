@@ -18,6 +18,7 @@ async function tab(page,name){await page.locator('[data-tab="'+name+'"]').click(
 async function checkPackingFilter(page){
  const trigger=page.locator('.packing-filter>summary');
  await trigger.click();
+ await page.waitForFunction(()=>{const panel=document.querySelector('.packing-filter[open] .packing-filter-panel');return panel&&getComputedStyle(panel).position==='fixed';});
  const bounds=await page.locator('.packing-filter-panel').evaluate(panel=>{
   const r=panel.getBoundingClientRect(),v=window.visualViewport;
   return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,minX:v?.offsetLeft||0,maxX:(v?.offsetLeft||0)+(v?.width||innerWidth),minY:v?.offsetTop||0,maxY:(v?.offsetTop||0)+(v?.height||innerHeight)};
