@@ -5,3 +5,12 @@
 @media(max-width:440px){.quick-add{grid-template-columns:minmax(0,1fr) 66px auto}.quick-add>select{grid-row:2;grid-column:1/-1}.quick-add[data-type=task]{grid-template-columns:minmax(0,1fr) auto}.quick-add[data-type=task]>select{grid-column:1/-1}.quick-add[data-type=task]>button{grid-column:2;grid-row:1}.quick-add>input:first-child{font-size:16px}.filters{gap:8px}.filters label{min-width:calc(50% - 8px)}.filters select{min-width:0;padding:10px 8px}.hour{padding-left:47px}.time-slot{width:42px;padding-left:0}.timeline{padding-left:4px}.timeline .agenda{gap:8px;flex-wrap:wrap;padding:12px}.timeline .agenda .time{width:100%;display:flex;align-items:center;gap:8px}.timeline .agenda .time small{margin:0}.timeline .agenda h3{font-size:15px}.timeline .agenda .row-actions{flex-direction:row;width:100%;justify-content:flex-end}.timeline .agenda .info{flex-basis:100%}.check-row{gap:9px}.check-row button{padding:7px;font-size:11px}.check-row .handle{font-size:21px;min-width:25px}.document-row{grid-template-columns:35px minmax(0,1fr);gap:12px}.file-icon{width:33px;height:45px}.document-row .row-actions{grid-column:2;flex-direction:row;flex-wrap:wrap}.gallery-open{height:145px}.gallery figcaption{padding:7px;gap:2px}.gallery figcaption button{min-width:28px}.utility-body .quick-add{grid-template-columns:1fr}.booking-dates{gap:8px}.booking-dates p{font-size:11px}.packing-summary{padding:16px}.person-progress button{min-width:90px}.schedule-tools{gap:8px}.schedule-tools input{width:150px}.utility-body{padding:16px}}
 
 #edit-title:focus,#utility-title:focus{outline:none}.night-hours>summary{padding:13px 0;color:var(--muted);font-size:11px;cursor:pointer}
+
+
+/* Packlista: inline entry follows existing typography and group dividers. */
+.packing-inline-add{display:flex;align-items:center;gap:8px;margin:2px 0 8px;padding:5px 0 8px;border-bottom:1px solid var(--line)}
+.packing-inline-add input{flex:1;min-width:0;min-height:44px;padding:8px 10px;font-size:16px;background:transparent;border:1px solid transparent}
+.packing-inline-add input::placeholder{color:var(--muted);opacity:.75}
+.packing-inline-add:focus-within input{border-color:#fdba7448;background:#fdba7408}
+.packing-inline-add button{flex:none;min-width:38px;width:38px;min-height:38px;padding:0;border-color:transparent;color:var(--accent);background:transparent;font-size:21px}
+.packing-inline-add button:hover,.packing-inline-add button:focus-visible{background:#fdba740a;border-color:#fdba7440}
