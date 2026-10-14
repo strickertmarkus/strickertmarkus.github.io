@@ -135,13 +135,24 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
  #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
  #builder .exercise-foot span{overflow-wrap:anywhere;font-size:9px}
  
-/* Compact transition controls share Ingemar's builder layout, not the separate training iframe. */
-#builder .builder-session-settings{display:grid;gap:7px;margin:3px 0 12px}
+/* A pair of compact switches rather than two full-width cards.
+   Each whole button is the tap target; the existing IDs/data-actions own state. */
+#builder .builder-session-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;column-gap:7px;row-gap:7px;margin:3px 0 10px;min-width:0}
+#builder .builder-session-settings>.builder-mini-toggle{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;min-width:0;min-height:39px;height:39px;margin:0;padding:6px 10px;border:1px solid #ffffff23;border-radius:11px;background:#ffffff08;color:#bcbac5;box-shadow:none;text-align:left;cursor:pointer;touch-action:manipulation}
+#builder .builder-session-settings>.builder-mini-toggle[aria-pressed="true"]{border-color:#94e8eb65;background:#94e8eb0d;color:#d4f8f8;box-shadow:inset 0 0 0 1px #94e8eb0a}
+#builder .builder-mini-toggle-label{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;line-height:1.2;font-weight:700;letter-spacing:0}
+#builder .builder-mini-toggle-switch{position:relative;box-sizing:border-box;display:block;flex:0 0 29px;width:29px;height:17px;border-radius:999px;border:1px solid #ffffff34;background:#363c49;transition:background .15s ease,border-color .15s ease}
+#builder .builder-mini-toggle-switch i{position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#a5a7b2;box-shadow:0 1px 3px #0005;transition:transform .15s ease,background .15s ease}
+#builder .builder-mini-toggle[aria-pressed="true"] .builder-mini-toggle-switch{background:#6bbec4a3;border-color:#94e8eb70}
+#builder .builder-mini-toggle[aria-pressed="true"] .builder-mini-toggle-switch i{transform:translateX(12px);background:#d4ffff;box-shadow:0 0 6px #94e8eb59}
+#builder .builder-session-settings>.builder-mini-toggle:focus-visible{outline:2px solid #94e8eb;outline-offset:2px}
+#builder .builder-session-settings>.builder-session-fields{grid-column:1/-1;margin:0 0 2px}
 #builder .builder-session-option{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:8px 10px;background:#121824;border:1px solid #ffffff19;border-radius:11px}
 #builder .builder-session-option strong{display:block;font-size:11px;color:#e4c3ce}
 #builder .builder-session-option small{display:block;font-size:9px;margin-top:2px;color:#898e9e;line-height:1.35}
 #builder .builder-session-option button{flex:0 0 auto;min-width:48px;min-height:32px;padding:5px 10px;border:1px solid #ffffff29;border-radius:999px;background:#ffffff09;color:#a8a8b6;font-size:11px;font-weight:750}
 #builder .builder-session-option button[aria-pressed=true]{color:#bdf0f1;border-color:#94e8eb70;background:#94e8eb17}
+@media(max-width:360px){#builder .builder-session-settings{gap:5px}#builder .builder-session-settings>.builder-mini-toggle{padding:6px 7px;gap:4px}#builder .builder-mini-toggle-label{font-size:10px}}
 #builder .builder-session-fields{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:6px;min-width:0;margin:0 0 3px;padding:3px 0}
 #builder .builder-session-fields[hidden],#builder .builder-session-fields [hidden]{display:none!important}
 #builder .builder-session-fields label{display:flex;flex-direction:column;gap:4px;color:#9f9daa;font-size:9px;font-weight:750;min-width:0}
@@ -458,8 +469,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 </dialog>
 <dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field"><label for="build-name">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><button type="button" class="secondary" data-action="apply-template">Använd</button><button type="button" class="secondary" data-action="save-template">Spara som mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small></div>
 <div class="builder-session-settings" aria-label="Inställningar för träningspass">
- <div class="builder-session-option"><span><strong>5 s starttimer</strong><small>Nedräkning innan varje set startas</small></span><button type="button" id="builder-pre-timer-toggle" data-builder-pre-timer aria-pressed="true">På</button></div>
- <div class="builder-session-option"><span><strong>Mellan övningar</strong><small>Vila eller valfri övning innan nästa övning</small></span><button type="button" id="builder-between-toggle" data-between-toggle="global" aria-pressed="false">Av</button></div>
+ <button type="button" class="builder-mini-toggle" id="builder-pre-timer-toggle" data-builder-pre-timer aria-pressed="true" aria-label="5 s starttimer, på" title="5 sekunders nedräkning innan varje set"><span class="builder-mini-toggle-label">5 s starttimer</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
+ <button type="button" class="builder-mini-toggle" id="builder-between-toggle" data-between-toggle="global" aria-pressed="false" aria-label="Mellan övningar, av" title="Vila eller valfri övning mellan övningarna"><span class="builder-mini-toggle-label">Mellan övningar</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
  <div class="builder-session-fields" id="builder-between-fields" hidden>
   <label>Aktivitet<select id="builder-between-type" data-between-edit="global:type"><option value="rest">Vila</option><option value="custom">Valfri övning</option></select></label>
   <label>Tid (sek)<input type="number" inputmode="numeric" id="builder-between-seconds" min="1" max="3600" step="1" data-between-edit="global:seconds" value="60"></label>
@@ -1605,8 +1616,11 @@ function builderBetweenOption(key,cfg){cfg=normalizeBetweenOption(cfg);return '<
 function refreshBuilderSessionOptions(){
  if(!draft)return;
  var cfg=normalizeBetweenOption(draft.betweenExercises),timer=$('builder-pre-timer-toggle'),toggle=$('builder-between-toggle');
- timer.setAttribute('aria-pressed',String(draft.preTimerEnabled!==false));timer.textContent=draft.preTimerEnabled===false?'Av':'På';
- toggle.setAttribute('aria-pressed',String(cfg.enabled));toggle.textContent=cfg.enabled?'På':'Av';
+ var timerOn=draft.preTimerEnabled!==false;
+ timer.setAttribute('aria-pressed',String(timerOn));
+ timer.setAttribute('aria-label','5 s starttimer, '+(timerOn?'på':'av'));
+ toggle.setAttribute('aria-pressed',String(cfg.enabled));
+ toggle.setAttribute('aria-label','Mellan övningar, '+(cfg.enabled?'på':'av'));
  $('builder-between-fields').hidden=!cfg.enabled;$('builder-between-type').value=cfg.type==='custom'?'custom':'rest';
  $('builder-between-seconds').value=cfg.seconds;$('builder-between-name').value=cfg.name;
  $('builder-between-name-wrap').hidden=cfg.type!=='custom';

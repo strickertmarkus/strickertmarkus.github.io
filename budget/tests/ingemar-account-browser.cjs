@@ -202,10 +202,21 @@ async function verifyTouchDrag(page,label){
  assert.equal(await page.locator('#builder').evaluate(el=>el.open),true);
  // Use the SAME settings as Markus/Maja. Both the builder and iframe must retain them.
  assert.equal(await page.locator('#builder-pre-timer-toggle').getAttribute('aria-pressed'),'true','5-second pre-timer is enabled by default');
+ const builderSwitches=page.locator('#builder .builder-session-settings > .builder-mini-toggle');
+ assert.equal(await builderSwitches.count(),2,'Builder uses exactly two compact switches, not the old large cards');
+ const switchRects=await builderSwitches.evaluateAll(nodes=>nodes.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})));
+ assert.ok(switchRects.every(v=>v.height<=44&&v.width>=100),'Toggle buttons are compact but maintain finger-sized targets: '+JSON.stringify(switchRects));
+ assert.ok(Math.abs(switchRects[0].y-switchRects[1].y)<2,'Two controls share one horizontal row on mobile');
+ assert.ok(switchRects[0].x+switchRects[0].width<=switchRects[1].x+2,'Builder switches do not overlap');
+ assert.equal(await page.locator('#builder .builder-session-option').count()>0,true,'Per-exercise between-set settings remain available');
+ assert.equal(await page.locator('#builder-between-fields').isVisible(),false,'Between-exercise details are collapsed while off');
+ await page.screenshot({path:'test-results/ingemar-private/builder-compact-toggles-off-iphone.png'});
  await page.locator('#builder-pre-timer-toggle').click();
  assert.equal(await page.locator('#builder-pre-timer-toggle').getAttribute('aria-pressed'),'false');
  await page.locator('#builder-pre-timer-toggle').click();
  await page.locator('#builder [data-between-toggle="global"]').click();
+ assert.equal(await page.locator('#builder-between-toggle').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#builder-between-fields').isVisible(),true,'Enabling a compact switch reveals the existing activity/time fields inline');
  await page.locator('#builder-between-type').selectOption('rest');
  await page.locator('#builder-between-seconds').fill('4');
  await page.locator('#builder [data-between-toggle="0"]').click();
