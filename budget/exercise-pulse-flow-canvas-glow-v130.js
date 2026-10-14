@@ -300,13 +300,15 @@
 
   function syncLoop() {
     removeLegacyLargeCanvas();
-    clearTimeout(slowTimer);slowTimer=0;
     if (isSessionVisible()) {
-      if (!rafId) rafId = requestAnimationFrame(frame);
+      // Class mutations must not bypass the energy-saving cadence.
+      if (!rafId && !slowTimer) rafId = requestAnimationFrame(frame);
     } else {
+      var wasRunning = rafId || slowTimer;
       if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(slowTimer);slowTimer=0;
       rafId = 0;
-      clearAll();
+      if (wasRunning) clearAll();
     }
   }
 
@@ -333,7 +335,10 @@
       installObserver.observe(document.documentElement,{childList:true,subtree:true});
     }
     document.addEventListener('visibilitychange',syncLoop,{passive:true});
-    document.addEventListener('exercise:energy-change',syncLoop);
+    document.addEventListener('exercise:energy-change',function () {
+      clearTimeout(slowTimer);slowTimer=0;
+      syncLoop();
+    });
     if (mobileMq.addEventListener) mobileMq.addEventListener('change',syncLoop);
     else if (mobileMq.addListener) mobileMq.addListener(syncLoop);
     window.addEventListener('resize',syncLoop,{passive:true});

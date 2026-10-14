@@ -165,16 +165,21 @@
     else motionFrame=requestAnimationFrame(frame);
   }
   function syncMotion(){
-    if(motionFrame)cancelAnimationFrame(motionFrame);
-    clearTimeout(motionTimeout);motionFrame=0;motionTimeout=0;
-    if(sessionVisible())motionFrame=requestAnimationFrame(frame);
+    if(sessionVisible()){
+      if(!motionFrame&&!motionTimeout)motionFrame=requestAnimationFrame(frame);
+    }else{
+      if(motionFrame)cancelAnimationFrame(motionFrame);
+      clearTimeout(motionTimeout);motionFrame=0;motionTimeout=0;
+    }
   }
   function install(){
     installStyles();syncSurfaces();document.documentElement.classList.remove('exercise-pulse-booting-v82');
     var modal=document.getElementById('session-modal');
     if(modal)new MutationObserver(syncMotion).observe(modal,{attributes:true,attributeFilter:['class']});
     document.addEventListener('visibilitychange',syncMotion);
-    document.addEventListener('exercise:energy-change',syncMotion);
+    document.addEventListener('exercise:energy-change',function(){
+      clearTimeout(motionTimeout);motionTimeout=0;syncMotion();
+    });
     syncMotion();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
