@@ -261,6 +261,21 @@ async function verifyTouchDrag(page,label){
   assert.equal(state.pretimerAccent,expected.accent,'5 s line/dot/text palette matches '+type);
   assert.equal(state.pretimerRGB,expected.rgb,'5 s timer light effects match '+type);
   assert.equal(state.pretimerRing,'none','No obsolete circle or square conic-gradient should cover the 5 s line');
+  if(state.toggleColor!==expected.text){
+   const debug=await page.evaluate(()=>{
+    const w=document.getElementById('family-session-frame').contentWindow;
+    const modal=w.document.getElementById('session-modal');
+    const toggle=w.document.getElementById('session-pretimer-toggle-v2');
+    const before={aria:toggle?.getAttribute('aria-pressed'),inline:toggle?.style.cssText,color:w.getComputedStyle(toggle).color,parent:toggle?.parentElement?.className,
+      rootTone:w.document.documentElement.dataset.ingemarWorkoutTone,rootIntro:w.document.documentElement.dataset.ingemarIntro,
+      modalTone:modal.dataset.ingemarWorkoutTone,modalIntro:modal.dataset.ingemarIntro,soft:w.getComputedStyle(toggle).getPropertyValue('--ingemar-workout-soft'),
+      matches:toggle?.matches('html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone]:not([data-ingemar-intro="true"]) body #session-pretimer-toggle-v2#session-pretimer-toggle-v2#session-pretimer-toggle-v2[aria-pressed="true"]')};
+    w.syncIngemarSessionTone();
+    const after={inline:toggle?.style.cssText,color:w.getComputedStyle(toggle).color};
+    return {before,after};
+   });
+   console.error('INGEMAR_TOGGLE_THEME_DEBUG '+JSON.stringify(debug));
+  }
   assert.equal(state.toggleColor,expected.text,'5 s toggle colour follows '+type);
   assert.ok(state.headerHeight<=85&&state.toggleRect?.width<=90,'Compact header stays compact in '+type);
   return state;
