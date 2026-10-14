@@ -20,7 +20,7 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  fs.mkdirSync(output,{recursive:true});const browser=await webkit.launch(process.env.ZEN_WEBKIT?{executablePath:process.env.ZEN_WEBKIT}:{}),ctx=await setup(browser,390),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'/budget/travel.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>TravelStore.ready);await page.locator('#empty [data-new]').click();await page.locator('#edit-form [name=title]').fill('Familjens resa');await page.locator('#edit-form [name=destination]').fill('Köpenhamn');await page.locator('#edit-form [name=departure]').fill('2026-11-01T08:30');await page.locator('#edit-form [name=endDate]').fill('2026-11-03');await page.locator('#edit-form [name=timezone]').fill('Europe/Copenhagen');await page.locator('#edit-form [name=travelers]').fill('Markus, Maja');await page.locator('#edit-form [name=budget]').fill('15000');await save(page);
  const tripId=await page.evaluate(()=>TravelStore.list().find(x=>x.type==='trip').id);
- await tab(page,'packing');const melker=page.locator('.packing-group[data-drop-group="Melker"]');await melker.locator('.packing-inline-add [name=title]').fill('Strumpor');await melker.locator('.packing-inline-add [name=title]').press('Enter');await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Strumpor'&&x.owner==='Melker'));await melker.locator('[data-edit]').click();await page.locator('#edit-form [name=quantity]').fill('5');await save(page);await melker.locator('[data-check]').check();await page.waitForFunction(()=>TravelStore.list().find(x=>x.type==='packing')?.done);await page.locator('.packing-filter>summary').click();await page.locator('[data-action=templates]').click();await page.locator('#save-template [name=title]').fill('Helgresa');await page.locator('[data-template-save]').click();await page.waitForSelector('[data-template-apply]');await page.locator('[data-template-apply]').click();await page.waitForFunction(()=>TravelStore.list().filter(x=>x.type==='packing'&&!x.done).length===1);
+ await tab(page,'packing');const melker=page.locator('.packing-group[data-drop-group="Melker"]');await melker.locator('.packing-inline-add [name=title]').fill('Strumpor');await melker.locator('.packing-inline-add [name=title]').press('Enter');await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Strumpor'&&x.owner==='Melker'));await melker.locator('[data-pack-title]').click();assert.equal(await page.locator('#editor[open]').count(),0);await melker.locator('[data-pack-title][contenteditable=true]').fill('Varma strumpor');await melker.locator('[data-pack-title][contenteditable=true]').press('Enter');await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Varma strumpor'&&x.owner==='Melker'));assert(await melker.locator('.packing-inline-add input').evaluate(el=>document.activeElement===el));await page.evaluate(()=>TravelStore.patch(TravelStore.list().find(x=>x.title==='Varma strumpor').id,{quantity:5}));await melker.locator('[data-pack-quantity]').click();await melker.locator('.pack-quantity-input').fill('6');await melker.locator('.pack-quantity-input').press('Enter');await page.waitForFunction(()=>TravelStore.list().find(x=>x.title==='Varma strumpor')?.quantity===6);await melker.locator('[data-check]').check();await page.waitForFunction(()=>TravelStore.list().find(x=>x.type==='packing')?.done);await page.locator('.packing-filter>summary').click();await page.locator('[data-action=templates]').click();await page.locator('#save-template [name=title]').fill('Helgresa');await page.locator('[data-template-save]').click();await page.waitForSelector('[data-template-apply]');await page.locator('[data-template-apply]').click();await page.waitForFunction(()=>TravelStore.list().filter(x=>x.type==='packing'&&!x.done).length===1);
 
  // Entry directly beneath a person: Enter saves and leaves focus for the next item.
  const markusInline=page.locator('.packing-group[data-drop-group="Markus"] .packing-inline-add [name=title]');
@@ -30,7 +30,22 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  await markusInline.fill('Laddare');await markusInline.press('Enter');
  await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Laddare'&&x.owner==='Markus'));
  assert.equal(await page.locator('.packing-group[data-drop-group="Markus"] [data-item]').count(),2);
+ await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title]').first().click();
+ const editText=page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title][contenteditable=true]');
+ await editText.fill('Ändras inte');await editText.press('Escape');
+ assert.equal(await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title]').first().textContent(),'Pass');
+ await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title]').first().click();
+ await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title][contenteditable=true]').fill('Passuppgifter');
+ await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-title][contenteditable=true]').blur();
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Passuppgifter'&&x.owner==='Markus'));
+ const passportId=await page.evaluate(()=>TravelStore.list().find(x=>x.title==='Passuppgifter').id);
+ await page.locator('.packing-group[data-drop-group="Markus"] [data-pack-delete="'+passportId+'"]').click();
+ await page.waitForFunction(id=>TravelStore.get(id)?.deleted,passportId);
+ assert.equal(await page.locator('#editor[open]').count(),0);
+ await page.locator('#toast [data-action=undo]').click();
+ await page.waitForFunction(id=>TravelStore.get(id)?.deleted===false,passportId);
 
+ await page.locator('.packing-filter>summary').click();await page.locator('[data-filter=packingGroup]').selectOption('category');
  await page.locator('[data-action=pack-new-heading]').click();
  await page.locator('#packing-new-heading [name=title]').fill('Leksaker');
  await page.locator('#packing-new-heading [name=title]').press('Enter');
@@ -39,7 +54,13 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  await page.locator('.packing-group[data-drop-group="Leksaker"] .packing-inline-add [name=title]').fill('Gosedjur');
  await page.locator('.packing-group[data-drop-group="Leksaker"] .packing-inline-add [name=title]').press('Enter');
  await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Gosedjur'&&x.category==='Leksaker'));
- await page.locator('.packing-filter>summary').click();await page.locator('[data-filter=packingGroup]').selectOption('category');
+ const leksakerHeading=page.locator('.packing-group[data-drop-group="Leksaker"] [data-pack-heading]');
+ await leksakerHeading.click();
+ await leksakerHeading.fill('Pyssel');
+ await leksakerHeading.press('Enter');
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Gosedjur'&&x.category==='Pyssel'));
+ assert.equal(await page.locator('.packing-group[data-drop-group="Pyssel"] [data-item]').count(),1);
+ assert.equal(await page.locator('#editor[open]').count(),0);
  const clothesInline=page.locator('.packing-group[data-drop-group="Kläder"] .packing-inline-add [name=title]');
  await clothesInline.fill('Regnjacka');await clothesInline.press('Enter');
  await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Regnjacka'&&x.category==='Kläder'));
