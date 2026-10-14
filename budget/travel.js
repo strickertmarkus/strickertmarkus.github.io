@@ -152,6 +152,10 @@ async function renamePackingHeading(before,after,key){
  const section=[...document.querySelectorAll('.packing-group')].find(x=>x.dataset.dropGroup===before);
  if(section){
   section.dataset.dropGroup=after;
+  const heading=section.querySelector('.pack-group-name');
+  if(heading){heading.dataset.packHeading=after;heading.setAttribute('aria-label','Redigera rubrik '+after);}
+  const jump=[...document.querySelectorAll('.packing-jumps [data-pack-jump]')].find(button=>button.dataset.packJump===before);
+  if(jump){jump.dataset.packJump=after;jump.textContent=after;}
   const form=section.querySelector('.packing-inline-add');
   if(form){
    const prev='travel-pack-inline-'+tripId+'-'+key+'-'+before,next='travel-pack-inline-'+tripId+'-'+key+'-'+after;
