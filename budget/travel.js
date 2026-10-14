@@ -72,6 +72,37 @@ function inlinePackingForm(group,key){
  const draftKey='travel-pack-inline-'+tripId+'-'+key+'-'+group;
  return '<form class="packing-inline-add" data-pack-key="'+esc(key)+'" data-pack-group="'+esc(group)+'"><input name="title" type="text" value="'+esc(read(draftKey,''))+'" maxlength="500" autocomplete="off" placeholder="Lägg till sak…" aria-label="Lägg till packsak för '+esc(group)+'"><button type="submit" aria-label="Lägg till packsak för '+esc(group)+'">+</button></form>';
 }
+/* Keep the filter menu inside the visible viewport even on narrow iPhones.
+   Details provides native toggle; pointerdown/Escape below supply outside dismissal. */
+function positionPackingFilter(){
+ const details=document.querySelector('.packing-filter[open]');
+ if(!details)return;
+ const panel=details.querySelector('.packing-filter-panel'),trigger=details.querySelector('summary');
+ if(!panel||!trigger)return;
+ const viewport=window.visualViewport;
+ const viewportX=viewport?.offsetLeft||0,viewportY=viewport?.offsetTop||0;
+ const viewportWidth=viewport?.width||window.innerWidth,viewportHeight=viewport?.height||window.innerHeight;
+ const edge=12,gap=6;
+ const width=Math.max(0,Math.min(310,viewportWidth-2*edge));
+ const rect=trigger.getBoundingClientRect();
+ const left=Math.max(viewportX+edge,Math.min(rect.right-width,viewportX+viewportWidth-edge-width));
+ const below=Math.max(0,viewportY+viewportHeight-edge-rect.bottom-gap);
+ const above=Math.max(0,rect.top-gap-viewportY-edge);
+ const upwards=below<240&&above>below;
+ const available=Math.min(480,upwards?above:below);
+ panel.style.position='fixed';
+ panel.style.left=left+'px';
+ panel.style.right='auto';
+ panel.style.width=width+'px';
+ panel.style.maxHeight=available+'px';
+ const panelHeight=Math.min(panel.scrollHeight,available);
+ panel.style.top=(upwards?rect.top-gap-panelHeight:rect.bottom+gap)+'px';
+ panel.style.bottom='auto';
+}
+function closePackingFilter(){
+ const filter=document.querySelector('.packing-filter[open]');
+ if(filter)filter.open=false;
+}
 function packingSummary(all){
  const done=all.filter(x=>x.done).length;
  return '<strong>'+done+' av '+all.length+' packade</strong>'+bar(done,all.length);
@@ -393,6 +424,24 @@ function startPackingQuantity(el){
  });
  input.addEventListener('blur',()=>complete(false));
 }
+
+document.addEventListener('toggle',event=>{
+ if(event.target.matches?.('.packing-filter')&&event.target.open)positionPackingFilter();
+},true);
+document.addEventListener('pointerdown',event=>{
+ const open=document.querySelector('.packing-filter[open]');
+ if(open&&!open.contains(event.target))closePackingFilter();
+},true);
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&document.querySelector('.packing-filter[open]')){
+  closePackingFilter();
+  event.preventDefault();
+ }
+},true);
+window.addEventListener('resize',positionPackingFilter,{passive:true});
+window.addEventListener('scroll',positionPackingFilter,{passive:true});
+window.visualViewport?.addEventListener('resize',positionPackingFilter,{passive:true});
+window.visualViewport?.addEventListener('scroll',positionPackingFilter,{passive:true});
 
 document.addEventListener('click',click);
 $('edit-form').addEventListener('submit',saveEditor);
