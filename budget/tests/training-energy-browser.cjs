@@ -41,8 +41,14 @@ async function verify(width,profile){
   await frame.locator('#session-controls button').filter({hasText:'Extra set'}).click();
   await frame.waitForSelector('#session-between-overlay-v2.show');
   const before=await frame.locator('#bs-overlay-value').textContent();
-  await page.waitForTimeout(1150);
-  const after=await frame.locator('#bs-overlay-value').textContent();assert.notEqual(after,before,'extra rest countdown must tick');
+  try {
+   await frame.waitForFunction(before=>document.getElementById('bs-overlay-value').textContent!==before,before,{timeout:2000});
+  } catch(error) {
+   console.log('REST_FAILURE',JSON.stringify(await frame.evaluate(()=>({now:Date.now(),hidden:document.hidden,data:{...document.getElementById('session-between-overlay-v2').dataset},value:document.getElementById('bs-overlay-value').textContent,running:sessionState.setRunning,set:sessionState.currentSet}))));
+   throw error;
+  }
+  const rest=await frame.evaluate(()=>({remaining:Number(document.getElementById('session-between-overlay-v2').dataset.restDeadline)-Date.now(),text:document.getElementById('bs-overlay-value').textContent}));
+  assert.ok(Math.abs(Number(rest.text.split(':')[1])-Math.ceil(rest.remaining/1000))<=1,'rest text follows its deadline');
   assert.equal(await frame.locator('#session-countdown-ring.is-overtime').count(),0,'rest never becomes overtime');
   if(extra===2)await shot('extra-rest');
   await frame.waitForFunction(n=>sessionState.setRunning&&sessionState.currentSet===n,extra);

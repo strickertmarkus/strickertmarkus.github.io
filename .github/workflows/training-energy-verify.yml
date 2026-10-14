@@ -35,7 +35,7 @@ jobs:
           python3 - <<'PY'
           import pathlib, base64
           for p in sorted(pathlib.Path('test-results/training-energy').glob('*.jpg')):
-            if '390' in p.name or '320' in p.name and 'session' in p.name:
+            if '390' in p.name or 'session' in p.name or '1280-overtime' in p.name:
               print('SCREENSHOT_START '+p.name)
               print(base64.b64encode(p.read_bytes()).decode())
               print('SCREENSHOT_END')
