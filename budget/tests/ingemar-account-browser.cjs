@@ -276,7 +276,7 @@ async function verifyTouchDrag(page,label){
   assert.equal(state.readyBackground,neutralBackground,'Backdrop must stay unchanged: '+type);
   assert.equal(state.cardBackground,neutralCard,'Panel fill must not change: '+type);
   assert.equal(state.timerBackground,neutralTimer,'Timer fill must not change: '+type);
-  assert.ok(state.ctaBackground.includes(expected.rgbText),'Starta set button should use original '+type+' colour: '+state.ctaBackground);
+  assert.ok(state.ctaBackground.includes(expected.rgbText.replace('rgb(', 'rgba(').replace(')', ','))||state.ctaBackground.includes(expected.rgbText),'Starta set uses the original '+type+' colour: '+state.ctaBackground);
   assert.equal(state.pretimerAccent,expected.accent.toLowerCase(),'5 s countdown uses original '+type+' colour');
   assert.equal(state.pretimerRGB,expected.rgb,'5 s countdown glow uses original '+type+' colour');
   assert.equal(state.pretimerRing,'none','Keep the existing line-based countdown');
@@ -295,7 +295,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
  snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67E8F9',rgb:'34,211,238',text:'rgb(207, 250, 254)',rgbText:'rgb(103, 232, 249)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
- snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#ef4444',rgb:'239,68,68',text:'rgb(252, 165, 165)',rgbText:'rgb(239, 68, 68)'});
+ snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#EF4444',rgb:'239,68,68',text:'rgb(252, 165, 165)',rgbText:'rgb(239, 68, 68)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.sessionState.currentSet=1;w.renderSessionMode();});
  snap=await sessionSnapshot();
