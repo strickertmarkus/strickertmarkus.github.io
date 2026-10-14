@@ -226,7 +226,12 @@ async function verifyTouchDrag(page,label){
  const sessionSnapshot=()=>page.evaluate(()=>{
   const w=document.getElementById('family-session-frame').contentWindow,modal=w.document.getElementById('session-modal'),css=w.getComputedStyle(modal);
   return {type:w.sessionState?.type,kind:w.sessionState?.exercises[w.sessionState.exerciseIndex]?.kind,
-   tone:modal.dataset.ingemarTone||'',readyTone:modal.dataset.ingemarReadyTone||'',accent:css.getPropertyValue('--pf-accent').trim(),
+   tone:modal.dataset.ingemarTone||'',readyTone:modal.dataset.ingemarReadyTone||'',intro:modal.dataset.ingemarIntro||'',accent:css.getPropertyValue('--pf-accent').trim(),
+   readyBackground:w.getComputedStyle(modal.querySelector('.session-shell')).backgroundImage,
+   headerHeight:Math.round(modal.querySelector('.session-top').getBoundingClientRect().height),
+   toggleRect:(()=>{const r=modal.querySelector('#session-pretimer-toggle-v2')?.getBoundingClientRect();return r?{width:Math.round(r.width),height:Math.round(r.height)}:null})(),
+   pretimerRing:w.getComputedStyle(w.document.getElementById('session-pre-timer-ring')).backgroundImage,
+   pretimerCap:w.getComputedStyle(w.document.getElementById('session-pre-timer-ring'),'::after').backgroundColor,
    pretimer:!!w.document.getElementById('session-pre-timer'),
    enabled:w.getPlannedSessions()[w.sessionState.date]?.preTimerEnabled,
    between:w.getPlannedSessions()[w.sessionState.date]?.betweenExercises,
@@ -238,25 +243,40 @@ async function verifyTouchDrag(page,label){
  assert.equal(snap.enabled,true);
  assert.equal(snap.between.type,'rest');assert.equal(snap.between.seconds,4);
  assert.equal(snap.perSet.type,'rest');assert.equal(snap.perSet.seconds,3);
- assert.equal(snap.tone,'','Waiting for Starta pass must not use the active-set color state');
- assert.deepEqual([snap.readyTone,snap.accent],['push','#b54452'],'Push ready view uses darker red');
+
+ assert.equal(snap.tone,'','Initial intro must not use active-set colour');
+ assert.deepEqual([snap.intro,snap.readyTone,snap.accent],['true','','#34d399'],'Starta passet stays green');
+ assert.ok(snap.headerHeight<=85,'Compact header, actual height '+snap.headerHeight);
+ assert.ok(snap.toggleRect&&snap.toggleRect.height<=38&&snap.toggleRect.width<=90,'5s toggle fits in compact topbar: '+JSON.stringify(snap.toggleRect));
+ await page.screenshot({path:'test-results/ingemar-private/session-green-intro-390.png'});
+ const ensureReadyTheme=async(type,kind,expected,backgroundToken)=>{
+  await page.evaluate(({type,kind})=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type=type;w.sessionState.exercises[0].kind=kind;w.sessionState.currentSet=2;w.renderSessionMode();},{type,kind});
+  const state=await sessionSnapshot();
+  assert.equal(state.intro,'','Ready between sets must not be green intro');
+  assert.equal(state.readyTone,expected.tone,'Ready theme must match '+type);
+  assert.equal(state.accent,expected.accent,'Keep bright normal '+type+' accent');
+  assert.ok(state.readyBackground.includes(backgroundToken),'Background must actually be themed '+type+': '+state.readyBackground);
+  assert.equal(state.pretimerCap,expected.cap,'5 s countdown cap matches '+type);
+  assert.ok(state.headerHeight<=85&&state.toggleRect?.width<=90,'Compact header stays compact in '+type);
+  return state;
+ };
+ snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#e65c66',cap:'rgb(230, 92, 102)'},'rgb(104, 32, 57)');
  await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
- await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Pull';w.renderSessionMode();});
- snap=await sessionSnapshot();
- assert.deepEqual([snap.readyTone,snap.accent],['pull','#278da9'],'Pull ready view uses darker blue');
+ snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67e8f9',cap:'rgb(103, 232, 249)'},'rgb(16, 71, 106)');
  await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
- await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Kondition';w.sessionState.exercises[0].kind='cardio';w.renderSessionMode();});
- snap=await sessionSnapshot();
- assert.deepEqual([snap.readyTone,snap.accent],['cardio','#bd702d'],'Cardio ready view uses darker orange');
+ snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#fb923c',cap:'rgb(251, 146, 60)'},'rgb(116, 64, 28)');
  await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
- await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.renderSessionMode();});
+ await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.sessionState.currentSet=1;w.renderSessionMode();});
  snap=await sessionSnapshot();
- assert.deepEqual([snap.readyTone,snap.accent],['push','#b54452'],'Restore Push and its darker ready tone');
+ assert.deepEqual([snap.intro,snap.readyTone,snap.accent],['true','','#34d399'],'Return to green intro before starting');
  await page.screenshot({path:'test-results/ingemar-private/lazy-session-390.png'});
  await frame.locator('#session-controls button').filter({hasText:/Starta (pass|set)/i}).first().click();
  await frame.locator('#session-pre-timer.show').waitFor();
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
+ snap=await sessionSnapshot();
+ assert.equal(snap.pretimerCap,'rgb(230, 92, 102)','The actual animated 5 s countdown must use Push red, not orange/green');
+ assert.ok(snap.pretimerRing.includes('rgb(230, 92, 102)'),'5 s ring should match Push, not just the central text');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();
  await page.waitForFunction(()=>document.getElementById('family-session-frame').contentWindow.sessionState?.setRunning);
