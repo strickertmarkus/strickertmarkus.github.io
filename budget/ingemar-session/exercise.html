@@ -531,17 +531,17 @@
       --accent-dim:rgba(var(--ingemar-tone-rgb),.13)!important;
       --accent-glow:rgba(var(--ingemar-tone-rgb),.30)!important;
       --border-a:rgba(var(--ingemar-tone-rgb),.36)!important;
-      background:rgba(8,12,20,.96)!important;
+
     }
     #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .session-card,
     #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode) .session-card{
-      background:rgba(var(--ingemar-tone-rgb),.065)!important;
+
       border-color:rgba(var(--ingemar-tone-rgb),.25)!important;
       box-shadow:0 0 30px rgba(var(--ingemar-tone-rgb),.035)!important;
     }
     #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .timer-box,
     #session-modal.show.persistent-hype[data-ingemar-tone]:has(#session-pre-timer.show):not(.session-overview-mode) .timer-box{
-      background:rgba(var(--ingemar-tone-rgb),.10)!important;
+
       border-color:rgba(var(--ingemar-tone-rgb),.35)!important;
     }
     #session-modal.persistent-hype[data-ingemar-tone]:not(.session-overview-mode) .session-top{
@@ -554,65 +554,82 @@
       color:#0a1018!important;
       box-shadow:0 9px 28px rgba(var(--ingemar-tone-rgb),.23)!important;
     }
-    /* Ingemar only. Preserve bright text/ECG/accent colours; darken the
-       BACKGROUND palette rather than making foreground colours look dim. */
+    /* Ingemar only: keep the entire training surface neutral and stable.
+       Workout type changes accent lights and controls, never the backdrop. */
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype:not(.session-overview-mode){
+      background:#080d14!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype:not(.session-overview-mode) .session-shell{
+      background:
+        radial-gradient(720px 360px at 50% -90px,rgba(34,211,238,.105),transparent 68%),
+        radial-gradient(540px 300px at 94% 44%,rgba(34,211,238,.032),transparent 72%),
+        linear-gradient(180deg,#0a1018 0%,#090e15 54%,#080c12 100%)!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype:not(.session-overview-mode) .session-main.session-card{
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype:not(.session-overview-mode) .timer-box{
+      background:rgba(34,211,238,.075)!important;
+    }
+    /* Darker, still vivid accent pigments; do not dim the text or panels. */
     #session-modal[data-ingemar-ready-tone="push"]{
-      --ingemar-ready-bg:#1c0b13;--ingemar-ready-glow:#682039;
-      --ingemar-ready-tint-rgb:185,50,73;
+      --ingemar-ready-accent:#a83959;
+      --ingemar-ready-end:#c45472;
+      --ingemar-ready-soft:#f0b2c2;
+      --ingemar-ready-rgb:168,57,89;
     }
     #session-modal[data-ingemar-ready-tone="pull"]{
-      --ingemar-ready-bg:#081b29;--ingemar-ready-glow:#10476a;
-      --ingemar-ready-tint-rgb:25,114,165;
+      --ingemar-ready-accent:#247cae;
+      --ingemar-ready-end:#409bca;
+      --ingemar-ready-soft:#b9e5fb;
+      --ingemar-ready-rgb:36,124,174;
     }
     #session-modal[data-ingemar-ready-tone="cardio"]{
-      --ingemar-ready-bg:#231409;--ingemar-ready-glow:#74401c;
-      --ingemar-ready-tint-rgb:199,106,36;
+      --ingemar-ready-accent:#b96221;
+      --ingemar-ready-end:#d98535;
+      --ingemar-ready-soft:#ffdaad;
+      --ingemar-ready-rgb:185,98,33;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode){
-      --accent:var(--ingemar-workout-accent)!important;
-      --accent-rgb:var(--ingemar-workout-rgb)!important;
-      --pf-accent:var(--ingemar-workout-accent)!important;
-      --pf-soft:var(--ingemar-workout-soft)!important;
-      --pf-rgb:var(--ingemar-workout-rgb)!important;
-      --border-a:rgba(var(--ingemar-workout-rgb),.36)!important;
-    }
-    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .session-shell{
-      background:
-        radial-gradient(ellipse 78% 52% at 48% 0%,var(--ingemar-ready-glow),transparent 74%),
-        radial-gradient(ellipse 70% 50% at 98% 52%,rgba(var(--ingemar-ready-tint-rgb),.13),transparent 78%),
-        linear-gradient(180deg,var(--ingemar-ready-bg) 0%,#0d1018 75%,#090e15 100%)!important;
+      --accent:var(--ingemar-ready-accent)!important;
+      --accent-rgb:var(--ingemar-ready-rgb)!important;
+      --accent-dim:rgba(var(--ingemar-ready-rgb),.14)!important;
+      --accent-glow:rgba(var(--ingemar-ready-rgb),.34)!important;
+      --pf-accent:var(--ingemar-ready-accent)!important;
+      --pf-soft:var(--ingemar-ready-soft)!important;
+      --pf-rgb:var(--ingemar-ready-rgb)!important;
+      --border-a:rgba(var(--ingemar-ready-rgb),.42)!important;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .session-card{
-      background:rgba(var(--ingemar-workout-rgb),.065)!important;
-      border-color:rgba(var(--ingemar-workout-rgb),.27)!important;
+      border-color:rgba(var(--ingemar-ready-rgb),.30)!important;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .timer-box{
-      background:rgba(var(--ingemar-workout-rgb),.095)!important;
-      border-color:rgba(var(--ingemar-workout-rgb),.35)!important;
+      border-color:rgba(var(--ingemar-ready-rgb),.46)!important;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) #session-current-ex{
       color:#f4f7fb!important;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) .timer-val{
-      color:var(--ingemar-workout-soft)!important;
+      color:#c6f3f8!important;
     }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-ready-tone]:not(.session-overview-mode) #session-controls .session-cta.primary{
-      background:linear-gradient(115deg,var(--ingemar-workout-accent),var(--ingemar-workout-soft))!important;
-      border-color:transparent!important;color:#0a1018!important;
-      box-shadow:0 9px 28px rgba(var(--ingemar-workout-rgb),.23)!important;
+      background:linear-gradient(115deg,var(--ingemar-ready-accent),var(--ingemar-ready-end))!important;
+      border:1px solid rgba(var(--ingemar-ready-rgb),.8)!important;
+      color:#fff!important;
+      -webkit-text-fill-color:#fff!important;
+      box-shadow:0 9px 28px rgba(var(--ingemar-ready-rgb),.31),inset 0 1px 0 rgba(255,255,255,.17)!important;
     }
-    /* The first 'Starta passet' screen stays green, whatever the workout. */
+    /* Fresh 'Starta pass' is still green, but on the SAME dark surface. */
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-intro="true"]:not(.session-overview-mode){
       --accent:#34d399!important;--accent-rgb:52,211,153!important;
       --pf-accent:#34d399!important;--pf-soft:#a7f3d0!important;--pf-rgb:52,211,153!important;
       --border-a:rgba(52,211,153,.35)!important;
     }
-    html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-intro="true"]:not(.session-overview-mode) .session-shell{
-      background:radial-gradient(ellipse 70% 45% at 50% 0%,#164537,transparent 78%),linear-gradient(180deg,#0c1b19,#0b121a 72%,#090e15)!important;
-    }
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-intro="true"]:not(.session-overview-mode) #session-controls .session-cta.primary{
       background:linear-gradient(115deg,#34d399,#a7f3d0)!important;
-      color:#061b16!important;border-color:transparent!important;
+      color:#061b16!important;-webkit-text-fill-color:#061b16!important;
+      border-color:transparent!important;
       box-shadow:0 8px 28px rgba(52,211,153,.23)!important;
     }
     /* Set-specific 5 s countdown. The shared scripts hard-code orange in
@@ -629,13 +646,13 @@
     /* The full-screen 5 s overlay may be hoisted by shared runners, so
        expose its colour tokens on the document as well as the session modal. */
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="push"]{
-      --ingemar-workout-accent:#e65c66;--ingemar-workout-soft:#f29ba1;--ingemar-workout-rgb:230,92,102;
+      --ingemar-workout-accent:#a83959;--ingemar-workout-soft:#f0b2c2;--ingemar-workout-rgb:168,57,89;
     }
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="pull"]{
-      --ingemar-workout-accent:#67e8f9;--ingemar-workout-soft:#cffafe;--ingemar-workout-rgb:34,211,238;
+      --ingemar-workout-accent:#247cae;--ingemar-workout-soft:#b9e5fb;--ingemar-workout-rgb:36,124,174;
     }
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="cardio"]{
-      --ingemar-workout-accent:#fb923c;--ingemar-workout-soft:#fed7aa;--ingemar-workout-rgb:251,146,60;
+      --ingemar-workout-accent:#b96221;--ingemar-workout-soft:#ffdaad;--ingemar-workout-rgb:185,98,33;
     }
     /* The shared v67 timer is a light 5 s LINE, not a circular ring.
        Only override its colour tokens; never restore the retired conic
@@ -914,9 +931,9 @@ function syncIngemarSessionTone(){
   var selected=!!workoutTone&&!intro&&enabled;
   // Use resolved literals for this tiny switch. WebKit can retain a stale
   // inherited text colour when an inline !important colour uses var(...).
-  var palette=workoutTone==='push'?{soft:'#f29ba1',rgb:'230,92,102'}
-    :workoutTone==='pull'?{soft:'#cffafe',rgb:'34,211,238'}
-    :{soft:'#fed7aa',rgb:'251,146,60'};
+  var palette=workoutTone==='push'?{soft:'#f0b2c2',rgb:'168,57,89'}
+    :workoutTone==='pull'?{soft:'#b9e5fb',rgb:'36,124,174'}
+    :{soft:'#ffdaad',rgb:'185,98,33'};
   var toggleColor=selected?palette.soft:intro&&enabled?'#a7f3d0':'';
   var toggleRgb=selected?palette.rgb:intro&&enabled?'52,211,153':'';
   var track=toggle.querySelector('.session-timer-track-v48'),knob=toggle.querySelector('.session-timer-knob-v48');

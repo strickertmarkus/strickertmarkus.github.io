@@ -228,6 +228,10 @@ async function verifyTouchDrag(page,label){
   return {type:w.sessionState?.type,kind:w.sessionState?.exercises[w.sessionState.exerciseIndex]?.kind,
    tone:modal.dataset.ingemarTone||'',readyTone:modal.dataset.ingemarReadyTone||'',intro:modal.dataset.ingemarIntro||'',accent:css.getPropertyValue('--pf-accent').trim(),
    readyBackground:w.getComputedStyle(modal.querySelector('.session-shell')).backgroundImage,
+   cardBackground:w.getComputedStyle(modal.querySelector('.session-main.session-card')).backgroundColor,
+   timerBackground:w.getComputedStyle(modal.querySelector('.session-timers .timer-box')).backgroundColor,
+   ctaBackground:w.getComputedStyle(modal.querySelector('#session-controls .session-cta.primary')).backgroundImage,
+   ctaColor:w.getComputedStyle(modal.querySelector('#session-controls .session-cta.primary')).color,
    headerHeight:Math.round(modal.querySelector('.session-top').getBoundingClientRect().height),
    toggleRect:(()=>{const r=modal.querySelector('#session-pretimer-toggle-v2')?.getBoundingClientRect();return r?{width:Math.round(r.width),height:Math.round(r.height)}:null})(),
    pretimerAccent:w.getComputedStyle(w.document.getElementById('session-pre-timer')).getPropertyValue('--concept-timer-accent').trim(),
@@ -248,16 +252,24 @@ async function verifyTouchDrag(page,label){
 
  assert.equal(snap.tone,'','Initial intro must not use active-set colour');
  assert.deepEqual([snap.intro,snap.readyTone,snap.accent],['true','','#34d399'],'Starta passet stays green');
+ assert.ok(snap.ctaBackground.includes('rgb(52, 211, 153)'),'The initial Starta passet button stays green');
+ const neutralBackground=snap.readyBackground;
+ const neutralCard=snap.cardBackground;
+ const neutralTimer=snap.timerBackground;
  assert.ok(snap.headerHeight<=85,'Compact header, actual height '+snap.headerHeight);
  assert.ok(snap.toggleRect&&snap.toggleRect.height<=38&&snap.toggleRect.width<=90,'5s toggle fits in compact topbar: '+JSON.stringify(snap.toggleRect));
  await page.screenshot({path:'test-results/ingemar-private/session-green-intro-390.png'});
- const ensureReadyTheme=async(type,kind,expected,backgroundToken)=>{
+ const ensureReadyTheme=async(type,kind,expected)=>{
   await page.evaluate(({type,kind})=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type=type;w.sessionState.exercises[0].kind=kind;w.sessionState.currentSet=2;w.renderSessionMode();},{type,kind});
   const state=await sessionSnapshot();
   assert.equal(state.intro,'','Ready between sets must not be green intro');
   assert.equal(state.readyTone,expected.tone,'Ready theme must match '+type);
   assert.equal(state.accent,expected.accent,'Keep bright normal '+type+' accent');
-  assert.ok(state.readyBackground.includes(backgroundToken),'Background must actually be themed '+type+': '+state.readyBackground);
+  assert.equal(state.readyBackground,neutralBackground,'Background must stay identical between themes: '+type);
+  assert.equal(state.cardBackground,neutralCard,'Main panel fill must not recolour with theme: '+type);
+  assert.equal(state.timerBackground,neutralTimer,'Timer panel fill must not recolour with theme: '+type);
+  assert.ok(state.ctaBackground.includes(expected.rgbText),'Starta set button, not the background, should take the '+type+' accent: '+state.ctaBackground);
+  assert.equal(state.ctaColor,'rgb(255, 255, 255)','Darker buttons need readable white text: '+type);
   assert.equal(state.pretimerAccent,expected.accent,'5 s line/dot/text palette matches '+type);
   assert.equal(state.pretimerRGB,expected.rgb,'5 s timer light effects match '+type);
   assert.equal(state.pretimerRing,'none','No obsolete circle or square conic-gradient should cover the 5 s line');
@@ -280,11 +292,11 @@ async function verifyTouchDrag(page,label){
   assert.ok(state.headerHeight<=85&&state.toggleRect?.width<=90,'Compact header stays compact in '+type);
   return state;
  };
- snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#e65c66',rgb:'230,92,102',text:'rgb(242, 155, 161)'},'rgb(104, 32, 57)');
+ snap=await ensureReadyTheme('Push','strength',{tone:'push',accent:'#a83959',rgb:'168,57,89',text:'rgb(240, 178, 194)',rgbText:'rgb(168, 57, 89)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-push-red-390.png'});
- snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#67e8f9',rgb:'34,211,238',text:'rgb(207, 250, 254)'},'rgb(16, 71, 106)');
+ snap=await ensureReadyTheme('Pull','strength',{tone:'pull',accent:'#247cae',rgb:'36,124,174',text:'rgb(185, 229, 251)',rgbText:'rgb(36, 124, 174)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-pull-blue-390.png'});
- snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#fb923c',rgb:'251,146,60',text:'rgb(254, 215, 170)'},'rgb(116, 64, 28)');
+ snap=await ensureReadyTheme('Kondition','cardio',{tone:'cardio',accent:'#b96221',rgb:'185,98,33',text:'rgb(255, 218, 173)',rgbText:'rgb(185, 98, 33)'});
  await page.screenshot({path:'test-results/ingemar-private/session-ready-cardio-orange-390.png'});
  await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.type='Push';w.sessionState.exercises[0].kind='strength';w.sessionState.currentSet=1;w.renderSessionMode();});
  snap=await sessionSnapshot();
@@ -295,8 +307,8 @@ async function verifyTouchDrag(page,label){
  assert.match(await frame.locator('#session-pre-timer-value').textContent(),/^[1-5]$/);
  assert.equal(await frame.locator('#session-pretimer-toggle-v2').getAttribute('aria-pressed'),'true');
  snap=await sessionSnapshot();
- assert.equal(snap.pretimerAccent,'#e65c66','The actual 5s line and dot use Push red, not orange/green');
- assert.equal(snap.pretimerRGB,'230,92,102','5s visual effects use Push red');
+ assert.equal(snap.pretimerAccent,'#a83959','The 5s line and dot use the new wine-red Push accent');
+ assert.equal(snap.pretimerRGB,'168,57,89','5s visual effects use wine-red Push');
  assert.equal(snap.pretimerRing,'none','The 5s timer must remain the original linear format, without a square conic ring');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();
