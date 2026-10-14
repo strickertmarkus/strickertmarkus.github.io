@@ -21,6 +21,20 @@ async function geometry(page){assert(await page.evaluate(()=>document.documentEl
  await page.goto(base+'/budget/travel.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>TravelStore.ready);await page.locator('#empty [data-new]').click();await page.locator('#edit-form [name=title]').fill('Familjens resa');await page.locator('#edit-form [name=destination]').fill('Köpenhamn');await page.locator('#edit-form [name=departure]').fill('2026-11-01T08:30');await page.locator('#edit-form [name=endDate]').fill('2026-11-03');await page.locator('#edit-form [name=timezone]').fill('Europe/Copenhagen');await page.locator('#edit-form [name=travelers]').fill('Markus, Maja');await page.locator('#edit-form [name=budget]').fill('15000');await save(page);
  const tripId=await page.evaluate(()=>TravelStore.list().find(x=>x.type==='trip').id);
  await tab(page,'packing');await page.locator('#quick-add [name=title]').fill('Strumpor');await page.locator('#quick-add [name=quantity]').fill('5');await page.locator('#quick-add [name=owner]').selectOption('Melker');await page.locator('[data-quick-submit]').click();await page.waitForSelector('[data-check]');await page.locator('[data-check]').check();await page.waitForFunction(()=>TravelStore.list().find(x=>x.type==='packing')?.done);await page.locator('[data-action=templates]').click();await page.locator('#save-template [name=title]').fill('Helgresa');await page.locator('[data-template-save]').click();await page.waitForSelector('[data-template-apply]');await page.locator('[data-template-apply]').click();await page.waitForFunction(()=>TravelStore.list().filter(x=>x.type==='packing'&&!x.done).length===1);
+
+ // Entry directly beneath a person: Enter saves and leaves focus for the next item.
+ const markusInline=page.locator('.packing-group[data-drop-group="Markus"] .packing-inline-add [name=title]');
+ await markusInline.fill('Pass');await markusInline.press('Enter');
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Pass'&&x.owner==='Markus'));
+ assert(await markusInline.evaluate(el=>document.activeElement===el),'Enter must keep the same packing input focused');
+ await markusInline.fill('Laddare');await markusInline.press('Enter');
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Laddare'&&x.owner==='Markus'));
+ assert.equal(await page.locator('.packing-group[data-drop-group="Markus"] [data-item]').count(),2);
+ await page.locator('[data-filter=packingGroup]').selectOption('category');
+ const clothesInline=page.locator('.packing-group[data-drop-group="Kläder"] .packing-inline-add [name=title]');
+ await clothesInline.fill('Regnjacka');await clothesInline.press('Enter');
+ await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='packing'&&x.title==='Regnjacka'&&x.category==='Kläder'));
+ assert(await clothesInline.evaluate(el=>document.activeElement===el),'Category entry should also keep focus');
  await page.screenshot({path:output+'/packing-390.png',fullPage:true});
  await tab(page,'task');await page.locator('#quick-add [name=title]').fill('Boka färja');await page.locator('[data-quick-submit]').click();await page.waitForFunction(()=>TravelStore.list().some(x=>x.type==='task'&&x.showHome));
  // Second device sees actual outbox writes through the shared isolated server.
