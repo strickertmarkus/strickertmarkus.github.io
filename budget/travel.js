@@ -327,6 +327,65 @@ async function click(event){const b=event.target.closest('button');if(!b)return;
  if(act==='discard-draft'){localStorage.removeItem(editing.key);drawEditor({...editing.base});$('form-error').textContent='Utkastet är återställt.';}
  if(act==='pick-coordinate')await pickCoordinate();
  }catch(e){toast(e.message||'Kunde inte utföra ändringen.');}}
+
+/* Click text rather than an edit button; keep iOS editing inside the row. */
+document.addEventListener('click',event=>{
+ const target=event.target;
+ if(!(target instanceof Element)||tab!=='packing')return;
+ const title=target.closest('.pack-item-text[data-pack-title]');
+ if(title){if(!title.isContentEditable)startPackingEdit(title,'item');return;}
+ const heading=target.closest('.pack-group-name[data-pack-heading]');
+ if(heading){if(!heading.isContentEditable)startPackingEdit(heading,'heading');return;}
+ const qty=target.closest('.packing-qty[data-pack-quantity]');
+ if(qty&&!qty.querySelector('input'))startPackingQuantity(qty);
+});
+document.addEventListener('keydown',event=>{
+ const target=event.target;
+ if(!(target instanceof Element)||tab!=='packing')return;
+ const editable=target.closest('.pack-editing');
+ if(editable){
+  if(event.isComposing)return;
+  if(event.key==='Enter'){event.preventDefault();event.stopPropagation();finishPackingEdit(editable,true);return;}
+  if(event.key==='Escape'){event.preventDefault();event.stopPropagation();finishPackingEdit(editable,false,true);editable.blur();return;}
+ }
+ const text=target.closest('.pack-item-text[data-pack-title],.pack-group-name[data-pack-heading]');
+ if(text&&(event.key==='Enter'||event.key===' ')){
+  event.preventDefault();startPackingEdit(text,text.hasAttribute('data-pack-title')?'item':'heading');return;
+ }
+ const qty=target.closest('.packing-qty[data-pack-quantity]');
+ if(qty&&!qty.querySelector('input')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();startPackingQuantity(qty);}
+});
+document.addEventListener('focusout',event=>{
+ const el=event.target;
+ if(el instanceof Element&&el.classList.contains('pack-editing'))finishPackingEdit(el,false);
+});
+function startPackingQuantity(el){
+ const item=S.get(el.dataset.packQuantity);if(!item)return;
+ const original=el.textContent,value=Number(item.quantity||1);
+ const input=document.createElement('input');
+ input.type='number';input.min='0.1';input.step='any';input.inputMode='decimal';input.value=String(value);input.className='pack-quantity-input';input.setAttribute('aria-label','Antal '+item.title);
+ el.textContent='';el.append(input);input.focus({preventScroll:true});input.select();
+ let resolved=false;
+ async function complete(cancel){
+  if(resolved)return;resolved=true;
+  const newQuantity=cancel?value:Number(input.value);
+  el.textContent=original;
+  if(!cancel){
+   if(!Number.isFinite(newQuantity)||newQuantity<=0){toast('Antal måste vara större än noll.');return;}
+   if(newQuantity!==value){
+    el.textContent=newQuantity+' '+(item.unit||'st');
+    try{await S.patch(item.id,{quantity:newQuantity});packingRenderFingerprint();}
+    catch(error){el.textContent=original;toast(error.message||'Kunde inte spara antal.');}
+   }
+  }
+ }
+ input.addEventListener('keydown',event=>{
+  if(event.key==='Enter'){event.preventDefault();complete(false);}
+  if(event.key==='Escape'){event.preventDefault();complete(true);}
+ });
+ input.addEventListener('blur',()=>complete(false));
+}
+
 document.addEventListener('click',click);
 $('edit-form').addEventListener('submit',saveEditor);
 $('edit-form').addEventListener('input',keepDraft);
