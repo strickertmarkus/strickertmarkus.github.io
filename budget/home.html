@@ -2094,55 +2094,67 @@ function renderHeaderMeta() {
 
 function getShoppingLists() { return parseJSON(localStorage.getItem('sh_lists'), []); }
 function saveShoppingLists(lists) { localStorage.setItem('sh_lists', JSON.stringify(lists)); }
+var HOME_SHOPPING_HEADINGS = ['Maxi','Willys','Hemköp','Lidl','Coop'];
+function getPrimaryShoppingList(lists) {
+  return (lists || []).find(function(list) {
+    return list && (!list.mode || list.mode === 'shopping');
+  }) || null;
+}
 function ensureShoppingList() {
   var lists = getShoppingLists();
-  if (!lists.length) {
-    lists = [{ id: 1, name: 'Huvudlista', createdAt: new Date().toISOString().slice(0,10), items: [] }];
-    saveShoppingLists(lists);
+  if (!Array.isArray(lists)) lists = [];
+  var list = getPrimaryShoppingList(lists);
+  var changed = false;
+  if (!list) {
+    list = {
+      id: lists.length ? -101 : 1,
+      name: lists.length ? 'Inköpslista' : 'Huvudlista',
+      mode: 'shopping',
+      createdAt: new Date().toISOString().slice(0,10),
+      items: []
+    };
+    lists.push(list);
+    changed = true;
   }
+  if (!Array.isArray(list.items)) { list.items = []; changed = true; }
+  // Same default headings/IDs as shopping-core-v1.js. Run once so users
+  // can subsequently rename or remove headings without them reappearing.
+  if (!list.modeTemplateInitialized) {
+    HOME_SHOPPING_HEADINGS.forEach(function(heading,index) {
+      if (!list.items.some(function(row) {
+        return row && row.type === 'category' &&
+          String(row.text || '').trim().toLocaleLowerCase('sv-SE') === heading.toLocaleLowerCase('sv-SE');
+      })) {
+        list.items.push({ id:-10100-index, type:'category', text:heading });
+        changed = true;
+      }
+    });
+    list.modeTemplateInitialized = true;
+    changed = true;
+  }
+  if (changed) saveShoppingLists(lists);
   return lists;
 }
-function normalizeShoppingHeading(text) {
-  return String(text || '').trim().toLowerCase();
-}
-function parseShoppingInputWithCategory(text) {
-  var cleaned = String(text || '').trim();
-  var match = cleaned.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
-  if (!match) return { text: cleaned, category: '' };
-  var itemText = String(match[1] || '').trim();
-  var categoryText = String(match[2] || '').trim();
-  if (!itemText || !categoryText) return { text: cleaned, category: '' };
-  return { text: itemText, category: categoryText };
-}
-function findShoppingCategoryIndex(items, categoryName) {
-  var target = normalizeShoppingHeading(categoryName);
-  if (!target) return -1;
-  for (var i = 0; i < items.length; i++) {
-    var row = items[i];
-    if (row && row.type === 'category' && normalizeShoppingHeading(row.text) === target) {
-      return i;
-    }
-  }
-  return -1;
+function normalizeShoppingItemText(value) {
+  var text = String(value == null ? '' : value).replace(/\u00a0/g, ' ').trim();
+  return text.replace(/\p{L}/u, function(letter) { return letter.toLocaleUpperCase('sv-SE'); });
 }
 function insertShoppingItemAtTop(items, item) {
   var firstCategoryIndex = items.findIndex(function(row){ return row && row.type === 'category'; });
-  if (firstCategoryIndex === -1) {
-    items.push(item);
-    return;
-  }
-  items.splice(firstCategoryIndex, 0, item);
+  if (firstCategoryIndex === -1) items.push(item);
+  else items.splice(firstCategoryIndex, 0, item);
 }
-function insertShoppingItemInCategory(items, categoryIndex, item) {
-  if (categoryIndex < 0) {
-    insertShoppingItemAtTop(items, item);
-    return;
-  }
-  var insertAt = categoryIndex + 1;
-  while (insertAt < items.length && items[insertAt] && items[insertAt].type !== 'category') {
-    insertAt += 1;
-  }
-  items.splice(insertAt, 0, item);
+function insertShoppingItemUnderDefaultHeading(items, item) {
+  // Home's quick entry always goes into the first store heading (Maxi);
+  // editing the parenthesized text never moves items between categories.
+  var categoryIndex = items.findIndex(function(row) {
+    return row && row.type === 'category' &&
+      String(row.text || '').trim().toLocaleLowerCase('sv-SE') === 'maxi';
+  });
+  if (categoryIndex < 0) { insertShoppingItemAtTop(items,item); return; }
+  var at = categoryIndex + 1;
+  while (at < items.length && items[at] && items[at].type !== 'category') at++;
+  items.splice(at,0,item);
 }
 function getVisibleShoppingItems(list) {
   var visible = [];
@@ -2164,33 +2176,23 @@ function getVisibleShoppingItems(list) {
   });
   return visible;
 }
-function getCurrentShoppingList() { return ensureShoppingList()[0]; }
+function getCurrentShoppingList() { return getPrimaryShoppingList(ensureShoppingList()); }
 function addShoppingItemFromHome() {
   var input = document.getElementById('shopping-add-input');
   if (!input) return;
-  var parsed = parseShoppingInputWithCategory(input.value || '');
-  if (!parsed.text) return;
+  var text = normalizeShoppingItemText(input.value);
+  if (!text) return;
   var lists = ensureShoppingList();
-  var list = lists[0];
-  list.items = list.items || [];
-  var newItem = { id: Date.now() + Math.random(), type: 'item', text: parsed.text, checked: false };
-  if (parsed.category) {
-    var categoryIndex = findShoppingCategoryIndex(list.items, parsed.category);
-    if (categoryIndex >= 0) {
-      insertShoppingItemInCategory(list.items, categoryIndex, newItem);
-    } else {
-      insertShoppingItemAtTop(list.items, newItem);
-    }
-  } else {
-    insertShoppingItemAtTop(list.items, newItem);
-  }
+  var list = getPrimaryShoppingList(lists);
+  var newItem = { id: Date.now() + Math.random(), type: 'item', text:text, checked:false };
+  insertShoppingItemUnderDefaultHeading(list.items, newItem);
   saveShoppingLists(lists);
   input.value = '';
   renderShoppingWidget();
 }
 function toggleShoppingItem(id, checked) {
   var lists = ensureShoppingList();
-  var list = lists[0];
+  var list = getPrimaryShoppingList(lists);
   var item = (list.items || []).find(function(it){ return it && it.id === id; });
   if (!item) return;
   item.checked = checked;
@@ -2198,24 +2200,13 @@ function toggleShoppingItem(id, checked) {
   renderShoppingWidget();
 }
 function updateShoppingItemText(id, text) {
-  var parsed = parseShoppingInputWithCategory(text || '');
-  if (!parsed.text) return;
+  var updatedText = normalizeShoppingItemText(text);
+  if (!updatedText) return;
   var lists = ensureShoppingList();
-  var list = lists[0];
-  var items = list.items || [];
-  var idx = items.findIndex(function(it){ return it && it.id === id; });
-  if (idx === -1) return;
-  var item = items[idx];
-  item.text = parsed.text;
-  if (parsed.category) {
-    items.splice(idx, 1);
-    var categoryIndex = findShoppingCategoryIndex(items, parsed.category);
-    if (categoryIndex >= 0) {
-      insertShoppingItemInCategory(items, categoryIndex, item);
-    } else {
-      insertShoppingItemAtTop(items, item);
-    }
-  }
+  var list = getPrimaryShoppingList(lists);
+  var item = (list.items || []).find(function(row) { return row && row.id === id; });
+  if (!item) return;
+  item.text = updatedText;
   saveShoppingLists(lists);
 }
 function startEditShoppingItem(el, id) {
@@ -2282,7 +2273,7 @@ function startEditShoppingItem(el, id) {
 }
 function deleteShoppingItem(id) {
   var lists = ensureShoppingList();
-  var list = lists[0];
+  var list = getPrimaryShoppingList(lists);
   list.items = (list.items || []).filter(function(it){ return !(it && it.id === id); });
   saveShoppingLists(lists);
   renderShoppingWidget();
@@ -2300,7 +2291,7 @@ function renderShoppingWidget() {
     return;
   }
   ul.innerHTML = items.map(function(item){
-    var displayText = item.category ? (String(item.text || '') + ' (' + String(item.category || '') + ')') : String(item.text || '');
+    var displayText = String(item.text || '');
     var safe = displayText
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
