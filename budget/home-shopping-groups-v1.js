@@ -127,6 +127,15 @@
 
     count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
 
+    // Preserve the actual DOM input element while someone is adding
+    // consecutive items. firebase-sync emits sh_lists refresh events every
+    // few seconds and replacing ul.innerHTML would remove the focused
+    // element, dismissing the iOS keyboard mid-entry.
+    // The submit handler appends each item in place. Deferred external
+    // updates are fully rendered when this editor is explicitly closed.
+    if (activeAddCategory !== null &&
+        ul.querySelector('.shopping-category-add-form')) return;
+
     // Read actual category rows rather than deriving headings from items:
     // empty stores must be visible too, just like on shopping.html.
     var sections = [];
@@ -254,10 +263,18 @@
         input.focus({ preventScroll:true });
       });
       listRoot.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && event.target.closest('.shopping-category-add-form')) {
+        var form = event.target.closest('.shopping-category-add-form');
+        if (!form) return;
+        if (event.key === 'Escape') {
           event.preventDefault();
           activeAddCategory = null;
           groupedRender();
+        } else if (event.key === 'Enter' && event.target.matches('.shopping-category-add-input') &&
+                   !event.isComposing && event.keyCode !== 229) {
+          // Explicitly handle repeated Enter presses on mobile/desktop.
+          // Prevent the browser's implicit submit-button focus change.
+          event.preventDefault();
+          if (!event.repeat) form.requestSubmit();
         }
       });
     }
