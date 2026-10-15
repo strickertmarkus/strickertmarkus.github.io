@@ -133,7 +133,7 @@
     // element, dismissing the iOS keyboard mid-entry.
     // The submit handler appends each item in place. Deferred external
     // updates are fully rendered when this editor is explicitly closed.
-    if (!force && activeAddCategory !== null &&
+    if (force !== true && activeAddCategory !== null &&
         ul.querySelector('.shopping-category-add-form')) return;
 
     // Read actual category rows rather than deriving headings from items:
