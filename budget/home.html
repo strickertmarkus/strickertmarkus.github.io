@@ -330,17 +330,50 @@
       width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
       background: rgba(255,255,255,.03); color: var(--text-sec); cursor: pointer; line-height: 1; font-size: 16px; flex: 0 0 auto;
     }
-    .transfer-popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .transfer-person-col { display: flex; flex-direction: column; gap: 8px; }
-    .transfer-person-head { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; padding: 0 2px; }
-    .transfer-person-head.pink { color: #F472B6; }
-    .transfer-person-head.blue { color: #60A5FA; }
-    .transfer-mini-card { border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.03); padding: 12px; min-height: 86px; display: flex; flex-direction: column; justify-content: space-between; }
-    .transfer-mini-card.pink .transfer-mini-val { color: #F472B6; }
-    .transfer-mini-card.blue .transfer-mini-val { color: #60A5FA; }
-    .transfer-mini-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-sec); font-weight: 700; }
-    .transfer-mini-val { margin-top: 6px; font-size: 19px; font-weight: 800; color: var(--accent); }
-    .transfer-empty { color: var(--text-sec); font-size: 13px; padding: 6px 2px 2px; }
+    /* Compact monthly transfers: one table instead of four stacked amount cards. */
+    #transfer-widget .transfer-popup-shell { margin-top:7px;padding:10px 12px 8px; }
+    #transfer-widget .transfer-popup-head { align-items:center;margin-bottom:6px; }
+    #transfer-widget .transfer-popup-title {
+      font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.10em;
+      color:var(--home-view-accent-soft,#FDBA74);
+    }
+    #transfer-widget .transfer-popup-sub:empty { display:none; }
+    #transfer-widget .transfer-popup-grid { display:block;min-width:0; }
+    #transfer-widget .transfer-amount-table {
+      width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px;
+      font-variant-numeric:tabular-nums;
+    }
+    #transfer-widget .transfer-amount-table th,
+    #transfer-widget .transfer-amount-table td { padding:9px 4px;min-width:0; }
+    #transfer-widget .transfer-amount-table thead th {
+      color:var(--text-sec);font-size:10px;font-weight:500;
+      text-align:right;white-space:nowrap;padding-top:3px;padding-bottom:8px;
+    }
+    #transfer-widget .transfer-amount-table thead th:first-child { text-align:left; }
+    #transfer-widget .transfer-amount-table tbody tr {
+      border-top:1px solid rgba(255,255,255,.075);
+    }
+    #transfer-widget .transfer-amount-table tbody th {
+      text-align:left;font-size:11px;font-weight:500;
+    }
+    #transfer-widget .transfer-amount-table tbody td {
+      color:var(--person-color);text-align:right;font-size:11px;font-weight:500;
+      white-space:nowrap;
+    }
+    #transfer-widget .transfer-amount-row.maja { --person-color:var(--c-maja,#F9A8B8); }
+    #transfer-widget .transfer-amount-row.markus { --person-color:var(--c-markus,#38BDF8); }
+    #transfer-widget .transfer-amount-row .transfer-person-inline { color:var(--person-color); }
+    #transfer-widget .transfer-amount-table th:first-child { width:29%; }
+    #transfer-widget .transfer-amount-table th:nth-child(2) { width:35%; }
+    #transfer-widget .transfer-amount-table th:nth-child(3) { width:36%; }
+    @media(max-width:380px) {
+      #transfer-widget .transfer-popup-shell { padding:9px 8px 7px; }
+      #transfer-widget .transfer-amount-table tbody td { font-size:10px; }
+      #transfer-widget .transfer-amount-table thead th { font-size:9px; }
+      #transfer-widget .transfer-amount-table th,
+      #transfer-widget .transfer-amount-table td { padding-left:2px;padding-right:2px; }
+    }
+    .transfer-empty { color: var(--text-sec); font-size: 12px; padding: 6px 2px 2px; }
     .month-popup-shell {
       margin-top: 10px;
       padding: 12px;
@@ -375,33 +408,17 @@
     #transfer-widget .month-popup-title { font-size:14px;font-weight:700; }
     #transfer-widget .transfer-popup-sub,
     #transfer-widget .month-popup-sub { font-size:11px;line-height:1.45; }
-    /* Only the member name and amount carry a person color; surrounding surfaces stay in Home theme. */
-    #transfer-widget .transfer-person-head { display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.6px; }
-    #transfer-widget .transfer-person-head::before,
+    /* Person colors and glowing dots, shared by transfers and monthly expenses. */
     #transfer-widget .transfer-person-inline::before {
       content:'';display:inline-block;flex:0 0 7px;width:7px;height:7px;
       border-radius:50%;background:var(--person-color);
       box-shadow:0 0 10px var(--person-color);
     }
-    #transfer-widget .transfer-person-head.pink,
-    #transfer-widget .transfer-mini-card.pink .transfer-mini-val,
     #transfer-widget .transfer-person-inline.maja,
-    #transfer-widget .transfer-person-val.maja { --person-color:#F9A8B8;color:#F9A8B8; }
-    #transfer-widget .transfer-person-head.blue,
-    #transfer-widget .transfer-mini-card.blue .transfer-mini-val,
+    #transfer-widget .transfer-person-val.maja { --person-color:var(--c-maja,#F9A8B8);color:var(--c-maja,#F9A8B8); }
     #transfer-widget .transfer-person-inline.markus,
-    #transfer-widget .transfer-person-val.markus { --person-color:#38BDF8;color:#38BDF8; }
-    #transfer-widget .transfer-mini-card,
-    #transfer-widget .transfer-mini-card.pink,
-    #transfer-widget .transfer-mini-card.blue {
-      padding:10px;min-height:0;gap:4px;
-      border-color:rgba(var(--home-view-rgb,253,186,116),.14) !important;
-      background:rgba(255,255,255,.025) !important;
-      box-shadow:none !important;
-    }
-    #transfer-widget .transfer-mini-lbl { font-size:10px;font-weight:600;letter-spacing:.4px; }
-    #transfer-widget .transfer-mini-val { margin-top:3px;font-size:17px;font-weight:600;overflow-wrap:anywhere; }
-    #transfer-widget .transfer-person-inline { display:inline-flex;align-items:center;gap:7px;font-weight:500; }
+    #transfer-widget .transfer-person-val.markus { --person-color:var(--c-markus,#38BDF8);color:var(--c-markus,#38BDF8); }
+    #transfer-widget .transfer-person-inline { display:inline-flex;align-items:center;gap:7px;font-weight:500;white-space:nowrap; }
     #transfer-widget .transfer-person-val { font-weight:500; }
     #transfer-widget .month-expense-section { background:rgba(255,255,255,.025) !important;border-color:rgba(var(--home-view-rgb,253,186,116),.13) !important; }
     #transfer-widget .month-summary-section-title { color:var(--home-view-accent-soft,#FDBA74);font-size:11px;font-weight:700; }
@@ -2295,29 +2312,15 @@ function renderTransferPopup() {
     return;
   }
   title.textContent = row.month + ' ' + row.year;
-  sub.textContent = 'Husutgifter: ' + fmtKr(row.husutgifter) + ' · ICA-kort: ' + fmtKr(row.ica);
-  grid.innerHTML = [
-    {
-      name: 'Maja',
-      tone: 'pink',
-      cards: [
-        { label: 'ICA-kort', value: row.icaMaja },
-        { label: 'Huskonto', value: row.huskontoMaja }
-      ]
-    },
-    {
-      name: 'Markus',
-      tone: 'blue',
-      cards: [
-        { label: 'ICA-kort', value: row.icaMarkus },
-        { label: 'Huskonto', value: row.huskontoMarkus }
-      ]
-    }
-  ].map(function(person){
-    return '<div class="transfer-person-col"><div class="transfer-person-head ' + person.tone + '">' + person.name + '</div>' + person.cards.map(function(card){
-      return '<div class="transfer-mini-card ' + person.tone + '"><div><div class="transfer-mini-lbl">' + card.label + '</div><div class="transfer-mini-val">' + fmtKr(card.value) + '</div></div></div>';
-    }).join('') + '</div>';
-  }).join('');
+  sub.textContent = '';
+  grid.innerHTML = '<table class="transfer-amount-table" aria-label="Överföringsbelopp för ' + escHtml(row.month + ' ' + row.year) + '">'
+    + '<thead><tr><th scope="col">Person</th><th scope="col">ICA-kort</th><th scope="col">Huskonto</th></tr></thead>'
+    + '<tbody>'
+    + '<tr class="transfer-amount-row maja"><th scope="row"><span class="transfer-person-inline maja">Maja</span></th>'
+    + '<td>' + fmtKr(row.icaMaja) + '</td><td>' + fmtKr(row.huskontoMaja) + '</td></tr>'
+    + '<tr class="transfer-amount-row markus"><th scope="row"><span class="transfer-person-inline markus">Markus</span></th>'
+    + '<td>' + fmtKr(row.icaMarkus) + '</td><td>' + fmtKr(row.huskontoMarkus) + '</td></tr>'
+    + '</tbody></table>';
 }
 
 function renderMoneyRows(items) {
