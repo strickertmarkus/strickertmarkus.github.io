@@ -227,7 +227,7 @@
 
   if (isHomePage && !document.querySelector('script[data-home-shopping-groups-v1]')) {
     var homeScript = document.createElement('script');
-    homeScript.src = 'home-shopping-groups-v1.js?v=20261015-focus-stable-v3';
+    homeScript.src = 'home-shopping-groups-v1.js?v=20261015-click-through-v4';
     homeScript.async = false;
     homeScript.setAttribute('data-home-shopping-groups-v1', 'true');
     document.head.appendChild(homeScript);
