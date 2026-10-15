@@ -2287,8 +2287,13 @@ function startEditShoppingItem(el, id) {
       return;
     }
 
-    updateShoppingItemText(id, next);
-    renderShoppingWidget();
+    // Keep this row in place. Rebuilding the entire shopping widget from
+    // a blur handler removes a delete button that the user is tapping, so
+    // its click never reaches deleteShoppingItem on mobile Safari.
+    var normalized = normalizeShoppingItemText(next);
+    updateShoppingItemText(id, normalized);
+    el.textContent = normalized;
+    el.dataset.rawText = normalized;
   }
 
   function onKeyDown(e) {
