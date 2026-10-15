@@ -262,6 +262,20 @@
         // not lose keyboard focus between items.
         input.focus({ preventScroll:true });
       });
+      listRoot.addEventListener('input', function(event) {
+        var input = event.target;
+        if (!input.matches('.shopping-category-add-input') || event.isComposing) return;
+        // Show the next item's capital letter immediately, rather than
+        // waiting until it is saved. Do not alter parentheses or other text.
+        var before = input.value;
+        var after = before.replace(/\\p{L}/u, function(letter) {
+          return letter.toLocaleUpperCase('sv-SE');
+        });
+        if (after === before) return;
+        var caret = input.selectionStart, end = input.selectionEnd;
+        input.value = after;
+        if (caret != null && end != null) input.setSelectionRange(caret,end);
+      });
       listRoot.addEventListener('keydown', function(event) {
         var form = event.target.closest('.shopping-category-add-form');
         if (!form) return;
