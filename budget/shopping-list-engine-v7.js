@@ -286,7 +286,7 @@
     var text = state.draft ? state.draft.text : '';
     return '<div class="list-item shopping-draft-row" data-shopping-draft-row="true">' +
       '<input type="checkbox" data-action="draft-check" ' + (checked ? 'checked' : '') + '>' +
-      '<div class="item-text shopping-draft-editor" contenteditable="true" spellcheck="true" data-placeholder="+ Lägg till artikel">' + escapeHtml(text) + '</div>' +
+      '<div class="item-text shopping-draft-editor" contenteditable="true" spellcheck="true" autocapitalize="sentences" enterkeyhint="next" data-placeholder="+ Lägg till artikel">' + escapeHtml(text) + '</div>' +
       '<span class="shopping-del shopping-draft-spacer" aria-hidden="true"></span>' +
     '</div>';
   }
