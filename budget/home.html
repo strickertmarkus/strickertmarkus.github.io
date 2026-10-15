@@ -2177,7 +2177,7 @@ function getVisibleShoppingItems(list) {
   return visible;
 }
 function getCurrentShoppingList() { return getPrimaryShoppingList(ensureShoppingList()); }
-function addShoppingItemToCategory(categoryId, text, categoryName) {
+function addShoppingItemToCategory(categoryId, text, categoryName, options) {
   var name = normalizeShoppingItemText(text);
   if (!name) return false;
   var lists = ensureShoppingList();
@@ -2207,8 +2207,10 @@ function addShoppingItemToCategory(categoryId, text, categoryName) {
   items.splice(insertAt, 0, newItem);
   // 'sh_lists' is the exact same Firebase-synced key that shopping.html uses.
   saveShoppingLists(lists);
-  renderShoppingWidget();
-  return true;
+  // Inline per-store input keeps its DOM node/focus while rapidly adding
+  // items on iOS. Other callers continue to use full widget rendering.
+  if (!options || options.render !== false) renderShoppingWidget();
+  return newItem;
 }
 function addShoppingItemFromHome() {
   var input = document.getElementById('shopping-add-input');
