@@ -275,29 +275,37 @@
       box-shadow:0 0 14px rgba(var(--home-view-rgb,253,186,116),.10);
     }
     #transfer-widget .transfer-summary { margin:0 0 12px;color:var(--text-sec);font-size:12px;line-height:1.5; }
-    #transfer-widget .transfer-actions { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0;min-width:0; }
-    #transfer-widget .transfer-actions .btn {
-      display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;width:100%;min-height:40px;
-      padding:8px 10px;border-radius:10px;font-size:12px;font-weight:600;line-height:1.3;white-space:normal;text-align:center;
-      border:1px solid rgba(var(--home-view-rgb,253,186,116),.23) !important;
-      background:rgba(var(--home-view-rgb,253,186,116),.045) !important;
-      color:var(--text-sec) !important;box-shadow:none !important;
-      transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease;
+    /* Same tab idiom as the travel planner: quiet labels + softly highlighted active tab. */
+    #transfer-widget .transfer-actions {
+      display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:5px;
+      min-width:0;width:100%;margin:0;padding:0 0 11px;
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    #transfer-widget .transfer-actions .btn:hover,
-    #transfer-widget .transfer-actions .btn:focus-visible {
-      border-color:rgba(var(--home-view-rgb,253,186,116),.46) !important;
-      background:rgba(var(--home-view-rgb,253,186,116),.095) !important;
+    #transfer-widget .transfer-actions .btn {
+      appearance:none;display:inline-flex;align-items:center;justify-content:center;
+      flex:0 1 auto;min-width:0;width:auto;min-height:40px;max-width:100%;
+      padding:10px 14px;border:0 !important;border-radius:11px;
+      background:transparent !important;color:var(--text-sec) !important;
+      box-shadow:none !important;
+      font-size:13px;font-weight:500;line-height:1.3;text-align:center;white-space:normal;
+      transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+    }
+    #transfer-widget .transfer-actions .btn:hover {
+      background:rgba(var(--home-view-rgb,253,186,116),.045) !important;
       color:var(--home-view-accent-soft,#FDBA74) !important;
+    }
+    #transfer-widget .transfer-actions .btn:focus-visible {
+      outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:2px;
     }
     #transfer-widget.open #transfer-open-btn,
     #transfer-widget.month-open #transfer-month-btn {
-      border-color:rgba(var(--home-view-rgb,253,186,116),.62) !important;
-      background:rgba(var(--home-view-rgb,253,186,116),.14) !important;
+      background:rgba(var(--home-view-rgb,253,186,116),.065) !important;
       color:var(--home-view-accent-soft,#FDBA74) !important;
-      box-shadow:inset 0 0 0 1px rgba(var(--home-view-rgb,253,186,116),.10),0 0 15px rgba(var(--home-view-rgb,253,186,116),.12) !important;
+      box-shadow:none !important;
     }
-    @media(max-width:340px) { #transfer-widget .transfer-actions { grid-template-columns:1fr; } }
+    @media(max-width:380px) {
+      #transfer-widget .transfer-actions .btn { flex:1 1 auto;padding:10px 8px;font-size:12px; }
+    }
 
     .shortcut-widget { display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
     .transfer-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1); pointer-events: none; overflow: hidden; }
@@ -370,16 +378,34 @@
     #transfer-widget .month-popup-title { font-size:14px;font-weight:700; }
     #transfer-widget .transfer-popup-sub,
     #transfer-widget .month-popup-sub { font-size:11px;line-height:1.45; }
-    #transfer-widget .transfer-person-head { font-size:11px;font-weight:700;letter-spacing:.6px; }
+    /* Only the member name and amount carry a person color; surrounding surfaces stay in Home theme. */
+    #transfer-widget .transfer-person-head { display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.6px; }
+    #transfer-widget .transfer-person-head::before,
+    #transfer-widget .transfer-person-inline::before {
+      content:'';display:inline-block;flex:0 0 7px;width:7px;height:7px;
+      border-radius:50%;background:var(--person-color);
+      box-shadow:0 0 10px var(--person-color);
+    }
     #transfer-widget .transfer-person-head.pink,
-    #transfer-widget .transfer-mini-card.pink .transfer-mini-val { color:#F9A8B8; }
+    #transfer-widget .transfer-mini-card.pink .transfer-mini-val,
+    #transfer-widget .transfer-person-inline.maja,
+    #transfer-widget .transfer-person-val.maja { --person-color:#F9A8B8;color:#F9A8B8; }
     #transfer-widget .transfer-person-head.blue,
-    #transfer-widget .transfer-mini-card.blue .transfer-mini-val { color:#38BDF8; }
-    #transfer-widget .transfer-mini-card { padding:10px;min-height:0;gap:4px; }
-    #transfer-widget .transfer-mini-card.pink { border-color:rgba(249,168,184,.22);background:rgba(249,168,184,.05); }
-    #transfer-widget .transfer-mini-card.blue { border-color:rgba(56,189,248,.22);background:rgba(56,189,248,.05); }
+    #transfer-widget .transfer-mini-card.blue .transfer-mini-val,
+    #transfer-widget .transfer-person-inline.markus,
+    #transfer-widget .transfer-person-val.markus { --person-color:#38BDF8;color:#38BDF8; }
+    #transfer-widget .transfer-mini-card,
+    #transfer-widget .transfer-mini-card.pink,
+    #transfer-widget .transfer-mini-card.blue {
+      padding:10px;min-height:0;gap:4px;
+      border-color:rgba(var(--home-view-rgb,253,186,116),.14) !important;
+      background:rgba(255,255,255,.025) !important;
+      box-shadow:none !important;
+    }
     #transfer-widget .transfer-mini-lbl { font-size:10px;font-weight:600;letter-spacing:.4px; }
-    #transfer-widget .transfer-mini-val { margin-top:3px;font-size:17px;font-weight:700;overflow-wrap:anywhere; }
+    #transfer-widget .transfer-mini-val { margin-top:3px;font-size:17px;font-weight:600;overflow-wrap:anywhere; }
+    #transfer-widget .transfer-person-inline { display:inline-flex;align-items:center;gap:7px;font-weight:500; }
+    #transfer-widget .transfer-person-val { font-weight:500; }
     #transfer-widget .month-expense-section { background:rgba(255,255,255,.025) !important;border-color:rgba(var(--home-view-rgb,253,186,116),.13) !important; }
     #transfer-widget .month-summary-section-title { color:var(--home-view-accent-soft,#FDBA74);font-size:11px;font-weight:700; }
     #transfer-widget .month-list-table tr.total-row td.num { color:var(--home-view-accent-soft,#FDBA74); }
@@ -2321,8 +2347,8 @@ function renderMonthPopup() {
         + '<table class="month-list-table">'
           + '<thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th></tr></thead>'
           + '<tbody>'
-            + '<tr><td><span style="color:#38BDF8;font-weight:700">Markus nettolön</span></td><td class="num" style="color:#38BDF8;font-weight:700">' + fmtKr(incomes.markus) + '</td></tr>'
-            + '<tr><td><span style="color:#F9A8B8;font-weight:700">Majas nettolön</span></td><td class="num" style="color:#F9A8B8;font-weight:700">' + fmtKr(incomes.maja) + '</td></tr>'
+            + '<tr><td><span class="transfer-person-inline markus">Markus nettolön</span></td><td class="num"><span class="transfer-person-val markus">' + fmtKr(incomes.markus) + '</span></td></tr>'
+            + '<tr><td><span class="transfer-person-inline maja">Majas nettolön</span></td><td class="num"><span class="transfer-person-val maja">' + fmtKr(incomes.maja) + '</span></td></tr>'
             + '<tr class="total-row"><td>Totalt</td><td class="num">' + fmtKr(incomes.markus + incomes.maja) + '</td></tr>'
           + '</tbody>'
         + '</table>'
