@@ -219,8 +219,7 @@
       #family-todo-home.ft-home .ft-undo:disabled{display:none}
       #family-todo-home.ft-home .ft-undo:not(:disabled):hover{color:var(--accent,#FDBA74)}
       #family-todo-home.ft-home .ft-clear-done{font-size:10px;padding:4px 6px}
-      #family-todo-home.ft-home .ft-task{grid-template-columns:18px minmax(0,1fr) 24px}
-      #family-todo-home.ft-home .ft-row-delete{min-width:22px;min-height:24px;font-size:17px}
+      #family-todo-home.ft-home .ft-row-delete{min-width:22px;min-height:24px}
       #family-todo-home.ft-home .ft-add-form{display:block;margin-bottom:0}
       #family-todo-home.ft-home .shopping-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;margin-bottom:0}
       #family-todo-home.ft-home .shopping-input{background:transparent;min-width:0;border-radius:8px;padding:9px 10px;min-height:0;font-size:13px}
@@ -235,7 +234,12 @@
       #family-todo-home.ft-home .ft-add-options input,#family-todo-home.ft-home .ft-add-options select{min-height:35px;height:35px;max-width:100%;background:transparent;border-radius:7px;padding:5px 7px;font-size:12px}
       #family-todo-home.ft-home .ft-list{max-height:280px;overflow:auto;margin-top:5px}
       #family-todo-home.ft-home .ft-empty{padding:12px 2px 6px;font-size:13px;color:var(--text-sec,#8B949E)}
-      #family-todo-home.ft-home .ft-task{grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;padding:8px 3px;border-bottom:1px solid var(--border,rgba(255,255,255,.07))}
+      /* Three columns are required: checkbox, task content, delete. Two
+         columns caused the delete button to wrap below every task on iOS. */
+      #family-todo-home.ft-home .ft-task{grid-template-columns:18px minmax(0,1fr) 24px;gap:8px;align-items:center;padding:7px 3px;border-bottom:1px solid var(--border,rgba(255,255,255,.07))}
+      #family-todo-home.ft-home .ft-task-body{min-width:0}
+      #family-todo-home.ft-home .ft-task-actions{grid-column:3;align-self:center;justify-content:center}
+      #family-todo-home.ft-home .ft-row-delete{margin:0;line-height:1;font-size:16px}
       #family-todo-home.ft-home .ft-check{width:16px;height:16px;margin:0;border-radius:4px;font-size:11px}
       #family-todo-home.ft-home .ft-task-title{font-size:13px;font-weight:500;line-height:1.4}
       #family-todo-home.ft-home .ft-task-meta{margin-top:2px}
