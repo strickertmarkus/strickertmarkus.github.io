@@ -174,7 +174,7 @@
           ' data-sh-category-id="' + escapeHtml(id) + '" data-sh-category-name="' + escapeHtml(section.name) + '">' +
           '<input class="shopping-category-add-input" name="item" type="text" maxlength="240"' +
             ' placeholder="Ny artikel…" aria-label="Ny artikel under ' + escapeHtml(section.name) +
-            '" required autocomplete="off" autocapitalize="sentences" enterkeyhint="done">' +
+            '" required autocomplete="off" autocapitalize="sentences" enterkeyhint="next">' +
           '<button class="shopping-category-save" type="submit">Lägg till</button>' +
           '<button class="shopping-category-cancel" type="button" data-sh-close-add aria-label="Avbryt">×</button>' +
           '</form></li>';
