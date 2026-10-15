@@ -101,6 +101,20 @@
     document.head.appendChild(style);
   }
 
+  function renderItemHtml(item) {
+    var rawText = String(item.text || '');
+    return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
+    '<input type="checkbox" ' + (item.checked ? 'checked' : '') +
+      ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
+    '<span class="txt" data-raw-text="' + escapeHtml(rawText) +
+      '" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' +
+      escapeHtml(rawText) +
+    '</span>' +
+    '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
+    '</li>';
+  }
+
+
   function groupedRender() {
     if (typeof window.getCurrentShoppingList !== 'function' ||
         typeof window.getVisibleShoppingItems !== 'function') return;
@@ -142,23 +156,11 @@
       if (!exists) sections.push({ id:null, name:name, items:[] });
     });
 
-    function itemHtml(item) {
-      var rawText = String(item.text || '');
-      return '<li class="shopping-item ' + (item.checked ? 'done' : '') + '">' +
-        '<input type="checkbox" ' + (item.checked ? 'checked' : '') +
-          ' onchange="toggleShoppingItem(' + item.id + ', this.checked)">' +
-        '<span class="txt" data-raw-text="' + escapeHtml(rawText) +
-          '" title="Klicka för att redigera" onclick="event.stopPropagation();startEditShoppingItem(this,' + item.id + ')">' +
-          escapeHtml(rawText) +
-        '</span>' +
-        '<button class="shopping-del" type="button" onclick="event.stopPropagation();deleteShoppingItem(' + item.id + ')">✕</button>' +
-      '</li>';
-    }
 
     var html = !items.length
       ? '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>'
       : '';
-    uncategorized.forEach(function (item) { html += itemHtml(item); });
+    uncategorized.forEach(function (item) { html += renderItemHtml(item); });
     sections.forEach(function (section) {
       var id = String(section.id == null ? '' : section.id);
       var active = activeAddCategory !== null && activeAddCategory === section.name;
@@ -171,12 +173,13 @@
         html += '<li class="shopping-category-add-row"><form class="shopping-category-add-form"' +
           ' data-sh-category-id="' + escapeHtml(id) + '" data-sh-category-name="' + escapeHtml(section.name) + '">' +
           '<input class="shopping-category-add-input" name="item" type="text" maxlength="240"' +
-            ' placeholder="Ny artikel…" aria-label="Ny artikel under ' + escapeHtml(section.name) + '" required autocomplete="off">' +
+            ' placeholder="Ny artikel…" aria-label="Ny artikel under ' + escapeHtml(section.name) +
+            '" required autocomplete="off" autocapitalize="sentences" enterkeyhint="done">' +
           '<button class="shopping-category-save" type="submit">Lägg till</button>' +
           '<button class="shopping-category-cancel" type="button" data-sh-close-add aria-label="Avbryt">×</button>' +
           '</form></li>';
       }
-      section.items.forEach(function (item) { html += itemHtml(item); });
+      section.items.forEach(function (item) { html += renderItemHtml(item); });
     });
     ul.innerHTML = html;
   }
@@ -224,10 +227,31 @@
         var input = form.querySelector('input[name="item"]');
         var value = input ? input.value : '';
         if (!value.trim() || typeof window.addShoppingItemToCategory !== 'function') return;
-        if (window.addShoppingItemToCategory(form.dataset.shCategoryId, value, form.dataset.shCategoryName)) {
-          activeAddCategory = null;
-          groupedRender();
+        // Save using the same Firebase-backed sh_lists list, but do not
+        // replace the focused input when Enter is pressed. This keeps the
+        // keyboard open for rapid consecutive entries on iPhone.
+        var added = window.addShoppingItemToCategory(
+          form.dataset.shCategoryId, value, form.dataset.shCategoryName,
+          { render:false }
+        );
+        if (!added) return;
+        var following = form.closest('.shopping-category-add-row').nextElementSibling;
+        while (following && !following.classList.contains('shopping-category-heading')) {
+          following = following.nextElementSibling;
         }
+        var markup = renderItemHtml(added);
+        if (following) following.insertAdjacentHTML('beforebegin', markup);
+        else listRoot.insertAdjacentHTML('beforeend', markup);
+        var counter = document.getElementById('shopping-count');
+        if (counter && typeof window.getVisibleShoppingItems === 'function' &&
+            typeof window.getCurrentShoppingList === 'function') {
+          var total = window.getVisibleShoppingItems(window.getCurrentShoppingList()).length;
+          counter.textContent = total + (total === 1 ? ' artikel' : ' artiklar');
+        }
+        input.value = '';
+        // Reuse the same editable node: unlike a full rerender, iOS does
+        // not lose keyboard focus between items.
+        input.focus({ preventScroll:true });
       });
       listRoot.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && event.target.closest('.shopping-category-add-form')) {
