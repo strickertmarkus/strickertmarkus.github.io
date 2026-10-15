@@ -101,8 +101,53 @@
   function update(id,patch){if(external(id))return externalPut(id,patch);if(!tasks[id]||tasks[id].deleted)return;return put(id,patch);}
   function toggle(id){var p=external(id);if(p){var t=p.list().find(function(x){return x.id===id;});if(t)return externalPut(id,{done:!t.done});return;}if(tasks[id])update(id,{done:!tasks[id].done});}
   function remove(id){if(external(id))return externalPut(id,{deleted:true});if(tasks[id])put(id,{deleted:true});}
+  function removeCompleted(){
+    var done=list().filter(function(t){return t.done;});
+    if(!done.length)return 0;
+    // One logical undo step and one local change notification for a bulk
+    // clear, rather than re-rendering the widget after each deleted task.
+    var batch=done.map(function(t){
+      return {id:t.id,previous:Object.assign({},t),provider:external(t.id)};
+    });
+    history.push({batch:batch});
+    if(history.length>30)history.shift();
+    var dirty=false,now=Date.now();
+    batch.forEach(function(entry){
+      if(entry.provider){
+        Promise.resolve(entry.provider.update(entry.id,{deleted:true})).catch(function(){
+          window.alert("En av uppgifterna kunde inte raderas. Försök igen.");
+        });
+      }else if(tasks[entry.id]){
+        var patch={deleted:true,updatedAt:now};
+        tasks[entry.id]=normalize(Object.assign({},tasks[entry.id],patch),entry.id);
+        pending[entry.id]={patch:Object.assign({},(pending[entry.id]&&pending[entry.id].patch)||{},patch)};
+        dirty=true;
+      }
+    });
+    if(dirty){save(PENDING,pending);notify();flush();}
+    return done.length;
+  }
   function undo(){
     var entry=history.pop();if(!entry)return;
+    if(entry.batch){
+      var dirty=false,now=Date.now();
+      entry.batch.forEach(function(item){
+        var previous=item.previous;
+        if(item.provider){
+          Promise.resolve(item.provider.update(item.id,Object.assign({},previous,{deleted:false}))).catch(function(){
+            window.alert("Kunde inte ångra rensningen. Försök igen.");
+          });
+        }else if(previous){
+          var patch={text:previous.text,member:previous.member,done:previous.done,
+            priority:previous.priority,dueDate:previous.dueDate,deleted:previous.deleted,updatedAt:now};
+          tasks[item.id]=normalize(Object.assign({},tasks[item.id]||{},previous,patch),item.id);
+          pending[item.id]={patch:Object.assign({},(pending[item.id]&&pending[item.id].patch)||{},patch)};
+          dirty=true;
+        }
+      });
+      if(dirty){save(PENDING,pending);notify();flush();}
+      return;
+    }
     if(entry.provider){Promise.resolve(entry.provider.update(entry.id,Object.assign({},entry.previous,{deleted:false}))).catch(function(){window.alert("Kunde inte ångra. Försök igen.");});return;}
     if(!entry.previous)put(entry.id,{deleted:true},false);
     else put(entry.id,{text:entry.previous.text,member:entry.previous.member,done:entry.previous.done,
@@ -205,7 +250,7 @@
   window.addEventListener('online',function(){if(!initialized&&window.firebase&&firebase.auth&&firebase.auth().currentUser)connect(firebase.auth().currentUser);else {refresh();flush();}});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
   window.FamilyTodos={list:list,get:function(id){var p=external(id);return p?p.list().find(function(t){return t.id===id;})||null:tasks[id]||null;},add:add,update:update,toggle:toggle,remove:remove,
-    undo:undo,canUndo:function(){return history.length>0;},status:function(){return providers.some(function(p){return p.status()==='offline';})?'offline':status;},
+    undo:undo,removeCompleted:removeCompleted,canUndo:function(){return history.length>0;},status:function(){return providers.some(function(p){return p.status()==='offline';})?'offline':status;},
     addProvider:function(provider){providers.push(provider);provider.subscribe(notify);notify();},
     subscribe:function(fn){listeners.push(fn);fn();return function(){listeners=listeners.filter(function(cb){return cb!==fn;});};},
     refresh:refresh};
