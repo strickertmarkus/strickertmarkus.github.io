@@ -204,6 +204,8 @@
       .ft-shopping .ft-head{padding-bottom:12px;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
       .ft-shopping .ft-title{font-weight:600;letter-spacing:-.035em;line-height:1.3}
       .ft-shopping input,.ft-shopping select{background:#10151dcc;border-radius:11px;font-size:16px;max-width:100%}
+      .family-todos.ft-shopping select{appearance:none;-webkit-appearance:none;min-height:42px;height:42px;padding:8px 30px 8px 10px;font-size:16px;line-height:1.35;background-color:#10151d;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23929ba9' stroke-width='1.5'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px 14px}
+      .family-todos.ft-shopping input[type=date]{min-height:42px;height:42px;padding:7px 10px;font-size:16px;line-height:1.35}
       .ft-shopping .ft-primary,.ft-shopping .ft-editor-actions .ft-primary{background:var(--accent,#FDBA74);color:#28180b;border-color:transparent}
       .ft-shopping .ft-head-actions button,.ft-shopping .ft-editor-actions button{border-radius:11px;background:#10151dcc;color:var(--text-sec);border-color:var(--border);min-height:36px}
       .ft-shopping .ft-head-actions button:hover,.ft-shopping .ft-editor-actions button:hover{color:var(--accent);background:rgba(253,186,116,.055);border-color:rgba(253,186,116,.25)}

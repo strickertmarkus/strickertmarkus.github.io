@@ -101,7 +101,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 .shopping-mode-switch{grid-column:1 / -1;grid-row:2;display:flex;gap:5px;min-width:0;width:100%;margin:4px 0 0;padding:0 0 12px;border:0;border-bottom:1px solid var(--border);background:transparent}
 .shopping-mode-switch button{appearance:none;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:44px;padding:10px 16px;border:0;border-radius:11px;background:transparent;color:var(--text-sec);font-size:13px;font-weight:500;white-space:nowrap;transition:background .18s ease,color .18s ease}
 .shopping-mode-switch button[aria-pressed="true"]{color:var(--accent);background:rgba(var(--accent-rgb),.055)}
-.shopping-mode-switch button:hover{color:var(--accent);background:rgba(var(--accent-rgb),.035)}
+.shopping-mode-switch button:hover:not([aria-pressed="true"]){color:var(--accent);background:rgba(var(--accent-rgb),.035)}
 .shopping-mode-switch svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .shopping-mode-switch button:active{background:var(--accent-dim)}
 @media(max-width:680px){.shopping-mode-switch button{flex:1;padding:10px 7px;gap:6px}}

@@ -158,7 +158,9 @@ async function run(type,name,viewport,layout,offline=false){
      const button=page.locator('[data-list-mode-button="'+mode+'"]');
      await button.click();
      assert.equal(await button.getAttribute('aria-pressed'),'true');
-     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+     // On desktop the active color transitions from muted to orange.
+     await page.waitForFunction(mode=>{const el=document.querySelector('[data-list-mode-button="'+mode+'"]');return getComputedStyle(el).color==='rgb(253, 186, 116)';},mode);
+     assert.equal(await button.evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(253, 186, 116, 0.055)');
      assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(240, 246, 252)');
    };
    await switchTo('packing');
