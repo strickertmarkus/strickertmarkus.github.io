@@ -13,6 +13,8 @@
       .replace(/'/g, '&#39;');
   }
 
+  var activeAddCategory = null;
+
   function addStyles() {
     if (document.getElementById('home-shopping-groups-v1-style')) return;
     var style = document.createElement('style');
@@ -35,7 +37,7 @@
       #shopping-items .shopping-category-heading {
         list-style: none;
         margin: 7px 2px 1px;
-        padding: 7px 5px 4px;
+        padding: 5px 5px 4px;
         border-bottom: 1px solid rgba(253,186,116,.18);
         color: var(--accent);
         font-size: 10px;
@@ -43,7 +45,39 @@
         font-weight: 800;
         letter-spacing: .75px;
         text-transform: uppercase;
+        display:flex;align-items:center;justify-content:space-between;gap:8px;
       }
+      #shopping-items .shopping-category-add {
+        display:grid;place-items:center;flex:0 0 23px;width:23px;height:23px;
+        border-radius:7px;border:1px solid rgba(253,186,116,.24);
+        background:rgba(253,186,116,.065);color:var(--accent);
+        font-size:17px;font-weight:500;line-height:1;cursor:pointer;
+      }
+      #shopping-items .shopping-category-add:hover,
+      #shopping-items .shopping-category-add[aria-expanded="true"] {
+        border-color:rgba(253,186,116,.56);background:rgba(253,186,116,.12);
+        box-shadow:0 0 9px rgba(253,186,116,.2);
+      }
+      #shopping-items .shopping-category-add:focus-visible {outline:2px solid var(--accent);outline-offset:2px}
+      #shopping-items .shopping-category-add-row {list-style:none;margin:2px 2px 5px;padding:0}
+      #shopping-items .shopping-category-add-form {
+        display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+        align-items:center;gap:5px;min-width:0;
+      }
+      #shopping-items .shopping-category-add-input {
+        min-width:0;width:100%;padding:7px 8px;border:1px solid rgba(253,186,116,.38);
+        border-radius:7px;background:var(--bg3,#202735);color:var(--text,#fff);
+        font:inherit;font-size:16px;outline:none;
+      }
+      #shopping-items .shopping-category-add-input:focus {border-color:var(--accent);box-shadow:0 0 0 2px rgba(253,186,116,.1)}
+      #shopping-items .shopping-category-save,
+      #shopping-items .shopping-category-cancel {
+        border:1px solid rgba(253,186,116,.22);border-radius:7px;
+        min-height:31px;padding:5px 8px;background:rgba(253,186,116,.11);
+        color:var(--accent);cursor:pointer;font-size:11px;font-weight:700;
+      }
+      #shopping-items .shopping-category-cancel {padding:5px 9px;color:var(--text-sec,#9ca3af);background:transparent;border-color:var(--border,rgba(255,255,255,.1))}
+      #shopping-items .shopping-category-heading + .shopping-category-add-row + .shopping-item {border-top:0}
       #shopping-items .shopping-category-heading:first-child {
         margin-top: 0;
         padding-top: 3px;
@@ -89,7 +123,7 @@
       if (entry.type === 'category') {
         var name = String(entry.text || '').trim();
         if (!name) { activeSection = null; return; }
-        activeSection = { name:name, items:[] };
+        activeSection = { id:entry.id, name:name, items:[] };
         sections.push(activeSection);
       } else if (String(entry.text || '').trim()) {
         if (activeSection) activeSection.items.push(entry);
@@ -105,7 +139,7 @@
       var exists = sections.some(function (section) {
         return section.name.toLocaleLowerCase('sv-SE') === name.toLocaleLowerCase('sv-SE');
       });
-      if (!exists) sections.push({ name:name, items:[] });
+      if (!exists) sections.push({ id:null, name:name, items:[] });
     });
 
     function itemHtml(item) {
@@ -126,8 +160,22 @@
       : '';
     uncategorized.forEach(function (item) { html += itemHtml(item); });
     sections.forEach(function (section) {
+      var id = String(section.id == null ? '' : section.id);
+      var active = activeAddCategory !== null && activeAddCategory === section.name;
       html += '<li class="shopping-category-heading" aria-label="Kategori ' + escapeHtml(section.name) + '">' +
-        escapeHtml(section.name) + '</li>';
+        '<span>' + escapeHtml(section.name) + '</span>' +
+        '<button type="button" class="shopping-category-add" data-sh-add-category="' + escapeHtml(section.name) +
+          '" aria-expanded="' + active + '" aria-label="Lägg till under ' + escapeHtml(section.name) +
+          '" title="Lägg till artikel under ' + escapeHtml(section.name) + '">+</button></li>';
+      if (active) {
+        html += '<li class="shopping-category-add-row"><form class="shopping-category-add-form"' +
+          ' data-sh-category-id="' + escapeHtml(id) + '" data-sh-category-name="' + escapeHtml(section.name) + '">' +
+          '<input class="shopping-category-add-input" name="item" type="text" maxlength="240"' +
+            ' placeholder="Ny artikel…" aria-label="Ny artikel under ' + escapeHtml(section.name) + '" required autocomplete="off">' +
+          '<button class="shopping-category-save" type="submit">Lägg till</button>' +
+          '<button class="shopping-category-cancel" type="button" data-sh-close-add aria-label="Avbryt">×</button>' +
+          '</form></li>';
+      }
       section.items.forEach(function (item) { html += itemHtml(item); });
     });
     ul.innerHTML = html;
@@ -144,6 +192,51 @@
 
     window.__homeShoppingGroupsV1Installed = true;
     addStyles();
+
+    var listRoot = document.getElementById('shopping-items');
+    if (listRoot) {
+      listRoot.addEventListener('click', function(event) {
+        var addButton = event.target.closest('[data-sh-add-category]');
+        if (addButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          var category = addButton.getAttribute('data-sh-add-category');
+          activeAddCategory = activeAddCategory === category ? null : category;
+          groupedRender();
+          if (activeAddCategory) {
+            var input = listRoot.querySelector('.shopping-category-add-input');
+            if (input) input.focus({ preventScroll:true });
+          }
+          return;
+        }
+        if (event.target.closest('[data-sh-close-add]')) {
+          event.preventDefault();
+          event.stopPropagation();
+          activeAddCategory = null;
+          groupedRender();
+        }
+      });
+      listRoot.addEventListener('submit', function(event) {
+        var form = event.target.closest('.shopping-category-add-form');
+        if (!form) return;
+        event.preventDefault();
+        event.stopPropagation();
+        var input = form.querySelector('input[name="item"]');
+        var value = input ? input.value : '';
+        if (!value.trim() || typeof window.addShoppingItemToCategory !== 'function') return;
+        if (window.addShoppingItemToCategory(form.dataset.shCategoryId, value, form.dataset.shCategoryName)) {
+          activeAddCategory = null;
+          groupedRender();
+        }
+      });
+      listRoot.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && event.target.closest('.shopping-category-add-form')) {
+          event.preventDefault();
+          activeAddCategory = null;
+          groupedRender();
+        }
+      });
+    }
 
     /* Presentation-only override. All data mutation functions remain the
        original Home/shopping implementations. */
