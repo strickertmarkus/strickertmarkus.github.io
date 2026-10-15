@@ -128,8 +128,15 @@ async function run(type,name,viewport,layout,offline=false){
    assert((await storeValue('sh_lists'))[0].items.some(x=>x.text==='Tomater'));
    const edit=page.locator('[data-recipe-id="7"] .recipe-edit-meta-v4');
    await edit.scrollIntoViewIfNeeded();
-   const beforeY=await page.evaluate(()=>scrollY);
+   // A native click may scroll its target after scrollIntoViewIfNeeded.
+   // Record the actual opening position before the recipe's capture handler locks it.
+   await page.evaluate(()=>document.addEventListener('click',function recordRecipeOpen(event){
+     if(!event.target.closest('.recipe-edit-meta-v4'))return;
+     window.__recipeOpeningScrollY=scrollY;
+     document.removeEventListener('click',recordRecipeOpen,true);
+   },true));
    await edit.click();
+   const beforeY=await page.evaluate(()=>window.__recipeOpeningScrollY);
    await page.waitForFunction(()=>document.querySelector('#recipe-link-popup-v5').open);
    await geometry('#recipe-link-popup-v5');
    await page.screenshot({path:'test-results/shopping/'+prefix+'-recipe.png'});
@@ -144,6 +151,7 @@ async function run(type,name,viewport,layout,offline=false){
    await page.locator('#recipe-link-input-v5').fill('https://example.com/pasta');
    await page.locator('[data-link-save-v5]').click();
    await page.waitForFunction(()=>!document.querySelector('#recipe-link-popup-v5').open&&!TrainingOverlay.isLocked());
+   await page.waitForFunction(y=>Math.abs(scrollY-y)<3,beforeY);
    assert(Math.abs(await page.evaluate(()=>scrollY)-beforeY)<3,'scroll restoration');
    assert.equal((await storeValue('sh_recipes_v3')).recipes.find(x=>x.id===7).url,'https://example.com/pasta');
    await edit.click();await page.keyboard.press('Escape');
