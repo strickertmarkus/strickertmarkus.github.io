@@ -3,6 +3,11 @@ on:
   push:
     paths:
       - 'budget/shopping*'
+      - 'budget/home*'
+      - 'budget/auth-gate.js'
+      - 'budget/calendar-*.js'
+      - 'budget/family-todos-ui-v1.js'
+      - 'budget/tests/home-boot-browser.cjs'
       - 'budget/tests/shopping*'
       - '.github/workflows/shopping-verify.yml'
   workflow_dispatch:
@@ -26,6 +31,7 @@ jobs:
       - name: Browser functionality and responsive checks
         run: |
           python3 -m http.server 4173 >/tmp/shopping-http.log 2>&1 &
+          node budget/tests/home-boot-browser.cjs
           node budget/tests/shopping-interactions.cjs
       - uses: actions/upload-artifact@v4
         if: always()

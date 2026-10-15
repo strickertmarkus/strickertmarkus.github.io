@@ -63,7 +63,6 @@
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
   var exerciseAssetsVersion = '20261013-session-energy-1';
-  var homeAssetsVersion = '20260903-home-day-timeline-v10';
   var calendarAssetsVersion = '20261013-home-swedish-holidays-v1';
   var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
 
@@ -100,30 +99,6 @@
       '.nav-btn:hover,.week-nav-btn:hover,.btn-ghost:hover{background:rgba(34,211,238,.08)!important;border-color:rgba(34,211,238,.26)!important}' +
       '.chart-card h3{color:#CFFAFE!important;text-shadow:0 2px 10px rgba(34,211,238,.08)!important}';
     document.head.appendChild(exerciseCritical);
-  }
-
-  if (isHomePage && !document.getElementById('home-critical-prelayout-v9')) {
-    var critical = document.createElement('style');
-    critical.id = 'home-critical-prelayout-v9';
-    critical.textContent = '\n' +
-      '.app-header{justify-content:center!important;text-align:center!important;min-height:70px;position:sticky!important;}\n' +
-      '.app-header .brand{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;width:max-content!important;justify-content:center!important;min-width:0;max-width:calc(100% - 150px);z-index:1;}\n' +
-      '.app-header .brand-text{position:relative;min-height:46px;min-width:0;text-align:center!important;}\n' +
-      '.app-header .brand-text h1{font-size:22px!important;line-height:26px!important;letter-spacing:-.45px!important;white-space:nowrap!important;text-align:center!important;}\n' +
-      '.app-header .brand-text p{position:static!important;margin-top:1px!important;font-size:13px!important;line-height:1.25!important;white-space:nowrap;text-align:center!important;}\n' +
-      '.app-header .nav-dropdown-wrapper{z-index:3!important;}\n' +
-      '.app-header>.month-nav{visibility:hidden!important;}\n' +
-      '.main-layout{padding-top:.25rem!important;}\n' +
-      '.cal-section{padding-top:40px!important;}\n' +
-      '.calendar-toolbar-v2{position:absolute!important;top:0!important;left:0!important;right:24px!important;width:auto!important;min-height:34px!important;padding:0!important;margin:0!important;}\n' +
-      '.calendar-toolbar-v2 .cal-week-number,.calendar-toolbar-v2 .calendar-week-number-v2{font-size:12px!important;letter-spacing:.6px!important;}\n' +
-      '.calendar-toolbar-v2 .month-nav{visibility:visible!important;margin:0 0 0 auto!important;justify-content:flex-end!important;gap:5px!important;}\n' +
-      '.calendar-toolbar-v2 .month-nav button{width:30px!important;height:30px!important;font-size:14px!important;}\n' +
-      '.calendar-toolbar-v2 #month-label{font-size:12px!important;padding:0 6px!important;}\n' +
-      '#trip-section{display:none!important;}\n' +
-      '@media(max-width:768px){.app-header .brand{max-width:calc(100% - 130px)!important}.app-header .brand-text h1{font-size:20px!important;line-height:24px!important;letter-spacing:-.35px!important}.app-header .brand-text p{margin-top:1px!important;font-size:12.5px!important}.main-layout{padding-top:.15rem!important}.cal-section{padding-top:38px!important}.calendar-toolbar-v2{right:0!important;min-height:32px!important}.calendar-toolbar-v2 .cal-week-number,.calendar-toolbar-v2 .calendar-week-number-v2{font-size:11px!important}.calendar-toolbar-v2 .month-nav{gap:4px!important}.calendar-toolbar-v2 .month-nav button{width:29px!important;height:29px!important;font-size:14px!important}.calendar-toolbar-v2 #month-label{font-size:11.5px!important;padding:0 4px!important}}\n' +
-      '@media(max-width:390px){.app-header .brand{max-width:calc(100% - 112px)!important}.app-header .brand-text h1{font-size:18px!important}.app-header .brand-text p{font-size:12px!important}}';
-    document.head.appendChild(critical);
   }
 
   function loadScriptOnce(src, attr, done) {
@@ -225,14 +200,6 @@
     })(0);
   }
 
-  if (isHomePage && !document.querySelector('script[data-home-shopping-groups-v1]')) {
-    var homeScript = document.createElement('script');
-    homeScript.src = 'home-shopping-groups-v1.js?v=20261015-click-through-v4';
-    homeScript.async = false;
-    homeScript.setAttribute('data-home-shopping-groups-v1', 'true');
-    document.head.appendChild(homeScript);
-  }
-
   if (isShoppingPage) {
     loadShoppingScript('shopping-list-stability-v8.js', 'data-shopping-list-stability-v8', function () {
       loadShoppingScript('shopping-list-engine-v7.js', 'data-shopping-list-engine-v7', function () {
@@ -243,13 +210,11 @@
     });
   }
 
-  if (isHomePage || isCalendarPage) {
+  if (isCalendarPage) {
     loadCalendarScript('calendar-ui-v2.js', 'data-calendar-ui-v2', function () {
       loadCalendarScript('calendar-picker-fix-v3.js', 'data-calendar-picker-fix-v3', function () {
         loadCalendarScript('calendar-followups-v4.js', 'data-calendar-followups-v4', function () {
-          loadCalendarScript('calendar-notification-enhancements-v1.js', 'data-calendar-notification-enhancements-v1', function () {
-            if (isHomePage) loadCalendarScript('home-calendar-polish-v5.js', 'data-home-calendar-polish-v5');
-          });
+          loadCalendarScript('calendar-notification-enhancements-v1.js', 'data-calendar-notification-enhancements-v1');
         });
       });
     });

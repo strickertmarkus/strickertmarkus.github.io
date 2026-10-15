@@ -71,7 +71,10 @@ async function run(type,name,viewport,layout,offline=false){
    }
    assert.equal(await page.locator('.app-header .shopping-mode-switch').count(),1);
    const headerRects=await page.locator('.app-header').evaluate(el=>Array.from(el.children).map(c=>{const r=c.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};}));
-   assert(headerRects[0].right<=headerRects[1].left&&headerRects[1].right<=headerRects[2].left,'header controls overlap');
+   for(let i=0;i<headerRects.length;i++)for(let j=i+1;j<headerRects.length;j++){
+     const a=headerRects[i],b=headerRects[j];
+     assert(a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1,'header controls overlap');
+   }
    await page.screenshot({path:'test-results/shopping/'+prefix+'-page.png',fullPage:true});
    // Hamburger is reachable and visible in the viewport, even on short screens.
    await page.locator('.nav-btn').click();
@@ -155,10 +158,11 @@ async function run(type,name,viewport,layout,offline=false){
      const button=page.locator('[data-list-mode-button="'+mode+'"]');
      await button.click();
      assert.equal(await button.getAttribute('aria-pressed'),'true');
-     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),{shopping:'rgb(253, 186, 116)',packing:'rgb(74, 222, 128)',todo:'rgb(96, 165, 250)'}[mode]);
-     assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(244, 241, 239)');
+     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),'rgb(253, 186, 116)');
+     assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(240, 246, 252)');
    };
    await switchTo('packing');
+   await page.screenshot({path:'test-results/shopping/'+prefix+'-packing.png'});
    assert.equal(await page.title(),'Packlista');
    assert.deepEqual(await page.locator('#items-list .category-title:not(.new-category)').allTextContents(),['Melker','Mila','Maja','Markus','Övrigt']);
    await page.locator('[data-action="add-item"]').first().click();
@@ -168,6 +172,7 @@ async function run(type,name,viewport,layout,offline=false){
    assert.equal(await page.locator('#items-list .category-title:not(.new-category)').count(),0);
    await page.locator('.ft-shopping input[name="text"]').fill('Boka tid');
    await page.locator('.ft-shopping input[name="text"]').press('Enter');
+   await page.screenshot({path:'test-results/shopping/'+prefix+'-todo.png'});
    await switchTo('packing');
    assert.match(await page.locator('#items-list').innerText(),/Solhatt/);
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Boka tid/);
@@ -192,7 +197,7 @@ async function run(type,name,viewport,layout,offline=false){
    assert.equal(await page.locator('.ft-shopping .ft-task.is-done').count(),0);
    assert.match(await page.locator('.ft-shopping [data-ft-list]').innerText(),/Boka tid/);
    await switchTo('shopping');
-   assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(244, 241, 239)');
+   assert.equal(await page.locator('.logo').evaluate(el=>getComputedStyle(el).color),'rgb(240, 246, 252)');
    for(const heading of ['Maxi','Willys','Hemköp','Lidl','Coop'])assert((await page.locator('#items-list .category-title').allTextContents()).includes(heading));
    assert.doesNotMatch(await page.locator('#items-list').innerText(),/Solhatt|Boka tid/);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

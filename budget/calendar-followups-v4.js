@@ -468,8 +468,8 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { setTimeout(install, 40); }, { once:true });
+    document.addEventListener('DOMContentLoaded', function () { if (isHome) install(); else setTimeout(install, 40); }, { once:true });
   } else {
-    setTimeout(install, 40);
+    if (isHome) install(); else setTimeout(install, 40);
   }
 })();

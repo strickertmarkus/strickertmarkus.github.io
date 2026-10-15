@@ -591,9 +591,6 @@
     syncViewTheme();
     addStyles();
     placeHomeMonthNav();
-    [60, 180, 450, 950, 1500].forEach(function (delay) {
-      setTimeout(placeHomeMonthNav, delay);
-    });
 
     var observer = new MutationObserver(function (records) {
       for (var i = 0; i < records.length; i++) {

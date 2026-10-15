@@ -11,13 +11,13 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
   <script src="indexeddb-fallback.js"></script>
 <script src="auth-config.js"></script>
-<script src="auth-gate.js?v=20261015-click-through-v4"></script>
+<script src="auth-gate.js?v=20261015-list-tabs-home-boot-1"></script>
   <script src="firebase-sync.js"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
 <script defer src="travel-model.js?v=20261013-workflows-1"></script>
 <script defer src="travel-store.js?v=20261013-workflows-1"></script>
 <script defer src="travel-home.js?v=20261013-workflows-1"></script>
-  <script defer src="family-todos-ui-v1.js?v=20261015-compact-rows-v2"></script>
+  <script defer src="family-todos-ui-v1.js?v=20261015-list-tabs-home-boot-1"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sv.js"></script>
@@ -451,18 +451,6 @@
     .tap-hint { margin-top: 10px; font-size: 11px; color: var(--text-sec); }
 
     /* ── TODO LIST ── */
-    .todo-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
-    .todo-item:last-child { border-bottom: none; }
-    .todo-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-    .todo-check.done { background: var(--accent); border-color: var(--accent); }
-    .todo-text { font-size: 13px; color: var(--text); flex: 1; transition: color .15s; }
-    .todo-text.done { text-decoration: line-through; color: var(--text-dim); }
-    .todo-del { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color .15s; }
-    .todo-del:hover { color: #F87171; }
-    .todo-add-row { display: flex; gap: 6px; margin-top: 8px; }
-    .todo-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; padding: 6px 10px; outline: none; }
-    .todo-input:focus { border-color: var(--border-a); }
-    .todo-member-sel { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; padding: 6px 8px; outline: none; }
 
     /* ── NOTIFICATION PANEL ── */
     .notif-panel { display: none; background: var(--bg2); border: 1px solid var(--border-a); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
@@ -494,7 +482,7 @@
     .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif; padding: 9px 12px; outline: none; transition: border-color .22s ease, box-shadow .22s ease, background-color .22s ease; }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-a); }
     .form-group select option { background: var(--bg2); }
-    .form-group input[type="date"], .form-group input[type="time"], .todo-member-sel, .form-group select { color-scheme: dark; }
+    .form-group input[type="date"], .form-group input[type="time"], .form-group select { color-scheme: dark; }
     .form-group input[type="date"]:focus, .form-group input[type="time"]:focus { box-shadow: 0 0 0 2px rgba(253,186,116,.2); background: rgba(255,255,255,.05); }
     .form-group input[type="date"], .form-group input[type="time"] { border-color: var(--border); border-radius: 10px; background: rgba(255,255,255,.03); accent-color: #FDBA74; }
 
@@ -793,18 +781,6 @@
     .fab:hover { transform: scale(1.1); box-shadow: 0 8px 30px var(--accent-glow); }
     .fab:active { transform: scale(.96); }
 
-    /* ── TRIP DISPLAY ── */
-    .trip-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-    .trip-dest { font-size: 12px; color: var(--text-sec); margin-bottom: 8px; }
-    .trip-countdown { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
-    .trip-days { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
-    .trip-dates { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
-    .trip-sched-item { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .trip-sched-item:last-child { border-bottom: none; }
-    .trip-sched-time { color: var(--accent); font-weight: 600; min-width: 52px; font-size: 11px; flex-shrink: 0; }
-    .trip-sched-text { color: var(--text-sec); }
-    .trip-in-past { font-size: 12px; color: var(--text-dim); font-style: italic; }
-
     .home-day-popover {
       position: absolute;
       min-width: 250px;
@@ -905,22 +881,31 @@
       .cal-cell .cal-cell-extra { display:none; }
     }
   </style>
+<link rel="stylesheet" href="home-calendar-base.css?v=20261015-list-tabs-home-boot-1">
+<script src="calendar-ui-v2.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-picker-fix-v3.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-followups-v4.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="home-calendar-polish-v5-base-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="home-calendar-polish-v5-preview-delete-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
 <script src="home-calendar-views-v11.js?v=20261013-holidays-1" data-home-calendar-views-v11="true"></script>
-<script src="home-calendar-theme-v12.js?v=20261013-activity-bars-v1" data-home-calendar-theme-v12="true"></script>
+<script src="home-calendar-theme-v12.js?v=20261015-list-tabs-home-boot-1" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261013-activity-bars-v1"></script>
 </head>
-<body class="home-calendar-polish-v5">
+<body class="home-calendar-polish-v5 calendar-ui-v2">
 <div class="app-wrap">
 
   <header class="app-header">
     <div class="brand">
       <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjen Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
     </div>
-    <div class="month-nav">
+    <div class="month-nav home-header-month-v10">
       <button onclick="prevMonth()">‹</button>
-      <span id="month-label">Maj 2026</span>
+      <span id="month-label"></span>
       <button onclick="nextMonth()">›</button>
     </div>
     <div class="nav-dropdown-wrapper">
@@ -971,12 +956,14 @@
   <div class="main-layout">
     <!-- CALENDAR -->
     <div class="cal-section">
+      <div class="calendar-toolbar-v2">
       <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
       <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
         <input type="checkbox" id="home-show-holidays" checked>
         <span class="home-cal-holidays-switch" aria-hidden="true"></span>
         <span>Högtider</span>
       </label>
+      </div>
       <div class="cal-weekdays">
         <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
         <div class="cal-wd">Tor</div><div class="cal-wd">Fre</div><div class="cal-wd">Lör</div><div class="cal-wd">Sön</div>
@@ -1053,14 +1040,6 @@
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
       </div>
 
-      <div class="sidebar-section" id="trip-section">
-        <div class="sidebar-title">
-          <span>✈️ Kommande resa</span>
-          <button class="btn-xs" onclick="openTripModal()">+ Konfigurera</button>
-        </div>
-        <div id="trip-content"><div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div></div>
-      </div>
-
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
           <div class="widget-title">Inköpslista</div>
@@ -1081,31 +1060,6 @@
 </div>
 
 <button class="fab" onclick="openEventModal()" title="Ny händelse">+</button>
-
-<!-- TRIP MODAL -->
-<div class="modal-overlay" id="trip-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeTripModal()">✕</button>
-    <h2>✈️ Reseplanering</h2>
-    <div class="form-group"><label>Resenamn</label><input type="text" id="trip-name-inp" placeholder="Mallorca 2026"></div>
-    <div class="form-group"><label>Destination</label><input type="text" id="trip-dest-inp" placeholder="Palma, Spanien"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Avresa</label><input type="text" id="trip-start-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
-      <div class="form-group"><label>Hemresa</label><input type="text" id="trip-end-inp" lang="sv-SE" data-picker="date" placeholder="YYYY-MM-DD"></div>
-    </div>
-    <div class="form-group"><label>Anteckningar</label><textarea id="trip-notes-inp" rows="2" placeholder="Hotell, flyg, viktiga detaljer…"></textarea></div>
-    <div class="form-group">
-      <label>Schema <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-dim)">(valfritt)</span></label>
-      <div id="trip-sched-list"></div>
-      <button class="btn-ghost" style="margin-top:8px;font-size:12px;padding:6px 12px" onclick="addTripSchedRow()">+ Dag/aktivitet</button>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-danger" id="trip-del-btn" onclick="deleteTrip()">🗑 Ta bort</button>
-      <button class="btn-ghost" onclick="closeTripModal()">Avbryt</button>
-      <button class="btn-primary" onclick="saveTrip()">Spara resa</button>
-    </div>
-  </div>
-</div>
 
 <!-- EVENT MODAL -->
 <div class="modal-overlay" id="event-modal">
@@ -1190,102 +1144,9 @@
 </div>
 
 <script>
-// ── THREE.JS ──────────────────────────────────────────────────
-(function() {
-  if (typeof THREE === 'undefined') return;
-  const canvas = document.getElementById('three-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(innerWidth, innerHeight);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 200);
-  camera.position.z = 35;
-
-  // Circular texture
-  const cc = document.createElement('canvas'); cc.width = cc.height = 64;
-  const cx = cc.getContext('2d');
-  const gr = cx.createRadialGradient(32,32,0,32,32,32);
-  gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.4,'rgba(255,255,255,.8)'); gr.addColorStop(1,'rgba(255,255,255,0)');
-  cx.fillStyle = gr; cx.beginPath(); cx.arc(32,32,32,0,Math.PI*2); cx.fill();
-  const tex = new THREE.CanvasTexture(cc);
-
-  // Particles (amber + mixed family colors)
-  const pColors = [0xFBBF24, 0x38BDF8, 0xF9A8B8, 0x86EFAC, 0xF472B6];
-  const groups = pColors.map((col, ci) => {
-    const cnt = 30;
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(cnt*3);
-    const vel = [];
-    for (let i=0;i<cnt;i++) {
-      pos[i*3]=(Math.random()-.5)*110; pos[i*3+1]=(Math.random()-.5)*70; pos[i*3+2]=(Math.random()-.5)*30;
-      vel.push((Math.random()-.5)*.012,(Math.random()-.5)*.008);
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-    const mat = new THREE.PointsMaterial({ color: col, map: tex, size: ci===0?.6:.45, transparent:true, opacity: ci===0?.38:.25, sizeAttenuation:true, alphaTest:.01 });
-    const pts = new THREE.Points(geo, mat);
-    scene.add(pts);
-    return { pts, geo, vel, cnt };
-  });
-
-  // Wireframe gems (family colors)
-  const gemGeos = [new THREE.OctahedronGeometry(.9), new THREE.TetrahedronGeometry(.85), new THREE.IcosahedronGeometry(.75)];
-  const gemColors2 = [0xFBBF24, 0x38BDF8, 0xF9A8B8, 0x86EFAC, 0xF472B6];
-  const gems = [];
-  for (let i=0;i<6;i++) {
-    const gm = new THREE.Mesh(gemGeos[i%3], new THREE.MeshBasicMaterial({ color: gemColors2[i%5], wireframe:true, transparent:true, opacity:.18 }));
-    gm.position.set((Math.random()-.5)*80,(Math.random()-.5)*50,(Math.random()-.5)*15);
-    gm.userData.rx=(Math.random()-.5)*.012; gm.userData.ry=(Math.random()-.5)*.016;
-    gm.userData.vx=(Math.random()-.5)*.005; gm.userData.vy=(Math.random()-.5)*.004;
-    scene.add(gm); gems.push(gm);
-  }
-
-  // Bubbles
-  const bc=document.createElement('canvas'); bc.width=bc.height=128;
-  const bx=bc.getContext('2d');
-  const bg=bx.createRadialGradient(64,64,6,64,64,62);
-  bg.addColorStop(0,'rgba(255,255,255,0)'); bg.addColorStop(.65,'rgba(255,255,255,.04)'); bg.addColorStop(.88,'rgba(255,255,255,.2)'); bg.addColorStop(1,'rgba(255,255,255,0)');
-  bx.fillStyle=bg; bx.beginPath(); bx.arc(64,64,64,0,Math.PI*2); bx.fill();
-  const btex=new THREE.CanvasTexture(bc);
-  const bubbles=[];
-  for(let i=0;i<6;i++){
-    const sz=2+Math.random()*5;
-    const bm=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:btex,transparent:true,opacity:.22+Math.random()*.15,depthWrite:false}));
-    bm.position.set((Math.random()-.5)*90,(Math.random()-.5)*55,(Math.random()-.5)*10);
-    bm.userData.vy=.006+Math.random()*.01; bm.userData.vx=(Math.random()-.5)*.005;
-    scene.add(bm); bubbles.push(bm);
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    groups.forEach(g => {
-      const p=g.geo.attributes.position.array;
-      for(let i=0;i<g.cnt;i++){
-        p[i*3]+=g.vel[i*2]; p[i*3+1]+=g.vel[i*2+1];
-        if(p[i*3]>55)p[i*3]=-55; if(p[i*3]<-55)p[i*3]=55;
-        if(p[i*3+1]>35)p[i*3+1]=-35; if(p[i*3+1]<-35)p[i*3+1]=35;
-      }
-      g.geo.attributes.position.needsUpdate=true;
-    });
-    gems.forEach(g=>{
-      g.rotation.x+=g.userData.rx; g.rotation.y+=g.userData.ry;
-      g.position.x+=g.userData.vx; g.position.y+=g.userData.vy;
-      if(g.position.x>50)g.position.x=-50; if(g.position.x<-50)g.position.x=50;
-      if(g.position.y>35)g.position.y=-35; if(g.position.y<-35)g.position.y=35;
-    });
-    bubbles.forEach(b=>{
-      b.position.y+=b.userData.vy; b.position.x+=b.userData.vx;
-      if(b.position.y>42){b.position.y=-42;b.position.x=(Math.random()-.5)*90;}
-    });
-    renderer.render(scene, camera);
-  }
-  animate();
-  window.addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
-})();
-
 // ── DATA ──────────────────────────────────────────────────────
 var DB = { get:function(k){return JSON.parse(localStorage.getItem('cal_'+k)||'null');}, set:function(k,v){localStorage.setItem('cal_'+k,JSON.stringify(v));} };
 function getEvents() { return DB.get('events') || []; }
-function getTodos()  { return DB.get('todos')  || []; }
 
 // ── STATE ─────────────────────────────────────────────────────
 var currentDate = new Date();
@@ -1996,50 +1857,6 @@ function deleteCurrentEvent() {
   if (selectedDate) renderDayEvents(selectedDate);
   showToast('Händelse borttagen');
 }
-
-// ── TODOS ─────────────────────────────────────────────────────
-function renderTodos() {
-  var todos = getTodos();
-  var list = document.getElementById('todo-list');
-  if (!todos.length) { list.innerHTML=''; return; }
-  var html='';
-  todos.forEach(function(t,i){
-    var col=getMemberColor(t.member||'family');
-    html+='<div class="todo-item">';
-    html+='<div class="todo-check'+(t.done?' done':'')+'\" onclick="toggleTodo('+i+')" style="'+(t.done?'background:'+col+';border-color:'+col:'border-color:'+col)+'">'+(t.done?'✓':'')+'</div>';
-    html+='<div class="todo-text'+(t.done?' done':'')+'\" style="border-left:2px solid '+col+';padding-left:6px">'+escHtml(t.text)+'</div>';
-    html+='<button class="todo-del" onclick="deleteTodo('+i+')">✕</button>';
-    html+='</div>';
-  });
-  list.innerHTML=html;
-}
-
-function addTodo() {
-  var text = document.getElementById('todo-input').value.trim();
-  if (!text) return;
-  var member = document.getElementById('todo-member').value;
-  var todos = getTodos();
-  todos.push({ id: Date.now(), text: text, member: member, done: false });
-  DB.set('todos', todos);
-  document.getElementById('todo-input').value='';
-  renderTodos();
-}
-
-function toggleTodo(idx) {
-  var todos = getTodos();
-  if (todos[idx]) todos[idx].done = !todos[idx].done;
-  DB.set('todos', todos);
-  renderTodos();
-}
-
-function deleteTodo(idx) {
-  var todos = getTodos();
-  todos.splice(idx,1);
-  DB.set('todos', todos);
-  renderTodos();
-}
-
-function focusTodoInput() { document.getElementById('todo-input').focus(); }
 
 // ── MEMBER FILTER ─────────────────────────────────────────────
 document.querySelectorAll('.member-chip').forEach(function(chip){
@@ -2789,7 +2606,7 @@ function initCalendarFlatpickr() {
     flatpickr.localize(flatpickr.l10ns.sv);
   }
 
-  ['trip-start-inp','trip-end-inp','ev-date','ev-repeat-until','ev-end-date'].forEach(function(id) {
+  ['ev-date','ev-repeat-until','ev-end-date'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     flatpickr(el, {
@@ -2838,71 +2655,6 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-// ── TRIPS ──────────────────────────────────────────────────────
-function getTrip() { return JSON.parse(localStorage.getItem('cal_trip') || 'null'); }
-function saveCalTrip(t) { localStorage.setItem('cal_trip', JSON.stringify(t)); }
-function renderTrip() {
-  var trip = getTrip(), content = document.getElementById('trip-content');
-  if (!trip) { content.innerHTML = '<div class="empty-sidebar">Ingen resa planerad.<br>Klicka + för att konfigurera.</div>'; return; }
-  var today = new Date(); today.setHours(0,0,0,0);
-  var start = new Date(trip.startDate), days = Math.round((start - today) / 86400000);
-  var end = trip.endDate ? new Date(trip.endDate) : null;
-  var countHtml;
-  if (days > 0) countHtml = '<div class="trip-countdown"><span class="trip-days">'+days+'</span> dagar kvar</div>';
-  else if (days === 0) countHtml = '<div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">🎉 Idag är det dags!</div>';
-  else if (end && end >= today) countHtml = '<div style="font-size:14px;font-weight:700;color:#34D399;margin-bottom:8px">✈️ Resan pågår!</div>';
-  else countHtml = '<div class="trip-in-past">Resan är avslutad</div>';
-  var schedHtml = '';
-  if (trip.schedule && trip.schedule.length) {
-    schedHtml = '<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Schema</div>';
-    trip.schedule.forEach(function(s) { schedHtml += '<div class="trip-sched-item"><span class="trip-sched-time">'+escHtml(s.time||'')+'</span><span class="trip-sched-text">'+escHtml(s.activity||'')+'</span></div>'; });
-  }
-  var s1=trip.startDate?trip.startDate.split('-'):null, s2=trip.endDate?trip.endDate.split('-'):null;
-  content.innerHTML =
-    '<div class="trip-name">' + (trip.emoji||'✈️') + ' ' + escHtml(trip.name||'') + '</div>' +
-    '<div class="trip-dest">📍 ' + escHtml(trip.destination||'') + '</div>' + countHtml +
-    '<div class="trip-dates">' + (s1?s1[2]+'/'+s1[1]+'/'+s1[0]:'—') + (s2?' — '+s2[2]+'/'+s2[1]+'/'+s2[0]:'') + '</div>' +
-    (trip.notes ? '<div style="font-size:11px;color:var(--text-sec);margin-bottom:6px;font-style:italic">'+escHtml(trip.notes)+'</div>' : '') + schedHtml;
-}
-function openTripModal() {
-  var trip = getTrip() || {};
-  document.getElementById('trip-name-inp').value = trip.name || '';
-  document.getElementById('trip-dest-inp').value = trip.destination || '';
-  document.getElementById('trip-start-inp').value = trip.startDate || '';
-  document.getElementById('trip-end-inp').value = trip.endDate || '';
-  document.getElementById('trip-notes-inp').value = trip.notes || '';
-  document.getElementById('trip-del-btn').style.display = trip.name ? '' : 'none';
-  renderTripSchedForm(trip.schedule || []);
-  document.getElementById('trip-modal').classList.add('show');
-}
-function closeTripModal() { document.getElementById('trip-modal').classList.remove('show'); }
-function renderTripSchedForm(sched) {
-  var list = document.getElementById('trip-sched-list'); list.innerHTML = '';
-  sched.forEach(function(s) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
-    row.innerHTML = '<input type="text" placeholder="Dag/tid" value="'+escHtml(s.time||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" value="'+escHtml(s.activity||'')+'" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
-    list.appendChild(row);
-  });
-}
-function addTripSchedRow() {
-  var list = document.getElementById('trip-sched-list'), row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:85px 1fr 26px;gap:6px;margin-bottom:6px;align-items:center';
-  row.innerHTML = '<input type="text" placeholder="Dag/tid" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><input type="text" placeholder="Aktivitet…" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:Inter,sans-serif;padding:6px 8px;outline:none"><button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px" onclick="this.parentNode.remove()">✕</button>';
-  list.appendChild(row);
-}
-function saveTrip() {
-  var name = document.getElementById('trip-name-inp').value.trim();
-  if (!name) { document.getElementById('trip-name-inp').focus(); return; }
-  var schedule = [];
-  document.querySelectorAll('#trip-sched-list > div').forEach(function(row) {
-    var inputs = row.querySelectorAll('input'), t = inputs[0].value.trim(), a = inputs[1].value.trim();
-    if (t || a) schedule.push({ time: t, activity: a });
-  });
-  saveCalTrip({ name: name, destination: document.getElementById('trip-dest-inp').value.trim(), startDate: document.getElementById('trip-start-inp').value, endDate: document.getElementById('trip-end-inp').value, notes: document.getElementById('trip-notes-inp').value.trim(), schedule: schedule, emoji: '✈️' });
-  closeTripModal(); renderTrip(); showToast('Resa sparad! ✈️');
-}
-function deleteTrip() { if (!confirm('Ta bort resan? Den kan inte återskapas.')) return; saveCalTrip(null); closeTripModal(); renderTrip(); showToast('Resa borttagen'); }
 document.addEventListener('DOMContentLoaded', function() {
   var shoppingAddBtn = document.getElementById('shopping-add-btn');
   var shoppingAddInput = document.getElementById('shopping-add-input');
@@ -2926,7 +2678,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   renderMonth();
   installMonthSwipe();
-  renderTrip();
   renderShoppingWidget();
   renderHeaderMeta();
   setInterval(renderHeaderMeta, 60000);

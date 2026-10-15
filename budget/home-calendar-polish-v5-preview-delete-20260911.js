@@ -433,25 +433,7 @@
     }, true);
   }
 
-  function loadBasePolish() {
-    var existing = document.querySelector('script[data-home-calendar-polish-v5-base="true"]');
-    if (existing) {
-      if (existing.getAttribute('data-loaded') === 'true') installDayPreviewEditV1();
-      else existing.addEventListener('load', installDayPreviewEditV1, { once: true });
-      return;
-    }
-
-    var script = document.createElement('script');
-    script.src = 'home-calendar-polish-v5-base-20260911.js?v=20260911-day-preview-delete-v2';
-    script.async = false;
-    script.setAttribute('data-home-calendar-polish-v5-base', 'true');
-    script.addEventListener('load', function () {
-      script.setAttribute('data-loaded', 'true');
-      installDayPreviewEditV1();
-    }, { once: true });
-    script.addEventListener('error', installDayPreviewEditV1, { once: true });
-    document.head.appendChild(script);
-  }
-
-  loadBasePolish();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', installDayPreviewEditV1, { once:true });
+  } else installDayPreviewEditV1();
 })();

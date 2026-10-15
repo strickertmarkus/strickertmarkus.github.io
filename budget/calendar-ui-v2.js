@@ -160,6 +160,8 @@
     document.head.appendChild(style);
   }
 
+  if (isHome) addStyles();
+
   function isoWeek(date) {
     var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     var day = d.getUTCDay() || 7;
@@ -211,7 +213,7 @@
       if (holidayToggle && holidayToggle.parentElement !== toolbar) toolbar.appendChild(holidayToggle);
     }
 
-    if (nav.parentElement !== toolbar) toolbar.appendChild(nav);
+    if (!isHome && nav.parentElement !== toolbar) toolbar.appendChild(nav);
     updateWeekLabel();
   }
 
@@ -524,8 +526,8 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { setTimeout(install, 0); }, { once:true });
+    document.addEventListener('DOMContentLoaded', function () { if (isHome) install(); else setTimeout(install, 0); }, { once:true });
   } else {
-    setTimeout(install, 0);
+    if (isHome) install(); else setTimeout(install, 0);
   }
 })();

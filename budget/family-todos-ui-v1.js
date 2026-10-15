@@ -200,14 +200,22 @@
       .ft-editor-actions .ft-primary{color:#10151b;background:linear-gradient(135deg,#fdba74,#fb923c)}.ft-editor-actions .ft-danger{margin-left:auto;color:#fb7185}
       .ft-empty{color:var(--text-sec,#94a3b8);font-size:12px;padding:12px 3px}
       .ft-bottom-link{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;font-size:11px;text-decoration:none;color:var(--accent,#fdba74)}
-      .ft-shopping{max-width:1040px;margin:0 auto;padding:22px 24px;background:var(--bg2,#161b22);border:1px solid var(--border,rgba(255,255,255,.08));border-radius:18px}
+      .ft-shopping{width:100%;margin:0;padding:16px;background:var(--bg2,#161b22);border:1px solid rgba(253,186,116,.18);border-radius:18px}
+      .ft-shopping .ft-head{padding-bottom:12px;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
+      .ft-shopping .ft-title{font-weight:600;letter-spacing:-.035em;line-height:1.3}
+      .ft-shopping input,.ft-shopping select{background:#10151dcc;border-radius:11px;font-size:16px;max-width:100%}
+      .ft-shopping .ft-primary,.ft-shopping .ft-editor-actions .ft-primary{background:var(--accent,#FDBA74);color:#28180b;border-color:transparent}
+      .ft-shopping .ft-head-actions button,.ft-shopping .ft-editor-actions button{border-radius:11px;background:#10151dcc;color:var(--text-sec);border-color:var(--border);min-height:36px}
+      .ft-shopping .ft-head-actions button:hover,.ft-shopping .ft-editor-actions button:hover{color:var(--accent);background:rgba(253,186,116,.055);border-color:rgba(253,186,116,.25)}
+      .ft-shopping .ft-editor-actions .ft-primary{background:var(--accent);color:#28180b}
+      .ft-shopping .ft-editor-actions .ft-danger{color:#fb7185}
       .ft-shopping .ft-title{font-size:20px}.ft-shopping .ft-list{max-height:none}
       #family-todo-shopping{display:none}
       html[data-list-mode="todo"] .shopping-dashboard{display:none!important}
       html[data-list-mode="todo"] #family-todo-shopping{display:block}
       .ft-trip-link{display:block;color:var(--accent,#FDBA74);font-size:11px;margin-top:4px}.ft-cal-day-indicator{display:inline-block;width:5px;height:5px;background:#fbbf24;box-shadow:0 0 9px #fbbf24;border-radius:50%;vertical-align:middle;margin-left:5px}
       .ft-calendar-reminder{margin:8px 0;padding:8px;border-left:2px solid #fbbf24;background:rgba(251,191,36,.04);border-radius:5px;font-size:12px}
-      @media(max-width:520px){.ft-shopping{padding:14px 11px;border-radius:12px}.ft-add-options{grid-template-columns:1fr 1fr}.ft-add-options input{grid-column:1 / -1}.ft-editor-fields{grid-template-columns:1fr}.ft-editor-fields label:last-child{grid-column:auto}.family-todos input,.family-todos select{font-size:16px}.ft-add-options select,.ft-add-options input,.ft-filters select{font-size:14px;min-height:39px;height:39px}.ft-shopping .ft-title{font-size:17px}}
+      @media(max-width:520px){.ft-shopping{padding:16px}.ft-add-options{grid-template-columns:1fr 1fr}.ft-add-options input{grid-column:1 / -1}.ft-editor-fields{grid-template-columns:1fr}.ft-editor-fields label:last-child{grid-column:auto}.family-todos input,.family-todos select{font-size:16px}.ft-add-options select,.ft-add-options input,.ft-filters select{font-size:14px;min-height:39px;height:39px}.ft-shopping .ft-title{font-size:20px}.ft-shopping .ft-add-options select,.ft-shopping .ft-add-options input,.ft-shopping .ft-filters select{font-size:16px}}
 
       /* Home: match #shopping-widget instead of reusing the full-page form. */
       #family-todo-home.ft-home{min-width:0}

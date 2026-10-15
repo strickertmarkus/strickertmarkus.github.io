@@ -104,27 +104,10 @@
     });
   }
 
-  function loadPreviousPolish() {
-    var existing = document.querySelector('script[data-home-calendar-polish-preview-delete-20260911="true"]');
-    if (existing) {
-      installRepeatUntilPlacementV2();
-      return;
-    }
-
-    var script = document.createElement('script');
-    script.src = 'home-calendar-polish-v5-preview-delete-20260911.js?v=20260911-repeat-until-v2';
-    script.async = false;
-    script.setAttribute('data-home-calendar-polish-preview-delete-20260911', 'true');
-    script.addEventListener('load', installRepeatUntilPlacementV2, { once: true });
-    script.addEventListener('error', installRepeatUntilPlacementV2, { once: true });
-    document.head.appendChild(script);
-  }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', installRepeatUntilPlacementV2, { once: true });
   } else {
     installRepeatUntilPlacementV2();
   }
 
-  loadPreviousPolish();
 })();
