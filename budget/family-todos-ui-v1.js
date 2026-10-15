@@ -30,8 +30,10 @@
       '<div class="ft-task-body"><button type="button" class="ft-task-title" data-act="edit" data-id="'+esc(t.id)+'">'+esc(t.text)+'</button>'+
       (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' ↗</a>':'')+
       (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
-      (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera">⋯</button>')+
-      '</div>';
+      '<div class="ft-task-actions">'+
+        (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera '+esc(t.text)+'">⋯</button>')+
+        '<button class="ft-row-delete" type="button" data-act="delete" data-id="'+esc(t.id)+'" aria-label="Radera '+esc(t.text)+'" title="Radera uppgift">×</button>'+
+      '</div></div>';
     if(isEdit){
       content+='<form class="ft-editor" data-id="'+esc(t.id)+'">'+
         '<label>Uppgift<input name="text" type="text" maxlength="240" value="'+esc(t.text)+'" required></label>'+
@@ -54,6 +56,7 @@
       root.innerHTML='<div class="widget-head ft-home-head">'+
         '<div class="widget-title"><a class="ft-home-title-link" href="shopping.html?mode=todo">Att göra</a></div>'+
         '<div class="ft-home-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra" disabled>↶</button>'+
+        '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button>'+
         '<div class="badge" data-ft-count>0 kvar</div></div></div>'+
         '<form class="ft-add-form" data-ft-add>'+
         '<div class="shopping-input-row ft-home-input-row">'+
@@ -70,6 +73,7 @@
     root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(compact?'Att göra':shop?'Familjens att-göra-lista':'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
       '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra">↶</button>'+
+      '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button>'+
       (compact?'<a class="ft-full-link" href="shopping.html?mode=todo" aria-label="Visa alla uppgifter">↗</a>':'')+'</div></div>'+
       '<form class="ft-add-form" data-ft-add><div class="ft-add-main"><input type="text" name="text" maxlength="240" placeholder="Ny uppgift…" aria-label="Ny uppgift" required autocomplete="off">'+
       '<button type="submit" class="ft-primary ft-plus" aria-label="Lägg till uppgift">＋</button></div>'+
@@ -100,6 +104,14 @@
       }
       if(action==='toggle'){store.toggle(id);return;}
       if(action==='undo'){editingId=null;store.undo();return;}
+      if(action==='clear-done'){
+        var completed=store.list().filter(function(task){return task.done;});
+        if(!completed.length)return;
+        if(!window.confirm('Radera '+completed.length+' avklarade uppgifter?'))return;
+        editingId=null;
+        if(typeof store.removeCompleted==='function')store.removeCompleted();
+        return;
+      }
       if(action==='edit'){editingId=editingId===id?null:id;render(mode);var input=root.querySelector('.ft-editor input[name="text"]');if(input)input.focus();return;}
       if(action==='cancel'){editingId=null;render(mode);return;}
       if(action==='delete'){if(!window.confirm('Radera uppgiften?'))return;editingId=null;store.remove(id);return;}
@@ -129,6 +141,12 @@
     counter.textContent=mode==='home' ? active+' kvar'+(sync==='offline'?' · offline':'') : active+' kvar · '+all.length+' totalt'+(sync==='offline'?' · Offline':sync==='connecting'?' · Synkar…':'');
     if(mode==='home')counter.title=active+' kvar · '+all.length+' totalt';
     var undo=root.querySelector('[data-act="undo"]');if(undo)undo.disabled=!store.canUndo();
+    var clear=root.querySelector('[data-act="clear-done"]');
+    if(clear){
+      var completedCount=all.filter(function(task){return task.done;}).length;
+      clear.hidden=!completedCount;
+      clear.title=completedCount+' avklarade uppgifter';
+    }
     var filtered=all.slice();
     if(mode==='home')filtered=filtered.slice(0,5);
     else{
@@ -168,7 +186,13 @@
       .ft-priority{font-size:10px;border-radius:6px;padding:1px 5px;background:rgba(255,255,255,.04)}
       .ft-priority.important{color:#fbbf24}.ft-priority.urgent{color:#fb7185;background:rgba(251,113,133,.08)}
       .ft-due{color:#93c5fd}.ft-due.ft-late{color:#fb7185}.ft-due.ft-today{color:#fbbf24}
+      .ft-task-actions{display:flex;align-items:center;gap:2px}
       .ft-row-edit{border:0;background:transparent;color:var(--text-sec,#94a3b8);font-size:19px;cursor:pointer;padding:0 5px}
+      .ft-row-delete{border:0;background:transparent;color:var(--text-sec,#94a3b8);font-size:17px;line-height:1;cursor:pointer;opacity:.65;min-width:24px;min-height:27px;border-radius:6px;padding:2px 4px}
+      .ft-row-delete:hover,.ft-row-delete:focus-visible{color:#fb7185;opacity:1;background:rgba(251,113,133,.08)}
+      .ft-clear-done{border:1px solid rgba(253,186,116,.2);border-radius:7px;background:rgba(253,186,116,.055);color:var(--accent,#FDBA74);font-size:10px;font-weight:700;padding:5px 7px;cursor:pointer;white-space:nowrap}
+      .ft-clear-done:hover{background:rgba(253,186,116,.12);border-color:rgba(253,186,116,.45)}
+      .ft-clear-done[hidden]{display:none!important}
       .ft-editor{margin:5px 0 11px 30px;padding:12px;border-radius:12px;border:1px solid rgba(253,186,116,.23);background:rgba(253,186,116,.035);display:grid;gap:10px}
       .ft-editor label{display:grid;gap:4px;font-size:10px;color:var(--text-sec,#94a3b8)}
       .ft-editor-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ft-editor-fields label:last-child{grid-column:1 / -1}
@@ -194,6 +218,9 @@
       #family-todo-home.ft-home .ft-undo{width:25px;height:25px;min-width:25px;border:0;border-radius:7px;background:none;color:var(--text-sec,#8B949E);font-size:17px;cursor:pointer}
       #family-todo-home.ft-home .ft-undo:disabled{display:none}
       #family-todo-home.ft-home .ft-undo:not(:disabled):hover{color:var(--accent,#FDBA74)}
+      #family-todo-home.ft-home .ft-clear-done{font-size:10px;padding:4px 6px}
+      #family-todo-home.ft-home .ft-task{grid-template-columns:18px minmax(0,1fr) 24px}
+      #family-todo-home.ft-home .ft-row-delete{min-width:22px;min-height:24px;font-size:17px}
       #family-todo-home.ft-home .ft-add-form{display:block;margin-bottom:0}
       #family-todo-home.ft-home .shopping-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;margin-bottom:0}
       #family-todo-home.ft-home .shopping-input{background:transparent;min-width:0;border-radius:8px;padding:9px 10px;min-height:0;font-size:13px}
