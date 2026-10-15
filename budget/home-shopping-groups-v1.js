@@ -268,7 +268,7 @@
         // Show the next item's capital letter immediately, rather than
         // waiting until it is saved. Do not alter parentheses or other text.
         var before = input.value;
-        var after = before.replace(/\\p{L}/u, function(letter) {
+        var after = before.replace(/\p{L}/u, function(letter) {
           return letter.toLocaleUpperCase('sv-SE');
         });
         if (after === before) return;
