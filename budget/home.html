@@ -2354,7 +2354,10 @@ function readTransferCalculatorIncomes() {
 }
 function transferIncomeValue(raw) {
   if (raw === '' || raw === null || raw === undefined) return null;
-  var number = Number(raw);
+  // Accept Swedish grouping spaces and decimal comma when a salary is edited.
+  var clean = typeof raw === 'string' ? raw.replace(/[\s\u00a0]/g,'').replace(',','.') : raw;
+  if (clean === '') return null;
+  var number = Number(clean);
   return Number.isFinite(number) && number >= 0 ? number : null;
 }
 function getTransferMonthlyIncomes(key) {
@@ -2527,11 +2530,10 @@ function editTransferCalcIncome(button) {
   if (person !== 'markus' && person !== 'maja') return;
   var existing = getTransferMonthlyIncomes(transferMonthInfo(0).key)[person];
   var input = document.createElement('input');
-  input.type = 'number';
+  input.type = 'text'; // select() reliably replaces the entire salary on mobile Safari.
   input.id = 'transfer-income-' + person;
-  input.min = '0';
-  input.step = '1';
   input.inputMode = 'numeric';
+  input.setAttribute('enterkeyhint','done');
   input.autocomplete = 'off';
   input.setAttribute('aria-label',(person === 'markus' ? 'Markus' : 'Majas') + ' nettoinkomst i kronor');
   input.value = existing === null ? '' : String(existing);
