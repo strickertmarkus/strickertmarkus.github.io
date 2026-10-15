@@ -115,7 +115,7 @@
   }
 
 
-  function groupedRender() {
+  function groupedRender(force) {
     if (typeof window.getCurrentShoppingList !== 'function' ||
         typeof window.getVisibleShoppingItems !== 'function') return;
 
@@ -133,7 +133,7 @@
     // element, dismissing the iOS keyboard mid-entry.
     // The submit handler appends each item in place. Deferred external
     // updates are fully rendered when this editor is explicitly closed.
-    if (activeAddCategory !== null &&
+    if (!force && activeAddCategory !== null &&
         ul.querySelector('.shopping-category-add-form')) return;
 
     // Read actual category rows rather than deriving headings from items:
@@ -214,7 +214,7 @@
           event.stopPropagation();
           var category = addButton.getAttribute('data-sh-add-category');
           activeAddCategory = activeAddCategory === category ? null : category;
-          groupedRender();
+          groupedRender(true);
           if (activeAddCategory) {
             var input = listRoot.querySelector('.shopping-category-add-input');
             if (input) input.focus({ preventScroll:true });
@@ -225,7 +225,7 @@
           event.preventDefault();
           event.stopPropagation();
           activeAddCategory = null;
-          groupedRender();
+          groupedRender(true);
         }
       });
       listRoot.addEventListener('submit', function(event) {
@@ -268,7 +268,7 @@
         if (event.key === 'Escape') {
           event.preventDefault();
           activeAddCategory = null;
-          groupedRender();
+          groupedRender(true);
         } else if (event.key === 'Enter' && event.target.matches('.shopping-category-add-input') &&
                    !event.isComposing && event.keyCode !== 229) {
           // Explicitly handle repeated Enter presses on mobile/desktop.
