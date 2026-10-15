@@ -2177,6 +2177,39 @@ function getVisibleShoppingItems(list) {
   return visible;
 }
 function getCurrentShoppingList() { return getPrimaryShoppingList(ensureShoppingList()); }
+function addShoppingItemToCategory(categoryId, text, categoryName) {
+  var name = normalizeShoppingItemText(text);
+  if (!name) return false;
+  var lists = ensureShoppingList();
+  var list = getPrimaryShoppingList(lists);
+  if (!list) return false;
+  var items = list.items || (list.items = []);
+  var index = items.findIndex(function(row) {
+    return row && row.type === 'category' && String(row.id) === String(categoryId);
+  });
+  if (index < 0 && categoryName) {
+    index = items.findIndex(function(row) {
+      return row && row.type === 'category' &&
+        String(row.text || '').trim().toLocaleLowerCase('sv-SE') ===
+        String(categoryName).trim().toLocaleLowerCase('sv-SE');
+    });
+  }
+  if (index < 0 && categoryName) {
+    // Normally the standard headings are already persisted. This also
+    // supports the UI fallback for older lists with a missing category.
+    items.push({ id:Date.now() + Math.random(), type:'category', text:String(categoryName).trim() });
+    index = items.length - 1;
+  }
+  if (index < 0) return false;
+  var newItem = { id:Date.now() + Math.random(), type:'item', text:name, checked:false };
+  var insertAt = index + 1;
+  while (insertAt < items.length && items[insertAt] && items[insertAt].type !== 'category') insertAt++;
+  items.splice(insertAt, 0, newItem);
+  // 'sh_lists' is the exact same Firebase-synced key that shopping.html uses.
+  saveShoppingLists(lists);
+  renderShoppingWidget();
+  return true;
+}
 function addShoppingItemFromHome() {
   var input = document.getElementById('shopping-add-input');
   if (!input) return;
