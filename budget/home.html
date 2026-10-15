@@ -430,64 +430,69 @@
       color:var(--text-sec);font-size:11px;line-height:1.4;
     }
     #transfer-widget .transfer-calc-budget strong { color:var(--text);font-weight:600; }
+    /* Compact, direct-edit income rows — no inset cards or instructional copy. */
+    #transfer-widget .month-popup-shell { padding:11px 13px 10px; }
+    #transfer-widget .month-popup-head { margin-bottom:9px;align-items:center; }
+    #transfer-widget .month-popup-sub:empty { display:none; }
+    #transfer-widget .transfer-calculator { gap:9px; }
+    #transfer-widget .transfer-calc-budget { gap:5px 13px;font-size:10px; }
     #transfer-widget .transfer-calc-income-grid {
-      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+      display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0;
+      margin:1px 0 3px;
     }
     #transfer-widget .transfer-calc-income-field {
-      display:flex;flex-direction:column;gap:6px;min-width:0;font-size:11px;color:var(--text-sec);
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      min-width:0;min-height:38px;padding:2px 0;
+      border-bottom:1px solid rgba(255,255,255,.07);
     }
+    #transfer-widget .transfer-calc-income-field:last-child { border-bottom:0; }
     #transfer-widget .transfer-calc-income-field .transfer-person-inline {
-      font-size:11px;color:var(--text);font-weight:500;
+      flex:1 1 auto;min-width:0;font-size:12px;color:var(--text);font-weight:500;
     }
-    #transfer-widget .transfer-calc-income-value,
+    #transfer-widget .transfer-calc-income-value {
+      appearance:none;display:inline-flex;align-items:center;justify-content:flex-end;
+      gap:7px;flex:0 1 auto;min-width:0;max-width:100%;min-height:35px;
+      border:0 !important;border-radius:5px;padding:3px 2px 3px 6px;
+      background:transparent !important;color:var(--text) !important;
+      font:500 14px/1.25 Inter,system-ui,sans-serif;white-space:nowrap;
+      font-variant-numeric:tabular-nums;box-shadow:none !important;
+      cursor:pointer;text-align:right;
+    }
+    #transfer-widget .transfer-calc-income-value:hover,
+    #transfer-widget .transfer-calc-income-value:focus-visible {
+      background:rgba(var(--home-view-rgb,253,186,116),.045) !important;
+      color:var(--home-view-accent-soft,#FDBA74) !important;
+      outline:none;
+    }
+    #transfer-widget .transfer-edit-icon { color:var(--text-sec);font-size:12px;opacity:.55; }
     #transfer-widget .transfer-calc-income-field input {
-      display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;
-      width:100%;min-width:0;min-height:40px;padding:9px 10px;
-      border:1px solid rgba(var(--home-view-rgb,253,186,116),.19);
-      border-radius:9px;background:rgba(255,255,255,.025);color:var(--text);
-      font:500 16px/1.2 Inter,system-ui,sans-serif;text-align:left;
+      flex:0 1 124px;box-sizing:border-box;width:124px;min-width:0;max-width:48%;
+      min-height:35px;padding:4px 6px;background:transparent;color:var(--text);
+      border:0;border-bottom:1px solid var(--home-view-accent,#FDBA74);
+      border-radius:0;outline:none;text-align:right;
+      font:500 16px/1.25 Inter,system-ui,sans-serif;
       font-variant-numeric:tabular-nums;box-shadow:none;
+      -webkit-appearance:none;appearance:none;
     }
-    #transfer-widget .transfer-calc-income-value { cursor:pointer;gap:5px; }
-    #transfer-widget .transfer-calc-income-value .transfer-edit-icon {
-      color:var(--text-sec);font-size:12px;flex:0 0 auto;
-    }
-    #transfer-widget .transfer-calc-income-value:hover {
-      border-color:rgba(var(--home-view-rgb,253,186,116),.46);
-      background:rgba(var(--home-view-rgb,253,186,116),.06);
-    }
-    #transfer-widget .transfer-calc-income-field input {
-      -webkit-appearance:none;appearance:none;outline:none;
-    }
-    #transfer-widget .transfer-calc-income-value:focus-visible,
     #transfer-widget .transfer-calc-income-field input:focus {
-      outline:none;border-color:rgba(var(--home-view-rgb,253,186,116),.60);
-      box-shadow:0 0 0 2px rgba(var(--home-view-rgb,253,186,116),.11);
+      border-bottom-color:var(--home-view-accent-soft,#FDBA74);
+      box-shadow:0 2px 0 -1px rgba(var(--home-view-rgb,253,186,116),.20);
     }
-    #transfer-widget .transfer-calc-income-field input::placeholder { color:var(--text-dim); }
-    #transfer-widget .transfer-calc-next-meta {
-      font-size:10px;color:var(--text-sec);margin:0 0 7px;line-height:1.45;
-    }
-    @media(max-width:380px) {
-      #transfer-widget .transfer-calc-income-grid { gap:7px; }
-      #transfer-widget .transfer-calc-income-field .transfer-person-inline { font-size:10px; }
-      #transfer-widget .transfer-calc-income-value { font-size:14px;padding:9px 7px; }
-    }
-    #transfer-widget .transfer-calc-note { margin:0;color:var(--text-sec);font-size:10px;line-height:1.45; }
     #transfer-widget .transfer-calc-message { margin:0;color:var(--text-sec);font-size:11px;line-height:1.5; }
     #transfer-widget .transfer-calc-message.is-error { color:#FCA5A5; }
-    #transfer-widget .transfer-calc-shares { display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:5px;font-size:11px;color:var(--text-sec); }
-    #transfer-widget .transfer-calc-shares .transfer-person-inline { color:var(--text); }
-    #transfer-widget .transfer-calc-shares b { color:var(--home-view-accent-soft,#FDBA74);font-weight:600; }
     #transfer-widget .transfer-calc-results { min-width:0; }
+    @media(max-width:380px) {
+      #transfer-widget .transfer-calc-income-value { font-size:13px; }
+      #transfer-widget .transfer-calc-income-field .transfer-person-inline { font-size:11px; }
+    }
     #transfer-widget .transfer-calc-next {
       min-width:0;border-top:1px solid rgba(255,255,255,.075);
-      padding-top:12px;margin-top:2px;opacity:.89;
+      padding-top:9px;margin-top:1px;opacity:.85;
     }
     #transfer-widget .transfer-calc-next-title {
-      display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;
-      margin:0 0 7px;color:var(--home-view-accent-soft,#FDBA74);
-      font-size:11px;font-weight:650;letter-spacing:.02em;
+      display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+      margin:0 0 3px;color:var(--home-view-accent-soft,#FDBA74);
+      font-size:11px;font-weight:600;letter-spacing:.02em;
     }
     #transfer-widget .transfer-calc-next small { color:var(--text-sec);font-size:10px;font-weight:400;letter-spacing:0; }
     #transfer-widget .transfer-calc-next .transfer-amount-table td,
@@ -2470,13 +2475,10 @@ function calculateTransferShares(row, incomes) {
     majaHouse:house-markusHouse, majaIca:ica-markusIca
   };
 }
-function transferCalcPercent(share) {
-  return (share*100).toLocaleString('sv-SE', {maximumFractionDigits:1}) + ' %';
-}
 function transferIncomeButton(person, amount) {
   var name = person === 'markus' ? 'Markus' : 'Maja';
   return '<button type="button" class="transfer-calc-income-value" data-transfer-edit="' + person
-    + '" aria-label="Ändra ' + name + ' nettoinkomst">'
+    + '" aria-label="Ändra ' + name + ' nettolön">'
     + '<span>' + (amount === null ? 'Ange nettolön' : fmtKr(amount)) + '</span>'
     + '<span class="transfer-edit-icon" aria-hidden="true">✎</span></button>';
 }
@@ -2485,43 +2487,66 @@ function renderTransferCalcResults() {
   if (!results) return;
   var row = getTransferMonth(0);
   if (!row) {
-    results.innerHTML = '<p class="transfer-calc-message">Ingen budgetrad finns för denna månad. Lägg först in ICA-kort och husutgifter i Familjebudget.</p>';
+    results.innerHTML = '<p class="transfer-calc-message">Lägg till månaden i Familjebudget.</p>';
     return;
   }
   var incomes = getTransferMonthlyIncomes(transferMonthInfo(0).key);
-  // While editing, preview the new distribution before saving, without rebuilding inputs.
   ['markus','maja'].forEach(function(person) {
     var input = document.getElementById('transfer-income-' + person);
     if (input) incomes[person] = transferIncomeValue(input.value);
   });
-  if (incomes.markus === null || incomes.maja === null) {
-    results.innerHTML = '<p class="transfer-calc-message">Ange båda nettoinkomsterna för att se överföringsbeloppen.</p>';
-    return;
-  }
   var shares = calculateTransferShares(row,incomes);
   if (!shares) {
-    results.innerHTML = '<p class="transfer-calc-message is-error">Den sammanlagda nettoinkomsten måste vara större än 0 kr.</p>';
+    results.innerHTML = '<p class="transfer-calc-message is-error">Ange två giltiga nettolöner (sammanlagt över 0 kr).</p>';
     return;
   }
-  results.innerHTML = '<div class="transfer-calc-shares">'
-    + '<span class="transfer-person-inline markus">Markus <b>' + transferCalcPercent(shares.markusShare) + '</b></span>'
-    + '<span class="transfer-person-inline maja">Maja <b>' + transferCalcPercent(shares.majaShare) + '</b></span>'
-    + '</div>' + transferTableRows(fmtKr(shares.majaIca),fmtKr(shares.majaHouse),fmtKr(shares.markusIca),fmtKr(shares.markusHouse));
+  results.innerHTML = transferTableRows(fmtKr(shares.majaIca),fmtKr(shares.majaHouse),fmtKr(shares.markusIca),fmtKr(shares.markusHouse));
 }
 function persistTransferCalcIncome(person, value) {
+  if (person !== 'markus' && person !== 'maja') return false;
   var amount = transferIncomeValue(value);
-  if ((person !== 'markus' && person !== 'maja') || amount === null) return false;
-  var monthKey = transferMonthInfo(0).key;
-  var values = readTransferCalculatorIncomes();
-  var entry = values[monthKey] && typeof values[monthKey] === 'object' ? values[monthKey] : {};
-  entry[person] = amount;
-  values[monthKey] = entry;
+  if (amount === null) return false;
+  var month = transferMonthInfo(0);
+  var budgetData = getFamilyBudgetData();
+  if (!budgetData || !Array.isArray(budgetData.transfers)) {
+    showToast('Månaden saknas i Familjebudget.');
+    return false;
+  }
+  var index = budgetData.transfers.findIndex(function(row) {
+    return row && row.month === month.month && Number(row.year) === month.year;
+  });
+  if (index < 0) {
+    showToast('Lägg till månaden i Familjebudget först.');
+    return false;
+  }
+  // Compute from the latest synced budget snapshot; change only this month's transfer row.
+  var incomes = getTransferMonthlyIncomes(month.key);
+  incomes[person] = amount;
+  var amounts = calculateTransferShares(budgetData.transfers[index],incomes);
+  if (!amounts) {
+    showToast('Nettoinkomsterna måste tillsammans vara större än 0 kr.');
+    return false;
+  }
+  var updatedRow = Object.assign({},budgetData.transfers[index],{
+    majaAndel:amounts.majaShare, markusAndel:amounts.markusShare,
+    huskontoMaja:amounts.majaHouse, icaMaja:amounts.majaIca,
+    huskontoMarkus:amounts.markusHouse, icaMarkus:amounts.markusIca
+  });
+  var updatedBudget = Object.assign({},budgetData,{
+    transfers:budgetData.transfers.map(function(row,i){return i === index ? updatedRow : row;})
+  });
+  var overrides = readTransferCalculatorIncomes();
+  overrides[month.key] = Object.assign({},overrides[month.key] || {},{[person]:amount});
+  var budgetJson = JSON.stringify(updatedBudget);
+  var incomeJson = JSON.stringify(overrides);
   try {
-    localStorage.setItem(TRANSFER_CALC_INCOMES_KEY, JSON.stringify(values));
+    localStorage.setItem('familjebudget_data',budgetJson);
+    if (localStorage.getItem('familjebudget_data') !== budgetJson) throw new Error('Budget storage failed');
+    localStorage.setItem(TRANSFER_CALC_INCOMES_KEY,incomeJson);
+    if (localStorage.getItem(TRANSFER_CALC_INCOMES_KEY) !== incomeJson) throw new Error('Income storage failed');
     return true;
-  } catch(error) {
-    var note = document.getElementById('transfer-calc-save-note');
-    if (note) note.textContent = 'Kunde inte spara nettolönen på enheten.';
+  } catch (error) {
+    showToast('Kunde inte spara överföringen. Försök igen.');
     return false;
   }
 }
@@ -2543,8 +2568,12 @@ function editTransferCalcIncome(button) {
     if (finished) return;
     finished = true;
     var amount = transferIncomeValue(input.value);
-    if (save && amount !== null) persistTransferCalcIncome(person,amount);
+    var wasSaved = save && amount !== null ? persistTransferCalcIncome(person,amount) : false;
     var displayed = getTransferMonthlyIncomes(transferMonthInfo(0).key)[person];
+    if (save && wasSaved) {
+      var transferWidget = document.getElementById('transfer-widget');
+      if (transferWidget && transferWidget.classList.contains('open')) renderTransferPopup();
+    }
     var host = document.createElement('span');
     host.innerHTML = transferIncomeButton(person,displayed);
     var nextButton = host.firstElementChild;
@@ -2574,38 +2603,33 @@ function renderMonthPopup() {
   var row = getTransferMonth(0), nextRow = getTransferMonth(1);
   var incomes = getTransferMonthlyIncomes(current.key);
   title.textContent = current.month + ' ' + current.year;
-  sub.textContent = 'Fördelning utifrån era nettoinkomster.';
+  sub.textContent = '';
   var overview = row
     ? '<div class="transfer-calc-budget"><span>Husutgifter <strong>' + fmtKr(transferAmount(row.husutgifter)) + '</strong></span>'
       + '<span>ICA-kort <strong>' + fmtKr(transferAmount(row.ica)) + '</strong></span></div>'
     : '<p class="transfer-calc-message">Budgetbelopp saknas för denna månad.</p>';
-  var nextIncomes = getTransferMonthlyIncomes(next.key);
-  var nextShares = calculateTransferShares(nextRow,nextIncomes);
-  var nextPreview = nextShares
-    ? '<p class="transfer-calc-next-meta">Markus ' + fmtKr(nextIncomes.markus) + ' (' + transferCalcPercent(nextShares.markusShare) +
-      ') · Maja ' + fmtKr(nextIncomes.maja) + ' (' + transferCalcPercent(nextShares.majaShare) + ')</p>'
-      + transferTableRows(fmtKr(nextShares.majaIca),fmtKr(nextShares.majaHouse),fmtKr(nextShares.markusIca),fmtKr(nextShares.markusHouse))
-    : nextRow
-      ? transferTableRows(
-          transferSavedValue(nextRow,'icaMaja','ica','majaAndel'),
-          transferSavedValue(nextRow,'huskontoMaja','husutgifter','majaAndel'),
-          transferSavedValue(nextRow,'icaMarkus','ica','markusAndel'),
-          transferSavedValue(nextRow,'huskontoMarkus','husutgifter','markusAndel')
-        )
-      : '<p class="transfer-calc-message">Inga överföringsbelopp inlagda för nästa månad ännu.</p>';
+  // Next month is a read-only preview of the amounts actually saved in Familjebudget.
+  var nextPreview = nextRow
+    ? transferTableRows(
+        transferSavedValue(nextRow,'icaMaja','ica','majaAndel'),
+        transferSavedValue(nextRow,'huskontoMaja','husutgifter','majaAndel'),
+        transferSavedValue(nextRow,'icaMarkus','ica','markusAndel'),
+        transferSavedValue(nextRow,'huskontoMarkus','husutgifter','markusAndel')
+      )
+    : '<p class="transfer-calc-message">Ingen budgetrad för nästa månad.</p>';
   table.innerHTML = '<div class="transfer-calculator">'
       + overview
       + '<div class="transfer-calc-income-grid" role="group" aria-label="Nettoinkomster ' + current.month + '">'
-        + '<div class="transfer-calc-income-field"><span class="transfer-person-inline markus">Markus nettolön</span>'
+        + '<div class="transfer-calc-income-field"><span class="transfer-person-inline markus">Markus</span>'
           + transferIncomeButton('markus',incomes.markus) + '</div>'
-        + '<div class="transfer-calc-income-field"><span class="transfer-person-inline maja">Majas nettolön</span>'
+        + '<div class="transfer-calc-income-field"><span class="transfer-person-inline maja">Maja</span>'
           + transferIncomeButton('maja',incomes.maja) + '</div>'
       + '</div>'
-      + '<p class="transfer-calc-note" id="transfer-calc-save-note">Tryck på nettolönen för att ändra. Beloppen sparas per månad och synkas mellan enheter.</p>'
+      + '<span id="transfer-calc-save-note" class="transfer-calc-note" role="status" hidden></span>'
       + '<div class="transfer-calc-results" id="transfer-calc-results" aria-live="polite"></div>'
       + '<section class="transfer-calc-next" aria-label="Nästa månads överföring">'
         + '<div class="transfer-calc-next-title"><span>Nästa överföring · ' + next.month + ' ' + next.year
-        + '</span><small>Enligt Familjebudget</small></div>'
+        + '</span></div>'
         + nextPreview
       + '</section>'
     + '</div>';
