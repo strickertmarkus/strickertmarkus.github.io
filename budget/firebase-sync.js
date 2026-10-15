@@ -81,6 +81,7 @@ const SYNC_KEYS = [
   "savingsGoals",
   "savingsGoals_maja",
   "familjebudget_data",
+  "home_transfer_income_v1",
   "darkMode",
   "sh_lists",
   "sh_saved_templates",
