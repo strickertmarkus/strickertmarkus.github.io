@@ -133,8 +133,10 @@
     // element, dismissing the iOS keyboard mid-entry.
     // The submit handler appends each item in place. Deferred external
     // updates are fully rendered when this editor is explicitly closed.
-    if (force !== true && activeAddCategory !== null &&
-        ul.querySelector('.shopping-category-add-form')) return;
+    if (force !== true && (
+      (activeAddCategory !== null && ul.querySelector('.shopping-category-add-form')) ||
+      ul.querySelector('.shopping-item .txt[contenteditable="true"]')
+    )) return;
 
     // Read actual category rows rather than deriving headings from items:
     // empty stores must be visible too, just like on shopping.html.
@@ -207,6 +209,37 @@
 
     var listRoot = document.getElementById('shopping-items');
     if (listRoot) {
+      // An open add form must not block normal interactions with the list.
+      // Remove only the form DOM (not the whole list) before a clicked
+      // delete / checkbox / item editor receives its native click.
+      function exitAddModeInPlace() {
+        if (activeAddCategory === null) return false;
+        activeAddCategory = null;
+        var formRow = listRoot.querySelector('.shopping-category-add-row');
+        if (formRow) formRow.remove();
+        listRoot.querySelectorAll('.shopping-category-add[aria-expanded="true"]').forEach(function(button) {
+          button.setAttribute('aria-expanded','false');
+        });
+        return true;
+      }
+
+      // Capture before inline click handlers, but do NOT rebuild or detach
+      // the clicked item. This also allows tapping outside to exit add mode.
+      document.addEventListener('click', function(event) {
+        if (activeAddCategory === null || !event.target.closest) return;
+        if (event.target.closest('#shopping-items .shopping-category-add-form') ||
+            event.target.closest('#shopping-items .shopping-category-add')) return;
+        if (!exitAddModeInPlace()) return;
+        // Sync any deferred remote updates after the click has completed.
+        // Never replace an item that is actively contenteditable.
+        setTimeout(function() {
+          if (activeAddCategory === null &&
+              !listRoot.querySelector('.shopping-item .txt[contenteditable="true"]')) {
+            groupedRender();
+          }
+        }, 0);
+      }, true);
+
       listRoot.addEventListener('click', function(event) {
         var addButton = event.target.closest('[data-sh-add-category]');
         if (addButton) {
