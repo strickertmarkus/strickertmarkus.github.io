@@ -1,6 +1,24 @@
 <!doctype html>
 <html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1219"><title>Resor · Familjen</title>
-<link rel="stylesheet" href="travel.css?v=20261014-filter-viewport-6"><link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="travel.css?v=20261014-filter-viewport-6">
+<script>if(new URLSearchParams(location.search).get('embed')==='home')document.documentElement.classList.add('travel-embedded');</script>
+<style>
+/* Embedded in Home: keep all editing, dialogs and sections, skip the duplicate page chrome. */
+html.travel-embedded body{background:#0f1219}
+html.travel-embedded header{display:none}
+html.travel-embedded main{max-width:none;padding:14px 15px 36px}
+html.travel-embedded .page-heading{margin-bottom:8px;justify-content:flex-end}
+html.travel-embedded .page-heading>div{display:none}
+html.travel-embedded .page-heading button{font-size:12px}
+html.travel-embedded .sync{margin:9px 0 15px}
+html.travel-embedded .tabs{margin-top:15px}
+@media(max-width:650px){
+  html.travel-embedded main{padding:9px 10px 32px}
+  html.travel-embedded .page-heading{margin-bottom:7px}
+  html.travel-embedded .hero{padding:17px}
+  html.travel-embedded .tabs{margin-top:12px}
+}
+</style><link rel="icon" href="/favicon.ico">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="auth-config.js"></script><script defer src="auth-gate.js"></script><script defer src="travel-model.js?v=20261013-workflows-1"></script><script defer src="travel-store.js?v=20261013-workflows-1"></script><script defer src="travel.js?v=20261014-filter-viewport-6"></script>
 </head><body>
 <header><a href="home.html" class="brand">FAMILJEN<span> / RESOR</span></a><a class="back" href="home.html">← Home</a></header>
