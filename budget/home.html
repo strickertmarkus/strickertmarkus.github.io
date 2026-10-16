@@ -14,7 +14,9 @@
 <script src="auth-gate.js?v=20261015-list-tabs-home-boot-1"></script>
   <script src="firebase-sync.js?v=20261015-transfer-calc-v1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
-<!-- The full planner loads on demand in the Resor tab. -->
+  <script defer src="travel-model.js?v=20261013-workflows-1"></script>
+  <script defer src="travel-store.js?v=20261013-workflows-1"></script>
+  <script defer src="home-dashboard-enhancements.js?v=20261016-list-travel-1"></script>
   <script defer src="family-todos-ui-v1.js?v=20261015-list-tabs-home-boot-2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1029,7 +1031,7 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261016-month-budget-full-travel-2">
+<link rel="stylesheet" href="home-sections.css?v=20261016-list-travel-seamless-3">
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261016-sections-1"></script>
@@ -1155,6 +1157,11 @@
         <span id="home-list-summary-count">0 inköp · 0 uppgifter kvar</span>
         <span class="home-list-summary-arrow" aria-hidden="true">↗</span>
       </button>
+      <button type="button" class="home-next-trip" id="home-next-trip" hidden aria-controls="home-travel">
+        <span class="home-next-trip-label">NÄSTA RESA <span aria-hidden="true">↗</span></span>
+        <strong id="home-next-trip-name"></strong>
+        <span id="home-next-trip-details"></span>
+      </button>
       <div id="home-overview-widgets" class="home-overview-widgets">
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
@@ -1177,10 +1184,23 @@
   </section>
   <section id="home-lists" class="home-lists" role="tabpanel" aria-labelledby="home-tab-lists" hidden>
     <div class="home-section-heading"><span>FAMILJENS LISTOR</span><h2>Inköp &amp; att göra</h2></div>
-    <div class="home-shortcuts" aria-label="Alla listtyper">
-      <a href="shopping.html?mode=shopping"><strong>Inköpslistor</strong><span>Butiker, mallar &amp; recept ↗</span></a>
-      <a href="shopping.html?mode=packing"><strong>Packlista</strong><span>Packning för hela familjen ↗</span></a>
-      <a href="shopping.html?mode=todo"><strong>Alla uppgifter</strong><span>Ansvariga, datum &amp; filter ↗</span></a>
+    <div class="home-list-dashboard" aria-label="Listornas status och snabbregistrering">
+      <div class="home-list-stats" aria-label="Att göra i listorna">
+        <a class="home-list-stat" href="shopping.html?mode=shopping"><span>Inköp</span><strong id="home-list-shopping-remaining">—</strong><small>kvar ↗</small></a>
+        <a class="home-list-stat" href="shopping.html?mode=packing"><span>Packning</span><strong id="home-list-packing-remaining">—</strong><small>kvar ↗</small></a>
+        <a class="home-list-stat" href="shopping.html?mode=todo"><span>Uppgifter</span><strong id="home-list-todos-remaining">—</strong><small>kvar ↗</small></a>
+      </div>
+      <form class="home-list-quick-add" id="home-list-quick-add" autocomplete="off">
+        <select id="home-list-add-mode" aria-label="Välj listtyp">
+          <option value="shopping">Inköp</option>
+          <option value="todo">Att göra</option>
+          <option value="packing">Packning</option>
+        </select>
+        <select id="home-list-add-group" aria-label="Välj person" hidden></select>
+        <input id="home-list-add-text" type="text" maxlength="240" placeholder="Lägg till i inköpslistan…" autocapitalize="sentences" enterkeyhint="done" required aria-label="Ny post">
+        <button type="submit" aria-label="Lägg till i vald lista">+</button>
+      </form>
+      <p id="home-list-add-status" class="home-list-add-status" role="status" aria-live="polite"></p>
     </div>
     <div class="home-lists-grid" id="home-lists-widgets">
     </div>
@@ -1231,13 +1251,8 @@
     </div>
   </section>
   <section id="home-travel" class="home-travel" role="tabpanel" aria-labelledby="home-tab-travel" hidden>
-    <div class="home-travel-heading">
-      <div class="home-section-heading"><span>FAMILJENS RESOR</span><h2>Reseplaneraren</h2></div>
-      <a class="home-planner-link" href="travel.html">Öppna separat <span aria-hidden="true">↗</span></a>
-    </div>
-    <div class="home-planner-workspace">
-      <iframe id="home-travel-frame" title="Reseplaneraren med schema, packlista, budget, kartor och bokningar" data-src="travel.html?embed=home"></iframe>
-    </div>
+    <div class="home-section-heading home-travel-section-title"><span>FAMILJENS RESOR</span><h2>Reseplaneraren</h2></div>
+    <iframe id="home-travel-frame" title="Reseplaneraren med schema, packlista, budget, kartor och bokningar" data-src="travel.html?embed=home"></iframe>
   </section>
 </div>
 
