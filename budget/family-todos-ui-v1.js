@@ -28,7 +28,7 @@
     var content='<div class="ft-task'+checked+'" data-id="'+esc(t.id)+'" style="--ft-member:'+COLORS[t.member]+'">'+
       '<button type="button" class="ft-check" data-act="toggle" data-id="'+esc(t.id)+'" aria-label="'+(t.done?'Återaktivera':'Klarmarkera')+' '+esc(t.text)+'">'+(t.done?'✓':'')+'</button>'+
       '<div class="ft-task-body"><button type="button" class="ft-task-title" data-act="edit" data-id="'+esc(t.id)+'">'+esc(t.text)+'</button>'+
-      (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' ↗</a>':'')+
+      (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' <svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>':'')+
       (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
       '<div class="ft-task-actions">'+
         (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera '+esc(t.text)+'">⋯</button>')+
@@ -68,13 +68,13 @@
         '<label>Prioritet<select name="priority" aria-label="Prioritet">'+prioOpts('normal')+'</select></label>'+
         '<label>Förfallodatum<input type="date" name="dueDate" aria-label="Förfallodatum"></label></div></form>'+
         '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
-        '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a> <a class="tap-hint ft-bottom-link" style="margin-left:16px;color:var(--accent,#FDBA74)" href="travel.html">Reseplanerare <span aria-hidden="true">↗</span></a>';
+        '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a> <a class="tap-hint ft-bottom-link" style="margin-left:16px;color:var(--accent,#FDBA74)" href="travel.html">Reseplanerare <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a>';
     } else {
     root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(compact?'Att göra':shop?'Familjens att-göra-lista':'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
       '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra">↶</button>'+
       '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button>'+
-      (compact?'<a class="ft-full-link" href="shopping.html?mode=todo" aria-label="Visa alla uppgifter">↗</a>':'')+'</div></div>'+
+      (compact?'<a class="ft-full-link" href="shopping.html?mode=todo" aria-label="Visa alla uppgifter"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>':'')+'</div></div>'+
       '<form class="ft-add-form" data-ft-add><div class="ft-add-main"><input type="text" name="text" maxlength="240" placeholder="Ny uppgift…" aria-label="Ny uppgift" required autocomplete="off">'+
       '<button type="submit" class="ft-primary ft-plus" aria-label="Lägg till uppgift">＋</button></div>'+
       '<div class="ft-add-options"><select name="member" aria-label="Ansvarig">'+memberOpts('family')+'</select>'+
@@ -83,7 +83,7 @@
       (!compact?'<div class="ft-filters"><select data-ft-member aria-label="Filtrera på ansvarig"><option value="all">Alla ansvariga</option>'+memberOpts('family')+'</select>'+
       '<select data-ft-status aria-label="Visa uppgifter"><option value="all">Aktiva och klara</option><option value="active">Aktiva</option><option value="done">Klarmarkerade</option></select></div>':'')+
       '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
-      (compact?'<a class="ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true">↗</span></a>':'');
+      (compact?'<a class="ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a>':'');
     }
     var form=root.querySelector('[data-ft-add]');
     form.addEventListener('submit',function(event){
