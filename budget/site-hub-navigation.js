@@ -15,7 +15,18 @@
     if(anchor.hasAttribute('download'))return;
     let dest;
     try{dest=new URL(anchor.href,location.href)}catch(_){return}
-    if(dest.origin!==location.origin||dest.pathname===location.pathname&&dest.search===location.search&&dest.hash===location.hash)return;
+    if(dest.origin!==location.origin)return;
+    // Choosing the already-active app must not reload it or discard an editing draft.
+    if(anchor.getAttribute('aria-current')==='page' && dest.pathname===location.pathname){
+      event.preventDefault();
+      const menu=anchor.closest('details');
+      if(menu)menu.open=false;
+      return;
+    }
+    if(dest.pathname===location.pathname&&dest.search===location.search&&dest.hash===location.hash){
+      event.preventDefault();
+      return;
+    }
     if(!/(?:^|\/)budget\/(?:home|shopping|travel)\.html$/.test(dest.pathname))return;
     // Native navigation remains the fallback for accessibility and reduced motion.
     if(reduced())return;
