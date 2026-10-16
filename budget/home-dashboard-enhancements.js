@@ -154,6 +154,10 @@
     $('home-list-add-mode')?.addEventListener('change',updateQuickMode);
     $('home-next-trip')?.addEventListener('click',openTrip);
     $('home-travel-frame')?.addEventListener('load',event => { event.currentTarget.dataset.loaded = 'true'; });
+    const shoppingItems = $('shopping-items');
+    if (shoppingItems && 'MutationObserver' in window) {
+      new MutationObserver(renderCounts).observe(shoppingItems,{childList:true,subtree:true,attributes:true});
+    }
     window.addEventListener('family-todos-change',renderCounts);
     window.addEventListener('firebase-sync',event => { if (!event.detail?.key || event.detail.key === 'sh_lists') renderCounts(); });
     window.addEventListener('storage',event => { if (event.key === 'sh_lists') {updatePackPicker();renderCounts();} });
