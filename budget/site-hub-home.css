@@ -1,0 +1,33 @@
+/* Shared Overview return button; no redundant cross-document animation system. */
+:root{--hub-accent:#fdba74;--hub-accent-rgb:253,186,116}
+/* Same styling language as the active Shopping/Travel controls. */
+.site-hub-home{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:41px;padding:8px 13px;
+  flex:0 0 auto;min-width:0;
+  border:1px solid rgba(var(--hub-accent-rgb),.29);
+  border-radius:12px;
+  background:rgba(var(--hub-accent-rgb),.08);
+  color:var(--hub-accent);
+  box-shadow:0 0 18px rgba(var(--hub-accent-rgb),.055);
+  font:600 12px/1.3 Inter,system-ui,sans-serif;
+  white-space:nowrap;text-decoration:none;
+  transition:border-color .14s,background .14s,box-shadow .14s;
+}
+.site-hub-home svg{
+  display:block;width:17px;height:17px;flex:0 0 17px;
+  fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.site-hub-home:hover,.site-hub-home:focus-visible{
+  color:var(--hub-accent);
+  background:rgba(var(--hub-accent-rgb),.125);
+  border-color:rgba(var(--hub-accent-rgb),.5);
+  box-shadow:0 0 24px rgba(var(--hub-accent-rgb),.11);
+}
+.site-hub-home:focus-visible{outline:2px solid var(--hub-accent);outline-offset:3px}
+@media(max-width:420px){
+  .site-hub-home{min-height:40px;gap:6px;padding:8px 10px;font-size:11px}
+  .site-hub-home svg{width:16px;height:16px;flex-basis:16px}
+}
+@media(prefers-reduced-motion:reduce){.site-hub-home{transition:none}}
