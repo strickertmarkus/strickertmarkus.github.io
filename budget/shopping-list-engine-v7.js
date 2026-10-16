@@ -720,7 +720,7 @@
 
   function simplifyToolbarLabels() {
     document.querySelectorAll('.header-right-top .dropdown-btn').forEach(function (button) {
-      var next = String(button.textContent || '').replace(/^\s*☰\s*/, '').trim();
+      var next = String(button.textContent || '').replace(/^\s*\u2630\s*/, '').trim();
       if (next && button.textContent !== next) button.textContent = next;
     });
   }
