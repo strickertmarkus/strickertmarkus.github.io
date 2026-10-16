@@ -133,6 +133,11 @@
     resource.stage.style.opacity='1';
     if(!visible)resource.stage.style.clipPath='none';
   }
+  function lockHome(locked){
+    document.documentElement.classList.toggle('hub-morph-active',locked);
+    document.body.classList.toggle('hub-morph-active',locked);
+    if(app)app.inert=locked;
+  }
   async function openArea(job){
     if(!sources[job.area] || active===job.area)return;
     const tab=$('#home-tab-'+job.area);
@@ -156,23 +161,22 @@
         return;
       }
       // One fast button-origin radial animation; no separate View Transition.
+      lockHome(true);
       await animatePortal(resource,from,to,true,origin?.textContent.trim()||'');
+      if(job.id!==requestVersion){
+        stageVisibility(resource,false);
+        if(!previous)lockHome(false);
+        return;
+      }
       stageVisibility(resource,true);
       if(previous)stageVisibility(previous,false);
       active=job.area;
-      if(app)app.inert=true;
-      if(job.id===requestVersion && job.push){
-        history.pushState({hubMorph:job.area},'',sources[job.area]);
-      }
+      if(job.push)history.pushState({hubMorph:job.area},'',sources[job.area]);
       try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
       if(active!==job.area)stageVisibility(resource,false);
       if(previous)stageVisibility(previous,true);
-      else{
-        document.documentElement.classList.remove('hub-morph-active');
-        document.body.classList.remove('hub-morph-active');
-        if(app)app.inert=false;
-      }
+      else lockHome(false);
       if(job.id===requestVersion && job.push)location.assign(sources[job.area]);
     }finally{
       origin?.classList.remove('hub-loading');
@@ -194,9 +198,7 @@
     // Retain the reverse-to-Overview effect; no extra full-page render on return.
     try{await animatePortal(resource,from,to,false,view==='economy'?'Ekonomi':'Översikt');}catch(_){}
     stageVisibility(resource,false);
-    document.documentElement.classList.remove('hub-morph-active');
-    document.body.classList.remove('hub-morph-active');
-    if(app)app.inert=false;
+    lockHome(false);
     active=null;
     window.scrollTo(0,homeScroll);
     if(job.id===requestVersion){
