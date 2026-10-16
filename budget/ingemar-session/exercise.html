@@ -635,6 +635,11 @@
       --concept-timer-soft:var(--ingemar-workout-soft)!important;
       --concept-timer-rgb:var(--ingemar-workout-rgb)!important;
     }
+    /* Push digit uses the same neutral clock text as the pass/set timers.
+       The countdown drawing still keeps its original red accent and RGB. */
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="push"] body #session-pre-timer#session-pre-timer{
+      --concept-timer-soft:#CFFAFE!important;
+    }
     html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone] body #session-pre-timer#session-pre-timer.show{
       background:radial-gradient(400px 270px at 50% 48%,rgba(var(--ingemar-workout-rgb),.08),transparent 72%),#080d14!important;
     }
