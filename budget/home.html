@@ -14,10 +14,7 @@
 <script src="auth-gate.js?v=20261015-list-tabs-home-boot-1"></script>
   <script src="firebase-sync.js?v=20261015-transfer-calc-v1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
-<script defer src="travel-model.js?v=20261013-workflows-1"></script>
-<script defer src="travel-store.js?v=20261013-workflows-1"></script>
-<script defer src="travel-home.js?v=20261013-workflows-1"></script>
-  <script defer src="home-travel-overview.js?v=20261016-1"></script>
+<!-- The full planner loads on demand in the Resor tab. -->
   <script defer src="family-todos-ui-v1.js?v=20261015-list-tabs-home-boot-2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1190,6 +1187,7 @@
   </section>
   <section id="home-economy" class="home-economy" role="tabpanel" aria-labelledby="home-tab-economy" hidden>
     <div class="home-section-heading"><span>FAMILJENS EKONOMI</span><h2>Månadens överblick</h2></div>
+    <div class="home-economy-snapshot" id="home-economy-snapshot" aria-live="polite"><p class="home-economy-muted">Hämtar månadens siffror…</p></div>
         <article class="widget shortcut-widget" id="transfer-widget">
           <div class="widget-head">
             <div class="widget-title">Månadens överföringar</div>
@@ -1233,9 +1231,13 @@
     </div>
   </section>
   <section id="home-travel" class="home-travel" role="tabpanel" aria-labelledby="home-tab-travel" hidden>
-    <div class="home-section-heading"><span>FAMILJENS RESOR</span><h2>Nästa äventyr</h2></div>
-    <a class="home-planner-link" href="travel.html">Öppna reseplaneraren <span aria-hidden="true">↗</span></a>
-    <div id="home-travel-cards"><p class="home-travel-empty">Hämtar sparade resor…</p></div>
+    <div class="home-travel-heading">
+      <div class="home-section-heading"><span>FAMILJENS RESOR</span><h2>Reseplaneraren</h2></div>
+      <a class="home-planner-link" href="travel.html">Öppna separat <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="home-planner-workspace">
+      <iframe id="home-travel-frame" title="Reseplaneraren med schema, packlista, budget, kartor och bokningar" data-src="travel.html?embed=home"></iframe>
+    </div>
   </section>
 </div>
 
@@ -2386,6 +2388,42 @@ function getTransferMonth(offset) {
   }) || null;
 }
 function getCurrentMonthTransfer() { return getTransferMonth(0); }
+
+// Compact, read-only current month facts from the same data as Familjebudget.
+function renderHomeEconomySnapshot() {
+  var root = document.getElementById('home-economy-snapshot');
+  if (!root) return;
+  var current = transferMonthInfo(0), row = getCurrentMonthTransfer();
+  if (!row) {
+    root.innerHTML = '<p class="home-economy-muted">Ingen budget finns sparad för ' + escHtml(current.month + ' ' + current.year)
+      + '. <a href="familjebudget.html">Öppna Familjebudget ↗</a></p>';
+    return;
+  }
+  var amount = function(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; };
+  var house = amount(row.husutgifter), ica = amount(row.ica), total = house + ica;
+  var data = getFamilyBudgetData();
+  var savings = data && Array.isArray(data.expenses)
+    ? data.expenses.filter(function(e) { return /sparande|buffert/i.test(String(e.name || '')); })
+        .reduce(function(sum, e) { return sum + amount(e.amount); }, 0)
+    : null;
+  var previous = getTransferMonth(-1);
+  var delta = previous ? total - amount(previous.husutgifter) - amount(previous.ica) : null;
+  var cells = [
+    ['Gemensamt totalt',fmtKr(total)],
+    ['Husutgifter',fmtKr(house)],
+    ['ICA-kort',fmtKr(ica)],
+    ['Planerat sparande',savings === null ? '—' : fmtKr(savings)]
+  ];
+  root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year)
+    + '</span><small>Från Familjebudget</small></div>'
+    + '<div class="home-economy-metrics">' + cells.map(function(cell) {
+        return '<div class="home-economy-metric"><span>' + escHtml(cell[0]) + '</span><strong>' + escHtml(cell[1]) + '</strong></div>';
+      }).join('') + '</div>'
+    + (delta === null ? '' : '<p class="home-economy-comparison">Gemensamt jämfört med '
+        + escHtml(transferMonthInfo(-1).month.toLowerCase())
+        + ': <strong>' + (delta > 0 ? '+' : delta < 0 ? '−' : '±') + escHtml(fmtKr(Math.abs(delta)))
+        + '</strong></p>');
+}
 function readTransferCalculatorIncomes() {
   var saved = parseJSON(localStorage.getItem(TRANSFER_CALC_INCOMES_KEY), {});
   return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
@@ -2454,11 +2492,12 @@ function selectHomeSection(section) {
     button.tabIndex = selected ? 0 : -1;
   });
   closeDayEventsPopup();
-  if (section === 'travel' && window.renderHomeTravel) window.renderHomeTravel();
-  if (economy) {
-    var widget = document.getElementById('transfer-widget');
-    if (!widget.classList.contains('open') && !widget.classList.contains('month-open')) toggleTransferPopup(true);
+  if (section === 'travel') {
+    // One planner, one store: only initialise the embedded workspace when opened.
+    var frame = document.getElementById('home-travel-frame');
+    if (frame && !frame.getAttribute('src') && frame.dataset.src) frame.src = frame.dataset.src;
   }
+  if (economy) renderHomeEconomySnapshot();
 }
 
 function renderTransferPopup() {
@@ -3020,6 +3059,10 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('firebase-sync', updateHomeListSummary);
   window.addEventListener('storage', updateHomeListSummary);
   updateHomeListSummary();
+  renderHomeEconomySnapshot();
+  window.addEventListener('storage', function(event) {
+    if (event.key === 'familjebudget_data') renderHomeEconomySnapshot();
+  });
   initCalendarFlatpickr();
   loadNotifSettings();
   document.querySelectorAll('[data-home-tab]').forEach(function(button, index, buttons) {
@@ -3089,6 +3132,7 @@ window.addEventListener('firebase-sync', function(event) {
     renderShoppingWidget();
   }
   if (key === 'familjebudget_data' || key === 'budgetTracker' || key === 'budgetTracker_maja' || key === TRANSFER_CALC_INCOMES_KEY) {
+    renderHomeEconomySnapshot();
     var widget = document.getElementById('transfer-widget');
     if (widget && widget.classList.contains('open')) renderTransferPopup();
     if (widget && widget.classList.contains('month-open')) renderMonthPopup();
