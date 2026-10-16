@@ -260,8 +260,9 @@
       saving=false;
       if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
       baseRaw=committed;lastRemote=committed;
+      const beforeMerge=lastLocal;
       lastLocal=JSON.stringify(mergeProfile(JSON.parse(raw),JSON.parse(lastLocal),JSON.parse(committed)));
-      client.apply(JSON.parse(lastLocal));cache(lastLocal);
+      if(lastLocal!==beforeMerge)client.apply(JSON.parse(lastLocal));cache(lastLocal);
       if(lastLocal===committed){
         setDirty(false);try{localStorage.removeItem(pendingKey);}catch(_){}
         setStatus('Synkat via Firebase');
