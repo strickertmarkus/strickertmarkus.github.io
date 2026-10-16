@@ -543,11 +543,12 @@ function editTravelNote(el){
    if(finished)return;
    finished=true;
    const next=cancel?original:input.value;
+   let shown=next;
    if(!cancel&&next!==original){
      try{await S.patch(row.id,{notes:next});}
-     catch(e){toast(e.message||'Kunde inte spara anteckningen.');}
+     catch(e){shown=original;toast(e.message||'Kunde inte spara anteckningen.');}
    }
-   if(el.isConnected){el.innerHTML=noteText(cancel?original:S.get(row.id)?.notes||next);render(true);}
+   if(el.isConnected){el.innerHTML=noteText(shown);render(true);}
  };
  input.addEventListener('keydown',event=>{
    if(event.key==='Escape'){event.stopPropagation();event.preventDefault();done(true);}
