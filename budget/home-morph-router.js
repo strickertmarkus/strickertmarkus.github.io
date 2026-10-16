@@ -17,6 +17,7 @@
   const sameSite=origin=>origin===location.origin;
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const app=$('.app-wrap');
+  let lastHomeFocus=null;
 
   function rect(el){
     if(!el)return null;
@@ -35,11 +36,19 @@
     frame.title=area==='lists'?'Listor – fullskärm':'Resor – fullskärm';
     frame.setAttribute('referrerpolicy','same-origin');
     frame.setAttribute('loading','eager');
+    stage.setAttribute('role','region');
+    stage.setAttribute('aria-label',frame.title);
     stage.appendChild(frame);
     document.body.appendChild(stage);
     let resolveLoad;
-    const loaded=new Promise(resolve=>{resolveLoad=resolve;});
-    frame.addEventListener('load',()=>resolveLoad(),{once:true});
+    const loaded=new Promise((resolve,reject)=>{
+      resolveLoad=resolve;
+      const limit=window.setTimeout(()=>reject(new Error('Fullskärmsvyn kunde inte laddas.')),12000);
+      frame.addEventListener('load',()=>{
+        window.clearTimeout(limit);
+        resolveLoad();
+      },{once:true});
+    });
     frame.src=sources[area]+'?hubFrame=1';
     const resource={stage,frame,loaded};
     frames.set(area,resource);
@@ -116,6 +125,7 @@
     busy=true;
     const tab=$('#home-tab-'+area);
     const origin=source||tab;
+    lastHomeFocus=document.activeElement;
     origin?.classList.add('hub-loading');
     const resource=makeStage(area);
     try{
@@ -134,12 +144,15 @@
       resource.stage.style.pointerEvents='auto';
       active=area;
       if(pushHistory)history.pushState({hubMorph:area},'',sources[area]);
+      if(app)app.inert=true;
+      try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
       // Never strand the user on a blank portal when a browser prevents iframe rendering.
       resource.stage.style.visibility='hidden';
       resource.stage.style.pointerEvents='none';
       document.documentElement.classList.remove('hub-morph-active');
       document.body.classList.remove('hub-morph-active');
+      if(app)app.inert=false;
       if(pushHistory)location.assign(sources[area]);
     }finally{
       origin?.classList.remove('hub-loading');
@@ -162,8 +175,10 @@
     resource.stage.style.pointerEvents='none';
     document.documentElement.classList.remove('hub-morph-active');
     document.body.classList.remove('hub-morph-active');
+    if(app)app.inert=false;
     active=null;
     window.scrollTo(0,homeScroll);
+    try{endingTab?.focus({preventScroll:true});}catch(_){endingTab?.focus();}
     busy=false;
     followPending();
   }
