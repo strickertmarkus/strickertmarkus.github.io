@@ -14,7 +14,6 @@
 <script src="auth-gate.js?v=20261016-svg-shell-1"></script>
   <script src="firebase-sync.js?v=20261015-transfer-calc-v1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
-  <script defer src="home-dashboard-enhancements.js?v=20261016-full-shopping-svg-8"></script>
   <script defer src="family-todos-ui-v1.js?v=20261016-svg-nav-1"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1029,7 +1028,9 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261016-full-shopping-svg-8">
+<link rel="stylesheet" href="home-sections.css?v=20261016-full-screen-1">
+<link rel="stylesheet" href="site-hub-transitions.css?v=20261016-full-screen-1">
+<script src="site-hub-navigation.js?v=20261016-full-screen-1"></script>
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261016-svg-theme-1"></script>
@@ -1072,11 +1073,11 @@
     </div>
   </header>
 
-  <nav class="home-section-tabs" role="tablist" aria-label="Home">
-    <button type="button" id="home-tab-overview" role="tab" aria-selected="true" aria-controls="home-overview" data-home-tab="overview">Översikt</button>
-    <button type="button" id="home-tab-economy" role="tab" aria-selected="false" aria-controls="home-economy" data-home-tab="economy" tabindex="-1">Ekonomi</button>
-    <button type="button" id="home-tab-lists" role="tab" aria-selected="false" aria-controls="home-lists" data-home-tab="lists" tabindex="-1">Listor</button>
-    <button type="button" id="home-tab-travel" role="tab" aria-selected="false" aria-controls="home-travel" data-home-tab="travel" tabindex="-1">Resor</button>
+  <nav class="home-section-tabs" aria-label="Huvudnavigation">
+    <button type="button" id="home-tab-overview" aria-pressed="true" aria-controls="home-overview" data-home-tab="overview">Översikt</button>
+    <button type="button" id="home-tab-economy" aria-pressed="false" aria-controls="home-economy" data-home-tab="economy">Ekonomi</button>
+    <a id="home-tab-lists" data-home-route="lists" href="shopping.html">Listor</a>
+    <a id="home-tab-travel" data-home-route="travel" href="travel.html">Resor</a>
   </nav>
   <section id="home-overview" role="tabpanel" aria-labelledby="home-tab-overview">
   <div class="filter-bar">
@@ -1170,9 +1171,6 @@
     </div>
   </div>
   </section>
-  <section id="home-lists" class="home-lists" role="tabpanel" aria-labelledby="home-tab-lists" hidden>
-    <iframe id="home-lists-frame" title="Inköpslista, packlista, att göra-lista, mallar och recept" data-src="shopping.html?embed=home&ui=20261016-small-toggles-2"></iframe>
-  </section>
   <section id="home-economy" class="home-economy" role="tabpanel" aria-labelledby="home-tab-economy" hidden>
     <div class="home-section-heading"><span>FAMILJENS EKONOMI</span><h2>Månadens överblick</h2></div>
     <div class="home-economy-snapshot" id="home-economy-snapshot" aria-live="polite"><p class="home-economy-muted">Hämtar månadens siffror…</p></div>
@@ -1218,9 +1216,7 @@
       <a href="analytics_maja.html">Majas analys <span aria-hidden="true"></span></a>
     </div>
   </section>
-  <section id="home-travel" class="home-travel" role="tabpanel" aria-labelledby="home-tab-travel" hidden>
-    <iframe id="home-travel-frame" title="Reseplaneraren med schema, packlista, budget, kartor och bokningar" data-src="travel.html?embed=home"></iframe>
-  </section>
+
 </div>
 
 <button class="fab" onclick="openEventModal()" title="Ny händelse">+</button>
@@ -2448,22 +2444,20 @@ function transferTableRows(majaIca, majaHouse, markusIca, markusHouse) {
 
 // Home sections share the existing calendar and finance components.
 function selectHomeSection(section) {
-  if (['overview','economy','lists','travel'].indexOf(section) < 0) section = 'overview';
-  var economy = section === 'economy';
+  if (section !== 'economy') section = 'overview';
   document.body.dataset.homeSection = section;
-  ['overview','economy','lists','travel'].forEach(function(name) { document.getElementById('home-' + name).hidden = name !== section; });
+  ['overview','economy'].forEach(function(name) {
+    document.getElementById('home-' + name).hidden = name !== section;
+  });
   document.querySelectorAll('[data-home-tab]').forEach(function(button) {
-    var selected = button.dataset.homeTab === section;
-    button.setAttribute('aria-selected', String(selected));
-    button.tabIndex = selected ? 0 : -1;
+    button.setAttribute('aria-pressed', String(button.dataset.homeTab === section));
   });
   closeDayEventsPopup();
-  if (section === 'lists' || section === 'travel') {
-    // Show the real application within the Home tab without duplicating its state.
-    var frame = document.getElementById(section === 'lists' ? 'home-lists-frame' : 'home-travel-frame');
-    if (frame && !frame.getAttribute('src') && frame.dataset.src) frame.src = frame.dataset.src;
-  }
-  if (economy) renderHomeEconomySnapshot();
+  var url = new URL(location.href);
+  if (section === 'economy') url.searchParams.set('view','economy');
+  else url.searchParams.delete('view');
+  if (url.href !== location.href) history.replaceState(history.state,'',url.href);
+  if (section === 'economy') renderHomeEconomySnapshot();
 }
 
 function renderTransferPopup() {
@@ -3022,7 +3016,12 @@ document.addEventListener('DOMContentLoaded', function() {
   initCalendarFlatpickr();
   loadNotifSettings();
   document.querySelectorAll('[data-home-tab]').forEach(function(button, index, buttons) {
-    button.addEventListener('click', function() { selectHomeSection(button.dataset.homeTab); });
+    button.addEventListener('click', function() {
+      var next = button.dataset.homeTab;
+      if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.startViewTransition(function(){ selectHomeSection(next); });
+      } else selectHomeSection(next);
+    });
     button.addEventListener('keydown', function(event) {
       var next;
       if (event.key === 'ArrowRight') next = buttons[(index + 1) % buttons.length];
@@ -3032,6 +3031,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (next) { event.preventDefault(); next.focus(); selectHomeSection(next.dataset.homeTab); }
     });
   });
+  selectHomeSection(new URLSearchParams(location.search).get('view') === 'economy' ? 'economy' : 'overview');
   var holidayToggle = document.getElementById('home-show-holidays');
   if (holidayToggle && window.SwedishHolidays) {
     holidayToggle.checked = window.SwedishHolidays.isEnabled();
