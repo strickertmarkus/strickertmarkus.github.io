@@ -582,7 +582,7 @@
     button.id = 'home-blue-theme-config-v1';
     button.className = 'home-blue-theme-config-v1';
     button.setAttribute('aria-pressed','false');
-    button.innerHTML = '<span class="nav-icon" aria-hidden="true">🔵</span><span>Blått tema</span><span class="home-blue-theme-check-v1" aria-hidden="true"></span>';
+    button.innerHTML = '<span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" style="display:block;color:#38bdf8"><circle cx="8" cy="8" r="5" fill="currentColor"/><circle cx="8" cy="8" r="6.6" stroke="currentColor" fill="none" opacity=".22"/></svg></span><span>Blått tema</span><span class="home-blue-theme-check-v1" aria-hidden="true"></span>';
     button.addEventListener('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
