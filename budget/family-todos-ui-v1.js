@@ -269,7 +269,7 @@
 
 
       /* Shopping – the Home list language, with the full feature set tucked into quiet details. */
-      .ft-shopping{padding:13px 15px 18px;border-radius:16px}
+      .ft-shopping{width:100%;max-width:1050px;margin:0 auto;padding:5px 2px 28px;border:0;border-radius:0;background:transparent;box-shadow:none}
       .ft-shopping .ft-head{margin:0 0 10px;padding:0 0 10px;flex-wrap:nowrap}
       .ft-shopping .ft-title{font-size:16px;font-weight:700;letter-spacing:0}
       .ft-shopping .ft-subtitle{margin-top:3px}
