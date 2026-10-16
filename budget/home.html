@@ -14,9 +14,7 @@
 <script src="auth-gate.js?v=20261015-list-tabs-home-boot-1"></script>
   <script src="firebase-sync.js?v=20261015-transfer-calc-v1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
-  <script defer src="travel-model.js?v=20261013-workflows-1"></script>
-  <script defer src="travel-store.js?v=20261013-workflows-1"></script>
-  <script defer src="home-dashboard-enhancements.js?v=20261016-list-travel-2"></script>
+  <script defer src="home-dashboard-enhancements.js?v=20261016-lists-only-3"></script>
   <script defer src="family-todos-ui-v1.js?v=20261015-list-tabs-home-boot-2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1031,7 +1029,7 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261016-list-travel-seamless-4">
+<link rel="stylesheet" href="home-sections.css?v=20261016-no-overview-cards-5">
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261016-sections-1"></script>
@@ -1152,16 +1150,6 @@
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
       </div>
 
-      <button type="button" class="home-list-summary" id="home-list-summary" aria-controls="home-lists">
-        <span class="home-list-summary-title">Listor</span>
-        <span id="home-list-summary-count">0 inköp · 0 uppgifter kvar</span>
-        <span class="home-list-summary-arrow" aria-hidden="true">↗</span>
-      </button>
-      <button type="button" class="home-next-trip" id="home-next-trip" hidden aria-controls="home-travel">
-        <span class="home-next-trip-label">NÄSTA RESA <span aria-hidden="true">↗</span></span>
-        <strong id="home-next-trip-name"></strong>
-        <span id="home-next-trip-details"></span>
-      </button>
       <div id="home-overview-widgets" class="home-overview-widgets">
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
@@ -2482,14 +2470,6 @@ function transferTableRows(majaIca, majaHouse, markusIca, markusHouse) {
 }
 
 // Home sections share the existing calendar and finance components.
-function updateHomeListSummary() {
-  var count = document.getElementById('home-list-summary-count');
-  if (!count) return;
-  var shopping = getVisibleShoppingItems(getCurrentShoppingList()).filter(function(item) { return !item.checked; }).length;
-  var tasks = window.FamilyTodos ? window.FamilyTodos.list().filter(function(task) { return !task.done; }).length : 0;
-  count.textContent = shopping + ' inköp · ' + tasks + (tasks === 1 ? ' uppgift kvar' : ' uppgifter kvar');
-}
-
 function selectHomeSection(section) {
   if (['overview','economy','lists','travel'].indexOf(section) < 0) section = 'overview';
   var economy = section === 'economy';
@@ -3063,16 +3043,6 @@ document.addEventListener('DOMContentLoaded', function() {
   var transferCloseBtn = document.getElementById('transfer-close-btn');
   var monthCloseBtn = document.getElementById('month-close-btn');
 
-  document.getElementById('home-list-summary').addEventListener('click', function() {
-    selectHomeSection('lists');
-    document.getElementById('home-tab-lists').focus({preventScroll:true});
-    window.scrollTo({top:0,behavior:'instant'});
-  });
-  new MutationObserver(updateHomeListSummary).observe(document.getElementById('shopping-items'), {childList:true,subtree:true,attributes:true});
-  window.addEventListener('family-todos-change', updateHomeListSummary);
-  window.addEventListener('firebase-sync', updateHomeListSummary);
-  window.addEventListener('storage', updateHomeListSummary);
-  updateHomeListSummary();
   renderHomeEconomySnapshot();
   window.addEventListener('storage', function(event) {
     if (event.key === 'familjebudget_data') renderHomeEconomySnapshot();
