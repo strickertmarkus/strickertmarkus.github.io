@@ -128,16 +128,19 @@
     const resource=makeStage(area);
     try{
       await resource.loaded;
-      // Wait for the child layout and its first paint, rather than revealing an empty canvas.
-      await nextFrame();
       const sourceRect=rect(origin)||rect(tab);
       const buttonRect=pillTarget(resource);
       homeScroll=window.scrollY;
+      // Paint the destination beneath a chip-sized clipping mask before expanding it.
+      // This prevents the first iframe paint becoming a visible rectangular flash.
+      resource.stage.style.clipPath=insetFrom(sourceRect,resource.stage);
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='none';
+      await nextFrame();
       document.documentElement.classList.add('hub-morph-active');
       document.body.classList.add('hub-morph-active');
       await animatePortal(resource,sourceRect,buttonRect,true,origin?.textContent.trim()||'');
+      resource.stage.style.clipPath='';
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='auto';
       active=area;
@@ -148,6 +151,7 @@
       // Never strand the user on a blank portal when a browser prevents iframe rendering.
       resource.stage.style.visibility='hidden';
       resource.stage.style.pointerEvents='none';
+      resource.stage.style.clipPath='';
       document.documentElement.classList.remove('hub-morph-active');
       document.body.classList.remove('hub-morph-active');
       if(app)app.inert=false;
