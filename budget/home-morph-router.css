@@ -29,19 +29,3 @@ html.hub-morph-active,body.hub-morph-active{overflow:hidden!important;overscroll
 @media(prefers-reduced-motion:reduce){
  .hub-morph-ghost{display:none}
 }
-/* Opening uses the exact same document View Transition snapshot mechanism
-   as Översikt ↔ Ekonomi, not the circular mask used for returning home. */
-html.hub-vt-opening .home-section-tabs>#home-tab-overview,
-html.hub-vt-opening .home-section-tabs>a[data-home-route]{
- view-transition-name:none!important;
-}
-html.hub-vt-opening::view-transition-old(root){
- animation:hub-root-out 125ms ease-out both;
-}
-html.hub-vt-opening::view-transition-new(root){
- animation:hub-root-in 190ms cubic-bezier(.22,1,.36,1) both;
-}
-@media(prefers-reduced-motion:reduce){
- html.hub-vt-opening::view-transition-old(root),
- html.hub-vt-opening::view-transition-new(root){animation-duration:.01ms!important}
-}
