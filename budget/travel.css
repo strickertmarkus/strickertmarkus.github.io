@@ -80,3 +80,87 @@
 
 /* Prevent iOS text zoom while keeping non-editing list rows compact. */
 .packing-group .pack-item-text[contenteditable=true],.packing-group .pack-group-name[contenteditable=true]{font-size:16px;line-height:1.45}
+
+
+/* 2026-10-16: compact Home-style rows and direct editing in Travel.
+   The detail editor remains available for genuinely advanced metadata. */
+.travel-task-row{
+  display:grid;grid-template-columns:19px minmax(0,1fr) 30px;
+  gap:8px;align-items:center;min-height:42px;margin:0;padding:6px 3px;
+  border-bottom:1px solid #ffffff12;background:transparent;border-radius:0;
+}
+.travel-task-row .info{min-width:0}
+.travel-task-row .info>.title{font-size:14px;line-height:1.35}
+.travel-task-row .travel-task-meta{display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap}
+.travel-task-row .travel-task-owner,
+.travel-task-row .travel-task-date{
+  display:inline-flex;align-items:center;gap:5px;min-height:22px;
+  border:0;background:none;padding:0;color:var(--muted);font-size:11px;
+  font-weight:500;text-align:left;cursor:pointer
+}
+.travel-task-row .travel-task-owner:hover,.travel-task-row .travel-task-owner:focus-visible,
+.travel-task-row .travel-task-date:hover,.travel-task-row .travel-task-date:focus-visible{color:var(--accent)}
+.travel-owner-dot{
+  display:inline-block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;
+  background:var(--travel-owner-color,#FDBA74);
+  box-shadow:0 0 10px var(--travel-owner-color,#FDBA74);
+}
+.travel-task-priority{font-size:10px;color:var(--accent);letter-spacing:0}
+.travel-task-more{
+  display:grid;place-items:center;width:30px;min-width:30px;height:30px;min-height:30px;
+  padding:0;border:0;border-radius:8px;background:transparent;
+  color:var(--muted);font-size:17px;line-height:1;letter-spacing:1px
+}
+.travel-task-more:hover,.travel-task-more:focus-visible{color:var(--accent);background:#fdba7410}
+.travel-inline-title{
+  cursor:text;outline:none;user-select:text;-webkit-user-select:text;
+  overflow-wrap:anywhere;white-space:pre-wrap;border:1px solid transparent;
+  border-radius:6px;padding:2px 5px;margin:-2px -5px;
+}
+.travel-inline-title:hover:not([contenteditable=true]){color:var(--accent)}
+.travel-inline-title[contenteditable=true]{
+  font-size:16px;line-height:1.4;min-height:31px;
+  padding:4px 6px;margin:-4px -6px;color:var(--ink);text-decoration:none;
+  background:#fdba7410;border-color:#fdba747a;
+  box-shadow:0 0 0 2px #fdba7412;
+}
+.travel-task-row.done .travel-inline-title[contenteditable=true]{color:var(--ink);text-decoration:none}
+.travel-inline-title:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.travel-task-inline-control{
+  width:100%;max-width:175px;min-height:36px;height:36px;box-sizing:border-box;
+  padding:5px 8px;font-size:16px;color:var(--ink);
+  border:1px solid #fdba7477;border-radius:8px;background:#1b222d;
+  outline:none;box-shadow:0 0 0 2px #fdba7410
+}
+.travel-task-date-input{max-width:180px}
+.travel-task-quick{
+  display:grid;grid-template-columns:minmax(0,1fr) 37px;align-items:center;
+  gap:6px;padding:6px 0 4px;margin:0;background:none;border:0
+}
+.travel-task-quick>input[name=title]{
+  min-width:0;min-height:38px;font-size:16px;padding:8px 10px;
+  border-radius:9px;background:transparent
+}
+.travel-task-quick>[data-quick-submit]{
+  min-width:36px;width:36px;min-height:36px;padding:0;
+  border-radius:8px;font-size:19px
+}
+.travel-task-quick-more{
+  grid-column:1/-1;border:0;background:none;padding:0;margin:0
+}
+.travel-task-quick-more>summary,.travel-task-filters>summary{
+  list-style:none;width:max-content;max-width:100%;min-height:25px;
+  padding:4px 2px;color:var(--muted);font-size:11px;cursor:pointer
+}
+.travel-task-quick-more>summary::-webkit-details-marker,
+.travel-task-filters>summary::-webkit-details-marker{display:none}
+.travel-task-quick-more[open]>summary,.travel-task-filters[open]>summary,
+.travel-task-quick-more>summary:hover,.travel-task-filters>summary:hover{color:var(--accent)}
+.travel-task-quick-more select{width:min(100%,220px);min-height:37px;font-size:16px}
+.travel-task-filters{margin:1px 0 11px}
+.travel-task-filters>.filters{margin:4px 0 8px}
+@media(max-width:440px){
+ .travel-task-row{gap:7px;min-height:41px;padding:5px 3px}
+ .travel-task-row .info>.title{font-size:13px}
+ .travel-task-quick{gap:5px}
+}
