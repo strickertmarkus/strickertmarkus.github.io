@@ -20,9 +20,19 @@
       },location.origin);
       return;
     }
-    // Leaving the embedded full-screen application for other areas must
-    // navigate the top page, never load an unrelated app inside the frame.
+    // Keep Listor ↔ Resor under the SAME Home router, not as a second
+    // independent navigation that could reopen a stale previous page.
     const own=location.pathname.split('/').pop();
+    if(leaf!==own && (leaf==='shopping.html'||leaf==='travel.html')){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.parent.postMessage({
+        type:'hub:open-area',
+        area:leaf==='shopping.html'?'lists':'travel'
+      },location.origin);
+      return;
+    }
+    // Other full pages must never open inside the framed application.
     if(leaf!==own && leaf.endsWith('.html')){
       event.preventDefault();
       event.stopImmediatePropagation();
