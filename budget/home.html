@@ -1026,12 +1026,12 @@
 <script src="calendar-picker-fix-v3.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="calendar-followups-v4.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
-<script src="home-calendar-polish-v5-base-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="home-calendar-polish-v5-base-20260911.js?v=20261016-menu-notifications-1"></script>
 <script src="home-calendar-polish-v5-preview-delete-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261016-2">
+<link rel="stylesheet" href="home-sections.css?v=20261016-lists-1">
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261016-sections-1"></script>
@@ -1051,6 +1051,10 @@
     <div class="nav-dropdown-wrapper">
       <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation">☰</button>
       <div class="nav-dropdown-menu" id="nav-menu">
+        <button type="button" class="home-menu-notifications" id="home-notifications" role="switch" aria-checked="false" aria-label="Notiser">
+          <span>Notiser</span><span class="home-notification-state" aria-hidden="true">Av</span><span class="home-notification-track" aria-hidden="true"></span>
+        </button>
+        <div class="nav-sep"></div>
         <a href="home.html"><span class="nav-icon" aria-hidden="true">⌂</span> Startsida</a>
         <div class="nav-sep"></div>
         <a href="budget.html"><span class="nav-icon" aria-hidden="true">¤</span> Markus Budget</a>
@@ -1073,6 +1077,7 @@
   <nav class="home-section-tabs" role="tablist" aria-label="Home">
     <button type="button" id="home-tab-overview" role="tab" aria-selected="true" aria-controls="home-overview" data-home-tab="overview">Översikt</button>
     <button type="button" id="home-tab-economy" role="tab" aria-selected="false" aria-controls="home-economy" data-home-tab="economy" tabindex="-1">Ekonomi</button>
+    <button type="button" id="home-tab-lists" role="tab" aria-selected="false" aria-controls="home-lists" data-home-tab="lists" tabindex="-1">Listor</button>
   </nav>
   <section id="home-overview" role="tabpanel" aria-labelledby="home-tab-overview">
   <div class="filter-bar">
@@ -1082,7 +1087,6 @@
     <div class="member-chip active" data-member="mila">💗 <span>Mila</span></div>
     <div class="member-chip active" data-member="melker">🟢 <span>Melker</span></div>
     <div class="member-chip active" data-member="family">⭐ <span>Familjen</span></div>
-    <button class="btn-notif" onclick="toggleNotifPanel()" aria-label="Notiser">🔔</button>
   </div>
 
   <!-- NOTIF PANEL -->
@@ -1147,6 +1151,18 @@
         <div id="upcoming-list"><div class="empty-sidebar">Inga kommande händelser</div></div>
       </div>
 
+      <button type="button" class="home-list-summary" id="home-list-summary" aria-controls="home-lists">
+        <span class="home-list-summary-title">Listor</span>
+        <span id="home-list-summary-count">0 inköp · 0 uppgifter kvar</span>
+        <span class="home-list-summary-arrow" aria-hidden="true">↗</span>
+      </button>
+
+    </div>
+  </div>
+  </section>
+  <section id="home-lists" class="home-lists" role="tabpanel" aria-labelledby="home-tab-lists" hidden>
+    <div class="home-section-heading"><span>FAMILJENS LISTOR</span><h2>Inköp &amp; att göra</h2></div>
+    <div class="home-lists-grid">
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
           <div class="widget-title">Inköpslista</div>
@@ -1161,9 +1177,7 @@
       </article>
 
       <article class="widget backup-copy" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
-
     </div>
-  </div>
   </section>
   <section id="home-economy" class="home-economy" role="tabpanel" aria-labelledby="home-tab-economy" hidden>
     <div class="home-section-heading"><span>FAMILJENS EKONOMI</span><h2>Månadens överblick</h2></div>
@@ -2400,13 +2414,21 @@ function transferTableRows(majaIca, majaHouse, markusIca, markusHouse) {
 }
 
 // Home sections share the existing calendar and finance components.
+function updateHomeListSummary() {
+  var count = document.getElementById('home-list-summary-count');
+  if (!count) return;
+  var shopping = getVisibleShoppingItems(getCurrentShoppingList()).filter(function(item) { return !item.checked; }).length;
+  var tasks = window.FamilyTodos ? window.FamilyTodos.list().filter(function(task) { return !task.done; }).length : 0;
+  count.textContent = shopping + ' inköp · ' + tasks + (tasks === 1 ? ' uppgift kvar' : ' uppgifter kvar');
+}
+
 function selectHomeSection(section) {
+  if (['overview','economy','lists'].indexOf(section) < 0) section = 'overview';
   var economy = section === 'economy';
-  document.body.dataset.homeSection = economy ? 'economy' : 'overview';
-  document.getElementById('home-overview').hidden = economy;
-  document.getElementById('home-economy').hidden = !economy;
+  document.body.dataset.homeSection = section;
+  ['overview','economy','lists'].forEach(function(name) { document.getElementById('home-' + name).hidden = name !== section; });
   document.querySelectorAll('[data-home-tab]').forEach(function(button) {
-    var selected = button.dataset.homeTab === (economy ? 'economy' : 'overview');
+    var selected = button.dataset.homeTab === section;
     button.setAttribute('aria-selected', String(selected));
     button.tabIndex = selected ? 0 : -1;
   });
@@ -2966,13 +2988,24 @@ document.addEventListener('DOMContentLoaded', function() {
   var transferCloseBtn = document.getElementById('transfer-close-btn');
   var monthCloseBtn = document.getElementById('month-close-btn');
 
+  document.getElementById('home-list-summary').addEventListener('click', function() {
+    selectHomeSection('lists');
+    document.getElementById('home-tab-lists').focus({preventScroll:true});
+    window.scrollTo({top:0,behavior:'instant'});
+  });
+  new MutationObserver(updateHomeListSummary).observe(document.getElementById('shopping-items'), {childList:true,subtree:true,attributes:true});
+  window.addEventListener('family-todos-change', updateHomeListSummary);
+  window.addEventListener('firebase-sync', updateHomeListSummary);
+  window.addEventListener('storage', updateHomeListSummary);
+  updateHomeListSummary();
   initCalendarFlatpickr();
   loadNotifSettings();
   document.querySelectorAll('[data-home-tab]').forEach(function(button, index, buttons) {
     button.addEventListener('click', function() { selectHomeSection(button.dataset.homeTab); });
     button.addEventListener('keydown', function(event) {
       var next;
-      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') next = buttons[(index + 1) % buttons.length];
+      if (event.key === 'ArrowRight') next = buttons[(index + 1) % buttons.length];
+      else if (event.key === 'ArrowLeft') next = buttons[(index + buttons.length - 1) % buttons.length];
       else if (event.key === 'Home') next = buttons[0];
       else if (event.key === 'End') next = buttons[buttons.length - 1];
       if (next) { event.preventDefault(); next.focus(); selectHomeSection(next.dataset.homeTab); }
@@ -3052,6 +3085,6 @@ window.addEventListener('firebase-sync', function(event) {
   });
 })();
 </script>
-<script src="push-notifications.js?v=20260831-push-v1"></script>
+<script src="push-notifications.js?v=20261016-menu-notifications-1"></script>
 </body>
 </html>

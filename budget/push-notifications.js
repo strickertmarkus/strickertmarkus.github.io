@@ -110,7 +110,7 @@
       '<div class="push-notif-hint">Schemalagda påminnelser kontrolleras ungefär var femte minut. Händelsen måste ha en starttid och en vald påminnelse.</div>';
 
     var mobileBell = document.getElementById('push-mobile-bell');
-    if (!mobileBell) {
+    if (!mobileBell && !document.getElementById('home-notifications')) {
       var header = document.querySelector('.app-header');
       if (header) {
         mobileBell = document.createElement('button');

@@ -54,42 +54,18 @@
   }
 
   function syncNotificationSwitch() {
-    var button = document.querySelector('.app-header .home-notif-switch-v7');
+    var button = document.getElementById('home-notifications');
     if (!button) return;
     var checkbox = document.getElementById('notif-enabled');
     var enabled = checkbox ? !!checkbox.checked : storedNotificationEnabled();
-    button.classList.toggle('is-on', enabled);
+    button.querySelector('.home-notification-state').textContent = enabled ? 'På' : 'Av';
     button.setAttribute('aria-checked', enabled ? 'true' : 'false');
     button.setAttribute('title', enabled ? 'Notiser: På' : 'Notiser: Av');
   }
 
   function setupNotificationSwitch() {
-    var header = document.querySelector('.app-header');
-    if (!header) return;
-
-    var button = header.querySelector('.btn-notif.home-notif-switch-v7') ||
-      document.querySelector('.filter-bar .btn-notif') ||
-      document.querySelector('.btn-notif');
-    if (!button) {
-      button = document.createElement('button');
-      button.className = 'btn-notif';
-    }
-
-    document.querySelectorAll('.app-header .btn-notif, .filter-bar .btn-notif').forEach(function (extra) {
-      if (extra !== button) extra.remove();
-    });
-
-    button.removeAttribute('onclick');
-    button.classList.remove('home-notif-toggle-v6','is-open');
-    button.classList.add('home-notif-switch-v7');
-    button.type = 'button';
-    button.setAttribute('role','switch');
-    button.setAttribute('aria-label','Notiser');
-    button.setAttribute('aria-expanded','false');
-    if (!button.querySelector('.home-notif-bell-v8')) {
-      button.innerHTML = '<span class="home-notif-knob-v7" aria-hidden="true"><svg class="home-notif-bell-v8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>';
-    }
-    if (button.parentElement !== header) header.appendChild(button);
+    var button = document.getElementById('home-notifications');
+    if (!button) return;
 
     if (!button.__homeNotifSwitchV7Bound) {
       button.__homeNotifSwitchV7Bound = true;
