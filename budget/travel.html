@@ -4,8 +4,8 @@
 <script>if(new URLSearchParams(location.search).get('embed')==='home')document.documentElement.classList.add('travel-embedded');</script>
 <style>
 /* Embedded in Home: keep all editing, dialogs and sections, skip the duplicate page chrome. */
-html.travel-embedded body{background:#0f1219;overflow:hidden}
-html.travel-embedded{overflow:hidden;--home-visible-height:700px;--home-dialog-center:350px}
+html.travel-embedded body{background:#0f1219;overflow-x:hidden}
+html.travel-embedded{--home-visible-height:700px;--home-dialog-center:350px}
 html.travel-embedded dialog[open]{position:fixed!important;inset:auto!important;top:var(--home-dialog-center)!important;left:50%!important;transform:translate(-50%,-50%);margin:0!important;max-height:calc(var(--home-visible-height) - 24px)!important}
 html.travel-embedded #viewer[open]{height:calc(var(--home-visible-height) - 24px)!important}
 html.travel-embedded #viewer[open] .viewer-image{max-height:calc(var(--home-visible-height) - 190px)}
