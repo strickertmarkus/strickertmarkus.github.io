@@ -229,7 +229,7 @@ function taskRow(x){
  '</div>'+linked(x,'bookingId')+'</div>'+
  '<button type="button" data-edit="'+id+'" class="travel-task-more" aria-label="Fler inställningar för '+title+'">···</button></div>';
 }
-function tasks(){const rows=list('task').filter(x=>(!filters.taskOwner||x.owner===filters.taskOwner)&&(filters.taskStatus==='all'||!!x.done===(filters.taskStatus==='done')));const group=x=>x.taskKind==='unsorted'?'Behöver sorteras':x.done?'Klart':x.date&&x.date<currentDay()?'Försenat':x.date&&x.date<=M.addDays(currentDay(),7)?'Snart':'Senare';return '<div class="filters">'+selectFilter('taskOwner','Ansvarig',members(),'Alla')+selectFilter('taskStatus','Visa',[['all','Alla'],['todo','Kvar'],['done','Klart']])+'</div>'+quickForm('task')+['Behöver sorteras','Försenat','Snart','Senare','Klart'].map(g=>{const items=rows.filter(x=>group(x)===g).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));if(!items.length)return '';return '<section><div class="day-heading">'+g+' · '+items.length+'</div>'+(g==='Behöver sorteras'?'<p class="muted">Äldre poster är kvar. Välj var varje post hör hemma.</p>':'')+items.map(x=>taskRow(x)+(g==='Behöver sorteras'?'<div class="inline-actions">'+btn('data-classify="'+x.id+'|packing"','Till packlistan')+btn('data-classify="'+x.id+'|task"','Behåll som uppgift')+'</div>':'')).join('')+'</section>';}).join('')+(!rows.length?empty('Inga uppgifter här ännu. Lägg till den första ovan.'):'');}
+function tasks(){const rows=list('task').filter(x=>(!filters.taskOwner||x.owner===filters.taskOwner)&&(filters.taskStatus==='all'||!!x.done===(filters.taskStatus==='done')));const group=x=>x.taskKind==='unsorted'?'Behöver sorteras':x.done?'Klart':x.date&&x.date<currentDay()?'Försenat':x.date&&x.date<=M.addDays(currentDay(),7)?'Snart':'Senare';return quickForm('task')+'<details class="travel-task-filters"><summary>Filtrera uppgifter</summary><div class="filters">'+selectFilter('taskOwner','Ansvarig',members(),'Alla')+selectFilter('taskStatus','Visa',[['all','Alla'],['todo','Kvar'],['done','Klart']])+'</div></details>'+['Behöver sorteras','Försenat','Snart','Senare','Klart'].map(g=>{const items=rows.filter(x=>group(x)===g).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));if(!items.length)return '';return '<section><div class="day-heading">'+g+' · '+items.length+'</div>'+(g==='Behöver sorteras'?'<p class="muted">Äldre poster är kvar. Välj var varje post hör hemma.</p>':'')+items.map(x=>taskRow(x)+(g==='Behöver sorteras'?'<div class="inline-actions">'+btn('data-classify="'+x.id+'|packing"','Till packlistan')+btn('data-classify="'+x.id+'|task"','Behåll som uppgift')+'</div>':'')).join('')+'</section>';}).join('')+(!rows.length?empty('Inga uppgifter här ännu. Lägg till den första ovan.'):'');}
 function expenses(){const rows=list('expense'),plans=list('categoryBudget'),sum=M.budget(rows,plans),balance=M.settlement(rows);const cats=[...new Set([...M.categories,...Object.keys(sum.groups)])];return '<div class="segmented">'+[['plan','Planera'],['actual','Utgifter'],['split','Fördelning']].map(([key,label])=>btn('data-budget="'+key+'"',label,filters.budget===key?'active':'')).join('')+'</div><div class="grid budget-summary"><article class="card metric"><small>TOTAL BUDGET</small><strong>'+money(trip().budget)+'</strong>'+btn('data-edit="'+tripId+'"','Ändra budget','text-button')+'</article><article class="card metric"><small>BETALAT</small><strong>'+money(sum.actual)+'</strong></article><article class="card metric"><small>KVAR</small><strong class="'+(sum.actual>Number(trip().budget)?'warning':'')+'">'+money(Number(trip().budget||0)-sum.actual)+'</strong></article></div>'+(filters.budget==='plan'?'<div class="section-subhead"><p>Fördelat: '+money(sum.planned)+'</p>'+btn('data-new="categoryBudget"','+ Egen kategori')+'</div><div class="budget-categories">'+cats.map(c=>{const p=plans.find(x=>x.title===c),s=sum.groups[c]||{planned:0,actual:0};return '<article class="budget-category"><div><h3>'+esc(c)+'</h3><small>'+money(s.actual)+' förbrukat · '+money(s.planned-s.actual)+' kvar</small>'+bar(s.actual,s.planned)+'</div>'+btn('data-category="'+esc(c)+'"'+(p?' data-category-id="'+p.id+'"':''),money(s.planned)+' <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:3px"><path d="m4 20 4-.8 11-11a2 2 0 0 0-3-3l-11 11L4 20ZM14 7l3 3"/></svg>')+'</article>';}).join('')+'</div><div class="day-heading">Planerade kostnader</div>'+rows.filter(x=>x.planned!=null&&Number(x.planned)>0).map(expenseRow).join(''):filters.budget==='actual'?'<p class="muted caption">Negativt belopp registrerar en återbetalning. Valutakursen sparas med varje betalning.</p><div class="expense-list">'+(rows.filter(x=>x.actual!=null).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(expenseRow).join('')||empty('Inga betalningar registrerade ännu.'))+'</div>':'<p class="muted">Endast utgifter med betalare och fördelning ingår. Positivt saldo betyder att personen har lagt ut mer än sin andel.</p><div class="split-list">'+Object.entries(balance.balances).map(([n,b])=>'<article class="budget-category"><div><h3>'+esc(n)+'</h3><small>Betalat '+money(balance.paid[n]||0)+'</small></div><strong>'+money(b)+'</strong></article>').join('')+'</div><p class="caption muted">'+rows.filter(x=>x.actual!=null&&(!x.payer||!x.splits?.length)).length+' betalningar saknar fullständig fördelning.</p>');}
 function expenseRow(x){return '<article class="expense-row"><div><h3 class="travel-inline-title" data-travel-title="'+esc(x.id)+'" tabindex="0" role="button" aria-label="Redigera '+esc(x.title)+'">'+esc(x.title)+'</h3><small>'+esc([x.category,x.date,x.payer].filter(Boolean).join(' · '))+'</small><p>'+ (x.actual==null?'Ännu inte betalt':money(x.actual,x.currency))+(x.currency!==trip().currency&&x.actual!=null?' → '+money(M.amount(x))+' · kurs '+esc(x.rate):'')+'</p>'+linked(x,'bookingId')+linked(x,'receiptId')+'</div><div class="row-actions">'+btn('data-edit="'+x.id+'"','Ändra')+(x.actual==null?btn('data-pay="'+x.id+'"','Registrera betalning'):'')+'</div></article>';}
 function bookingPayment(x){const rows=list('expense').filter(e=>e.bookingId===x.id),actual=rows.reduce((s,e)=>s+M.amount(e),0);return rows.some(e=>e.actual!=null)?(Number(x.total)>0&&actual>=Number(x.total)?'Betalt':actual>0?'Delbetalt':'Obetalt'):x.paymentStatus||'Obetalt';}
@@ -456,6 +456,102 @@ window.addEventListener('resize',positionPackingFilter,{passive:true});
 window.addEventListener('scroll',positionPackingFilter,{passive:true});
 window.visualViewport?.addEventListener('resize',positionPackingFilter,{passive:true});
 window.visualViewport?.addEventListener('scroll',positionPackingFilter,{passive:true});
+
+
+/* Inline editing follows the same tap → edit → Enter/blur save flow as the packlist. */
+let travelTitleEdit=null;
+function startTravelTitleEdit(el){
+ if(!el||!el.dataset.travelTitle||el.isContentEditable)return;
+ if(travelTitleEdit&&travelTitleEdit.el!==el)finishTravelTitleEdit(travelTitleEdit.el);
+ const record=S.get(el.dataset.travelTitle);
+ if(!record || record.deleted)return;
+ travelTitleEdit={el,id:record.id,original:record.title||'',tripId};
+ el.contentEditable='true';
+ el.spellcheck=true;
+ el.classList.add('travel-title-editing');
+ el.removeAttribute('role');
+ try{
+   el.focus({preventScroll:true});
+   const selection=window.getSelection(),range=document.createRange();
+   range.selectNodeContents(el);range.collapse(false);selection.removeAllRanges();selection.addRange(range);
+ }catch(_){el.focus();}
+}
+async function finishTravelTitleEdit(el,cancel=false){
+ const entry=travelTitleEdit;
+ if(!entry||entry.el!==el)return;
+ travelTitleEdit=null;
+ const next=cancel?entry.original:String(el.textContent||'').replace(/\u00a0/g,' ').trim();
+ el.contentEditable='false';
+ el.classList.remove('travel-title-editing');
+ el.setAttribute('role','button');
+ if(cancel||next===entry.original){el.textContent=entry.original;return;}
+ if(!next||next.length>500){el.textContent=entry.original;toast('Ange en rubrik på högst 500 tecken.');return;}
+ el.textContent=next;
+ try{await S.patch(entry.id,{title:next});}
+ catch(err){el.textContent=entry.original;toast(err.message||'Kunde inte spara ändringen.');}
+}
+function editTaskField(trigger,type){
+ const task=S.get(type==='owner'?trigger.dataset.taskOwner:trigger.dataset.taskDate);
+ if(!task||task.deleted)return;
+ const input=document.createElement('select');
+ input.className='travel-task-inline-control';
+ input.setAttribute('aria-label',type==='owner'?'Välj ansvarig':'Välj förfallodatum');
+ let node=input;
+ if(type==='owner'){
+   input.innerHTML=opts(taskOwnerChoices(),task.owner||'Familjen');
+ }else{
+   node=document.createElement('input');
+   node.type='date';node.value=task.date||'';
+   node.className='travel-task-inline-control travel-task-date-input';
+   node.setAttribute('aria-label','Välj förfallodatum');
+ }
+ const original=trigger;
+ const abort=()=>{
+   if(node.isConnected)node.replaceWith(original);
+ };
+ let saved=false;
+ node.addEventListener('change',async()=>{
+   if(saved)return;
+   saved=true;
+   const value=node.value;
+   try{
+     await S.patch(task.id,type==='owner'?{owner:value}:{date:value});
+     if(node.isConnected)abort();
+     render(true);
+   }catch(err){abort();toast(err.message||'Kunde inte spara ändringen.');}
+ });
+ node.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){event.stopPropagation();event.preventDefault();saved=true;abort();original.focus({preventScroll:true});}
+ });
+ node.addEventListener('blur',()=>{setTimeout(()=>{if(!saved)abort();},100);});
+ original.replaceWith(node);
+ node.focus({preventScroll:true});
+ if(type==='date' && node.showPicker)try{node.showPicker();}catch(_){}
+}
+document.addEventListener('click',event=>{
+ const target=event.target;
+ if(!(target instanceof Element))return;
+ const title=target.closest('[data-travel-title]');
+ if(title){if(!title.isContentEditable)startTravelTitleEdit(title);return;}
+ const owner=target.closest('button[data-task-owner]');
+ if(owner){editTaskField(owner,'owner');return;}
+ const date=target.closest('button[data-task-date]');
+ if(date){editTaskField(date,'date');return;}
+});
+document.addEventListener('keydown',event=>{
+ const target=event.target;
+ if(!(target instanceof Element))return;
+ if(target.matches('[data-travel-title]')){
+   if(target.isContentEditable){
+     if(event.isComposing)return;
+     if(event.key==='Enter'){event.preventDefault();event.stopPropagation();finishTravelTitleEdit(target);target.blur();}
+     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();finishTravelTitleEdit(target,true);target.blur();}
+   }else if(event.key==='Enter'||event.key===' '){event.preventDefault();startTravelTitleEdit(target);}
+ }
+});
+document.addEventListener('focusout',event=>{
+ if(event.target===travelTitleEdit?.el)finishTravelTitleEdit(event.target);
+});
 
 document.addEventListener('click',click);
 $('edit-form').addEventListener('submit',saveEditor);
