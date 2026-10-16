@@ -46,7 +46,7 @@ test('Builder rejects blank/negative/out-of-range values and fractional repetiti
  const c=context(['validateDraft'],{draft,validDay:()=>true,updateDraftFromBuilderInputs(){},rememberAllTypedExerciseNames(){},cleanExerciseName:s=>s.trim(),toast:s=>messages.push(s)});
  for(const bad of [null,-1,1000,Infinity]){draft.exercises[0].sets[0].weight=bad;assert.equal(c.validateDraft(),false);}
  draft.exercises[0].sets[0].weight=1.25;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].reps=1.5;assert.equal(c.validateDraft(),false);
- draft.exercises[0].mode='min';draft.exercises[0].sets[0].minutes=0;assert.equal(c.validateDraft(),false);draft.exercises[0].sets[0].minutes=.25;assert.equal(c.validateDraft(),true);
+ draft.exercises[0].mode='min';draft.exercises[0].sets[0].reps=0;draft.exercises[0].sets[0].minutes=0;assert.equal(c.validateDraft(),false);draft.exercises[0].sets[0].minutes=.25;assert.equal(c.validateDraft(),true);
 });
 test('Invalid dates cannot silently save to the previous date',()=>{
  const c=context(['pad','dayISO','dayFrom','validDay']);assert.equal(c.validDay('2026-02-30'),false);assert.equal(c.validDay(''),false);assert.equal(c.validDay('2028-02-29'),true);

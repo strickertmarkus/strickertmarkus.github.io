@@ -207,6 +207,10 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
 .stat-goal-tools span{white-space:nowrap}
 
+#history .history-row,#history .history-row>div{min-width:0}
+#history .history-row strong,#history-detail h2,#history-detail h3,#plan-preview-title{overflow-wrap:anywhere}
+#history .metric{flex-shrink:0}
+#history-detail .exercise-head{flex-wrap:wrap}
 .log-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #history-editor{width:min(740px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overscroll-behavior:contain}
 #history-editor .modal-body{min-width:0;overflow-x:hidden}
@@ -1675,7 +1679,7 @@ function renderBuilder(){
  renderBuilderTemplates();
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
- $('build-date-text').textContent=builderDateText(draft.date);
+ $('build-date-text').textContent=validDay(draft.date)?builderDateText(draft.date):'Välj datum';
  $('build-name').value=draft.name;
  $('exercise-list').innerHTML=draft.exercises.map(function(e,i){
   var timed=e.mode==='min';
@@ -1696,7 +1700,7 @@ function updateDraftField(el){
  if(el.id==='build-date'){draft.date=el.value;$('build-date-text').textContent=validDay(el.value)?builderDateText(el.value):'Välj datum';return;}
  if(el.id==='build-name'){draft.name=el.value;return;}
  if(el.dataset.name!=null){draft.exercises[Number(el.dataset.name)].name=el.value;return;}
- if(el.dataset.set){var ids=el.dataset.set.split(':'),set=draft.exercises[Number(ids[0])].sets[Number(ids[1])],field=ids[2];set[field]=el.value===''||el.validity&&el.validity.badInput?null:Number(el.value);}
+ if(el.dataset.set){var ids=el.dataset.set.split(':'),set=draft.exercises[Number(ids[0])].sets[Number(ids[1])],field=ids[2];set[field]=el.validity&&el.validity.badInput?null:el.value===''?(field==='reps'?0:null):Number(el.value);}
 }
 function validateDraft(){
  if(!draft)return false;
@@ -1705,7 +1709,7 @@ function validateDraft(){
  if(!validDay(draft.date)){toast('Välj ett giltigt datum.');return false;}
  draft.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
  if(!draft.exercises.length||draft.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge varje övning och lägg till minst ett set.');return false;}
- if(draft.exercises.some(function(e){return e.sets.some(function(s){var amount=e.mode==='min'?s.minutes:s.weight;return !Number.isFinite(amount)||amount<0||amount>999||e.mode==='kg'&&(!Number.isInteger(s.reps)||s.reps<=0||s.reps>999)||e.mode==='min'&&amount<=0;});})){toast('Ange giltig vikt/tid (0–999), hela repetitioner och tid över noll.');return false;}
+ if(draft.exercises.some(function(e){return e.sets.some(function(s){var amount=e.mode==='min'?s.minutes:s.weight;return !Number.isFinite(amount)||amount<0||amount>999||s.reps!=null&&(!Number.isInteger(s.reps)||s.reps<0||s.reps>999)||e.mode==='kg'&&!(s.reps>0)||e.mode==='min'&&amount<=0;});})){toast('Ange giltig vikt/tid (0–999), hela repetitioner och tid över noll.');return false;}
  draft.name=draft.name.trim()||draft.type;
  return true;
 }
@@ -1957,7 +1961,7 @@ function updateHistoryEditorField(element){
   var ex=w.exercises[Number(element.dataset.logName)];if(ex)ex.name=element.value;
  }else if(element.dataset.logSet){
   var parts=element.dataset.logSet.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
-  if(set)set[parts[2]]=element.value===''||element.validity&&element.validity.badInput?null:Number(element.value);
+  if(set)set[parts[2]]=element.validity&&element.validity.badInput?null:element.value===''?(parts[2]==='reps'?0:null):Number(element.value);
  }else if(element.dataset.logDone){
   var parts=element.dataset.logDone.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
   if(set){set.done=element.checked;set.skipped=false;}

@@ -132,18 +132,20 @@ async function run(browserType,label,width){
  await page.evaluate(()=>localStorage.setItem('__audit_offline','1'));await page.locator('[data-goal-adjust="1"]').click();await page.waitForFunction(()=>/misslyckades/.test(IngemarAccount.status));
  assert.equal(await page.evaluate(()=>!!localStorage.getItem('ex_ingemar_journal')),true);await page.reload();await page.waitForFunction(()=>IngemarAccount.canEdit);assert.equal(await page.locator('#stat-week-goal').textContent(),'2');
  await page.evaluate(()=>{localStorage.removeItem('__audit_offline');dispatchEvent(new Event('online'));});await synced(page);assert.equal((await data(page)).goal,2);
+ const beforeMature=await data(page);
  // Simulate a mature profile and verify no collection truncation after more edits.
  await page.evaluate(()=>window.__auditRemote(d=>{
   const ex=i=>({id:'long-ex-'+i,name:'Bänkpress',mode:'kg',sets:[{id:'long-set-'+i,weight:40+i%30,reps:8,done:true}]});
   for(let i=0;i<250;i++){const date=new Date(2025,0,1+i).toLocaleDateString('sv-SE');d.history.push({id:'long-log-'+i,date,type:i%2?'Pull':'Push',name:'Historiskt pass '+i,minutes:40,exercises:[ex(i)]});d.plans[date]={type:'Push',name:'Plan '+i,exercises:[ex(i)]};}
+  d.history[0].name='LångtPassnamn'.repeat(5);d.history[0].exercises[0].name='Övningsnamn'.repeat(8);
   for(let i=0;i<80;i++)d.templates.push({id:'long-template-'+i,name:'Långt mallnamn med ben och överkropp '+i,type:'Push',exercises:[ex(i)]});
  }));
- await page.reload();await synced(page);assert.equal(await page.locator('#history > button').count(),251);await page.locator('[data-goal-adjust="1"]').click();saved=await data(page);assert.equal(saved.history.length,251);assert.equal(saved.templates.length,81);assert.ok(Object.keys(saved.plans).length>=250);
+ await page.reload();await synced(page);assert.equal(await page.locator('#history > button').count(),251);await page.locator('[data-goal-adjust="1"]').click();saved=await data(page);assert.equal(saved.history.length,251);assert.equal(saved.templates.length,beforeMature.templates.length+80);assert.ok(Object.keys(saved.plans).length>=250);
  for(const metric of ['sets','reps','weight','e1rm','volume'])await page.locator(`[data-analytics-metric="${metric}"]`).click();
  await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-mature');
  // Responsive review and input geometry on narrow mobile and desktop.
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
-  await page.setViewportSize(size);await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
+  await page.setViewportSize(size);await page.locator('#history [data-history]').first().click();await geometry(page,'#history-detail');await shot(page,label+'-long-log-'+size.width);await page.locator('#history-detail .modal-head [data-action="close-history"]').click();await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
   const bad=await page.locator('#builder input').evaluateAll(els=>els.filter(el=>el.getClientRects().length).some(el=>parseFloat(getComputedStyle(el).fontSize)<16));assert.equal(bad,false);
   await shot(page,label+'-builder-'+size.width);await closeBuilder(page);await page.waitForFunction(()=>!document.body.dataset.builderOpen);await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-overview-'+size.width);
  }
