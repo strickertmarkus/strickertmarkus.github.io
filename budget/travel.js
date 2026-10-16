@@ -244,7 +244,7 @@ function photos(){return '<div class="filters">'+selectFilter('photoDay','Dag',a
 function documentRow(x){return '<article class="document-row"><span class="file-icon">'+(x.fileName?.toLowerCase().endsWith('.pdf')?'PDF':'FIL')+'</span><div><h3>'+(x.important?'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="m12 2.5 2.9 6.2 6.8 1-4.9 4.8 1.1 6.8-5.9-3.2-6 3.2 1.2-6.8L2.3 9.7l6.8-1z"/></svg>':'')+esc(x.title)+'</h3><small>'+esc(x.category||'Övrigt')+'</small>'+linked(x,'bookingId')+'<small data-file-status="'+x.id+'">'+(x.fileId?'Kontrollerar lokal kopia…':'Extern länk · kräver anslutning')+'</small></div><div class="row-actions">'+btn('data-preview="'+x.id+'"','Visa')+(x.fileId?btn('data-download="'+x.id+'"','Ladda ned'):'')+btn('data-edit="'+x.id+'"','Ändra')+'</div></article>';}
 function documents(){const rows=list('document').filter(x=>!filters.documentCategory||x.category===filters.documentCategory).sort((a,b)=>Number(!!b.important)-Number(!!a.important));return '<div class="filters">'+selectFilter('documentCategory','Kategori',['Biljetter','Bokningsbekräftelser','Kvitton','Övrigt'],'Alla')+'</div>'+rows.map(documentRow).join('')+(rows.length?'':empty('Lägg till biljetter, bekräftelser och andra bilagor.'));}
 function noteText(text){return String(text||'').split('\n').map(line=>line.startsWith('# ')?'<h3>'+esc(line.slice(2))+'</h3>':line.startsWith('- ')?'<p class="note-bullet">• '+esc(line.slice(2))+'</p>':'<p>'+esc(line)+'</p>').join('');}
-function notes(){return '<div class="notes-grid">'+list('note').sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||Number(b.updatedAt)-Number(a.updatedAt)).map(x=>'<article class="card note-card"><div class="booking-top"><small>'+esc(x.date||'')+'</small>'+btn('data-pin="'+x.id+'"',x.pinned?'Lossa':'Fäst')+'</div><h3>'+esc(x.title)+'</h3><div class="note-content">'+noteText(x.notes)+'</div>'+linked(x,'placeId')+'<div class="inline-actions">'+actions(x)+btn('data-note-activity="'+x.id+'"','Skapa aktivitet')+btn('data-note-task="'+x.id+'"','Skapa uppgift')+'</div></article>').join('')+'</div>'+(list('note').length?'':empty('Samla idéer, länkar och sådant ni vill komma ihåg.'));}
+function notes(){return '<div class="notes-grid">'+list('note').sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||Number(b.updatedAt)-Number(a.updatedAt)).map(x=>'<article class="card note-card"><div class="booking-top"><small>'+esc(x.date||'')+'</small>'+btn('data-pin="'+x.id+'"',x.pinned?'Lossa':'Fäst')+'</div><h3 class="travel-inline-title" data-travel-title="'+esc(x.id)+'" tabindex="0" role="button" aria-label="Redigera '+esc(x.title)+'">'+esc(x.title)+'</h3><div class="note-content travel-note-inline" data-travel-notes="'+esc(x.id)+'" role="button" tabindex="0" aria-label="Redigera anteckningstext">'+noteText(x.notes)+'</div>'+linked(x,'placeId')+'<div class="inline-actions">'+actions(x)+btn('data-note-activity="'+x.id+'"','Skapa aktivitet')+btn('data-note-task="'+x.id+'"','Skapa uppgift')+'</div></article>').join('')+'</div>'+(list('note').length?'':empty('Samla idéer, länkar och sådant ni vill komma ihåg.'));}
 async function hydrateImages(){for(const img of document.querySelectorAll('img[data-file]'))try{const data=await S.file(img.dataset.file);if(img.isConnected)img.src=data;}catch(_){img.alt='Bilden behöver hämtas när du är ansluten';}}
 async function checkFiles(){for(const el of document.querySelectorAll('[data-file-status]')){const x=S.get(el.dataset.fileStatus);if(!x?.fileId)continue;const cached=await S.cachedFile(x.fileId);if(el.isConnected)el.innerHTML=cached?'✓ Tillgänglig offline':'Kräver hämtning '+btn('data-offline="'+x.id+'"','Spara offline');}}
 const currencies=['SEK','EUR','NOK','DKK','USD','GBP'];
@@ -528,9 +528,40 @@ function editTaskField(trigger,type){
  node.focus({preventScroll:true});
  if(type==='date' && node.showPicker)try{node.showPicker();}catch(_){}
 }
+/* In-note textarea preserves Markdown source and auto-saves without a dialog. */
+function editTravelNote(el){
+ if(!el||el.querySelector('textarea'))return;
+ const row=S.get(el.dataset.travelNotes);
+ if(!row||row.deleted)return;
+ const original=row.notes||'';
+ const input=document.createElement('textarea');
+ input.className='travel-note-input';input.value=original;
+ input.setAttribute('aria-label','Redigera text för '+row.title);
+ input.rows=5;
+ let finished=false;
+ const done=async(cancel=false)=>{
+   if(finished)return;
+   finished=true;
+   const next=cancel?original:input.value;
+   if(!cancel&&next!==original){
+     try{await S.patch(row.id,{notes:next});}
+     catch(e){toast(e.message||'Kunde inte spara anteckningen.');}
+   }
+   if(el.isConnected){el.innerHTML=noteText(cancel?original:S.get(row.id)?.notes||next);render(true);}
+ };
+ input.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){event.stopPropagation();event.preventDefault();done(true);}
+   else if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();done();}
+ });
+ input.addEventListener('blur',()=>done(),{once:true});
+ el.replaceChildren(input);
+ input.focus({preventScroll:true});
+}
 document.addEventListener('click',event=>{
  const target=event.target;
  if(!(target instanceof Element))return;
+ const note=target.closest('[data-travel-notes]');
+ if(note && !target.closest('textarea')){editTravelNote(note);return;}
  const title=target.closest('[data-travel-title]');
  if(title){if(!title.isContentEditable)startTravelTitleEdit(title);return;}
  const owner=target.closest('button[data-task-owner]');
@@ -541,6 +572,9 @@ document.addEventListener('click',event=>{
 document.addEventListener('keydown',event=>{
  const target=event.target;
  if(!(target instanceof Element))return;
+ if(target.matches('[data-travel-notes]')&&(event.key==='Enter'||event.key===' ')){
+   event.preventDefault();editTravelNote(target);return;
+ }
  if(target.matches('[data-travel-title]')){
    if(target.isContentEditable){
      if(event.isComposing)return;
