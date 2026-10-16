@@ -6,7 +6,7 @@
   'use strict';
   const sources={lists:'shopping.html',travel:'travel.html'};
   const frames=new Map();
-  let active=null,busy=false,pending=null,homeScroll=0;
+  let active=null,busy=false,pending=null,requestVersion=0,homeScroll=0;
   const $=selector=>document.querySelector(selector);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const duration=opening=>reduced()?0:(opening?310:255);
@@ -127,82 +127,135 @@
     ghost?.remove();
     anim.cancel();
   }
-  async function show(area,source,pushHistory){
-    if(!sources[area])return;
-    if(busy){pending={area,pushHistory};return;}
-    if(active===area)return;
-    busy=true;
-    const tab=$('#home-tab-'+area);
-    const origin=source||tab;
-    origin?.classList.add('hub-loading');
-    const resource=makeStage(area);
-    try{
-      await resource.loaded;
-      const sourceRect=rect(origin)||rect(tab);
-      const buttonRect=pillTarget(resource);
-      homeScroll=window.scrollY;
-      // Paint the destination beneath a chip-sized clipping mask before expanding it.
-      // This prevents the first iframe paint becoming a visible rectangular flash.
-      const openingMask=maskGeometry(sourceRect,resource.stage);
-      resource.stage.style.clipPath=openingMask?openingMask.start:'none';
-      resource.stage.style.visibility='visible';
-      resource.stage.style.pointerEvents='none';
-      await nextFrame();
+  /* The same View Transition API used by Översikt → Ekonomi.
+     The iframe is already loaded; only the visible state changes inside one document. */
+  async function revealWithViewTransition(resource,previous){
+    const stage=resource.stage;
+    const unveil=()=>{
+      stage.style.clipPath='none';
+      stage.style.opacity='1';
+      stage.style.visibility='visible';
+      stage.style.pointerEvents='none';
+      if(previous)previous.stage.style.visibility='hidden';
       document.documentElement.classList.add('hub-morph-active');
       document.body.classList.add('hub-morph-active');
-      await animatePortal(resource,sourceRect,buttonRect,true,origin?.textContent.trim()||'');
-      resource.stage.style.visibility='visible';
-      resource.stage.style.pointerEvents='auto';
-      active=area;
-      if(pushHistory)history.pushState({hubMorph:area},'',sources[area]);
+    };
+    if(!reduced() && typeof document.startViewTransition==='function'){
+      document.documentElement.classList.add('hub-vt-opening');
+      try{
+        const transition=document.startViewTransition(unveil);
+        await transition.finished;
+      }finally{
+        unveil();
+        document.documentElement.classList.remove('hub-vt-opening');
+      }
+    }else if(!reduced() && stage.animate){
+      // Older iOS: a compositor-only dissolve, not the former circular wipe.
+      stage.style.clipPath='none';
+      stage.style.opacity='0';
+      stage.style.visibility='visible';
+      document.documentElement.classList.add('hub-morph-active');
+      document.body.classList.add('hub-morph-active');
+      const fade=stage.animate([
+        {opacity:0,transform:'translate3d(0,6px,0)'},
+        {opacity:1,transform:'translate3d(0,0,0)'}
+      ],{duration:220,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
+      try{await fade.finished}catch(_){}
+      stage.style.opacity='1';
+      fade.cancel();
+      if(previous)previous.stage.style.visibility='hidden';
+    }else unveil();
+  }
+  function stageVisibility(resource,visible){
+    resource.stage.style.visibility=visible?'visible':'hidden';
+    resource.stage.style.pointerEvents=visible?'auto':'none';
+    resource.stage.style.opacity='1';
+    if(!visible)resource.stage.style.clipPath='none';
+  }
+  async function openArea(job){
+    if(!sources[job.area])return;
+    if(active===job.area)return;
+    const tab=$('#home-tab-'+job.area),origin=job.source||tab;
+    const current=active?frames.get(active):null;
+    const resource=makeStage(job.area);
+    origin?.classList.add('hub-loading');
+    try{
+      await resource.loaded;
+      if(job.id!==requestVersion)return; // A newer tap superseded this load.
+      await nextFrame();
+      if(job.id!==requestVersion)return;
+      if(!active)homeScroll=window.scrollY;
+      await revealWithViewTransition(resource,current);
+      stageVisibility(resource,true);
+      if(current)stageVisibility(current,false);
+      active=job.area;
       if(app)app.inert=true;
+      if(job.id===requestVersion && job.push){
+        history.pushState({hubMorph:job.area},'',sources[job.area]);
+      }
       try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
-      // Never strand the user on a blank portal when a browser prevents iframe rendering.
-      resource.stage.style.visibility='hidden';
-      resource.stage.style.pointerEvents='none';
-      resource.stage.style.clipPath='';
-      document.documentElement.classList.remove('hub-morph-active');
-      document.body.classList.remove('hub-morph-active');
-      if(app)app.inert=false;
-      if(pushHistory)location.assign(sources[area]);
+      if(active!==job.area)stageVisibility(resource,false);
+      if(current)stageVisibility(current,true);
+      else{
+        document.documentElement.classList.remove('hub-morph-active','hub-vt-opening');
+        document.body.classList.remove('hub-morph-active');
+        if(app)app.inert=false;
+      }
+      if(job.id===requestVersion && job.push)location.assign(sources[job.area]);
     }finally{
       origin?.classList.remove('hub-loading');
-      busy=false;
-      followPending();
     }
   }
-  async function hide(view,pushHistory){
-    if(!active)return;
-    if(busy){pending={area:null,view,pushHistory};return;}
-    busy=true;
-    const area=active,resource=frames.get(area);
-    if(pushHistory)history.pushState({hubMorph:'home'},'','home.html'+(view==='economy'?'?view=economy':''));
-    const targetView=view==='economy'?'economy':'overview';
-    // Redrawing the already visible Home section was expensive on mobile Safari.
-    if(document.body.dataset.homeSection!==targetView &&
-       typeof window.selectHomeSection==='function')window.selectHomeSection(targetView);
-    const endingTab=$('#home-tab-'+(view==='economy'?'economy':'overview'));
+  async function closeArea(job){
+    if(!active){
+      if(job.id!==requestVersion)return;
+      if(job.push && pathArea())history.replaceState({hubMorph:'home'},'','home.html');
+      if(job.view==='economy' && typeof window.selectHomeSection==='function'){
+        window.selectHomeSection('economy');
+      }
+      return;
+    }
+    const resource=frames.get(active);
+    const view=job.view==='economy'?'economy':'overview';
+    const endingTab=$('#home-tab-'+view);
     const from=pillTarget(resource),to=rect(endingTab);
-    try{await animatePortal(resource,from,to,false,'Översikt');}catch(_){}
-    resource.stage.style.visibility='hidden';
-    resource.stage.style.pointerEvents='none';
-    resource.stage.style.clipPath='none';
+    // Retain the reverse-to-Overview effect; no extra full-page render on return.
+    try{await animatePortal(resource,from,to,false,view==='economy'?'Ekonomi':'Översikt');}catch(_){}
+    stageVisibility(resource,false);
     document.documentElement.classList.remove('hub-morph-active');
     document.body.classList.remove('hub-morph-active');
     if(app)app.inert=false;
     active=null;
     window.scrollTo(0,homeScroll);
-    try{endingTab?.focus({preventScroll:true});}catch(_){endingTab?.focus();}
-    busy=false;
-    followPending();
+    if(job.id===requestVersion){
+      if(job.push)history.pushState({hubMorph:'home'},'','home.html'+(view==='economy'?'?view=economy':''));
+      if(document.body.dataset.homeSection!==view && typeof window.selectHomeSection==='function'){
+        window.selectHomeSection(view);
+      }
+      try{endingTab?.focus({preventScroll:true});}catch(_){endingTab?.focus();}
+    }
   }
-  function followPending(){
-    const next=pending;
-    pending=null;
-    if(!next)return;
-    if(next.area)show(next.area,null,next.pushHistory);
-    else hide(next.view,next.pushHistory);
+  /* A last-intent-wins queue: stale loads never push history and an Overview
+     request cancels any queued Listor/Resor request, including rapid taps. */
+  function request(area,view,push,source){
+    pending={area,view:view||'overview',push:!!push,source:source||null,id:++requestVersion};
+    if(!busy)void drain();
+  }
+  async function drain(){
+    if(busy)return;
+    busy=true;
+    try{
+      while(pending){
+        const job=pending;
+        pending=null;
+        if(job.area)await openArea(job);
+        else await closeArea(job);
+      }
+    }finally{
+      busy=false;
+      if(pending)void drain();
+    }
   }
 
   document.addEventListener('pointerdown',event=>{
@@ -211,33 +264,32 @@
   },{capture:true,passive:true});
   document.addEventListener('click',event=>{
     const link=event.target.closest?.('.home-section-tabs a[data-home-route]');
-    if(!link||event.defaultPrevented||event.button!==0||
+    if(!link || event.defaultPrevented || event.button!==0 ||
        event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||
        link.hasAttribute('download')||(link.target&&link.target!=='_self'))return;
     const area=link.dataset.homeRoute;
     if(!sources[area])return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    show(area,link,true);
+    request(area,'overview',true,link);
   },true);
   window.addEventListener('message',event=>{
     if(!sameSite(event.origin)||!event.data)return;
-    if(event.data.type!=='hub:return-home')return;
-    if(!active||event.source!==frames.get(active)?.frame.contentWindow)return;
-    hide(event.data.view==='economy'?'economy':'overview',true);
+    const validChild=[...frames.entries()].some(([area,resource])=>
+      event.source===resource.frame.contentWindow && (area===active || area===pending?.area));
+    if(!validChild)return;
+    if(event.data.type==='hub:return-home'){
+      request(null,event.data.view==='economy'?'economy':'overview',true,null);
+    }else if(event.data.type==='hub:open-area'&&sources[event.data.area]){
+      request(event.data.area,'overview',true,null);
+    }
   });
   window.addEventListener('popstate',()=>{
     const area=pathArea();
-    if(area)show(area,null,false);
-    else if(active)hide(new URLSearchParams(location.search).get('view')==='economy'?'economy':'overview',false);
-    else if(typeof window.selectHomeSection==='function'){
-      window.selectHomeSection(new URLSearchParams(location.search).get('view')==='economy'?'economy':'overview');
-    }
+    request(area,area?'overview':new URLSearchParams(location.search).get('view')==='economy'?'economy':'overview',false,null);
   });
   window.addEventListener('pageshow',()=>{
-    // A BFCache return should restore the correct overlay, not the previous URL's state.
     const area=pathArea();
-    if(area && active!==area)show(area,null,false);
-    if(!area && active)hide('overview',false);
+    if(area!==active)request(area,area?'overview':'overview',false,null);
   });
 })();
