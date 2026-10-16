@@ -112,3 +112,9 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 @media(max-width:360px){.shopping-mode-switch button{font-size:12px;gap:4px;padding:10px 4px}.shopping-mode-switch svg{width:16px;height:16px;flex-basis:16px}}
 html:not([data-list-mode="shopping"]) .shopping-recipe-tool,html:not([data-list-mode="shopping"]) .shopping-recipes-panel{display:none}
 @media(prefers-reduced-motion:reduce){.shopping-mode-switch button{transition:none}}
+
+/* Consistent orange-stroke SVG navigation in place of Unicode icon glyphs. */
+.nav-dropdown-menu .nav-icon,.dropdown-menu .nav-icon{display:inline-grid;place-items:center;flex:0 0 22px;width:22px;height:21px}
+.nav-dropdown-menu .nav-icon svg,.dropdown-menu .nav-icon svg{display:block;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.app-header .nav-btn svg{display:block;width:20px;height:20px;fill:none;stroke:currentColor}
+.undo-btn svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor}
