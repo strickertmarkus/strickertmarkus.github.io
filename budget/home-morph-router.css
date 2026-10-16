@@ -1,0 +1,29 @@
+/* Full-screen shared-document portal: both pages remain rendered during the morph. */
+.hub-morph-stage{
+ position:fixed;inset:0;z-index:2147481000;width:100%;height:100dvh;
+ overflow:hidden;border:0;border-radius:0;
+ background:#0f1219;isolation:isolate;overscroll-behavior:contain;
+}
+.hub-morph-stage[hidden]{display:none!important}
+.hub-morph-stage iframe{
+ display:block;width:100%;height:100%;border:0;border-radius:0;
+ background:#0f1219;overscroll-behavior:contain;
+}
+html.hub-morph-active,body.hub-morph-active{overflow:hidden!important;overscroll-behavior:none}
+.hub-morph-ghost{
+ position:fixed;z-index:2147482000;display:flex;align-items:center;justify-content:center;
+ min-height:0;pointer-events:none;white-space:nowrap;overflow:hidden;
+ color:#fdba74;border:1px solid rgba(253,186,116,.3);
+ border-radius:12px;background:rgba(253,186,116,.11);
+ box-shadow:0 0 22px rgba(253,186,116,.10);
+ font:600 13px/1.25 Inter,system-ui,sans-serif;will-change:top,left,width,height,opacity;
+}
+.home-section-tabs>a.hub-loading{
+ color:var(--home-view-accent,#fdba74);
+ background:rgba(253,186,116,.11);
+ border-color:rgba(253,186,116,.28);
+ box-shadow:inset 0 0 0 1px rgba(253,186,116,.12),0 0 19px rgba(253,186,116,.09);
+}
+@media(prefers-reduced-motion:reduce){
+ .hub-morph-ghost{display:none}
+}
