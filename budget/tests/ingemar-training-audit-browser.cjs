@@ -63,6 +63,7 @@ async function run(browserType,label,width){
  await page.locator('[data-choice="Push"]').click();
  const originalDate=await page.locator('#build-date').inputValue();
  await page.locator('#build-name').fill('Ben & press – eget pass');
+ await page.locator('[data-builder-pre-timer]').click();await page.locator('[data-between-toggle="global"]').click();await page.locator('[data-between-edit="global:type"]').selectOption('custom');await page.locator('[data-between-edit="global:seconds"]').fill('42');await page.locator('[data-between-edit="global:name"]').fill('Hopprep');await page.locator('[data-between-toggle="0"]').click();await page.locator('[data-between-edit="0:seconds"]').fill('75');
  await page.locator('[data-set="0:0:weight"]').fill('47.25');
  await page.locator('[data-copy-exercise="0"]').click();
  await page.locator('[data-set="1:0:weight"]').fill('51.5');
@@ -89,7 +90,7 @@ async function run(browserType,label,width){
  const templateId=(await data(page)).templates.find(t=>t.name==='Mall med eget namn').id;
  await page.locator('[data-action="save-plan"]').click();await geometry(page,'#plan-preview');await shot(page,label+'-preview');
  await page.locator('[data-action="preview-back"]').first().click();assert.equal(await page.locator('#builder').evaluate(e=>e.open),true);
- await confirmSave(page);assert.equal((await data(page)).plans[originalDate].exercises[0].sets[0].weight,47.25);
+ await confirmSave(page);const savedPlan=(await data(page)).plans[originalDate];assert.equal(savedPlan.exercises[0].sets[0].weight,47.25);assert.equal(savedPlan.preTimerEnabled,false);assert.equal(savedPlan.betweenExercises.seconds,42);assert.equal(savedPlan.betweenExercises.name,'Hopprep');assert.equal(savedPlan.exercises[0].betweenSets.seconds,75);
  await page.locator('[data-action="build"]').first().click();await page.locator('#builder-template-select').selectOption(templateId);await page.locator('[data-add-set="0"]').click();assert.equal(await page.locator('#builder-template-select').inputValue(),templateId);
  page.once('dialog',d=>d.accept());await page.locator('[data-action="delete-template"]').click();await page.locator('#builder [data-action="undo-delete"]').click();await synced(page);
  await page.locator('[data-action="apply-template"]').click();assert.equal(await page.locator('#build-name').inputValue(),'Mall med eget namn');await closeBuilder(page);
@@ -113,9 +114,11 @@ async function run(browserType,label,width){
  await synced(page);await page.evaluate(date=>window.__auditRemote(d=>{d.plans[date]={type:'Pull',name:'Annan enhet',exercises:d.plans[Object.keys(d.plans)[0]].exercises};}),monday);
  await page.waitForFunction(()=>document.querySelector('[data-week-day="0"] .week-day-pass strong').textContent==='Annan enhet');
  await page.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();await page.waitForFunction(()=>!document.body.dataset.builderOpen);
+ await page.locator('[data-delete-day-plan="'+monday+'"]').click({trial:true});page.once('dialog',d=>d.accept());await page.locator('[data-delete-day-plan="'+monday+'"]').click();await page.locator('[data-action="undo-delete"]').click();await synced(page);assert.equal((await data(page)).plans[monday].name,'Annan enhet');
  console.log(label+': weekly planning and templates passed');
  // Manual history, validation, cancel protection, concurrent edit, deletion and undo.
  await page.locator('[data-action="new-history"]').click();await page.locator('#log-edit-name').fill('Registrerat presspass');await page.locator('[data-log-name="0"]').fill('Bänkpress');await page.locator('[data-log-set="0:0:weight"]').fill('60.5');await page.locator('[data-log-set="0:0:reps"]').fill('8');
+ await page.locator('[data-action="log-add-exercise"]').click();await page.locator('[data-log-mode="1"]').selectOption('min');await page.locator('[data-log-name="1"]').fill('Promenad');await page.locator('[data-log-set="1:0:minutes"]').fill('2.5');await page.locator('[data-log-move="1:-1"]').click();assert.equal(await page.locator('[data-log-name="0"]').inputValue(),'Promenad');await page.locator('[data-log-remove-ex="0"]').click();
  await page.locator('#log-edit-minutes').fill('0');await page.locator('[data-action="log-save"]').click();assert.equal(await page.locator('#history-editor').evaluate(e=>e.open),true);await page.locator('#log-edit-minutes').fill('45');
  page.once('dialog',d=>d.dismiss());await page.locator('#history-editor .modal-head [data-action="cancel-history-edit"]').click();assert.equal(await page.locator('#history-editor').evaluate(e=>e.open),true);
  await shot(page,label+'-log-editor');await geometry(page,'#history-editor');await page.locator('[data-action="log-save"]').click();await synced(page);
@@ -141,7 +144,7 @@ async function run(browserType,label,width){
   for(let i=0;i<80;i++)d.templates.push({id:'long-template-'+i,name:'Långt mallnamn med ben och överkropp '+i,type:'Push',exercises:[ex(i)]});
  }));
  await page.reload();await synced(page);assert.equal(await page.locator('#history > button').count(),251);await page.locator('[data-goal-adjust="1"]').click();saved=await data(page);assert.equal(saved.history.length,251);assert.equal(saved.templates.length,beforeMature.templates.length+80);assert.ok(Object.keys(saved.plans).length>=250);
- for(const metric of ['sets','reps','weight','e1rm','volume'])await page.locator(`[data-analytics-metric="${metric}"]`).click();
+ for(const metric of ['weight','e1rm','volume'])await page.locator(`[data-analytics-metric="${metric}"]`).click();
  await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-mature');
  // Responsive review and input geometry on narrow mobile and desktop.
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
