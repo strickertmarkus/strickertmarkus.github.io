@@ -29,6 +29,17 @@ async function geometry(page,selector){
 }
 async function closeBuilder(page){await page.locator('#builder .modal-head [data-action="close-builder"]').click();await page.waitForFunction(()=>!document.getElementById('builder').open);}
 async function confirmSave(page){await page.locator('[data-action="save-plan"]').click();await page.locator('[data-action="preview-save"]').click();await synced(page);}
+async function exerciseDrag(page,label){
+ const handle=page.locator('[data-drag-exercise="0"]');await handle.scrollIntoViewIfNeeded();
+ const rect=await handle.boundingBox(),point={pointerId:71,pointerType:'touch',button:0,buttons:1,clientX:rect.x+10,clientY:rect.y+10};
+ const names=()=>page.locator('#exercise-list [data-exercise-name-input]').evaluateAll(els=>els.map(e=>e.value));
+ const before=await names();await handle.dispatchEvent('pointerdown',point);
+ const ghost=await page.locator('.builder-drag-ghost').boundingBox();
+ await page.evaluate(p=>document.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,cancelable:true,...p,clientX:p.clientX+15,clientY:p.clientY+50})),point);
+ const moved=await page.locator('.builder-drag-ghost').boundingBox();assert.ok(Math.abs(moved.x-ghost.x-15)<2&&Math.abs(moved.y-ghost.y-50)<2,'Drag follows finger');
+ await shot(page,label+'-drag');await page.evaluate(p=>document.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,...p})),point);
+ assert.deepEqual(await names(),before);assert.equal(await page.locator('.builder-drag-ghost').count(),0);
+}
 async function run(browserType,label,width){
  const browser=await browserType.launch();
  const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true,timezoneId:'Europe/Stockholm'});
@@ -67,7 +78,8 @@ async function run(browserType,label,width){
  await page.locator('[data-exercise-name-input="0"]').fill('Egen press 1');
  await page.locator('#builder').evaluate(e=>e.scrollTop+=150);await synced(page);
  assert.equal(await page.locator('[data-exercise-name-input="0"]').inputValue(),'Egen press 1');assert.equal(await page.locator('[data-exercise-name-input="0"]').getAttribute('readonly'),null);
- await shot(page,label+'-builder');await geometry(page,'#builder');
+ await shot(page,label+'-builder');await geometry(page,'#builder');await exerciseDrag(page,label);
+ console.log(label+': builder and menu lifecycle passed');
  await closeBuilder(page);await synced(page);await page.reload();await synced(page);
  await page.locator('[data-action="build"]').first().click();assert.equal(await page.locator('#build-name').inputValue(),'Ben & press – eget pass');assert.equal(await page.locator('[data-set="1:0:weight"]').inputValue(),'51.5');
  await page.locator('#build-date').fill('');await page.locator('[data-action="save-plan"]').click();assert.equal(await page.locator('#plan-preview').evaluate(e=>e.open),false);
@@ -76,9 +88,10 @@ async function run(browserType,label,width){
  page.once('dialog',d=>d.accept('Mall med eget namn'));await page.locator('[data-action="save-template"]').click();await synced(page);
  const templateId=(await data(page)).templates.find(t=>t.name==='Mall med eget namn').id;
  await page.locator('[data-action="save-plan"]').click();await geometry(page,'#plan-preview');await shot(page,label+'-preview');
- await page.locator('[data-action="preview-back"]').click();assert.equal(await page.locator('#builder').evaluate(e=>e.open),true);
+ await page.locator('[data-action="preview-back"]').first().click();assert.equal(await page.locator('#builder').evaluate(e=>e.open),true);
  await confirmSave(page);assert.equal((await data(page)).plans[originalDate].exercises[0].sets[0].weight,47.25);
  await page.locator('[data-action="build"]').first().click();await page.locator('#builder-template-select').selectOption(templateId);await page.locator('[data-add-set="0"]').click();assert.equal(await page.locator('#builder-template-select').inputValue(),templateId);
+ page.once('dialog',d=>d.accept());await page.locator('[data-action="delete-template"]').click();await page.locator('#builder [data-action="undo-delete"]').click();await synced(page);
  await page.locator('[data-action="apply-template"]').click();assert.equal(await page.locator('#build-name').inputValue(),'Mall med eget namn');await closeBuilder(page);
  // Week planner: copy, clear, undo, whole-week templates including rest days.
  await page.locator('[data-action="plan-week"]').click();assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen),'true');
@@ -91,6 +104,7 @@ async function run(browserType,label,width){
  await page.locator('.week-template-drawer > summary').click();page.once('dialog',d=>d.accept('Vecka med vila'));await page.locator('[data-action="save-week-template"]').click();await synced(page);
  const weekId=(await data(page)).weekTemplates.find(t=>t.name==='Vecka med vila').id;
  await page.locator('[data-week-type="1:Pull"]').click();await page.locator('#week-template-select').selectOption(weekId);await page.locator('[data-action="apply-week-template"]').click();assert.equal(await page.locator('[data-week-day="1"] .week-day-pass strong').textContent(),'Ingen träning');
+ page.once('dialog',d=>d.accept());await page.locator('[data-action="delete-week-template"]').click();await page.locator('#week-planner [data-action="undo-delete"]').click();await synced(page);
  await shot(page,label+'-week');await geometry(page,'#week-planner');
  await page.locator('[data-week-edit="0"]').first().click();await page.locator('#build-name').fill('Veckans måndag');await confirmSave(page);
  await page.waitForFunction(()=>document.getElementById('week-planner').open);assert.equal(await page.evaluate(()=>document.body.dataset.builderOpen),'true');
@@ -99,6 +113,7 @@ async function run(browserType,label,width){
  await synced(page);await page.evaluate(date=>window.__auditRemote(d=>{d.plans[date]={type:'Pull',name:'Annan enhet',exercises:d.plans[Object.keys(d.plans)[0]].exercises};}),monday);
  await page.waitForFunction(()=>document.querySelector('[data-week-day="0"] .week-day-pass strong').textContent==='Annan enhet');
  await page.locator('#week-planner .modal-head [data-action="close-week-planner"]').click();await page.waitForFunction(()=>!document.body.dataset.builderOpen);
+ console.log(label+': weekly planning and templates passed');
  // Manual history, validation, cancel protection, concurrent edit, deletion and undo.
  await page.locator('[data-action="new-history"]').click();await page.locator('#log-edit-name').fill('Registrerat presspass');await page.locator('[data-log-name="0"]').fill('Bänkpress');await page.locator('[data-log-set="0:0:weight"]').fill('60.5');await page.locator('[data-log-set="0:0:reps"]').fill('8');
  await page.locator('#log-edit-minutes').fill('0');await page.locator('[data-action="log-save"]').click();assert.equal(await page.locator('#history-editor').evaluate(e=>e.open),true);await page.locator('#log-edit-minutes').fill('45');
@@ -112,6 +127,7 @@ async function run(browserType,label,width){
  await page.locator(`[data-history="${log.id}"]`).first().click();await page.locator('[data-action="edit-history"]').click();page.once('dialog',d=>d.accept());await page.locator('[data-action="log-delete"]').click();await page.locator('[data-action="undo-delete"]').click();await synced(page);assert.equal((await data(page)).history.length,1);
  // Manual records and correction; entered fractions must survive reload.
  await page.locator('[data-action="new-record"]').click();await page.locator('#pr-edit-name').fill('Marklyft');await page.locator('#pr-edit-weight').fill('103.75');await page.locator('#pr-edit-group').selectOption('Pull');await page.locator('[data-action="save-record"]').click();await synced(page);assert.equal((await data(page)).manualPrs.marklyft.weight,103.75);
+ console.log(label+': history, records and concurrent edits passed');
  // Failed write, reload, recovery: local journal is kept and synchronized later.
  await page.evaluate(()=>localStorage.setItem('__audit_offline','1'));await page.locator('[data-goal-adjust="1"]').click();await page.waitForFunction(()=>/misslyckades/.test(IngemarAccount.status));
  assert.equal(await page.evaluate(()=>!!localStorage.getItem('ex_ingemar_journal')),true);await page.reload();await page.waitForFunction(()=>IngemarAccount.canEdit);assert.equal(await page.locator('#stat-week-goal').textContent(),'2');
@@ -124,12 +140,12 @@ async function run(browserType,label,width){
  }));
  await page.reload();await synced(page);assert.equal(await page.locator('#history > button').count(),251);await page.locator('[data-goal-adjust="1"]').click();saved=await data(page);assert.equal(saved.history.length,251);assert.equal(saved.templates.length,81);assert.ok(Object.keys(saved.plans).length>=250);
  for(const metric of ['sets','reps','weight','e1rm','volume'])await page.locator(`[data-analytics-metric="${metric}"]`).click();
- await geometry(page,'#training-view');await shot(page,label+'-mature');
+ await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-mature');
  // Responsive review and input geometry on narrow mobile and desktop.
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
   await page.setViewportSize(size);await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
   const bad=await page.locator('#builder input').evaluateAll(els=>els.filter(el=>el.getClientRects().length).some(el=>parseFloat(getComputedStyle(el).fontSize)<16));assert.equal(bad,false);
-  await shot(page,label+'-builder-'+size.width);await closeBuilder(page);await page.waitForFunction(()=>!document.body.dataset.builderOpen);await geometry(page,'#training-view');await shot(page,label+'-overview-'+size.width);
+  await shot(page,label+'-builder-'+size.width);await closeBuilder(page);await page.waitForFunction(()=>!document.body.dataset.builderOpen);await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-overview-'+size.width);
  }
  assert.deepEqual(errors,[],'No runtime errors');console.log(label+': training-only lifecycle, persistence, menus, statistics and geometry passed');
  }catch(e){await shot(page,label+'-FAILURE');throw e;}finally{await browser.close();}

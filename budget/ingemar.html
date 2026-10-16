@@ -1520,8 +1520,7 @@ function renderBuilderTemplates(){
  $('builder-template-hint').textContent=templates.length?templates.length+' sparade mallpass · synkas med Ingemars profil':'Mallar synkas med Ingemars profil.';
 }
 function saveBuilderTemplate(){
- if(!draft)return;
- updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();
+ if(!validateDraft())return;
  var copy=deep(draft);copy.exercises.forEach(function(e){e.name=cleanExerciseName(e.name);});
  if(!copy.exercises.length||copy.exercises.some(function(e){return !e.name||!e.sets.length;})){toast('Namnge övningarna innan du sparar mallen.');return;}
  var name=prompt('Namn på mallpass:',copy.name.trim()||copy.type+' · Mall');
@@ -1958,7 +1957,7 @@ function updateHistoryEditorField(element){
   var ex=w.exercises[Number(element.dataset.logName)];if(ex)ex.name=element.value;
  }else if(element.dataset.logSet){
   var parts=element.dataset.logSet.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
-  if(set)set[parts[2]]=Number(element.value);
+  if(set)set[parts[2]]=element.value===''||element.validity&&element.validity.badInput?null:Number(element.value);
  }else if(element.dataset.logDone){
   var parts=element.dataset.logDone.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
   if(set){set.done=element.checked;set.skipped=false;}
@@ -2019,7 +2018,9 @@ function saveHistoryEditor(){
 function deleteHistoryEditor(){
  if(!historyEditId||!historyEditDraft)return;
  if(!confirm('Ta bort det sparade passet permanent? Detta påverkar även personliga rekord.'))return;
- var removed=deep(state.history.find(function(w){return String(w.id)===String(historyEditId);}));
+ var current=state.history.find(function(w){return String(w.id)===String(historyEditId);});
+ if(!current){closeHistoryEditor(true);toast('Passet har redan tagits bort från en annan enhet.');return;}
+ var removed=deep(current);
  state.history=state.history.filter(function(w){return String(w.id)!==String(historyEditId);});
  state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
  if(!persist())return;render();closeHistoryEditor(true);
