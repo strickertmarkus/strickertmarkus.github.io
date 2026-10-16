@@ -9,7 +9,7 @@
   let active=null,busy=false,pending=null,homeScroll=0;
   const $=selector=>document.querySelector(selector);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const duration=()=>reduced()?0:370;
+  const duration=opening=>reduced()?0:(opening?310:255);
   const pathArea=()=>{
     const tail=location.pathname.split('/').pop();
     return tail==='shopping.html'?'lists':tail==='travel.html'?'travel':null;
@@ -73,48 +73,58 @@
     document.body.appendChild(ghost);
     return ghost;
   }
-  function insetFrom(r,stage){
-    if(!r)return 'inset(0px 0px 0px 0px round 0px)';
-    const b=stage.getBoundingClientRect();
-    const t=Math.max(0,Math.min(b.height,r.top-b.top));
-    const l=Math.max(0,Math.min(b.width,r.left-b.left));
-    const right=Math.max(0,b.width-(r.left-b.left+r.width));
-    const bottom=Math.max(0,b.height-(r.top-b.top+r.height));
-    return 'inset('+t+'px '+right+'px '+bottom+'px '+l+'px round 13px)';
+  /* A radial reveal grows outward from the ACTUAL tapped button center.
+     Earlier inset clipping had the right bounds but felt like a centre-opened canvas. */
+  function maskGeometry(r,stage){
+    const box=stage.getBoundingClientRect();
+    if(!r||!box.width||!box.height)return null;
+    const x=Math.max(0,Math.min(box.width,r.left-box.left+r.width/2));
+    const y=Math.max(0,Math.min(box.height,r.top-box.top+r.height/2));
+    const small=Math.max(1,Math.hypot(r.width/2,r.height/2));
+    const large=Math.hypot(Math.max(x,box.width-x),Math.max(y,box.height-y))+12;
+    const center=x.toFixed(2)+'px '+y.toFixed(2)+'px';
+    return {
+      start:'circle('+small.toFixed(2)+'px at '+center+')',
+      full:'circle('+large.toFixed(2)+'px at '+center+')'
+    };
   }
   async function animatePortal(resource,fromRect,toRect,opening,word){
     const stage=resource.stage;
-    const full='inset(0px 0px 0px 0px round 0px)';
-    const clipped=insetFrom(opening?fromRect:toRect,stage);
-    const ms=duration();
-    if(!ms || !stage.animate)return;
-    const anim=stage.animate(opening?[
-      {clipPath:clipped},
-      {clipPath:full}
+    // Reverse shrink always converges on the Overview tab, rather than the iframe centre.
+    const geometry=maskGeometry(opening?fromRect:toRect,stage);
+    const ms=duration(opening);
+    if(!geometry)return;
+    if(!ms || !stage.animate){
+      stage.style.clipPath=opening?'none':geometry.start;
+      return;
+    }
+    const keyframes=opening?[
+      {clipPath:geometry.start,offset:0},
+      {clipPath:geometry.full,offset:1}
     ]:[
-      {clipPath:full},
-      {clipPath:clipped}
-    ],{duration:ms,easing:'cubic-bezier(.2,.85,.2,1)',fill:'both'});
-    // Both entire pages coexist: the previous view remains visible outside the expanding area.
-    const back=app?.animate(opening?[
-      {opacity:1},
-      {opacity:.82}
-    ]:[
-      {opacity:.82},
-      {opacity:1}
-    ],{duration:ms,easing:'cubic-bezier(.2,.85,.2,1)',fill:'both'});
-    const ghost=glyph(opening?fromRect:fromRect,opening?toRect:toRect,word);
+      {clipPath:geometry.full,offset:0},
+      {clipPath:geometry.start,offset:1}
+    ];
+    const anim=stage.animate(keyframes,{
+      duration:ms,easing:'cubic-bezier(.22,.82,.2,1)',fill:'both'
+    });
+    // Animate only a small lightweight chip. Don't repaint/scale the entire Home page.
+    const ghost=glyph(fromRect,toRect,word);
     let ghostAnim;
     if(ghost && fromRect && toRect){
+      const tx=toRect.left-fromRect.left,ty=toRect.top-fromRect.top;
+      const scaleX=toRect.width/fromRect.width,scaleY=toRect.height/fromRect.height;
       ghostAnim=ghost.animate([
-        {left:fromRect.left+'px',top:fromRect.top+'px',width:fromRect.width+'px',height:fromRect.height+'px',opacity:1},
-        {left:toRect.left+'px',top:toRect.top+'px',width:toRect.width+'px',height:toRect.height+'px',opacity:0}
-      ],{duration:ms,easing:'cubic-bezier(.2,.85,.2,1)',fill:'both'});
+        {transform:'translate3d(0,0,0) scale(1,1)',opacity:1,offset:0},
+        {transform:'translate3d('+tx+'px,'+ty+'px,0) scale('+scaleX+','+scaleY+')',opacity:0,offset:1}
+      ],{duration:Math.min(ms,240),easing:'cubic-bezier(.22,.82,.2,1)',fill:'both'});
     }
     try{await anim.finished}catch(_){}
+    // Commit the end frame *before* cancelling WAAPI to avoid a full-screen flash
+    // when the reverse animation collapses onto the Overview button.
+    stage.style.clipPath=opening?'none':geometry.start;
     if(ghostAnim)ghostAnim.cancel();
-    if(ghost)ghost.remove();
-    if(back)back.cancel();
+    ghost?.remove();
     anim.cancel();
   }
   async function show(area,source,pushHistory){
@@ -133,14 +143,14 @@
       homeScroll=window.scrollY;
       // Paint the destination beneath a chip-sized clipping mask before expanding it.
       // This prevents the first iframe paint becoming a visible rectangular flash.
-      resource.stage.style.clipPath=insetFrom(sourceRect,resource.stage);
+      const openingMask=maskGeometry(sourceRect,resource.stage);
+      resource.stage.style.clipPath=openingMask?openingMask.start:'none';
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='none';
       await nextFrame();
       document.documentElement.classList.add('hub-morph-active');
       document.body.classList.add('hub-morph-active');
       await animatePortal(resource,sourceRect,buttonRect,true,origin?.textContent.trim()||'');
-      resource.stage.style.clipPath='';
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='auto';
       active=area;
@@ -168,13 +178,16 @@
     busy=true;
     const area=active,resource=frames.get(area);
     if(pushHistory)history.pushState({hubMorph:'home'},'','home.html'+(view==='economy'?'?view=economy':''));
-    if(typeof window.selectHomeSection==='function')window.selectHomeSection(view==='economy'?'economy':'overview');
-    await nextFrame();
+    const targetView=view==='economy'?'economy':'overview';
+    // Redrawing the already visible Home section was expensive on mobile Safari.
+    if(document.body.dataset.homeSection!==targetView &&
+       typeof window.selectHomeSection==='function')window.selectHomeSection(targetView);
     const endingTab=$('#home-tab-'+(view==='economy'?'economy':'overview'));
     const from=pillTarget(resource),to=rect(endingTab);
     try{await animatePortal(resource,from,to,false,'Översikt');}catch(_){}
     resource.stage.style.visibility='hidden';
     resource.stage.style.pointerEvents='none';
+    resource.stage.style.clipPath='none';
     document.documentElement.classList.remove('hub-morph-active');
     document.body.classList.remove('hub-morph-active');
     if(app)app.inert=false;
