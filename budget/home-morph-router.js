@@ -9,7 +9,7 @@
   let active=null,busy=false,pending=null,requestVersion=0,homeScroll=0;
   const $=selector=>document.querySelector(selector);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const duration=opening=>reduced()?0:(opening?310:255);
+  const duration=opening=>reduced()?0:(opening?220:255);
   const pathArea=()=>{
     const tail=location.pathname.split('/').pop();
     return tail==='shopping.html'?'lists':tail==='travel.html'?'travel':null;
@@ -127,45 +127,6 @@
     ghost?.remove();
     anim.cancel();
   }
-  /* The same View Transition API used by Översikt → Ekonomi.
-     The iframe is already loaded; only the visible state changes inside one document. */
-  async function revealWithViewTransition(resource,previous){
-    const stage=resource.stage;
-    const unveil=()=>{
-      stage.style.clipPath='none';
-      stage.style.opacity='1';
-      stage.style.visibility='visible';
-      stage.style.pointerEvents='none';
-      if(previous)previous.stage.style.visibility='hidden';
-      document.documentElement.classList.add('hub-morph-active');
-      document.body.classList.add('hub-morph-active');
-    };
-    if(!reduced() && typeof document.startViewTransition==='function'){
-      document.documentElement.classList.add('hub-vt-opening');
-      try{
-        const transition=document.startViewTransition(unveil);
-        await transition.finished;
-      }finally{
-        unveil();
-        document.documentElement.classList.remove('hub-vt-opening');
-      }
-    }else if(!reduced() && stage.animate){
-      // Older iOS: a compositor-only dissolve, not the former circular wipe.
-      stage.style.clipPath='none';
-      stage.style.opacity='0';
-      stage.style.visibility='visible';
-      document.documentElement.classList.add('hub-morph-active');
-      document.body.classList.add('hub-morph-active');
-      const fade=stage.animate([
-        {opacity:0,transform:'translate3d(0,6px,0)'},
-        {opacity:1,transform:'translate3d(0,0,0)'}
-      ],{duration:220,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
-      try{await fade.finished}catch(_){}
-      stage.style.opacity='1';
-      fade.cancel();
-      if(previous)previous.stage.style.visibility='hidden';
-    }else unveil();
-  }
   function stageVisibility(resource,visible){
     resource.stage.style.visibility=visible?'visible':'hidden';
     resource.stage.style.pointerEvents=visible?'auto':'none';
@@ -173,21 +134,31 @@
     if(!visible)resource.stage.style.clipPath='none';
   }
   async function openArea(job){
-    if(!sources[job.area])return;
-    if(active===job.area)return;
-    const tab=$('#home-tab-'+job.area),origin=job.source||tab;
-    const current=active?frames.get(active):null;
+    if(!sources[job.area] || active===job.area)return;
+    const tab=$('#home-tab-'+job.area);
+    const origin=job.source||tab;
+    const previous=active?frames.get(active):null;
     const resource=makeStage(job.area);
     origin?.classList.add('hub-loading');
     try{
       await resource.loaded;
-      if(job.id!==requestVersion)return; // A newer tap superseded this load.
-      await nextFrame();
       if(job.id!==requestVersion)return;
+      const from=rect(origin)||rect(tab),to=pillTarget(resource);
       if(!active)homeScroll=window.scrollY;
-      await revealWithViewTransition(resource,current);
+      // The next page is first painted behind a mask at the touched button.
+      const mask=maskGeometry(from,resource.stage);
+      resource.stage.style.clipPath=mask?mask.start:'none';
+      resource.stage.style.visibility='visible';
+      resource.stage.style.pointerEvents='none';
+      await nextFrame();
+      if(job.id!==requestVersion){
+        stageVisibility(resource,false);
+        return;
+      }
+      // One fast button-origin radial animation; no separate View Transition.
+      await animatePortal(resource,from,to,true,origin?.textContent.trim()||'');
       stageVisibility(resource,true);
-      if(current)stageVisibility(current,false);
+      if(previous)stageVisibility(previous,false);
       active=job.area;
       if(app)app.inert=true;
       if(job.id===requestVersion && job.push){
@@ -196,9 +167,9 @@
       try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
       if(active!==job.area)stageVisibility(resource,false);
-      if(current)stageVisibility(current,true);
+      if(previous)stageVisibility(previous,true);
       else{
-        document.documentElement.classList.remove('hub-morph-active','hub-vt-opening');
+        document.documentElement.classList.remove('hub-morph-active');
         document.body.classList.remove('hub-morph-active');
         if(app)app.inert=false;
       }
