@@ -537,5 +537,13 @@ let swipeX=0;$('viewer').addEventListener('touchstart',e=>swipeX=e.changedTouche
 document.addEventListener('keydown',e=>{if($('viewer').open&&$('viewer').querySelector('.lightbox')){if(e.key==='ArrowRight')showPhoto(viewerIndex+1);if(e.key==='ArrowLeft')showPhoto(viewerIndex-1);}});
 $('viewer').addEventListener('close',()=>{if(viewerURL){URL.revokeObjectURL(viewerURL);viewerURL=null;}$('viewer-body').innerHTML='';});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('travel-sw.js',{scope:'./travel.html'}).catch(()=>{});
+// The Home overview's upcoming-trip control can select a trip without leaving the tab.
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.type!=='home:open-trip')return;
+ const id=event.data.tripId;
+ if(!id||!list('trip').some(t=>t.id===id)||$('editor').open)return;
+ tripId=id;tab='overview';day='';
+ render(true);
+});
 S.subscribe(()=>render());S.ready.then(()=>render());setInterval(tick,1000);
 })();
