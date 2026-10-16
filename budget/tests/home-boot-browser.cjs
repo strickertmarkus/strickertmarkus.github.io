@@ -31,7 +31,11 @@ fs.mkdirSync(out, {recursive:true});
     if(!localStorage.getItem('home-boot-seeded')) {
       localStorage.setItem('home-boot-seeded','1');
       localStorage.setItem('sh_lists',JSON.stringify([{id:1,name:'Huvudlista',items:[{id:10,type:'category',text:'Maxi'},{id:11,type:'item',text:'Mjölk',checked:false},{id:20,type:'category',text:'Willys'},{id:21,type:'item',text:'Bananer',checked:false}]}]));
-      localStorage.setItem('home-calendar-view-v11','month');
+      localStorage.setItem('home-calendar-view-v11','week'); // stale preference must not restore removed UI
+      const date=new Date();
+      localStorage.setItem('home_transfer_income_v1',JSON.stringify({[date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')]:{markus:30000,maja:20000}}));
+      const months=['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+      localStorage.setItem('familjebudget_data',JSON.stringify({transfers:[{year:date.getFullYear(),month:months[date.getMonth()],husutgifter:20000,ica:6000,markusAndel:.6,majaAndel:.4,icaMarkus:3600,icaMaja:2400,huskontoMarkus:12000,huskontoMaja:8000}]}));
     }
     // Inspect the visible frames, including frames before DOMContentLoaded.
     window.homeBootFrames=[];
@@ -68,14 +72,32 @@ fs.mkdirSync(out, {recursive:true});
     assert.match(await page.locator('#shopping-items').textContent(),/Kaffe/);
     await page.screenshot({path:out+'/home-mobile-shopping.png'});
     await page.locator('[data-sh-close-add]').click();
-    await page.locator('[data-calendar-view="week"]').click();
+    await page.locator('#home-tab-economy').click();
+    assert.equal(await page.locator('#home-overview').isVisible(),false);
+    assert.equal(await page.locator('.fab').isVisible(),false);
+    assert.equal(await page.locator('#home-tab-economy').getAttribute('aria-selected'),'true');
+    assert.equal(await page.locator('[data-calendar-view]').count(),0);
+    assert.equal(await page.locator('#home-economy #transfer-widget').count(),1);
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await page.screenshot({path:out+'/home-mobile-economy.png'});
+    await page.locator('#transfer-month-btn').click();
+    await page.locator('[data-transfer-edit="markus"]').click();
+    await page.locator('#transfer-income-markus').fill('32000');
+    await page.locator('#transfer-income-markus').press('Enter');
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('familjebudget_data')).transfers[0].huskontoMarkus),Math.round(20000*32000/52000));
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await page.screenshot({path:out+'/home-mobile-economy-edit.png'});
+    await page.locator('#home-tab-overview').click();
+    assert(await page.locator('#cal-grid').isVisible());
+    assert.match(await page.locator('#shopping-items').textContent(),/Tomater/);
     await page.reload({waitUntil:'networkidle'});
-    assert.equal(await page.locator('body').getAttribute('data-home-calendar-view'),'week');
+    assert.equal(await page.locator('body').getAttribute('data-home-calendar-view'),'month');
     assert.equal(await page.locator('.app-header > .month-nav').count(),1);
     assert.equal(await page.locator('.calendar-toolbar-v2 .month-nav').count(),0);
     assert.match(await page.locator('#shopping-items').textContent(),/Tomater/);
+    assert.equal(await page.locator('#home-tab-overview').getAttribute('aria-selected'),'true');
     assert.deepEqual(errors,[]);
-    console.log('Home: stable boot, calendar navigation/date picker, repeated Enter and saved view reload passed');
+    console.log('Home: stable boot, calendar navigation/date picker, repeated Enter, Home sections, salary persistence and clean reload passed');
   } catch(error) {
     await page.screenshot({path:out+'/home-boot-failure.png',fullPage:true}).catch(()=>{});
     console.error('Home page errors:', errors);

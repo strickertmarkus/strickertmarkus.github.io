@@ -6,19 +6,10 @@
   if (!isHome || window.__homeCalendarThemeV12Installed) return;
   window.__homeCalendarThemeV12Installed = true;
 
-  function initialView() {
-    var view = '';
-    try { view = localStorage.getItem('home-calendar-view-v11') || ''; } catch (_) {}
-    return view === 'day' || view === 'week' || view === 'month' ? view : 'month';
-  }
-
   function syncViewTheme() {
-    var body = document.body;
-    if (!body) return;
-    var view = body.dataset.homeCalendarView || initialView();
-    if (view !== 'day' && view !== 'week' && view !== 'month') view = 'month';
-    if (!body.dataset.homeCalendarView) body.dataset.homeCalendarView = view;
-    document.documentElement.dataset.homeCalendarView = view;
+    if (!document.body) return;
+    if (document.body.dataset.homeCalendarView !== 'month') document.body.dataset.homeCalendarView = 'month';
+    document.documentElement.dataset.homeCalendarView = 'month';
   }
 
   function placeHomeMonthNav() {

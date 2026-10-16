@@ -73,14 +73,7 @@
     catch (_) { return ''; }
   }
 
-  function currentView() {
-    var body = document.body;
-    var view = body && body.dataset ? body.dataset.homeCalendarView : '';
-    if (!view) {
-      try { view = localStorage.getItem('home-calendar-view-v11') || ''; } catch (_) {}
-    }
-    return palettes[view] ? view : 'month';
-  }
+  function currentView() { return 'month'; }
 
   function setVars(node, p) {
     if (!node) return;

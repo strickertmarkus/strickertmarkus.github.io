@@ -28,11 +28,17 @@ jobs:
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps webkit chromium
-      - name: Browser functionality and responsive checks
+      - name: Home mobile sections and boot checks
         run: |
           python3 -m http.server 4173 >/tmp/shopping-http.log 2>&1 &
           node budget/tests/home-boot-browser.cjs
-          node budget/tests/shopping-interactions.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: home-mobile-preview
+          path: test-results/shopping/home-*.png
+      - name: Shopping functionality and responsive checks
+        run: node budget/tests/shopping-interactions.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
