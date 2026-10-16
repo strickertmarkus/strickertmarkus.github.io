@@ -114,41 +114,7 @@
       if (status) status.textContent = error.message || 'Kunde inte lägga till posten.';
     }
   }
-  let nextTripId = null;
-  function renderNextTrip() {
-    const root = $('home-next-trip'), S = window.TravelStore, M = window.TravelModel;
-    if (!root || !S || !M) return;
-    const trips = S.list().filter(x => x && x.type === 'trip' && !x.deleted && !x.archived &&
-      ['Kommande','Pågående'].includes(M.tripState(x)));
-    trips.sort((a,b) => {
-      const sa = M.tripState(a) === 'Pågående' ? 0 : 1, sb = M.tripState(b) === 'Pågående' ? 0 : 1;
-      return sa-sb || (a.departure||'9999').localeCompare(b.departure||'9999');
-    });
-    const trip = trips[0];
-    if (!trip) { nextTripId=null;root.hidden=true;return; }
-    const state = M.tripState(trip), start = String(trip.departure||'').slice(0,10), today = M.today(trip.timezone);
-    const days = M.validDate(start) ? Math.max(0,M.dayDiff(today,start)) : null;
-    const packs = S.list().filter(x => x.type === 'packing' && x.tripId === trip.id && !x.deleted && !x.isHeading);
-    const packed = packs.filter(x => x.done).length;
-    const when = state === 'Pågående' ? 'Pågår nu' : days === null ? 'Avresa ej vald' : days === 0 ? 'Avresa idag' : 'Om '+days+' dagar';
-    $('home-next-trip-name').textContent = trip.title || trip.destination || 'Kommande resa';
-    $('home-next-trip-details').textContent = when + (packs.length ? ' · '+packed+'/'+packs.length+' packat' : '');
-    nextTripId = trip.id;
-    root.hidden = false;
-  }
-  function openTrip() {
-    const iframe = $('home-travel-frame');
-    if (!iframe) return;
-    if (nextTripId && !iframe.getAttribute('src')) iframe.dataset.src = 'travel.html?embed=home&trip='+encodeURIComponent(nextTripId);
-    if (typeof window.selectHomeSection === 'function') window.selectHomeSection('travel');
-    if (nextTripId && iframe.contentWindow) {
-      const select = () => iframe.contentWindow?.postMessage({type:'home:open-trip',tripId:nextTripId},location.origin);
-      if (iframe.dataset.loaded === 'true') select();
-      else iframe.addEventListener('load',select,{once:true});
-    }
-    window.scrollTo({top:0,behavior:'instant'});
-  }
-  function refresh() { renderCounts();renderNextTrip(); }
+  function refresh() { renderCounts(); }
   let viewRequest = 0;
   function sendPlannerViewport() {
     const frame = $('home-travel-frame');
@@ -178,7 +144,6 @@
   function install() {
     $('home-list-quick-add')?.addEventListener('submit',addQuick);
     $('home-list-add-mode')?.addEventListener('change',updateQuickMode);
-    $('home-next-trip')?.addEventListener('click',openTrip);
     $('home-travel-frame')?.addEventListener('load',event => {
       event.currentTarget.dataset.loaded = 'true';
       schedulePlannerViewport();
@@ -198,10 +163,8 @@
     window.addEventListener('pageshow',refresh);
     document.addEventListener('visibilitychange',() => {if (!document.hidden) refresh();});
     window.FamilyTodos?.subscribe(renderCounts);
-    window.TravelStore?.subscribe(renderNextTrip);
     updateQuickMode();
     refresh();
-    setInterval(() => { if (!document.hidden) renderNextTrip(); },60000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',install,{once:true});
   else install();
