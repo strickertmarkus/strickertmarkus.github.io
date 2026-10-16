@@ -31,18 +31,21 @@
       (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' <svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>':'')+
       (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
       '<div class="ft-task-actions">'+
-        (mode==='home'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera '+esc(t.text)+'">⋯</button>')+
+        (mode==='home'||mode==='shopping'?'':'<button class="ft-row-edit" type="button" data-act="edit" data-id="'+esc(t.id)+'" aria-label="Redigera '+esc(t.text)+'">⋯</button>')+
         '<button class="ft-row-delete" type="button" data-act="delete" data-id="'+esc(t.id)+'" aria-label="Radera '+esc(t.text)+'" title="Radera uppgift">×</button>'+
       '</div></div>';
     if(isEdit){
-      content+='<form class="ft-editor" data-id="'+esc(t.id)+'">'+
-        '<label>Uppgift<input name="text" type="text" maxlength="240" value="'+esc(t.text)+'" required></label>'+
+      // Shopping edits happen directly beneath the clicked line; no separate editor card.
+      var inline=mode==='shopping';
+      content+='<form class="ft-editor'+(inline?' ft-shop-inline-editor':'')+'" data-id="'+esc(t.id)+'">'+
+        (inline?'<div class="ft-shop-edit-line"><input name="text" aria-label="Ändra uppgift" type="text" maxlength="240" value="'+esc(t.text)+'" required><button type="submit" class="ft-primary">Spara</button><button type="button" data-act="cancel" aria-label="Avbryt">×</button></div>':'<label>Uppgift<input name="text" type="text" maxlength="240" value="'+esc(t.text)+'" required></label>')+
+        (inline?'<details class="ft-shop-edit-more"'+((t.member!=='family'||t.priority!=='normal'||t.dueDate)?' open':'')+'><summary>Ansvarig, prioritet och datum</summary>':'')+
         '<div class="ft-editor-fields"><label>Ansvarig<select name="member">'+memberOpts(t.member)+'</select></label>'+
         '<label>Prioritet<select name="priority">'+prioOpts(t.priority)+'</select></label>'+
         '<label>Förfallodatum<input name="dueDate" type="date" value="'+esc(t.dueDate||'')+'"></label></div>'+
-        '<div class="ft-editor-actions"><button type="submit" class="ft-primary">Spara</button>'+
+        (inline?'</details>':'<div class="ft-editor-actions"><button type="submit" class="ft-primary">Spara</button>'+
         '<button type="button" data-act="cancel">Avbryt</button>'+
-        '<button type="button" class="ft-danger" data-act="delete" data-id="'+esc(t.id)+'">Radera</button></div></form>';
+        '<button type="button" class="ft-danger" data-act="delete" data-id="'+esc(t.id)+'">Radera</button></div>')+'</form>';
     }
     return content;
   }
@@ -70,20 +73,22 @@
         '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
         '<a class="tap-hint ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a> <a class="tap-hint ft-bottom-link" style="margin-left:16px;color:var(--accent,#FDBA74)" href="travel.html">Reseplanerare <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a>';
     } else {
-    root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(compact?'Att göra':shop?'Familjens att-göra-lista':'Att göra')+'</div>'+
+    root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(shop?'Att göra': 'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
       '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra">↶</button>'+
-      '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button>'+
-      (compact?'<a class="ft-full-link" href="shopping.html?mode=todo" aria-label="Visa alla uppgifter"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>':'')+'</div></div>'+
-      '<form class="ft-add-form" data-ft-add><div class="ft-add-main"><input type="text" name="text" maxlength="240" placeholder="Ny uppgift…" aria-label="Ny uppgift" required autocomplete="off">'+
+      '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button></div></div>'+
+      '<form class="ft-add-form" data-ft-add><div class="ft-add-main"><input type="text" name="text" maxlength="240" placeholder="'+(shop?'Lägg till uppgift…':'Ny uppgift…')+'" aria-label="Ny uppgift" required autocomplete="off">'+
       '<button type="submit" class="ft-primary ft-plus" aria-label="Lägg till uppgift">＋</button></div>'+
+      (shop?'<details class="ft-shop-add-more"><summary>Ansvarig, prioritet och datum</summary>':'')+
       '<div class="ft-add-options"><select name="member" aria-label="Ansvarig">'+memberOpts('family')+'</select>'+
       '<select name="priority" aria-label="Prioritet">'+prioOpts('normal')+'</select>'+
-      '<input type="date" name="dueDate" aria-label="Förfallodatum"></div></form>'+
-      (!compact?'<div class="ft-filters"><select data-ft-member aria-label="Filtrera på ansvarig"><option value="all">Alla ansvariga</option>'+memberOpts('family')+'</select>'+
-      '<select data-ft-status aria-label="Visa uppgifter"><option value="all">Aktiva och klara</option><option value="active">Aktiva</option><option value="done">Klarmarkerade</option></select></div>':'')+
-      '<div class="ft-list" data-ft-list aria-live="polite"></div>'+
-      (compact?'<a class="ft-bottom-link" href="shopping.html?mode=todo">Visa alla uppgifter <span aria-hidden="true"><svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></a>':'');
+      '<input type="date" name="dueDate" aria-label="Förfallodatum"></div>'+
+      (shop?'</details>':'')+'</form>'+
+      (shop?'<details class="ft-shop-filter-more"><summary>Filtrera uppgifter</summary>':'')+
+      '<div class="ft-filters"><select data-ft-member aria-label="Filtrera på ansvarig"><option value="all">Alla ansvariga</option>'+memberOpts('family')+'</select>'+
+      '<select data-ft-status aria-label="Visa uppgifter"><option value="all">Aktiva och klara</option><option value="active">Aktiva</option><option value="done">Klarmarkerade</option></select></div>'+
+      (shop?'</details>':'')+
+      '<div class="ft-list" data-ft-list aria-live="polite"></div>';
     }
     var form=root.querySelector('[data-ft-add]');
     form.addEventListener('submit',function(event){
@@ -261,6 +266,51 @@
         #family-todo-home.ft-home .shopping-input::placeholder{font-size:13px}
         #family-todo-home.ft-home .ft-add-options select,#family-todo-home.ft-home .ft-add-options input{min-height:38px;height:38px;font-size:16px}
       }
+
+
+      /* Shopping – the Home list language, with the full feature set tucked into quiet details. */
+      .ft-shopping{padding:13px 15px 18px;border-radius:16px}
+      .ft-shopping .ft-head{margin:0 0 10px;padding:0 0 10px;flex-wrap:nowrap}
+      .ft-shopping .ft-title{font-size:16px;font-weight:700;letter-spacing:0}
+      .ft-shopping .ft-subtitle{margin-top:3px}
+      .ft-shopping .ft-add-form{margin:0 0 7px;gap:0}
+      .ft-shopping .ft-add-main{grid-template-columns:minmax(0,1fr) 34px;gap:6px}
+      .ft-shopping .ft-add-main input{min-height:38px;padding:8px 10px;background:transparent;border-radius:8px;font-size:16px}
+      .ft-shopping .ft-plus{height:36px;min-height:36px;padding:0;font-size:19px!important;border-radius:8px}
+      .ft-shopping .ft-shop-add-more,.ft-shopping .ft-shop-filter-more{margin:3px 0;border:0;background:transparent}
+      .ft-shopping .ft-shop-add-more summary,.ft-shopping .ft-shop-filter-more summary{
+        width:max-content;max-width:100%;padding:6px 2px;color:var(--text-sec,#929ba9);font-size:11px;
+        font-weight:550;list-style:none;cursor:pointer
+      }
+      .ft-shopping .ft-shop-add-more summary::-webkit-details-marker,.ft-shopping .ft-shop-filter-more summary::-webkit-details-marker{display:none}
+      .ft-shopping .ft-shop-add-more summary:hover,.ft-shopping .ft-shop-filter-more summary:hover,
+      .ft-shopping details[open]>summary{color:var(--accent,#FDBA74)}
+      .ft-shopping .ft-shop-add-more .ft-add-options{margin:4px 0 7px}
+      .ft-shopping .ft-filters{margin:5px 0 9px}
+      .ft-shopping .ft-list{max-height:none;overflow:visible;margin:0}
+      .ft-shopping .ft-task{grid-template-columns:19px minmax(0,1fr) 25px;gap:8px;
+        align-items:center;min-height:38px;padding:6px 2px;border-bottom:1px solid rgba(255,255,255,.055)}
+      .ft-shopping .ft-task-title{font-size:13px;font-weight:520;line-height:1.4}
+      .ft-shopping .ft-check{width:17px;height:17px;margin:0;border-radius:5px}
+      .ft-shopping .ft-task-meta{margin-top:2px}
+      .ft-shopping .ft-task-actions{grid-column:3;justify-content:flex-end}
+      .ft-shopping .ft-row-delete{padding:0;width:24px;height:28px;font-size:16px;opacity:.60}
+      .ft-shopping .ft-shop-inline-editor{
+        margin:0 0 9px 27px;padding:3px 0 7px;display:grid;gap:5px;border:0;border-bottom:1px solid rgba(253,186,116,.16);
+        border-radius:0;background:transparent
+      }
+      .ft-shopping .ft-shop-edit-line{display:flex;align-items:center;gap:6px;min-width:0}
+      .ft-shopping .ft-shop-edit-line input{flex:1;min-width:0;min-height:35px;height:35px;padding:5px 8px;border-radius:7px}
+      .ft-shopping .ft-shop-edit-line button{flex:0 0 auto;min-height:32px;border-radius:7px;padding:5px 9px;font-size:11px}
+      .ft-shopping .ft-shop-edit-line [data-act="cancel"]{border:0;background:transparent;color:var(--muted);font-size:19px}
+      .ft-shopping .ft-shop-edit-more summary{width:max-content;font-size:10px;padding:4px 0;cursor:pointer;color:var(--text-sec,#929ba9);list-style:none}
+      .ft-shopping .ft-shop-edit-more summary::-webkit-details-marker{display:none}
+      .ft-shopping .ft-shop-edit-more[open]>.ft-editor-fields{margin-top:6px}
+      .ft-shopping .ft-editor-fields{gap:6px}
+      .ft-shopping .ft-editor-fields label{font-size:10px}
+      .ft-shopping .ft-editor-fields select,.ft-shopping .ft-editor-fields input{max-width:100%;font-size:16px;min-height:37px;height:37px}
+      .ft-shopping .ft-shop-filter-more summary:focus-visible,.ft-shopping .ft-shop-add-more summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+      @media(max-width:520px){.ft-shopping{padding:13px 12px}.ft-shopping .ft-editor-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ft-shopping .ft-editor-fields label:last-child{grid-column:1/-1}.ft-shopping .ft-shop-edit-line input{font-size:16px}}
 
       @media(prefers-reduced-motion:reduce){.family-todos *{transition:none!important}}
     `;
