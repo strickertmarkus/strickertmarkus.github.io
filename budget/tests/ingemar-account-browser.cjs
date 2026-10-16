@@ -241,6 +241,8 @@ async function verifyTouchDrag(page,label){
    readyBackground:w.getComputedStyle(modal.querySelector('.session-shell')).backgroundImage,
    cardBackground:w.getComputedStyle(modal.querySelector('.session-main.session-card')).backgroundColor,
    timerBackground:w.getComputedStyle(modal.querySelector('.session-timers .timer-box')).backgroundColor,
+   clockColors:['session-pass-timer','session-set-timer'].map(id=>w.getComputedStyle(w.document.getElementById(id)).color),
+   countdownNumberColor:w.getComputedStyle(w.document.getElementById('session-pre-timer-value')).color,
    ctaBackground:(()=>{const el=modal.querySelector('#session-controls .session-cta.primary');return el?w.getComputedStyle(el).backgroundImage:''})(),
    ctaColor:(()=>{const el=modal.querySelector('#session-controls .session-cta.primary');return el?w.getComputedStyle(el).color:''})(),
    headerHeight:Math.round(modal.querySelector('.session-top').getBoundingClientRect().height),
@@ -287,6 +289,7 @@ async function verifyTouchDrag(page,label){
   assert.equal(state.readyBackground,neutralBackground,'Backdrop must stay unchanged: '+type);
   assert.equal(state.cardBackground,neutralCard,'Panel fill must not change: '+type);
   assert.equal(state.timerBackground,neutralTimer,'Timer fill must not change: '+type);
+  if(type==='Push')assert.deepEqual(state.clockColors,['rgb(207, 250, 254)','rgb(207, 250, 254)'],'Push pass/set clock numerals must retain the original neutral light colour');
   assert.ok(state.ctaBackground.includes(expected.rgbText.replace('rgb(', 'rgba(').replace(')', ','))||state.ctaBackground.includes(expected.rgbText),'Starta set uses the original '+type+' colour: '+state.ctaBackground);
   assert.equal(state.pretimerAccent,expected.accent.toLowerCase(),'5 s countdown uses original '+type+' colour');
   assert.equal(state.pretimerRGB,expected.rgb,'5 s countdown glow uses original '+type+' colour');
@@ -299,6 +302,7 @@ async function verifyTouchDrag(page,label){
   assert.equal(running.accent,state.accent,'Colour must not shift after Starta set: '+type);
   assert.equal(running.tone,state.tone,'The active set retains the ready theme: '+type);
   assert.equal(running.readyBackground,state.readyBackground,'Background stays fixed when set begins: '+type);
+  if(type==='Push')assert.deepEqual(running.clockColors,state.clockColors,'Push clock digits remain neutral during the active set');
   await page.evaluate(()=>{const w=document.getElementById('family-session-frame').contentWindow;w.sessionState.setRunning=false;w.renderSessionMode();});
   return state;
  };
@@ -319,6 +323,7 @@ async function verifyTouchDrag(page,label){
  snap=await sessionSnapshot();
  assert.equal(snap.pretimerAccent,'#e65c66','The 5s line/dot use original Push red');
  assert.equal(snap.pretimerRGB,'230,92,102','The 5s effects use original Push red');
+ assert.equal(snap.countdownNumberColor,'rgb(207, 250, 254)','Push 5s numeral is neutral ice-white, while the progress line remains red');
  assert.equal(snap.pretimerRing,'none','The 5s timer must remain the original linear format, without a square conic ring');
  await page.screenshot({path:'test-results/ingemar-private/session-5s-pretimer-iphone.png'});
  await frame.locator('#session-pre-timer.show').click();

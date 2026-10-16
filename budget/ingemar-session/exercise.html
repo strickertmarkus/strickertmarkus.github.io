@@ -575,6 +575,24 @@
     }
     /* Ready and active sets use exactly the same original colours.
        There is no separate darker palette or backdrop for Starta set. */
+    /* Ingemar Push only: remove the leftover wine/rose tint from clock
+       READOUTS. Pulse Flow's original neutral ice-white timer typography
+       remains readable; Push buttons, ECG and 5s progress line stay red.
+       Exclude the initial green Starta pass introduction. */
+    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone="push"]:not([data-ingemar-intro="true"]):not(.session-overview-mode) .session-timers #session-pass-timer,
+    html.exercise-concept-pulse-home-v1 body #session-modal#session-modal.pulse-flow-v58.show[data-ingemar-workout-tone="push"]:not([data-ingemar-intro="true"]):not(.session-overview-mode) .session-timers #session-set-timer{
+      color:#CFFAFE!important;
+      -webkit-text-fill-color:#CFFAFE!important;
+      text-shadow:0 0 18px rgba(34,211,238,.12)!important;
+    }
+    /* The 5 s overlay is a sibling of the modal and inherits the current
+       workout tone from <html>; only its numeral becomes neutral. */
+    html.exercise-concept-pulse-home-v1[data-ingemar-workout-tone="push"]:not([data-ingemar-intro="true"]) body #session-pre-timer#session-pre-timer #session-pre-timer-value{
+      color:#CFFAFE!important;
+      -webkit-text-fill-color:#CFFAFE!important;
+      text-shadow:0 0 18px rgba(34,211,238,.12)!important;
+    }
+
     /* Fresh 'Starta pass' is still green, but on the SAME dark surface. */
     html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show.persistent-hype[data-ingemar-intro="true"]:not(.session-overview-mode){
       --accent:#34d399!important;--accent-rgb:52,211,153!important;
