@@ -53,7 +53,7 @@
     var hub = existing || document.createElement('a');
     hub.setAttribute('data-finance-hub-link','true');
     hub.href = financeHubTarget();
-    hub.innerHTML = '<span class="nav-icon">💰</span> Budget';
+    hub.innerHTML = '<span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 9V6a3 3 0 0 1 3-3h11M16 13h5"/></svg></span> Budget';
     hub.classList.toggle('active', isFinanceHubPage);
     hub.addEventListener('click', function () { hub.href = financeHubTarget(); });
     if (!existing && financeLinks.length) financeLinks[0].parentNode.insertBefore(hub, financeLinks[0]);
