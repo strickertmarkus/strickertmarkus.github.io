@@ -345,11 +345,11 @@
       } else {
         html += '<div class="recipe-title-wrap">';
         if (recipe.url) {
-          html += '<a class="recipe-name-link-v4" href="' + escapeAttr(recipe.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(recipe.name) + '<span class="recipe-link-mark">↗</span></a>';
+          html += '<a class="recipe-name-link-v4" href="' + escapeAttr(recipe.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(recipe.name) + '<span class="recipe-link-mark" aria-hidden="true"></span></a>';
         } else {
           html += '<span class="recipe-name-v4" data-action="edit-recipe">' + escapeHtml(recipe.name) + '</span>';
         }
-        html += '<button type="button" class="recipe-edit-meta-v4" data-action="edit-recipe" title="Redigera namn och länk" aria-label="Redigera namn och länk">✎</button></div>';
+        html += '<button type="button" class="recipe-edit-meta-v4" data-action="edit-recipe" title="Redigera namn och länk" aria-label="Redigera namn och länk"></button></div>';
       }
 
       html += '<button type="button" class="recipe-delete-v4" data-action="delete-recipe" title="Radera recept" aria-label="Radera recept">×</button>' +
