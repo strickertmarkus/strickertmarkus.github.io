@@ -142,3 +142,14 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 @media(max-width:768px){
   body[data-home-section="lists"] #home-lists-frame{height:calc(100dvh - 142px);min-height:380px}
 }
+
+/* Themed SVGs replace font-dependent emojis and symbolic navigation glyphs. */
+.nav-dropdown-menu .nav-icon{display:inline-grid;place-items:center;flex:0 0 22px;width:22px;height:21px}
+.nav-dropdown-menu .nav-icon svg{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.app-header .nav-btn svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
+.home-member-mark{display:inline-block;width:14px;height:14px;flex:0 0 14px;vertical-align:middle;margin-right:3px}
+.home-sidebar-label{display:inline-flex;align-items:center;gap:9px}
+.home-sidebar-label svg{width:16px;height:16px;flex:0 0 16px;color:var(--home-view-accent,#FDBA74)}
+#event-modal h2 svg{width:20px;height:20px;vertical-align:-3px;margin-right:6px;color:var(--home-view-accent,#FDBA74)}
+#event-modal .btn-danger svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px;stroke:currentColor}
+.transfer-edit-icon svg{width:15px;height:15px;display:block}
