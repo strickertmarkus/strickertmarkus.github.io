@@ -106,7 +106,7 @@
       {clipPath:geometry.start,offset:1}
     ];
     const anim=stage.animate(keyframes,{
-      duration:ms,easing:'cubic-bezier(.22,.82,.2,1)',fill:'both'
+      duration:ms,easing:'cubic-bezier(.34,.1,.22,1)',fill:'both'
     });
     // Animate only a small lightweight chip. Don't repaint/scale the entire Home page.
     const ghost=glyph(fromRect,toRect,word);
@@ -117,7 +117,7 @@
       ghostAnim=ghost.animate([
         {transform:'translate3d(0,0,0) scale(1,1)',opacity:1,offset:0},
         {transform:'translate3d('+tx+'px,'+ty+'px,0) scale('+scaleX+','+scaleY+')',opacity:0,offset:1}
-      ],{duration:Math.min(ms,240),easing:'cubic-bezier(.22,.82,.2,1)',fill:'both'});
+      ],{duration:Math.min(ms,240),easing:'cubic-bezier(.34,.1,.22,1)',fill:'both'});
     }
     try{await anim.finished}catch(_){}
     // Commit the end frame *before* cancelling WAAPI to avoid a full-screen flash
