@@ -4,11 +4,11 @@
 .home-section-tabs button[aria-selected="true"]{color:var(--home-view-accent,#FDBA74);background:rgba(var(--home-view-rgb,253,186,116),.065)}
 .home-section-tabs button:hover{color:var(--home-view-accent,#FDBA74)}
 .home-section-tabs button:focus-visible,.home-economy-links a:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px}
-#home-overview[hidden],#home-economy[hidden],#home-lists[hidden]{display:none!important}
+#home-overview[hidden],#home-economy[hidden],#home-lists[hidden],#home-travel[hidden]{display:none!important}
 body:not([data-home-section="overview"]){--home-header-height:70px}
 html.home-finance-orange-v3 body.home-calendar-polish-v5:not([data-home-section="overview"]) .app-header>.month-nav.home-header-month-v10,
 body:not([data-home-section="overview"])>.fab{display:none!important}
-.home-economy,.home-lists{max-width:1200px;margin:auto;padding:4px 24px 70px}
+.home-economy,.home-lists,.home-travel{max-width:1200px;margin:auto;padding:4px 24px 70px}
 .home-section-heading{margin:0 0 22px}
 .home-section-heading>span{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--home-view-accent,#FDBA74)}
 .home-section-heading h2{margin:7px 0 0;font-size:26px;line-height:1.2;letter-spacing:-.6px;color:var(--text,#f0f6fc)}
@@ -17,7 +17,7 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-economy-links a{display:flex;align-items:center;gap:22px;padding:12px 14px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:var(--bg2,#161B22);color:var(--text-sec,#929ba9);font-size:12px;text-decoration:none}
 .home-economy-links a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.25)}
 .home-economy-links a span{color:var(--home-view-accent,#FDBA74)}
-@media(max-width:768px){.home-section-tabs{width:calc(100% - 24px);margin-top:8px;margin-bottom:14px}.home-economy,.home-lists{padding:4px 12px 60px}.home-section-heading{margin-bottom:18px}}
+@media(max-width:768px){.home-section-tabs{width:calc(100% - 24px);margin-top:8px;margin-bottom:14px}.home-economy,.home-lists,.home-travel{padding:4px 12px 60px}.home-section-heading{margin-bottom:18px}}
 @media(prefers-reduced-motion:reduce){.home-section-tabs button{transition:none}}
 
 .home-lists-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
@@ -34,3 +34,29 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 #home-notifications[aria-checked="true"] .home-notification-track{background:rgba(var(--home-view-rgb,253,186,116),.25)}
 #home-notifications[aria-checked="true"] .home-notification-track::after{transform:translateX(13px);background:var(--home-view-accent,#FDBA74)}
 @media(max-width:768px){.home-lists-grid{grid-template-columns:1fr;gap:16px}}
+
+.home-overview-widgets{display:grid;gap:16px}
+.home-overview-widgets>.widget{min-width:0;margin:0}
+.home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 22px}
+.home-shortcuts a{display:grid;gap:5px;padding:15px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:var(--bg2,#161B22);text-decoration:none}
+.home-shortcuts strong{color:var(--home-view-accent,#FDBA74);font-size:13px;font-weight:600}
+.home-shortcuts span{color:var(--text-sec,#929ba9);font-size:11px}
+.home-planner-link{display:inline-flex;align-items:center;gap:20px;padding:11px 14px;margin:0 0 20px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.25);border-radius:11px;color:var(--home-view-accent,#FDBA74);background:rgba(var(--home-view-rgb,253,186,116),.055);font-size:13px;text-decoration:none}
+#home-travel-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.home-trip-card,.home-travel-empty{min-width:0;padding:22px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.2);border-radius:20px;background:var(--bg2,#161B22)}
+.home-trip-kicker{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--home-view-accent,#FDBA74)}
+.home-trip-card h3{margin:10px 0 8px;font-size:25px;line-height:1.2;letter-spacing:-.5px;overflow-wrap:anywhere}
+.home-trip-card h3 a{color:var(--text,#f0f6fc);text-decoration:none}
+.home-trip-dates,.home-travel-empty{color:var(--text-sec,#929ba9);font-size:12px;line-height:1.5}
+.home-trip-countdown{margin:22px 0;color:var(--home-view-accent,#FDBA74);font-size:23px;font-weight:600}
+.home-trip-countdown small{display:block;margin-top:3px;font-size:11px;font-weight:400;color:var(--text-sec,#929ba9)}
+.home-trip-stats{display:flex;gap:24px;padding:14px 0;border-top:1px solid rgba(255,255,255,.09);border-bottom:1px solid rgba(255,255,255,.09)}
+.home-trip-stats a{display:grid;gap:4px;color:var(--text-sec,#929ba9);text-decoration:none;font-size:11px}
+.home-trip-stats strong{color:var(--home-view-accent,#FDBA74);font-size:20px;font-weight:600}
+.home-trip-next{display:grid;gap:5px;margin:16px 0;font-size:12px;overflow-wrap:anywhere}
+.home-trip-next span{color:var(--text-sec,#929ba9);font-size:11px}
+.home-trip-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.home-trip-links a{padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.09);font-size:12px;color:var(--text-sec,#929ba9);text-decoration:none}
+.home-trip-links a:hover,.home-shortcuts a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.3)}
+@media(max-width:768px){#home-travel-cards{grid-template-columns:1fr}.home-shortcuts{gap:8px}.home-shortcuts a{padding:12px}.home-trip-card{padding:20px}}
+@media(max-width:420px){.home-section-tabs button{flex:1;min-width:0;padding:10px 7px;font-size:13px}.home-shortcuts{grid-template-columns:1fr}.home-shortcuts a{grid-template-columns:1fr auto;align-items:center;gap:10px}}

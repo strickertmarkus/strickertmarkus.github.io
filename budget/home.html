@@ -17,6 +17,7 @@
 <script defer src="travel-model.js?v=20261013-workflows-1"></script>
 <script defer src="travel-store.js?v=20261013-workflows-1"></script>
 <script defer src="travel-home.js?v=20261013-workflows-1"></script>
+  <script defer src="home-travel-overview.js?v=20261016-1"></script>
   <script defer src="family-todos-ui-v1.js?v=20261015-list-tabs-home-boot-2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1031,7 +1032,7 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261016-lists-1">
+<link rel="stylesheet" href="home-sections.css?v=20261016-travel-1">
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20260902-nav-only-v2"></script>
 <script src="home-theme-controller-v1.js?v=20261016-sections-1"></script>
@@ -1078,6 +1079,7 @@
     <button type="button" id="home-tab-overview" role="tab" aria-selected="true" aria-controls="home-overview" data-home-tab="overview">Översikt</button>
     <button type="button" id="home-tab-economy" role="tab" aria-selected="false" aria-controls="home-economy" data-home-tab="economy" tabindex="-1">Ekonomi</button>
     <button type="button" id="home-tab-lists" role="tab" aria-selected="false" aria-controls="home-lists" data-home-tab="lists" tabindex="-1">Listor</button>
+    <button type="button" id="home-tab-travel" role="tab" aria-selected="false" aria-controls="home-travel" data-home-tab="travel" tabindex="-1">Resor</button>
   </nav>
   <section id="home-overview" role="tabpanel" aria-labelledby="home-tab-overview">
   <div class="filter-bar">
@@ -1156,13 +1158,7 @@
         <span id="home-list-summary-count">0 inköp · 0 uppgifter kvar</span>
         <span class="home-list-summary-arrow" aria-hidden="true">↗</span>
       </button>
-
-    </div>
-  </div>
-  </section>
-  <section id="home-lists" class="home-lists" role="tabpanel" aria-labelledby="home-tab-lists" hidden>
-    <div class="home-section-heading"><span>FAMILJENS LISTOR</span><h2>Inköp &amp; att göra</h2></div>
-    <div class="home-lists-grid">
+      <div id="home-overview-widgets" class="home-overview-widgets">
       <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
           <div class="widget-title">Inköpslista</div>
@@ -1177,6 +1173,19 @@
       </article>
 
       <article class="widget backup-copy" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
+      </div>
+
+    </div>
+  </div>
+  </section>
+  <section id="home-lists" class="home-lists" role="tabpanel" aria-labelledby="home-tab-lists" hidden>
+    <div class="home-section-heading"><span>FAMILJENS LISTOR</span><h2>Inköp &amp; att göra</h2></div>
+    <div class="home-shortcuts" aria-label="Alla listtyper">
+      <a href="shopping.html?mode=shopping"><strong>Inköpslistor</strong><span>Butiker, mallar &amp; recept ↗</span></a>
+      <a href="shopping.html?mode=packing"><strong>Packlista</strong><span>Packning för hela familjen ↗</span></a>
+      <a href="shopping.html?mode=todo"><strong>Alla uppgifter</strong><span>Ansvariga, datum &amp; filter ↗</span></a>
+    </div>
+    <div class="home-lists-grid" id="home-lists-widgets">
     </div>
   </section>
   <section id="home-economy" class="home-economy" role="tabpanel" aria-labelledby="home-tab-economy" hidden>
@@ -1218,8 +1227,15 @@
         </article>
     <div class="home-economy-links" aria-label="Personliga budgetar">
       <a href="budget.html">Markus budget <span aria-hidden="true">↗</span></a>
+      <a href="analytics.html">Markus analys <span aria-hidden="true">↗</span></a>
       <a href="budget_maja.html">Majas budget <span aria-hidden="true">↗</span></a>
+      <a href="analytics_maja.html">Majas analys <span aria-hidden="true">↗</span></a>
     </div>
+  </section>
+  <section id="home-travel" class="home-travel" role="tabpanel" aria-labelledby="home-tab-travel" hidden>
+    <div class="home-section-heading"><span>FAMILJENS RESOR</span><h2>Nästa äventyr</h2></div>
+    <a class="home-planner-link" href="travel.html">Öppna reseplaneraren <span aria-hidden="true">↗</span></a>
+    <div id="home-travel-cards"><p class="home-travel-empty">Hämtar sparade resor…</p></div>
   </section>
 </div>
 
@@ -2423,16 +2439,22 @@ function updateHomeListSummary() {
 }
 
 function selectHomeSection(section) {
-  if (['overview','economy','lists'].indexOf(section) < 0) section = 'overview';
+  if (['overview','economy','lists','travel'].indexOf(section) < 0) section = 'overview';
   var economy = section === 'economy';
   document.body.dataset.homeSection = section;
-  ['overview','economy','lists'].forEach(function(name) { document.getElementById('home-' + name).hidden = name !== section; });
+  var listHost = document.getElementById(section === 'lists' ? 'home-lists-widgets' : 'home-overview-widgets');
+  ['shopping-widget','family-todo-home'].forEach(function(id) {
+    var widget = document.getElementById(id);
+    if (widget.parentElement !== listHost) listHost.appendChild(widget);
+  });
+  ['overview','economy','lists','travel'].forEach(function(name) { document.getElementById('home-' + name).hidden = name !== section; });
   document.querySelectorAll('[data-home-tab]').forEach(function(button) {
     var selected = button.dataset.homeTab === section;
     button.setAttribute('aria-selected', String(selected));
     button.tabIndex = selected ? 0 : -1;
   });
   closeDayEventsPopup();
+  if (section === 'travel' && window.renderHomeTravel) window.renderHomeTravel();
   if (economy) {
     var widget = document.getElementById('transfer-widget');
     if (!widget.classList.contains('open') && !widget.classList.contains('month-open')) toggleTransferPopup(true);
