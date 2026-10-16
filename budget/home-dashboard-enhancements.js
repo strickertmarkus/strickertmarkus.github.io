@@ -149,11 +149,45 @@
     window.scrollTo({top:0,behavior:'instant'});
   }
   function refresh() { renderCounts();renderNextTrip(); }
+  let viewRequest = 0;
+  function sendPlannerViewport() {
+    const frame = $('home-travel-frame');
+    if (!frame || !frame.getAttribute('src') || document.body.dataset.homeSection !== 'travel') return;
+    const rect = frame.getBoundingClientRect(), vv = window.visualViewport;
+    const pageOffset = vv ? vv.offsetTop : 0;
+    const viewHeight = vv ? vv.height : window.innerHeight;
+    const visibleTop = Math.max(0, pageOffset - rect.top);
+    const visibleHeight = Math.max(120,Math.min(viewHeight,rect.height - visibleTop));
+    frame.contentWindow?.postMessage({
+      type:'home:viewport',top:visibleTop,height:visibleHeight
+    },location.origin);
+  }
+  function schedulePlannerViewport() {
+    if (viewRequest) return;
+    viewRequest = requestAnimationFrame(() => { viewRequest=0;sendPlannerViewport(); });
+  }
+  function receivePlannerHeight(event) {
+    const frame = $('home-travel-frame');
+    if (!frame || event.source !== frame.contentWindow || event.origin !== location.origin) return;
+    if (!event.data || event.data.type !== 'travel:content-height') return;
+    const height = Number(event.data.height);
+    if (!Number.isFinite(height) || height < 200 || height > 25000) return;
+    if (Math.abs((parseFloat(frame.style.height)||0)-height)>3) frame.style.height=Math.ceil(height)+'px';
+    schedulePlannerViewport();
+  }
   function install() {
     $('home-list-quick-add')?.addEventListener('submit',addQuick);
     $('home-list-add-mode')?.addEventListener('change',updateQuickMode);
     $('home-next-trip')?.addEventListener('click',openTrip);
-    $('home-travel-frame')?.addEventListener('load',event => { event.currentTarget.dataset.loaded = 'true'; });
+    $('home-travel-frame')?.addEventListener('load',event => {
+      event.currentTarget.dataset.loaded = 'true';
+      schedulePlannerViewport();
+    });
+    window.addEventListener('message',receivePlannerHeight);
+    window.addEventListener('scroll',schedulePlannerViewport,{passive:true});
+    window.addEventListener('resize',schedulePlannerViewport,{passive:true});
+    window.visualViewport?.addEventListener('resize',schedulePlannerViewport);
+    window.visualViewport?.addEventListener('scroll',schedulePlannerViewport);
     const shoppingItems = $('shopping-items');
     if (shoppingItems && 'MutationObserver' in window) {
       new MutationObserver(renderCounts).observe(shoppingItems,{childList:true,subtree:true,attributes:true});
