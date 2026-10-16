@@ -153,3 +153,22 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 #event-modal h2 svg{width:20px;height:20px;vertical-align:-3px;margin-right:6px;color:var(--home-view-accent,#FDBA74)}
 #event-modal .btn-danger svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px;stroke:currentColor}
 .transfer-edit-icon svg{width:15px;height:15px;display:block}
+
+/* Navigation can open full-screen apps without a duplicate second tab row. */
+.home-section-tabs>a{
+  display:inline-flex;justify-content:center;align-items:center;min-height:44px;
+  padding:11px 18px;border:0;border-radius:12px;background:transparent;
+  color:var(--text-sec,#929ba9);font:500 14px/1.4 Inter,system-ui,sans-serif;
+  text-align:center;text-decoration:none;cursor:pointer;
+  transition:background .18s ease,color .18s ease;
+}
+.home-section-tabs>a:hover{color:var(--home-view-accent,#fdba74)}
+.home-section-tabs>a:focus-visible{outline:2px solid var(--home-view-accent,#fdba74);outline-offset:3px}
+.home-section-tabs>button[aria-pressed="true"]{
+  color:var(--home-view-accent,#FDBA74);
+  background:rgba(var(--home-view-rgb,253,186,116),.065)
+}
+@media(max-width:420px){
+  .home-section-tabs>a{flex:1;min-width:0;padding:10px 7px;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){.home-section-tabs>a{transition:none}}
