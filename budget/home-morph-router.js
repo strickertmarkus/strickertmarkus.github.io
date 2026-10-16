@@ -263,6 +263,15 @@
     if(link && sources[link.dataset.homeRoute])makeStage(link.dataset.homeRoute);
   },{capture:true,passive:true});
   document.addEventListener('click',event=>{
+    // A tap on Översikt/Ekonomi while Listor or Resor is loading must
+    // CANCEL the queued destination, not merely update the underlying tab.
+    const homeButton=event.target.closest?.('.home-section-tabs button[data-home-tab]');
+    if(homeButton && (busy || pending || active)){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      request(null,homeButton.dataset.homeTab==='economy'?'economy':'overview',false,null);
+      return;
+    }
     const link=event.target.closest?.('.home-section-tabs a[data-home-route]');
     if(!link || event.defaultPrevented || event.button!==0 ||
        event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||
