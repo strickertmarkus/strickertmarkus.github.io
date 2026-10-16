@@ -48,6 +48,7 @@ async function run(type,name,viewport,layout,offline=false){
    assert(result.x>=-1&&result.right<=result.w+1&&result.y>=-1&&result.bottom<=result.h+1,selector+' outside viewport '+JSON.stringify(result));
  }
  async function openMenu(label){
+   await page.locator('#shopping-tools-toggle').click();
    await page.locator('.dropdown-btn').filter({hasText:label}).click();
    await page.waitForFunction(()=>document.querySelector('#shopping-menu-dialog').open);
    await geometry('#shopping-menu-dialog');
@@ -60,6 +61,11 @@ async function run(type,name,viewport,layout,offline=false){
  try{
    await page.goto(origin+'/budget/shopping.html',{waitUntil:'networkidle'});
    assert.equal(await page.locator('.shopping-mode-switch button svg').count(),3);
+   await page.locator('#shopping-tools-toggle').click();
+   await geometry('#shopping-list-tools');
+   await page.screenshot({path:'test-results/shopping/'+prefix+'-tools-open.png'});
+   await page.locator('#shopping-tools-toggle').click();
+
    assert.equal(await page.locator('a[href="shopping-minimal.html"]').count(),0);
 
    await page.waitForFunction(()=>window.__shoppingRecipeLinkPopupV5Installed&&window.__shoppingListEngineV7);

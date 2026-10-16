@@ -327,14 +327,21 @@
     previous.home.appendChild(previous.menu);
     previous.button.setAttribute('aria-expanded','false');
     window.TrainingOverlay.release('shopping-menu');
-    if (previous.button.isConnected) previous.button.focus({preventScroll:true});
+    var focusTarget = previous.returnFocus || previous.button;
+    if (focusTarget.isConnected) focusTarget.focus({preventScroll:true});
   }
   function closeAllMenus() {
     if (menuDialog && menuDialog.open) menuDialog.close();
     restoreMenu();
+    var toolsMenu = document.getElementById('shopping-tools-menu');
+    if (toolsMenu) toolsMenu.open = false;
   }
   function setupDropdownHandlers() {
     menuDialog = document.getElementById('shopping-menu-dialog');
+    var toolsMenu = document.getElementById('shopping-tools-menu');
+    document.addEventListener('click',function (event) {
+      if (toolsMenu.open && !toolsMenu.contains(event.target)) toolsMenu.open = false;
+    });
     document.querySelectorAll('.dropdown-btn,.nav-btn').forEach(function (button) {
       var menu = button.parentElement.querySelector('.dropdown-menu');
       if (!menu) return;
@@ -344,7 +351,7 @@
       button.addEventListener('click',function () {
         if (menuState && menuState.button === button) { closeAllMenus(); return; }
         closeAllMenus();
-        menuState = {menu:menu,home:menu.parentElement,button:button};
+        menuState = {menu:menu,home:menu.parentElement,button:button,returnFocus:button.closest('#shopping-list-tools') ? document.getElementById('shopping-tools-toggle') : button};
         document.getElementById('shopping-menu-title').textContent = button.classList.contains('nav-btn') ? 'Meny' : button.textContent;
         document.getElementById('shopping-menu-content').appendChild(menu);
         button.setAttribute('aria-expanded','true');

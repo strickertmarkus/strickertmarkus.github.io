@@ -36,13 +36,20 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 .shopping-side{display:grid;gap:20px;min-width:0}
 .shopping-panel{min-width:0;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg2);box-shadow:none}
 .shopping-list-panel{padding:16px;border-color:rgba(var(--accent-rgb),.18)}
-.shopping-panel-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid var(--border)}
+.shopping-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid var(--border)}
 .shopping-current-list{color:var(--text);margin-top:0;font:600 20px/1.3 Inter,system-ui,sans-serif;overflow-wrap:anywhere}
 .shopping-summary{margin-top:3px;font-size:11px;color:var(--text-sec)}
-.shopping-tools-wrap{max-width:100%}
-.header-right-top{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.header-right-top .dropdown-btn{min-height:40px;padding:0 12px;border:1px solid var(--border);border-radius:11px;background:#10151dcc;color:var(--text-sec);font-size:12px;transition:border-color .18s,box-shadow .18s,background .18s}
-.header-right-top .dropdown-btn:hover,.header-right-top .dropdown-btn[aria-expanded="true"]{border-color:var(--border-strong);background:rgba(var(--accent-rgb),.055);color:var(--accent-soft)}
+.shopping-panel-head>div:first-child{min-width:0;flex:1}
+.shopping-tools-wrap{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.shopping-tools-menu{position:relative}
+.shopping-tools-menu summary{display:grid;place-items:center;width:44px;height:44px;list-style:none;cursor:pointer;border:1px solid var(--border);border-radius:11px;background:transparent;color:var(--text-sec);transition:background .18s,color .18s}
+.shopping-tools-menu summary::-webkit-details-marker{display:none}
+.shopping-tools-menu summary svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.shopping-tools-menu[open] summary,.shopping-tools-menu summary:hover{color:var(--accent);background:var(--accent-dim);border-color:var(--border-strong)}
+.shopping-tools-menu summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.header-right-top{position:absolute;right:0;top:calc(100% + 8px);z-index:10;display:grid;gap:3px;width:180px;padding:6px;border:1px solid var(--border-strong);border-radius:14px;background:var(--bg2);box-shadow:0 12px 32px #0006}
+.header-right-top .dropdown-btn{width:100%;min-height:44px;padding:0 12px;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--text-sec);font-size:13px}
+.header-right-top .dropdown-btn:hover,.header-right-top .dropdown-btn[aria-expanded="true"]{background:var(--accent-dim);color:var(--accent)}
 .undo-btn{display:grid;place-items:center;width:40px;min-height:40px;border:0;background:none;color:var(--text-sec);border-radius:12px}
 .undo-btn:hover{background:var(--surface);color:var(--accent)}
 .undo-btn svg{width:19px;height:19px}
@@ -82,9 +89,6 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
   .shopping-recipes-panel{grid-row:1}
   .shopping-list-panel,.shopping-recipes-panel,.shopping-context-card{padding:18px}
   .shopping-panel-head{gap:8px}
-  .shopping-tools-wrap{width:100%}
-  .header-right-top{display:grid;grid-template-columns:40px repeat(3,minmax(0,1fr))}
-  .header-right-top .dropdown-btn{width:100%;padding:0 8px}
   .shopping-current-list{font-size:20px}
   #shopping-menu-dialog{margin:calc(76px + env(safe-area-inset-top,0px)) auto auto;width:calc(100vw - 32px)}
 }
@@ -107,5 +111,4 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 @media(max-width:680px){.shopping-mode-switch button{flex:1;padding:10px 7px;gap:6px}}
 @media(max-width:360px){.shopping-mode-switch button{font-size:12px;gap:4px;padding:10px 4px}.shopping-mode-switch svg{width:16px;height:16px;flex-basis:16px}}
 html:not([data-list-mode="shopping"]) .shopping-recipe-tool,html:not([data-list-mode="shopping"]) .shopping-recipes-panel{display:none}
-html:not([data-list-mode="shopping"]) .header-right-top{grid-template-columns:40px repeat(2,minmax(0,1fr))}
 @media(prefers-reduced-motion:reduce){.shopping-mode-switch button{transition:none}}
