@@ -4,7 +4,12 @@
 <script>if(new URLSearchParams(location.search).get('embed')==='home')document.documentElement.classList.add('travel-embedded');</script>
 <style>
 /* Embedded in Home: keep all editing, dialogs and sections, skip the duplicate page chrome. */
-html.travel-embedded body{background:#0f1219}
+html.travel-embedded body{background:#0f1219;overflow:hidden}
+html.travel-embedded{overflow:hidden;--home-visible-height:700px;--home-dialog-center:350px}
+html.travel-embedded dialog[open]{position:fixed!important;inset:auto!important;top:var(--home-dialog-center)!important;left:50%!important;transform:translate(-50%,-50%);margin:0!important;max-height:calc(var(--home-visible-height) - 24px)!important}
+html.travel-embedded #viewer[open]{height:calc(var(--home-visible-height) - 24px)!important}
+html.travel-embedded #viewer[open] .viewer-image{max-height:calc(var(--home-visible-height) - 190px)}
+
 html.travel-embedded header{display:none}
 html.travel-embedded main{max-width:1200px;margin:auto;padding:13px 24px 70px}
 html.travel-embedded .page-heading{margin-bottom:18px}
@@ -19,7 +24,48 @@ html.travel-embedded .tabs{margin-top:15px}
   html.travel-embedded .hero{padding:17px}
   html.travel-embedded .tabs{margin-top:12px}
 }
-</style><link rel="icon" href="/favicon.ico">
+</style>
+<script>
+/* The embedded planner grows with its contents so Home owns vertical scrolling.
+   Parent viewport position is supplied for accessible, correctly placed modals. */
+(function(){
+ if(!document.documentElement.classList.contains('travel-embedded')||window.parent===window)return;
+ var pending=false,lastHeight=0;
+ function reportHeight(){
+   if(pending)return;
+   pending=true;
+   requestAnimationFrame(function(){
+     pending=false;
+     var main=document.querySelector('main');
+     if(!main)return;
+     var height=Math.ceil(main.offsetTop+main.scrollHeight);
+     if(Math.abs(height-lastHeight)>2){
+       lastHeight=height;
+       window.parent.postMessage({type:'travel:content-height',height:height},location.origin);
+     }
+   });
+ }
+ window.addEventListener('message',function(event){
+   if(event.source!==window.parent||event.origin!==location.origin||!event.data)return;
+   if(event.data.type==='home:viewport'){
+     var top=Number(event.data.top),height=Number(event.data.height);
+     if(!Number.isFinite(top)||!Number.isFinite(height)||height<120)return;
+     document.documentElement.style.setProperty('--home-visible-height',Math.round(height)+'px');
+     document.documentElement.style.setProperty('--home-dialog-center',Math.round(top+height/2)+'px');
+   }
+ });
+ window.addEventListener('DOMContentLoaded',function(){
+   var main=document.querySelector('main');
+   if(main && 'ResizeObserver' in window)new ResizeObserver(reportHeight).observe(main);
+   if(main && 'MutationObserver' in window)new MutationObserver(reportHeight).observe(main,{childList:true,subtree:true,characterData:true});
+   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportHeight);
+   reportHeight();
+ });
+ window.addEventListener('load',reportHeight);
+ window.addEventListener('resize',reportHeight);
+})();
+</script>
+<link rel="icon" href="/favicon.ico">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="auth-config.js"></script><script defer src="auth-gate.js"></script><script defer src="travel-model.js?v=20261013-workflows-1"></script><script defer src="travel-store.js?v=20261013-workflows-1"></script><script defer src="travel.js?v=20261014-filter-viewport-6"></script>
 </head><body>
 <header><a href="home.html" class="brand">FAMILJEN<span> / RESOR</span></a><a class="back" href="home.html">← Home</a></header>
