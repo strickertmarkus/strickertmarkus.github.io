@@ -9,6 +9,13 @@ html[data-hub-route="travel"] .home-section-tabs>#home-tab-overview{view-transit
 html[data-hub-route="lists"] .home-section-tabs>#home-tab-lists{view-transition-name:family-hub-morph}
 html[data-hub-route="travel"] .home-section-tabs>#home-tab-travel{view-transition-name:family-hub-morph}
 .site-hub-home{view-transition-name:family-hub-morph}
+/* Only the tapped tab gains the active chip surface for the outgoing snapshot. */
+html[data-hub-route="lists"] .home-section-tabs>#home-tab-lists,
+html[data-hub-route="travel"] .home-section-tabs>#home-tab-travel{
+  color:var(--home-view-accent,#fdba74);
+  background:rgba(var(--home-view-rgb,253,186,116),.09);
+}
+
 
 /* A single fast motion instead of a delay followed by a second animation. */
 ::view-transition-group(family-hub-morph){
