@@ -17,7 +17,6 @@
   const sameSite=origin=>origin===location.origin;
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const app=$('.app-wrap');
-  let lastHomeFocus=null;
 
   function rect(el){
     if(!el)return null;
@@ -90,19 +89,19 @@
     const ms=duration();
     if(!ms || !stage.animate)return;
     const anim=stage.animate(opening?[
-      {clipPath:clipped,filter:'brightness(.85)'},
-      {clipPath:full,filter:'brightness(1)'}
+      {clipPath:clipped},
+      {clipPath:full}
     ]:[
-      {clipPath:full,filter:'brightness(1)'},
-      {clipPath:clipped,filter:'brightness(.85)'}
+      {clipPath:full},
+      {clipPath:clipped}
     ],{duration:ms,easing:'cubic-bezier(.2,.85,.2,1)',fill:'both'});
     // Both entire pages coexist: the previous view remains visible outside the expanding area.
     const back=app?.animate(opening?[
-      {opacity:1,transform:'scale(1)'},
-      {opacity:.75,transform:'scale(.985)'}
+      {opacity:1},
+      {opacity:.82}
     ]:[
-      {opacity:.75,transform:'scale(.985)'},
-      {opacity:1,transform:'scale(1)'}
+      {opacity:.82},
+      {opacity:1}
     ],{duration:ms,easing:'cubic-bezier(.2,.85,.2,1)',fill:'both'});
     const ghost=glyph(opening?fromRect:fromRect,opening?toRect:toRect,word);
     let ghostAnim;
@@ -125,7 +124,6 @@
     busy=true;
     const tab=$('#home-tab-'+area);
     const origin=source||tab;
-    lastHomeFocus=document.activeElement;
     origin?.classList.add('hub-loading');
     const resource=makeStage(area);
     try{
