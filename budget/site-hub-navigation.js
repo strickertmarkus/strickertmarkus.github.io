@@ -1,53 +1,50 @@
-/* Inter-page Home navigation: preserve standalone layouts and browser history. */
+/* Direct browser navigation preserves the native cross-document View Transition morph. */
 (function(){
   'use strict';
-  const storageKey='family-hub-navigation-v1';
+  const validArea=path=>{
+    const match=String(path).match(/(?:^|\/)budget\/(home|shopping|travel)\.html$/);
+    return match?match[1]:null;
+  };
+  const currentArea=validArea(location.pathname);
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  // New documents get a small entrance transition on browsers without cross-document transitions.
-  try {
-    const stamp=Number(sessionStorage.getItem(storageKey));
-    if(stamp && Date.now()-stamp<3500 && !reduced())document.documentElement.classList.add('hub-arrived');
-    sessionStorage.removeItem(storageKey);
-  }catch(_){}
-  function intercept(event,anchor){
-    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    if(anchor.target&&anchor.target!=='_self')return;
-    if(anchor.hasAttribute('download'))return;
-    let dest;
-    try{dest=new URL(anchor.href,location.href)}catch(_){return}
-    if(dest.origin!==location.origin)return;
-    // Choosing the already-active app must not reload it or discard an editing draft.
-    if(anchor.getAttribute('aria-current')==='page' && dest.pathname===location.pathname){
-      event.preventDefault();
-      const menu=anchor.closest('details');
-      if(menu)menu.open=false;
-      return;
-    }
-    if(dest.pathname===location.pathname&&dest.search===location.search&&dest.hash===location.hash){
-      event.preventDefault();
-      return;
-    }
-    if(!/(?:^|\/)budget\/(?:home|shopping|travel)\.html$/.test(dest.pathname))return;
-    // Native navigation remains the fallback for accessibility and reduced motion.
-    if(reduced())return;
-    event.preventDefault();
-    try{sessionStorage.setItem(storageKey,String(Date.now()))}catch(_){}
-    document.documentElement.classList.add('hub-leaving');
-    window.setTimeout(()=>location.assign(dest.href),185);
+
+  /* Prepare the outgoing named element before Safari takes its pageswap snapshot.
+     No timeout, CSS transform or delayed location.assign: those caused the old two-stage jump. */
+  function prepareDestination(url){
+    if(currentArea!=='home')return;
+    let target;
+    try{target=validArea(new URL(url,location.href).pathname)}catch(_){return}
+    document.documentElement.dataset.hubRoute=target==='shopping'?'lists':target==='travel'?'travel':'overview';
   }
-  document.addEventListener('click',function(event){
+  document.addEventListener('click',event=>{
     const link=event.target.closest?.('a[data-hub-link],.home-section-tabs a[data-home-route]');
-    if(link)intercept(event,link);
-    document.querySelectorAll('.site-hub[open]').forEach(details=>{
-      if(!details.contains(event.target))details.open=false;
-    });
+    if(!link || event.defaultPrevented || event.button!==0 ||
+        event.ctrlKey || event.metaKey || event.shiftKey || event.altKey ||
+        link.hasAttribute('download') || (link.target && link.target!=='_self'))return;
+    let destination;
+    try{destination=new URL(link.href,location.href)}catch(_){return}
+    if(destination.origin!==location.origin || !validArea(destination.pathname))return;
+    if(destination.pathname===location.pathname &&
+        destination.search===location.search && destination.hash===location.hash){
+      event.preventDefault();
+      return;
+    }
+    prepareDestination(destination.href);
+    /* Let the anchor navigate normally: Safari 18.2+ owns the 215ms shared-element transition. */
   });
-  document.addEventListener('keydown',function(event){
-    if(event.key==='Escape')document.querySelectorAll('.site-hub[open]').forEach(details=>{
-      details.open=false;details.querySelector('summary')?.focus({preventScroll:true});
-    });
+
+  window.addEventListener('pageswap',event=>{
+    if(!event.viewTransition || reduced())return;
+    const destination=event.activation?.entry?.url;
+    if(destination)prepareDestination(destination);
   });
-  window.addEventListener('pageshow',function(){
-    document.documentElement.classList.remove('hub-leaving');
+  window.addEventListener('pagereveal',()=>{
+    // BFCache restores can retain the outgoing Home route. Reset before the new snapshot.
+    if(currentArea==='home')document.documentElement.dataset.hubRoute='overview';
+    document.documentElement.classList.remove('hub-leaving','hub-arrived');
+  });
+  window.addEventListener('pageshow',()=>{
+    if(currentArea==='home')document.documentElement.dataset.hubRoute='overview';
+    document.documentElement.classList.remove('hub-leaving','hub-arrived');
   });
 })();
