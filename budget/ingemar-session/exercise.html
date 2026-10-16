@@ -833,6 +833,21 @@ function updateSessionTimers(){
   if(setEl)setEl.textContent=fmtSec(setSec);
 }
 
+function syncIngemarPushCountdownNumber(){
+ var pre=document.getElementById('session-pre-timer'),modal=document.getElementById('session-modal');
+ var value=pre&&pre.querySelector('#session-pre-timer-value');
+ if(!value||!modal)return;
+ // The shared countdown creates/updates its own DOM after the session
+ // renders. Ensure its numeral remains the neutral clock colour in Push.
+ var push=modal.dataset.ingemarWorkoutTone==='push';
+ if(push){
+  value.style.setProperty('color','#CFFAFE','important');
+  value.style.setProperty('-webkit-text-fill-color','#CFFAFE','important');
+ }else{
+  value.style.removeProperty('color');
+  value.style.removeProperty('-webkit-text-fill-color');
+ }
+}
 function syncIngemarRestColor(){
   var rest=document.getElementById('session-between-overlay-v2');
   if(!rest)return;
@@ -847,6 +862,9 @@ function watchIngemarRestColor(){
  ingemarRestObserver=new MutationObserver(function(records){
   for(var i=0;i<records.length;i++){
    var record=records[i],target=record.target;
+   if(target&&target.id==='session-pre-timer'){
+    syncIngemarPushCountdownNumber();return;
+   }
    if(target&&target.id==='session-between-overlay-v2'){
     syncIngemarRestColor();return;
    }
@@ -856,6 +874,9 @@ function watchIngemarRestColor(){
    if(record.type==='childList'){
     for(var j=0;j<record.addedNodes.length;j++){
      var added=record.addedNodes[j];
+     if(added.nodeType===1&&(added.id==='session-pre-timer'||added.querySelector&&added.querySelector('#session-pre-timer'))){
+      syncIngemarPushCountdownNumber();return;
+     }
      if(added.nodeType===1&&(added.id==='session-between-overlay-v2'||added.querySelector&&added.querySelector('#session-between-overlay-v2'))){
       syncIngemarRestColor();return;
      }
@@ -932,7 +953,7 @@ function syncIngemarSessionTone(){
    if(knob)['background','box-shadow'].forEach(function(key){knob.style.removeProperty(key);});
   }
  }
- watchIngemarRestColor();syncIngemarRestColor();
+ watchIngemarRestColor();syncIngemarRestColor();syncIngemarPushCountdownNumber();
 }
 function renderSessionMode(){
   if(!sessionState)return;
