@@ -75,6 +75,7 @@ fs.mkdirSync(out, {recursive:true});
     await page.locator('#home-tab-economy').click();
     assert.equal(await page.locator('#home-overview').isVisible(),false);
     assert.equal(await page.locator('.fab').isVisible(),false);
+    assert.equal(await page.locator('.month-nav').isVisible(),false);
     assert.equal(await page.locator('#home-tab-economy').getAttribute('aria-selected'),'true');
     assert.equal(await page.locator('[data-calendar-view]').count(),0);
     assert.equal(await page.locator('#home-economy #transfer-widget').count(),1);

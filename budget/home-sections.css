@@ -5,7 +5,10 @@
 .home-section-tabs button:hover{color:var(--home-view-accent,#FDBA74)}
 .home-section-tabs button:focus-visible,.home-economy-links a:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px}
 #home-overview[hidden],#home-economy[hidden]{display:none!important}
-body[data-home-section="economy"] .app-header>.month-nav,body[data-home-section="economy"] .app-header>.btn-notif,body[data-home-section="economy"]>.fab{display:none!important}
+body[data-home-section="economy"]{--home-header-height:70px}
+html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-section="economy"] .app-header>.month-nav.home-header-month-v10,
+html.home-finance-orange-v3 body.home-calendar-polish-v5[data-home-section="economy"] .app-header>.btn-notif.home-notif-switch-v7,
+body[data-home-section="economy"]>.fab{display:none!important}
 .home-economy{max-width:1200px;margin:auto;padding:4px 24px 70px}
 .home-section-heading{margin:0 0 22px}
 .home-section-heading>span{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--home-view-accent,#FDBA74)}

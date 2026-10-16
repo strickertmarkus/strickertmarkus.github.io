@@ -376,9 +376,9 @@
 
     html.home-finance-orange-v3 body .app-header,
     html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
-      height:160px !important;
-      min-height:160px !important;
-      max-height:160px !important;
+      height:var(--home-header-height,112px) !important;
+      min-height:var(--home-header-height,112px) !important;
+      max-height:var(--home-header-height,112px) !important;
       position:sticky !important;
       top:0 !important;
       padding:0 !important;
@@ -543,9 +543,9 @@
     @media(max-width:600px) {
       html.home-finance-orange-v3 body .app-header,
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header {
-        height:156px !important;
-        min-height:156px !important;
-        max-height:156px !important;
+        height:var(--home-header-height,108px) !important;
+        min-height:var(--home-header-height,108px) !important;
+        max-height:var(--home-header-height,108px) !important;
       }
       html.home-finance-orange-v3 body.home-calendar-polish-v5 .app-header .brand {
         top:13px !important;
