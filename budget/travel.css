@@ -164,3 +164,15 @@
  .travel-task-row .info>.title{font-size:13px}
  .travel-task-quick{gap:5px}
 }
+
+/* Lightweight direct editing for trip notes; advanced controls stay optional. */
+.travel-note-inline{cursor:text;min-height:36px;border:1px solid transparent;border-radius:7px;outline:none}
+.travel-note-inline:hover{border-color:#fdba7428;background:#fdba7407}
+.travel-note-inline:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.travel-note-input{
+ display:block;width:100%;min-height:120px;max-height:45vh;resize:vertical;
+ padding:10px 11px;margin:0;box-sizing:border-box;
+ background:#0f1219;border:1px solid #fdba7480;border-radius:9px;
+ color:var(--ink);font:400 16px/1.5 Inter,system-ui,sans-serif;
+ outline:none;box-shadow:0 0 0 2px #fdba7415
+}
