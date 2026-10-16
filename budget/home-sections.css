@@ -60,3 +60,39 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-trip-links a:hover,.home-shortcuts a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.3)}
 @media(max-width:768px){#home-travel-cards{grid-template-columns:1fr}.home-shortcuts{gap:8px}.home-shortcuts a{padding:12px}.home-trip-card{padding:20px}}
 @media(max-width:420px){.home-section-tabs button{flex:1;min-width:0;padding:10px 7px;font-size:13px}.home-shortcuts{grid-template-columns:1fr}.home-shortcuts a{grid-template-columns:1fr auto;align-items:center;gap:10px}}
+
+
+/* Current month essentials; compact rather than another calculator. */
+.home-economy-snapshot{max-width:800px;margin:-5px 0 15px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.2);background:var(--bg2,#161B22);border-radius:16px;padding:14px 16px}
+.home-economy-snapshot-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px}
+.home-economy-snapshot-top>span{color:var(--home-view-accent,#FDBA74);font-size:12px;font-weight:750}
+.home-economy-snapshot-top small,.home-economy-muted,.home-economy-comparison{color:var(--text-sec,#929ba9);font-size:11px}
+.home-economy-muted{margin:0}
+.home-economy-muted a{color:var(--home-view-accent,#FDBA74)}
+.home-economy-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.home-economy-metric{display:grid;align-content:start;gap:4px;min-width:0;padding:3px 12px;border-right:1px solid rgba(255,255,255,.09)}
+.home-economy-metric:first-child{padding-left:0}
+.home-economy-metric:last-child{border-right:0;padding-right:0}
+.home-economy-metric>span{font-size:10px;color:var(--text-sec,#929ba9)}
+.home-economy-metric strong{font-size:clamp(14px,1.7vw,20px);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--text,#f0f6fc);white-space:nowrap}
+.home-economy-metric:first-child strong{color:var(--home-view-accent,#FDBA74)}
+.home-economy-comparison{margin:12px 0 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
+.home-economy-comparison strong{color:var(--text,#f0f6fc);font-weight:650}
+
+/* The entire existing travel app runs in this workspace, not an abbreviated preview. */
+.home-travel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+.home-travel-heading .home-section-heading{margin:0}
+.home-travel-heading .home-planner-link{margin:0;padding:8px 11px;white-space:nowrap;font-size:11px}
+.home-planner-workspace{width:100%;overflow:hidden;border:1px solid rgba(var(--home-view-rgb,253,186,116),.2);border-radius:18px;background:#0f1219}
+#home-travel-frame{display:block;width:100%;height:calc(100dvh - 205px);min-height:520px;max-height:980px;border:0;background:#0f1219}
+@media(max-width:750px){
+  .home-economy-snapshot{padding:12px 13px}
+  .home-economy-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 0}
+  .home-economy-metric:nth-child(2){border-right:0;padding-right:0}
+  .home-economy-metric:nth-child(3){padding-left:0}
+  .home-economy-metric strong{font-size:17px}
+  .home-travel-heading .home-section-heading h2{font-size:23px}
+  .home-planner-workspace{border-radius:13px}
+  #home-travel-frame{height:calc(100dvh - 190px);min-height:440px;max-height:none}
+}
+@media(max-width:380px){.home-travel-heading .home-section-heading h2{font-size:20px}.home-economy-metric strong{font-size:15px}}
