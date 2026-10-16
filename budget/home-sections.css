@@ -128,3 +128,17 @@ body[data-home-section="travel"] #home-travel-frame{display:block;width:100%;hei
   .home-list-quick-add:has(#home-list-add-group:not([hidden])) select{flex:1 1 calc(50% - 5px);max-width:none}
   .home-list-quick-add:has(#home-list-add-group:not([hidden])) input{flex:1 1 calc(100% - 48px)}
 }
+
+/* Full shopping.html view under Home / Listor, with no secondary cards or shortcuts. */
+body[data-home-section="lists"] #home-lists{width:100%;max-width:none;margin:0;padding:0}
+body[data-home-section="lists"] #home-lists-frame{
+  display:block;width:100%;height:calc(100dvh - 128px);min-height:460px;max-height:none;
+  border:0;border-radius:0;box-shadow:none;background:transparent
+}
+body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-tabs{
+  position:sticky;top:var(--home-header-height,70px);z-index:99;
+  background:rgba(15,18,25,.96);backdrop-filter:blur(12px)
+}
+@media(max-width:768px){
+  body[data-home-section="lists"] #home-lists-frame{height:calc(100dvh - 142px);min-height:380px}
+}
