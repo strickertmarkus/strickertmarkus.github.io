@@ -16,6 +16,75 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shopping-shell-v1.css?v=20261016-tools-menu-1">
+
+<style>
+/* Home displays the entire Shopping app directly beneath the Listor tab. */
+html.shopping-embedded{--home-visible-height:720px;--home-dialog-center:360px;--home-dialog-top:14px}
+html.shopping-embedded body{min-height:0;overflow-x:hidden;background:#0f1219}
+html.shopping-embedded .app-wrap{min-height:0}
+html.shopping-embedded .app-header{display:block;max-width:1200px;padding:10px 24px 0}
+html.shopping-embedded .app-header>.brand,
+html.shopping-embedded .app-header>.nav-dropdown-wrapper{display:none!important}
+html.shopping-embedded .shopping-mode-switch{display:flex;width:100%;margin:0;padding-bottom:12px}
+html.shopping-embedded .wrap{padding:14px 24px 70px}
+html.shopping-embedded #shopping-menu-dialog[open]{
+  position:fixed!important;inset:auto!important;top:var(--home-dialog-top)!important;
+  left:50%!important;transform:translateX(-50%)!important;
+  margin:0!important;max-height:calc(var(--home-visible-height) - 28px)!important
+}
+html.shopping-embedded #recipe-link-popup-v5[open]{
+  position:fixed!important;inset:auto!important;
+  left:50%!important;top:var(--home-dialog-center)!important;
+  transform:translate(-50%,-50%)!important;margin:0!important;
+  max-height:calc(var(--home-visible-height) - 28px)!important
+}
+@media(max-width:680px){
+  html.shopping-embedded .app-header{padding:10px 12px 0}
+  html.shopping-embedded .wrap{padding:12px 12px 50px}
+}
+</style>
+<script>
+/* Keep the parent Home page as the scroll container; do not duplicate list state. */
+(function(){
+  if(new URLSearchParams(location.search).get('embed')!=='home')return;
+  document.documentElement.classList.add('shopping-embedded');
+  if(window.parent===window)return;
+  var lastHeight=0,queued=false;
+  function report(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      var app=document.querySelector('.app-wrap');
+      if(!app)return;
+      var height=Math.ceil(app.offsetTop+app.scrollHeight);
+      if(Math.abs(height-lastHeight)>2){
+        lastHeight=height;
+        window.parent.postMessage({type:'shopping:content-height',height:height},location.origin);
+      }
+    });
+  }
+  window.addEventListener('message',function(event){
+    if(event.source!==window.parent||event.origin!==location.origin||!event.data)return;
+    if(event.data.type!=='home:viewport')return;
+    var top=Number(event.data.top),height=Number(event.data.height);
+    if(!Number.isFinite(top)||!Number.isFinite(height)||height<120)return;
+    var root=document.documentElement.style;
+    root.setProperty('--home-visible-height',Math.round(height)+'px');
+    root.setProperty('--home-dialog-center',Math.round(top+height/2)+'px');
+    root.setProperty('--home-dialog-top',Math.round(top+12)+'px');
+  });
+  window.addEventListener('DOMContentLoaded',function(){
+    var app=document.querySelector('.app-wrap');
+    if(app&&'ResizeObserver' in window)new ResizeObserver(report).observe(app);
+    if(app&&'MutationObserver' in window)new MutationObserver(report).observe(app,{childList:true,subtree:true,characterData:true});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(report);
+    report();
+  });
+  window.addEventListener('load',report);
+  window.addEventListener('resize',report);
+})();
+</script>
 </head>
 <body>
 <div class="app-wrap">
