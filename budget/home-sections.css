@@ -122,6 +122,7 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-next-trip #home-next-trip-details{font-size:11px;color:var(--text-sec,#929ba9)}
 .home-next-trip:hover{border-color:rgba(var(--home-view-rgb,253,186,116),.4)}
 /* The Resor tab is a page-level workspace, not a card inside the page. */
+body[data-home-section="travel"] .home-section-tabs{position:sticky;top:var(--home-header-height,70px);z-index:99;background:rgba(15,18,25,.96);backdrop-filter:blur(12px)}
 body[data-home-section="travel"] #home-travel{width:100%;max-width:none;padding:0;margin:0}
 body[data-home-section="travel"] #home-travel-frame{display:block;width:100%;height:calc(100dvh - 128px);min-height:500px;max-height:none;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent}
 @media(max-width:768px){
