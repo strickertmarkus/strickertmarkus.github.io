@@ -109,32 +109,6 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .exercise-card.builder-drag-source{opacity:.24}
 #builder .exercise-card.builder-drag-target{border-color:#94e8eb70;box-shadow:0 0 0 1px #94e8eb20,0 0 24px #59d7de12}
 .builder-drag-ghost{position:fixed!important;z-index:2147482500!important;pointer-events:none!important;margin:0!important;opacity:.96;transform-origin:center center;background:#121a26!important;border:1px solid #94e8eb77!important;box-shadow:0 20px 46px #000c,0 0 25px #58d7df18!important;will-change:transform}
-@media(max-width:600px){
- #builder .modal-head{padding:10px 12px;gap:8px;background:#171b27}
- #builder .modal-head .x{flex:0 0 34px}
- #builder .modal-head h2{overflow-wrap:anywhere}
- #builder .modal-body{padding:8px 9px 13px}
- #builder .type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
- #builder .builder-template-tools{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
- #builder .builder-template-tools .builder-template-select-wrap{grid-column:1/-1}
- #builder .builder-template-tools button{width:100%;height:100%;font-size:12px;min-height:46px;padding:8px 5px}
- #builder .builder-template-delete{grid-column:auto;border:1px solid #ae647340;border-radius:14px;background:#ffffff09}
- #builder .builder-row-copy,#builder .builder-row-drag{width:30px;height:30px;min-width:30px;min-height:30px}
- #builder .type-pills .pill{width:100%;padding:8px 3px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
- #builder .exercise-card{padding:8px 9px;margin:6px 0;border-radius:13px}
- #builder .exercise-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
- #builder .exercise-head h3{font-size:11px;overflow-wrap:anywhere}
- #builder .exercise-fields{grid-template-columns:minmax(0,1fr);gap:4px;margin-bottom:6px}
- #builder .metric-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
- #builder .metric-pills .pill{width:100%;min-height:32px;padding:5px 4px;font-size:11px;white-space:normal;overflow-wrap:anywhere}
- #builder .set-header,#builder .set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 28px;gap:4px}
- #builder .set-header{font-size:9px;margin:4px 0 2px}
- #builder .set-header span{overflow-wrap:anywhere}
- #builder .set-row input{width:100%;min-height:36px;height:36px;padding:4px 2px;font-size:14px;border-radius:9px}
- #builder .set-row .remove-set{width:28px;min-height:36px;padding:0}
- #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
- #builder .exercise-foot span{overflow-wrap:anywhere;font-size:9px}
- 
 /* A pair of compact switches rather than two full-width cards.
    Each whole button is the tap target; the existing IDs/data-actions own state. */
 #builder .builder-session-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;column-gap:7px;row-gap:7px;margin:3px 0 10px;min-width:0}
@@ -161,6 +135,32 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-exercise-between{margin-top:7px;border-top:1px solid #ffffff13;padding-top:6px}
 #builder .builder-exercise-between .builder-session-option{padding:5px 7px;background:#ffffff04;border-color:#ffffff10}
 #builder .builder-exercise-between .builder-session-fields{padding:6px 1px 0}
+
+@media(max-width:600px){
+ #builder .modal-head{padding:10px 12px;gap:8px;background:#171b27}
+ #builder .modal-head .x{flex:0 0 34px}
+ #builder .modal-head h2{overflow-wrap:anywhere}
+ #builder .modal-body{padding:8px 9px 13px}
+ #builder .type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ #builder .builder-template-tools{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
+ #builder .builder-template-tools .builder-template-select-wrap{grid-column:1/-1}
+ #builder .builder-template-tools button{width:100%;height:100%;font-size:12px;min-height:46px;padding:8px 5px}
+ #builder .builder-template-delete{grid-column:auto;border:1px solid #ae647340;border-radius:14px;background:#ffffff09}
+ #builder .builder-row-copy,#builder .builder-row-drag{width:30px;height:30px;min-width:30px;min-height:30px}
+ #builder .type-pills .pill{width:100%;padding:8px 3px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
+ #builder .exercise-card{padding:8px 9px;margin:6px 0;border-radius:13px}
+ #builder .exercise-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
+ #builder .exercise-head h3{font-size:11px;overflow-wrap:anywhere}
+ #builder .exercise-fields{grid-template-columns:minmax(0,1fr);gap:4px;margin-bottom:6px}
+ #builder .metric-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ #builder .metric-pills .pill{width:100%;min-height:32px;padding:5px 4px;font-size:11px;white-space:normal;overflow-wrap:anywhere}
+ #builder .set-header,#builder .set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 28px;gap:4px}
+ #builder .set-header{font-size:9px;margin:4px 0 2px}
+ #builder .set-header span{overflow-wrap:anywhere}
+ #builder .set-row input{width:100%;min-height:36px;height:36px;padding:4px 2px;font-size:14px;border-radius:9px}
+ #builder .set-row .remove-set{width:28px;min-height:36px;padding:0}
+ #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+ #builder .exercise-foot span{overflow-wrap:anywhere;font-size:9px}
 
 /* Safari zooms focused inputs below 16px; keep the editable numeric fields at 16px on iPhone. */
 @supports (-webkit-touch-callout: none){#builder .set-row input{font-size:16px}}

@@ -32,6 +32,8 @@ Träningssidans översikt, passbyggare, planering, mallar, träningslogg, rekord
 24. Långa pass- och övningsnamn bryts inom historik, detaljdialog och förhandsvisning. Historikens mått får behålla sitt utrymme.
 25. Veckomallsmenyns höjd, padding och radavstånd har rättats så att text inte klipps vertikalt på mobil.
 
+26. Formgivningen för starttimer och aktivitet mellan övningar/set gäller nu även dator. Reglerna låg felaktigt inuti en mobilavgränsning och har flyttats till den gemensamma CSS-delen. En webbläsarkontroll verifierar reglagens layout även vid 1440 pixlar.
+
 ## Testning och underhåll
 
 - 32 automatiserade enhetstester: 20 befintliga kontotester och 12 nya riktade regressionstester.

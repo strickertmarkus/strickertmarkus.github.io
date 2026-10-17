@@ -150,6 +150,8 @@ async function run(browserType,label,width){
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
   await page.setViewportSize(size);await page.locator('#history [data-history]').first().click();await geometry(page,'#history-detail');await shot(page,label+'-long-log-'+size.width);await page.locator('#history-detail .modal-head [data-action="close-history"]').click();await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
   const bad=await page.locator('#builder input').evaluateAll(els=>els.filter(el=>el.getClientRects().length).some(el=>parseFloat(getComputedStyle(el).fontSize)<16));assert.equal(bad,false);
+  assert.equal(await page.locator('#builder .builder-session-settings').evaluate(el=>getComputedStyle(el).display),'grid','Session settings retain their layout at '+size.width);
+  assert.equal(await page.locator('#builder-pre-timer-toggle').evaluate(el=>getComputedStyle(el).display),'flex','Timer switch retains its layout at '+size.width);
   await shot(page,label+'-builder-'+size.width);await closeBuilder(page);await page.waitForFunction(()=>!document.body.dataset.builderOpen);await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-overview-'+size.width);
  }
  assert.deepEqual(errors,[],'No runtime errors');console.log(label+': training-only lifecycle, persistence, menus, statistics and geometry passed');
