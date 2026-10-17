@@ -599,7 +599,7 @@ function inlineTravelControl(button,kind){
  if(kind==='planned'&&(!record||record.type!=='expense'))return;
  const original=button;
  const input=document.createElement(kind==='booking'&&key==='status'?'select':'input');
- const prev=kind==='tripBudget'?(trip()?.budget??0):kind==='category'?(record?.amount??0):kind==='planned'?(record.planned??0):(record[key]||'');
+ const prev=kind==='tripBudget'?(trip()?.budget??0):kind==='category'?(record?.amount??M.budget(list('expense'),list('categoryBudget')).groups[category]?.planned??0):kind==='planned'?(record.planned??0):(record[key]||'');
  if(kind==='booking'){
    if(key==='status')input.innerHTML=opts(['Att boka','Bokat','Avbokat'],prev);
    else input.type=key.toLowerCase().includes('date')?'date':'time';
