@@ -293,14 +293,34 @@ function fieldsFor(type,v={}){const title=field('title',type==='packing'?'Vad sk
  if(type==='document')return [title,field('category','Kategori','select',{options:['Biljetter','Bokningsbekräftelser','Kvitton','Övrigt']}),booking,field('important','Viktigt dokument','checkbox',{wide:true}),url,field('upload','PDF eller bild · PDF högst 1 MB','file',{accept:'application/pdf,image/*',wide:true}),notesField];
  return [title,date,place,field('pinned','Fäst överst','checkbox',{wide:true}),notesField,url];
 }
-function fieldHTML(f,v){const val=v[f.key]??'';let input,attrs=' name="'+f.key+'" '+(f.required?'required ':'')+(f.min!==undefined?'min="'+f.min+'" ':'')+(f.max!==undefined?'max="'+f.max+'" ':'');
+function travelPickerText(kind,value){
+ if(!value)return kind==='time'?'Välj tid':'Välj datum';
+ if(kind==='time')return String(value).slice(0,5);
+ try{
+   const date=String(value).slice(0,10),parsed=new Date(date+'T12:00:00');
+   if(Number.isNaN(parsed.getTime()))return date;
+   return new Intl.DateTimeFormat('sv-SE',{day:'numeric',month:'short',year:'numeric'}).format(parsed);
+ }catch(_){return String(value);}
+}
+function fieldHTML(f,v){
+ const val=v[f.key]??'',dateTime=['date','time','datetime-local'].includes(f.kind);
+ let input,attrs=' name="'+f.key+'" '+(f.required?'required ':'')+(f.min!==undefined?'min="'+f.min+'" ':'')+(f.max!==undefined?'max="'+f.max+'" ':'');
  if(f.kind==='select')input='<select'+attrs+'>'+opts(f.options,val,f.empty)+'</select>';
  else if(f.kind==='textarea')input='<textarea'+attrs+' rows="'+(editing?.type==='note'?10:3)+'" placeholder="'+esc(f.placeholder||'')+'">'+esc(val)+'</textarea>';
  else if(f.kind==='checkbox')input='<input'+attrs+' type="checkbox" '+(val?'checked':'')+'>';
  else if(f.kind==='file')input='<input'+attrs+' type="file" accept="'+f.accept+'" '+(f.multiple?'multiple':'')+'>';
  else if(f.kind==='map')input=btn('data-action="pick-coordinate"','Placera en markör')+'<div id="coordinate-map" hidden></div>';
- else input='<input'+attrs+' type="'+f.kind+'" '+(f.kind==='number'?'step="any" inputmode="decimal"':'')+' '+(f.kind==='text'?'maxlength="500"':'')+' value="'+esc(val)+'" '+(f.suggest?'list="suggest-'+f.key+'"':'')+'>'+(f.suggest?'<datalist id="suggest-'+f.key+'">'+f.suggest.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>':'');
- return '<label class="'+(f.wide||['map','checkbox'].includes(f.kind)?'wide':'')+' '+(f.kind==='checkbox'?'check-label':'')+'">'+esc(f.label)+input+'</label>';
+ else {
+   const native='<input'+attrs+' type="'+f.kind+'" '+(f.kind==='number'?'step="any" inputmode="decimal"':'')+' '+(f.kind==='text'?'maxlength="500"':'')+' value="'+esc(val)+'" '+(f.suggest?'list="suggest-'+f.key+'"':'')+'>';
+   // iOS Safari's date/time shadow controls have an intrinsic width larger than
+   // their CSS box. Render a compact readable face while the native picker remains
+   // the real, focusable form input spanning the entire face.
+   input=dateTime?'<span class="travel-picker-face" data-picker-kind="'+f.kind+'"><span class="travel-picker-value" aria-hidden="true">'+esc(travelPickerText(f.kind,val))+'</span>'+
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/></svg>'+
+    native+'</span>':native;
+   if(f.suggest)input+='<datalist id="suggest-'+f.key+'">'+f.suggest.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>';
+ }
+ return '<label class="'+(f.wide||['map','checkbox'].includes(f.kind)?'wide':'')+' '+(f.kind==='checkbox'?'check-label':'')+' travel-field-'+f.key+'">'+esc(f.label)+input+'</label>';
 }
 function defaults(type){return {packingPeople:M.people.join(', '),currency:trip()?.currency||'SEK',rate:1,date:day||currentDay(),timezone:trip()?.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Stockholm',arrivalTimezone:trip()?.timezone||'Europe/Stockholm',timing:'timed',category:type==='booking'?'Boende':type==='packing'?'Övrigt':'',quantity:1,unit:'st',owner:'Övrigt',status:'Att boka',entryKind:filters.budget==='plan'?'plan':'payment',showHome:true,taskKind:'todo'};}
 function openEditor(type,id,prefill={}){
