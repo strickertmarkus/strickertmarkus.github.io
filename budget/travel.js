@@ -44,7 +44,17 @@ function render(force=false){
  const t=trip();$('hero').innerHTML='<div class="hero">'+(t.coverId?'<img class="hero-cover" data-file="'+esc(t.coverId)+'" alt="">':t.coverURL?'<img class="hero-cover" src="'+esc(S.safeURL(t.coverURL))+'" alt="">':'')+'<div><span class="eyebrow">'+esc(t.destination||'ER RESA')+' · '+M.tripState(t)+'</span><h2>'+esc(t.title)+'</h2><p class="meta">'+esc((t.departure||'').slice(0,10))+' — '+esc(t.endDate||'')+'</p><p class="meta">'+esc(t.travelers||'')+'</p><div class="hero-actions">'+btn('data-edit="'+esc(t.id)+'"','Redigera resa')+btn('data-action="trip-tools"','Hantera resa')+'</div></div><div class="countdown" id="countdown"></div></div>';tick();
  $('tabs').innerHTML=tabs.map(([key,label])=>btn('data-tab="'+key+'" aria-current="'+(tab===key?'page':'false')+'"',label,tab===key?'active':'')).join('');
  const desc=tabs.find(x=>x[0]===tab);$('section-title').textContent=desc[1];$('section-kicker').textContent=desc[2];$('add').hidden=tab==='overview'||tab==='packing';$('add').textContent='+ '+({photo:'Lägg till bilder',packing:'Lägg till sak',task:'Ny uppgift',expense:filters.budget==='plan'?'Planera kostnad':'Ny utgift'}[tab]||'Lägg till '+names[tab]);
- map?.remove();map=null;const views={overview:overview,activity:schedule,packing:packing,task:tasks,expense:expenses,booking:bookings,place:places,photo:photos,document:documents,note:notes};$('content').innerHTML=views[tab]();hydrateImages();if(tab==='place')loadMap();if(tab==='document')checkFiles();
+ // A filter change re-renders the list. Preserve its open state so users can
+ // adjust multiple criteria without repeatedly reopening the same control.
+ const content=$('content');
+ const keepTab=content.dataset.renderedTab===tab;
+ const retain=keepTab?[...content.querySelectorAll('details[open]')].map(d=>d.className)
+  .filter(name=>['packing-filter','travel-task-filters','travel-task-quick-more','travel-quiet-filter'].includes(name)):[];
+ map?.remove();map=null;const views={overview:overview,activity:schedule,packing:packing,task:tasks,expense:expenses,booking:bookings,place:places,photo:photos,document:documents,note:notes};
+ content.innerHTML=views[tab]();
+ content.dataset.renderedTab=tab;
+ for(const className of retain)content.querySelector('details.'+className)?.setAttribute('open','');
+ hydrateImages();if(tab==='place')loadMap();if(tab==='document')checkFiles();
 }
 function metric(label,value,detail,to,filter=''){return '<button class="card metric metric-link" data-go="'+to+'" '+filter+'><small>'+label+'</small><strong>'+value+'</strong><p>'+detail+'</p></button>';}
 function overview(){const t=trip(),p=list('packing'),todos=list('task'),cost=M.budget(list('expense'),list('categoryBudget')),during=M.tripState(t)==='Pågående';const next=list('activity').filter(x=>x.date>currentDay()||(x.date===currentDay()&&(!x.endTime||x.endTime>=M.timeIn(t.timezone)))).sort(M.activitySort);
