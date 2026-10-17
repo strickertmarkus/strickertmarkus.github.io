@@ -176,3 +176,134 @@
  color:var(--ink);font:400 16px/1.5 Inter,system-ui,sans-serif;
  outline:none;box-shadow:0 0 0 2px #fdba7415
 }
+
+
+/* Consistent secondary controls: compact toggles, rows, and in-place edits. */
+.segmented{gap:4px;margin:8px 0 13px}
+.segmented button{min-height:34px;padding:7px 12px;border-radius:9px;font-size:12px}
+.segmented button.active{color:var(--accent);background:#fdba7410;border-color:#fdba7440;box-shadow:0 0 14px #fdba740d}
+.budget-category{min-width:0}
+.budget-category>div{min-width:0}
+.budget-category [data-inline-budget-category],.inline-amount{
+  padding:5px 8px;min-height:32px;max-width:100%;
+  color:var(--accent);font-size:12px;white-space:nowrap
+}
+.expense-row{min-width:0}
+.expense-row>div{min-width:0}
+.expense-row .row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.subtle-action{min-height:32px;border:0;background:transparent;color:var(--muted);font-size:11px;padding:5px 7px}
+.travel-quiet-filter{margin:0 0 10px}
+.travel-quiet-filter summary,.travel-more-actions summary{
+  width:max-content;max-width:100%;padding:5px 2px;color:var(--muted);
+  font-size:11px;cursor:pointer;list-style:none
+}
+.travel-more-actions summary::-webkit-details-marker,.travel-quiet-filter summary::-webkit-details-marker{display:none}
+.travel-more-actions summary:hover,.travel-quiet-filter summary:hover,
+.travel-more-actions[open]>summary,.travel-quiet-filter[open]>summary{color:var(--accent)}
+.travel-more-actions .inline-actions{margin:3px 0 0;gap:6px}
+.travel-quiet-filter .filters{margin:5px 0 10px}
+.travel-quiet-filter[open] .filters{min-width:0}
+.travel-inline-control{
+  display:block;min-width:0;max-width:100%;width:min(100%,185px);
+  min-height:36px;height:36px;padding:5px 7px;border:1px solid #fdba7480;
+  background:#121821;color:var(--ink);border-radius:7px;font-size:16px;
+}
+.booking-card.travel-booking-compact{min-width:0;padding:14px}
+.travel-booking-compact .booking-top{margin-bottom:8px}
+.travel-booking-compact h3{font-size:17px;font-weight:620;margin:4px 0 8px}
+.booking-status-chip{
+  min-height:29px;max-width:100%;padding:4px 9px;border:1px solid #fdba7433;
+  background:#fdba740a;border-radius:999px;font-size:11px;color:var(--accent)
+}
+.booking-inline-dates{
+  display:grid;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);
+  gap:5px;align-items:center;min-width:0;margin:9px 0 6px
+}
+.booking-inline-slot{min-width:0}
+.booking-inline-slot>small{display:block;font-size:10px;color:var(--muted);margin-bottom:3px}
+.booking-inline-datetime{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
+.booking-inline-datetime button{
+  min-width:0;min-height:30px;padding:4px 7px;border:1px solid #ffffff12;
+  background:#ffffff03;border-radius:7px;font-size:11px;white-space:nowrap;
+  color:var(--ink);font-variant-numeric:tabular-nums
+}
+.booking-inline-datetime button:hover{border-color:#fdba744f;color:var(--accent)}
+.booking-date-arrow{color:var(--accent);font-size:13px;align-self:center;text-align:center}
+.booking-inline-actions{margin-top:7px;gap:5px}
+.booking-inline-actions>button,.booking-inline-actions>a{min-height:31px;padding:5px 8px;font-size:11px}
+.booking-inline-actions>.travel-more-actions{flex:0 0 100%}
+.booking-inline-payment{font-size:11px}
+.document-row{grid-template-columns:34px minmax(0,1fr) auto;gap:9px;padding:11px 1px}
+.document-row>.file-icon{width:31px;height:39px;font-size:9px}
+.document-row>div{min-width:0}
+.document-row .row-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.document-row .row-actions>button{min-height:33px;padding:5px 9px;font-size:11px}
+.document-row .travel-more-actions{min-width:40px}
+.packing-group .travel-owner-dot{flex:0 0 7px}
+.packing-group .check-row .info{gap:8px}
+.packing-group .check-row .info .travel-owner-dot{margin-right:1px}
+@media(max-width:440px){
+  .booking-card.travel-booking-compact{padding:12px}
+  .booking-inline-dates{gap:3px}
+  .booking-inline-datetime{gap:3px}
+  .booking-inline-datetime button{padding:4px 6px;font-size:10px}
+  .document-row{grid-template-columns:30px minmax(0,1fr) auto;gap:6px}
+}
+
+/* Fixed dialog geometry: only the content column scrolls, never the modal shell.
+   Prevent native date/time min-content from pushing controls outside the viewport. */
+html:has(dialog[open]),body:has(dialog[open]){overflow:hidden!important;overscroll-behavior:none}
+dialog[open]{
+  position:fixed!important;inset:0!important;top:0!important;left:0!important;
+  right:0!important;bottom:0!important;transform:none!important;margin:auto!important;
+  width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px);
+  max-height:calc(100dvh - 24px);box-sizing:border-box;
+  overflow:hidden!important;overflow-x:hidden!important;
+  overscroll-behavior:contain;isolation:isolate;
+}
+#editor[open]{display:block}
+#editor[open] #edit-form{display:flex;flex-direction:column;min-width:0;max-height:calc(100dvh - 24px);overflow:hidden}
+#editor[open] .dialog-head,#editor[open] .dialog-actions{position:relative;top:auto;bottom:auto;flex:0 0 auto}
+#editor[open] .fields{
+  min-width:0;min-height:0;max-width:100%;width:100%;box-sizing:border-box;
+  overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;
+  gap:11px;padding:14px 16px;grid-template-columns:repeat(2,minmax(0,1fr))
+}
+#editor[open] .fields label{min-width:0;max-width:100%;overflow:hidden}
+#editor[open] .fields .wide{grid-column:1/-1}
+#editor[open] .form-note{flex:0 0 auto;margin:7px 16px;font-size:10px;line-height:1.4}
+#editor[open] #form-error{flex:0 0 auto;margin:0 16px;font-size:11px}
+#editor[open] .dialog-head{padding:13px 16px}
+#editor[open] .dialog-actions{padding:10px 16px}
+#editor[open] .fields input,#editor[open] .fields select,#editor[open] .fields textarea{
+  box-sizing:border-box;width:100%;min-width:0;max-width:100%;font-size:16px
+}
+#editor[open] .fields input[type=date],
+#editor[open] .fields input[type=time],
+#editor[open] .fields input[type=datetime-local]{
+  display:block;width:100%;min-width:0;max-width:100%;min-height:40px;height:40px;
+  padding:6px 7px;text-align:left;direction:ltr;
+}
+#editor[open] .fields input::-webkit-date-and-time-value{min-width:0;text-align:left}
+#editor[open] .fields input::-webkit-datetime-edit{padding:0;min-width:0;max-width:100%}
+#editor[open] .fields input::-webkit-calendar-picker-indicator{margin-left:auto;min-width:12px}
+#trash-dialog[open],#utility[open]{display:flex;flex-direction:column}
+#trash-dialog[open] .dialog-head,#utility[open] .dialog-head{position:relative;top:auto;flex:0 0 auto}
+#trash-dialog[open] #trash-list,#utility[open] #utility-body{
+  flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;box-sizing:border-box;min-width:0;max-width:100%;
+}
+#utility[open] .utility-body input,#utility[open] .utility-body select,
+#utility[open] .utility-body textarea{max-width:100%;min-width:0;box-sizing:border-box}
+#viewer[open]{overflow:hidden!important;display:flex;flex-direction:column;align-items:stretch}
+#viewer[open] #viewer-body{flex:1;min-height:0;max-width:100%;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:620px){
+  #editor[open] .fields{grid-template-columns:minmax(0,1fr);padding:11px 13px;gap:10px}
+  #editor[open] .fields label.wide{grid-column:1}
+  dialog[open]{max-height:calc(100dvh - 14px);width:calc(100vw - 14px);max-width:calc(100vw - 14px)}
+  #editor[open] #edit-form{max-height:calc(100dvh - 14px)}
+  #editor[open] .dialog-head{padding:11px 13px}
+  #editor[open] .dialog-actions{padding:9px 13px}
+  #editor[open] .form-note{margin:5px 13px}
+}
