@@ -299,7 +299,8 @@ function travelPickerText(kind,value){
  try{
    const date=String(value).slice(0,10),parsed=new Date(date+'T12:00:00');
    if(Number.isNaN(parsed.getTime()))return date;
-   return new Intl.DateTimeFormat('sv-SE',{day:'numeric',month:'short',year:'numeric'}).format(parsed);
+   const formatted=new Intl.DateTimeFormat('sv-SE',{day:'numeric',month:'short',year:'numeric'}).format(parsed);
+   return kind==='datetime-local'?formatted+' · '+String(value).slice(11,16):formatted;
  }catch(_){return String(value);}
 }
 function fieldHTML(f,v){
