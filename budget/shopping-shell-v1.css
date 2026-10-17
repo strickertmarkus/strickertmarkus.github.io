@@ -118,3 +118,30 @@ html:not([data-list-mode="shopping"]) .shopping-recipe-tool,html:not([data-list-
 .nav-dropdown-menu .nav-icon svg,.dropdown-menu .nav-icon svg{display:block;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .app-header .nav-btn svg{display:block;width:20px;height:20px;fill:none;stroke:currentColor}
 .undo-btn svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor}
+
+
+/* Consistent person markers for the pack list without changing editable category names. */
+html[data-list-mode="packing"] #items-list .category-title:not(.new-category){
+ display:flex;align-items:center;gap:8px;min-width:0
+}
+html[data-list-mode="packing"] #items-list .category-title[contenteditable="true"]{display:block}
+.shopping-person-dot{
+ display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;
+ background:var(--shopping-person-color,#FDBA74);
+ box-shadow:0 0 10px var(--shopping-person-color,#FDBA74);
+ pointer-events:none
+}
+/* Keep remaining utility dialogs stationary; scroll only inner content if necessary. */
+html:has(#shopping-menu-dialog[open]),body:has(#shopping-menu-dialog[open]),
+html:has(#recipe-link-popup-v5[open]),body:has(#recipe-link-popup-v5[open]){
+ overflow:hidden!important;overscroll-behavior:none
+}
+#shopping-menu-dialog[open],#recipe-link-popup-v5[open]{
+ max-width:calc(100vw - 20px);overflow-x:hidden;overscroll-behavior:contain;
+}
+#shopping-menu-content{min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto}
+#recipe-link-popup-v5[open] input[type="date"],
+#recipe-link-popup-v5[open] input[type="time"],
+#recipe-link-popup-v5[open] input[type="datetime-local"]{
+ max-width:100%;width:100%;min-width:0;box-sizing:border-box;font-size:16px
+}
