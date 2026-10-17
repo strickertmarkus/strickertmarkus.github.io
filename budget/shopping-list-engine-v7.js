@@ -302,12 +302,21 @@
     '</div>';
   }
 
+  /* Packlista uses the same person-specific glow markers as Home/Resor.
+     Keep the decoration outside the text editor so it never changes the saved heading. */
+  function packingPersonDot(name) {
+    if(document.documentElement.dataset.listMode !== 'packing') return '';
+    var colors={melker:'#86EFAC',mila:'#F472B6',maja:'#F9A8B8',markus:'#38BDF8'};
+    var key=String(name||'').trim().toLowerCase();
+    var color=colors[key]||'#FDBA74';
+    return '<span class="shopping-person-dot" aria-hidden="true" style="--shopping-person-color:'+color+'"></span>';
+  }
   function categoryHtml(category) {
     var editing = state.editingCategory && Number(state.editingCategory.id) === Number(category.id);
     var text = editing ? state.editingCategory.text : String(category.text || '');
     return '<div class="category-title" data-category-id="' + category.id + '" ' +
       (editing ? 'contenteditable="true" spellcheck="true" data-editing-category="true"' : '') + '>' +
-      escapeHtml(text) +
+      (editing ? '' : packingPersonDot(text)) + escapeHtml(text) +
     '</div>';
   }
 
