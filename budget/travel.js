@@ -578,9 +578,86 @@ function editTravelNote(el){
  el.replaceChildren(input);
  input.focus({preventScroll:true});
 }
+/* Edit recurring simple values exactly where they appear; retain the full editor
+   for currencies, participants, linked documents and payment distributions. */
+function inlineTravelControl(button,kind){
+ const id=button.dataset.inlineBooking||button.dataset.inlinePlanned||button.dataset.categoryId;
+ const record=id?S.get(id):null;
+ const category=button.dataset.inlineBudgetCategory||'';
+ const key=button.dataset.inlineKey||'';
+ if(kind==='booking'&&(!record||record.type!=='booking'))return;
+ if(kind==='planned'&&(!record||record.type!=='expense'))return;
+ const original=button;
+ const input=document.createElement(kind==='booking'&&key==='status'?'select':'input');
+ const prev=kind==='category'?(record?.amount??0):kind==='planned'?(record.planned??0):(record[key]||'');
+ if(kind==='booking'){
+   if(key==='status')input.innerHTML=opts(['Att boka','Bokat','Avbokat'],prev);
+   else input.type=key.toLowerCase().includes('date')?'date':'time';
+ }else{input.type='number';input.step='any';input.min='0';input.inputMode='decimal';}
+ if(input.tagName==='INPUT')input.value=String(prev);
+ input.className='travel-inline-control';
+ input.setAttribute('aria-label',kind==='category'?'Planerad budget '+category:kind==='planned'?'Planerat belopp':key);
+ let done=false;
+ const cancel=()=>{if(input.isConnected)input.replaceWith(original);};
+ const commit=async()=>{
+   if(done)return;
+   done=true;
+   const value=input.value;
+   if(String(value)===String(prev)){cancel();return;}
+   if(kind!=='booking'&&(!value||!Number.isFinite(Number(value))||Number(value)<0)){cancel();toast('Ange ett giltigt belopp.');return;}
+   try{
+     if(kind==='category'){
+       const amount=Number(value);
+       if(record)await S.patch(record.id,{amount});
+       else await S.add('categoryBudget',tripId,{title:category,amount});
+     }else if(kind==='planned'){
+       await S.patch(record.id,{planned:Number(value)});
+     }else{
+       const updated={...record,[key]:value};
+       if(updated.endDate&&updated.date&&updated.endDate<updated.date)throw Error('Slutdatum måste vara samma dag eller senare.');
+       if(updated.date&&updated.time&&updated.endDate&&updated.endTime){
+         const before=M.zonedISO(updated.date+'T'+updated.time,updated.timezone||trip().timezone);
+         const after=M.zonedISO(updated.endDate+'T'+updated.endTime,updated.arrivalTimezone||updated.timezone||trip().timezone);
+         if(after<=before)throw Error('Sluttiden måste vara efter starttiden.');
+       }
+       const changes=[{id:record.id,changes:{[key]:value}}];
+       // Keep generated schedule records synchronized with the booking.
+       for(const activity of list('activity').filter(x=>x.bookingId===record.id&&x.scheduleFromBooking)){
+         const oldSchedule=M.bookingSchedule(record,trip().timezone);
+         const newSchedule=M.bookingSchedule(updated,trip().timezone);
+         const patch={};
+         for(const field of ['title','date','time','endDate','endTime','location','url']){
+           if(newSchedule[field]!==oldSchedule[field]&&activity[field]===oldSchedule[field])patch[field]=newSchedule[field];
+         }
+         if(Object.keys(patch).length)changes.push({id:activity.id,changes:patch});
+       }
+       await S.batch(changes);
+     }
+     if(input.isConnected)cancel();
+     render(true);
+   }catch(error){
+     cancel();toast(error.message||'Kunde inte spara ändringen.');
+   }
+ };
+ input.addEventListener('change',commit);
+ input.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){event.stopPropagation();event.preventDefault();done=true;cancel();original.focus({preventScroll:true});}
+   if(event.key==='Enter'&&input.tagName==='INPUT'){event.preventDefault();commit();}
+ });
+ input.addEventListener('blur',()=>{if(!done)setTimeout(()=>{if(!done)cancel();},120);});
+ original.replaceWith(input);
+ input.focus({preventScroll:true});
+ if(kind==='booking'&&key!=='status'&&input.showPicker)try{input.showPicker();}catch(_){}
+}
 document.addEventListener('click',event=>{
  const target=event.target;
  if(!(target instanceof Element))return;
+ const book=target.closest('button[data-inline-booking]');
+ if(book){inlineTravelControl(book,'booking');return;}
+ const category=target.closest('button[data-inline-budget-category]');
+ if(category){inlineTravelControl(category,'category');return;}
+ const planned=target.closest('button[data-inline-planned]');
+ if(planned){inlineTravelControl(planned,'planned');return;}
  const note=target.closest('[data-travel-notes]');
  if(note && !target.closest('textarea')){editTravelNote(note);return;}
  const title=target.closest('[data-travel-title]');
