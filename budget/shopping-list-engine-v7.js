@@ -305,7 +305,7 @@
   /* Packlista uses the same person-specific glow markers as Home/Resor.
      Keep the decoration outside the text editor so it never changes the saved heading. */
   function packingPersonDot(name) {
-    if(document.documentElement.dataset.listMode !== 'packing') return '';
+    if((getActiveList(getLists())?.mode||document.documentElement.dataset.listMode) !== 'packing') return '';
     var colors={melker:'#86EFAC',mila:'#F472B6',maja:'#F9A8B8',markus:'#38BDF8'};
     var key=String(name||'').trim().toLowerCase();
     var color=colors[key]||'#FDBA74';
