@@ -1,0 +1,36 @@
+name: Ingemar training page audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/ingemar.html'
+      - 'budget/ingemar-account.js'
+      - 'budget/ingemar-records.js'
+      - 'budget/tests/ingemar-training-audit*'
+      - '.github/workflows/ingemar-training-audit.yml'
+  workflow_dispatch:
+jobs:
+  training-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check training logic and account persistence
+        run: node --test budget/tests/ingemar-account.test.cjs budget/tests/ingemar-training-audit.test.cjs
+      - name: Install browsers
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit chromium
+      - name: Audit training page only in WebKit and Chromium
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/ingemar-audit-http.log 2>&1 &
+          node budget/tests/ingemar-training-audit-browser.cjs
+      - name: Upload visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingemar-training-audit-ui
+          path: test-results/ingemar-training-audit/

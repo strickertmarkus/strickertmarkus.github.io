@@ -34,7 +34,7 @@
       const text=JSON.stringify(c);let hash=2166136261;for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
       const id='recovered-'+label+'-'+(hash>>>0).toString(36);
       result.templates=result.templates||[];
-      if(!result.templates.some(t=>t.id===id))result.templates.push({id,name:(c.name||c.type)+' · sparad version',type:c.type,exercises:c.exercises});
+      if(!result.templates.some(t=>t.id===id))result.templates.push({id,name:(c.name||c.type)+' · sparad version',type:c.type,exercises:c.exercises,betweenExercises:c.betweenExercises,preTimerEnabled:c.preTimerEnabled});
     }
     for(const date of Object.keys(local.plans||{}))preserve((base.plans||{})[date],local.plans[date],(remote.plans||{})[date],date);
     for(const item of local.templates||[])preserve((base.templates||[]).find(x=>x.id===item.id),item,(remote.templates||[]).find(x=>x.id===item.id),item.id);
@@ -260,8 +260,9 @@
       saving=false;
       if(writeWatchdog){clearTimeout(writeWatchdog);writeWatchdog=null;}
       baseRaw=committed;lastRemote=committed;
+      const beforeMerge=lastLocal;
       lastLocal=JSON.stringify(mergeProfile(JSON.parse(raw),JSON.parse(lastLocal),JSON.parse(committed)));
-      client.apply(JSON.parse(lastLocal));cache(lastLocal);
+      if(lastLocal!==beforeMerge)client.apply(JSON.parse(lastLocal));cache(lastLocal);
       if(lastLocal===committed){
         setDirty(false);try{localStorage.removeItem(pendingKey);}catch(_){}
         setStatus('Synkat via Firebase');
