@@ -16,16 +16,18 @@ jobs:
       - run: |
           node --check budget/travel.js
           node --check budget/travel-model.js
+          node --check budget/travel-layout.js
           node --check budget/travel-home.js
           node --check budget/family-todos-v1.js
           node --check budget/travel-store.js
-          node --test budget/tests/travel.test.cjs
+          node --test budget/tests/travel.test.cjs budget/tests/travel-layout.test.cjs
       - run: |
           npm install --no-save playwright firebase-admin@13
           npx playwright install --with-deps webkit chromium
       - run: |
           python3 -m http.server 4173 >/tmp/travel-http.log 2>&1 &
           sleep 2
+          node budget/tests/travel-experience-browser.cjs
           node budget/tests/travel-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
