@@ -9,7 +9,7 @@ let tripId=query.get('trip')||read('travel-selected-v2','')||localStorage.getIte
 let lastRenderKey='';
 let addingPackingHeading=false;
 let packingActiveEdit=null;
-let showNight=false,selectedPlace='',albumGroup='date',mapMarkers=new Map();
+let showNight=false,selectedPlace='',albumGroup='date',savingEditor=false,mapMarkers=new Map();
 let day='',daysWide=true,editing=null,drag=null,map=null,mapRows=[],viewerIndex=0,toastTimer,undoAction=null,renderPending=false;
 const filters={packingStatus:'all',packingOwner:'',packingGroup:'owner',taskOwner:'',taskStatus:'all',budget:'plan',placeCategory:'',placeStatus:'',placeDay:'',photoDay:'',documentCategory:''};
 const tabs=[['overview','Översikt','RESAN I KORTHET'],['activity','Schema','DAG FÖR DAG'],['packing','Packlista','EN SAK I TAGET'],['task','Att göra','INFÖR RESAN'],['expense','Budget','RESKASSAN'],['booking','Bokningar','FRÅN AVGÅNG TILL INCHECKNING'],['place','Platser & karta','HIT VILL VI'],['photo','Bilder','UTSIKTER & MINNEN'],['document','Dokument','BILJETTER & BILAGOR'],['note','Anteckningar','IDÉER ATT SPARA']];
@@ -80,7 +80,7 @@ function schedule(){
  const floating=rows.filter(x=>x.date===d&&x.timing!=='timed');
  return '<section class="calendar-day '+(d===day?'selected-day':'')+'" data-calendar-day="'+d+'" data-drop-day="'+d+'"><h3>'+esc(new Date(d+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'short'}))+'</h3><div class="flexible-zone" data-drop-date="'+d+'" data-drop-time=""><small>HELDAG & FLEXIBELT</small>'+floating.map(x=>btn('data-edit="'+esc(x.id)+'"',esc(x.title),'flex-event')).join('')+btn('data-slot="'+d+'|" aria-label="Lägg till utan bestämd tid"','+','add-slot')+'</div><div class="calendar-track" style="height:'+((end-start)*60)+'px">'+
  Array.from({length:end-start},(_,h)=>{const time=M.clock((start+h)*60);return '<div class="calendar-hour" style="top:'+(h*60)+'px" data-drop-date="'+d+'" data-drop-time="'+time+'">'+btn('data-slot="'+d+'|'+time+'" aria-label="Lägg till '+d+' '+time+'"','<span>'+time+'</span><i>+</i>','calendar-slot')+'</div>';}).join('')+
- segments[i].map(x=>'<article class="calendar-event category-'+esc(x.row.category||'Aktivitet')+'" data-item="'+esc(x.row.id)+'" style="top:'+(x.start-start*60)+'px;height:'+(x.visualEnd-x.start-2)+'px;--lane:'+x.lane+';--lanes:'+x.lanes+'">'+btn('data-edit="'+esc(x.row.id)+'" aria-label="'+esc(x.row.title)+' '+esc(x.row.time)+'"','<strong>'+esc(x.row.title)+'</strong><small>'+(x.continuesBefore?'← ':esc(x.row.time)+'–')+(x.continuesAfter?' →':esc(x.row.endTime||M.clock(x.end)))+'</small>'+(x.end-x.start>=60?'<span>'+esc(locationOf(x.row)||x.row.category||'Aktivitet')+'</span>':''),'calendar-event-open')+btn('data-drag="'+esc(x.row.id)+'" aria-label="Flytta '+esc(x.row.title)+'"','⠿','handle')+'</article>').join('')+'</div></section>';
+ segments[i].map(x=>'<article class="calendar-event category-'+esc(x.row.category||'Aktivitet')+'" data-item="'+esc(x.row.id)+'" style="top:'+(x.start-start*60)+'px;height:'+(x.visualEnd-x.start-2)+'px;--lane:'+x.lane+';--lanes:'+x.lanes+'">'+btn('data-edit="'+esc(x.row.id)+'" aria-label="'+esc(x.row.title)+' '+esc(x.row.time)+'" title="'+esc(x.row.title)+' · '+esc(x.row.time)+'–'+esc(x.row.endTime)+'"','<strong>'+esc(x.row.title)+'</strong><small>'+(x.continuesBefore?'← ':esc(x.row.time)+'–')+(x.continuesAfter?' →':esc(x.row.endTime||M.clock(x.end)))+'</small>'+(x.end-x.start>=60?'<span>'+esc(locationOf(x.row)||x.row.category||'Aktivitet')+'</span>':''),'calendar-event-open')+btn('data-drag="'+esc(x.row.id)+'" aria-label="Flytta '+esc(x.row.title)+'"','⠿','handle')+'</article>').join('')+'</div></section>';
  }).join('')+'</div><p class="caption muted">Svep mellan dagarna på mobilen. Dra i handtaget för att flytta en aktivitet.</p>';
 }
 function quickForm(type){const draft=read('travel-quick-'+tripId+'-'+type,{});return '<form id="quick-add" class="quick-add travel-task-quick" data-type="task"><input name="title" value="'+esc(draft.title||'')+'" required maxlength="500" autocomplete="off" placeholder="Lägg till uppgift…" aria-label="Ny uppgift">'+btn('data-quick-submit','+','primary')+'<details class="travel-task-quick-more"><summary>Ansvarig</summary><select name="owner" aria-label="Ansvarig">'+opts(members(),draft.owner||filters.taskOwner,'Familjen')+'</select></details></form>';}
@@ -259,7 +259,7 @@ function taskRow(x){
 }
 function tasks(){const rows=list('task').filter(x=>(!filters.taskOwner||x.owner===filters.taskOwner)&&(filters.taskStatus==='all'||!!x.done===(filters.taskStatus==='done')));const group=x=>x.taskKind==='unsorted'?'Behöver sorteras':x.done?'Klart':x.date&&x.date>=(trip().departure||'').slice(0,10)?'Under resan':'Före avresan';return quickForm('task')+'<details class="travel-task-filters"><summary>Filter'+(filters.taskOwner||filters.taskStatus!=='all'?' · Aktivt':'')+'</summary><div class="filters">'+selectFilter('taskOwner','Ansvarig',members(),'Alla')+selectFilter('taskStatus','Visa',[['all','Alla'],['todo','Kvar'],['done','Klart']])+'</div></details>'+['Behöver sorteras','Före avresan','Under resan','Klart'].map(g=>{const items=rows.filter(x=>group(x)===g).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));if(!items.length)return '';return '<section><div class="day-heading">'+g+' · '+items.length+'</div>'+(g==='Behöver sorteras'?'<p class="muted">Äldre poster är kvar. Välj var varje post hör hemma.</p>':'')+items.map(x=>taskRow(x)+(g==='Behöver sorteras'?'<div class="inline-actions">'+btn('data-classify="'+x.id+'|packing"','Till packlistan')+btn('data-classify="'+x.id+'|task"','Behåll som uppgift')+'</div>':'')).join('')+'</section>';}).join('')+(!rows.length?empty('Inga uppgifter här ännu. Lägg till den första ovan.'):'');}
 function expenses(){const rows=list('expense'),plans=list('categoryBudget'),sum=M.budget(rows,plans),balance=M.settlement(rows);const cats=[...new Set([...M.categories,...Object.keys(sum.groups)])];return '<div class="segmented">'+[['plan','Planera'],['actual','Utgifter'],['split','Fördelning']].map(([key,label])=>btn('data-budget="'+key+'"',label,filters.budget===key?'active':'')).join('')+'</div><div class="grid budget-summary"><article class="card metric"><small>TOTAL BUDGET</small><strong>'+money(trip().budget)+'</strong>'+btn('data-inline-trip-budget','Ändra belopp','text-button')+'</article><article class="card metric"><small>BETALAT</small><strong>'+money(sum.actual)+'</strong></article><article class="card metric"><small>KVAR</small><strong class="'+(sum.actual>Number(trip().budget)?'warning':'')+'">'+money(Number(trip().budget||0)-sum.actual)+'</strong></article></div>'+(filters.budget==='plan'?'<div class="section-subhead"><p>Fördelat: '+money(sum.planned)+'</p>'+btn('data-new="categoryBudget"','+ Egen kategori')+'</div><div class="budget-categories">'+cats.map(c=>{const p=plans.find(x=>x.title===c),s=sum.groups[c]||{planned:0,actual:0};return '<article class="budget-category"><div><h3>'+esc(c)+'</h3><div class="budget-category-figures"><span><small>Betalat</small>'+money(s.actual)+'</span><span class="'+(s.actual>s.planned?'warning':'')+'"><small>Kvar</small>'+money(s.planned-s.actual)+'</span></div>'+bar(s.actual,s.planned)+'</div><div class="travel-budget-target"><small>Budgeterat</small>'+btn('data-inline-budget-category="'+esc(c)+'" aria-label="Ändra budgeterat belopp för '+esc(c)+'"'+(p?' data-category-id="'+p.id+'"':''),money(s.planned)+' <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:3px"><path d="m4 20 4-.8 11-11a2 2 0 0 0-3-3l-11 11L4 20ZM14 7l3 3"/></svg>')+'</div></article>';}).join('')+'</div><div class="day-heading">Planerade kostnader</div>'+rows.filter(x=>x.planned!=null&&Number(x.planned)>0).map(expenseRow).join(''):filters.budget==='actual'?expenseQuick()+'<p class="muted caption">Negativt belopp registrerar en återbetalning. Valutakursen sparas med varje betalning.</p><div class="expense-list">'+(rows.filter(x=>x.actual!=null).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(expenseRow).join('')||empty('Inga betalningar registrerade ännu.'))+'</div>':'<p class="muted">Endast utgifter med betalare och fördelning ingår. Positivt saldo betyder att personen har lagt ut mer än sin andel.</p><div class="split-list">'+Object.entries(balance.balances).map(([n,b])=>'<article class="budget-category"><div><h3>'+esc(n)+'</h3><small>Betalat '+money(balance.paid[n]||0)+'</small></div><strong>'+money(b)+'</strong></article>').join('')+'</div><p class="caption muted">'+rows.filter(x=>x.actual!=null&&(!x.payer||!x.splits?.length)).length+' betalningar saknar fullständig fördelning.</p>');}
-function expenseRow(x){return '<article class="expense-row" data-item="'+esc(x.id)+'"><div><h3 class="travel-inline-title" data-travel-title="'+esc(x.id)+'" tabindex="0" role="button" aria-label="Redigera '+esc(x.title)+'">'+esc(x.title)+'</h3><small>'+esc([x.category,x.date,x.payer].filter(Boolean).join(' · '))+'</small><p>'+ (x.actual==null?'Ännu inte betalt':money(x.actual,x.currency))+(x.currency!==trip().currency&&x.actual!=null?' → '+money(M.amount(x))+' · kurs '+esc(x.rate):'')+'</p>'+linked(x,'bookingId')+linked(x,'receiptId')+'</div><div class="row-actions">'+(x.planned!=null?btn('data-inline-planned="'+esc(x.id)+'"',money(x.planned,x.currency),'inline-amount'):'')+btn('data-edit="'+x.id+'"','Mer','subtle-action')+(x.actual==null?btn('data-pay="'+x.id+'"','Registrera betalning'):'')+'</div></article>';}
+function expenseRow(x){return '<article class="expense-row" data-item="'+esc(x.id)+'"><div><h3 class="travel-inline-title" data-travel-title="'+esc(x.id)+'" tabindex="0" role="button" aria-label="Redigera '+esc(x.title)+'">'+esc(x.title)+'</h3><small>'+esc([x.category,x.date,x.payer].filter(Boolean).join(' · '))+'</small><p>'+ (x.actual==null?'Ännu inte betalt':btn('data-inline-actual="'+esc(x.id)+'" aria-label="Ändra betalat belopp"',money(x.actual,x.currency),'inline-amount'))+(x.currency!==trip().currency&&x.actual!=null?' → '+money(M.amount(x))+' · kurs '+esc(x.rate):'')+'</p>'+linked(x,'bookingId')+linked(x,'receiptId')+'</div><div class="row-actions">'+(x.planned!=null?btn('data-inline-planned="'+esc(x.id)+'"',money(x.planned,x.currency),'inline-amount'):'')+btn('data-edit="'+x.id+'"','Mer','subtle-action')+(x.actual==null?btn('data-pay="'+x.id+'"','Registrera betalning'):'')+'</div></article>';}
 function bookingPayment(x){const rows=list('expense').filter(e=>e.bookingId===x.id),actual=rows.reduce((s,e)=>s+M.amount(e),0);return rows.some(e=>e.actual!=null)?(Number(x.total)>0&&actual>=Number(x.total)?'Betalt':actual>0?'Delbetalt':'Obetalt'):x.paymentStatus||'Obetalt';}
 function bookingCard(x){
  const docs=list('document').filter(d=>d.bookingId===x.id),cost=list('expense').filter(e=>e.bookingId===x.id).reduce((n,e)=>n+M.amount(e),0);
@@ -287,7 +287,7 @@ function bookings(){return '<div class="booking-grid">'+(list('booking').sort((a
 function places(){const rows=list('place').filter(x=>(!filters.placeCategory||x.category===filters.placeCategory)&&(!filters.placeStatus||!!x.visited===(filters.placeStatus==='visited'))&&(!filters.placeDay||list('activity').some(a=>a.placeId===x.id&&a.date===filters.placeDay)));mapRows=rows;const stops=list('activity').filter(x=>x.date===(filters.placeDay||currentDay())&&locationOf(x)).sort(M.activitySort);return '<details class="travel-quiet-filter"><summary>Filter'+(filters.placeCategory||filters.placeStatus||filters.placeDay?' · Aktivt':'')+'</summary><div class="filters">'+selectFilter('placeCategory','Kategori',['Sevärdhet','Restaurang','Boende','Vandring','Parkering','Annat'],'Alla')+selectFilter('placeStatus','Status',[['wanted','Vill besöka'],['visited','Besökt']],'Alla')+selectFilter('placeDay','Dag',availableDays(),'Alla dagar')+'</div></details><div class="places-layout"><section class="map-panel"><div id="map" class="map-frame"><p class="muted">Laddar kartan…</p></div><p id="map-status" class="caption muted">Platser med koordinater visas som markörer. Öppna en plats och välj position på kartan om den saknas.</p></section><section class="places-list">'+(stops.length?'<div class="day-heading">Stopp i ordning · '+esc(filters.placeDay||currentDay())+'</div><ol class="route-list">'+stops.map(x=>'<li>'+esc(x.time||'')+' '+esc(x.title)+' '+link(maps(locationOf(x)),'Vägbeskrivning')+'</li>').join('')+'</ol>':'')+'<div class="grid">'+rows.map(x=>'<article class="card place-card" data-item="'+x.id+'" id="place-'+x.id+'"><small>'+esc(x.category||'')+'</small><h3 class="travel-inline-title" data-travel-title="'+esc(x.id)+'" tabindex="0" role="button" aria-label="Redigera '+esc(x.title)+'">'+esc(x.title)+'</h3><p>'+esc(x.location||'')+'</p><p>'+esc(x.notes||'')+'</p><div class="inline-actions">'+actions(x)+btn('data-visited="'+x.id+'"',x.visited?'✓ Besökt':'Markera besökt')+btn('data-schedule="'+x.id+'"','Lägg i schemat')+btn('data-map-focus="'+x.id+'"','Visa på karta')+'</div></article>').join('')+'</div>'+(rows.length?'':empty('Spara en plats ni vill besöka.'))+'</section></div>';}
 let leafletReady;
 async function leaflet(){if(window.L)return window.L;if(!leafletReady)leafletReady=new Promise((resolve,reject)=>{const css=document.createElement('link');css.rel='stylesheet';css.href='vendor/leaflet/leaflet.css';document.head.append(css);const script=document.createElement('script');script.src='vendor/leaflet/leaflet.js';script.onload=()=>resolve(window.L);script.onerror=()=>{leafletReady=null;reject(Error('Kartan kunde inte laddas. Dina sparade platser finns kvar.'));};document.head.append(script);});return leafletReady;}
-async function loadMap(){const host=$('map');try{const L=await leaflet();if(!host?.isConnected)return;host.innerHTML='';map=L.map(host,{scrollWheelZoom:false}).setView([58.5,15.3],5);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);const points=[];mapRows.forEach(x=>{if(x.lat==null||x.lat===''||x.lng==null||x.lng==='')return;const pt=[Number(x.lat),Number(x.lng)];points.push(pt);const marker=L.circleMarker(pt,{radius:9,color:x.visited?'#86efac':'#fdba74',fillOpacity:.85}).addTo(map);marker.on('click',()=>selectPlace(x.id,true));mapMarkers.set(x.id,marker);});if(points.length)map.fitBounds(points,{padding:[35,35],maxZoom:14});}catch(e){if(host?.isConnected)host.innerHTML='<p>'+esc(e.message)+'</p>';}}
+async function loadMap(){const host=$('map');try{const L=await leaflet();if(!host?.isConnected)return;host.innerHTML='';map=L.map(host,{scrollWheelZoom:false}).setView([58.5,15.3],5);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);const points=[];mapRows.forEach(x=>{if(x.lat==null||x.lat===''||x.lng==null||x.lng==='')return;const pt=[Number(x.lat),Number(x.lng)];points.push(pt);const marker=L.circleMarker(pt,{radius:9,color:x.visited?'#86efac':'#fdba74',fillOpacity:.85}).addTo(map);marker.on('click',()=>selectPlace(x.id,true));mapMarkers.set(x.id,marker);});if(points.length)map.fitBounds(points,{padding:[35,35],maxZoom:14});if(selectedPlace)selectPlace(selectedPlace);}catch(e){if(host?.isConnected)host.innerHTML='<p>'+esc(e.message)+'</p>';}}
 function photoRows(){return list('photo').filter(x=>!filters.photoDay||x.date===filters.photoDay).sort((a,b)=>Number(a.order||a.createdAt||0)-Number(b.order||b.createdAt||0));}
 function uploadControl(type){return '<label class="direct-upload"><span>＋ '+(type==='photo'?'Ladda upp bilder':'Lägg till PDF eller bilder')+'</span><input type="file" data-direct-upload="'+type+'" accept="'+(type==='photo'?'image/*':'application/pdf,image/*')+'" multiple><small>Välj filer direkt från din enhet</small></label><p id="upload-status" role="status"></p>';}
 function photos(){
@@ -378,20 +378,20 @@ function syncTravelPickerFace(input){
 function formData(){const out={};for(const f of editing.fields){const el=$('edit-form').elements[f.key];if(!el||['file','map'].includes(f.kind))continue;out[f.key]=f.kind==='checkbox'?el.checked:f.kind==='number'?(el.value===''?null:Number(el.value)):el.value.trim();}return out;}
 function keepDraft(){if(!editing)return;try{localStorage.setItem(editing.key,JSON.stringify(formData()));}catch(_){$('form-error').textContent='Utkastet kunde inte sparas på enheten. Spara innan du lämnar.';}}
 function restoreEditor(){const editor=$('editor');if(editor?.classList.contains('inline-editor')){editor.close();editor.classList.remove('inline-editor');document.body.append(editor);}}
-function closeEditor(redraw=true){keepDraft();$('editor').close();editing=null;restoreEditor();if(redraw)render(true);}
+function closeEditor(redraw=true){if(savingEditor)return;keepDraft();$('editor').close();editing=null;restoreEditor();if(redraw)render(true);}
 function showEditor(type,id,prefill){
  const editor=$('editor');
  if(type==='trip'){editor.showModal();return;}
  editor.classList.add('inline-editor');
  const source=id||prefill.bookingId||prefill.placeId;
  let anchor=source?[...$('content').querySelectorAll('[data-item]')].find(x=>x.dataset.item===source):null;
- if(anchor?.classList.contains('calendar-event'))anchor=anchor.closest('.calendar-day').querySelector('.flexible-zone');
- if(anchor)anchor.after(editor);else $('content').prepend(editor);
+ if(anchor?.classList.contains('calendar-event'))anchor=anchor.closest('.calendar-days');
+ if(anchor?.classList.contains('calendar-days'))anchor.before(editor);else if(anchor)anchor.after(editor);else $('content').prepend(editor);
  editor.show();editor.scrollIntoView({block:'start',behavior:'smooth'});
 }
 function readData(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Filen kunde inte läsas.'));r.readAsDataURL(file);});}
 async function prepareFile(file){if(file.type==='application/pdf'){if(file.size>1024*1024)throw Error('PDF-filen får vara högst 1 MB. Lägg till större dokument som länk.');return readData(file);}if(!file.type.startsWith('image/'))throw Error('Välj en bild eller PDF.');const img=new Image();img.src=await readData(file);await img.decode();const scale=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));c.getContext('2d').drawImage(img,0,0,c.width,c.height);let data=c.toDataURL('image/jpeg',.78);if(data.length>1400000)data=c.toDataURL('image/jpeg',.5);if(data.length>1400000)throw Error('Bilden är för stor. Välj en mindre bild.');return data;}
-async function saveEditor(event){event.preventDefault();if(!editing)return;const submit=$('edit-form').querySelector('[type=submit]');submit.disabled=true;
+async function saveEditor(event){event.preventDefault();if(!editing||savingEditor)return;savingEditor=true;$('fields').inert=true;const submit=$('edit-form').querySelector('[type=submit]');submit.disabled=true;
  try{let value={...formData(),...editing.extra},type=editing.type;const old=editing.id?S.get(editing.id):null;if(old?.deleted)throw Error('Posten har tagits bort på en annan enhet. Ditt utkast är kvar.');
  if(value.url&&!S.safeURL(value.url))throw Error('Använd en fullständig http- eller https-länk.');
  if(type==='expense'){if(value.currency===trip().currency)value.rate=1;value.splits=M.parseSplits(value.splitText||'');delete value.splitText;if(value.entryKind==='plan'){value.actual=null;value.payer='';value.splits=[];}if(value.entryKind==='payment')value.planned=null;}
@@ -417,7 +417,7 @@ async function saveEditor(event){event.preventDefault();if(!editing)return;const
   const id=editing.id||S.uid();if(old){const patch={};for(const [k,v] of Object.entries(row))if(JSON.stringify(v)!==JSON.stringify(editing.base[k]??(['checkbox'].includes(editing.fields.find(f=>f.key===k)?.kind)?false:'')))patch[k]=v;changes.push({id,changes:patch});}else changes.push({id,changes:{...row,type,tripId:type==='trip'?'':tripId,createdAt:Date.now(),deleted:false}});ids.push(id);if(type==='trip')finalTrip=id;
  }
  await S.batch(changes);localStorage.removeItem(editing.key);editing=null;$('editor').close();tripId=finalTrip;remember('travel-selected-v2',tripId);render(true);toast(ids.length>1?ids.length+' bilder sparade.':'Sparat.');
- }catch(e){$('form-error').textContent=(e.message||'Kunde inte spara.')+' Ditt utkast finns kvar; försök igen.';keepDraft();}finally{submit.disabled=false;}
+ }catch(e){$('form-error').textContent=(e.message||'Kunde inte spara.')+' Ditt utkast finns kvar; försök igen.';keepDraft();}finally{savingEditor=false;$('fields').inert=false;submit.disabled=false;}
 }
 function chooseShift(moves,delta){return new Promise(resolve=>{utility('Flytta schemat med resan?','<p>Avresan flyttas '+delta+' dagar. Välj om '+moves.length+' aktiviteter ska följa med.</p><ul class="shift-preview">'+moves.map(m=>'<li>'+esc(S.get(m.id)?.title)+'<br><small>'+esc(S.get(m.id)?.date)+' → '+m.changes.date+'</small></li>').join('')+'</ul><div class="dialog-actions">'+btn('data-shift="yes"','Flytta aktiviteter','primary')+btn('data-shift="no"','Behåll datumen')+btn('data-shift="cancel"','Avbryt')+'</div>');const dlg=$('utility');const finish=v=>{dlg.removeEventListener('click',click);dlg.removeEventListener('close',cancel);dlg.close();resolve(v);};const click=e=>{const b=e.target.closest('[data-shift]');if(b)finish(b.dataset.shift==='cancel'?null:b.dataset.shift==='yes');};const cancel=()=>finish(null);dlg.addEventListener('click',click);dlg.addEventListener('close',cancel);});}
 function templatePanel(){utility('Packmallar','<form id="save-template" class="quick-add"><input name="title" required placeholder="Namn på ny mall" aria-label="Mallnamn">'+btn('data-template-save','Spara nuvarande lista','primary')+'</form><p class="muted">Mallar innehåller saker, antal, personer och kategorier. Packmarkeringar följer aldrig med.</p>'+list('packTemplate').map(x=>'<article class="expense-row"><div><h3>'+esc(x.title)+'</h3><small>'+(x.items||[]).length+' saker</small></div><div class="row-actions">'+btn('data-template-apply="'+x.id+'"','Lägg till i resan')+btn('data-remove="'+x.id+'"','Ta bort')+'</div></article>').join(''));}
@@ -672,22 +672,22 @@ function editTravelNote(el){
 /* Edit recurring simple values exactly where they appear; retain the full editor
    for currencies, participants, linked documents and payment distributions. */
 function inlineTravelControl(button,kind){
- const id=button.dataset.inlineBooking||button.dataset.inlinePlanned||button.dataset.categoryId;
+ const id=button.dataset.inlineBooking||button.dataset.inlinePlanned||button.dataset.inlineActual||button.dataset.categoryId;
  const record=id?S.get(id):null;
  const category=button.dataset.inlineBudgetCategory||'';
  const key=button.dataset.inlineKey||'';
  if(kind==='booking'&&(!record||record.type!=='booking'))return;
- if(kind==='planned'&&(!record||record.type!=='expense'))return;
+ if(['planned','actual'].includes(kind)&&(!record||record.type!=='expense'))return;
  const original=button;
  const input=document.createElement(kind==='booking'&&key==='status'?'select':'input');
- const prev=kind==='tripBudget'?(trip()?.budget??0):kind==='category'?(record?.amount??M.budget(list('expense'),list('categoryBudget')).groups[category]?.planned??0):kind==='planned'?(record.planned??0):(record[key]||'');
+ const prev=kind==='tripBudget'?(trip()?.budget??0):kind==='category'?(record?.amount??M.budget(list('expense'),list('categoryBudget')).groups[category]?.planned??0):kind==='planned'?(record.planned??0):kind==='actual'?(record.actual??0):(record[key]||'');
  if(kind==='booking'){
    if(key==='status')input.innerHTML=opts(['Att boka','Bokat','Avbokat'],prev);
    else input.type=key.toLowerCase().includes('date')?'date':'time';
- }else{input.type='number';input.step='any';input.min='0';input.inputMode='decimal';}
+ }else{input.type='number';input.step='any';if(kind!=='actual')input.min='0';input.inputMode='decimal';}
  if(input.tagName==='INPUT')input.value=String(prev);
  input.className='travel-inline-control';
- input.setAttribute('aria-label',kind==='tripBudget'?'Totalbudget':kind==='category'?'Planerad budget '+category:kind==='planned'?'Planerat belopp':key);
+ input.setAttribute('aria-label',kind==='tripBudget'?'Totalbudget':kind==='category'?'Planerad budget '+category:kind==='planned'?'Planerat belopp':kind==='actual'?'Betalat belopp':key);
  let done=false;
  const cancel=()=>{if(input.isConnected)input.replaceWith(original);};
  const commit=async()=>{
@@ -695,7 +695,7 @@ function inlineTravelControl(button,kind){
    done=true;
    const value=input.value;
    if(String(value)===String(prev)){cancel();return;}
-   if(kind!=='booking'&&(!value||!Number.isFinite(Number(value))||Number(value)<0)){cancel();toast('Ange ett giltigt belopp.');return;}
+   if(kind!=='booking'&&(!value||!Number.isFinite(Number(value))||(kind!=='actual'&&Number(value)<0))){cancel();toast('Ange ett giltigt belopp.');return;}
    try{
      if(kind==='tripBudget'){
        await S.patch(tripId,{budget:Number(value)});
@@ -703,8 +703,8 @@ function inlineTravelControl(button,kind){
        const amount=Number(value);
        if(record)await S.patch(record.id,{amount});
        else await S.add('categoryBudget',tripId,{title:category,amount});
-     }else if(kind==='planned'){
-       await S.patch(record.id,{planned:Number(value)});
+     }else if(kind==='planned'||kind==='actual'){
+       await S.patch(record.id,{[kind]:Number(value)});
      }else{
        const updated={...record,[key]:value};
        if(updated.endDate&&updated.date&&updated.endDate<updated.date)throw Error('Slutdatum måste vara samma dag eller senare.');
@@ -751,6 +751,8 @@ document.addEventListener('click',event=>{
  if(book){inlineTravelControl(book,'booking');return;}
  const category=target.closest('button[data-inline-budget-category]');
  if(category){inlineTravelControl(category,'category');return;}
+ const actual=target.closest('button[data-inline-actual]');
+ if(actual){inlineTravelControl(actual,'actual');return;}
  const planned=target.closest('button[data-inline-planned]');
  if(planned){inlineTravelControl(planned,'planned');return;}
  const note=target.closest('[data-travel-notes]');
@@ -780,6 +782,7 @@ document.addEventListener('focusout',event=>{
  if(event.target===travelTitleEdit?.el)finishTravelTitleEdit(event.target);
 });
 
+document.addEventListener('click',event=>{if(savingEditor&&!event.target.closest('#utility')){event.preventDefault();event.stopImmediatePropagation();}},{capture:true});
 document.addEventListener('click',click);
 $('edit-form').addEventListener('submit',saveEditor);
 $('edit-form').addEventListener('input',event=>{syncTravelPickerFace(event.target);keepDraft();});
@@ -886,11 +889,11 @@ function expenseQuick(){const draft=read('travel-expense-quick-'+tripId,{});retu
 function selectPlace(id,scroll=false){selectedPlace=id;for(const card of document.querySelectorAll('.place-card'))card.classList.toggle('selected',card.dataset.item===id);for(const [key,marker] of mapMarkers)marker.setStyle({radius:key===id?13:9,weight:key===id?4:2,color:key===id?'#fff1df':S.get(key)?.visited?'#86efac':'#fdba74'});if(scroll)$('place-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});}
 let uploadBusy=false;
 async function directUpload(input){
- const type=input.dataset.directUpload,files=[...input.files],selectedTrip=tripId,status=$('upload-status');if(!files.length||uploadBusy)return;
+ const type=input.dataset.directUpload,files=[...input.files],selectedTrip=tripId,selectedDate=day||currentDay(),status=$('upload-status');if(!files.length||uploadBusy)return;
  uploadBusy=true;input.disabled=true;const failed=[];
  for(let i=0;i<files.length;i++){
   const file=files[i];if(status?.isConnected)status.textContent='Sparar '+(i+1)+' av '+files.length+'…';
-  try{const fileId=await S.putFile(await prepareFile(file));await S.add(type,selectedTrip,{title:file.name.replace(/\.[^.]+$/,''),fileId,fileName:file.name,date:day||currentDay(),category:type==='document'?'Övrigt':'',order:Date.now()});}
+  try{const fileId=await S.putFile(await prepareFile(file));await S.add(type,selectedTrip,{title:file.name.replace(/\.[^.]+$/,''),fileId,fileName:file.name,date:selectedDate,category:type==='document'?'Övrigt':'',order:Date.now()});}
   catch(error){failed.push(file.name+': '+error.message);}
  }
  uploadBusy=false;input.disabled=false;input.value='';render(true);

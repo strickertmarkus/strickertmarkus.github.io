@@ -8,7 +8,7 @@ function install(){
  async function request(op,path,value){const res=await fetch('/__travel_fixture',{method:'POST',body:JSON.stringify({op,path,value})});if(!res.ok)throw Object.assign(Error('permission_denied'),{code:'PERMISSION_DENIED'});return res.json();}
  const ref=path=>({child:s=>ref(path+'/'+s),on(_,cb){if(path==='.info/connected'){queueMicrotask(()=>cb({val:()=>true}));return;}listeners.push({path,cb});request('get',path).then(v=>cb({val:()=>v,exists:()=>!!v}));},off(){},async update(v){await request('patch',path,v);},async set(v){await request('set',path,v);},async once(){const v=await request('get',path);return {val:()=>v,exists:()=>!!v};},async transaction(fn){const old=await request('get',path),v=fn(old);if(v!==undefined)await request('set',path,v);return {committed:v!==undefined};}});
  window.firebase={apps:[{}],auth:()=>auth,database:()=>({ref}),initializeApp(){}};
- setIntervalif(require.main===module)(async()=>{try{const data=await request('get',''),serialized=JSON.stringify(data);if(last===serialized)return;last=serialized;for(const {path,cb} of listeners){let value=data;for(const k of path.split('/').filter(Boolean))value=value?.[k];cb({val:()=>value||null,exists:()=>!!value});}}catch(_){}},100);
+ setInterval(async()=>{try{const data=await request('get',''),serialized=JSON.stringify(data);if(last===serialized)return;last=serialized;for(const {path,cb} of listeners){let value=data;for(const k of path.split('/').filter(Boolean))value=value?.[k];cb({val:()=>value||null,exists:()=>!!value});}}catch(_){}},100);
 }
 const remote={family_travel_v1:{items:{},files:{}},family_todos_v2:{migratedLegacyV1:true,items:{}}};
 let deny=false;
@@ -32,7 +32,7 @@ async function checkPackingFilter(page){
  assert.equal(await page.locator('.packing-filter[open]').count(),0,'Escape did not close filter');
 }
 async function geometry(page){assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow');if(await page.locator('#editor').isVisible()){assert(await page.locator('#editor').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'dialog overflow');assert(await page.locator('#editor input,#editor select,#editor textarea').evaluateAll(es=>es.every(e=>parseFloat(getComputedStyle(e).fontSize)>=16)),'iOS zoom');}}
-(async()=>{
+if(require.main===module)(async()=>{
  fs.mkdirSync(output,{recursive:true});const browser=await webkit.launch(process.env.ZEN_WEBKIT?{executablePath:process.env.ZEN_WEBKIT}:{}),ctx=await setup(browser,390),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'/budget/travel.html',{waitUntil:'domcontentloaded'});await page.evaluate(()=>TravelStore.ready);await page.locator('#empty [data-new]').click();await page.locator('#edit-form [name=title]').fill('Familjens resa');await page.locator('#edit-form [name=destination]').fill('Köpenhamn');await page.locator('#edit-form [name=departure]').fill('2026-11-01T08:30');await page.locator('#edit-form [name=endDate]').fill('2026-11-03');await page.locator('#edit-form [name=timezone]').fill('Europe/Copenhagen');await page.locator('#edit-form [name=travelers]').fill('Markus, Maja');await page.locator('#edit-form [name=budget]').fill('15000');await save(page);
  const tripId=await page.evaluate(()=>TravelStore.list().find(x=>x.type==='trip').id);
