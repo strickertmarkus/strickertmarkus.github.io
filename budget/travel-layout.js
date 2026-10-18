@@ -3,9 +3,9 @@
 'use strict';
 function segments(rows,date){
  const midnight=Date.parse(date+'T00:00:00Z');
- const minute=t=>/^\d{2}:\d{2}$/.test(t||'')?Number(t.slice(0,2))*60+Number(t.slice(3)):null;
+ const minute=t=>/^\d{2}:\d{2}$/.test(t||'')&&Number(t.slice(0,2))<24&&Number(t.slice(3))<60?Number(t.slice(0,2))*60+Number(t.slice(3)):null;
  const out=rows.flatMap(row=>{
-  if(row.deleted||row.timing!=='timed'||minute(row.time)===null)return [];
+  if(row.deleted||row.timing!=='timed'||minute(row.time)===null||(row.endTime&&minute(row.endTime)===null))return [];
   const start=Date.parse(row.date+'T00:00:00Z')+minute(row.time)*60000;
   const end=row.endTime?Date.parse((row.endDate||row.date)+'T00:00:00Z')+minute(row.endTime)*60000:start+30*60000;
   if(!Number.isFinite(start)||!Number.isFinite(end)||end<=midnight||start>=midnight+86400000||end<=start)return [];

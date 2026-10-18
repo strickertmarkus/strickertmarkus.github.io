@@ -13,6 +13,6 @@ test('Overnight travel clips at midnight and carries into the next day',()=>{
  assert.equal(segments([row],'2026-11-04').length,0);
 });
 test('Small events have readable non-overlapping footprints, invalid and floating rows are excluded',()=>{
- const rows=segments([activity('a','10:00','10:05'),activity('b','10:10','10:15'),activity('c','10:30','10:45'),activity('bad','12:00','11:00'),activity('flex','','',{timing:'flex'}),activity('deleted','09:00','10:00',{deleted:true})],'2026-11-02');
+ const rows=segments([activity('a','10:00','10:05'),activity('b','10:10','10:15'),activity('c','10:30','10:45'),activity('bad','12:00','11:00'),activity('badClock','09:99','12:00'),activity('badEnd','09:00','99:00'),activity('flex','','',{timing:'flex'}),activity('deleted','09:00','10:00',{deleted:true})],'2026-11-02');
  assert.equal(rows.length,3);assert.equal(rows[0].visualEnd,630);assert.equal(rows[1].lane,1);assert.equal(rows[2].lane,0);
 });

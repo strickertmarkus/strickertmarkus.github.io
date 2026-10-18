@@ -402,9 +402,9 @@ async function saveEditor(event){event.preventDefault();if(!editing||savingEdito
  if(type==='categoryBudget'&&list('categoryBudget').some(x=>x.id!==editing.id&&x.title.toLocaleLowerCase('sv-SE')===value.title.toLocaleLowerCase('sv-SE')))throw Error('Den budgetkategorin finns redan. Redigera den befintliga kategorin.');
  M.validate({...value,type});
  const files=[...($('edit-form').elements.upload?.files||[])];if(files.length)editing.uploads=files;
- const changes=[];if(type==='categoryBudget'&&old&&value.title!==old.title)for(const x of list('expense').filter(x=>x.category===old.title))changes.push({id:x.id,changes:{category:value.title}});if(type==='booking'&&old){for(const a of list('activity').filter(x=>x.bookingId===old.id&&x.scheduleFromBooking)){const patch={},before=M.bookingSchedule(old,trip().timezone),after=M.bookingSchedule(value,trip().timezone);for(const k of ['title','date','time','endDate','endTime','location','url'])if(after[k]!==before[k]&&a[k]===before[k])patch[k]=after[k];if(Object.keys(patch).length)changes.push({id:a.id,changes:patch});}}let ids=[],finalTrip=tripId;
+ const changes=[];if(type==='categoryBudget'&&old&&value.title!==old.title)for(const x of list('expense').filter(x=>x.category===old.title))changes.push({id:x.id,changes:{category:value.title}});if(type==='booking'&&old){for(const a of list('activity').filter(x=>x.bookingId===old.id&&x.scheduleFromBooking)){const patch={},before=M.bookingSchedule(old,trip().timezone),after=M.bookingSchedule(value,trip().timezone);for(const k of ['title','date','time','endDate','endTime','location','url'])if(after[k]!==before[k]&&a[k]===before[k])patch[k]=after[k];if(Object.keys(patch).length)changes.push({id:a.id,changes:patch});}}let ids=[],finalTrip=tripId,finalDay=type==='trip'&&!old?'':day;
  if(type==='trip'&&old?.departure&&value.departure.slice(0,10)!==old.departure.slice(0,10)){
-  const delta=M.dayDiff(old.departure,value.departure),moves=M.shifted(allForTrip(),delta);if(moves.length){const shift=await chooseShift(moves,delta);if(shift===null)return;if(shift)changes.push(...moves);}
+  const delta=M.dayDiff(old.departure,value.departure),moves=M.shifted(allForTrip(),delta);if(moves.length){const shift=await chooseShift(moves,delta);if(shift===null)return;if(shift){changes.push(...moves);if(day)finalDay=M.addDays(day,delta);}}
  }
  const uploads=editing.uploads.length?editing.uploads:[null];
  for(let i=0;i<uploads.length;i++){
@@ -416,7 +416,7 @@ async function saveEditor(event){event.preventDefault();if(!editing||savingEdito
   if(['photo','document'].includes(type)&&!row.url&&!row.fileId&&!old?.fileId)throw Error('Välj en fil eller lägg till en länk.');
   const id=editing.id||S.uid();if(old){const patch={};for(const [k,v] of Object.entries(row))if(JSON.stringify(v)!==JSON.stringify(editing.base[k]??(['checkbox'].includes(editing.fields.find(f=>f.key===k)?.kind)?false:'')))patch[k]=v;changes.push({id,changes:patch});}else changes.push({id,changes:{...row,type,tripId:type==='trip'?'':tripId,createdAt:Date.now(),deleted:false}});ids.push(id);if(type==='trip')finalTrip=id;
  }
- await S.batch(changes);localStorage.removeItem(editing.key);editing=null;$('editor').close();tripId=finalTrip;remember('travel-selected-v2',tripId);render(true);toast(ids.length>1?ids.length+' bilder sparade.':'Sparat.');
+ await S.batch(changes);localStorage.removeItem(editing.key);editing=null;$('editor').close();tripId=finalTrip;day=finalDay;remember('travel-selected-v2',tripId);render(true);toast(ids.length>1?ids.length+' bilder sparade.':'Sparat.');
  }catch(e){$('form-error').textContent=(e.message||'Kunde inte spara.')+' Ditt utkast finns kvar; försök igen.';keepDraft();}finally{savingEditor=false;$('fields').inert=false;submit.disabled=false;}
 }
 function chooseShift(moves,delta){return new Promise(resolve=>{utility('Flytta schemat med resan?','<p>Avresan flyttas '+delta+' dagar. Välj om '+moves.length+' aktiviteter ska följa med.</p><ul class="shift-preview">'+moves.map(m=>'<li>'+esc(S.get(m.id)?.title)+'<br><small>'+esc(S.get(m.id)?.date)+' → '+m.changes.date+'</small></li>').join('')+'</ul><div class="dialog-actions">'+btn('data-shift="yes"','Flytta aktiviteter','primary')+btn('data-shift="no"','Behåll datumen')+btn('data-shift="cancel"','Avbryt')+'</div>');const dlg=$('utility');const finish=v=>{dlg.removeEventListener('click',click);dlg.removeEventListener('close',cancel);dlg.close();resolve(v);};const click=e=>{const b=e.target.closest('[data-shift]');if(b)finish(b.dataset.shift==='cancel'?null:b.dataset.shift==='yes');};const cancel=()=>finish(null);dlg.addEventListener('click',click);dlg.addEventListener('close',cancel);});}
@@ -816,8 +816,7 @@ document.addEventListener('submit',async e=>{
  const key=filters.packingGroup,field=key==='owner'?'packingPeople':'packingCategories',selectedTrip=tripId;
  const current=packingHeadings(key);
  if(current.some(x=>x.toLocaleLowerCase('sv-SE')===value.toLocaleLowerCase('sv-SE'))){toast('Rubriken finns redan.');return;}
- const old=key==='owner'?(trip()?.packingPeople||M.people.join(', ')):(trip()?.packingCategories||'');
- const next=[...old.split(',').map(x=>x.trim()).filter(Boolean),value];
+ const next=[...current,value];
  try{
   await S.patch(selectedTrip,{[field]:next.join(', ')});
   addingPackingHeading=false;
