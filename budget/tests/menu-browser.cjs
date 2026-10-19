@@ -14,7 +14,7 @@ const {setup}=require('./travel-browser.cjs');
   if(file==='home'){
    assert.equal(await page.locator('#home-blue-theme-config-v1').count(),0);assert.equal(await page.evaluate(()=>localStorage.getItem('home-blue-theme-config-v1')),null);assert.match(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--accent')),/FDBA74/i);
    await page.locator('.nav-dropdown-menu').evaluate(async el=>{await Promise.all(el.getAnimations().map(a=>a.finished.catch(()=>{})));});await page.screenshot({path:'test-results/travel/menu-home-open-390.png'});
-   await trigger.click();await page.screenshot({path:'test-results/travel/menu-home-closing-390.png'});await page.waitForFunction(()=>!document.querySelector('.nav-dropdown-menu').matches(':popover-open'));await trigger.click();
+   await trigger.click();await page.waitForTimeout(60);await page.screenshot({path:'test-results/travel/menu-home-closing-390.png'});await page.waitForFunction(()=>!document.querySelector('.nav-dropdown-menu').matches(':popover-open'));await trigger.click();
   }
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.nav-dropdown-menu').matches(':popover-open'));assert.equal(await trigger.getAttribute('aria-expanded'),'false');
   await page.setViewportSize({width:320,height:568});await trigger.click();const narrow=await page.locator('.nav-dropdown-menu').boundingBox();assert(narrow.x>=0&&narrow.x+narrow.width<=321&&narrow.y+narrow.height<=569,file+' narrow menu bounds');

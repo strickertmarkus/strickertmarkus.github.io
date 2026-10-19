@@ -130,7 +130,10 @@ async function run(type,name,viewport,layout,offline=false){
    await edit.scrollIntoViewIfNeeded();
    await edit.click();
    await page.waitForFunction(()=>document.querySelector('#recipe-link-popup-v5').open);
-   await geometry('#recipe-link-popup-v5');
+   await page.locator('#recipe-link-popup-v5').scrollIntoViewIfNeeded();
+   const recipeBox=await page.locator('#recipe-link-popup-v5').boundingBox();
+   assert(recipeBox.x>=0&&recipeBox.x+recipeBox.width<=viewport.width+1,'Inline recipe panel stays within page width');
+   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
    await page.screenshot({path:'test-results/shopping/'+prefix+'-recipe.png'});
    assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);
    if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));

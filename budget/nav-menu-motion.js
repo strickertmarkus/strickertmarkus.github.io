@@ -30,6 +30,8 @@ const style=document.createElement('style');style.textContent=`
 .nav-dropdown-menu:not(:popover-open),.field-menu:not(:popover-open){display:none!important}
 .nav-dropdown-menu.show,.field-menu.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:none!important;transition-delay:0s!important}
 .nav-dropdown-menu>a,.nav-dropdown-menu>button,.field-menu>a,.shared-tools-panel>button,.shared-tools-panel>.file-button{display:flex!important;align-items:center;gap:10px;min-height:42px!important;margin:0!important;padding:10px 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:#c9d1dc!important;text-align:left;font:500 13px/1.4 Inter,system-ui,sans-serif!important;text-decoration:none;box-sizing:border-box;width:100%;white-space:normal!important}
+.nav-dropdown-menu .nav-icon{display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px}
+.nav-dropdown-menu .nav-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7}
 .nav-dropdown-menu>a:hover,.nav-dropdown-menu>a.active,.field-menu>a:hover,.shared-tools-panel>button:hover{background:#fdba7410!important;color:#fdba74!important}
 .tools[open]{background:transparent!important;border:0!important}.tools{position:relative}
 @media(prefers-reduced-motion:reduce){.nav-dropdown-menu,.field-menu{transition:none!important}}
