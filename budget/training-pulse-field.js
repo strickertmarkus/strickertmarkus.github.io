@@ -404,7 +404,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function heartData() {
-    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg)>0?number(w.hrAvg):null,min:number(w.hrMin),max:number(w.hrMax),kind:/^kondition\b/i.test(workoutType(w).trim())?'cardio':'strength',type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:/^kondition$/i.test(workoutType(w).trim())?'cardio':'strength',type:workoutType(w)};});
   }
   function distanceData() {
     return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
@@ -650,7 +650,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var width=Math.max(1,Math.round(rect.width*scale)),height=Math.max(1,Math.round(rect.height*scale));
       if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
       var ctx=canvas.getContext('2d');ctx.clearRect(0,0,width,height);
-      var p=screenPointToCanvas(dot,Number(dot.getAttribute('cx')),Number(dot.getAttribute('cy')),rect,scale);
+      var dotRect=dot.getBoundingClientRect();
+      var p={x:(dotRect.left+dotRect.width/2-rect.left)*scale,y:(dotRect.top+dotRect.height/2-rect.top)*scale};
       var rgb=glowRgb(getComputedStyle(signal.closest('.log-mini-meter').querySelector('strong')).color,[255,101,122]);
       var radius=15*scale,gradient=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
       gradient.addColorStop(0,glowRgba(rgb,.9));
@@ -758,21 +759,25 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         if(points.length>1)svg+=glowingLine(seriesPath(points),config[1],'');
       });
     });
-    var previouslyLabelled=[];
+    var previouslyLabelled=[],heartLabels='',heartMarkers='',heartHits='';
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0))return;
       var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
-      svg+=glowingPoint(px,py,4,color,'')+'<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
+      // Always render a visible marker for every saved heart-rate measurement.
+      // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
+      heartMarkers+='<circle class="heart-point-halo" cx="'+px+'" cy="'+py+'" r="8" fill="'+color+'"/>'+
+        glowingPoint(px,py,4.8,color,'heart-point');
+      heartHits+='<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
       if(width<560&&index!==0&&index!==entries.length-1&&index%3!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
-      // Alternate labels when successive samples would otherwise occupy the same lane.
       var above=index%2===0;
       if(previouslyLabelled.length&&Math.abs(py-previouslyLabelled[previouslyLabelled.length-1][1])<18)above=!previouslyLabelled[previouslyLabelled.length-1][2];
-      var labelY=clamp(py+(above?-13:21),top+11,height-bottom-8);
+      var labelY=clamp(py+(above?-18:26),top+11,height-bottom-8);
       var labelX=clamp(px,left+24,width-right-24);
-      svg+='<text class="last-label" x="'+labelX+'" y="'+labelY+'" text-anchor="middle" fill="'+color+'">'+labelText+'</text>';
+      heartLabels+='<text class="last-label" x="'+labelX+'" y="'+labelY+'" text-anchor="middle" fill="'+color+'">'+labelText+'</text>';
       previouslyLabelled.push([px,py,above]);
     });
+    svg+=heartLabels+heartMarkers+heartHits;
     var indexes=entries.length<4?entries.map(function(_,i){return i;}):[0,Math.floor((entries.length-1)/2),entries.length-1];
     indexes.forEach(function(index){svg+='<text class="chart-axis-label" x="'+x(index)+'" y="'+(height-10)+'" text-anchor="middle">'+logDate(entries[index].date)+'</text>';});
     return svg+'</svg>';
@@ -927,10 +932,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var vo2=number(workout.vo2)||number(saved&&(saved.score||saved.value||saved.vo2));
     var pace=workoutPace(workout),goal=number(data.goals.vo2Goal)||45;
     function chart(type,label,value,position,low,high,unit){
-      return '<div class="log-mini-meter log-mini-meter--'+type+'" role="img" aria-label="'+escapeHtml(label+': '+value+' '+unit+'. Intervall '+low+' till '+high)+'">'+
-        '<span class="log-mini-label">'+label+'</span>'+
-        '<strong>'+escapeHtml(value)+'<small>'+unit+'</small></strong>'+
-        '<span class="log-mini-signal"><svg viewBox="0 0 104 24" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="1.8"/><circle class="log-mini-end" cx="95" cy="12" r="1.8"/><circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="4.5"/></svg></span>'+
+      var pct=clamp((position-9)/86*100,0,100);
+      return '<div class="log-mini-meter log-mini-meter--'+type+'" role="img" aria-label="'+escapeHtml(label+': '+value+' '+unit+'. Skala '+low+' till '+high)+'">'+
+        '<div class="log-mini-reading"><span class="log-mini-label">'+label+'</span><strong>'+escapeHtml(value)+'<small>'+unit+'</small></strong></div>'+
+        '<div class="log-mini-signal"><div class="log-mini-track"><span class="log-mini-point" style="left:'+pct.toFixed(2)+'%"></span></div></div>'+
         '<div class="log-mini-scale"><span>'+escapeHtml(low)+'</span><span>'+escapeHtml(high)+'</span></div></div>';
     }
     var charts=[];
