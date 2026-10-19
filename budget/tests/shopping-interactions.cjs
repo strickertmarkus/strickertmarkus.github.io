@@ -123,25 +123,16 @@ async function run(type,name,viewport,layout,offline=false){
    await openMenu('Listor');page.once('dialog',d=>d.accept());
    await page.locator('#lists-menu .list-menu-row').filter({hasText:'Testlista'}).locator('button').click();await closed();
    assert(!(await storeValue('sh_lists')).some(x=>x.name==='Testlista'));
-   // Add recipe ingredients through the menu and edit their saved URL in a modal.
+   // Add recipe ingredients through the menu and edit their saved URL beside the recipe.
    await openMenu('Recept');await page.locator('#recipes-dropdown a').filter({hasText:'Pasta'}).click();await closed();
    assert((await storeValue('sh_lists'))[0].items.some(x=>x.text==='Tomater'));
    const edit=page.locator('[data-recipe-id="7"] .recipe-edit-meta-v4');
    await edit.scrollIntoViewIfNeeded();
-   // A native click may scroll its target after scrollIntoViewIfNeeded.
-   // Record the actual opening position before the recipe's capture handler locks it.
-   await page.evaluate(()=>document.addEventListener('click',function recordRecipeOpen(event){
-     if(!event.target.closest('.recipe-edit-meta-v4'))return;
-     window.__recipeOpeningScrollY=scrollY;
-     document.removeEventListener('click',recordRecipeOpen,true);
-   },true));
    await edit.click();
-   const beforeY=await page.evaluate(()=>window.__recipeOpeningScrollY);
    await page.waitForFunction(()=>document.querySelector('#recipe-link-popup-v5').open);
    await geometry('#recipe-link-popup-v5');
    await page.screenshot({path:'test-results/shopping/'+prefix+'-recipe.png'});
    assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);
-   const frozen=await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top);
    if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));
    else await page.mouse.wheel(0,500);
    assert.equal(await page.locator('dialog:modal').count(),0);assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).overflowY),'hidden');

@@ -28,6 +28,10 @@ const base=process.env.TRAVEL_TEST_URL||'http://127.0.0.1:4173',out='test-result
   ].map(([id,type,data])=>({id,changes:{type,tripId:'design-trip',...data}}))
  ]);});
  await page.locator('[data-trip="design-trip"]').click();
+ await page.locator('.tools > summary').click();await page.waitForFunction(()=>document.querySelector('.shared-tools-panel').matches(':popover-open'));
+ await page.locator('.shared-tools-panel').evaluate(async el=>{await Promise.all(el.getAnimations().map(a=>a.finished.catch(()=>{})));});
+ const toolBox=await page.locator('.shared-tools-panel').boundingBox();assert(toolBox.x>=0&&toolBox.x+toolBox.width<=391&&toolBox.y+toolBox.height<=845);
+ await page.screenshot({path:out+'/experience-tools-390.png'});await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.tools').open);
  async function shot(name){await geometry(page);await page.locator('.section-head').scrollIntoViewIfNeeded();await page.evaluate(()=>document.querySelector('.section-head').scrollIntoView({block:'start'}));await page.screenshot({path:out+'/experience-'+name+'.png'});}
  await shot('overview-390');
  assert.equal(await page.locator('#tabs button').count(),6,'Six focused main sections');
