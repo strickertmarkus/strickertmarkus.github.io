@@ -240,13 +240,6 @@
 
 
     /* ── TRANSFER + SHOPPING WIDGETS ── */
-    .backup-copy {
-      --accent: #60A5FA;
-      --accent-bg: #0F1A2E;
-      --text-sec: #94A3B8;
-      --border: #2A3041;
-    }
-
     /* Transfers follow the compact Home card and theme accent. */
     #transfer-widget { --accent:var(--home-view-accent,#FDBA74); --accent-bg:rgba(var(--home-view-rgb,253,186,116),.09); gap:0; }
     #transfer-widget .widget-head { gap:9px;margin-bottom:10px; }
@@ -554,31 +547,31 @@
       content: '';
       width: 7px;
       height: 4px;
-      border-left: 2px solid #93C5FD;
-      border-bottom: 2px solid #93C5FD;
+      border-left: 2px solid var(--accent);
+      border-bottom: 2px solid var(--accent);
       transform: rotate(-45deg) scale(0);
       transform-origin: center;
       transition: transform .12s ease;
     }
     .shopping-item input[type="checkbox"]:checked {
-      background: rgba(15,26,46,.95);
-      border-color: rgba(96,165,250,.72);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.2), inset 0 1px 0 rgba(255,255,255,.06);
+      background: var(--accent-dim);
+      border-color: rgba(var(--home-view-rgb,253,186,116),.72);
+      box-shadow: 0 0 0 2px rgba(var(--home-view-rgb,253,186,116),.2), inset 0 1px 0 rgba(255,255,255,.06);
     }
     .shopping-item input[type="checkbox"]:hover {
-      border-color: rgba(147,197,253,.82);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.12), inset 0 1px 0 rgba(255,255,255,.06);
+      border-color: rgba(var(--home-view-rgb,253,186,116),.82);
+      box-shadow: 0 0 0 2px rgba(var(--home-view-rgb,253,186,116),.12), inset 0 1px 0 rgba(255,255,255,.06);
     }
     .shopping-item input[type="checkbox"]:focus-visible {
       outline: none;
-      border-color: rgba(147,197,253,.9);
-      box-shadow: 0 0 0 2px rgba(96,165,250,.22), inset 0 1px 0 rgba(255,255,255,.06);
+      border-color: rgba(var(--home-view-rgb,253,186,116),.9);
+      box-shadow: 0 0 0 2px rgba(var(--home-view-rgb,253,186,116),.22), inset 0 1px 0 rgba(255,255,255,.06);
     }
     .shopping-item input[type="checkbox"]:checked::before { transform: rotate(-45deg) scale(1); }
     .shopping-item .txt { min-width: 0; cursor: text; }
     .shopping-item .txt[contenteditable="true"] {
-      background: rgba(15,26,46,.72);
-      border: 1px solid rgba(96,165,250,.55);
+      background: var(--accent-dim);
+      border: 1px solid rgba(var(--home-view-rgb,253,186,116),.55);
       border-radius: 6px;
       padding: 3px 7px;
       outline: none;
@@ -1155,7 +1148,7 @@
       </div>
 
       <div id="home-overview-widgets" class="home-overview-widgets">
-      <article class="widget link-card backup-copy" id="shopping-widget" onclick="location.href='shopping.html'">
+      <article class="widget link-card" id="shopping-widget" onclick="location.href='shopping.html'">
         <div class="widget-head">
           <div class="widget-title">Inköpslista</div>
           <div class="badge" id="shopping-count">0 artiklar</div>
@@ -1168,7 +1161,7 @@
         <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
       </article>
 
-      <article class="widget backup-copy" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
+      <article class="widget" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
       </div>
 
     </div>

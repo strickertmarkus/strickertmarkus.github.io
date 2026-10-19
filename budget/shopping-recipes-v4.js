@@ -377,7 +377,17 @@
       '</div></div></div>';
     });
 
+    // Keep an inline link draft and its focus alive while recipes are refreshed.
+    var linkEditor = root.querySelector('#recipe-link-popup-v5');
+    var linkFocus = linkEditor && linkEditor.contains(document.activeElement) ? document.activeElement : null;
+    if (linkEditor) document.body.appendChild(linkEditor);
     root.innerHTML = html;
+    if (linkEditor) {
+      var linkCard = Array.from(root.querySelectorAll('.recipe-item')).find(function(card) { return card.dataset.recipeId === linkEditor.dataset.recipeId; });
+      if (linkCard) linkCard.after(linkEditor);
+      else if (linkEditor.open) linkEditor.close();
+      if (linkFocus && linkEditor.open) linkFocus.focus({preventScroll:true});
+    }
     if (editingMetaId != null) focusNow(document.getElementById('recipe-name-edit-v4-' + editingMetaId));
     if (editingIngredient) focusNow(document.getElementById('recipe-edit-v4-' + editingIngredient.recipeId + '-' + editingIngredient.index));
     if (addingRecipe) focusNow(document.getElementById('new-recipe-name-v4'));

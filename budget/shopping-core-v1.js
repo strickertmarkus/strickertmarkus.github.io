@@ -339,7 +339,7 @@
     menuDialog = document.getElementById('shopping-menu-dialog');
     var toolsMenu = document.getElementById('shopping-tools-menu');
     document.addEventListener('click',function (event) {
-      if(menuDialog.open&&!menuDialog.contains(event.target)&&!event.target.closest('.dropdown-btn,.nav-btn'))MenuMotion.close(menuDialog,restoreMenu);
+      if(menuDialog.open&&!event.composedPath().includes(menuDialog)&&!event.target.closest('.dropdown-btn,.nav-btn'))MenuMotion.close(menuDialog,restoreMenu);
       if (toolsMenu.open && !toolsMenu.contains(event.target)) MenuMotion.closeDetails(toolsMenu);
     });
     document.querySelectorAll('.dropdown-btn,.nav-btn').forEach(function (button) {

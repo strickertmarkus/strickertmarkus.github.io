@@ -136,6 +136,9 @@ async function run(type,name,viewport,layout,offline=false){
    if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));
    else await page.mouse.wheel(0,500);
    assert.equal(await page.locator('dialog:modal').count(),0);assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).overflowY),'hidden');
+   await page.locator('#recipe-link-input-v5').fill('https://example.com/draft');
+   await page.evaluate(()=>window.renderRecipes());
+   assert.equal(await page.locator('#recipe-link-input-v5').inputValue(),'https://example.com/draft','Recipe refresh preserves inline draft');
    await page.locator('#recipe-link-input-v5').fill('javascript:alert(1)');
    await page.locator('[data-link-save-v5]').click();
    assert(await page.locator('#recipe-link-error-v5').innerText());

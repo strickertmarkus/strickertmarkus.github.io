@@ -190,6 +190,7 @@
     returnFocus = trigger || document.activeElement;
     activeRecipeId = Number(recipeId);
     var popup = ensurePopup();
+    popup.dataset.recipeId = String(recipeId);
     document.getElementById('recipe-link-title-v5').textContent = recipe.name || 'Recept';
     var input = document.getElementById('recipe-link-input-v5');
     input.value = recipe.url || '';

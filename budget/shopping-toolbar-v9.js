@@ -128,7 +128,7 @@
   function loadRecipeLinkPopup() {
     if (document.querySelector('script[data-shopping-recipe-link-popup-v5]')) return;
     var s = document.createElement('script');
-    s.src = 'shopping-recipe-link-popup-v5.js?v=20261019-menu-motion-2';
+    s.src = 'shopping-recipe-link-popup-v5.js?v=20261019-inline-drafts-1';
     s.async = false;
     s.setAttribute('data-shopping-recipe-link-popup-v5','true');
     document.head.appendChild(s);
