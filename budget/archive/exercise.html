@@ -1127,28 +1127,159 @@ function onTemplateEditorWeekDateChange(){
   templateEditorMondayISO=mondayISOOf(el.value);
   syncTemplateEditorWeekUI();
 }
+/* Week planner: mobile-first cards, in-memory drafts and pointer-based swaps.
+   Keep the existing weekPlans and plannedSessions formats unchanged. */
+var pulsePlanDraftsV1={};
+var pulsePlanSourceSessionsV1=null;
+var pulsePlanDragV1=null;
+var pulsePlanListenersV1=false;
+function pulsePlanKindV1(value){
+  var t=String(value||'').trim().toLocaleLowerCase('sv-SE');
+  if(/^(vila|ledig|vilodag|återhämtning|rest)$/.test(t))return 'rest';
+  if(/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(t))return 'cardio';
+  if(/bröst|triceps|push/.test(t))return 'push';
+  if(/rygg|biceps|pull/.test(t))return 'pull';
+  return 'strength';
+}
+function pulsePlanCaptureV1(){
+  var box=document.getElementById('plan-days');
+  if(!box||!planTargetMondayISO||!document.getElementById('plan-modal').classList.contains('show'))return;
+  var rows=box.querySelectorAll('.pulse-plan-day-v1');
+  if(rows.length!==7)return;
+  pulsePlanDraftsV1[planTargetMondayISO]=Array.from(rows).map(function(row){
+    return {type:(row.querySelector('input[data-day]').value||'Vila').trim()||'Vila',source:row.dataset.sourceDate||row.dataset.date};
+  });
+}
+function pulsePlanUpdateRowV1(row){
+  if(!row)return;
+  var type=(row.querySelector('input[data-day]').value||'').trim()||'Vila';
+  var kind=pulsePlanKindV1(type);
+  row.dataset.kind=kind;
+  var label=row.querySelector('.pulse-plan-kind-v1');
+  if(label)label.textContent=kind==='rest'?'Vila':kind==='cardio'?'Kondition':kind==='push'?'Push':kind==='pull'?'Pull':'Styrka';
+  var info=row.querySelector('.pulse-plan-info-v1');
+  if(info){
+    var from=row.dataset.sourceDate,plan=(pulsePlanSourceSessionsV1||getPlannedSessions())[from];
+    var count=plan&&Array.isArray(plan.exercises)?plan.exercises.length:0;
+    info.textContent=kind==='rest'?'Återhämtning':count?count+' övningar':'Planerat pass';
+  }
+}
+function pulsePlanSwapV1(from,to){
+  if(from===to||from<0||to<0||from>6||to>6)return;
+  var box=document.getElementById('plan-days');
+  var rows=box&&box.querySelectorAll('.pulse-plan-day-v1');
+  if(!rows||rows.length!==7)return;
+  var a=rows[from],b=rows[to],ai=a.querySelector('input[data-day]'),bi=b.querySelector('input[data-day]');
+  var type=ai.value,source=a.dataset.sourceDate;
+  ai.value=bi.value;bi.value=type;
+  a.dataset.sourceDate=b.dataset.sourceDate;b.dataset.sourceDate=source;
+  pulsePlanUpdateRowV1(a);pulsePlanUpdateRowV1(b);
+  pulsePlanCaptureV1();
+}
+function pulsePlanStopDragV1(event,cancel){
+  var drag=pulsePlanDragV1;
+  if(!drag||event&&event.pointerId!==drag.id)return;
+  if(drag.ghost)drag.ghost.remove();
+  document.querySelectorAll('#plan-days .pulse-plan-day-v1').forEach(function(card){
+    card.classList.remove('is-drag-source','is-drag-target');
+  });
+  document.removeEventListener('pointermove',pulsePlanMoveV1);
+  document.removeEventListener('pointerup',pulsePlanEndV1);
+  document.removeEventListener('pointercancel',pulsePlanCancelV1);
+  pulsePlanDragV1=null;
+  if(!cancel&&drag.to!==drag.from)pulsePlanSwapV1(drag.from,drag.to);
+}
+function pulsePlanMoveV1(event){
+  var drag=pulsePlanDragV1;
+  if(!drag||event.pointerId!==drag.id)return;
+  event.preventDefault();
+  var x=Math.max(8,Math.min(window.innerWidth-230,event.clientX+13));
+  var y=Math.max(8,Math.min(window.innerHeight-58,event.clientY-22));
+  drag.ghost.style.transform='translate3d('+x+'px,'+y+'px,0)';
+  var hit=document.elementFromPoint(event.clientX,event.clientY);
+  var target=hit&&hit.closest('.pulse-plan-day-v1');
+  if(target){
+    drag.to=Number(target.dataset.index);
+    document.querySelectorAll('#plan-days .pulse-plan-day-v1').forEach(function(row){row.classList.toggle('is-drag-target',row===target&&drag.to!==drag.from);});
+  }
+  var box=document.getElementById('plan-days'),r=box.getBoundingClientRect();
+  if(event.clientY<r.top+35)box.scrollTop-=8;
+  if(event.clientY>r.bottom-35)box.scrollTop+=8;
+}
+function pulsePlanEndV1(event){pulsePlanStopDragV1(event,false);}
+function pulsePlanCancelV1(event){pulsePlanStopDragV1(event,true);}
+function pulsePlanStartV1(event,handle){
+  if(pulsePlanDragV1||event.button>0||!handle)return;
+  var card=handle.closest('.pulse-plan-day-v1');
+  if(!card)return;
+  event.preventDefault();
+  var ghost=document.createElement('div');
+  ghost.className='pulse-plan-drag-ghost-v1';
+  ghost.textContent=card.querySelector('input[data-day]').value||'Vila';
+  document.getElementById('plan-modal').appendChild(ghost);
+  pulsePlanDragV1={id:event.pointerId,from:Number(card.dataset.index),to:Number(card.dataset.index),ghost:ghost};
+  card.classList.add('is-drag-source');
+  document.addEventListener('pointermove',pulsePlanMoveV1,{passive:false});
+  document.addEventListener('pointerup',pulsePlanEndV1);
+  document.addEventListener('pointercancel',pulsePlanCancelV1);
+  pulsePlanMoveV1(event);
+}
+function pulsePlanInstallV1(){
+  if(pulsePlanListenersV1)return;
+  var box=document.getElementById('plan-days');if(!box)return;
+  pulsePlanListenersV1=true;
+  box.addEventListener('input',function(event){
+    if(!event.target.matches('input[data-day]'))return;
+    pulsePlanUpdateRowV1(event.target.closest('.pulse-plan-day-v1'));
+    pulsePlanCaptureV1();
+  });
+  box.addEventListener('pointerdown',function(event){
+    var handle=event.target.closest('[data-plan-drag-v1]');
+    if(handle)pulsePlanStartV1(event,handle);
+  });
+  box.addEventListener('keydown',function(event){
+    var handle=event.target.closest('[data-plan-drag-v1]');
+    if(!handle||!['ArrowUp','ArrowDown'].includes(event.key))return;
+    event.preventDefault();
+    var from=Number(handle.closest('.pulse-plan-day-v1').dataset.index),to=from+(event.key==='ArrowUp'?-1:1);
+    if(to<0||to>6)return;
+    pulsePlanSwapV1(from,to);
+    var next=box.querySelectorAll('[data-plan-drag-v1]')[to];if(next)next.focus();
+  });
+}
 function fillPlanDays(mondayISO){
-  var plan=getPlanForWeek(mondayISO), cont=byId('plan-days','plan-days');
-  if(!cont)return;
-  cont.innerHTML='';
-  DAYS.forEach(function(d,i){
-    var fg=document.createElement('div'); fg.className='form-group';
-    fg.innerHTML='<label>'+d+'</label><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" value="'+escHtml(plan[DAY_KEYS[i]]||'Vila')+'" placeholder="Ex: Rygg + Triceps">';
-    cont.appendChild(fg);
+  var plan=getPlanForWeek(mondayISO),box=document.getElementById('plan-days');
+  if(!box)return;
+  pulsePlanInstallV1();
+  var draft=pulsePlanDraftsV1[mondayISO];
+  if(!draft)draft=DAY_KEYS.map(function(key,i){return {type:plan[key]||'Vila',source:shiftISODate(mondayISO,i)};});
+  box.innerHTML='';
+  DAYS.forEach(function(day,i){
+    var date=shiftISODate(mondayISO,i),entry=draft[i]||{},type=entry.type||'Vila';
+    var card=document.createElement('article');
+    card.className='pulse-plan-day-v1';
+    card.dataset.index=i;card.dataset.date=date;card.dataset.sourceDate=entry.source||date;
+    card.innerHTML='<div class="pulse-plan-date-v1"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></div>'+
+      '<div class="pulse-plan-details-v1"><span class="pulse-plan-kind-v1"></span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" placeholder="Välj pass" autocomplete="off" aria-label="Pass för '+day+'" value="'+escHtml(type)+'"><small class="pulse-plan-info-v1"></small></div>'+
+      '<button class="pulse-plan-grip-v1" type="button" data-plan-drag-v1 aria-label="Flytta pass för '+day+'. Dra eller använd upp- och nedpil"><span aria-hidden="true"><i></i><i></i><i></i></span></button>';
+    box.appendChild(card);
+    pulsePlanUpdateRowV1(card);
   });
 }
 function syncPlanWeekUI(){
-  if(!planTargetMondayISO) planTargetMondayISO=getViewedMondayISO();
+  if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   fillWeekLabel(planTargetMondayISO,'plan-week-label','plan-week-sub','plan-week-date');
   fillPlanDays(planTargetMondayISO);
 }
 function shiftPlanTargetWeek(delta){
-  if(!planTargetMondayISO) planTargetMondayISO=getViewedMondayISO();
+  pulsePlanCaptureV1();
+  if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   planTargetMondayISO=shiftISODate(planTargetMondayISO,delta*7);
   syncPlanWeekUI();
 }
 function onPlanWeekDateChange(){
-  var el=byId('plan-week-date'); if(!el||!el.value)return;
+  var el=document.getElementById('plan-week-date');if(!el||!el.value)return;
+  pulsePlanCaptureV1();
   planTargetMondayISO=mondayISOOf(el.value);
   syncPlanWeekUI();
 }
@@ -2970,18 +3101,43 @@ function planWeekFromTemplate(){
 // ══ PLAN MODAL ═══════════════════════════════════════════════════
 function openPlanModal(){
   refreshTypeSuggestions();
+  pulsePlanDraftsV1={};
+  pulsePlanSourceSessionsV1=JSON.parse(JSON.stringify(getPlannedSessions()));
   planTargetMondayISO=getViewedMondayISO();
-  syncPlanWeekUI();
   document.getElementById('plan-modal').classList.add('show');
+  syncPlanWeekUI();
 }
 function savePlan(){
-  var plan={};
-  document.querySelectorAll('#plan-days input[data-day], #plan-days input[data-day]').forEach(function(s){plan[s.dataset.day]=(s.value||'Vila').trim()||'Vila';});
-  var target=planTargetMondayISO||getViewedMondayISO();
-  applyPlanToWeek(target,plan);
+  pulsePlanCaptureV1();
+  var target=planTargetMondayISO||getViewedMondayISO(),drafts=pulsePlanDraftsV1;
+  var original=pulsePlanSourceSessionsV1||JSON.parse(JSON.stringify(getPlannedSessions()));
+  var weeks=Object.keys(drafts);
+  if(!weeks.length)return;
+  weeks.forEach(function(monday){
+    var plan={};
+    DAY_KEYS.forEach(function(key,i){var entry=drafts[monday][i]||{};plan[key]=(entry.type||'Vila').trim()||'Vila';});
+    applyPlanToWeek(monday,plan);
+  });
+  var planned=getPlannedSessions();
+  weeks.forEach(function(monday){
+    DAY_KEYS.forEach(function(key,i){
+      var entry=drafts[monday][i]||{},date=shiftISODate(monday,i);
+      var from=entry.source||date,type=(entry.type||'Vila').trim()||'Vila';
+      // Preserve the full exercise list when a planned day is dragged.
+      // Read from the snapshot, not from a source already overwritten above.
+      if(from!==date){
+        var source=original[from];
+        if(pulsePlanKindV1(type)==='rest'&&!source)delete planned[date];
+        else planned[date]=source?JSON.parse(JSON.stringify(source)):{type:type,exercises:[]};
+      }
+      if(planned[date]&&pulsePlanKindV1(type)!=='rest')planned[date].type=type;
+    });
+  });
+  savePlannedSessions(planned);
+  pulsePlanDraftsV1={};pulsePlanSourceSessionsV1=null;
   goToWeek(target);
   closeModal('plan-modal');
-  showToast('Plan sparad på '+formatWeekLabel(target).title);
+  showToast('Veckoplan sparad.');
   refreshTypeSuggestions();
 }
 
