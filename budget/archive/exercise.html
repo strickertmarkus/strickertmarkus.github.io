@@ -2586,7 +2586,10 @@ function syncSingleExerciseEditUnits(row,kind){
     var input=field.querySelector('input');
     if(caption)caption.textContent=details[0];
     if(unit)unit.textContent=details[1];
-    if(input)input.setAttribute('aria-label',details[0]+' ('+details[1]+')');
+    if(input){
+      input.setAttribute('aria-label',details[0]+' ('+details[1]+')');
+      input.setAttribute('inputmode',cardio&&index<2||index===2?'decimal':'numeric');
+    }
   });
 }
 function styleSingleExerciseEditFields(row){
