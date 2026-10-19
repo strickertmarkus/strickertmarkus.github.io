@@ -285,7 +285,7 @@ main{position:relative;z-index:2;display:block}
 .pace-scatter-halo{pointer-events:none}
 .pace-scatter-point{fill:#ff9a91;stroke:#ffd2bd;stroke-width:1;filter:drop-shadow(0 0 5px #ff657a)}
 .line-area{opacity:.17}
-.range-bar{stroke-width:10;stroke-linecap:round;opacity:.16}
+.range-bar{stroke-width:9;stroke-linecap:round;opacity:.4}
 .range-cap{stroke-width:1.2;stroke-linecap:round;opacity:.9}
 .last-point{stroke:#080d12;stroke-width:2;filter:drop-shadow(0 0 7px currentColor)}
 .last-label{font:600 10px var(--field-ui)}
@@ -481,7 +481,7 @@ main{position:relative;z-index:2;display:block}
   .chart-canvas-glow{display:block;inset:-28px;width:calc(100% + 56px);height:calc(100% + 56px);z-index:1;opacity:1;filter:none;-webkit-filter:none;mix-blend-mode:screen}
   .line-glow,.activity-bar,.last-point,.group-volume-point,.pace-scatter-point,.log-mini-point{filter:none!important;-webkit-filter:none!important}
   .log-mini-canvas-glow{display:block}
-  .range-bar{opacity:.21}
+  .range-bar{opacity:.46}
   .insight-tabs{gap:14px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:0;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   .insight-tabs::-webkit-scrollbar{display:none}
   .insight-tabs button{flex:none}
