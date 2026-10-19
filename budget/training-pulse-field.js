@@ -308,11 +308,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     for(var i=0;i<7;i++){
       var date=shiftDate(state.weekStart,i),key=isoDate(date),plan=planForDate(date),logged=workoutsOn(date);
       var type=plan&&plan.type || (logged[0]&&workoutType(logged[0])) || 'Vila';
+      var lowerType=String(type).toLocaleLowerCase('sv-SE');
+      var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':/bröst|triceps|push/.test(lowerType)?'push':/rygg|biceps|pull/.test(lowerType)?'pull':'strength';
       var classes=['week-day'];
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
-      markup+='<div class="'+classes.join(' ')+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(type)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
+      markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(type)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
         '<span class="day-type">'+escapeHtml(type)+'</span></div>';
     }
