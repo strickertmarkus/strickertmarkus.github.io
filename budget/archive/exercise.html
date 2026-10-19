@@ -1726,6 +1726,7 @@ function applyExerciseKindToRow(wrap,kind){
   if(metric1){metric1.dataset.role=kind==='cardio'?'distance':'sets';metric1.placeholder=kind==='cardio'?'Distans':'Sets';metric1.step=kind==='cardio'?'0.1':'1';metric1.value='';}
   if(metric2){metric2.dataset.role=kind==='cardio'?'time':'reps';metric2.placeholder=kind==='cardio'?'Tid':'Reps';metric2.step=kind==='cardio'?'0.1':'1';metric2.value='';}
   if(metric3){metric3.classList.toggle('ex-cell-hidden',kind==='cardio');metric3.value='';}
+  if(wrap.matches('.single-exercise-edit-row-v9'))syncSingleExerciseEditUnits(wrap,kind);
   var nameInput=wrap.querySelector('.exercise-name-picker-input-v1');
   if(nameInput&&exerciseNamePickerState.input===nameInput)renderExerciseNamePicker(nameInput);
 }
@@ -2571,6 +2572,48 @@ function timingMatchForWorkoutExercise(workout,index){
   var timings=Array.isArray(workout&&workout.exerciseTimings)?workout.exerciseTimings:[];
   return {timing:timing,index:timing?timings.indexOf(timing):-1};
 }
+/* Keep the original inputs and selectors for validation, saving and the
+   exercise picker. Only the presentation of a single exercise is rebuilt. */
+function syncSingleExerciseEditUnits(row,kind){
+  if(!row)return;
+  var cardio=kind==='cardio';
+  var labels=cardio?[['Distans','km'],['Tid','min'],['Vikt','kg']]:[['Set','set'],['Reps','reps'],['Vikt','kg']];
+  row.querySelectorAll('.single-exercise-metric-v10').forEach(function(field){
+    var index=Number(field.dataset.metricIndex)-1,details=labels[index];
+    if(!details)return;
+    var caption=field.querySelector('.single-exercise-field-title-v10');
+    var unit=field.querySelector('.single-exercise-unit-v10');
+    var input=field.querySelector('input');
+    if(caption)caption.textContent=details[0];
+    if(unit)unit.textContent=details[1];
+    if(input)input.setAttribute('aria-label',details[0]+' ('+details[1]+')');
+  });
+}
+function styleSingleExerciseEditFields(row){
+  var fields=row.querySelector('.ex-row');
+  if(!fields)return;
+  var name=fields.querySelector('.single-name');
+  if(name){
+    var nameField=document.createElement('div');
+    nameField.className='single-exercise-name-v10';
+    nameField.innerHTML='<span class="single-exercise-field-title-v10">Övning</span><span class="single-exercise-name-hint-v10" aria-hidden="true">⌄</span>';
+    fields.insertBefore(nameField,name);
+    nameField.appendChild(name);
+    name.setAttribute('aria-label','Välj eller ändra övning');
+  }
+  for(var i=1;i<=3;i++){
+    var input=fields.querySelector('.single-metric'+i);
+    if(!input)continue;
+    var field=document.createElement('label');
+    field.className='single-exercise-metric-v10';
+    field.dataset.metricIndex=i;
+    field.innerHTML='<span class="single-exercise-field-title-v10"></span><span class="single-exercise-value-v10"><span class="single-exercise-unit-v10" aria-hidden="true"></span></span>';
+    fields.insertBefore(field,input);
+    field.querySelector('.single-exercise-value-v10').insertBefore(input,field.querySelector('.single-exercise-unit-v10'));
+    input.setAttribute('inputmode',i===3?'decimal':'numeric');
+  }
+  syncSingleExerciseEditUnits(row,row.classList.contains('is-cardio')?'cardio':'strength');
+}
 function ensureSingleExerciseEditModal(){
   var overlay=document.getElementById('exercise-edit-modal-v9');
   if(overlay)return overlay;
@@ -2612,6 +2655,7 @@ function editWorkoutExercise(id,index){
   row.innerHTML=buildExerciseEditorRowHtml('single',exercise,'void 0');
   var remove=row.querySelector('.ex-del');
   if(remove)remove.remove();
+  styleSingleExerciseEditFields(row);
   var timingInfo=timingMatchForWorkoutExercise(workout,index);
   addExerciseTimingEditor(row,timingInfo.timing);
   editor.innerHTML='';
