@@ -25,6 +25,7 @@ jobs:
           for file in budget/shopping*.js; do node --check "$file"; done
           node --test budget/tests/shopping-shell-v1.test.cjs budget/tests/shopping-recipe-sync.test.cjs
       - name: Install browsers
+        id: browsers
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps webkit chromium
@@ -38,6 +39,7 @@ jobs:
           name: home-mobile-preview
           path: test-results/shopping/home-*.png
       - name: Shopping functionality and responsive checks
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
         run: node budget/tests/shopping-interactions.cjs
       - uses: actions/upload-artifact@v4
         if: always()

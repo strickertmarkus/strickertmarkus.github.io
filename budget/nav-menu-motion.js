@@ -27,6 +27,7 @@ const style=document.createElement('style');style.textContent=`
  box-sizing:border-box!important;border:1px solid #ffffff20!important;border-radius:14px!important;background:#161b22!important;color:#d4dbe4!important;box-shadow:0 14px 38px #0007!important;padding:6px!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;min-width:0!important
 }
 .nav-dropdown-menu,.field-menu{display:block!important;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-6px)!important;animation:none!important;transition:opacity .16s ease,transform .20s cubic-bezier(.22,1,.36,1),visibility 0s .20s!important}
+.nav-dropdown-menu:not(:popover-open),.field-menu:not(:popover-open){display:none!important}
 .nav-dropdown-menu.show,.field-menu.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:none!important;transition-delay:0s!important}
 .nav-dropdown-menu>a,.nav-dropdown-menu>button,.field-menu>a,.shared-tools-panel>button,.shared-tools-panel>.file-button{display:flex!important;align-items:center;gap:10px;min-height:42px!important;margin:0!important;padding:10px 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:#c9d1dc!important;text-align:left;font:500 13px/1.4 Inter,system-ui,sans-serif!important;text-decoration:none;box-sizing:border-box;width:100%;white-space:normal!important}
 .nav-dropdown-menu>a:hover,.nav-dropdown-menu>a.active,.field-menu>a:hover,.shared-tools-panel>button:hover{background:#fdba7410!important;color:#fdba74!important}
@@ -40,6 +41,7 @@ function position(entry){const {panel,trigger}=entry;if(!trigger.isConnected)ret
 }
 function sync(entry){const {panel,trigger,details}=entry,open=details?details.open:panel.classList.contains(entry.openClass);trigger.setAttribute('aria-expanded',String(open));panel.inert=!open;
  if(open){clearTimeout(entry.timer);if(panel.showPopover&&!panel.matches(':popover-open'))panel.showPopover();position(entry);animate(panel,true);}
+ else if(details){if(panel.matches(':popover-open'))panel.hidePopover();}
  else {entry.timer=setTimeout(()=>{if(!entry.isOpen()&&panel.matches(':popover-open'))panel.hidePopover();},reduced()?0:210);}
 }
 function setup(){
@@ -47,7 +49,7 @@ function setup(){
  document.querySelectorAll('.shopping-tools-menu,.tools').forEach(details=>{const trigger=details.querySelector('summary'),panel=details.querySelector('.header-right-top,.shared-tools-panel');if(!trigger||!panel)return;trigger.innerHTML=icon;trigger.setAttribute('aria-label','Fler alternativ');panel.setAttribute('popover','manual');const entry={panel,trigger,details,isOpen:()=>details.open,dismiss:()=>closeDetails(details)};entries.push(entry);details.addEventListener('toggle',()=>sync(entry));trigger.addEventListener('click',event=>{if(details.open){event.preventDefault();closeDetails(details);}});sync(entry);});
 }
 document.addEventListener('pointerdown',e=>entries.forEach(entry=>{if(entry.isOpen()&&!entry.panel.contains(e.target)&&!entry.trigger.contains(e.target))entry.dismiss();}));
-document.addEventListener('click',e=>{for(const entry of entries)if(entry.isOpen()&&entry.panel.contains(e.target)&&e.target.closest('a'))entry.dismiss();});
+document.addEventListener('click',e=>{for(const entry of entries)if(entry.isOpen()&&entry.panel.contains(e.target)&&e.target.closest(entry.details?'a,button':'a'))entry.dismiss();});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;for(const entry of entries)if(entry.isOpen()){entry.dismiss();entry.trigger.focus({preventScroll:true});e.preventDefault();}});
 let frame;const reposition=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{entries.filter(x=>x.isOpen()).forEach(position);floating.filter(x=>x.panel.open).forEach(position);});};window.addEventListener('scroll',reposition,{passive:true,capture:true});window.addEventListener('resize',reposition);visualViewport?.addEventListener('resize',reposition);visualViewport?.addEventListener('scroll',reposition);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();

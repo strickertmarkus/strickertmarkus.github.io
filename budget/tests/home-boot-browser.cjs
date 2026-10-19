@@ -122,6 +122,7 @@ fs.mkdirSync(out, {recursive:true});
   } catch(error) {
     await page.screenshot({path:out+'/home-boot-failure.png',fullPage:true}).catch(()=>{});
     console.error('Home page errors:', errors);
+    console.error('Overflow:',await page.evaluate(()=>Array.from(document.querySelectorAll('body *')).filter(el=>el.getBoundingClientRect().right>innerWidth+1).map(el=>({tag:el.tagName,id:el.id,cls:el.className,right:el.getBoundingClientRect().right,display:getComputedStyle(el).display})).slice(0,30)));
     throw error;
   } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exitCode=1;});
