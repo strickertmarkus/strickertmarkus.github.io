@@ -99,6 +99,178 @@ html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row
   border-bottom:0!important;
 }
 
+/* Standalone logged-exercise editor: editable typography instead of input boxes.
+   Scope every override to this modal so session mode and pass building stay intact. */
+html[data-field-embedded] body #exercise-edit-modal-v9 #single-exercise-editor-v9{
+  padding:3px 0 0!important;
+  border:0!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9{
+  padding:0!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row-head{
+  margin:0 0 16px!important;
+  gap:8px;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  min-width:0!important;
+  align-items:stretch;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-row{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-name-v10{
+  position:relative;
+  grid-column:1/-1;
+  min-width:0;
+  padding:2px 0 8px;
+  border-bottom:1px solid rgba(255,154,145,.24);
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-field-title-v10{
+  display:block;
+  color:#a999a2;
+  font:600 10px/1.3 'Inter',sans-serif;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-name-hint-v10{
+  position:absolute;
+  right:5px;
+  bottom:12px;
+  color:#ffada1;
+  font:500 18px/1 'Inter',sans-serif;
+  pointer-events:none;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .single-exercise-name-v10 input.single-name{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  height:36px!important;
+  margin:2px 0 0!important;
+  padding:4px 25px 4px 0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#f6e8e4!important;
+  -webkit-text-fill-color:#f6e8e4!important;
+  font:500 19px/1.3 'Inter',sans-serif!important;
+  text-overflow:ellipsis;
+  cursor:pointer;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-name-v10:focus-within{
+  border-bottom-color:rgba(255,154,145,.75);
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-metric-v10{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:4px;
+  min-width:0;
+  min-height:65px;
+  padding:8px 3px 6px 0;
+  border-bottom:1px solid rgba(255,154,145,.22);
+  cursor:text;
+  transition:border-color .18s ease,background-color .18s ease;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-metric-v10:focus-within{
+  border-bottom-color:#ff9a91;
+  background:rgba(255,154,145,.035);
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-value-v10{
+  display:flex;
+  align-items:baseline;
+  justify-content:flex-start;
+  gap:4px;
+  min-width:0;
+  white-space:nowrap;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .single-exercise-metric-v10 input[type="number"]{
+  display:block!important;
+  flex:0 1 5ch!important;
+  width:5ch!important;
+  max-width:calc(100% - 25px)!important;
+  min-width:0!important;
+  height:32px!important;
+  margin:0!important;
+  padding:2px 0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#ffded2!important;
+  -webkit-text-fill-color:#ffded2!important;
+  caret-color:#ff9a91!important;
+  font:600 18px/1.25 'Inter',sans-serif!important;
+  font-variant-numeric:tabular-nums;
+  text-align:left;
+  -moz-appearance:textfield!important;
+  appearance:textfield!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-metric-v10 input::-webkit-inner-spin-button,
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-metric-v10 input::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-unit-v10{
+  color:#b7a7a8;
+  font:500 10px/1.2 'Inter',sans-serif;
+  white-space:nowrap;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .single-exercise-metric-v10[data-metric-index="3"]{
+  display:none!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .ex-duration-editor-v7{
+  grid-template-columns:minmax(0,1fr) 64px 25px!important;
+  gap:8px!important;
+  margin-top:15px!important;
+  padding:12px 0 3px!important;
+  border-top:1px solid rgba(255,154,145,.18)!important;
+  color:#d7bcb5;
+  font-size:12px;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .ex-duration-editor-v7 input.ex-duration-seconds-v7{
+  width:64px!important;
+  max-width:64px!important;
+  height:36px!important;
+  padding:3px 0!important;
+  border:0!important;
+  border-bottom:1px solid rgba(255,154,145,.38)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  font:600 17px/1.3 'Inter',sans-serif!important;
+  color:#ffded2!important;
+  -webkit-text-fill-color:#ffded2!important;
+  text-align:center;
+  -moz-appearance:textfield!important;
+  appearance:textfield!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .ex-duration-editor-v7:focus-within input{
+  border-bottom-color:#ff9a91!important;
+}
+html[data-field-embedded] body #exercise-edit-modal-v9 .ex-duration-editor-v7 small{
+  color:#b7a7a8;
+  font-size:11px;
+}
+@media(max-width:370px){
+  html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .ex-row{
+    gap:7px!important;
+  }
+  html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9 .single-exercise-metric-v10 input[type="number"]{
+    font-size:16px!important;
+  }
+}
+
 /* Live sessions are not restyled here. Pulse Flow is the single presentation
    authority for training mode, including ECG, timers, rest and progress. */
 html[data-field-embedded] body .exercise-name-picker-v1{z-index:30000!important;border-color:#ff9a9152!important;background:linear-gradient(180deg,#201824,#111820)!important;box-shadow:0 22px 56px #0009,0 0 0 1px #ff657a10,0 0 28px #ff657a16!important}
