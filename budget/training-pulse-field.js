@@ -927,19 +927,26 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var vo2=number(workout.vo2)||number(saved&&(saved.score||saved.value||saved.vo2));
     var pace=workoutPace(workout),goal=number(data.goals.vo2Goal)||45;
     function chart(type,label,value,position,low,high,unit){
-      var valid=value!==''&&value!=null;
-      return '<div class="log-mini-meter log-mini-meter--'+type+(valid?'':' is-missing')+'" role="img" aria-label="'+escapeHtml(label+': '+(valid?value+' '+unit:'Inget värde'))+'">'+
-        '<span class="log-mini-label">'+label+'</span><strong>'+escapeHtml(valid?value:'—')+'<small>'+unit+'</small></strong>'+
-        '<span class="log-mini-signal"><svg viewBox="0 0 104 30" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="2"/><circle class="log-mini-end" cx="95" cy="12" r="2"/>'+(valid?'<circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="3.7"/>':'')+'</svg></span>'+
+      return '<div class="log-mini-meter log-mini-meter--'+type+'" role="img" aria-label="'+escapeHtml(label+': '+value+' '+unit+'. Intervall '+low+' till '+high)+'">'+
+        '<span class="log-mini-label">'+label+'</span>'+
+        '<strong>'+escapeHtml(value)+'<small>'+unit+'</small></strong>'+
+        '<span class="log-mini-signal"><svg viewBox="0 0 104 24" aria-hidden="true"><line class="log-mini-track" x1="9" y1="12" x2="95" y2="12"/><circle class="log-mini-end" cx="9" cy="12" r="1.8"/><circle class="log-mini-end" cx="95" cy="12" r="1.8"/><circle class="log-mini-point" cx="'+position.toFixed(2)+'" cy="12" r="4.5"/></svg></span>'+
         '<div class="log-mini-scale"><span>'+escapeHtml(low)+'</span><span>'+escapeHtml(high)+'</span></div></div>';
     }
-    var pulsePos=min>0&&max>=min&&avg>0?(min===max?52:9+clamp((avg-min)/(max-min),0,1)*86):52;
-    var pulse=chart('heart','Puls',avg>0?Math.round(avg):'',pulsePos,min?String(Math.round(min)):'min',max?String(Math.round(max)):'max','bpm');
-    var vo2Pos=9+clamp((vo2-40)/(Math.max(40.1,goal)-40),0,1)*86;
-    var vo2Chart=chart('vo2','VO₂',vo2>0?formatNumber(vo2,1):'',vo2Pos,'40',formatNumber(goal,1)+' mål','ml/kg/min');
-    var pacePos=9+clamp((7-pace)/4,0,1)*86;
-    var paceChart=chart('pace','Snittakt',pace>0?formatPace(pace).replace(' /km',''):'',pacePos,'7:00','3:00','min/km');
-    return '<div class="log-mini-intervals" aria-label="Passintervall för puls, VO₂ och snittakt">'+pulse+vo2Chart+paceChart+'</div>';
+    var charts=[];
+    if(avg>0){
+      var pulsePos=min>0&&max>=min?(min===max?52:9+clamp((avg-min)/(max-min),0,1)*86):52;
+      charts.push(chart('heart','Puls',Math.round(avg),pulsePos,min>0?String(Math.round(min)):'min',max>0?String(Math.round(max)):'max','bpm'));
+    }
+    if(vo2>0){
+      var vo2Pos=9+clamp((vo2-40)/(Math.max(40.1,goal)-40),0,1)*86;
+      charts.push(chart('vo2','VO₂',formatNumber(vo2,1),vo2Pos,'40',formatNumber(goal,1)+' mål','ml/kg/min'));
+    }
+    if(pace>0){
+      var pacePos=9+clamp((7-pace)/4,0,1)*86;
+      charts.push(chart('pace','Snittakt',formatPace(pace).replace(' /km',''),pacePos,'7:00','3:00','min/km'));
+    }
+    return charts.length?'<div class="log-mini-intervals" data-count="'+charts.length+'" aria-label="Registrerade mätvärden">'+charts.join('')+'</div>':'';
   }
 
   function renderLog() {
@@ -966,7 +973,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
