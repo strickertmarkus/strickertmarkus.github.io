@@ -193,6 +193,17 @@ main{position:relative;z-index:2;display:block}
 .week-day.is-selected.is-complete .day-date::before{content:"";position:absolute;bottom:-4px;left:50%;width:25px;height:25px;border-radius:50%;transform:translateX(-50%);pointer-events:none;background:radial-gradient(circle,#ffd2bd72 0%,#ff657a34 38%,transparent 73%);animation:weekDotFlow 3.8s ease-in-out infinite}
 .week-day .day-type{max-width:72px;overflow:hidden;color:#c4cbd2;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
 
+/* Coordinate the seven-day strip with the type-coded dots in Veckoplan. */
+.week-day{--week-kind:#a78bfa}
+.week-day[data-plan-kind="push"]{--week-kind:#ff7886}
+.week-day[data-plan-kind="pull"]{--week-kind:#67d4e4}
+.week-day[data-plan-kind="cardio"]{--week-kind:#ffbd82}
+.week-day[data-plan-kind="rest"]{--week-kind:#697681}
+.week-day .day-date::after{background:var(--week-kind);box-shadow:0 0 5px color-mix(in srgb,var(--week-kind) 55%,transparent)}
+.week-day.is-complete .day-date::after{background:var(--week-kind);box-shadow:0 0 7px var(--week-kind),0 0 15px color-mix(in srgb,var(--week-kind) 58%,transparent)}
+.week-day[data-plan-kind="rest"]:not(.is-complete) .day-date::after{box-shadow:none;opacity:.55}
+
+
 .activity-section{padding-top:34px;padding-bottom:30px}
 .activity-heading,.insight-section>.section-head{margin-bottom:10px}
 .segmented{display:flex;align-items:center;padding:3px;border:1px solid var(--field-line);border-radius:999px;background:#0c1218}
