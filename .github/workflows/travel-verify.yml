@@ -2,7 +2,7 @@ name: Travel planner verification
 on:
   push:
     branches: [main]
-    paths: ['budget/travel*', 'budget/tests/travel*', 'budget/family-todos-ui-v1.js', 'budget/family-todos-v1.js', 'budget/scripts/travel-access.cjs', '.github/workflows/travel-verify.yml']
+    paths: ['budget/travel*', 'budget/nav-menu-motion.js', 'budget/tests/menu-browser.cjs', 'budget/tests/travel*', 'budget/family-todos-ui-v1.js', 'budget/family-todos-v1.js', 'budget/scripts/travel-access.cjs', '.github/workflows/travel-verify.yml']
   workflow_dispatch:
 jobs:
   travel:
@@ -27,6 +27,7 @@ jobs:
       - run: |
           python3 -m http.server 4173 >/tmp/travel-http.log 2>&1 &
           sleep 2
+          node budget/tests/menu-browser.cjs
           node budget/tests/travel-experience-browser.cjs
           node budget/tests/travel-browser.cjs
       - uses: actions/upload-artifact@v4

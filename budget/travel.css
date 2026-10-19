@@ -252,8 +252,8 @@
 
 /* Fixed dialog geometry: only the content column scrolls, never the modal shell.
    Prevent native date/time min-content from pushing controls outside the viewport. */
-html:has(dialog[open]),body:has(dialog[open]){overflow:hidden!important;overscroll-behavior:none}
-dialog[open]{
+html:has(dialog:modal),body:has(dialog:modal){overflow:hidden!important;overscroll-behavior:none}
+dialog[open]:not(.inline-editor){
   position:fixed!important;inset:0!important;top:0!important;left:0!important;
   right:0!important;bottom:0!important;transform:none!important;margin:auto!important;
   width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px);
@@ -301,7 +301,7 @@ dialog[open]{
 @media(max-width:620px){
   #editor[open] .fields{grid-template-columns:minmax(0,1fr);padding:11px 13px;gap:10px}
   #editor[open] .fields label.wide{grid-column:1}
-  dialog[open]{max-height:calc(100dvh - 14px);width:calc(100vw - 14px);max-width:calc(100vw - 14px)}
+  dialog[open]:not(.inline-editor){max-height:calc(100dvh - 14px);width:calc(100vw - 14px);max-width:calc(100vw - 14px)}
   #editor[open] #edit-form{max-height:calc(100dvh - 14px)}
   #editor[open] .dialog-head{padding:11px 13px}
   #editor[open] .dialog-actions{padding:9px 13px}

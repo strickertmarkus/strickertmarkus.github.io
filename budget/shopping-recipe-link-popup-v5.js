@@ -111,12 +111,7 @@
       body.shopping-recipe-link-popup-v5 .recipe-meta-editor{grid-template-columns:minmax(0,1fr)!important}
       body.shopping-recipe-link-popup-v5 .recipe-meta-editor input[type="url"]{display:none!important}
 
-      #recipe-link-popup-v5{
-        inset:0;margin:auto;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
-        padding:0;overflow:auto;overscroll-behavior:contain;border:1px solid var(--border-strong);
-        border-radius:20px;background:var(--bg2);color:var(--text);box-shadow:0 24px 70px #0009;
-      }
-      #recipe-link-popup-v5::backdrop{background:#03060bb3}
+      #recipe-link-popup-v5{position:static;inset:auto;transform:none;margin:12px 0;width:100%;max-width:100%;max-height:none;padding:0;overflow:visible;border:1px solid var(--border-strong);border-radius:14px;background:var(--bg2);color:var(--text);box-shadow:none;}
       .recipe-link-card-v5{padding:22px}
       .recipe-link-head-v5{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
       .recipe-link-kicker-v5{font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--accent)}
@@ -201,8 +196,9 @@
     document.getElementById('recipe-link-error-v5').textContent = '';
     var remove = popup.querySelector('[data-link-remove-v5]');
     if (remove) remove.style.visibility = recipe.url ? 'visible' : 'hidden';
-    window.TrainingOverlay.acquire('shopping-recipe');
-    popup.showModal();
+    const card=trigger?.closest('.recipe-item');if(card)card.after(popup);
+    MenuMotion.show(popup);
+    popup.scrollIntoView({block:'nearest',behavior:'smooth'});
     setTimeout(function () {
       if (!popup.open) return;
       try { input.focus({preventScroll:true}); } catch (_) { try { input.focus(); } catch (ignore) {} }
@@ -212,13 +208,11 @@
 
   function closePopup() {
     var popup = document.getElementById('recipe-link-popup-v5');
-    if (popup && popup.open) popup.close();
-    finishClose();
+    if(popup&&popup.open)MenuMotion.close(popup,finishClose);else finishClose();
   }
   function finishClose() {
     var id = activeRecipeId;
     activeRecipeId = null;
-    window.TrainingOverlay.release('shopping-recipe');
     var target = returnFocus && returnFocus.isConnected ? returnFocus : document.querySelector('[data-recipe-id="' + id + '"] .recipe-edit-meta-v4');
     returnFocus = null;
     if (target) target.focus({preventScroll:true});

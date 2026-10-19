@@ -48,6 +48,7 @@ fs.mkdirSync(out, {recursive:true});
   });
   try {
     await page.goto(origin+'/budget/home.html',{waitUntil:'networkidle'});
+    assert.equal(await page.locator('#home-blue-theme-config-v1').count(),0);
     await page.waitForFunction(()=>window.__homeShoppingGroupsV1Installed && window.__homeCalendarPolishV5Installed);
     assert.equal(await page.locator('#trip-section,#trip-modal,#home-critical-prelayout-v9').count(),0);
     assert.equal(await page.locator('.calendar-toolbar-v2').count(),1);

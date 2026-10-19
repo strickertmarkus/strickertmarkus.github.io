@@ -1048,7 +1048,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function installEvents() {
     var toggle=byId('menu-toggle'),menu=byId('field-menu');
-    function setMenu(open){if(open===menu.classList.contains('is-open'))return;if(open)window.TrainingOverlay.acquire('menu');else window.TrainingOverlay.release('menu');menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
+    function setMenu(open){if(open===menu.classList.contains('is-open'))return;menu.classList.toggle('is-open',open);menu.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Stäng meny':'Öppna meny');}
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
     window.addEventListener('pulse-field:close-menu',function(){setMenu(false);});
     document.addEventListener('keydown',function(event){if(event.key==='Escape'&&menu.classList.contains('is-open')){setMenu(false);toggle.focus({preventScroll:true});}});

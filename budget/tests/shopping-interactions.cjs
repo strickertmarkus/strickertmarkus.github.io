@@ -52,7 +52,7 @@ async function run(type,name,viewport,layout,offline=false){
    await page.locator('.dropdown-btn').filter({hasText:label}).click();
    await page.waitForFunction(()=>document.querySelector('#shopping-menu-dialog').open);
    await geometry('#shopping-menu-dialog');
-   assert(await page.evaluate(()=>TrainingOverlay.isLocked()));
+   assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);
  }
  async function closed(){
    await page.waitForFunction(()=>!document.querySelector('#shopping-menu-dialog').open&&!TrainingOverlay.isLocked());
@@ -82,20 +82,14 @@ async function run(type,name,viewport,layout,offline=false){
      assert(a.right<=b.left+1||b.right<=a.left+1||a.bottom<=b.top+1||b.bottom<=a.top+1,'header controls overlap');
    }
    await page.screenshot({path:'test-results/shopping/'+prefix+'-page.png',fullPage:true});
-   // Hamburger is reachable and visible in the viewport, even on short screens.
-   await page.locator('.nav-btn').click();
-   await geometry('#shopping-menu-dialog');
-   await page.locator('#nav-menu a[href="shopping.html"]').first().waitFor({state:'visible'});
-   assert.equal(await page.locator('.nav-btn').getAttribute('aria-expanded'),'true');
-   assert(await page.evaluate(()=>TrainingOverlay.isLocked()));
+   // Utility menus remain usable without trapping focus or page scrolling.
+   await openMenu('Listor');
+   assert.equal(await page.locator('dialog:modal').count(),0);
    await page.screenshot({path:'test-results/shopping/'+prefix+'-menu.png'});
-   await page.keyboard.press('Tab');
-   assert(await page.evaluate(()=>document.querySelector('#shopping-menu-dialog').contains(document.activeElement)));
    await page.keyboard.press('Escape');await closed();
-   assert(await page.evaluate(()=>document.activeElement===document.querySelector('.nav-btn')));
-   // Repeated open/close and backdrop dismissal cannot leak scroll locks.
-   for(let i=0;i<3;i++){await page.locator('.nav-btn').click();await page.locator('.shopping-menu-close').click();await closed();}
-   await page.locator('.nav-btn').click();await page.mouse.click(2,2);await closed();
+   assert(await page.evaluate(()=>document.activeElement===document.querySelector('#shopping-tools-toggle')));
+   for(let i=0;i<3;i++){await openMenu('Listor');await page.locator('.shopping-menu-close').click();await closed();}
+   await openMenu('Listor');await page.mouse.click(2,2);await closed();
    // List selection, adding, editing, checking, deleting and undo.
    await openMenu('Listor');await page.locator('#lists-menu a').filter({hasText:'Helg'}).click();await closed();
    assert.equal(await page.locator('#shopping-current-list').innerText(),'Helg');
@@ -146,19 +140,18 @@ async function run(type,name,viewport,layout,offline=false){
    await page.waitForFunction(()=>document.querySelector('#recipe-link-popup-v5').open);
    await geometry('#recipe-link-popup-v5');
    await page.screenshot({path:'test-results/shopping/'+prefix+'-recipe.png'});
-   assert(await page.evaluate(()=>TrainingOverlay.isLocked()));
+   assert.equal(await page.evaluate(()=>TrainingOverlay.isLocked()),false);
    const frozen=await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top);
    if(viewport.width<700&&type===webkit)await page.evaluate(()=>scrollBy(0,500));
    else await page.mouse.wheel(0,500);
-   assert(Math.abs(await page.evaluate(()=>document.querySelector('.shopping-list-panel').getBoundingClientRect().top)-frozen)<2,'background scrolled');
+   assert.equal(await page.locator('dialog:modal').count(),0);assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).overflowY),'hidden');
    await page.locator('#recipe-link-input-v5').fill('javascript:alert(1)');
    await page.locator('[data-link-save-v5]').click();
    assert(await page.locator('#recipe-link-error-v5').innerText());
    await page.locator('#recipe-link-input-v5').fill('https://example.com/pasta');
    await page.locator('[data-link-save-v5]').click();
    await page.waitForFunction(()=>!document.querySelector('#recipe-link-popup-v5').open&&!TrainingOverlay.isLocked());
-   await page.waitForFunction(y=>Math.abs(scrollY-y)<3,beforeY);
-   assert(Math.abs(await page.evaluate(()=>scrollY)-beforeY)<3,'scroll restoration');
+
    assert.equal((await storeValue('sh_recipes_v3')).recipes.find(x=>x.id===7).url,'https://example.com/pasta');
    await edit.click();await page.keyboard.press('Escape');
    await page.waitForFunction(()=>!TrainingOverlay.isLocked());

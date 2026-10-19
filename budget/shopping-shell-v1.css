@@ -61,11 +61,11 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
 .context-stat span{font-size:11px;color:var(--text-sec)}
 .context-stat strong{font:600 26px/1.2 Inter,system-ui,sans-serif;color:var(--accent-soft)}
 #items-list,#recipes-list{min-width:0}
-/* Menus are hosted in a native modal top layer, outside transformed ancestors. */
+/* Nonmodal utility panels allow the rest of the page to keep scrolling. */
 .dropdown-menu{display:none}
-#shopping-menu-dialog{inset:0;margin:calc(76px + env(safe-area-inset-top,0px)) max(20px,calc((100vw - 1144px)/2)) auto auto;width:min(360px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 100px - env(safe-area-inset-bottom,0px));padding:0;color:var(--text);border:1px solid var(--border-strong);border-radius:20px;background:var(--bg2);box-shadow:0 24px 80px #0009,0 0 36px rgba(var(--accent-rgb),.07);overflow:hidden}
-#shopping-menu-dialog[open]{display:flex;flex-direction:column;animation:shopping-menu-in .22s cubic-bezier(.22,1,.36,1)}
-#recipe-link-popup-v5[open]{animation:shopping-menu-in .22s cubic-bezier(.22,1,.36,1)}
+#shopping-menu-dialog{position:fixed;z-index:5000;inset:0;margin:calc(76px + env(safe-area-inset-top,0px)) max(20px,calc((100vw - 1144px)/2)) auto auto;width:min(360px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 100px - env(safe-area-inset-bottom,0px));padding:0;color:var(--text);border:1px solid var(--border-strong);border-radius:14px;background:#161b22;box-shadow:0 14px 38px #0007;overflow:hidden}
+#shopping-menu-dialog[open]{display:flex;flex-direction:column;animation:none}
+#recipe-link-popup-v5[open]{animation:none}
 @keyframes shopping-menu-in{from{opacity:0;transform:translateY(5px) scale(.985)}to{opacity:1;transform:none}}
 #shopping-menu-dialog::backdrop,#recipe-link-popup-v5::backdrop{background:#03060bb3}
 .shopping-menu-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:0 0 auto;padding:14px 16px;border-bottom:1px solid var(--border)}
@@ -131,14 +131,8 @@ html[data-list-mode="packing"] #items-list .category-title[contenteditable="true
  box-shadow:0 0 10px var(--shopping-person-color,#FDBA74);
  pointer-events:none
 }
-/* Keep remaining utility dialogs stationary; scroll only inner content if necessary. */
-html:has(#shopping-menu-dialog[open]),body:has(#shopping-menu-dialog[open]),
-html:has(#recipe-link-popup-v5[open]),body:has(#recipe-link-popup-v5[open]){
- overflow:hidden!important;overscroll-behavior:none
-}
-#shopping-menu-dialog[open],#recipe-link-popup-v5[open]{
- max-width:calc(100vw - 20px);overflow-x:hidden;overscroll-behavior:contain;
-}
+/* Scroll utility content without clipping its controls. */
+#shopping-menu-dialog[open]{max-width:calc(100vw - 24px);overflow-x:hidden;overscroll-behavior:contain}
 #shopping-menu-content{min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto}
 #recipe-link-popup-v5[open] input[type="date"],
 #recipe-link-popup-v5[open] input[type="time"],

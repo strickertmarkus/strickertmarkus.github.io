@@ -13,11 +13,11 @@ test('list modes keep the same persisted feature owners',()=>{
   assert.match(html,/orange-icons-2/);
   assert.doesNotMatch(html+css,/minimal-tools|data-shopping-layout|Fokuserad vy/);
 });
-test('menus and recipe editor use modal top layer and shared scroll ownership',()=>{
+test('menus and recipe editor preserve page scrolling',()=>{
   assert.match(html,/<dialog id="shopping-menu-dialog"/);
-  assert.match(read('shopping-core-v1.js'),/menuDialog.showModal\(\)/);
+  assert.match(read('shopping-core-v1.js'),/MenuMotion.show\(menuDialog\)/);
   assert.match(read('shopping-recipe-link-popup-v5.js'),/createElement\('dialog'\)/);
-  assert.doesNotMatch(css,/position:fixed/);
+  assert.doesNotMatch(css,/:has\(#shopping-menu-dialog\[open\]\)/);
   assert.doesNotMatch(read('shopping-list-engine-v7.js'),/\.nav-dropdown-wrapper\{/);
 });
 test('background scrolls and fades; controls retain accessible motion and focus',()=>{

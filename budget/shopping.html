@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="shopping-shell-v1.css?v=20261017-member-glow-dialogs-1">
+  <link rel="stylesheet" href="shopping-shell-v1.css?v=20261019-menu-motion-2">
   <link rel="stylesheet" href="site-hub-home.css?v=20261016-radial-fast-clean-1">
   <script src="hub-fullscreen-child.js?v=20261016-viewtransition-lasttap-1"></script>
 <style>
@@ -37,17 +37,6 @@ html.shopping-embedded .app-header{display:block;max-width:1200px;padding:10px 2
 html.shopping-embedded .app-header>.brand,
 html.shopping-embedded .shopping-mode-switch{display:flex;width:100%;margin:0;padding-bottom:12px}
 html.shopping-embedded .wrap{padding:14px 24px 70px}
-html.shopping-embedded #shopping-menu-dialog[open]{
-  position:fixed!important;inset:auto!important;top:var(--home-dialog-top)!important;
-  left:50%!important;transform:translateX(-50%)!important;
-  margin:0!important;max-height:calc(var(--home-visible-height) - 28px)!important
-}
-html.shopping-embedded #recipe-link-popup-v5[open]{
-  position:fixed!important;inset:auto!important;
-  left:50%!important;top:var(--home-dialog-center)!important;
-  transform:translate(-50%,-50%)!important;margin:0!important;
-  max-height:calc(var(--home-visible-height) - 28px)!important
-}
 @media(max-width:680px){
   html.shopping-embedded .app-header{padding:10px 12px 0}
   html.shopping-embedded .wrap{padding:12px 12px 50px}
@@ -141,6 +130,7 @@ html.shopping-embedded .wrap{padding-top:15px}
   html.shopping-embedded .shopping-mode-switch>[data-list-mode-button]{transition:none}
 }
 </style>
+<script defer src="nav-menu-motion.js?v=20261019-menu-motion-2"></script>
 </head>
 <body>
 <div class="app-wrap">
@@ -221,12 +211,12 @@ html.shopping-embedded .wrap{padding-top:15px}
   <div id="shopping-menu-content"></div>
 </dialog>
 <script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
-<script defer src="shopping-core-v1.js?v=20261016-tools-menu-1"></script>
+<script defer src="shopping-core-v1.js?v=20261019-menu-motion-2"></script>
 <script defer src="shopping-list-stability-v8.js?v=20260929-orange-icons-2" data-shopping-list-stability-v8></script>
 <script defer src="shopping-list-engine-v7.js?v=20261017-member-glow-1" data-shopping-list-engine-v7></script>
 <script defer src="shopping-toolbar-v9.js?v=20261016-svg-no-emoji-1" data-shopping-toolbar-v9></script>
 <script defer src="shopping-recipes-v4.js?v=20261016-svg-no-emoji-1" data-shopping-recipes-v4></script>
-<script defer src="shopping-recipe-link-popup-v5.js?v=20261010-recipe-diagnostics-2" data-shopping-recipe-link-popup-v5></script>
+<script defer src="shopping-recipe-link-popup-v5.js?v=20261019-menu-motion-2" data-shopping-recipe-link-popup-v5></script>
 <script defer src="shopping-recipe-header-polish-v6.js?v=20260929-orange-icons-2" data-shopping-recipe-header-polish-v6></script>
 <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
 <script defer src="travel-model.js?v=20261013-workflows-1"></script>

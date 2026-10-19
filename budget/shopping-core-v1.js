@@ -326,7 +326,6 @@
     menuState = null;
     previous.home.appendChild(previous.menu);
     previous.button.setAttribute('aria-expanded','false');
-    window.TrainingOverlay.release('shopping-menu');
     var focusTarget = previous.returnFocus || previous.button;
     if (focusTarget.isConnected) focusTarget.focus({preventScroll:true});
   }
@@ -340,7 +339,8 @@
     menuDialog = document.getElementById('shopping-menu-dialog');
     var toolsMenu = document.getElementById('shopping-tools-menu');
     document.addEventListener('click',function (event) {
-      if (toolsMenu.open && !toolsMenu.contains(event.target)) toolsMenu.open = false;
+      if(menuDialog.open&&!menuDialog.contains(event.target)&&!event.target.closest('.dropdown-btn,.nav-btn'))MenuMotion.close(menuDialog,restoreMenu);
+      if (toolsMenu.open && !toolsMenu.contains(event.target)) MenuMotion.closeDetails(toolsMenu);
     });
     document.querySelectorAll('.dropdown-btn,.nav-btn').forEach(function (button) {
       var menu = button.parentElement.querySelector('.dropdown-menu');
@@ -355,17 +355,17 @@
         document.getElementById('shopping-menu-title').textContent = button.classList.contains('nav-btn') ? 'Meny' : button.textContent;
         document.getElementById('shopping-menu-content').appendChild(menu);
         button.setAttribute('aria-expanded','true');
-        window.TrainingOverlay.acquire('shopping-menu');
-        menuDialog.showModal();
+        MenuMotion.show(menuDialog);
+        MenuMotion.anchor(menuDialog,menuState.returnFocus||button);
       });
     });
     menuDialog.addEventListener('close',function () {
       // An old close event must not close a newly opened menu.
       if (!menuDialog.open) restoreMenu();
     });
-    menuDialog.addEventListener('cancel',function (event) { event.preventDefault(); closeAllMenus(); });
+    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&menuDialog.open){event.preventDefault();MenuMotion.close(menuDialog,restoreMenu);}});
     menuDialog.addEventListener('click',function (event) {
-      if (event.target.closest('.shopping-menu-close')) closeAllMenus();
+      if (event.target.closest('.shopping-menu-close')) MenuMotion.close(menuDialog,restoreMenu);
       else if (event.target === menuDialog) {
         var rect = menuDialog.getBoundingClientRect();
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeAllMenus();
