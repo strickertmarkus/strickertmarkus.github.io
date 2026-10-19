@@ -404,7 +404,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function heartData() {
-    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:/^kondition$/i.test(workoutType(w).trim())?'cardio':'strength',type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
   }
   function distanceData() {
     return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
@@ -765,8 +765,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
       // Always render a visible marker for every saved heart-rate measurement.
       // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
-      heartMarkers+='<circle class="heart-point-halo" cx="'+px+'" cy="'+py+'" r="8" fill="'+color+'"/>'+
-        glowingPoint(px,py,4.8,color,'heart-point');
+      heartMarkers+='<circle class="heart-point-halo" cx="'+px+'" cy="'+py+'" r="11" fill="'+color+'"/>'+
+        '<circle class="heart-point-ring" cx="'+px+'" cy="'+py+'" r="8.1" fill="none" stroke="'+color+'"/>'+
+        glowingPoint(px,py,6.1,color,'heart-point');
       heartHits+='<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
       if(width<560&&index!==0&&index!==entries.length-1&&index%3!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
