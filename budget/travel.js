@@ -11,7 +11,7 @@ let addingPackingHeading=false;
 let packingActiveEdit=null;
 let showNight=false,selectedPlace='',savingEditor=false,mapMarkers=new Map();
 let day='',daysWide=false,editing=null,drag=null,map=null,mapRows=[],viewerIndex=0,toastTimer,undoAction=null,renderPending=false;
-const filters={packingStatus:'all',packingOwner:'',packingGroup:'owner',taskOwner:'',taskStatus:'all',budget:'plan',placeCategory:'',placeStatus:'',placeDay:'',photoDay:'',documentCategory:''};
+const filters={packingStatus:'all',packingOwner:'',packingGroup:'owner',taskOwner:'',taskStatus:'all',budget:'plan',placeCategory:'',placeStatus:'',placeDay:'',photoDay:''};
 // Navigation groups share the existing record types; old deep links remain valid.
 const tabs=[['overview','Översikt','RESAN I KORTHET'],['activity','Resplan','DAGAR ATT FYLLA'],['booking','Bokningar & biljetter','DIN RESEPLÅNBOK'],['task','Förberedelser','REDO FÖR AVRESA'],['expense','Reskassa','PLANERA · UPPLEVA · GÖRA UPP'],['note','Resedagbok','MINNEN LÄNGS VÄGEN']];
 const sectionFor=key=>({place:'activity',packing:'task',document:'booking',photo:'note'})[key]||key;
@@ -495,7 +495,7 @@ async function click(event){const b=event.target.closest('button');if(!b)return;
  if(b.hasAttribute('data-missing')){filters.packingStatus=filters.packingStatus==='todo'?'all':'todo';return render(true);}
  if(b.dataset.cashSplit){filters.budget='split';return setTab('expense');}
  if(b.hasAttribute('data-idea'))return openEditor('note',null,{date:''});
- if(b.dataset.journalPlace){selectedPlace=b.dataset.journalPlace;return setPlanView('map');}
+ if(b.dataset.journalPlace){selectedPlace=b.dataset.journalPlace;filters.placeCategory='';filters.placeStatus='';filters.placeDay='';return setPlanView('map');}
  if(b.dataset.journalDay)return openEditor('note',null,{date:b.dataset.journalDay});
 
  if(b.dataset.new)return openEditor(b.dataset.new);
@@ -878,6 +878,7 @@ document.addEventListener('submit',async e=>{
  const next=[...current,value];
  try{
   await S.patch(selectedTrip,{[field]:next.join(', ')});
+  if(key==='owner')filters.packingOwner='';
   addingPackingHeading=false;
   render(true);
   const section=[...document.querySelectorAll('.packing-group')].find(x=>x.dataset.dropGroup===value);
