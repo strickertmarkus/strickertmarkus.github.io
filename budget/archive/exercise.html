@@ -1252,7 +1252,7 @@ function fillPlanDays(mondayISO){
   if(!box)return;
   pulsePlanInstallV1();
   var draft=pulsePlanDraftsV1[mondayISO];
-  if(!draft)draft=DAY_KEYS.map(function(key,i){return {type:plan[key]||'Vila',source:shiftISODate(mondayISO,i)};});
+  if(!draft)draft=DAY_KEYS.map(function(key,i){var iso=shiftISODate(mondayISO,i),session=(pulsePlanSourceSessionsV1||getPlannedSessions())[iso];return {type:(session&&session.type)||plan[key]||'Vila',source:iso};});
   box.innerHTML='';
   DAYS.forEach(function(day,i){
     var date=shiftISODate(mondayISO,i),entry=draft[i]||{},type=entry.type||'Vila';
