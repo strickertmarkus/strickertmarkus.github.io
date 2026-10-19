@@ -404,7 +404,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function heartData() {
-    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg)>0?number(w.hrAvg):null,min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg)>0?number(w.hrAvg):null,min:number(w.hrMin),max:number(w.hrMax),kind:/^kondition\b/i.test(workoutType(w).trim())?'cardio':'strength',type:workoutType(w)};});
   }
   function distanceData() {
     return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
