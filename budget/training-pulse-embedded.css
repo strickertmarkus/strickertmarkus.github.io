@@ -271,217 +271,359 @@ html[data-field-embedded] body #exercise-edit-modal-v9 .ex-duration-editor-v7 sm
   }
 }
 
-/* Ingemar-inspired, compact weekly planning. The legacy plan/session model
-   remains the persistence source; these are presentation-only styles. */
+/* Week planner: reuse Ingemar's clear day-card hierarchy and quick planning,
+   while keeping Pulse Field colors and Markus/Maja workout categories. */
 html[data-field-embedded] body #plan-modal .modal{
-  width:min(560px,100%);
-  display:flex;
-  flex-direction:column;
+  display:flex!important;
+  flex-direction:column!important;
+  width:min(650px,100%)!important;
+  max-width:650px!important;
+  height:min(90dvh,940px);
+  min-height:0!important;
   overflow:hidden!important;
 }
+html[data-field-embedded] body #plan-modal .modal>h2{flex:0 0 auto;margin-bottom:12px!important}
 html[data-field-embedded] body #plan-modal .form-group{
   flex:0 0 auto;
-  margin-bottom:11px!important;
+  margin:0 0 9px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-summary-v2{
+  color:#f2d2c7;
+  font:600 13px/1.35 'Inter',sans-serif;
+  padding:2px 0 8px;
+  font-variant-numeric:tabular-nums;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2{
+  flex:0 0 auto;
+  margin:0 0 6px;
+  border:1px solid rgba(255,154,145,.15);
+  border-radius:11px;
+  background:rgba(255,154,145,.028);
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2 summary{
+  display:flex;
+  justify-content:space-between;
+  padding:9px 12px;
+  color:#c8b6b2;
+  font:600 11px/1.3 'Inter',sans-serif;
+  cursor:pointer;
+  list-style:none;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2 summary::-webkit-details-marker{display:none}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2[open] summary>span{transform:rotate(180deg)}
+html[data-field-embedded] body #plan-modal .pulse-plan-week-template-row-v2{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  padding:2px 11px 10px;
+  align-items:center;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-week-template-row-v2 select{
+  width:100%;min-width:0;height:39px;font-size:13px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-week-template-row-v2 button{
+  min-height:39px;padding:7px 12px;border:1px solid #ff9a9150;border-radius:9px;background:#ff9a9114;color:#ffdacd;font:600 12px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-hint-v2{
+  margin:2px 0 10px;
+  color:#8c939d;
+  font:500 10px/1.4 'Inter',sans-serif;
 }
 html[data-field-embedded] body #plan-modal #plan-days{
-  display:grid;
-  gap:8px;
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto;
   min-height:0;
   overflow-y:auto;
   overscroll-behavior:contain;
-  padding:2px 2px 12px;
-  scrollbar-width:thin;
-}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1{
-  --plan-color:#a78bfa;
-  --plan-rgb:167,139,250;
-  position:relative;
-  display:grid;
-  grid-template-columns:45px minmax(0,1fr) 34px;
-  align-items:center;
   gap:11px;
-  min-width:0;
-  min-height:68px;
-  padding:9px 10px;
-  border:1px solid rgba(var(--plan-rgb),.19);
-  border-radius:13px;
-  background:linear-gradient(112deg,rgba(var(--plan-rgb),.062),rgba(255,255,255,.014) 64%,transparent);
-  transition:border-color .18s,box-shadow .18s,background-color .18s,opacity .18s;
+  padding:3px 3px 13px;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1[data-kind="push"]{--plan-color:#ff7886;--plan-rgb:255,120,134}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1[data-kind="pull"]{--plan-color:#67d4e4;--plan-rgb:103,212,228}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1[data-kind="cardio"]{--plan-color:#ffbd82;--plan-rgb:255,189,130}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1[data-kind="rest"]{--plan-color:#81909e;--plan-rgb:129,144,158}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1::before{
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2{
+  --plan-rgb:255,120,134;
+  --plan-color:#ff7886;
+  position:relative;
+  display:block;
+  min-height:91px;
+  flex:0 0 auto;
+  border:1px solid rgba(var(--plan-rgb),.24);
+  border-radius:16px;
+  background:linear-gradient(115deg,rgba(var(--plan-rgb),.065),rgba(255,255,255,.018) 56%,transparent);
+  transition:border-color .2s,background-color .2s,box-shadow .2s,opacity .2s;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2::before{
   content:"";
   position:absolute;
-  top:14px;
-  bottom:14px;
-  left:0;
-  width:2px;
-  border-radius:2px;
+  top:16px;bottom:16px;left:0;
+  width:2px;border-radius:4px;
   background:var(--plan-color);
-  box-shadow:0 0 10px var(--plan-color);
-  opacity:.6;
+  opacity:.7;
+  box-shadow:0 0 13px var(--plan-color);
+  pointer-events:none;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1.is-drag-source{opacity:.27}
-html[data-field-embedded] body #plan-modal .pulse-plan-day-v1.is-drag-target{
-  border-color:rgba(var(--plan-rgb),.75);
-  box-shadow:0 0 0 1px rgba(var(--plan-rgb),.15),0 0 22px rgba(var(--plan-rgb),.16);
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="coral"]{--plan-color:#ff7886;--plan-rgb:255,120,134}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="cyan"]{--plan-color:#67d4e4;--plan-rgb:103,212,228}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="orange"]{--plan-color:#ffbd82;--plan-rgb:255,189,130}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="gold"]{--plan-color:#f3d18a;--plan-rgb:243,209,138}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="violet"]{--plan-color:#bb9af7;--plan-rgb:187,154,247}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="mint"]{--plan-color:#68d9b1;--plan-rgb:104,217,177}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="rest"]{--plan-color:#81909e;--plan-rgb:129,144,158}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2.is-expanded{
+  border-color:rgba(var(--plan-rgb),.47);
+  box-shadow:0 0 26px rgba(var(--plan-rgb),.055);
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-date-v1{
-  display:flex;
-  flex-direction:column;
-  gap:1px;
-  padding-left:4px;
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2.is-drag-source{opacity:.28}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2.is-drag-target{
+  border-color:var(--plan-color);
+  box-shadow:0 0 0 1px rgba(var(--plan-rgb),.24),0 0 28px rgba(var(--plan-rgb),.18);
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-date-v1 small{
-  color:#aab2bc;
-  font:650 9px/1.2 'Inter',sans-serif;
-  letter-spacing:.8px;
-  text-transform:uppercase;
+html[data-field-embedded] body #plan-modal .pulse-plan-top-v2{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 43px;
+  align-items:stretch;
+  gap:9px;
+  padding:12px 12px 11px;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-date-v1 strong{
-  color:#f0e6e5;
-  font:600 21px/1.1 'Inter',sans-serif;
-  font-variant-numeric:tabular-nums;
+html[data-field-embedded] body #plan-modal button.pulse-plan-open-v2{
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr) 16px;
+  gap:14px;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  min-height:64px;
+  padding:0;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  color:#f4e8e3!important;
+  text-align:left;
+  cursor:pointer;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-details-v1{min-width:0}
-html[data-field-embedded] body #plan-modal .pulse-plan-kind-v1{
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2{display:flex;flex-direction:column;gap:4px;align-self:center}
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 small{
+  color:#9ca5b1;font:650 10px/1.1 'Inter',sans-serif;letter-spacing:.8px;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 strong{
+  color:#f0e5e5;font:650 25px/1 'Inter',sans-serif;font-variant-numeric:tabular-nums;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-main-v2{display:block;min-width:0}
+html[data-field-embedded] body #plan-modal .pulse-plan-badge-v2{
   display:inline-flex;
   align-items:center;
-  gap:6px;
+  gap:7px;
   color:var(--plan-color);
-  font:750 9px/1.15 'Inter',sans-serif;
-  letter-spacing:.8px;
+  font:750 10px/1.2 'Inter',sans-serif;
+  letter-spacing:.9px;
   text-transform:uppercase;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-kind-v1::before{
+html[data-field-embedded] body #plan-modal .pulse-plan-badge-v2::before{
   content:"";
-  width:7px;
-  height:7px;
-  flex:0 0 7px;
-  border-radius:50%;
+  display:block;width:7px;height:7px;flex:0 0 7px;border-radius:100%;
   background:var(--plan-color);
-  box-shadow:0 0 8px var(--plan-color),0 0 15px rgba(var(--plan-rgb),.45);
+  box-shadow:0 0 8px var(--plan-color),0 0 17px rgba(var(--plan-rgb),.44);
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-details-v1 input[data-day]{
-  display:block!important;
-  width:100%!important;
-  height:28px!important;
-  min-width:0!important;
-  margin:2px 0!important;
-  padding:2px 1px!important;
-  border:0!important;
-  border-bottom:1px solid transparent!important;
-  border-radius:0!important;
-  outline:0!important;
-  background:transparent!important;
-  background-color:transparent!important;
-  box-shadow:none!important;
-  color:#f5e9e7!important;
-  -webkit-text-fill-color:#f5e9e7!important;
-  font:600 16px/1.35 'Inter',sans-serif!important;
-  text-overflow:ellipsis;
-}
-html[data-field-embedded] body #plan-modal .pulse-plan-details-v1 input[data-day]:focus{
-  border-bottom-color:var(--plan-color)!important;
-}
-html[data-field-embedded] body #plan-modal .pulse-plan-info-v1{
+html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{
   display:block;
-  color:#8995a2;
-  font:500 10px/1.3 'Inter',sans-serif;
+  margin-top:5px;
+  color:#f6eae6;
+  font:650 16px/1.25 'Inter',sans-serif;
+  overflow-wrap:anywhere;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-grip-v1{
-  display:grid;
-  place-items:center;
-  width:34px;
-  height:43px;
-  min-height:43px;
+html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>small{
+  display:-webkit-box;
+  margin-top:5px;
+  max-width:100%;
+  overflow:hidden;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  color:#a5a9b2;
+  font:500 11px/1.4 'Inter',sans-serif;
+  overflow-wrap:anywhere;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-arrow-v2{color:#ac9197;font-size:17px;align-self:center;text-align:right}
+html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{
+  display:grid!important;place-items:center;
+  width:43px;
+  min-height:64px;
   padding:0;
-  border:1px solid rgba(var(--plan-rgb),.16);
-  border-radius:9px;
-  background:rgba(var(--plan-rgb),.07);
-  color:#a2aebb;
+  border:1px solid rgba(var(--plan-rgb),.20)!important;
+  border-radius:11px!important;
+  background:rgba(var(--plan-rgb),.055)!important;
+  color:#b5b6c0!important;
   cursor:grab;
   touch-action:none;
   -webkit-user-select:none;
   user-select:none;
 }
-html[data-field-embedded] body #plan-modal .pulse-plan-grip-v1:active{cursor:grabbing;color:#f9e5db}
-html[data-field-embedded] body #plan-modal .pulse-plan-grip-v1>span{display:grid;gap:4px;width:15px}
-html[data-field-embedded] body #plan-modal .pulse-plan-grip-v1 i{height:2px;border-radius:3px;background:currentColor}
-html[data-field-embedded] body #plan-modal .pulse-plan-drag-ghost-v1{
-  position:fixed;
-  z-index:2147483000;
-  top:0;
-  left:0;
-  width:min(215px,66vw);
-  overflow:hidden;
-  padding:13px 15px;
-  border:1px solid #ffb3a270;
-  border-radius:12px;
-  background:#181e28;
-  color:#fff0e8;
-  font:600 13px/1.3 'Inter',sans-serif;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  box-shadow:0 15px 44px #000b,0 0 22px #ff9a911b;
-  pointer-events:none;
-  will-change:transform;
+html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2:active{cursor:grabbing;color:#fff4eb!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-grip-v2>span{display:grid;gap:4px;width:17px}
+html[data-field-embedded] body #plan-modal .pulse-plan-grip-v2 i{height:2px;border-radius:3px;background:currentColor}
+html[data-field-embedded] body #plan-modal button.pulse-plan-copy-here-v2{
+  display:block;width:calc(100% - 24px);margin:0 12px 10px;
+  min-height:35px;border:1px dashed rgba(var(--plan-rgb),.5);border-radius:10px;
+  background:rgba(var(--plan-rgb),.09);color:var(--plan-color);font:600 11px 'Inter',sans-serif;
 }
-html[data-field-embedded] body #plan-modal .modal-footer{flex:0 0 auto;margin-top:4px!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-v2{
+  display:grid;gap:8px;margin:0 12px 12px;padding:14px 12px;
+  border:1px solid rgba(var(--plan-rgb),.20);
+  border-radius:13px;
+  background:rgba(8,14,21,.53);
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-head-v2{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  padding-top:9px;
+  margin-top:5px;
+  border-top:1px solid #ffffff0b;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-head-v2:first-child{margin:0;padding:0;border:0}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-head-v2 b{
+  color:#ead6d2;
+  font:750 10px/1.25 'Inter',sans-serif;
+  letter-spacing:.85px;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-head-v2 span{
+  color:#89909b;
+  font:500 10px/1.3 'Inter',sans-serif;
+  text-align:right;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-chip-list-v2,
+html[data-field-embedded] body #plan-modal .pulse-plan-template-chips-v2{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+}
+html[data-field-embedded] body #plan-modal button.pulse-plan-chip-v2,
+html[data-field-embedded] body #plan-modal .pulse-plan-template-chips-v2 button{
+  min-width:0;
+  max-width:100%;
+  min-height:33px;
+  padding:7px 10px;
+  border:1px solid #ffffff18;
+  border-radius:9px;
+  background:#ffffff07;
+  color:#b9b8c0;
+  font:600 11px/1.2 'Inter',sans-serif;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  transition:background-color .2s,border-color .2s;
+}
+html[data-field-embedded] body #plan-modal button.pulse-plan-chip-v2[aria-pressed="true"]{
+  background:rgba(var(--plan-rgb),.15);
+  border-color:rgba(var(--plan-rgb),.5);
+  color:var(--plan-color);
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-custom-v2{display:grid;gap:5px;margin:4px 0 2px;min-width:0}
+html[data-field-embedded] body #plan-modal .pulse-plan-custom-v2>span{
+  color:#9ca0ac;font:550 10px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-custom-v2 input{
+  width:100%;height:38px;padding:7px 10px;background:#ffffff06!important;
+  border:1px solid rgba(var(--plan-rgb),.22)!important;
+  border-radius:9px;color:#f8eae4!important;-webkit-text-fill-color:#f8eae4!important;
+  font:500 16px 'Inter',sans-serif!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-empty-v2{
+  margin:4px 0;color:#898f9b;font:500 11px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-exercise-v2{
+  display:grid;
+  grid-template-columns:8px minmax(0,1fr) 30px;
+  align-items:center;
+  gap:9px;
+  min-height:32px;
+  border-bottom:1px solid rgba(var(--plan-rgb),.10);
+  color:#e2d8d6;
+  font:500 12px/1.3 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-exercise-dot-v2{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--plan-color);box-shadow:0 0 8px var(--plan-color);
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-exercise-v2 button{
+  width:30px;height:30px;padding:0;border:0;background:transparent;
+  color:#ab8589;font-size:18px;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-add-row-v2{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-add-row-v2 input{
+  min-width:0;height:38px;padding:8px 10px;font-size:16px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-add-row-v2 button{
+  min-width:0;min-height:38px;padding:8px 10px;border:1px solid rgba(var(--plan-rgb),.4);
+  border-radius:9px;background:rgba(var(--plan-rgb),.09);color:var(--plan-color);
+  font:600 11px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-foot-v2{
+  display:flex;flex-wrap:wrap;gap:7px;padding-top:11px;margin-top:5px;
+  border-top:1px solid #ffffff12;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-foot-v2 button{
+  flex:1 1 auto;min-height:37px;padding:9px 11px;
+  border:1px solid rgba(var(--plan-rgb),.28);border-radius:9px;
+  background:rgba(var(--plan-rgb),.06);color:#f1c7bd;
+  font:600 11px/1.2 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-foot-v2 button:last-child{color:#9b9097}
+html[data-field-embedded] body #plan-modal .pulse-plan-drag-ghost-v2{
+  position:fixed!important;top:0;left:0;
+  z-index:2147483000!important;
+  width:min(260px,66vw);
+  min-width:0;
+  padding:13px 15px;
+  border:1px solid #ffb3a286;
+  border-radius:13px;
+  background:#15202b!important;
+  box-shadow:0 19px 47px #000d,0 0 26px #ff9a9125;
+  opacity:.98;pointer-events:none!important;will-change:transform;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-drag-ghost-v2 strong{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#ffefea;font:650 13px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-drag-ghost-v2 small{
+  display:block;margin-top:4px;color:#acb3bd;font:500 11px 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .modal-footer{flex:0 0 auto;margin-top:8px!important}
 @media(max-width:600px){
-  html[data-field-embedded] body #day-workout-modal .builder-week-between-v7{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    column-gap:8px!important;
-    row-gap:3px!important;
-    align-items:center!important;
-  }
-  html[data-field-embedded] body #day-workout-modal .builder-week-between-v7>.week-nav{
-    grid-column:1!important;
-    min-width:0!important;
-  }
-  html[data-field-embedded] body #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{
-    grid-column:2!important;
-    width:auto!important;
-    min-width:0!important;
-    min-height:0!important;
-    padding:0!important;
-    margin:0!important;
-    border:0!important;
-    border-radius:0!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    justify-content:flex-end!important;
-    align-items:center!important;
-    gap:9px!important;
-  }
-  html[data-field-embedded] body #day-workout-modal .builder-toggle-unit-v13{
-    min-width:0!important;
-    gap:4px!important;
-  }
-  html[data-field-embedded] body #day-workout-modal .builder-toggle-label-v13{
-    font-size:8px!important;
-    color:#b6a6aa;
-  }
-  html[data-field-embedded] body #plan-modal .modal{height:100%!important;max-height:100dvh!important}
-  html[data-field-embedded] body #plan-modal #plan-days{flex:1 1 auto;overflow-y:auto;min-height:0;padding-bottom:11px}
-  html[data-field-embedded] body #plan-modal .pulse-plan-day-v1{min-height:65px;gap:8px;padding:7px 9px}
-  html[data-field-embedded] body #plan-modal .pulse-plan-grip-v1{width:32px}
+ html[data-field-embedded] body #plan-modal .modal{
+   height:100dvh!important;
+   max-height:100dvh!important;
+ }
+ html[data-field-embedded] body #plan-modal .pulse-plan-day-v2{min-height:90px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-top-v2{gap:9px;padding:11px}
+ html[data-field-embedded] body #plan-modal button.pulse-plan-open-v2{grid-template-columns:45px minmax(0,1fr) 14px;gap:10px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 strong{font-size:22px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{font-size:15px}
+ html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{width:39px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-editor-v2{margin:0 9px 10px;padding:12px 10px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-hint-v2{margin-bottom:7px}
 }
 @media(max-width:365px){
-  html[data-field-embedded] body #day-workout-modal .builder-week-between-v7{
-    display:flex!important;
-    flex-wrap:wrap!important;
-    justify-content:space-between!important;
-    gap:7px!important;
-  }
-  html[data-field-embedded] body #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{
-    margin-left:auto!important;
-  }
-  html[data-field-embedded] body #plan-modal .pulse-plan-day-v1{grid-template-columns:37px minmax(0,1fr) 30px;gap:5px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-top-v2{grid-template-columns:minmax(0,1fr) 34px;gap:6px;padding:9px}
+ html[data-field-embedded] body #plan-modal button.pulse-plan-open-v2{grid-template-columns:36px minmax(0,1fr) 12px;gap:6px}
+ html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{width:34px}
+ html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{font-size:14px}
+}
+/* Existing builder's two toggles stay button-sized, never boxed. */
+@media(max-width:600px){
+ html[data-field-embedded] body #day-workout-modal .builder-week-between-v7{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;column-gap:8px!important;row-gap:3px!important;align-items:center!important}
+ html[data-field-embedded] body #day-workout-modal .builder-week-between-v7>.week-nav{grid-column:1!important;min-width:0!important}
+ html[data-field-embedded] body #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{grid-column:2!important;width:auto!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;justify-content:flex-end!important;align-items:center!important;gap:9px!important}
+ html[data-field-embedded] body #day-workout-modal .builder-toggle-unit-v13{min-width:0!important;gap:4px!important}
+ html[data-field-embedded] body #day-workout-modal .builder-toggle-label-v13{font-size:8px!important;color:#b6a6aa}
+}
+@media(max-width:365px){
+ html[data-field-embedded] body #day-workout-modal .builder-week-between-v7{display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;gap:7px!important}
+ html[data-field-embedded] body #day-workout-modal #between-exercise-toggle-panel-v7.builder-toggle-cluster-v13{margin-left:auto!important}
 }
 
 /* Live sessions are not restyled here. Pulse Flow is the single presentation
