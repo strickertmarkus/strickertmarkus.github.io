@@ -23,9 +23,10 @@ function remove(element){
  Promise.all(element.getAnimations().map(a=>a.finished.catch(()=>{}))).then(()=>element.remove());
 }
 
-const dialogMotions=new WeakMap(),disclosures=new WeakMap();
+const dialogMotions=new WeakMap(),closingDialogs=new WeakSet(),disclosures=new WeakMap();
 const ease='cubic-bezier(.22,1,.36,1)';
 function showDialog(dialog){
+ closingDialogs.delete(dialog);
  const previous=dialogMotions.get(dialog),opacity=previous?getComputedStyle(dialog).opacity:0,translate=previous?getComputedStyle(dialog).translate:'0 -6px';
  previous?.cancel();dialogMotions.delete(dialog);
  dialog.dataset.menuMotion='';dialog.dataset.surfaceDialog='';dialog.inert=false;
@@ -36,16 +37,16 @@ function showDialog(dialog){
  motion.finished.then(()=>{if(dialogMotions.get(dialog)===motion)dialogMotions.delete(dialog);}).catch(()=>{});
 }
 function closeDialog(dialog){
- if(!dialog?.open)return;
+ if(!dialog?.open||closingDialogs.has(dialog))return;
  const opacity=getComputedStyle(dialog).opacity,translate=getComputedStyle(dialog).translate;
  dialogMotions.get(dialog)?.cancel();dialogMotions.delete(dialog);
  if(reduced()){dialog.close();dialog.inert=false;return;}
- dialog.inert=true;
+ closingDialogs.add(dialog);dialog.inert=true;
  const motion=dialog.animate([{opacity,translate},{opacity:0,translate:'0 -6px'}],{duration:150,easing:ease});
  dialogMotions.set(dialog,motion);
  motion.finished.then(()=>{
   if(dialogMotions.get(dialog)!==motion)return;
-  dialogMotions.delete(dialog);dialog.close();dialog.inert=false;
+  dialogMotions.delete(dialog);closingDialogs.delete(dialog);dialog.close();dialog.inert=false;
  }).catch(()=>{});
 }
 function setDetails(details,open){
@@ -81,7 +82,7 @@ document.addEventListener('click',event=>{
  event.preventDefault();setDetails(details,!(disclosures.get(details)?.open??details.open));
 });
 document.addEventListener('cancel',event=>{
- if(event.target.matches('dialog[data-surface-dialog]')&&!event.defaultPrevented){event.preventDefault();closeDialog(event.target);}
+ if(event.target.matches('dialog.zen-dialog[data-surface-dialog]')&&!event.defaultPrevented){event.preventDefault();closeDialog(event.target);}
 },true);
 window.SurfaceMotion={measureChange,remove,showDialog,closeDialog,setDetails};
 })();

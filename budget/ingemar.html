@@ -303,7 +303,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
-<script defer src="ui-motion.js?v=20261020-surfaces-3"></script>
+<script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
 <body>
 <section id="ingemar-account-gate" aria-label="Ingemars träning" data-signed-in="false" data-phase="restoring">
@@ -1377,7 +1377,7 @@ function renderWeekPlanner(){
   return '<article class="week-planner-day is-'+typeClass+(weekCopyFrom===i?' is-copy-source':'')+'" data-week-day="'+i+'" data-week-date="'+date+'" data-week-plan-type="'+type+'"><div class="week-day-card-top"><button type="button" class="week-day-open" data-week-edit="'+i+'" aria-label="Öppna full passbyggare för '+day+'"><span class="week-day-date"><small>'+day+'</small><strong>'+dayFrom(date).getDate()+'</strong></span><span class="week-day-pass"><span class="week-day-kind">'+clean(type)+'</span><strong>'+(entry?clean(entry.name):'Ingen träning')+'</strong><small>'+clean(preview)+'</small></span><span class="week-day-open-arrow">↗</span></button><button type="button" class="week-planner-drag" data-week-drag="'+i+'" aria-label="Håll och dra '+day+'"><span class="week-planner-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button></div><button type="button" class="week-day-quick" data-week-toggle-day="'+i+'" aria-expanded="'+expanded+'"><span><b>Snabbplanera</b> · '+(entry?(entry.exercises||[]).length+' övningar · '+sets+' set':'välj pass med ett tryck')+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button><div class="week-day-editor" '+(expanded?'':'hidden')+'><div class="week-planner-step"><div class="week-planner-step-head"><b>1 · VÄLJ PASS</b><span>Ett tryck räcker</span></div><div class="week-day-type-grid">'+typeButtons+'</div></div><div class="week-planner-step"><div class="week-planner-step-head"><b>2 · VÄLJ ÖVNINGAR</b><span>Tryck för på / av</span></div><div class="week-exercise-grid">'+exerciseButtons+'</div>'+(templateButtons?'<div class="week-day-template-chips">'+templateButtons+'</div>':'')+'</div><div class="week-planner-step"><div class="week-planner-step-head"><b>3 · FINJUSTERING</b><span>Valfritt</span></div><div class="week-day-builder-row"><button type="button" class="week-day-open-builder" data-week-edit="'+i+'">'+(entry?'Set, vikter & detaljer ↗':'Bygg ett eget pass ↗')+'</button><div class="week-day-tools"><button type="button" data-week-copy="'+i+'">'+(weekCopyFrom===i?'Avbryt kopiering':'Kopiera pass')+'</button><button type="button" class="week-day-clear" data-week-clear="'+i+'">Rensa dag</button></div></div>'+copyDest+'</div></div></article>';}).join('');
 }
 function loadWeekPlannerMonday(monday){weekPlannerMonday=monday;weekDraft=weekDraftFromMonday(monday);weekBase=deep(weekDraft);weekDraftDirty=false;weekTemplateId='';weekCopyFrom=-1;weekExpandedDay=-1;renderWeekPlanner();}
-function openWeekPlanner(){if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));lockBuilderBackground();$('week-planner').showModal();}
+function openWeekPlanner(){if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}loadWeekPlannerMonday(weekStart(selected));lockBuilderBackground();SurfaceMotion.showDialog($('week-planner'));}
 function openWeekDayBuilder(index){
  if(!weekDraft||index<0||index>6||builderWeekIndex>=0)return;
  var entry=weekDraft[index],date=offset(weekPlannerMonday,index),kind=entry&&entry.type||fallbackType(date);
@@ -1390,16 +1390,16 @@ function openWeekDayBuilder(index){
  $('build-date').disabled=true;
  $('builder-save-plan').textContent='Spara i veckoplanen';
  $('builder-start-from-builder').hidden=true;
- $('week-planner').close();renderBuilder();lockBuilderBackground();$('builder').showModal();
+ SurfaceMotion.closeDialog($('week-planner'));renderBuilder();lockBuilderBackground();SurfaceMotion.showDialog($('builder'));
 }
 function restoreWeekPlannerFromBuilder(){
  if(builderWeekIndex<0)return;
  builderWeekIndex=-1;$('build-date').disabled=false;
  $('builder-save-plan').textContent='Spara upplägg';
  $('builder-start-from-builder').hidden=false;
- renderWeekPlanner();lockBuilderBackground();$('week-planner').showModal();$('week-planner').scrollTop=weekPlannerScrollY;if(!$('toast').hidden)placeToast();
+ renderWeekPlanner();lockBuilderBackground();SurfaceMotion.showDialog($('week-planner'));$('week-planner').scrollTop=weekPlannerScrollY;if(!$('toast').hidden)placeToast();
 }
-function closeWeekPlanner(){endWeekDrag();if(!commitWeekDraft())return;weekDraft=null;weekDraftDirty=false;weekCopyFrom=-1;$('week-planner').close();render();}
+function closeWeekPlanner(){endWeekDrag();if(!commitWeekDraft())return;weekDraft=null;weekDraftDirty=false;weekCopyFrom=-1;SurfaceMotion.closeDialog($('week-planner'));render();}
 function shiftWeekPlanner(delta){if(!commitWeekDraft())return;loadWeekPlannerMonday(offset(weekPlannerMonday,Number(delta)*7));}
 function currentWeekPlanner(){if(!commitWeekDraft())return;loadWeekPlannerMonday(weekStart(dayISO(new Date())));}
 function copyWeekDay(from,to){if(!weekDraft||from<0||to<0||from>6||to>6||from===to)return;delete state.builderDrafts[offset(weekPlannerMonday,to)];weekDraft[to]=weekPlanClone(weekDraft[from]);weekDraftDirty=true;weekCopyFrom=-1;weekExpandedDay=to;renderWeekPlanner();}
@@ -1445,7 +1445,7 @@ function saveWholeWeek(){
  if(!weekDraft||!weekPlannerMonday)return;
  if(!commitWeekDraft())return;
  var savedMonday=weekPlannerMonday,today=dayISO(new Date());selected=today>=savedMonday&&today<=offset(savedMonday,6)?today:savedMonday;
- persist();weekDraftDirty=false;render();$('week-planner').close();weekDraft=null;toast('Hela vecka '+isoWeekNumber(savedMonday)+' sparades.');
+ persist();weekDraftDirty=false;render();SurfaceMotion.closeDialog($('week-planner'));weekDraft=null;toast('Hela vecka '+isoWeekNumber(savedMonday)+' sparades.');
 }
 function saveWeekTemplate(){
  if(!weekDraft)return;
@@ -1623,7 +1623,7 @@ function openBuilder(type){
  $('build-date').disabled=false;$('builder-save-plan').textContent='Spara upplägg';$('builder-start-from-builder').hidden=false;
  renderBuilder();
  lockBuilderBackground();
- $('builder').showModal();
+ SurfaceMotion.showDialog($('builder'));
 }
 function normalizeBetweenOption(raw){
  var source=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
@@ -1696,7 +1696,7 @@ function keepBuilderDraft(){
  if(builderDraftDate&&builderDraftDate!==date){delete state.builderDrafts[builderDraftDate];builderBase=deep(plan(date));}
  builderDraftDate=date;state.builderDrafts[date]=deep(draft);persist();
 }
-function closeBuilder(){updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();keepBuilderDraft();endBuilderDrag();draft=null;$('builder').close();render();toast('Utkast sparat – fortsätt genom att öppna dagen igen.');}
+function closeBuilder(){updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();keepBuilderDraft();endBuilderDrag();draft=null;SurfaceMotion.closeDialog($('builder'));render();toast('Utkast sparat – fortsätt genom att öppna dagen igen.');}
 function updateDraftField(el){
  if(!draft)return;
  if(el.id==='build-date'){draft.date=el.value;$('build-date-text').textContent=validDay(el.value)?builderDateText(el.value):'Välj datum';return;}
@@ -1733,12 +1733,12 @@ function openPlanPreview(startAfter){
  $('preview-save').textContent=builderWeekIndex>=0?'Spara i veckoplanen':'Spara pass';
  $('preview-start').hidden=builderWeekIndex>=0;
  $('preview-save').className=startAfter?'secondary':'primary';$('preview-start').className=startAfter?'primary':'secondary';
- $('plan-preview').showModal();
+ SurfaceMotion.showDialog($('plan-preview'));
 }
 function confirmPlanPreview(startAfter){
  if(startAfter&&builderWeekIndex>=0)return;
  if(!saveDraft())return;
- var weekSave=builderWeekIndex>=0;$('plan-preview').close();$('builder').close();draft=null;
+ var weekSave=builderWeekIndex>=0;SurfaceMotion.closeDialog($('plan-preview'));SurfaceMotion.closeDialog($('builder'));draft=null;
  if(startAfter)start();else toast(weekSave?'Passet har sparats i veckoplanen.':'Passupplägget har sparats.');
 }
 var familySessionReady=false,familySessionOpen=false,pendingFamilySession=null;
@@ -1847,10 +1847,10 @@ function openRecordEditor(name){
  $('pr-edit-weight').value=record?record.weight:'';
  $('pr-edit-date').value=record&&record.date||'';syncDateDisplay('pr-edit-date');
  $('pr-edit-remove').hidden=!manual;
- lockBuilderBackground();$('pr-editor').showModal();
+ lockBuilderBackground();SurfaceMotion.showDialog($('pr-editor'));
 }
 function closeRecordEditor(){
- if($('pr-editor').open)$('pr-editor').close();
+ if($('pr-editor').open)SurfaceMotion.closeDialog($('pr-editor'));
  recordEditKey='';unlockBuilderBackground();
 }
 function saveRecordEditor(){
@@ -1891,7 +1891,7 @@ function openHistory(id){
   return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.length+' set'+(!timed&&state.prs[window.IngemarRecords.key(e.name)]?' · PR '+state.prs[window.IngemarRecords.key(e.name)].weight+' kg':'')+'</span></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span></span></div>'+
    e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:'+(set.done&&!set.skipped?'#acffcb':'#ad8794')+'" aria-label="'+(set.done&&!set.skipped?'Klart':'Inte genomfört')+'">'+(set.done&&!set.skipped?'✓':'–')+'</span></div>';}).join('')+'</article>';
  }).join('');
- lockBuilderBackground();$('history-detail').showModal();
+ lockBuilderBackground();SurfaceMotion.showDialog($('history-detail'));
 }
 // Keep completed sets separate from planned/uncompleted sets, as on the family log.
 function logEditorSet(source){
@@ -1943,13 +1943,13 @@ function openHistoryEditor(id){
  historyEditBase=old?deep(old):null;historyEditInitial=JSON.stringify(historyEditDraft);
  renderHistoryEditor();
  lockBuilderBackground();
- $('history-editor').showModal();
+ SurfaceMotion.showDialog($('history-editor'));
  
 }
 function historyEditorDirty(){return historyEditDraft&&JSON.stringify(historyEditDraft)!==historyEditInitial;}
 function closeHistoryEditor(force){
  if(!force&&historyEditorDirty()&&!confirm('Lämna utan att spara ändringarna i träningsloggen?'))return;
- if($('history-editor').open)$('history-editor').close();
+ if($('history-editor').open)SurfaceMotion.closeDialog($('history-editor'));
  historyEditDraft=null;historyEditId='';
  unlockBuilderBackground();
 }
@@ -2093,7 +2093,7 @@ function openZenRoutineEditor(kind,id){
  if(id&&!current){toast('Passet hittades inte längre.');return;}
  zenEditMode='routine';zenEditKind=kind;zenEditId=current?current.id:'';
  zenEditDraft=deep(state.zenDrafts[zenDraftKey()]||(current?deep(current):{id:uid(),name:'',description:'',steps:[zenStepTemplate()],guidance:'breath',breath:{inhale:4,holdIn:0,exhale:6,holdOut:0}}));
- renderZenEditor();lockBuilderBackground();$('zen-editor').showModal();
+ renderZenEditor();lockBuilderBackground();SurfaceMotion.showDialog($('zen-editor'));
 }
 function zenLogSteps(item){
  if(Array.isArray(item.steps)&&item.steps.length)return deep(item.steps);
@@ -2106,10 +2106,10 @@ function openZenHistoryEditor(id){
  zenEditMode='history';zenEditKind=current?current.type:view;zenEditId=current?current.id:'';
  zenEditDraft=current?deep(current):{id:uid(),type:view,name:'',date:dayISO(new Date()),minutes:5,notes:'',steps:[zenStepTemplate()],demo:false};
  zenEditDraft=deep(state.zenDrafts[zenDraftKey()]||zenEditDraft);zenEditDraft.steps=zenLogSteps(zenEditDraft);
- renderZenEditor();lockBuilderBackground();$('zen-editor').showModal();
+ renderZenEditor();lockBuilderBackground();SurfaceMotion.showDialog($('zen-editor'));
 }
 function closeZenEditor(){
- var editor=$('zen-editor');if(editor.open){syncZenEditor();keepZenDraft();editor.close();}
+ var editor=$('zen-editor');if(editor.open){syncZenEditor();keepZenDraft();SurfaceMotion.closeDialog(editor);}
  unlockBuilderBackground();
 }
 function saveZenEditor(startAfterSave){
@@ -2181,7 +2181,7 @@ function openZenDay(date,routineId){
  var routines=zenRoutinesFor(view),current=routineId?zenRoutineForId(view,routineId):zenPlanForDate(view,zenDayDate);
  $('zen-day-routine').innerHTML='<option value="">Vilodag / inget pass</option>'+routines.map(function(r){return '<option value="'+clean(r.id)+'">'+clean(r.name)+' · '+Math.ceil(zenStepDuration(r.steps)/60)+' min</option>';}).join('');
  $('zen-day-routine').value=current?current.id:'';
- $('zen-day-dialog').showModal();
+ SurfaceMotion.showDialog($('zen-day-dialog'));
 }
 function saveZenDay(start){
  var date=$('zen-day-date').value,id=$('zen-day-routine').value;
@@ -2191,7 +2191,7 @@ function saveZenDay(start){
  if(start&&!routine){toast('Välj ett pass att starta.');return;}
  state.zenPlans[zenDayKind][date]=routine?routine.id:null;
  persist();zenDayDate=date;
- $('zen-day-dialog').close();renderZen();
+ SurfaceMotion.closeDialog($('zen-day-dialog'));renderZen();
  if(start)zenStart(zenRoutinesFor(zenDayKind).indexOf(routine));else toast('Veckoplanen sparades.');
 }
 function zenEditorAction(action){
@@ -2199,7 +2199,7 @@ function zenEditorAction(action){
  if(action==='log'){openZenHistoryEditor();return;}
  if(action==='current-week'){zenWeekMonday=weekStart(dayISO(new Date()));renderZen();return;}
  if(action==='close-editor'){closeZenEditor();zenEditDraft=null;return;}
- if(action==='close-day'){$('zen-day-dialog').close();return;}
+ if(action==='close-day'){SurfaceMotion.closeDialog($('zen-day-dialog'));return;}
  if(action==='add-step'){
   syncZenEditor();if(zenEditDraft.steps.length>=20){toast('Högst 20 steg per pass.');return;}
   zenEditDraft.steps.push(zenStepTemplate());renderZenEditor();keepZenDraft();return;
@@ -2517,9 +2517,9 @@ function selectZenStep(index){
  activeZen.last=Date.now();activeZen.preparingUntil=0;activeZen.shownStage=-1;
  renderZenSession();
 }
-function finishZen(){if(!activeZen||$('zen-complete').open)return;zenTick();activeZen.running=false;stopZenTimer();stopZenBreathSound(.18);setText('zen-complete-summary',activeZen.name+' · '+(activeZen.elapsed<60?Math.max(1,Math.round(activeZen.elapsed))+' s':(Math.round(activeZen.elapsed/6)/10).toLocaleString('sv-SE')+' min'));$('zen-complete-notes').value='';$('zen-complete').querySelectorAll('[name="zen-feeling"]').forEach(function(el){el.checked=false;});$('zen-complete').showModal();}
-function saveZenComplete(){if(!activeZen)return;var seconds=Math.max(1,Math.round(activeZen.elapsed)),feeling=$('zen-complete').querySelector('[name="zen-feeling"]:checked');var item={id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:Math.max(1,Math.ceil(seconds/60)),elapsedSeconds:seconds,steps:deep(activeZen.steps),notes:$('zen-complete-notes').value.trim(),feeling:feeling?feeling.value:''};state.zenHistory.push(item);if(!persist()){state.zenHistory.pop();return;}$('zen-complete').close();stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();render();toast('Stunden sparades i Ingemars profil.');}
-function discardZenComplete(){if(!activeZen||!confirm('Lämna utan att spara stunden?'))return;$('zen-complete').close();stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();}
+function finishZen(){if(!activeZen||$('zen-complete').open)return;zenTick();activeZen.running=false;stopZenTimer();stopZenBreathSound(.18);setText('zen-complete-summary',activeZen.name+' · '+(activeZen.elapsed<60?Math.max(1,Math.round(activeZen.elapsed))+' s':(Math.round(activeZen.elapsed/6)/10).toLocaleString('sv-SE')+' min'));$('zen-complete-notes').value='';$('zen-complete').querySelectorAll('[name="zen-feeling"]').forEach(function(el){el.checked=false;});SurfaceMotion.showDialog($('zen-complete'));}
+function saveZenComplete(){if(!activeZen)return;var seconds=Math.max(1,Math.round(activeZen.elapsed)),feeling=$('zen-complete').querySelector('[name="zen-feeling"]:checked');var item={id:uid(),date:dayISO(new Date()),type:activeZen.type,routineId:activeZen.routineId,name:activeZen.name,minutes:Math.max(1,Math.ceil(seconds/60)),elapsedSeconds:seconds,steps:deep(activeZen.steps),notes:$('zen-complete-notes').value.trim(),feeling:feeling?feeling.value:''};state.zenHistory.push(item);if(!persist()){state.zenHistory.pop();return;}SurfaceMotion.closeDialog($('zen-complete'));stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();render();toast('Stunden sparades i Ingemars profil.');}
+function discardZenComplete(){if(!activeZen||!confirm('Lämna utan att spara stunden?'))return;SurfaceMotion.closeDialog($('zen-complete'));stopZenTimer();stopZenBreathSound(.18);activeZen=null;$('zen-session').hidden=true;delete document.body.dataset.modeOpen;renderZen();}
 document.addEventListener('click',function(event){
  var b=event.target.closest('button');if(!b)return;
  if(b.dataset.view){switchView(b.dataset.view);return;}
@@ -2623,22 +2623,22 @@ document.addEventListener('click',function(event){
     break;
    case 'save-plan':openPlanPreview(false);break;
    case 'start-from-builder':if(builderWeekIndex>=0){toast('Spara hela veckan innan du startar passet.');break;}openPlanPreview(true);break;
-   case 'preview-back':$('plan-preview').close();break;
+   case 'preview-back':SurfaceMotion.closeDialog($('plan-preview'));break;
    case 'preview-save':confirmPlanPreview(false);break;
    case 'preview-start':confirmPlanPreview(true);break;
-   case 'close-history':$('history-detail').close();selectedHistoryId='';break;
+   case 'close-history':SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';break;
    case 'new-history':openHistoryEditor('');break;
    case 'new-record':openRecordEditor('');break;
    case 'cancel-record':closeRecordEditor();break;
    case 'save-record':saveRecordEditor();break;
    case 'remove-record':removeRecordEditor();break;
-   case 'edit-history':if(selectedHistoryId){$('history-detail').close();openHistoryEditor(selectedHistoryId);}break;
+   case 'edit-history':if(selectedHistoryId){SurfaceMotion.closeDialog($('history-detail'));openHistoryEditor(selectedHistoryId);}break;
    case 'cancel-history-edit':closeHistoryEditor();break;
    case 'log-add-exercise':mutateHistoryEditor('add-exercise',b);break;
    case 'log-save':saveHistoryEditor();break;
    case 'log-delete':deleteHistoryEditor();break;
    
-   case 'zen-complete-back':if($('zen-complete').open)$('zen-complete').close();break;
+   case 'zen-complete-back':if($('zen-complete').open)SurfaceMotion.closeDialog($('zen-complete'));break;
    case 'zen-complete-save':saveZenComplete();break;
    case 'zen-complete-discard':discardZenComplete();break;
    case 'toggle-zen-guidance':if(activeZen&&activeZen.type==='meditation'){activeZen.guided=!activeZen.guided;activeZen.lastBreathPhase=null;stopZenBreathSound(.15);$('zen-guidance-toggle').textContent=activeZen.guided?'Andningsguide på':'Egen andning';$('zen-guidance-toggle').setAttribute('aria-pressed',String(activeZen.guided));renderZenSession();}break;
@@ -2723,11 +2723,11 @@ document.addEventListener('input',function(event){
 });
 $('week-planner').addEventListener('cancel',function(event){event.preventDefault();closeWeekPlanner();});
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;unlockBuilderBackground();});
-$('plan-preview').addEventListener('cancel',function(event){event.preventDefault();$('plan-preview').close();});
+$('plan-preview').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('plan-preview'));});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();if(builderOpenExerciseIndex>=0){closeBuilderExercisePicker();return;}closeBuilder();});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('close',unlockBuilderBackground);
-$('history-detail').addEventListener('cancel',function(event){event.preventDefault();$('history-detail').close();selectedHistoryId='';});
+$('history-detail').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
 $('pr-edit-group').addEventListener('change',function(){recordGroupChosen=true;});
 $('pr-edit-name').addEventListener('input',function(){if(!recordEditKey&&!recordGroupChosen)$('pr-edit-group').value=window.IngemarRecords.group(this.value);});
@@ -2735,8 +2735,8 @@ $('pr-editor').addEventListener('cancel',function(event){event.preventDefault();
 $('pr-editor').addEventListener('close',function(){recordEditKey='';unlockBuilderBackground();});
 $('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';unlockBuilderBackground();});
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
-$('zen-complete').addEventListener('cancel',function(event){event.preventDefault();$('zen-complete').close();});
-$('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();$('zen-day-dialog').close();});
+$('zen-complete').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-complete'));});
+$('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-day-dialog'));});
 window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen||historyEditorDirty()){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 var ppResizeFrame=0,ppLastChartWidth=0;

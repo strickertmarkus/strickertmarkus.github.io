@@ -7,7 +7,7 @@ async function settle(el){await el.evaluate(async e=>{await new Promise(resolve=
 async function phase(el,open){
  const s=await el.evaluate(async(e,open)=>{
   getComputedStyle(e).opacity;
-  if(e.tagName==='DIALOG'){open?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):(e.matches('.zen-dialog')?SurfaceMotion.closeDialog(e):e.close());}
+  if(e.tagName==='DIALOG'){open?SurfaceMotion.showDialog(e):SurfaceMotion.closeDialog(e);}
   else e.classList.toggle('show',open);
   getComputedStyle(e).opacity;
   const animations=e.getAnimations();
@@ -55,10 +55,10 @@ async function phase(el,open){
    await phase(el,false);
    await page.screenshot({path:`${out}/${name}-${file}-closing-390.png`});await settle(el);
    // Reverse an exit before it finishes: no delayed callback may close the new state.
-   await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):e.classList.add('show'));await settle(el);
-   await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):e.classList.add('show'));await settle(el);
+   await el.evaluate(e=>e.tagName==='DIALOG'?SurfaceMotion.showDialog(e):e.classList.add('show'));await settle(el);
+   await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?SurfaceMotion.showDialog(e):e.classList.add('show'));await settle(el);
    assert.equal(await el.evaluate(e=>+getComputedStyle(e).opacity),1);
-   await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.closeDialog(e):e.close()):e.classList.remove('show'));await settle(el);
+   await el.evaluate(e=>e.tagName==='DIALOG'?SurfaceMotion.closeDialog(e):e.classList.remove('show'));await settle(el);
    }catch(error){failures.push(name+' '+file+': '+error.message);console.error(failures.at(-1));await page.screenshot({path:`${out}/${name}-${file}-failure.png`});}
   }
   // Dynamic menus finish their exit before DOM removal; opening another stays independent.

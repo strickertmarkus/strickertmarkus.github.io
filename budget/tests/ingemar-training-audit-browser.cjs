@@ -83,8 +83,8 @@ async function run(browserType,label,width){
  console.log(label+': builder and menu lifecycle passed');
  await closeBuilder(page);await synced(page);await page.reload();await synced(page);
  await page.locator('[data-action="build"]').first().click();assert.equal(await page.locator('#build-name').inputValue(),'Ben & press – eget pass');assert.equal(await page.locator('[data-set="1:0:weight"]').inputValue(),'51.5');
- await page.locator('#build-date').fill('');await page.locator('[data-action="save-plan"]').click();assert.equal(await page.locator('#plan-preview').evaluate(e=>e.open),false);
- await page.locator('#build-date').fill(originalDate);await page.locator('[data-set="0:0:reps"]').fill('1.5');await page.locator('[data-action="save-plan"]').click();assert.equal(await page.locator('#plan-preview').evaluate(e=>e.open),false);
+ await page.locator('#build-date').fill('');await page.locator('[data-action="save-plan"]').click();await page.waitForFunction(()=>!document.querySelector('#plan-preview').open);assert.equal(await page.locator('#plan-preview').evaluate(e=>e.open),false);
+ await page.locator('#build-date').fill(originalDate);await page.locator('[data-set="0:0:reps"]').fill('1.5');await page.locator('[data-action="save-plan"]').click();await page.waitForFunction(()=>!document.querySelector('#plan-preview').open);assert.equal(await page.locator('#plan-preview').evaluate(e=>e.open),false);
  await page.locator('[data-set="0:0:reps"]').fill('10');
  page.once('dialog',d=>d.accept('Mall med eget namn'));await page.locator('[data-action="save-template"]').click();await synced(page);
  const templateId=(await data(page)).templates.find(t=>t.name==='Mall med eget namn').id;
