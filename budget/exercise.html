@@ -222,6 +222,13 @@
           <button type="button" data-insight-mode="table" aria-pressed="false">Tabell</button>
         </div>
       </div>
+      <div class="chart-period-row">
+        <span>PERIOD</span>
+        <div class="segmented chart-period-toggle" role="group" aria-label="Välj tidsperiod för graferna">
+          <button type="button" data-chart-range="all" aria-pressed="true">Alla data</button>
+          <button type="button" data-chart-range="month" aria-pressed="false">Senaste månaden</button>
+        </div>
+      </div>
       <div class="insight-copy" id="insight-copy">
         <h3 id="insight-name">Medelpuls över tid</h3>
         <p id="insight-description">Kondition och styrka visas som två tydliga signaler.</p>
@@ -253,6 +260,13 @@
         <p class="volume-formula">summa set × reps × vikt</p>
       </div>
       <p class="volume-lead">Varje linje följer den totala styrkevolymen för en träningsgrupp över tid.</p>
+      <div class="chart-period-row chart-period-row--volume">
+        <span>PERIOD</span>
+        <div class="segmented chart-period-toggle" role="group" aria-label="Välj tidsperiod för passvolym">
+          <button type="button" data-chart-range="all" aria-pressed="true">Alla data</button>
+          <button type="button" data-chart-range="month" aria-pressed="false">Senaste månaden</button>
+        </div>
+      </div>
       <div class="volume-legend" id="volume-legend" aria-label="Träningsgrupper"></div>
       <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym per träningsgrupp över tid"></div>
     </section>
