@@ -12,6 +12,7 @@
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
+<script src="transfer-income.js?v=20261020-netto-v1"></script>
 <script src="finance-ui.js?v=20260831-finance-theme-blue-v11-person-first-paint"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -449,7 +450,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
                 <div id="transfer-detail" style="display:none"></div>
                 <button class="btn-add" onclick="addNewTransfer()" style="margin-bottom:12px">+ Lägg till månad</button>
                 <div class="table-wrapper"><table class="data-table" id="transfer-table"><thead><tr>
-                    <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th><th class="num">Maja %</th><th class="num">Markus %</th><th class="num">Huskonto Maja</th><th class="num">ICA Maja</th><th class="num">Huskonto Markus</th><th class="num">ICA Markus</th><th style="width:30px"></th>
+                    <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th><th class="num">Markus netto</th><th class="num">Maja netto</th><th class="num">Totalt netto</th><th class="num">Maja %</th><th class="num">Markus %</th><th class="num">Huskonto Maja</th><th class="num">ICA Maja</th><th class="num">Huskonto Markus</th><th class="num">ICA Markus</th><th style="width:30px"></th>
                 </tr></thead><tbody></tbody></table></div>
             </div>
         </div>
@@ -625,9 +626,9 @@ const DEFAULT_TRANSFERS = [
     { year:2026,month:"Juli",husutgifter:27155,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6941,icaMaja:2129,huskontoMarkus:20213,icaMarkus:6201 },
     { year:2026,month:"Augusti",husutgifter:27139,ica:8331,majaAndel:0.273,markusAndel:0.727,huskontoMaja:7417,icaMaja:2276,huskontoMarkus:19721,icaMarkus:6054 },
     { year:2026,month:"September",husutgifter:27123,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6932,icaMaja:2129,huskontoMarkus:20190,icaMarkus:6201 },
-    { year:2026,month:"Oktober",husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
-    { year:2026,month:"November",husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
-    { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
+    { year:2026,month:"Oktober",markusNetto:37288,majaNetto:11479,husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
+    { year:2026,month:"November",markusNetto:37288,majaNetto:11605,husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
+    { year:2026,month:"December",markusNetto:37288,majaNetto:10260,husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
 ];
 
 const STORAGE_KEY = "familjebudget_data";
@@ -721,6 +722,8 @@ function loadData() {
 }
 
 function saveData() {
+    // Persist migrated historical Home salary edits alongside the matching month.
+    transfers.forEach(TransferIncome.complete);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
         loanParams, income, expenses, huskonto, transfers,
         checklistItems, checkedItems, savingsGoals, sectionHeadings
@@ -761,37 +764,7 @@ function calcTotalHouse(loan) {
     return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno();
 }
 function getTotalIncome() {
-    // Get actual income from budget pages using the selected month
-    const selectedMonth = localStorage.getItem("selectedBudgetMonth");
-    const markusBudgetData = readBudgetData("budgetTracker", selectedMonth, false);
-    const majaBudgetData = readBudgetData("budgetTracker_maja", selectedMonth, false);
-    
-    let markusIncome = 0;
-    let majaIncome = 0;
-    
-    // Extract actual income from Markus budget
-    if (markusBudgetData) {
-        for (const section of markusBudgetData.sections || []) {
-            if (section.isIncome || section.key === "income") {
-                for (const item of section.items || []) {
-                    markusIncome += item.actual || item.budget || 0;
-                }
-            }
-        }
-    }
-    
-    // Extract actual income from Maja budget
-    if (majaBudgetData) {
-        for (const section of majaBudgetData.sections || []) {
-            if (section.isIncome || section.key === "income") {
-                for (const item of section.items || []) {
-                    majaIncome += item.actual || item.budget || 0;
-                }
-            }
-        }
-    }
-    
-    return markusIncome + majaIncome;
+    return getIndividualIncome("budgetTracker") + getIndividualIncome("budgetTracker_maja");
 }
 
 function getYearMeanIncome(yearNumber) {
@@ -978,7 +951,11 @@ function getOverallMeanIncome() {
 }
 
 function getIndividualIncome(storageKey) {
-    // Get income for a specific person from their budget page for the selected month
+    // Monthly transfer salary is the shared source for Home and Familjebudget.
+    const row = Array.isArray(transfers) ? transfers[currentLoanMonthIdx] : null;
+    const salary = TransferIncome.get(row)[storageKey === "budgetTracker_maja" ? "maja" : "markus"];
+    if (salary !== null) return salary;
+    // Fall back to the personal budget tracker for older months without salary data.
     // Do NOT fallback to latest month if selected month doesn't exist
     const selectedMonth = localStorage.getItem("selectedBudgetMonth");
     const budgetData = readBudgetData(storageKey, selectedMonth, false);
@@ -1377,6 +1354,8 @@ function renderTransferDetail() {
 function renderTransferTable() {
     document.querySelector("#transfer-table tbody").innerHTML = transfers.map((t, i) => {
         const isCurrent = i === currentTransferIdx;
+        const net = TransferIncome.get(t);
+        const totalNet = net.markus !== null && net.maja !== null ? fmt(net.markus + net.maja) : '—';
         const huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
         const icaMaja = Math.round(t.ica * t.majaAndel);
         const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
@@ -1385,6 +1364,9 @@ function renderTransferTable() {
             <td>${t.month} ${t.year}</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'husutgifter','number')" style="cursor:pointer">${fmt(t.husutgifter)}</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'ica','number')" style="cursor:pointer">${fmt(t.ica)}</td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'markusNetto','income')" style="cursor:pointer;color:var(--markus-color)">${net.markus === null ? '—' : fmt(net.markus)}</td>
+            <td class="num editable-cell" onclick="startEditCell(this,${i},'majaNetto','income')" style="cursor:pointer;color:var(--maja-color)">${net.maja === null ? '—' : fmt(net.maja)}</td>
+            <td class="num" style="font-weight:650">${totalNet}</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'majaAndel','percent')" style="cursor:pointer;color:var(--maja-color)">${(t.majaAndel*100).toFixed(1)}%</td>
             <td class="num editable-cell" onclick="startEditCell(this,${i},'markusAndel','percent')" style="cursor:pointer;color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
             <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
@@ -1430,15 +1412,18 @@ function applyMonthlyHeaderImage() {
 
 function startEditCell(cell, idx, field, type) {
     const t = transfers[idx];
-    let currentValue = t[field];
+    let currentValue = type === 'income'
+        ? TransferIncome.get(t)[field === 'markusNetto' ? 'markus' : 'maja']
+        : t[field];
     if (type === 'percent') {
         currentValue = (currentValue * 100).toFixed(1);
     }
     
     const input = document.createElement('input');
-    input.type = type === 'percent' || type === 'number' ? 'number' : 'text';
+    input.type = type === 'percent' || type === 'number' || type === 'income' ? 'number' : 'text';
+    if (type === 'income') { input.min = '0'; input.inputMode = 'numeric'; }
     if (type === 'percent') input.step = '0.1';
-    input.value = currentValue;
+    input.value = currentValue === null ? '' : currentValue;
     input.style.width = '80px';
     input.style.padding = '4px';
     input.style.border = '1px solid var(--border)';
@@ -1446,12 +1431,14 @@ function startEditCell(cell, idx, field, type) {
     input.style.background = 'var(--card)';
     input.style.color = 'var(--text)';
     
+    let canceled = false;
     input.onblur = () => {
-        finishEditCell(idx, field, input.value, type);
+        if (!canceled) finishEditCell(idx, field, input.value, type);
     };
     input.onkeydown = (e) => {
         if (e.key === 'Enter') input.blur();
         if (e.key === 'Escape') {
+            canceled = true;
             renderTransferTable();
         }
     };
@@ -1463,8 +1450,18 @@ function startEditCell(cell, idx, field, type) {
 }
 
 function finishEditCell(idx, field, value, type) {
-    const numVal = parseFloat(value) || 0;
     const t = transfers[idx];
+    if (type === 'income') {
+        const person = field === 'markusNetto' ? 'markus' : 'maja';
+        if (!TransferIncome.update(t, person, value)) {
+            renderTransferTable();
+            return;
+        }
+        saveData();
+        renderAll();
+        return;
+    }
+    const numVal = parseFloat(value) || 0;
     
     if (type === 'percent') {
         t[field] = numVal / 100;
@@ -2462,7 +2459,7 @@ window.addEventListener('resize', () => {
 
 window.addEventListener('firebase-sync', (event) => {
   const { key } = event.detail;
-  const relevantKeys = ['familjebudget_data', 'budgetTracker', 'budgetTracker_maja'];
+  const relevantKeys = ['familjebudget_data', 'home_transfer_income_v1', 'budgetTracker', 'budgetTracker_maja'];
   if (relevantKeys.includes(key)) {
     console.log(`📡 Firebase sync received for ${key} — reloading...`);
     if (key === 'familjebudget_data') {
