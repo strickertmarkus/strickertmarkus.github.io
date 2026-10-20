@@ -1356,7 +1356,7 @@ function pulsePlanReturnFromBuilderV3(){
   if(box){
     box.scrollTop=previous.scroll;
     var target=box.querySelector('.pulse-plan-day-v2[data-index="'+previous.index+'"]');
-    if(target&&box.scrollTop===0&&previous.index>0)target.scrollIntoView({block:'nearest',behavior:'instant'});
+    if(target&&box.scrollTop===0&&previous.index>0)target.scrollIntoView({block:'nearest',behavior:'auto'});
   }
 }
 function pulsePlanCancelBuilderV3(){
@@ -3311,7 +3311,7 @@ function closeModal(id){
   if(modal)modal.classList.remove('show');
   if(exerciseNamePickerState.input&&modal&&modal.contains(exerciseNamePickerState.input))closeExerciseNamePicker();
 }
-document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('show');});});
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target!==o)return;if(o.id==='day-workout-modal'&&pulsePlanBuilderReturnV3){pulsePlanCancelBuilderV3();return;}o.classList.remove('show');});});
 
 // ══ TOAST ════════════════════════════════════════════════════════
 function showToast(msg){
