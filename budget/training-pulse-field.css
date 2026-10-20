@@ -688,3 +688,34 @@ main{position:relative;z-index:2;display:block}
 @media(max-width:560px){
   .log-more-button{min-height:40px;margin-top:11px;margin-bottom:4px;padding:7px 10px}
 }
+
+
+/* Same segmented treatment as the metric selector; one range controls
+   all measured data charts and the per-training-group volume graph. */
+.chart-period-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:0;
+  margin:12px 0 2px;
+}
+.chart-period-row>span{
+  color:var(--field-muted);
+  font:650 9px/1.3 var(--field-ui);
+  letter-spacing:.85px;
+}
+.chart-period-row--volume{margin:8px 0 11px}
+.chart-period-toggle{flex:0 1 auto;min-width:0}
+.chart-period-toggle button{
+  min-width:0;
+  padding:8px 11px;
+  font:500 11px/1.25 var(--field-ui);
+  white-space:nowrap;
+}
+.metric-data-point{stroke:#09131a;stroke-width:1.45}
+@media(max-width:560px){
+  .chart-period-row{gap:7px;margin:9px 0 3px}
+  .chart-period-toggle button{padding:7px 9px;font-size:10px}
+  .chart-period-row--volume{margin:7px 0 9px}
+}
