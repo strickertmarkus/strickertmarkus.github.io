@@ -11,6 +11,7 @@
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js"></script>
+<script src="transfer-income.js?v=20261020-netto-v1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -347,6 +348,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                     <table class="data-table" id="transfers-table">
                         <thead><tr>
                             <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th>
+                            <th class="num">Markus netto</th><th class="num">Maja netto</th><th class="num">Totalt netto</th>
                             <th class="num">Maja %</th><th class="num">Markus %</th>
                             <th class="num">Huskonto Maja</th><th class="num">ICA Maja</th>
                             <th class="num">Huskonto Markus</th><th class="num">ICA Markus</th>
@@ -460,9 +462,9 @@ const DEFAULT_TRANSFERS = [
     { year:2026,month:"Juli",husutgifter:27155,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6941,icaMaja:2129,huskontoMarkus:20213,icaMarkus:6201 },
     { year:2026,month:"Augusti",husutgifter:27139,ica:8331,majaAndel:0.273,markusAndel:0.727,huskontoMaja:7417,icaMaja:2276,huskontoMarkus:19721,icaMarkus:6054 },
     { year:2026,month:"September",husutgifter:27123,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6932,icaMaja:2129,huskontoMarkus:20190,icaMarkus:6201 },
-    { year:2026,month:"Oktober",husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
-    { year:2026,month:"November",husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
-    { year:2026,month:"December",husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
+    { year:2026,month:"Oktober",markusNetto:37288,majaNetto:11479,husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
+    { year:2026,month:"November",markusNetto:37288,majaNetto:11605,husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
+    { year:2026,month:"December",markusNetto:37288,majaNetto:10260,husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
 ];
 
 const DEFAULT_CHECKLIST = [
@@ -516,6 +518,7 @@ function loadData() {
 }
 
 function saveData() {
+    transfers.forEach(TransferIncome.complete);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
         loanParams, income, expenses, huskonto, transfers,
         checklistItems, checkedItems, savingsGoals, sectionHeadings
@@ -697,6 +700,8 @@ function deleteHuskonto(i) {
 // ═══════════════════════════════════════════════════════
 function renderTransfers() {
     document.querySelector("#transfers-table tbody").innerHTML = transfers.map((t, i) => {
+        const net = TransferIncome.get(t);
+        const netTotal = net.markus !== null && net.maja !== null ? fmt(net.markus + net.maja) : '—';
         const huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
         const icaMaja = Math.round(t.ica * t.majaAndel);
         const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
@@ -705,6 +710,9 @@ function renderTransfers() {
             <td>${t.month} ${t.year}</td>
             <td class="num"><input class="editable-input" type="number" value="${t.husutgifter}" onchange="updateTransfer(${i},'husutgifter',this.value)"></td>
             <td class="num"><input class="editable-input" type="number" value="${t.ica}" onchange="updateTransfer(${i},'ica',this.value)"></td>
+            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Markus netto ${t.month} ${t.year}" value="${net.markus === null ? '' : net.markus}" onchange="updateTransfer(${i},'markusNetto',this.value)" style="color:var(--markus-color)"></td>
+            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Maja netto ${t.month} ${t.year}" value="${net.maja === null ? '' : net.maja}" onchange="updateTransfer(${i},'majaNetto',this.value)" style="color:var(--maja-color)"></td>
+            <td class="num">${netTotal}</td>
             <td class="num"><input class="editable-input" type="number" step="0.1" value="${(t.majaAndel*100).toFixed(1)}" onchange="updateTransfer(${i},'majaAndel',this.value/100)" style="color:var(--maja-color)"></td>
             <td class="num" style="color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
             <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
@@ -717,8 +725,13 @@ function renderTransfers() {
 }
 
 function updateTransfer(i, field, value) {
-    const numVal = parseFloat(value) || 0;
     const t = transfers[i];
+    if (field === 'markusNetto' || field === 'majaNetto') {
+        if (TransferIncome.update(t, field === 'markusNetto' ? 'markus' : 'maja', value)) saveData();
+        renderTransfers();
+        return;
+    }
+    const numVal = parseFloat(value) || 0;
     if (field === 'majaAndel') {
         t.majaAndel = numVal;
         t.markusAndel = 1 - numVal;
@@ -948,6 +961,12 @@ function renderAll() {
     renderChecklist();
     renderGoals();
 }
+
+window.addEventListener('firebase-sync', function(event) {
+    if (!event.detail || (event.detail.key !== STORAGE_KEY && event.detail.key !== 'home_transfer_income_v1')) return;
+    loadData();
+    renderAll();
+});
 
 document.addEventListener("DOMContentLoaded", function() {
     if (localStorage.getItem("darkMode") === "enabled") {
