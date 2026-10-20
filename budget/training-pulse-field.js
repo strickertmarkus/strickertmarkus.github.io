@@ -16,6 +16,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     insightMode: 'chart',
     openLogId: null,
     logTouched: false,
+    logVisibleCount: 12,
   };
   var data = {};
 
@@ -220,7 +221,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       plan:readJSON('ex_plan',{mon:'Bröst + Triceps',tue:'Rygg + Biceps',wed:'Ben + Axlar',thu:'Kondition',fri:'Helkropp',sat:'Vila',sun:'Vila'}),
       weekPlans:readJSON('ex_weekPlans',{}),
       prs:readJSON('ex_prs',{}),
-      vo2:readJSON('ex_vo2',[])
+      vo2:readJSON('ex_vo2',[]),
+      hiddenExerciseNames:readJSON('ex_hiddenExerciseNamesV1',{})
     };
   }
 
@@ -964,10 +966,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return charts.length?'<div class="log-mini-intervals" data-count="'+charts.length+'" aria-label="Registrerade mätvärden">'+charts.join('')+'</div>':'';
   }
 
+  function isHistoricExerciseName(name,kind,type) {
+    var key=String(type||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE')+'|'+(kind==='cardio'?'cardio':'strength')+'|'+encodeURIComponent(String(name||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE'));
+    return !!(data.hiddenExerciseNames&&data.hiddenExerciseNames[key]);
+  }
   function renderLog() {
-    var workouts=data.workouts.slice().sort(function(a,b){
+    var allWorkouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
-    }).slice(0,12);
+    });
+    var workouts=allWorkouts.slice(0,state.logVisibleCount);
     var timeline=byId('log-timeline');
     if(!workouts.length){
       timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
@@ -983,13 +990,18 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var secondary=number(workout.duration)?formatNumber(workout.duration,0)+' min':number(workout.hrAvg)?Math.round(number(workout.hrAvg))+' bpm':'—';
       var detail=exercises.length+' övning'+(exercises.length===1?'':'ar');
       var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
-        var seconds=exerciseSeconds(workout,exercise,exerciseIndex);
-        return '<button type="button" class="exercise-row" data-field-action="edit-exercise" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera '+escapeHtml(normalizeExercise(exercise).name)+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name">'+escapeHtml(normalizeExercise(exercise).name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></button>';
+        var seconds=exerciseSeconds(workout,exercise,exerciseIndex),normalized=normalizeExercise(exercise);
+        var retired=isHistoricExerciseName(normalized.name,normalized.kind,workoutType(workout));
+        return '<button type="button" class="exercise-row" data-field-action="edit-exercise" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera '+escapeHtml(normalized.name)+(retired?' (äldre övningsnamn)':'')+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name'+(retired?' is-retired-exercise':'')+'"'+(retired?' title="Äldre övningsnamn – borttaget från listan"':'')+'>'+escapeHtml(normalized.name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></button>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
       return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
+    if(allWorkouts.length>workouts.length){
+      var more=allWorkouts.length-workouts.length;
+      timeline.insertAdjacentHTML('beforeend','<button class="log-more-button" type="button" data-log-more aria-label="Visa fler sparade träningspass">Visa äldre pass <span>'+more+' kvar</span><span aria-hidden="true">↓</span></button>');
+    }
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
 
@@ -1089,6 +1101,12 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
     document.addEventListener('click',function(event){
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
+      var loadMore=event.target.closest('[data-log-more]');
+      if(loadMore){
+        state.logVisibleCount+=12;
+        renderLog();
+        return;
+      }
       var logButton=event.target.closest('.log-summary');
       if(logButton){
         var card=logButton.closest('[data-log-card]'),id=card.dataset.logId;
@@ -1127,7 +1145,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     document.addEventListener('click',function(event){var target=event.target.closest&&event.target.closest('[data-chart-tip]');if(target)showChartTooltip(target,event,true);});
     // Firebase can emit one event per storage key at login. Only six keys
     // contribute to this overview; combine their initial burst into one render.
-    var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_weekPlans','ex_prs','ex_vo2']);
+    var fieldKeys=new Set(['ex_wk','ex_goals','ex_plannedSessions','ex_plan','ex_weekPlans','ex_prs','ex_vo2','ex_hiddenExerciseNamesV1']);
     var firebaseRenderTimer=0;
     window.addEventListener('firebase-sync',function(event){
       if(!event.detail||!fieldKeys.has(event.detail.key))return;
