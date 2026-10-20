@@ -833,7 +833,7 @@ html[data-field-embedded] body #plan-modal #plan-days{
   padding:2px 2px 12px!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
-  touch-action:pan-y;
+  touch-action:auto;
 }
 html[data-field-embedded] body #plan-modal .pulse-plan-day-v2{
   min-height:0!important;
