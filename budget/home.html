@@ -13,6 +13,7 @@
 <script src="auth-config.js"></script>
 <script src="auth-gate.js?v=20261016-svg-shell-1"></script>
   <script src="firebase-sync.js?v=20261015-transfer-calc-v1"></script>
+<script src="transfer-income.js?v=20261020-netto-v1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
   <script defer src="family-todos-ui-v1.js?v=20261016-compact-home-parity-2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -2338,11 +2339,6 @@ function getFamilyIncomes() {
 function fmtKr(value) { return Number(value || 0).toLocaleString('sv-SE') + ' kr'; }
 var TRANSFER_MONTH_NAMES = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
 var TRANSFER_CALC_INCOMES_KEY = 'home_transfer_income_v1';
-var TRANSFER_ESTIMATED_INCOMES = {
-  '2026-10': { markus:37288, maja:11479 },
-  '2026-11': { markus:37288, maja:11605 },
-  '2026-12': { markus:37288, maja:10260 }
-};
 function transferMonthInfo(offset) {
   var today = new Date();
   var date = new Date(today.getFullYear(), today.getMonth() + (offset || 0), 1);
@@ -2378,8 +2374,12 @@ function renderHomeEconomySnapshot() {
     : null;
   var previous = getTransferMonth(-1);
   var delta = previous ? total - amount(previous.husutgifter) - amount(previous.ica) : null;
+  var salaries = getTransferMonthlyIncomes(current.key);
+  var net = salaries.markus !== null && salaries.maja !== null
+    ? fmtKr(salaries.markus + salaries.maja) : '—';
   var cells = [
     ['Gemensamt totalt',fmtKr(total)],
+    ['Nettoinkomst',net],
     ['Husutgifter',fmtKr(house)],
     ['ICA-kort',fmtKr(ica)],
     ['Planerat sparande',savings === null ? '—' : fmtKr(savings)]
@@ -2387,16 +2387,16 @@ function renderHomeEconomySnapshot() {
   root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year)
     + '</span><small>Från Familjebudget</small></div>'
     + '<div class="home-economy-metrics">' + cells.map(function(cell) {
-        return '<div class="home-economy-metric"><span>' + escHtml(cell[0]) + '</span><strong>' + escHtml(cell[1]) + '</strong></div>';
+        return '<div class="home-economy-metric"><span>' + escHtml(cell[0]) + '</span>'
+          + (cell[0] === 'Nettoinkomst'
+            ? '<button type="button" class="home-economy-income-action" onclick="toggleMonthPopup(true)" aria-label="Redigera månadens nettoinkomster">'
+              + escHtml(cell[1]) + '<small>Redigera</small></button>'
+            : '<strong>' + escHtml(cell[1]) + '</strong>') + '</div>';
       }).join('') + '</div>'
     + (delta === null ? '' : '<p class="home-economy-comparison">Gemensamt jämfört med '
         + escHtml(transferMonthInfo(-1).month.toLowerCase())
         + ': <strong>' + (delta > 0 ? '+' : delta < 0 ? '−' : '±') + escHtml(fmtKr(Math.abs(delta)))
         + '</strong></p>');
-}
-function readTransferCalculatorIncomes() {
-  var saved = parseJSON(localStorage.getItem(TRANSFER_CALC_INCOMES_KEY), {});
-  return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
 }
 function transferIncomeValue(raw) {
   if (raw === '' || raw === null || raw === undefined) return null;
@@ -2407,13 +2407,14 @@ function transferIncomeValue(raw) {
   return Number.isFinite(number) && number >= 0 ? number : null;
 }
 function getTransferMonthlyIncomes(key) {
-  var saved = readTransferCalculatorIncomes();
-  var current = saved[key] && typeof saved[key] === 'object' ? saved[key] : {};
-  var defaults = TRANSFER_ESTIMATED_INCOMES[key] || {};
-  return {
-    markus:transferIncomeValue(Object.prototype.hasOwnProperty.call(current,'markus') ? current.markus : defaults.markus),
-    maja:transferIncomeValue(Object.prototype.hasOwnProperty.call(current,'maja') ? current.maja : defaults.maja)
-  };
+  var data = getFamilyBudgetData();
+  var parts = key.split('-');
+  var year = Number(parts[0]), month = TRANSFER_MONTH_NAMES[Number(parts[1]) - 1];
+  var row = data && Array.isArray(data.transfers)
+    ? data.transfers.find(function(item){ return item && Number(item.year) === year && item.month === month; })
+    : null;
+  // Legacy Home income overrides are read only when the budget row has no salary.
+  return TransferIncome.get(row || { year:year, month:month });
 }
 function transferAmount(value) {
   var number = Number(value);
@@ -2542,34 +2543,21 @@ function persistTransferCalcIncome(person, value) {
     showToast('Lägg till månaden i Familjebudget först.');
     return false;
   }
-  // Compute from the latest synced budget snapshot; change only this month's transfer row.
-  var incomes = getTransferMonthlyIncomes(month.key);
-  incomes[person] = amount;
-  var amounts = calculateTransferShares(budgetData.transfers[index],incomes);
-  if (!amounts) {
-    showToast('Nettoinkomsterna måste tillsammans vara större än 0 kr.');
-    return false;
-  }
-  var updatedRow = Object.assign({},budgetData.transfers[index],{
-    majaAndel:amounts.majaShare, markusAndel:amounts.markusShare,
-    huskontoMaja:amounts.majaHouse, icaMaja:amounts.majaIca,
-    huskontoMarkus:amounts.markusHouse, icaMarkus:amounts.markusIca
-  });
-  var updatedBudget = Object.assign({},budgetData,{
+  // The matching Familjebudget transfer row is the single source of truth.
+  // Keep all unrelated budget fields and other months untouched.
+  var updatedRow = Object.assign({}, budgetData.transfers[index]);
+  if (!TransferIncome.update(updatedRow, person, amount)) return false;
+  var updatedBudget = Object.assign({}, budgetData, {
     transfers:budgetData.transfers.map(function(row,i){return i === index ? updatedRow : row;})
   });
-  var overrides = readTransferCalculatorIncomes();
-  overrides[month.key] = Object.assign({},overrides[month.key] || {},{[person]:amount});
   var budgetJson = JSON.stringify(updatedBudget);
-  var incomeJson = JSON.stringify(overrides);
   try {
     localStorage.setItem('familjebudget_data',budgetJson);
     if (localStorage.getItem('familjebudget_data') !== budgetJson) throw new Error('Budget storage failed');
-    localStorage.setItem(TRANSFER_CALC_INCOMES_KEY,incomeJson);
-    if (localStorage.getItem(TRANSFER_CALC_INCOMES_KEY) !== incomeJson) throw new Error('Income storage failed');
+    renderHomeEconomySnapshot();
     return true;
   } catch (error) {
-    showToast('Kunde inte spara överföringen. Försök igen.');
+    showToast('Kunde inte spara nettoinkomsten. Försök igen.');
     return false;
   }
 }
@@ -3006,7 +2994,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   renderHomeEconomySnapshot();
   window.addEventListener('storage', function(event) {
-    if (event.key === 'familjebudget_data') renderHomeEconomySnapshot();
+    if (event.key === 'familjebudget_data' || event.key === TRANSFER_CALC_INCOMES_KEY) {
+      renderHomeEconomySnapshot();
+      var widget = document.getElementById('transfer-widget');
+      if (widget && widget.classList.contains('month-open')) renderMonthPopup();
+    }
   });
   initCalendarFlatpickr();
   loadNotifSettings();
