@@ -1,0 +1,28 @@
+name: Shared surface motion
+on:
+  push:
+    branches: [main]
+    paths: ['budget/ui-motion.*', 'budget/nav-menu-motion.js', 'budget/tests/surface-motion-browser.cjs', '.github/workflows/surface-motion-verify.yml']
+  workflow_dispatch:
+jobs:
+  motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check budget/ui-motion.js
+          node --check budget/nav-menu-motion.js
+          npm install --no-save playwright
+          npx playwright install --with-deps webkit chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/motion-http.log 2>&1 &
+          node budget/tests/surface-motion-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: surface-motion
+          path: test-results/motion/

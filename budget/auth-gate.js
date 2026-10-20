@@ -63,8 +63,8 @@
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
   var exerciseAssetsVersion = '20261013-session-energy-1';
-  var calendarAssetsVersion = '20261013-home-swedish-holidays-v1';
-  var shoppingAssetsVersion = '20260828-1340-recipe-header-v10';
+  var calendarAssetsVersion = '20261020-surfaces-1';
+  var shoppingAssetsVersion = '20261020-surfaces-1';
 
   var pulseDefaultBoot = isLegacyExercisePage && !embeddedFieldWorkspace;
   if (pulseDefaultBoot) {

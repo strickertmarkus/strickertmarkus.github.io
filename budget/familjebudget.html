@@ -143,8 +143,8 @@ html.dark-mode .section-header:hover { background: rgba(255,255,255,0.03); }
 .section-subtitle { font-size: 12px; color: var(--text-sec); }
 .section-chevron { font-size: 14px; color: var(--text-sec); transition: transform 0.25s ease-in-out; }
 .section-chevron.open { transform: rotate(180deg); }
-.section-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease-in-out; }
-.section-body.open { max-height: 8000px; }
+.section-body { height:0; overflow: hidden;  }
+.section-body.open { height:auto; }
 .section-inner { padding: 0 20px 20px; }
 
 /* ── DATA TABLE ─────────────────────────────────── */
@@ -332,7 +332,9 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
     .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; right: 8px !important; left: auto !important; }
 }
 </style>
-<script src="nav-menu-motion.js?v=20261019-menu-motion-4"></script>
+<script src="nav-menu-motion.js?v=20261020-menu-motion-5"></script>
+<link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-1">
+<script defer src="ui-motion.js?v=20261020-surfaces-1"></script>
 </head>
 <body>
 
@@ -1098,7 +1100,7 @@ function fmtPct(n) { if (n == null) return "—"; return (n * 100).toFixed(1) + 
 function toggleSection(id) {
     const body = document.getElementById("section-" + id);
     const chevron = document.getElementById("chevron-" + id);
-    body.classList.toggle("open");
+    SurfaceMotion.measureChange(body, () => body.classList.toggle("open"));
     chevron.classList.toggle("open");
     // Save section state to localStorage
     saveSectionState(id, body.classList.contains("open"));

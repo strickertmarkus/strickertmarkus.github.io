@@ -291,10 +291,10 @@
     }
 
     .shortcut-widget { display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
-    .transfer-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1); pointer-events: none; overflow: hidden; }
-    .shortcut-widget.open .transfer-popup { max-height: 420px; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .month-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height .38s cubic-bezier(.22,1,.36,1), opacity .25s ease, transform .38s cubic-bezier(.22,1,.36,1); pointer-events: none; overflow: hidden; }
-    .shortcut-widget.month-open .month-popup { max-height: 78vh; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .transfer-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height var(--surface-exit) var(--surface-ease), opacity var(--surface-exit) var(--surface-ease), transform var(--surface-exit) var(--surface-ease); pointer-events: none; overflow: hidden; }
+    .shortcut-widget.open .transfer-popup { transition-duration:var(--surface-enter); max-height: 420px; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .month-popup { max-height: 0; opacity: 0; transform: translateY(-10px) scale(.98); transform-origin: top left; transition: max-height var(--surface-exit) var(--surface-ease), opacity var(--surface-exit) var(--surface-ease), transform var(--surface-exit) var(--surface-ease); pointer-events: none; overflow: hidden; }
+    .shortcut-widget.month-open .month-popup { transition-duration:var(--surface-enter); max-height: 78vh; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .transfer-popup-shell {
       margin-top: 10px;
       padding: 14px;
@@ -602,13 +602,10 @@
     .day-panel-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
     /* ── MODAL ── */
-    .modal-overlay { display: flex; opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility 0s .18s; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); z-index: 9000; overflow:hidden; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay { display: flex; opacity:0;visibility:hidden;pointer-events:none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); z-index: 9000; overflow:hidden; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.show { opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s; }
-    .modal-overlay .modal{transform:translateY(8px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
-    .modal-overlay.show .modal{transform:none}
     @media(prefers-reduced-motion:reduce){.modal-overlay,.modal-overlay .modal{transition:none}}
     .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 18px; padding: 24px; width: 100%; max-width: 480px; min-width:0; max-height: calc(100dvh - 40px); overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,.5); }
-    @keyframes slideUp { from { opacity:0; transform:translateY(20px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
     .modal h2 { font-size: 17px; font-weight: 800; margin-bottom: 18px; letter-spacing: -.3px; display: flex; align-items: center; gap: 8px; }
     .modal-close { float: right; background: var(--surface); border: 1px solid var(--border); color: var(--text-sec); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: background .15s; }
     .modal-close:hover { background: var(--surface-h); }
@@ -1016,8 +1013,8 @@
   </style>
 <link rel="stylesheet" href="home-calendar-base.css?v=20261015-list-tabs-home-boot-1">
 <script src="calendar-ui-v2.js?v=20261015-list-tabs-home-boot-1"></script>
-<script src="calendar-picker-fix-v3.js?v=20261015-list-tabs-home-boot-1"></script>
-<script src="calendar-followups-v4.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-picker-fix-v3.js?v=20261020-surfaces-1"></script>
+<script src="calendar-followups-v4.js?v=20261020-surfaces-1"></script>
 <script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-calendar-polish-v5-base-20260911.js?v=20261016-menu-notifications-1"></script>
 <script src="home-calendar-polish-v5-preview-delete-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
@@ -1028,8 +1025,10 @@
 <link rel="stylesheet" href="home-morph-router.css?v=20261016-radial-fast-clean-1">
 <script defer src="home-morph-router.js?v=20261016-radial-fast-clean-1"></script>
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
-<script src="nav-menu-motion.js?v=20261019-menu-motion-4"></script>
+<script src="nav-menu-motion.js?v=20261020-menu-motion-5"></script>
 <script src="home-theme-controller-v1.js?v=20261019-orange-only-1"></script>
+<link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-1">
+<script defer src="ui-motion.js?v=20261020-surfaces-1"></script>
 </head>
 <body class="home-calendar-polish-v5 calendar-ui-v2" data-home-calendar-view="month" data-home-section="overview">
 <div class="app-wrap">

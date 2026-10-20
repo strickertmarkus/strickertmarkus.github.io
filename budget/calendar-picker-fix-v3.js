@@ -70,7 +70,7 @@
   }
 
   function closeMonthMenu() {
-    if (activeMonthMenu && activeMonthMenu.parentNode) activeMonthMenu.parentNode.removeChild(activeMonthMenu);
+    if (activeMonthMenu && activeMonthMenu.parentNode) window.SurfaceMotion ? SurfaceMotion.remove(activeMonthMenu) : activeMonthMenu.remove();
     activeMonthMenu = null;
     activeMonthAnchor = null;
   }

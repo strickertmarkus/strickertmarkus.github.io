@@ -545,7 +545,9 @@
     if (action === 'add-recipe') {
       addingRecipe = true; editingMetaId = null; renderRecipes();
     } else if (action === 'toggle-recipe' && recipeId != null) {
-      if (openIds.has(recipeId)) openIds.delete(recipeId); else openIds.add(recipeId); renderRecipes();
+      if (openIds.has(recipeId)) openIds.delete(recipeId); else openIds.add(recipeId);
+      recipeEl.classList.toggle('open', openIds.has(recipeId));
+      actionEl.setAttribute('aria-expanded', String(openIds.has(recipeId)));
     } else if (action === 'edit-recipe' && recipeId != null) {
       editingMetaId = recipeId; openIds.add(recipeId); renderRecipes();
     } else if (action === 'delete-recipe' && recipeId != null) {

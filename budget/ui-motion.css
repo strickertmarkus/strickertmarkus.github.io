@@ -1,0 +1,100 @@
+/* One motion contract for application surfaces. Native display/overlay transitions
+   retain closing pixels without delaying saves, focus restoration or scroll unlock.
+   Unsupported browsers degrade to the existing immediate state changes. */
+:root { --surface-enter:190ms; --surface-exit:150ms; --surface-ease:cubic-bezier(.22,1,.36,1); }
+dialog:not([data-menu-motion]),
+.modal-overlay,
+.day-tooltip,
+#exercise-plan-preview-v7,
+#session-between-overlay-v2,
+#session-pre-timer,
+.custom-dropdown-menu,
+.notif-panel,
+.day-panel,
+.home-day-popover,
+.fp-my-menu,
+.fp-floating-menu,
+.flatpickr-calendar,
+.calendar-month-menu-v3,
+.calendar-year-menu-v4,
+.builder-exercise-name-menu,
+.exercise-name-picker-v1,
+.record-picker,
+.ft-add-options,
+#event-end-panel-v2,
+.log-detail,
+.recipe-items {
+ opacity:0; translate:0 -6px;
+ animation:none!important;
+ transition:opacity var(--surface-exit) var(--surface-ease), translate var(--surface-exit) var(--surface-ease), display var(--surface-exit) allow-discrete, overlay var(--surface-exit) allow-discrete, visibility var(--surface-exit) allow-discrete!important;
+}
+dialog:not([data-menu-motion])[open],
+.modal-overlay:is(.show,.active),
+.day-tooltip.show,
+#exercise-plan-preview-v7.show,
+#session-between-overlay-v2.show,
+#session-pre-timer.show,
+.custom-dropdown-menu.active,
+.notif-panel.show,
+.day-panel.show,
+.home-day-popover.show,
+.fp-my-menu.show,
+.fp-floating-menu.show,
+.flatpickr-calendar.open,
+.calendar-month-menu-v3:not([data-motion-removing]),
+.calendar-year-menu-v4:not([data-motion-removing]),
+.builder-exercise-name-menu:not([hidden]),
+.exercise-name-picker-v1.show,
+.record-picker:not([hidden]),
+.ft-add-options:not([hidden]),
+#event-end-panel-v2:not([hidden]),
+.log-card.is-open .log-detail:not([hidden]),
+.recipe-item.open .recipe-items { opacity:1; translate:0 0; transition-duration:var(--surface-enter)!important; }
+@starting-style {
+dialog:not([data-menu-motion])[open],
+.modal-overlay:is(.show,.active),
+.day-tooltip.show,
+#exercise-plan-preview-v7.show,
+#session-between-overlay-v2.show,
+#session-pre-timer.show,
+.custom-dropdown-menu.active,
+.notif-panel.show,
+.day-panel.show,
+.home-day-popover.show,
+.fp-my-menu.show,
+.fp-floating-menu.show,
+.flatpickr-calendar.open,
+.calendar-month-menu-v3:not([data-motion-removing]),
+.calendar-year-menu-v4:not([data-motion-removing]),
+.builder-exercise-name-menu:not([hidden]),
+.exercise-name-picker-v1.show,
+.record-picker:not([hidden]),
+.ft-add-options:not([hidden]),
+#event-end-panel-v2:not([hidden]),
+.log-card.is-open .log-detail:not([hidden]),
+.recipe-item.open .recipe-items { opacity:0; translate:0 -6px; }
+}
+/* Backdrops fade in place, independently of the editor. */
+.modal-overlay { translate:none!important; }
+.modal-overlay>.modal { animation:none!important; transform:none!important; }
+dialog:not([data-menu-motion])::backdrop {
+ opacity:0;
+ transition:opacity var(--surface-exit) var(--surface-ease), display var(--surface-exit) allow-discrete, overlay var(--surface-exit) allow-discrete;
+}
+dialog:not([data-menu-motion])[open]::backdrop { opacity:1; }
+@starting-style { dialog:not([data-menu-motion])[open]::backdrop { opacity:0; } }
+/* Native disclosure animation also covers dynamically rendered list filters.
+   Height interpolation is progressive; other engines still fade both ways. */
+details:not(.tools):not(.shopping-tools-menu)::details-content {
+ opacity:0; overflow:clip;
+ transition:opacity var(--surface-exit) var(--surface-ease), block-size var(--surface-exit) var(--surface-ease), content-visibility var(--surface-exit) allow-discrete;
+}
+details:not(.tools):not(.shopping-tools-menu)[open]::details-content { opacity:1; overflow:visible; transition-duration:var(--surface-enter); }
+@supports(interpolate-size:allow-keywords) {
+ details:not(.tools):not(.shopping-tools-menu)::details-content { interpolate-size:allow-keywords; block-size:0; }
+ details:not(.tools):not(.shopping-tools-menu)[open]::details-content { block-size:auto; }
+}
+@media(prefers-reduced-motion:reduce) {
+ :root { --surface-enter:0s; --surface-exit:0s; }
+ details::details-content, dialog::backdrop { transition:none!important; }
+}

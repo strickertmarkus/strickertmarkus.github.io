@@ -87,7 +87,7 @@
   }
 
   function closeYearMenu() {
-    if (activeYearMenu && activeYearMenu.parentNode) activeYearMenu.parentNode.removeChild(activeYearMenu);
+    if (activeYearMenu && activeYearMenu.parentNode) window.SurfaceMotion ? SurfaceMotion.remove(activeYearMenu) : activeYearMenu.remove();
     activeYearMenu = null;
     activeYearAnchor = null;
   }
