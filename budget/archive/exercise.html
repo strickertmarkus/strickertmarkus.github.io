@@ -886,24 +886,22 @@ if(!window.__FIELD_EMBEDDED__){
 <div class="modal-overlay pulse-editor" id="plan-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('plan-modal')">✕</button>
-    <h2>Veckoplan</h2>
-    <div class="form-group">
-      <label>Vecka</label>
-      <div class="week-nav">
-        <button type="button" class="week-nav-btn" onclick="shiftPlanTargetWeek(-1)">‹</button>
-        <div class="week-nav-copy">
-          <div class="week-nav-label" id="plan-week-label">Vecka</div>
-          <div class="week-nav-sub" id="plan-week-sub"></div>
-        </div>
-        <button type="button" class="week-nav-btn" onclick="shiftPlanTargetWeek(1)">›</button>
+    <div class="pulse-plan-toolbar-v3">
+      <div class="pulse-plan-nav-v3" aria-label="Välj vecka">
+        <button type="button" class="pulse-plan-nav-btn-v3" onclick="shiftPlanTargetWeek(-1)" aria-label="Föregående vecka">‹</button>
+        <button type="button" class="pulse-plan-current-v3" onclick="pulsePlanCurrentWeekV3()" aria-label="Gå till aktuell vecka">
+          <strong id="plan-week-label">Vecka</strong>
+          <small id="plan-week-sub"></small>
+        </button>
+        <button type="button" class="pulse-plan-nav-btn-v3" onclick="shiftPlanTargetWeek(1)" aria-label="Nästa vecka">›</button>
+        <label class="pulse-plan-calendar-v3" aria-label="Välj datum och vecka" title="Välj datum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round" aria-hidden="true"><rect x="3.25" y="5" width="17.5" height="16" rx="2"/><path d="M7.5 2.75V7.5M16.5 2.75V7.5M3.25 10h17.5"/></svg>
+          <input type="date" id="plan-week-date" aria-label="Välj datum för veckoplanen" onchange="onPlanWeekDateChange()">
+        </label>
       </div>
-      <div class="week-pick" style="margin-top:8px">
-        <input type="date" id="plan-week-date" onchange="onPlanWeekDateChange()">
-      </div>
+      <div class="pulse-plan-summary-v2" id="pulse-plan-summary-v2" aria-live="polite"></div>
     </div>
-    <div class="pulse-plan-summary-v2" id="pulse-plan-summary-v2" aria-live="polite"></div>
-    <details class="pulse-plan-templates-v2"><summary>Veckomallar <span>⌄</span></summary><div class="pulse-plan-week-template-row-v2"><select id="pulse-plan-template-select-v2" aria-label="Välj veckomall"></select><button type="button" onclick="pulsePlanApplyWeekTemplateV2()">Använd mall</button></div></details>
-    <p class="pulse-plan-hint-v2">Tryck på en dag för att snabbplanera. Håll i handtaget för att flytta hela passet.</p>
+    <details class="pulse-plan-templates-v2"><summary><span>Återanvänd en vecka</span><small>Veckomallar ⌄</small></summary><div class="pulse-plan-week-template-row-v2"><select id="pulse-plan-template-select-v2" aria-label="Välj veckomall"></select><button type="button" onclick="pulsePlanApplyWeekTemplateV2()">Använd</button></div></details>
     <div id="plan-days"></div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('plan-modal')">Avbryt</button>
@@ -1401,6 +1399,12 @@ function syncPlanWeekUI(){
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   fillWeekLabel(planTargetMondayISO,'plan-week-label','plan-week-sub','plan-week-date');
   pulsePlanInstallV2();pulsePlanRenderTemplatePickerV2();pulsePlanRenderV2();
+}
+function pulsePlanCurrentWeekV3(){
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  planTargetMondayISO=weekStartISO();
+  var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
+  syncPlanWeekUI();
 }
 function shiftPlanTargetWeek(delta){
   pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
