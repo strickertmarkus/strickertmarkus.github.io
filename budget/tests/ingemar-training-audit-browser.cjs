@@ -193,6 +193,25 @@ async function run(browserType,label,width){
  assert.equal(await page.locator('[data-set="0:0:reps"]').inputValue(),'');
  assert.equal((await data(page)).plans[incompleteDate].exercises[0].sets[0].reps??null,null);
  await closeBuilder(page);
+ // A new exercise starts blank; additional sets copy only that exercise's last set.
+ await page.locator('[data-action="build"]').first().click();
+ const newIndex=await page.locator('#exercise-list > [data-exercise]').count();
+ await page.locator('[data-action="add-exercise"]').click();
+ await page.locator('#build-name').click();
+ for(let j=0;j<3;j++)for(const field of ['weight','reps'])assert.equal(await page.locator(`[data-set="${newIndex}:${j}:${field}"]`).inputValue(),'');
+ await page.locator(`[data-set="${newIndex}:2:weight"]`).fill('20');
+ await page.locator(`[data-set="${newIndex}:2:reps"]`).fill('8');
+ await page.locator(`[data-add-set="${newIndex}"]`).click();
+ assert.equal(await page.locator(`[data-set="${newIndex}:3:weight"]`).inputValue(),'20');
+ assert.equal(await page.locator(`[data-set="${newIndex}:3:reps"]`).inputValue(),'8');
+ await page.locator(`[data-exercise="${newIndex}"]`).scrollIntoViewIfNeeded();await shot(page,label+'-new-exercise-blank');
+ await page.locator(`[data-mode="${newIndex}:min"]`).click();
+ assert.equal(await page.locator(`[data-set="${newIndex}:0:minutes"]`).inputValue(),'');
+ await page.locator('[data-type="Kondition"]').click();
+ await page.locator('[data-action="add-exercise"]').click();await page.locator('#build-name').click();
+ assert.equal(await page.locator(`[data-set="${newIndex+1}:0:minutes"]`).inputValue(),'');
+ assert.equal(await page.locator(`[data-set="${newIndex+1}:0:reps"]`).inputValue(),'');
+ await closeBuilder(page);
  assert.deepEqual(errors,[],'No runtime errors');console.log(label+': training-only lifecycle, persistence, menus, statistics and geometry passed');
  }catch(e){await shot(page,label+'-FAILURE');throw e;}finally{await browser.close();}
 }

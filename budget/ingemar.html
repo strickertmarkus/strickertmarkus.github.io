@@ -2616,7 +2616,7 @@ document.addEventListener('click',function(event){
    case 'add-exercise':
     if(draft.exercises.length>=16){toast('Högst 16 övningar.');break;}
     var newIndex=draft.exercises.length;
-    draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[0,0,5]]:[[20,10,0],[22.5,10,0],[25,8,0]]));
+    draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[null,null,null]]:[[null,null,null],[null,null,null],[null,null,null]]));
     builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
    case 'save-plan':openPlanPreview(false);break;
