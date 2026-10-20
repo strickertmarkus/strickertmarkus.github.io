@@ -183,8 +183,17 @@ async function loadAllFromFirebase() {
           // The shopping UI may already be rendered while the initial fetch runs.
           handleRemoteUpdate(key, value);
         } else {
+          const previousValue = _realGetItem(key);
           safeSetLocal(key, value);
           lastKnownValues[key] = value;
+          // Pages may have rendered before the initial asynchronous Firebase load.
+          // Refresh finance views if their shared income / transfer source changed.
+          if (previousValue !== value &&
+              (key === 'familjebudget_data' || key === 'home_transfer_income_v1')) {
+            window.dispatchEvent(new CustomEvent('firebase-sync', {
+              detail: { key, value }
+            }));
+          }
         }
         console.log(`[Firebase] Loaded '${key}'`);
       }
