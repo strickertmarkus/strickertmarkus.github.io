@@ -1214,7 +1214,7 @@ function pulsePlanExpandedHtmlV2(entry,i){
     '<div class="pulse-plan-editor-head-v2"><b>PASS</b><span>Välj era vanliga träningsgrupper</span></div>'+
     '<div class="pulse-plan-chip-list-v2">'+typeButtons+'</div>'+
     '<label class="pulse-plan-custom-v2"><span>Passnamn · tryck för att ändra</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Träningspass för '+DAYS[i]+'"></label>'+
-    (kind==='rest'?'':('<div class="pulse-plan-editor-head-v2"><b>ÖVNINGAR</b><span>'+exercises.length+' valda</span></div>'+
+    (kind==='rest'?'':('<div class="pulse-plan-editor-head-v2"><b>ÖVNINGAR</b><span>'+exercises.length+(exercises.length===1?' vald':' valda')+'</span></div>'+
       (chosen||'<p class="pulse-plan-empty-v2">Inga övningar valda ännu.</p>')+
       (suggestedHtml?'<div class="pulse-plan-chip-list-v2 pulse-plan-exercise-choices-v2">'+suggestedHtml+'</div>':'')+
       '<div class="pulse-plan-add-row-v2"><input type="text" data-pulse-new-ex-v2="'+i+'" placeholder="Ny övning…" aria-label="Ny övning" autocomplete="off"><button type="button" data-pulse-create-ex-v2="'+i+'">+ Lägg till</button></div>'+
@@ -1239,7 +1239,7 @@ function pulsePlanRenderV2(){
       '<button type="button" class="pulse-plan-open-v2" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'" aria-label="Snabbplanera '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
        '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?'Vila':pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
-       '<strong>'+escHtml(type)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+' övningar · '+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
+       '<strong>'+escHtml(type)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
       (pulsePlanCopyV2!==-1&&pulsePlanCopyV2!==i?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit ↗</button>':'')+
@@ -1325,7 +1325,7 @@ function pulsePlanStartDragV2(event,button){
   if(!card||!Number.isFinite(index))return;
   var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index],ghost=document.createElement('div');
   ghost.className='pulse-plan-drag-ghost-v2';
-  ghost.innerHTML='<strong>'+DAYS[index]+' · '+escHtml(entry.type)+'</strong><small>'+pulsePlanExerciseListV2(entry).length+' övningar</small>';
+  ghost.innerHTML='<strong>'+DAYS[index]+' · '+escHtml(entry.type)+'</strong><small>'+pulsePlanExerciseListV2(entry).length+(pulsePlanExerciseListV2(entry).length===1?' övning':' övningar')+'</small>';
   document.getElementById('plan-modal').appendChild(ghost);
   pulsePlanDragV2={id:event.pointerId,from:index,to:index,ghost:ghost};
   card.classList.add('is-drag-source');
