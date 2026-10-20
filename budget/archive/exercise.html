@@ -931,7 +931,7 @@ if(!window.__FIELD_EMBEDDED__){
 <!-- ── DAY WORKOUT BUILDER ── -->
 <div class="modal-overlay pulse-editor" id="day-workout-modal">
   <div class="modal" style="max-width:620px">
-    <button class="modal-close" onclick="closeModal('day-workout-modal')">✕</button>
+    <button class="modal-close" onclick="pulsePlanCancelBuilderV3()">✕</button>
     <h2 id="day-workout-title">Passupplägg</h2>
     <div class="form-group">
       <label>Datum och vecka</label>
@@ -957,7 +957,7 @@ if(!window.__FIELD_EMBEDDED__){
       <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
     </div>
     <div class="modal-footer">
-      <button class="btn-ghost" onclick="closeModal('day-workout-modal')">Avbryt</button>
+      <button class="btn-ghost" onclick="pulsePlanCancelBuilderV3()">Tillbaka</button>
       <button class="btn-sm" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
       <button class="btn-primary" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
@@ -1234,12 +1234,13 @@ function pulsePlanRenderV2(){
     article.className='pulse-plan-day-v2'+(expanded?' is-expanded':'');
     article.dataset.index=i;article.dataset.color=pulsePlanColorV2(type);
     article.innerHTML='<div class="pulse-plan-top-v2">'+
-      '<button type="button" class="pulse-plan-open-v2" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'" aria-label="Snabbplanera '+day+'">'+
+      '<button type="button" class="pulse-plan-open-v2" data-pulse-open-builder-v2="'+i+'" aria-label="Öppna passbyggaren för '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
        '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?'Vila':pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
        '<strong>'+escHtml(type)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
-       '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+       '<span class="pulse-plan-arrow-v2" aria-hidden="true">↗</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
+      '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (pulsePlanCopyV2!==-1&&pulsePlanCopyV2!==i?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit ↗</button>':'')+
       (expanded?pulsePlanExpandedHtmlV2(entry,i):'');
     box.appendChild(article);
@@ -1333,6 +1334,35 @@ function pulsePlanStartDragV2(event,button){
   event.preventDefault();
   pulsePlanDragMoveV2(event);
 }
+var pulsePlanBuilderReturnV3=null;
+function pulsePlanOpenBuilderV3(index){
+  if(!Number.isInteger(index)||index<0||index>6||!planTargetMondayISO)return;
+  var week=planTargetMondayISO,date=shiftISODate(week,index);
+  var list=document.getElementById('plan-days'),scroll=list?list.scrollTop:0;
+  // Persist complete drafts before opening the existing full builder. In particular,
+  // dragged sessions retain their exercise lists and are not replaced by empty plans.
+  savePlan();
+  pulsePlanBuilderReturnV3={week:week,index:index,scroll:scroll};
+  openDayWorkoutBuilder(DAYS[index],date);
+}
+function pulsePlanReturnFromBuilderV3(){
+  var previous=pulsePlanBuilderReturnV3;
+  if(!previous)return;
+  pulsePlanBuilderReturnV3=null;
+  openPlanModal();
+  planTargetMondayISO=previous.week;
+  syncPlanWeekUI();
+  var box=document.getElementById('plan-days');
+  if(box){
+    box.scrollTop=previous.scroll;
+    var target=box.querySelector('.pulse-plan-day-v2[data-index="'+previous.index+'"]');
+    if(target&&box.scrollTop===0&&previous.index>0)target.scrollIntoView({block:'nearest',behavior:'instant'});
+  }
+}
+function pulsePlanCancelBuilderV3(){
+  closeModal('day-workout-modal');
+  pulsePlanReturnFromBuilderV3();
+}
 function pulsePlanCaptureV2(){
   var input=document.querySelector('#plan-days .pulse-plan-day-v2.is-expanded input[data-day]');
   if(input){var day=Number(input.closest('.pulse-plan-day-v2').dataset.index),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[day];if(entry){entry.type=input.value.trim()||'Vila';if(entry.session)entry.session.type=entry.type;}}
@@ -1353,7 +1383,7 @@ function pulsePlanInstallV2(){
     else if(d.pulseCopyV2!=null){i=Number(d.pulseCopyV2);pulsePlanCopyV2=pulsePlanCopyV2===i?-1:i;pulsePlanRenderV2();}
     else if(d.pulseCopyToV2!=null){pulsePlanCopyV2To(Number(d.pulseCopyToV2));}
     else if(d.pulseRestV2!=null){pulsePlanSetTypeV2(Number(d.pulseRestV2),'Vila');}
-    else if(d.pulseOpenBuilderV2!=null){i=Number(d.pulseOpenBuilderV2);var date=shiftISODate(planTargetMondayISO,i);savePlan();openDayWorkoutBuilder(DAYS[i],date);}
+    else if(d.pulseOpenBuilderV2!=null){pulsePlanOpenBuilderV3(Number(d.pulseOpenBuilderV2));}
   });
   box.addEventListener('input',function(event){
     if(!event.target.matches('input[data-day]'))return;
@@ -2318,6 +2348,7 @@ function persistDayWorkoutPlan(opts){
   refreshTypeSuggestions();
   renderWeekGrid();
   closeModal('day-workout-modal');
+  if(pulsePlanBuilderReturnV3&&!opts.startAfterSave)pulsePlanReturnFromBuilderV3();
   showToast(opts.startAfterSave?'Passupplägg sparat. Startar pass...':'Passupplägg sparat.');
   return true;
 }
@@ -2326,8 +2357,10 @@ function startDayWorkoutFromBuilder(){
   var modal=document.getElementById('day-workout-modal');
   var date=modal.dataset.date;
   if(!date)return;
+  var returnContext=pulsePlanBuilderReturnV3;
+  pulsePlanBuilderReturnV3=null;
   var ok=persistDayWorkoutPlan({startAfterSave:true});
-  if(!ok)return;
+  if(!ok){pulsePlanBuilderReturnV3=returnContext;return;}
   startWorkoutSessionForDate(date);
 }
 
