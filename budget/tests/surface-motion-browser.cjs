@@ -7,7 +7,7 @@ async function settle(el){await el.evaluate(async e=>{await new Promise(resolve=
 async function phase(el,open){
  const s=await el.evaluate(async(e,open)=>{
   getComputedStyle(e).opacity;
-  if(e.tagName==='DIALOG'){open?e.showModal():e.close();}
+  if(e.tagName==='DIALOG'){open?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):(e.matches('.zen-dialog')?SurfaceMotion.closeDialog(e):e.close());}
   else e.classList.toggle('show',open);
   getComputedStyle(e).opacity;
   const animations=e.getAnimations();
@@ -43,11 +43,11 @@ async function phase(el,open){
     const details=page.locator('.week-template-drawer');
     await details.locator('summary').click();await settle(details);
     const motions=await details.evaluate(async e=>{
-     e.open=false;getComputedStyle(e).opacity;
+     SurfaceMotion.setDetails(e,false);getComputedStyle(e).opacity;
      const animations=e.getAnimations({subtree:true});
      animations.forEach(a=>{a.pause();a.currentTime=Number(a.effect.getTiming().duration)/2;});
      await new Promise(requestAnimationFrame);
-     return animations.map(a=>({property:a.transitionProperty,progress:a.effect.getComputedTiming().progress}));
+     return animations.map(a=>({property:a.transitionProperty||(a.effect.getKeyframes().some(k=>'opacity' in k)?'opacity':'height'),progress:a.effect.getComputedTiming().progress}));
     });
     assert(motions.some(a=>a.property==='opacity'&&a.progress>0&&a.progress<1),'Details closing animation: '+JSON.stringify(motions));
     await page.screenshot({path:`${out}/${name}-details-closing-390.png`});await settle(details);
@@ -55,10 +55,10 @@ async function phase(el,open){
    await phase(el,false);
    await page.screenshot({path:`${out}/${name}-${file}-closing-390.png`});await settle(el);
    // Reverse an exit before it finishes: no delayed callback may close the new state.
-   await el.evaluate(e=>e.tagName==='DIALOG'?e.showModal():e.classList.add('show'));await settle(el);
-   await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?e.showModal():e.classList.add('show'));await settle(el);
+   await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):e.classList.add('show'));await settle(el);
+   await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.showDialog(e):e.showModal()):e.classList.add('show'));await settle(el);
    assert.equal(await el.evaluate(e=>+getComputedStyle(e).opacity),1);
-   await el.evaluate(e=>e.tagName==='DIALOG'?e.close():e.classList.remove('show'));await settle(el);
+   await el.evaluate(e=>e.tagName==='DIALOG'?(e.matches('.zen-dialog')?SurfaceMotion.closeDialog(e):e.close()):e.classList.remove('show'));await settle(el);
    }catch(error){failures.push(name+' '+file+': '+error.message);console.error(failures.at(-1));await page.screenshot({path:`${out}/${name}-${file}-failure.png`});}
   }
   // Dynamic menus finish their exit before DOM removal; opening another stays independent.
@@ -80,8 +80,8 @@ async function phase(el,open){
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('http://127.0.0.1:4173/budget/zen.html',{waitUntil:'domcontentloaded'});
-  const dialog=page.locator('#settings-dialog');await dialog.evaluate(e=>e.showModal());await settle(dialog);
-  await dialog.evaluate(e=>e.close());assert.equal(await dialog.evaluate(e=>getComputedStyle(e).display),'none');
+  const dialog=page.locator('#settings-dialog');await dialog.evaluate(e=>SurfaceMotion.showDialog(e));await settle(dialog);
+  await dialog.evaluate(e=>SurfaceMotion.closeDialog(e));assert.equal(await dialog.evaluate(e=>getComputedStyle(e).display),'none');
   await browser.close();
  }
  assert.deepEqual(failures,[]);

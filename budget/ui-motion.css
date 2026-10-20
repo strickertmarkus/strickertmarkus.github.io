@@ -86,17 +86,8 @@ dialog:not([data-menu-motion])::backdrop {
 }
 dialog:not([data-menu-motion])[open]::backdrop { opacity:1; }
 @starting-style { dialog:not([data-menu-motion])[open]::backdrop { opacity:0; } }
-/* Native disclosure animation also covers dynamically rendered list filters.
-   Height interpolation is progressive; other engines still fade both ways. */
-details:not(.tools):not(.shopping-tools-menu):not(.packing-filter)::details-content {
- opacity:0; overflow:clip;
- transition:opacity var(--surface-exit) var(--surface-ease), block-size var(--surface-exit) var(--surface-ease), content-visibility var(--surface-exit) allow-discrete;
-}
-details:not(.tools):not(.shopping-tools-menu):not(.packing-filter)[open]::details-content { opacity:1; overflow:visible; transition-duration:var(--surface-enter); }
-@supports(interpolate-size:allow-keywords) {
- details:not(.tools):not(.shopping-tools-menu):not(.packing-filter)::details-content { interpolate-size:allow-keywords; block-size:0; }
- details:not(.tools):not(.shopping-tools-menu):not(.packing-filter)[open]::details-content { block-size:auto; }
-}
+/* Managed dialogs use one reversible Web Animation, including Safari exit. */
+dialog[data-surface-dialog] { animation:none!important; transition:none!important; }
 @media(prefers-reduced-motion:reduce) {
  :root { --surface-enter:0s; --surface-exit:0s; }
  details::details-content, dialog::backdrop { transition:none!important; }

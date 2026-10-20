@@ -36,11 +36,11 @@ async function context(browser,size){
    const g=await page.evaluate(()=>{const d=document.querySelector('#builder-dialog'),r=d.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,overflow:d.scrollWidth>d.clientWidth+1,small:[...d.querySelectorAll('input:not([type=checkbox]),select')].filter(e=>e.getBoundingClientRect().width>0).some(e=>parseFloat(getComputedStyle(e).fontSize)<16)};});
    assert.ok(g.left>=0&&g.right<=size.width&&g.top>=0&&g.bottom<=size.height,JSON.stringify(g));assert.ok(!g.overflow&&!g.small,JSON.stringify(g));
    await page.screenshot({animations:'disabled',path:out+'/builder-'+size.width+'.png'});
-   if(size.width<400){await page.locator('.builder-footer').evaluate(el=>el.scrollIntoView({block:'end'}));await page.screenshot({animations:'disabled',path:out+'/builder-footer-'+size.width+'.png'});await page.locator('#builder-dialog').evaluate(el=>el.scrollTop=0);}
+   if(size.width<400){await page.locator('#builder-dialog .builder-footer').evaluate(el=>el.scrollIntoView({block:'end'}));await page.screenshot({animations:'disabled',path:out+'/builder-footer-'+size.width+'.png'});await page.locator('#builder-dialog').evaluate(el=>el.scrollTop=0);}
   }
   await page.setViewportSize({width:390,height:844});
   await fill('#breath-inhale',0);assert.equal(await page.locator('#builder-form').evaluate(f=>f.checkValidity()),false);await fill('#breath-inhale',3);
-  await click('#builder-form button[type=submit]');assert.equal(await page.locator('#builder-dialog').evaluate(d=>d.open),false);
+  await click('#builder-form button[type=submit]');await page.waitForFunction(()=>!document.querySelector('#builder-dialog').open);assert.equal(await page.locator('#builder-dialog').evaluate(d=>d.open),false);
   const saved=await page.evaluate(()=>ZenStore.entries.find(e=>e.type==='routine'&&e.routine.name==='Min kvällsrytm'));
   assert.deepEqual(saved.routine.breathing,{inhale:3,holdIn:2,exhale:7,holdOut:1});assert.equal(saved.routine.seconds,720);
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ZenStore?.ready);
@@ -58,7 +58,7 @@ async function context(browser,size){
   await click('#guidance-toggle');await page.waitForTimeout(250);assert.equal((await page.evaluate(()=>window.lastFrame)).guided,false);
   await click('#guidance-toggle');await page.waitForTimeout(250);assert.equal((await page.evaluate(()=>window.lastFrame)).breathing.seconds,3);
   await click('#leave-session');await click('.selected-routine');await fill('#routine-name','Cancel this');await click('[data-close=builder-dialog]');assert.equal(await page.locator('#selected-name').innerText(),'Min ändrade rytm');
-  await click('#create-routine');await page.locator('#meditation-guidance').selectOption('silent');assert.equal(await page.locator('#meditation-rhythm').isVisible(),false);await click('#builder-form button[type=submit]');assert.equal(await page.locator('#builder-dialog').evaluate(d=>d.open),false);
+  await click('#create-routine');await page.locator('#meditation-guidance').selectOption('silent');assert.equal(await page.locator('#meditation-rhythm').isVisible(),false);await click('#builder-form button[type=submit]');await page.waitForFunction(()=>!document.querySelector('#builder-dialog').open);assert.equal(await page.locator('#builder-dialog').evaluate(d=>d.open),false);
   assert.deepEqual(errors,[]);console.log('Meditation builder: creation, validation, custom phases, persistence, editing, cancel, pause/resume, guide toggle and mobile/desktop layout passed.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

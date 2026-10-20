@@ -29,7 +29,7 @@ async function context(browser,size){
   if(kind==='meditation'){await page.setViewportSize({width:320,height:640});}
   await page.screenshot({animations:'disabled',path:out+'/edit-'+kind+'.png'});
   const r=await page.locator('#milestone-dialog').evaluate(el=>({width:el.getBoundingClientRect().width,overflow:el.scrollWidth>el.clientWidth+1}));assert(!r.overflow&&r.width<=390);
-  await click('#milestone-form button[type=submit]');assert.equal(await page.locator('#milestone-dialog').evaluate(el=>el.open),false);
+  await click('#milestone-form button[type=submit]');await page.waitForFunction(()=>!document.querySelector('#milestone-dialog').open);assert.equal(await page.locator('#milestone-dialog').evaluate(el=>el.open),false);
  }
  await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ZenStore?.ready);
  assert.equal(await page.evaluate(()=>ZenStore.entries.filter(e=>e.type==='milestone').length),2);

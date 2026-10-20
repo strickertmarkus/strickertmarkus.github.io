@@ -92,8 +92,8 @@
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
   function showView(next){view=next;syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
-  function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;$('confirm-dialog').showModal();}
-  $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;$('confirm-dialog').close();if(action)action();};$('confirm-no').onclick=()=>$('confirm-dialog').close();$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
+  function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
+  $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
   function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
   function startSession(){
     if(!S.ready)return;
@@ -212,16 +212,16 @@
     milestoneDraft=M.milestones(kind,S.entries)[Number(button.dataset.milestone)];
     $('milestone-name').value=milestoneDraft.name;$('milestone-metric').value=milestoneDraft.metric;$('milestone-goal').value=milestoneDraft.goal;
     $('milestone-kind').textContent=kind==='stretch'?'STRETCH':'MEDITATION';$('milestone-error').textContent='';$('milestone-reset').hidden=!milestoneDraft.custom;
-    $('milestone-dialog').showModal();$('milestone-title').focus({preventScroll:true});
+    SurfaceMotion.showDialog($('milestone-dialog'));$('milestone-title').focus({preventScroll:true});
   };
   $('milestone-form').onsubmit=e=>{
     e.preventDefault();if(!milestoneDraft)return;
     const m={kind:milestoneDraft.kind,slot:milestoneDraft.slot,name:$('milestone-name').value.trim(),metric:$('milestone-metric').value,goal:Number($('milestone-goal').value)};
     if(!M.milestoneValid(m)){$('milestone-error').textContent='Ange ett namn och ett helt målantal mellan 1 och 100 000.';return;}
-    if(S.put({id:milestoneDraft.id,type:'milestone',milestone:m,updatedAt:Date.now()})){$('milestone-dialog').close();renderHome();toast('Milstolpen är uppdaterad.');}else $('milestone-error').textContent='Vänta tills ditt konto har laddats.';
+    if(S.put({id:milestoneDraft.id,type:'milestone',milestone:m,updatedAt:Date.now()})){SurfaceMotion.closeDialog($('milestone-dialog'));renderHome();toast('Milstolpen är uppdaterad.');}else $('milestone-error').textContent='Vänta tills ditt konto har laddats.';
   };
   $('milestone-reset').onclick=()=>{
-    if(milestoneDraft&&S.remove(milestoneDraft.id)){$('milestone-dialog').close();renderHome();toast('Standardmilstolpen är återställd.');}
+    if(milestoneDraft&&S.remove(milestoneDraft.id)){SurfaceMotion.closeDialog($('milestone-dialog'));renderHome();toast('Standardmilstolpen är återställd.');}
   };
   const breathKeys=['inhale','holdIn','exhale','holdOut'];
   function readBreathing(){return Object.fromEntries(breathKeys.map(k=>[k,$('breath-'+k).value===''?NaN:Number($('breath-'+k).value)]));}
@@ -243,7 +243,7 @@
     $('meditation-minutes').disabled=!meditation;$('meditation-guidance').disabled=!meditation;$('meditation-rhythm').disabled=!meditation;
     if(meditation){$('meditation-minutes').value=builder.seconds/60;$('meditation-guidance').value=builder.guidance;const settings=M.breathingSettings(builder);breathKeys.forEach(k=>$('breath-'+k).value=settings[k]);updateBreathingBuilder();}
     else{$('pose-search').value='';$('pose-group').innerHTML='<option value="">Alla muskelgrupper</option>'+[...new Set(M.poses.map(p=>p.group))].map(g=>'<option>'+escape(g)+'</option>').join('');renderPoseOptions();}
-    renderBuilder();$('builder-dialog').showModal();$('builder-title').focus({preventScroll:true});
+    renderBuilder();SurfaceMotion.showDialog($('builder-dialog'));$('builder-title').focus({preventScroll:true});
   }
   function renderBuilder(){
     if(!builder)return;
@@ -265,7 +265,7 @@
   $('add-pose').onclick=()=>{const pose=M.poses.find(p=>p.id===$('pose-select').value);if(pose&&builder.steps.length<20){builder.steps.push({...pose,seconds:60});renderBuilder();}};$('meditation-minutes').oninput=builderTotal;
   $('meditation-guidance').onchange=updateBreathingBuilder;breathKeys.forEach(k=>$('breath-'+k).oninput=updateBreathingBuilder);
   document.querySelectorAll('[data-breath-preset]').forEach(b=>b.onclick=()=>{const values=b.dataset.breathPreset.split(',');breathKeys.forEach((k,i)=>$('breath-'+k).value=values[i]);updateBreathingBuilder();});
-  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;const breathing=readBreathing();builder.breathing=builder.guidance==='silent'&&!M.breathingValid({breathing})?M.breathingSettings(builder):breathing;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;savePrefs();if(kind==='stretch')$('routine-category').value='own';$('builder-dialog').close();renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
+  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;const breathing=readBreathing();builder.breathing=builder.guidance==='silent'&&!M.breathingValid({breathing})?M.breathingSettings(builder):breathing;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;savePrefs();if(kind==='stretch')$('routine-category').value='own';SurfaceMotion.closeDialog($('builder-dialog'));renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
   $('start-button').onclick=startSession;
   $('resume-button').onclick=()=>{if(S.active){const s=S.active;openSession(s.paused?M.resume(s,Date.now()):s);S.setActive(session);}};
   $('discard-button').onclick=()=>confirm('Avbryta det pågående passet?','Passet sparas inte i historiken.','Avbryt passet',()=>{session=null;S.setActive(null);});
@@ -277,8 +277,8 @@
   document.querySelectorAll('[data-feeling]').forEach(b=>b.onclick=()=>{if(!pendingRecord)return;pendingRecord.feeling=pendingRecord.feeling===b.dataset.feeling?'':b.dataset.feeling;document.querySelectorAll('[data-feeling]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.feeling===pendingRecord.feeling)));});
   $('save-session').onclick=saveComplete;$('cancel-complete').onclick=()=>confirm('Lämna utan att spara?','Passet läggs inte till i historiken.','Lämna',()=>{session=null;pendingRecord=null;S.setActive(null);showView('home');renderHome();});
   $('history').onclick=e=>{const b=e.target.closest('[data-delete]');if(b)confirm('Ta bort passet?','Statistik och milstolpar räknas om när passet tas bort.','Ta bort',()=>S.remove(b.dataset.delete));};$('history-more').onclick=()=>{allHistory=!allHistory;renderHome();};
-  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
-  $('settings-open').onclick=$('storage-status').onclick=()=>$('settings-dialog').showModal();
+  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>SurfaceMotion.closeDialog($(b.dataset.close)));
+  $('settings-open').onclick=$('storage-status').onclick=()=>SurfaceMotion.showDialog($('settings-dialog'));
   $('export-data').onclick=()=>{if(!S.ready){toast('Vänta tills ditt konto har laddats.');return;}const blob=new Blob([JSON.stringify(S.export(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='zen-'+S.profile+'-'+M.localDate(Date.now())+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
   $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw Error('Filen är för stor. Välj en Zen-säkerhetskopia under 10 MB.');const data=JSON.parse(await file.text());const count=S.import(data);$('import-result').textContent=count+' sparade uppgifter inlästa. Befintliga pass har behållits.';}catch(error){$('import-result').textContent=error instanceof SyntaxError?'Filen kunde inte läsas som en Zen-säkerhetskopia.':error.message;}e.target.value='';};
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();else updateBreathAudio(false);});
