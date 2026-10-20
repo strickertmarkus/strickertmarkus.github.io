@@ -65,13 +65,16 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-economy-snapshot-top small,.home-economy-muted,.home-economy-comparison{color:var(--text-sec,#929ba9);font-size:11px}
 .home-economy-muted{margin:0}
 .home-economy-muted a{color:var(--home-view-accent,#FDBA74)}
-.home-economy-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.home-economy-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
 .home-economy-metric{display:grid;align-content:start;gap:4px;min-width:0;padding:3px 12px;border-right:1px solid rgba(255,255,255,.09)}
 .home-economy-metric:first-child{padding-left:0}
 .home-economy-metric:last-child{border-right:0;padding-right:0}
 .home-economy-metric>span{font-size:10px;color:var(--text-sec,#929ba9)}
 .home-economy-metric strong{font-size:clamp(14px,1.7vw,20px);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--text,#f0f6fc);white-space:nowrap}
 .home-economy-metric:first-child strong{color:var(--home-view-accent,#FDBA74)}
+.home-economy-income-action{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;text-align:left;width:100%;border:0;background:none;padding:0;cursor:pointer;color:var(--text,#f0f6fc);font:700 clamp(14px,1.7vw,20px)/1.2 Inter,sans-serif;font-variant-numeric:tabular-nums}
+.home-economy-income-action small{font-size:10px;font-weight:600;color:var(--home-view-accent,#FDBA74)}
+.home-economy-income-action:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:4px;border-radius:3px}
 .home-economy-comparison{margin:12px 0 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
 .home-economy-comparison strong{color:var(--text,#f0f6fc);font-weight:650}
 
@@ -84,14 +87,14 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 @media(max-width:750px){
   .home-economy-snapshot{padding:12px 13px}
   .home-economy-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 0}
-  .home-economy-metric:nth-child(2){border-right:0;padding-right:0}
-  .home-economy-metric:nth-child(3){padding-left:0}
-  .home-economy-metric strong{font-size:17px}
+  .home-economy-metric:nth-child(even){border-right:0;padding-right:0}
+  .home-economy-metric:nth-child(odd){padding-left:0}
+  .home-economy-metric strong,.home-economy-income-action{font-size:17px}
   .home-travel-heading .home-section-heading h2{font-size:23px}
   .home-planner-workspace{border-radius:13px}
   #home-travel-frame{height:calc(100dvh - 190px);min-height:440px;max-height:none}
 }
-@media(max-width:380px){.home-travel-heading .home-section-heading h2{font-size:20px}.home-economy-metric strong{font-size:15px}}
+@media(max-width:380px){.home-travel-heading .home-section-heading h2{font-size:20px}.home-economy-metric strong,.home-economy-income-action{font-size:15px}}
 
 /* List dashboard and seamless travel tab (2026-10-16). */
 .home-list-dashboard{max-width:1200px;margin:0 0 20px}
