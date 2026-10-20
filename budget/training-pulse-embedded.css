@@ -924,3 +924,27 @@ html[data-field-embedded] body #plan-modal .modal-footer button{
   html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{font-size:12px!important}
   html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{width:34px!important}
 }
+
+
+/* Keep training-group choices to one tactile row, not a tall grid of pills. */
+html[data-field-embedded] body #plan-modal .pulse-plan-types-v3{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  flex-direction:row!important;
+  gap:6px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  max-width:100%!important;
+  padding:1px 1px 6px!important;
+  scrollbar-width:thin;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-types-v3>button{
+  flex:0 0 auto!important;
+  width:auto!important;
+  max-width:190px!important;
+  min-height:35px!important;
+  white-space:nowrap!important;
+  padding:7px 11px!important;
+}
