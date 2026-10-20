@@ -777,7 +777,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       groups[entry.kind][groups[entry.kind].length-1].push([px,py]);
       if(entry.min>0&&entry.max>=entry.min){
         var y1=y(entry.max),y2=y(entry.min);
-        svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y1+'" x2="'+(px+5)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-5)+'" y1="'+y2+'" x2="'+(px+5)+'" y2="'+y2+'" stroke="'+color+'"/>';
+        var cap=Math.max(1,Math.min(5,(width-left-right)/Math.max(entries.length,1)*.32));
+        svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y1+'" x2="'+(px+cap)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y2+'" x2="'+(px+cap)+'" y2="'+y2+'" stroke="'+color+'"/>';
       }
     });
     [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config){
@@ -793,7 +794,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
       heartMarkers+=glowingPoint(px,py,4,color,'heart-point');
       heartHits+='<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
-      if(width<560&&index!==0&&index!==entries.length-1&&index%3!==0)return;
+      var labelInterval=Math.max(1,Math.ceil(entries.length/(width<560?3:6)));
+      if(index!==0&&index!==entries.length-1&&index%labelInterval!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
       var above=index%2===0;
       if(previouslyLabelled.length&&Math.abs(py-previouslyLabelled[previouslyLabelled.length-1][1])<18)above=!previouslyLabelled[previouslyLabelled.length-1][2];
@@ -838,7 +840,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var latest=entries.length?entries[entries.length-1]:null;
     if(state.insight==='pace'){
       var goalDistance=number(data.goals.runDistanceGoal)||10;
-      var allRuns=data.workouts.map(workoutDistance).filter(function(distance){return distance>0;});
+      var allRuns=data.workouts.filter(function(workout){return withinChartRange(workout);}).map(workoutDistance).filter(function(distance){return distance>0;});
       var maxDistance=allRuns.length?Math.max.apply(Math,allRuns):0;
       var totalDistance=allRuns.reduce(function(total,distance){return total+distance;},0);
       var distanceRatio=clamp(maxDistance/goalDistance*100,0,100);
@@ -848,7 +850,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           '<div class="insight-special-progress-track"><i></i><b></b></div>'+
           '<div class="insight-special-progress-scale"><span>0 km</span><strong>'+formatNumber(maxDistance,1)+' km</strong><span>'+formatNumber(goalDistance,1)+' km</span></div>'+
         '</div>'+
-        '<div class="insight-special-distance-total">Totalt loggat: '+formatNumber(totalDistance,1)+' km</div>';
+        '<div class="insight-special-distance-total">'+(state.chartRange==='month'?'Totalt senaste 30 dagarna: ':'Totalt loggat: ')+formatNumber(totalDistance,1)+' km</div>';
       title.textContent='Snittakt över tid';
       unit.textContent='MIN/KM';
       legend.innerHTML='<span class="insight-special-key"><i></i>Snittakt</span><strong>'+(latest?'Senast '+escapeHtml(formatPace(latest.value)):'Inga registrerade värden')+'</strong>';
@@ -858,7 +860,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var maxValue=entries.reduce(function(max,entry){return Math.max(max,number(entry.value));},0);
     var scaleMin=Math.min(40,goal-1),range=Math.max(1,goal-scaleMin);
     var progress=maxValue>0?clamp((maxValue-scaleMin)/range*100,0,100):0;
-    var longestRun=data.workouts.reduce(function(max,workout){return Math.max(max,workoutRunTime(workout));},0);
+    var longestRun=data.workouts.filter(withinChartRange).reduce(function(max,workout){return Math.max(max,workoutRunTime(workout));},0);
     summary.innerHTML=
       '<div class="insight-special-goal-title">Högsta VO₂ <span>(ml/kg/min)</span></div>'+
       '<div class="insight-special-progress" style="--metric-progress:'+progress.toFixed(2)+'%" role="progressbar" aria-label="VO₂ mot mål" aria-valuemin="'+scaleMin+'" aria-valuemax="'+goal+'" aria-valuenow="'+formatNumber(maxValue,1)+'">'+
@@ -922,11 +924,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderVolume() {
-    var legend=byId('volume-legend'),chart=byId('volume-chart'),series=trainingGroupVolumeSeries();
+    var legend=byId('volume-legend'),chart=byId('volume-chart'),series=trainingGroupVolumeSeries().filter(function(group){return group.entries.some(withinChartRange);});
     document.querySelectorAll('[data-chart-range]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.chartRange===state.chartRange));});
     if(!series.length){
       legend.innerHTML='';
-      chart.innerHTML='<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
+      chart.innerHTML='<div class="volume-empty">'+(state.chartRange==='month'?'Inga styrkepass med registrerad volym senaste 30 dagarna.':'Passvolym visas när styrkepass med set, reps och vikt har loggats.')+'</div>';
       chart.setAttribute('aria-label','Ingen passvolym att visa ännu.');
       return;
     }
