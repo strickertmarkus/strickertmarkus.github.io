@@ -2946,7 +2946,7 @@ function syncSingleExerciseEditUnits(row,kind){
     if(unit)unit.textContent=details[1];
     if(input){
       input.setAttribute('aria-label',details[0]+' ('+details[1]+')');
-      input.setAttribute('inputmode',cardio&&index<2||index===2?'decimal':'numeric');
+      input.setAttribute('inputmode',(cardio||index===2)?'decimal':'numeric');
     }
   });
 }
@@ -3019,6 +3019,8 @@ function editWorkoutExercise(id,index){
   styleSingleExerciseEditFields(row);
   var timingInfo=timingMatchForWorkoutExercise(workout,index);
   addExerciseTimingEditor(row,timingInfo.timing);
+  var durationLabel=row.querySelector('.ex-duration-editor-v7>span');
+  if(durationLabel)durationLabel.textContent='Registrerad övningstid';
   editor.innerHTML='';
   editor.appendChild(row);
   overlay.classList.add('show');
