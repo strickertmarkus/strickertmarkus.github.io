@@ -1197,7 +1197,7 @@ function pulsePlanRefreshSummaryV2(){
 }
 function pulsePlanExpandedHtmlV2(entry,i){
   var type=entry.type||'Vila',kind=pulsePlanKindV2(type),exercises=pulsePlanExerciseListV2(entry);
-  var types=pulsePlanTypesV2(),matches=pulsePlanCatalogV2(type);
+  var types=[type].concat(pulsePlanTypesV2().filter(function(candidate){return candidate!==type;})).slice(0,12),matches=pulsePlanCatalogV2(type);
   var typeButtons=types.map(function(name){
     return '<button type="button" class="pulse-plan-chip-v2" data-pulse-type-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(name)+'" aria-pressed="'+String(name===type)+'">'+escHtml(name)+'</button>';
   }).join('');
@@ -1406,12 +1406,15 @@ function shiftPlanTargetWeek(delta){
   pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   planTargetMondayISO=shiftISODate(planTargetMondayISO,delta*7);
+  var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
   syncPlanWeekUI();
 }
 function onPlanWeekDateChange(){
   var date=document.getElementById('plan-week-date');if(!date||!date.value)return;
   pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
-  planTargetMondayISO=mondayISOOf(date.value);syncPlanWeekUI();
+  planTargetMondayISO=mondayISOOf(date.value);
+  var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
+  syncPlanWeekUI();
 }
 function normalizeExercise(ex){
   ex=ex||{};
