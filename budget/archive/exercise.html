@@ -1170,7 +1170,7 @@ function pulsePlanWeekDraftV2(monday){
 }
 function pulsePlanCatalogV2(type){
   var target=String(type||'').trim().toLocaleLowerCase('sv-SE'),out=[],seen={};
-  function add(ex){if(!ex||!ex.name)return;var key=String(ex.name).trim().toLocaleLowerCase('sv-SE');if(!key||seen[key])return;seen[key]=true;out.push(pulsePlanCloneV2(ex));}
+  function add(ex){if(!ex||!ex.name)return;var key=String(ex.name).trim().toLocaleLowerCase('sv-SE');if(!key||seen[key])return;var kind=normalizeExercise(ex).kind;if(isExerciseNameHidden(type,kind,ex.name))return;seen[key]=true;out.push(pulsePlanCloneV2(ex));}
   getTemplates().forEach(function(t){if(String(t.type||'').trim().toLocaleLowerCase('sv-SE')===target)(t.exercises||[]).forEach(add);});
   Object.keys(getPlannedSessions()).sort().reverse().forEach(function(date){var s=getPlannedSessions()[date];if(s&&String(s.type||'').trim().toLocaleLowerCase('sv-SE')===target)(s.exercises||[]).forEach(add);});
   getWorkouts().slice().reverse().forEach(function(w){if(w&&String(w.type||'').trim().toLocaleLowerCase('sv-SE')===target)(w.exercises||[]).forEach(add);});
