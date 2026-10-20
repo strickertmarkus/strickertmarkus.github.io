@@ -1251,14 +1251,14 @@ function pulsePlanRenderV2(){
 }
 function pulsePlanSetTypeV2(index,type){
   var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];if(!entry)return;
-  entry.type=type||'Vila';
-  if(pulsePlanKindV2(entry.type)==='rest'){
-    if(entry.session)entry.previousSession=pulsePlanCloneV2(entry.session);
-    entry.session=null;
-  }else{
-    if(!entry.session&&entry.previousSession)entry.session=pulsePlanCloneV2(entry.previousSession);
-    if(entry.session)entry.session.type=entry.type;
-  }
+  var current=entry.type||'Vila',chosen=type||'Vila';
+  if(current===chosen)return;
+  if(!entry.savedByType)entry.savedByType={};
+  if(entry.session)entry.savedByType[current]=pulsePlanCloneV2(entry.session);
+  entry.type=chosen;
+  if(pulsePlanKindV2(chosen)==='rest')entry.session=null;
+  else entry.session=entry.savedByType[chosen]?pulsePlanCloneV2(entry.savedByType[chosen]):{type:chosen,exercises:[]};
+  if(entry.session)entry.session.type=chosen;
   pulsePlanRenderV2();
 }
 function pulsePlanAddExerciseV2(index,name){
