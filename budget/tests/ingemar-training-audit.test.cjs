@@ -58,7 +58,7 @@ test('Changing builder date moves its draft and uses the destination base',()=>{
  c.keepBuilderDraft();assert.equal(state.builderDrafts[old],undefined);assert.equal(state.builderDrafts[date].name,'Ben');assert.equal(c.builderBase.name,'Destination');
 });
 test('Unsaved log edits ask before closing and cancellation preserves the draft',()=>{
- let closes=0;const draft=workout();const c=context(['historyEditorDirty','closeHistoryEditor'],{historyEditDraft:draft,historyEditInitial:JSON.stringify(draft),$:()=>({open:true,close(){closes++;}}),confirm:()=>false,unlockBuilderBackground(){}});
+ let closes=0;const draft=workout();const c=context(['historyEditorDirty','closeHistoryEditor'],{SurfaceMotion:{closeDialog(dialog){dialog.close();}},historyEditDraft:draft,historyEditInitial:JSON.stringify(draft),$:()=>({open:true,close(){closes++;}}),confirm:()=>false,unlockBuilderBackground(){}});
  draft.name='Ny text';c.closeHistoryEditor();assert.equal(closes,0);assert.equal(c.historyEditDraft.name,'Ny text');c.closeHistoryEditor(true);assert.equal(closes,1);
 });
 test('Background stays locked while a nested training dialog is still open',()=>{
