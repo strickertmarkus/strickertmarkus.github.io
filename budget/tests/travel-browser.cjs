@@ -5,8 +5,9 @@ const base=process.env.TRAVEL_TEST_URL||'http://127.0.0.1:4173';
 const output=process.env.TRAVEL_SCREENSHOTS||'test-results/travel';
 let failurePage;
 function install(){
+ let unloading=false;addEventListener('pagehide',()=>{unloading=true;});
  const listeners=[];let last='';const auth={onAuthStateChanged(fn){queueMicrotask(()=>fn({uid:'fixture-user'}));},currentUser:{uid:'fixture-user'}};
- async function request(op,path,value){const res=await fetch('/__travel_fixture',{method:'POST',body:JSON.stringify({op,path,value})});if(!res.ok)throw Object.assign(Error('permission_denied'),{code:'PERMISSION_DENIED'});return res.json();}
+ async function request(op,path,value){try{const res=await fetch('/__travel_fixture',{method:'POST',body:JSON.stringify({op,path,value})});if(!res.ok)throw Object.assign(Error('permission_denied'),{code:'PERMISSION_DENIED'});return await res.json();}catch(error){if(unloading)return null;throw error;}}
  // Firebase listeners report cancellation through their error callback, including page teardown.
  const ref=path=>({child:s=>ref(path+'/'+s),on(_,cb,cancel){if(path==='.info/connected'){queueMicrotask(()=>cb({val:()=>true}));return;}listeners.push({path,cb});request('get',path).then(v=>cb({val:()=>v,exists:()=>!!v})).catch(error=>cancel?.(error));},off(){},async update(v){await request('patch',path,v);},async set(v){await request('set',path,v);},async once(){const v=await request('get',path);return {val:()=>v,exists:()=>!!v};},async transaction(fn){const old=await request('get',path),v=fn(old);if(v!==undefined)await request('set',path,v);return {committed:v!==undefined};}});
  window.firebase={apps:[{}],auth:()=>auth,database:()=>({ref}),initializeApp(){}};

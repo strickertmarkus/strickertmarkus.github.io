@@ -3,14 +3,13 @@ const {webkit,chromium}=require('playwright'),assert=require('node:assert/strict
 const {setup}=require('./travel-browser.cjs');
 const pages=['home','calendar','budget','budget_maja','familjebudget','analytics','analytics_maja','data','mila','melker','shopping','travel','exercise','zen','ingemar','archive/exercise','ingemar-session/exercise','pulse-observatory/exercise'];
 const out='test-results/motion';
-async function settle(el){await el.evaluate(async e=>{const animations=e.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().iterations!==Infinity);animations.forEach(a=>a.play());await Promise.all(animations.map(a=>a.finished.catch(()=>{})));});}
+async function settle(el){await el.evaluate(async e=>{await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));const animations=e.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().iterations!==Infinity);animations.forEach(a=>a.play());await Promise.all(animations.map(a=>a.finished.catch(()=>{})));});}
 async function phase(el,open){
  const s=await el.evaluate(async(e,open)=>{
   getComputedStyle(e).opacity;
   if(e.tagName==='DIALOG'){open?e.showModal():e.close();}
   else e.classList.toggle('show',open);
   getComputedStyle(e).opacity;
-  await new Promise(requestAnimationFrame);
   const animations=e.getAnimations();
   for(const animation of animations){animation.pause();animation.currentTime=Number(animation.effect.getTiming().duration)/2;}
   await new Promise(requestAnimationFrame);
@@ -35,6 +34,7 @@ async function phase(el,open){
    await page.goto('http://127.0.0.1:4173/budget/'+file+'.html',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!window.SurfaceMotion);
    const el=page.locator(selector);
+   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    try {
    await phase(el,true);await settle(el);
    await page.screenshot({path:`${out}/${name}-${file}-open-390.png`});
@@ -42,9 +42,15 @@ async function phase(el,open){
    if(file==='ingemar'){
     const details=page.locator('.week-template-drawer');
     await details.locator('summary').click();await settle(details);
-    await details.locator('summary').click();await page.waitForTimeout(40);
-    const opacity=await details.evaluate(e=>+getComputedStyle(e,'::details-content').opacity);
-    assert(opacity>0&&opacity<1,'Details must fade during closing: '+opacity);await settle(details);
+    const motions=await details.evaluate(async e=>{
+     e.open=false;getComputedStyle(e).opacity;
+     const animations=e.getAnimations({subtree:true});
+     animations.forEach(a=>{a.pause();a.currentTime=Number(a.effect.getTiming().duration)/2;});
+     await new Promise(requestAnimationFrame);
+     return animations.map(a=>({property:a.transitionProperty,progress:a.effect.getComputedTiming().progress}));
+    });
+    assert(motions.some(a=>a.property==='opacity'&&a.progress>0&&a.progress<1),'Details closing animation: '+JSON.stringify(motions));
+    await page.screenshot({path:`${out}/${name}-details-closing-390.png`});await settle(details);
    }
    await phase(el,false);
    await page.screenshot({path:`${out}/${name}-${file}-closing-390.png`});await settle(el);
