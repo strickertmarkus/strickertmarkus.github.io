@@ -901,6 +901,9 @@ if(!window.__FIELD_EMBEDDED__){
         <input type="date" id="plan-week-date" onchange="onPlanWeekDateChange()">
       </div>
     </div>
+    <div class="pulse-plan-summary-v2" id="pulse-plan-summary-v2" aria-live="polite"></div>
+    <details class="pulse-plan-templates-v2"><summary>Veckomallar <span>⌄</span></summary><div class="pulse-plan-week-template-row-v2"><select id="pulse-plan-template-select-v2" aria-label="Välj veckomall"></select><button type="button" onclick="pulsePlanApplyWeekTemplateV2()">Använd mall</button></div></details>
+    <p class="pulse-plan-hint-v2">Tryck på en dag för att snabbplanera. Håll i handtaget för att flytta hela passet.</p>
     <div id="plan-days"></div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('plan-modal')">Avbryt</button>
@@ -1129,161 +1132,280 @@ function onTemplateEditorWeekDateChange(){
   templateEditorMondayISO=mondayISOOf(el.value);
   syncTemplateEditorWeekUI();
 }
-/* Week planner: mobile-first cards, in-memory drafts and pointer-based swaps.
-   Keep the existing weekPlans and plannedSessions formats unchanged. */
-var pulsePlanDraftsV1={};
-var pulsePlanSourceSessionsV1=null;
-var pulsePlanDragV1=null;
-var pulsePlanListenersV1=false;
-function pulsePlanKindV1(value){
+
+/* Pulse Field week planner: Ingemar-style day cards, own workout names,
+   in-card quick planning and full-session drag-and-drop. */
+var pulsePlanDraftsV2={},pulsePlanExpandedV2=-1,pulsePlanCopyV2=-1,pulsePlanDragV2=null,pulsePlanInstalledV2=false;
+function pulsePlanCloneV2(obj){return obj==null?obj:JSON.parse(JSON.stringify(obj));}
+function pulsePlanKindV2(value){
   var t=String(value||'').trim().toLocaleLowerCase('sv-SE');
-  if(/^(vila|ledig|vilodag|återhämtning|rest)$/.test(t))return 'rest';
+  if(/^(vila|vilodag|ledig|återhämtning|rest)$/.test(t))return 'rest';
   if(/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(t))return 'cardio';
-  if(/bröst|triceps|push/.test(t))return 'push';
-  if(/rygg|biceps|pull/.test(t))return 'pull';
   return 'strength';
 }
-function pulsePlanCaptureV1(){
-  var box=document.getElementById('plan-days');
-  if(!box||!planTargetMondayISO||!document.getElementById('plan-modal').classList.contains('show'))return;
-  var rows=box.querySelectorAll('.pulse-plan-day-v1');
-  if(rows.length!==7)return;
-  pulsePlanDraftsV1[planTargetMondayISO]=Array.from(rows).map(function(row){
-    return {type:(row.querySelector('input[data-day]').value||'Vila').trim()||'Vila',source:row.dataset.sourceDate||row.dataset.date};
-  });
+function pulsePlanColorV2(type){
+  var t=String(type||'').trim().toLocaleLowerCase('sv-SE');
+  if(pulsePlanKindV2(type)==='rest')return 'rest';
+  if(pulsePlanKindV2(type)==='cardio')return 'orange';
+  if(/bröst|triceps/.test(t))return 'coral';
+  if(/rygg|biceps/.test(t))return 'cyan';
+  if(/ben|underkropp/.test(t))return 'gold';
+  if(/axlar|mage/.test(t))return 'violet';
+  if(/rörlighet|stretch/.test(t))return 'mint';
+  return ['coral','cyan','gold','violet','mint'][Array.from(t).reduce(function(n,c){return n+c.charCodeAt(0);},0)%5];
 }
-function pulsePlanUpdateRowV1(row){
-  if(!row)return;
-  var type=(row.querySelector('input[data-day]').value||'').trim()||'Vila';
-  var kind=pulsePlanKindV1(type);
-  row.dataset.kind=kind;
-  var label=row.querySelector('.pulse-plan-kind-v1');
-  if(label)label.textContent=kind==='rest'?'Vila':kind==='cardio'?'Kondition':kind==='push'?'Push':kind==='pull'?'Pull':'Styrka';
-  var info=row.querySelector('.pulse-plan-info-v1');
-  if(info){
-    var from=row.dataset.sourceDate,plan=(pulsePlanSourceSessionsV1||getPlannedSessions())[from];
-    var count=plan&&Array.isArray(plan.exercises)?plan.exercises.length:0;
-    info.textContent=kind==='rest'?'Återhämtning':count?count+' övningar':'Planerat pass';
+function pulsePlanWeekDraftV2(monday){
+  if(!pulsePlanDraftsV2[monday]){
+    var plan=getPlanForWeek(monday),sessions=getPlannedSessions();
+    pulsePlanDraftsV2[monday]=DAY_KEYS.map(function(day,i){
+      var date=shiftISODate(monday,i),stored=pulsePlanCloneV2(sessions[date]||null);
+      return {type:(stored&&stored.type)||plan[day]||'Vila',session:stored};
+    });
   }
+  return pulsePlanDraftsV2[monday];
 }
-function pulsePlanSwapV1(from,to){
-  if(from===to||from<0||to<0||from>6||to>6)return;
-  var box=document.getElementById('plan-days');
-  var rows=box&&box.querySelectorAll('.pulse-plan-day-v1');
-  if(!rows||rows.length!==7)return;
-  var a=rows[from],b=rows[to],ai=a.querySelector('input[data-day]'),bi=b.querySelector('input[data-day]');
-  var type=ai.value,source=a.dataset.sourceDate;
-  ai.value=bi.value;bi.value=type;
-  a.dataset.sourceDate=b.dataset.sourceDate;b.dataset.sourceDate=source;
-  pulsePlanUpdateRowV1(a);pulsePlanUpdateRowV1(b);
-  pulsePlanCaptureV1();
+function pulsePlanCatalogV2(type){
+  var target=String(type||'').trim().toLocaleLowerCase('sv-SE'),out=[],seen={};
+  function add(ex){if(!ex||!ex.name)return;var key=String(ex.name).trim().toLocaleLowerCase('sv-SE');if(!key||seen[key])return;seen[key]=true;out.push(pulsePlanCloneV2(ex));}
+  getTemplates().forEach(function(t){if(String(t.type||'').trim().toLocaleLowerCase('sv-SE')===target)(t.exercises||[]).forEach(add);});
+  Object.keys(getPlannedSessions()).sort().reverse().forEach(function(date){var s=getPlannedSessions()[date];if(s&&String(s.type||'').trim().toLocaleLowerCase('sv-SE')===target)(s.exercises||[]).forEach(add);});
+  getWorkouts().slice().reverse().forEach(function(w){if(w&&String(w.type||'').trim().toLocaleLowerCase('sv-SE')===target)(w.exercises||[]).forEach(add);});
+  return out.slice(0,12);
 }
-function pulsePlanStopDragV1(event,cancel){
-  var drag=pulsePlanDragV1;
-  if(!drag||event&&event.pointerId!==drag.id)return;
-  if(drag.ghost)drag.ghost.remove();
-  document.querySelectorAll('#plan-days .pulse-plan-day-v1').forEach(function(card){
-    card.classList.remove('is-drag-source','is-drag-target');
-  });
-  document.removeEventListener('pointermove',pulsePlanMoveV1);
-  document.removeEventListener('pointerup',pulsePlanEndV1);
-  document.removeEventListener('pointercancel',pulsePlanCancelV1);
-  pulsePlanDragV1=null;
-  if(!cancel&&drag.to!==drag.from)pulsePlanSwapV1(drag.from,drag.to);
+function pulsePlanTypesV2(){
+  var types=WORKOUT_TYPES.concat([]);
+  Object.keys(pulsePlanDraftsV2).forEach(function(week){pulsePlanDraftsV2[week].forEach(function(entry){if(entry&&entry.type)types.push(entry.type);});});
+  getTemplates().forEach(function(t){if(t.type)types.push(t.type);});
+  getWorkouts().forEach(function(w){if(w.type)types.push(w.type);});
+  var unique=[],seen={};
+  types.forEach(function(type){type=String(type||'').trim();var k=type.toLocaleLowerCase('sv-SE');if(type&&!seen[k]){seen[k]=true;unique.push(type);}});
+  return unique;
 }
-function pulsePlanMoveV1(event){
-  var drag=pulsePlanDragV1;
-  if(!drag||event.pointerId!==drag.id)return;
-  event.preventDefault();
-  var x=Math.max(8,Math.min(window.innerWidth-230,event.clientX+13));
-  var y=Math.max(8,Math.min(window.innerHeight-58,event.clientY-22));
-  drag.ghost.style.transform='translate3d('+x+'px,'+y+'px,0)';
-  var hit=document.elementFromPoint(event.clientX,event.clientY);
-  var target=hit&&hit.closest('.pulse-plan-day-v1');
-  if(target){
-    drag.to=Number(target.dataset.index);
-    document.querySelectorAll('#plan-days .pulse-plan-day-v1').forEach(function(row){row.classList.toggle('is-drag-target',row===target&&drag.to!==drag.from);});
-  }
-  var box=document.getElementById('plan-days'),r=box.getBoundingClientRect();
-  if(event.clientY<r.top+35)box.scrollTop-=8;
-  if(event.clientY>r.bottom-35)box.scrollTop+=8;
+function pulsePlanExerciseListV2(entry){
+  var list=entry&&entry.session&&entry.session.exercises;
+  return Array.isArray(list)?list:[];
 }
-function pulsePlanEndV1(event){pulsePlanStopDragV1(event,false);}
-function pulsePlanCancelV1(event){pulsePlanStopDragV1(event,true);}
-function pulsePlanStartV1(event,handle){
-  if(pulsePlanDragV1||event.button>0||!handle)return;
-  var card=handle.closest('.pulse-plan-day-v1');
-  if(!card)return;
-  event.preventDefault();
-  var ghost=document.createElement('div');
-  ghost.className='pulse-plan-drag-ghost-v1';
-  ghost.textContent=card.querySelector('input[data-day]').value||'Vila';
-  document.getElementById('plan-modal').appendChild(ghost);
-  pulsePlanDragV1={id:event.pointerId,from:Number(card.dataset.index),to:Number(card.dataset.index),ghost:ghost};
-  card.classList.add('is-drag-source');
-  document.addEventListener('pointermove',pulsePlanMoveV1,{passive:false});
-  document.addEventListener('pointerup',pulsePlanEndV1);
-  document.addEventListener('pointercancel',pulsePlanCancelV1);
-  pulsePlanMoveV1(event);
+function pulsePlanPreviewV2(entry){
+  var list=pulsePlanExerciseListV2(entry);
+  return list.length?list.slice(0,3).map(function(ex){return ex.name||'Övning';}).join(' · ')+(list.length>3?' +'+(list.length-3):''):'Inga övningar planerade';
 }
-function pulsePlanInstallV1(){
-  if(pulsePlanListenersV1)return;
-  var box=document.getElementById('plan-days');if(!box)return;
-  pulsePlanListenersV1=true;
-  box.addEventListener('input',function(event){
-    if(!event.target.matches('input[data-day]'))return;
-    pulsePlanUpdateRowV1(event.target.closest('.pulse-plan-day-v1'));
-    pulsePlanCaptureV1();
-  });
-  box.addEventListener('pointerdown',function(event){
-    var handle=event.target.closest('[data-plan-drag-v1]');
-    if(handle)pulsePlanStartV1(event,handle);
-  });
-  box.addEventListener('keydown',function(event){
-    var handle=event.target.closest('[data-plan-drag-v1]');
-    if(!handle||!['ArrowUp','ArrowDown'].includes(event.key))return;
-    event.preventDefault();
-    var from=Number(handle.closest('.pulse-plan-day-v1').dataset.index),to=from+(event.key==='ArrowUp'?-1:1);
-    if(to<0||to>6)return;
-    pulsePlanSwapV1(from,to);
-    var next=box.querySelectorAll('[data-plan-drag-v1]')[to];if(next)next.focus();
-  });
+function pulsePlanRefreshSummaryV2(){
+  var draft=pulsePlanWeekDraftV2(planTargetMondayISO),active=draft.filter(function(e){return pulsePlanKindV2(e.type)!=='rest';});
+  var count=active.reduce(function(n,e){return n+pulsePlanExerciseListV2(e).length;},0);
+  var node=document.getElementById('pulse-plan-summary-v2');
+  if(node)node.textContent=active.length+' pass · '+count+' övningar · '+(7-active.length)+' vilodagar';
 }
-function fillPlanDays(mondayISO){
-  var plan=getPlanForWeek(mondayISO),box=document.getElementById('plan-days');
-  if(!box)return;
-  pulsePlanInstallV1();
-  var draft=pulsePlanDraftsV1[mondayISO];
-  if(!draft)draft=DAY_KEYS.map(function(key,i){var iso=shiftISODate(mondayISO,i),session=(pulsePlanSourceSessionsV1||getPlannedSessions())[iso];return {type:(session&&session.type)||plan[key]||'Vila',source:iso};});
+function pulsePlanExpandedHtmlV2(entry,i){
+  var type=entry.type||'Vila',kind=pulsePlanKindV2(type),exercises=pulsePlanExerciseListV2(entry);
+  var types=pulsePlanTypesV2(),matches=pulsePlanCatalogV2(type);
+  var typeButtons=types.map(function(name){
+    return '<button type="button" class="pulse-plan-chip-v2" data-pulse-type-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(name)+'" aria-pressed="'+String(name===type)+'">'+escHtml(name)+'</button>';
+  }).join('');
+  var suggested=matches.filter(function(ex){return !exercises.some(function(chosen){return String(chosen.name||'').toLocaleLowerCase('sv-SE')===String(ex.name||'').toLocaleLowerCase('sv-SE');});}).slice(0,8);
+  var chosen=exercises.map(function(ex,j){
+    return '<div class="pulse-plan-exercise-v2"><span class="pulse-plan-exercise-dot-v2"></span><span>'+escHtml(ex.name||'Övning')+'</span><button type="button" data-pulse-remove-ex-v2="'+i+':'+j+'" aria-label="Ta bort '+escHtml(ex.name||'övning')+'">×</button></div>';
+  }).join('');
+  var suggestedHtml=suggested.map(function(ex){
+    return '<button type="button" class="pulse-plan-chip-v2" data-pulse-add-ex-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(ex.name)+'">+ '+escHtml(ex.name)+'</button>';
+  }).join('');
+  var templates=getTemplates().filter(function(t){return t&&Array.isArray(t.exercises)&&t.exercises.length;}).slice(0,12);
+  var templatesHtml=templates.length?'<div class="pulse-plan-template-chips-v2">'+templates.map(function(t){return '<button type="button" data-pulse-day-template-v2="'+i+'" data-pulse-template-id-v2="'+escHtml(String(t.id))+'">'+escHtml(t.name||t.type||'Mallpass')+'</button>';}).join('')+'</div>':'';
+  return '<div class="pulse-plan-editor-v2">'+
+    '<div class="pulse-plan-editor-head-v2"><b>PASS</b><span>Välj era vanliga träningsgrupper</span></div>'+
+    '<div class="pulse-plan-chip-list-v2">'+typeButtons+'</div>'+
+    '<label class="pulse-plan-custom-v2"><span>Passnamn · tryck för att ändra</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Träningspass för '+DAYS[i]+'"></label>'+
+    (kind==='rest'?'':('<div class="pulse-plan-editor-head-v2"><b>ÖVNINGAR</b><span>'+exercises.length+' valda</span></div>'+
+      (chosen||'<p class="pulse-plan-empty-v2">Inga övningar valda ännu.</p>')+
+      (suggestedHtml?'<div class="pulse-plan-chip-list-v2 pulse-plan-exercise-choices-v2">'+suggestedHtml+'</div>':'')+
+      '<div class="pulse-plan-add-row-v2"><input type="text" data-pulse-new-ex-v2="'+i+'" placeholder="Ny övning…" aria-label="Ny övning" autocomplete="off"><button type="button" data-pulse-create-ex-v2="'+i+'">+ Lägg till</button></div>'+
+      (templatesHtml?'<div class="pulse-plan-editor-head-v2"><b>MALLPASS</b><span>Hämta sparat upplägg</span></div>'+templatesHtml:'')))+
+    '<div class="pulse-plan-editor-foot-v2">'+
+      '<button type="button" data-pulse-open-builder-v2="'+i+'">Set, vikter och detaljer ↗</button>'+
+      '<button type="button" data-pulse-copy-v2="'+i+'">'+(pulsePlanCopyV2===i?'Avbryt kopiering':'Kopiera pass')+'</button>'+
+      '<button type="button" data-pulse-rest-v2="'+i+'">Vila / rensa</button></div>'+
+    '</div>';
+}
+function pulsePlanRenderV2(){
+  var box=document.getElementById('plan-days'),week=planTargetMondayISO;
+  if(!box||!week)return;
+  var draft=pulsePlanWeekDraftV2(week);
   box.innerHTML='';
   DAYS.forEach(function(day,i){
-    var date=shiftISODate(mondayISO,i),entry=draft[i]||{},type=entry.type||'Vila';
-    var card=document.createElement('article');
-    card.className='pulse-plan-day-v1';
-    card.dataset.index=i;card.dataset.date=date;card.dataset.sourceDate=entry.source||date;
-    card.innerHTML='<div class="pulse-plan-date-v1"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></div>'+
-      '<div class="pulse-plan-details-v1"><span class="pulse-plan-kind-v1"></span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" placeholder="Välj pass" autocomplete="off" aria-label="Pass för '+day+'" value="'+escHtml(type)+'"><small class="pulse-plan-info-v1"></small></div>'+
-      '<button class="pulse-plan-grip-v1" type="button" data-plan-drag-v1 aria-label="Flytta pass för '+day+'. Dra eller använd upp- och nedpil"><span aria-hidden="true"><i></i><i></i><i></i></span></button>';
-    box.appendChild(card);
-    pulsePlanUpdateRowV1(card);
+    var date=shiftISODate(week,i),entry=draft[i],type=entry.type||'Vila',exercises=pulsePlanExerciseListV2(entry);
+    var expanded=pulsePlanExpandedV2===i,rest=pulsePlanKindV2(type)==='rest',article=document.createElement('article');
+    article.className='pulse-plan-day-v2'+(expanded?' is-expanded':'');
+    article.dataset.index=i;article.dataset.color=pulsePlanColorV2(type);
+    article.innerHTML='<div class="pulse-plan-top-v2">'+
+      '<button type="button" class="pulse-plan-open-v2" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'" aria-label="Snabbplanera '+day+'">'+
+       '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
+       '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?'Vila':pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
+       '<strong>'+escHtml(type)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+' övningar · '+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
+       '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
+      (pulsePlanCopyV2!==-1&&pulsePlanCopyV2!==i?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit ↗</button>':'')+
+      (expanded?pulsePlanExpandedHtmlV2(entry,i):'');
+    box.appendChild(article);
   });
+  pulsePlanRefreshSummaryV2();
+}
+function pulsePlanSetTypeV2(index,type){
+  var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];if(!entry)return;
+  entry.type=type||'Vila';
+  if(pulsePlanKindV2(entry.type)==='rest')entry.session=null;
+  else if(entry.session)entry.session.type=entry.type;
+  pulsePlanRenderV2();
+}
+function pulsePlanAddExerciseV2(index,name){
+  name=String(name||'').trim();if(!name)return;
+  var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];
+  if(!entry||pulsePlanKindV2(entry.type)==='rest')return;
+  if(!entry.session)entry.session={type:entry.type,exercises:[]};
+  if(!Array.isArray(entry.session.exercises))entry.session.exercises=[];
+  if(entry.session.exercises.some(function(ex){return String(ex.name||'').toLocaleLowerCase('sv-SE')===name.toLocaleLowerCase('sv-SE');}))return;
+  var existing=pulsePlanCatalogV2(entry.type).find(function(ex){return String(ex.name||'').toLocaleLowerCase('sv-SE')===name.toLocaleLowerCase('sv-SE');});
+  entry.session.exercises.push(existing||{name:name,kind:pulsePlanKindV2(entry.type)==='cardio'?'cardio':'strength',sets:1,reps:0,weight:0});
+  pulsePlanRenderV2();
+}
+function pulsePlanApplyTemplateV2(index,id){
+  var template=getTemplates().find(function(t){return String(t.id)===String(id);});
+  if(!template)return;
+  var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];
+  entry.type=template.type||entry.type;
+  entry.session={type:entry.type,exercises:pulsePlanCloneV2(template.exercises||[])};
+  pulsePlanRenderV2();
+}
+function pulsePlanCopyV2To(index){
+  var draft=pulsePlanWeekDraftV2(planTargetMondayISO),from=pulsePlanCopyV2;
+  if(from<0||from>=7||index===from)return;
+  draft[index]=pulsePlanCloneV2(draft[from]);
+  pulsePlanCopyV2=-1;pulsePlanExpandedV2=index;pulsePlanRenderV2();
+}
+function pulsePlanSwapV2(a,b){
+  if(a===b||a<0||b<0||a>6||b>6)return;
+  var draft=pulsePlanWeekDraftV2(planTargetMondayISO),tmp=draft[a];draft[a]=draft[b];draft[b]=tmp;
+  pulsePlanCopyV2=-1;pulsePlanExpandedV2=-1;pulsePlanRenderV2();
+}
+function pulsePlanDragMoveV2(event){
+  var drag=pulsePlanDragV2;
+  if(!drag||event.pointerId!==drag.id)return;
+  event.preventDefault();
+  var w=drag.ghost.offsetWidth,h=drag.ghost.offsetHeight;
+  var x=Math.max(8,Math.min(window.innerWidth-w-8,event.clientX-w-10));
+  if(event.clientX-w-10<8)x=Math.max(8,Math.min(window.innerWidth-w-8,event.clientX+12));
+  var y=Math.max(8,Math.min(window.innerHeight-h-8,event.clientY-h*.5));
+  drag.ghost.style.transform='translate3d('+x+'px,'+y+'px,0)';
+  var box=document.getElementById('plan-days'),r=box.getBoundingClientRect(),edge=55;
+  if(event.clientY<r.top+edge)box.scrollTop-=Math.max(5,(r.top+edge-event.clientY)*.2);
+  else if(event.clientY>r.bottom-edge)box.scrollTop+=Math.max(5,(event.clientY-(r.bottom-edge))*.2);
+  var cards=Array.from(box.querySelectorAll('.pulse-plan-day-v2'));
+  var target=cards.find(function(el){var bounds=el.getBoundingClientRect();return event.clientY>=bounds.top&&event.clientY<=bounds.bottom;});
+  drag.to=target?Number(target.dataset.index):drag.from;
+  cards.forEach(function(el){el.classList.toggle('is-drag-target',el===target&&drag.to!==drag.from);});
+}
+function pulsePlanEndDragV2(event){
+  var drag=pulsePlanDragV2;
+  if(!drag||event&&event.pointerId!==drag.id)return;
+  pulsePlanDragV2=null;
+  document.removeEventListener('pointermove',pulsePlanDragMoveV2);
+  document.removeEventListener('pointerup',pulsePlanEndDragV2);
+  document.removeEventListener('pointercancel',pulsePlanEndDragV2);
+  if(drag.ghost)drag.ghost.remove();
+  document.querySelectorAll('#plan-days .pulse-plan-day-v2').forEach(function(el){el.classList.remove('is-drag-source','is-drag-target');});
+  if(event&&event.type==='pointerup'&&drag.to!==drag.from)pulsePlanSwapV2(drag.from,drag.to);
+}
+function pulsePlanStartDragV2(event,button){
+  if(pulsePlanDragV2||event.button>0)return;
+  var card=button.closest('.pulse-plan-day-v2'),index=Number(card&&card.dataset.index);
+  if(!card||!Number.isFinite(index))return;
+  var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index],ghost=document.createElement('div');
+  ghost.className='pulse-plan-drag-ghost-v2';
+  ghost.innerHTML='<strong>'+DAYS[index]+' · '+escHtml(entry.type)+'</strong><small>'+pulsePlanExerciseListV2(entry).length+' övningar</small>';
+  document.getElementById('plan-modal').appendChild(ghost);
+  pulsePlanDragV2={id:event.pointerId,from:index,to:index,ghost:ghost};
+  card.classList.add('is-drag-source');
+  document.addEventListener('pointermove',pulsePlanDragMoveV2,{passive:false});
+  document.addEventListener('pointerup',pulsePlanEndDragV2);
+  document.addEventListener('pointercancel',pulsePlanEndDragV2);
+  event.preventDefault();
+  pulsePlanDragMoveV2(event);
+}
+function pulsePlanCaptureV2(){
+  var input=document.querySelector('#plan-days .pulse-plan-day-v2.is-expanded input[data-day]');
+  if(input){var day=Number(input.closest('.pulse-plan-day-v2').dataset.index),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[day];if(entry){entry.type=input.value.trim()||'Vila';if(entry.session)entry.session.type=entry.type;}}
+}
+function pulsePlanInstallV2(){
+  if(pulsePlanInstalledV2)return;
+  var box=document.getElementById('plan-days');if(!box)return;
+  pulsePlanInstalledV2=true;
+  box.addEventListener('click',function(event){
+    var b=event.target.closest('button');if(!b)return;
+    var d=b.dataset,i;
+    if(d.pulseExpandV2!=null){i=Number(d.pulseExpandV2);pulsePlanCaptureV2();pulsePlanExpandedV2=pulsePlanExpandedV2===i?-1:i;pulsePlanRenderV2();}
+    else if(d.pulseTypeV2!=null){pulsePlanSetTypeV2(Number(d.pulseTypeV2),decodeURIComponent(d.pulseValueV2));}
+    else if(d.pulseAddExV2!=null){pulsePlanAddExerciseV2(Number(d.pulseAddExV2),decodeURIComponent(d.pulseValueV2));}
+    else if(d.pulseRemoveExV2!=null){var parts=d.pulseRemoveExV2.split(':').map(Number),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[parts[0]];if(entry&&entry.session&&entry.session.exercises){entry.session.exercises.splice(parts[1],1);pulsePlanRenderV2();}}
+    else if(d.pulseCreateExV2!=null){i=Number(d.pulseCreateExV2);var input=box.querySelector('[data-pulse-new-ex-v2="'+i+'"]');if(input)pulsePlanAddExerciseV2(i,input.value);}
+    else if(d.pulseDayTemplateV2!=null){pulsePlanApplyTemplateV2(Number(d.pulseDayTemplateV2),d.pulseTemplateIdV2);}
+    else if(d.pulseCopyV2!=null){i=Number(d.pulseCopyV2);pulsePlanCopyV2=pulsePlanCopyV2===i?-1:i;pulsePlanRenderV2();}
+    else if(d.pulseCopyToV2!=null){pulsePlanCopyV2To(Number(d.pulseCopyToV2));}
+    else if(d.pulseRestV2!=null){pulsePlanSetTypeV2(Number(d.pulseRestV2),'Vila');}
+    else if(d.pulseOpenBuilderV2!=null){i=Number(d.pulseOpenBuilderV2);var date=shiftISODate(planTargetMondayISO,i);savePlan();openDayWorkoutBuilder(DAYS[i],date);}
+  });
+  box.addEventListener('input',function(event){
+    if(!event.target.matches('input[data-day]'))return;
+    pulsePlanCaptureV2();
+    var card=event.target.closest('.pulse-plan-day-v2'),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[Number(card.dataset.index)];
+    card.dataset.color=pulsePlanColorV2(entry.type);
+    var badge=card.querySelector('.pulse-plan-badge-v2');
+    if(badge)badge.textContent=pulsePlanKindV2(entry.type)==='rest'?'Vila':pulsePlanKindV2(entry.type)==='cardio'?'Kondition':'Styrka';
+  });
+  box.addEventListener('change',function(event){if(event.target.matches('input[data-day]'))pulsePlanRenderV2();});
+  box.addEventListener('keydown',function(event){
+    if(event.key==='Enter'&&event.target.matches('[data-pulse-new-ex-v2]')){event.preventDefault();pulsePlanAddExerciseV2(Number(event.target.dataset.pulseNewExV2),event.target.value);return;}
+    var handle=event.target.closest('[data-pulse-drag-v2]');
+    if(!handle||!['ArrowUp','ArrowDown'].includes(event.key))return;
+    event.preventDefault();
+    var from=Number(handle.dataset.pulseDragV2),to=from+(event.key==='ArrowUp'?-1:1);
+    if(to<0||to>6)return;
+    pulsePlanSwapV2(from,to);
+    var next=box.querySelector('[data-pulse-drag-v2="'+to+'"]');if(next)next.focus();
+  });
+  box.addEventListener('pointerdown',function(event){var button=event.target.closest('[data-pulse-drag-v2]');if(button)pulsePlanStartDragV2(event,button);});
+}
+function pulsePlanApplyWeekTemplateV2(){
+  var select=document.getElementById('pulse-plan-template-select-v2'),id=select&&select.value;
+  var t=getWeekTemplates().find(function(item){return String(item.id)===String(id);});
+  if(!t){showToast('Välj en veckomall.');return;}
+  var draft=pulsePlanWeekDraftV2(planTargetMondayISO);
+  DAY_KEYS.forEach(function(day,i){
+    var type=t.plan&&t.plan[day]||'Vila';
+    var old=draft[i];
+    draft[i]={type:type,session:old&&old.type===type?pulsePlanCloneV2(old.session):null};
+  });
+  pulsePlanExpandedV2=-1;pulsePlanRenderV2();
+}
+function pulsePlanRenderTemplatePickerV2(){
+  var select=document.getElementById('pulse-plan-template-select-v2');if(!select)return;
+  var keep=select.value,list=getWeekTemplates();
+  select.innerHTML='<option value="">'+(list.length?'Veckomall (valfri)':'Inga veckomallar ännu')+'</option>';
+  list.forEach(function(t){var option=document.createElement('option');option.value=t.id;option.textContent=t.name;select.appendChild(option);});
+  if(Array.from(select.options).some(function(o){return o.value===keep;}))select.value=keep;
 }
 function syncPlanWeekUI(){
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   fillWeekLabel(planTargetMondayISO,'plan-week-label','plan-week-sub','plan-week-date');
-  fillPlanDays(planTargetMondayISO);
+  pulsePlanInstallV2();pulsePlanRenderTemplatePickerV2();pulsePlanRenderV2();
 }
 function shiftPlanTargetWeek(delta){
-  pulsePlanCaptureV1();
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   planTargetMondayISO=shiftISODate(planTargetMondayISO,delta*7);
   syncPlanWeekUI();
 }
 function onPlanWeekDateChange(){
-  var el=document.getElementById('plan-week-date');if(!el||!el.value)return;
-  pulsePlanCaptureV1();
-  planTargetMondayISO=mondayISOOf(el.value);
-  syncPlanWeekUI();
+  var date=document.getElementById('plan-week-date');if(!date||!date.value)return;
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  planTargetMondayISO=mondayISOOf(date.value);syncPlanWeekUI();
 }
 function normalizeExercise(ex){
   ex=ex||{};
@@ -3103,41 +3225,35 @@ function planWeekFromTemplate(){
 // ══ PLAN MODAL ═══════════════════════════════════════════════════
 function openPlanModal(){
   refreshTypeSuggestions();
-  pulsePlanDraftsV1={};
-  pulsePlanSourceSessionsV1=JSON.parse(JSON.stringify(getPlannedSessions()));
+  pulsePlanDraftsV2={};pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
   planTargetMondayISO=getViewedMondayISO();
   document.getElementById('plan-modal').classList.add('show');
   syncPlanWeekUI();
 }
 function savePlan(){
-  pulsePlanCaptureV1();
-  var target=planTargetMondayISO||getViewedMondayISO(),drafts=pulsePlanDraftsV1;
-  var original=pulsePlanSourceSessionsV1||JSON.parse(JSON.stringify(getPlannedSessions()));
-  var weeks=Object.keys(drafts);
+  pulsePlanCaptureV2();
+  var weeks=Object.keys(pulsePlanDraftsV2),plans=getWeekPlans(),sessions=getPlannedSessions();
   if(!weeks.length)return;
   weeks.forEach(function(monday){
-    var plan={};
-    DAY_KEYS.forEach(function(key,i){var entry=drafts[monday][i]||{};plan[key]=(entry.type||'Vila').trim()||'Vila';});
-    applyPlanToWeek(monday,plan);
-  });
-  var planned=getPlannedSessions();
-  weeks.forEach(function(monday){
-    DAY_KEYS.forEach(function(key,i){
-      var entry=drafts[monday][i]||{},date=shiftISODate(monday,i);
-      var from=entry.source||date,type=(entry.type||'Vila').trim()||'Vila';
-      // Preserve the full exercise list when a planned day is dragged.
-      // Read from the snapshot, not from a source already overwritten above.
-      if(from!==date){
-        var source=original[from];
-        if(pulsePlanKindV1(type)==='rest'&&!source)delete planned[date];
-        else planned[date]=source?JSON.parse(JSON.stringify(source)):{type:type,exercises:[]};
-      }
-      if(planned[date]&&pulsePlanKindV1(type)!=='rest')planned[date].type=type;
+    var plan=Object.assign({},getPlanForWeek(monday));
+    DAY_KEYS.forEach(function(day,i){
+      var date=shiftISODate(monday,i),entry=pulsePlanDraftsV2[monday][i];
+      var type=String(entry&&entry.type||'Vila').trim()||'Vila';
+      plan[day]=type;
+      if(pulsePlanKindV2(type)==='rest'){delete sessions[date];return;}
+      var record=pulsePlanCloneV2(entry.session||{type:type,exercises:[]});
+      record.type=type;
+      if(!Array.isArray(record.exercises))record.exercises=[];
+      sessions[date]=record;
     });
+    plans[monday]=plan;
   });
-  savePlannedSessions(planned);
-  pulsePlanDraftsV1={};pulsePlanSourceSessionsV1=null;
-  goToWeek(target);
+  saveWeekPlans(plans);
+  if(plans[weekStartISO()])DB.set('plan',plans[weekStartISO()]);
+  savePlannedSessions(sessions);
+  var chosen=planTargetMondayISO||getViewedMondayISO();
+  pulsePlanDraftsV2={};pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  goToWeek(chosen);
   closeModal('plan-modal');
   showToast('Veckoplan sparad.');
   refreshTypeSuggestions();
