@@ -3,20 +3,24 @@ const {webkit,chromium}=require('playwright'),assert=require('node:assert/strict
 const {setup}=require('./travel-browser.cjs');
 const pages=['home','calendar','budget','budget_maja','familjebudget','analytics','analytics_maja','data','mila','melker','shopping','travel','exercise','zen','ingemar','archive/exercise','ingemar-session/exercise','pulse-observatory/exercise'];
 const out='test-results/motion';
-async function settle(el){await el.evaluate(async e=>{await Promise.all(e.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});}
+async function settle(el){await el.evaluate(async e=>{const animations=e.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().iterations!==Infinity);animations.forEach(a=>a.play());await Promise.all(animations.map(a=>a.finished.catch(()=>{})));});}
 async function phase(el,open){
- await el.evaluate((e,open)=>{
+ const s=await el.evaluate(async(e,open)=>{
+  getComputedStyle(e).opacity;
   if(e.tagName==='DIALOG'){open?e.showModal():e.close();}
   else e.classList.toggle('show',open);
   getComputedStyle(e).opacity;
+  await new Promise(requestAnimationFrame);
+  const animations=e.getAnimations();
+  for(const animation of animations){animation.pause();animation.currentTime=Number(animation.effect.getTiming().duration)/2;}
+  await new Promise(requestAnimationFrame);
+  return {opacity:+getComputedStyle(e).opacity,display:getComputedStyle(e).display,classes:e.className,animations:animations.map(a=>a.transitionProperty)};
  },open);
- await el.page().waitForTimeout(45);
- const s=await el.evaluate(e=>({opacity:+getComputedStyle(e).opacity,display:getComputedStyle(e).display}));
  assert(s.opacity>0&&s.opacity<1,`${await el.getAttribute('id')} ${open?'enter':'exit'}: ${JSON.stringify(s)}`);
  assert.notEqual(s.display,'none','Closing surface disappeared before fade finished');
 }
 (async()=>{
- fs.mkdirSync(out,{recursive:true});
+ fs.mkdirSync(out,{recursive:true});const failures=[];
  for(const [name,engine] of Object.entries({webkit,chromium})){
   const browser=await engine.launch(),ctx=await setup(browser,390),page=await ctx.newPage();
   await ctx.route('**/ingemar-account.js*',r=>r.fulfill({body:"document.documentElement.dataset.ingemarAuth='ready';",contentType:'application/javascript'}));
@@ -31,6 +35,7 @@ async function phase(el,open){
    await page.goto('http://127.0.0.1:4173/budget/'+file+'.html',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!window.SurfaceMotion);
    const el=page.locator(selector);
+   try {
    await phase(el,true);await settle(el);
    await page.screenshot({path:`${out}/${name}-${file}-open-390.png`});
    const box=await el.boundingBox();assert(box&&box.x>=-1&&box.x+box.width<=391,file+' horizontal dialog bounds');
@@ -48,6 +53,7 @@ async function phase(el,open){
    await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?e.showModal():e.classList.add('show'));await settle(el);
    assert.equal(await el.evaluate(e=>+getComputedStyle(e).opacity),1);
    await el.evaluate(e=>e.tagName==='DIALOG'?e.close():e.classList.remove('show'));await settle(el);
+   }catch(error){failures.push(name+' '+file+': '+error.message);console.error(failures.at(-1));await page.screenshot({path:`${out}/${name}-${file}-failure.png`});}
   }
   // Dynamic menus finish their exit before DOM removal; opening another stays independent.
   await page.goto('http://127.0.0.1:4173/budget/home.html',{waitUntil:'domcontentloaded'});
@@ -72,5 +78,6 @@ async function phase(el,open){
   await dialog.evaluate(e=>e.close());assert.equal(await dialog.evaluate(e=>getComputedStyle(e).display),'none');
   await browser.close();
  }
+ assert.deepEqual(failures,[]);
  console.log('All active pages: shared assets, entry/exit, interrupted close, DOM removal, finance disclosure, menu bounds and reduced motion passed.');
 })().catch(e=>{console.error(e);process.exit(1);});

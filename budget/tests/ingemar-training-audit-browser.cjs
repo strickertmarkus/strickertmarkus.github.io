@@ -72,8 +72,8 @@ async function run(browserType,label,width){
  assert.notEqual(draft.exercises[0].id,draft.exercises[1].id);assert.notEqual(draft.exercises[0].sets[0].id,draft.exercises[1].sets[0].id);
  await page.locator('[data-exercise-picker="0"]').click();
  await geometry(page,'[data-exercise-menu="0"]');await shot(page,label+'-exercise-menu');
- await page.keyboard.press('Escape');assert.equal(await page.locator('#builder').evaluate(e=>e.open),true);assert.equal(await page.locator('[data-exercise-menu="0"]').isVisible(),false);
- await page.locator('[data-exercise-picker="0"]').click();await page.locator('#build-name').click();assert.equal(await page.locator('[data-exercise-menu="0"]').isVisible(),false);
+ await page.keyboard.press('Escape');assert.equal(await page.locator('#builder').evaluate(e=>e.open),true);assert.equal(await page.locator('[data-exercise-menu="0"]').evaluate(e=>e.hidden),true);await page.locator('[data-exercise-menu="0"]').waitFor({state:'hidden'});
+ await page.locator('[data-exercise-picker="0"]').click();await page.locator('#build-name').click();assert.equal(await page.locator('[data-exercise-menu="0"]').evaluate(e=>e.hidden),true);await page.locator('[data-exercise-menu="0"]').waitFor({state:'hidden'});
  // First tap exposes picker, second explicitly enters name editing; scroll must retain it.
  await page.locator('[data-exercise-name-input="0"]').click();await page.locator('[data-exercise-name-input="0"]').click();
  await page.locator('[data-exercise-name-input="0"]').fill('Egen press 1');
