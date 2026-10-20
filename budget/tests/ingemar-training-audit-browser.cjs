@@ -154,6 +154,45 @@ async function run(browserType,label,width){
   assert.equal(await page.locator('#builder-pre-timer-toggle').evaluate(el=>getComputedStyle(el).display),'flex','Timer switch retains its layout at '+size.width);
   await shot(page,label+'-builder-'+size.width);await closeBuilder(page);await page.waitForFunction(()=>!document.body.dataset.builderOpen);await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-overview-'+size.width);
  }
+ // Unfinished plans remain editable after mode switches, saving templates and reload.
+ await page.setViewportSize({width,height:844});
+ await page.locator('[data-action="build"]').first().click();
+ const incompleteDate=await page.locator('#build-date').inputValue();
+ await page.locator('[data-set="0:0:weight"]').fill('62.75');
+ await page.locator('[data-set="0:0:reps"]').fill('');
+ await page.locator('[data-mode="0:min"]').click();
+ await page.locator('[data-set="0:0:minutes"]').fill('2.5');
+ await page.locator('[data-mode="0:kg"]').click();
+ assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'62.75');
+ assert.equal(await page.locator('[data-set="0:0:reps"]').inputValue(),'');
+ await page.locator('[data-mode="0:min"]').click();
+ assert.equal(await page.locator('[data-set="0:0:minutes"]').inputValue(),'2.5');
+ await page.locator('[data-set="0:0:minutes"]').fill('');
+ await page.locator('[data-mode="0:kg"]').click();
+ await page.locator('[data-set="0:0:weight"]').fill('');
+ await page.locator('[data-mode="0:min"]').click();
+ assert.equal(await page.locator('[data-set="0:0:minutes"]').inputValue(),'');
+ await closeBuilder(page);await synced(page);await page.reload();await synced(page);
+ await page.locator('[data-action="build"]').first().click();
+ assert.equal(await page.locator('[data-mode="0:min"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('[data-set="0:0:minutes"]').inputValue(),'');
+ page.once('dialog',d=>d.accept('Fyll i under träningen'));
+ await page.locator('[data-action="save-template"]').click();await synced(page);
+ const incompleteTemplate=(await data(page)).templates.find(t=>t.name==='Fyll i under träningen');
+ assert.ok(incompleteTemplate);assert.equal(incompleteTemplate.exercises[0].sets[0].minutes??null,null);
+ await page.locator('[data-mode="0:kg"]').click();
+ assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'');
+ assert.equal(await page.locator('[data-set="0:0:reps"]').inputValue(),'');
+ await page.locator('[data-set="0:0:weight"]').scrollIntoViewIfNeeded();await geometry(page,'#builder');await shot(page,label+'-optional-fields');
+ await page.locator('[data-action="save-plan"]').click();
+ assert.equal(await page.locator('#plan-preview').evaluate(el=>el.open),true);
+ assert.ok((await page.locator('#plan-preview-list').textContent()).includes('– kg × –'));
+ await page.locator('[data-action="preview-back"]').first().click();await confirmSave(page);
+ await page.reload();await synced(page);await page.locator('[data-action="build"]').first().click();
+ assert.equal(await page.locator('[data-set="0:0:weight"]').inputValue(),'');
+ assert.equal(await page.locator('[data-set="0:0:reps"]').inputValue(),'');
+ assert.equal((await data(page)).plans[incompleteDate].exercises[0].sets[0].reps??null,null);
+ await closeBuilder(page);
  assert.deepEqual(errors,[],'No runtime errors');console.log(label+': training-only lifecycle, persistence, menus, statistics and geometry passed');
  }catch(e){await shot(page,label+'-FAILURE');throw e;}finally{await browser.close();}
 }

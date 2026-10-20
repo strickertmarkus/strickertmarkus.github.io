@@ -41,12 +41,13 @@ test('Statistics exclude skipped, undone, demo and timed sets and count bodyweig
  const c=context(['strengthSetsForWeek','strengthMetric'],{state:{history:[w,{...deep(w),demo:true}]},exerciseNameKey:s=>s.toLowerCase()});
  const week={start:'2026-10-12',end:'2026-10-19'};assert.equal(c.strengthMetric(week,'Push','','sets'),2);assert.equal(c.strengthMetric(week,'Push','','reps'),18);assert.equal(c.strengthMetric(week,'Push','','volume'),400);
 });
-test('Builder rejects blank/negative/out-of-range values and fractional repetitions but accepts fractional weights',()=>{
+test('Builder accepts unfinished sets but rejects invalid numbers and fractional repetitions',()=>{
  const draft={...workout(),date:'2026-10-16'},messages=[];
  const c=context(['validateDraft'],{draft,validDay:()=>true,updateDraftFromBuilderInputs(){},rememberAllTypedExerciseNames(){},cleanExerciseName:s=>s.trim(),toast:s=>messages.push(s)});
- for(const bad of [null,-1,1000,Infinity]){draft.exercises[0].sets[0].weight=bad;assert.equal(c.validateDraft(),false);}
+ for(const bad of [-1,1000,Infinity,'invalid']){draft.exercises[0].sets[0].weight=bad;assert.equal(c.validateDraft(),false);}
+ draft.exercises[0].sets[0].weight=null;draft.exercises[0].sets[0].reps=null;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].reps=8;
  draft.exercises[0].sets[0].weight=1.25;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].reps=1.5;assert.equal(c.validateDraft(),false);
- draft.exercises[0].mode='min';draft.exercises[0].sets[0].reps=0;draft.exercises[0].sets[0].minutes=0;assert.equal(c.validateDraft(),false);draft.exercises[0].sets[0].minutes=.25;assert.equal(c.validateDraft(),true);
+ draft.exercises[0].mode='min';draft.exercises[0].sets[0].reps=0;draft.exercises[0].sets[0].minutes=0;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].minutes=.25;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].minutes=null;assert.equal(c.validateDraft(),true);
 });
 test('Invalid dates cannot silently save to the previous date',()=>{
  const c=context(['pad','dayISO','dayFrom','validDay']);assert.equal(c.validDay('2026-02-30'),false);assert.equal(c.validDay(''),false);assert.equal(c.validDay('2028-02-29'),true);
