@@ -14,8 +14,9 @@
     return Number.isFinite(n) && n >= 0 ? n : null;
   }
   function key(row) {
-    const index = row && MONTHS.indexOf(row.month);
-    if (index === undefined || index < 0) return '';
+    if (!row) return '';
+    const index = MONTHS.indexOf(row.month);
+    if (index < 0) return '';
     return String(row.year) + '-' + String(index + 1).padStart(2, '0');
   }
   function legacyFor(monthKey) {
