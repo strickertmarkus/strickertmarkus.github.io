@@ -462,6 +462,10 @@
       color:#E6EDF3;text-align:left;font:600 13px/1.25 'Inter',sans-serif;cursor:pointer;
       -webkit-tap-highlight-color:transparent;
     }
+    .exercise-name-picker-row-v1{display:grid;grid-template-columns:minmax(0,1fr) 34px;align-items:center;gap:2px;min-width:0;border-radius:9px;}
+    .exercise-name-picker-row-v1 .exercise-name-picker-option-v1{min-width:0;padding-right:5px;overflow-wrap:anywhere;}
+    .exercise-name-picker-remove-v1{display:grid;place-items:center;width:34px;height:38px;padding:0;border:0;border-radius:8px;background:transparent;color:#bc8b94;font:400 21px/1 'Inter',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+    .exercise-name-picker-remove-v1:hover,.exercise-name-picker-remove-v1:focus-visible{color:#ff8994;background:#ff657a18;outline:none;}
     .exercise-name-picker-option-v1:hover,.exercise-name-picker-option-v1:focus-visible,
     .exercise-name-picker-option-v1.is-current{background:rgba(var(--accent-rgb),.09);color:var(--accent-pale);outline:none;}
     .exercise-name-picker-empty-v1{padding:14px 10px;color:#64748B;font-size:11px;line-height:1.4;}
@@ -473,6 +477,8 @@
     @media(max-width:600px){
       .exercise-name-picker-v1{border-radius:13px;}
       .exercise-name-picker-option-v1,.exercise-name-picker-new-v1{min-height:46px;font-size:14px;}
+      .exercise-name-picker-remove-v1{width:38px;height:46px;font-size:23px;}
+      .exercise-name-picker-row-v1{grid-template-columns:minmax(0,1fr) 38px;}
       .exercise-name-picker-input-v1[data-exercise-name-free-v1="1"]{font-size:16px!important;}
     }
 
@@ -1712,6 +1718,25 @@ function cleanExerciseName(name){
 function exerciseNameKey(name){
   return cleanExerciseName(name).toLocaleLowerCase('sv-SE');
 }
+/* Hidden options are scoped by workout category, mode and name; no historical
+   exercise object is modified. The key is synced separately for each profile. */
+function exerciseHiddenOptionId(type,kind,name){
+  return normalizeExerciseCategory(type)+'|'+(kind==='cardio'?'cardio':'strength')+'|'+encodeURIComponent(exerciseNameKey(name));
+}
+function getHiddenExerciseNames(){
+  var hidden=DB.get('hiddenExerciseNamesV1');
+  return hidden&&typeof hidden==='object'&&!Array.isArray(hidden)?hidden:{};
+}
+function isExerciseNameHidden(type,kind,name){
+  return !!getHiddenExerciseNames()[exerciseHiddenOptionId(type,kind,name)];
+}
+function setExerciseNameHidden(type,kind,name,hide){
+  var hidden=getHiddenExerciseNames(),id=exerciseHiddenOptionId(type,kind,name);
+  if(hide)hidden[id]=true;else delete hidden[id];
+  DB.set('hiddenExerciseNamesV1',hidden);
+  window.dispatchEvent(new CustomEvent('pulse-field:data-change',{detail:{key:'ex_hiddenExerciseNamesV1'}}));
+}
+window.isExerciseNameHidden=isExerciseNameHidden;
 function normalizeExerciseCategory(type){
   return String(type||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE');
 }
@@ -1772,7 +1797,7 @@ function getExerciseNameCatalog(type,kind){
       }
       var name=cleanExerciseName(normalized.name);
       var key=exerciseNameKey(name);
-      if(!key||catalog[key])return;
+      if(!key||catalog[key]||isExerciseNameHidden(type,entryKind,name))return;
       catalog[key]={name:name,kind:entryKind};
     });
   });
@@ -1823,8 +1848,20 @@ function ensureExerciseNamePicker(){
   exerciseNamePickerState.picker=picker;
   picker.addEventListener('pointerdown',function(event){event.stopPropagation();});
   picker.addEventListener('click',function(event){
-    var option=event.target.closest('.exercise-name-picker-option-v1');
+    var remove=event.target.closest('.exercise-name-picker-remove-v1');
     var input=exerciseNamePickerState.input;
+    if(remove&&input){
+      var removeContext=exercisePickerContext(input);
+      var removeName=remove.dataset.exerciseName||'';
+      var removeKind=remove.dataset.exerciseKind||removeContext.kind;
+      if(!removeName)return;
+      if(!window.confirm('Ta bort "'+removeName+'" från övningslistan?\nTidigare pass, set, reps och vikter påverkas inte.'))return;
+      setExerciseNameHidden(removeContext.type,removeKind,removeName,true);
+      renderExerciseNamePicker(input);
+      showToast('"'+removeName+'" togs bort från listan.');
+      return;
+    }
+    var option=event.target.closest('.exercise-name-picker-option-v1');
     if(option&&input){
       var context=exercisePickerContext(input);
       ensureExerciseRowKind(context.row,option.dataset.exerciseKind||context.kind);
@@ -1905,6 +1942,8 @@ function renderExerciseNamePicker(input){
     options.appendChild(empty);
   }else{
     catalog.forEach(function(entry){
+      var row=document.createElement('div');
+      row.className='exercise-name-picker-row-v1';
       var button=document.createElement('button');
       button.type='button';
       button.className='exercise-name-picker-option-v1'+(exerciseNameKey(entry.name)===current?' is-current':'');
@@ -1913,7 +1952,17 @@ function renderExerciseNamePicker(input){
       button.dataset.exerciseName=entry.name;
       button.dataset.exerciseKind=entry.kind;
       button.textContent=entry.name;
-      options.appendChild(button);
+      var removeButton=document.createElement('button');
+      removeButton.type='button';
+      removeButton.className='exercise-name-picker-remove-v1';
+      removeButton.dataset.exerciseName=entry.name;
+      removeButton.dataset.exerciseKind=entry.kind;
+      removeButton.setAttribute('aria-label','Ta bort '+entry.name+' från övningslistan');
+      removeButton.setAttribute('title','Ta bort från listan, behåll historik');
+      removeButton.textContent='×';
+      row.appendChild(button);
+      row.appendChild(removeButton);
+      options.appendChild(row);
     });
   }
   input.readOnly=true;
@@ -1961,6 +2010,14 @@ function installExerciseNamePicker(){
     if(!exercisePickerInput(input)||input.dataset.exerciseNameFreeV1!=='1')return;
     setTimeout(function(){
       if(document.activeElement===input)return;
+      var typed=cleanExerciseName(input.value);
+      if(typed){
+        var context=exercisePickerContext(input);
+        if(isExerciseNameHidden(context.type,context.kind,typed)){
+          setExerciseNameHidden(context.type,context.kind,typed,false);
+          showToast('"'+typed+'" finns åter i övningslistan.');
+        }
+      }
       input.readOnly=true;
       input.removeAttribute('data-exercise-name-free-v1');
     },0);
