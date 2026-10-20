@@ -688,3 +688,239 @@ html[data-field-embedded] body .ex-row{grid-template-columns:minmax(0,1fr) 48px 
 html[data-field-embedded] body .ex-row-item.is-cardio .ex-row{grid-template-columns:minmax(0,1fr) 72px 72px 25px}
 html[data-field-embedded] body .ex-row input{padding:7px 4px!important}
 }
+
+/* v3: Ingemar's proportions, adapted to an embedded host header.
+   This panel is the whole iframe workspace; no second giant title/date card. */
+html[data-field-embedded] body #plan-modal.modal-overlay{
+  inset:0!important;
+  padding:0!important;
+  align-items:stretch!important;
+  justify-content:stretch!important;
+  overflow:hidden!important;
+}
+html[data-field-embedded] body #plan-modal .modal{
+  box-sizing:border-box!important;
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  max-height:100%!important;
+  min-height:0!important;
+  padding:10px 14px 10px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:#0d1520!important;
+  overflow:hidden!important;
+}
+html[data-field-embedded] body #plan-modal .modal-close,
+html[data-field-embedded] body #plan-modal .modal>h2{display:none!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-toolbar-v3{
+  flex:0 0 auto;
+  display:grid;
+  gap:9px;
+  min-width:0;
+  padding:3px 0 10px;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-nav-v3{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 38px 38px;
+  align-items:stretch;
+  gap:7px;
+  min-width:0;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-nav-v3>button,
+html[data-field-embedded] body #plan-modal .pulse-plan-calendar-v3{
+  box-sizing:border-box;
+  min-width:0;
+  min-height:40px;
+  height:40px;
+  border:1px solid rgba(255,154,145,.23)!important;
+  border-radius:10px!important;
+  background:rgba(255,154,145,.035)!important;
+  box-shadow:none!important;
+  color:#e9d7d2!important;
+}
+html[data-field-embedded] body #plan-modal button.pulse-plan-nav-btn-v3{
+  padding:0!important;
+  font:400 24px/1 'Inter',sans-serif!important;
+}
+html[data-field-embedded] body #plan-modal button.pulse-plan-current-v3{
+  display:flex!important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  width:100%!important;
+  padding:4px 7px!important;
+  text-align:center;
+  border-color:rgba(255,154,145,.16)!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-current-v3 strong{
+  display:block;
+  color:#ffd6cb;
+  font:700 13px/1.25 'Inter',sans-serif;
+  letter-spacing:0;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-current-v3 small{
+  display:block;
+  color:#999fac;
+  font:500 10px/1.2 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-calendar-v3{
+  position:relative;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  overflow:hidden;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-calendar-v3 svg{
+  display:block;
+  width:18px;
+  height:18px;
+  pointer-events:none;
+  color:#d7ada7;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-calendar-v3 input[type="date"]{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  opacity:.012!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  cursor:pointer!important;
+  font-size:16px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-summary-v2{
+  margin:0!important;
+  padding:2px 2px 0!important;
+  color:#e7c9bf;
+  font:600 11px/1.3 'Inter',sans-serif;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2{
+  flex:0 0 auto;
+  margin:0 0 6px!important;
+  border-color:rgba(255,154,145,.13);
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2 summary{
+  align-items:center;
+  min-height:34px;
+  padding:7px 10px!important;
+  font-size:10px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-templates-v2 summary small{
+  font:600 9px/1.2 'Inter',sans-serif;
+  color:#9095a0;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-hint-v2{display:none!important}
+html[data-field-embedded] body #plan-modal #plan-days{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  gap:9px!important;
+  padding:2px 2px 12px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  touch-action:pan-y;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2{
+  min-height:0!important;
+  border-radius:14px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-top-v2{
+  grid-template-columns:minmax(0,1fr) 36px!important;
+  gap:8px!important;
+  padding:9px!important;
+}
+html[data-field-embedded] body #plan-modal button.pulse-plan-open-v2{
+  grid-template-columns:47px minmax(0,1fr) 13px!important;
+  gap:9px!important;
+  min-height:53px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2{gap:2px!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 small{font-size:9px!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 strong{font-size:18px!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{
+  margin-top:3px!important;
+  font-size:13px!important;
+  line-height:1.3!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>small{
+  margin-top:3px!important;
+  font-size:10px!important;
+  line-height:1.25!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-badge-v2{gap:6px!important;font-size:9px!important;letter-spacing:.6px!important}
+html[data-field-embedded] body #plan-modal .pulse-plan-badge-v2::before{width:6px!important;height:6px!important;flex-basis:6px!important}
+html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{
+  box-sizing:border-box!important;
+  width:36px!important;
+  min-height:53px!important;
+  height:auto!important;
+  border-radius:9px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-v2{
+  gap:10px!important;
+  margin:0 9px 9px!important;
+  padding:12px 11px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-head-v2{
+  display:flex!important;
+  gap:6px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-chip-list-v2{gap:6px!important}
+html[data-field-embedded] body #plan-modal button.pulse-plan-chip-v2{
+  min-height:35px!important;
+  padding:8px 10px!important;
+  font-size:11px!important;
+}
+html[data-field-embedded] body #plan-modal .pulse-plan-editor-foot-v2 button{min-height:36px!important}
+html[data-field-embedded] body #plan-modal .modal-footer{
+  position:relative!important;
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);
+  align-items:center;
+  gap:9px!important;
+  margin:0!important;
+  padding:9px 0 2px!important;
+  background:#0d1520!important;
+  border-top:1px solid rgba(255,154,145,.18)!important;
+}
+html[data-field-embedded] body #plan-modal .modal-footer button{
+  width:100%!important;
+  min-width:0!important;
+  min-height:43px!important;
+  height:43px!important;
+  padding:7px 10px!important;
+  margin:0!important;
+  font-size:13px!important;
+}
+@media(max-width:600px){
+  html[data-field-embedded] body #plan-modal .modal{
+    padding:9px 13px 8px!important;
+    height:100%!important;
+    max-height:100%!important;
+  }
+}
+@media(max-width:370px){
+  html[data-field-embedded] body #plan-modal .modal{padding:8px 9px!important}
+  html[data-field-embedded] body #plan-modal .pulse-plan-nav-v3{gap:5px;grid-template-columns:36px minmax(0,1fr) 36px 36px}
+  html[data-field-embedded] body #plan-modal .pulse-plan-top-v2{gap:6px!important;padding:8px!important}
+  html[data-field-embedded] body #plan-modal button.pulse-plan-open-v2{gap:6px!important;grid-template-columns:38px minmax(0,1fr) 12px!important}
+  html[data-field-embedded] body #plan-modal .pulse-plan-date-v2 strong{font-size:16px!important}
+  html[data-field-embedded] body #plan-modal .pulse-plan-main-v2>strong{font-size:12px!important}
+  html[data-field-embedded] body #plan-modal button.pulse-plan-grip-v2{width:34px!important}
+}
