@@ -308,6 +308,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     for(var i=0;i<7;i++){
       var date=shiftDate(state.weekStart,i),key=isoDate(date),plan=planForDate(date),logged=workoutsOn(date);
       var type=plan&&plan.type || (logged[0]&&workoutType(logged[0])) || 'Vila';
+      var displayName=String(plan&&plan.name || type).trim()||String(type);
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
       var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':'strength';
       var signalColor=signalKind==='rest'?'rest':signalKind==='cardio'?'orange':/bröst|triceps/.test(lowerType)?'coral':/rygg|biceps/.test(lowerType)?'cyan':/ben|underkropp/.test(lowerType)?'gold':/axlar|mage/.test(lowerType)?'violet':/rörlighet|stretch/.test(lowerType)?'mint':['coral','cyan','gold','violet','mint'][Array.from(lowerType).reduce(function(n,ch){return n+ch.charCodeAt(0);},0)%5];
@@ -315,11 +316,18 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
-      markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(type)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
+      markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
-        '<span class="day-type">'+escapeHtml(type)+'</span></div>';
+        '<span class="day-type">'+escapeHtml(displayName)+'</span></div>';
     }
     byId('week-days').innerHTML=markup;
+    var selected=state.selectedDate||today,chosen=dateAtNoon(selected),chosenPlan=planForDate(chosen),chosenLogged=workoutsOn(chosen);
+    var chosenType=chosenPlan&&chosenPlan.type || (chosenLogged[0]&&workoutType(chosenLogged[0])) || 'Vila';
+    var chosenName=String(chosenPlan&&chosenPlan.name || chosenType).trim()||'Vila';
+    var fullDay=selected===today?'IDAG · '+dayNames[(chosen.getDay()+6)%7]+' '+chosen.getDate():'VALD DAG · '+dayNames[(chosen.getDay()+6)%7]+' '+chosen.getDate();
+    var dayLabel=byId('week-selected-day-v3'),nameLabel=byId('week-selected-name-v3');
+    if(dayLabel)dayLabel.textContent=fullDay;
+    if(nameLabel)nameLabel.textContent=chosenName;
     var startLink=byId('next-session-link');
     if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
