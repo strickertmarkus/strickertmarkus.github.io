@@ -14,6 +14,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     activityMetric: 'minutes',
     insight: 'heart',
     insightMode: 'chart',
+    chartRange: 'all',
     openLogId: null,
     logTouched: false,
     logVisibleCount: 12,
@@ -416,11 +417,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     scheduleChartCanvasGlow('activity-chart');
   }
 
+  function chartRangeStart() {
+    var today=new Date();
+    today.setHours(12,0,0,0);
+    today.setDate(today.getDate()-30);
+    return isoDate(today);
+  }
+  function withinChartRange(entry) {
+    return state.chartRange==='all'||String(entry&&entry.date||'')>=chartRangeStart();
+  }
+  function filterChartEntries(entries) {
+    return entries.filter(withinChartRange);
+  }
   function heartData() {
-    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).slice(-14).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
   }
   function distanceData() {
-    return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(-14).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
+    return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
   }
   function paceData() {
     return distanceData().filter(function(entry){return entry.pace>0;}).map(function(entry){
@@ -431,7 +444,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var map={};
     (data.vo2||[]).forEach(function(entry){var value=number(entry.score||entry.value||entry.vo2);if(entry.date&&value)map[entry.date]={date:entry.date,value:value,type:'VO₂-logg'};});
     data.workouts.forEach(function(w){var value=number(w.vo2);if(w.date&&value)map[w.date]={date:w.date,value:value,type:workoutType(w)};});
-    return Object.keys(map).sort().map(function(key){return map[key];}).slice(-14);
+    return Object.keys(map).sort().map(function(key){return map[key];});
   }
   function trainingGroupName(workout) {
     var raw=workoutType(workout).trim();
@@ -465,7 +478,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(!series.length)return '<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
     var dates={},values=[];
     series.forEach(function(group){
-      group.entries.forEach(function(entry){dates[entry.date]=true;values.push(entry.value);});
+      group.entries.filter(withinChartRange).forEach(function(entry){dates[entry.date]=true;values.push(entry.value);});
     });
     var dateKeys=Object.keys(dates).sort();
     if(!dateKeys.length)return '<div class="volume-empty">Ingen passvolym finns att visa ännu.</div>';
@@ -478,7 +491,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     svg+=chartAxisUnit('KG',left,top);
     [0,.5,1].forEach(function(ratio){var value=axisMax*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
     series.forEach(function(group,index){
-      var color=groupVolumeColor(index),points=group.entries.map(function(entry){return [x(entry.date),y(entry.value),entry];});
+      var color=groupVolumeColor(index),points=group.entries.filter(withinChartRange).map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
       points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+' kg',logDate(point[2].date))+'/>';});
     });
@@ -730,7 +743,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(options.goal){var goalY=y(options.goal);if(goalY>=top&&goalY<=height-bottom)svg+='<line class="metric-goal-line" x1="'+left+'" y1="'+goalY+'" x2="'+(width-right)+'" y2="'+goalY+'"/><text class="metric-goal-label" x="'+(width-right)+'" y="'+(goalY-7)+'" text-anchor="end">mål '+formatNumber(options.goal,1)+'</text>';}
     svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#'+gradientId+')"/>'+glowingLine(path,options.color,'');
     points.forEach(function(point,index){
-      if(index===points.length-1)svg+=glowingPoint(point[0],point[1],5,options.color,'');
+      svg+=glowingPoint(point[0],point[1],index===points.length-1?4.7:3.2,options.color,' metric-data-point');
       svg+='<circle class="chart-hit-point" cx="'+point[0]+'" cy="'+point[1]+'" r="14"'+chartTipAttrs(logDate(entries[index].date)+(entries[index].type?' · '+entries[index].type:''),valueLabel(entries[index].value),'')+'/>';
     });
     var last=entries[entries.length-1],lastPoint=points[points.length-1],labelX=clamp(lastPoint[0],left+35,width-right-2),anchor=labelX>width-120?'end':'start';
@@ -888,13 +901,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function renderInsight() {
     document.querySelectorAll('[data-insight]').forEach(function(button){button.setAttribute('aria-selected',String(button.dataset.insight===state.insight));});
     document.querySelectorAll('[data-insight-mode]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.insightMode===state.insightMode));});
+    document.querySelectorAll('[data-chart-range]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.chartRange===state.chartRange));});
     var entries,markup,name,description;
     if(state.insight==='heart'){
-      entries=heartData();name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
+      entries=filterChartEntries(heartData());name='Medelpuls över tid';description='Kondition och styrka visas som två separata ljussignaler.';markup=heartChart(entries);
     }else if(state.insight==='pace'){
-      entries=paceData();name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',axisColor:'#b9898e',gridColor:'#f8717112',axisUnit:'MIN/KM',tickCount:5,reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
+      entries=filterChartEntries(paceData());name='Snittakt över tid';description='Samma omvända min/km-skala som originalvyn — snabbare tempo visas högre.';markup=lineChart(entries,{color:'#f87171',axisColor:'#b9898e',gridColor:'#f8717112',axisUnit:'MIN/KM',tickCount:5,reverse:true,formatter:formatPace,axisFormatter:function(value){return formatPace(value).replace(' /km','');},empty:'Snittakten visas när ett löppass med distans och tid har loggats.'});
     }else{
-      entries=vo2Data();name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',axisColor:'#65d7a5',gridColor:'#65d7a514',axisUnit:'ML/KG/MIN',tickCount:5,goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
+      entries=filterChartEntries(vo2Data());name='VO₂ över tid';description='Samma autoskalning som originalvyn, anpassad efter dina loggade VO₂-värden.';markup=lineChart(entries,{color:'#65d7a5',axisColor:'#65d7a5',gridColor:'#65d7a514',axisUnit:'ML/KG/MIN',tickCount:5,goal:number(data.goals.vo2Goal)||45,decimals:1,suffix:' ml/kg/min',empty:'VO₂-kurvan visas när ett värde har loggats.'});
     }
     byId('insight-name').textContent=name;byId('insight-description').textContent=description;
     byId('insight-chart').hidden=state.insightMode!=='chart';byId('insight-table-wrap').hidden=state.insightMode!=='table';
@@ -909,6 +923,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
 
   function renderVolume() {
     var legend=byId('volume-legend'),chart=byId('volume-chart'),series=trainingGroupVolumeSeries();
+    document.querySelectorAll('[data-chart-range]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.chartRange===state.chartRange));});
     if(!series.length){
       legend.innerHTML='';
       chart.innerHTML='<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
@@ -1126,6 +1141,13 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
       var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-day',date:state.selectedDate}}));return;}
       var view=event.target.closest('[data-activity-view]');if(view){state.activityView=view.dataset.activityView;renderActivity();return;}
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
+      var range=event.target.closest('[data-chart-range]');
+    if(range){
+      state.chartRange=range.dataset.chartRange==='month'?'month':'all';
+      renderInsight();
+      renderVolume();
+      return;
+    }
       var insight=event.target.closest('[data-insight]');if(insight){state.insight=insight.dataset.insight;renderInsight();return;}
       var insightMode=event.target.closest('[data-insight-mode]');if(insightMode){state.insightMode=insightMode.dataset.insightMode;renderInsight();return;}
     });
