@@ -716,10 +716,6 @@
        only Push/Pull strength sessions receive Ingemar's custom color. */
     #session-modal[data-ingemar-tone] .session-cta.primary{box-shadow:0 9px 26px rgba(var(--ingemar-tone-rgb),.20)!important;}
   </style>
-<!-- Progresspunkternas delade CSS-modul kräver legacy-stil-ID.
-     Pulse Flow v58 används som grund här; detta gör att den gemensamma
-     punktrenderarens senaste färger och aktiva glow används även för Ingemar. -->
-<style id="exercise-pulse-flow-main-v85-style" data-ingemar-progress-compat="true"></style>
 <style>html,body{margin:0;min-height:100%;background:#080D14}body{overflow:hidden}#toast[hidden]{display:none!important}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483600;padding:10px 16px;border:1px solid rgba(103,232,249,.25);border-radius:999px;background:#0a1119;color:#cffafe;font:600 12px Inter,sans-serif;box-shadow:0 10px 35px #0008}</style>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
@@ -743,8 +739,6 @@
         </div>
         <div id="session-current-ex" style="font-size:20px;font-weight:800;letter-spacing:-.4px">-</div>
         <div class="session-nextset" id="session-current-target">-</div>
-        <!-- Ankarpunkt för den gemensamma progressmodulen i Markus/Majas träningsläge. -->
-        <div id="hype-set-details" hidden aria-hidden="true"></div>
         <div class="session-cta-row" id="session-controls"></div>
         <div>
           <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Loggade set (redigerbara)</div>
@@ -1198,8 +1192,6 @@ window.addEventListener('DOMContentLoaded',function(){parent.postMessage({type:'
 <script defer src="exercise-pulse-flow-v58.js?v=20260922-observatory-records-3" data-exercise-pulse-flow-v58="true"></script>
 <script defer src="exercise-pulse-flow-motion-v67.js?v=20261013-session-energy-1" data-exercise-pulse-flow-motion-v67="true"></script>
 <script defer src="exercise-session-typography.js?v=20260922-observatory-records-3" data-exercise-session-typography="true"></script>
-<!-- Samma kanoniska passprogress och färgkodade setpunkter som Markus/Maja. -->
-<script defer src="ingemar-session/ingemar-progress-consistency-v10.js?v=20261021-ingemar-scope-2" data-exercise-progress-consistency-v10="true"></script>
 <script defer src="exercise-pulse-flow-progress-marker-v92.js?v=20260922-observatory-records-3" data-exercise-pulse-flow-progress-marker-v92="true"></script>
 <script defer src="exercise-pulse-flow-completed-marker-v102.js?v=20260922-observatory-records-3" data-exercise-pulse-flow-completed-marker-v102="true"></script>
 <script defer src="exercise-pulse-flow-ecg-glow-v104.js?v=20260922-observatory-records-3" data-exercise-pulse-flow-ecg-glow-v104="true"></script>
