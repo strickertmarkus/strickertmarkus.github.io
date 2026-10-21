@@ -11,9 +11,18 @@ const days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 const offset=(date,n)=>new Date(Date.parse(date+'T12:00:00Z')+n*864e5).toISOString().slice(0,10);
 
 test('Copying an exercise gives independent IDs to exercise and sets',()=>{
- const draft={exercises:[ex()]};const c=context(['copyDraftExercise'],{draft,updateDraftFromBuilderInputs(){},renderBuilder(){},document:{querySelector(){return null;}}});
+ const draft={exercises:[ex()]},builderExpandedCardIds=new Set(['e']);const c=context(['focusBuilderCard','copyDraftExercise'],{draft,builderExpandedCardIds,updateDraftFromBuilderInputs(){},renderBuilder(){},document:{querySelector(){return null;}}});
  c.copyDraftExercise(0);assert.equal(draft.exercises.length,2);assert.notEqual(draft.exercises[0].id,draft.exercises[1].id);assert.notEqual(draft.exercises[0].sets[0].id,draft.exercises[1].sets[0].id);
+ assert.deepEqual([...builderExpandedCardIds],[draft.exercises[1].id],'Duplicated exercise becomes the only expanded card');
  draft.exercises[1].sets[0].weight=77.5;assert.equal(draft.exercises[0].sets[0].weight,50);
+});
+test('Collapsible exercise cards keep all workout data and support multiple open cards',()=>{
+ const draft={exercises:[ex('e1',40),ex('e2',50)]};
+ const c=context(['builderExerciseSummary','syncBuilderCardExpansion','focusBuilderCard'],{draft,builderCardDraftRef:null,builderExpandedCardIds:new Set()});
+ c.syncBuilderCardExpansion();assert.deepEqual([...c.builderExpandedCardIds],['e1']);
+ c.focusBuilderCard('e2',false);assert.deepEqual([...c.builderExpandedCardIds],['e1','e2']);
+ assert.equal(c.builderExerciseSummary(draft.exercises[0]),'1 set · 40 kg · 8 reps');
+ const before=deep(draft);c.builderExpandedCardIds.delete('e1');assert.deepEqual(draft,before,'Only UI state changes when a card collapses');
 });
 test('Old duplicate exercise/set IDs are repaired without losing contents',()=>{
  const w={exercises:[ex(),ex()]};w.exercises[0].sets.push({...w.exercises[0].sets[0],weight:65});
