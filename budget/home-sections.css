@@ -175,3 +175,71 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   .home-section-tabs>a{flex:1;min-width:0;padding:10px 7px;font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){.home-section-tabs>a{transition:none}}
+
+
+/* Responsive Home desktop: calendar consumes the real available width instead
+   of remaining inside the old 1200px/300px rigid two-column shell. Phones
+   retain the existing full-width single-column layout unchanged. */
+@media(min-width:769px){
+  #home-overview .main-layout{
+    box-sizing:border-box;
+    width:calc(100% - clamp(32px,5vw,96px));
+    max-width:1800px;
+    margin-inline:auto;
+    padding:6px 0 70px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) clamp(310px,23vw,410px);
+    gap:clamp(16px,2vw,30px);
+    align-items:start;
+  }
+  #home-overview .cal-section{
+    min-width:0;
+    width:100%;
+    padding-right:0!important;
+  }
+  #home-overview .cal-grid,
+  #home-overview .cal-weekdays{
+    box-sizing:border-box;
+    width:100%;
+    max-width:none;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+  }
+  #home-overview .cal-grid{grid-auto-rows:minmax(0,1fr);gap:clamp(3px,.3vw,6px)}
+  #home-overview .cal-cell,
+  #home-overview .cal-cell.has-events{
+    box-sizing:border-box;
+    min-width:0;
+    min-height:clamp(78px,7.6vw,146px);
+    padding:clamp(5px,.6vw,11px);
+  }
+  #home-overview .cal-event-preview-title{min-width:0;max-width:100%;font-size:clamp(9px,.75vw,11px)}
+  #home-overview .calendar-toolbar-v2{right:0!important}
+  #home-overview .sidebar{min-width:0;width:100%;padding-top:38px}
+  #home-overview .sidebar-section,
+  #home-overview .home-overview-widgets,
+  #home-overview .home-overview-widgets>.widget{min-width:0;max-width:100%}
+  .home-section-tabs{width:calc(100% - clamp(32px,5vw,96px));max-width:1800px}
+  .home-economy,.home-lists,.home-travel{
+    box-sizing:border-box;
+    width:calc(100% - clamp(32px,5vw,96px));
+    max-width:1800px;
+    padding-inline:0;
+  }
+}
+@media(min-width:769px) and (max-width:1120px){
+  #home-overview .main-layout{grid-template-columns:minmax(0,1fr)}
+  #home-overview .sidebar{
+    padding-top:0;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
+    align-items:start;
+    gap:16px;
+  }
+  #home-overview .sidebar>.sidebar-section{margin:0}
+  #home-overview .home-overview-widgets{gap:14px}
+  #home-overview .cal-cell,
+  #home-overview .cal-cell.has-events{min-height:clamp(80px,10vw,116px)}
+}
+@media(min-width:1121px) and (max-width:1320px){
+  #home-overview .main-layout{grid-template-columns:minmax(0,1fr) 310px}
+}
