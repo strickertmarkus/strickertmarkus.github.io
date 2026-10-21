@@ -480,7 +480,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function groupVolumeChart(series) {
     var chart=byId('volume-chart');
-    if(!series.length)return '<div class="volume-empty">Passvolym visas när styrkepass med set, reps och vikt har loggats.</div>';
+    if(!series.length)return '<div class="volume-empty">Passvolym visas när samma träningsgrupp har loggats minst två gånger med registrerad viktvolym.</div>';
     var dates={},values=[];
     series.forEach(function(group){
       group.entries.filter(withinChartRange).forEach(function(entry){dates[entry.date]=true;values.push(entry.value);});
@@ -939,7 +939,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     document.querySelectorAll('[data-chart-range]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.chartRange===state.chartRange));});
     if(!series.length){
       legend.innerHTML='';
-      chart.innerHTML='<div class="volume-empty">'+(state.chartRange==='month'?'Inga styrkepass med registrerad volym senaste 30 dagarna.':'Passvolym visas när styrkepass med set, reps och vikt har loggats.')+'</div>';
+      chart.innerHTML='<div class="volume-empty">'+(state.chartRange==='month'?'Inga styrkepass med registrerad volym senaste 30 dagarna.':'Passvolym visas när samma träningsgrupp har loggats minst två gånger med registrerad viktvolym.')+'</div>';
       chart.setAttribute('aria-label','Ingen passvolym att visa ännu.');
       return;
     }
