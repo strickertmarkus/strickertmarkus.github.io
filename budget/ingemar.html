@@ -212,6 +212,13 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-name-field[hidden],#builder .builder-type-field[hidden],#builder .builder-template-field[hidden],#builder .builder-day-create[hidden],#builder .builder-new-template[hidden],#builder #exercise-list[hidden],#builder .builder-add-exercise[hidden],#builder .builder-main-actions[hidden]{display:none!important}
 #builder .builder-new-template{display:block;width:100%;min-height:40px;margin:14px 0 4px;border:1px solid #bd7c9049;background:#ad415912;color:#e9bdcb;border-radius:11px;font-size:12px;transition:background .18s,border-color .18s}
 #builder .builder-new-template:hover{background:#ad415927;border-color:#ce8196}
+/* Startknappen visar det faktiska passet för markerat datum. */
+#training-view .hero .actions .hero-start-pass{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:3px;max-width:100%;min-height:50px;min-width:139px;text-align:left;line-height:1.25}
+#training-view .hero-start-main{display:block;font-size:13px;font-weight:800;white-space:nowrap}
+#training-view .hero-start-name{display:block;max-width:100%;font-size:11px;line-height:1.3;font-weight:600;color:#3c1b29;white-space:normal;overflow-wrap:anywhere}
+#training-view .hero-start-name[hidden]{display:none!important}
+@media(max-width:740px){#training-view .hero .actions .hero-start-pass{max-width:min(100%,270px)}}
+
 #builder .builder-name-field{margin-bottom:9px}
 #builder .builder-template-field{margin-bottom:6px}
 #builder .field{margin-bottom:9px}
@@ -376,7 +383,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" aria-live="polite" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
 <main id="ingemar-main">
 <section id="training-view">
-  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><button type="button" class="primary" data-action="start">Starta valt pass ↗</button><button type="button" class="secondary" data-action="build">Bygg pass</button></div></div>
+  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><button type="button" class="primary hero-start-pass" id="hero-start-pass" data-action="start" aria-label="Välj pass"><span class="hero-start-main" id="hero-start-main">Välj pass ↗</span><small class="hero-start-name" id="hero-start-name" hidden></small></button><button type="button" class="secondary" data-action="build">Bygg pass</button></div></div>
     <div class="zen-flow-visual training-flow-visual" aria-hidden="true">
       <svg viewBox="0 0 560 300" preserveAspectRatio="none" focusable="false">
         <defs>
@@ -1129,6 +1136,19 @@ function renderRecords(){
 function render(){
  renderRecords();
  var p=plan(selected),type=nextType();
+ var startButton=$('hero-start-pass'),startMain=$('hero-start-main'),startName=$('hero-start-name');
+ if(p){
+  var workoutName=String(p.name||p.type||'Pass').trim()||'Pass';
+  startMain.textContent='Starta pass ↗';
+  startName.textContent=workoutName;
+  startName.hidden=false;
+  startButton.setAttribute('aria-label','Starta pass: '+workoutName+' · '+pretty(selected));
+ }else{
+  startMain.textContent='Välj pass ↗';
+  startName.textContent='';
+  startName.hidden=true;
+  startButton.setAttribute('aria-label','Välj pass för '+pretty(selected));
+ }
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
  $('orbit-summary').textContent=p?p.exercises.length+' övningar · '+p.exercises.reduce(function(n,e){return n+e.sets.length;},0)+' set':'Välj eller bygg ett pass';
  var today=dayISO(new Date()),monday=weekStart(selected);
@@ -1735,11 +1755,11 @@ function endBuilderDrag(event){
  if(event&&event.type==='pointerup'&&drag.from!==drag.to)moveDraftExercise(drag.from,drag.to);
 }
 
-function openBuilder(type,editDay){
+function openBuilder(type,editDay,choosePass){
  builderWeekIndex=-1;builderMode='day';builderDayStage='choose';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;
  // Bara explicit klick på ett datum öppnar ett tidigare sparat pass.
  if(!editDay)selected=dayISO(new Date());
- var existing=editDay?(plan(selected)||state.builderDrafts[selected]):null;
+ var existing=editDay&&!choosePass?(plan(selected)||state.builderDrafts[selected]):null;
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
  builderBase=deep(plan(selected));
@@ -1906,7 +1926,7 @@ function sendFamilySession(){
 function start(){
  if(familySessionOpen)return;
  var p=plan(selected);
- if(!p){openBuilder();toast('Bygg passet innan du startar.');return;}
+ if(!p){openBuilder(null,true,true);return;}
  var requestId='ingemar-'+Date.now()+'-'+(++familySessionSerial);
  pendingFamilySession={workout:deep(p),date:selected,requestId:requestId};
  familySessionAttempt=0;familySessionOpen=true;
