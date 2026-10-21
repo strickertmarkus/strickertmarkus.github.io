@@ -457,7 +457,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var volume=workoutVolume(workout);
       if(!(volume>0)||!workout.date)return;
       var name=trainingGroupName(workout),key=name.toLocaleLowerCase('sv-SE');
-      if(!map[key])map[key]={key:key,name:name,byDate:{},lastDate:''};
+      if(!map[key])map[key]={key:key,name:name,byDate:{},lastDate:'',sessionCount:0};
+      map[key].sessionCount+=1;
       map[key].byDate[workout.date]=(map[key].byDate[workout.date]||0)+volume;
       if(String(workout.date)>map[key].lastDate)map[key].lastDate=String(workout.date);
     });
@@ -466,6 +467,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       item.entries=Object.keys(item.byDate).sort().map(function(date){return {date:date,value:item.byDate[date]};});
       item.count=item.entries.length;
       return item;
+    }).filter(function(group){
+      // A workout group needs two logged strength sessions with recorded
+      // volume to qualify, regardless of which date range is selected.
+      return group.sessionCount>=2;
     }).sort(function(a,b){
       return b.count-a.count||String(b.lastDate).localeCompare(String(a.lastDate))||a.name.localeCompare(b.name,'sv');
     });
