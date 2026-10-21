@@ -214,14 +214,20 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-new-template:hover{background:#ad415927;border-color:#ce8196}
 /* Ingemars kompakt snabbstart / passval */
 #training-view .hero .copy{position:relative;z-index:5}
-#training-view .hero-start-launcher{position:relative;z-index:6;max-width:100%;min-width:0}
-#training-view .hero-start-switch{display:flex;align-items:stretch;gap:6px;max-width:100%}
-#training-view .hero .actions .hero-start-pass{display:flex;flex:1 1 auto;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-height:52px;min-width:132px;max-width:100%;padding:10px 17px;text-align:left;line-height:1.25}
-#training-view .hero-start-main{display:block;white-space:nowrap;font-size:13px;font-weight:800}
-#training-view .hero-start-name{display:block;max-width:100%;font-size:11px;line-height:1.3;font-weight:650;color:#3c1b29;overflow-wrap:anywhere}
-#training-view .hero-start-name[hidden],#training-view .hero-start-alternative[hidden],#training-view .hero-pass-menu[hidden]{display:none!important}
-#training-view .hero-start-alternative{flex:none;min-height:52px;align-self:stretch;padding:9px 12px;border:1px solid #bd798957;border-radius:13px;background:#ad415911;color:#e8acba;font-size:11px;font-weight:750;white-space:nowrap;transition:background .18s,border-color .18s}
-#training-view .hero-start-alternative:hover,#training-view .hero-start-alternative[aria-expanded="true"]{background:#ad415927;border-color:#c97b9288}
+#training-view .hero-start-launcher{position:relative;z-index:6;width:100%;max-width:100%;min-width:0}
+#training-view .hero-start-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;align-items:stretch}
+#training-view .hero .actions .hero-start-switch>button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-direction:column;min-width:0;width:100%;min-height:76px;height:100%;padding:12px 7px;border-radius:14px;gap:4px;text-align:center;line-height:1.25;font-size:12px;font-weight:760;white-space:normal;overflow-wrap:anywhere;transition:background .18s,border-color .18s,filter .18s,box-shadow .18s}
+#training-view .hero .actions .hero-start-pass{border:1px solid #d6748980}
+#training-view .hero-start-main{display:block;font-size:12px;font-weight:820;line-height:1.2;white-space:normal}
+#training-view .hero-start-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;max-width:100%;min-width:0;overflow:hidden;overflow-wrap:anywhere;font-size:10px;line-height:1.25;font-weight:670;color:#411b2a}
+#training-view .hero-start-name[hidden],#training-view .hero-pass-menu[hidden]{display:none!important}
+#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-pass{border:1px solid #b8798b50;background:linear-gradient(140deg,#7c394c43,#ad526422);box-shadow:none;color:#e9b5c4}
+#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-name{color:#b89aa8}
+#training-view .hero-start-alternative{border:1px solid #bd798957;background:#ad415911;color:#edbecd;box-shadow:none}
+#training-view .hero-start-alternative:hover,#training-view .hero-start-alternative[aria-expanded="true"]{background:#ad415927;border-color:#c97b9288;box-shadow:0 0 18px #ad415913}
+#training-view .hero .actions .hero-build-pass{border:1px solid #ffffff25;background:#ffffff09;color:#d6c6d1;box-shadow:none}
+#training-view .hero .actions .hero-build-pass:hover{background:#ffffff12;border-color:#ffffff42}
+#training-view .hero .actions .hero-start-switch>button:focus-visible{outline:2px solid #bcecf0;outline-offset:3px}
 #training-view .hero-pass-menu{position:absolute;z-index:30;left:0;top:calc(100% + 9px);width:min(356px,calc(100vw - 28px));max-height:min(490px,62dvh);padding:10px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;border:1px solid #b867845d;border-radius:16px;background:linear-gradient(155deg,#221e2c,#141923 75%);box-shadow:0 22px 48px #000b,0 0 25px #a1406120;animation:heroPassReveal .18s cubic-bezier(.19,1,.3,1) both}
 #training-view .hero-pass-menu-title{display:flex;flex-direction:column;gap:3px;padding:6px 7px 10px;border-bottom:1px solid #ffffff12}
 #training-view .hero-pass-menu-title strong{font-size:12px;color:#f3dce5}
@@ -240,7 +246,8 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #training-view .hero-pass-create{display:block;width:100%;margin-top:9px;padding:10px 12px;border:1px solid #ffffff20;border-radius:10px;background:#ffffff07;color:#d4b3bf;text-align:center;font-size:11px;font-weight:700}
 #training-view .hero-pass-create:hover{background:#ffffff10}
 @keyframes heroPassReveal{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:740px){#training-view .hero .actions .hero-start-pass{min-width:112px}#training-view .hero-start-alternative{padding:9px 11px}}
+@media(max-width:740px){#training-view .hero-start-switch{gap:6px}#training-view .hero .actions .hero-start-switch>button{min-height:73px;padding:10px 5px;font-size:11px}#training-view .hero-start-main{font-size:11px}#training-view .hero-start-name{font-size:10px}}
+@media(max-width:350px){#training-view .hero-start-switch{gap:5px}#training-view .hero .actions .hero-start-switch>button{padding:10px 4px;font-size:10.5px}#training-view .hero-start-main{font-size:10.5px}}
 @media(prefers-reduced-motion:reduce){#training-view .hero-pass-menu{animation:none}}
 #builder .builder-name-field{margin-bottom:9px}
 #builder .builder-template-field{margin-bottom:6px}
@@ -406,10 +413,11 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" aria-live="polite" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
 <main id="ingemar-main">
 <section id="training-view">
-  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><div class="hero-start-launcher"><div class="hero-start-switch">
-<button type="button" class="primary hero-start-pass" id="hero-start-pass" data-action="start" aria-label="Välj pass"><span class="hero-start-main" id="hero-start-main">Välj pass</span><small class="hero-start-name" id="hero-start-name" hidden></small></button>
-<button type="button" class="hero-start-alternative" id="hero-choose-pass" data-action="pick-other-pass" aria-label="Välj ett annat pass att starta" aria-expanded="false" aria-controls="hero-pass-menu">Byt pass</button></div>
-<div class="hero-pass-menu" id="hero-pass-menu" hidden aria-label="Välj pass att starta"><div class="hero-pass-menu-title"><strong>Välj pass att starta</strong><small>Påverkar inte dagens planering</small></div><div id="hero-pass-options"></div></div></div><button type="button" class="secondary" data-action="build">Bygg pass</button></div></div>
+  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><div class="hero-start-launcher" data-has-plan="false"><div class="hero-start-switch" role="group" aria-label="Träningspass">
+<button type="button" class="primary hero-start-pass" id="hero-start-pass" data-action="start" aria-label="Dagens pass: Vila. Välj pass"><span class="hero-start-main" id="hero-start-main">Dagens pass</span><small class="hero-start-name" id="hero-start-name">Vila</small></button>
+<button type="button" class="hero-start-alternative" id="hero-choose-pass" data-action="pick-other-pass" aria-label="Välj ett pass att starta" aria-expanded="false" aria-controls="hero-pass-menu">Välj pass</button>
+<button type="button" class="secondary hero-build-pass" data-action="build">Bygg pass</button>
+</div><div class="hero-pass-menu" id="hero-pass-menu" hidden aria-label="Välj pass att starta"><div class="hero-pass-menu-title"><strong>Välj pass att starta</strong><small>Påverkar inte dagens planering</small></div><div id="hero-pass-options"></div></div></div></div></div>
     <div class="zen-flow-visual training-flow-visual" aria-hidden="true">
       <svg viewBox="0 0 560 300" preserveAspectRatio="none" focusable="false">
         <defs>
@@ -1164,16 +1172,13 @@ function render(){
  var p=plan(selected),type=nextType();
  closeHeroPassMenu();
  var startButton=$('hero-start-pass'),startMain=$('hero-start-main'),startName=$('hero-start-name');
- $('hero-choose-pass').hidden=!p;
- if(p){
-  var workoutName=String(p.name||p.type||'Pass').trim()||'Pass';
-  startMain.textContent='Starta pass';
-  startName.textContent=workoutName;startName.hidden=false;
-  startButton.setAttribute('aria-label','Starta pass: '+workoutName+' · '+pretty(selected));
- }else{
-  startMain.textContent='Välj pass';startName.textContent='';startName.hidden=true;
-  startButton.setAttribute('aria-label','Välj pass för '+pretty(selected));
- }
+ var startLauncher=document.querySelector('#training-view .hero-start-launcher');
+ startLauncher.dataset.hasPlan=p?'true':'false';
+ startMain.textContent='Dagens pass';
+ startName.textContent=p?(String(p.name||p.type||'Pass').trim()||'Pass'):'Vila';
+ startName.hidden=false;
+ startName.title=startName.textContent;
+ startButton.setAttribute('aria-label',p?'Dagens pass: '+startName.textContent+'. Starta passet för '+pretty(selected):'Dagens pass: Vila. Välj ett pass att starta för '+pretty(selected));
  $('orbit-kind').textContent=type==='Vila'?'Återhämtning':type;
  $('orbit-summary').textContent=p?p.exercises.length+' övningar · '+p.exercises.reduce(function(n,e){return n+e.sets.length;},0)+' set':'Välj eller bygg ett pass';
  var today=dayISO(new Date()),monday=weekStart(selected);
