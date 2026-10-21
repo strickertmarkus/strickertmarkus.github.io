@@ -484,10 +484,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(!dateKeys.length)return '<div class="volume-empty">Ingen passvolym finns att visa ännu.</div>';
     var width=clamp(chart.clientWidth||820,320,820),height=clamp(chart.clientHeight||272,230,292),left=53,right=22,top=24,bottom=38,plotW=width-left-right,plotH=height-top-bottom;
     var firstDate=dateAtNoon(dateKeys[0]).getTime(),lastDate=dateAtNoon(dateKeys[dateKeys.length-1]).getTime(),span=Math.max(1,lastDate-firstDate);
-    // Scale to the visible sessions, not zero: ~250 kg of breathing room
-    // above and below the extrema. Round outward to tidy 50 kg steps.
+    // Start the volume axis at 1000 kg for typical strength sessions,
+    // expanding downward only when recorded values would otherwise be clipped.
+    // Keep about 250 kg above the highest visible result.
     var lowest=Math.min.apply(Math,values),highest=Math.max.apply(Math,values);
-    var axisMin=Math.max(0,Math.floor((lowest-250)/50)*50);
+    var axisMin=lowest>=1000?1000:Math.max(0,Math.floor((lowest-250)/50)*50);
     var axisMax=Math.ceil((highest+250)/50)*50;
     if(axisMax<=axisMin)axisMax=axisMin+500;
     function x(date){return dateKeys.length===1?left+plotW/2:left+(dateAtNoon(date).getTime()-firstDate)*plotW/span;}
