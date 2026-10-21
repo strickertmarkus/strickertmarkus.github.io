@@ -1,7 +1,5 @@
-/* One motion contract for application surfaces. Native display/overlay transitions
-   retain closing pixels without delaying saves, focus restoration or scroll unlock.
-   Unsupported browsers degrade to the existing immediate state changes. */
-:root { --surface-enter:190ms; --surface-exit:150ms; --surface-ease:cubic-bezier(.22,1,.36,1); }
+/* Shared geometry for real popup surfaces; backdrops stay at full viewport size. */
+:root { --surface-enter:280ms; --surface-exit:200ms; --surface-ease:cubic-bezier(.22,1,.36,1); }
 dialog:not([data-menu-motion]),
 .modal-overlay,
 .day-tooltip,
@@ -25,9 +23,9 @@ dialog:not([data-menu-motion]),
 #event-end-panel-v2,
 .log-detail,
 .recipe-items {
- opacity:0; translate:0 -6px;
+ opacity:0;
  animation:none!important;
- transition:opacity var(--surface-exit) var(--surface-ease), translate var(--surface-exit) var(--surface-ease), display var(--surface-exit) allow-discrete, overlay var(--surface-exit) allow-discrete, visibility var(--surface-exit) allow-discrete!important;
+ transition:opacity var(--surface-exit) var(--surface-ease), display var(--surface-exit) allow-discrete, overlay var(--surface-exit) allow-discrete, visibility var(--surface-exit) allow-discrete!important;
 }
 dialog:not([data-menu-motion])[open],
 .modal-overlay:is(.show,.active),
@@ -51,7 +49,7 @@ dialog:not([data-menu-motion])[open],
 .ft-add-options:not([hidden]),
 #event-end-panel-v2:not([hidden]),
 .log-card.is-open .log-detail:not([hidden]),
-.recipe-item.open .recipe-items { opacity:1; translate:none; transition-duration:var(--surface-enter)!important; }
+.recipe-item.open .recipe-items { opacity:1; transition-duration:var(--surface-enter)!important; }
 @starting-style {
 dialog:not([data-menu-motion])[open],
 .modal-overlay:is(.show,.active),
@@ -75,7 +73,7 @@ dialog:not([data-menu-motion])[open],
 .ft-add-options:not([hidden]),
 #event-end-panel-v2:not([hidden]),
 .log-card.is-open .log-detail:not([hidden]),
-.recipe-item.open .recipe-items { opacity:0; translate:0 -6px; }
+.recipe-item.open .recipe-items { opacity:0; }
 }
 /* Backdrops fade in place, independently of the editor. */
 .modal-overlay { translate:none!important; }
@@ -87,7 +85,11 @@ dialog:not([data-menu-motion])::backdrop {
 dialog:not([data-menu-motion])[open]::backdrop { opacity:1; }
 @starting-style { dialog:not([data-menu-motion])[open]::backdrop { opacity:0; } }
 /* Managed dialogs use one reversible Web Animation, including Safari exit. */
-dialog[data-surface-dialog] { animation:none!important; transition:none!important; }
+[data-surface-panel][data-surface-panel] { animation:none!important; transition:none!important; }
+[data-surface-measuring] { scale:1!important; translate:none!important; }
+/* A closing editor must not turn its blurred surroundings into a tiny page image. */
+[data-surface-panel] { backdrop-filter:none!important; -webkit-backdrop-filter:none!important; }
+.modal-overlay[data-surface-closing] { opacity:0; }
 @media(prefers-reduced-motion:reduce) {
  :root { --surface-enter:0s; --surface-exit:0s; }
  details::details-content, dialog::backdrop { transition:none!important; }

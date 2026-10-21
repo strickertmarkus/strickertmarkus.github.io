@@ -3,7 +3,7 @@ const {webkit}=require('playwright'),assert=require('node:assert/strict'),fs=req
 const {setup}=require('./travel-browser.cjs');
 const out='test-results/menu-morph';
 async function finish(panel){await panel.evaluate(async e=>{const all=e.getAnimations();all.forEach(a=>a.play());await Promise.all(all.map(a=>a.finished.catch(()=>{})));});}
-async function frame(panel,fraction){return panel.evaluate(async(e,f)=>{const a=e.getAnimations().find(a=>a.effect.getKeyframes().some(k=>k.transform));if(!a)throw Error('No geometric menu animation');a.pause();a.currentTime=Number(a.effect.getTiming().duration)*f;await new Promise(requestAnimationFrame);const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};},fraction);}
+async function frame(panel,fraction){return panel.evaluate(async(e,f)=>{const a=e.getAnimations().find(a=>a.effect.getKeyframes().some(k=>k.scale));if(!a)throw Error('No geometric menu animation');a.pause();a.currentTime=Number(a.effect.getTiming().duration)*f;await new Promise(requestAnimationFrame);const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};},fraction);}
 (async()=>{
  fs.mkdirSync(out,{recursive:true});const browser=await webkit.launch(),ctx=await setup(browser,390),page=await ctx.newPage();
  try{
