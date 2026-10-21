@@ -1747,7 +1747,7 @@ function updateBuilderModeUI(){
  $('exercise-list').hidden=!visibleEditor;
  box.querySelector('.builder-add-exercise').hidden=!visibleEditor;
  box.querySelector('.builder-main-actions').hidden=isTemplate||!dayEditing;
- box.querySelector('.builder-new-template').hidden=!isTemplate||builderTemplateCreating;
+ box.querySelector('.builder-new-template').hidden=!isTemplate||builderTemplateCreating||!!builderTemplateId;
  box.querySelector('.builder-date-field').hidden=isTemplate;
  box.querySelector('[data-action="delete-template"]').disabled=!(isTemplate&&builderTemplates().some(function(t){return String(t.id)===String(builderTemplateId);}));
  box.querySelector('[data-action="save-template"]').disabled=!(isTemplate&&(builderTemplateCreating||!!builderTemplateId));
@@ -2302,9 +2302,13 @@ function openHistory(id){
 }
 // Keep completed sets separate from planned/uncompleted sets, as on the family log.
 function logEditorSet(source){
- return {id:source&&source.id||uid(),weight:Math.max(0,Number(source&&source.weight)||0),
-  reps:Math.max(0,Math.round(Number(source&&source.reps)||0)),
-  minutes:Math.max(0,Number(source&&source.minutes)||0),
+ function numberOrNull(value,integer){
+  if(value===null||value===undefined||value==='')return null;
+  var n=Number(value);return Number.isFinite(n)?(integer?Math.round(n):n):null;
+ }
+ return {id:source&&source.id||uid(),weight:numberOrNull(source&&source.weight,false),
+  reps:numberOrNull(source&&source.reps,true),
+  minutes:numberOrNull(source&&source.minutes,false),
   done:source?!!source.done:true,skipped:source?!!source.skipped:false};
 }
 function logEditorExercise(mode){
@@ -2384,8 +2388,8 @@ function renderHistoryEditor(){
    '<label class="field"><span class="set-label">Mätning</span><select data-log-mode="'+i+'" aria-label="Mätning övning '+(i+1)+'"><option value="kg" '+(!timed?'selected':'')+'>kg × reps</option><option value="min" '+(timed?'selected':'')+'>Minuter</option></select></label></div>'+
    '<div class="log-editor-set-head"><span>#</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'REPS (VALFRITT)':'REPS')+'</span><span>KLART</span><span></span></div>'+
    ex.sets.map(function(set,j){return '<div class="log-editor-set-row" data-log-set-row="'+i+':'+j+'"><span class="set-number">'+(j+1)+'</span>'+
-    '<input type="number" min="0" max="9999" step="0.5" inputmode="decimal" data-log-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+(timed?set.minutes:set.weight)+'" aria-label="'+(timed?'Minuter':'Vikt')+' set '+(j+1)+'">'+
-    '<input type="number" min="0" max="9999" step="1" inputmode="numeric" data-log-set="'+i+':'+j+':reps" value="'+set.reps+'" aria-label="Reps set '+(j+1)+'">'+
+    '<input type="number" min="0" max="9999" step="0.5" inputmode="decimal" data-log-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+((timed?set.minutes:set.weight)??'')+'" aria-label="'+(timed?'Minuter':'Vikt')+' set '+(j+1)+'">'+
+    '<input type="number" min="0" max="9999" step="1" inputmode="numeric" data-log-set="'+i+':'+j+':reps" value="'+(set.reps??'')+'" aria-label="Reps set '+(j+1)+'">'+
     '<input type="checkbox" data-log-done="'+i+':'+j+'" '+(set.done&&!set.skipped?'checked':'')+' aria-label="Set '+(j+1)+' genomfört">'+
     '<button type="button" class="mini" data-log-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'">×</button></div>';}).join('')+
    '<button type="button" class="mini log-editor-add-set" data-log-add-set="'+i+'">＋ Lägg till set</button></div></article>';
@@ -2426,7 +2430,7 @@ function updateHistoryEditorField(element){
   var ex=w.exercises[Number(element.dataset.logName)];if(ex)ex.name=element.value;
  }else if(element.dataset.logSet){
   var parts=element.dataset.logSet.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
-  if(set)set[parts[2]]=element.validity&&element.validity.badInput?null:element.value===''?(parts[2]==='reps'?0:null):Number(element.value);
+  if(set)set[parts[2]]=element.validity&&element.validity.badInput?'invalid':element.value===''?null:Number(element.value);
  }else if(element.dataset.logDone){
   var parts=element.dataset.logDone.split(':'),ex=w.exercises[Number(parts[0])],set=ex&&ex.sets[Number(parts[1])];
   if(set){set.done=element.checked;set.skipped=false;}
@@ -2467,13 +2471,30 @@ function saveHistoryEditor(){
   if(!ex.name||ex.name.length>90||!ex.sets.length||ex.sets.length>20){toast('Ange övningsnamn och minst ett set per övning.');return;}
   for(var set of ex.sets){
    var amount=ex.mode==='min'?set.minutes:set.weight;
-   if(!Number.isFinite(amount)||amount<0||amount>9999||!Number.isInteger(set.reps)||set.reps<0||set.reps>9999){
-    toast('Ange giltig vikt/tid och repetitioner.');return;
-   }
-   if(set.done&&!set.skipped&&(ex.mode==='min'&&amount<=0||ex.mode==='kg'&&set.reps<=0)){
-    toast('Genomförda set behöver tid eller repetitioner.');return;
+   if(amount!=null&&(!Number.isFinite(amount)||amount<0||amount>9999)||
+      set.reps!=null&&(!Number.isInteger(set.reps)||set.reps<0||set.reps>9999)){
+    toast('Ange giltig vikt/tid och hela repetitioner, eller lämna fälten tomma.');return;
    }
   }
+ }
+ var warnings=[];
+ w.exercises.forEach(function(ex){
+  ex.sets.forEach(function(set,index){
+   if(!set.done||set.skipped)return;
+   var missing=[];
+   if(ex.mode==='min'){
+    if(set.minutes==null||set.minutes===0)missing.push('tid');
+   }else{
+    if(set.weight==null)missing.push('vikt');
+    if(set.reps==null||set.reps===0)missing.push('repetitioner');
+   }
+   if(missing.length)warnings.push(ex.name+', set '+(index+1)+': '+missing.join(' och '));
+  });
+ });
+ if(warnings.length){
+  var examples=warnings.slice(0,4).map(function(item){return '• '+item;}).join('\n');
+  var more=warnings.length>4?'\n… och '+(warnings.length-4)+' set till.':'';
+  if(!confirm('Vissa genomförda set saknar resultat eller har 0 repetitioner:\n\n'+examples+more+'\n\nVill du spara passet ändå?'))return;
  }
  var index=state.history.findIndex(function(item){return String(item.id)===String(historyEditId);}),isNew=index<0;
  w.name=w.name.trim();
