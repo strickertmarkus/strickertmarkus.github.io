@@ -291,6 +291,52 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+#training-view .training-kind-cards{gap:10px}
+#training-view .training-kind-card{--kind-rgb:192,82,99;--kind-accent:#e6a0b2;display:flex;flex-direction:column;min-height:148px;padding:13px 14px;border-color:rgba(var(--kind-rgb),.23);background:linear-gradient(140deg,rgba(var(--kind-rgb),.055),transparent 65%),#0b0e15}
+#training-view .training-kind-card.pull{--kind-rgb:103,232,249;--kind-accent:#a6eef6}
+#training-view .training-kind-card.cardio{--kind-rgb:247,160,94;--kind-accent:#f9bd88}
+#training-view .training-kind-card:hover,#training-view .training-kind-card[aria-expanded=true]{border-color:rgba(var(--kind-rgb),.58);background:linear-gradient(140deg,rgba(var(--kind-rgb),.09),transparent 65%),#0b0e15;box-shadow:0 0 22px rgba(var(--kind-rgb),.075)}
+#training-view .training-kind-head{display:flex;justify-content:space-between;align-items:center}
+#training-view .training-kind-card .glyph{font-size:20px;color:var(--kind-accent)}
+#training-view .training-kind-chevron{color:var(--kind-accent);font-size:15px}
+#training-view .training-kind-card b{margin:6px 0 2px;font-size:18px}
+#training-view .training-kind-subtitle{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#training-view .training-kind-stats{display:flex;gap:14px;margin-top:auto;padding-top:13px}
+#training-view .training-kind-stats span{display:flex;flex-direction:column;gap:3px;min-width:0}
+#training-view .training-kind-stats em{font-size:9px;font-style:normal;color:#85838e}
+#training-view .training-kind-stats strong{font-size:11px;font-weight:650;color:var(--kind-accent);white-space:nowrap}
+#training-view .training-kind-detail{--kind-rgb:192,82,99;--kind-accent:#e6a0b2;margin-top:8px;padding:14px;border:1px solid rgba(var(--kind-rgb),.34);border-radius:15px;background:linear-gradient(140deg,rgba(var(--kind-rgb),.06),transparent 55%),#090d14;box-shadow:0 12px 35px #0003}
+#training-view .training-kind-detail[data-tone=pull]{--kind-rgb:103,232,249;--kind-accent:#a6eef6}
+#training-view .training-kind-detail[data-tone=cardio]{--kind-rgb:247,160,94;--kind-accent:#f9bd88}
+#training-view .training-kind-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--kind-accent)}
+#training-view .training-kind-detail-head strong{font-size:14px}
+#training-view .training-kind-close{border:0;background:transparent;color:#a2a2ad;font-size:23px;line-height:1;padding:0 4px}
+#training-view .training-kind-detail-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:16px}
+#training-view .training-kind-detail-grid>div{min-width:0}
+#training-view .training-kind-kicker{display:block;margin-bottom:8px;font-size:9px;font-weight:750;letter-spacing:.11em;color:#8e8d9a}
+#training-view .training-kind-last{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:10px;border:1px solid #ffffff19;border-radius:10px;background:#ffffff04;color:var(--kind-accent);text-align:left}
+#training-view .training-kind-last span:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+#training-view .training-kind-last strong{font-size:12px;color:#e9e5ea;overflow-wrap:anywhere}
+#training-view .training-kind-last small{font-size:10px;color:#a6a0aa}
+#training-view .training-kind-empty{margin:4px 0 10px;color:#858490;font-size:11px;line-height:1.4}
+#training-view .training-kind-template-list{display:grid;gap:5px;max-height:220px;overflow-y:auto}
+#training-view .training-kind-template{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff03}
+#training-view .training-kind-template-title{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;font-size:11px;font-weight:650;color:#e3dee4;overflow-wrap:anywhere}
+#training-view .training-kind-template-title small{font-size:9px;font-weight:400;color:#888694}
+#training-view .training-kind-template button,#training-view .training-kind-actions button{min-height:32px;padding:6px 9px;border:1px solid rgba(var(--kind-rgb),.35);border-radius:9px;background:rgba(var(--kind-rgb),.08);color:var(--kind-accent);font-size:10px;font-weight:700}
+#training-view .training-kind-template button:last-child{border-color:#ffffff1d;background:#ffffff05;color:#c3bdc7}
+#training-view .training-kind-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:13px;padding-top:11px;border-top:1px solid #ffffff10}
+#training-view .training-kind-actions button{font-size:11px;padding:8px 13px}
+#builder,#history-editor{--form-rgb:192,82,99;--form-accent:#e6a0b2}
+#builder[data-tone=pull],#history-editor[data-tone=pull]{--form-rgb:103,232,249;--form-accent:#b1f1f6}
+#builder[data-tone=cardio],#history-editor[data-tone=cardio]{--form-rgb:247,160,94;--form-accent:#f7bf91}
+#builder .exercise-card,#history-editor .exercise-card{border-color:rgba(var(--form-rgb),.25)}
+#builder .builder-mode-switch button[aria-pressed=true],#builder .type-pills .pill.active{border-color:rgba(var(--form-rgb),.48);background:rgba(var(--form-rgb),.11);color:var(--form-accent);box-shadow:0 0 13px rgba(var(--form-rgb),.065)}
+#builder .builder-card-chevron,#builder .builder-card-title small,#history-editor .builder-card-chevron,#history-editor .builder-card-title small{color:var(--form-accent)}
+#builder .builder-add-exercise,#builder .builder-new-template{border-color:rgba(var(--form-rgb),.36);background:rgba(var(--form-rgb),.065);color:var(--form-accent)}
+#builder .builder-day-create{border-color:rgba(var(--form-rgb),.37);background:rgba(var(--form-rgb),.07);color:var(--form-accent)}
+@media(max-width:600px){#training-view .training-kind-card{min-height:128px;padding:10px 8px}#training-view .training-kind-card b{font-size:13px;margin:6px 0 3px}#training-view .training-kind-card .glyph{font-size:17px}#training-view .training-kind-subtitle{font-size:9px}#training-view .training-kind-stats{gap:5px;padding-top:11px}#training-view .training-kind-stats em{font-size:8px}#training-view .training-kind-stats strong{font-size:9px}#training-view .training-kind-detail{padding:11px}#training-view .training-kind-detail-grid{grid-template-columns:1fr;gap:12px}#training-view .training-kind-template{flex-wrap:wrap}#training-view .training-kind-template-title{flex-basis:100%}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
