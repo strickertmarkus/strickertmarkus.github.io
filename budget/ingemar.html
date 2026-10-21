@@ -2004,11 +2004,13 @@ function toggleHeroPassMenu(){
 }
 function start(workout){
  if(familySessionOpen)return;
+ if(!window.IngemarAccount.canEdit){toast('Vänta på anslutningen innan du startar, så att passet kan loggas.');return;}
  var p=workout&&Array.isArray(workout.exercises)?workout:plan(selected);
  if(!p||!Array.isArray(p.exercises)||!p.exercises.length){toggleHeroPassMenu();return;}
  closeHeroPassMenu();
  var requestId='ingemar-'+Date.now()+'-'+(++familySessionSerial);
- pendingFamilySession={workout:deep(p),date:selected,requestId:requestId};
+ // Loggdatum ska vara datumet passet verkligen kördes, oberoende av kalenderurvalet.
+ pendingFamilySession={workout:deep(p),date:dayISO(new Date()),requestId:requestId};
  familySessionAttempt=0;familySessionOpen=true;
  var frame=familySessionFrame();
  frame.hidden=false;frame.setAttribute('aria-busy','true');
@@ -2053,8 +2055,18 @@ window.addEventListener('message',function(event){
   return;
  }
  if(message.type==='ingemar-family-session-saved'){
-  if(message.workout){state.history.push(message.workout);persist();}
-  closeFamilySession();render();toast('Träningspasset och dina rekord har sparats.');return;
+  if(!familySessionOpen)return;
+  var completed=message.workout;
+  if(!completed||!Array.isArray(completed.exercises)||!completed.exercises.length){
+   closeFamilySession();toast('Inga genomförda set att registrera i loggen.');return;
+  }
+  // Samma loggväg används för dagens pass, mallpass och andra sparade pass.
+  var existing=state.history.some(function(item){return String(item.id)===String(completed.id);});
+  if(!existing)state.history.push(completed);
+  var saved=persist();
+  closeFamilySession();render();
+  toast(saved?'Passet registrerat i träningsloggen · synkas med Firebase.':'Kunde inte spara träningsloggen. Håll sidan öppen och anslut igen.');
+  return;
  }
  if(message.type==='ingemar-family-session-closed'){
   closeFamilySession();toast('Passet avslutades utan att sparas.');
