@@ -716,6 +716,10 @@
        only Push/Pull strength sessions receive Ingemar's custom color. */
     #session-modal[data-ingemar-tone] .session-cta.primary{box-shadow:0 9px 26px rgba(var(--ingemar-tone-rgb),.20)!important;}
   </style>
+<!-- Progresspunkternas delade CSS-modul kräver legacy-stil-ID.
+     Pulse Flow v58 används som grund här; detta gör att den gemensamma
+     punktrenderarens senaste färger och aktiva glow används även för Ingemar. -->
+<style id="exercise-pulse-flow-main-v85-style" data-ingemar-progress-compat="true"></style>
 <style>html,body{margin:0;min-height:100%;background:#080D14}body{overflow:hidden}#toast[hidden]{display:none!important}#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2147483600;padding:10px 16px;border:1px solid rgba(103,232,249,.25);border-radius:999px;background:#0a1119;color:#cffafe;font:600 12px Inter,sans-serif;box-shadow:0 10px 35px #0008}</style>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
