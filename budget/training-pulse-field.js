@@ -400,7 +400,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,1600),height=clamp(byId('activity-chart').clientHeight||180,164,195),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
+    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,1600),height=clamp(byId('activity-chart').clientHeight||180,164,275),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
     svg+=chartAxisUnit(metric==='minutes'?'MIN':'PASS',left,top);
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
@@ -487,7 +487,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
     var dateKeys=Object.keys(dates).sort();
     if(!dateKeys.length)return '<div class="volume-empty">Ingen passvolym finns att visa ännu.</div>';
-    var width=clamp(chart.clientWidth||820,320,1600),height=clamp(chart.clientHeight||272,230,292),left=53,right=22,top=24,bottom=38,plotW=width-left-right,plotH=height-top-bottom;
+    var width=clamp(chart.clientWidth||820,320,1600),height=clamp(chart.clientHeight||272,230,440),left=53,right=22,top=24,bottom=38,plotW=width-left-right,plotH=height-top-bottom;
     var firstDate=dateAtNoon(dateKeys[0]).getTime(),lastDate=dateAtNoon(dateKeys[dateKeys.length-1]).getTime(),span=Math.max(1,lastDate-firstDate);
     // Start the volume axis at 1000 kg for typical strength sessions,
     // expanding downward only when recorded values would otherwise be clipped.
@@ -744,7 +744,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function lineChart(entries,options) {
     if(!entries.length)return emptyChart(options.empty);
     var container=byId(options.containerId||'insight-chart');
-    var width=clamp(container.clientWidth||820,320,1600),height=clamp(container.clientHeight||276,230,290),left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
+    var width=clamp(container.clientWidth||820,320,1600),height=clamp(container.clientHeight||276,230,440),left=47,right=32,top=32,bottom=37,values=entries.map(function(e){return e.value;}),min=options.min!=null?options.min:Math.min.apply(Math,values),max=options.max!=null?options.max:Math.max.apply(Math,values);
     if(min===max){var samePad=Math.max(Math.abs(min)*.04,1);min=Math.max(options.floor||0,min-samePad);max+=samePad;}
     var range=Math.max(.0001,max-min),pad=range*.14;
     if(options.min==null)min=Math.max(options.floor||0,min-pad);
@@ -776,7 +776,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function heartChart(entries) {
     var valid=entries.filter(function(entry){return entry.value!=null&&entry.value>0;});
     if(!valid.length)return emptyChart('Pulskurvan visas när ett pass med puls är loggat.');
-    var width=clamp(byId('insight-chart').clientWidth||820,320,1600),height=clamp(byId('insight-chart').clientHeight||276,230,290),left=47,right=34,top=32,bottom=37;
+    var width=clamp(byId('insight-chart').clientWidth||820,320,1600),height=clamp(byId('insight-chart').clientHeight||276,230,440),left=47,right=34,top=32,bottom=37;
     var min=Math.max(0,Math.min.apply(Math,valid.map(function(e){return e.min||e.value;}))-15);
     var max=Math.max.apply(Math,valid.map(function(e){return e.max||e.value;}))+15;
     min=Math.floor(min/10)*10;max=Math.ceil(max/10)*10;
