@@ -1013,7 +1013,7 @@ function normalizeAccountState(value){
  }));
 }
 function load(){return emptyState();}
-var state=load(),selected=dayISO(new Date()),builderMode='day',builderDayDraft=null,builderTemplateDraft=null,view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
+var state=load(),selected=dayISO(new Date()),builderMode='day',builderDayDraft=null,builderTemplateDraft=null,builderTemplateDraftId='',view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
 function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
 var undoPending=null;
 function placeToast(){
@@ -1399,7 +1399,7 @@ function openWeekDayBuilder(index){
  if(!TYPES.includes(kind))kind='Push';
  builderWeekIndex=index;weekExpandedDay=index;
  weekPlannerScrollY=$('week-planner').scrollTop;
- draft=entry?deep(entry):state.builderDrafts[date]?deep(state.builderDrafts[date]):freshBuilderDraft(kind,date);builderMode='day';builderDayDraft=null;builderTemplateDraft=null;
+ draft=entry?deep(entry):state.builderDrafts[date]?deep(state.builderDrafts[date]):freshBuilderDraft(kind,date);builderMode='day';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';
  builderBase=deep(entry||null);draft.date=date;builderDraftDate=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+DAYS[index]+' · '+pretty(date);
  $('build-date').disabled=true;
@@ -1545,11 +1545,11 @@ function updateBuilderModeUI(){
 function setBuilderMode(mode){
  if((mode!=='day'&&mode!=='template')||mode===builderMode||!draft)return;
  updateDraftFromBuilderInputs();
- if(builderMode==='day')builderDayDraft=deep(draft);else builderTemplateDraft=deep(draft);
+ if(builderMode==='day')builderDayDraft=deep(draft);else {builderTemplateDraft=deep(draft);builderTemplateDraftId=builderTemplateId;}
  builderMode=mode;
  if(mode==='template'){draft=builderTemplateDraft?deep(builderTemplateDraft):freshBuilderDraft(builderDayDraft&&builderDayDraft.type,builderDayDraft&&builderDayDraft.date);}
  else {draft=builderDayDraft?deep(builderDayDraft):freshBuilderDraft(draft.type,builderDraftDate);builderBase=deep(plan(draft.date));}
- builderTemplateId='';builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+ builderTemplateId=mode==='template'?builderTemplateDraftId:'';builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
 }
 function renderBuilderTemplates(){
  var templates=builderTemplates(),select=$('builder-template-select');
@@ -1561,7 +1561,7 @@ function renderBuilderTemplates(){
 }
 function newBuilderTemplate(){
  if(builderMode!=='template')return;
- draft=freshBuilderDraft(draft&&draft.type,builderDraftDate);builderTemplateId='';builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+ draft=freshBuilderDraft(draft&&draft.type,builderDraftDate);builderTemplateId='';builderTemplateDraftId='';builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
 }
 function saveBuilderTemplate(){
  if(builderMode!=='template'||!draft)return;
@@ -1573,7 +1573,7 @@ function saveBuilderTemplate(){
  var item={id:old?old.id:uid(),name:draft.name,type:draft.type,exercises:deep(draft.exercises),betweenExercises:normalizeBetweenOption(draft.betweenExercises),preTimerEnabled:draft.preTimerEnabled!==false};
  if(old)Object.assign(old,item);else templates.push(item);
  if(!persist()){if(old)Object.assign(old,previous);else state.templates=templates.filter(function(t){return String(t.id)!==String(item.id);});return;}
- builderTemplateId=item.id;builderTemplateDraft=deep(draft);renderBuilderTemplates();toast(old?'Mallpass uppdaterat.':'Mallpass sparat.');
+ builderTemplateId=item.id;builderTemplateDraftId=item.id;builderTemplateDraft=deep(draft);renderBuilderTemplates();toast(old?'Mallpass uppdaterat.':'Mallpass sparat.');
 }
 function applyBuilderTemplate(){
  if(!draft)return;
@@ -1660,7 +1660,7 @@ function endBuilderDrag(event){
 }
 
 function openBuilder(type,editDay){
- builderWeekIndex=-1;builderMode='day';builderDayDraft=null;builderTemplateDraft=null;
+ builderWeekIndex=-1;builderMode='day';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';
  // Bara explicit klick på ett datum öppnar ett tidigare sparat pass.
  if(!editDay)selected=dayISO(new Date());
  var existing=editDay?(plan(selected)||state.builderDrafts[selected]):null;
@@ -2778,7 +2778,7 @@ $('week-planner').addEventListener('cancel',function(event){event.preventDefault
 $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom=-1;unlockBuilderBackground();});
 $('plan-preview').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('plan-preview'));});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();if(builderOpenExerciseIndex>=0){closeBuilderExercisePicker();return;}closeBuilder();});
-$('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';builderMode='day';builderDayDraft=null;builderTemplateDraft=null;unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
+$('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';builderMode='day';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
 $('history-detail').addEventListener('close',unlockBuilderBackground);
 $('history-detail').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
