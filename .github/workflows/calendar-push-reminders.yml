@@ -2,6 +2,14 @@ name: Calendar push reminders
 
 on:
   workflow_dispatch:
+  # One morning run every day, including when nobody has the page open.
+  # 08:17 UTC = 09:17 CET / 10:17 CEST, always the day before the due date.
+  schedule:
+    - cron: '17 8 * * *'
+
+concurrency:
+  group: family-push-reminders
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -32,5 +40,8 @@ jobs:
       - name: Install Firebase Admin SDK
         run: npm install --no-save --no-package-lock firebase-admin@13
 
-      - name: Send due calendar reminders
+      - name: Check to-do reminder date rules
+        run: node --test budget/tests/todo-push-reminders.test.mjs
+
+      - name: Send due calendar and to-do reminders
         run: node budget/push-worker.mjs
