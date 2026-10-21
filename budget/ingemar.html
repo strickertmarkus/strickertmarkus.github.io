@@ -2515,6 +2515,7 @@ function updateHistoryEditorField(element){
   var field=element.dataset.logField;
   if(field==='minutes')w.minutes=Number(element.value);
   else w[field]=element.value;
+  if(field==='type')$('history-editor').dataset.tone=w.type==='Pull'?'pull':w.type==='Kondition'?'cardio':'push';
  }else if(element.dataset.logName!=null){
   var ex=w.exercises[Number(element.dataset.logName)];if(ex)ex.name=element.value;
  }else if(element.dataset.logSet){
