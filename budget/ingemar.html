@@ -1432,7 +1432,7 @@ function openWeekDayBuilder(index){
  if(!TYPES.includes(kind))kind='Push';
  builderWeekIndex=index;weekExpandedDay=index;
  weekPlannerScrollY=$('week-planner').scrollTop;
- draft=entry?deep(entry):state.builderDrafts[date]?deep(state.builderDrafts[date]):freshBuilderDraft(kind,date);builderMode='day';builderDayStage=entry?'existing':'custom';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;
+ draft=entry?deep(entry):state.builderDrafts[date]?deep(state.builderDrafts[date]):freshBuilderDraft(kind,date);builderMode='day';builderDayStage=entry?'existing':'choose';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;
  builderBase=deep(entry||null);draft.date=date;builderDraftDate=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
  $('builder-title').textContent='Bygg '+DAYS[index]+' · '+pretty(date);
  $('build-date').disabled=true;
@@ -1581,7 +1581,7 @@ function updateBuilderModeUI(){
  box.querySelector('.builder-name-field').hidden=!(isTemplate?newTemplate:builderDayStage==='custom');
  box.querySelector('.builder-type-field').hidden=isTemplate?(!builderTemplateCreating&&!builderTemplateId):!dayEditing;
  box.querySelector('.builder-template-field').hidden=!isTemplate&&builderDayStage==='custom';
- box.querySelector('.builder-day-create').hidden=isTemplate||builderWeekIndex>=0||!(builderDayStage==='choose'||builderDayStage==='loaded');
+ box.querySelector('.builder-day-create').hidden=isTemplate||!(builderDayStage==='choose'||builderDayStage==='loaded');
  var visibleEditor=isTemplate?(builderTemplateCreating||!!builderTemplateId):dayEditing;
  $('exercise-list').hidden=!visibleEditor;
  box.querySelector('.builder-add-exercise').hidden=!visibleEditor;
@@ -1593,7 +1593,7 @@ function updateBuilderModeUI(){
 function setBuilderMode(mode){
  if((mode!=='day'&&mode!=='template')||mode===builderMode||!draft)return;
  updateDraftFromBuilderInputs();
- if(builderMode==='day')builderDayDraft=deep(draft);else {builderTemplateDraft=deep(draft);builderTemplateDraftId=builderTemplateId;builderTemplateDraftCreating=builderTemplateCreating;}
+ if(builderMode==='day'){builderDayDraft=deep(draft);keepBuilderDraft();}else {builderTemplateDraft=deep(draft);builderTemplateDraftId=builderTemplateId;builderTemplateDraftCreating=builderTemplateCreating;}
  builderMode=mode;
  if(mode==='template'){draft=builderTemplateDraft?deep(builderTemplateDraft):freshBuilderDraft(builderDayDraft&&builderDayDraft.type,builderDayDraft&&builderDayDraft.date);builderTemplateCreating=builderTemplateDraftCreating;}
  else {draft=builderDayDraft?deep(builderDayDraft):freshBuilderDraft(draft.type,builderDraftDate);builderBase=deep(plan(draft.date));}
@@ -1614,7 +1614,7 @@ function newBuilderTemplate(){
  builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
 }
 function createNewDayWorkout(){
- if(builderMode!=='day'||builderWeekIndex>=0||!draft)return;
+ if(builderMode!=='day'||!draft)return;
  updateDraftFromBuilderInputs();
  var date=validDay(draft.date)?draft.date:dayISO(new Date());
  var kind=TYPES.includes(draft.type)?draft.type:'Push';
@@ -1818,7 +1818,7 @@ function keepBuilderDraft(){
  if(builderDraftDate&&builderDraftDate!==date){delete state.builderDrafts[builderDraftDate];builderBase=deep(plan(date));}
  builderDraftDate=date;state.builderDrafts[date]=deep(draft);persist();
 }
-function closeBuilder(){updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();var wasTemplate=builderMode==='template',wasChooser=builderMode==='day'&&builderDayStage==='choose';if(builderMode==='day')keepBuilderDraft();endBuilderDrag();draft=null;SurfaceMotion.closeDialog($('builder'));render();if(!wasChooser)toast(wasTemplate?'Mallredigering stängd.':'Utkast sparat – öppna datumet för att fortsätta.');}
+function closeBuilder(){updateDraftFromBuilderInputs();rememberAllTypedExerciseNames();var wasTemplate=builderMode==='template',wasChooser=builderMode==='day'&&builderDayStage==='choose';if(builderMode==='day')keepBuilderDraft();else if(builderDayDraft&&builderDayStage!=='choose'&&window.IngemarAccount.canEdit){state.builderDrafts[builderDayDraft.date]=deep(builderDayDraft);persist();}endBuilderDrag();draft=null;SurfaceMotion.closeDialog($('builder'));render();if(!wasChooser)toast(wasTemplate?'Mallredigering stängd.':'Utkast sparat – öppna datumet för att fortsätta.');}
 function updateDraftField(el){
  if(!draft)return;
  if(el.id==='build-date'){draft.date=el.value;$('build-date-text').textContent=validDay(el.value)?builderDateText(el.value):'Välj datum';return;}
