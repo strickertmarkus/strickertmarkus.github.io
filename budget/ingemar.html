@@ -212,28 +212,29 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-name-field[hidden],#builder .builder-type-field[hidden],#builder .builder-template-field[hidden],#builder .builder-day-create[hidden],#builder .builder-new-template[hidden],#builder #exercise-list[hidden],#builder .builder-add-exercise[hidden],#builder .builder-main-actions[hidden]{display:none!important}
 #builder .builder-new-template{display:block;width:100%;min-height:40px;margin:14px 0 4px;border:1px solid #bd7c9049;background:#ad415912;color:#e9bdcb;border-radius:11px;font-size:12px;transition:background .18s,border-color .18s}
 #builder .builder-new-template:hover{background:#ad415927;border-color:#ce8196}
-/* Ingemars startyta: en kompakt dagrad och tre små, jämnstora snabbval. */
-#training-view .hero .copy{position:relative;z-index:5}
+/* Ingemars Observatory-startyta: en låg statusrad + tre diskreta snabbval. */
+#training-view .hero .copy{position:relative;z-index:5;min-width:0}
 #training-view .hero .actions{margin-top:18px}
 #training-view .hero-start-launcher{position:relative;z-index:6;width:min(100%,475px);min-width:0}
-#training-view .hero-start-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;align-items:stretch}
-#training-view .hero .actions .hero-start-switch>button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;width:100%;min-height:43px;height:auto;margin:0;padding:9px 8px;border-radius:11px;line-height:1.15;font-size:11px;font-weight:750;text-align:center;white-space:normal;overflow-wrap:anywhere;box-shadow:none;transition:background .18s,border-color .18s,filter .18s,box-shadow .18s}
-#training-view .hero .actions .hero-start-pass{grid-column:1/-1;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-height:56px;padding:10px 16px;border:1px solid #b4647966;border-radius:12px;background:linear-gradient(107deg,#923e583b,#b75b6e15 75%,#a13d5307);color:#eed1da;text-align:left}
-#training-view .hero .actions .hero-start-pass::after{content:'';position:absolute;right:17px;top:50%;width:6px;height:6px;border-radius:50%;transform:translateY(-50%);background:#ce8195;box-shadow:0 0 12px #d9789970;pointer-events:none}
-#training-view .hero .actions .hero-start-pass:hover{background:linear-gradient(107deg,#923e585a,#b75b6e21 75%,#a13d530e);border-color:#d3819888}
-#training-view .hero-start-main{display:block;font-size:12px;font-weight:800;line-height:1.2;white-space:normal}
-#training-view .hero-start-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;max-width:calc(100% - 23px);min-width:0;overflow:hidden;overflow-wrap:anywhere;font-size:10px;line-height:1.25;font-weight:650;color:#c68b9d}
+#training-view .hero-day-card{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;min-height:61px;padding:9px 10px 9px 14px;border:1px solid #b4647938;border-radius:13px;background:linear-gradient(110deg,#a1496011,#ad415908 70%,#ffffff02)}
+#training-view .hero-day-copy{display:flex;flex:1 1 auto;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+#training-view .hero-start-main{display:block;color:#ad8897;font-size:9px;line-height:1.15;font-weight:800;letter-spacing:.13em}
+#training-view .hero-start-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;max-width:100%;min-width:0;overflow:hidden;overflow-wrap:anywhere;color:#f0d6df;font-size:13px;line-height:1.25;font-weight:700}
 #training-view .hero-start-name[hidden],#training-view .hero-pass-menu[hidden]{display:none!important}
-#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-pass{border-color:#ffffff27;background:#ffffff06;box-shadow:none;color:#b8a2b0}
-#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-pass::after{background:#867580;box-shadow:none}
-#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-name{color:#948996}
-#training-view .hero .actions .hero-start-alternative{border:1px solid #bd79894a;background:#ad415911;color:#e5b1c0}
-#training-view .hero-start-alternative:hover,#training-view .hero-start-alternative[aria-expanded="true"]{background:#ad415927;border-color:#c97b9288;box-shadow:0 0 14px #ad415912}
-#training-view .hero .actions .hero-build-pass{border:1px solid #ffffff23;background:#ffffff07;color:#d6c6d1}
-#training-view .hero .actions .hero-build-pass:hover{background:#ffffff12;border-color:#ffffff42}
-#training-view .hero .actions .hero-log-pass{border:1px solid #79cba649;background:#79cba60a;color:#b6dec8}
-#training-view .hero .actions .hero-log-pass:hover{background:#79cba619;border-color:#79cba68c}
-#training-view .hero .actions .hero-start-switch>button:focus-visible{outline:2px solid #bcecf0;outline-offset:3px}
+#training-view .hero .actions .hero-start-pass{display:flex;flex:0 0 auto;align-items:center;justify-content:center;min-width:86px;min-height:38px;margin:0;padding:9px 15px;border:1px solid #cf819470;border-radius:10px;background:linear-gradient(120deg,#8e3c51,#ad5569);color:#ffe2e9;font-size:11px;line-height:1.2;font-weight:800;letter-spacing:.01em;box-shadow:0 0 15px #a7435c17;transition:background .18s,border-color .18s,box-shadow .18s,filter .18s}
+#training-view .hero .actions .hero-start-pass:hover{background:linear-gradient(120deg,#9d465d,#bb6277);border-color:#e69faf9c;box-shadow:0 0 20px #bc557332}
+#training-view .hero-start-launcher[data-has-plan="false"] .hero-day-card{border-color:#ffffff18;background:#ffffff04}
+#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-name{color:#9a929d}
+#training-view .hero-start-launcher[data-has-plan="false"] .hero-start-pass{border-color:#aa72814f;background:#90465a2c;color:#d6a4b6;box-shadow:none}
+#training-view .hero-start-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch;width:100%;margin-top:7px}
+#training-view .hero .actions .hero-start-switch>button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;min-height:38px;width:100%;margin:0;padding:9px 5px;border-radius:9px;line-height:1.15;font-size:11px;font-weight:720;text-align:center;white-space:normal;overflow-wrap:anywhere;box-shadow:none;transition:background .18s,border-color .18s,color .18s}
+#training-view .hero .actions .hero-start-alternative{border:1px solid #b2718345;background:#ad41590b;color:#dcb0bf}
+#training-view .hero-start-alternative:hover,#training-view .hero-start-alternative[aria-expanded="true"]{background:#ad415922;border-color:#c97b9288}
+#training-view .hero .actions .hero-build-pass{border:1px solid #ffffff1d;background:#ffffff05;color:#cdc0c9}
+#training-view .hero .actions .hero-build-pass:hover{background:#ffffff0f;border-color:#ffffff3b}
+#training-view .hero .actions .hero-log-pass{border:1px solid #79cba63a;background:#79cba608;color:#aed5bd}
+#training-view .hero .actions .hero-log-pass:hover{background:#79cba617;border-color:#79cba67b}
+#training-view .hero .actions .hero-start-launcher button:focus-visible{outline:2px solid #bcecf0;outline-offset:3px}
 #training-view .hero-pass-menu{position:absolute;z-index:30;left:0;top:calc(100% + 9px);width:min(356px,calc(100vw - 28px));max-height:min(490px,62dvh);padding:10px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;border:1px solid #b867845d;border-radius:16px;background:linear-gradient(155deg,#221e2c,#141923 75%);box-shadow:0 22px 48px #000b,0 0 25px #a1406120;animation:heroPassReveal .18s cubic-bezier(.19,1,.3,1) both}
 #training-view .hero-pass-menu-title{display:flex;flex-direction:column;gap:3px;padding:6px 7px 10px;border-bottom:1px solid #ffffff12}
 #training-view .hero-pass-menu-title strong{font-size:12px;color:#f3dce5}
@@ -252,8 +253,8 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #training-view .hero-pass-create{display:block;width:100%;margin-top:9px;padding:10px 12px;border:1px solid #ffffff20;border-radius:10px;background:#ffffff07;color:#d4b3bf;text-align:center;font-size:11px;font-weight:700}
 #training-view .hero-pass-create:hover{background:#ffffff10}
 @keyframes heroPassReveal{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:740px){#training-view .hero .actions{margin-top:18px}#training-view .hero-start-launcher{width:100%}#training-view .hero-start-switch{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#training-view .hero .actions .hero-start-switch>button:not(.hero-start-pass){min-height:43px;padding:8px 5px;font-size:11px}#training-view .hero .actions .hero-start-pass{min-height:55px;padding:9px 13px}#training-view .hero-start-main{font-size:12px}#training-view .hero-start-name{font-size:10px}}
-@media(max-width:350px){#training-view .hero-start-switch{gap:5px}#training-view .hero .actions .hero-start-switch>button:not(.hero-start-pass){font-size:10px;padding:8px 3px}}
+@media(max-width:740px){#training-view .hero .actions{margin-top:16px}#training-view .hero-start-launcher{width:100%}#training-view .hero-day-card{min-height:60px;padding:9px 10px 9px 13px}#training-view .hero .actions .hero-start-switch>button{min-height:40px;font-size:11px}}
+@media(max-width:350px){#training-view .hero-start-switch{gap:5px}#training-view .hero .actions .hero-start-switch>button{padding:8px 3px;font-size:10px}#training-view .hero .actions .hero-start-pass{min-width:73px;padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){#training-view .hero-pass-menu{animation:none}}
 #builder .builder-rename-tools{display:grid;gap:6px;min-width:0;margin:10px 0 0}
 #builder .builder-rename-tools[hidden],#builder .builder-template-rename[hidden],#builder .builder-rename-editor[hidden]{display:none!important}
@@ -435,8 +436,10 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <header><div class="inner"><div class="brand">PULSE<span>FLOW ✧</span><small>INGEMARS TRÄNING</small></div><nav class="topnav" aria-label="Träningslägen"><button type="button" data-view="training" aria-selected="true">Training</button><button type="button" data-view="stretch" aria-selected="false">Stretch</button><button type="button" data-view="meditation" aria-selected="false">Meditation</button></nav><div class="account-strip"><span id="ingemar-sync-status" aria-live="polite" role="status" aria-live="polite">Ansluter…</span><button id="ingemar-logout" type="button">Logga ut</button></div></div></header>
 <main id="ingemar-main">
 <section id="training-view">
-  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><div class="hero-start-launcher" data-has-plan="false"><div class="hero-start-switch" role="group" aria-label="Träningspass">
-<button type="button" class="primary hero-start-pass" id="hero-start-pass" data-action="start" aria-label="Dagens pass: Vila. Välj pass"><span class="hero-start-main" id="hero-start-main">Dagens pass</span><small class="hero-start-name" id="hero-start-name">Vila</small></button>
+  <div class="hero"><div class="copy"><div class="eyebrow">✧ PULSE / OBSERVATORY · DIN PROFIL</div><h1>Träning<br><em>Push &amp; Pull</em></h1><p>Push. Pull. Kondition. Planera varje set med egen vikt eller tid – och följ precis vad du genomför.</p><div class="actions"><div class="hero-start-launcher" data-has-plan="false"><div class="hero-day-card">
+<div class="hero-day-copy"><span class="hero-start-main" id="hero-start-main">DAGENS PASS</span><strong class="hero-start-name" id="hero-start-name">Vila</strong></div>
+<button type="button" class="hero-start-pass" id="hero-start-pass" data-action="start" aria-label="Dagens pass: Vila. Välj pass" aria-controls="hero-pass-menu" aria-expanded="false"><span id="hero-start-cta">Välj</span></button>
+</div><div class="hero-start-switch" role="group" aria-label="Snabbval för träning">
 <button type="button" class="hero-start-alternative" id="hero-choose-pass" data-action="pick-other-pass" aria-label="Välj ett pass att starta" aria-expanded="false" aria-controls="hero-pass-menu">Välj pass</button>
 <button type="button" class="secondary hero-build-pass" data-action="build">Bygg pass</button>
 <button type="button" class="secondary hero-log-pass" data-action="new-history">＋ Logga träning</button>
@@ -1204,7 +1207,8 @@ function render(){
  var startButton=$('hero-start-pass'),startMain=$('hero-start-main'),startName=$('hero-start-name');
  var startLauncher=document.querySelector('#training-view .hero-start-launcher');
  startLauncher.dataset.hasPlan=p?'true':'false';
- startMain.textContent='Dagens pass';
+ startMain.textContent='DAGENS PASS';
+ $('hero-start-cta').textContent=p?'Starta':'Välj';
  startName.textContent=p?(String(p.name||p.type||'Pass').trim()||'Pass'):'Vila';
  startName.hidden=false;
  startName.title=startName.textContent;
