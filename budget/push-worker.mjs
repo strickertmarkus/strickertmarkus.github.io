@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { initializeApp, cert, deleteApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
 import { getMessaging } from 'firebase-admin/messaging';
+import { dueTomorrowTasks } from './todo-push-reminders.mjs';
 
 const LOOKBACK_MINUTES = 20;
 const CREATION_LOOKBACK_MINUTES = 20;
@@ -338,20 +339,58 @@ async function processReminders(events, devices) {
   }
 }
 
+async function processTodoDeadlines(items, devices) {
+  const reminders = dueTomorrowTasks(items, new Date());
+  for (const todo of reminders) {
+    // Exactly one reminder per task/deadline, including when the worker is run
+    // again manually. Editing a deadline intentionally creates a new reminder.
+    const key = crypto.createHash('sha256')
+      .update(`todo-deadline|${todo.id}|${todo.dueDate}`)
+      .digest('hex').slice(0, 32);
+    const sentRef = db.ref(`pushSent/${key}`);
+    if ((await sentRef.get()).exists()) continue;
+
+    const targets = Object.entries(devices).filter(([, device]) => deviceAccepts(device, todo.member));
+    if (!targets.length) {
+      console.log(`[push] todo ${todo.id}: no enabled device subscribed to ${todo.member}`);
+      continue;
+    }
+    const result = await sendToDevices(targets, {
+      title: `Att göra – ${fullDateLabel(todo.dueDate)}`,
+      body: todo.text,
+      url: 'home.html',
+      tag: `todo-deadline-${key}`
+    });
+    if (result.success > 0) {
+      await sentRef.set({
+        type: 'todo-deadline',
+        todoId: todo.id,
+        dueDate: todo.dueDate,
+        sentAt: Date.now(),
+        sentCount: result.success
+      });
+    }
+    console.log(`[push] todo reminder ${todo.id}/${todo.dueDate}: ${result.success} sent, ${result.failed} failed`);
+  }
+}
+
 try {
-  const [eventsSnap, devicesSnap] = await Promise.all([
+  const [eventsSnap, devicesSnap, todosSnap] = await Promise.all([
     db.ref('cal_events').get(),
-    db.ref('pushDevices').get()
+    db.ref('pushDevices').get(),
+    db.ref('family_todos_v2/items').get()
   ]);
 
   const eventsValue = parseStored(eventsSnap.val(), []);
   const events = Array.isArray(eventsValue) ? eventsValue : [];
   const devices = devicesSnap.val() || {};
+  const todos = todosSnap.val() || {};
 
   console.log(`[push] ${events.length} calendar events, ${Object.keys(devices).length} registered devices`);
   await processQueue(devices);
   await processCreatedEvents(events, devices);
   await processReminders(events, devices);
+  await processTodoDeadlines(todos, devices);
   console.log('[push] worker complete');
 } finally {
   await deleteApp(app);
