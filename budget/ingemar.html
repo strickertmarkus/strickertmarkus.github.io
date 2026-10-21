@@ -606,7 +606,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
 </dialog>
-<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="close-history">Stäng</button><div class="right"><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
+<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">SPARAT PASS · SET FÖR SET</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="hint" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="delete-history-direct" aria-label="Ta bort detta loggade träningspass">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="close-history">Stäng</button><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
 <dialog id="pr-editor" aria-labelledby="pr-editor-title">
  <div class="modal-head"><div><span class="eyebrow">PERSONLIGA REKORD · INGEMAR</span><h2 id="pr-editor-title">Registrera rekord</h2></div><button type="button" class="x" data-action="cancel-record" aria-label="Stäng">×</button></div>
  <div class="modal-body">
@@ -2218,7 +2218,7 @@ function renderHistoryLogTemplates(){
    return '<option value="'+clean(t.id)+'"'+(String(t.id)===String(historyLogTemplateId)?' selected':'')+'>'+clean(t.name||t.type||'Mallpass')+'</option>';
   }).join('');
  select.disabled=!templates.length;
- hint.textContent=templates.length?'Övningar och planerade set fylls i direkt. Markera och justera det du genomförde innan du sparar.':'Skapa ett mallpass under Bygg pass, eller logga passet manuellt nedan.';
+ hint.textContent=templates.length?'Alla set förkryssas som genomförda. Justera vikt, repetitioner och tid vid behov, eller avmarkera set som inte gjordes.':'Skapa ett mallpass under Bygg pass, eller logga passet manuellt nedan.';
 }
 function applyHistoryLogTemplate(templateId){
  if(historyEditId||!historyEditDraft)return;
@@ -2236,8 +2236,9 @@ function applyHistoryLogTemplate(templateId){
     sets:planned.slice(0,20).map(function(value){
      var set=logEditorSet(value);
      set.id=uid();
-     // Ofyllda set ska inte automatiskt räknas som genomförda.
-     set.done=timed?set.minutes>0:set.reps>0;
+     // Alla set från vald mall markeras som klara vid direktloggning.
+     // Saknade repetitioner eller tidsvärden ska fortfarande fyllas i vid sparning.
+     set.done=true;
      set.skipped=false;
      return set;
     })};
@@ -2245,7 +2246,7 @@ function applyHistoryLogTemplate(templateId){
  };
  historyLogTemplateId=String(template.id);
  renderHistoryEditor();
- toast('Mallpasset är inläst. Kontrollera genomförda set och spara loggen.');
+ toast('Alla set är ikryssade. Justera resultaten och spara passet.');
 }
 function renderHistoryEditor(){
  if(!historyEditDraft)return;
@@ -2368,19 +2369,39 @@ function saveHistoryEditor(){
  closeHistoryEditor(true);
  toast(isNew?'Passet loggades · synkar med Firebase.':'Passet uppdaterades · synkar med Firebase.');
 }
-function deleteHistoryEditor(){
- if(!historyEditId||!historyEditDraft)return;
- if(!confirm('Ta bort det sparade passet permanent? Detta påverkar även personliga rekord.'))return;
- var current=state.history.find(function(w){return String(w.id)===String(historyEditId);});
- if(!current){closeHistoryEditor(true);toast('Passet har redan tagits bort från en annan enhet.');return;}
- var removed=deep(current);
- state.history=state.history.filter(function(w){return String(w.id)!==String(historyEditId);});
- state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});
- if(!persist())return;render();closeHistoryEditor(true);
+function deleteLoggedHistoryById(id,source){
+ if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return false;}
+ var current=state.history.find(function(w){return String(w.id)===String(id);});
+ if(!current){toast('Passet finns inte längre i träningsloggen.');return false;}
+ var name=String(current.name||current.type||'Träningspass');
+ if(!confirm('Ta bort det loggade passet "'+name+'" ('+pretty(current.date)+')? Detta kan påverka personliga rekord och statistik.'))return false;
+ var removed=deep(current),previousHistory=state.history,previousPrs=state.prs;
+ state.history=state.history.filter(function(w){return String(w.id)!==String(id);});
+ if(!persist()){
+  state.history=previousHistory;state.prs=previousPrs;
+  return false;
+ }
+ if(source==='detail'){
+  if($('history-detail').open)SurfaceMotion.closeDialog($('history-detail'));
+  selectedHistoryId='';
+ }else if(source==='editor'){
+  closeHistoryEditor(true);
+ }
+ render();
  offerUndo('Träningspasset togs bort.',function(){
-  if(removed&&!state.history.some(function(w){return String(w.id)===String(removed.id);}))state.history.push(removed);
-  persist();render();
+  if(state.history.some(function(w){return String(w.id)===String(removed.id);}))return;
+  var before=state.history,prsBefore=state.prs;
+  state.history=state.history.concat([removed]);
+  if(!persist()){state.history=before;state.prs=prsBefore;return;}
+  render();
  });
+ return true;
+}
+function deleteHistoryDirect(){
+ if(selectedHistoryId)deleteLoggedHistoryById(selectedHistoryId,'detail');
+}
+function deleteHistoryEditor(){
+ if(historyEditId&&historyEditDraft)deleteLoggedHistoryById(historyEditId,'editor');
 }
 function zenStepAt(elapsed){
  if(!activeZen)return {index:0,start:0,end:0,step:null};
@@ -3003,6 +3024,7 @@ document.addEventListener('click',function(event){
    case 'save-record':saveRecordEditor();break;
    case 'remove-record':removeRecordEditor();break;
    case 'edit-history':if(selectedHistoryId){SurfaceMotion.closeDialog($('history-detail'));openHistoryEditor(selectedHistoryId);}break;
+   case 'delete-history-direct':deleteHistoryDirect();break;
    case 'cancel-history-edit':closeHistoryEditor();break;
    case 'log-add-exercise':mutateHistoryEditor('add-exercise',b);break;
    case 'log-save':saveHistoryEditor();break;
