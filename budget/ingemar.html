@@ -2023,7 +2023,8 @@ function openBuilder(type,editDay,choosePass){
  // Bara explicit klick på ett datum öppnar ett tidigare sparat pass.
  if(!editDay)selected=dayISO(new Date());
  var existing=editDay&&!choosePass?(plan(selected)||state.builderDrafts[selected]):null;
- var kind=type||existing&&existing.type||fallbackType(selected);
+ // Nya pass startar alltid som Push (plommon). Veckans automatiska förslag påverkar inte passbyggarens standardval.
+ var kind=type||existing&&existing.type||'Push';
  if(!TYPES.includes(kind))kind='Push';
  builderBase=deep(plan(selected));
  draft=existing?deep(existing):freshBuilderDraft(kind,selected);
