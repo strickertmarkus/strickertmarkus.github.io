@@ -316,6 +316,12 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .modal-actions .right{margin-left:auto}
 .log-editor-danger{color:#ff9bac!important;border-color:#ff839254!important}
 .log-editor-empty{color:#a79aa9;font-size:12px;padding:9px 0}
+#history-editor .log-template-picker{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;margin:0 0 15px;padding:12px 13px;border:1px solid #ad52664b;border-radius:13px;background:#ad41590b}
+#history-editor .log-template-picker[hidden]{display:none!important}
+#history-editor .log-template-picker label{font-size:11px;font-weight:750;color:#e1b5c3}
+#history-editor .log-template-picker select{min-width:0;width:100%;min-height:42px;border-radius:10px;padding:9px 12px;background:#0f1520;color:#f2e8ed;font-size:16px}
+#history-editor .log-template-picker small{color:#a6a0af;font-size:10px;line-height:1.45}
+#history-editor .log-template-picker select:disabled{opacity:.52}
 @media(max-width:480px){
  .log-editor-meta{grid-template-columns:1fr 1fr;gap:8px}
  .log-editor-meta .field{margin-bottom:9px}
@@ -593,7 +599,12 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <dialog id="history-editor" aria-labelledby="history-editor-title">
  <div class="modal-head"><div><span class="eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div>
  <div class="modal-body">
-  <div class="log-editor-meta">
+  <div class="log-template-picker" id="log-template-picker" hidden>
+    <label for="log-template-select">Logga ett mallpass</label>
+    <select id="log-template-select" aria-label="Välj mallpass att logga"><option value="">Välj mallpass</option></select>
+    <small id="log-template-hint">Välj en mall så fylls övningar och set i automatiskt. Justera det du faktiskt genomfört innan du sparar.</small>
+   </div>
+   <div class="log-editor-meta">
    <div class="field"><label for="log-edit-date">Datum</label><div class="compact-date-control"><span class="compact-date-label" data-date-label-for="log-edit-date" aria-hidden="true"></span><input id="log-edit-date" data-log-field="date" type="date"></div></div>
    <div class="field"><label for="log-edit-type">Träningsform</label><select id="log-edit-type" data-log-field="type"><option value="Push">Push</option><option value="Pull">Pull</option><option value="Kondition">Kondition</option><option value="Övrigt">Övrigt</option></select></div>
    <div class="field"><label for="log-edit-name">Passnamn</label><input id="log-edit-name" data-log-field="name" maxlength="70" placeholder="Passnamn"></div>
@@ -2072,7 +2083,7 @@ window.addEventListener('message',function(event){
   closeFamilySession();toast('Passet avslutades utan att sparas.');
  }
 });
-var selectedHistoryId='',historyEditDraft=null,historyEditId='',historyEditBase=null,historyEditInitial='';
+var selectedHistoryId='',historyEditDraft=null,historyEditId='',historyEditBase=null,historyEditInitial='',historyLogTemplateId='';
 var recordEditKey='';
 function openRecordEditor(name){
  if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return;}
@@ -2140,15 +2151,56 @@ function logEditorSet(source){
 function logEditorExercise(mode){
  return {id:uid(),name:'',mode:mode==='min'?'min':'kg',sets:[logEditorSet()]};
 }
+function renderHistoryLogTemplates(){
+ var picker=$('log-template-picker'),select=$('log-template-select'),hint=$('log-template-hint');
+ picker.hidden=!!historyEditId;
+ if(historyEditId)return;
+ var templates=builderTemplates().filter(function(t){return Array.isArray(t.exercises)&&t.exercises.length;});
+ select.innerHTML='<option value="">'+(templates.length?'Välj mallpass':'Inga mallpass sparade')+'</option>'
+  +templates.slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'sv');}).map(function(t){
+   return '<option value="'+clean(t.id)+'"'+(String(t.id)===String(historyLogTemplateId)?' selected':'')+'>'+clean(t.name||t.type||'Mallpass')+'</option>';
+  }).join('');
+ select.disabled=!templates.length;
+ hint.textContent=templates.length?'Övningar och planerade set fylls i direkt. Markera och justera det du genomförde innan du sparar.':'Skapa ett mallpass under Bygg pass, eller logga passet manuellt nedan.';
+}
+function applyHistoryLogTemplate(templateId){
+ if(historyEditId||!historyEditDraft)return;
+ var template=builderTemplates().find(function(t){return String(t.id)===String(templateId);});
+ if(!template){historyLogTemplateId='';renderHistoryLogTemplates();return;}
+ // Behåll valt loggdatum och faktisk passtid; skapa nya ID:n oberoende av mallen.
+ var previous=historyEditDraft;
+ historyEditDraft={
+  id:previous.id,date:previous.date,minutes:previous.minutes,
+  type:['Push','Pull','Kondition'].includes(template.type)?template.type:'Övrigt',
+  name:String(template.name||template.type||'Pass').trim().slice(0,70),
+  exercises:(template.exercises||[]).slice(0,16).map(function(ex){
+   var timed=ex.mode==='min',planned=Array.isArray(ex.sets)?ex.sets:[];
+   return {id:uid(),name:String(ex.name||'').slice(0,90),mode:timed?'min':'kg',
+    sets:planned.slice(0,20).map(function(value){
+     var set=logEditorSet(value);
+     set.id=uid();
+     // Ofyllda set ska inte automatiskt räknas som genomförda.
+     set.done=timed?set.minutes>0:set.reps>0;
+     set.skipped=false;
+     return set;
+    })};
+  })
+ };
+ historyLogTemplateId=String(template.id);
+ renderHistoryEditor();
+ toast('Mallpasset är inläst. Kontrollera genomförda set och spara loggen.');
+}
 function renderHistoryEditor(){
  if(!historyEditDraft)return;
  var w=historyEditDraft;
+ renderHistoryLogTemplates();
  $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
  $('log-edit-date').value=w.date;syncDateDisplay('log-edit-date');
  $('log-edit-type').value=['Push','Pull','Kondition','Övrigt'].includes(w.type)?w.type:'Övrigt';
  $('log-edit-name').value=w.name||'';
  $('log-edit-minutes').value=w.minutes;
  $('log-edit-delete').hidden=!historyEditId;
+ $('history-editor').querySelector('[data-action="log-save"]').textContent=historyEditId?'Spara ändringar ✓':'Spara pass ✓';
  $('log-edit-exercises').innerHTML=w.exercises.map(function(ex,i){
   var timed=ex.mode==='min';
   return '<article class="exercise-card log-editor-exercise" data-log-exercise="'+i+'">'+
@@ -2172,6 +2224,7 @@ function openHistoryEditor(id){
  var old=id?state.history.find(function(w){return String(w.id)===String(id);}):null;
  if(id&&!old){toast('Passet hittades inte.');return;}
  historyEditId=id||'';
+ historyLogTemplateId='';
  historyEditDraft=old?deep(old):{id:uid(),date:dayISO(new Date()),type:'Push',name:'',minutes:30,exercises:[logEditorExercise('kg')]};
  historyEditDraft.exercises=(Array.isArray(historyEditDraft.exercises)?historyEditDraft.exercises:[]).map(function(ex){
   ex=deep(ex);ex.id=ex.id||uid();ex.mode=ex.mode==='min'?'min':'kg';
@@ -2961,6 +3014,10 @@ document.addEventListener('change',function(event){
  }
  if(event.target.dataset.betweenEdit&&$('builder').open&&draft)updateBuilderBetweenField(event.target);
  if(event.target.id==='week-template-select')weekTemplateId=event.target.value;
+ if(event.target.id==='log-template-select'&&historyEditDraft&&!historyEditId){
+  if(event.target.value)applyHistoryLogTemplate(event.target.value);
+  return;
+ }
  if(event.target.id==='builder-template-select'&&$('builder').open){applyBuilderTemplate();}
  if(event.target.type==='date')syncDateDisplay(event.target.id);
  if(event.target.id==='build-date'&&$('builder').open&&draft){updateDraftField(event.target);keepBuilderDraft();}
@@ -2996,7 +3053,7 @@ $('pr-edit-group').addEventListener('change',function(){recordGroupChosen=true;}
 $('pr-edit-name').addEventListener('input',function(){if(!recordEditKey&&!recordGroupChosen)$('pr-edit-group').value=window.IngemarRecords.group(this.value);});
 $('pr-editor').addEventListener('cancel',function(event){event.preventDefault();closeRecordEditor();});
 $('pr-editor').addEventListener('close',function(){recordEditKey='';unlockBuilderBackground();});
-$('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';unlockBuilderBackground();});
+$('history-editor').addEventListener('close',function(){historyEditDraft=null;historyEditId='';historyLogTemplateId='';unlockBuilderBackground();});
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
 $('zen-complete').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-complete'));});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-day-dialog'));});
