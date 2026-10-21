@@ -1599,7 +1599,7 @@ function deleteBuilderTemplate(){
  var removed=deep(item);state.templates=builderTemplates().filter(function(t){return String(t.id)!==String(id);});
  if(!persist()){state.templates.push(removed);return;}
  newBuilderTemplate();
- offerUndo('Mallpass borttaget.',function(){if(!builderTemplates().some(function(t){return String(t.id)===String(removed.id);}))builderTemplates().push(removed);builderTemplateId=removed.id;persist();applyBuilderTemplate();});
+ offerUndo('Mallpass borttaget.',function(){if(!builderTemplates().some(function(t){return String(t.id)===String(removed.id);}))builderTemplates().push(removed);builderTemplateId=removed.id;persist();renderBuilderTemplates();applyBuilderTemplate();});
 }
 function updateDraftFromBuilderInputs(){
  if(!$('builder').open||!draft)return;
@@ -1666,7 +1666,7 @@ function openBuilder(type,editDay){
  var existing=editDay?(plan(selected)||state.builderDrafts[selected]):null;
  var kind=type||existing&&existing.type||fallbackType(selected);
  if(!TYPES.includes(kind))kind='Push';
- builderBase=editDay?deep(plan(selected)):null;
+ builderBase=deep(plan(selected));
  draft=existing?deep(existing):freshBuilderDraft(kind,selected);
  if(type&&TYPES.includes(type))draft.type=type;
  draft.date=selected;builderDraftDate=selected;
