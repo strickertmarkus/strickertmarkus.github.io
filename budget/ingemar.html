@@ -264,16 +264,17 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 @media(max-width:740px){#training-view .hero .actions{margin-top:16px}#training-view .hero-start-launcher{width:100%}#training-view .hero-day-card{min-height:60px;padding:9px 10px 9px 13px}#training-view .hero .actions .hero-start-switch>button{min-height:40px;font-size:11px}}
 @media(max-width:350px){#training-view .hero-start-switch{gap:5px}#training-view .hero .actions .hero-start-switch>button{padding:8px 3px;font-size:10px}#training-view .hero .actions .hero-start-pass{min-width:73px;padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){#training-view .hero-pass-menu{animation:none}}
-#builder .builder-rename-tools{display:grid;gap:6px;min-width:0;margin:10px 0 0}
+#builder .builder-template-tools .builder-template-select-wrap{flex:1 1 180px;min-width:0}
+#builder .builder-rename-tools{display:flex;align-items:center;min-width:0;margin:0}
 #builder .builder-rename-tools[hidden],#builder .builder-template-rename[hidden],#builder .builder-rename-editor[hidden]{display:none!important}
-#builder .builder-template-rename{justify-self:start;min-height:33px;padding:6px 12px;border:1px solid #b7a1ad38;background:#ffffff09;color:#deb5c5;border-radius:10px;font-size:11px}
-#builder .builder-rename-editor{display:grid;gap:6px}
-#builder .builder-rename-editor label{font-size:10px;color:#cdb5be;font-weight:750}
-#builder .builder-rename-entry{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center}
-#builder .builder-rename-entry input{min-width:0;width:100%;height:38px;padding:8px 10px;border-radius:10px;font-size:16px}
-#builder .builder-rename-entry button{min-width:0;min-height:37px;padding:7px 10px;border-radius:10px;font-size:11px;white-space:nowrap}
-#builder .builder-rename-confirm{border-color:#53bb8a70;background:#53bb8a16;color:#a9ecca}
-@media(max-width:380px){#builder .builder-rename-entry{grid-template-columns:minmax(0,1fr) auto}#builder .builder-rename-entry input{grid-column:1/-1}}
+#builder .builder-template-rename{display:grid;place-items:center;width:36px;min-width:36px;min-height:36px;padding:0;border:1px solid #b7a1ad38;border-radius:9px;background:#ffffff06;color:#dba4b7;font-size:17px}
+#builder .builder-template-field.is-renaming .builder-template-select-wrap{display:none}
+#builder .builder-template-field.is-renaming .builder-rename-tools{flex:1 1 100%}
+#builder .builder-rename-editor{display:grid;grid-template-columns:minmax(0,1fr) 36px 36px;gap:5px;align-items:center;width:100%;min-width:0}
+#builder .builder-rename-editor input{min-width:0;width:100%;height:36px;min-height:36px;padding:5px 9px;border:1px solid #b7657b7b;border-radius:9px;background:#0b1019;color:#f4e8ee;font-size:16px}
+#builder .builder-rename-editor button{display:grid;place-items:center;width:36px;min-width:36px;height:36px;min-height:36px;padding:0;border-radius:9px;font-size:17px}
+#builder .builder-rename-confirm{border:1px solid #53bb8a70;background:#53bb8a16;color:#a9ecca}
+#builder .builder-rename-cancel{border:1px solid #ffffff25;background:#ffffff07;color:#cbb7c1}
 #builder .builder-name-field{margin-bottom:9px}
 #builder .builder-template-field{margin-bottom:6px}
 #builder .field{margin-bottom:9px}
@@ -355,6 +356,71 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
  .log-editor-set-row .mini{font-size:15px}
  #history-editor .modal-actions .right{width:100%;justify-content:flex-end}
 }
+
+/* Sammanhållen Observatory Black-design för loggning och träningslogg. */
+#history-editor,#history-detail{position:fixed!important;inset:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;border:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;background:radial-gradient(ellipse at 50% -20%,#ad415910,transparent 55%),#070a10}
+#history-editor .modal-head,#history-detail .modal-head{padding:10px max(14px,calc((100vw - 940px)/2));background:#0b0d15f5;border-bottom:1px solid #ad41592c}
+#history-editor .modal-head h2,#history-detail .modal-head h2{font-size:20px}
+#history-editor .modal-body,#history-detail .modal-body{width:min(100%,940px);max-width:940px;margin:auto;padding:11px 14px calc(20px + env(safe-area-inset-bottom))}
+#history-editor .log-template-picker{display:grid;grid-template-columns:85px minmax(0,1fr);gap:7px;align-items:center;margin:0 0 11px;padding:0;border:0;background:transparent}
+#history-editor .log-template-picker label{font-size:10px;color:#a9a1ae}
+#history-editor .log-template-picker select{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019}
+#history-editor .log-template-picker small{display:none}
+#history-editor .log-editor-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px}
+#history-editor .log-editor-meta .field{min-width:0;margin:0}
+#history-editor .log-editor-meta .field label{display:block;margin:0 0 4px;color:#a9a1ae;font-size:10px}
+#history-editor .log-editor-meta .field input,#history-editor .log-editor-meta .field select,#history-editor .compact-date-control{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019;font-size:16px}
+#history-editor .compact-date-control{padding:0}
+#history-editor #log-edit-exercises{display:grid;gap:8px}
+#history-editor .log-editor-exercise,#history-detail .exercise-card{min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:radial-gradient(ellipse at 0% 0%,#ad415911,transparent 65%),linear-gradient(145deg,#0e121a,#090c13 80%);box-shadow:inset 0 1px 0 #ffffff04}
+#history-editor .log-editor-exercise.is-collapsed{padding:7px 10px;border-color:#ffffff1b;background:#0c1018}
+#history-editor .log-editor-exercise .exercise-head{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin:0 0 8px}
+#history-editor .log-editor-exercise.is-collapsed .exercise-head{margin:0}
+#history-editor .log-editor-exercise .builder-card-toggle{display:flex;flex:1;align-items:center;gap:9px;min-width:0;min-height:40px;padding:0;border:0;background:transparent;color:#f3e9ee;text-align:left}
+#history-editor .log-editor-exercise .builder-card-chevron{flex:0 0 12px;color:#c58ba0;font-size:17px;transform:rotate(90deg)}
+#history-editor .log-editor-exercise.is-collapsed .builder-card-chevron{transform:none}
+#history-editor .log-editor-exercise .builder-card-title{display:flex;flex-direction:column;gap:3px;min-width:0}
+#history-editor .log-editor-exercise .builder-card-title small{font-size:9px;letter-spacing:.12em;color:#ba8296}
+#history-editor .log-editor-exercise .builder-card-title strong{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#history-editor .log-editor-exercise .builder-card-summary{display:none;font-size:10px;color:#a19ba9}
+#history-editor .log-editor-exercise.is-collapsed .builder-card-summary{display:block}
+#history-editor .log-editor-exercise .log-editor-tools{display:flex;flex:0 0 auto;gap:5px;flex-wrap:nowrap;margin-left:auto}
+#history-editor .log-editor-exercise .log-editor-tools .mini{width:31px;min-width:31px;height:34px;min-height:34px;padding:0;border:1px solid #ffffff1c;border-radius:9px;background:#ffffff05}
+#history-editor .log-editor-exercise .builder-card-menu{position:relative;z-index:2}
+#history-editor .log-editor-exercise .builder-card-menu[open]{z-index:15}
+#history-editor .log-editor-exercise .builder-card-menu>summary{display:grid;place-items:center;width:32px;height:34px;list-style:none;border:1px solid #ffffff1c;border-radius:9px;background:#ffffff05;color:#bba6b0;font-size:21px;cursor:pointer}
+#history-editor .log-editor-exercise .builder-card-menu>summary::-webkit-details-marker{display:none}
+#history-editor .log-editor-exercise .builder-card-menu-content{position:absolute;right:0;top:calc(100% + 5px);width:155px;max-width:calc(100vw - 30px);padding:5px;border:1px solid #b3657b60;border-radius:10px;background:#17131d;box-shadow:0 12px 30px #000b}
+#history-editor .log-editor-exercise .builder-card-menu-content button{display:block;width:100%;min-height:36px;padding:7px 9px;border:0;border-radius:7px;background:transparent;color:#e7a1b2;text-align:left;font-size:11px}
+#history-editor .log-editor-exercise .builder-card-body{min-width:0;padding-top:9px;border-top:1px solid #ffffff10}
+#history-editor .log-editor-exercise .builder-card-body[hidden]{display:none!important}
+#history-editor .log-editor-exercise .exercise-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(135px,auto);gap:7px;margin:0 0 8px}
+#history-editor .log-editor-exercise .exercise-fields .field{min-width:0;margin:0}
+#history-editor .log-editor-exercise .exercise-fields .set-label{display:block;margin:0 0 4px;font-size:9px;color:#a9a1ae}
+#history-editor .log-editor-exercise .exercise-fields input,#history-editor .log-editor-exercise .exercise-fields select{width:100%;min-width:0;height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019;font-size:16px}
+#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{display:grid;grid-template-columns:25px repeat(2,minmax(0,1fr)) 38px 29px;gap:5px;align-items:center;min-width:0}
+#history-editor .log-editor-set-head{margin:0 0 3px;font-size:9px;color:#a69ba9}
+#history-editor .log-editor-set-row{margin:3px 0}
+#history-editor .log-editor-set-row input[type=number]{width:100%;min-width:0;height:37px;min-height:37px;padding:5px 3px;border:1px solid #ffffff1d;border-radius:9px;background:#080d15;font-size:16px;text-align:center}
+#history-editor .log-editor-set-row input[type=checkbox]{width:18px;height:18px;min-height:18px;accent-color:#b96e84}
+#history-editor .log-editor-set-row .mini{width:29px;min-height:37px;padding:0;border:0;border-radius:9px;background:#ffffff05}
+#history-editor .log-editor-add-set{min-height:32px;margin-top:6px;padding:5px 10px;border:1px solid #b7657b50;border-radius:9px;background:#ad41590c;color:#e7b5c5;font-size:11px}
+#history-editor .log-editor-add-exercise{display:block;width:100%;min-height:37px;margin-top:9px;padding:7px 10px;border:1px dashed #b7657b50;border-radius:10px;background:#ad41590d;color:#e7b5c5;font-size:12px}
+#history-editor .modal-actions,#history-detail .modal-actions{gap:8px;margin-top:13px}
+#history-editor .modal-actions button,#history-detail .modal-actions button{min-height:38px;border-radius:9px}
+#history-detail #history-detail-sub{margin:0 0 12px;font-size:11px;color:#b5a4b0}
+#history-detail #history-detail-body{display:grid;gap:8px}
+#history-detail .exercise-head h3{font-size:13px;color:#f3e9ee}
+#history-detail .set-row,#history-detail .set-header{display:grid;grid-template-columns:27px repeat(2,minmax(0,1fr)) 30px;gap:5px;align-items:center}
+#history-detail .set-header{font-size:9px;color:#a69ba9}
+#history-detail .set-row .hint{padding:6px;border:1px solid #ffffff12;border-radius:8px;background:#080d15}
+#history .history-row{min-height:69px;padding:11px 13px;border:1px solid #ffffff16;border-radius:12px;background:linear-gradient(145deg,#0e121a,#090c13 80%);gap:8px}
+#history .history-row:hover{border-color:#b7657b5e;background:linear-gradient(145deg,#14131c,#090c13 80%)}
+#history .history-row strong{font-size:12px;color:#f1e4eb}
+#history .history-row small{margin-top:4px;color:#a19aa6;font-size:10px;line-height:1.4}
+#history .history-row .metric{font-size:11px;color:#d6a5b6;text-align:right}
+@media(max-width:600px){#history-editor .modal-head,#history-detail .modal-head{padding:10px 12px}#history-editor .modal-body,#history-detail .modal-body{padding:10px 10px calc(20px + env(safe-area-inset-bottom))}#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:minmax(0,1fr) minmax(125px,auto);gap:5px}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 32px 26px;gap:4px}#history-editor .log-editor-set-row .mini{width:26px}#history-editor .modal-actions{display:grid;grid-template-columns:1fr}#history-editor .modal-actions>.ghost{justify-self:start}#history-editor .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}#history-editor .modal-actions .right button{width:100%;padding:8px 4px}}
+@media(max-width:350px){#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:1fr}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:18px repeat(2,minmax(0,1fr)) 28px 25px;gap:3px}}
 </style>
 <style id="ingemar-account-styles">
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
@@ -598,9 +664,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Stäng</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="builder-setup"><div class="field builder-mode-field"><div class="builder-mode-switch" role="group" aria-label="Välj vad du bygger"><button type="button" data-builder-mode="day" aria-pressed="true">Dagens pass</button><button type="button" data-builder-mode="template" aria-pressed="false">Mallpass</button></div></div><div class="field builder-type-field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field builder-date-field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field builder-name-field" hidden><label for="build-name" id="builder-name-label">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><div class="builder-template-actions"><button type="button" class="secondary builder-template-save" data-action="save-template">Spara mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small>
-<div class="builder-rename-tools" hidden><button type="button" class="secondary builder-template-rename" data-action="rename-template">Byt namn</button>
-<div class="builder-rename-editor" hidden><label for="builder-rename-name">Nytt mallnamn</label><div class="builder-rename-entry"><input id="builder-rename-name" maxlength="70" placeholder="Mallnamn" autocomplete="off"><button type="button" data-action="confirm-rename-template" class="secondary builder-rename-confirm">Spara namn</button><button type="button" data-action="cancel-rename-template" class="ghost builder-rename-cancel">Avbryt</button></div></div></div></div><button type="button" class="secondary builder-day-create" data-action="new-day" hidden>＋ Skapa nytt dagspass</button></div>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="builder-setup"><div class="field builder-mode-field"><div class="builder-mode-switch" role="group" aria-label="Välj vad du bygger"><button type="button" data-builder-mode="day" aria-pressed="true">Dagens pass</button><button type="button" data-builder-mode="template" aria-pressed="false">Mallpass</button></div></div><div class="field builder-type-field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field builder-date-field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field builder-name-field" hidden><label for="build-name" id="builder-name-label">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><div class="builder-template-actions"><button type="button" class="secondary builder-template-save" data-action="save-template">Spara mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div><div class="builder-rename-tools" hidden><button type="button" class="secondary builder-template-rename" data-action="rename-template" aria-label="Byt namn på mallpass" title="Byt namn">✎</button><div class="builder-rename-editor" hidden><input id="builder-rename-name" maxlength="70" placeholder="Mallnamn" autocomplete="off" aria-label="Nytt mallnamn"><button type="button" data-action="confirm-rename-template" class="secondary builder-rename-confirm" aria-label="Spara mallnamn" title="Spara namn">✓</button><button type="button" data-action="cancel-rename-template" class="ghost builder-rename-cancel" aria-label="Avbryt namnändring" title="Avbryt">×</button></div></div></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small>
+</div></div><button type="button" class="secondary builder-day-create" data-action="new-day" hidden>＋ Skapa nytt dagspass</button></div>
 <div class="builder-session-settings" aria-label="Inställningar för träningspass">
  <button type="button" class="builder-mini-toggle" id="builder-pre-timer-toggle" data-builder-pre-timer aria-pressed="true" aria-label="5 s starttimer, på" title="5 sekunders nedräkning innan varje set"><span class="builder-mini-toggle-label">5 s starttimer</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
  <button type="button" class="builder-mini-toggle" id="builder-between-toggle" data-between-toggle="global" aria-pressed="false" aria-label="Mellan övningar, av" title="Vila eller valfri övning mellan övningarna"><span class="builder-mini-toggle-label">Mellan övningar</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
@@ -641,7 +706,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
    <div class="field"><label for="log-edit-minutes">Längd (min)</label><input id="log-edit-minutes" data-log-field="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric"></div>
   </div>
   <div id="log-edit-exercises"></div>
-  <button type="button" class="secondary" data-action="log-add-exercise">＋ Lägg till övning</button>
+  <button type="button" class="secondary" data-action="log-add-exercise" class="log-editor-add-exercise">＋ Lägg till övning</button>
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
@@ -1130,7 +1195,7 @@ function normalizeAccountState(value){
  }));
 }
 function load(){return emptyState();}
-var state=load(),selected=dayISO(new Date()),builderCardDraftRef=null,builderExpandedCardIds=new Set(),builderMode='day',builderDayStage='choose',builderDayDraft=null,builderTemplateDraft=null,builderTemplateDraftId='',builderTemplateCreating=false,builderTemplateDraftCreating=false,builderTemplateRenaming=false,view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
+var state=load(),selected=dayISO(new Date()),builderCardDraftRef=null,builderExpandedCardIds=new Set(),historyCardDraftRef=null,historyExpandedCardIds=new Set(),builderMode='day',builderDayStage='choose',builderDayDraft=null,builderTemplateDraft=null,builderTemplateDraftId='',builderTemplateCreating=false,builderTemplateDraftCreating=false,builderTemplateRenaming=false,view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
 function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
 var undoPending=null;
 function placeToast(){
@@ -1686,6 +1751,7 @@ function updateBuilderModeUI(){
  box.querySelector('[data-action="save-template"]').disabled=!(isTemplate&&(builderTemplateCreating||!!builderTemplateId));
  var canRename=isTemplate&&!builderTemplateCreating&&!!builderTemplateId;
  box.querySelector('.builder-rename-tools').hidden=!canRename;
+ box.querySelector('.builder-template-field').classList.toggle('is-renaming',canRename&&builderTemplateRenaming);
  box.querySelector('.builder-template-rename').hidden=!canRename||builderTemplateRenaming;
  box.querySelector('.builder-rename-editor').hidden=!canRename||!builderTemplateRenaming;
 }
@@ -1760,6 +1826,7 @@ function saveRenamedBuilderTemplate(){
  if(builderTemplateDraft&&String(builderTemplateDraftId)===String(item.id))builderTemplateDraft.name=name;
  $('build-name').value=name;
  renderBuilderTemplates();
+ updateBuilderModeUI();
  toast('Mallpasset har bytt namn.');
 }
 function applyBuilderTemplate(){
@@ -2278,12 +2345,24 @@ function applyHistoryLogTemplate(templateId){
   })
  };
  historyLogTemplateId=String(template.id);
+ historyCardDraftRef=null;
  renderHistoryEditor();
  toast('Alla set är ikryssade. Justera resultaten och spara passet.');
+}
+function syncHistoryCardExpansion(){
+ if(historyCardDraftRef!==historyEditDraft){historyCardDraftRef=historyEditDraft;historyExpandedCardIds=new Set(historyEditDraft&&historyEditDraft.exercises.length?[String(historyEditDraft.exercises[0].id)]:[]);}
+ else if(historyEditDraft){var ids=new Set(historyEditDraft.exercises.map(function(ex){return String(ex.id);}));historyExpandedCardIds.forEach(function(id){if(!ids.has(id))historyExpandedCardIds.delete(id);});}
+}
+function toggleHistoryCard(index){
+ if(!historyEditDraft||!historyEditDraft.exercises[index])return;
+ var id=String(historyEditDraft.exercises[index].id);
+ if(historyExpandedCardIds.has(id))historyExpandedCardIds.delete(id);else historyExpandedCardIds.add(id);
+ renderHistoryEditor();
 }
 function renderHistoryEditor(){
  if(!historyEditDraft)return;
  var w=historyEditDraft;
+ syncHistoryCardExpansion();
  renderHistoryLogTemplates();
  $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
  $('log-edit-date').value=w.date;syncDateDisplay('log-edit-date');
@@ -2293,13 +2372,13 @@ function renderHistoryEditor(){
  $('log-edit-delete').hidden=!historyEditId;
  $('history-editor').querySelector('[data-action="log-save"]').textContent=historyEditId?'Spara ändringar ✓':'Spara pass ✓';
  $('log-edit-exercises').innerHTML=w.exercises.map(function(ex,i){
-  var timed=ex.mode==='min';
-  return '<article class="exercise-card log-editor-exercise" data-log-exercise="'+i+'">'+
-   '<div class="exercise-head"><h3>ÖVNING '+(i+1)+'</h3><div class="log-editor-tools">'+
+  var timed=ex.mode==='min',expanded=historyExpandedCardIds.has(String(ex.id)),name=String(ex.name||'').trim()||'Ny övning';
+  return '<article class="exercise-card log-editor-exercise'+(expanded?'':' is-collapsed')+'" data-log-exercise="'+i+'">'+
+   '<div class="exercise-head"><button type="button" class="builder-card-toggle" data-log-toggle="'+i+'" aria-expanded="'+expanded+'" aria-controls="log-card-body-'+i+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+ex.sets.length+' set · '+(timed?'tid':'vikt och reps')+'</span></span></button><div class="log-editor-tools">'+
    '<button type="button" class="mini" data-log-move="'+i+':-1" '+(i===0?'disabled':'')+' aria-label="Flytta övning upp">↑</button>'+
    '<button type="button" class="mini" data-log-move="'+i+':1" '+(i===w.exercises.length-1?'disabled':'')+' aria-label="Flytta övning ned">↓</button>'+
-   '<button type="button" class="mini" data-log-remove-ex="'+i+'" aria-label="Ta bort övning">Ta bort</button></div></div>'+
-   '<div class="exercise-fields"><label class="field"><span class="set-label">Övning</span><input data-log-name="'+i+'" maxlength="90" placeholder="Övningsnamn" aria-label="Övning '+(i+1)+'" value="'+clean(ex.name)+'"></label>'+
+   '<details class="builder-card-menu"><summary aria-label="Fler åtgärder för '+clean(name)+'">⋯</summary><div class="builder-card-menu-content"><button type="button" data-log-remove-ex="'+i+'">Ta bort övning</button></div></details></div></div>'+
+   '<div class="builder-card-body" id="log-card-body-'+i+'" '+(expanded?'':'hidden')+'><div class="exercise-fields"><label class="field"><span class="set-label">Övning</span><input data-log-name="'+i+'" maxlength="90" placeholder="Övningsnamn" aria-label="Övning '+(i+1)+'" value="'+clean(ex.name)+'"></label>'+
    '<label class="field"><span class="set-label">Mätning</span><select data-log-mode="'+i+'" aria-label="Mätning övning '+(i+1)+'"><option value="kg" '+(!timed?'selected':'')+'>kg × reps</option><option value="min" '+(timed?'selected':'')+'>Minuter</option></select></label></div>'+
    '<div class="log-editor-set-head"><span>#</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'REPS (VALFRITT)':'REPS')+'</span><span>KLART</span><span></span></div>'+
    ex.sets.map(function(set,j){return '<div class="log-editor-set-row" data-log-set-row="'+i+':'+j+'"><span class="set-number">'+(j+1)+'</span>'+
@@ -2307,7 +2386,7 @@ function renderHistoryEditor(){
     '<input type="number" min="0" max="9999" step="1" inputmode="numeric" data-log-set="'+i+':'+j+':reps" value="'+set.reps+'" aria-label="Reps set '+(j+1)+'">'+
     '<input type="checkbox" data-log-done="'+i+':'+j+'" '+(set.done&&!set.skipped?'checked':'')+' aria-label="Set '+(j+1)+' genomfört">'+
     '<button type="button" class="mini" data-log-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'">×</button></div>';}).join('')+
-   '<button type="button" class="mini" data-log-add-set="'+i+'">＋ Lägg till set</button></article>';
+   '<button type="button" class="mini log-editor-add-set" data-log-add-set="'+i+'">＋ Lägg till set</button></div></article>';
  }).join('')||'<p class="log-editor-empty">Lägg till minst en övning.</p>';
 }
 function openHistoryEditor(id){
@@ -2322,6 +2401,7 @@ function openHistoryEditor(id){
   ex.sets=(Array.isArray(ex.sets)?ex.sets:[]).map(logEditorSet);return ex;
  });
  historyEditBase=old?deep(old):null;historyEditInitial=JSON.stringify(historyEditDraft);
+ historyCardDraftRef=null;
  renderHistoryEditor();
  lockBuilderBackground();
  SurfaceMotion.showDialog($('history-editor'));
@@ -2355,7 +2435,7 @@ function mutateHistoryEditor(action,button){
  var list=historyEditDraft.exercises;
  if(action==='add-exercise'){
   if(list.length>=16){toast('Högst 16 övningar per pass.');return;}
-  list.push(logEditorExercise(historyEditDraft.type==='Kondition'?'min':'kg'));
+  var added=logEditorExercise(historyEditDraft.type==='Kondition'?'min':'kg');list.push(added);historyExpandedCardIds.clear();historyExpandedCardIds.add(String(added.id));
  }else if(action==='add-set'){
   var ex=list[Number(button.dataset.logAddSet)];
   if(!ex||ex.sets.length>=20){toast('Högst 20 set per övning.');return;}
@@ -2946,6 +3026,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.prFilter!=null){selectRecordGroup(b.dataset.prFilter);return;}
  if(b.dataset.prEdit!=null){openRecordEditor(b.dataset.prEdit);return;}
  if(b.dataset.history){openHistory(b.dataset.history);return;}
+ if(b.dataset.logToggle!=null){toggleHistoryCard(Number(b.dataset.logToggle));return;}
  if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
  if(b.dataset.logRemoveSet!=null){mutateHistoryEditor('remove-set',b);return;}
  if(b.dataset.logRemoveEx!=null){mutateHistoryEditor('remove-ex',b);return;}
