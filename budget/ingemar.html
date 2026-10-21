@@ -136,82 +136,90 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-exercise-between .builder-session-option{padding:5px 7px;background:#ffffff04;border-color:#ffffff10}
 #builder .builder-exercise-between .builder-session-fields{padding:6px 1px 0}
 
-@media(max-width:600px){
- #builder .modal-head{padding:10px 12px;gap:8px;background:#171b27}
- #builder .modal-head .x{flex:0 0 34px}
- #builder .modal-head h2{overflow-wrap:anywhere}
- #builder .modal-body{padding:8px 9px 13px}
- #builder .type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
- #builder .builder-template-tools{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
- #builder .builder-template-tools .builder-template-select-wrap{grid-column:1/-1}
- #builder .builder-template-tools button{width:100%;height:100%;font-size:12px;min-height:46px;padding:8px 5px}
- #builder .builder-template-delete{grid-column:auto;border:1px solid #ae647340;border-radius:14px;background:#ffffff09}
- #builder .builder-row-copy,#builder .builder-row-drag{width:30px;height:30px;min-width:30px;min-height:30px}
- #builder .type-pills .pill{width:100%;padding:8px 3px;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
- #builder .exercise-card{padding:8px 9px;margin:6px 0;border-radius:13px}
- #builder .exercise-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
- #builder .exercise-head h3{font-size:11px;overflow-wrap:anywhere}
- #builder .exercise-fields{grid-template-columns:minmax(0,1fr);gap:4px;margin-bottom:6px}
- #builder .metric-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
- #builder .metric-pills .pill{width:100%;min-height:32px;padding:5px 4px;font-size:11px;white-space:normal;overflow-wrap:anywhere}
- #builder .set-header,#builder .set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 28px;gap:4px}
- #builder .set-header{font-size:9px;margin:4px 0 2px}
- #builder .set-header span{overflow-wrap:anywhere}
- #builder .set-row input{width:100%;min-height:36px;height:36px;padding:4px 2px;font-size:14px;border-radius:9px}
- #builder .set-row .remove-set{width:28px;min-height:36px;padding:0}
- #builder .exercise-foot{flex-direction:row;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
- #builder .exercise-foot span{overflow-wrap:anywhere;font-size:9px}
 
-/* Safari zooms focused inputs below 16px; keep the editable numeric fields at 16px on iPhone. */
-@supports (-webkit-touch-callout: none){#builder .set-row input{font-size:16px}}
-#builder .modal-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
- #builder .modal-actions>.ghost{justify-self:start}
- #builder .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
- #builder .modal-actions .right button{width:100%;padding:10px 5px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
-}
-@media(max-width:360px){
- #builder .builder-template-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
- #builder .builder-template-tools .builder-template-select-wrap,#builder .builder-template-delete{grid-column:1/-1}
- #builder .modal-actions .right{grid-template-columns:minmax(0,1fr)}
-}
-
-#builder .builder-mode-field{margin-bottom:7px}
-#builder .builder-mode-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:3px;background:#0c1620;border:1px solid #ffffff20;border-radius:12px}
-#builder .builder-mode-switch button{min-width:0;min-height:34px;border:0;border-radius:9px;background:transparent;color:#98a6b3;font-size:12px;font-weight:750;padding:6px 9px}
-#builder .builder-mode-switch button[aria-pressed="true"]{background:linear-gradient(120deg,#16424c,#22525b);box-shadow:inset 0 0 0 1px #73dbe052;color:#e9feff}
-#builder .builder-template-tools{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
-#builder .builder-template-tools .builder-template-select-wrap{flex:1 1 100%;height:38px}
-#builder .builder-template-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:100%}
-#builder .builder-template-actions button{min-height:34px;height:auto;padding:6px 4px;font-size:11px;border-radius:9px}
-#builder .builder-template-actions button:disabled{opacity:.36;cursor:default}
-#builder[data-builder-mode="day"] .builder-template-actions{display:none}
-#builder[data-builder-mode="template"] .builder-date-field,#builder[data-builder-mode="template"] .builder-main-actions{display:none}
-#builder .builder-template-field{margin-bottom:9px}
-#builder .builder-empty{padding:9px 4px;color:#899bad;font-size:11px;text-align:center}
-@media(max-width:460px){#builder .builder-template-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-/* Full-screen passbyggare, med reseplanerarens diskreta segmented toggle. */
-#builder .builder-mode-switch{display:flex;gap:4px;align-items:stretch;padding:0;background:transparent;border:0;border-radius:0}
-#builder .builder-mode-switch button{flex:1 1 0;border:1px solid transparent;border-radius:9px;min-height:34px;padding:7px 12px;background:transparent;color:#9da0ae;font-size:12px;font-weight:680;transition:background .18s,border-color .18s,color .18s,box-shadow .18s}
-#builder .builder-mode-switch button[aria-pressed="true"]{color:#efacbd;background:#ad415914;border:1px solid #ad415967;box-shadow:0 0 14px #ad41591c}
-#builder .builder-mode-switch button:focus-visible{outline:2px solid #d07d98;outline-offset:2px}
-#builder{position:fixed!important;inset:0!important;margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;max-inline-size:none!important;max-block-size:none!important;border:0!important;border-radius:0!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;background:linear-gradient(150deg,#191b29,#0d121e)}
-#builder .modal-head{padding:13px max(16px,calc((100vw - 940px)/2));align-items:center}
-#builder .modal-head h2{font-size:20px;margin-top:2px}
-#builder .modal-head .eyebrow{font-size:9px}
-#builder .modal-body{width:min(100%,940px);max-width:940px;margin:0 auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom))}
-#builder .builder-session-settings{display:none!important}
-#builder .builder-template-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
-#builder .builder-template-actions button{min-height:37px;height:37px;line-height:1.1}
-#builder .builder-template-actions .builder-template-save{background:#4fb98e18;color:#9ce2bb;border:1px solid #4fb98e70;box-shadow:0 0 14px #4fb98e0b}
-#builder .builder-template-actions .builder-template-save:hover{background:#4fb98e2b;border-color:#64d2a0}
-#builder .builder-template-actions .builder-template-save:disabled{background:#ffffff08;color:#808a8f;border-color:#ffffff18;box-shadow:none}
+/* Ingemars Observatory Black: enhetlig, kompakt passbyggare. */
+#builder{position:fixed!important;inset:0!important;margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;background:radial-gradient(ellipse at 50% -20%,#ad415910,transparent 55%),#070a10}
+#builder .modal-head{padding:10px max(14px,calc((100vw - 940px)/2));align-items:center;background:#0b0d15f5;border-bottom:1px solid #ad41592c}
+#builder .modal-head h2{font-size:20px;margin-top:3px}
+#builder .modal-head .eyebrow{font-size:9px;color:#b47b90}
+#builder .modal-body{width:min(100%,940px);max-width:940px;margin:auto;padding:11px 14px calc(20px + env(safe-area-inset-bottom))}
+#builder .builder-setup{display:grid;gap:7px;margin:0 0 11px}
+#builder .field{margin:0;min-width:0}
+#builder .field>label{flex:0 0 73px;margin:0;font-size:10px;color:#a9a1ae}
+#builder .builder-mode-switch{display:flex;gap:4px;padding:0;border:0;background:transparent}
+#builder .builder-mode-switch button{flex:1;min-height:34px;padding:7px;border:1px solid transparent;border-radius:9px;background:transparent;color:#a89eaa;font-size:12px}
+#builder .builder-mode-switch button[aria-pressed=true]{border-color:#b7657b65;background:#ad415917;color:#eab2c2;box-shadow:0 0 12px #ad41590b}
+#builder .builder-type-field,#builder .builder-date-field,#builder .builder-name-field{display:flex;align-items:center;gap:7px}
+#builder .type-pills{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-width:0}
+#builder .type-pills .pill{min-width:0;min-height:32px;padding:6px 4px;border:1px solid #ffffff20;border-radius:9px;background:#ffffff04;font-size:11px}
+#builder .type-pills .pill.active{border-color:#b7657b6b;background:#ad41591b;color:#f3c9d7}
+#builder .type-pills .pill.active[data-type=Pull]{border-color:#76cfd55c;background:#76cfd510;color:#bdf3f5}
+#builder .builder-date-control{flex:0 1 210px;width:min(210px,100%);height:35px;border-radius:9px;background:#0b1019}
+#builder .builder-date-text{font-size:13px}
+#builder .builder-name-field input{flex:1;max-width:460px;min-height:36px;height:36px;padding:6px 10px;font-size:16px}
+#builder .builder-template-field{display:grid;grid-template-columns:73px minmax(0,1fr);gap:0 7px;align-items:center}
+#builder .builder-template-tools{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+#builder .builder-template-tools .builder-template-select-wrap{flex:1 1 100%;height:36px;border-radius:9px;background:#0b1019}
+#builder .builder-template-select-wrap .builder-template-selected{padding:9px 28px 8px 10px;font-size:12px;line-height:18px}
+#builder .builder-template-select-wrap:after{top:5px}
+#builder .builder-template-hint{display:none}
+#builder .builder-template-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
+#builder .builder-template-actions button{width:100%;min-height:33px;height:33px;padding:5px;border-radius:9px;font-size:11px}
+#builder .builder-template-actions .builder-template-save{background:#4fb98e18;color:#9ce2bb;border:1px solid #4fb98e70}
 #builder .builder-template-actions .builder-template-delete{background:#d35e7216;color:#f3a4b0;border:1px solid #d35e726b}
-#builder .builder-template-actions .builder-template-delete:hover{background:#d35e722a;border-color:#e57788}
-#builder .builder-day-create{display:block;width:100%;min-height:40px;margin:2px 0 12px;border:1px solid #bb778756;background:#ad415918;color:#f3d3dc;border-radius:11px;font-size:12px}
+#builder[data-builder-mode=day] .builder-template-actions{display:none}
+#builder[data-builder-mode=template] .builder-date-field,#builder[data-builder-mode=template] .builder-main-actions{display:none}
+#builder .builder-template-field .builder-rename-tools{grid-column:2}
+#builder .builder-day-create{justify-self:end;width:auto;min-height:31px;margin:0;padding:5px 11px;border:1px solid #b7657b55;border-radius:9px;background:#ad415910;color:#e8b3c4;font-size:11px}
 #builder .builder-name-field[hidden],#builder .builder-type-field[hidden],#builder .builder-template-field[hidden],#builder .builder-day-create[hidden],#builder .builder-new-template[hidden],#builder #exercise-list[hidden],#builder .builder-add-exercise[hidden],#builder .builder-main-actions[hidden]{display:none!important}
-#builder .builder-new-template{display:block;width:100%;min-height:40px;margin:14px 0 4px;border:1px solid #bd7c9049;background:#ad415912;color:#e9bdcb;border-radius:11px;font-size:12px;transition:background .18s,border-color .18s}
-#builder .builder-new-template:hover{background:#ad415927;border-color:#ce8196}
+#builder .builder-session-settings{display:none!important}
+#builder #exercise-list{display:grid;gap:8px}
+#builder .builder-empty{padding:12px;color:#9993a0;font-size:11px;text-align:center}
+#builder .exercise-card{position:relative;min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:radial-gradient(ellipse at 0% 0%,#ad415911,transparent 65%),linear-gradient(145deg,#0e121a,#090c13 80%);box-shadow:inset 0 1px 0 #ffffff04}
+#builder .exercise-card.is-collapsed{padding:7px 10px;border-color:#ffffff1b;background:#0c1018}
+#builder .exercise-head{display:flex;align-items:center;gap:6px;min-width:0;margin:0 0 8px}
+#builder .exercise-card.is-collapsed .exercise-head{margin:0}
+#builder .builder-card-toggle{display:flex;flex:1;align-items:center;gap:9px;min-width:0;min-height:40px;padding:0;border:0;background:transparent;color:#f3e9ee;text-align:left}
+#builder .builder-card-chevron{flex:0 0 12px;color:#c58ba0;font-size:17px;transform:rotate(90deg);transition:transform .15s}
+#builder .exercise-card.is-collapsed .builder-card-chevron{transform:rotate(0)}
+#builder .builder-card-title{display:flex;flex-direction:column;gap:3px;min-width:0}
+#builder .builder-card-title small{font-size:9px;font-weight:800;letter-spacing:.12em;color:#ba8296}
+#builder .builder-card-title strong{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#builder .builder-card-summary{display:none;font-size:10px;color:#a19ba9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#builder .exercise-card.is-collapsed .builder-card-summary{display:block}
+#builder .builder-row-tools{display:flex;align-items:center;gap:5px;flex:0 0 auto;margin-left:auto}
+#builder .builder-row-drag{display:grid;place-items:center;width:33px;min-width:33px;height:34px;min-height:34px;padding:0;border:1px solid #ffffff1c;border-radius:9px;background:#ffffff05;color:#a0a0ac;touch-action:none;cursor:grab}
+#builder .builder-card-menu{position:relative;flex:0 0 33px;z-index:1}
+#builder .builder-card-menu[open]{z-index:15}
+#builder .builder-card-menu>summary{display:grid;place-items:center;width:33px;height:34px;list-style:none;border:1px solid #ffffff1c;border-radius:9px;background:#ffffff05;color:#bfa8b3;font-size:21px;cursor:pointer}
+#builder .builder-card-menu>summary::-webkit-details-marker{display:none}
+#builder .builder-card-menu-content{position:absolute;right:0;top:calc(100% + 5px);z-index:16;width:168px;max-width:calc(100vw - 30px);padding:5px;border:1px solid #b3657b60;border-radius:11px;background:#17131d;box-shadow:0 12px 30px #000b}
+#builder .builder-card-menu-content button{display:block;width:100%;min-height:37px;padding:7px 9px;border:0;border-radius:7px;background:transparent;color:#e9d5df;text-align:left;font-size:11px}
+#builder .builder-card-menu-content .builder-menu-delete{color:#eba5b5}
+#builder .builder-card-body{min-width:0;padding-top:9px;border-top:1px solid #ffffff10}
+#builder .builder-card-body[hidden]{display:none!important}
+#builder .exercise-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,auto);align-items:center;gap:6px;margin:0 0 8px}
+#builder .builder-exercise-name-input{min-height:36px;height:36px;padding:5px 32px 5px 9px;border-radius:9px;background:#0a1019;font-size:16px;text-overflow:ellipsis}
+#builder .builder-exercise-name-chevron{top:3px;right:3px;height:calc(100% - 6px);width:27px}
+#builder .metric-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+#builder .metric-pills .pill{min-width:0;min-height:34px;padding:5px 4px;border:1px solid #ffffff20;border-radius:8px;background:#ffffff05;font-size:10px;white-space:nowrap}
+#builder .metric-pills .pill.active{border-color:#b7657b65;background:#ad41591b;color:#f2c3d2}
+#builder .set-header,#builder .set-row{display:grid;grid-template-columns:26px repeat(2,minmax(0,1fr)) 30px;gap:5px;align-items:center}
+#builder .set-header{margin:0 0 3px;color:#9f98a7;font-size:9px}
+#builder .set-row{margin:3px 0}
+#builder .set-row input{width:100%;min-height:37px;height:37px;padding:5px 4px;border:1px solid #ffffff1d;border-radius:9px;background:#080d15;font-size:16px;text-align:center}
+#builder .set-row .remove-set{width:30px;min-height:37px;padding:0;border-radius:9px;background:#ffffff05}
+#builder .exercise-foot{margin-top:7px;gap:8px}
+#builder .exercise-foot .mini{min-height:32px;padding:5px 10px;border-radius:9px;border-color:#b7657b50}
+#builder .exercise-foot span{font-size:10px}
+#builder .builder-exercise-between{margin-top:8px;padding-top:7px;border-top:1px solid #ffffff10}
+#builder .builder-add-exercise,#builder .builder-new-template{display:block;width:100%;min-height:37px;margin:8px 0 3px;padding:7px 10px;border:1px dashed #b7657b50;border-radius:10px;background:#ad41590d;color:#e7b5c5;font-size:12px}
+#builder .builder-new-template{margin-top:13px;border-style:solid}
+#builder .modal-actions{display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;margin-top:13px}
+#builder .modal-actions .right{display:flex;gap:7px;flex-wrap:wrap}
+#builder .modal-actions button{min-height:39px;padding:9px 12px;border-radius:10px}
+@media(max-width:600px){#builder .modal-head{padding:10px 12px}#builder .modal-body{padding:10px 10px calc(20px + env(safe-area-inset-bottom))}#builder .field>label{flex-basis:65px}#builder .builder-template-field{grid-template-columns:65px minmax(0,1fr)}#builder .exercise-card{padding:9px 10px}#builder .exercise-card.is-collapsed{padding:7px 9px}#builder .exercise-fields{grid-template-columns:minmax(0,1fr) minmax(125px,auto);gap:5px}#builder .set-header,#builder .set-row{grid-template-columns:22px repeat(2,minmax(0,1fr)) 29px;gap:4px}#builder .set-row .remove-set{width:29px}#builder .modal-actions{display:grid;grid-template-columns:1fr}#builder .modal-actions>.ghost{justify-self:start}#builder .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}#builder .modal-actions .right button{width:100%;padding:9px 5px}}
+@media(max-width:350px){#builder .exercise-fields{grid-template-columns:1fr}#builder .metric-pills{width:min(100%,230px)}#builder .field>label{flex-basis:55px}#builder .builder-template-field{grid-template-columns:55px minmax(0,1fr)}#builder .modal-actions .right{grid-template-columns:1fr}}
 /* Ingemars Observatory-startyta: en låg statusrad + tre diskreta snabbval. */
 #training-view .hero .copy{position:relative;z-index:5;min-width:0}
 #training-view .hero .actions{margin-top:18px}
@@ -590,9 +598,9 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions week-planner-actions"><button type="button" class="ghost" data-action="close-week-planner">Stäng</button><div class="right"><button type="button" class="secondary" data-action="clear-week">Rensa veckan</button><button type="button" class="primary" data-action="save-week">Spara hela veckan ✓</button></div></div>
  </div>
 </dialog>
-<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="field builder-mode-field"><div class="builder-mode-switch" role="group" aria-label="Välj vad du bygger"><button type="button" data-builder-mode="day" aria-pressed="true">Dagens pass</button><button type="button" data-builder-mode="template" aria-pressed="false">Mallpass</button></div></div><div class="field builder-type-field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field builder-date-field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field builder-name-field" hidden><label for="build-name" id="builder-name-label">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><div class="builder-template-actions"><button type="button" class="secondary builder-template-save" data-action="save-template">Spara mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small>
+<dialog id="builder" aria-labelledby="builder-title"><div class="modal-head"><div><span class="eyebrow">PASSBYGGARE · INGEMAR</span><h2 id="builder-title">Bygg pass</h2></div><button type="button" class="x" data-action="close-builder" aria-label="Stäng">×</button></div><div class="modal-body"><div class="builder-setup"><div class="field builder-mode-field"><div class="builder-mode-switch" role="group" aria-label="Välj vad du bygger"><button type="button" data-builder-mode="day" aria-pressed="true">Dagens pass</button><button type="button" data-builder-mode="template" aria-pressed="false">Mallpass</button></div></div><div class="field builder-type-field"><label>Träningsform</label><div class="type-pills" id="type-pills"></div></div><div class="field builder-date-field"><label for="build-date">Datum</label><div class="builder-date-control"><span id="build-date-text" class="builder-date-text" aria-hidden="true"></span><input id="build-date" type="date"></div></div><div class="field builder-name-field" hidden><label for="build-name" id="builder-name-label">Passnamn</label><input id="build-name" maxlength="70" placeholder="Mitt pass"></div><div class="field builder-template-field"><label for="builder-template-select">Mallpass</label><div class="builder-template-tools"><div class="builder-template-select-wrap"><span id="builder-template-selected" class="builder-template-selected" aria-hidden="true">Inga mallpass ännu</span><select id="builder-template-select" aria-label="Välj sparat mallpass"></select></div><div class="builder-template-actions"><button type="button" class="secondary builder-template-save" data-action="save-template">Spara mall</button><button type="button" class="ghost builder-template-delete" data-action="delete-template">Ta bort</button></div></div><small class="builder-template-hint" id="builder-template-hint">Mallar synkas med Ingemars profil.</small>
 <div class="builder-rename-tools" hidden><button type="button" class="secondary builder-template-rename" data-action="rename-template">Byt namn</button>
-<div class="builder-rename-editor" hidden><label for="builder-rename-name">Nytt mallnamn</label><div class="builder-rename-entry"><input id="builder-rename-name" maxlength="70" placeholder="Mallnamn" autocomplete="off"><button type="button" data-action="confirm-rename-template" class="secondary builder-rename-confirm">Spara namn</button><button type="button" data-action="cancel-rename-template" class="ghost builder-rename-cancel">Avbryt</button></div></div></div></div><button type="button" class="secondary builder-day-create" data-action="new-day" hidden>＋ Skapa nytt dagspass</button>
+<div class="builder-rename-editor" hidden><label for="builder-rename-name">Nytt mallnamn</label><div class="builder-rename-entry"><input id="builder-rename-name" maxlength="70" placeholder="Mallnamn" autocomplete="off"><button type="button" data-action="confirm-rename-template" class="secondary builder-rename-confirm">Spara namn</button><button type="button" data-action="cancel-rename-template" class="ghost builder-rename-cancel">Avbryt</button></div></div></div></div><button type="button" class="secondary builder-day-create" data-action="new-day" hidden>＋ Skapa nytt dagspass</button></div>
 <div class="builder-session-settings" aria-label="Inställningar för träningspass">
  <button type="button" class="builder-mini-toggle" id="builder-pre-timer-toggle" data-builder-pre-timer aria-pressed="true" aria-label="5 s starttimer, på" title="5 sekunders nedräkning innan varje set"><span class="builder-mini-toggle-label">5 s starttimer</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
  <button type="button" class="builder-mini-toggle" id="builder-between-toggle" data-between-toggle="global" aria-pressed="false" aria-label="Mellan övningar, av" title="Vila eller valfri övning mellan övningarna"><span class="builder-mini-toggle-label">Mellan övningar</span><span class="builder-mini-toggle-switch" aria-hidden="true"><i></i></span></button>
@@ -1122,7 +1130,7 @@ function normalizeAccountState(value){
  }));
 }
 function load(){return emptyState();}
-var state=load(),selected=dayISO(new Date()),builderMode='day',builderDayStage='choose',builderDayDraft=null,builderTemplateDraft=null,builderTemplateDraftId='',builderTemplateCreating=false,builderTemplateDraftCreating=false,builderTemplateRenaming=false,view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
+var state=load(),selected=dayISO(new Date()),builderCardDraftRef=null,builderExpandedCardIds=new Set(),builderMode='day',builderDayStage='choose',builderDayDraft=null,builderTemplateDraft=null,builderTemplateDraftId='',builderTemplateCreating=false,builderTemplateDraftCreating=false,builderTemplateRenaming=false,view='training',draft=null,builderBase=null,builderDraftDate='',activeZen=null,toastTimer=0,zenAnimationFrame=null,zenAnimationWatchdog=null,builderScrollY=0,builderOpenExerciseIndex=-1,builderFreeExerciseIndex=-1,builderTemplateId='',builderDrag=null,builderWeekIndex=-1,weekPlannerScrollY=0,weekExpandedDay=-1,weekPlannerMonday='',weekDraft=null,weekBase=[],weekDraftDirty=false,weekTemplateId='',weekCopyFrom=-1,weekDrag=null,zenWeekMonday=weekStart(dayISO(new Date())),zenEditMode='',zenEditKind='',zenEditId='',zenEditDraft=null,zenDayKind='',zenDayDate='';
 function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
 var undoPending=null;
 function placeToast(){
@@ -1804,7 +1812,7 @@ function updateDraftFromBuilderInputs(){
 function copyDraftExercise(index){
  if(!draft||index<0||index>=draft.exercises.length)return;
  if(draft.exercises.length>=16){toast('Högst 16 övningar.');return;}
- updateDraftFromBuilderInputs();var copy=deep(draft.exercises[index]);copy.id=uid();copy.sets.forEach(function(set){set.id=uid();});draft.exercises.splice(index+1,0,copy);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+ updateDraftFromBuilderInputs();var copy=deep(draft.exercises[index]);copy.id=uid();copy.sets.forEach(function(set){set.id=uid();});draft.exercises.splice(index+1,0,copy);focusBuilderCard(copy.id,true);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
  var card=document.querySelector('#exercise-list [data-exercise="'+(index+1)+'"]');if(card){card.classList.add('builder-drag-target');setTimeout(function(){card.classList.remove('builder-drag-target');},420);card.scrollIntoView({block:'nearest',behavior:'smooth'});}
 }
 function moveDraftExercise(from,to){
@@ -1918,19 +1926,44 @@ function toggleBuilderBetween(key){
  renderBuilder();keepBuilderDraft();
 }
 
+function builderExerciseSummary(ex){
+ var sets=ex.sets||[],timed=ex.mode==='min';
+ function span(values,unit){var v=values.filter(function(n){return n!=null&&Number(n)>0&&Number.isFinite(Number(n));}).map(Number);if(!v.length)return '';var lo=Math.min.apply(null,v),hi=Math.max.apply(null,v);function fmt(n){return n.toLocaleString('sv-SE',{maximumFractionDigits:1});}return fmt(lo)+(hi!==lo?'–'+fmt(hi):'')+' '+unit;}
+ return [sets.length+' set',span(sets.map(function(s){return timed?s.minutes:s.weight;}),timed?'min':'kg'),timed?'':span(sets.map(function(s){return s.reps;}),'reps')].filter(Boolean).join(' · ');
+}
+function syncBuilderCardExpansion(){
+ if(builderCardDraftRef!==draft){builderCardDraftRef=draft;builderExpandedCardIds=new Set(draft&&draft.exercises.length?[String(draft.exercises[0].id)]:[]);}
+ else if(draft){var ids=new Set(draft.exercises.map(function(e){return String(e.id);}));builderExpandedCardIds.forEach(function(id){if(!ids.has(id))builderExpandedCardIds.delete(id);});}
+}
+function focusBuilderCard(id,exclusive){if(exclusive)builderExpandedCardIds.clear();builderExpandedCardIds.add(String(id));}
+function toggleBuilderCard(index){
+ if(!draft||!draft.exercises[index])return;
+ updateDraftFromBuilderInputs();closeBuilderExercisePicker();
+ var id=String(draft.exercises[index].id);
+ if(builderExpandedCardIds.has(id))builderExpandedCardIds.delete(id);else builderExpandedCardIds.add(id);
+ var card=document.querySelector('#exercise-list [data-exercise="'+index+'"]'),top=card?card.getBoundingClientRect().top:null;
+ renderBuilder();
+ var next=document.querySelector('#exercise-list [data-exercise="'+index+'"]');
+ if(next&&top!==null){var delta=next.getBoundingClientRect().top-top;if(Math.abs(delta)>1)$('builder').scrollTop+=delta;}
+}
 function renderBuilder(){
  if($('builder').open)keepBuilderDraft();
  refreshBuilderSessionOptions();
  renderBuilderTemplates();
+ syncBuilderCardExpansion();
  $('type-pills').innerHTML=TYPES.map(function(t){return '<button type="button" class="pill'+(t===draft.type?' active':'')+'" data-type="'+t+'" aria-pressed="'+(t===draft.type)+'">'+t+'</button>';}).join('');
  $('build-date').value=draft.date;
  $('build-date-text').textContent=validDay(draft.date)?builderDateText(draft.date):'Välj datum';
  $('build-name').value=draft.name;
  $('exercise-list').innerHTML=draft.exercises.length?draft.exercises.map(function(e,i){
-  var timed=e.mode==='min';
-  return '<article class="exercise-card" data-exercise="'+i+'"><div class="exercise-head"><div class="builder-row-title"><h3>ÖVNING '+(i+1)+'</h3></div><div class="builder-row-tools"><button type="button" class="builder-row-copy" data-copy-exercise="'+i+'" aria-label="Kopiera övning '+(i+1)+'" title="Kopiera övning">＋</button><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button><button type="button" class="mini" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort</button></div></div><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
+  var timed=e.mode==='min',expanded=builderExpandedCardIds.has(String(e.id)),name=String(e.name||'').trim()||'Ny övning';
+  return '<article class="exercise-card'+(expanded?'':' is-collapsed')+'" data-exercise="'+i+'"><div class="exercise-head">'
+  +'<button type="button" class="builder-card-toggle" data-toggle-exercise="'+i+'" aria-expanded="'+expanded+'" aria-controls="builder-exercise-body-'+i+'" aria-label="'+(expanded?'Fäll ihop ':'Visa set för ')+clean(name)+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+clean(builderExerciseSummary(e))+'</span></span></button>'
+  +'<div class="builder-row-tools"><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>'
+  +'<details class="builder-card-menu"><summary aria-label="Fler åtgärder för '+clean(name)+'">⋯</summary><div class="builder-card-menu-content"><button type="button" data-copy-exercise="'+i+'">Duplicera övning</button><button type="button" class="builder-menu-delete" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort övning</button></div></details></div></div>'
+  +'<div class="builder-card-body" id="builder-exercise-body-'+i+'" '+(expanded?'':'hidden')+'><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
   e.sets.map(function(s,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="'+(timed?'0.5':'0.5')+'" aria-label="Set '+(j+1)+' '+(timed?'tid i minuter':'vikt i kg')+'" data-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+((timed?s.minutes:s.weight)??'')+'"><input type="number" inputmode="numeric" min="0" max="999" step="1" aria-label="Set '+(j+1)+' '+(timed?'valfria minuter eller mål':'repetitioner')+'" data-set="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="remove-set" data-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'" '+(e.sets.length<=1?'disabled':'')+'>×</button></div>';}).join('')+
- '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div>'+(timed?'':builderBetweenOption(String(i),e.betweenSets))+'</article>';
+ '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div>'+(timed?'':builderBetweenOption(String(i),e.betweenSets))+'</div></article>';
  }).join(''):'<div class="builder-empty">Lägg till en övning eller välj ett mallpass.</div>';
 }
 function keepBuilderDraft(){
@@ -2949,6 +2982,7 @@ document.addEventListener('click',function(event){
  }
  if(b.dataset.zenAction){zenEditorAction(b.dataset.zenAction);return;}
  if(b.dataset.builderMode!=null){setBuilderMode(b.dataset.builderMode);return;}
+  if(b.dataset.toggleExercise!=null){toggleBuilderCard(Number(b.dataset.toggleExercise));return;}
   if(b.dataset.zenIndex!=null){if(b.dataset.zenIndex==='create')openZenRoutineEditor(view);else zenStart(Number(b.dataset.zenIndex));return;}
  if(b.dataset.zenStep!=null){selectZenStep(Number(b.dataset.zenStep));return;}
  if(b.dataset.exercisePicker!=null){var pickerIndex=Number(b.dataset.exercisePicker);setBuilderExercisePicker(builderOpenExerciseIndex===pickerIndex?-1:pickerIndex);return;}
@@ -2963,8 +2997,8 @@ document.addEventListener('click',function(event){
  if(b.dataset.betweenToggle!=null){updateDraftFromBuilderInputs();toggleBuilderBetween(b.dataset.betweenToggle);return;}
  if(b.dataset.type){var t=b.dataset.type;updateDraftFromBuilderInputs();draft.type=t;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.mode){updateDraftFromBuilderInputs();var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
- if(b.dataset.addSet!=null){var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
- if(b.dataset.removeSet){var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
+ if(b.dataset.addSet!=null){updateDraftFromBuilderInputs();var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
+ if(b.dataset.removeSet){updateDraftFromBuilderInputs();var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
  if(b.dataset.removeExercise!=null){
   var removeIndex=Number(b.dataset.removeExercise);
   if(draft&&draft.exercises.length>1&&removeIndex>=0&&removeIndex<draft.exercises.length){
@@ -3008,8 +3042,9 @@ document.addEventListener('click',function(event){
    case 'cancel-rename-template':builderTemplateRenaming=false;updateBuilderModeUI();break;
    case 'add-exercise':
     if(draft.exercises.length>=16){toast('Högst 16 övningar.');break;}
-    var newIndex=draft.exercises.length;
-    draft.exercises.push(exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[null,null,null]]:[[null,null,null],[null,null,null],[null,null,null]]));
+    updateDraftFromBuilderInputs();var newIndex=draft.exercises.length;
+    var added=exercise('',draft.type==='Kondition'?'min':'kg',draft.type==='Kondition'?[[null,null,null]]:[[null,null,null],[null,null,null],[null,null,null]]);
+    draft.exercises.push(added);focusBuilderCard(added.id,true);
     builderFreeExerciseIndex=-1;renderBuilder();setBuilderExercisePicker(newIndex);requestAnimationFrame(function(){var input=document.querySelector('#builder [data-exercise-name-input="'+newIndex+'"]');if(input)input.scrollIntoView({block:'center',behavior:'smooth'});});
     break;
    case 'save-plan':openPlanPreview(false);break;
