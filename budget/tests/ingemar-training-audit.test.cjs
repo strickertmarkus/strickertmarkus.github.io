@@ -52,7 +52,7 @@ test('Statistics exclude skipped, undone, demo and timed sets and count bodyweig
 });
 test('Builder accepts unfinished sets but rejects invalid numbers and fractional repetitions',()=>{
  const draft={...workout(),date:'2026-10-16'},messages=[];
- const c=context(['validateDraft'],{draft,validDay:()=>true,updateDraftFromBuilderInputs(){},rememberAllTypedExerciseNames(){},cleanExerciseName:s=>s.trim(),toast:s=>messages.push(s)});
+ const c=context(['validateDraft'],{draft,builderMode:'day',validDay:()=>true,updateDraftFromBuilderInputs(){},rememberAllTypedExerciseNames(){},cleanExerciseName:s=>s.trim(),toast:s=>messages.push(s)});
  for(const bad of [-1,1000,Infinity,'invalid']){draft.exercises[0].sets[0].weight=bad;assert.equal(c.validateDraft(),false);}
  draft.exercises[0].sets[0].weight=null;draft.exercises[0].sets[0].reps=null;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].reps=8;
  draft.exercises[0].sets[0].weight=1.25;assert.equal(c.validateDraft(),true);draft.exercises[0].sets[0].reps=1.5;assert.equal(c.validateDraft(),false);
@@ -63,7 +63,7 @@ test('Invalid dates cannot silently save to the previous date',()=>{
 });
 test('Changing builder date moves its draft and uses the destination base',()=>{
  const old='2026-10-12',date='2026-10-13',state={builderDrafts:{[old]:workout('Utkast')}};
- const c=context(['keepBuilderDraft'],{state,draft:{...workout(),date},builderDraftDate:old,window:{IngemarAccount:{canEdit:true}},validDay:()=>true,plan:()=>workout('Destination'),persist(){}});
+ const c=context(['keepBuilderDraft'],{state,draft:{...workout(),date},builderMode:'day',builderDayStage:'custom',builderDraftDate:old,window:{IngemarAccount:{canEdit:true}},validDay:()=>true,plan:()=>workout('Destination'),persist(){}});
  c.keepBuilderDraft();assert.equal(state.builderDrafts[old],undefined);assert.equal(state.builderDrafts[date].name,'Ben');assert.equal(c.builderBase.name,'Destination');
 });
 test('Unsaved log edits ask before closing and cancellation preserves the draft',()=>{
@@ -79,4 +79,12 @@ test('Concurrent different log fields survive saving an open editor',()=>{
  const window={};vm.runInNewContext(fs.readFileSync('budget/ingemar-account.js','utf8'),{window});
  const base={id:'log',date:'2026-10-16',...workout()},local=deep(base),remote=deep(base);local.name='Nytt namn';remote.exercises[0].sets[0].weight=77.5;
  const result=window.IngemarMerge({history:[base]},{history:[local]},{history:[remote]});assert.equal(result.history[0].name,'Nytt namn');assert.equal(result.history[0].exercises[0].sets[0].weight,77.5);
+});
+
+test('Log editor preserves blank numeric fields distinctly from zero',()=>{
+ const c=context(['logEditorSet'],{});
+ const blank=c.logEditorSet(),zero=c.logEditorSet({weight:0,reps:0,minutes:0,done:true});
+ assert.equal(blank.weight,null);assert.equal(blank.reps,null);assert.equal(blank.minutes,null);
+ assert.equal(zero.weight,0);assert.equal(zero.reps,0);assert.equal(zero.minutes,0);
+ assert.equal(c.logEditorSet({weight:37.5,reps:12}).weight,37.5);
 });
