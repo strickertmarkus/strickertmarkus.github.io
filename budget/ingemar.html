@@ -209,7 +209,9 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-template-actions .builder-template-delete{background:#d35e7216;color:#f3a4b0;border:1px solid #d35e726b}
 #builder .builder-template-actions .builder-template-delete:hover{background:#d35e722a;border-color:#e57788}
 #builder .builder-day-create{display:block;width:100%;min-height:40px;margin:2px 0 12px;border:1px solid #bb778756;background:#ad415918;color:#f3d3dc;border-radius:11px;font-size:12px}
-#builder .builder-name-field[hidden],#builder .builder-type-field[hidden],#builder .builder-template-field[hidden],#builder .builder-day-create[hidden],#builder #exercise-list[hidden],#builder .builder-add-exercise[hidden],#builder .builder-main-actions[hidden]{display:none!important}
+#builder .builder-name-field[hidden],#builder .builder-type-field[hidden],#builder .builder-template-field[hidden],#builder .builder-day-create[hidden],#builder .builder-new-template[hidden],#builder #exercise-list[hidden],#builder .builder-add-exercise[hidden],#builder .builder-main-actions[hidden]{display:none!important}
+#builder .builder-new-template{display:block;width:100%;min-height:40px;margin:14px 0 4px;border:1px solid #bd7c9049;background:#ad415912;color:#e9bdcb;border-radius:11px;font-size:12px;transition:background .18s,border-color .18s}
+#builder .builder-new-template:hover{background:#ad415927;border-color:#ce8196}
 #builder .builder-name-field{margin-bottom:9px}
 #builder .builder-template-field{margin-bottom:6px}
 #builder .field{margin-bottom:9px}
@@ -530,7 +532,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <label>Tid (sek)<input type="number" inputmode="numeric" id="builder-between-seconds" min="1" max="3600" step="1" data-between-edit="global:seconds" value="60"></label>
   <label class="builder-between-name" id="builder-between-name-wrap" hidden>Övning<input id="builder-between-name" maxlength="80" data-between-edit="global:name" placeholder="Exempelvis hopprep"></label>
  </div>
-</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><button type="button" class="secondary builder-new-template" data-action="new-template" hidden>＋ Skapa ny mall</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="plan-preview" aria-labelledby="plan-preview-title">
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
@@ -1586,6 +1588,7 @@ function updateBuilderModeUI(){
  $('exercise-list').hidden=!visibleEditor;
  box.querySelector('.builder-add-exercise').hidden=!visibleEditor;
  box.querySelector('.builder-main-actions').hidden=isTemplate||!dayEditing;
+ box.querySelector('.builder-new-template').hidden=!isTemplate||builderTemplateCreating;
  box.querySelector('.builder-date-field').hidden=isTemplate;
  box.querySelector('[data-action="delete-template"]').disabled=!(isTemplate&&builderTemplates().some(function(t){return String(t.id)===String(builderTemplateId);}));
  box.querySelector('[data-action="save-template"]').disabled=!(isTemplate&&(builderTemplateCreating||!!builderTemplateId));
