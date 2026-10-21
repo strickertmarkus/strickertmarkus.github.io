@@ -714,3 +714,62 @@ main{position:relative;z-index:2;display:block}
   .chart-period-toggle button{padding:7px 9px;font-size:10px}
   .chart-period-row--volume{margin:7px 0 9px}
 }
+
+
+/* Responsive desktop / Mac Safari chart system.
+   The same Canvas light pass now backs the SVG at every breakpoint,
+   avoiding WebKit's inconsistent SVG drop-shadow compositor. */
+.chart-canvas-glow{
+  display:block;
+  inset:-28px;
+  width:calc(100% + 56px);
+  height:calc(100% + 56px);
+  z-index:1;
+  opacity:1;
+  filter:none;
+  -webkit-filter:none;
+  mix-blend-mode:screen;
+}
+.line-glow,.activity-bar,.last-point,.group-volume-point,.pace-scatter-point{
+  filter:none!important;
+  -webkit-filter:none!important;
+}
+.log-mini-canvas-glow{display:block}
+@keyframes chartSignalFlowDesktop{
+  from{stroke-dashoffset:100}
+  to{stroke-dashoffset:0}
+}
+.chart-flow-tracer{
+  fill:none;
+  stroke-width:2.65;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:3.2 96.8;
+  stroke-dashoffset:100;
+  opacity:.68;
+  pointer-events:none;
+  vector-effect:non-scaling-stroke;
+  animation:chartSignalFlowDesktop 7.8s linear infinite;
+}
+@media(prefers-reduced-motion:reduce){
+  .chart-flow-tracer{animation:none;opacity:0}
+}
+@media(min-width:1000px){
+  :root{--field-max:1600px;--field-gutter:clamp(26px,3.2vw,64px)}
+  .field-header,.kind-switch,main,.field-footer{min-width:0}
+  .field-section,.rhythm-section{padding-top:clamp(42px,4vw,62px);padding-bottom:clamp(42px,4vw,62px)}
+  .section-head,.section-controls,.insight-copy{min-width:0}
+  .section-controls{gap:clamp(14px,2.5vw,38px);flex-wrap:wrap}
+  .insight-chart{height:clamp(315px,27vw,390px)}
+  .volume-chart{height:clamp(310px,25vw,380px)}
+  .luminous-chart{height:clamp(190px,16vw,245px)}
+  .insight-copy{gap:clamp(16px,3vw,42px)}
+  .log-summary{gap:clamp(14px,2.2vw,30px)}
+  .volume-lead{max-width:800px}
+  .volume-legend{gap:10px 21px}
+}
+@media(min-width:1600px){
+  .insight-chart{height:390px}
+  .volume-chart{height:380px}
+  .luminous-chart{height:245px}
+}
