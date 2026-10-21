@@ -484,12 +484,17 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(!dateKeys.length)return '<div class="volume-empty">Ingen passvolym finns att visa ännu.</div>';
     var width=clamp(chart.clientWidth||820,320,820),height=clamp(chart.clientHeight||272,230,292),left=53,right=22,top=24,bottom=38,plotW=width-left-right,plotH=height-top-bottom;
     var firstDate=dateAtNoon(dateKeys[0]).getTime(),lastDate=dateAtNoon(dateKeys[dateKeys.length-1]).getTime(),span=Math.max(1,lastDate-firstDate);
-    var max=Math.max.apply(Math,values.concat([1])),axisMax=Math.max(100,Math.ceil(max*1.12/100)*100);
+    // Scale to the visible sessions, not zero: ~250 kg of breathing room
+    // above and below the extrema. Round outward to tidy 50 kg steps.
+    var lowest=Math.min.apply(Math,values),highest=Math.max.apply(Math,values);
+    var axisMin=Math.max(0,Math.floor((lowest-250)/50)*50);
+    var axisMax=Math.ceil((highest+250)/50)*50;
+    if(axisMax<=axisMin)axisMax=axisMin+500;
     function x(date){return dateKeys.length===1?left+plotW/2:left+(dateAtNoon(date).getTime()-firstDate)*plotW/span;}
-    function y(value){return top+(axisMax-value)*plotH/axisMax;}
+    function y(value){return top+(axisMax-value)*plotH/(axisMax-axisMin);}
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
     svg+=chartAxisUnit('KG',left,top);
-    [0,.5,1].forEach(function(ratio){var value=axisMax*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
+    [0,.5,1].forEach(function(ratio){var value=axisMin+(axisMax-axisMin)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.filter(withinChartRange).map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
