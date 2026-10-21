@@ -264,7 +264,9 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 @media(max-width:740px){#training-view .hero .actions{margin-top:16px}#training-view .hero-start-launcher{width:100%}#training-view .hero-day-card{min-height:60px;padding:9px 10px 9px 13px}#training-view .hero .actions .hero-start-switch>button{min-height:40px;font-size:11px}}
 @media(max-width:350px){#training-view .hero-start-switch{gap:5px}#training-view .hero .actions .hero-start-switch>button{padding:8px 3px;font-size:10px}#training-view .hero .actions .hero-start-pass{min-width:73px;padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){#training-view .hero-pass-menu{animation:none}}
-#builder .builder-template-tools .builder-template-select-wrap{flex:1 1 180px;min-width:0}
+#builder .builder-template-tools .builder-template-select-wrap{flex:1 1 180px;min-width:0;order:0}
+#builder .builder-template-tools .builder-rename-tools{order:1}
+#builder .builder-template-tools .builder-template-actions{order:2}
 #builder .builder-rename-tools{display:flex;align-items:center;min-width:0;margin:0}
 #builder .builder-rename-tools[hidden],#builder .builder-template-rename[hidden],#builder .builder-rename-editor[hidden]{display:none!important}
 #builder .builder-template-rename{display:grid;place-items:center;width:36px;min-width:36px;min-height:36px;padding:0;border:1px solid #b7a1ad38;border-radius:9px;background:#ffffff06;color:#dba4b7;font-size:17px}
@@ -2374,7 +2376,7 @@ function renderHistoryEditor(){
  $('log-edit-exercises').innerHTML=w.exercises.map(function(ex,i){
   var timed=ex.mode==='min',expanded=historyExpandedCardIds.has(String(ex.id)),name=String(ex.name||'').trim()||'Ny övning';
   return '<article class="exercise-card log-editor-exercise'+(expanded?'':' is-collapsed')+'" data-log-exercise="'+i+'">'+
-   '<div class="exercise-head"><button type="button" class="builder-card-toggle" data-log-toggle="'+i+'" aria-expanded="'+expanded+'" aria-controls="log-card-body-'+i+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+ex.sets.length+' set · '+(timed?'tid':'vikt och reps')+'</span></span></button><div class="log-editor-tools">'+
+   '<div class="exercise-head"><button type="button" class="builder-card-toggle" data-log-toggle="'+i+'" aria-expanded="'+expanded+'" aria-controls="log-card-body-'+i+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+clean(builderExerciseSummary(ex))+'</span></span></button><div class="log-editor-tools">'+
    '<button type="button" class="mini" data-log-move="'+i+':-1" '+(i===0?'disabled':'')+' aria-label="Flytta övning upp">↑</button>'+
    '<button type="button" class="mini" data-log-move="'+i+':1" '+(i===w.exercises.length-1?'disabled':'')+' aria-label="Flytta övning ned">↓</button>'+
    '<details class="builder-card-menu"><summary aria-label="Fler åtgärder för '+clean(name)+'">⋯</summary><div class="builder-card-menu-content"><button type="button" data-log-remove-ex="'+i+'">Ta bort övning</button></div></details></div></div>'+
@@ -3223,6 +3225,10 @@ document.addEventListener('change',function(event){
   if(event.target.dataset.logMode!=null)mutateHistoryEditor('mode',event.target);
   else updateHistoryEditorField(event.target);
  }
+});
+$('builder-rename-name').addEventListener('keydown',function(event){
+ if(event.key==='Enter'){event.preventDefault();saveRenamedBuilderTemplate();}
+ else if(event.key==='Escape'){event.preventDefault();builderTemplateRenaming=false;updateBuilderModeUI();}
 });
 document.addEventListener('input',function(event){
  var el=event.target;
