@@ -540,8 +540,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </div>
-  <div class="section-head"><h2>Välj träningspass</h2><span class="hint">Bygg eller redigera ett pass</span></div>
-  <div class="choices"><button type="button" class="choice push" data-choice="Push"><span class="glyph">↗</span><b>Push</b><small>Bröst · Axlar · Triceps</small></button><button type="button" class="choice pull" data-choice="Pull"><span class="glyph">↙</span><b>Pull</b><small>Rygg · Biceps</small></button><button type="button" class="choice cardio" data-choice="Kondition"><span class="glyph">⌁</span><b>Kondition</b><small>Intervaller · Distans · Tid</small></button></div>
+  <div class="section-head"><h2>Träningsformer</h2><span class="hint">Senaste pass · mallar · snabbval</span></div>
+  <div class="choices training-kind-cards" id="training-kind-cards"></div><section class="training-kind-detail" id="training-kind-detail" hidden aria-live="polite"></section>
   <div class="stats"><div class="panel stat"><div class="stat-label" id="stat-week-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="edit-selected-day">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
   <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
@@ -1275,8 +1275,49 @@ function renderRecords(){
   }).join('')+(rows.length?'':'<p class="pr-empty">'+(group==='Kondition'?'Ditt första tidsrekord visas när du sparar genomförd konditionsträning.':'Inga rekord i '+group+' ännu. Spara ett styrkepass eller lägg till ett rekord.')+'</p>')+'</div>';
  }).join('');
 }
+
+var selectedTrainingKind='';
+function renderTrainingKinds(){
+ var kinds=[['Push','push','↗','Bröst · Axlar · Triceps'],['Pull','pull','↙','Rygg · Biceps'],['Kondition','cardio','⌁','Intervaller · Distans · Tid']];
+ var templates=builderTemplates(),history=state.history||[];
+ $('training-kind-cards').innerHTML=kinds.map(function(k){
+  var last=history.filter(function(h){return h.type===k[0];}).sort(historyNewestFirst)[0],count=templates.filter(function(t){return t.type===k[0];}).length;
+  var active=selectedTrainingKind===k[0];
+  return '<button type="button" class="choice training-kind-card '+k[1]+'" data-choice="'+k[0]+'" aria-expanded="'+active+'" aria-controls="training-kind-detail">'
+  +'<span class="training-kind-head"><span class="glyph">'+k[2]+'</span><span class="training-kind-chevron">'+(active?'⌃':'⌄')+'</span></span><b>'+k[0]+'</b><small class="training-kind-subtitle">'+k[3]+'</small>'
+  +'<span class="training-kind-stats"><span><em>Senast</em><strong>'+(last?clean(pretty(last.date)):'Inget pass')+'</strong></span><span><em>Mallar</em><strong>'+count+'</strong></span></span></button>';
+ }).join('');
+ var detail=$('training-kind-detail'),type=selectedTrainingKind;
+ if(!type){detail.hidden=true;detail.innerHTML='';return;}
+ detail.hidden=false;detail.dataset.tone=type==='Pull'?'pull':type==='Kondition'?'cardio':'push';
+ var last=history.filter(function(h){return h.type===type;}).sort(historyNewestFirst)[0];
+ var matching=templates.filter(function(t){return t.type===type;}).sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'sv');});
+ var recent=last?'<button type="button" class="training-kind-last" data-kind-history="'+clean(last.id)+'"><span><small>Senaste genomförda</small><strong>'+clean(last.name||type)+'</strong><small>'+clean(pretty(last.date))+' · '+Number(last.minutes||0)+' min</small></span><span>↗</span></button>':'<p class="training-kind-empty">Inga genomförda pass ännu.</p>';
+ var list=matching.length?matching.map(function(t){
+  return '<div class="training-kind-template"><span class="training-kind-template-title">'+clean(t.name||type)+'<small>'+((t.exercises||[]).length)+' övningar</small></span>'
+  +'<button type="button" data-kind-log-template="'+clean(t.id)+'">Logga</button><button type="button" data-kind-edit-template="'+clean(t.id)+'">Redigera</button></div>';
+ }).join(''):'<p class="training-kind-empty">Inga mallpass för '+type.toLowerCase()+' ännu.</p>';
+ detail.innerHTML='<div class="training-kind-detail-head"><strong>'+type+'</strong><button type="button" class="training-kind-close" data-kind-close="1" aria-label="Stäng">×</button></div>'
+ +'<div class="training-kind-detail-grid"><div><span class="training-kind-kicker">SENASTE PASS</span>'+recent+'</div>'
+ +'<div><span class="training-kind-kicker">MALLPASS · '+matching.length+'</span><div class="training-kind-template-list">'+list+'</div></div></div>'
+ +'<div class="training-kind-actions"><button type="button" data-kind-log="'+type+'">＋ Logga pass</button><button type="button" data-kind-build="'+type+'">＋ Bygg pass</button></div>';
+}
+function openTrainingKindLog(type,templateId){
+ openHistoryEditor('');
+ if(!$('history-editor').open||!historyEditDraft)return;
+ if(templateId){applyHistoryLogTemplate(templateId);return;}
+ historyEditDraft.type=type;historyEditDraft.exercises=[logEditorExercise(type==='Kondition'?'min':'kg')];
+ historyEditInitial=JSON.stringify(historyEditDraft);historyCardDraftRef=null;renderHistoryEditor();
+}
+function openTrainingKindBuilder(type,templateId){
+ openBuilder(type);
+ if(!$('builder').open||!draft)return;
+ if(templateId){setBuilderMode('template');$('builder-template-select').value=templateId;applyBuilderTemplate();}
+ else createNewDayWorkout();
+}
 function render(){
  renderRecords();
+ renderTrainingKinds();
  var p=plan(selected),type=nextType();
  closeHeroPassMenu();
  var startButton=$('hero-start-pass'),startMain=$('hero-start-main'),startName=$('hero-start-name');
@@ -1734,6 +1775,7 @@ function updateBuilderModeUI(){
  var dayEditing=builderDayStage==='custom'||builderDayStage==='loaded'||builderDayStage==='existing';
  var newTemplate=isTemplate&&builderTemplateCreating;
  box.dataset.builderMode=isTemplate?'template':'day';
+ box.dataset.tone=draft&&draft.type==='Pull'?'pull':draft&&draft.type==='Kondition'?'cardio':'push';
  box.dataset.builderDayStage=builderDayStage;
  box.querySelectorAll('[data-builder-mode]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.builderMode===builderMode));});
  $('builder-title').textContent=isTemplate?'Bygg mallpass':builderWeekIndex>=0?'Bygg '+DAYS[builderWeekIndex]+' · '+pretty(draft.date):'Bygg pass';
@@ -2368,6 +2410,7 @@ function toggleHistoryCard(index){
 function renderHistoryEditor(){
  if(!historyEditDraft)return;
  var w=historyEditDraft;
+ $('history-editor').dataset.tone=w.type==='Pull'?'pull':w.type==='Kondition'?'cardio':'push';
  syncHistoryCardExpansion();
  renderHistoryLogTemplates();
  $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
@@ -3068,7 +3111,13 @@ document.addEventListener('click',function(event){
   return;
  }
  if(b.dataset.day){selected=b.dataset.day;render();openBuilder(null,true);return;}
- if(b.dataset.choice){openBuilder(b.dataset.choice);return;}
+ if(b.dataset.choice){selectedTrainingKind=selectedTrainingKind===b.dataset.choice?'':b.dataset.choice;renderTrainingKinds();return;}
+ if(b.dataset.kindClose!=null){selectedTrainingKind='';renderTrainingKinds();return;}
+ if(b.dataset.kindHistory!=null){openHistory(b.dataset.kindHistory);return;}
+ if(b.dataset.kindLogTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindLogTemplate);});if(t)openTrainingKindLog(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
+ if(b.dataset.kindEditTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindEditTemplate);});if(t)openTrainingKindBuilder(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
+ if(b.dataset.kindLog!=null){openTrainingKindLog(b.dataset.kindLog);return;}
+ if(b.dataset.kindBuild!=null){openTrainingKindBuilder(b.dataset.kindBuild);return;}
  if(b.dataset.zenWeekShift!=null){zenWeekMonday=offset(zenWeekMonday,7*Number(b.dataset.zenWeekShift));renderZen();return;}
  if(b.dataset.zenDay!=null){openZenDay(b.dataset.zenDay);return;}
  if(b.dataset.zenPlanRoutine!=null){openZenDay(dayISO(new Date()),b.dataset.zenPlanRoutine);return;}
