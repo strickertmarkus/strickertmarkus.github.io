@@ -47,9 +47,10 @@ test('Day and template names are only edited via compact pencil controls',()=>{
  assert.ok(html.includes('data-action="rename-template"'),'Template selection should have an edit pencil');
  assert.ok(!html.includes('id="build-name"'),'Legacy always-visible pass-name input must not exist');
  assert.ok(html.includes('builderTemplateCreating||!!builderTemplateId'),'Pencil must work for new and saved templates');
+ assert.ok(html.includes('dayEditing&&selectedTemplate'),'Selected templates must expose a pencil even in day-builder mode');
 });
 test('Renaming a saved template updates only linked plans and both template dropdown and week uses',()=>{
- const template={id:'tpl',type:'Push',name:'Push · Fokus',exercises:[ex('e',45)]};
+ const template={id:'tpl',type:'Push',name:'Push · Fokus',exercises:[ex('e',50)]};
  const linked={...workout('Push · Fokus'),templateId:'tpl'};
  const legacy=workout('Push · Fokus');
  const independent={...workout('Push · Fokus'),templateId:''};
@@ -78,6 +79,21 @@ test('Renaming a template restores original names if Firebase cannot save',()=>{
  });
  assert.equal(c.renameStoredBuilderTemplate('tpl','Nytt'),false);
  assert.equal(template.name,'Gammalt');assert.equal(linked.name,'Gammalt');assert.equal(linked.templateId,'tpl');
+});
+test('A day-pass rename updates the selected template without changing exercises',()=>{
+ const template={id:'t',...workout('Push')},draft={...workout('Push'),templateId:'t'};
+ const state={templates:[template],plans:{today:{...workout('Push'),templateId:'t'}},builderDrafts:{},weekTemplates:[]};
+ let persisted=0,kept=0;
+ const c=context(['matchingBuilderTemplateId','renameStoredBuilderTemplate','saveRenamedBuilderDay'],{
+  state,builderTemplates:()=>state.templates,draft,builderMode:'day',builderDayRenaming:true,
+  weekDraft:null,weekBase:null,builderDayDraft:null,builderTemplateDraft:null,builderTemplateDraftId:'',
+  $:()=>({value:'Push + extra'}),persist:()=>{persisted++;return true;},keepBuilderDraft(){kept++;},
+  renderBuilderTemplates(){},render(){},toast(){}
+ });
+ c.saveRenamedBuilderDay();
+ assert.equal(template.name,'Push + extra');assert.equal(draft.name,'Push + extra');
+ assert.equal(state.plans.today.name,'Push + extra');assert.equal(state.plans.today.exercises[0].sets[0].weight,50);
+ assert.equal(kept,1);assert.equal(persisted,1);
 });
 test('New template can be named by pencil before it is saved as a mall',()=>{
  const state={templates:[]},draft=workout('');
