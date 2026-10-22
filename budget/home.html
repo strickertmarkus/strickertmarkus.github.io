@@ -2441,6 +2441,7 @@ function transferTableRows(majaIca, majaHouse, markusIca, markusHouse) {
 // Home sections share the existing calendar and finance components.
 function selectHomeSection(section) {
   if (section !== 'economy') section = 'overview';
+  var previousSection = document.body.dataset.homeSection;
   document.body.dataset.homeSection = section;
   ['overview','economy'].forEach(function(name) {
     document.getElementById('home-' + name).hidden = name !== section;
@@ -2453,7 +2454,12 @@ function selectHomeSection(section) {
   if (section === 'economy') url.searchParams.set('view','economy');
   else url.searchParams.delete('view');
   if (url.href !== location.href) history.replaceState(history.state,'',url.href);
-  if (section === 'economy') renderHomeEconomySnapshot();
+  if (section === 'economy') {
+    renderHomeEconomySnapshot();
+    // Default to the actual current-month transfers when entering Economy,
+    // including a direct ?view=economy link. Respect manual close while here.
+    if (previousSection !== 'economy') toggleTransferPopup(true);
+  }
 }
 
 function renderTransferPopup() {
