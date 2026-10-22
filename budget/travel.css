@@ -760,6 +760,9 @@ dialog[open]:not(.inline-editor){
   line-height:1.25;
   overflow-wrap:anywhere;
 }
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric strong.warning{
+  color:#ffc3a3;
+}
 #content[data-rendered-tab="expense"] .budget-summary>.card.metric .text-button{
   padding:5px 0;
   margin:2px 0 0;
