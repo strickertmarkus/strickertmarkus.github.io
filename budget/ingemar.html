@@ -345,15 +345,6 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-day-create{border-color:rgba(var(--form-rgb),.37);background:rgba(var(--form-rgb),.07);color:var(--form-accent)}
 @media(max-width:600px){#training-view .training-kind-card{min-height:128px;padding:10px 8px}#training-view .training-kind-card b{font-size:13px;margin:6px 0 3px}#training-view .training-kind-card .glyph{font-size:17px}#training-view .training-kind-subtitle{font-size:9px}#training-view .training-kind-stats{gap:5px;padding-top:11px}#training-view .training-kind-stats em{font-size:8px}#training-view .training-kind-stats strong{font-size:9px}#training-view .training-kind-detail{padding:11px}#training-view .training-kind-detail-grid{grid-template-columns:1fr;gap:12px}#training-view .training-kind-template{flex-wrap:wrap}#training-view .training-kind-template-title{flex-basis:100%}}
 
-/* Samma kompakta träningsformsväljare i loggen som i passbyggaren. */
-#history-editor .log-editor-type-field{margin:0 0 12px}
-#history-editor .log-editor-type-label{display:block;margin:0 0 6px;color:#a9a1ae;font-size:10px;font-weight:650}
-#history-editor .log-type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
-#history-editor .log-type-pills:has([data-log-type="Övrigt"]){grid-template-columns:repeat(4,minmax(0,1fr))}
-#history-editor .log-type-pills .pill{min-width:0;min-height:36px;padding:7px 5px;border:1px solid #ffffff20;border-radius:9px;background:#ffffff04;color:#c3bcc7;font-size:11px;font-weight:700}
-#history-editor .log-type-pills .pill.active{border-color:rgba(var(--form-rgb),.50);background:rgba(var(--form-rgb),.12);color:var(--form-accent);box-shadow:0 0 13px rgba(var(--form-rgb),.075)}
-#history-editor .log-editor-meta{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media(max-width:600px){#history-editor .log-editor-meta{grid-template-columns:repeat(2,minmax(0,1fr))}#history-editor .log-editor-meta>.field:last-child{grid-column:1/-1}#history-editor .log-type-pills .pill{min-height:37px}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
@@ -369,7 +360,6 @@ dialog .compact-date-control input[type=date]{position:absolute;inset:0;width:10
 dialog .compact-date-control:focus-within{outline:2px solid var(--cyan);outline-offset:2px}
 dialog input:not([type=checkbox]),dialog select,dialog textarea{font-size:16px!important}
 dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;min-width:0;box-sizing:border-box}
-#history-editor .log-editor-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pr-section-head,.log-section-head{flex-wrap:wrap}
 #personal-records{--pr-accent:#d48b99}
 .pr-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0 0 10px;padding:4px;border:1px solid #ffffff10;border-radius:13px;background:#ffffff03}
@@ -427,11 +417,22 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .modal-head,#history-detail .modal-head{padding:10px max(14px,calc((100vw - 940px)/2));background:#0b0d15f5;border-bottom:1px solid #ad41592c}
 #history-editor .modal-head h2,#history-detail .modal-head h2{font-size:20px}
 #history-editor .modal-body,#history-detail .modal-body{width:min(100%,940px);max-width:940px;margin:auto;padding:11px 14px calc(20px + env(safe-area-inset-bottom))}
-#history-editor .log-template-picker{display:grid;grid-template-columns:85px minmax(0,1fr);gap:7px;align-items:center;margin:0 0 11px;padding:0;border:0;background:transparent}
+#history-editor .log-template-picker{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin:0 0 12px;padding:0;border:0;background:transparent}
 #history-editor .log-template-picker label{font-size:10px;color:#a9a1ae}
 #history-editor .log-template-picker select{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019}
 #history-editor .log-template-picker small{display:none}
-#history-editor .log-editor-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px}
+/* En tydlig helrad för träningsform; datum och tid delar en kompakt rad. */
+#history-editor .log-editor-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"type type" "date minutes" "name name";gap:10px 9px;margin:0 0 12px}
+#history-editor .log-editor-meta>.field:nth-child(1){grid-area:date}
+#history-editor .log-editor-meta>.log-editor-type-field{grid-area:type}
+#history-editor .log-editor-meta>.field:nth-child(3){grid-area:name}
+#history-editor .log-editor-meta>.field:nth-child(4){grid-area:minutes}
+#history-editor .log-editor-type-label{display:block;margin:0 0 5px;color:#a9a1ae;font-size:10px;font-weight:650}
+#history-editor .log-type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0}
+#history-editor .log-type-pills .pill{display:grid;place-items:center;min-width:0;width:100%;min-height:39px;padding:7px 5px;border:1px solid #ffffff20;border-radius:9px;background:#ffffff04;color:#c3bcc7;font-size:12px;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:normal}
+#history-editor .log-type-pills .pill[data-log-type="Övrigt"]{grid-column:1/-1}
+#history-editor .log-type-pills .pill.active{border-color:rgba(var(--form-rgb),.50);background:rgba(var(--form-rgb),.12);color:var(--form-accent);box-shadow:0 0 13px rgba(var(--form-rgb),.075)}
+@media(max-width:350px){#history-editor .log-type-pills{gap:5px}#history-editor .log-type-pills .pill{font-size:11px;padding-inline:3px}}
 #history-editor .log-editor-meta .field{min-width:0;margin:0}
 #history-editor .log-editor-meta .field label{display:block;margin:0 0 4px;color:#a9a1ae;font-size:10px}
 #history-editor .log-editor-meta .field input,#history-editor .log-editor-meta .field select,#history-editor .compact-date-control{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019;font-size:16px}
