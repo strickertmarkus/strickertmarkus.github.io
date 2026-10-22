@@ -1636,7 +1636,7 @@ function unlockBuilderBackground(){
  window.scrollTo({top:builderScrollY,behavior:'instant'});
 }
 function weekTemplates(){if(!Array.isArray(state.weekTemplates))state.weekTemplates=[];return state.weekTemplates;}
-function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,exercises:deep(planValue.exercises||[]),betweenExercises:normalizeBetweenOption(planValue.betweenExercises),preTimerEnabled:planValue.preTimerEnabled!==false};}
+function weekPlanClone(planValue){if(!planValue)return null;return {type:planValue.type,name:planValue.name,templateId:planValue.templateId||'',exercises:deep(planValue.exercises||[]),betweenExercises:normalizeBetweenOption(planValue.betweenExercises),preTimerEnabled:planValue.preTimerEnabled!==false};}
 function standardWeekPlan(type){return {type:type,name:type+' · Fokus',exercises:template(type)};}
 function weekDraftFromMonday(monday){return DAYS.map(function(_,i){return weekPlanClone(state.plans[offset(monday,i)]||null);});}
 function weekRangeText(monday){return pretty(monday)+' – '+pretty(offset(monday,6));}
@@ -1659,7 +1659,13 @@ function setWeekDayType(index,type){
  if(type==='Vila'){weekDraft[index]=null;delete state.builderDrafts[date];}
  else if(TYPES.indexOf(type)>=0){
   if(!weekDraft[index])weekDraft[index]=standardWeekPlan(type);
-  else weekDraft[index].type=type;
+  else {
+   if(weekDraft[index].type!==type&&weekDraft[index].templateId){
+    weekDraft[index].name=type+' · Fokus';
+    weekDraft[index].templateId='';
+   }
+   weekDraft[index].type=type;
+  }
   // A previously closed builder must not silently restore the old category.
   if(state.builderDrafts[date])state.builderDrafts[date].type=type;
  }
@@ -1681,7 +1687,7 @@ function toggleWeekExercise(index,name){
 function applyWeekDayTemplate(index,id){
  var item=builderTemplates().find(function(t){return String(t.id)===String(id);});if(!item||!weekDraft||index<0||index>6)return;
  delete state.builderDrafts[offset(weekPlannerMonday,index)];
- weekDraft[index]={type:item.type,name:item.name,exercises:deep(item.exercises),betweenExercises:normalizeBetweenOption(item.betweenExercises),preTimerEnabled:item.preTimerEnabled!==false};
+ weekDraft[index]={type:item.type,name:item.name,templateId:item.id,exercises:deep(item.exercises),betweenExercises:normalizeBetweenOption(item.betweenExercises),preTimerEnabled:item.preTimerEnabled!==false};
  weekDraftDirty=true;weekExpandedDay=index;weekCopyFrom=-1;renderWeekPlanner();
 }
 function weekPlannerSummaryText(){var sessions=weekDraft.filter(Boolean),exercises=sessions.reduce(function(n,item){return n+(item.exercises||[]).length;},0),sets=sessions.reduce(function(n,item){return n+(item.exercises||[]).reduce(function(sum,ex){return sum+(ex.sets||[]).length;},0);},0);return {main:sessions.length+' pass planerade',sub:exercises+' övningar · '+sets+' set · '+(7-sessions.length)+' vilodag'+(7-sessions.length===1?'':'ar')};}
@@ -1707,7 +1713,7 @@ function openWeekDayBuilder(index){
  builderWeekIndex=index;weekExpandedDay=index;
  weekPlannerScrollY=$('week-planner').scrollTop;
  draft=entry?deep(entry):state.builderDrafts[date]?deep(state.builderDrafts[date]):freshBuilderDraft(kind,date);builderMode='day';builderDayStage=entry?'existing':'choose';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;builderTemplateRenaming=false;
- builderBase=deep(entry||null);draft.date=date;builderDraftDate=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
+ builderBase=deep(entry||null);draft.date=date;builderDraftDate=date;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId=matchingBuilderTemplateId(draft);
  $('builder-title').textContent='Bygg '+DAYS[index]+' · '+pretty(date);
  $('build-date').disabled=true;
  $('builder-save-plan').textContent='Spara i veckoplanen';
@@ -1841,6 +1847,26 @@ function endWeekDrag(event){
  if(event&&event.type==='pointerup'&&dragState.from!==dragState.to)swapWeekDays(dragState.from,dragState.to);
 }
 function builderTemplates(){if(!Array.isArray(state.templates))state.templates=[];return state.templates;}
+// New plans retain an explicit template reference. Legacy plans can be recognized
+// only when their name, type and every programmed exercise/set match one unique template.
+// No guess is made for customized plans or deliberately unlinked day passes.
+function matchingBuilderTemplateId(workout){
+ if(!workout)return '';
+ var templates=builderTemplates();
+ if(Object.prototype.hasOwnProperty.call(workout,'templateId')){
+  return templates.some(function(item){return String(item.id)===String(workout.templateId);})?String(workout.templateId):'';
+ }
+ var signature=function(item){
+  return JSON.stringify((item.exercises||[]).map(function(ex){
+   return [ex.name,ex.mode,(ex.sets||[]).map(function(set){return [set.weight??null,set.reps??null,set.minutes??null];})];
+  }));
+ };
+ var expected=signature(workout);
+ var matches=templates.filter(function(item){
+  return item.type===workout.type&&String(item.name||'').trim()===String(workout.name||'').trim()&&signature(item)===expected;
+ });
+ return matches.length===1?String(matches[0].id):'';
+}
 function freshBuilderDraft(kind,date){var type=TYPES.includes(kind)?kind:'Push';return {type:type,name:'',date:date||dayISO(new Date()),exercises:[],preTimerEnabled:true,betweenExercises:normalizeBetweenOption(null)};}
 function updateBuilderModeUI(){
  var isTemplate=builderMode==='template',box=$('builder');
@@ -1853,7 +1879,7 @@ function updateBuilderModeUI(){
  $('builder-title').textContent=isTemplate?'Bygg mallpass':builderWeekIndex>=0?'Bygg '+DAYS[builderWeekIndex]+' · '+pretty(draft.date):'Bygg pass';
  $('builder-name-label').textContent=isTemplate?'Mallnamn':'Passnamn';
  $('build-name').placeholder=isTemplate?'Namn på mallpass':'Namnge ditt pass';
- box.querySelector('.builder-name-field').hidden=!(isTemplate?newTemplate:builderDayStage==='custom');
+ box.querySelector('.builder-name-field').hidden=!(isTemplate?newTemplate:dayEditing);
  box.querySelector('.builder-type-field').hidden=isTemplate?(!builderTemplateCreating&&!builderTemplateId):!dayEditing;
  box.querySelector('.builder-template-field').hidden=!isTemplate&&builderDayStage==='custom';
  box.querySelector('.builder-day-create').hidden=isTemplate||!(builderDayStage==='choose'||builderDayStage==='loaded');
@@ -1879,10 +1905,11 @@ function setBuilderMode(mode){
  builderMode=mode;
  if(mode==='template'){draft=builderTemplateDraft?deep(builderTemplateDraft):freshBuilderDraft(builderDayDraft&&builderDayDraft.type,builderDayDraft&&builderDayDraft.date);builderTemplateCreating=builderTemplateDraftCreating;}
  else {draft=builderDayDraft?deep(builderDayDraft):freshBuilderDraft(draft.type,builderDraftDate);builderBase=deep(plan(draft.date));}
- builderTemplateId=mode==='template'?builderTemplateDraftId:'';builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
+ builderTemplateId=mode==='template'?builderTemplateDraftId:matchingBuilderTemplateId(draft);builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();
 }
 function renderBuilderTemplates(){
  var templates=builderTemplates(),select=$('builder-template-select');
+ if(builderMode==='day')builderTemplateId=matchingBuilderTemplateId(draft);
  if(!templates.some(function(t){return String(t.id)===String(builderTemplateId);}))builderTemplateId='';
  select.innerHTML='<option value="">'+(builderMode==='template'?'Välj mallpass':templates.length?'Välj mallpass':'Inga mallpass ännu')+'</option>'+(builderMode==='template'?'<option value="__new__" '+(builderTemplateCreating?'selected':'')+'>＋ Ny mall</option>':'')+templates.map(function(t){return '<option value="'+clean(t.id)+'" '+(String(t.id)===String(builderTemplateId)?'selected':'')+'>'+clean(t.name)+'</option>';}).join('');
  setText('builder-template-selected',select.options[select.selectedIndex]?select.options[select.selectedIndex].textContent:'Välj mallpass');
@@ -1953,15 +1980,19 @@ function applyBuilderTemplate(){
  var item=builderTemplates().find(function(t){return String(t.id)===String(chosenId);});
  if(!item){
   if(builderMode==='template'){builderTemplateCreating=false;builderTemplateId='';draft=freshBuilderDraft(draft.type,builderDraftDate);renderBuilder();}
-  else if(builderDayStage==='loaded'||builderDayStage==='choose'){
+  else if(builderMode==='day'){
    updateDraftFromBuilderInputs();
-   draft=freshBuilderDraft(draft.type,draft.date);
-   builderDayStage='choose';builderTemplateId='';renderBuilder();
+   if(builderDayStage==='loaded'||builderDayStage==='choose'){
+    draft=freshBuilderDraft(draft.type,draft.date);
+    builderDayStage='choose';
+   }else draft.templateId='';
+   builderTemplateId='';renderBuilder();
   }
   return;
  }
  var date=draft.date;builderTemplateId=item.id;if(builderMode==='template')builderTemplateCreating=false;
  draft.type=item.type;draft.name=item.name;draft.date=date;
+ if(builderMode==='day')draft.templateId=item.id;
  draft.exercises=deep(item.exercises||[]);
  draft.betweenExercises=normalizeBetweenOption(item.betweenExercises);
  draft.preTimerEnabled=item.preTimerEnabled!==false;
@@ -1971,10 +2002,11 @@ function applyBuilderTemplate(){
 function useBuilderTemplate(){
  if(builderMode!=='template'||!draft)return;
  updateDraftFromBuilderInputs();if(!validateDraft())return;
- var chosen=deep(draft);setBuilderMode('day');
+ var chosen=deep(draft),chosenTemplateId=builderTemplateId;setBuilderMode('day');
  var date=draft.date;draft.type=chosen.type;draft.name=chosen.name;draft.date=date;draft.exercises=deep(chosen.exercises);
  draft.betweenExercises=normalizeBetweenOption(chosen.betweenExercises);draft.preTimerEnabled=chosen.preTimerEnabled!==false;
- builderTemplateId='';renderBuilder();toast('Mallen är inläst i dagens pass.');
+ draft.templateId=chosenTemplateId||'';builderTemplateId=draft.templateId;builderDayStage='loaded';
+ renderBuilder();toast('Mallen är inläst i dagens pass.');
 }
 function deleteBuilderTemplate(){
  if(builderMode!=='template')return;
@@ -2056,7 +2088,7 @@ function openBuilder(type,editDay,choosePass){
  draft=existing?deep(existing):freshBuilderDraft(kind,selected);
  if(type&&TYPES.includes(type))draft.type=type;
  draft.date=selected;builderDraftDate=selected;builderDayStage=existing?'existing':'choose';
- builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';
+ builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId=matchingBuilderTemplateId(draft);
  $('build-date').disabled=false;$('builder-save-plan').textContent='Spara upplägg';$('builder-start-from-builder').hidden=false;
  renderBuilder();lockBuilderBackground();SurfaceMotion.showDialog($('builder'));
 }
@@ -2116,7 +2148,7 @@ function builderExerciseSummary(ex){
  return [sets.length+' set',span(sets.map(function(s){return timed?s.minutes:s.weight;}),timed?'min':'kg'),timed?'':span(sets.map(function(s){return s.reps;}),'reps')].filter(Boolean).join(' · ');
 }
 function syncBuilderCardExpansion(){
- if(builderCardDraftRef!==draft){builderCardDraftRef=draft;builderExpandedCardIds=new Set(draft&&draft.exercises.length?[String(draft.exercises[0].id)]:[]);}
+ if(builderCardDraftRef!==draft){builderCardDraftRef=draft;builderExpandedCardIds=new Set();}
  else if(draft){var ids=new Set(draft.exercises.map(function(e){return String(e.id);}));builderExpandedCardIds.forEach(function(id){if(!ids.has(id))builderExpandedCardIds.delete(id);});}
 }
 function focusBuilderCard(id,exclusive){if(exclusive)builderExpandedCardIds.clear();builderExpandedCardIds.add(String(id));}
@@ -2179,7 +2211,7 @@ function saveDraft(){
  if(builderMode!=='day'||!validateDraft())return false;
  if(builderWeekIndex>=0){weekDraft[builderWeekIndex]=weekPlanClone(draft);weekDraftDirty=true;weekExpandedDay=builderWeekIndex;delete state.builderDrafts[draft.date];return commitWeekDraft();}
  preserveReplacedPlan(draft.date,draft);
- state.plans[draft.date]=mergeEditedPlan(draft.date,builderBase,{type:draft.type,name:draft.name,exercises:deep(draft.exercises),betweenExercises:normalizeBetweenOption(draft.betweenExercises),preTimerEnabled:draft.preTimerEnabled!==false});
+ state.plans[draft.date]=mergeEditedPlan(draft.date,builderBase,{type:draft.type,name:draft.name,templateId:matchingBuilderTemplateId(draft),exercises:deep(draft.exercises),betweenExercises:normalizeBetweenOption(draft.betweenExercises),preTimerEnabled:draft.preTimerEnabled!==false});
  delete state.builderDrafts[draft.date];selected=draft.date;if(!persist())return false;render();return true;
 }
 function openPlanPreview(startAfter){
