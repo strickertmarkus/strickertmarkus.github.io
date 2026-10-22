@@ -75,14 +75,17 @@ dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overf
 #builder .builder-exercise-name-menu[hidden]{display:none!important}
 #builder .builder-exercise-name-menu-head{display:flex;justify-content:space-between;gap:8px;padding:5px 7px 8px;color:#d5c0c7;font-size:10px;font-weight:700;letter-spacing:.05em}
 #builder .builder-exercise-name-menu-head small{color:#8f93a3;font-size:9px;font-weight:600;letter-spacing:0}
-#builder .builder-exercise-name-option,#builder .builder-exercise-name-new{display:block;width:100%;min-width:0;border:0;border-radius:9px;background:transparent;color:#eee5e9;text-align:left;padding:8px 9px;font-size:12px;overflow-wrap:anywhere}
+#builder .builder-exercise-name-option{display:block;width:100%;min-width:0;border:0;border-radius:9px;background:transparent;color:#eee5e9;text-align:left;padding:8px 9px;font-size:12px;overflow-wrap:anywhere}
 #builder .builder-exercise-name-option:hover,#builder .builder-exercise-name-option.is-current{background:#ad415914;color:#ce93a1}
 #builder .builder-exercise-option-row{display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:center;gap:3px;border-radius:9px;min-width:0}
 #builder .builder-exercise-option-row .builder-exercise-name-option{min-width:0;min-height:37px;padding:7px 9px}
 #builder .builder-exercise-option-remove{display:grid;place-items:center;width:36px;min-width:36px;min-height:37px;padding:0;border:0;border-radius:8px;background:transparent;color:#ac8291;font-size:20px;line-height:1;touch-action:manipulation}
 #builder .builder-exercise-option-remove:hover,#builder .builder-exercise-option-remove:focus-visible{background:#bd5c7022;color:#f5becf}
 #builder .builder-exercise-option-remove:focus-visible{outline:2px solid #c87e92;outline-offset:-2px}
-#builder .builder-exercise-name-new{margin-top:5px;border-top:1px solid #ffffff12;border-radius:0;color:#ba6179;font-weight:750;cursor:pointer;touch-action:manipulation}
+#builder .builder-exercise-new-row{position:sticky;top:0;z-index:2;margin:3px 0 6px;padding:5px;border-bottom:1px solid #ffffff12;background:#101621}
+#builder .builder-exercise-new-input{display:block;width:100%;max-width:100%;min-height:42px;height:42px;margin:0;padding:9px 11px;border:1px solid #b7657b70;border-radius:9px;background:#241822;color:#f4e8ee;font-size:16px;line-height:20px;cursor:text;touch-action:manipulation;outline:none}
+#builder .builder-exercise-new-input::placeholder{color:#d590a6;opacity:1}
+#builder .builder-exercise-new-input:focus{border-color:#e19aaf;box-shadow:0 0 0 2px #ba617936}
 #builder .builder-template-tools{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:7px;align-items:center}
 #builder .builder-template-tools .builder-template-select-wrap{position:relative;min-width:0;max-width:100%;height:40px;border:1px solid #ffffff27;border-radius:12px;background:#0f1520;overflow:hidden}
 #builder .builder-template-select-wrap .builder-template-selected{display:block;min-width:0;width:100%;padding:10px 28px 10px 10px;color:#e9dfe5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:18px;pointer-events:none}
@@ -1551,7 +1554,7 @@ function exerciseNameCatalog(type,mode){
  });
  return items.sort(function(a,b){return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});});
 }
-function rememberTypedExerciseName(index){
+function rememberTypedExerciseName(index,skipMenuRefresh){
  var input=document.querySelector('#builder [data-exercise-name-input="'+index+'"]');
  var ex=draft&&draft.exercises[index];
  if(!ex||!input||input.dataset.exerciseNameFree!=='1'||input.dataset.exerciseNameEdited!=='1')return false;
@@ -1566,7 +1569,7 @@ function rememberTypedExerciseName(index){
  // Intentionally typing an option again restores it after previous dismissal.
  if(state.hiddenExerciseOptions[id]){state.hiddenExerciseOptions[id]=false;changed=true;}
  delete input.dataset.exerciseNameEdited;
- if(changed){persist();refreshBuilderExerciseMenu(index);}
+ if(changed){persist();if(!skipMenuRefresh)refreshBuilderExerciseMenu(index);}
  return changed;
 }
 function rememberAllTypedExerciseNames(){
@@ -1585,11 +1588,23 @@ function builderExerciseNameMenuMarkup(ex,index){
  }).join('');
  if(!options)options='<div class="hint" style="padding:9px">Inga registrerade övningar i den här kategorin ännu.</div>';
  return '<div class="builder-exercise-name-menu-head"><span>Välj övning</span><small>'+clean(draft.type)+' · '+catalog.length+' registrerade</small></div>'
-   +options+'<button type="button" class="builder-exercise-name-new" data-exercise-new="'+index+'">＋ Ny övning</button>';
+   +'<div class="builder-exercise-new-row"><input type="text" class="builder-exercise-new-input" data-exercise-new-input="'+index+'" aria-label="Skriv namn på ny övning" placeholder="＋ Ny övning…" maxlength="65" autocomplete="off" enterkeyhint="done"></div>'
+   +options;
 }
 function builderExerciseNameMarkup(ex,index){
  var free=builderFreeExerciseIndex===index,open=builderOpenExerciseIndex===index;
  return '<div class="builder-exercise-name-control"><input type="text" id="builder-exercise-name-'+index+'" class="builder-exercise-name-input" aria-label="Övningens namn" maxlength="65" data-name="'+index+'" data-exercise-name-input="'+index+'" value="'+clean(ex.name)+'" '+(free?'data-exercise-name-free="1"':'readonly')+' autocomplete="off" aria-haspopup="listbox" aria-expanded="'+open+'"><button type="button" class="builder-exercise-name-chevron" data-exercise-picker="'+index+'" aria-label="Välj övning">⌄</button><div class="builder-exercise-name-menu" data-exercise-menu="'+index+'" role="listbox" '+(open?'':'hidden')+'>'+builderExerciseNameMenuMarkup(ex,index)+'</div></div>';
+}
+function inputNewBuilderExerciseName(index,value){
+ var ex=draft&&draft.exercises[index],main=document.querySelector('#builder [data-exercise-name-input="'+index+'"]');
+ if(!ex||!main)return;
+ ex.name=String(value||'').slice(0,65);
+ builderFreeExerciseIndex=index;
+ main.readOnly=false;
+ main.dataset.exerciseNameFree='1';
+ main.dataset.exerciseNameEdited='1';
+ main.value=ex.name;
+ keepBuilderDraft();
 }
 function refreshBuilderExerciseMenu(index){
  var ex=draft&&draft.exercises[index],menu=document.querySelector('#builder [data-exercise-menu="'+index+'"]');
@@ -3465,8 +3480,6 @@ document.addEventListener('pointerup',endBuilderDrag);
 document.addEventListener('pointercancel',endBuilderDrag);
 document.addEventListener('lostpointercapture',endBuilderDrag);
 $('exercise-list').addEventListener('click',function(event){
- var newName=event.target.closest&&event.target.closest('[data-exercise-new]');
- if(newName){beginBuilderFreeExerciseName(Number(newName.dataset.exerciseNew),true);return;}
  var input=event.target.closest&&event.target.closest('[data-exercise-name-input]');
  if(!input||input.dataset.exerciseNameFree==='1')return;
  event.preventDefault();
@@ -3536,8 +3549,24 @@ $('builder-rename-name').addEventListener('keydown',function(event){
  if(event.key==='Enter'){event.preventDefault();saveRenamedBuilderTemplate();}
  else if(event.key==='Escape'){event.preventDefault();builderTemplateRenaming=false;updateBuilderModeUI();}
 });
+$('exercise-list').addEventListener('focusout',function(event){
+ var newInput=event.target.closest&&event.target.closest('[data-exercise-new-input]');
+ if(newInput)rememberTypedExerciseName(Number(newInput.dataset.exerciseNewInput),true);
+});
+$('exercise-list').addEventListener('keydown',function(event){
+ var newInput=event.target.closest&&event.target.closest('[data-exercise-new-input]');
+ if(newInput&&event.key==='Enter'){
+  event.preventDefault();
+  newInput.blur();
+  closeBuilderExercisePicker();
+ }
+});
 document.addEventListener('input',function(event){
  var el=event.target;
+ if(el.dataset.exerciseNewInput!=null&&$('builder').open&&draft){
+  inputNewBuilderExerciseName(Number(el.dataset.exerciseNewInput),el.value);
+  return;
+ }
  if(el.dataset.betweenEdit&&$('builder').open&&draft)updateBuilderBetweenField(el);
  if(el.id==='zen-audio-volume'){setZenAudioVolume(Number(el.value)/100,true);return;}
  if(historyEditDraft&&$('history-editor').open&&$('history-editor').contains(el)&&el.dataset.logMode==null)updateHistoryEditorField(el);
