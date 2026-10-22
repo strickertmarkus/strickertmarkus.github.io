@@ -345,6 +345,14 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-day-create{border-color:rgba(var(--form-rgb),.37);background:rgba(var(--form-rgb),.07);color:var(--form-accent)}
 @media(max-width:600px){#training-view .training-kind-card{min-height:128px;padding:10px 8px}#training-view .training-kind-card b{font-size:13px;margin:6px 0 3px}#training-view .training-kind-card .glyph{font-size:17px}#training-view .training-kind-subtitle{font-size:9px}#training-view .training-kind-stats{gap:5px;padding-top:11px}#training-view .training-kind-stats em{font-size:8px}#training-view .training-kind-stats strong{font-size:9px}#training-view .training-kind-detail{padding:11px}#training-view .training-kind-detail-grid{grid-template-columns:1fr;gap:12px}#training-view .training-kind-template{flex-wrap:wrap}#training-view .training-kind-template-title{flex-basis:100%}}
 
+
+/* Ingång till den fristående teknikguiden; sparade pass och utkast påverkas inte. */
+.exercise-guide-section-head{gap:10px}
+.exercise-guide-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #b85f7959;border-radius:10px;background:#b85f790e;color:#e5a3b8;font-size:11px;font-weight:750;white-space:nowrap}
+.exercise-guide-link:hover{border-color:#c77893;background:#b85f7922;color:#f3c6d2}
+.exercise-guide-inline{display:inline-flex;align-items:center;margin:9px 0 0 11px;padding:8px 3px;color:#d8a3b3;font-size:11px;font-weight:650}
+.exercise-guide-inline:hover{text-decoration:underline}
+@media(max-width:360px){.exercise-guide-section-head h2{font-size:19px}.exercise-guide-link{padding:8px 9px;font-size:10px}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
@@ -604,7 +612,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </div>
-  <div class="section-head"><h2>Träningsformer</h2><span class="hint">Senaste pass · mallar · snabbval</span></div>
+  <div class="section-head exercise-guide-section-head"><h2>Träningsformer</h2><a class="exercise-guide-link" href="ingemar-exercise-guide.html">Övningsguide ↗</a></div>
   <div class="choices training-kind-cards" id="training-kind-cards"></div><section class="training-kind-detail" id="training-kind-detail" hidden aria-live="polite"></section>
   <div class="stats"><div class="panel stat"><div class="stat-label" id="stat-week-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="edit-selected-day">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
@@ -740,7 +748,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <label>Tid (sek)<input type="number" inputmode="numeric" id="builder-between-seconds" min="1" max="3600" step="1" data-between-edit="global:seconds" value="60"></label>
   <label class="builder-between-name" id="builder-between-name-wrap" hidden>Övning<input id="builder-between-name" maxlength="80" data-between-edit="global:name" placeholder="Exempelvis hopprep"></label>
  </div>
-</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><button type="button" class="secondary builder-new-template" data-action="new-template" hidden>＋ Skapa ny mall</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">Se övningar och teknik ↗</a><button type="button" class="secondary builder-new-template" data-action="new-template" hidden>＋ Skapa ny mall</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="plan-preview" aria-labelledby="plan-preview-title">
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
@@ -772,7 +780,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
    <div class="field"><label for="log-edit-minutes">Längd (min)</label><input id="log-edit-minutes" data-log-field="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric"></div>
   </div>
   <div id="log-edit-exercises"></div>
-  <button type="button" class="secondary" data-action="log-add-exercise" class="log-editor-add-exercise">＋ Lägg till övning</button>
+  <button type="button" class="secondary log-editor-add-exercise" data-action="log-add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">Se övningar och teknik ↗</a>
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
@@ -2473,7 +2481,7 @@ function applyHistoryLogTemplate(templateId){
  toast('Alla set är ikryssade. Justera resultaten och spara passet.');
 }
 function syncHistoryCardExpansion(){
- if(historyCardDraftRef!==historyEditDraft){historyCardDraftRef=historyEditDraft;historyExpandedCardIds=new Set(historyEditDraft&&historyEditDraft.exercises.length?[String(historyEditDraft.exercises[0].id)]:[]);}
+ if(historyCardDraftRef!==historyEditDraft){historyCardDraftRef=historyEditDraft;historyExpandedCardIds=new Set();}
  else if(historyEditDraft){var ids=new Set(historyEditDraft.exercises.map(function(ex){return String(ex.id);}));historyExpandedCardIds.forEach(function(id){if(!ids.has(id))historyExpandedCardIds.delete(id);});}
 }
 function toggleHistoryCard(index){
