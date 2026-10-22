@@ -532,3 +532,99 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   #home-economy .home-economy-metric:nth-child(odd){padding-left:0}
   #home-economy .home-economy-metric:nth-child(even){padding-right:0}
 }
+
+
+/* Listor-inspired lightfall for Home / Översikt. The glow is part of this
+   page section, not a fixed screen overlay, so it naturally fades on scroll. */
+#home-overview{
+  position:relative;
+  isolation:isolate;
+}
+#home-overview::before{
+  content:"";
+  position:absolute;
+  inset:-75px 0 auto;
+  height:820px;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 54% 42% at 13% 8%,rgba(var(--home-view-rgb,253,186,116),.145),transparent 76%),
+    radial-gradient(ellipse 49% 39% at 82% 21%,rgba(var(--home-view-rgb,253,186,116),.085),transparent 75%),
+    radial-gradient(ellipse 34% 34% at 27% 65%,rgba(var(--home-view-rgb,253,186,116),.055),transparent 80%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 32%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 32%,transparent 100%);
+}
+#home-overview::after{
+  content:"";
+  position:absolute;
+  inset:300px 0 auto;
+  height:700px;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 18% 44% at 0% 30%,rgba(var(--home-view-rgb,253,186,116),.06),transparent 80%),
+    radial-gradient(ellipse 16% 43% at 100% 62%,rgba(var(--home-view-rgb,253,186,116),.052),transparent 80%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,transparent 100%);
+}
+/* A previously forced tinted filter-bar background must not cover the glow. */
+body.home-calendar-polish-v5 #home-overview>.filter-bar{
+  background:transparent!important;
+  background-image:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+/* Hairline separators only between content groups. No card backgrounds. */
+#home-overview .home-overview-widgets{
+  position:relative;
+  padding-top:15px;
+}
+#home-overview .home-overview-widgets::before,
+#home-overview #family-todo-home::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:1px;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(var(--home-view-rgb,253,186,116),.14),rgba(255,255,255,.075) 60%,transparent);
+}
+#home-overview .home-overview-widgets::before{top:0}
+#home-overview #family-todo-home{position:relative}
+#home-overview #family-todo-home::before{top:calc(-1 * clamp(15px,2vw,25px) / 2)}
+/* Finance sections get the same almost invisible fade rule. */
+#home-economy .home-economy-snapshot{
+  position:relative;
+  border-bottom:0!important;
+}
+#home-economy .home-economy-snapshot::after,
+#home-economy .home-economy-links::before{
+  content:"";
+  display:block;
+  height:1px;
+  background:linear-gradient(90deg,rgba(var(--home-view-rgb,253,186,116),.16),rgba(255,255,255,.08) 62%,transparent);
+  pointer-events:none;
+}
+#home-economy .home-economy-snapshot::after{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+}
+#home-economy .home-economy-links::before{
+  grid-column:1/-1;
+  margin:0 0 9px;
+}
+@media(max-width:768px){
+  #home-overview::before{
+    inset:-62px 0 auto;
+    height:760px;
+    background:
+      radial-gradient(ellipse 88% 41% at 13% 6%,rgba(var(--home-view-rgb,253,186,116),.15),transparent 78%),
+      radial-gradient(ellipse 83% 38% at 90% 34%,rgba(var(--home-view-rgb,253,186,116),.075),transparent 78%),
+      radial-gradient(ellipse 80% 32% at 20% 64%,rgba(var(--home-view-rgb,253,186,116),.055),transparent 80%);
+  }
+  #home-overview::after{inset:290px 0 auto;height:580px}
+  #home-overview .home-overview-widgets{padding-top:13px}
+  #home-overview #family-todo-home::before{top:-8px}
+}
