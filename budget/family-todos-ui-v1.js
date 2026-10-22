@@ -65,7 +65,7 @@
         '<div class="shopping-input-row ft-home-input-row">'+
         '<input class="shopping-input" type="text" name="text" maxlength="240" placeholder="Lägg till uppgift..." aria-label="Ny uppgift" autocomplete="off" required>'+
         '<button type="submit" class="btn ft-home-add-btn">Lägg till</button></div>'+
-        '<button type="button" class="ft-options-toggle" data-act="options" aria-expanded="false" aria-controls="family-todo-home-options">+ Ansvarig, prioritet och datum</button>'+
+        '<button type="button" class="ft-options-toggle" data-act="options" aria-expanded="false" aria-controls="family-todo-home-options" aria-label="Visa ansvarig, prioritet och slutdatum" title="Ansvarig, prioritet och slutdatum">Fler val</button>'+
         '<div class="ft-add-options" id="family-todo-home-options" hidden>'+
         '<label>Ansvarig<select name="member" aria-label="Ansvarig">'+memberOpts('family')+'</select></label>'+
         '<label>Prioritet<select name="priority" aria-label="Prioritet">'+prioOpts('normal')+'</select></label>'+
@@ -161,7 +161,7 @@
       if(status&&status.value==='done')filtered=filtered.filter(function(t){return t.done;});
     }
     listRoot.innerHTML=filtered.length?filtered.map(function(t){return row(t,mode);}).join(''):
-      '<div class="ft-empty">'+(all.length?'Inga uppgifter matchar filtret.':mode==='home'?'Inga uppgifter ännu. Lägg till den första här.':'Inga uppgifter ännu. Lägg till den första ovan.')+'</div>';
+      '<div class="ft-empty">'+(all.length?'Inga uppgifter matchar filtret.':'Inga uppgifter ännu.')+'</div>';
   }
   function installStyles(){
     if(document.getElementById('family-todos-v1-css'))return;
@@ -240,7 +240,9 @@
       #family-todo-home.ft-home .shopping-input{background:transparent;min-width:0;border-radius:8px;padding:9px 10px;min-height:0;font-size:13px}
       #family-todo-home.ft-home .shopping-input::placeholder{font-size:13px;color:var(--text-sec,#8B949E)}
       #family-todo-home.ft-home .btn{min-height:0;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap;border-radius:8px}
-      #family-todo-home.ft-home .ft-options-toggle{display:inline-block;margin:7px 0 0;padding:2px 0;border:0;background:none;color:var(--text-sec,#8B949E);font-size:11px;line-height:1.3;text-align:left;cursor:pointer}
+      #family-todo-home.ft-home .ft-options-toggle{display:inline-flex;align-items:center;gap:5px;margin:9px 0 0;padding:3px 1px;border:0;background:none;color:var(--accent,#FDBA74);font-size:12px;line-height:1.3;font-weight:500;text-align:left;cursor:pointer}
+      #family-todo-home.ft-home .ft-options-toggle::after{content:"＋";font-size:14px;line-height:1;transition:transform .16s ease}
+      #family-todo-home.ft-home .ft-options-toggle[aria-expanded="true"]::after{content:"−"}
       #family-todo-home.ft-home .ft-options-toggle[aria-expanded="true"]{color:var(--accent,#FDBA74)}
       #family-todo-home.ft-home .ft-add-options[hidden]{display:none!important}
       #family-todo-home.ft-home .ft-add-options{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:10px 0 0;padding:10px;border-radius:9px;border:1px solid var(--border,rgba(255,255,255,.08));background:rgba(255,255,255,.018)}
