@@ -125,6 +125,9 @@ html[data-list-mode="packing"] #items-list .category-title:not(.new-category){
  display:flex;align-items:center;gap:8px;min-width:0
 }
 html[data-list-mode="packing"] #items-list .category-title[contenteditable="true"]{display:block}
+/* Hide any stale packing marker immediately during tab transitions, even
+   if old markup is briefly retained by Safari while content is re-rendered. */
+html:not([data-list-mode="packing"]) #items-list .shopping-person-dot{display:none!important}
 .shopping-person-dot{
  display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;
  background:var(--shopping-person-color,#FDBA74);
