@@ -1158,7 +1158,6 @@
           <button class="btn" id="shopping-add-btn" type="button">Lägg till</button>
         </div>
         <ul class="shopping-list" id="shopping-items" onclick="event.stopPropagation()"></ul>
-        <div class="tap-hint">Tryck kortet för full vy med listor och recept</div>
       </article>
 
       <article class="widget" id="family-todo-home" aria-label="Familjens att-göra-lista"></article>
@@ -1175,7 +1174,6 @@
             <div class="widget-title">Månadens överföringar</div>
             <a class="badge transfer-budget-link" href="familjebudget.html" aria-label="Öppna Familjebudget">Familjebudget <span aria-hidden="true"></span></a>
           </div>
-          <p class="transfer-summary">Se överföringar och gemensamma utgifter för aktuell månad.</p>
           <div class="transfer-actions" role="group" aria-label="Ekonomiöversikt">
             <button class="btn" id="transfer-open-btn" type="button" aria-controls="transfer-popup" aria-expanded="false">Överföringar</button>
             <button class="btn" id="transfer-month-btn" type="button" aria-controls="month-popup" aria-expanded="false">Beräkna överföring</button>
@@ -2297,7 +2295,7 @@ function renderShoppingWidget() {
 
   count.textContent = items.length + (items.length === 1 ? ' artikel' : ' artiklar');
   if (!items.length) {
-    ul.innerHTML = '<li class="empty">Inga artiklar ännu. Lägg till första här.</li>';
+    ul.innerHTML = '<li class="empty">Inga artiklar ännu.</li>';
     return;
   }
   ul.innerHTML = items.map(function(item){
@@ -2385,7 +2383,7 @@ function renderHomeEconomySnapshot() {
     ['Planerat sparande',savings === null ? '—' : fmtKr(savings)]
   ];
   root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year)
-    + '</span><small>Från Familjebudget</small></div>'
+    + '</span></div>'
     + '<div class="home-economy-metrics">' + cells.map(function(cell) {
         return '<div class="home-economy-metric"><span>' + escHtml(cell[0]) + '</span>'
           + (cell[0] === 'Nettoinkomst'
