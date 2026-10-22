@@ -40,6 +40,57 @@ test('Day builder recognizes explicit and unchanged legacy templates, never gues
  const changed=deep(legacy);changed.exercises[0].sets[0].weight=77;
  assert.equal(c.matchingBuilderTemplateId(changed),'','Edited legacy workout is not matched by guesswork');
 });
+
+test('Day and template names are only edited via compact pencil controls',()=>{
+ assert.ok(html.includes('id="builder-pass-inline"'),'Day pass name should be displayed in builder header');
+ assert.ok(html.includes('data-action="rename-day-pass"'),'Day pass should have an edit pencil');
+ assert.ok(html.includes('data-action="rename-template"'),'Template selection should have an edit pencil');
+ assert.ok(!html.includes('id="build-name"'),'Legacy always-visible pass-name input must not exist');
+ assert.ok(html.includes('builderTemplateCreating||!!builderTemplateId'),'Pencil must work for new and saved templates');
+});
+test('Renaming a saved template updates only linked plans and both template dropdown and week uses',()=>{
+ const template={id:'tpl',type:'Push',name:'Push · Fokus',exercises:[ex('e',45)]};
+ const linked={...workout('Push · Fokus'),templateId:'tpl'};
+ const legacy=workout('Push · Fokus');
+ const independent={...workout('Push · Fokus'),templateId:''};
+ const renamedCustom={...workout('Eget namn'),templateId:'tpl'};
+ const state={templates:[template],plans:{a:linked,b:legacy,c:independent,d:renamedCustom},builderDrafts:{e:deep(linked)},weekTemplates:[{days:[deep(linked),deep(renamedCustom)]}]};
+ const draft=deep(linked),weekDraft=[deep(linked)],weekBase=[deep(linked)];let saved=0;
+ const c=context(['matchingBuilderTemplateId','renameStoredBuilderTemplate'],{
+  state,builderTemplates:()=>state.templates,draft,weekDraft,weekBase,builderDayDraft:null,builderTemplateDraft:null,builderTemplateDraftId:'',persist(){saved++;return true;}
+ });
+ assert.equal(c.renameStoredBuilderTemplate('tpl','Push · Styrka'),true);
+ assert.equal(template.name,'Push · Styrka');assert.equal(linked.name,'Push · Styrka');
+ assert.equal(legacy.name,'Push · Styrka');assert.equal(legacy.templateId,'tpl');
+ assert.equal(independent.name,'Push · Fokus','Explicitly independent day must not change');
+ assert.equal(renamedCustom.name,'Eget namn','Custom-named linked plan stays independent');
+ assert.equal(state.builderDrafts.e.name,'Push · Styrka');
+ assert.equal(state.weekTemplates[0].days[0].name,'Push · Styrka');
+ assert.equal(state.weekTemplates[0].days[1].name,'Eget namn');
+ assert.equal(weekDraft[0].name,'Push · Styrka');assert.equal(weekBase[0].name,'Push · Styrka');
+ assert.equal(draft.name,'Push · Styrka');assert.equal(saved,1);
+});
+test('Renaming a template restores original names if Firebase cannot save',()=>{
+ const template={id:'tpl',type:'Push',name:'Gammalt',exercises:[ex()]},linked={...workout('Gammalt'),templateId:'tpl'};
+ const state={templates:[template],plans:{a:linked},builderDrafts:{},weekTemplates:[]};
+ const c=context(['matchingBuilderTemplateId','renameStoredBuilderTemplate'],{
+  state,builderTemplates:()=>state.templates,draft:null,weekDraft:null,weekBase:null,builderDayDraft:null,builderTemplateDraft:null,builderTemplateDraftId:'',persist:()=>false
+ });
+ assert.equal(c.renameStoredBuilderTemplate('tpl','Nytt'),false);
+ assert.equal(template.name,'Gammalt');assert.equal(linked.name,'Gammalt');assert.equal(linked.templateId,'tpl');
+});
+test('New template can be named by pencil before it is saved as a mall',()=>{
+ const state={templates:[]},draft=workout('');
+ const c=context(['saveRenamedBuilderTemplate'],{
+  builderMode:'template',builderTemplateRenaming:true,builderTemplateCreating:true,builderTemplateId:'',builderTemplateDraft:null,builderTemplateDraftId:'',
+  draft,state,builderTemplates:()=>state.templates,$:()=>({value:'Bröst + triceps'}),renderBuilderTemplates(){},render(){},toast(){}
+ });
+ c.saveRenamedBuilderTemplate();
+ assert.equal(draft.name,'Bröst + triceps');
+ assert.equal(c.builderTemplateRenaming,false);
+ assert.equal(state.templates.length,0,'Template must only be persisted when Save mall is pressed');
+});
+
 test('Old duplicate exercise/set IDs are repaired without losing contents',()=>{
  const w={exercises:[ex(),ex()]};w.exercises[0].sets.push({...w.exercises[0].sets[0],weight:65});
  const c=context(['normalizeWorkoutIds']);c.normalizeWorkoutIds(w);assert.equal(w.exercises.length,2);assert.equal(new Set(w.exercises.map(e=>e.id)).size,2);assert.equal(new Set(w.exercises[0].sets.map(s=>s.id)).size,2);assert.equal(w.exercises[0].sets[1].weight,65);
