@@ -1,5 +1,5 @@
 /* Home navigation shares the travel planner's quiet, highlighted tabs. */
-.home-section-tabs{display:flex;gap:6px;width:calc(100% - 48px);max-width:1152px;margin:10px auto 18px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.09)}
+.home-section-tabs{display:flex;gap:6px;width:calc(100% - 48px);max-width:1152px;margin:10px auto 18px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.04)}
 .home-section-tabs button{appearance:none;min-height:44px;padding:11px 18px;border:0;border-radius:12px;background:transparent;color:var(--text-sec,#929ba9);font:500 14px/1.4 Inter,system-ui,sans-serif;cursor:pointer;transition:background .18s,color .18s}
 .home-section-tabs button[aria-selected="true"]{color:var(--home-view-accent,#FDBA74);background:rgba(var(--home-view-rgb,253,186,116),.065)}
 .home-section-tabs button:hover{color:var(--home-view-accent,#FDBA74)}
@@ -632,6 +632,11 @@ body.home-calendar-polish-v5 #home-overview>.filter-bar{
 }
 #home-economy .home-economy-snapshot-top{
   padding-bottom:5px;
+}
+#home-economy .home-economy-comparison{
+  border-top:0;
+  padding-top:2px;
+  margin-top:16px;
 }
 #home-economy #transfer-widget>.widget-head{
   margin:0 0 12px;
