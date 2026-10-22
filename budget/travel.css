@@ -582,3 +582,253 @@ dialog[open]:not(.inline-editor){
  .booking-documents .document-row{grid-template-columns:minmax(0,1fr) auto}.booking-documents .file-icon{display:none}
  .settlement-transfer{align-items:flex-start;flex-direction:column;gap:10px}.settlement-transfer>b{padding-left:16px;font-size:27px}.journal-day>header h3{font-size:25px}.journal-collage .gallery-open{height:150px}.journal-collage.count-1 .gallery-open{height:240px}.journal-collage figcaption{flex-wrap:wrap;gap:3px;padding:7px}.journal-collage figcaption>span{flex-basis:100%}.journal-collage figcaption>.handle{display:none}.journal-collage .photo-tools{margin-left:auto}.after-trip{grid-template-columns:1fr}
 }
+
+
+/* Transparent Listor-inspired views: only the booking wallet and reskassa.
+   Schedule cards, maps, notes, the hero and editor dialogs remain unchanged. */
+
+/* Bokningar — a continuous list with category accents, not nested cards. */
+#content[data-rendered-tab="booking"] .wallet-section{
+  min-width:0;
+  margin:24px 0 30px;
+}
+#content[data-rendered-tab="booking"] .wallet-section>.day-heading{
+  margin:8px 0 5px;
+  color:var(--accent);
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:.035em;
+}
+#content[data-rendered-tab="booking"] .booking-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:0;
+  max-width:100%;
+  min-width:0;
+}
+#content[data-rendered-tab="booking"] .booking-card.travel-booking-compact{
+  --booking-ink:var(--accent);
+  position:relative;
+  min-width:0;
+  width:100%;
+  margin:0;
+  padding:18px 2px 20px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.085);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#content[data-rendered-tab="booking"] .booking-card.booking-ticket{--booking-ink:#7dd3fc}
+#content[data-rendered-tab="booking"] .booking-card.booking-stay{--booking-ink:#c4b5fd}
+#content[data-rendered-tab="booking"] .booking-card.booking-car{--booking-ink:#86efac}
+#content[data-rendered-tab="booking"] .booking-card.booking-experience{--booking-ink:var(--accent)}
+#content[data-rendered-tab="booking"] .booking-card:last-child{border-bottom:0}
+#content[data-rendered-tab="booking"] .booking-top{
+  min-width:0;
+  gap:10px;
+  margin-bottom:5px;
+}
+#content[data-rendered-tab="booking"] .booking-top>.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  color:var(--booking-ink);
+  font-size:10px;
+  letter-spacing:.09em;
+}
+#content[data-rendered-tab="booking"] .booking-top>.eyebrow::before{
+  content:"";
+  flex:0 0 7px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--booking-ink);
+  box-shadow:0 0 9px var(--booking-ink);
+}
+#content[data-rendered-tab="booking"] .booking-card h3{
+  margin:2px 0 9px;
+  color:var(--ink);
+  font-size:clamp(17px,1.6vw,21px);
+  font-weight:550;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+#content[data-rendered-tab="booking"] .booking-status-chip{
+  min-height:29px;
+  padding:4px 9px;
+  background:transparent;
+  border-color:#fdba7440;
+}
+#content[data-rendered-tab="booking"] .booking-inline-dates{
+  max-width:620px;
+  padding:5px 0 6px;
+  margin:2px 0 5px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+#content[data-rendered-tab="booking"] .booking-inline-datetime button{
+  background:transparent;
+  border-color:transparent;
+  color:var(--ink);
+  padding-inline:4px;
+}
+#content[data-rendered-tab="booking"] .booking-inline-datetime button:is(:hover,:focus-visible){
+  color:var(--booking-ink);
+  border-color:var(--booking-ink);
+  background:rgba(255,255,255,.025);
+}
+#content[data-rendered-tab="booking"] .booking-date-arrow{color:var(--booking-ink)}
+#content[data-rendered-tab="booking"] .booking-route{
+  margin:6px 0;
+  overflow-wrap:anywhere;
+}
+#content[data-rendered-tab="booking"] .booking-inline-payment{
+  margin:4px 0;
+  color:var(--muted);
+}
+#content[data-rendered-tab="booking"] .booking-inline-actions{
+  gap:5px 9px;
+  margin-top:8px;
+}
+#content[data-rendered-tab="booking"] .booking-inline-actions>.travel-more-actions{margin-top:1px}
+#content[data-rendered-tab="booking"] .wallet-next{
+  margin:22px 0 29px;
+  padding:7px 0 0 15px;
+  border:0;
+  border-left:2px solid rgba(253,186,116,.58);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#content[data-rendered-tab="booking"] .wallet-next>.eyebrow{margin-bottom:6px;color:var(--accent)}
+#content[data-rendered-tab="booking"] .wallet-next>.booking-card{max-width:100%}
+#content[data-rendered-tab="booking"] .wallet-route .booking-grid{
+  max-width:100%;
+  padding-left:20px;
+  border-left:1px solid rgba(253,186,116,.25);
+}
+#content[data-rendered-tab="booking"] .wallet-route .booking-card:before{
+  left:-25px;
+  top:27px;
+  width:8px;
+  height:8px;
+}
+#content[data-rendered-tab="booking"] .wallet-backlog .booking-card{
+  background:transparent;
+}
+#content[data-rendered-tab="booking"] .wallet-cancelled{opacity:.7}
+
+/* Reskassa — totals and category budgets become typographic rows. */
+#content[data-rendered-tab="expense"] .budget-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;
+  gap:0;
+  width:100%;
+  min-width:0;
+  margin:8px 0 24px;
+  padding:4px 0 14px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric{
+  min-width:0;
+  width:100%;
+  margin:0;
+  padding:12px clamp(7px,1.5vw,22px);
+  border:0;
+  border-right:1px solid rgba(255,255,255,.075);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric:first-child{padding-left:2px}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric:last-child{border-right:0;padding-right:2px}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.06em;
+}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric strong{
+  display:block;
+  color:var(--accent);
+  margin:7px 0 0;
+  font-size:clamp(17px,2.25vw,31px);
+  font-weight:500;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
+#content[data-rendered-tab="expense"] .budget-summary>.card.metric .text-button{
+  padding:5px 0;
+  margin:2px 0 0;
+  min-height:30px;
+  font-size:11px;
+}
+#content[data-rendered-tab="expense"] .budget-categories,
+#content[data-rendered-tab="expense"] .expense-list,
+#content[data-rendered-tab="expense"] .split-list{min-width:0}
+#content[data-rendered-tab="expense"] .budget-category,
+#content[data-rendered-tab="expense"] .expense-row{
+  min-width:0;
+  margin:0;
+  padding:16px 2px 17px;
+  gap:clamp(8px,2vw,22px);
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#content[data-rendered-tab="expense"] .budget-category h3,
+#content[data-rendered-tab="expense"] .expense-row h3{
+  font-size:14px;
+  font-weight:550;
+  color:var(--ink);
+  line-height:1.45;
+}
+#content[data-rendered-tab="expense"] .budget-category-figures{
+  gap:clamp(12px,2.5vw,26px);
+  margin:7px 0;
+}
+#content[data-rendered-tab="expense"] .budget-category .metric-bar{
+  height:4px;
+  max-width:100%;
+  margin-top:10px;
+  border-radius:999px;
+}
+#content[data-rendered-tab="expense"] .expense-quick{
+  min-width:0;
+  margin:14px 0 21px;
+  padding:8px 2px 15px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#content[data-rendered-tab="expense"] .expense-row .row-actions{
+  min-width:0;
+  justify-content:flex-end;
+}
+#content[data-rendered-tab="expense"] .section-subhead{
+  gap:9px;
+  margin:14px 0 5px;
+  padding:0 2px 8px;
+}
+@media(max-width:750px){
+  #content[data-rendered-tab="booking"] .wallet-next{padding-left:11px}
+  #content[data-rendered-tab="booking"] .wallet-route .booking-grid{padding-left:12px}
+  #content[data-rendered-tab="booking"] .wallet-route .booking-card:before{left:-17px}
+  #content[data-rendered-tab="booking"] .booking-card.travel-booking-compact{padding:15px 1px 18px}
+  #content[data-rendered-tab="expense"] .budget-summary{margin-bottom:17px}
+  #content[data-rendered-tab="expense"] .budget-summary>.card.metric{padding-inline:9px}
+  #content[data-rendered-tab="expense"] .expense-quick{gap:10px;padding-top:4px}
+}
+@media(max-width:390px){
+  #content[data-rendered-tab="expense"] .budget-summary>.card.metric{padding-inline:6px}
+  #content[data-rendered-tab="expense"] .budget-summary>.card.metric small{font-size:9px}
+  #content[data-rendered-tab="expense"] .budget-summary>.card.metric strong{font-size:clamp(15px,4.1vw,19px)}
+  #content[data-rendered-tab="booking"] .booking-top{gap:5px}
+}
