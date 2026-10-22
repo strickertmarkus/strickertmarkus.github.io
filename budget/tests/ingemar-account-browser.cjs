@@ -682,16 +682,18 @@ async function verifyTouchDrag(page,label){
  });
  await androidPage.locator('#builder').evaluate(el=>{el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));el.scrollTop+=200;});
  assert.equal(await androidPage.locator('[data-exercise-menu="0"]').isVisible(),true,'Scroll start must preserve exercise chooser');
- await androidPage.locator('[data-exercise-new="0"]').click();
+ // The tap must land on an actual editable input: mobile keyboard activation must not depend on JS focus.
+ await androidPage.locator('[data-exercise-new-input="0"]').click();
+ assert.equal(await androidPage.locator('[data-exercise-new-input="0"]').evaluate(el=>!el.readOnly&&document.activeElement===el&&el.tagName==='INPUT'),true,
+  'Tapping New exercise must natively focus an editable field in the dropdown');
+ await androidPage.locator('[data-exercise-new-input="0"]').fill('Testövning Android');
  assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1');
- assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').evaluate(el=>document.activeElement===el),true,'New exercise must focus the input as explicitly requested');
- await androidPage.locator('[data-exercise-name-input="0"]').fill('Testövning Android');
+ assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').inputValue(),'Testövning Android','Inline input must mirror the typed name into the exercise');
  await androidPage.locator('#builder').evaluate(el=>{el.scrollTop+=350;el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch'}));});
- assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').getAttribute('data-exercise-name-free'),'1','Exercise editing mode must persist after scrolling');
- assert.equal(await androidPage.locator('[data-exercise-name-input="0"]').inputValue(),'Testövning Android');
+ assert.equal(await androidPage.locator('[data-exercise-new-input="0"]').inputValue(),'Testövning Android','The new exercise input must survive scrolling');
  await androidPage.locator('[data-exercise-picker="0"]').click();
  assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Testövning Android"]').isVisible(),true,
-  'New name typed through the free field must immediately appear as a suggestion');
+  'Leaving the native new-name input must save it as a selectable exercise');
  assert.equal(await androidPage.locator('[data-exercise-option="0"][data-exercise-name="Redigerat namn"]').count(),1);
  await androidPage.screenshot({path:'test-results/ingemar-private/typed-exercise-options-android-412.png'});
  assert.equal(await androidPage.evaluate(()=>[...document.querySelectorAll('dialog input:not([type=checkbox]),dialog select,dialog textarea')].every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)),true,'Android form fonts must be at least 16px');
