@@ -2080,7 +2080,7 @@ function openBuilder(type,editDay,choosePass){
  builderWeekIndex=-1;builderMode='day';builderDayStage='choose';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;builderTemplateRenaming=false;
  // Bara explicit klick på ett datum öppnar ett tidigare sparat pass.
  if(!editDay)selected=dayISO(new Date());
- var existing=editDay&&!choosePass?(plan(selected)||state.builderDrafts[selected]):null;
+ var existing=editDay&&!choosePass?(state.builderDrafts[selected]||plan(selected)):null;
  // Nya pass startar alltid som Push (plommon). Veckans automatiska förslag påverkar inte passbyggarens standardval.
  var kind=type||existing&&existing.type||'Push';
  if(!TYPES.includes(kind))kind='Push';
@@ -3274,7 +3274,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.exerciseNew!=null){beginBuilderFreeExerciseName(Number(b.dataset.exerciseNew),true,true);return;}
  if(b.dataset.builderPreTimer!=null){draft.preTimerEnabled=draft.preTimerEnabled===false;refreshBuilderSessionOptions();keepBuilderDraft();return;}
  if(b.dataset.betweenToggle!=null){updateDraftFromBuilderInputs();toggleBuilderBetween(b.dataset.betweenToggle);return;}
- if(b.dataset.type){var t=b.dataset.type;updateDraftFromBuilderInputs();draft.type=t;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
+ if(b.dataset.type){var t=b.dataset.type;updateDraftFromBuilderInputs();if(draft.type!==t&&builderMode==='day'){draft.templateId='';builderTemplateId='';}draft.type=t;builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.mode){updateDraftFromBuilderInputs();var a=b.dataset.mode.split(':'),e=draft.exercises[Number(a[0])];e.mode=a[1];builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;renderBuilder();return;}
  if(b.dataset.addSet!=null){updateDraftFromBuilderInputs();var e=draft.exercises[Number(b.dataset.addSet)];if(e.sets.length>=15){toast('Högst 15 set per övning.');return;}var last=e.sets[e.sets.length-1];e.sets.push(freshSet(last.weight,last.reps,last.minutes));renderBuilder();return;}
  if(b.dataset.removeSet){updateDraftFromBuilderInputs();var a=b.dataset.removeSet.split(':'),e=draft.exercises[Number(a[0])];if(e.sets.length>1)e.sets.splice(Number(a[1]),1);renderBuilder();return;}
