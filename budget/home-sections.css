@@ -243,3 +243,76 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 @media(min-width:1121px) and (max-width:1320px){
   #home-overview .main-layout{grid-template-columns:minmax(0,1fr) 310px}
 }
+
+
+/* Home / Kommande händelser: the same borderless, text-first composition
+   as Att göra, with the existing person-specific glow dots preserved. */
+#home-overview .sidebar > .home-upcoming-integrated-v1{
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  margin:0 0 20px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#home-overview .home-upcoming-integrated-v1 > .sidebar-title{
+  min-width:0;
+  margin:0 0 7px;
+  padding:5px 2px 10px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  background:transparent;
+  color:var(--home-view-accent,#FDBA74);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.95px;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list{
+  display:block;
+  min-width:0;
+  background:transparent;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
+  box-sizing:border-box;
+  min-width:0;
+  margin:0;
+  padding:11px 3px 10px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.065);
+  border-radius:0;
+  background:transparent;
+  transition:background-color .16s ease;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:last-child{border-bottom:0}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:is(:hover,:focus-within){
+  background:rgba(var(--home-view-rgb,253,186,116),.028);
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .event-title{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  color:var(--text,#f0f6fc);
+  font-size:13px;
+  font-weight:550;
+  line-height:1.45;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-details{
+  gap:4px 7px;
+  margin-top:3px;
+  font-size:10px;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-member-dot{
+  flex:0 0 7px;
+  width:7px;
+  height:7px;
+  box-shadow:0 0 9px var(--member-color);
+}
+#home-overview .home-upcoming-integrated-v1 .empty-sidebar{
+  padding:16px 3px 8px;
+  text-align:left;
+  font-size:12px;
+}
+@media(max-width:768px){
+  #home-overview .sidebar > .home-upcoming-integrated-v1{margin-bottom:15px}
+}
