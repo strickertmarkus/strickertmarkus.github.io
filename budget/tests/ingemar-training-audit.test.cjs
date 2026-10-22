@@ -129,12 +129,42 @@ test('The standard builder defaults to templates and puts the template tab first
  assert.match(source,/builderMode=\(!editDay&&!choosePass&&!type\)\?'template':'day'/);
  assert.match(source,/\$\('builder-template-name'\)\.focus\(\)/,'New mall should focus the name field on tap');
 });
-test('New exercise action focuses its input synchronously on mobile',()=>{
- assert.ok(html.includes('class="builder-exercise-name-new" data-exercise-new='),'New exercise must be a real button');
- assert.doesNotMatch(source,/<label for="builder-exercise-name-/, 'New exercise must not rely on delayed label activation');
- assert.match(source,/if\(newName\)\{beginBuilderFreeExerciseName\(Number\(newName\.dataset\.exerciseNew\),true\);return;\}/);
- assert.match(source,/input\.readOnly=false;input\.dataset\.exerciseNameFree='1';[\s\S]*?input\.focus\(\)/);
- assert.match(source,/\$\('builder-rename-name'\)\.addEventListener\('blur'/,'Existing template renames save on blur');
+test('New exercise entry is a real native input, not a button that focuses a different field',()=>{
+ assert.match(source,/data-exercise-new-input=/,'Dropdown must contain its own editable input');
+ assert.match(source,/placeholder="＋ Ny övning…"/,'New exercise input must have a clear action label');
+ assert.doesNotMatch(source,/data-exercise-new="/,'No surrogate New exercise button should remain');
+ assert.doesNotMatch(source,/<label for="builder-exercise-name-/, 'New exercise must not rely on label focus forwarding');
+ assert.match(html,/#builder \.builder-exercise-new-input\{[^}]*font-size:16px/,'Native input must not trigger iOS auto-zoom');
+ assert.match(source,/\$\('builder-rename-name'\)\.addEventListener\('blur'/,'Existing template renames still save on blur');
+});
+test('Typing in dropdown updates the real exercise immediately and keeps the name editable',()=>{
+ const main={value:'',readOnly:true,dataset:{}},draft={exercises:[{name:''}]};let saved=0;
+ const c=context(['inputNewBuilderExerciseName'],{
+  draft,builderFreeExerciseIndex:-1,document:{querySelector:()=>main},keepBuilderDraft(){saved++;}
+ });
+ c.inputNewBuilderExerciseName(0,'Excentrisk hamstring');
+ assert.equal(draft.exercises[0].name,'Excentrisk hamstring');
+ assert.equal(main.value,'Excentrisk hamstring');
+ assert.equal(main.readOnly,false);
+ assert.equal(main.dataset.exerciseNameEdited,'1');
+ assert.equal(c.builderFreeExerciseIndex,0);
+ assert.equal(saved,1);
+});
+test('Blur saves a new exercise option without rerendering the dropdown mid-tap',()=>{
+ const main={value:'Nytt ryggdrag',dataset:{exerciseNameFree:'1',exerciseNameEdited:'1'}};
+ const draft={type:'Pull',exercises:[{name:''}]},state={exerciseOptions:{},hiddenExerciseOptions:{}};
+ let persisted=0,refreshed=0;
+ const c=context(['rememberTypedExerciseName'],{
+  document:{querySelector:()=>main},draft,state,
+  cleanExerciseName:x=>x.trim(),exerciseCatalogId:(type,mode,name)=>type+'|'+mode+'|'+name,
+  persist(){persisted++;return true;},refreshBuilderExerciseMenu(){refreshed++;}
+ });
+ assert.equal(c.rememberTypedExerciseName(0,true),true);
+ assert.equal(draft.exercises[0].name,'Nytt ryggdrag');
+ assert.equal(state.exerciseOptions['Pull|kg|Nytt ryggdrag'].name,'Nytt ryggdrag');
+ assert.equal(persisted,1);
+ assert.equal(refreshed,0,'Focused dropdown options must not be replaced during a following tap');
+ assert.equal(main.dataset.exerciseNameEdited,undefined);
 });
 
 test('Old duplicate exercise/set IDs are repaired without losing contents',()=>{
