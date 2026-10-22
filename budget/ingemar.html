@@ -344,6 +344,16 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #builder .builder-add-exercise,#builder .builder-new-template{border-color:rgba(var(--form-rgb),.36);background:rgba(var(--form-rgb),.065);color:var(--form-accent)}
 #builder .builder-day-create{border-color:rgba(var(--form-rgb),.37);background:rgba(var(--form-rgb),.07);color:var(--form-accent)}
 @media(max-width:600px){#training-view .training-kind-card{min-height:128px;padding:10px 8px}#training-view .training-kind-card b{font-size:13px;margin:6px 0 3px}#training-view .training-kind-card .glyph{font-size:17px}#training-view .training-kind-subtitle{font-size:9px}#training-view .training-kind-stats{gap:5px;padding-top:11px}#training-view .training-kind-stats em{font-size:8px}#training-view .training-kind-stats strong{font-size:9px}#training-view .training-kind-detail{padding:11px}#training-view .training-kind-detail-grid{grid-template-columns:1fr;gap:12px}#training-view .training-kind-template{flex-wrap:wrap}#training-view .training-kind-template-title{flex-basis:100%}}
+
+/* Samma kompakta träningsformsväljare i loggen som i passbyggaren. */
+#history-editor .log-editor-type-field{margin:0 0 12px}
+#history-editor .log-editor-type-label{display:block;margin:0 0 6px;color:#a9a1ae;font-size:10px;font-weight:650}
+#history-editor .log-type-pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
+#history-editor .log-type-pills:has([data-log-type="Övrigt"]){grid-template-columns:repeat(4,minmax(0,1fr))}
+#history-editor .log-type-pills .pill{min-width:0;min-height:36px;padding:7px 5px;border:1px solid #ffffff20;border-radius:9px;background:#ffffff04;color:#c3bcc7;font-size:11px;font-weight:700}
+#history-editor .log-type-pills .pill.active{border-color:rgba(var(--form-rgb),.50);background:rgba(var(--form-rgb),.12);color:var(--form-accent);box-shadow:0 0 13px rgba(var(--form-rgb),.075)}
+#history-editor .log-editor-meta{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:600px){#history-editor .log-editor-meta{grid-template-columns:repeat(2,minmax(0,1fr))}#history-editor .log-editor-meta>.field:last-child{grid-column:1/-1}#history-editor .log-type-pills .pill{min-height:37px}}
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
@@ -756,7 +766,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
    </div>
    <div class="log-editor-meta">
    <div class="field"><label for="log-edit-date">Datum</label><div class="compact-date-control"><span class="compact-date-label" data-date-label-for="log-edit-date" aria-hidden="true"></span><input id="log-edit-date" data-log-field="date" type="date"></div></div>
-   <div class="field"><label for="log-edit-type">Träningsform</label><select id="log-edit-type" data-log-field="type"><option value="Push">Push</option><option value="Pull">Pull</option><option value="Kondition">Kondition</option><option value="Övrigt">Övrigt</option></select></div>
+   <div class="field log-editor-type-field"><span class="log-editor-type-label" id="log-type-label">Träningsform</span><div class="log-type-pills" id="log-type-pills" role="group" aria-labelledby="log-type-label"></div></div>
    <div class="field"><label for="log-edit-name">Passnamn</label><input id="log-edit-name" data-log-field="name" maxlength="70" placeholder="Passnamn"></div>
    <div class="field"><label for="log-edit-minutes">Längd (min)</label><input id="log-edit-minutes" data-log-field="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric"></div>
   </div>
@@ -2422,6 +2432,16 @@ function renderHistoryLogTemplates(){
  select.disabled=!templates.length;
  hint.textContent=templates.length?'Alla set förkryssas som genomförda. Justera vikt, repetitioner och tid vid behov, eller avmarkera set som inte gjordes.':'Skapa ett mallpass under Bygg pass, eller logga passet manuellt nedan.';
 }
+function resetHistoryLogTemplate(){
+ if(historyEditId||!historyEditDraft)return;
+ var previous=historyEditDraft;
+ historyLogTemplateId='';
+ // Återgå till ett tomt pass. Behåll valt datum och passtid.
+ historyEditDraft={id:previous.id,date:previous.date,minutes:previous.minutes,
+  type:'Push',name:'',exercises:[logEditorExercise('kg')]};
+ historyCardDraftRef=null;
+ renderHistoryEditor();
+}
 function applyHistoryLogTemplate(templateId){
  if(historyEditId||!historyEditDraft)return;
  var template=builderTemplates().find(function(t){return String(t.id)===String(templateId);});
@@ -2469,7 +2489,7 @@ function renderHistoryEditor(){
  renderHistoryLogTemplates();
  $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
  $('log-edit-date').value=w.date;syncDateDisplay('log-edit-date');
- $('log-edit-type').value=['Push','Pull','Kondition','Övrigt'].includes(w.type)?w.type:'Övrigt';
+ $('log-type-pills').innerHTML=(w.type==='Övrigt'?['Push','Pull','Kondition','Övrigt']:['Push','Pull','Kondition']).map(function(t){return '<button type="button" class="pill'+(w.type===t?' active':'')+'" data-log-type="'+t+'" aria-pressed="'+(w.type===t)+'">'+t+'</button>';}).join('');
  $('log-edit-name').value=w.name||'';
  $('log-edit-minutes').value=w.minutes;
  $('log-edit-delete').hidden=!historyEditId;
@@ -3172,6 +3192,16 @@ document.addEventListener('click',function(event){
  if(b.dataset.kindLogTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindLogTemplate);});if(t)openTrainingKindLog(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
  if(b.dataset.kindEditTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindEditTemplate);});if(t)openTrainingKindBuilder(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
  if(b.dataset.kindLog!=null){openTrainingKindLog(b.dataset.kindLog);return;}
+ if(b.dataset.logType!=null&&historyEditDraft&&$('history-editor').open){
+  historyEditDraft.type=b.dataset.logType;
+  $('history-editor').dataset.tone=b.dataset.logType==='Pull'?'pull':b.dataset.logType==='Kondition'?'cardio':'push';
+  $('log-type-pills').querySelectorAll('button[data-log-type]').forEach(function(button){
+   var active=button.dataset.logType===historyEditDraft.type;
+   button.classList.toggle('active',active);
+   button.setAttribute('aria-pressed',String(active));
+  });
+  return;
+ }
  if(b.dataset.kindBuild!=null){openTrainingKindBuilder(b.dataset.kindBuild);return;}
  if(b.dataset.zenWeekShift!=null){zenWeekMonday=offset(zenWeekMonday,7*Number(b.dataset.zenWeekShift));renderZen();return;}
  if(b.dataset.zenDay!=null){openZenDay(b.dataset.zenDay);return;}
@@ -3329,6 +3359,20 @@ document.addEventListener('click',function(event){
 document.addEventListener('click',function(event){
  if(!$('hero-pass-menu').hidden&&!(event.target.closest&&event.target.closest('.hero-start-launcher')))closeHeroPassMenu();
 });
+// Trepunktsmenyer i passbyggaren och träningsloggen stängs vid klick utanför.
+document.addEventListener('click',function(event){
+ document.querySelectorAll('#builder details.builder-card-menu[open],#history-editor details.builder-card-menu[open]').forEach(function(menu){
+  if(!menu.contains(event.target))menu.open=false;
+ });
+});
+document.addEventListener('keydown',function(event){
+ if(event.key!=='Escape')return;
+ var menus=document.querySelectorAll('#builder details.builder-card-menu[open],#history-editor details.builder-card-menu[open]');
+ if(!menus.length)return;
+ menus.forEach(function(menu){menu.open=false;});
+ event.preventDefault();
+ event.stopPropagation();
+});
 document.addEventListener('keydown',function(event){
  if(event.key==='Escape'&&!$('hero-pass-menu').hidden){closeHeroPassMenu(true);event.preventDefault();}
 });
@@ -3341,6 +3385,7 @@ document.addEventListener('change',function(event){
  if(event.target.id==='week-template-select')weekTemplateId=event.target.value;
  if(event.target.id==='log-template-select'&&historyEditDraft&&!historyEditId){
   if(event.target.value)applyHistoryLogTemplate(event.target.value);
+  else resetHistoryLogTemplate();
   return;
  }
  if(event.target.id==='builder-template-select'&&$('builder').open){applyBuilderTemplate();}
