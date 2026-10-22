@@ -19,10 +19,26 @@ test('Copying an exercise gives independent IDs to exercise and sets',()=>{
 test('Collapsible exercise cards keep all workout data and support multiple open cards',()=>{
  const draft={exercises:[ex('e1',40),ex('e2',50)]};
  const c=context(['builderExerciseSummary','syncBuilderCardExpansion','focusBuilderCard'],{draft,builderCardDraftRef:null,builderExpandedCardIds:new Set()});
- c.syncBuilderCardExpansion();assert.deepEqual([...c.builderExpandedCardIds],['e1']);
- c.focusBuilderCard('e2',false);assert.deepEqual([...c.builderExpandedCardIds],['e1','e2']);
+ c.syncBuilderCardExpansion();assert.deepEqual([...c.builderExpandedCardIds],[],'All exercises should initially be collapsed');
+ c.focusBuilderCard('e2',false);assert.deepEqual([...c.builderExpandedCardIds],['e2']);
  assert.equal(c.builderExerciseSummary(draft.exercises[0]),'1 set · 40 kg · 8 reps');
  const before=deep(draft);c.builderExpandedCardIds.delete('e1');assert.deepEqual(draft,before,'Only UI state changes when a card collapses');
+});
+test('Week planner preserves the chosen template association',()=>{
+ const c=context(['weekPlanClone'],{normalizeBetweenOption:x=>x||{enabled:false,type:'none'}});
+ const day={...workout('Mallpass'),templateId:'template-1'};
+ const cloned=c.weekPlanClone(day);assert.equal(cloned.templateId,'template-1');assert.deepEqual(deep(cloned.exercises),day.exercises);
+});
+test('Day builder recognizes explicit and unchanged legacy templates, never guesses at edited matches',()=>{
+ const template={id:'template-1',...workout('Bröst och triceps')};
+ const c=context(['matchingBuilderTemplateId'],{builderTemplates:()=>[template]});
+ const legacy=workout('Bröst och triceps');
+ assert.equal(c.matchingBuilderTemplateId(legacy),'template-1','Exact legacy template is recognized');
+ assert.equal(c.matchingBuilderTemplateId({...legacy,templateId:'template-1'}),'template-1','Explicit saved association is preserved');
+ assert.equal(c.matchingBuilderTemplateId({...legacy,templateId:''}),'','An intentionally unlinked day is not matched again');
+ assert.equal(c.matchingBuilderTemplateId({...legacy,name:'Eget pass'}),'','Different name is not mistaken for a template');
+ const changed=deep(legacy);changed.exercises[0].sets[0].weight=77;
+ assert.equal(c.matchingBuilderTemplateId(changed),'','Edited legacy workout is not matched by guesswork');
 });
 test('Old duplicate exercise/set IDs are repaired without losing contents',()=>{
  const w={exercises:[ex(),ex()]};w.exercises[0].sets.push({...w.exercises[0].sets[0],weight:65});
