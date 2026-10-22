@@ -262,7 +262,7 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   min-width:0;
   margin:0 0 7px;
   padding:5px 2px 10px;
-  border-bottom:1px solid rgba(255,255,255,.075);
+  border-bottom:0;
   background:transparent;
   color:var(--home-view-accent,#FDBA74);
   font-size:11px;
@@ -280,7 +280,7 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   margin:0;
   padding:11px 3px 10px;
   border:0;
-  border-bottom:1px solid rgba(255,255,255,.065);
+  border-bottom:1px solid rgba(255,255,255,.035);
   border-radius:0;
   background:transparent;
   transition:background-color .16s ease;
@@ -358,14 +358,14 @@ body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
   transform:none!important;
 }
 #home-overview .home-overview-widgets{
-  gap:clamp(15px,2vw,25px);
+  gap:clamp(28px,3vw,40px);
 }
 #home-overview #shopping-widget>.widget-head,
 #home-overview #family-todo-home .widget-head{
   min-width:0;
   padding:5px 2px 10px;
   margin:0 0 7px;
-  border-bottom:1px solid rgba(255,255,255,.075);
+  border-bottom:0;
 }
 #home-overview #shopping-widget .widget-title{
   color:var(--home-view-accent,#FDBA74)!important;
@@ -386,7 +386,7 @@ body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
   min-width:0;
   margin:0;
   padding:9px 3px;
-  border-bottom:1px solid rgba(255,255,255,.065);
+  border-bottom:1px solid rgba(255,255,255,.035);
 }
 #home-overview #shopping-widget .shopping-item:last-child{border-bottom:0}
 #home-overview #shopping-widget .tap-hint{
@@ -420,13 +420,13 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 }
 #home-economy .home-economy-snapshot{
   margin:0 0 clamp(21px,3vw,36px);
-  padding:2px 0 19px;
-  border-bottom:1px solid rgba(255,255,255,.085)!important;
+  padding:2px 0 12px;
+  border-bottom:0!important;
 }
 #home-economy .home-economy-snapshot-top{
   margin-bottom:14px;
   padding:1px 2px 10px;
-  border-bottom:1px solid rgba(255,255,255,.065);
+  border-bottom:0;
 }
 #home-economy .home-economy-metrics{
   min-width:0;
@@ -455,9 +455,9 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:5px 2px 10px;
+  padding:5px 2px 7px;
   margin:0 0 8px;
-  border-bottom:1px solid rgba(255,255,255,.075);
+  border-bottom:0;
 }
 #home-economy #transfer-widget .widget-title{
   font-size:11px;
@@ -479,7 +479,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   margin-top:10px;
   padding:8px 2px 10px;
   border:0!important;
-  border-top:1px solid rgba(255,255,255,.085)!important;
+  border-top:0!important;
   border-radius:0!important;
   background:transparent!important;
   background-image:none!important;
@@ -507,7 +507,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   gap:12px;
   padding:12px 2px;
   border:0;
-  border-bottom:1px solid rgba(255,255,255,.075);
+  border-bottom:0;
   border-radius:0;
   background:transparent;
   box-shadow:none;
@@ -534,8 +534,11 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 }
 
 
-/* Listor-inspired lightfall for Home / Översikt. The glow is part of this
-   page section, not a fixed screen overlay, so it naturally fades on scroll. */
+/* A single, very low-contrast ambient highlight instead of stacked glow
+   patches. No tinted band or hard horizontal edge below navigation. */
+body.home-calendar-polish-v5[data-home-section="overview"]::before{
+  background:none!important;
+}
 #home-overview{
   position:relative;
   isolation:isolate;
@@ -543,88 +546,127 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 #home-overview::before{
   content:"";
   position:absolute;
-  inset:-75px 0 auto;
-  height:820px;
+  inset:-62px 0 auto;
+  height:910px;
   z-index:-1;
   pointer-events:none;
-  background:
-    radial-gradient(ellipse 54% 42% at 13% 8%,rgba(var(--home-view-rgb,253,186,116),.145),transparent 76%),
-    radial-gradient(ellipse 49% 39% at 82% 21%,rgba(var(--home-view-rgb,253,186,116),.085),transparent 75%),
-    radial-gradient(ellipse 34% 34% at 27% 65%,rgba(var(--home-view-rgb,253,186,116),.055),transparent 80%);
-  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 32%,transparent 100%);
-  mask-image:linear-gradient(to bottom,#000 0%,#000 32%,transparent 100%);
+  background:radial-gradient(
+    ellipse 88% 67% at 19% 12%,
+    rgba(var(--home-view-rgb,253,186,116),.061) 0%,
+    rgba(var(--home-view-rgb,253,186,116),.025) 38%,
+    transparent 79%
+  );
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 11%,#000 34%,transparent 94%);
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 11%,#000 34%,transparent 94%);
 }
-#home-overview::after{
-  content:"";
-  position:absolute;
-  inset:300px 0 auto;
-  height:700px;
-  z-index:-1;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse 18% 44% at 0% 30%,rgba(var(--home-view-rgb,253,186,116),.06),transparent 80%),
-    radial-gradient(ellipse 16% 43% at 100% 62%,rgba(var(--home-view-rgb,253,186,116),.052),transparent 80%);
-  -webkit-mask-image:linear-gradient(to bottom,#000 0%,transparent 100%);
-  mask-image:linear-gradient(to bottom,#000 0%,transparent 100%);
-}
-/* A previously forced tinted filter-bar background must not cover the glow. */
+#home-overview::after{content:none!important}
+/* Keep the old filter bar from introducing an opaque horizontal stripe. */
 body.home-calendar-polish-v5 #home-overview>.filter-bar{
   background:transparent!important;
   background-image:none!important;
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
 }
-/* Hairline separators only between content groups. No card backgrounds. */
+
+/* Sections are separated by breathing space, not added hairlines.
+   Preserve only the quiet dividers within actual list records. */
+#home-overview .sidebar > .home-upcoming-integrated-v1{
+  margin:0 0 clamp(27px,3vw,38px)!important;
+}
 #home-overview .home-overview-widgets{
-  position:relative;
-  padding-top:15px;
+  gap:clamp(28px,3vw,40px);
+  padding-top:0;
 }
 #home-overview .home-overview-widgets::before,
 #home-overview #family-todo-home::before{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  height:1px;
-  pointer-events:none;
-  background:linear-gradient(90deg,rgba(var(--home-view-rgb,253,186,116),.14),rgba(255,255,255,.075) 60%,transparent);
+  content:none!important;
 }
-#home-overview .home-overview-widgets::before{top:0}
 #home-overview #family-todo-home{position:relative}
-#home-overview #family-todo-home::before{top:calc(-1 * clamp(15px,2vw,25px) / 2)}
-/* Finance sections get the same almost invisible fade rule. */
-#home-economy .home-economy-snapshot{
-  position:relative;
+#home-overview #shopping-widget>.widget-head,
+#home-overview #family-todo-home .widget-head,
+#home-overview #family-todo-home .ft-head,
+#home-overview .home-upcoming-integrated-v1>.sidebar-title{
+  border:0!important;
+  padding-bottom:5px;
+  margin-bottom:11px;
+}
+/* Store headings already identify each group; their orange rules only
+   add visual noise. Leave add buttons and inline editing untouched. */
+#home-overview #shopping-items .shopping-category-heading{
   border-bottom:0!important;
+  margin:12px 2px 3px;
+  padding:7px 5px 5px;
+}
+#home-overview #shopping-items .shopping-category-heading:first-child{
+  margin-top:0;
+}
+#home-overview #shopping-items .shopping-category-heading + .shopping-category-add-row{
+  margin-top:2px;
+}
+/* A light hierarchy inside the overview, not full-width frame lines. */
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
+  border-bottom-color:rgba(255,255,255,.035);
+}
+#home-overview #shopping-widget .shopping-item{
+  border-bottom-color:rgba(255,255,255,.035);
+}
+#home-overview #family-todo-home .ft-task{
+  border-bottom-color:rgba(255,255,255,.035);
+}
+
+/* Finance: generous rhythm between sections, without duplicate dividers. */
+#home-economy .home-economy-snapshot{
+  margin-bottom:clamp(30px,4vw,45px);
+  padding-bottom:0;
+  border:0!important;
 }
 #home-economy .home-economy-snapshot::after,
 #home-economy .home-economy-links::before{
-  content:"";
-  display:block;
-  height:1px;
-  background:linear-gradient(90deg,rgba(var(--home-view-rgb,253,186,116),.16),rgba(255,255,255,.08) 62%,transparent);
-  pointer-events:none;
+  content:none!important;
 }
-#home-economy .home-economy-snapshot::after{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
+#home-economy .home-economy-metrics{
+  gap:clamp(9px,1.8vw,20px) 0;
 }
-#home-economy .home-economy-links::before{
-  grid-column:1/-1;
-  margin:0 0 9px;
+#home-economy .home-economy-metric{
+  border-right:0;
+}
+#home-economy .home-economy-snapshot-top{
+  padding-bottom:5px;
+}
+#home-economy #transfer-widget>.widget-head{
+  margin:0 0 12px;
+}
+#home-economy #transfer-widget .transfer-popup-shell,
+#home-economy #transfer-widget .month-popup-shell{
+  margin-top:15px;
+  padding:10px 2px 6px;
+}
+#home-economy #transfer-widget .transfer-amount-table tbody tr{
+  border-top-color:rgba(255,255,255,.038);
+}
+#home-economy .home-economy-links{
+  margin-top:clamp(32px,4vw,50px);
+  gap:8px clamp(18px,3vw,36px);
+}
+#home-economy .home-economy-links>a{
+  padding:10px 2px;
 }
 @media(max-width:768px){
   #home-overview::before{
-    inset:-62px 0 auto;
-    height:760px;
-    background:
-      radial-gradient(ellipse 88% 41% at 13% 6%,rgba(var(--home-view-rgb,253,186,116),.15),transparent 78%),
-      radial-gradient(ellipse 83% 38% at 90% 34%,rgba(var(--home-view-rgb,253,186,116),.075),transparent 78%),
-      radial-gradient(ellipse 80% 32% at 20% 64%,rgba(var(--home-view-rgb,253,186,116),.055),transparent 80%);
+    inset:-45px 0 auto;
+    height:770px;
+    background:radial-gradient(
+      ellipse 120% 72% at 17% 12%,
+      rgba(var(--home-view-rgb,253,186,116),.056) 0%,
+      rgba(var(--home-view-rgb,253,186,116),.024) 33%,
+      transparent 77%
+    );
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 12%,#000 31%,transparent 95%);
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 12%,#000 31%,transparent 95%);
   }
-  #home-overview::after{inset:290px 0 auto;height:580px}
-  #home-overview .home-overview-widgets{padding-top:13px}
-  #home-overview #family-todo-home::before{top:-8px}
+  #home-overview .sidebar>.home-upcoming-integrated-v1{margin-bottom:30px!important}
+  #home-overview .home-overview-widgets{gap:31px;padding-top:0}
+  #home-economy .home-economy-snapshot{margin-bottom:31px}
+  #home-economy .home-economy-metrics{gap:12px 0}
+  #home-economy .home-economy-links{margin-top:34px}
 }
