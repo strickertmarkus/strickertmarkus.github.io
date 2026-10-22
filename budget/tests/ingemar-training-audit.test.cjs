@@ -41,13 +41,14 @@ test('Day builder recognizes explicit and unchanged legacy templates, never gues
  assert.equal(c.matchingBuilderTemplateId(changed),'','Edited legacy workout is not matched by guesswork');
 });
 
-test('Day and template names are only edited via compact pencil controls',()=>{
+test('New template names are edited in the picker; existing template/day names keep their pencils',()=>{
  assert.ok(html.includes('id="builder-pass-inline"'),'Day pass name should be displayed in builder header');
  assert.ok(html.includes('data-action="rename-day-pass"'),'Day pass should have an edit pencil');
- assert.ok(html.includes('data-action="rename-template"'),'Template selection should have an edit pencil');
- assert.ok(!html.includes('id="build-name"'),'Legacy always-visible pass-name input must not exist');
- assert.ok(html.includes('builderTemplateCreating||!!builderTemplateId'),'Pencil must work for new and saved templates');
+ assert.ok(html.includes('data-action="rename-template"'),'Existing templates still have an edit pencil');
+ assert.ok(html.includes('id="builder-template-name"'),'New template name must be a direct inline input');
+ assert.ok(html.includes("var canRename=isTemplate?!!builderTemplateId"),'New templates should not require an edit pencil');
  assert.ok(html.includes('dayEditing&&selectedTemplate'),'Selected templates must expose a pencil even in day-builder mode');
+ assert.ok(!html.includes('id="build-name"'),'Legacy always-visible pass-name input must not exist');
 });
 test('Renaming a saved template updates only linked plans and both template dropdown and week uses',()=>{
  const template={id:'tpl',type:'Push',name:'Push · Fokus',exercises:[ex('e',50)]};
@@ -107,16 +108,33 @@ test('Renaming a standalone saved day updates the week and hero source immediate
  assert.equal(saved.name,'Push · Bröst och axlar');assert.equal(draft.name,'Push · Bröst och axlar');
  assert.equal(persistCalls,1);assert.equal(saved.exercises[0].sets[0].weight,50);
 });
-test('New template can be named by pencil before it is saved as a mall',()=>{
- const state={templates:[]},draft=workout('');
- const c=context(['saveRenamedBuilderTemplate'],{
-  builderMode:'template',builderTemplateRenaming:true,builderTemplateCreating:true,builderTemplateId:'',builderTemplateDraft:null,builderTemplateDraftId:'',
-  draft,state,builderTemplates:()=>state.templates,$:()=>({value:'Bröst + triceps'}),renderBuilderTemplates(){},render(){},toast(){}
+test('New template names synchronize immediately and trim on leaving the field',()=>{
+ const draft=workout(''),input={value:'Bröst + triceps'},option={textContent:''};
+ const c=context(['updateNewBuilderTemplateName'],{
+  builderMode:'template',builderTemplateCreating:true,draft,
+  $:id=>id==='builder-template-name'?input:{querySelector:()=>option}
  });
- c.saveRenamedBuilderTemplate();
- assert.equal(draft.name,'Bröst + triceps');
- assert.equal(c.builderTemplateRenaming,false);
- assert.equal(state.templates.length,0,'Template must only be persisted when Save mall is pressed');
+ c.updateNewBuilderTemplateName(false);
+ assert.equal(draft.name,'Bröst + triceps','Typing must update the draft without a confirmation click');
+ assert.equal(option.textContent,'＋ Bröst + triceps','Picker option must reflect the name');
+ input.value='  Bröst + triceps  ';
+ c.updateNewBuilderTemplateName(true);
+ assert.equal(draft.name,'Bröst + triceps','Blur must finalize the name without a checkmark');
+ assert.equal(input.value,draft.name);
+});
+test('The standard builder defaults to templates and puts the template tab first',()=>{
+ const tabs=html.match(/<div class="builder-mode-switch"[^>]*>(.*?)<\/div>/);
+ assert.ok(tabs,'Mode switch must exist');
+ assert.ok(tabs[1].indexOf('data-builder-mode="template"')<tabs[1].indexOf('data-builder-mode="day"'));
+ assert.match(source,/builderMode=\(!editDay&&!choosePass&&!type\)\?'template':'day'/);
+ assert.match(source,/\$\('builder-template-name'\)\.focus\(\)/,'New mall should focus the name field on tap');
+});
+test('New exercise action focuses its input synchronously on mobile',()=>{
+ assert.ok(html.includes('class="builder-exercise-name-new" data-exercise-new='),'New exercise must be a real button');
+ assert.doesNotMatch(source,/<label for="builder-exercise-name-/, 'New exercise must not rely on delayed label activation');
+ assert.match(source,/if\(newName\)\{beginBuilderFreeExerciseName\(Number\(newName\.dataset\.exerciseNew\),true\);return;\}/);
+ assert.match(source,/input\.readOnly=false;input\.dataset\.exerciseNameFree='1';[\s\S]*?input\.focus\(\)/);
+ assert.match(source,/\$\('builder-rename-name'\)\.addEventListener\('blur'/,'Existing template renames save on blur');
 });
 
 test('Old duplicate exercise/set IDs are repaired without losing contents',()=>{
