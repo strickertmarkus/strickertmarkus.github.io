@@ -1887,7 +1887,9 @@ function updateBuilderModeUI(){
  box.querySelectorAll('[data-builder-mode]').forEach(function(btn){btn.setAttribute('aria-pressed',String(btn.dataset.builderMode===builderMode));});
  $('builder-title').textContent=isTemplate?'Bygg mallpass':builderWeekIndex>=0?'Bygg '+DAYS[builderWeekIndex]+' · '+pretty(draft.date):'Bygg pass';
  var inline=$('builder-pass-inline');
- inline.hidden=isTemplate||!dayEditing;
+ var selectedTemplate=builderTemplates().find(function(t){return String(t.id)===String(builderTemplateId);});
+ var linkedDayName=!isTemplate&&selectedTemplate&&String(draft.name||'')===String(selectedTemplate.name||'');
+ inline.hidden=isTemplate||!dayEditing||!!linkedDayName;
  inline.classList.toggle('is-renaming',!isTemplate&&builderDayRenaming);
  $('builder-pass-name').textContent=String(draft&&draft.name||'').trim()||((draft&&draft.type)||'Nytt')+' · nytt pass';
  $('builder-day-rename-editor').hidden=isTemplate||!builderDayRenaming;
@@ -1903,7 +1905,7 @@ function updateBuilderModeUI(){
  box.querySelector('.builder-date-field').hidden=isTemplate;
  box.querySelector('[data-action="delete-template"]').disabled=!(isTemplate&&builderTemplates().some(function(t){return String(t.id)===String(builderTemplateId);}));
  box.querySelector('[data-action="save-template"]').disabled=!(isTemplate&&(builderTemplateCreating||!!builderTemplateId));
- var canRename=isTemplate&&(builderTemplateCreating||!!builderTemplateId);
+ var canRename=isTemplate?(builderTemplateCreating||!!builderTemplateId):!!(dayEditing&&selectedTemplate);
  box.querySelector('.builder-rename-tools').hidden=!canRename;
  box.querySelector('.builder-template-field').classList.toggle('is-renaming',canRename&&builderTemplateRenaming);
  box.querySelector('.builder-template-rename').hidden=!canRename||builderTemplateRenaming;
@@ -1987,7 +1989,8 @@ function renameStoredBuilderTemplate(id,name){
  return true;
 }
 function renameBuilderTemplate(){
- if(builderMode!=='template'||(!builderTemplateId&&!builderTemplateCreating))return;
+ if(builderMode!=='template'&&builderMode!=='day')return;
+ if(!builderTemplateId&&!(builderMode==='template'&&builderTemplateCreating))return;
  var item=builderTemplates().find(function(t){return String(t.id)===String(builderTemplateId);});
  builderTemplateRenaming=true;
  $('builder-rename-name').value=String(item&&item.name||draft&&draft.name||'');
@@ -1995,14 +1998,16 @@ function renameBuilderTemplate(){
  $('builder-rename-name').focus({preventScroll:true});
 }
 function saveRenamedBuilderTemplate(){
- if(builderMode!=='template'||!builderTemplateRenaming||(!builderTemplateId&&!builderTemplateCreating))return;
+ if(!builderTemplateRenaming||(!builderTemplateId&&!(builderMode==='template'&&builderTemplateCreating)))return;
  var name=$('builder-rename-name').value.trim();
  if(!name||name.length>70){toast('Ange ett mallnamn på högst 70 tecken.');return;}
  var item=builderTemplates().find(function(t){return String(t.id)===String(builderTemplateId);});
+ var updateCurrent=!item||builderMode==='template'||String(draft&&draft.name||'')===String(item.name||'');
  if(item&&!renameStoredBuilderTemplate(item.id,name)){toast('Namnet kunde inte sparas.');return;}
  builderTemplateRenaming=false;
- if(draft)draft.name=name;
+ if(draft&&updateCurrent)draft.name=name;
  if(builderTemplateDraft&&String(builderTemplateDraftId)===String(builderTemplateId))builderTemplateDraft.name=name;
+ if(builderMode==='day')keepBuilderDraft();
  renderBuilderTemplates();render();toast(item?'Mallpasset har bytt namn.':'Mallnamn angivet – spara mallen för att behålla den.');
 }
 function renameBuilderDay(){
