@@ -303,14 +303,14 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #training-view .training-kind-card b{margin:6px 0 2px;font-size:18px}
 #training-view .training-kind-subtitle{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #training-view .training-kind-stats{display:flex;gap:14px;margin-top:auto;padding-top:13px}
-#training-view .training-kind-stats span{display:flex;flex-direction:column;gap:3px;min-width:0}
+#training-view .training-kind-stats > span{min-width:0}
 #training-view .training-kind-stats em{font-size:9px;font-style:normal;color:#85838e}
 #training-view .training-kind-stats strong{font-size:11px;font-weight:650;color:var(--kind-accent);white-space:nowrap}
 #training-view .training-kind-card .training-kind-stats{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:auto;padding-top:12px}
-#training-view .training-kind-card .training-kind-last-status{display:flex;align-items:center;gap:8px;min-width:0}
-#training-view .training-kind-card .training-kind-last-status strong{color:#d6d0d8;font-size:11px;font-weight:600;white-space:normal;line-height:1.25}
-#training-view .training-kind-card .training-kind-glow{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:var(--kind-accent);box-shadow:0 0 0 2px rgba(var(--kind-rgb),.10),0 0 8px 2px rgba(var(--kind-rgb),.55)}
-#training-view .training-kind-card .training-kind-template-count{color:var(--kind-accent);font-size:11px;font-weight:650;line-height:1.25;padding-left:15px}
+#training-view .training-kind-card .training-kind-last-status{display:flex;flex-direction:row;align-items:center;gap:7px;min-width:0;width:100%;white-space:nowrap}
+#training-view .training-kind-card .training-kind-last-status strong{display:block;min-width:0;color:#d6d0d8;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+#training-view .training-kind-card .training-kind-glow{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:var(--kind-accent);box-shadow:0 0 0 2px rgba(var(--kind-rgb),.10),0 0 8px 2px rgba(var(--kind-rgb),.45)}
+#training-view .training-kind-card .training-kind-template-count{display:block;color:var(--kind-accent);font-size:11px;font-weight:650;line-height:1.35;padding-left:14px}
 @media(max-width:600px){#training-view .training-kind-card .training-kind-stats{gap:5px;padding-top:9px}#training-view .training-kind-card .training-kind-last-status{gap:5px}#training-view .training-kind-card .training-kind-last-status strong{font-size:10px}#training-view .training-kind-card .training-kind-template-count{font-size:10px;padding-left:12px}}
 
 #training-view .training-kind-detail{--kind-rgb:192,82,99;--kind-accent:#e6a0b2;margin-top:8px;padding:14px;border:1px solid rgba(var(--kind-rgb),.34);border-radius:15px;background:linear-gradient(140deg,rgba(var(--kind-rgb),.06),transparent 55%),#090d14;box-shadow:0 12px 35px #0003}
@@ -1338,7 +1338,7 @@ function renderTrainingKinds(){
   var active=selectedTrainingKind===k[0];
   return '<button type="button" class="choice training-kind-card '+k[1]+'" data-choice="'+k[0]+'" aria-expanded="'+active+'" aria-controls="training-kind-detail">'
   +'<span class="training-kind-head"><span class="glyph">'+k[2]+'</span><span class="training-kind-chevron">'+(active?'⌃':'⌄')+'</span></span><b>'+k[0]+'</b><small class="training-kind-subtitle">'+k[3]+'</small>'
-  +'<span class="training-kind-stats"><span class="training-kind-last-status"><i class="training-kind-glow" aria-hidden="true"></i><strong>'+(last?'Senast: '+clean(pretty(last.date)):'Ej loggat')+'</strong></span><span class="training-kind-template-count">'+(count===0?'Inga mallar':count+' '+(count===1?'mall':'mallar'))+'</span></span></button>';
+  +'<span class="training-kind-stats"><span class="training-kind-last-status"><i class="training-kind-glow" aria-hidden="true"></i><strong>'+(last?'Senast '+clean(pretty(last.date)):'Inga pass')+'</strong></span><span class="training-kind-template-count">'+(count===0?'Inga mallar':count+' '+(count===1?'mall':'mallar'))+'</span></span></button>';
  }).join('');
  var detail=$('training-kind-detail'),type=selectedTrainingKind;
  if(!type){detail.hidden=true;detail.innerHTML='';return;}
