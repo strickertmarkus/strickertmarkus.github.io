@@ -262,7 +262,7 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   min-width:0;
   margin:0 0 7px;
   padding:5px 2px 10px;
-  border-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
   background:transparent;
   color:var(--home-view-accent,#FDBA74);
   font-size:11px;
@@ -280,7 +280,7 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   margin:0;
   padding:11px 3px 10px;
   border:0;
-  border-bottom:1px solid rgba(255,255,255,.035);
+  border-bottom:1px solid rgba(255,255,255,.065);
   border-radius:0;
   background:transparent;
   transition:background-color .16s ease;
@@ -365,7 +365,7 @@ body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
   min-width:0;
   padding:5px 2px 10px;
   margin:0 0 7px;
-  border-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
 }
 #home-overview #shopping-widget .widget-title{
   color:var(--home-view-accent,#FDBA74)!important;
@@ -386,7 +386,7 @@ body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
   min-width:0;
   margin:0;
   padding:9px 3px;
-  border-bottom:1px solid rgba(255,255,255,.035);
+  border-bottom:1px solid rgba(255,255,255,.065);
 }
 #home-overview #shopping-widget .shopping-item:last-child{border-bottom:0}
 #home-overview #shopping-widget .tap-hint{
@@ -426,7 +426,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 #home-economy .home-economy-snapshot-top{
   margin-bottom:14px;
   padding:1px 2px 10px;
-  border-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.065);
 }
 #home-economy .home-economy-metrics{
   min-width:0;
@@ -455,9 +455,9 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:5px 2px 7px;
+  padding:5px 2px 10px;
   margin:0 0 8px;
-  border-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
 }
 #home-economy #transfer-widget .widget-title{
   font-size:11px;
@@ -479,7 +479,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   margin-top:10px;
   padding:8px 2px 10px;
   border:0!important;
-  border-top:0!important;
+  border-top:1px solid rgba(255,255,255,.085)!important;
   border-radius:0!important;
   background:transparent!important;
   background-image:none!important;
@@ -507,7 +507,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   gap:12px;
   padding:12px 2px;
   border:0;
-  border-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
   border-radius:0;
   background:transparent;
   box-shadow:none;
@@ -582,37 +582,9 @@ body.home-calendar-polish-v5 #home-overview>.filter-bar{
   content:none!important;
 }
 #home-overview #family-todo-home{position:relative}
-#home-overview #shopping-widget>.widget-head,
-#home-overview #family-todo-home .widget-head,
-#home-overview #family-todo-home .ft-head,
-#home-overview .home-upcoming-integrated-v1>.sidebar-title{
-  border:0!important;
-  padding-bottom:5px;
-  margin-bottom:11px;
-}
-/* Store headings already identify each group; their orange rules only
-   add visual noise. Leave add buttons and inline editing untouched. */
-#home-overview #shopping-items .shopping-category-heading{
-  border-bottom:0!important;
-  margin:12px 2px 3px;
-  padding:7px 5px 5px;
-}
-#home-overview #shopping-items .shopping-category-heading:first-child{
-  margin-top:0;
-}
-#home-overview #shopping-items .shopping-category-heading + .shopping-category-add-row{
-  margin-top:2px;
-}
-/* A light hierarchy inside the overview, not full-width frame lines. */
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
-  border-bottom-color:rgba(255,255,255,.035);
-}
-#home-overview #shopping-widget .shopping-item{
-  border-bottom-color:rgba(255,255,255,.035);
-}
-#home-overview #family-todo-home .ft-task{
-  border-bottom-color:rgba(255,255,255,.035);
-}
+/* Keep the original separators inside each list: stores, articles,
+   upcoming events and individual to-dos. Only added between-section
+   dividers are removed by the ::before rules above. */
 
 /* Finance: generous rhythm between sections, without duplicate dividers. */
 #home-economy .home-economy-snapshot{
@@ -627,15 +599,10 @@ body.home-calendar-polish-v5 #home-overview>.filter-bar{
 #home-economy .home-economy-metrics{
   gap:clamp(9px,1.8vw,20px) 0;
 }
-#home-economy .home-economy-metric{
-  border-right:0;
-}
 #home-economy .home-economy-snapshot-top{
   padding-bottom:5px;
 }
 #home-economy .home-economy-comparison{
-  border-top:0;
-  padding-top:2px;
   margin-top:16px;
 }
 #home-economy #transfer-widget>.widget-head{
@@ -645,9 +612,6 @@ body.home-calendar-polish-v5 #home-overview>.filter-bar{
 #home-economy #transfer-widget .month-popup-shell{
   margin-top:15px;
   padding:10px 2px 6px;
-}
-#home-economy #transfer-widget .transfer-amount-table tbody tr{
-  border-top-color:rgba(255,255,255,.038);
 }
 #home-economy .home-economy-links{
   margin-top:clamp(32px,4vw,50px);
