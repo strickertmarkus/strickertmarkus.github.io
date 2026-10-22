@@ -53,11 +53,13 @@
     if (window.__shoppingListEngineV7) window.__shoppingListEngineV7.commitActive();
     activeMode = mode;
     localStorage.setItem('sh_list_mode',mode);
+    // Update the DOM mode BEFORE renderItems runs inside selectList.
+    // Otherwise packing headings can leak into the shopping transition.
+    syncModeUI();
     var list = ensureModeList();
     window.selectList(list.id);
     window.renderTemplatesMenu();
     window.renderRecipes();
-    syncModeUI();
     var panel = document.querySelector('.shopping-dashboard');
     if (panel.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       panel.getAnimations().forEach(function(animation){animation.cancel();});
