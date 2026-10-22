@@ -2021,10 +2021,19 @@ function saveRenamedBuilderDay(){
  if(builderMode!=='day'||!builderDayRenaming||!draft)return;
  var name=$('builder-day-rename-name').value.trim();
  if(!name||name.length>70){toast('Ange ett passnamn på högst 70 tecken.');return;}
- var id=matchingBuilderTemplateId(draft),linked=builderTemplates().find(function(t){return String(t.id)===String(id);});
- // A pass that still carries its template's name renames that template too.
- if(linked&&String(linked.name)===String(draft.name)){
+ var oldName=String(draft.name||''),id=matchingBuilderTemplateId(draft);
+ var linked=builderTemplates().find(function(t){return String(t.id)===String(id);});
+ // Renaming a linked template updates its dropdown and all untouched linked days.
+ if(linked&&String(linked.name)===oldName){
   if(!renameStoredBuilderTemplate(id,name)){toast('Namnet kunde inte sparas.');return;}
+ }else {
+  // A standalone saved day must also get its new name immediately, not only
+  // in an unsaved builder draft, so the hero and week selector agree.
+  var saved=plan(draft.date);
+  if(saved&&String(saved.name||'')===oldName&&name!==oldName){
+   saved.name=name;
+   if(!persist()){saved.name=oldName;toast('Namnet kunde inte sparas.');return;}
+  }
  }
  draft.name=name;
  builderDayRenaming=false;
