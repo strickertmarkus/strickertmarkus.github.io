@@ -628,6 +628,21 @@ async function verifyTouchDrag(page,label){
  await androidPage.locator('#ingemar-login-password').fill('testing-12345');
  await androidPage.locator('#ingemar-login-submit').click();
  await androidPage.waitForSelector('html[data-ingemar-auth="ready"]');
+ // Creating a mallpass must activate the name field directly, without a pencil.
+ await androidPage.locator('[data-action="build"]').click();
+ assert.equal(await androidPage.locator('#builder [data-builder-mode="template"]').getAttribute('aria-pressed'),'true','Templates are the default builder tab');
+ assert.equal(await androidPage.locator('#builder .builder-mode-switch button:first-child').getAttribute('data-builder-mode'),'template');
+ await androidPage.locator('#builder-template-select').selectOption('__new__');
+ assert.equal(await androidPage.locator('#builder-template-name').isVisible(),true);
+ assert.equal(await androidPage.locator('#builder-template-name').evaluate(el=>document.activeElement===el),true,'New template must focus the editable name immediately');
+ await androidPage.locator('#builder-template-name').fill('Pull · Egen mall');
+ await androidPage.locator('#builder-title').click();
+ assert.equal(await androidPage.locator('#builder-template-name').inputValue(),'Pull · Egen mall','Name must remain after tapping elsewhere');
+ assert.match(await androidPage.locator('#builder-template-select option[value="__new__"]').textContent(),/Pull · Egen mall/);
+ await androidPage.locator('#builder [data-builder-mode="day"]').click();
+ await androidPage.locator('#builder [data-builder-mode="template"]').click();
+ assert.equal(await androidPage.locator('#builder-template-name').inputValue(),'Pull · Egen mall','Unfinished template name survives switching tabs');
+ await androidPage.locator('#builder .modal-head [data-action="close-builder"]').click();
  await androidPage.locator('[data-choice="Pull"]').click();
  assert.equal(await androidPage.locator('#builder').evaluate(el=>el.open),true);
  assert.equal(await androidPage.locator('#builder').evaluate(()=>!document.activeElement.matches('input,textarea,select,[contenteditable=true]')),true,'Opening builder must not focus editable inputs');
