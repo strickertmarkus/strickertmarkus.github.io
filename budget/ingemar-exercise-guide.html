@@ -78,7 +78,7 @@ const ellipse=(x,y,rx,ry,fill)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${r
 function draw(t){
  const e=exercises[active],m=e.move,eq=e.equipment,name=e.name,one=/Enarms|Hantelrodd/.test(name);
  const seated=['press','fly','overhead','pulldown','row','reversefly','legpress','extension','abduct','cycle'].includes(m)&&!(eq==='Skivstång'||eq==='Hantlar'||eq==='Konditionsmaskin');
- const side=['bench','legcurl','bridge','crunch','pushup','plank','hinge','lunge'].includes(m);
+ const side=['bench','legcurl','bridge','crunch','pushup','plank','hinge','lunge','extension'].includes(m);
  document.querySelector('.stage-label').textContent='RÖRELSE · '+(m==='bench'?'¾-VY UPPIFRÅN':side?'SNETT FRÅN SIDAN':'¾-VY · BÅDA SIDOR');
  const X=x=>Math.round(x*10)/10,P=(a,b,f)=>[X(a[0]+(b[0]-a[0])*f),X(a[1]+(b[1]-a[1])*f)],mix=(a,b,f)=>a+(b-a)*f;
  const L=(a,b,w=13,c='#aebac6')=>`<path d="M${X(a[0])} ${X(a[1])} L${X(b[0])} ${X(b[1])}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -173,10 +173,14 @@ function draw(t){
   const py=mix(303,201,t);
   front+=`<path d="M${X(113+10*t)} ${X(py-9)} L${X(282-10*t)} ${X(py-9)} L${X(291-10*t)} ${X(py+8)} L${X(123+10*t)} ${X(py+8)} Z" fill="#344b5c" stroke="${metal}" stroke-width="4"/>`;
  }else if(m==='extension'){
-  rack();a.kn=[[149,250],[249,253]];const angle=1.03*t;
-  a.ft=[[X(149-58*Math.sin(angle)),X(250+58*Math.cos(angle))],[X(249+58*Math.sin(angle)),X(253+58*Math.cos(angle))]];
-  front+=L(a.ft[0],a.ft[1],7,metal)+E(a.ft[0],15,10,'#607a8e')+E(a.ft[1],15,10,'#607a8e');
-  behind+=path('M185 228 V285',6,metal);
+  // Snett sidoperspektiv: båda underbenen sträcks framåt i knäleden, inte ut åt sidorna.
+  a.head=[160,91];a.s=[[153,129],[177,136]];a.h=[[172,215],[200,221]];
+  a.kn=[[250,238],[267,247]];
+  const angle=(Math.PI/2)*(1-t),len=59;
+  a.ft=a.kn.map(k=>[X(k[0]+len*Math.cos(angle)),X(k[1]+len*Math.sin(angle))]);
+  arms([169,172],[175,206],[191,179],[202,208]);
+  behind+=path('M146 140 V233 H247 M181 234 V308 M236 234 V308',8,metal);
+  front+=L(a.ft[0],a.ft[1],7,metal)+E(a.ft[0],13,10,'#607a8e')+E(a.ft[1],13,10,'#607a8e');
  }else if(m==='abduct'){
   rack();const dx=20+33*t,len=62;
   a.kn=[[X(a.h[0][0]-dx),X(a.h[0][1]+Math.sqrt(len*len-dx*dx))],[X(a.h[1][0]+dx),X(a.h[1][1]+Math.sqrt(len*len-dx*dx))]];
