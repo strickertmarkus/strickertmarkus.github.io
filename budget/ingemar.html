@@ -306,6 +306,13 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 #training-view .training-kind-stats span{display:flex;flex-direction:column;gap:3px;min-width:0}
 #training-view .training-kind-stats em{font-size:9px;font-style:normal;color:#85838e}
 #training-view .training-kind-stats strong{font-size:11px;font-weight:650;color:var(--kind-accent);white-space:nowrap}
+#training-view .training-kind-card .training-kind-stats{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:auto;padding-top:12px}
+#training-view .training-kind-card .training-kind-last-status{display:flex;align-items:center;gap:8px;min-width:0}
+#training-view .training-kind-card .training-kind-last-status strong{color:#d6d0d8;font-size:11px;font-weight:600;white-space:normal;line-height:1.25}
+#training-view .training-kind-card .training-kind-glow{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:var(--kind-accent);box-shadow:0 0 0 2px rgba(var(--kind-rgb),.10),0 0 8px 2px rgba(var(--kind-rgb),.55)}
+#training-view .training-kind-card .training-kind-template-count{color:var(--kind-accent);font-size:11px;font-weight:650;line-height:1.25;padding-left:15px}
+@media(max-width:600px){#training-view .training-kind-card .training-kind-stats{gap:5px;padding-top:9px}#training-view .training-kind-card .training-kind-last-status{gap:5px}#training-view .training-kind-card .training-kind-last-status strong{font-size:10px}#training-view .training-kind-card .training-kind-template-count{font-size:10px;padding-left:12px}}
+
 #training-view .training-kind-detail{--kind-rgb:192,82,99;--kind-accent:#e6a0b2;margin-top:8px;padding:14px;border:1px solid rgba(var(--kind-rgb),.34);border-radius:15px;background:linear-gradient(140deg,rgba(var(--kind-rgb),.06),transparent 55%),#090d14;box-shadow:0 12px 35px #0003}
 #training-view .training-kind-detail[data-tone=pull]{--kind-rgb:103,232,249;--kind-accent:#a6eef6}
 #training-view .training-kind-detail[data-tone=cardio]{--kind-rgb:247,160,94;--kind-accent:#f9bd88}
@@ -1331,7 +1338,7 @@ function renderTrainingKinds(){
   var active=selectedTrainingKind===k[0];
   return '<button type="button" class="choice training-kind-card '+k[1]+'" data-choice="'+k[0]+'" aria-expanded="'+active+'" aria-controls="training-kind-detail">'
   +'<span class="training-kind-head"><span class="glyph">'+k[2]+'</span><span class="training-kind-chevron">'+(active?'⌃':'⌄')+'</span></span><b>'+k[0]+'</b><small class="training-kind-subtitle">'+k[3]+'</small>'
-  +'<span class="training-kind-stats"><span><em>Senast</em><strong>'+(last?clean(pretty(last.date)):'Inget pass')+'</strong></span><span><em>Mallar</em><strong>'+count+'</strong></span></span></button>';
+  +'<span class="training-kind-stats"><span class="training-kind-last-status"><i class="training-kind-glow" aria-hidden="true"></i><strong>'+(last?'Senast: '+clean(pretty(last.date)):'Ej loggat')+'</strong></span><span class="training-kind-template-count">'+(count===0?'Inga mallar':count+' '+(count===1?'mall':'mallar'))+'</span></span></button>';
  }).join('');
  var detail=$('training-kind-detail'),type=selectedTrainingKind;
  if(!type){detail.hidden=true;detail.innerHTML='';return;}
