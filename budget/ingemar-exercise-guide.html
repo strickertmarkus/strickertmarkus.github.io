@@ -246,7 +246,7 @@ function draw(t){
  if(has('Framsida lår','Baksida lår'))highlight+=L(P(a.h[0],a.kn[0],.18),P(a.h[0],a.kn[0],.79),12,hi+'d8')+L(P(a.h[1],a.kn[1],.18),P(a.h[1],a.kn[1],.79),12,hi+'d8');
  if(has('Säte'))highlight+=E(a.h[0],14,12,hi+'db')+E(a.h[1],14,12,hi+'db');
  if(has('Vader'))highlight+=L(P(a.kn[0],a.ft[0],.2),P(a.kn[0],a.ft[0],.75),9,hi+'dc')+L(P(a.kn[1],a.ft[1],.2),P(a.kn[1],a.ft[1],.75),9,hi+'dc');
- const caption=`<text x="210" y="333" text-anchor="middle" fill="#8998a5" font-size="10" font-family="system-ui">Förenklad teknikillustration · ${side?'snett från sidan':'¾-vy'}</text>`;
+ const caption=`<text x="210" y="333" text-anchor="middle" fill="#8998a5" font-size="10" font-family="system-ui">Förenklad teknikillustration · ${m==='bench'?'¾-vy uppifrån':side?'snett från sidan':'¾-vy'}</text>`;
  $('exercise-figure').innerHTML=floor+behind+body+highlight+front+caption;
 }
 function animate(now){if(!last)last=now;const dt=Math.min(80,now-last);last=now;if(!paused&&document.visibilityState==='visible'){phase=(phase+dt/2700)%1;const smooth=(1-Math.cos(phase*2*Math.PI))/2;draw(smooth)}requestAnimationFrame(animate)}
