@@ -95,6 +95,18 @@ test('A day-pass rename updates the selected template without changing exercises
  assert.equal(state.plans.today.name,'Push + extra');assert.equal(state.plans.today.exercises[0].sets[0].weight,50);
  assert.equal(kept,1);assert.equal(persisted,1);
 });
+test('Renaming a standalone saved day updates the week and hero source immediately',()=>{
+ const saved=workout('Push · Fokus'),draft=deep(saved),state={plans:{'2026-10-22':saved},templates:[],builderDrafts:{},weekTemplates:[]};
+ let persistCalls=0;
+ const c=context(['matchingBuilderTemplateId','saveRenamedBuilderDay'],{
+  state,builderTemplates:()=>state.templates,draft,builderMode:'day',builderDayRenaming:true,
+  $:()=>({value:'Push · Bröst och axlar'}),plan:date=>state.plans[date],persist(){persistCalls++;return true;},
+  keepBuilderDraft(){},renderBuilderTemplates(){},render(){},toast(){}
+ });
+ draft.date='2026-10-22';c.saveRenamedBuilderDay();
+ assert.equal(saved.name,'Push · Bröst och axlar');assert.equal(draft.name,'Push · Bröst och axlar');
+ assert.equal(persistCalls,1);assert.equal(saved.exercises[0].sets[0].weight,50);
+});
 test('New template can be named by pencil before it is saved as a mall',()=>{
  const state={templates:[]},draft=workout('');
  const c=context(['saveRenamedBuilderTemplate'],{
