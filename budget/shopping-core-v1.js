@@ -355,8 +355,8 @@
         document.getElementById('shopping-menu-title').textContent = button.classList.contains('nav-btn') ? 'Meny' : button.textContent;
         document.getElementById('shopping-menu-content').appendChild(menu);
         button.setAttribute('aria-expanded','true');
-        MenuMotion.show(menuDialog);
         MenuMotion.anchor(menuDialog,menuState.returnFocus||button);
+        MenuMotion.show(menuDialog);
       });
     });
     menuDialog.addEventListener('close',function () {

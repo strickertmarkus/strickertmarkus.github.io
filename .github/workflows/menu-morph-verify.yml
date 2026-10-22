@@ -2,7 +2,9 @@ name: Hamburger morph preview
 on:
   push:
     branches: [main]
-    paths: ['budget/nav-menu-motion.js', 'budget/tests/menu-morph-browser.cjs', '.github/workflows/menu-morph-verify.yml']
+    paths: ['budget/ui-motion.*', 'budget/nav-menu-motion.js', 'budget/tests/menu-morph-browser.cjs', '.github/workflows/menu-morph-verify.yml']
+  pull_request:
+    paths: ['budget/ui-motion.*', 'budget/nav-menu-motion.js', 'budget/tests/menu-morph-browser.cjs', '.github/workflows/menu-morph-verify.yml']
   workflow_dispatch:
 jobs:
   preview:
@@ -18,7 +20,8 @@ jobs:
           npx playwright install --with-deps webkit
       - run: |
           python3 -m http.server 4173 >/tmp/morph-http.log 2>&1 &
-          node budget/tests/menu-morph-browser.cjs
+          mkdir -p test-results/menu-morph
+          node budget/tests/menu-morph-browser.cjs 2>&1 | tee test-results/menu-morph/run.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -9,14 +9,17 @@ async function phase(el,open){
   getComputedStyle(e).opacity;
   if(e.tagName==='DIALOG'){open?SurfaceMotion.showDialog(e):SurfaceMotion.closeDialog(e);}
   else e.classList.toggle('show',open);
+  await new Promise(requestAnimationFrame);
   getComputedStyle(e).opacity;
-  const animations=e.getAnimations();
+  const animations=e.getAnimations({subtree:true});
   for(const animation of animations){animation.pause();animation.currentTime=Number(animation.effect.getTiming().duration)/2;}
   await new Promise(requestAnimationFrame);
-  return {opacity:+getComputedStyle(e).opacity,display:getComputedStyle(e).display,classes:e.className,animations:animations.map(a=>a.transitionProperty)};
+  const panel=e.querySelector(':scope > .modal,:scope > .session-shell')||e;
+  return {scale:getComputedStyle(panel).scale,opacity:+getComputedStyle(e).opacity,display:getComputedStyle(e).display,classes:e.className,animations:animations.map(a=>a.transitionProperty||'geometry')};
  },open);
  assert(s.opacity>0&&s.opacity<1,`${await el.getAttribute('id')} ${open?'enter':'exit'}: ${JSON.stringify(s)}`);
- assert.notEqual(s.display,'none','Closing surface disappeared before fade finished');
+ assert.notEqual(s.display,'none','Closing surface disappeared before morph finished');
+ assert(s.scale!=='none'&&parseFloat(s.scale)>0&&parseFloat(s.scale)<1,'Surface must grow/collapse geometrically: '+JSON.stringify(s));
 }
 (async()=>{
  fs.mkdirSync(out,{recursive:true});const failures=[];
@@ -27,7 +30,7 @@ async function phase(el,open){
   for(const file of pages){
    await page.goto('http://127.0.0.1:4173/budget/'+file+'.html',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!window.SurfaceMotion);
-   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--surface-enter').trim()),'190ms',file);
+   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--surface-enter').trim()),'280ms',file);
    console.log(name+' motion assets: '+file);
   }
   for(const [file,selector] of [['home','#event-modal'],['calendar','#event-modal'],['zen','#settings-dialog'],['ingemar','#week-planner']]){
@@ -59,6 +62,8 @@ async function phase(el,open){
    await phase(el,false);await el.evaluate(e=>e.tagName==='DIALOG'?SurfaceMotion.showDialog(e):e.classList.add('show'));await settle(el);
    assert.equal(await el.evaluate(e=>+getComputedStyle(e).opacity),1);
    await el.evaluate(e=>e.tagName==='DIALOG'?SurfaceMotion.closeDialog(e):e.classList.remove('show'));await settle(el);
+   assert.equal(await el.evaluate(e=>e.hasAttribute('data-surface-closing')),false,'No closing layer remains');
+   assert.equal(await el.evaluate(e=>e.getAnimations({subtree:true}).filter(a=>a.effect.getTiming().iterations!==Infinity).length),0,'No filled closing animation remains');
    }catch(error){failures.push(name+' '+file+': '+error.message);console.error(failures.at(-1));await page.screenshot({path:`${out}/${name}-${file}-failure.png`});}
   }
   // Dynamic menus finish their exit before DOM removal; opening another stays independent.
