@@ -139,3 +139,106 @@ html[data-list-mode="packing"] #items-list .category-title[contenteditable="true
 #recipe-link-popup-v5[open] input[type="datetime-local"]{
  max-width:100%;width:100%;min-width:0;box-sizing:border-box;font-size:16px
 }
+
+
+/* Home > Listor parity: Inköpslista and Packlista follow the same open,
+   background-integrated visual language as the Att göra view. This deliberately
+   changes presentation only; items, sections and inline editors stay native. */
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-dashboard{
+  min-width:0;
+  align-items:start;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-panel{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-list-panel{
+  padding:5px 2px 28px;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-panel-head{
+  align-items:center;
+  gap:10px;
+  margin:0 0 9px;
+  padding:0 0 11px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-current-list{
+  color:var(--text);
+  font:700 16px/1.4 Inter,system-ui,sans-serif;
+  letter-spacing:0;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-summary{
+  margin-top:3px;
+  color:var(--text-sec);
+  font-size:11px;
+  line-height:1.4;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) #items-list{
+  min-width:0;
+  width:100%;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-tools-menu summary{
+  width:36px;
+  height:36px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:var(--text-sec);
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-tools-menu[open] summary,
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-tools-menu summary:hover{
+  border-color:rgba(var(--accent-rgb),.22);
+  background:rgba(var(--accent-rgb),.06);
+  color:var(--accent);
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .undo-btn{
+  width:32px;
+  min-height:32px;
+  border:0;
+  background:transparent;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-side{
+  gap:22px;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-context-card,
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-recipes-panel{
+  min-width:0;
+  padding:4px 2px 10px;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-context-card{
+  border-top:1px solid rgba(255,255,255,.07);
+  padding-top:14px;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-recipes-panel .section-title{
+  margin:0 0 12px;
+  padding:0 0 9px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-size:15px;
+  font-weight:650;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-context-grid{
+  margin-top:10px;
+  gap:20px;
+}
+html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .context-stat strong{
+  font-size:22px;
+}
+@media(max-width:900px){
+  html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-dashboard{
+    row-gap:20px;
+  }
+  html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-side{
+    gap:18px;
+  }
+}
+@media(max-width:680px){
+  html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-list-panel{
+    padding:5px 2px 18px;
+  }
+  html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-context-card,
+  html:is([data-list-mode="shopping"],[data-list-mode="packing"]) .shopping-recipes-panel{
+    padding:4px 2px 10px;
+  }
+}
