@@ -316,3 +316,219 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 @media(max-width:768px){
   #home-overview .sidebar > .home-upcoming-integrated-v1{margin-bottom:15px}
 }
+
+
+/* Home open-surface layout — remove the older global polish gradient.
+   home-calendar-base.css uses !important on .widget / .sidebar-section;
+   these explicit view-scoped overrides intentionally win that cascade.
+   Calendar cells, menus, chart widgets and edit controls are untouched. */
+
+/* Översikt: Kommande händelser + Inköpslista + Att göra sit on page. */
+body.home-calendar-polish-v5 #home-overview .sidebar > .home-upcoming-integrated-v1,
+body.home-calendar-polish-v5 #home-overview #shopping-widget,
+body.home-calendar-polish-v5 #home-overview #family-todo-home{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  -webkit-box-shadow:none!important;
+}
+body.home-calendar-polish-v5 #home-overview .sidebar > .home-upcoming-integrated-v1{
+  padding:0!important;
+  margin:0 0 clamp(16px,2vw,24px)!important;
+}
+body.home-calendar-polish-v5 #home-overview #shopping-widget,
+body.home-calendar-polish-v5 #home-overview #family-todo-home{
+  box-sizing:border-box;
+  min-width:0;
+  width:100%;
+  padding:0!important;
+  margin:0!important;
+}
+body.home-calendar-polish-v5 #home-overview #shopping-widget{
+  cursor:pointer;
+  transition:background-color .18s ease!important;
+  transform:none!important;
+}
+body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+#home-overview .home-overview-widgets{
+  gap:clamp(15px,2vw,25px);
+}
+#home-overview #shopping-widget>.widget-head,
+#home-overview #family-todo-home .widget-head{
+  min-width:0;
+  padding:5px 2px 10px;
+  margin:0 0 7px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+#home-overview #shopping-widget .widget-title{
+  color:var(--home-view-accent,#FDBA74)!important;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.85px;
+}
+#home-overview #shopping-widget .shopping-input-row{
+  min-width:0;
+  margin:10px 0 5px;
+}
+#home-overview #shopping-widget .shopping-list{
+  min-width:0;
+  gap:0;
+  max-height:360px;
+}
+#home-overview #shopping-widget .shopping-item{
+  min-width:0;
+  margin:0;
+  padding:9px 3px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+#home-overview #shopping-widget .shopping-item:last-child{border-bottom:0}
+#home-overview #shopping-widget .tap-hint{
+  margin:8px 1px 2px;
+  color:var(--text-sec,#929ba9);
+  font-size:10px;
+}
+#home-overview #family-todo-home .ft-list{
+  min-width:0;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
+  padding-block:9px 10px;
+}
+#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:hover{
+  background:rgba(var(--home-view-rgb,253,186,116),.023)!important;
+}
+
+/* Ekonomi: typographic monthly snapshot, open transfer details and links. */
+#home-economy .home-economy-snapshot,
+body.home-calendar-polish-v5 #home-economy #transfer-widget{
+  box-sizing:border-box;
+  min-width:0;
+  width:100%;
+  max-width:none;
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  -webkit-box-shadow:none!important;
+}
+#home-economy .home-economy-snapshot{
+  margin:0 0 clamp(21px,3vw,36px);
+  padding:2px 0 19px;
+  border-bottom:1px solid rgba(255,255,255,.085)!important;
+}
+#home-economy .home-economy-snapshot-top{
+  margin-bottom:14px;
+  padding:1px 2px 10px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+#home-economy .home-economy-metrics{
+  min-width:0;
+  gap:0;
+}
+#home-economy .home-economy-metric{
+  min-width:0;
+  padding-inline:clamp(9px,1.6vw,24px);
+  background:transparent;
+}
+#home-economy .home-economy-metric strong,
+#home-economy .home-economy-income-action{
+  white-space:normal;
+  overflow-wrap:anywhere;
+  font-size:clamp(15px,1.6vw,22px);
+}
+#home-economy .home-economy-comparison{
+  padding-top:12px;
+  margin-top:16px;
+}
+body.home-calendar-polish-v5 #home-economy #transfer-widget{
+  padding:0!important;
+  margin:0!important;
+}
+#home-economy #transfer-widget>.widget-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:5px 2px 10px;
+  margin:0 0 8px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+#home-economy #transfer-widget .widget-title{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.85px;
+}
+#home-economy #transfer-widget .transfer-summary{
+  margin:0 0 11px;
+  color:var(--text-sec,#929ba9);
+}
+#home-economy #transfer-widget .transfer-actions{
+  margin:8px 0;
+}
+#home-economy #transfer-widget .transfer-popup-shell,
+#home-economy #transfer-widget .month-popup-shell,
+#home-economy #transfer-widget .month-expense-section{
+  box-sizing:border-box;
+  max-width:100%;
+  margin-top:10px;
+  padding:8px 2px 10px;
+  border:0!important;
+  border-top:1px solid rgba(255,255,255,.085)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+#home-economy #transfer-widget .month-popup-table,
+#home-economy #transfer-widget .transfer-popup-grid{
+  min-width:0;
+  max-width:100%;
+}
+#home-economy .home-economy-links{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0 clamp(12px,2.2vw,30px);
+  min-width:0;
+  width:100%;
+  margin:clamp(22px,3vw,36px) 0 0;
+}
+#home-economy .home-economy-links>a{
+  display:flex;
+  justify-content:space-between;
+  min-width:0;
+  width:100%;
+  min-height:46px;
+  gap:12px;
+  padding:12px 2px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:var(--text-sec,#929ba9);
+  font-size:12px;
+  transition:color .17s ease,background-color .17s ease;
+}
+#home-economy .home-economy-links>a:hover{
+  background:rgba(var(--home-view-rgb,253,186,116),.025);
+  border-color:rgba(255,255,255,.075);
+  color:var(--home-view-accent,#FDBA74);
+}
+@media(max-width:768px){
+  #home-economy .home-economy-snapshot{padding:0 0 16px;margin-bottom:22px}
+  #home-economy .home-economy-snapshot-top{margin-bottom:12px}
+  #home-economy .home-economy-metric{padding-inline:10px}
+  #home-overview #shopping-widget .shopping-item{padding-block:8px}
+}
+@media(max-width:540px){
+  #home-economy .home-economy-links{grid-template-columns:minmax(0,1fr)}
+  #home-economy .home-economy-metric{padding-inline:8px}
+  #home-economy .home-economy-metric:nth-child(odd){padding-left:0}
+  #home-economy .home-economy-metric:nth-child(even){padding-right:0}
+}
