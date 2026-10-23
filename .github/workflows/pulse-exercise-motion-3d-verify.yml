@@ -36,6 +36,9 @@ jobs:
             await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html',{waitUntil:'domcontentloaded'});
             await page.locator('#atlas-all').click();
             await page.locator('#studio-stage').scrollIntoViewIfNeeded();
+            const initial=await page.locator('#studio-stage').evaluate(e=>!e.classList.contains('exercise-3d-ready'));
+            assert.ok(initial,'original technique animation is default');
+            await page.locator('#toggle-exercise-3d').click();
             await page.waitForFunction(()=>window.PulseExercise3D?.ready===true,null,{timeout:65000});
             await page.waitForFunction(()=>document.querySelector('#studio-stage')?.classList.contains('exercise-3d-ready'),null,{timeout:8000});
             const details=await page.evaluate(()=>({
