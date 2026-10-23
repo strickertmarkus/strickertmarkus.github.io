@@ -150,16 +150,21 @@ if (target && visual && guide && supportsWebGL()) {
         transparent: true, depthWrite: true, depthTest: true,
         side: THREE.FrontSide, toneMapped: false,
         uniforms: {
-          uBodyAlpha: {value: 0.84},
+          uBodyAlpha: {value: 0.64},
+          uHeadStart: {value: height * 0.32},
+          uHeadEnd: {value: height * 0.405},
+          uHeadRadius: {value: height * 0.104},
           uHeadSoftness: {value: 0.0}
         },
         vertexShader: [
           'varying vec3 vPulseNormal;',
           'varying vec3 vPulseView;',
+          'varying vec3 vPulseWorld;',
           'void main(){',
           '  vec4 vpos = modelViewMatrix * vec4(position,1.0);',
           '  vPulseNormal = normalize(normalMatrix * normal);',
           '  vPulseView = normalize(-vpos.xyz);',
+          '  vPulseWorld = (modelMatrix * vec4(position,1.0)).xyz;',
           '  gl_Position = projectionMatrix * vpos;',
           '}'
         ].join('\n'),
@@ -167,32 +172,40 @@ if (target && visual && guide && supportsWebGL()) {
           'precision highp float;',
           'uniform float uBodyAlpha;',
           'uniform float uHeadSoftness;',
+          'uniform float uHeadStart;',
+          'uniform float uHeadEnd;',
+          'uniform float uHeadRadius;',
           'varying vec3 vPulseNormal;',
           'varying vec3 vPulseView;',
+          'varying vec3 vPulseWorld;',
           'void main(){',
           '  vec3 n = normalize(vPulseNormal);',
           '  float facing = clamp(abs(dot(n,normalize(vPulseView))),0.0,1.0);',
           '  float rim = pow(1.0-facing,2.0);',
           '  float form = 0.5 + 0.5 * dot(n,normalize(vec3(-0.37,0.72,0.62)));',
           '  float soft = smoothstep(0.0,1.0,form);',
-          '  vec3 pearl = mix(vec3(0.64,0.73,0.83), vec3(0.94,0.96,1.0), 0.25+0.70*soft);',
-          '  pearl = mix(pearl,vec3(0.98,0.99,1.0),0.56*rim);',
-          '  float alpha = min(0.97,uBodyAlpha + 0.09*rim);',
+          '  vec3 pearl = mix(vec3(0.51,0.63,0.75), vec3(0.94,0.97,1.0), 0.22+0.71*soft);',
+          '  pearl = mix(pearl,vec3(0.985,0.99,1.0),0.75*rim);',
+          '  float alpha = min(0.93,uBodyAlpha + 0.22*rim);',
+          '  float headZone = smoothstep(uHeadStart,uHeadEnd,vPulseWorld.y);',
+          '  float centerZone = 1.0-smoothstep(uHeadRadius*0.60,uHeadRadius*1.15,abs(vPulseWorld.x));',
+          '  alpha *= (1.0 - 0.95*headZone*centerZone);',
           '  alpha *= (1.0-uHeadSoftness);',
+          '  if(alpha<0.015) discard;',
           '  gl_FragColor = vec4(pearl,alpha);',
           '}'
         ].join('\n')
       });
       // The anatomical face is softened, not rendered as a detailed specimen.
       const faceMaterial = skinMaterial.clone();
-      faceMaterial.uniforms.uHeadSoftness.value = 0.65;
+      faceMaterial.uniforms.uHeadSoftness.value = 0.91;
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
         const meta = Object.keys(mesh.userData || {}).length ? mesh.userData : mesh.parent?.userData || {};
         const name = String(meta.zname || mesh.name || '').toLowerCase();
         // Tiny details are specifically what made the earlier model creepy.
-        if (/hairs? of|scalp hair|eyelash|eyebrow|eyeball|eye lens|eyelid|nail plate|teeth|tooth|tongue/.test(name)) {
+        if (/hairs? of|scalp hair|eyelash|eyebrow|eyeball|eye lens|eyelid|nail plate|teeth|tooth|tongue|auricular|labial|mandibular|malar|nasal region|frontal region/.test(name)) {
           mesh.visible = false;
           return;
         }
@@ -204,6 +217,21 @@ if (target && visual && guide && supportsWebGL()) {
         mesh.material.depthWrite = true;
       });
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
+
+      // A simplified faceless head and neck replace the anatomical head.
+      const portraitMaterial = skinMaterial.clone();
+      portraitMaterial.uniforms.uHeadStart.value = height * 10;
+      portraitMaterial.uniforms.uHeadEnd.value = height * 11;
+      portraitMaterial.uniforms.uHeadSoftness.value = 0;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(1,36,28),portraitMaterial);
+      head.scale.set(height*0.054,height*0.071,height*0.053);
+      head.position.set(0,height*0.422,height*0.006);
+      head.renderOrder = 2;
+      skin.add(head);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(height*0.026,height*0.033,height*0.075,28), portraitMaterial);
+      neck.position.set(0,height*0.335,height*0.003);
+      neck.renderOrder = 2;
+      skin.add(neck);
 
       // All unselected muscles are hidden — only the selected major group is red.
       const quietMaterial = new THREE.MeshBasicMaterial({
