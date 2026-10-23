@@ -773,3 +773,44 @@ main{position:relative;z-index:2;display:block}
   .volume-chart{height:380px}
   .luminous-chart{height:245px}
 }
+
+
+/* An independent, clearly discoverable entry to the cloned exercise library.
+   Retain Pulse Field's nebula, coral signal and compact mobile rhythm. */
+.field-explore-section{position:relative;z-index:3;max-width:var(--field-max);margin:-2px 0 36px}
+.field-explore-entry{
+  display:flex;align-items:center;gap:clamp(11px,2vw,18px);
+  width:100%;min-width:0;min-height:80px;padding:16px clamp(15px,2.5vw,24px);
+  border:1px solid rgba(255,154,145,.21);border-radius:16px;
+  background:linear-gradient(105deg,rgba(255,101,122,.085),rgba(255,154,145,.035) 58%,rgba(12,20,30,.07));
+  box-shadow:inset 0 1px 0 rgba(255,210,189,.045),0 8px 30px rgba(0,0,0,.07);
+  color:var(--field-text);text-decoration:none;
+  transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease;
+}
+.field-explore-entry:hover,.field-explore-entry:focus-visible{
+  background:linear-gradient(105deg,rgba(255,101,122,.13),rgba(255,154,145,.065) 65%,rgba(12,20,30,.07));
+  border-color:rgba(255,154,145,.5);
+  box-shadow:0 0 23px rgba(255,101,122,.08);
+}
+.field-explore-entry:active{transform:scale(.995)}
+.field-explore-star{
+  position:relative;display:grid;place-items:center;flex:0 0 42px;
+  width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,154,145,.24);
+  background:rgba(255,154,145,.075);color:var(--field-peach);font:400 23px/1 var(--field-ui);
+  text-shadow:0 0 11px rgba(255,154,145,.5);
+}
+.field-explore-copy{display:grid;gap:3px;flex:1;min-width:0}
+.field-explore-copy strong{color:var(--field-text);font:600 clamp(15px,1.4vw,19px)/1.3 var(--field-ui);letter-spacing:-.02em}
+.field-explore-copy small{color:var(--field-muted);font:400 11px/1.5 var(--field-ui);overflow-wrap:anywhere}
+.field-explore-arrow{flex:0 0 auto;color:var(--field-coral);font:400 23px/1 var(--field-ui);margin-left:auto}
+@media(max-width:760px){
+  .field-explore-section{margin:0 0 30px}
+  .field-explore-entry{min-height:74px;padding:13px 14px;border-radius:14px;gap:11px}
+  .field-explore-star{flex-basis:38px;width:38px;height:38px;font-size:21px}
+  .field-explore-copy strong{font-size:16px}
+  .field-explore-copy small{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .field-explore-entry{transition:none}
+  .field-explore-entry:active{transform:none}
+}
