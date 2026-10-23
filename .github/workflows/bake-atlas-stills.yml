@@ -1,0 +1,21 @@
+name: Bake preserved atlas into still images
+on:
+  push:
+    branches: [codex/atlas-stills]
+    paths: ['scripts/bake-atlas-stills.cjs', '.github/workflows/bake-atlas-stills.yml']
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: python3 -m http.server 4173 >/tmp/atlas-server.log 2>&1 &
+      - run: node scripts/bake-atlas-stills.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atlas-still-images
+          path: test-results/atlas-stills/
