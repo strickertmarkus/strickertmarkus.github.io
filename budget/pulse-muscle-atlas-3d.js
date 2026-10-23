@@ -227,11 +227,11 @@ if (target && visual && guide && supportsWebGL()) {
       head.scale.set(height*0.054,height*0.071,height*0.053);
       head.position.set(0,height*0.422,height*0.006);
       head.renderOrder = 2;
-      skin.add(head);
+      scene.add(head);
       const neck = new THREE.Mesh(new THREE.CylinderGeometry(height*0.026,height*0.033,height*0.075,28), portraitMaterial);
       neck.position.set(0,height*0.335,height*0.003);
       neck.renderOrder = 2;
-      skin.add(neck);
+      scene.add(neck);
 
       // All unselected muscles are hidden — only the selected major group is red.
       const quietMaterial = new THREE.MeshBasicMaterial({
