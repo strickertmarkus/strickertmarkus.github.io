@@ -1,0 +1,36 @@
+name: Muscle atlas quick visual screenshot
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/muscle-atlas-quick-screenshot.yml'
+  workflow_dispatch:
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture live WebGL design using runner Chrome
+        run: |
+          mkdir -p test-results/muscle-atlas-quick
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('budget/pulse-exercise-guide.html').read_text()
+          addon="""<script>document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>document.querySelector('.atlas-visual')?.scrollIntoView({block:'center'}),600)});</script>"""
+          s=s.replace('</body>',addon+'</body>')
+          Path('budget/__quick-atlas.html').write_text(s)
+          PY
+          python3 -m http.server 4173 >/tmp/muscle-quick-http.log 2>&1 &
+          sleep 2
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle             --use-angle=swiftshader --enable-unsafe-swiftshader             --hide-scrollbars --window-size=420,960 --force-device-scale-factor=1             --virtual-time-budget=45000             --screenshot=test-results/muscle-atlas-quick/mobile.png             "http://127.0.0.1:4173/budget/__quick-atlas.html" 2>/tmp/quick-chrome.log
+          test -s test-results/muscle-atlas-quick/mobile.png
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle             --use-angle=swiftshader --enable-unsafe-swiftshader             --virtual-time-budget=45000 --dump-dom             "http://127.0.0.1:4173/budget/__quick-atlas.html"             >test-results/muscle-atlas-quick/dom.html 2>/dev/null || true
+          echo "Screenshot captured with: $CHROME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: muscle-atlas-quick-screenshot
+          path: test-results/muscle-atlas-quick/
