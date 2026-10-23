@@ -151,9 +151,9 @@ if (target && visual && guide && supportsWebGL()) {
         side: THREE.FrontSide, toneMapped: false,
         uniforms: {
           uBodyAlpha: {value: 0.64},
-          uHeadStart: {value: height * 0.32},
-          uHeadEnd: {value: height * 0.405},
-          uHeadRadius: {value: height * 0.104},
+          uHeadStart: {value: height * 0.26},
+          uHeadEnd: {value: height * 0.35},
+          uHeadRadius: {value: height * 0.13},
           uHeadSoftness: {value: 0.0}
         },
         vertexShader: [
@@ -189,9 +189,9 @@ if (target && visual && guide && supportsWebGL()) {
           '  float alpha = min(0.93,uBodyAlpha + 0.22*rim);',
           '  float headZone = smoothstep(uHeadStart,uHeadEnd,vPulseWorld.y);',
           '  float centerZone = 1.0-smoothstep(uHeadRadius*0.60,uHeadRadius*1.15,abs(vPulseWorld.x));',
-          '  alpha *= (1.0 - 0.95*headZone*centerZone);',
+          '  alpha *= (1.0 - headZone*centerZone);',
           '  alpha *= (1.0-uHeadSoftness);',
-          '  if(alpha<0.015) discard;',
+          '  if(alpha<0.045) discard;',
           '  gl_FragColor = vec4(pearl,alpha);',
           '}'
         ].join('\n')
@@ -223,6 +223,9 @@ if (target && visual && guide && supportsWebGL()) {
       portraitMaterial.uniforms.uHeadStart.value = height * 10;
       portraitMaterial.uniforms.uHeadEnd.value = height * 11;
       portraitMaterial.uniforms.uHeadSoftness.value = 0;
+      portraitMaterial.uniforms.uBodyAlpha.value = 0.94;
+      portraitMaterial.depthTest = false;
+      portraitMaterial.depthWrite = false;
       const head = new THREE.Mesh(new THREE.SphereGeometry(1,36,28),portraitMaterial);
       head.scale.set(height*0.054,height*0.071,height*0.053);
       head.position.set(0,height*0.422,height*0.006);
