@@ -10,12 +10,28 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const MODEL_URL = 'https://cdn.jsdelivr.net/gh/SeemaBansal1/3d-human-body-anatomy@28912432581accd7a1c62129d55f0e9758221d48/web/public/models/muscles.glb';
+const SKIN_URL = 'https://cdn.jsdelivr.net/gh/SeemaBansal1/3d-human-body-anatomy@28912432581accd7a1c62129d55f0e9758221d48/web/public/models/skin.glb';
 const DECODER_URL = 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/';
 const target = document.getElementById('atlas-webgl');
 const visual = document.querySelector('.atlas-visual');
 const guide = document.getElementById('guide-page');
 const status = document.getElementById('atlas-3d-status');
 
+// Only large, superficial, trainable regions receive vivid accents.
+const SURFACE_RULES = {
+  'Bröst': /pectoralis major/i,
+  'Rygg': /latissimus dorsi|trapezius|rhomboid/i,
+  'Axlar': /deltoid/i,
+  'Biceps': /biceps brachii|brachialis muscle/i,
+  'Triceps': /triceps brachii/i,
+  'Mage': /rectus abdominis|external abdominal oblique/i,
+  'Säte': /gluteus maximus|gluteus medius/i,
+  'Framsida lår': /rectus femoris|vastus/i,
+  'Baksida lår': /biceps femoris|semitendinosus|semimembranosus/i,
+  'Vader': /gastrocnemius|soleus/i
+};
+const BACK_GROUPS = new Set(['Rygg','Triceps','Säte','Baksida lår','Vader']);
+const LOWER_GROUPS = new Set(['Säte','Framsida lår','Baksida lår','Vader']);
 const GROUP_RULES = [
   ['Baksida lår', /biceps femoris|semitendinosus|semimembranosus/i],
   ['Biceps', /biceps brachii|brachialis muscle|brachioradialis/i],
@@ -60,7 +76,7 @@ if (target && visual && guide && supportsWebGL()) {
     if (started) return;
     started = true;
     io?.disconnect();
-    statusText('Laddar anatomisk 3D-modell…');
+    statusText('Förbereder 3D-modellen…');
 
     let renderer;
     let controls;
@@ -70,19 +86,18 @@ if (target && visual && guide && supportsWebGL()) {
       renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'low-power'});
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.3;
+      renderer.toneMappingExposure = 1.02;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
       target.append(renderer.domElement);
       renderer.domElement.setAttribute('aria-label', 'Roterbar anatomisk 3D-modell. Dra för att rotera, tryck på en muskel för att välja.');
       renderer.domElement.style.touchAction = 'none';
 
       const scene = new THREE.Scene();
-      scene.add(new THREE.AmbientLight(0xf2d9e6, 1.15));
-      const hemi = new THREE.HemisphereLight(0xd9e4f2, 0x241523, 2.0);
-      scene.add(hemi);
-      const key = new THREE.DirectionalLight(0xffd6d0, 3.15); key.position.set(3.5, 4, 5); scene.add(key);
-      const fill = new THREE.DirectionalLight(0xa7d5e5, 1.45); fill.position.set(-4, 1.8, 2); scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xeaa0c1, 2.4); rim.position.set(-2.5, 1, -4); scene.add(rim);
+      scene.add(new THREE.AmbientLight(0xd8e9f5, 0.85));
+      scene.add(new THREE.HemisphereLight(0xdfe8f8, 0x273344, 2.35));
+      const key = new THREE.DirectionalLight(0xf6e9ec, 2.9); key.position.set(3, 4, 5); scene.add(key);
+      const fill = new THREE.DirectionalLight(0xaec8eb, 1.0); fill.position.set(-4, 1, 3); scene.add(fill);
+      const rim = new THREE.DirectionalLight(0xee8eae, 1.8); rim.position.set(-3, 2, -4); scene.add(rim);
 
       const camera = new THREE.PerspectiveCamera(31, 1, 0.01, 50);
       controls = new OrbitControls(camera, renderer.domElement);
@@ -98,59 +113,99 @@ if (target && visual && guide && supportsWebGL()) {
       draco.setDecoderPath(DECODER_URL);
       const loader = new GLTFLoader();
       loader.setDRACOLoader(draco);
-      const gltf = await loader.loadAsync(MODEL_URL);
+      const [gltf, skinGltf] = await Promise.all([
+        loader.loadAsync(MODEL_URL),
+        loader.loadAsync(SKIN_URL)
+      ]);
       const body = gltf.scene;
-      const bounds = new THREE.Box3().setFromObject(body);
-      if (bounds.isEmpty()) throw new Error('3D-modellen saknar geometri');
+      const skin = skinGltf.scene;
+      const bounds = new THREE.Box3().setFromObject(skin);
+      if (bounds.isEmpty()) throw new Error('3D-modellen saknar kroppsyta');
       const size = bounds.getSize(new THREE.Vector3());
       const center = bounds.getCenter(new THREE.Vector3());
+      if (!(size.y > 0)) throw new Error('Ogiltiga mått för kropp');
+      const height = size.y;
+      // Both layers are exported in the same coordinate system: apply the same offset.
       body.position.sub(center);
+      skin.position.sub(center);
       scene.add(body);
-      const height = Math.max(0.5, size.y);
-      camera.position.set(0, height * 0.03, height * 2.16);
-      controls.target.set(0, 0, 0);
-      controls.minDistance = height * 1.05;
-      controls.maxDistance = height * 3.35;
-      camera.near = Math.max(0.001, height / 500);
-      camera.far = height * 15;
+      scene.add(skin);
+      camera.position.set(0, height * 0.08, height * 1.52);
+      controls.target.set(0, height * 0.13, 0);
+      controls.minDistance = height * 0.8;
+      controls.maxDistance = height * 3.1;
+      camera.near = Math.max(0.001, height / 700);
+      camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: 0xb77a86, roughness: 0.69, metalness: 0, side: THREE.DoubleSide
+      // A single smooth, dim translucent skin shell hides medical muscle detail.
+      const skinMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x9ba9bc, transparent: true, opacity: 0.28,
+        roughness: 0.46, metalness: 0.09, side: THREE.DoubleSide,
+        depthWrite: false, clearcoat: 0.18, clearcoatRoughness: 0.58
       });
-      const tendonMat = new THREE.MeshStandardMaterial({
-        color: 0x998d92, roughness: 0.79, metalness: 0, side: THREE.DoubleSide
+      const headMaterial = skinMaterial.clone();
+      headMaterial.color.setHex(0x64758d);
+      headMaterial.opacity = 0.48;
+      let skinMeshes = 0;
+      skin.traverse(mesh => {
+        if (!mesh.isMesh) return;
+        skinMeshes++;
+        const meta = Object.keys(mesh.userData || {}).length ? mesh.userData : mesh.parent?.userData || {};
+        const name = String(meta.zname || mesh.name || '');
+        mesh.material = /head|face|eyeball|eye|nose|ear|mouth|neck|skull/i.test(name) ? headMaterial : skinMaterial;
+        mesh.renderOrder = 3;
+        mesh.frustumCulled = false;
       });
-      const activeMat = new THREE.MeshStandardMaterial({
-        color: 0xffb7a3, emissive: 0xd35e70, emissiveIntensity: 0.37,
-        roughness: 0.42, metalness: 0, side: THREE.DoubleSide
+      if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
+      // Unselected anatomical structures are almost invisible.
+      const quietMaterial = new THREE.MeshStandardMaterial({
+        color: 0x556779, transparent: true, opacity: 0.12,
+        roughness: 0.77, metalness: 0, side: THREE.DoubleSide, depthWrite: false
+      });
+      const previewMaterial = new THREE.MeshStandardMaterial({
+        color: 0x94646e, emissive: 0x5b2838, emissiveIntensity: 0.18,
+        transparent: true, opacity: 0.58, roughness: 0.63,
+        metalness: 0, side: THREE.DoubleSide, depthWrite: false
+      });
+      const activeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffb599, emissive: 0xed6558, emissiveIntensity: 0.83,
+        transparent: true, opacity: 0.98, roughness: 0.38,
+        metalness: 0, side: THREE.DoubleSide, depthWrite: false
       });
       const meshes = [];
       const groups = new Map();
-      body.traverse(object => {
-        if (!object.isMesh) return;
-        const ud = Object.keys(object.userData || {}).length ? object.userData : object.parent?.userData || {};
-        const marker = String(ud.zmat || object.name || '').toLowerCase();
-        const base = /tendon|aponeurosis|fascia|ligament/.test(marker) ? tendonMat : bodyMat;
-        object.material = base;
-        object.userData.pulseBaseMaterial = base;
-        const name = muscleGroup(object);
-        object.userData.pulseMuscleGroup = name;
-        if (name) {
-          if (!groups.has(name)) groups.set(name, []);
-          groups.get(name).push(object);
+      body.traverse(mesh => {
+        if (!mesh.isMesh) return;
+        const meta = Object.keys(mesh.userData || {}).length ? mesh.userData : mesh.parent?.userData || {};
+        const name = String(meta.zname || mesh.name || '').replace(/_/g, ' ');
+        const group = muscleGroup(mesh);
+        const primary = !!(group && SURFACE_RULES[group]?.test(name));
+        mesh.userData.pulseMuscleGroup = group;
+        mesh.userData.pulseSurface = primary;
+        mesh.userData.pulseBaseMaterial = primary ? previewMaterial : quietMaterial;
+        mesh.material = mesh.userData.pulseBaseMaterial;
+        mesh.renderOrder = primary ? 2 : 0;
+        mesh.frustumCulled = false;
+        meshes.push(mesh);
+        if (primary) {
+          if (!groups.has(group)) groups.set(group, []);
+          groups.get(group).push(mesh);
         }
-        meshes.push(object);
       });
-      if (!meshes.length) throw new Error('Inga muskler hittades');
+      if (!meshes.length || !groups.size) throw new Error('Inga muskelgrupper kunde identifieras');
       let currentGroup = null;
+      let activeMeshCount = 0;
       function highlight(muscle) {
-        if (currentGroup === muscle) return;
-        if (currentGroup) (groups.get(currentGroup) || []).forEach(m => m.material = m.userData.pulseBaseMaterial);
-        currentGroup = muscle && groups.has(muscle) ? muscle : null;
-        if (currentGroup) groups.get(currentGroup).forEach(m => m.material = activeMat);
+        const next = muscle && groups.has(muscle) ? muscle : null;
+        if (currentGroup === next) return;
+        if (currentGroup) groups.get(currentGroup).forEach(m => m.material = previewMaterial);
+        currentGroup = next;
+        if (next) groups.get(next).forEach(m => m.material = activeMaterial);
+        activeMeshCount = next ? groups.get(next).length : 0;
         target.dataset.muscle = currentGroup || '';
       }
+      highlight('Bröst');
 
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
@@ -168,36 +223,54 @@ if (target && visual && guide && supportsWebGL()) {
         if (!rect.width || !rect.height) return;
         pointer.set(((e.clientX - rect.left) / rect.width) * 2 - 1, 1 - ((e.clientY - rect.top) / rect.height) * 2);
         raycaster.setFromCamera(pointer, camera);
-        const hits = raycaster.intersectObjects(meshes, false);
+        const hits = raycaster.intersectObjects(meshes.filter(m => m.userData.pulseSurface), false);
         const muscle = hits.find(hit => hit.object.userData.pulseMuscleGroup)?.object.userData.pulseMuscleGroup;
-        if (!muscle) {
-          statusText('Välj en markerbar muskel eller använd listan nedan.');
-          return;
-        }
+        if (!muscle) return;
         highlight(muscle);
         document.dispatchEvent(new CustomEvent('pulse:atlas-select', {detail: {muscle, source: '3d'}}));
       });
 
       let azimuthTarget = null;
-      function setView(view) {
-        azimuthTarget = view === 'back' ? Math.PI : 0;
+      let desiredDistance = height * 1.52;
+      let desiredTargetY = height * 0.13;
+      let framingActive = false;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function focusOnMuscle(muscle, view = null) {
+        if (view === 'front' || view === 'back') {
+          azimuthTarget = view === 'back' ? Math.PI : 0;
+        } else if (muscle === 'Axlar') {
+          azimuthTarget = 0.28;
+        } else if (muscle) {
+          azimuthTarget = BACK_GROUPS.has(muscle) ? Math.PI : 0;
+        }
+        if (muscle && LOWER_GROUPS.has(muscle)) {
+          desiredDistance = height * 1.52;
+          desiredTargetY = -height * 0.17;
+        } else {
+          desiredDistance = height * 1.52;
+          desiredTargetY = height * 0.13;
+        }
+        framingActive = true;
+        if (reducedMotion) {
+          controls.target.y = desiredTargetY;
+          const direction = camera.position.clone().sub(controls.target).normalize();
+          camera.position.copy(controls.target).addScaledVector(direction, desiredDistance);
+          framingActive = false;
+        }
       }
-      controls.addEventListener('start', () => {azimuthTarget = null;});
+      controls.addEventListener('start', () => {
+        azimuthTarget = null;
+        framingActive = false;
+      });
       document.addEventListener('pulse:atlas-sync', event => {
         const details = event.detail || {};
-        if (details.view) setView(details.view);
-        if (details.group && details.group !== 'Alla') highlight(details.group);
+        if (details.group !== undefined) highlight(details.group);
+        if (details.focus) focusOnMuscle(details.group, details.view);
+        else if (details.view) azimuthTarget = details.view === 'back' ? Math.PI : 0;
       });
-      document.querySelectorAll('[data-atlas-muscle]').forEach(() => {});
-      document.getElementById('atlas-list')?.addEventListener('pointerover', event => {
-        const button = event.target.closest('[data-atlas-muscle]');
-        if (button) highlight(button.dataset.atlasMuscle);
-      });
-      const frontButton = document.getElementById('atlas-front');
-      const backButton = document.getElementById('atlas-back');
-      frontButton?.addEventListener('click', () => setView('front'));
-      backButton?.addEventListener('click', () => setView('back'));
-      if (backButton?.getAttribute('aria-pressed') === 'true') setView('back');
+      document.getElementById('atlas-front')?.addEventListener('click', () => focusOnMuscle(null, 'front'));
+      document.getElementById('atlas-back')?.addEventListener('click', () => focusOnMuscle(null, 'back'));
+      if (document.getElementById('atlas-back')?.getAttribute('aria-pressed') === 'true') focusOnMuscle('Bröst','back');
 
       let visible = true;
       if (typeof IntersectionObserver !== 'undefined') {
@@ -220,6 +293,7 @@ if (target && visual && guide && supportsWebGL()) {
       target.hidden = false;
       resize();
       statusText('');
+      document.dispatchEvent(new CustomEvent('pulse:atlas-ready'));
       let lastFrame = 0;
       const tick = time => {
         requestAnimationFrame(tick);
@@ -234,6 +308,16 @@ if (target && visual && guide && supportsWebGL()) {
             spherical.theta += delta * 0.105;
             camera.position.setFromSpherical(spherical).add(controls.target);
           }
+        }
+        if (framingActive) {
+          const blend = reducedMotion ? 1 : 0.14;
+          const priorTarget = controls.target.clone();
+          controls.target.y += (desiredTargetY - controls.target.y) * blend;
+          const rel = camera.position.clone().sub(priorTarget);
+          const r = rel.length();
+          rel.multiplyScalar((r + (desiredDistance - r) * blend) / Math.max(r, 0.001));
+          camera.position.copy(controls.target).add(rel);
+          if (Math.abs(controls.target.y - desiredTargetY) < 0.003 * height && Math.abs(r - desiredDistance) < 0.003 * height) framingActive = false;
         }
         controls.update();
         renderer.render(scene, camera);
