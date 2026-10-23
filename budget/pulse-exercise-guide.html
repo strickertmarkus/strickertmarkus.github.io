@@ -3,6 +3,22 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12">
 <title>Utforska träning · Pulse Field</title>
+<script>
+(function(){
+  // Hide the old SVG before first paint on WebGL-capable devices.
+  // It returns only if module loading or model rendering fails.
+  if(!('WebGLRenderingContext' in window)) return;
+  document.documentElement.classList.add('atlas-3d-pending');
+  window.__pulseAtlasFallbackTimeout=setTimeout(function(){
+    if(!document.querySelector('.atlas-visual.atlas-3d-ready')){
+      document.documentElement.classList.remove('atlas-3d-pending');
+      document.documentElement.classList.add('atlas-3d-failed');
+      const status=document.getElementById('atlas-3d-status');
+      if(status)status.textContent='3D kunde inte startas. Visar 2D-atlasen.';
+    }
+  },22000);
+})();
+</script>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#080b12;--surface:#0f141e;--line:#ffffff1c;--text:#f2edf0;--muted:#a5a0ae;--plum:#dc8fa8;--cyan:#91e4ec;--orange:#f3b07b;--muscle:#ff806f}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);min-height:100dvh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}a{color:inherit;text-decoration:none}button{color:inherit}header{position:sticky;top:0;z-index:10;background:#0a0d14ed;backdrop-filter:blur(14px);border-bottom:1px solid #b85f7925}.top{max-width:1140px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:15px;letter-spacing:.17em;font-weight:800}.brand span{color:#c65e7a;font-weight:500}.brand small{display:block;font-size:10px;color:#a19baa;letter-spacing:.08em;margin-top:4px}.back{border:1px solid #ffffff27;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;background:#ffffff06}main{max-width:1140px;margin:auto;padding:28px 20px 70px}.eyebrow{font-size:10px;letter-spacing:.18em;font-weight:800;color:#ba748b}.intro h1{font-size:clamp(27px,4vw,40px);letter-spacing:-.045em;margin:9px 0 7px;font-weight:650}.intro p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.filters{margin:25px 0 18px;display:grid;gap:10px}.search{width:100%;background:#10151f;color:var(--text);border:1px solid #ffffff26;border-radius:12px;padding:13px 15px;font-size:16px}.filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.filter-row::-webkit-scrollbar{display:none}.filter-row button{flex:0 0 auto;min-height:37px;border:1px solid #ffffff21;background:#ffffff05;border-radius:10px;padding:8px 13px;font-size:12px;font-weight:650;color:#bdb7c3}.filter-row button[aria-pressed=true]{border-color:#c16b86a0;background:#bd5e7c1c;color:#f3b5c7}.filter-row.equipment button[aria-pressed=true]{border-color:#ffffff65;background:#ffffff11;color:white}.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}.catalog{background:#0d111a;border:1px solid var(--line);border-radius:16px;overflow:hidden}.catalog-head{padding:15px 15px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.catalog-head strong{font-size:13px}.catalog-head small{color:var(--muted);font-size:11px}.exercise-list{max-height:690px;overflow-y:auto;padding:7px}.exercise-option{display:flex;align-items:center;gap:10px;width:100%;padding:11px 10px;border:1px solid transparent;border-radius:10px;background:transparent;text-align:left;min-width:0}.exercise-option:hover{background:#ffffff08}.exercise-option[aria-current=true]{border-color:#bf70865b;background:#bd597c15}.exercise-option .option-symbol{flex:0 0 36px;height:36px;display:grid;place-items:center;border:1px solid #ffffff1b;background:#ffffff05;border-radius:9px;color:#e5a5b8;font-size:17px}.exercise-option .option-copy{min-width:0}.exercise-option strong{display:block;font-size:12px;font-weight:650;white-space:normal;line-height:1.35}.exercise-option small{display:block;margin-top:4px;color:#928d9a;font-size:10px}.empty{padding:15px;color:var(--muted);font-size:12px}.detail{border:1px solid #ffffff1d;background:#0d111a;border-radius:17px;min-width:0;overflow:hidden}.detail-head{display:flex;justify-content:space-between;align-items:start;gap:10px;padding:20px 22px 13px}.detail-head h2{font-size:clamp(21px,3vw,28px);letter-spacing:-.04em;margin:5px 0 7px}.detail-head p{margin:0;color:#b7aeb8;font-size:11px}.kind-tag{border:1px solid #b45c7854;border-radius:100px;padding:6px 10px;font-size:10px;color:#e7a2b8;white-space:nowrap}.kind-tag.pull{border-color:#7cd4de52;color:var(--cyan)}.kind-tag.ben{border-color:#e8b57b52;color:var(--orange)}.kind-tag.kondition{border-color:#95b7d252;color:#a7d5f4}.stage{position:relative;margin:0 22px;border:1px solid #ffffff13;border-radius:13px;background:radial-gradient(ellipse 58% 64% at 50% 45%,#18202c,#0a0e15 80%);overflow:hidden}.stage svg{display:block;width:100%;height:auto;max-height:380px;aspect-ratio:420/340}.stage-label{position:absolute;top:12px;left:14px;right:14px;text-transform:uppercase;color:#9c9da9;font-size:9px;letter-spacing:.14em;font-weight:750}.stage-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 22px 0}.stage-controls{display:flex;gap:6px;flex-shrink:0}.stage-bottom small{color:#a9a2ae;font-size:11px}.stage-bottom button{border:1px solid #ffffff2a;background:#ffffff08;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:650;min-width:80px}.muscle-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:15px 22px 4px}.muscle-row b{font-size:10px;color:#b6aab5;font-weight:650;margin-right:4px}.muscle-pill{font-size:11px;border:1px solid #ff806f56;background:#ff806f12;color:#ffad9f;padding:6px 9px;border-radius:100px}.muscle-pill:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muscle);margin-right:6px;box-shadow:0 0 8px #ff806f90}.instructions{padding:13px 22px 23px}.instructions h3{font-size:13px;margin:9px 0 10px}.instructions ol{margin:0;padding-left:20px;display:grid;gap:9px}.instructions li{font-size:12px;line-height:1.6;color:#d2cbd4;padding-left:3px}.tech-tip{margin-top:15px;border-top:1px solid #ffffff14;padding-top:13px;font-size:11px;color:#b6abb4;line-height:1.6}.tech-tip strong{color:#e3b6c2}.footnote{margin-top:16px;font-size:11px;line-height:1.6;color:#898592}#detail[hidden]{display:none}
@@ -192,6 +208,13 @@ main{padding:15px 15px 64px}
  .atlas-selected{gap:8px}
  #atlas-show-exercises{padding:9px 9px;font-size:10px}
 }
+.atlas-loading{display:none}
+.atlas-3d-pending .atlas-figure{display:none!important}
+.atlas-3d-pending .atlas-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:365px;color:#bcaeba;font-size:11px;letter-spacing:.035em}
+.atlas-loading-orb{width:78px;height:78px;border:1px solid #c59caf33;border-radius:50%;background:radial-gradient(circle at 32% 22%,#ffffff30,transparent 55%);box-shadow:0 0 40px #d48eab14,inset 0 0 32px #d2a3bc18;animation:atlas-loading-pulse 2.3s ease-in-out infinite}
+@keyframes atlas-loading-pulse{50%{opacity:.45;transform:scale(.96)}}
+@media(max-width:740px){.atlas-3d-pending .atlas-loading{height:355px}}
+@media(prefers-reduced-motion:reduce){.atlas-loading-orb{animation:none}}
 </style>
 </head>
 <body>
@@ -208,6 +231,7 @@ main{padding:15px 15px 64px}
 <div class="atlas-visual">
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
 <div id="atlas-webgl" class="atlas-webgl" hidden aria-label="Interaktiv 3D-modell av människans muskler"></div>
+<div class="atlas-loading" aria-hidden="true"><span class="atlas-loading-orb"></span><span>Förbereder 3D-modellen…</span></div>
 <svg id="atlas-figure" class="atlas-figure" viewBox="0 0 360 505" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskel på kroppen.">
 <defs>
 <linearGradient id="anatomy-surface" x1=".02" y1=".03" x2=".96" y2="1"><stop stop-color="#677d88"/><stop offset=".22" stop-color="#445563"/><stop offset=".53" stop-color="#283846"/><stop offset="1" stop-color="#101f2f"/></linearGradient>
@@ -994,6 +1018,6 @@ renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='S
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
 </script>
-<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-soft-hologram-v10"></script>
+<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-rim-depth-v11"></script>
 </body></html>
 
