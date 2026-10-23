@@ -1,11 +1,11 @@
-name: Muscle atlas quick visual screenshot
+name: Preserved 3D atlas screenshot
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/muscle-atlas-quick-screenshot.yml'
       - 'budget/pulse-muscle-atlas-3d.js'
-      - 'budget/pulse-exercise-guide.html'
+      - 'budget/pulse-exercise-guide-3d.html'
   workflow_dispatch:
 jobs:
   capture:
@@ -20,7 +20,7 @@ jobs:
           test -n "$CHROME"
           python3 - <<'PY'
           from pathlib import Path
-          s=Path('budget/pulse-exercise-guide.html').read_text()
+          s=Path('budget/pulse-exercise-guide-3d.html').read_text()
           addon="""<script>document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>document.querySelector('.atlas-visual')?.scrollIntoView({block:'center'}),600)});</script>"""
           s=s.replace('</body>',addon+'</body>')
           Path('budget/__quick-atlas.html').write_text(s)

@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "width": 720,
+  "height": 900,
+  "neutral": [
+    "view-0.webp",
+    "view-1.webp",
+    "view-2.webp",
+    "view-3.webp",
+    "view-4.webp",
+    "view-5.webp",
+    "view-6.webp",
+    "view-7.webp",
+    "view-8.webp",
+    "view-9.webp",
+    "view-10.webp",
+    "view-11.webp"
+  ],
+  "groups": {
+    "Bröst": {
+      "front": {
+        "angle": 1,
+        "image": "chest-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "chest-back.webp"
+      }
+    },
+    "Rygg": {
+      "front": {
+        "angle": 0,
+        "image": "back-front.webp"
+      },
+      "back": {
+        "angle": 6,
+        "image": "back-back.webp"
+      }
+    },
+    "Axlar": {
+      "front": {
+        "angle": 2,
+        "image": "shoulders-front.webp"
+      },
+      "back": {
+        "angle": 8,
+        "image": "shoulders-back.webp"
+      }
+    },
+    "Biceps": {
+      "front": {
+        "angle": 1,
+        "image": "biceps-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "biceps-back.webp"
+      }
+    },
+    "Triceps": {
+      "front": {
+        "angle": 1,
+        "image": "triceps-front.webp"
+      },
+      "back": {
+        "angle": 8,
+        "image": "triceps-back.webp"
+      }
+    },
+    "Mage": {
+      "front": {
+        "angle": 0,
+        "image": "abs-front.webp"
+      },
+      "back": {
+        "angle": 6,
+        "image": "abs-back.webp"
+      }
+    },
+    "Säte": {
+      "front": {
+        "angle": 1,
+        "image": "glutes-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "glutes-back.webp"
+      }
+    },
+    "Framsida lår": {
+      "front": {
+        "angle": 1,
+        "image": "quads-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "quads-back.webp"
+      }
+    },
+    "Baksida lår": {
+      "front": {
+        "angle": 1,
+        "image": "hamstrings-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "hamstrings-back.webp"
+      }
+    },
+    "Vader": {
+      "front": {
+        "angle": 1,
+        "image": "calves-front.webp"
+      },
+      "back": {
+        "angle": 7,
+        "image": "calves-back.webp"
+      }
+    }
+  }
+}

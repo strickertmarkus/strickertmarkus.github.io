@@ -1,0 +1,47 @@
+const {webkit}=require('playwright');
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await webkit.launch();
+ const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+ const errors=[],requests=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('request',r=>requests.push(r.url()));
+ await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
+ const atlas=page.locator('#atlas-stills');
+ const settled=async(group,side)=>page.waitForFunction(({group,side})=>{
+  const atlas=document.querySelector('#atlas-stills');
+  return atlas.dataset.muscle===group&&atlas.dataset.view===side&&atlas.getAttribute('aria-busy')==='false';
+ },{group,side});
+ await settled('Bröst','front');
+ await page.locator('.atlas-visual').scrollIntoViewIfNeeded();
+ await page.waitForTimeout(240);
+ fs.mkdirSync('test-results/atlas-stills-ui',{recursive:true});
+ await page.locator('.atlas-visual').screenshot({path:'test-results/atlas-stills-ui/front-mobile.png'});
+ await page.locator('#atlas-list [data-atlas-muscle="Rygg"]').click();
+ await settled('Rygg','back');
+ await page.waitForTimeout(240);
+ await page.locator('.atlas-visual').screenshot({path:'test-results/atlas-stills-ui/back-mobile.png'});
+ await page.locator('#atlas-front').click();
+ await settled('Rygg','front');
+ // A new selection must cancel every pending frame from the prior transition.
+ await page.locator('#atlas-list [data-atlas-muscle="Axlar"]').click();
+ await page.locator('#atlas-list [data-atlas-muscle="Bröst"]').click();
+ await settled('Bröst','front');
+ await page.waitForTimeout(600);
+ assert.equal(await atlas.getAttribute('data-muscle'),'Bröst');
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.locator('#atlas-list [data-atlas-muscle="Vader"]').click();
+ await settled('Vader','back');
+ const geometry=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,canvas:document.querySelectorAll('#atlas-stills canvas').length,ready:document.querySelector('.atlas-visual').classList.contains('atlas-stills-ready')}));
+ assert.equal(geometry.ready,true);
+ assert.equal(geometry.canvas,0);
+ assert.ok(geometry.scrollWidth<=geometry.width);
+ assert.deepEqual(errors,[]);
+ assert.ok(!requests.some(url=>/\.glb|three.*\.js|pulse-muscle-atlas-3d\.js/.test(url)),'Still viewer must not load 3D assets');
+ await page.locator('#atlas-list [data-atlas-muscle="Bröst"]').click();
+ await settled('Bröst','front');
+ await page.screenshot({path:'test-results/atlas-stills-ui/page-mobile.png',fullPage:true});
+ fs.writeFileSync('test-results/atlas-stills-ui/verification.json',JSON.stringify({browser:'WebKit',geometry,errors,checks:['front/back view','group-specific angle','rapid selection cancellation','reduced motion','no WebGL requests']},null,2));
+ await browser.close();
+})().catch(error=>{console.error(error);process.exit(1)});

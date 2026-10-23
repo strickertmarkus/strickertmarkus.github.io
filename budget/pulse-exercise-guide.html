@@ -5,18 +5,17 @@
 <title>Utforska träning · Pulse Field</title>
 <script>
 (function(){
-  // Hide the old SVG before first paint on WebGL-capable devices.
-  // It returns only if module loading or model rendering fails.
-  if(!('WebGLRenderingContext' in window)) return;
-  document.documentElement.classList.add('atlas-3d-pending');
+  // Hide the SVG fallback while the pre-rendered image atlas loads.
+  // It returns if loading fails; this view does not require WebGL.
+  document.documentElement.classList.add('atlas-stills-pending');
   window.__pulseAtlasFallbackTimeout=setTimeout(function(){
-    if(!document.querySelector('.atlas-visual.atlas-3d-ready')){
-      document.documentElement.classList.remove('atlas-3d-pending');
-      document.documentElement.classList.add('atlas-3d-failed');
-      const status=document.getElementById('atlas-3d-status');
-      if(status)status.textContent='3D kunde inte startas. Visar 2D-atlasen.';
+    if(!document.querySelector('.atlas-visual.atlas-stills-ready')){
+      document.documentElement.classList.remove('atlas-stills-pending');
+      document.documentElement.classList.add('atlas-stills-failed');
+      const status=document.getElementById('atlas-stills-status');
+      if(status)status.textContent='Bildvyn kunde inte laddas. Visar 2D-atlasen.';
     }
-  },80000);
+  },12000);
 })();
 </script>
 <style>
@@ -142,23 +141,27 @@ main{padding:15px 15px 64px}
 .atlas-figure{max-height:298px;width:min(100%,216px)}
 .atlas-list button{font-size:11px}
 }
-/* Anatomically detailed WebGL viewer. SVG underneath is the fallback. */
-.atlas-webgl{display:none;width:100%;height:490px;position:relative;margin:5px auto -3px;max-width:490px;overflow:hidden;border-radius:19px;background:radial-gradient(ellipse 56% 48% at 50% 47%,#5134483d,transparent 89%)}
-.atlas-webgl canvas{display:block;width:100%;height:100%;outline:none;cursor:grab}
-.atlas-webgl canvas:active{cursor:grabbing}
-.atlas-3d-ready .atlas-figure{display:none}
-.atlas-3d-ready .atlas-webgl{display:block}
-.atlas-3d-status{color:#968fa0;font-size:10px;text-align:center;line-height:1.4;max-width:310px;min-height:0;padding:2px 0}
-.atlas-3d-status:empty{display:none}
+/* Pre-rendered still images; SVG remains the offline/error fallback. */
+.atlas-stills{display:none;width:100%;height:490px;position:relative;margin:5px auto -3px;max-width:490px;overflow:hidden;border-radius:19px;background:radial-gradient(ellipse 56% 48% at 50% 47%,#5134483d,transparent 89%)}
+.atlas-stills img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.atlas-still-neutral{opacity:1;transition:opacity 220ms ease}
+.atlas-still-highlight{opacity:0;transition:opacity 220ms ease}
+.atlas-stills.is-highlighted .atlas-still-neutral{opacity:0}
+.atlas-stills.is-highlighted .atlas-still-highlight{opacity:1}
+@media(prefers-reduced-motion:reduce){.atlas-still-neutral,.atlas-still-highlight{transition:none}}
+.atlas-stills-ready .atlas-figure{display:none}
+.atlas-stills-ready .atlas-stills{display:block}
+.atlas-stills-status{color:#968fa0;font-size:10px;text-align:center;line-height:1.4;max-width:310px;min-height:0;padding:2px 0}
+.atlas-stills-status:empty{display:none}
 .atlas-credit{margin:14px 0 0;color:#78818f;font-size:10px;line-height:1.6}
 .atlas-credit a{color:#b4a0af;text-decoration:underline;text-underline-offset:2px}
 @media(max-width:740px){
-.atlas-3d-ready .atlas-visual{margin-top:7px}
-.atlas-webgl{height:365px;max-width:360px;margin:1px auto -1px}
-.atlas-3d-status{font-size:9px}
+.atlas-stills-ready .atlas-visual{margin-top:7px}
+.atlas-stills{height:365px;max-width:360px;margin:1px auto -1px}
+.atlas-stills-status{font-size:9px}
 .atlas-credit{font-size:9px;line-height:1.5}
 }
-@media(max-width:375px){.atlas-webgl{height:337px;max-width:330px}}
+@media(max-width:375px){.atlas-stills{height:337px;max-width:330px}}
 @media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
 
 /* Fitness hologram v2 — Markus/Maja only */
@@ -167,7 +170,7 @@ main{padding:15px 15px 64px}
  box-shadow:inset 0 1px 0 #ffffff10,0 20px 48px #03040937}
 .atlas-visual::before{inset:11% 5% 6%;background:radial-gradient(ellipse 54% 48% at 50% 47%,#e58da51f,transparent 75%);filter:blur(18px)}
 .atlas-view-controls{margin-top:14px!important;background:#0e141bd9;box-shadow:0 7px 25px #0003}
-.atlas-webgl{background:radial-gradient(ellipse 50% 53% at 50% 48%,#9c637f23,transparent 75%);max-height:515px;border-radius:0}
+.atlas-stills{background:radial-gradient(ellipse 50% 53% at 50% 48%,#9c637f23,transparent 75%);max-height:515px;border-radius:0}
 .atlas-view-hint{margin:5px 0 13px;color:#b2afbb}
 .atlas-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;
  padding:11px 0 10px;margin-top:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -192,9 +195,9 @@ main{padding:15px 15px 64px}
 @media(max-width:740px){
  .atlas-shell{padding:0 0 18px}
  .atlas-visual{margin:13px 0 2px;padding:0 4px 8px;border-radius:21px}
- .atlas-webgl{height:355px;max-width:100%;margin:0}
+ .atlas-stills{height:355px;max-width:100%;margin:0}
  .atlas-figure{max-height:312px}
- .atlas-3d-ready .atlas-visual{margin-top:12px}
+ .atlas-stills-ready .atlas-visual{margin-top:12px}
  .atlas-view-controls{margin-top:10px!important}
  .atlas-explore{margin-top:15px}
  .atlas-list{margin-top:2px;padding:9px 0}
@@ -204,16 +207,16 @@ main{padding:15px 15px 64px}
  #atlas-show-exercises{font-size:11px}
 }
 @media(max-width:370px){
- .atlas-webgl{height:326px}
+ .atlas-stills{height:326px}
  .atlas-selected{gap:8px}
  #atlas-show-exercises{padding:9px 9px;font-size:10px}
 }
 .atlas-loading{display:none}
-.atlas-3d-pending .atlas-figure{display:none!important}
-.atlas-3d-pending .atlas-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:365px;color:#bcaeba;font-size:11px;letter-spacing:.035em}
+.atlas-stills-pending .atlas-figure{display:none!important}
+.atlas-stills-pending .atlas-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:365px;color:#bcaeba;font-size:11px;letter-spacing:.035em}
 .atlas-loading-orb{width:78px;height:78px;border:1px solid #c59caf33;border-radius:50%;background:radial-gradient(circle at 32% 22%,#ffffff30,transparent 55%);box-shadow:0 0 40px #d48eab14,inset 0 0 32px #d2a3bc18;animation:atlas-loading-pulse 2.3s ease-in-out infinite}
 @keyframes atlas-loading-pulse{50%{opacity:.45;transform:scale(.96)}}
-@media(max-width:740px){.atlas-3d-pending .atlas-loading{height:355px}}
+@media(max-width:740px){.atlas-stills-pending .atlas-loading{height:355px}}
 @media(prefers-reduced-motion:reduce){.atlas-loading-orb{animation:none}}
 </style>
 </head>
@@ -226,12 +229,12 @@ main{padding:15px 15px 64px}
 <div class="atlas-shell">
 <div class="atlas-content">
 <div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
-<p>Rotera kroppen och välj en muskel för att upptäcka övningar.</p>
+<p>Välj en muskel. Kroppen vrids till en tydlig vinkel och visar var den sitter.</p>
 </div>
 <div class="atlas-visual">
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
-<div id="atlas-webgl" class="atlas-webgl" hidden aria-label="Interaktiv 3D-modell av människans muskler"></div>
-<div class="atlas-loading" aria-hidden="true"><span class="atlas-loading-orb"></span><span>Förbereder 3D-modellen…</span></div>
+<div id="atlas-stills" class="atlas-stills" hidden aria-label="Muskelatlas med stillbilder från olika vinklar"></div>
+<div class="atlas-loading" aria-hidden="true"><span class="atlas-loading-orb"></span><span>Laddar muskelatlasen…</span></div>
 <svg id="atlas-figure" class="atlas-figure" viewBox="0 0 360 505" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskel på kroppen.">
 <defs>
 <linearGradient id="anatomy-surface" x1=".02" y1=".03" x2=".96" y2="1"><stop stop-color="#677d88"/><stop offset=".22" stop-color="#445563"/><stop offset=".53" stop-color="#283846"/><stop offset="1" stop-color="#101f2f"/></linearGradient>
@@ -296,8 +299,8 @@ main{padding:15px 15px 64px}
 <g class="atlas-hotspot" data-atlas-muscle="Vader" role="button" tabindex="0" aria-label="Vader"><path class="atlas-zone" d="M138 396Q150 405 158 396Q160 425 155 449Q150 456 144 452Q134 427 138 396Z"/><path class="atlas-zone" d="M222 396Q210 405 202 396Q200 425 205 449Q210 456 216 452Q226 427 222 396Z"/></g>
 </g>
 </svg>
-<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Rött visar vald muskelgrupp · Dra för att rotera</div>
-<div id="atlas-3d-status" class="atlas-3d-status" role="status" aria-live="polite"></div>
+<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Välj muskelgrupp · Vyn anpassas automatiskt</div>
+<div id="atlas-stills-status" class="atlas-stills-status" role="status" aria-live="polite"></div>
 </div>
 <div class="atlas-explore">
 <div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
@@ -1015,9 +1018,5 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 
 renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
-<script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
-</script>
-<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-silver-contour-v14"></script>
+<script type="module" src="pulse-muscle-atlas-stills.js?v=20261023-stills-v1"></script>
 </body></html>
-
