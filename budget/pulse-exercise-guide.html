@@ -515,6 +515,50 @@ const safe=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 
 // Stage 1: muscle atlas and studio navigation. This file belongs only to Markus/Maja.
 let studioOpen=false,atlasView='front',atlasSelected='Bröst';
+let discoverGroup='Alla',discoverEquipment='All utrustning',discoverActive=0,discoverPhase=0,lastDiscoverPaint=0;
+function discoveryItems(){
+ return exercises.filter(e=>(discoverGroup==='Alla'||e.muscles.includes(discoverGroup))&&
+ (discoverEquipment==='All utrustning'||e.equipment===discoverEquipment));
+}
+function drawDiscovery(t=(1-Math.cos(discoverPhase*Math.PI*2))/2){
+ const e=exercises[discoverActive];if(!e)return;
+ $('discover-figure').innerHTML=renderScene(e.id,t,discoverPhase,0);
+ $('discover-figure').setAttribute('aria-label',e.name+'. Animerad rörelse.');
+}
+function renderDiscovery(){
+ const options=discoveryItems(),candidate=options.find(e=>e.id===discoverActive);
+ if(!candidate&&options.length)discoverActive=options[0].id;
+ $('discover-muscles').innerHTML=groups.map(m=>'<button type="button" data-discover-muscle="'+safe(m)+'" aria-pressed="'+(m===discoverGroup)+'">'+safe(m)+'</button>').join('');
+ const cur=options.findIndex(e=>e.id===discoverActive),e=exercises[discoverActive];
+ $('discover-total').textContent=exercises.length+' RÖRELSER';
+ $('discover-index').textContent=options.length?String(cur+1).padStart(2,'0')+' / '+String(options.length).padStart(2,'0'):'00 / 00';
+ $('discover-prev').disabled=options.length<2;$('discover-next').disabled=options.length<2;
+ $('discover-open').disabled=!options.length;$('discover-add').disabled=!options.length;
+ if(options.length){
+  $('discover-name').textContent=e.name;
+  $('discover-meta').textContent=e.muscles[0].toUpperCase()+' · '+e.equipment.toUpperCase();
+  $('discover-add').textContent=selection.includes(discoverActive)?'✓ Finns i mitt pass':'＋ Lägg till i mitt pass';
+  $('discover-add').setAttribute('aria-pressed',String(selection.includes(discoverActive)));
+  drawDiscovery();
+ }else{
+  $('discover-name').textContent='Ingen matchande rörelse';
+  $('discover-meta').textContent='PROVA ETT ANNAT FILTER';
+  $('discover-figure').innerHTML='';
+  $('discover-add').textContent='＋ Lägg till i mitt pass';
+ }
+}
+function moveDiscovery(dir){
+ const options=discoveryItems();if(options.length<2)return;
+ const i=Math.max(0,options.findIndex(e=>e.id===discoverActive));
+ discoverActive=options[(i+dir+options.length)%options.length].id;
+ discoverPhase=0;renderDiscovery();
+}
+function openDiscovered(){
+ const options=discoveryItems();if(!options.length)return;
+ equip=discoverEquipment;
+ openStudio(discoverGroup,discoverActive);
+}
+
 const atlasBackMuscles=new Set(['Rygg','Triceps','Säte','Baksida lår','Vader']);
 function chooseAtlasMuscle(muscle,{focus=true,keepView=false}={}){
  if(!muscleGroups.includes(muscle))return;
@@ -547,7 +591,11 @@ function updateStudioNavigation(items=filtered()){
 }
 function toggleStudio(open){
  studioOpen=open;
- $('atlas-home').hidden=open;$('studio-shell').hidden=!open;
+ document.body.classList.toggle('pulse-studio-open',open);
+ $('discover-home').hidden=open;
+ $('atlas-archive').hidden=open;
+ $('studio-shell').hidden=!open;
+ if(!open){$('studio-technique').open=false;$('technique-scrim').hidden=true;}
  renderAtlas();
 }
 function openStudio(muscle='Alla',preferredId=null,resetEquipment=false){
@@ -563,7 +611,7 @@ function openStudio(muscle='Alla',preferredId=null,resetEquipment=false){
 }
 function closeStudio(){
  if(muscleGroups.includes(group))atlasSelected=group;
- toggleStudio(false);$('atlas-home').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ toggleStudio(false);renderDiscovery();$('discover-home').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
 function stepStudio(direction){
  const items=filtered();if(items.length<2)return;
@@ -1027,6 +1075,10 @@ function draw(t,cycle=phase){
 let lastPaint=0;
 function animate(now){
  if(!last)last=now;const dt=Math.min(80,now-last);last=now;
+ if(!studioOpen&&page==='guide'&&!document.hidden&&!$('guide-page').hidden&&now-lastDiscoverPaint>=62){
+   discoverPhase=(discoverPhase+dt/4800)%1;
+   drawDiscovery();lastDiscoverPaint=now;
+ }
  if(!paused&&studioOpen&&document.visibilityState==='visible'&&!$('detail').hidden&&!$('guide-page').hidden){
   phase=(phase+dt/(['treadmill','bike','elliptical','stepper','farmerCarry'].includes(guideScenes[active].kind)?2200:['deadBug','birdDog'].includes(guideScenes[active].kind)?8000:4400))%1;
   if(now-lastPaint>=32){draw((1-Math.cos(phase*TAU))/2,phase);lastPaint=now;}
@@ -1055,12 +1107,52 @@ $('atlas-home').addEventListener('click',event=>{
  if(event.target.closest('#atlas-show-exercises')){openStudio(atlasSelected);return;}
  if(event.target.closest('#atlas-all'))openStudio('Alla');
 });
+$('discover-muscles').addEventListener('click',event=>{
+ const button=event.target.closest('[data-discover-muscle]');if(!button)return;
+ discoverGroup=button.dataset.discoverMuscle;discoverPhase=0;renderDiscovery();
+});
+$('discover-equipment').addEventListener('change',event=>{
+ discoverEquipment=event.target.value;discoverPhase=0;renderDiscovery();
+});
+$('discover-prev').addEventListener('click',()=>moveDiscovery(-1));
+$('discover-next').addEventListener('click',()=>moveDiscovery(1));
+$('discover-open').addEventListener('click',openDiscovered);
+$('discover-add').addEventListener('click',()=>{if(discoveryItems().length)toggleChoice(discoverActive);});
+let discoverTouchStart=null;
+$('discover-stage').addEventListener('touchstart',event=>{
+ discoverTouchStart=event.touches.length===1?{x:event.touches[0].clientX,y:event.touches[0].clientY}:null;
+},{passive:true});
+$('discover-stage').addEventListener('touchend',event=>{
+ if(!discoverTouchStart||event.changedTouches.length!==1)return;
+ const dx=event.changedTouches[0].clientX-discoverTouchStart.x,dy=event.changedTouches[0].clientY-discoverTouchStart.y;
+ discoverTouchStart=null;
+ if(Math.abs(dx)>43&&Math.abs(dx)>Math.abs(dy)*1.25)moveDiscovery(dx<0?1:-1);
+},{passive:true});
+$('discover-stage').addEventListener('touchcancel',()=>{discoverTouchStart=null;});
 $('atlas-figure').addEventListener('keydown',event=>{
  if(event.key!=='Enter'&&event.key!==' ')return;
  const target=event.target.closest('[data-atlas-muscle]');if(!target)return;
  event.preventDefault();chooseAtlasMuscle(target.dataset.atlasMuscle);
 });
 $('studio-back').addEventListener('click',closeStudio);
+$('studio-filter-toggle').addEventListener('click',()=>{
+ const f=$('studio-filters');f.hidden=!f.hidden;
+ $('studio-filter-toggle').setAttribute('aria-expanded',String(!f.hidden));
+});
+$('studio-technique').addEventListener('toggle',()=>{
+ $('technique-scrim').hidden=!$('studio-technique').open;
+});
+$('technique-scrim').addEventListener('click',()=>{
+ $('studio-technique').open=false;
+});
+let sheetY=null;
+$('studio-technique').querySelector('summary').addEventListener('touchstart',e=>{
+ sheetY=e.touches.length===1?e.touches[0].clientY:null;
+},{passive:true});
+$('studio-technique').querySelector('summary').addEventListener('touchend',e=>{
+ if(sheetY!=null&&e.changedTouches.length===1&&e.changedTouches[0].clientY-sheetY>75){$('studio-technique').open=false;e.preventDefault();}
+ sheetY=null;
+},{passive:false});
 $('studio-prev').addEventListener('click',()=>stepStudio(-1));
 $('studio-next').addEventListener('click',()=>stepStudio(1));
 let studioTouchStart=null;
@@ -1102,6 +1194,10 @@ function updateGuideChoice(){
 }
 function saveSelection(){try{sessionStorage.setItem(explorer.selectionKey,JSON.stringify(selection));}catch(error){announce('Urvalet finns kvar här, men webbläsaren tillåter inte att det sparas mellan sidor.');}}
 function renderSelection(){
+ if($('discover-add')&&discoveryItems().length){
+  $('discover-add').textContent=selection.includes(discoverActive)?'✓ Finns i mitt pass':'＋ Lägg till i mitt pass';
+  $('discover-add').setAttribute('aria-pressed',String(selection.includes(discoverActive)));
+ }
  $('selection-count').textContent=selection.length;$('selection-empty').hidden=selection.length>0;$('selection-actions').hidden=!selection.length;$('clear-selection').hidden=!selection.length;
  $('selection-items').innerHTML=selection.map(id=>`<li><div><strong>${safe(exercises[id].name)}</strong><small>${safe(explorer.prescription(id).label)}</small></div><button type="button" data-remove-choice="${id}" aria-label="Ta bort ${safe(exercises[id].name)}">×</button></li>`).join('');
  updateGuideChoice();
@@ -1115,6 +1211,7 @@ function toggleChoice(id){
 }
 function showPage(value,remember=true){
  page=['guide','suggestions','programs'].includes(value)?value:'guide';
+ if(page!=='guide'&&studioOpen)toggleStudio(false);
  for(const name of ['guide','suggestions','programs'])$(name+'-page').hidden=name!==page;
  document.querySelectorAll('[data-page]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.page===page)));
  if(remember)history.replaceState(null,'','#'+page);
@@ -1195,7 +1292,7 @@ window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorag
 window.addEventListener('hashchange',()=>showPage(location.hash.slice(1),false));
 renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
 
-renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
+renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 <script type="module" src="pulse-muscle-atlas-stills.js?v=20261023-stills-v1"></script>
