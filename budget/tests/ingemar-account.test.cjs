@@ -109,10 +109,12 @@ test('PRs use completed max weights, never demos, skipped sets, plans or cardio'
  assert.equal(globalThis.IngemarRecords.collect([{exercises:[ex('Bänkpress',[30])]}],records)['bänkpress'].weight,60);
  assert.equal(globalThis.IngemarRecords.collect([{exercises:[ex('Bänkpress',[62.5])]}],records)['bänkpress'].weight,62.5);
 });
-test('Demo URL now opens the real profile and neither page exposes outgoing navigation',()=>{
+test('Demo URL opens the real profile and navigation stays within Ingemar training',()=>{
  const redirect=fs.readFileSync(path.join(root,'ingemar-preview.html'),'utf8');
  assert.match(redirect,/location.replace\('ingemar.html'/);
- assert.doesNotMatch(html,/<a\s[^>]*href=/i);
+ const links=[...html.matchAll(/<a\b[^>]*\bhref=["']([^"']+)["']/gi)].map(match=>match[1]);
+ assert.ok(links.includes('ingemar-exercise-guide.html'),'Exercise discovery remains reachable');
+ for(const href of links)assert.match(href,/^ingemar-exercise-guide\.html(?:#(?:programs|suggestions))?$/,'Only the internal exercise guide may be linked');
  assert.doesNotMatch(redirect,/seed\(|localStorage/);
 });
 
