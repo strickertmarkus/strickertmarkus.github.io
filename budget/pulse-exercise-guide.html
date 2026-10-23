@@ -18,139 +18,200 @@
 .program-time-row p{margin:0 0 12px;color:var(--muted);font-size:12px}
 .inspiration-switch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}.inspiration-switch span{font-size:11px;color:var(--muted)}#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
 
-/* Stage 1: Markus/Maja muscle atlas + movement studio; no shared Ingemar changes. */
-.atlas-home{min-width:0;margin:2px 0 28px}
-.atlas-shell{display:grid;grid-template-columns:minmax(290px,1fr) minmax(295px,.92fr);gap:clamp(18px,4vw,50px);align-items:center;padding:10px clamp(4px,2vw,26px) 28px}
-.atlas-visual{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:460px;overflow:hidden;background:radial-gradient(ellipse 56% 50% at 50% 48%,#2830437a 0%,#11182755 57%,transparent 84%)}
-.atlas-visual::after{content:"";position:absolute;z-index:0;bottom:35px;left:20%;width:60%;height:1px;background:linear-gradient(90deg,transparent,#dd8ca383,transparent)}
-.atlas-view-controls{position:absolute;z-index:2;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:3px;padding:4px;border:1px solid #ffffff22;border-radius:30px;background:#0b1119e0;white-space:nowrap}
-.atlas-view-controls button{border:0;padding:9px 17px;border-radius:25px;background:none;font-size:11px;color:#9ca9ba}
-.atlas-view-controls button[aria-pressed="true"]{background:#cd739428;color:#f3c5d2;box-shadow:inset 0 0 0 1px #df8ba64c}
-.atlas-figure{position:relative;z-index:1;display:block;width:min(100%,365px);height:auto;max-height:440px;margin-top:16px;filter:drop-shadow(0 12px 35px #05070c)}
+
+/* Markus & Maja, atlas v2: a single editorial surface with sculpted anatomical SVG. */
+body{background:radial-gradient(ellipse 90% 33% at 55% 13%,#17233255,transparent 88%),#080b12}
+main{max-width:1060px;padding:24px 22px 78px}
+.intro{margin:0}.intro h1{font-weight:580;font-size:clamp(30px,4.3vw,43px);letter-spacing:-.055em;margin:8px 0 5px;line-height:1.1}
+.intro p{color:#97a1af;font-size:12px;line-height:1.55}
+.explore-nav{display:flex;gap:4px;margin:20px 0 25px;padding:4px;width:max-content;max-width:100%;border:1px solid #ffffff19;border-radius:999px;background:#0c1119a6;overflow-x:auto;scrollbar-width:none}
+.explore-nav::-webkit-scrollbar{display:none}
+.explore-nav button{flex:0 0 auto;min-height:39px;display:flex;justify-content:center;align-items:center;gap:6px;border:0;background:transparent;border-radius:999px;padding:10px 17px;font-size:12px;font-weight:640;color:#abb2bd;white-space:nowrap}
+.explore-nav button span{display:none}
+.explore-nav button[aria-pressed="true"]{background:#bc6c8e24;border:0;box-shadow:inset 0 0 0 1px #d68faa46;color:#f2bfce}
+.atlas-home{margin:0}
+.atlas-shell{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(290px,.85fr);grid-template-areas:"copy figure" "explore figure";align-items:center;column-gap:clamp(18px,6vw,74px);padding:7px 8px 30px}
+.atlas-content{grid-area:copy;align-self:end;max-width:500px;min-width:0}
+.atlas-content h2{margin:12px 0 9px;font-weight:550;font-size:clamp(36px,4.7vw,55px);line-height:1.06;letter-spacing:-.063em}
+.atlas-content>p{margin:0;color:#aeb3c2;font-size:13px;line-height:1.6}
+.atlas-visual{grid-area:figure;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;max-height:none;padding:8px 0 12px;overflow:visible;background:radial-gradient(ellipse 53% 52% at 50% 51%,#522d4866,transparent 90%)}
+.atlas-visual::after{display:none}
+.atlas-visual::before{content:"";position:absolute;inset:14% 8% 6%;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse at 50% 56%,#81536f24 0%,transparent 64%);filter:blur(25px)}
+.atlas-view-controls{position:relative;top:auto;left:auto;transform:none;display:flex;gap:4px;padding:3px;border:1px solid #ffffff17;border-radius:100px;background:#0d141dc4;z-index:2}
+.atlas-view-controls button{font-size:11px;font-weight:600;min-height:33px;padding:8px 19px;color:#a6afbb;border-radius:100px}
+.atlas-view-controls button[aria-pressed="true"]{background:#c1789424;color:#f0b7c8;box-shadow:inset 0 0 0 1px #e3a3b252}
+.atlas-figure{display:block;position:relative;z-index:1;max-height:485px;width:min(100%,355px);height:auto;margin:1px auto -4px;filter:drop-shadow(0 23px 28px #03060a7d)}
 .atlas-figure[data-view="front"] [data-atlas-side="back"],.atlas-figure[data-view="back"] [data-atlas-side="front"]{display:none}
-.atlas-zone{fill:#a95b75;fill-opacity:.48;stroke:#df98a9;stroke-opacity:.54;stroke-width:1.4;transition:fill-opacity .2s,stroke-opacity .2s,filter .2s}
-.atlas-hotspot{cursor:pointer;outline:0}
-.atlas-hotspot:hover .atlas-zone,.atlas-hotspot:focus-visible .atlas-zone,.atlas-hotspot[data-active="true"] .atlas-zone{fill:#fc827c;fill-opacity:.9;stroke:#ffc0ae;stroke-opacity:1;filter:drop-shadow(0 0 8px #ff7e7dbd)}
-.atlas-view-hint{position:relative;z-index:1;color:#9e9ba9;letter-spacing:.08em;font-size:10px;margin-top:0}
-.atlas-content{min-width:0;max-width:540px}
-.atlas-content h2{font-size:clamp(30px,4.5vw,49px);line-height:1.04;letter-spacing:-.055em;font-weight:550;margin:14px 0 13px}
-.atlas-content>p{color:#a6a8b7;font-size:13px;line-height:1.75;max-width:380px;margin:0}
-.atlas-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px;margin-top:21px}
-.atlas-list button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;min-height:46px;border:0;border-bottom:1px solid #ffffff1d;background:transparent;color:#ded9e1;font-size:13px;padding:9px 1px;transition:color .2s,border-color .2s}
-.atlas-list button:hover,.atlas-list button:focus-visible{color:#ffbbb2;border-color:#f3979c8a}
-.atlas-list button small{color:#a78c9b;font-size:11px;white-space:nowrap}
-.atlas-list button:disabled{opacity:.32}
-.atlas-all{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:none;color:#e9aabe;font-weight:750;font-size:13px;padding:20px 0 10px}
-.atlas-all span{font-size:19px}
-.atlas-content .atlas-count{margin:13px 0 0;font-size:11px;color:#838d9a}
-.studio-shell{min-width:0;animation:atlas-in .24s ease-out both}
-@keyframes atlas-in{from{opacity:.55;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
-.studio-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 4px 14px;border-bottom:1px solid #ffffff16}
-.studio-back{border:0;background:transparent;color:#ecc0d0;padding:10px 0;font-size:13px;font-weight:650}
-.studio-top-meta{display:flex;gap:15px;align-items:center;color:#a6a8b4;font-size:12px}
-#studio-route{color:#dfa8bc;font-weight:750}#studio-index{font-variant-numeric:tabular-nums}
-.studio-filters{margin:15px 0 19px}
-.studio-filters .search{border-radius:10px;background:#ffffff06;border-color:#ffffff1b}
-.studio-filters .filter-row button{border:0;background:transparent;border-bottom:1px solid transparent;border-radius:0;color:#adb3bf}
-.studio-filters .filter-row button[aria-pressed="true"]{color:#f1b4c5;border-bottom-color:#e688a5;background:transparent}
-.studio-layout{display:flex;flex-direction:column;gap:12px}
-.studio-layout .detail{order:0;width:100%;border:0;background:transparent;border-radius:0;overflow:visible}
-.studio-layout .detail-head{padding:0 3px 16px;align-items:center}
-.studio-layout .detail-head h2{font-size:clamp(28px,4.2vw,46px);font-weight:580;margin:6px 0 4px}
-.studio-layout .detail-head .kind-tag{color:#dfb0bf}
-.studio-layout .stage{margin:0;min-width:0;border:0;border-radius:18px;background:radial-gradient(ellipse 56% 65% at 50% 48%,#29374b,#101821 72%,#0b1018);touch-action:pan-y;user-select:none;overflow:hidden}
-.studio-layout .stage svg{max-height:500px;margin:auto}
-.studio-stepper{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:48px;padding:5px 2px;color:#9ea5b3;font-size:11px;letter-spacing:.02em}
-.studio-stepper button{min-width:45px;min-height:42px;border-radius:50%;border:1px solid #ffffff2b;background:#ffffff07;color:#dcb2c2;font-size:19px}
-.studio-stepper button:disabled{opacity:.25}
-.studio-layout .stage-bottom{margin:6px 1px 0}
-.studio-layout .muscle-row{padding:16px 2px 10px}
-.studio-action{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 2px 18px}
-.studio-action .explore-primary{min-height:46px}
-.studio-action>span{font-size:12px;color:#bcb0bf}
-.studio-technique{border-top:1px solid #ffffff24;border-bottom:1px solid #ffffff1a;margin:0 0 13px}
-.studio-technique summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:16px 3px;color:#e9c0cf;font-size:14px;font-weight:650;list-style:none}
+.atlas-hotspot{cursor:pointer;outline:none}
+.atlas-hotspot .atlas-zone{fill:url(#anatomy-muscle);fill-opacity:.40;stroke:#e9adb0;stroke-opacity:.48;stroke-width:1.1;transition:fill-opacity .2s,stroke-opacity .2s,filter .2s}
+.atlas-hotspot:is(:hover,:focus-visible,[data-active="true"]) .atlas-zone{fill:url(#anatomy-focus);fill-opacity:.89;stroke:#ffe0cb;stroke-opacity:.95;filter:drop-shadow(0 0 7px #fa968fba)}
+.atlas-hotspot .anatomy-seam{fill:none;stroke:#f5d3cb;stroke-opacity:.28;stroke-width:1.1;pointer-events:none}
+.atlas-hotspot:focus-visible{filter:drop-shadow(0 0 5px #f2b8aa)}
+.atlas-view-hint{z-index:1;color:#a1a3b4;font-size:10px;letter-spacing:.045em;margin-top:0;display:flex;align-items:center;gap:8px;text-align:center}
+.atlas-pulse-dot{width:6px;height:6px;background:#ed9d99;border-radius:50%;box-shadow:0 0 10px #e7909e90}
+.atlas-explore{grid-area:explore;align-self:start;margin-top:28px;max-width:520px;min-width:0}
+.atlas-explore-header{display:flex;justify-content:space-between;gap:9px;align-items:center;color:#a98097;font-size:10px;letter-spacing:.14em;font-weight:760}
+.atlas-explore-header .atlas-count{margin:0;color:#788694;letter-spacing:0;font-size:10px;font-weight:550}
+.atlas-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;margin-top:8px}
+.atlas-list button{display:flex;justify-content:space-between;align-items:center;min-width:0;min-height:43px;gap:9px;padding:10px 1px;text-align:left;font-size:12px;font-weight:590;color:#cbd1d8;border:0;border-bottom:1px solid #ffffff16;background:transparent;transition:color .16s,border-color .16s}
+.atlas-list button:hover,.atlas-list button:focus-visible{color:#ffcccb;border-color:#df809f90}
+.atlas-list button small{color:#a67c94;font-size:10px;white-space:nowrap}
+.atlas-list button:disabled{opacity:.27}
+.atlas-all{width:100%;display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:10px;padding:7px 2px;border:0;background:transparent;color:#efb2c6;font-weight:680;font-size:12px}
+.atlas-all span{font-size:18px;font-weight:350}
+.studio-shell{animation:atlas-in .2s ease-out both}
+@keyframes atlas-in{from{opacity:.7;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.studio-top{padding:0 0 13px;border-bottom:1px solid #ffffff17}
+.studio-back{padding:9px 0;color:#f1bfce}
+.studio-top-meta{font-size:11px}
+.studio-filters{margin:13px 0 19px}
+.studio-filters .search{min-height:43px;background:#ffffff04;border-color:#ffffff1b;border-radius:11px}
+.studio-filters .filter-row button{border:0;border-bottom:1px solid transparent;border-radius:0;background:transparent;color:#a8afba}
+.studio-filters .filter-row button[aria-pressed="true"]{border-color:#d580a0;background:none;color:#f0bdce}
+.studio-layout{display:flex;flex-direction:column;gap:10px}
+.studio-layout .detail{order:0;width:100%;border:0;border-radius:0;background:transparent;overflow:visible}
+.studio-layout .detail-head{padding:2px 1px 17px;align-items:start}
+.studio-layout .detail-head h2{font-size:clamp(28px,4.4vw,43px);font-weight:550}
+.studio-layout .stage{margin:0;border:1px solid #ffffff0d;border-radius:20px;background:radial-gradient(ellipse 48% 56% at 50% 49%,#27354d,#121925 67%,#0c121b);touch-action:pan-y;user-select:none;overflow:hidden}
+.studio-layout .stage svg{max-height:480px;margin:0 auto}
+.studio-stepper{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:50px;color:#9ca1b0;font-size:11px}
+.studio-stepper button{min-width:41px;min-height:41px;border:1px solid #ffffff24;background:#ffffff05;border-radius:100px;color:#ecc2cd;font-size:18px}
+.studio-layout .stage-bottom{margin:6px 0 0}
+.studio-layout .muscle-row{padding:14px 0 8px}
+.studio-action{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0 17px}
+.studio-action>span{color:#aeb0be;font-size:11px}
+.studio-technique{margin:0 0 11px;border-top:1px solid #ffffff25;border-bottom:1px solid #ffffff18}
+.studio-technique summary{padding:15px 2px;color:#e8bbc9;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none}
 .studio-technique summary::-webkit-details-marker{display:none}
-.studio-technique summary span{transition:transform .2s;font-size:20px;font-weight:350}
+.studio-technique summary span{font-size:19px;transition:transform .2s}
 .studio-technique[open] summary span{transform:rotate(180deg)}
-.studio-technique .instructions{padding:0 4px 19px}
-.studio-layout .catalog{order:1;width:100%;border:0;border-radius:0;background:transparent;overflow:hidden;margin-top:12px}
-.studio-layout .catalog-head{padding:11px 2px;border-bottom:1px solid #ffffff1a}
-.studio-layout .exercise-list{display:flex;flex-wrap:nowrap;gap:7px;overflow-x:auto;overflow-y:hidden;max-height:none;padding:11px 0 13px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-.studio-layout .exercise-option{scroll-snap-align:start;flex:0 0 194px;min-height:74px;border:1px solid #ffffff16;background:#ffffff05;padding:11px;border-radius:12px}
-.studio-layout .exercise-option[aria-current=true]{border-color:#d788a385;background:#b65b7b22}
-.studio-layout .exercise-option small{color:#a5a2b0}
+.studio-technique .instructions{padding:1px 4px 20px}
+.studio-layout .catalog{order:1;width:100%;margin:9px 0 0;border:0;background:transparent;border-radius:0}
+.studio-layout .catalog-head{padding:10px 0;border-bottom:1px solid #ffffff17}
+.studio-layout .exercise-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;max-height:none;padding:12px 0 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.studio-layout .exercise-option{flex:0 0 184px;min-height:70px;scroll-snap-align:start;border:1px solid #ffffff17;border-radius:12px;background:#ffffff04;padding:10px}
+.studio-layout .exercise-option[aria-current=true]{border-color:#dd8ba66c;background:#ae55761a}
 @media(max-width:740px){
-.atlas-shell{grid-template-columns:1fr;gap:4px;padding:0 3px 25px}
-.atlas-visual{min-height:0;max-height:445px}
-.atlas-figure{max-height:400px;width:min(100%,330px)}
-.atlas-view-controls{top:0}
-.atlas-content{max-width:none;padding:5px 7px}
-.atlas-content h2{font-size:32px}
-.atlas-content>p{font-size:12px}
-.atlas-list{margin-top:15px;column-gap:17px}
-.atlas-list button{font-size:12px;min-height:43px}
-.studio-top{padding:0 2px 10px}
-.studio-top-meta{gap:8px}
-.studio-filters{margin:12px 0 15px}
-.studio-layout .detail-head{padding:0 2px 11px}
+main{padding:15px 15px 64px}
+.intro h1{font-size:29px;margin:5px 0 3px}
+.intro .eyebrow{font-size:9px;letter-spacing:.13em}
+.intro p{font-size:11px}
+.explore-nav{width:100%;margin:15px 0 19px;padding:3px;justify-content:space-between}
+.explore-nav button{flex:1 1 auto;min-width:0;padding:9px 8px;min-height:37px;font-size:11px}
+.atlas-shell{grid-template-columns:1fr;grid-template-areas:"copy" "figure" "explore";gap:0;padding:1px 1px 20px}
+.atlas-content{max-width:none}
+.atlas-content .eyebrow{font-size:10px;letter-spacing:.13em}
+.atlas-content h2{font-size:clamp(30px,8.5vw,38px);letter-spacing:-.055em;margin:8px 0 4px}
+.atlas-content>p{font-size:12px;line-height:1.45}
+.atlas-visual{max-height:none;min-height:0;margin:10px -3px 0;padding:0 0 6px}
+.atlas-view-controls{margin:1px auto 0}
+.atlas-view-controls button{min-height:32px;font-size:11px;padding:7px 16px}
+.atlas-figure{max-height:332px;width:min(100%,238px);margin:1px auto -3px}
+.atlas-view-hint{font-size:9px;margin-top:0}
+.atlas-explore{margin-top:20px;max-width:none}
+.atlas-list{gap:0 15px;margin-top:6px}
+.atlas-list button{min-height:39px;padding:8px 1px;font-size:12px}
+.atlas-all{margin-top:7px}
+.studio-filters{margin:10px 0 14px}
+.studio-layout .detail-head{padding:0 1px 12px}
 .studio-layout .detail-head h2{font-size:27px}
-.studio-layout .stage svg{max-height:375px}
-.studio-layout .exercise-option{flex-basis:174px}
-.studio-stepper{font-size:10px}
+.studio-layout .stage{border-radius:17px}
+.studio-layout .stage svg{max-height:340px}
 .studio-action .explore-primary{flex:1}
+.studio-layout .exercise-option{flex-basis:172px}
 }
-@media(max-width:370px){.atlas-figure{max-height:345px}.atlas-list button{font-size:11px}.studio-layout .detail-head h2{font-size:23px}}
+@media(max-width:375px){
+.explore-nav button{font-size:10px;padding:9px 5px}
+.atlas-content h2{font-size:29px}
+.atlas-figure{max-height:298px;width:min(100%,216px)}
+.atlas-list button{font-size:11px}
+}
 @media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
 </style>
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
-<main><div class="intro"><div class="eyebrow">INSPIRATION · TEKNIK · DITT NÄSTA PASS</div><h1><span class="explore-star" aria-hidden="true">★</span> Utforska träning</h1><p>Lär känna övningarna, hitta något nytt eller utgå från ett färdigt program.</p></div>
-<nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Övningsguide</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Hitta övningar</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Träningsprogram</button></nav>
+<main><div class="intro"><div class="eyebrow">PULSE FIELD / TRÄNINGSUTFORSKAREN</div><h1>Utforska träning</h1><p>Hitta nya rörelser och bygg ditt nästa pass.</p></div>
+<nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Muskelatlas</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Inspiration</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Program</button></nav>
 <section id="guide-page" aria-label="Övningsguide">
 <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
 <div class="atlas-shell">
+<div class="atlas-content">
+<div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
+<p>Välj en muskel på kroppen eller direkt i listan.</p>
+</div>
 <div class="atlas-visual">
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
-<svg id="atlas-figure" class="atlas-figure" viewBox="0 0 320 426" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskelgrupp på figuren.">
-<defs><radialGradient id="atlas-halo"><stop stop-color="#aa536c" stop-opacity=".22"/><stop offset="1" stop-color="#aa536c" stop-opacity="0"/></radialGradient><linearGradient id="atlas-body-shade" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#536475"/><stop offset=".56" stop-color="#2b3848"/><stop offset="1" stop-color="#152333"/></linearGradient></defs>
-<ellipse cx="160" cy="220" rx="135" ry="202" fill="url(#atlas-halo)"/>
-<g class="atlas-silhouette" fill="url(#atlas-body-shade)" stroke="#89a2ac" stroke-opacity=".33" stroke-width="1.25" stroke-linejoin="round">
-<ellipse cx="160" cy="44" rx="22" ry="25"/><path d="M149 66h22v20h-22z"/>
-<path d="M126 82Q160 68 194 82L188 155L178 210L142 210L132 155Z"/>
-<path d="M128 85Q111 74 104 96L89 146L101 154L123 118Z"/><path d="M192 85Q209 74 216 96L231 146L219 154L197 118Z"/>
-<path d="M89 146L78 214Q75 229 85 230L96 217L101 154Z"/><path d="M231 146L242 214Q245 229 235 230L224 217L219 154Z"/>
-<path d="M142 195L178 195L189 236Q160 249 131 236Z"/>
-<path d="M135 232L158 241L153 318L137 331L126 303Z"/><path d="M185 232L162 241L167 318L183 331L194 303Z"/>
-<path d="M137 319L153 319L151 389L137 389L131 376Z"/><path d="M183 319L167 319L169 389L183 389L189 376Z"/>
-<path d="M137 386h14l3 16h-28q-5-9 11-16z"/><path d="M183 386h-14l-3 16h28q5-9-11-16z"/>
+<svg id="atlas-figure" class="atlas-figure" viewBox="0 0 360 505" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskel på kroppen.">
+<defs>
+<linearGradient id="anatomy-surface" x1=".02" y1=".03" x2=".96" y2="1"><stop stop-color="#677d88"/><stop offset=".22" stop-color="#445563"/><stop offset=".53" stop-color="#283846"/><stop offset="1" stop-color="#101f2f"/></linearGradient>
+<linearGradient id="anatomy-depth" x1="0" y1="0" x2="1" y2=".2"><stop stop-color="#7d909a" stop-opacity=".42"/><stop offset=".22" stop-color="#405566" stop-opacity=".07"/><stop offset=".76" stop-color="#142333" stop-opacity=".24"/><stop offset="1" stop-color="#081622" stop-opacity=".72"/></linearGradient>
+<linearGradient id="anatomy-muscle" x1=".1" y1=".1" x2=".93" y2=".97"><stop stop-color="#eeaa9b"/><stop offset=".45" stop-color="#cc7f91"/><stop offset="1" stop-color="#774d70"/></linearGradient>
+<linearGradient id="anatomy-focus" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#ffe2ca"/><stop offset=".45" stop-color="#ff9e91"/><stop offset="1" stop-color="#e56883"/></linearGradient>
+<radialGradient id="anatomy-aura"><stop stop-color="#dd7894" stop-opacity=".25"/><stop offset=".48" stop-color="#ae6687" stop-opacity=".085"/><stop offset="1" stop-color="#ae6687" stop-opacity="0"/></radialGradient>
+<filter id="anatomy-glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="5"/></filter>
+<path id="anatomy-arm" d="M126 110 C116 101 106 110 101 122 C94 140 91 164 87 181 C81 200 74 223 77 239 C79 246 81 251 80 259 C79 268 83 275 88 275 C94 273 94 265 96 255 C98 244 99 232 104 217 C114 191 124 160 132 133 C134 120 132 114 126 110 Z"/>
+<path id="anatomy-leg" d="M151 243 C143 250 138 265 135 286 C131 310 132 332 134 351 C135 370 132 381 137 390 C141 399 154 399 159 389 C164 379 161 364 162 351 C165 332 170 308 174 286 C178 265 173 249 165 245 Z"/>
+<path id="anatomy-calf" d="M137 383 C131 397 131 411 133 427 C135 444 134 462 136 473 C138 488 152 490 157 477 C161 464 157 447 159 435 C163 410 162 394 158 385 C154 394 142 395 137 383 Z"/>
+</defs>
+<ellipse cx="180" cy="253" rx="159" ry="239" fill="url(#anatomy-aura)" pointer-events="none"/>
+<g class="anatomy-orbit" pointer-events="none" fill="none"><path d="M55 252 A126 216 0 0 1 307 252" stroke="#c17e9e" stroke-opacity=".16" stroke-dasharray="1 11" stroke-width="1.7"/><path d="M53 253 A127 216 0 0 0 307 253" stroke="#94bdd0" stroke-opacity=".12" stroke-dasharray="1 13" stroke-width="1.5"/><path d="M180 18v5M180 487v5M41 252h6M313 252h6" stroke="#e2a2b3" stroke-opacity=".43"/></g>
+<g class="anatomy-body" fill="url(#anatomy-surface)" stroke="#8fa6b3" stroke-opacity=".28" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" pointer-events="none">
+<use href="#anatomy-arm"/><use href="#anatomy-arm" transform="translate(360 0) scale(-1 1)"/>
+<use href="#anatomy-leg"/><use href="#anatomy-leg" transform="translate(360 0) scale(-1 1)"/>
+<use href="#anatomy-calf"/><use href="#anatomy-calf" transform="translate(360 0) scale(-1 1)"/>
+<path d="M135 463 C136 476 136 486 125 491 Q119 495 120 501 L161 501 Q163 489 155 475 Z"/><path d="M225 463 C224 476 224 486 235 491 Q241 495 240 501 L199 501 Q197 489 205 475 Z"/>
+<path d="M163 79 C161 90 158 94 147 98 C127 98 119 102 117 120 C121 142 132 153 135 173 C137 194 145 211 143 235 Q146 253 180 258 Q214 253 217 235 C215 211 223 194 225 173 C228 153 239 142 243 120 C241 102 233 98 213 98 C202 94 199 90 197 79Z"/>
+<path d="M164 67 Q168 81 180 81 Q192 81 196 67 L195 96 Q180 105 165 96 Z"/>
+<path d="M180 16 C160 16 152 31 152 52 C152 70 163 86 180 89 C197 86 208 70 208 52 C208 31 200 16 180 16 Z"/>
+</g>
+<g pointer-events="none" fill="url(#anatomy-depth)" opacity=".75">
+<use href="#anatomy-arm"/><use href="#anatomy-arm" transform="translate(360 0) scale(-1 1)"/>
+<use href="#anatomy-leg"/><use href="#anatomy-leg" transform="translate(360 0) scale(-1 1)"/>
+<use href="#anatomy-calf"/><use href="#anatomy-calf" transform="translate(360 0) scale(-1 1)"/>
+<path d="M163 79 C161 90 158 94 147 98 C127 98 119 102 117 120 C121 142 132 153 135 173 C137 194 145 211 143 235 Q146 253 180 258 Q214 253 217 235 C215 211 223 194 225 173 C228 153 239 142 243 120 C241 102 233 98 213 98 C202 94 199 90 197 79Z"/>
+</g>
+<g class="anatomy-definition" fill="none" stroke="#bbcfcb" stroke-opacity=".20" stroke-width="1.3" stroke-linecap="round" pointer-events="none">
+<path d="M153 48Q162 36 170 31M207 47Q197 34 190 31M164 84Q180 99 196 84"/>
+<path d="M115 136Q111 162 103 190M245 136Q249 162 257 190"/>
+<path d="M149 261Q141 292 143 329M211 261Q219 292 217 329"/>
+<path d="M141 399Q147 405 156 396M219 399Q213 405 204 396"/>
 </g>
 <g data-atlas-side="front">
-<g class="atlas-hotspot" data-atlas-muscle="Axlar" tabindex="0" role="button" aria-label="Axlar"><ellipse class="atlas-zone" cx="116" cy="99" rx="14" ry="21" transform="rotate(17 116 99)"/><ellipse class="atlas-zone" cx="204" cy="99" rx="14" ry="21" transform="rotate(-17 204 99)"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Bröst" tabindex="0" role="button" aria-label="Bröst"><path class="atlas-zone" d="M131 90Q142 88 157 96L157 122Q145 132 130 122Z"/><path class="atlas-zone" d="M189 90Q178 88 163 96L163 122Q175 132 190 122Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Biceps" tabindex="0" role="button" aria-label="Biceps"><path class="atlas-zone" d="M109 115L94 147L102 159L117 127Z"/><path class="atlas-zone" d="M211 115L226 147L218 159L203 127Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Triceps" tabindex="0" role="button" aria-label="Triceps"><path class="atlas-zone" d="M119 117L106 125L95 152L101 154Z"/><path class="atlas-zone" d="M201 117L214 125L225 152L219 154Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Mage" tabindex="0" role="button" aria-label="Mage"><path class="atlas-zone" d="M141 135Q160 140 179 135L175 197Q160 203 145 197Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Framsida lår" tabindex="0" role="button" aria-label="Framsida lår"><path class="atlas-zone" d="M138 248L155 254L149 306L139 318L131 294Z"/><path class="atlas-zone" d="M182 248L165 254L171 306L181 318L189 294Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Vader" tabindex="0" role="button" aria-label="Vader"><path class="atlas-zone" d="M139 335L151 334L149 377L140 376Z"/><path class="atlas-zone" d="M181 335L169 334L171 377L180 376Z"/></g>
+<g class="anatomy-etched" pointer-events="none" fill="none" stroke="#a7b8c3" stroke-opacity=".26" stroke-width="1.3" stroke-linecap="round">
+<path d="M166 96Q156 108 142 111M194 96Q204 108 218 111M180 102L180 246" stroke-dasharray="none"/>
+<path d="M143 166Q159 171 176 168M184 168Q202 171 217 166M145 184Q160 190 176 187M184 187Q200 189 214 184M150 207Q166 211 177 209M183 209Q195 211 210 207"/>
+<path d="M140 146Q133 168 139 184M220 146Q227 168 221 184"/>
+<path d="M153 267Q147 301 148 337M207 267Q213 301 212 337"/>
+</g>
+<g class="atlas-hotspot" data-atlas-muscle="Axlar" role="button" tabindex="0" aria-label="Axlar"><path class="atlas-zone" d="M131 103 C117 99 108 112 108 126 C108 138 116 145 127 146 C133 135 139 120 142 110 C138 106 135 105 131 103 Z"/><path class="atlas-zone" d="M229 103 C243 99 252 112 252 126 C252 138 244 145 233 146 C227 135 221 120 218 110 C222 106 225 105 229 103 Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Bröst" role="button" tabindex="0" aria-label="Bröst"><path class="atlas-zone" d="M145 109 Q162 107 177 117 L176 152 Q166 164 149 160 Q138 155 135 144 Q129 127 145 109 Z"/><path class="atlas-zone" d="M215 109 Q198 107 183 117 L184 152 Q194 164 211 160 Q222 155 225 144 Q231 127 215 109 Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Biceps" role="button" tabindex="0" aria-label="Biceps"><path class="atlas-zone" d="M109 145 Q122 145 125 155 Q119 174 112 186 Q107 198 101 194 Q96 187 100 173 Z"/><path class="atlas-zone" d="M251 145 Q238 145 235 155 Q241 174 248 186 Q253 198 259 194 Q264 187 260 173 Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Triceps" role="button" tabindex="0" aria-label="Triceps"><path class="atlas-zone" d="M107 140Q105 154 96 181Q95 167 101 144Z"/><path class="atlas-zone" d="M253 140Q255 154 264 181Q265 167 259 144Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Mage" role="button" tabindex="0" aria-label="Mage"><path class="atlas-zone" d="M157 165 Q180 173 203 165 L207 202 Q200 231 187 239 L173 239 Q160 231 153 202 Z"/><path class="anatomy-seam" d="M180 173v64M157 186q23 6 46 0M156 206q24 5 48 0M165 224q15 4 30 0"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Framsida lår" role="button" tabindex="0" aria-label="Framsida lår"><path class="atlas-zone" d="M146 261Q161 256 171 270Q169 294 161 327Q155 359 146 364Q139 350 139 322Q137 284 146 261Z"/><path class="atlas-zone" d="M214 261Q199 256 189 270Q191 294 199 327Q205 359 214 364Q221 350 221 322Q223 284 214 261Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Vader" role="button" tabindex="0" aria-label="Vader"><path class="atlas-zone" d="M139 399Q147 407 157 399Q159 430 151 451Q146 457 139 450Q134 430 139 399Z"/><path class="atlas-zone" d="M221 399Q213 407 203 399Q201 430 209 451Q214 457 221 450Q226 430 221 399Z"/></g>
 </g>
 <g data-atlas-side="back">
-<g class="atlas-hotspot" data-atlas-muscle="Axlar" tabindex="0" role="button" aria-label="Axlar"><ellipse class="atlas-zone" cx="116" cy="99" rx="14" ry="21" transform="rotate(17 116 99)"/><ellipse class="atlas-zone" cx="204" cy="99" rx="14" ry="21" transform="rotate(-17 204 99)"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Rygg" tabindex="0" role="button" aria-label="Rygg"><path class="atlas-zone" d="M130 94Q160 82 190 94L183 166L161 191L137 166Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Triceps" tabindex="0" role="button" aria-label="Triceps"><path class="atlas-zone" d="M113 111L96 149L104 157L121 119Z"/><path class="atlas-zone" d="M207 111L224 149L216 157L199 119Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Säte" tabindex="0" role="button" aria-label="Säte"><path class="atlas-zone" d="M141 202Q158 202 158 218L156 238Q142 242 134 231Z"/><path class="atlas-zone" d="M179 202Q162 202 162 218L164 238Q178 242 186 231Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Baksida lår" tabindex="0" role="button" aria-label="Baksida lår"><path class="atlas-zone" d="M139 249L155 254L150 306L138 318L132 294Z"/><path class="atlas-zone" d="M181 249L165 254L170 306L182 318L188 294Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Vader" tabindex="0" role="button" aria-label="Vader"><path class="atlas-zone" d="M138 332L153 329L149 381L139 381Z"/><path class="atlas-zone" d="M182 332L167 329L171 381L181 381Z"/></g>
-<g class="atlas-hotspot" data-atlas-muscle="Biceps" tabindex="0" role="button" aria-label="Biceps"><path class="atlas-zone" d="M106 117L99 130L96 147L106 129Z"/><path class="atlas-zone" d="M214 117L221 130L224 147L214 129Z"/></g>
+<g class="anatomy-etched" pointer-events="none" fill="none" stroke="#bac3c7" stroke-opacity=".3" stroke-width="1.25" stroke-linecap="round">
+<path d="M180 89v146M151 113Q180 137 209 113M147 158Q180 191 213 158M145 204Q180 211 215 204"/>
+<path d="M143 277Q154 304 152 334M217 277Q206 304 208 334"/>
 </g>
-<path d="M160 78V202" fill="none" stroke="#91b0bc" stroke-opacity=".18" stroke-width="1" stroke-dasharray="3 7"/>
+<g class="atlas-hotspot" data-atlas-muscle="Axlar" role="button" tabindex="0" aria-label="Axlar"><path class="atlas-zone" d="M131 103 Q112 105 109 127 Q109 139 127 146 L143 112 Q139 105 131 103 Z"/><path class="atlas-zone" d="M229 103 Q248 105 251 127 Q251 139 233 146 L217 112 Q221 105 229 103 Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Rygg" role="button" tabindex="0" aria-label="Rygg"><path class="atlas-zone" d="M156 98Q166 113 180 126Q194 113 204 98Q208 104 220 111Q213 140 209 167Q197 197 184 226L180 232Q176 226 164 197Q151 167 147 140Q140 111 156 98Z"/><path class="anatomy-seam" d="M180 130v91M153 141Q166 151 180 161Q194 151 207 141"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Triceps" role="button" tabindex="0" aria-label="Triceps"><path class="atlas-zone" d="M111 142Q123 147 123 155Q114 181 104 193Q95 188 99 171Z"/><path class="atlas-zone" d="M249 142Q237 147 237 155Q246 181 256 193Q265 188 261 171Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Biceps" role="button" tabindex="0" aria-label="Biceps"><path class="atlas-zone" d="M108 146Q111 145 114 147L99 179Q100 158 108 146Z"/><path class="atlas-zone" d="M252 146Q249 145 246 147L261 179Q260 158 252 146Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Säte" role="button" tabindex="0" aria-label="Säte"><path class="atlas-zone" d="M151 235Q164 233 177 242L177 269Q166 285 147 278Q136 259 151 235Z"/><path class="atlas-zone" d="M209 235Q196 233 183 242L183 269Q194 285 213 278Q224 259 209 235Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Baksida lår" role="button" tabindex="0" aria-label="Baksida lår"><path class="atlas-zone" d="M140 280Q150 289 167 279Q166 307 160 336Q160 355 149 365Q139 358 137 336Q134 304 140 280Z"/><path class="atlas-zone" d="M220 280Q210 289 193 279Q194 307 200 336Q200 355 211 365Q221 358 223 336Q226 304 220 280Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Vader" role="button" tabindex="0" aria-label="Vader"><path class="atlas-zone" d="M138 396Q150 405 158 396Q160 425 155 449Q150 456 144 452Q134 427 138 396Z"/><path class="atlas-zone" d="M222 396Q210 405 202 396Q200 425 205 449Q210 456 216 452Q226 427 222 396Z"/></g>
+</g>
 </svg>
-<div class="atlas-view-hint">Välj muskel direkt på figuren</div>
+<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Tryck på en muskelgrupp</div>
 </div>
-<div class="atlas-content"><div class="eyebrow">PULSE · MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2><p>Välj en muskelgrupp på kroppen eller i listan för att utforska övningarna i rörelsestudion.</p>
-<div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div><button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
-<p class="atlas-count" id="atlas-count" role="status"></p>
+<div class="atlas-explore">
+<div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
+<div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div>
+<button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
 </div>
 </div>
 </section>
@@ -200,7 +261,7 @@ let studioOpen=false,atlasView='front';
 function renderAtlas(){
  const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)&&(equip==='All utrustning'||e.equipment===equip)).length]));
  $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span><small>'+counts.get(m)+' ↗</small></button>').join('');
- $('atlas-count').textContent=exercises.filter(e=>equip==='All utrustning'||e.equipment===equip).length+' övningar · 10 muskelgrupper';
+ $('atlas-count').textContent=exercises.length+' övningar';
  $('atlas-figure').dataset.view=atlasView;
  $('atlas-front').setAttribute('aria-pressed',String(atlasView==='front'));
  $('atlas-back').setAttribute('aria-pressed',String(atlasView==='back'));
