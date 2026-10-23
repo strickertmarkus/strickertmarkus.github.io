@@ -1,0 +1,125 @@
+/* Pulse Flow — Living Anatomy. Markus/Maja only. 2026-10-23.
+   A dedicated cinematic body explorer, not a restyle of the former card carousel. */
+body.living-guide-active:not(.pulse-studio-open){background:#070b13;}
+body.living-guide-active:not(.pulse-studio-open) main{max-width:100%;padding:0 0 138px;min-height:calc(100dvh - 66px)}
+body.living-guide-active:not(.pulse-studio-open) .intro,
+body.living-guide-active:not(.pulse-studio-open) .explore-nav{display:none!important}
+body.living-guide-active:not(.pulse-studio-open) #guide-page{max-width:100%;padding:0}
+#living-dock[hidden],#discover-home[hidden]{display:none!important}
+.living-home{max-width:1040px;margin:0 auto;padding:23px 20px 40px;position:relative;isolation:isolate;}
+.living-home::before{content:"";position:absolute;inset:-1px -10vw 23%;pointer-events:none;z-index:-1;
+background:radial-gradient(ellipse 43% 35% at 50% 39%,#dd6d8915,transparent 74%),
+radial-gradient(ellipse 47% 43% at 52% 50%,#29415a22,transparent 78%);}
+.living-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#e8a1b8;letter-spacing:.22em;font-size:9px;font-weight:680;margin:9px 0 9px;}
+.living-topline span:last-child{color:#646f80;font-size:9px;letter-spacing:.10em}
+.living-intro{text-align:center;padding:12px 0 0}
+.living-intro h1{margin:0;font-size:clamp(40px,7.7vw,78px);line-height:1.05;font-weight:710;letter-spacing:-.075em;text-wrap:balance}
+.living-intro h1 em{font-style:normal;color:#eb94ac}
+.living-intro p{margin:13px auto 0;max-width:460px;font-size:13px;color:#98a3b2;line-height:1.5;text-wrap:balance}
+.living-home .atlas-home{margin:0;padding:0;max-width:none;background:transparent}
+.living-home .atlas-shell{display:flex!important;flex-direction:column;align-items:center;gap:0;padding:0;position:relative;width:100%;max-width:800px;margin:0 auto;}
+.living-home .atlas-content[hidden]{display:none!important}
+.living-home .atlas-visual{position:relative;width:100%;max-width:750px;min-height:0;height:clamp(480px,68dvh,770px);margin:1px auto 0!important;padding:0!important;overflow:visible!important;
+border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;isolation:isolate;}
+.living-home .atlas-visual::before{inset:17% 10% 7%;background:radial-gradient(ellipse at 50% 52%,#d77d9220,transparent 68%);filter:blur(28px)}
+.living-home .atlas-stills,.living-home .atlas-figure{position:relative;display:block;width:100%;height:100%;max-width:none;max-height:none;margin:0 auto!important;background:transparent!important;border:0;border-radius:0;overflow:visible}
+.living-home .atlas-figure{max-width:570px;object-fit:contain}
+.living-home .atlas-stills img{width:100%;height:100%;object-fit:contain;object-position:50% 50%;filter:drop-shadow(0 3px 28px #dd91ad14)}
+.living-home .atlas-loading{height:100%!important;background:transparent;display:none}
+.atlas-stills-pending .living-home .atlas-loading{display:flex}
+.living-home .atlas-view-controls{position:absolute!important;top:11px;left:50%;transform:translateX(-50%);z-index:8;
+background:#121722b8!important;border:1px solid #ffffff22;border-radius:100px;margin:0!important;padding:4px;
+box-shadow:0 5px 28px #0006;white-space:nowrap}
+.living-home .atlas-view-controls button{font-size:11px;padding:8px 17px;min-height:33px}
+.living-home .atlas-view-hint{position:absolute;bottom:11px;left:0;right:0;z-index:7;margin:0;justify-content:center;
+color:#8995a6;font-size:10px;letter-spacing:.03em;text-shadow:0 2px 6px #03050b;}
+.living-home .atlas-stills-status{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:8}
+.living-scene-hotspots{position:absolute;inset:0;z-index:9;pointer-events:none}
+.living-hotspot{position:absolute;display:flex;align-items:center;gap:7px;background:#0d121cd9;
+border:1px solid #a9b4c841;border-radius:100px;padding:9px 14px;min-height:36px;color:#e1e4ed;font-size:12px;
+font-weight:620;box-shadow:0 6px 22px #05070e74;pointer-events:auto;white-space:nowrap;
+transition:border-color .25s ease,background .25s ease,box-shadow .25s ease,transform .25s ease}
+.living-hotspot-dot{width:7px;height:7px;border-radius:50%;background:#e896aa;box-shadow:0 0 0 4px #f59cb318,0 0 16px #e76b82a8}
+.living-hotspot[aria-pressed=true]{background:#6c314f9a;border-color:#ffa2b6d4;color:#ffe5ec;box-shadow:0 0 20px #ed668762,inset 0 0 18px #e6667822}
+.living-hotspot:active{transform:scale(.96)}
+.living-left-top{left:5%;top:22%}
+.living-right-top{right:5%;top:34%}
+.living-left-middle{left:0%;top:47%}
+.living-right-middle{right:0%;top:60%}
+.living-left-bottom{left:5%;top:73%}
+.living-home .living-category-nav{width:100%;display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3vw,25px);
+padding:0 4px 5px;margin:-40px 0 7px;position:relative;z-index:11;overflow-x:auto;scrollbar-width:none}
+.living-category-nav::-webkit-scrollbar{display:none}
+.living-muscle-chip{flex:0 0 auto;display:flex;align-items:center;flex-direction:column;gap:10px;border:0;
+background:transparent;color:#8995a5;font-size:12px;padding:0 2px 5px;min-width:72px;transition:color .2s}
+.living-muscle-chip[aria-pressed=true]{color:#f7a4bd}
+.living-chip-ring{display:grid;place-items:center;width:clamp(62px,10vw,94px);height:clamp(62px,10vw,94px);border:1px solid #9aadc34f;
+border-radius:50%;background:radial-gradient(circle at 50% 42%,#2e354b,#0b121e 76%);overflow:hidden;
+box-shadow:0 8px 24px #02051080;transition:box-shadow .2s,border-color .2s,transform .2s}
+.living-muscle-chip[aria-pressed=true] .living-chip-ring{border-color:#f59fb7da;box-shadow:0 0 22px #e469894f,0 9px 22px #0205108c;transform:translateY(-3px)}
+.living-chip-ring img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.35)}
+.living-chip-placeholder{font-size:29px;color:#df8fa6}
+.living-home .atlas-explore{width:100%;max-width:720px;margin:8px auto 0;padding:0;}
+.living-home .atlas-explore-header,.living-home .atlas-list{display:none}
+.living-home .atlas-selected{margin:9px auto 0;min-height:110px;border:1px solid #d796ae52!important;border-radius:27px!important;
+padding:19px 24px!important;max-width:720px;background:linear-gradient(125deg,#262433d4,#141a27ed 70%)!important;
+box-shadow:inset 0 1px 0 #ffffff1e,0 18px 37px #0205108c;gap:13px}
+.living-home .atlas-selected-copy span{color:#ba92a6;font-size:9px;letter-spacing:.17em}
+.living-home .atlas-selected-copy strong{font-size:clamp(26px,4.8vw,36px);font-weight:680;letter-spacing:-.055em;color:#f6edf2}
+.living-home .atlas-selected-copy small{color:#a3aebb;font-size:12px}
+.living-home #atlas-show-exercises{background:linear-gradient(120deg,#f7a0b5,#eb7995);color:#250d1d;border:0;
+font-size:13px;font-weight:780;padding:15px 21px;min-height:48px;border-radius:16px;
+box-shadow:0 3px 25px #f06b9555}
+.living-home .atlas-all{display:block;width:max-content;margin:12px auto 2px;background:none;border:0;color:#b9a4b4;font-size:11px;min-height:32px}
+.living-home .atlas-credit{font-size:9px;color:#77808e;line-height:1.55;margin:10px 10px 0}
+#discover-legacy[hidden]{display:none!important}
+.living-dock{position:fixed;z-index:39;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+width:min(calc(100% - 20px),540px);height:68px;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;
+border:1px solid #aab3c337;border-radius:25px;background:#111824f0;box-shadow:0 10px 45px #030509d9,inset 0 1px 0 #ffffff19;
+backdrop-filter:blur(23px);-webkit-backdrop-filter:blur(23px);padding:4px 7px}
+.living-dock button{height:100%;border:0;background:transparent;border-radius:19px;display:flex;flex-direction:column;
+align-items:center;justify-content:center;gap:3px;color:#9ca6b6;font-size:10px;font-weight:660;min-width:0}
+.living-dock button[aria-pressed=true]{color:#ee9bb4;background:#d87e9b16}
+.living-dock-icon{font-size:23px;line-height:1;font-weight:300}
+.living-dock small{display:inline-flex;align-items:center;justify-content:center;margin-left:2px;min-width:17px;height:17px;background:#e98da8;
+border-radius:50%;color:#1c0e17;font-size:9px;font-weight:800}
+body.living-guide-active:not(.pulse-studio-open) #selection{max-width:960px;margin:13px auto 0;padding:17px 20px 30px}
+body:not(.living-guide-active) #living-dock{display:none}
+body.pulse-studio-open #living-dock{display:none}
+@media(max-width:740px){
+ body.living-guide-active:not(.pulse-studio-open) main{padding:0 0 128px}
+ .living-home{padding:14px 9px 14px}
+ .living-topline{margin:3px 10px 10px;font-size:8px}
+ .living-intro{padding:9px 8px 0}
+ .living-intro h1{font-size:clamp(33px,8.9vw,46px);line-height:1.05}
+ .living-intro p{font-size:11px;max-width:310px;margin-top:9px}
+ .living-home .atlas-visual{height:clamp(430px,63dvh,640px);margin:5px auto 0!important;}
+ .living-hotspot{font-size:10px;padding:8px 11px;min-height:32px;gap:6px}
+ .living-hotspot-dot{width:6px;height:6px}
+ .living-left-top{left:0;top:22%}.living-right-top{right:0;top:34%}
+ .living-left-middle{left:-1%;top:49%}.living-right-middle{right:0;top:58%}
+ .living-left-bottom{left:0;top:76%}
+ .living-home .atlas-view-controls{top:5px}
+ .living-home .atlas-view-controls button{padding:7px 12px}
+ .living-home .atlas-view-hint{bottom:12px;font-size:9px}
+ .living-home .living-category-nav{gap:7px;justify-content:space-between;margin-top:-21px;padding:0 1px}
+ .living-muscle-chip{font-size:10px;gap:7px;min-width:0;flex:1}
+ .living-chip-ring{width:clamp(55px,16vw,75px);height:clamp(55px,16vw,75px)}
+ .living-home .atlas-explore{margin-top:4px}
+ .living-home .atlas-selected{margin:10px 4px 0!important;padding:14px 13px!important;min-height:94px;border-radius:21px!important}
+ .living-home .atlas-selected-copy strong{font-size:26px}
+ .living-home .atlas-selected-copy small{font-size:11px}
+ .living-home #atlas-show-exercises{font-size:11px;padding:13px 12px;min-height:43px;border-radius:13px;white-space:nowrap}
+ .living-home .atlas-credit{padding:0 6px;margin-top:12px}
+ .living-dock{height:65px}
+}
+@media(max-width:359px){
+ .living-intro h1{font-size:31px}
+ .living-hotspot{padding:7px 8px;font-size:9px}
+ .living-chip-ring{width:50px;height:50px}
+ .living-muscle-chip{font-size:9px}
+ .living-home #atlas-show-exercises{padding:12px 9px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .living-hotspot,.living-muscle-chip,.living-chip-ring{transition:none}
+}
