@@ -142,16 +142,50 @@ if (target && visual && guide && supportsWebGL()) {
       camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      // Uniform pearl-white translucent fitness shell: self-lit (not dependent on
-      // directional lighting), with no dark patches on limbs or torso.
-      // The separate anatomical muscle layer stays clickable and glows red.
-      const skinMaterial = new THREE.MeshBasicMaterial({
-        color: 0xf8fbff, transparent: true, opacity: 0.72,
-        side: THREE.FrontSide, depthWrite: false, toneMapped: false
+      // Silk-pearl body material. Lighting is calculated from the surface
+      // normal so every limb gets gentle form-shading without dark blotches.
+      // Depth-writing hides overlapping internal skin surfaces that previously
+      // appeared as a network of medical wireframe lines.
+      const skinMaterial = new THREE.ShaderMaterial({
+        transparent: true, depthWrite: true, depthTest: true,
+        side: THREE.FrontSide, toneMapped: false,
+        uniforms: {
+          uBodyAlpha: {value: 0.84},
+          uHeadSoftness: {value: 0.0}
+        },
+        vertexShader: [
+          'varying vec3 vPulseNormal;',
+          'varying vec3 vPulseView;',
+          'void main(){',
+          '  vec4 vpos = modelViewMatrix * vec4(position,1.0);',
+          '  vPulseNormal = normalize(normalMatrix * normal);',
+          '  vPulseView = normalize(-vpos.xyz);',
+          '  gl_Position = projectionMatrix * vpos;',
+          '}'
+        ].join('\n'),
+        fragmentShader: [
+          'precision highp float;',
+          'uniform float uBodyAlpha;',
+          'uniform float uHeadSoftness;',
+          'varying vec3 vPulseNormal;',
+          'varying vec3 vPulseView;',
+          'void main(){',
+          '  vec3 n = normalize(vPulseNormal);',
+          '  float facing = clamp(abs(dot(n,normalize(vPulseView))),0.0,1.0);',
+          '  float rim = pow(1.0-facing,2.0);',
+          '  float form = 0.5 + 0.5 * dot(n,normalize(vec3(-0.37,0.72,0.62)));',
+          '  float soft = smoothstep(0.0,1.0,form);',
+          '  vec3 pearl = mix(vec3(0.64,0.73,0.83), vec3(0.94,0.96,1.0), 0.25+0.70*soft);',
+          '  pearl = mix(pearl,vec3(0.98,0.99,1.0),0.56*rim);',
+          '  float alpha = min(0.97,uBodyAlpha + 0.09*rim);',
+          '  alpha *= (1.0-uHeadSoftness);',
+          '  gl_FragColor = vec4(pearl,alpha);',
+          '}'
+        ].join('\n')
       });
-      // Same pearl hue for face; slightly dimmer to keep its detail understated.
+      // The anatomical face is softened, not rendered as a detailed specimen.
       const faceMaterial = skinMaterial.clone();
-      faceMaterial.opacity = 0.55;
+      faceMaterial.uniforms.uHeadSoftness.value = 0.65;
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
@@ -166,6 +200,8 @@ if (target && visual && guide && supportsWebGL()) {
         mesh.material = /\b(?:head|face|nose|ear|mouth|lip|scalp|neck)\b/.test(name) ? faceMaterial : skinMaterial;
         mesh.renderOrder = 1;
         mesh.frustumCulled = false;
+        // One coherent outer surface, no overlapping transparent back faces.
+        mesh.material.depthWrite = true;
       });
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
 
@@ -178,10 +214,13 @@ if (target && visual && guide && supportsWebGL()) {
         color: 0x465365, transparent: true, opacity: 0.0,
         side: THREE.FrontSide, depthWrite: false
       });
+      // The active group is intentionally painted over the pale shell.
+      // A soft red material gives anatomical volume without harsh cut-out edges.
       const activeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xe83d48, emissive: 0xc72737, emissiveIntensity: 1.15,
-        transparent: true, opacity: 1.0, roughness: 0.44,
-        metalness: 0, side: THREE.DoubleSide, depthWrite: false
+        color: 0xec655b, emissive: 0xc44d48, emissiveIntensity: 0.54,
+        transparent: true, opacity: 0.92, roughness: 0.70,
+        metalness: 0, side: THREE.FrontSide,
+        depthTest: false, depthWrite: false
       });
       const meshes = [];
       const groups = new Map();
