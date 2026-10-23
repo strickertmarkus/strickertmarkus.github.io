@@ -362,12 +362,12 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 
 
 /* Ingång till den fristående teknikguiden; sparade pass och utkast påverkas inte. */
-.exercise-guide-section-head{gap:10px}
-.exercise-guide-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #b85f7959;border-radius:10px;background:#b85f790e;color:#e5a3b8;font-size:11px;font-weight:750;white-space:nowrap}
-.exercise-guide-link:hover{border-color:#c77893;background:#b85f7922;color:#f3c6d2}
-.exercise-guide-inline{display:inline-flex;align-items:center;margin:9px 0 0 11px;padding:8px 3px;color:#d8a3b3;font-size:11px;font-weight:650}
-.exercise-guide-inline:hover{text-decoration:underline}
-@media(max-width:360px){.exercise-guide-section-head h2{font-size:19px}.exercise-guide-link{padding:8px 9px;font-size:10px}}
+.explore-entry{display:flex;align-items:center;gap:15px;margin:18px 0 28px;padding:20px;border:1px solid #d2a47965;border-radius:17px;background:linear-gradient(110deg,#8f536029,#cfad7912);box-shadow:0 8px 30px #0002;color:#f3e1dc;min-height:82px;transition:background .2s,border-color .2s}
+.explore-entry:hover{background:#ad718328;border-color:#e6b887aa}.explore-entry:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}.explore-entry-star{display:grid;place-items:center;flex:0 0 43px;height:43px;border:1px solid #e6b88750;border-radius:13px;background:#e6b88710;color:#f1c98d;font-size:25px}.explore-entry strong{display:block;font-size:19px;font-weight:650;letter-spacing:-.02em}.explore-entry small{display:block;margin-top:5px;font-size:12px;color:#c4a8b5;line-height:1.5}.explore-entry-arrow{margin-left:auto;font-size:23px;color:#d8a7b9}
+.exercise-guide-inline{display:inline-flex;align-items:center;margin:9px 0 0 11px;padding:8px 3px;color:#d8a3b3;font-size:11px;font-weight:650}.exercise-guide-inline:hover{text-decoration:underline}
+.explore-import{border:1px solid #c98ca480;border-radius:17px;padding:22px;margin:20px 0;background:#1d1926;scroll-margin-top:100px}.explore-import h2{font-size:23px;letter-spacing:-.035em;margin:9px 0}.explore-import p{font-size:12px;line-height:1.7;color:#bdacbc}.explore-import-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:430px}.explore-import label{display:grid;gap:7px;font-size:11px;color:#d5c3ce}.explore-import input{max-width:100%;min-width:0}.explore-import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.builder-suggestion{font-size:11px;line-height:1.6;color:#d6a9bf;margin:6px 0 12px}
+@media(max-width:600px){.explore-entry{padding:15px;gap:12px}.explore-entry strong{font-size:18px}.explore-entry small{font-size:11px}.explore-entry-star{flex-basis:38px;height:38px}.explore-import{padding:16px}.explore-import-fields{grid-template-columns:1fr}.explore-import-actions>*{width:100%}}
+
 </style>
 <link rel="stylesheet" href="ingemar-preview-modes.css?v=20260930-zen-day-compact-1"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
@@ -627,7 +627,9 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </div>
-  <div class="section-head exercise-guide-section-head"><h2>Träningsformer</h2><a class="exercise-guide-link" href="ingemar-exercise-guide.html">Övningsguide ↗</a></div>
+  <section id="explore-import" class="explore-import" hidden aria-labelledby="explore-import-title"><div class="eyebrow">FRÅN UTFORSKA TRÄNING</div><h2 id="explore-import-title" tabindex="-1">Ditt passförslag</h2><p id="explore-import-summary"></p><div id="explore-import-controls"><div class="explore-import-fields"><label>Datum för passet<input type="date" id="explore-import-date" required></label><label>Passkategori<select id="explore-import-type"><option>Push</option><option>Pull</option><option>Kondition</option></select></label></div><p id="explore-import-note"></p><div class="explore-import-actions"><button type="button" class="primary" id="explore-import-open">Öppna &amp; anpassa</button><button type="button" class="secondary" id="explore-import-template">Öppna som nytt mallpass</button><button type="button" class="ghost" id="explore-import-cancel">Avbryt</button></div></div><a href="ingemar-exercise-guide.html#programs" id="explore-import-retry" hidden>← Till Utforska träning</a></section>
+  <a class="explore-entry" href="ingemar-exercise-guide.html"><span class="explore-entry-star" aria-hidden="true">★</span><span><strong>Utforska träning</strong><small>Övningsguide, övningsförslag &amp; träningsprogram</small></span><span class="explore-entry-arrow" aria-hidden="true">→</span></a>
+  <div class="section-head"><h2>Träningsformer</h2></div>
   <div class="choices training-kind-cards" id="training-kind-cards"></div><section class="training-kind-detail" id="training-kind-detail" hidden aria-live="polite"></section>
   <div class="stats"><div class="panel stat"><div class="stat-label" id="stat-week-label">Pass denna vecka</div><strong id="stat-week">0</strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>av <span id="stat-week-goal">4</span> i mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label">Totalt antal pass</div><strong id="stat-total">0</strong><div class="sub">träning och återhämtning</div></div><div class="panel stat"><div class="stat-label">Träningstid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Senaste pass</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
   <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="edit-selected-day">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
@@ -763,7 +765,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <label>Tid (sek)<input type="number" inputmode="numeric" id="builder-between-seconds" min="1" max="3600" step="1" data-between-edit="global:seconds" value="60"></label>
   <label class="builder-between-name" id="builder-between-name-wrap" hidden>Övning<input id="builder-between-name" maxlength="80" data-between-edit="global:name" placeholder="Exempelvis hopprep"></label>
  </div>
-</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">Se övningar och teknik ↗</a><button type="button" class="secondary builder-new-template" data-action="new-template" hidden>＋ Skapa ny mall</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
+</div><div id="exercise-list"></div><button type="button" class="secondary builder-add-exercise" data-action="add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">★ Utforska träning ↗</a><button type="button" class="secondary builder-new-template" data-action="new-template" hidden>＋ Skapa ny mall</button><div class="modal-actions builder-main-actions"><button type="button" class="ghost" data-action="close-builder">Tillbaka · behåll utkast</button><div class="right"><button type="button" class="secondary" id="builder-save-plan" data-action="save-plan">Spara upplägg</button><button type="button" class="primary" id="builder-start-from-builder" data-action="start-from-builder">Spara &amp; starta ↗</button></div></div></div></dialog>
 <dialog id="plan-preview" aria-labelledby="plan-preview-title">
  <div class="modal-head"><div><span class="eyebrow">PASSÖVERSIKT</span><h2 id="plan-preview-title">Ditt pass</h2><p class="hint" id="plan-preview-meta"></p></div><button type="button" class="x" data-action="preview-back" aria-label="Tillbaka till passbyggaren">×</button></div>
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
@@ -795,7 +797,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
    <div class="field"><label for="log-edit-minutes">Längd (min)</label><input id="log-edit-minutes" data-log-field="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric"></div>
   </div>
   <div id="log-edit-exercises"></div>
-  <button type="button" class="secondary log-editor-add-exercise" data-action="log-add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">Se övningar och teknik ↗</a>
+  <button type="button" class="secondary log-editor-add-exercise" data-action="log-add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="ingemar-exercise-guide.html" target="_blank" rel="noopener">★ Utforska träning ↗</a>
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
@@ -918,6 +920,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
 <script src="auth-config.js"></script>
 <script src="ingemar-records.js?v=20261011-compact-pr-2"></script>
 <script src="ingemar-account.js?v=20261016-training-audit-1"></script>
+<script src="ingemar-explore.js?v=20261022-explore-1"></script>
 <script>
 (function(){
 'use strict';
@@ -1403,6 +1406,7 @@ function openTrainingKindBuilder(type,templateId){
  else createNewDayWorkout();
 }
 function render(){
+ renderExploreTransfer();
  renderRecords();
  renderTrainingKinds();
  var p=plan(selected),type=nextType();
@@ -1894,6 +1898,65 @@ function matchingBuilderTemplateId(workout){
  });
  return matches.length===1?String(matches[0].id):'';
 }
+// Handoff contains catalogue IDs only. Rebuild trusted defaults, then use the
+// existing draft/save/session flow so suggested workouts log like any other pass.
+var exploreRequest=null,exploreWorkout=null,exploreTransferError=false,exploreChosenType='Push';
+function initializeExploreTransfer(){
+ if(new URLSearchParams(location.search).get('explore')!=='1')return;
+ try{
+  var raw=sessionStorage.getItem(window.IngemarExplore.transferKey);
+  if(!raw||raw.length>4000)throw Error('Missing transfer');
+  exploreRequest=JSON.parse(raw);exploreWorkout=window.IngemarExplore.workout(exploreRequest);
+  if(!exploreWorkout)throw Error('Invalid transfer');
+  exploreChosenType=exploreWorkout.type;$('explore-import-date').value=dayISO(new Date());$('explore-import-type').value=exploreChosenType;
+ }catch(error){exploreTransferError=true;}
+ $('explore-import-date').addEventListener('change',renderExploreTransfer);
+ $('explore-import-type').addEventListener('change',function(){exploreChosenType=this.value;});
+ var importObserver=new MutationObserver(function(){
+  if(!window.IngemarAccount.canEdit)return;
+  importObserver.disconnect();requestAnimationFrame(function(){if(!$('explore-import').hidden){$('explore-import-title').focus({preventScroll:true});$('explore-import').scrollIntoView({block:'start'});}});
+ });
+ importObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-ingemar-auth']});
+ $('explore-import-open').addEventListener('click',function(){openExploreTransfer(false);});
+ $('explore-import-template').addEventListener('click',function(){openExploreTransfer(true);});
+ $('explore-import-cancel').addEventListener('click',clearExploreTransfer);
+}
+function renderExploreTransfer(){
+ var panel=$('explore-import');if(!panel)return;
+ panel.hidden=!exploreWorkout&&!exploreTransferError;
+ if(panel.hidden)return;
+ $('explore-import-controls').hidden=exploreTransferError;$('explore-import-retry').hidden=!exploreTransferError;
+ if(exploreTransferError){$('explore-import-title').textContent='Förslaget kunde inte hämtas';$('explore-import-summary').textContent='Gå tillbaka och välj övningar eller program igen. Öppna passbyggaren i samma flik.';return;}
+ $('explore-import-title').textContent=exploreWorkout.name;
+ $('explore-import-summary').textContent=exploreWorkout.exercises.length+' övningar med set och reps eller tid. Vikterna fyller du i själv i passbyggaren.';
+ var date=$('explore-import-date').value,existing=validDay(date)&&(state.builderDrafts[date]||plan(date));
+ $('explore-import-type').disabled=!!existing;
+ $('explore-import-type').value=existing?existing.type:exploreChosenType;
+ $('explore-import-note').textContent=existing?'Det finns redan ett '+(state.builderDrafts[date]?'utkast':'pass')+' den här dagen. Övningarna läggs sist i det, med samma passkategori. Välj ett annat datum om du vill ha ett separat pass.':'Ett nytt utkast öppnas för valt datum. Förslaget kan redigeras, sparas som pass eller användas som grund för en mall. Ben och helkropp föreslås i kategorin Push; du kan ändra kategori här.';
+ $('explore-import-open').textContent=existing?'Lägg till i passet & anpassa':'Öppna & anpassa';
+}
+function clearExploreTransfer(){
+ try{sessionStorage.removeItem(window.IngemarExplore.transferKey);}catch(error){}
+ exploreRequest=null;exploreWorkout=null;exploreTransferError=false;$('explore-import').hidden=true;
+ var url=new URL(location.href);url.searchParams.delete('explore');history.replaceState(null,'',url.pathname+url.search+url.hash);
+}
+function openExploreTransfer(asTemplate){
+ if(!exploreWorkout)return;
+ if(!window.IngemarAccount.canEdit){toast('Vänta tills dina träningsuppgifter har synkats.');return;}
+ var date=asTemplate?dayISO(new Date()):$('explore-import-date').value;if(!validDay(date)){$('explore-import-date').reportValidity();toast('Välj ett giltigt datum.');return;}
+ var incoming=deep(exploreWorkout),existing=asTemplate?null:state.builderDrafts[date]||plan(date);
+ var type=asTemplate?incoming.type:existing?existing.type:$('explore-import-type').value;
+ if(!TYPES.includes(type))return;
+ selected=date;openBuilder(type,true);
+ if(!existing){draft=freshBuilderDraft(type,date);draft.name=incoming.name;}
+ if(asTemplate){builderMode='template';builderTemplateCreating=true;builderTemplateDraftCreating=true;}
+ incoming.exercises.forEach(function(ex){ex.id=uid();ex.sets.forEach(function(set){set.id=uid();});draft.exercises.push(ex);});
+ // Adding an exercise changes a linked template's contents, but not the template itself.
+ draft.templateId='';builderTemplateId='';builderDayStage='custom';
+ renderBuilder();clearExploreTransfer();
+ toast('Förslaget finns i passbyggaren. Anpassa vikterna innan du startar.');
+}
+
 function freshBuilderDraft(kind,date){var type=TYPES.includes(kind)?kind:'Push';return {type:type,name:'',date:date||dayISO(new Date()),exercises:[],preTimerEnabled:true,betweenExercises:normalizeBetweenOption(null)};}
 function updateBuilderModeUI(){
  var isTemplate=builderMode==='template',box=$('builder');
@@ -2274,7 +2337,7 @@ function renderBuilder(){
   +'<button type="button" class="builder-card-toggle" data-toggle-exercise="'+i+'" aria-expanded="'+expanded+'" aria-controls="builder-exercise-body-'+i+'" aria-label="'+(expanded?'Fäll ihop ':'Visa set för ')+clean(name)+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+clean(builderExerciseSummary(e))+'</span></span></button>'
   +'<div class="builder-row-tools"><button type="button" class="builder-row-drag" data-drag-exercise="'+i+'" aria-label="Dra för att flytta övning '+(i+1)+'" title="Dra för att ändra ordning"><span class="builder-drag-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>'
   +'<details class="builder-card-menu"><summary aria-label="Fler åtgärder för '+clean(name)+'">⋯</summary><div class="builder-card-menu-content"><button type="button" data-copy-exercise="'+i+'">Duplicera övning</button><button type="button" class="builder-menu-delete" data-remove-exercise="'+i+'" '+(draft.exercises.length<=1?'disabled':'')+'>Ta bort övning</button></div></details></div></div>'
-  +'<div class="builder-card-body" id="builder-exercise-body-'+i+'" '+(expanded?'':'hidden')+'><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
+  +'<div class="builder-card-body" id="builder-exercise-body-'+i+'" '+(expanded?'':'hidden')+'><div class="exercise-fields">'+builderExerciseNameMarkup(e,i)+'<div class="metric-pills"><button type="button" class="pill'+(!timed?' active':'')+'" data-mode="'+i+':kg" aria-pressed="'+(!timed)+'">kg × reps</button><button type="button" class="pill'+(timed?' active':'')+'" data-mode="'+i+':min" aria-pressed="'+timed+'">Tid</button></div></div>'+(e.suggestedReps?'<p class="builder-suggestion">Förslag: '+clean(e.suggestedReps)+' reps per set. Anpassa reps, vikt och vila efter dig.</p>':'')+'<div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL / VALFRITT':'REPS')+'</span><span></span></div>'+
   e.sets.map(function(s,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="'+(timed?'0.5':'0.5')+'" aria-label="Set '+(j+1)+' '+(timed?'tid i minuter':'vikt i kg')+'" data-set="'+i+':'+j+':'+(timed?'minutes':'weight')+'" value="'+((timed?s.minutes:s.weight)??'')+'"><input type="number" inputmode="numeric" min="0" max="999" step="1" aria-label="Set '+(j+1)+' '+(timed?'valfria minuter eller mål':'repetitioner')+'" data-set="'+i+':'+j+':reps" value="'+(s.reps||'')+'" placeholder="'+(timed?'Valfritt':'Reps')+'"><button type="button" class="remove-set" data-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'" '+(e.sets.length<=1?'disabled':'')+'>×</button></div>';}).join('')+
  '<div class="exercise-foot"><button type="button" class="mini" data-add-set="'+i+'">＋ Lägg till set</button><span>'+e.sets.length+' set · '+(timed?'tid':'vikt')+'</span></div>'+(timed?'':builderBetweenOption(String(i),e.betweenSets))+'</div></article>';
  }).join(''):'<div class="builder-empty">Lägg till en övning eller välj ett mallpass.</div>';
@@ -2316,7 +2379,7 @@ function openPlanPreview(startAfter){
  $('plan-preview-title').textContent=draft.name;
  $('plan-preview-meta').textContent=pretty(draft.date)+' · '+draft.type;
  var sets=0,minutes=0;draft.exercises.forEach(function(ex){sets+=ex.sets.length;if(ex.mode==='min')ex.sets.forEach(function(set){minutes+=Number(set.minutes)||0;});});
- $('plan-preview-summary').innerHTML='<span>'+draft.exercises.length+' övningar</span><span>'+sets+' set</span>'+(minutes?'<span>'+minutes.toLocaleString('sv-SE')+' min kondition</span>':'')+(draft.preTimerEnabled===false?'<span>5 s timer av</span>':'<span>5 s starttimer</span>')+(normalizeBetweenOption(draft.betweenExercises).enabled?'<span>Mellan övningar: '+clean(betweenDescription(draft.betweenExercises))+'</span>':'');
+ $('plan-preview-summary').innerHTML='<span>'+draft.exercises.length+' övningar</span><span>'+sets+' set</span>'+(minutes?'<span>'+minutes.toLocaleString('sv-SE')+' min planerad tid</span>':'')+(draft.preTimerEnabled===false?'<span>5 s timer av</span>':'<span>5 s starttimer</span>')+(normalizeBetweenOption(draft.betweenExercises).enabled?'<span>Mellan övningar: '+clean(betweenDescription(draft.betweenExercises))+'</span>':'');
  $('plan-preview-list').innerHTML=draft.exercises.map(function(ex,index){return '<li class="plan-preview-exercise" data-preview-kind="'+(ex.mode==='min'?'cardio':'strength')+'"><span class="plan-preview-number">'+pad(index+1)+'</span><div><h3>'+clean(ex.name)+'</h3><div class="plan-preview-sets">'+ex.sets.map(function(set,i){return '<span><small>'+pad(i+1)+'</small>'+(ex.mode==='min'?(set.minutes==null?'–':Number(set.minutes).toLocaleString('sv-SE'))+' min':(set.weight==null?'–':Number(set.weight).toLocaleString('sv-SE'))+' kg × '+(set.reps||'–'))+'</span>';}).join('')+'</div>'+(normalizeBetweenOption(ex.betweenSets).enabled?'<div class="plan-preview-between">Mellan set: '+clean(betweenDescription(ex.betweenSets))+'</div>':'')+'</div></li>';}).join('');
  $('preview-save').textContent=builderWeekIndex>=0?'Spara i veckoplanen':'Spara pass';
  $('preview-start').hidden=builderWeekIndex>=0;
@@ -3608,9 +3671,11 @@ window.addEventListener('resize',function(){
  });
 },{passive:true});
 if(ppChartGlowMq.addEventListener)ppChartGlowMq.addEventListener('change',schedulePpChartGlow);
+initializeExploreTransfer();
 render();
 window.IngemarAccount.connect({apply:function(remote){state=normalizeAccountState(remote);render();if(weekDraft&&$('week-planner').open&&!weekDraftDirty){weekDraft=weekDraftFromMonday(weekPlannerMonday);weekBase=deep(weekDraft);renderWeekPlanner();}if(view!=='training')renderZen();},serialize:function(){return JSON.stringify(state);}});
 })();
 </script>
 </body>
 </html>
+
