@@ -19,7 +19,7 @@
 .inspiration-switch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}.inspiration-switch span{font-size:11px;color:var(--muted)}#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
 
 
-/* Markus & Maja, atlas v2: a single editorial surface with sculpted anatomical SVG. */
+/* Markus & Maja, atlas v2: a single editorial surface with anatomical SVG fallback. */
 body{background:radial-gradient(ellipse 90% 33% at 55% 13%,#17233255,transparent 88%),#080b12}
 main{max-width:1060px;padding:24px 22px 78px}
 .intro{margin:0}.intro h1{font-weight:580;font-size:clamp(30px,4.3vw,43px);letter-spacing:-.055em;margin:8px 0 5px;line-height:1.1}
@@ -126,6 +126,23 @@ main{padding:15px 15px 64px}
 .atlas-figure{max-height:298px;width:min(100%,216px)}
 .atlas-list button{font-size:11px}
 }
+/* Anatomically detailed WebGL viewer. SVG underneath is the fallback. */
+.atlas-webgl{display:none;width:100%;height:490px;position:relative;margin:5px auto -3px;max-width:490px;overflow:hidden;border-radius:19px;background:radial-gradient(ellipse 56% 48% at 50% 47%,#5134483d,transparent 89%)}
+.atlas-webgl canvas{display:block;width:100%;height:100%;outline:none;cursor:grab}
+.atlas-webgl canvas:active{cursor:grabbing}
+.atlas-3d-ready .atlas-figure{display:none}
+.atlas-3d-ready .atlas-webgl{display:block}
+.atlas-3d-status{color:#968fa0;font-size:10px;text-align:center;line-height:1.4;max-width:310px;min-height:0;padding:2px 0}
+.atlas-3d-status:empty{display:none}
+.atlas-credit{margin:14px 0 0;color:#78818f;font-size:10px;line-height:1.6}
+.atlas-credit a{color:#b4a0af;text-decoration:underline;text-underline-offset:2px}
+@media(max-width:740px){
+.atlas-3d-ready .atlas-visual{margin-top:7px}
+.atlas-webgl{height:365px;max-width:360px;margin:1px auto -1px}
+.atlas-3d-status{font-size:9px}
+.atlas-credit{font-size:9px;line-height:1.5}
+}
+@media(max-width:375px){.atlas-webgl{height:337px;max-width:330px}}
 @media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
 </style>
 </head>
@@ -142,6 +159,7 @@ main{padding:15px 15px 64px}
 </div>
 <div class="atlas-visual">
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
+<div id="atlas-webgl" class="atlas-webgl" hidden aria-label="Interaktiv 3D-modell av människans muskler"></div>
 <svg id="atlas-figure" class="atlas-figure" viewBox="0 0 360 505" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskel på kroppen.">
 <defs>
 <linearGradient id="anatomy-surface" x1=".02" y1=".03" x2=".96" y2="1"><stop stop-color="#677d88"/><stop offset=".22" stop-color="#445563"/><stop offset=".53" stop-color="#283846"/><stop offset="1" stop-color="#101f2f"/></linearGradient>
@@ -206,12 +224,14 @@ main{padding:15px 15px 64px}
 <g class="atlas-hotspot" data-atlas-muscle="Vader" role="button" tabindex="0" aria-label="Vader"><path class="atlas-zone" d="M138 396Q150 405 158 396Q160 425 155 449Q150 456 144 452Q134 427 138 396Z"/><path class="atlas-zone" d="M222 396Q210 405 202 396Q200 425 205 449Q210 456 216 452Q226 427 222 396Z"/></g>
 </g>
 </svg>
-<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Tryck på en muskelgrupp</div>
+<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Rotera kroppen eller välj muskelgrupp</div>
+<div id="atlas-3d-status" class="atlas-3d-status" role="status" aria-live="polite"></div>
 </div>
 <div class="atlas-explore">
 <div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
 <div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div>
 <button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
+<p class="atlas-credit">3D-anatomi: <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener noreferrer">Z-Anatomy</a> (CC BY-SA 4.0), baserat på <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener noreferrer">BodyParts3D</a> (CC BY-SA 2.1 JP). Modelloptimering: <a href="https://github.com/SeemaBansal1/3d-human-body-anatomy" target="_blank" rel="noopener noreferrer">3D Human Body Anatomy</a>. Modelländringar omfattas av källornas respektive ShareAlike-licenser.</p>
 </div>
 </div>
 </section>
@@ -266,6 +286,7 @@ function renderAtlas(){
  $('atlas-front').setAttribute('aria-pressed',String(atlasView==='front'));
  $('atlas-back').setAttribute('aria-pressed',String(atlasView==='back'));
  $('atlas-figure').querySelectorAll('.atlas-hotspot').forEach(node=>node.setAttribute('data-active',String(node.dataset.atlasMuscle===group&&studioOpen)));
+ document.dispatchEvent(new CustomEvent('pulse:atlas-sync', {detail:{view:atlasView,group}}));
 }
 function updateStudioNavigation(items=filtered()){
  const index=items.findIndex(e=>e.id===active);
@@ -751,6 +772,11 @@ function animate(now){
 
 function select(id,scroll){active=id;phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();renderList();if(scroll&&matchMedia('(max-width:740px)').matches)$('detail').scrollIntoView({behavior:'smooth',block:'start'});}
 
+document.addEventListener('pulse:atlas-select',event=>{
+ const muscle=event.detail?.muscle;
+ if(!muscleGroups.includes(muscle))return;
+ showPage('guide');openStudio(muscle);
+});
 $('atlas-home').addEventListener('click',event=>{
  const side=event.target.closest('#atlas-front,#atlas-back');
  if(side){atlasView=side.id==='atlas-back'?'back':'front';renderAtlas();return;}
@@ -892,5 +918,9 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 
 renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
+</script>
+<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-anatomy3d-v1"></script>
 </body></html>
 
