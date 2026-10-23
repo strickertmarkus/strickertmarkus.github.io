@@ -144,6 +144,54 @@ main{padding:15px 15px 64px}
 }
 @media(max-width:375px){.atlas-webgl{height:337px;max-width:330px}}
 @media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
+
+/* Fitness hologram v2 — Markus/Maja only */
+.atlas-visual{isolation:isolate;border:1px solid #ffffff13;border-radius:24px;overflow:hidden;
+ background:radial-gradient(ellipse 66% 60% at 50% 47%,#2b354874 0%,#16172494 56%,#10141c 100%);
+ box-shadow:inset 0 1px 0 #ffffff10,0 20px 48px #03040937}
+.atlas-visual::before{inset:11% 5% 6%;background:radial-gradient(ellipse 54% 48% at 50% 47%,#e58da51f,transparent 75%);filter:blur(18px)}
+.atlas-view-controls{margin-top:14px!important;background:#0e141bd9;box-shadow:0 7px 25px #0003}
+.atlas-webgl{background:radial-gradient(ellipse 50% 53% at 50% 48%,#9c637f23,transparent 75%);max-height:515px;border-radius:0}
+.atlas-view-hint{margin:5px 0 13px;color:#b2afbb}
+.atlas-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;
+ padding:11px 0 10px;margin-top:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.atlas-list::-webkit-scrollbar{display:none}
+.atlas-list button{flex:0 0 auto;min-height:37px;border:1px solid #ffffff1c;border-radius:100px;
+ background:#ffffff06;padding:8px 14px;color:#d3d0da;font-size:12px;font-weight:600;white-space:nowrap}
+.atlas-list button[aria-pressed="true"]{background:#b45c7b2b;border-color:#e6a0b07d;color:#ffd6cf;box-shadow:0 0 14px #d56b8940}
+.atlas-list button:hover{border-color:#ebadb08c}
+.atlas-explore{margin-top:16px}
+.atlas-explore-header{font-size:10px}
+.atlas-selected{display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin:11px 0 4px;padding:15px 17px;border:1px solid #d383993f;border-radius:15px;
+ background:linear-gradient(105deg,#a65a7328,#ffffff04 75%)}
+.atlas-selected-copy{display:flex;flex-direction:column;gap:4px}
+.atlas-selected-copy span{font-size:9px;font-weight:740;letter-spacing:.12em;color:#a98f9f}
+.atlas-selected-copy strong{font-size:20px;letter-spacing:-.035em;font-weight:610}
+.atlas-selected-copy small{font-size:11px;color:#c19fae}
+#atlas-show-exercises{flex-shrink:0;border:0;background:#c67c94;color:#1e1218;border-radius:11px;
+ font-size:12px;font-weight:800;min-height:40px;padding:10px 13px}
+#atlas-show-exercises span{margin-left:6px;font-size:15px}
+.atlas-all{font-size:11px;min-height:36px;margin-top:4px;color:#be9cae}
+@media(max-width:740px){
+ .atlas-shell{padding:0 0 18px}
+ .atlas-visual{margin:13px 0 2px;padding:0 4px 8px;border-radius:21px}
+ .atlas-webgl{height:355px;max-width:100%;margin:0}
+ .atlas-figure{max-height:312px}
+ .atlas-3d-ready .atlas-visual{margin-top:12px}
+ .atlas-view-controls{margin-top:10px!important}
+ .atlas-explore{margin-top:15px}
+ .atlas-list{margin-top:2px;padding:9px 0}
+ .atlas-list button{font-size:11px;padding:8px 12px}
+ .atlas-selected{padding:13px 13px;border-radius:13px}
+ .atlas-selected-copy strong{font-size:18px}
+ #atlas-show-exercises{font-size:11px}
+}
+@media(max-width:370px){
+ .atlas-webgl{height:326px}
+ .atlas-selected{gap:8px}
+ #atlas-show-exercises{padding:9px 9px;font-size:10px}
+}
 </style>
 </head>
 <body>
@@ -155,7 +203,7 @@ main{padding:15px 15px 64px}
 <div class="atlas-shell">
 <div class="atlas-content">
 <div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
-<p>Välj en muskel på kroppen eller direkt i listan.</p>
+<p>Rotera kroppen och välj en muskel för att upptäcka övningar.</p>
 </div>
 <div class="atlas-visual">
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
@@ -230,6 +278,10 @@ main{padding:15px 15px 64px}
 <div class="atlas-explore">
 <div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
 <div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div>
+<div class="atlas-selected" id="atlas-selected" aria-live="polite">
+  <div class="atlas-selected-copy"><span>VALD MUSKELGRUPP</span><strong id="atlas-selected-name">Bröst</strong><small id="atlas-selected-count">8 övningar</small></div>
+  <button type="button" id="atlas-show-exercises">Visa övningar <span aria-hidden="true">↗</span></button>
+</div>
 <button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
 <p class="atlas-credit">3D-anatomi: <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener noreferrer">Z-Anatomy</a> (CC BY-SA 4.0), baserat på <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener noreferrer">BodyParts3D</a> (CC BY-SA 2.1 JP). Modelloptimering: <a href="https://github.com/SeemaBansal1/3d-human-body-anatomy" target="_blank" rel="noopener noreferrer">3D Human Body Anatomy</a>. Modelländringar omfattas av källornas respektive ShareAlike-licenser.</p>
 </div>
@@ -277,16 +329,29 @@ const $=id=>document.getElementById(id),muscleGroups=[...new Set(exercises.flatM
 const safe=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // Stage 1: muscle atlas and studio navigation. This file belongs only to Markus/Maja.
-let studioOpen=false,atlasView='front';
+let studioOpen=false,atlasView='front',atlasSelected='Bröst';
+const atlasBackMuscles=new Set(['Rygg','Triceps','Säte','Baksida lår','Vader']);
+function chooseAtlasMuscle(muscle,{focus=true,keepView=false}={}){
+ if(!muscleGroups.includes(muscle))return;
+ atlasSelected=muscle;
+ if(!keepView)atlasView=atlasBackMuscles.has(muscle)?'back':'front';
+ renderAtlas();
+ document.dispatchEvent(new CustomEvent('pulse:atlas-sync',{
+  detail:{group:atlasSelected,view:keepView?undefined:atlasView,focus}
+ }));
+}
+
 function renderAtlas(){
- const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)&&(equip==='All utrustning'||e.equipment===equip)).length]));
- $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span><small>'+counts.get(m)+' ↗</small></button>').join('');
+ const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)).length]));
+ $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'" aria-pressed="'+(m===atlasSelected)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span></button>').join('');
  $('atlas-count').textContent=exercises.length+' övningar';
+ $('atlas-selected-name').textContent=atlasSelected;
+ $('atlas-selected-count').textContent=(counts.get(atlasSelected)||0)+' övningar';
  $('atlas-figure').dataset.view=atlasView;
  $('atlas-front').setAttribute('aria-pressed',String(atlasView==='front'));
  $('atlas-back').setAttribute('aria-pressed',String(atlasView==='back'));
- $('atlas-figure').querySelectorAll('.atlas-hotspot').forEach(node=>node.setAttribute('data-active',String(node.dataset.atlasMuscle===group&&studioOpen)));
- document.dispatchEvent(new CustomEvent('pulse:atlas-sync', {detail:{view:atlasView,group}}));
+ $('atlas-figure').querySelectorAll('.atlas-hotspot').forEach(node=>node.setAttribute('data-active',String(node.dataset.atlasMuscle===atlasSelected)));
+ document.dispatchEvent(new CustomEvent('pulse:atlas-sync',{detail:{group:atlasSelected}}));
 }
 function updateStudioNavigation(items=filtered()){
  const index=items.findIndex(e=>e.id===active);
@@ -312,6 +377,7 @@ function openStudio(muscle='Alla',preferredId=null,resetEquipment=false){
  $('studio-shell').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
 function closeStudio(){
+ if(muscleGroups.includes(group))atlasSelected=group;
  toggleStudio(false);$('atlas-home').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
 function stepStudio(direction){
@@ -775,19 +841,26 @@ function select(id,scroll){active=id;phase=0;cameraIndex=0;$('view-toggle').setA
 document.addEventListener('pulse:atlas-select',event=>{
  const muscle=event.detail?.muscle;
  if(!muscleGroups.includes(muscle))return;
- showPage('guide');openStudio(muscle);
+ showPage('guide');
+ chooseAtlasMuscle(muscle,{focus:false,keepView:true});
 });
 $('atlas-home').addEventListener('click',event=>{
  const side=event.target.closest('#atlas-front,#atlas-back');
- if(side){atlasView=side.id==='atlas-back'?'back':'front';renderAtlas();return;}
+ if(side){
+  atlasView=side.id==='atlas-back'?'back':'front';
+  renderAtlas();
+  document.dispatchEvent(new CustomEvent('pulse:atlas-sync',{detail:{view:atlasView}}));
+  return;
+ }
  const target=event.target.closest('[data-atlas-muscle]');
- if(target&&!target.disabled){openStudio(target.dataset.atlasMuscle);return;}
+ if(target&&!target.disabled){chooseAtlasMuscle(target.dataset.atlasMuscle);return;}
+ if(event.target.closest('#atlas-show-exercises')){openStudio(atlasSelected);return;}
  if(event.target.closest('#atlas-all'))openStudio('Alla');
 });
 $('atlas-figure').addEventListener('keydown',event=>{
  if(event.key!=='Enter'&&event.key!==' ')return;
  const target=event.target.closest('[data-atlas-muscle]');if(!target)return;
- event.preventDefault();openStudio(target.dataset.atlasMuscle);
+ event.preventDefault();chooseAtlasMuscle(target.dataset.atlasMuscle);
 });
 $('studio-back').addEventListener('click',closeStudio);
 $('studio-prev').addEventListener('click',()=>stepStudio(-1));
@@ -921,6 +994,6 @@ renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='S
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
 </script>
-<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-anatomy3d-v1"></script>
+<script type="module" src="pulse-muscle-atlas-3d.js?v=20261023-fitness3d-v2"></script>
 </body></html>
 
