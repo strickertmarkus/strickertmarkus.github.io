@@ -94,8 +94,8 @@ if (target && visual && guide && supportsWebGL()) {
 
       const scene = new THREE.Scene();
       // Studio-style lighting: cool sculpted shell, warm rim, no clinical white wash.
-      scene.add(new THREE.AmbientLight(0x7f9eb6, 0.42));
-      scene.add(new THREE.HemisphereLight(0xb4cadb, 0x0a101b, 1.2));
+      scene.add(new THREE.AmbientLight(0xdceaf5, 0.58));
+      scene.add(new THREE.HemisphereLight(0xf3f6ff, 0x283342, 1.42));
       const key = new THREE.DirectionalLight(0xd8e5f1, 1.85);
       key.position.set(3, 5, 4); scene.add(key);
       const fill = new THREE.DirectionalLight(0x7794c0, 0.55);
@@ -142,12 +142,12 @@ if (target && visual && guide && supportsWebGL()) {
       camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      // Shell rather than anatomical specimen: dark semi-transparent form.
+      // Soft pearl-white semi-transparent shell; only the selected muscle is vivid red.
       // FrontSide prevents double-sided ghosting through the torso and limbs.
       const skinMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x506579, transparent: true, opacity: 0.28,
-        roughness: 0.69, metalness: 0.04, side: THREE.FrontSide,
-        depthWrite: false, clearcoat: 0.05
+        color: 0xeaf2fb, transparent: true, opacity: 0.68,
+        roughness: 0.49, metalness: 0.01, side: THREE.FrontSide,
+        depthWrite: false, clearcoat: 0.1
       });
       // Fade face/scalp and extremities regardless of how source meshes are split.
       // A smooth fade avoids the uncanny detailed head visible in the source GLB.
@@ -174,8 +174,8 @@ if (target && visual && guide && supportsWebGL()) {
         );
       };
       const faceMaterial = skinMaterial.clone();
-      faceMaterial.opacity = 0.055;
-      faceMaterial.color.setHex(0x36465a);
+      faceMaterial.opacity = 0.19;
+      faceMaterial.color.setHex(0xe2ebf4);
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
