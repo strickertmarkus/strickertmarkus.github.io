@@ -150,7 +150,7 @@ if (target && visual && guide && supportsWebGL()) {
         transparent: true, depthWrite: true, depthTest: true,
         side: THREE.FrontSide, toneMapped: false,
         uniforms: {
-          uBodyAlpha: {value: 0.64},
+          uBodyAlpha: {value: 0.46},
           uHeadStart: {value: height * 0.26},
           uHeadEnd: {value: height * 0.35},
           uHeadRadius: {value: height * 0.13},
@@ -180,13 +180,16 @@ if (target && visual && guide && supportsWebGL()) {
           'varying vec3 vPulseWorld;',
           'void main(){',
           '  vec3 n = normalize(vPulseNormal);',
-          '  float facing = clamp(abs(dot(n,normalize(vPulseView))),0.0,1.0);',
-          '  float rim = pow(1.0-facing,2.0);',
-          '  float form = 0.5 + 0.5 * dot(n,normalize(vec3(-0.37,0.72,0.62)));',
-          '  float soft = smoothstep(0.0,1.0,form);',
-          '  vec3 pearl = mix(vec3(0.51,0.63,0.75), vec3(0.94,0.97,1.0), 0.22+0.71*soft);',
-          '  pearl = mix(pearl,vec3(0.985,0.99,1.0),0.75*rim);',
-          '  float alpha = min(0.93,uBodyAlpha + 0.22*rim);',
+          '  float facing = clamp(dot(n,normalize(vPulseView)),0.0,1.0);',
+          '  float rim = pow(1.0-facing,1.55);',
+          '  float form = 0.5 + 0.5 * dot(n,normalize(vec3(-0.42,0.70,0.58)));',
+          '  float soft = smoothstep(0.13,0.88,form);',
+          '  vec3 pearl = mix(vec3(0.44,0.56,0.68), vec3(0.96,0.98,1.0), 0.24+0.72*soft);',
+          '  float halo = smoothstep(0.35,0.92,rim);',
+          '  pearl = mix(pearl,vec3(0.99,0.995,1.0),0.84*halo);',
+          '  float glint = pow(max(dot(reflect(-normalize(vec3(-0.42,0.70,0.58)),n),normalize(vPulseView)),0.0),24.0);',
+          '  pearl = mix(pearl,vec3(1.0),glint*0.27);',
+          '  float alpha = min(0.87,uBodyAlpha + 0.34*rim);',
           '  float headZone = smoothstep(uHeadStart,uHeadEnd,vPulseWorld.y);',
           '  float centerZone = 1.0-smoothstep(uHeadRadius*0.60,uHeadRadius*1.15,abs(vPulseWorld.x));',
           '  alpha *= (1.0 - headZone*centerZone);',
@@ -198,7 +201,7 @@ if (target && visual && guide && supportsWebGL()) {
       });
       // The anatomical face is softened, not rendered as a detailed specimen.
       const faceMaterial = skinMaterial.clone();
-      faceMaterial.uniforms.uHeadSoftness.value = 0.91;
+      faceMaterial.uniforms.uHeadSoftness.value = 0.97;
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
@@ -223,7 +226,7 @@ if (target && visual && guide && supportsWebGL()) {
       portraitMaterial.uniforms.uHeadStart.value = height * 10;
       portraitMaterial.uniforms.uHeadEnd.value = height * 11;
       portraitMaterial.uniforms.uHeadSoftness.value = 0;
-      portraitMaterial.uniforms.uBodyAlpha.value = 0.94;
+      portraitMaterial.uniforms.uBodyAlpha.value = 0.68;
       portraitMaterial.depthTest = false;
       portraitMaterial.depthWrite = false;
       const head = new THREE.Mesh(new THREE.SphereGeometry(1,36,28),portraitMaterial);
@@ -248,8 +251,8 @@ if (target && visual && guide && supportsWebGL()) {
       // The active group is intentionally painted over the pale shell.
       // A soft red material gives anatomical volume without harsh cut-out edges.
       const activeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xec655b, emissive: 0xc44d48, emissiveIntensity: 0.54,
-        transparent: true, opacity: 0.92, roughness: 0.70,
+        color: 0xeb5b54, emissive: 0xb83a3d, emissiveIntensity: 0.61,
+        transparent: true, opacity: 0.94, roughness: 0.58,
         metalness: 0, side: THREE.FrontSide,
         depthTest: false, depthWrite: false
       });
@@ -369,9 +372,13 @@ if (target && visual && guide && supportsWebGL()) {
       observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
       observer?.observe(target);
       window.addEventListener('resize', resize);
-      visual.classList.add('atlas-3d-ready');
       target.hidden = false;
+      // Do not reveal the renderer until a complete first WebGL frame is ready.
       resize();
+      controls.update();
+      renderer.render(scene, camera);
+      visual.classList.add('atlas-3d-ready');
+      document.documentElement.classList.remove('atlas-3d-pending');
       statusText('');
       document.dispatchEvent(new CustomEvent('pulse:atlas-ready'));
       let lastFrame = 0;
@@ -411,6 +418,8 @@ if (target && visual && guide && supportsWebGL()) {
       draco?.dispose();
       if (renderer?.domElement?.parentElement === target) renderer.domElement.remove();
       visual.classList.remove('atlas-3d-ready');
+      document.documentElement.classList.remove('atlas-3d-pending');
+      document.documentElement.classList.add('atlas-3d-failed');
       statusText('3D kunde inte visas här. Den interaktiva 2D-atlasen fungerar fortfarande.');
     }
   }
