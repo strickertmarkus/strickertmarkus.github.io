@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'budget/pulse-exercise-guide.html'
+      - 'budget/pulse-living-anatomy.css'
+      - 'budget/pulse-living-anatomy.js'
       - 'budget/pulse-exercise-motion-3d.js'
       - '.github/workflows/pulse-exercise-motion-3d-verify.yml'
   workflow_dispatch:
@@ -37,6 +39,8 @@ jobs:
             await page.waitForFunction(()=>document.querySelector('.atlas-visual')?.classList.contains('atlas-stills-ready'),null,{timeout:35000});
             await page.screenshot({path:'test-results/exercise-3d/living-anatomy-full-mobile.png',fullPage:true});
             await page.locator('.living-home .atlas-visual').screenshot({path:'test-results/exercise-3d/living-anatomy-stage.png'});
+            const svgVisible=await page.locator('#atlas-figure').evaluate(el=>getComputedStyle(el).display!=='none');
+            assert.equal(svgVisible,false,'Old medical SVG must not overlay the image atlas');
             assert.ok(await page.locator('#living-title').isVisible(),'New anatomical home should be visible');
             assert.equal(await page.locator('#discover-legacy').isVisible(),false,'Old discover screen must be hidden');
             assert.equal(await page.locator('#atlas-archive').count(),0,'Legacy collapse should be gone');
