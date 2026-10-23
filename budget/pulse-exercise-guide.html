@@ -218,6 +218,14 @@ main{padding:15px 15px 64px}
 @keyframes atlas-loading-pulse{50%{opacity:.45;transform:scale(.96)}}
 @media(max-width:740px){.atlas-stills-pending .atlas-loading{height:355px}}
 @media(prefers-reduced-motion:reduce){.atlas-loading-orb{animation:none}}
+
+/* Actual anatomical model dynamically posed from all guideScenes. SVG remains
+   available while the 3D assets load and whenever WebGL is unsupported. */
+#studio-stage .exercise-3d{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100%;height:100%;pointer-events:none;display:none;z-index:2}
+#studio-stage.exercise-3d-ready .exercise-3d{display:block}
+#studio-stage .stage-label{z-index:4}
+#studio-stage .exercise-3d canvas{display:block;width:100%;height:100%}
+@media(prefers-reduced-motion:reduce){#studio-stage .exercise-3d{transition:none}}
 </style>
 </head>
 <body>
@@ -319,7 +327,7 @@ main{padding:15px 15px 64px}
 <div class="studio-filters filters"><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
 <div class="layout studio-layout">
 <section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2 id="detail-name"></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div>
-<div class="stage" id="studio-stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg></div>
+<div class="stage" id="studio-stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg><div id="exercise-3d" class="exercise-3d" aria-hidden="true"></div></div>
 <div class="studio-stepper"><button type="button" id="studio-prev" aria-label="Föregående övning">←</button><span>Svep för att utforska övningar</span><button type="button" id="studio-next" aria-label="Nästa övning">→</button></div>
 <div class="stage-bottom"><small>Muskler i korall</small><div class="stage-controls"><button id="view-toggle" type="button" aria-pressed="false">Byt vy ↻</button><button id="pause" type="button" aria-pressed="false">Pausa Ⅱ</button></div></div>
 <div id="muscles" class="muscle-row"></div>
@@ -491,7 +499,8 @@ function limbJoint(root,end,l1,l2,pole){
 }
 function makeScene(index,t,cycle=0){
  const cfg=guideScenes[index],kind=cfg.kind,shapes=[],anchors=[];
- const primitive=(type,points,style={})=>shapes.push({type,points,...style});
+ let drawingPerson=false;
+ const primitive=(type,points,style={})=>shapes.push({type,points,person:drawingPerson,...style});
  const rod=(a,b,r=.025,color=palette.metal)=>{const steps=Math.max(1,Math.ceil(V.len(S(b,a))/.12));for(let i=0;i<steps;i++)primitive('rod',[V.lerp(a,b,i/steps),V.lerp(a,b,(i+1)/steps)],{r,color});};
  const ball=(p,r,color)=>primitive('ball',[p],{r,color});
  const poly=(points,color,stroke)=>primitive('poly',points,{color,stroke});
@@ -781,6 +790,7 @@ function makeScene(index,t,cycle=0){
  const shoulders=[shoulder(-1),shoulder(1)],hips=[A(hip,[-.12,0,0]),A(hip,[.12,0,0])];
  if(!elbows)elbows=hands.map((h,i)=>limbJoint(shoulders[i],h,.30,.28,elbowPoles[i]));
  if(!knees)knees=feet.map((f,i)=>limbJoint(hips[i],f,.44,.43,kneePoles[i]));
+ drawingPerson=true;
  const muscles=exercises[index].muscles,has=s=>muscles.includes(s);
  const muscleStrip=(a,b,r,offset)=>rod(A(V.lerp(a,b,.22),offset),A(V.lerp(a,b,.78),offset),r,palette.muscle);
  for(let i=0;i<2;i++){
@@ -830,10 +840,10 @@ function sceneFrame(index,viewIndex){
  const minX=Math.min(...bounds.map(p=>p[0])),maxX=Math.max(...bounds.map(p=>p[0])),minY=Math.min(...bounds.map(p=>p[1])),maxY=Math.max(...bounds.map(p=>p[1]));
  const scale=Math.min(368/(maxX-minX),272/(maxY-minY)),frame={scale,x:210-(minX+maxX)*scale/2,y:178-(minY+maxY)*scale/2};frameCache.set(key,frame);return frame;
 }
-function renderScene(index,t,cycle=0,viewIndex=0){
- const scene=makeScene(index,t,cycle),view=scene.cfg.views[viewIndex],frame=sceneFrame(index,viewIndex),n=v=>Number(v.toFixed(2));
+function renderScene(index,t,cycle=0,viewIndex=0,equipmentOnly=false,prepared){
+ const scene=prepared||makeScene(index,t,cycle),view=scene.cfg.views[viewIndex],frame=sceneFrame(index,viewIndex),n=v=>Number(v.toFixed(2));
  const project=p=>{const q=cameraPoint(p,view);return [n(frame.x+q[0]*frame.scale),n(frame.y+q[1]*frame.scale),q[2]];};
- const parts=scene.shapes.map(s=>{const points=s.points.map(project);return {...s,points,depth:points.reduce((a,p)=>a+p[2],0)/points.length};}).sort((a,b)=>a.ground?-1:b.ground?1:a.depth-b.depth);
+ const parts=scene.shapes.filter(s=>!equipmentOnly||!s.person).map(s=>{const points=s.points.map(project);return {...s,points,depth:points.reduce((a,p)=>a+p[2],0)/points.length};}).sort((a,b)=>a.ground?-1:b.ground?1:a.depth-b.depth);
  let svg='';
  svg+='<g stroke-linecap="round" stroke-linejoin="round">';
  for(const s of parts){
@@ -848,8 +858,17 @@ function renderScene(index,t,cycle=0,viewIndex=0){
  return svg+'</g>';
 }
 function draw(t,cycle=phase){
- const cfg=guideScenes[active];
- $('exercise-figure').innerHTML=renderScene(active,t,cycle,cameraIndex);
+ const cfg=guideScenes[active],motion=makeScene(active,t,cycle);
+ const avatar=studioOpen?window.PulseExercise3D:null;
+ const prefer3D=avatar?.ready===true;
+ $('exercise-figure').innerHTML=renderScene(active,t,cycle,cameraIndex,prefer3D,motion);
+ if(avatar){
+  const rendered=avatar.update({motion,index:active,view:cfg.views[cameraIndex],bounds:sceneFrame(active,cameraIndex),muscles:exercises[active].muscles});
+  if(prefer3D&&!rendered){
+   $('exercise-figure').innerHTML=renderScene(active,t,cycle,cameraIndex,false,motion);
+   $('studio-stage').classList.remove('exercise-3d-ready');
+  }
+ }
  document.querySelector('.stage-label').textContent=cfg.stance;
  $('exercise-figure').setAttribute('aria-label',exercises[active].name+'. '+cfg.stance+'. '+(cameraIndex?'Kompletterande vy.':'Rekommenderad vy.'));
 }
@@ -1018,5 +1037,7 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 
 renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 <script type="module" src="pulse-muscle-atlas-stills.js?v=20261023-stills-v1"></script>
+<script type="module" src="pulse-exercise-motion-3d.js?v=20261023-animated-shell-v1"></script>
 </body></html>
