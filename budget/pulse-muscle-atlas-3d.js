@@ -163,7 +163,7 @@ if (target && visual && guide && supportsWebGL()) {
           return;
         }
         skinMeshes++;
-        mesh.material = /head|face|nose|ear|mouth|lip|scalp|neck/.test(name) ? faceMaterial : skinMaterial;
+        mesh.material = /\b(?:head|face|nose|ear|mouth|lip|scalp|neck)\b/.test(name) ? faceMaterial : skinMaterial;
         mesh.renderOrder = 1;
         mesh.frustumCulled = false;
       });
