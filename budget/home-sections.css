@@ -245,165 +245,6 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 }
 
 
-/* Home / Kommande händelser: the same borderless, text-first composition
-   as Att göra, with the existing person-specific glow dots preserved. */
-#home-overview .sidebar > .home-upcoming-integrated-v1{
-  box-sizing:border-box;
-  width:100%;
-  min-width:0;
-  margin:0 0 20px;
-  padding:0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  box-shadow:none;
-}
-#home-overview .home-upcoming-integrated-v1 > .sidebar-title{
-  min-width:0;
-  margin:0 0 7px;
-  padding:5px 2px 10px;
-  border-bottom:1px solid rgba(255,255,255,.075);
-  background:transparent;
-  color:var(--home-view-accent,#FDBA74);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:.95px;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list{
-  display:block;
-  min-width:0;
-  background:transparent;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
-  box-sizing:border-box;
-  min-width:0;
-  margin:0;
-  padding:11px 3px 10px;
-  border:0;
-  border-bottom:1px solid rgba(255,255,255,.065);
-  border-radius:0;
-  background:transparent;
-  transition:background-color .16s ease;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:last-child{border-bottom:0}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:is(:hover,:focus-within){
-  background:rgba(var(--home-view-rgb,253,186,116),.028);
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .event-title{
-  max-width:100%;
-  overflow-wrap:anywhere;
-  color:var(--text,#f0f6fc);
-  font-size:13px;
-  font-weight:550;
-  line-height:1.45;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-details{
-  gap:4px 7px;
-  margin-top:3px;
-  font-size:10px;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-member-dot{
-  flex:0 0 7px;
-  width:7px;
-  height:7px;
-  box-shadow:0 0 9px var(--member-color);
-}
-#home-overview .home-upcoming-integrated-v1 .empty-sidebar{
-  padding:16px 3px 8px;
-  text-align:left;
-  font-size:12px;
-}
-@media(max-width:768px){
-  #home-overview .sidebar > .home-upcoming-integrated-v1{margin-bottom:15px}
-}
-
-
-/* Home open-surface layout — remove the older global polish gradient.
-   home-calendar-base.css uses !important on .widget / .sidebar-section;
-   these explicit view-scoped overrides intentionally win that cascade.
-   Calendar cells, menus, chart widgets and edit controls are untouched. */
-
-/* Översikt: Kommande händelser + Inköpslista + Att göra sit on page. */
-body.home-calendar-polish-v5 #home-overview .sidebar > .home-upcoming-integrated-v1,
-body.home-calendar-polish-v5 #home-overview #shopping-widget,
-body.home-calendar-polish-v5 #home-overview #family-todo-home{
-  background:transparent!important;
-  background-image:none!important;
-  border:0!important;
-  border-radius:0!important;
-  box-shadow:none!important;
-  -webkit-box-shadow:none!important;
-}
-body.home-calendar-polish-v5 #home-overview .sidebar > .home-upcoming-integrated-v1{
-  padding:0!important;
-  margin:0 0 clamp(16px,2vw,24px)!important;
-}
-body.home-calendar-polish-v5 #home-overview #shopping-widget,
-body.home-calendar-polish-v5 #home-overview #family-todo-home{
-  box-sizing:border-box;
-  min-width:0;
-  width:100%;
-  padding:0!important;
-  margin:0!important;
-}
-body.home-calendar-polish-v5 #home-overview #shopping-widget{
-  cursor:pointer;
-  transition:background-color .18s ease!important;
-  transform:none!important;
-}
-body.home-calendar-polish-v5 #home-overview #shopping-widget:hover{
-  background:transparent!important;
-  background-image:none!important;
-  box-shadow:none!important;
-  transform:none!important;
-}
-#home-overview .home-overview-widgets{
-  gap:clamp(28px,3vw,40px);
-}
-#home-overview #shopping-widget>.widget-head,
-#home-overview #family-todo-home .widget-head{
-  min-width:0;
-  padding:5px 2px 10px;
-  margin:0 0 7px;
-  border-bottom:1px solid rgba(255,255,255,.075);
-}
-#home-overview #shopping-widget .widget-title{
-  color:var(--home-view-accent,#FDBA74)!important;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:.85px;
-}
-#home-overview #shopping-widget .shopping-input-row{
-  min-width:0;
-  margin:10px 0 5px;
-}
-#home-overview #shopping-widget .shopping-list{
-  min-width:0;
-  gap:0;
-  max-height:360px;
-}
-#home-overview #shopping-widget .shopping-item{
-  min-width:0;
-  margin:0;
-  padding:9px 3px;
-  border-bottom:1px solid rgba(255,255,255,.065);
-}
-#home-overview #shopping-widget .shopping-item:last-child{border-bottom:0}
-#home-overview #shopping-widget .tap-hint{
-  margin:8px 1px 2px;
-  color:var(--text-sec,#929ba9);
-  font-size:10px;
-}
-#home-overview #family-todo-home .ft-list{
-  min-width:0;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item{
-  padding-block:9px 10px;
-}
-#home-overview .home-upcoming-integrated-v1 #upcoming-list .upcoming-event-item:hover{
-  background:rgba(var(--home-view-rgb,253,186,116),.023)!important;
-}
-
 /* Ekonomi: typographic monthly snapshot, open transfer details and links. */
 #home-economy .home-economy-snapshot,
 body.home-calendar-polish-v5 #home-economy #transfer-widget{
@@ -524,7 +365,6 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   #home-economy .home-economy-snapshot{padding:0 0 16px;margin-bottom:22px}
   #home-economy .home-economy-snapshot-top{margin-bottom:12px}
   #home-economy .home-economy-metric{padding-inline:10px}
-  #home-overview #shopping-widget .shopping-item{padding-block:8px}
 }
 @media(max-width:540px){
   #home-economy .home-economy-links{grid-template-columns:minmax(0,1fr)}
@@ -533,58 +373,6 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   #home-economy .home-economy-metric:nth-child(even){padding-right:0}
 }
 
-
-/* A single, very low-contrast ambient highlight instead of stacked glow
-   patches. No tinted band or hard horizontal edge below navigation. */
-body.home-calendar-polish-v5[data-home-section="overview"]::before{
-  background:none!important;
-}
-#home-overview{
-  position:relative;
-  isolation:isolate;
-}
-#home-overview::before{
-  content:"";
-  position:absolute;
-  inset:-62px 0 auto;
-  height:910px;
-  z-index:-1;
-  pointer-events:none;
-  background:radial-gradient(
-    ellipse 88% 67% at 19% 12%,
-    rgba(var(--home-view-rgb,253,186,116),.061) 0%,
-    rgba(var(--home-view-rgb,253,186,116),.025) 38%,
-    transparent 79%
-  );
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 11%,#000 34%,transparent 94%);
-  mask-image:linear-gradient(to bottom,transparent 0%,#000 11%,#000 34%,transparent 94%);
-}
-#home-overview::after{content:none!important}
-/* Keep the old filter bar from introducing an opaque horizontal stripe. */
-body.home-calendar-polish-v5 #home-overview>.filter-bar{
-  background:transparent!important;
-  background-image:none!important;
-  -webkit-backdrop-filter:none!important;
-  backdrop-filter:none!important;
-}
-
-/* Sections are separated by breathing space, not added hairlines.
-   Preserve only the quiet dividers within actual list records. */
-#home-overview .sidebar > .home-upcoming-integrated-v1{
-  margin:0 0 clamp(27px,3vw,38px)!important;
-}
-#home-overview .home-overview-widgets{
-  gap:clamp(28px,3vw,40px);
-  padding-top:0;
-}
-#home-overview .home-overview-widgets::before,
-#home-overview #family-todo-home::before{
-  content:none!important;
-}
-#home-overview #family-todo-home{position:relative}
-/* Keep the original separators inside each list: stores, articles,
-   upcoming events and individual to-dos. Only added between-section
-   dividers are removed by the ::before rules above. */
 
 /* Finance: generous rhythm between sections, without duplicate dividers. */
 #home-economy .home-economy-snapshot{
@@ -621,20 +409,6 @@ body.home-calendar-polish-v5 #home-overview>.filter-bar{
   padding:10px 2px;
 }
 @media(max-width:768px){
-  #home-overview::before{
-    inset:-45px 0 auto;
-    height:770px;
-    background:radial-gradient(
-      ellipse 120% 72% at 17% 12%,
-      rgba(var(--home-view-rgb,253,186,116),.056) 0%,
-      rgba(var(--home-view-rgb,253,186,116),.024) 33%,
-      transparent 77%
-    );
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 12%,#000 31%,transparent 95%);
-    mask-image:linear-gradient(to bottom,transparent 0%,#000 12%,#000 31%,transparent 95%);
-  }
-  #home-overview .sidebar>.home-upcoming-integrated-v1{margin-bottom:30px!important}
-  #home-overview .home-overview-widgets{gap:31px;padding-top:0}
   #home-economy .home-economy-snapshot{margin-bottom:31px}
   #home-economy .home-economy-metrics{gap:12px 0}
   #home-economy .home-economy-links{margin-top:34px}
