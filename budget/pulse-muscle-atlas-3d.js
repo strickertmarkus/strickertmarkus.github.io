@@ -142,40 +142,16 @@ if (target && visual && guide && supportsWebGL()) {
       camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      // Soft pearl-white semi-transparent shell; only the selected muscle is vivid red.
-      // FrontSide prevents double-sided ghosting through the torso and limbs.
-      const skinMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xeaf2fb, transparent: true, opacity: 0.68,
-        roughness: 0.49, metalness: 0.01, side: THREE.FrontSide,
-        depthWrite: false, clearcoat: 0.1
+      // Uniform pearl-white translucent fitness shell: self-lit (not dependent on
+      // directional lighting), with no dark patches on limbs or torso.
+      // The separate anatomical muscle layer stays clickable and glows red.
+      const skinMaterial = new THREE.MeshBasicMaterial({
+        color: 0xf8fbff, transparent: true, opacity: 0.72,
+        side: THREE.FrontSide, depthWrite: false, toneMapped: false
       });
-      // Fade face/scalp and extremities regardless of how source meshes are split.
-      // A smooth fade avoids the uncanny detailed head visible in the source GLB.
-      skinMaterial.onBeforeCompile = shader => {
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <common>',
-          '#include <common>\nvarying vec3 vPulseShellWorld;'
-        ).replace(
-          '#include <begin_vertex>',
-          '#include <begin_vertex>\nvPulseShellWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;'
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <common>',
-          '#include <common>\nvarying vec3 vPulseShellWorld;'
-        ).replace(
-          '#include <dithering_fragment>',
-          'float headFade = 1.0 - 0.91 * smoothstep(' + (height * 0.285).toFixed(5) +
-          ', ' + (height * 0.385).toFixed(5) + ', vPulseShellWorld.y);\n' +
-          'float handFade = 1.0 - 0.72 * smoothstep(' + (height * 0.235).toFixed(5) +
-          ', ' + (height * 0.335).toFixed(5) + ', abs(vPulseShellWorld.x))' +
-          ' * (1.0 - smoothstep(' + (height * 0.01).toFixed(5) +
-          ', ' + (height * 0.15).toFixed(5) + ', vPulseShellWorld.y));\n' +
-          'gl_FragColor.a *= headFade * handFade;\n#include <dithering_fragment>'
-        );
-      };
+      // Same pearl hue for face; slightly dimmer to keep its detail understated.
       const faceMaterial = skinMaterial.clone();
-      faceMaterial.opacity = 0.19;
-      faceMaterial.color.setHex(0xe2ebf4);
+      faceMaterial.opacity = 0.55;
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
@@ -194,13 +170,13 @@ if (target && visual && guide && supportsWebGL()) {
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
 
       // All unselected muscles are hidden — only the selected major group is red.
-      const quietMaterial = new THREE.MeshStandardMaterial({
-        color: 0x293848, transparent: true, opacity: 0.0,
-        roughness: 0.82, side: THREE.FrontSide, depthWrite: false
+      const quietMaterial = new THREE.MeshBasicMaterial({
+        color: 0x36465a, transparent: true, opacity: 0.0,
+        side: THREE.FrontSide, depthWrite: false
       });
-      const previewMaterial = new THREE.MeshStandardMaterial({
-        color: 0x374a5c, transparent: true, opacity: 0.0,
-        roughness: 0.78, side: THREE.FrontSide, depthWrite: false
+      const previewMaterial = new THREE.MeshBasicMaterial({
+        color: 0x465365, transparent: true, opacity: 0.0,
+        side: THREE.FrontSide, depthWrite: false
       });
       const activeMaterial = new THREE.MeshStandardMaterial({
         color: 0xe83d48, emissive: 0xc72737, emissiveIntensity: 1.15,
@@ -239,7 +215,7 @@ if (target && visual && guide && supportsWebGL()) {
         target.dataset.muscle = currentGroup || '';
       }
       highlight('Bröst');
-      // Keep the shell subdued even if the 3D models contain extra facial tissue.
+      // White shell remains visible on torso, arms and legs; red marks only the selected major muscle group.
 
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
