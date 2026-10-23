@@ -383,6 +383,7 @@ body:has(.studio-technique[open]){overflow:hidden}
  #studio-filter-toggle{padding:8px 10px;font-size:10px}
  #selection{margin-top:20px}
 }
+<link rel="stylesheet" href="pulse-living-anatomy.css?v=20261023-living-v1">
 </style>
 </head>
 <body>
@@ -390,29 +391,21 @@ body:has(.studio-technique[open]){overflow:hidden}
 <main><div class="intro"><div class="eyebrow">PULSE FLOW / MOVE LAB</div><h1>Rörelse. <em>På ditt sätt.</em></h1><p>Upptäck övningar, se tekniken och skapa något eget.</p></div>
 <nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Upptäck</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Hitta</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Program</button></nav>
 <section id="guide-page" aria-label="Övningsguide">
-<section id="discover-home" aria-labelledby="discover-title">
-  <div class="discover-topline"><span><i></i> MOVE LAB · DISCOVER</span><span id="discover-total">54 RÖRELSER</span></div>
-  <div class="discover-intro"><h2 id="discover-title">Hitta din nästa <em>rörelse.</em></h2><p>Svep genom rörelserna. Stanna när något känns rätt.</p></div>
-  <div class="discover-filterbar">
-    <div id="discover-muscles" class="discover-muscles" aria-label="Välj muskelgrupp"></div>
-    <label class="discover-equipment-label" for="discover-equipment"><span>UTRUSTNING</span><select id="discover-equipment"><option value="All utrustning">All utrustning</option><option value="Maskin">Maskin</option><option value="Kabel">Kabel</option><option value="Hantlar">Hantlar</option><option value="Skivstång">Skivstång</option><option value="Kroppsvikt">Kroppsvikt</option><option value="Konditionsmaskin">Konditionsmaskin</option></select></label>
-  </div>
-  <div class="discover-stage" id="discover-stage" aria-label="Animerad övningsvisning, svep för att byta">
-    <div class="discover-stage-glow"></div>
-    <div class="discover-stage-top"><span class="discover-live"><i></i> LIVE MOTION</span><span id="discover-index">01 / 54</span></div>
-    <svg id="discover-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad övningsdemonstration"></svg>
-    <div class="discover-stage-info"><div class="discover-meta" id="discover-meta">BRÖST · MASKIN</div><h3 id="discover-name">Bröstpress i maskin</h3><div class="discover-controls"><div class="discover-stepper"><button type="button" id="discover-prev" aria-label="Föregående övning">←</button><button type="button" id="discover-next" aria-label="Nästa övning">→</button></div><button type="button" class="discover-open" id="discover-open">Se rörelsen <span>↗</span></button></div></div>
-  </div>
-  <div class="discover-under"><span><span class="discover-swipe-icon">↔</span> Svep för nästa rörelse</span><button type="button" id="discover-add">+ Lägg till i mitt pass</button></div>
-</section>
-<details id="atlas-archive" class="atlas-archive"><summary>✧ Utforska via muskelatlasen <span>Öppna anatomivyn ↗</span></summary>
+<section id="discover-home" class="living-home" aria-labelledby="living-title">
+<div class="living-topline"><span>L I V I N G &nbsp; A N A T O M Y</span><span>01 / UTFORSKA</span></div>
+<div class="living-intro"><h1 id="living-title">Vad vill du träna <em>idag?</em></h1><p>Utforska kroppen. Välj ett område och hitta rätt rörelse.</p></div>
 <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
 <div class="atlas-shell">
-<div class="atlas-content">
+<div class="atlas-content" hidden>
 <div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
 <p>Välj en muskel. Kroppen vrids till en tydlig vinkel och visar var den sitter.</p>
 </div>
 <div class="atlas-visual">
+<div class="living-scene-hotspots"><button type="button" class="living-hotspot living-left-top" data-atlas-muscle="Axlar"><span class="living-hotspot-dot"></span><span>Axlar</span></button>
+<button type="button" class="living-hotspot living-right-top" data-atlas-muscle="Bröst"><span class="living-hotspot-dot"></span><span>Bröst</span></button>
+<button type="button" class="living-hotspot living-left-middle" data-atlas-muscle="Biceps"><span class="living-hotspot-dot"></span><span>Armar</span></button>
+<button type="button" class="living-hotspot living-right-middle" data-atlas-muscle="Rygg"><span class="living-hotspot-dot"></span><span>Rygg</span></button>
+<button type="button" class="living-hotspot living-left-bottom" data-atlas-muscle="Framsida lår"><span class="living-hotspot-dot"></span><span>Ben</span></button></div>
 <div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
 <div id="atlas-stills" class="atlas-stills" hidden aria-label="Muskelatlas med stillbilder från olika vinklar"></div>
 <div class="atlas-loading" aria-hidden="true"><span class="atlas-loading-orb"></span><span>Laddar muskelatlasen…</span></div>
@@ -483,6 +476,11 @@ body:has(.studio-technique[open]){overflow:hidden}
 <div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Välj muskelgrupp · Vyn anpassas automatiskt</div>
 <div id="atlas-stills-status" class="atlas-stills-status" role="status" aria-live="polite"></div>
 </div>
+<div class="living-category-nav" role="group" aria-label="Muskelområden"><button type="button" class="living-muscle-chip" data-atlas-muscle="Axlar" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Axlar</span></button>
+<button type="button" class="living-muscle-chip" data-atlas-muscle="Bröst" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Bröst</span></button>
+<button type="button" class="living-muscle-chip" data-atlas-muscle="Rygg" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Rygg</span></button>
+<button type="button" class="living-muscle-chip" data-atlas-muscle="Framsida lår" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Ben</span></button>
+<button type="button" class="living-muscle-chip" data-atlas-muscle="Biceps" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Armar</span></button></div>
 <div class="atlas-explore">
 <div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
 <div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div>
@@ -490,12 +488,33 @@ body:has(.studio-technique[open]){overflow:hidden}
   <div class="atlas-selected-copy"><span>VALD MUSKELGRUPP</span><strong id="atlas-selected-name">Bröst</strong><small id="atlas-selected-count">8 övningar</small></div>
   <button type="button" id="atlas-show-exercises">Visa övningar <span aria-hidden="true">↗</span></button>
 </div>
-<button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
+<button type="button" class="atlas-all" id="atlas-all">Visa hela övningsbiblioteket <span aria-hidden="true">↗</span></button>
 <p class="atlas-credit">3D-anatomi: <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener noreferrer">Z-Anatomy</a> (CC BY-SA 4.0), baserat på <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener noreferrer">BodyParts3D</a> (CC BY-SA 2.1 JP). Modelloptimering: <a href="https://github.com/SeemaBansal1/3d-human-body-anatomy" target="_blank" rel="noopener noreferrer">3D Human Body Anatomy</a>. Modelländringar omfattas av källornas respektive ShareAlike-licenser.</p>
 </div>
 </div>
 </section>
-</details>
+<div id="discover-legacy" hidden>
+  <div class="discover-topline"><span><i></i> MOVE LAB · DISCOVER</span><span id="discover-total">54 RÖRELSER</span></div>
+  <div class="discover-intro"><h2 id="discover-title">Hitta din nästa <em>rörelse.</em></h2><p>Svep genom rörelserna. Stanna när något känns rätt.</p></div>
+  <div class="discover-filterbar">
+    <div id="discover-muscles" class="discover-muscles" aria-label="Välj muskelgrupp"></div>
+    <label class="discover-equipment-label" for="discover-equipment"><span>UTRUSTNING</span><select id="discover-equipment"><option value="All utrustning">All utrustning</option><option value="Maskin">Maskin</option><option value="Kabel">Kabel</option><option value="Hantlar">Hantlar</option><option value="Skivstång">Skivstång</option><option value="Kroppsvikt">Kroppsvikt</option><option value="Konditionsmaskin">Konditionsmaskin</option></select></label>
+  </div>
+  <div class="discover-stage" id="discover-stage" aria-label="Animerad övningsvisning, svep för att byta">
+    <div class="discover-stage-glow"></div>
+    <div class="discover-stage-top"><span class="discover-live"><i></i> LIVE MOTION</span><span id="discover-index">01 / 54</span></div>
+    <svg id="discover-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad övningsdemonstration"></svg>
+    <div class="discover-stage-info"><div class="discover-meta" id="discover-meta">BRÖST · MASKIN</div><h3 id="discover-name">Bröstpress i maskin</h3><div class="discover-controls"><div class="discover-stepper"><button type="button" id="discover-prev" aria-label="Föregående övning">←</button><button type="button" id="discover-next" aria-label="Nästa övning">→</button></div><button type="button" class="discover-open" id="discover-open">Se rörelsen <span>↗</span></button></div></div>
+  </div>
+  <div class="discover-under"><span><span class="discover-swipe-icon">↔</span> Svep för nästa rörelse</span><button type="button" id="discover-add">+ Lägg till i mitt pass</button></div>
+</div>
+</section>
+<nav id="living-dock" class="living-dock" aria-label="Pulse Flow huvudnavigation">
+ <button type="button" data-page="guide" aria-label="Utforska"><span class="living-dock-icon">⌂</span><span>Utforska</span></button>
+ <button type="button" data-page="suggestions" aria-label="Övningar"><span class="living-dock-icon">✧</span><span>Övningar</span></button>
+ <button type="button" data-page="programs" aria-label="Program"><span class="living-dock-icon">▥</span><span>Program</span></button>
+ <button type="button" id="living-pass-btn" aria-label="Mitt pass"><span class="living-dock-icon">▤</span><span>Mitt pass <small id="living-pass-count">0</small></span></button>
+</nav>
 <div id="studio-shell" class="studio-shell" hidden>
 <div class="studio-top"><button type="button" class="studio-back" id="studio-back"><span aria-hidden="true">←</span> Upptäck</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span><button id="studio-filter-toggle" type="button" aria-expanded="false" aria-controls="studio-filters">Filter <span>⌄</span></button></div></div>
 <div class="studio-filters filters" id="studio-filters" hidden><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
@@ -597,6 +616,8 @@ function chooseAtlasMuscle(muscle,{focus=true,keepView=false}={}){
 
 function renderAtlas(){
  const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)).length]));
+ $('atlas-home').querySelectorAll('.living-muscle-chip,.living-hotspot').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.atlasMuscle===atlasSelected)));
+
  $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'" aria-pressed="'+(m===atlasSelected)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span></button>').join('');
  $('atlas-count').textContent=exercises.length+' övningar';
  $('atlas-selected-name').textContent=atlasSelected;
@@ -618,7 +639,7 @@ function toggleStudio(open){
  studioOpen=open;
  document.body.classList.toggle('pulse-studio-open',open);
  $('discover-home').hidden=open;
- $('atlas-archive').hidden=open;
+ $('living-dock').hidden=open;
  $('studio-shell').hidden=!open;
  if(!open){$('studio-technique').open=false;$('technique-scrim').hidden=true;}
  renderAtlas();
@@ -1139,6 +1160,10 @@ $('discover-muscles').addEventListener('click',event=>{
 $('discover-equipment').addEventListener('change',event=>{
  discoverEquipment=event.target.value;discoverPhase=0;renderDiscovery();
 });
+$('living-pass-btn').addEventListener('click',()=>{
+ if(studioOpen)closeStudio();
+ $('selection').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+});
 $('discover-prev').addEventListener('click',()=>moveDiscovery(-1));
 $('discover-next').addEventListener('click',()=>moveDiscovery(1));
 $('discover-open').addEventListener('click',openDiscovered);
@@ -1223,7 +1248,8 @@ function renderSelection(){
   $('discover-add').textContent=selection.includes(discoverActive)?'✓ Finns i mitt pass':'+ Lägg till i mitt pass';
   $('discover-add').setAttribute('aria-pressed',String(selection.includes(discoverActive)));
  }
- $('selection-count').textContent=selection.length;$('selection-empty').hidden=selection.length>0;$('selection-actions').hidden=!selection.length;$('clear-selection').hidden=!selection.length;
+ $('selection-count').textContent=selection.length;
+ $('living-pass-count').textContent=String(selection.length);$('selection-empty').hidden=selection.length>0;$('selection-actions').hidden=!selection.length;$('clear-selection').hidden=!selection.length;
  $('selection-items').innerHTML=selection.map(id=>`<li><div><strong>${safe(exercises[id].name)}</strong><small>${safe(explorer.prescription(id).label)}</small></div><button type="button" data-remove-choice="${id}" aria-label="Ta bort ${safe(exercises[id].name)}">×</button></li>`).join('');
  updateGuideChoice();
  document.querySelectorAll('[data-add-choice]').forEach(button=>{const added=selection.includes(Number(button.dataset.addChoice));button.setAttribute('aria-pressed',String(added));button.textContent=added?'✓ Vald':'＋ Välj';});
@@ -1236,9 +1262,12 @@ function toggleChoice(id){
 }
 function showPage(value,remember=true){
  page=['guide','suggestions','programs'].includes(value)?value:'guide';
+ document.body.classList.toggle('living-guide-active',page==='guide');
  if(page!=='guide'&&studioOpen)toggleStudio(false);
  for(const name of ['guide','suggestions','programs'])$(name+'-page').hidden=name!==page;
  document.querySelectorAll('[data-page]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.page===page)));
+ $('living-dock').hidden=studioOpen;
+
  if(remember)history.replaceState(null,'','#'+page);
  if(page==='suggestions')renderSuggestions();if(page==='programs')renderPrograms();
 }
@@ -1320,6 +1349,7 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
+<script src="pulse-living-anatomy.js?v=20261023-living-v1" defer></script>
 <script type="module" src="pulse-muscle-atlas-stills.js?v=20261023-stills-v1"></script>
 <script type="module" src="pulse-exercise-motion-3d.js?v=20261023-animated-shell-v1"></script>
 </body></html>
