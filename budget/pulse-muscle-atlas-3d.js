@@ -86,18 +86,22 @@ if (target && visual && guide && supportsWebGL()) {
       renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, powerPreference: 'low-power'});
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.02;
+      renderer.toneMappingExposure = 0.88;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
       target.append(renderer.domElement);
       renderer.domElement.setAttribute('aria-label', 'Roterbar anatomisk 3D-modell. Dra för att rotera, tryck på en muskel för att välja.');
       renderer.domElement.style.touchAction = 'none';
 
       const scene = new THREE.Scene();
-      scene.add(new THREE.AmbientLight(0xd8e9f5, 0.85));
-      scene.add(new THREE.HemisphereLight(0xdfe8f8, 0x273344, 2.35));
-      const key = new THREE.DirectionalLight(0xf6e9ec, 2.9); key.position.set(3, 4, 5); scene.add(key);
-      const fill = new THREE.DirectionalLight(0xaec8eb, 1.0); fill.position.set(-4, 1, 3); scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xee8eae, 1.8); rim.position.set(-3, 2, -4); scene.add(rim);
+      // Studio-style lighting: cool sculpted shell, warm rim, no clinical white wash.
+      scene.add(new THREE.AmbientLight(0x7f9eb6, 0.42));
+      scene.add(new THREE.HemisphereLight(0xb4cadb, 0x0a101b, 1.2));
+      const key = new THREE.DirectionalLight(0xd8e5f1, 1.85);
+      key.position.set(3, 5, 4); scene.add(key);
+      const fill = new THREE.DirectionalLight(0x7794c0, 0.55);
+      fill.position.set(-4, 1, 3); scene.add(fill);
+      const rim = new THREE.DirectionalLight(0xd55e78, 1.1);
+      rim.position.set(-3, 2, -4); scene.add(rim);
 
       const camera = new THREE.PerspectiveCamera(31, 1, 0.01, 50);
       controls = new OrbitControls(camera, renderer.domElement);
@@ -138,39 +142,69 @@ if (target && visual && guide && supportsWebGL()) {
       camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      // A single smooth, dim translucent skin shell hides medical muscle detail.
+      // Shell rather than anatomical specimen: dark semi-transparent form.
+      // FrontSide prevents double-sided ghosting through the torso and limbs.
       const skinMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x9ba9bc, transparent: true, opacity: 0.28,
-        roughness: 0.46, metalness: 0.09, side: THREE.DoubleSide,
-        depthWrite: false, clearcoat: 0.18, clearcoatRoughness: 0.58
+        color: 0x506579, transparent: true, opacity: 0.28,
+        roughness: 0.69, metalness: 0.04, side: THREE.FrontSide,
+        depthWrite: false, clearcoat: 0.05
       });
-      const headMaterial = skinMaterial.clone();
-      headMaterial.color.setHex(0x64758d);
-      headMaterial.opacity = 0.48;
+      // Fade face/scalp and extremities regardless of how source meshes are split.
+      // A smooth fade avoids the uncanny detailed head visible in the source GLB.
+      skinMaterial.onBeforeCompile = shader => {
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec3 vPulseShellWorld;'
+        ).replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvPulseShellWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec3 vPulseShellWorld;'
+        ).replace(
+          '#include <dithering_fragment>',
+          'float headFade = 1.0 - 0.91 * smoothstep(' + (height * 0.285).toFixed(5) +
+          ', ' + (height * 0.385).toFixed(5) + ', vPulseShellWorld.y);\n' +
+          'float handFade = 1.0 - 0.72 * smoothstep(' + (height * 0.235).toFixed(5) +
+          ', ' + (height * 0.335).toFixed(5) + ', abs(vPulseShellWorld.x))' +
+          ' * (1.0 - smoothstep(' + (height * 0.01).toFixed(5) +
+          ', ' + (height * 0.15).toFixed(5) + ', vPulseShellWorld.y));\n' +
+          'gl_FragColor.a *= headFade * handFade;\n#include <dithering_fragment>'
+        );
+      };
+      const faceMaterial = skinMaterial.clone();
+      faceMaterial.opacity = 0.055;
+      faceMaterial.color.setHex(0x36465a);
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
-        skinMeshes++;
         const meta = Object.keys(mesh.userData || {}).length ? mesh.userData : mesh.parent?.userData || {};
-        const name = String(meta.zname || mesh.name || '');
-        mesh.material = /head|face|eyeball|eye|nose|ear|mouth|neck|skull/i.test(name) ? headMaterial : skinMaterial;
-        mesh.renderOrder = 3;
+        const name = String(meta.zname || mesh.name || '').toLowerCase();
+        // Tiny details are specifically what made the earlier model creepy.
+        if (/hairs? of|scalp hair|eyelash|eyebrow|eyeball|eye lens|eyelid|nail plate|teeth|tooth|tongue/.test(name)) {
+          mesh.visible = false;
+          return;
+        }
+        skinMeshes++;
+        mesh.material = /head|face|nose|ear|mouth|lip|scalp|neck/.test(name) ? faceMaterial : skinMaterial;
+        mesh.renderOrder = 1;
         mesh.frustumCulled = false;
       });
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
-      // Unselected anatomical structures are almost invisible.
+
+      // All unselected muscles are hidden — only the selected major group is red.
       const quietMaterial = new THREE.MeshStandardMaterial({
-        color: 0x556779, transparent: true, opacity: 0.12,
-        roughness: 0.77, metalness: 0, side: THREE.DoubleSide, depthWrite: false
+        color: 0x293848, transparent: true, opacity: 0.0,
+        roughness: 0.82, side: THREE.FrontSide, depthWrite: false
       });
       const previewMaterial = new THREE.MeshStandardMaterial({
-        color: 0x94646e, emissive: 0x5b2838, emissiveIntensity: 0.18,
-        transparent: true, opacity: 0.58, roughness: 0.63,
-        metalness: 0, side: THREE.DoubleSide, depthWrite: false
+        color: 0x374a5c, transparent: true, opacity: 0.0,
+        roughness: 0.78, side: THREE.FrontSide, depthWrite: false
       });
       const activeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffb599, emissive: 0xed6558, emissiveIntensity: 0.83,
-        transparent: true, opacity: 0.98, roughness: 0.38,
+        color: 0xe83d48, emissive: 0xc72737, emissiveIntensity: 1.15,
+        transparent: true, opacity: 1.0, roughness: 0.44,
         metalness: 0, side: THREE.DoubleSide, depthWrite: false
       });
       const meshes = [];
@@ -185,8 +219,9 @@ if (target && visual && guide && supportsWebGL()) {
         mesh.userData.pulseSurface = primary;
         mesh.userData.pulseBaseMaterial = primary ? previewMaterial : quietMaterial;
         mesh.material = mesh.userData.pulseBaseMaterial;
-        mesh.renderOrder = primary ? 2 : 0;
+        mesh.renderOrder = primary ? 3 : 0;
         mesh.frustumCulled = false;
+        mesh.visible = primary;
         meshes.push(mesh);
         if (primary) {
           if (!groups.has(group)) groups.set(group, []);
@@ -195,17 +230,16 @@ if (target && visual && guide && supportsWebGL()) {
       });
       if (!meshes.length || !groups.size) throw new Error('Inga muskelgrupper kunde identifieras');
       let currentGroup = null;
-      let activeMeshCount = 0;
       function highlight(muscle) {
         const next = muscle && groups.has(muscle) ? muscle : null;
         if (currentGroup === next) return;
         if (currentGroup) groups.get(currentGroup).forEach(m => m.material = previewMaterial);
         currentGroup = next;
         if (next) groups.get(next).forEach(m => m.material = activeMaterial);
-        activeMeshCount = next ? groups.get(next).length : 0;
         target.dataset.muscle = currentGroup || '';
       }
       highlight('Bröst');
+      // Keep the shell subdued even if the 3D models contain extra facial tissue.
 
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
