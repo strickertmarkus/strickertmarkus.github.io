@@ -1,0 +1,69 @@
+name: Pulse exercise 3D motion verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/pulse-exercise-guide.html'
+      - 'budget/pulse-exercise-motion-3d.js'
+      - '.github/workflows/pulse-exercise-motion-3d-verify.yml'
+  workflow_dispatch:
+jobs:
+  exercise-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install lightweight browser harness
+        run: |
+          npm install --no-save playwright
+          command -v google-chrome || command -v chromium
+      - name: Start local site and check mobile 3D motion
+        run: |
+          mkdir -p test-results/exercise-3d
+          python3 -m http.server 4173 >/tmp/pulse-http.log 2>&1 &
+          cat >/tmp/check-exercise-3d.cjs <<'EOF'
+          const {chromium}=require(process.cwd()+'/node_modules/playwright');
+          const fs=require('fs');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const chrome=require('child_process').execSync('command -v google-chrome || command -v chromium').toString().trim();
+            const browser=await chromium.launch({executablePath:chrome,headless:true,args:['--no-sandbox','--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+            const errors=[];page.on('pageerror',e=>errors.push(e.message));
+            await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html',{waitUntil:'domcontentloaded'});
+            await page.locator('#atlas-all').click();
+            await page.locator('#studio-stage').scrollIntoViewIfNeeded();
+            await page.waitForFunction(()=>window.PulseExercise3D?.ready===true,null,{timeout:65000});
+            await page.waitForFunction(()=>document.querySelector('#studio-stage')?.classList.contains('exercise-3d-ready'),null,{timeout:8000});
+            const details=await page.evaluate(()=>({
+              ready:window.PulseExercise3D?.ready,
+              visual:document.querySelector('#studio-stage')?.classList.contains('exercise-3d-ready'),
+              canvas:document.querySelectorAll('#exercise-3d canvas').length,
+              selected:document.getElementById('detail-name')?.textContent,
+              stageWidth:document.getElementById('studio-stage')?.clientWidth,
+              scrollWidth:document.documentElement.scrollWidth,
+              screenWidth:innerWidth
+            }));
+            await page.locator('#studio-stage').screenshot({path:'test-results/exercise-3d/chest-press-mobile.png'});
+            await page.locator('#studio-next').click();
+            await page.waitForTimeout(650);
+            const second=await page.locator('#detail-name').innerText();
+            await page.locator('#studio-stage').screenshot({path:'test-results/exercise-3d/second-exercise-mobile.png'});
+            fs.writeFileSync('test-results/exercise-3d/verification.json',JSON.stringify({details,second,errors},null,2));
+            assert.ok(details.ready&&details.visual&&details.canvas===1);
+            assert.notEqual(details.selected,second);
+            assert.ok(details.scrollWidth<=details.screenWidth+1);
+            assert.deepEqual(errors,[]);
+            await browser.close();
+            console.log('PASS:',details,second);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/check-exercise-3d.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pulse-exercise-3d-mobile-screenshots
+          path: test-results/exercise-3d/
