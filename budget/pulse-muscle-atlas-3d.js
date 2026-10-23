@@ -185,6 +185,19 @@ if (target && visual && guide && supportsWebGL()) {
             gl_FragColor = vec4(silver,alpha);
           }`
       });
+      // Resolve the nearest surface before blending its colour. Without this
+      // pass, triangles of the same transparent mesh show through one another.
+      const depthMaterial = new THREE.MeshBasicMaterial({
+        colorWrite: false, depthWrite: true, depthTest: true,
+        transparent: true, side: THREE.FrontSide
+      });
+      function addDepthSurface(mesh, order) {
+        const depth = mesh.clone(false);
+        depth.material = depthMaterial;
+        depth.renderOrder = order;
+        mesh.parent.add(depth);
+      }
+      const shellMeshes = [];
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
@@ -197,10 +210,12 @@ if (target && visual && guide && supportsWebGL()) {
         }
         skinMeshes++;
         mesh.material = skinMaterial;
-        mesh.renderOrder = 2;
+        mesh.renderOrder = 3;
+        shellMeshes.push(mesh);
         mesh.frustumCulled = false;
       });
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
+      shellMeshes.forEach(mesh => addDepthSurface(mesh, 2));
 
       // Visible superficial anatomy supplies definition beneath the clear shell.
       // Deep tissue stays hidden, avoiding a dense medical/wireframe appearance.
@@ -210,7 +225,7 @@ if (target && visual && guide && supportsWebGL()) {
         metalness: 0, side: THREE.FrontSide, depthTest: true, depthWrite: true
       });
       const activeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xd46b4e, emissive: 0x793823, emissiveIntensity: 0.2,
+        color: 0xa8412c, emissive: 0x532015, emissiveIntensity: 0.12,
         transparent: true, opacity: 0.78, roughness: 0.56,
         metalness: 0, side: THREE.FrontSide, depthTest: true, depthWrite: true
       });
@@ -236,6 +251,7 @@ if (target && visual && guide && supportsWebGL()) {
         }
       });
       if (!meshes.length || !groups.size) throw new Error('Inga muskelgrupper kunde identifieras');
+      meshes.filter(mesh => mesh.visible).forEach(mesh => addDepthSurface(mesh, 0));
       let currentGroup = null;
       function highlight(muscle) {
         const next = muscle && groups.has(muscle) ? muscle : null;
