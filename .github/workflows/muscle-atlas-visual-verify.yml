@@ -1,0 +1,87 @@
+name: Muscle atlas visual verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'budget/pulse-exercise-guide.html'
+      - 'budget/pulse-muscle-atlas-3d.js'
+      - '.github/workflows/muscle-atlas-visual-verify.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium for mobile visual check
+        run: |
+          npm install --no-save playwright pngjs
+          npx playwright install --with-deps chromium
+      - name: Start test server
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/muscle-atlas-http.log 2>&1 &
+      - name: Screenshot 3D atlas as mobile browser
+        run: |
+          mkdir -p test-results/muscle-atlas
+          cat >/tmp/pulse-muscle-check.cjs <<'EOF'
+          const {chromium} = require(process.cwd()+'/node_modules/playwright');
+          const {PNG} = require(process.cwd()+'/node_modules/pngjs');
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:[
+              '--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
+              '--ignore-gpu-blocklist','--enable-unsafe-swiftshader',
+              '--no-sandbox'
+            ]});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+            const errors=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html',{waitUntil:'domcontentloaded'});
+            await page.locator('.atlas-visual').scrollIntoViewIfNeeded();
+            let loaded=false;
+            try{
+              await page.waitForFunction(()=>document.querySelector('.atlas-visual')?.classList.contains('atlas-3d-ready'),null,{timeout:65000});
+              loaded=true;
+            }catch(e){errors.push('WebGL model not ready: '+e.message.slice(0,100))}
+            await page.waitForTimeout(1400);
+            const figure=page.locator('.atlas-visual');
+            await figure.screenshot({path:'test-results/muscle-atlas/atlas-mobile.png'});
+            await page.screenshot({path:'test-results/muscle-atlas/page-mobile.png',fullPage:true});
+            const states=await page.evaluate(()=>({
+              ready:document.querySelector('.atlas-visual')?.classList.contains('atlas-3d-ready'),
+              shell:!!document.querySelector('#atlas-webgl canvas'),
+              selected:document.querySelector('#atlas-selected-name')?.textContent,
+              group:document.querySelector('#atlas-webgl')?.dataset.muscle,
+              scrollWidth:document.documentElement.scrollWidth,
+              innerWidth:innerWidth
+            }));
+            const img=PNG.sync.read(fs.readFileSync('test-results/muscle-atlas/atlas-mobile.png'));
+            let red=0,white=0;
+            for(let y=70;y<img.height-35;y+=2)for(let x=0;x<img.width;x+=2){
+              const i=(y*img.width+x)*4,[r,g,b]=img.data.subarray(i,i+3);
+              if(r>125&&r>g*1.55&&r>b*1.28)red++;
+              if(r>155&&g>160&&b>165&&Math.abs(r-g)<65)white++;
+            }
+            const result={loaded,states,redPixels:red,lightShellPixels:white,errors};
+            fs.writeFileSync('test-results/muscle-atlas/verification.json',JSON.stringify(result,null,2));
+            await browser.close();
+            assert.ok(loaded&&states.ready&&states.shell,'3D model must render, not just SVG fallback');
+            assert.ok(states.scrollWidth<=states.innerWidth+1,'Mobile page must not overflow');
+            assert.ok(red>40,'Selected chest muscle must be visibly red');
+            assert.ok(white>100,'Body shell must have visible light pixels');
+            assert.deepEqual(errors.filter(x=>!x.startsWith('WebGL model not ready:')),[],'No page errors');
+            console.log('Muscle atlas visual verified:',JSON.stringify(result));
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/pulse-muscle-check.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: muscle-atlas-mobile-screenshots
+          path: test-results/muscle-atlas/
