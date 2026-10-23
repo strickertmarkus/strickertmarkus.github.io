@@ -568,7 +568,7 @@ function transfer(request){
   const first=exercise.sets[0]||{};
   const dose=exercise.mode==='min'?(first.minutes?first.minutes+' min':'Tidsövning'):(exercise.sets.length+' set × '+(first.reps==null?'valfria':first.reps)+' reps');
   return (index+1)+'. '+exercise.name+' — '+dose;
- })].join('\\n');
+ })].join('\n');
  function fallback(){
   const field=document.createElement('textarea');field.value=text;field.readOnly=true;
   field.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
