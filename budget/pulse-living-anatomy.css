@@ -25,9 +25,9 @@ border:0!important;border-radius:0!important;background:none!important;box-shado
 .living-home .atlas-stills,.living-home .atlas-figure{position:relative;display:block;width:100%;height:100%;max-width:none;max-height:none;margin:0 auto!important;background:transparent!important;border:0;border-radius:0;overflow:visible}
 .living-home .atlas-figure{max-width:570px;object-fit:contain}
 /* Critical: the atlas still imagery must REPLACE, not overlay, the old SVG. */
-.atlas-stills-ready .living-home .atlas-figure{display:none!important}
+.living-home .atlas-visual.atlas-stills-ready .atlas-figure{display:none!important}
 .atlas-stills-pending .living-home .atlas-figure{display:none!important}
-.atlas-stills-ready .living-home .atlas-stills{display:block!important}
+.living-home .atlas-visual.atlas-stills-ready .atlas-stills{display:block!important}
 .atlas-stills-failed .living-home .atlas-figure{display:block!important}
 .atlas-stills-failed .living-home .atlas-stills{display:none!important}
 
