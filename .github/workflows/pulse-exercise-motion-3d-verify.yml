@@ -34,6 +34,7 @@ jobs:
             const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
             const errors=[];page.on('pageerror',e=>errors.push(e.message));
             await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html',{waitUntil:'domcontentloaded'});
+            await page.screenshot({path:'test-results/exercise-3d/discover-full-mobile.png',fullPage:true});
             await page.locator('#discover-stage').scrollIntoViewIfNeeded();
             await page.locator('#discover-stage').screenshot({path:'test-results/exercise-3d/discover-mobile.png'});
             const discoveryName=await page.locator('#discover-name').innerText();
@@ -55,6 +56,7 @@ jobs:
             assert.equal(await page.locator('#studio-filters').isVisible(),true);
             await page.locator('#studio-filter-toggle').click();
             await page.locator('#studio-stage').scrollIntoViewIfNeeded();
+            await page.screenshot({path:'test-results/exercise-3d/studio-full-mobile.png',fullPage:true});
             await page.locator('#studio-stage').screenshot({path:'test-results/exercise-3d/studio-2d-mobile.png'});
             await page.locator('#studio-stage').scrollIntoViewIfNeeded();
             const initial=await page.locator('#studio-stage').evaluate(e=>!e.classList.contains('exercise-3d-ready'));
