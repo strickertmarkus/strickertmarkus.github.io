@@ -93,15 +93,15 @@ if (target && visual && guide && supportsWebGL()) {
       renderer.domElement.style.touchAction = 'none';
 
       const scene = new THREE.Scene();
-      // Studio-style lighting: cool sculpted shell, warm rim, no clinical white wash.
-      scene.add(new THREE.AmbientLight(0xdceaf5, 0.58));
-      scene.add(new THREE.HemisphereLight(0xf3f6ff, 0x283342, 1.42));
-      const key = new THREE.DirectionalLight(0xd8e5f1, 1.85);
-      key.position.set(3, 5, 4); scene.add(key);
-      const fill = new THREE.DirectionalLight(0x7794c0, 0.55);
-      fill.position.set(-4, 1, 3); scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xd55e78, 1.1);
-      rim.position.set(-3, 2, -4); scene.add(rim);
+      // Neutral studio light keeps the glass shell silver and the selected tissue warm.
+      scene.add(new THREE.AmbientLight(0xf1f3f5, 1.1));
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x68717b, 1.25));
+      const key = new THREE.DirectionalLight(0xfff4e9, 2.1);
+      key.position.set(-3, 5, 4); scene.add(key);
+      const fill = new THREE.DirectionalLight(0xe6edf5, 1.1);
+      fill.position.set(4, 2, 3); scene.add(fill);
+      const rim = new THREE.DirectionalLight(0xffffff, 1.7);
+      rim.position.set(-3, 3, -4); scene.add(rim);
 
       const camera = new THREE.PerspectiveCamera(31, 1, 0.01, 50);
       controls = new OrbitControls(camera, renderer.domElement);
@@ -142,119 +142,77 @@ if (target && visual && guide && supportsWebGL()) {
       camera.far = height * 12;
       camera.updateProjectionMatrix();
 
-      // Silk-pearl body material. Lighting is calculated from the surface
-      // normal so every limb gets gentle form-shading without dark blotches.
-      // Depth-writing hides overlapping internal skin surfaces that previously
-      // appeared as a network of medical wireframe lines.
+      // Fresnel shell: almost clear face-on, softly luminous at the silhouette.
+      // Anatomical muscles are rendered first, then their real skin surface.
       const skinMaterial = new THREE.ShaderMaterial({
         transparent: true, depthWrite: true, depthTest: true,
         side: THREE.FrontSide, toneMapped: false,
         uniforms: {
-          uBodyAlpha: {value: 0.46},
-          uHeadStart: {value: height * 0.26},
-          uHeadEnd: {value: height * 0.35},
-          uHeadRadius: {value: height * 0.13},
-          uHeadSoftness: {value: 0.0}
+          uBodyAlpha: {value: 0.12},
+          uHeadStart: {value: height * 0.29},
+          uHeadEnd: {value: height * 0.38}
         },
-        vertexShader: [
-          'varying vec3 vPulseNormal;',
-          'varying vec3 vPulseView;',
-          'varying vec3 vPulseWorld;',
-          'void main(){',
-          '  vec4 vpos = modelViewMatrix * vec4(position,1.0);',
-          '  vPulseNormal = normalize(normalMatrix * normal);',
-          '  vPulseView = normalize(-vpos.xyz);',
-          '  vPulseWorld = (modelMatrix * vec4(position,1.0)).xyz;',
-          '  gl_Position = projectionMatrix * vpos;',
-          '}'
-        ].join('\n'),
-        fragmentShader: [
-          'precision highp float;',
-          'uniform float uBodyAlpha;',
-          'uniform float uHeadSoftness;',
-          'uniform float uHeadStart;',
-          'uniform float uHeadEnd;',
-          'uniform float uHeadRadius;',
-          'varying vec3 vPulseNormal;',
-          'varying vec3 vPulseView;',
-          'varying vec3 vPulseWorld;',
-          'void main(){',
-          '  vec3 n = normalize(vPulseNormal);',
-          '  float facing = clamp(dot(n,normalize(vPulseView)),0.0,1.0);',
-          '  float rim = pow(1.0-facing,1.55);',
-          '  float form = 0.5 + 0.5 * dot(n,normalize(vec3(-0.42,0.70,0.58)));',
-          '  float soft = smoothstep(0.13,0.88,form);',
-          '  vec3 pearl = mix(vec3(0.44,0.56,0.68), vec3(0.96,0.98,1.0), 0.24+0.72*soft);',
-          '  float halo = smoothstep(0.35,0.92,rim);',
-          '  pearl = mix(pearl,vec3(0.99,0.995,1.0),0.84*halo);',
-          '  float glint = pow(max(dot(reflect(-normalize(vec3(-0.42,0.70,0.58)),n),normalize(vPulseView)),0.0),24.0);',
-          '  pearl = mix(pearl,vec3(1.0),glint*0.27);',
-          '  float alpha = min(0.87,uBodyAlpha + 0.34*rim);',
-          '  float headZone = smoothstep(uHeadStart,uHeadEnd,vPulseWorld.y);',
-          '  float centerZone = 1.0-smoothstep(uHeadRadius*0.60,uHeadRadius*1.15,abs(vPulseWorld.x));',
-          '  alpha *= (1.0 - headZone*centerZone);',
-          '  alpha *= (1.0-uHeadSoftness);',
-          '  if(alpha<0.045) discard;',
-          '  gl_FragColor = vec4(pearl,alpha);',
-          '}'
-        ].join('\n')
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vView;
+          varying float vHeight;
+          void main(){
+            vec4 p = modelViewMatrix * vec4(position, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vView = -p.xyz;
+            vHeight = (modelMatrix * vec4(position, 1.0)).y;
+            gl_Position = projectionMatrix * p;
+          }`,
+        fragmentShader: `
+          uniform float uBodyAlpha;
+          uniform float uHeadStart;
+          uniform float uHeadEnd;
+          varying vec3 vNormal;
+          varying vec3 vView;
+          varying float vHeight;
+          void main(){
+            vec3 n = normalize(vNormal);
+            vec3 v = normalize(vView);
+            float edge = pow(1.0 - max(dot(n,v),0.0), 2.2);
+            vec3 light = normalize(vec3(-0.45,0.65,0.65));
+            float form = 0.5 + 0.5 * dot(n,light);
+            float sheen = pow(max(dot(n,normalize(light+v)),0.0),32.0);
+            vec3 silver = mix(vec3(0.62,0.65,0.69),vec3(0.93,0.95,0.98),form);
+            silver = mix(silver,vec3(1.0),edge*0.8);
+            float head = smoothstep(uHeadStart,uHeadEnd,vHeight);
+            float alpha = uBodyAlpha + 0.43*edge + 0.075*sheen;
+            alpha += head * 0.055;
+            gl_FragColor = vec4(silver,alpha);
+          }`
       });
-      // The anatomical face is softened, not rendered as a detailed specimen.
-      const faceMaterial = skinMaterial.clone();
-      faceMaterial.uniforms.uHeadSoftness.value = 0.97;
       let skinMeshes = 0;
       skin.traverse(mesh => {
         if (!mesh.isMesh) return;
         const meta = Object.keys(mesh.userData || {}).length ? mesh.userData : mesh.parent?.userData || {};
-        const name = String(meta.zname || mesh.name || '').toLowerCase();
-        // Tiny details are specifically what made the earlier model creepy.
-        if (/hairs? of|scalp hair|eyelash|eyebrow|eyeball|eye lens|eyelid|nail plate|teeth|tooth|tongue|auricular|labial|mandibular|malar|nasal region|frontal region/.test(name)) {
+        const name = String(meta.zname || mesh.name || '').replace(/_/g, ' ').toLowerCase();
+        // Retain the actual head profile; omit distracting tiny surface details.
+        if (/hairs? of|scalp hair|eyelash|eyebrow|eyeball|eye lens|nail plate|teeth|tooth|tongue/.test(name)) {
           mesh.visible = false;
           return;
         }
         skinMeshes++;
-        mesh.material = /\b(?:head|face|nose|ear|mouth|lip|scalp|neck)\b/.test(name) ? faceMaterial : skinMaterial;
-        mesh.renderOrder = 1;
+        mesh.material = skinMaterial;
+        mesh.renderOrder = 2;
         mesh.frustumCulled = false;
-        // One coherent outer surface, no overlapping transparent back faces.
-        mesh.material.depthWrite = true;
       });
       if (!skinMeshes) throw new Error('3D-kroppens yta saknas');
 
-      // A simplified faceless head and neck replace the anatomical head.
-      const portraitMaterial = skinMaterial.clone();
-      portraitMaterial.uniforms.uHeadStart.value = height * 10;
-      portraitMaterial.uniforms.uHeadEnd.value = height * 11;
-      portraitMaterial.uniforms.uHeadSoftness.value = 0;
-      portraitMaterial.uniforms.uBodyAlpha.value = 0.68;
-      portraitMaterial.depthTest = false;
-      portraitMaterial.depthWrite = false;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(1,36,28),portraitMaterial);
-      head.scale.set(height*0.054,height*0.071,height*0.053);
-      head.position.set(0,height*0.422,height*0.006);
-      head.renderOrder = 2;
-      scene.add(head);
-      const neck = new THREE.Mesh(new THREE.CylinderGeometry(height*0.026,height*0.033,height*0.075,28), portraitMaterial);
-      neck.position.set(0,height*0.335,height*0.003);
-      neck.renderOrder = 2;
-      scene.add(neck);
-
-      // All unselected muscles are hidden — only the selected major group is red.
-      const quietMaterial = new THREE.MeshBasicMaterial({
-        color: 0x36465a, transparent: true, opacity: 0.0,
-        side: THREE.FrontSide, depthWrite: false
+      // Visible superficial anatomy supplies definition beneath the clear shell.
+      // Deep tissue stays hidden, avoiding a dense medical/wireframe appearance.
+      const previewMaterial = new THREE.MeshStandardMaterial({
+        color: 0xc6cbd0, emissive: 0x858b92, emissiveIntensity: 0.18,
+        transparent: true, opacity: 0.24, roughness: 0.62,
+        metalness: 0, side: THREE.FrontSide, depthTest: true, depthWrite: true
       });
-      const previewMaterial = new THREE.MeshBasicMaterial({
-        color: 0x465365, transparent: true, opacity: 0.0,
-        side: THREE.FrontSide, depthWrite: false
-      });
-      // The active group is intentionally painted over the pale shell.
-      // A soft red material gives anatomical volume without harsh cut-out edges.
       const activeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xeb5b54, emissive: 0xb83a3d, emissiveIntensity: 0.61,
-        transparent: true, opacity: 0.94, roughness: 0.58,
-        metalness: 0, side: THREE.FrontSide,
-        depthTest: false, depthWrite: false
+        color: 0xd46b4e, emissive: 0x793823, emissiveIntensity: 0.2,
+        transparent: true, opacity: 0.78, roughness: 0.56,
+        metalness: 0, side: THREE.FrontSide, depthTest: true, depthWrite: true
       });
       const meshes = [];
       const groups = new Map();
@@ -266,9 +224,9 @@ if (target && visual && guide && supportsWebGL()) {
         const primary = !!(group && SURFACE_RULES[group]?.test(name));
         mesh.userData.pulseMuscleGroup = group;
         mesh.userData.pulseSurface = primary;
-        mesh.userData.pulseBaseMaterial = primary ? previewMaterial : quietMaterial;
+        mesh.userData.pulseBaseMaterial = previewMaterial;
         mesh.material = mesh.userData.pulseBaseMaterial;
-        mesh.renderOrder = primary ? 3 : 0;
+        mesh.renderOrder = 1;
         mesh.frustumCulled = false;
         mesh.visible = primary;
         meshes.push(mesh);
@@ -288,7 +246,7 @@ if (target && visual && guide && supportsWebGL()) {
         target.dataset.muscle = currentGroup || '';
       }
       highlight('Bröst');
-      // White shell remains visible on torso, arms and legs; red marks only the selected major muscle group.
+      // Only the selected group is warm; the remaining superficial muscles stay silver.
 
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
