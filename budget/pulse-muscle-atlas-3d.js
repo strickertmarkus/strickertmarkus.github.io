@@ -173,15 +173,15 @@ if (target && visual && guide && supportsWebGL()) {
           void main(){
             vec3 n = normalize(vNormal);
             vec3 v = normalize(vView);
-            float edge = pow(1.0 - max(dot(n,v),0.0), 2.2);
+            float edge = pow(1.0 - max(dot(n,v),0.0), 1.3);
             vec3 light = normalize(vec3(-0.45,0.65,0.65));
             float form = 0.5 + 0.5 * dot(n,light);
             float sheen = pow(max(dot(n,normalize(light+v)),0.0),32.0);
             vec3 silver = mix(vec3(0.62,0.65,0.69),vec3(0.93,0.95,0.98),form);
             silver = mix(silver,vec3(1.0),edge*0.8);
             float head = smoothstep(uHeadStart,uHeadEnd,vHeight);
-            float alpha = uBodyAlpha + 0.43*edge + 0.075*sheen;
-            alpha += head * 0.055;
+            float alpha = uBodyAlpha + 0.82*edge + 0.075*sheen;
+            alpha += head * 0.10;
             gl_FragColor = vec4(silver,alpha);
           }`
       });
@@ -221,7 +221,7 @@ if (target && visual && guide && supportsWebGL()) {
       // Deep tissue stays hidden, avoiding a dense medical/wireframe appearance.
       const previewMaterial = new THREE.MeshStandardMaterial({
         color: 0xc6cbd0, emissive: 0x858b92, emissiveIntensity: 0.18,
-        transparent: true, opacity: 0.24, roughness: 0.62,
+        transparent: true, opacity: 0.32, roughness: 0.62,
         metalness: 0, side: THREE.FrontSide, depthTest: true, depthWrite: true
       });
       const activeMaterial = new THREE.MeshStandardMaterial({
