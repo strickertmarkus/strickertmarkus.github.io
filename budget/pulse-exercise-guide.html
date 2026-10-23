@@ -17,6 +17,91 @@
 .program-time-row select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 .program-time-row p{margin:0 0 12px;color:var(--muted);font-size:12px}
 .inspiration-switch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}.inspiration-switch span{font-size:11px;color:var(--muted)}#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
+
+/* Stage 1: Markus/Maja muscle atlas + movement studio; no shared Ingemar changes. */
+.atlas-home{min-width:0;margin:2px 0 28px}
+.atlas-shell{display:grid;grid-template-columns:minmax(290px,1fr) minmax(295px,.92fr);gap:clamp(18px,4vw,50px);align-items:center;padding:10px clamp(4px,2vw,26px) 28px}
+.atlas-visual{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:460px;overflow:hidden;background:radial-gradient(ellipse 56% 50% at 50% 48%,#2830437a 0%,#11182755 57%,transparent 84%)}
+.atlas-visual::after{content:"";position:absolute;z-index:0;bottom:35px;left:20%;width:60%;height:1px;background:linear-gradient(90deg,transparent,#dd8ca383,transparent)}
+.atlas-view-controls{position:absolute;z-index:2;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:3px;padding:4px;border:1px solid #ffffff22;border-radius:30px;background:#0b1119e0;white-space:nowrap}
+.atlas-view-controls button{border:0;padding:9px 17px;border-radius:25px;background:none;font-size:11px;color:#9ca9ba}
+.atlas-view-controls button[aria-pressed="true"]{background:#cd739428;color:#f3c5d2;box-shadow:inset 0 0 0 1px #df8ba64c}
+.atlas-figure{position:relative;z-index:1;display:block;width:min(100%,365px);height:auto;max-height:440px;margin-top:16px;filter:drop-shadow(0 12px 35px #05070c)}
+.atlas-figure[data-view="front"] [data-atlas-side="back"],.atlas-figure[data-view="back"] [data-atlas-side="front"]{display:none}
+.atlas-zone{fill:#a95b75;fill-opacity:.48;stroke:#df98a9;stroke-opacity:.54;stroke-width:1.4;transition:fill-opacity .2s,stroke-opacity .2s,filter .2s}
+.atlas-hotspot{cursor:pointer;outline:0}
+.atlas-hotspot:hover .atlas-zone,.atlas-hotspot:focus-visible .atlas-zone,.atlas-hotspot[data-active="true"] .atlas-zone{fill:#fc827c;fill-opacity:.9;stroke:#ffc0ae;stroke-opacity:1;filter:drop-shadow(0 0 8px #ff7e7dbd)}
+.atlas-view-hint{position:relative;z-index:1;color:#9e9ba9;letter-spacing:.08em;font-size:10px;margin-top:0}
+.atlas-content{min-width:0;max-width:540px}
+.atlas-content h2{font-size:clamp(30px,4.5vw,49px);line-height:1.04;letter-spacing:-.055em;font-weight:550;margin:14px 0 13px}
+.atlas-content>p{color:#a6a8b7;font-size:13px;line-height:1.75;max-width:380px;margin:0}
+.atlas-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px;margin-top:21px}
+.atlas-list button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;min-height:46px;border:0;border-bottom:1px solid #ffffff1d;background:transparent;color:#ded9e1;font-size:13px;padding:9px 1px;transition:color .2s,border-color .2s}
+.atlas-list button:hover,.atlas-list button:focus-visible{color:#ffbbb2;border-color:#f3979c8a}
+.atlas-list button small{color:#a78c9b;font-size:11px;white-space:nowrap}
+.atlas-list button:disabled{opacity:.32}
+.atlas-all{width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:none;color:#e9aabe;font-weight:750;font-size:13px;padding:20px 0 10px}
+.atlas-all span{font-size:19px}
+.atlas-content .atlas-count{margin:13px 0 0;font-size:11px;color:#838d9a}
+.studio-shell{min-width:0;animation:atlas-in .24s ease-out both}
+@keyframes atlas-in{from{opacity:.55;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.studio-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 4px 14px;border-bottom:1px solid #ffffff16}
+.studio-back{border:0;background:transparent;color:#ecc0d0;padding:10px 0;font-size:13px;font-weight:650}
+.studio-top-meta{display:flex;gap:15px;align-items:center;color:#a6a8b4;font-size:12px}
+#studio-route{color:#dfa8bc;font-weight:750}#studio-index{font-variant-numeric:tabular-nums}
+.studio-filters{margin:15px 0 19px}
+.studio-filters .search{border-radius:10px;background:#ffffff06;border-color:#ffffff1b}
+.studio-filters .filter-row button{border:0;background:transparent;border-bottom:1px solid transparent;border-radius:0;color:#adb3bf}
+.studio-filters .filter-row button[aria-pressed="true"]{color:#f1b4c5;border-bottom-color:#e688a5;background:transparent}
+.studio-layout{display:flex;flex-direction:column;gap:12px}
+.studio-layout .detail{order:0;width:100%;border:0;background:transparent;border-radius:0;overflow:visible}
+.studio-layout .detail-head{padding:0 3px 16px;align-items:center}
+.studio-layout .detail-head h2{font-size:clamp(28px,4.2vw,46px);font-weight:580;margin:6px 0 4px}
+.studio-layout .detail-head .kind-tag{color:#dfb0bf}
+.studio-layout .stage{margin:0;min-width:0;border:0;border-radius:18px;background:radial-gradient(ellipse 56% 65% at 50% 48%,#29374b,#101821 72%,#0b1018);touch-action:pan-y;user-select:none;overflow:hidden}
+.studio-layout .stage svg{max-height:500px;margin:auto}
+.studio-stepper{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:48px;padding:5px 2px;color:#9ea5b3;font-size:11px;letter-spacing:.02em}
+.studio-stepper button{min-width:45px;min-height:42px;border-radius:50%;border:1px solid #ffffff2b;background:#ffffff07;color:#dcb2c2;font-size:19px}
+.studio-stepper button:disabled{opacity:.25}
+.studio-layout .stage-bottom{margin:6px 1px 0}
+.studio-layout .muscle-row{padding:16px 2px 10px}
+.studio-action{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 2px 18px}
+.studio-action .explore-primary{min-height:46px}
+.studio-action>span{font-size:12px;color:#bcb0bf}
+.studio-technique{border-top:1px solid #ffffff24;border-bottom:1px solid #ffffff1a;margin:0 0 13px}
+.studio-technique summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:16px 3px;color:#e9c0cf;font-size:14px;font-weight:650;list-style:none}
+.studio-technique summary::-webkit-details-marker{display:none}
+.studio-technique summary span{transition:transform .2s;font-size:20px;font-weight:350}
+.studio-technique[open] summary span{transform:rotate(180deg)}
+.studio-technique .instructions{padding:0 4px 19px}
+.studio-layout .catalog{order:1;width:100%;border:0;border-radius:0;background:transparent;overflow:hidden;margin-top:12px}
+.studio-layout .catalog-head{padding:11px 2px;border-bottom:1px solid #ffffff1a}
+.studio-layout .exercise-list{display:flex;flex-wrap:nowrap;gap:7px;overflow-x:auto;overflow-y:hidden;max-height:none;padding:11px 0 13px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.studio-layout .exercise-option{scroll-snap-align:start;flex:0 0 194px;min-height:74px;border:1px solid #ffffff16;background:#ffffff05;padding:11px;border-radius:12px}
+.studio-layout .exercise-option[aria-current=true]{border-color:#d788a385;background:#b65b7b22}
+.studio-layout .exercise-option small{color:#a5a2b0}
+@media(max-width:740px){
+.atlas-shell{grid-template-columns:1fr;gap:4px;padding:0 3px 25px}
+.atlas-visual{min-height:0;max-height:445px}
+.atlas-figure{max-height:400px;width:min(100%,330px)}
+.atlas-view-controls{top:0}
+.atlas-content{max-width:none;padding:5px 7px}
+.atlas-content h2{font-size:32px}
+.atlas-content>p{font-size:12px}
+.atlas-list{margin-top:15px;column-gap:17px}
+.atlas-list button{font-size:12px;min-height:43px}
+.studio-top{padding:0 2px 10px}
+.studio-top-meta{gap:8px}
+.studio-filters{margin:12px 0 15px}
+.studio-layout .detail-head{padding:0 2px 11px}
+.studio-layout .detail-head h2{font-size:27px}
+.studio-layout .stage svg{max-height:375px}
+.studio-layout .exercise-option{flex-basis:174px}
+.studio-stepper{font-size:10px}
+.studio-action .explore-primary{flex:1}
+}
+@media(max-width:370px){.atlas-figure{max-height:345px}.atlas-list button{font-size:11px}.studio-layout .detail-head h2{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
 </style>
 </head>
 <body>
@@ -24,9 +109,66 @@
 <main><div class="intro"><div class="eyebrow">INSPIRATION · TEKNIK · DITT NÄSTA PASS</div><h1><span class="explore-star" aria-hidden="true">★</span> Utforska träning</h1><p>Lär känna övningarna, hitta något nytt eller utgå från ett färdigt program.</p></div>
 <nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Övningsguide</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Hitta övningar</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Träningsprogram</button></nav>
 <section id="guide-page" aria-label="Övningsguide">
-<div class="filters"><input id="search" class="search" type="search" placeholder="Sök övning eller muskelgrupp" aria-label="Sök övning eller muskelgrupp"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
-<div class="layout"><aside class="catalog"><div class="catalog-head"><strong>Övningar</strong><small id="count"></small></div><div id="exercise-list" class="exercise-list"></div></aside>
-<section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2 id="detail-name"></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div><div class="stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg></div><div class="stage-bottom"><small>Muskler i korall</small><div class="stage-controls"><button id="view-toggle" type="button" aria-pressed="false">Byt vy ↻</button><button id="pause" type="button" aria-pressed="false">Pausa Ⅱ</button></div></div><div id="muscles" class="muscle-row"></div><div class="instructions"><h3>Så gör du</h3><ol id="steps"></ol><div id="tip" class="tech-tip"></div><div class="guide-add-row"><button type="button" class="explore-primary" id="guide-add">＋ Välj till mitt pass</button><span id="guide-prescription"></span></div></div></section></div>
+<section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
+<div class="atlas-shell">
+<div class="atlas-visual">
+<div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
+<svg id="atlas-figure" class="atlas-figure" viewBox="0 0 320 426" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskelgrupp på figuren.">
+<defs><radialGradient id="atlas-halo"><stop stop-color="#aa536c" stop-opacity=".22"/><stop offset="1" stop-color="#aa536c" stop-opacity="0"/></radialGradient><linearGradient id="atlas-body-shade" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#536475"/><stop offset=".56" stop-color="#2b3848"/><stop offset="1" stop-color="#152333"/></linearGradient></defs>
+<ellipse cx="160" cy="220" rx="135" ry="202" fill="url(#atlas-halo)"/>
+<g class="atlas-silhouette" fill="url(#atlas-body-shade)" stroke="#89a2ac" stroke-opacity=".33" stroke-width="1.25" stroke-linejoin="round">
+<ellipse cx="160" cy="44" rx="22" ry="25"/><path d="M149 66h22v20h-22z"/>
+<path d="M126 82Q160 68 194 82L188 155L178 210L142 210L132 155Z"/>
+<path d="M128 85Q111 74 104 96L89 146L101 154L123 118Z"/><path d="M192 85Q209 74 216 96L231 146L219 154L197 118Z"/>
+<path d="M89 146L78 214Q75 229 85 230L96 217L101 154Z"/><path d="M231 146L242 214Q245 229 235 230L224 217L219 154Z"/>
+<path d="M142 195L178 195L189 236Q160 249 131 236Z"/>
+<path d="M135 232L158 241L153 318L137 331L126 303Z"/><path d="M185 232L162 241L167 318L183 331L194 303Z"/>
+<path d="M137 319L153 319L151 389L137 389L131 376Z"/><path d="M183 319L167 319L169 389L183 389L189 376Z"/>
+<path d="M137 386h14l3 16h-28q-5-9 11-16z"/><path d="M183 386h-14l-3 16h28q5-9-11-16z"/>
+</g>
+<g data-atlas-side="front">
+<g class="atlas-hotspot" data-atlas-muscle="Axlar" tabindex="0" role="button" aria-label="Axlar"><ellipse class="atlas-zone" cx="116" cy="99" rx="14" ry="21" transform="rotate(17 116 99)"/><ellipse class="atlas-zone" cx="204" cy="99" rx="14" ry="21" transform="rotate(-17 204 99)"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Bröst" tabindex="0" role="button" aria-label="Bröst"><path class="atlas-zone" d="M131 90Q142 88 157 96L157 122Q145 132 130 122Z"/><path class="atlas-zone" d="M189 90Q178 88 163 96L163 122Q175 132 190 122Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Biceps" tabindex="0" role="button" aria-label="Biceps"><path class="atlas-zone" d="M109 115L94 147L102 159L117 127Z"/><path class="atlas-zone" d="M211 115L226 147L218 159L203 127Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Triceps" tabindex="0" role="button" aria-label="Triceps"><path class="atlas-zone" d="M119 117L106 125L95 152L101 154Z"/><path class="atlas-zone" d="M201 117L214 125L225 152L219 154Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Mage" tabindex="0" role="button" aria-label="Mage"><path class="atlas-zone" d="M141 135Q160 140 179 135L175 197Q160 203 145 197Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Framsida lår" tabindex="0" role="button" aria-label="Framsida lår"><path class="atlas-zone" d="M138 248L155 254L149 306L139 318L131 294Z"/><path class="atlas-zone" d="M182 248L165 254L171 306L181 318L189 294Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Vader" tabindex="0" role="button" aria-label="Vader"><path class="atlas-zone" d="M139 335L151 334L149 377L140 376Z"/><path class="atlas-zone" d="M181 335L169 334L171 377L180 376Z"/></g>
+</g>
+<g data-atlas-side="back">
+<g class="atlas-hotspot" data-atlas-muscle="Axlar" tabindex="0" role="button" aria-label="Axlar"><ellipse class="atlas-zone" cx="116" cy="99" rx="14" ry="21" transform="rotate(17 116 99)"/><ellipse class="atlas-zone" cx="204" cy="99" rx="14" ry="21" transform="rotate(-17 204 99)"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Rygg" tabindex="0" role="button" aria-label="Rygg"><path class="atlas-zone" d="M130 94Q160 82 190 94L183 166L161 191L137 166Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Triceps" tabindex="0" role="button" aria-label="Triceps"><path class="atlas-zone" d="M113 111L96 149L104 157L121 119Z"/><path class="atlas-zone" d="M207 111L224 149L216 157L199 119Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Säte" tabindex="0" role="button" aria-label="Säte"><path class="atlas-zone" d="M141 202Q158 202 158 218L156 238Q142 242 134 231Z"/><path class="atlas-zone" d="M179 202Q162 202 162 218L164 238Q178 242 186 231Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Baksida lår" tabindex="0" role="button" aria-label="Baksida lår"><path class="atlas-zone" d="M139 249L155 254L150 306L138 318L132 294Z"/><path class="atlas-zone" d="M181 249L165 254L170 306L182 318L188 294Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Vader" tabindex="0" role="button" aria-label="Vader"><path class="atlas-zone" d="M138 332L153 329L149 381L139 381Z"/><path class="atlas-zone" d="M182 332L167 329L171 381L181 381Z"/></g>
+<g class="atlas-hotspot" data-atlas-muscle="Biceps" tabindex="0" role="button" aria-label="Biceps"><path class="atlas-zone" d="M106 117L99 130L96 147L106 129Z"/><path class="atlas-zone" d="M214 117L221 130L224 147L214 129Z"/></g>
+</g>
+<path d="M160 78V202" fill="none" stroke="#91b0bc" stroke-opacity=".18" stroke-width="1" stroke-dasharray="3 7"/>
+</svg>
+<div class="atlas-view-hint">Välj muskel direkt på figuren</div>
+</div>
+<div class="atlas-content"><div class="eyebrow">PULSE · MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2><p>Välj en muskelgrupp på kroppen eller i listan för att utforska övningarna i rörelsestudion.</p>
+<div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div><button type="button" class="atlas-all" id="atlas-all">Utforska alla övningar <span aria-hidden="true">↗</span></button>
+<p class="atlas-count" id="atlas-count" role="status"></p>
+</div>
+</div>
+</section>
+<div id="studio-shell" class="studio-shell" hidden>
+<div class="studio-top"><button type="button" class="studio-back" id="studio-back">← Muskelatlas</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span></div></div>
+<div class="studio-filters filters"><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
+<div class="layout studio-layout">
+<section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2 id="detail-name"></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div>
+<div class="stage" id="studio-stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg></div>
+<div class="studio-stepper"><button type="button" id="studio-prev" aria-label="Föregående övning">←</button><span>Svep för att utforska övningar</span><button type="button" id="studio-next" aria-label="Nästa övning">→</button></div>
+<div class="stage-bottom"><small>Muskler i korall</small><div class="stage-controls"><button id="view-toggle" type="button" aria-pressed="false">Byt vy ↻</button><button id="pause" type="button" aria-pressed="false">Pausa Ⅱ</button></div></div>
+<div id="muscles" class="muscle-row"></div>
+<div class="studio-action"><button type="button" class="explore-primary" id="guide-add">＋ Välj till mitt pass</button><span id="guide-prescription"></span></div>
+<details id="studio-technique" class="studio-technique"><summary>Teknik & tips <span aria-hidden="true">⌄</span></summary><div class="instructions"><h3>Så gör du</h3><ol id="steps"></ol><div id="tip" class="tech-tip"></div></div></details>
+</section>
+<aside class="catalog"><div class="catalog-head"><strong>Fler övningar</strong><small id="count"></small></div><div id="exercise-list" class="exercise-list" aria-label="Bläddra mellan övningar"></div></aside>
+</div>
+</div>
 </section>
 <section id="suggestions-page" hidden aria-labelledby="suggestions-title">
  <div class="section-intro"><div><h2 id="suggestions-title">Vad vill du träna?</h2><p>Välj muskelgrupp och utrustning. Lägg till de övningar du vill ha med i ditt pass.</p></div></div>
@@ -52,9 +194,54 @@
 const exercises=window.PulseExplore.exercises;
 const $=id=>document.getElementById(id),muscleGroups=[...new Set(exercises.flatMap(e=>e.muscles))].sort((a,b)=>a.localeCompare(b,'sv')),groups=['Alla',...muscleGroups],equipment=['All utrustning','Maskin','Kabel','Hantlar','Skivstång','Kroppsvikt','Konditionsmaskin'];let group='Alla',equip='All utrustning',active=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,phase=0,last=0;
 const safe=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function renderFilters(){for(const [id,items,value,key] of [['group-filters',groups,group,'group'],['equipment-filters',equipment,equip,'equip']])$(id).innerHTML=items.map(v=>`<button type="button" data-${key}="${safe(v)}" aria-pressed="${v===value}">${safe(v)}</button>`).join('');}
+
+// Stage 1: muscle atlas and studio navigation. This file belongs only to Markus/Maja.
+let studioOpen=false,atlasView='front';
+function renderAtlas(){
+ const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)&&(equip==='All utrustning'||e.equipment===equip)).length]));
+ $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span><small>'+counts.get(m)+' ↗</small></button>').join('');
+ $('atlas-count').textContent=exercises.filter(e=>equip==='All utrustning'||e.equipment===equip).length+' övningar · 10 muskelgrupper';
+ $('atlas-figure').dataset.view=atlasView;
+ $('atlas-front').setAttribute('aria-pressed',String(atlasView==='front'));
+ $('atlas-back').setAttribute('aria-pressed',String(atlasView==='back'));
+ $('atlas-figure').querySelectorAll('.atlas-hotspot').forEach(node=>node.setAttribute('data-active',String(node.dataset.atlasMuscle===group&&studioOpen)));
+}
+function updateStudioNavigation(items=filtered()){
+ const index=items.findIndex(e=>e.id===active);
+ $('studio-index').textContent=items.length?(index+1)+' / '+items.length:'0 / 0';
+ $('studio-prev').disabled=items.length<2;
+ $('studio-next').disabled=items.length<2;
+ $('studio-route').textContent=group==='Alla'?'Alla övningar':group;
+}
+function toggleStudio(open){
+ studioOpen=open;
+ $('atlas-home').hidden=open;$('studio-shell').hidden=!open;
+ renderAtlas();
+}
+function openStudio(muscle='Alla',preferredId=null,resetEquipment=false){
+ if(resetEquipment)equip='All utrustning';
+ group=muscle;$('search').value='';
+ const items=filtered();
+ if(!items.length){announce('Inga övningar matchar det filtret.');return;}
+ active=items.some(e=>e.id===preferredId)?preferredId:items[0].id;
+ phase=0;cameraIndex=0;
+ $('view-toggle').textContent='Byt vy ↻';$('view-toggle').setAttribute('aria-pressed','false');
+ toggleStudio(true);renderFilters();renderDetail();renderList();
+ $('studio-shell').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+function closeStudio(){
+ toggleStudio(false);$('atlas-home').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+function stepStudio(direction){
+ const items=filtered();if(items.length<2)return;
+ const index=Math.max(0,items.findIndex(e=>e.id===active));
+ select(items[(index+direction+items.length)%items.length].id,false);
+ const current=$('exercise-list').querySelector('[data-id="'+active+'"]');
+ if(current)current.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest',inline:'center'});
+}
+function renderFilters(){for(const [id,items,value,key] of [['group-filters',groups,group,'group'],['equipment-filters',equipment,equip,'equip']])$(id).innerHTML=items.map(v=>`<button type="button" data-${key}="${safe(v)}" aria-pressed="${v===value}">${safe(v)}</button>`).join('');renderAtlas();}
 function filtered(){const q=$('search').value.trim().toLocaleLowerCase('sv');return exercises.filter(e=>(group==='Alla'||e.muscles.includes(group))&&(equip==='All utrustning'||e.equipment===equip)&&(!q||[e.name,e.group,e.equipment,...e.muscles].join(' ').toLocaleLowerCase('sv').includes(q)));}
-function renderList(){const items=filtered();$('count').textContent=items.length+' st';$('exercise-list').innerHTML=items.map(e=>`<button class="exercise-option" data-id="${e.id}" aria-current="${e.id===active}"><span class="option-symbol" aria-hidden="true">${e.equipment==='Maskin'?'▣':e.equipment==='Kabel'?'◇':e.equipment==='Konditionsmaskin'?'↝':'↗'}</span><span class="option-copy"><strong>${safe(e.name)}</strong><small>${safe(e.equipment)} · ${safe(e.muscles[0])}</small></span></button>`).join('')||'<p class="empty">Inga övningar matchar filtren.</p>';if(items.length&&!items.some(e=>e.id===active)){active=items[0].id;phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();}if(!items.length){$('detail').hidden=true;}else $('detail').hidden=false;}
+function renderList(){const items=filtered();$('count').textContent=items.length+' st';$('exercise-list').innerHTML=items.map(e=>`<button class="exercise-option" data-id="${e.id}" aria-current="${e.id===active}"><span class="option-symbol" aria-hidden="true">${e.equipment==='Maskin'?'▣':e.equipment==='Kabel'?'◇':e.equipment==='Konditionsmaskin'?'↝':'↗'}</span><span class="option-copy"><strong>${safe(e.name)}</strong><small>${safe(e.equipment)} · ${safe(e.muscles[0])}</small></span></button>`).join('')||'<p class="empty">Inga övningar matchar filtren.</p>';if(items.length&&!items.some(e=>e.id===active)){active=items[0].id;phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();}if(!items.length){$('detail').hidden=true;}else $('detail').hidden=false;updateStudioNavigation(items);}
 function renderDetail(){const e=exercises[active];if(!e)return;$('detail').hidden=false;$('detail-name').textContent=e.name;$('detail-equip').textContent=e.equipment.toUpperCase();$('detail-sub').textContent='Animerad rörelse · kontrollerat tempo';$('detail-kind').textContent=e.muscles[0];$('detail-kind').className='kind-tag';$('muscles').innerHTML='<b>ARBETANDE MUSKLER</b>'+e.muscles.map(m=>'<span class="muscle-pill">'+safe(m)+'</span>').join('');$('steps').innerHTML=e.steps.map(v=>'<li>'+safe(v)+'</li>').join('');$('tip').innerHTML='<strong>Tänk på: </strong>'+safe(e.tip);$('exercise-figure').setAttribute('aria-label','Animerad teknikillustration av '+e.name+'. Markerade muskler: '+e.muscles.join(', '));updateGuideChoice();draw((1-Math.cos(phase*Math.PI*2))/2,phase);}
 // Exercise scenes use metres: x = left/right, y = up, z = forward.
 // All cameras, grips, pads and limbs share this coordinate system.
@@ -494,7 +681,7 @@ function draw(t,cycle=phase){
 let lastPaint=0;
 function animate(now){
  if(!last)last=now;const dt=Math.min(80,now-last);last=now;
- if(!paused&&document.visibilityState==='visible'&&!$('detail').hidden&&!$('guide-page').hidden){
+ if(!paused&&studioOpen&&document.visibilityState==='visible'&&!$('detail').hidden&&!$('guide-page').hidden){
   phase=(phase+dt/(['treadmill','bike','elliptical','stepper','farmerCarry'].includes(guideScenes[active].kind)?2200:['deadBug','birdDog'].includes(guideScenes[active].kind)?8000:4400))%1;
   if(now-lastPaint>=32){draw((1-Math.cos(phase*TAU))/2,phase);lastPaint=now;}
  }
@@ -502,6 +689,34 @@ function animate(now){
 }
 
 function select(id,scroll){active=id;phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();renderList();if(scroll&&matchMedia('(max-width:740px)').matches)$('detail').scrollIntoView({behavior:'smooth',block:'start'});}
+
+$('atlas-home').addEventListener('click',event=>{
+ const side=event.target.closest('#atlas-front,#atlas-back');
+ if(side){atlasView=side.id==='atlas-back'?'back':'front';renderAtlas();return;}
+ const target=event.target.closest('[data-atlas-muscle]');
+ if(target&&!target.disabled){openStudio(target.dataset.atlasMuscle);return;}
+ if(event.target.closest('#atlas-all'))openStudio('Alla');
+});
+$('atlas-figure').addEventListener('keydown',event=>{
+ if(event.key!=='Enter'&&event.key!==' ')return;
+ const target=event.target.closest('[data-atlas-muscle]');if(!target)return;
+ event.preventDefault();openStudio(target.dataset.atlasMuscle);
+});
+$('studio-back').addEventListener('click',closeStudio);
+$('studio-prev').addEventListener('click',()=>stepStudio(-1));
+$('studio-next').addEventListener('click',()=>stepStudio(1));
+let studioTouchStart=null;
+$('studio-stage').addEventListener('touchstart',event=>{
+ if(event.touches.length===1)studioTouchStart={x:event.touches[0].clientX,y:event.touches[0].clientY};
+ else studioTouchStart=null;
+},{passive:true});
+$('studio-stage').addEventListener('touchend',event=>{
+ if(!studioTouchStart||event.changedTouches.length!==1)return;
+ const dx=event.changedTouches[0].clientX-studioTouchStart.x,dy=event.changedTouches[0].clientY-studioTouchStart.y;
+ studioTouchStart=null;
+ if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3)stepStudio(dx<0?1:-1);
+},{passive:true});
+$('studio-stage').addEventListener('touchcancel',()=>{studioTouchStart=null;},{passive:true});
 $('group-filters').addEventListener('click',ev=>{const b=ev.target.closest('[data-group]');if(!b)return;group=b.dataset.group;renderFilters();renderList();});
 $('equipment-filters').addEventListener('click',ev=>{const b=ev.target.closest('[data-equip]');if(!b)return;equip=b.dataset.equip;renderFilters();renderList();});
 $('search').addEventListener('input',renderList);
@@ -539,10 +754,7 @@ function showPage(value,remember=true){
  if(remember)history.replaceState(null,'','#'+page);
  if(page==='suggestions')renderSuggestions();if(page==='programs')renderPrograms();
 }
-function showTechnique(id){
- group='Alla';equip='All utrustning';$('search').value='';renderFilters();showPage('guide');select(id,false);
- $('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
-}
+function showTechnique(id){showPage('guide');openStudio('Alla',id,true);}
 function suggestionMatches(){return exercises.filter(e=>(!inspirationOnly||Object.hasOwn(explorer.inspiration,e.id))&&(!$('suggest-muscle').value||e.muscles.includes($('suggest-muscle').value))&&(!$('suggest-equipment').value||e.equipment===$('suggest-equipment').value));}
 function renderSuggestions(){
  const matches=suggestionMatches(),kinds=[...new Set(matches.map(e=>e.group))],buckets=kinds.map(g=>matches.filter(e=>e.group===g)),items=[];
