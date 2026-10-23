@@ -378,7 +378,8 @@ if (target && visual && guide && supportsWebGL()) {
       controls.update();
       renderer.render(scene, camera);
       visual.classList.add('atlas-3d-ready');
-      document.documentElement.classList.remove('atlas-3d-pending');
+      clearTimeout(window.__pulseAtlasFallbackTimeout);
+      document.documentElement.classList.remove('atlas-3d-pending','atlas-3d-failed');
       statusText('');
       document.dispatchEvent(new CustomEvent('pulse:atlas-ready'));
       let lastFrame = 0;
@@ -418,6 +419,7 @@ if (target && visual && guide && supportsWebGL()) {
       draco?.dispose();
       if (renderer?.domElement?.parentElement === target) renderer.domElement.remove();
       visual.classList.remove('atlas-3d-ready');
+      clearTimeout(window.__pulseAtlasFallbackTimeout);
       document.documentElement.classList.remove('atlas-3d-pending');
       document.documentElement.classList.add('atlas-3d-failed');
       statusText('3D kunde inte visas här. Den interaktiva 2D-atlasen fungerar fortfarande.');
