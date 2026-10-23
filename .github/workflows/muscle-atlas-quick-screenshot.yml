@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/muscle-atlas-quick-screenshot.yml'
+      - 'budget/pulse-muscle-atlas-3d.js'
+      - 'budget/pulse-exercise-guide.html'
   workflow_dispatch:
 jobs:
   capture:
