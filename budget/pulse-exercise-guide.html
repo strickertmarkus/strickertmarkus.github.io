@@ -227,13 +227,160 @@ main{padding:15px 15px 64px}
 #studio-stage .exercise-3d canvas{display:block;width:100%;height:100%}
 @media(prefers-reduced-motion:reduce){#studio-stage .exercise-3d{transition:none}}
 #toggle-exercise-3d[aria-pressed="true"]{color:#ffb1ad;background:#a6536b29;border-color:#ce879a52}
+
+/* PULSE FLOW / MOVE LAB — Markus & Maja standalone fitness explorer v3 */
+body{background:radial-gradient(ellipse 67% 28% at 50% 5%,#30203537,transparent 85%),#080a10}
+body.pulse-studio-open{background:#090c12}
+.intro{position:relative;padding-top:3px}
+.intro .eyebrow{font-size:9px;letter-spacing:.22em;color:#d58aa4}
+.intro h1{font-weight:550;font-size:clamp(29px,6vw,53px);letter-spacing:-.067em;margin:9px 0 4px;line-height:1}
+.intro h1 em,.discover-intro em{font-weight:510;font-style:normal;color:#d99caf}
+.intro p{color:#8f96a3;font-size:12px}
+.explore-nav{width:max-content;border-radius:999px;margin:20px 0 19px;background:#10131b;box-shadow:0 5px 18px #05050a80}
+.explore-nav button{font-size:12px;min-height:38px;padding:8px 19px}
+#discover-home{max-width:1000px;margin:auto;padding-bottom:22px}
+.discover-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#af778d;font-size:10px;letter-spacing:.15em;font-weight:740}
+.discover-topline span:first-child{display:flex;align-items:center;gap:9px}
+.discover-topline i,.discover-live i{width:6px;height:6px;border-radius:50%;background:#ff979e;box-shadow:0 0 11px #fa657b7f;display:inline-block}
+.discover-topline span:last-child{color:#626c7a;white-space:nowrap;font-size:9px}
+.discover-intro{margin:14px 0 15px}
+.discover-intro h2{font-weight:520;letter-spacing:-.072em;font-size:clamp(36px,7vw,67px);line-height:1.05;margin:0 0 8px}
+.discover-intro p{color:#939ba9;font-size:13px;margin:0;line-height:1.55}
+.discover-filterbar{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.discover-muscles{display:flex;gap:7px;overflow-x:auto;min-width:0;flex:1;scrollbar-width:none;padding:5px 2px}
+.discover-muscles::-webkit-scrollbar{display:none}
+.discover-muscles button{white-space:nowrap;flex:0 0 auto;border:1px solid #ffffff18;border-radius:100px;padding:9px 15px;background:#ffffff05;color:#b2aeb8;font-size:11px;font-weight:650;min-height:36px}
+.discover-muscles button[aria-pressed=true]{border-color:#d98ca57d;background:#c8759624;color:#ffccd9;box-shadow:0 0 18px #d87d9730}
+.discover-equipment-label{display:flex;align-items:center;gap:7px;min-width:0;color:#8f95a1;font-size:9px;letter-spacing:.04em}
+.discover-equipment-label select{color:#e6c5d2;font-size:11px;border:1px solid #ffffff24;background:#161924;border-radius:100px;max-width:158px;padding:9px 10px;min-height:37px}
+.discover-stage{isolation:isolate;position:relative;overflow:hidden;min-height:0;background:radial-gradient(ellipse at 52% 36%,#293244 0%,#1b222f 36%,#0e141e 69%,#0a0e16 100%);border:1px solid #d897ab29;border-radius:29px;box-shadow:0 30px 80px #02030975,inset 0 1px 0 #f7e5ee16;touch-action:pan-y;user-select:none}
+.discover-stage-glow{pointer-events:none;position:absolute;inset:-16% 5% 22%;z-index:0;background:radial-gradient(ellipse at 50% 57%,#f28aa521,transparent 67%)}
+.discover-stage::after{content:"";pointer-events:none;position:absolute;inset:43% 0 0;background:linear-gradient(180deg,transparent,#0b1018a8 54%,#0a0e16 97%);z-index:1}
+.discover-stage-top{position:absolute;top:20px;left:23px;right:23px;display:flex;align-items:center;justify-content:space-between;z-index:3;color:#c3a0b5;font-size:10px;font-weight:690;letter-spacing:.14em}
+.discover-live{display:flex;align-items:center;gap:9px}
+.discover-stage-top>span:last-child{color:#9ea9ba;font-variant-numeric:tabular-nums}
+#discover-figure{position:relative;z-index:1;display:block;width:100%;height:auto;max-width:760px;aspect-ratio:420/325;margin:34px auto 0;filter:drop-shadow(0 16px 20px #01020b5c)}
+.discover-stage-info{position:relative;z-index:2;padding:0 26px 27px;margin-top:-12px}
+.discover-meta{font-size:10px;letter-spacing:.15em;color:#e2a9b5;font-weight:700;margin-bottom:7px}
+.discover-stage-info h3{margin:0 0 20px;font-size:clamp(28px,5.6vw,50px);font-weight:540;letter-spacing:-.052em;line-height:1.07;max-width:700px;text-wrap:balance}
+.discover-controls{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.discover-stepper{display:flex;gap:9px}
+.discover-stepper button{width:44px;height:44px;border:1px solid #ffffff30;border-radius:100%;background:#ffffff0a;font-size:19px}
+.discover-stepper button:disabled{opacity:.3}
+.discover-open{display:flex;justify-content:center;align-items:center;gap:18px;padding:12px 18px;border:1px solid #e3abc1a9;border-radius:100px;background:#d499af;color:#180d17;font-weight:760;font-size:12px;min-height:45px}
+.discover-open span{font-size:18px}
+.discover-under{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:#858d9a;font-size:11px}
+.discover-under button{border:0;background:transparent;color:#e7aabf;font-size:11px;font-weight:700;padding:11px 6px}
+.discover-swipe-icon{font-size:17px;color:#e7b9c5;margin-right:5px}
+.atlas-archive{max-width:1000px;margin:13px auto 27px;border-top:1px solid #ffffff1a;border-bottom:1px solid #ffffff15}
+.atlas-archive>summary{display:flex;justify-content:space-between;align-items:center;gap:15px;min-height:66px;padding:8px 4px;cursor:pointer;color:#dfc7d3;font-size:13px;font-weight:650;list-style:none}
+.atlas-archive>summary::-webkit-details-marker{display:none}
+.atlas-archive>summary span{color:#858b99;font-size:10px;font-weight:500}
+.atlas-archive[open]>summary{border-bottom:1px solid #ffffff14}
+.atlas-archive .atlas-home{margin:16px auto}
+/* Studio is a focused canvas, not a grid of cards. */
+body.pulse-studio-open .intro,body.pulse-studio-open .explore-nav{display:none}
+body.pulse-studio-open main{padding-top:12px}
+.studio-shell{max-width:980px;margin:0 auto;animation:atlas-in .23s ease-out}
+.studio-top{border-bottom:0;padding:5px 2px 16px}
+.studio-back{font-size:12px}
+.studio-top-meta{gap:13px}
+#studio-filter-toggle{background:#ffffff08;border:1px solid #ffffff24;color:#d9b3c4;border-radius:100px;font-size:10px;padding:9px 12px;min-height:36px}
+#studio-filter-toggle[aria-expanded=true]{background:#ae68842d}
+.studio-filters{padding:12px 0 15px;border-top:1px solid #ffffff12;margin:0 0 10px;max-width:100%}
+.studio-filters[hidden]{display:none!important}
+.studio-layout{gap:0}
+.studio-layout .detail{background:transparent;border:0}
+.studio-layout .detail-head{padding:2px 2px 14px}
+.studio-layout .detail-head h2{font-size:clamp(32px,6vw,54px);font-weight:520;letter-spacing:-.06em}
+.studio-layout .detail-head p{color:#898fa0;font-size:11px}
+.studio-layout .stage{border-radius:27px;overflow:hidden;border:1px solid #d3a0b332;margin:0;background:radial-gradient(ellipse at 50% 38%,#303b51 0%,#202a3c 37%,#101824 75%,#0b111c 100%);box-shadow:0 22px 66px #02030783,inset 0 1px 0 #ffffff19}
+.studio-layout .stage svg{max-height:600px}
+.studio-layout .stage-label{color:#e2aebf;letter-spacing:.14em;font-size:10px;top:16px;left:18px}
+.studio-stepper{display:flex;justify-content:center;gap:18px;margin-top:-12px;position:relative;z-index:3;min-height:56px}
+.studio-stepper span{font-size:10px;letter-spacing:.04em}
+.studio-stepper button{min-width:45px;min-height:45px;background:#161d2a;border-color:#d4a8ba48}
+.studio-layout .stage-bottom{padding:5px 0 10px;border-bottom:1px solid #ffffff16;flex-wrap:wrap;gap:10px}
+.studio-layout .stage-bottom small{font-size:10px}
+.studio-layout .stage-controls{flex-wrap:wrap}
+.studio-layout .stage-controls button{border:1px solid #ffffff1b;background:#ffffff08;border-radius:100px;font-size:10px;min-width:0;padding:9px 14px;min-height:35px}
+.studio-layout .muscle-row{padding:15px 0 7px}
+.studio-layout .muscle-row b{font-size:9px;letter-spacing:.1em}
+.studio-layout .studio-action{position:relative;display:flex;gap:13px;align-items:center;padding:12px 0 16px}
+.studio-action #guide-add{border-radius:100px;padding:12px 19px;font-size:12px}
+.studio-layout .catalog{margin-top:22px;border-top:1px solid #ffffff16;border-bottom:0;padding-bottom:14px}
+.studio-layout .catalog-head{border:0;padding:13px 0 8px}
+.studio-layout .exercise-list{scroll-snap-type:x mandatory;padding-bottom:14px}
+.studio-layout .exercise-option{background:linear-gradient(145deg,#24233180,#11151fba);border:1px solid #ffffff22;border-radius:16px;min-height:78px;flex-basis:188px}
+.studio-layout .exercise-option[aria-current=true]{background:linear-gradient(145deg,#b75e7c33,#1d1720);border-color:#ed9cb07b}
+.studio-technique{border:0}
+.studio-technique:not([open]){margin:7px 0 10px}
+.studio-technique:not([open]) summary{min-height:52px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff07;padding:15px 18px;font-size:12px}
+.technique-scrim{position:fixed;inset:0;background:#020409ba;z-index:55;backdrop-filter:blur(7px)}
+.studio-technique[open]{position:fixed;bottom:0;left:0;right:0;z-index:56;max-height:min(82dvh,740px);overflow-y:auto;border-radius:25px 25px 0 0;background:linear-gradient(160deg,#202231,#11141f 52%,#0a0f18);box-shadow:0 -25px 95px #000b;border-top:1px solid #e2a0bc52;padding:0 max(20px,calc((100vw - 650px)/2)) max(24px,env(safe-area-inset-bottom));overscroll-behavior:contain}
+.studio-technique[open] summary{font-size:14px;min-height:79px;padding:27px 2px 12px;position:sticky;top:0;background:#1d202b}
+.studio-technique[open] .instructions{padding:8px 0 34px}
+.studio-technique[open] .instructions li{font-size:13px}
+body:has(.studio-technique[open]){overflow:hidden}
+@media(max-width:740px){
+ .intro{padding-top:0}
+ .intro h1{font-size:30px;margin:6px 0 4px}
+ .intro p{font-size:11px}
+ .explore-nav{margin:15px 0 19px}
+ .explore-nav button{font-size:11px;padding:8px 14px}
+ .discover-intro{margin:13px 0 15px}
+ .discover-intro h2{font-size:clamp(36px,9.3vw,46px)}
+ .discover-intro p{font-size:12px}
+ .discover-filterbar{flex-wrap:wrap;gap:6px}
+ .discover-muscles{flex:1 1 100%;order:2;padding:7px 2px}
+ .discover-equipment-label{order:1;margin-left:auto;margin-top:0}
+ .discover-topline{font-size:9px}
+ .discover-stage{border-radius:24px}
+ .discover-stage-top{top:16px;left:18px;right:18px;font-size:9px}
+ #discover-figure{margin-top:34px;aspect-ratio:420/345}
+ .discover-stage-info{padding:0 18px 18px;margin-top:-4px}
+ .discover-stage-info h3{font-size:clamp(27px,7vw,36px);margin:0 0 17px}
+ .discover-meta{font-size:9px}
+ .discover-open{padding:11px 15px;min-height:42px}
+ .discover-stepper button{height:42px;width:42px}
+ .discover-under{font-size:10px}
+ .atlas-archive{margin-top:10px}
+ .atlas-archive>summary{font-size:12px}
+ body.pulse-studio-open main{padding:12px 13px 48px}
+ .studio-layout .detail-head h2{font-size:31px;margin:5px 0}
+ .studio-layout .stage{border-radius:21px}
+ .studio-layout .stage svg{max-height:min(57dvh,450px)}
+ .studio-stepper{gap:13px}
+ .studio-layout .stage-bottom{margin:8px 0 0}
+ .studio-layout .studio-action{padding:10px 0 15px}
+ .studio-layout .exercise-option{flex-basis:172px}
+ .studio-technique[open]{padding-left:22px;padding-right:22px}
+}
+@media(max-width:360px){.discover-stage-info h3{font-size:27px}.discover-open{font-size:10px;padding:10px 12px}.discover-stepper{gap:6px}.discover-stepper button{width:40px;height:40px}.discover-under button{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.studio-shell{animation:none}}
 </style>
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
-<main><div class="intro"><div class="eyebrow">PULSE FIELD / TRÄNINGSUTFORSKAREN</div><h1>Utforska träning</h1><p>Hitta nya rörelser och bygg ditt nästa pass.</p></div>
-<nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Muskelatlas</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Inspiration</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Program</button></nav>
+<main><div class="intro"><div class="eyebrow">PULSE FLOW / MOVE LAB</div><h1>Rörelse. <em>På ditt sätt.</em></h1><p>Upptäck övningar, se tekniken och skapa något eget.</p></div>
+<nav class="explore-nav" aria-label="Utforska träning"><button type="button" data-page="guide" aria-pressed="true"><span>01</span> Upptäck</button><button type="button" data-page="suggestions" aria-pressed="false"><span>02</span> Hitta</button><button type="button" data-page="programs" aria-pressed="false"><span>03</span> Program</button></nav>
 <section id="guide-page" aria-label="Övningsguide">
+<section id="discover-home" aria-labelledby="discover-title">
+  <div class="discover-topline"><span><i></i> MOVE LAB · DISCOVER</span><span id="discover-total">54 RÖRELSER</span></div>
+  <div class="discover-intro"><h2 id="discover-title">Hitta din nästa <em>rörelse.</em></h2><p>Svep genom rörelserna. Stanna när något känns rätt.</p></div>
+  <div class="discover-filterbar">
+    <div id="discover-muscles" class="discover-muscles" aria-label="Välj muskelgrupp"></div>
+    <label class="discover-equipment-label" for="discover-equipment"><span>UTRUSTNING</span><select id="discover-equipment"><option value="All utrustning">All utrustning</option><option value="Maskin">Maskin</option><option value="Kabel">Kabel</option><option value="Hantlar">Hantlar</option><option value="Skivstång">Skivstång</option><option value="Kroppsvikt">Kroppsvikt</option><option value="Konditionsmaskin">Konditionsmaskin</option></select></label>
+  </div>
+  <div class="discover-stage" id="discover-stage" aria-label="Animerad övningsvisning, svep för att byta">
+    <div class="discover-stage-glow"></div>
+    <div class="discover-stage-top"><span class="discover-live"><i></i> LIVE MOTION</span><span id="discover-index">01 / 54</span></div>
+    <svg id="discover-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad övningsdemonstration"></svg>
+    <div class="discover-stage-info"><div class="discover-meta" id="discover-meta">BRÖST · MASKIN</div><h3 id="discover-name">Bröstpress i maskin</h3><div class="discover-controls"><div class="discover-stepper"><button type="button" id="discover-prev" aria-label="Föregående övning">←</button><button type="button" id="discover-next" aria-label="Nästa övning">→</button></div><button type="button" class="discover-open" id="discover-open">Se rörelsen <span>↗</span></button></div></div>
+  </div>
+  <div class="discover-under"><span><span class="discover-swipe-icon">↔</span> Svep för nästa rörelse</span><button type="button" id="discover-add">＋ Lägg till i mitt pass</button></div>
+</section>
+<details id="atlas-archive" class="atlas-archive"><summary>✧ Utforska via muskelatlasen <span>Öppna anatomivyn ↗</span></summary>
 <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
 <div class="atlas-shell">
 <div class="atlas-content">
@@ -323,9 +470,10 @@ main{padding:15px 15px 64px}
 </div>
 </div>
 </section>
+</details>
 <div id="studio-shell" class="studio-shell" hidden>
-<div class="studio-top"><button type="button" class="studio-back" id="studio-back">← Muskelatlas</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span></div></div>
-<div class="studio-filters filters"><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
+<div class="studio-top"><button type="button" class="studio-back" id="studio-back">← Till Upptäck</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span><button id="studio-filter-toggle" type="button" aria-expanded="false" aria-controls="studio-filters">Filter <span>⌄</span></button></div></div>
+<div class="studio-filters filters" id="studio-filters" hidden><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
 <div class="layout studio-layout">
 <section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2 id="detail-name"></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div>
 <div class="stage" id="studio-stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg><div id="exercise-3d" class="exercise-3d" aria-hidden="true"></div></div>
@@ -333,11 +481,12 @@ main{padding:15px 15px 64px}
 <div class="stage-bottom"><small>Muskler i korall</small><div class="stage-controls"><button id="toggle-exercise-3d" type="button" aria-pressed="false" title="Experimentell animerad 3D-modell">3D-test</button><button id="view-toggle" type="button" aria-pressed="false">Byt vy ↻</button><button id="pause" type="button" aria-pressed="false">Pausa Ⅱ</button></div></div>
 <div id="muscles" class="muscle-row"></div>
 <div class="studio-action"><button type="button" class="explore-primary" id="guide-add">＋ Välj till mitt pass</button><span id="guide-prescription"></span></div>
-<details id="studio-technique" class="studio-technique"><summary>Teknik & tips <span aria-hidden="true">⌄</span></summary><div class="instructions"><h3>Så gör du</h3><ol id="steps"></ol><div id="tip" class="tech-tip"></div></div></details>
+<details id="studio-technique" class="studio-technique"><summary>Teknik & tips <span aria-hidden="true">↗</span></summary><div class="instructions"><h3>Så gör du</h3><ol id="steps"></ol><div id="tip" class="tech-tip"></div></div></details>
 </section>
 <aside class="catalog"><div class="catalog-head"><strong>Fler övningar</strong><small id="count"></small></div><div id="exercise-list" class="exercise-list" aria-label="Bläddra mellan övningar"></div></aside>
 </div>
 </div>
+<div id="technique-scrim" class="technique-scrim" hidden></div>
 </section>
 <section id="suggestions-page" hidden aria-labelledby="suggestions-title">
  <div class="section-intro"><div><h2 id="suggestions-title">Vad vill du träna?</h2><p>Välj muskelgrupp och utrustning. Lägg till de övningar du vill ha med i ditt pass.</p></div></div>
