@@ -10,7 +10,7 @@ const materials={
  trim:new THREE.MeshStandardMaterial({color:0x718393,metalness:.8,roughness:.25}),
  pad:new THREE.MeshStandardMaterial({color:0x15202c,metalness:.08,roughness:.65}),
  rubber:new THREE.MeshStandardMaterial({color:0x111923,roughness:.85}),
- skin:new THREE.MeshStandardMaterial({color:0xcbd5df,metalness:.32,roughness:.36}),
+ skin:new THREE.MeshStandardMaterial({color:0x9daab8,metalness:.42,roughness:.36}),
  shoe:new THREE.MeshStandardMaterial({color:0x35404e,roughness:.65}),
  sole:new THREE.MeshStandardMaterial({color:0x86939e,roughness:.8})
 };
@@ -120,7 +120,7 @@ async function initialize(){
   scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
   scene.add(new THREE.HemisphereLight(0xe5efff,0x263040,.8));
   const key=new THREE.DirectionalLight(0xfff0e2,2);key.position.set(-2,4,3);key.castShadow=true;
-  key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:10});key.shadow.bias=-.0007;scene.add(key);
+  key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:10});key.shadow.bias=-.0007;key.shadow.normalBias=.02;scene.add(key);
   const rim=new THREE.DirectionalLight(0xb3d8ff,1.6);rim.position.set(2,2,-2);scene.add(rim);
   const floor=mesh(new THREE.PlaneGeometry(8,8),new THREE.ShadowMaterial({opacity:.20}));floor.rotation.x=-Math.PI/2;floor.position.y=-.012;floor.castShadow=false;
   const base=new URL('./assets/silver-mannequin-v1/',import.meta.url);

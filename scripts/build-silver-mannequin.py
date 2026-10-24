@@ -74,14 +74,14 @@ for i,(vx,vy,vz) in enumerate(verts):
   influence[10]=1-torso;influence[0]=torso
  head=smooth(1.49,1.57,vy)
  influence*=1-head;influence[1]+=head
- arm_center=np.interp(vy,[.875,1.14,1.43],[.43,.38,.225])
- arm_mix=smooth(arm_center-.075,arm_center+.035,abs(vx))*smooth(.78,.86,vy)*(1-smooth(1.49,1.57,vy))
+ arm_boundary=np.interp(vy,[.875,1.14,1.43],[.26,.23,.16])
+ arm_mix=smooth(arm_boundary,arm_boundary+.065,abs(vx))*smooth(.75,.81,vy)*(1-smooth(1.49,1.57,vy))
  bend=1-smooth(1.08,1.20,vy)
  influence*=1-arm_mix;influence[arm]+=arm_mix*(1-bend);influence[arm+1]+=arm_mix*bend
  selected=np.argsort(influence)[-4:]
  ids[i]=selected;weights[i]=influence[selected]/influence[selected].sum()
  # Dark fitted training shorts, blended smoothly at waist/thigh hem.
- if .81<vy<1.015:
+ if .81<vy<1.015 and abs(vx)<.24:
   f=smooth(.81,.835,vy)*(1-smooth(.995,1.015,vy))
   colors[i]=np.array([1,1,1])*(1-f)+np.array([.09,.13,.19])*f
  # Coral anatomical highlight follows the actual pectoral surface, not an overlay plane.
