@@ -63,17 +63,23 @@ def smooth(a,b,v):
 colors=np.ones((len(verts),3),np.float32)
 for i,(vx,vy,vz) in enumerate(verts):
  arm=2 if vx<0 else 4;leg=6 if vx<0 else 8
- if vy>1.51 and abs(vx)<.14: ia,ib,w=1,0,1-smooth(1.49,1.57,vy)
- elif vy>.80 and abs(vx)>.20:
-  ia,ib,w=arm,arm+1,1-smooth(1.08,1.20,vy)
-  # Shoulder blend into upper torso.
-  if vy>1.38 and abs(vx)<.28:ia,ib,w=0,arm,smooth(.18,.285,abs(vx))
- elif vy<.92:
-  ia,ib,w=leg,leg+1,1-smooth(.45,.57,vy)
-  if vy>.84:ia,ib,w=10,leg,1-smooth(.84,.96,vy)
- elif vy<1.03:ia,ib,w=10,0,smooth(.92,1.04,vy)
- else:ia,ib,w=0,0,0
- ids[i,:2]=[ia,ib];weights[i,:2]=[1-w,w]
+ # Continuous weights prevent seams where the shoulders meet the torso.
+ influence=np.zeros(11)
+ if vy<.92:
+  knee=1-smooth(.45,.57,vy)
+  pelvis=smooth(.84,.96,vy)
+  influence[leg]=(1-knee)*(1-pelvis);influence[leg+1]=knee*(1-pelvis);influence[10]=pelvis
+ else:
+  torso=smooth(.92,1.04,vy)
+  influence[10]=1-torso;influence[0]=torso
+ head=smooth(1.49,1.57,vy)
+ influence*=1-head;influence[1]+=head
+ arm_center=np.interp(vy,[.875,1.14,1.43],[.43,.38,.225])
+ arm_mix=smooth(arm_center-.075,arm_center+.035,abs(vx))*smooth(.78,.86,vy)*(1-smooth(1.49,1.57,vy))
+ bend=1-smooth(1.08,1.20,vy)
+ influence*=1-arm_mix;influence[arm]+=arm_mix*(1-bend);influence[arm+1]+=arm_mix*bend
+ selected=np.argsort(influence)[-4:]
+ ids[i]=selected;weights[i]=influence[selected]/influence[selected].sum()
  # Dark fitted training shorts, blended smoothly at waist/thigh hem.
  if .81<vy<1.015:
   f=smooth(.81,.835,vy)*(1-smooth(.995,1.015,vy))
