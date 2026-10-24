@@ -134,6 +134,36 @@ async function initialize(){
   }
   geo.computeVertexNormals();
   const mat=materials.skin.clone();mat.vertexColors=true;
+  // A translucent centre and a denser silhouette keep the moving body readable.
+  // Rest-space fibres stay attached to the pectorals throughout the animation.
+  mat.transparent=true;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
+  mat.onBeforeCompile=shader=>{
+   shader.vertexShader=shader.vertexShader.replace('#include <common>',
+    '#include <common>\nvarying vec3 vAnatomyPosition;');
+   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
+    '#include <begin_vertex>\nvAnatomyPosition = position;');
+   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
+    '#include <common>\nvarying vec3 vAnatomyPosition;');
+   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', `
+    #include <color_fragment>
+    float muscleMask = smoothstep(0.08, 0.50, vColor.r - vColor.g);
+    float clothingMask = 1.0 - smoothstep(0.18, 0.65, max(vColor.r, max(vColor.g, vColor.b)));
+    float facing = abs(dot(normalize(vNormal), normalize(vViewPosition)));
+    float rim = pow(1.0 - facing, 1.8);
+    vec2 musclePoint = vec2(abs(vAnatomyPosition.x), vAnatomyPosition.y);
+    float fan = atan(musclePoint.y - 1.43, 0.245 - musclePoint.x);
+    float fibrePhase = fan * 76.0 + sin(musclePoint.x * 55.0) * 0.3;
+    float fibreDetail = 1.0 - smoothstep(0.1, 1.2, fwidth(fibrePhase));
+    float fibres = sin(fibrePhase) * fibreDetail;
+    float warmth = smoothstep(1.30, 1.43, musclePoint.y);
+    vec3 muscleColor = mix(vec3(0.36, 0.045, 0.027), vec3(0.88, 0.28, 0.12), warmth);
+    muscleColor *= 0.92 + 0.12 * fibres;
+    diffuseColor.rgb = mix(diffuseColor.rgb, muscleColor, muscleMask);
+    diffuseColor.a = mix(0.46 + 0.39 * rim, 0.94, muscleMask);
+    diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
+   `);
+  };
+  mat.customProgramCacheKey=()=> 'silver-frosted-muscle-fibres-v1';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
