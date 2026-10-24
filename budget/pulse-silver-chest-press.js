@@ -136,7 +136,7 @@ async function initialize(){
   const mat=materials.skin.clone();mat.vertexColors=true;
   // A translucent centre and a denser silhouette keep the moving body readable.
   // Rest-space fibres stay attached to the pectorals throughout the animation.
-  mat.transparent=true;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
+  mat.transparent=true;mat.side=THREE.DoubleSide;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
   mat.onBeforeCompile=shader=>{
    shader.vertexShader=shader.vertexShader.replace('#include <common>',
     '#include <common>\nvarying vec3 vAnatomyPosition;');
@@ -179,7 +179,8 @@ async function initialize(){
     float fibres = sin(fibrePhase) * fibreDetail;
     float warmth = smoothstep(1.27, 1.46, p.y);
     float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
-    vec3 muscleColor = mix(vec3(0.20, 0.018, 0.012), vec3(0.95, 0.28, 0.14), warmth * 0.55 + belly * 0.45);
+    float tissueWarmth = max(warmth * 0.55 + belly * 0.45, secondary * (0.60 + 0.25 * sin(armT * 3.14159)));
+    vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
     muscleColor *= 0.80 + 0.26 * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
     muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
@@ -189,6 +190,13 @@ async function initialize(){
     float tissueAlpha = 0.56 + 0.16 * belly + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
+    // Rear triceps surface beneath the translucent front skin.
+    // Three.js draws transparent DoubleSide materials back faces first.
+    if (!gl_FrontFacing) {
+      diffuseColor.rgb = muscleColor;
+      diffuseColor.a = triceps * 0.88;
+      if (diffuseColor.a < 0.01) discard;
+    }
    `);
   };
   mat.customProgramCacheKey=()=> 'silver-translucent-muscles-v4';
