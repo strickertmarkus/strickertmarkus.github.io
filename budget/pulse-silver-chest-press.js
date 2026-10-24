@@ -1,7 +1,7 @@
 /** Original rigged mannequin + chest-press apparatus. One renderer, driven by the guide clock. */
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-const host=document.getElementById('exercise-3d'),stage=document.getElementById('studio-stage');
+const host=document.getElementById('exercise-silver-3d'),stage=document.getElementById('studio-stage');
 const api={ready:false,loading:false,failed:false,update:()=>false};
 window.PulseSilverPress=api;
 const v=p=>new THREE.Vector3(...p),Y=new THREE.Vector3(0,1,0);

@@ -1092,7 +1092,7 @@ let preferExercise3D=false,preferSilverPress=true;
 function draw(t,cycle=phase){
  const cfg=guideScenes[active],motion=makeScene(active,t,cycle);
  const silver=studioOpen&&cfg.kind==='chestMachine'&&preferSilverPress;
- $('studio-stage').classList.toggle('silver-press-ready',false);
+ if(!silver)$('studio-stage').classList.remove('silver-press-ready');
  if(silver){
   const rendered=window.PulseSilverPress?.update({t,viewIndex:cameraIndex})===true;
   $('exercise-figure').innerHTML=rendered?'':renderScene(active,t,cycle,cameraIndex,false,motion);
@@ -1115,6 +1115,8 @@ function draw(t,cycle=phase){
  $('toggle-exercise-3d').setAttribute('aria-pressed',String(figureSelected));
  $('toggle-exercise-3d').textContent=figureSelected?'Enkel figur':cfg.kind==='chestMachine'?'Silverfigur':'3D-test';
  $('toggle-exercise-3d').title=cfg.kind==='chestMachine'?'Växla mellan silverfigur och enkel teknikillustration':'Experimentell animerad 3D-modell';
+ $('studio-stage').setAttribute('role','img');
+ $('studio-stage').setAttribute('aria-label',exercises[active].name+'. '+cfg.stance+'. Muskler i korall.');
  document.querySelector('.stage-label').textContent=cfg.stance;
  $('exercise-figure').setAttribute('aria-label',exercises[active].name+'. '+cfg.stance+'. '+(cameraIndex?'Kompletterande vy.':'Rekommenderad vy.'));
 }
