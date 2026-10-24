@@ -152,12 +152,12 @@ async function initialize(){
     float rim = pow(1.0 - facing, 1.8);
     vec2 musclePoint = vec2(abs(vAnatomyPosition.x), vAnatomyPosition.y);
     float fan = atan(musclePoint.y - 1.43, 0.245 - musclePoint.x);
-    float fibrePhase = fan * 76.0 + sin(musclePoint.x * 55.0) * 0.3;
+    float fibrePhase = fan * 40.0 + sin(musclePoint.x * 55.0) * 0.3;
     float fibreDetail = 1.0 - smoothstep(0.1, 1.2, fwidth(fibrePhase));
     float fibres = sin(fibrePhase) * fibreDetail;
     float warmth = smoothstep(1.30, 1.43, musclePoint.y);
-    vec3 muscleColor = mix(vec3(0.36, 0.045, 0.027), vec3(0.88, 0.28, 0.12), warmth);
-    muscleColor *= 0.92 + 0.12 * fibres;
+    vec3 muscleColor = mix(vec3(0.30, 0.022, 0.018), vec3(0.75, 0.13, 0.085), warmth);
+    muscleColor *= 0.85 + 0.24 * fibres;
     diffuseColor.rgb = mix(diffuseColor.rgb, muscleColor, muscleMask);
     diffuseColor.a = mix(0.46 + 0.39 * rim, 0.94, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
