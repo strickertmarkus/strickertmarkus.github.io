@@ -136,7 +136,7 @@ async function initialize(){
   const mat=materials.skin.clone();mat.vertexColors=true;
   // A translucent centre and a denser silhouette keep the moving body readable.
   // Rest-space fibres stay attached to the pectorals throughout the animation.
-  mat.transparent=true;mat.side=THREE.DoubleSide;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
+  mat.transparent=true;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
   mat.onBeforeCompile=shader=>{
    shader.vertexShader=shader.vertexShader.replace('#include <common>',
     '#include <common>\nvarying vec3 vAnatomyPosition;');
@@ -167,11 +167,11 @@ async function initialize(){
     float armT = clamp(dot(p - armStart, armAxis) / dot(armAxis, armAxis), 0.0, 1.0);
     float armDistance = length(p - armStart - armT * armAxis);
     float lateralArm = p.x - (armStart.x + armT * armAxis.x);
-    float backAndOuterArm = max(1.0 - smoothstep(-0.035, 0.025, p.z), smoothstep(0.015, 0.065, lateralArm));
+    float backAndOuterArm = max(1.0 - smoothstep(-0.035, 0.025, p.z), smoothstep(-0.015, 0.045, lateralArm));
     float triceps = (1.0 - smoothstep(0.105, 0.145, armDistance))
       * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
       * backAndOuterArm;
-    float secondary = max(shoulder * 0.76, triceps * 0.68);
+    float secondary = max(shoulder * 0.76, triceps * 0.80);
     float muscleMask = max(chest * 0.90, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 48.0, chest);
@@ -190,13 +190,7 @@ async function initialize(){
     float tissueAlpha = 0.56 + 0.16 * belly + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
-    // Rear triceps surface beneath the translucent front skin.
-    // Three.js draws transparent DoubleSide materials back faces first.
-    if (!gl_FrontFacing) {
-      diffuseColor.rgb = muscleColor;
-      diffuseColor.a = triceps * 0.88;
-      if (diffuseColor.a < 0.01) discard;
-    }
+
    `);
   };
   mat.customProgramCacheKey=()=> 'silver-translucent-muscles-v4';
