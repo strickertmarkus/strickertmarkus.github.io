@@ -2,6 +2,7 @@
 from pathlib import Path
 import numpy as np,json
 from skimage.measure import marching_cubes
+from scipy.sparse import coo_matrix
 out=Path(__file__).resolve().parents[1]/'budget/assets/silver-mannequin-v1'
 out.mkdir(parents=True,exist_ok=True)
 step=.012
@@ -49,6 +50,14 @@ for s in [-1,1]:
  ell([s*.13,.52,.052],[.055,.058,.034],.014)
 verts,faces,normals,_=marching_cubes(field,level=0,spacing=(step,step,step),gradient_direction='ascent')
 verts+=origin
+# Taubin smoothing removes lattice artifacts without shrinking the silhouette.
+edges=np.concatenate([faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]]])
+edges=np.concatenate([edges,edges[:,::-1]])
+adjacency=coo_matrix((np.ones(len(edges)),(edges[:,0],edges[:,1])),shape=(len(verts),len(verts))).tocsr()
+adjacency.data[:]=1
+counts=np.asarray(adjacency.sum(axis=1))
+for _ in range(8):
+ for strength in [.5,-.53]:verts+=strength*(adjacency.dot(verts)/counts-verts)
 # Normals calculated later by Three.js from winding. Ensure outward facing triangles.
 a,b,c=verts[faces[:,0]],verts[faces[:,1]],verts[faces[:,2]]
 if np.mean(np.sum(np.cross(b-a,c-a)*normals[faces].mean(axis=1),axis=1))>0:faces=faces[:,::-1]
@@ -65,12 +74,12 @@ for i,(vx,vy,vz) in enumerate(verts):
  arm=2 if vx<0 else 4;leg=6 if vx<0 else 8
  # Continuous weights prevent seams where the shoulders meet the torso.
  influence=np.zeros(11)
- if vy<.92:
+ if vy<.96:
   knee=1-smooth(.45,.57,vy)
   pelvis=smooth(.84,.96,vy)
   influence[leg]=(1-knee)*(1-pelvis);influence[leg+1]=knee*(1-pelvis);influence[10]=pelvis
  else:
-  torso=smooth(.92,1.04,vy)
+  torso=smooth(.96,1.04,vy)
   influence[10]=1-torso;influence[0]=torso
  head=smooth(1.49,1.57,vy)
  influence*=1-head;influence[1]+=head
@@ -85,7 +94,7 @@ for i,(vx,vy,vz) in enumerate(verts):
   f=smooth(.81,.835,vy)*(1-smooth(.995,1.015,vy))
   colors[i]=np.array([1,1,1])*(1-f)+np.array([.09,.13,.19])*f
  # Coral anatomical highlight follows the actual pectoral surface, not an overlay plane.
- chest=((abs(vx)-.105)/.105)**2+((vy-1.365)/.073)**2
+ chest=((abs(vx)-.108)/.102)**4+((vy-1.37)/.065)**4
  if vz>.106 and chest<1:
   f=(1-smooth(.78,1,chest))*smooth(.106,.126,vz)
   colors[i]=np.array([1.,1.,1.])*(1-f)+np.array([1.,.27,.20])*f

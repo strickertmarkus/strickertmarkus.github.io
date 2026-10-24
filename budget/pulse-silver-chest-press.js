@@ -10,7 +10,7 @@ const materials={
  trim:new THREE.MeshStandardMaterial({color:0x718393,metalness:.8,roughness:.25}),
  pad:new THREE.MeshStandardMaterial({color:0x15202c,metalness:.08,roughness:.65}),
  rubber:new THREE.MeshStandardMaterial({color:0x111923,roughness:.85}),
- skin:new THREE.MeshStandardMaterial({color:0x9daab8,metalness:.42,roughness:.36}),
+ skin:new THREE.MeshStandardMaterial({color:0x9daab8,metalness:.28,roughness:.52}),
  shoe:new THREE.MeshStandardMaterial({color:0x35404e,roughness:.65}),
  sole:new THREE.MeshStandardMaterial({color:0x86939e,roughness:.8})
 };
