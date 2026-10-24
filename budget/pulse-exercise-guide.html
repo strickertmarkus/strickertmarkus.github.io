@@ -62,7 +62,7 @@ main{max-width:1060px;padding:24px 22px 78px}
 .atlas-hotspot:is(:hover,:focus-visible,[data-active="true"]) .atlas-zone{fill:url(#anatomy-focus);fill-opacity:.89;stroke:#ffe0cb;stroke-opacity:.95;filter:drop-shadow(0 0 7px #fa968fba)}
 .atlas-hotspot .anatomy-seam{fill:none;stroke:#f5d3cb;stroke-opacity:.28;stroke-width:1.1;pointer-events:none}
 .atlas-hotspot:focus-visible{filter:drop-shadow(0 0 5px #f2b8aa)}
-.atlas-view-hint{z-index:1;color:#a1a3b4;font-size:10px;letter-spacing:.045em;margin-top:0;display:flex;align-items:center;gap:8px;text-align:center}
+
 .atlas-pulse-dot{width:6px;height:6px;background:#ed9d99;border-radius:50%;box-shadow:0 0 10px #e7909e90}
 .atlas-explore{grid-area:explore;align-self:start;margin-top:28px;max-width:520px;min-width:0}
 .atlas-explore-header{display:flex;justify-content:space-between;gap:9px;align-items:center;color:#a98097;font-size:10px;letter-spacing:.14em;font-weight:760}
@@ -122,7 +122,7 @@ main{padding:15px 15px 64px}
 .atlas-view-controls{margin:1px auto 0}
 .atlas-view-controls button{min-height:32px;font-size:11px;padding:7px 16px}
 .atlas-figure{max-height:332px;width:min(100%,238px);margin:1px auto -3px}
-.atlas-view-hint{font-size:9px;margin-top:0}
+
 .atlas-explore{margin-top:20px;max-width:none}
 .atlas-list{gap:0 15px;margin-top:6px}
 .atlas-list button{min-height:39px;padding:8px 1px;font-size:12px}
@@ -141,27 +141,21 @@ main{padding:15px 15px 64px}
 .atlas-figure{max-height:298px;width:min(100%,216px)}
 .atlas-list button{font-size:11px}
 }
-/* Pre-rendered still images; SVG remains the offline/error fallback. */
-.atlas-stills{display:none;width:100%;height:490px;position:relative;margin:5px auto -3px;max-width:490px;overflow:hidden;border-radius:19px;background:radial-gradient(ellipse 56% 48% at 50% 47%,#5134483d,transparent 89%)}
+/* Illustrated stills; SVG remains the offline/error fallback. */
+
 .atlas-stills img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
-.atlas-still-neutral{opacity:1;transition:opacity 220ms ease}
-.atlas-still-highlight{opacity:0;transition:opacity 220ms ease}
-.atlas-stills.is-highlighted .atlas-still-neutral{opacity:0}
-.atlas-stills.is-highlighted .atlas-still-highlight{opacity:1}
-@media(prefers-reduced-motion:reduce){.atlas-still-neutral,.atlas-still-highlight{transition:none}}
 .atlas-stills-ready .atlas-figure{display:none}
-.atlas-stills-ready .atlas-stills{display:block}
 .atlas-stills-status{color:#968fa0;font-size:10px;text-align:center;line-height:1.4;max-width:310px;min-height:0;padding:2px 0}
 .atlas-stills-status:empty{display:none}
-.atlas-credit{margin:14px 0 0;color:#78818f;font-size:10px;line-height:1.6}
-.atlas-credit a{color:#b4a0af;text-decoration:underline;text-underline-offset:2px}
+
+
 @media(max-width:740px){
-.atlas-stills-ready .atlas-visual{margin-top:7px}
-.atlas-stills{height:365px;max-width:360px;margin:1px auto -1px}
+
+
 .atlas-stills-status{font-size:9px}
-.atlas-credit{font-size:9px;line-height:1.5}
+
 }
-@media(max-width:375px){.atlas-stills{height:337px;max-width:330px}}
+
 @media(prefers-reduced-motion:reduce){.studio-shell{animation:none}.atlas-zone,.studio-technique summary span{transition:none}}
 
 /* Fitness hologram v2 — Markus/Maja only */
@@ -170,8 +164,8 @@ main{padding:15px 15px 64px}
  box-shadow:inset 0 1px 0 #ffffff10,0 20px 48px #03040937}
 .atlas-visual::before{inset:11% 5% 6%;background:radial-gradient(ellipse 54% 48% at 50% 47%,#e58da51f,transparent 75%);filter:blur(18px)}
 .atlas-view-controls{margin-top:14px!important;background:#0e141bd9;box-shadow:0 7px 25px #0003}
-.atlas-stills{background:radial-gradient(ellipse 50% 53% at 50% 48%,#9c637f23,transparent 75%);max-height:515px;border-radius:0}
-.atlas-view-hint{margin:5px 0 13px;color:#b2afbb}
+
+
 .atlas-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;
  padding:11px 0 10px;margin-top:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .atlas-list::-webkit-scrollbar{display:none}
@@ -195,9 +189,9 @@ main{padding:15px 15px 64px}
 @media(max-width:740px){
  .atlas-shell{padding:0 0 18px}
  .atlas-visual{margin:13px 0 2px;padding:0 4px 8px;border-radius:21px}
- .atlas-stills{height:355px;max-width:100%;margin:0}
+
  .atlas-figure{max-height:312px}
- .atlas-stills-ready .atlas-visual{margin-top:12px}
+
  .atlas-view-controls{margin-top:10px!important}
  .atlas-explore{margin-top:15px}
  .atlas-list{margin-top:2px;padding:9px 0}
@@ -207,7 +201,7 @@ main{padding:15px 15px 64px}
  #atlas-show-exercises{font-size:11px}
 }
 @media(max-width:370px){
- .atlas-stills{height:326px}
+
  .atlas-selected{gap:8px}
  #atlas-show-exercises{padding:9px 9px;font-size:10px}
 }
@@ -384,7 +378,7 @@ body:has(.studio-technique[open]){overflow:hidden}
  #selection{margin-top:20px}
 }
 </style>
-<link rel="stylesheet" href="pulse-living-anatomy.css?v=20261023-living-v1">
+<link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v1">
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
@@ -398,16 +392,11 @@ body:has(.studio-technique[open]){overflow:hidden}
 <div class="atlas-shell">
 <div class="atlas-content" hidden>
 <div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
-<p>Välj en muskel. Kroppen vrids till en tydlig vinkel och visar var den sitter.</p>
+<p>Välj en muskelgrupp och utforska övningarna.</p>
 </div>
 <div class="atlas-visual">
-<div class="living-scene-hotspots"><button type="button" class="living-hotspot living-left-top" data-atlas-muscle="Axlar"><span class="living-hotspot-dot"></span><span>Axlar</span></button>
-<button type="button" class="living-hotspot living-right-top" data-atlas-muscle="Bröst"><span class="living-hotspot-dot"></span><span>Bröst</span></button>
-<button type="button" class="living-hotspot living-left-middle" data-atlas-muscle="Biceps"><span class="living-hotspot-dot"></span><span>Armar</span></button>
-<button type="button" class="living-hotspot living-right-middle" data-atlas-muscle="Rygg"><span class="living-hotspot-dot"></span><span>Rygg</span></button>
-<button type="button" class="living-hotspot living-left-bottom" data-atlas-muscle="Framsida lår"><span class="living-hotspot-dot"></span><span>Ben</span></button></div>
-<div class="atlas-view-controls" role="group" aria-label="Kroppsvy"><button type="button" id="atlas-front" aria-pressed="true">Framsida</button><button type="button" id="atlas-back" aria-pressed="false">Baksida</button></div>
-<div id="atlas-stills" class="atlas-stills" hidden aria-label="Muskelatlas med stillbilder från olika vinklar"></div>
+<div class="atlas-view-controls" role="group" aria-label="Bildutsnitt"><button type="button" id="atlas-closeup" aria-pressed="true">Närbild</button><button type="button" id="atlas-overview" aria-pressed="false">Hela bilden</button></div>
+<div id="atlas-stills" class="atlas-stills" hidden aria-label="Muskelatlas med illustrerade närbilder"></div>
 <div class="atlas-loading" aria-hidden="true"><span class="atlas-loading-orb"></span><span>Laddar muskelatlasen…</span></div>
 <svg id="atlas-figure" class="atlas-figure" viewBox="0 0 360 505" data-view="front" role="group" aria-label="Interaktiv muskelatlas. Välj en muskel på kroppen.">
 <defs>
@@ -473,14 +462,10 @@ body:has(.studio-technique[open]){overflow:hidden}
 <g class="atlas-hotspot" data-atlas-muscle="Vader" role="button" tabindex="0" aria-label="Vader"><path class="atlas-zone" d="M138 396Q150 405 158 396Q160 425 155 449Q150 456 144 452Q134 427 138 396Z"/><path class="atlas-zone" d="M222 396Q210 405 202 396Q200 425 205 449Q210 456 216 452Q226 427 222 396Z"/></g>
 </g>
 </svg>
-<div class="atlas-view-hint"><span class="atlas-pulse-dot"></span>Välj muskelgrupp · Vyn anpassas automatiskt</div>
+
 <div id="atlas-stills-status" class="atlas-stills-status" role="status" aria-live="polite"></div>
 </div>
-<div class="living-category-nav" role="group" aria-label="Muskelområden"><button type="button" class="living-muscle-chip" data-atlas-muscle="Axlar" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Axlar</span></button>
-<button type="button" class="living-muscle-chip" data-atlas-muscle="Bröst" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Bröst</span></button>
-<button type="button" class="living-muscle-chip" data-atlas-muscle="Rygg" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Rygg</span></button>
-<button type="button" class="living-muscle-chip" data-atlas-muscle="Framsida lår" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Ben</span></button>
-<button type="button" class="living-muscle-chip" data-atlas-muscle="Biceps" aria-pressed="false"><span class="living-chip-ring"><span class="living-chip-placeholder" aria-hidden="true">✧</span></span><span>Armar</span></button></div>
+<div class="living-category-nav" role="group" aria-label="Muskelgrupper"><button type="button" class="living-muscle-chip" data-atlas-muscle="Bröst" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/chest.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Bröst</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Axlar" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/shoulders.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Axlar</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Rygg" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/back.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Rygg</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Biceps" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/biceps.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Biceps</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Triceps" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/triceps.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Triceps</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Mage" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/abs.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Mage</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Framsida lår" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/quads.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Framsida lår</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Säte" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/glutes.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Säte</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Baksida lår" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/hamstrings.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Baksida lår</span></button><button type="button" class="living-muscle-chip" data-atlas-muscle="Vader" aria-pressed="false"><span class="living-chip-ring"><img src="assets/atlas-art-v1/calves.webp" alt="" loading="lazy" decoding="async" width="80" height="80"></span><span>Vader</span></button></div>
 <div class="atlas-explore">
 <div class="atlas-explore-header"><span>MUSKELGRUPPER</span><span id="atlas-count" class="atlas-count" role="status"></span></div>
 <div class="atlas-list" id="atlas-list" aria-label="Alla muskelgrupper"></div>
@@ -489,7 +474,7 @@ body:has(.studio-technique[open]){overflow:hidden}
   <button type="button" id="atlas-show-exercises">Visa övningar <span aria-hidden="true">↗</span></button>
 </div>
 <button type="button" class="atlas-all" id="atlas-all">Visa hela övningsbiblioteket <span aria-hidden="true">↗</span></button>
-<p class="atlas-credit">3D-anatomi: <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener noreferrer">Z-Anatomy</a> (CC BY-SA 4.0), baserat på <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener noreferrer">BodyParts3D</a> (CC BY-SA 2.1 JP). Modelloptimering: <a href="https://github.com/SeemaBansal1/3d-human-body-anatomy" target="_blank" rel="noopener noreferrer">3D Human Body Anatomy</a>. Modelländringar omfattas av källornas respektive ShareAlike-licenser.</p>
+
 </div>
 </div>
 </section>
@@ -616,15 +601,13 @@ function chooseAtlasMuscle(muscle,{focus=true,keepView=false}={}){
 
 function renderAtlas(){
  const counts=new Map(groups.slice(1).map(m=>[m,exercises.filter(e=>e.muscles.includes(m)).length]));
- $('atlas-home').querySelectorAll('.living-muscle-chip,.living-hotspot').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.atlasMuscle===atlasSelected)));
+ $('atlas-home').querySelectorAll('.living-muscle-chip').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.atlasMuscle===atlasSelected)));
 
  $('atlas-list').innerHTML=groups.slice(1).map(m=>'<button type="button" data-atlas-muscle="'+safe(m)+'" aria-pressed="'+(m===atlasSelected)+'"'+(counts.get(m)===0?' disabled':'')+'><span>'+safe(m)+'</span></button>').join('');
  $('atlas-count').textContent=exercises.length+' övningar';
  $('atlas-selected-name').textContent=atlasSelected;
  $('atlas-selected-count').textContent=(counts.get(atlasSelected)||0)+' övningar';
  $('atlas-figure').dataset.view=atlasView;
- $('atlas-front').setAttribute('aria-pressed',String(atlasView==='front'));
- $('atlas-back').setAttribute('aria-pressed',String(atlasView==='back'));
  $('atlas-figure').querySelectorAll('.atlas-hotspot').forEach(node=>node.setAttribute('data-active',String(node.dataset.atlasMuscle===atlasSelected)));
  document.dispatchEvent(new CustomEvent('pulse:atlas-sync',{detail:{group:atlasSelected}}));
 }
@@ -1141,13 +1124,6 @@ document.addEventListener('pulse:atlas-select',event=>{
  chooseAtlasMuscle(muscle,{focus:false,keepView:true});
 });
 $('atlas-home').addEventListener('click',event=>{
- const side=event.target.closest('#atlas-front,#atlas-back');
- if(side){
-  atlasView=side.id==='atlas-back'?'back':'front';
-  renderAtlas();
-  document.dispatchEvent(new CustomEvent('pulse:atlas-sync',{detail:{view:atlasView}}));
-  return;
- }
  const target=event.target.closest('[data-atlas-muscle]');
  if(target&&!target.disabled){chooseAtlasMuscle(target.dataset.atlasMuscle);return;}
  if(event.target.closest('#atlas-show-exercises')){openStudio(atlasSelected);return;}
@@ -1349,7 +1325,7 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
-<script src="pulse-living-anatomy.js?v=20261023-living-v1" defer></script>
-<script type="module" src="pulse-muscle-atlas-stills.js?v=20261023-stills-v1"></script>
+<script src="pulse-living-anatomy.js?v=20261024-art-v1" defer></script>
+<script type="module" src="pulse-muscle-atlas-stills.js?v=20261024-art-v1"></script>
 <script type="module" src="pulse-exercise-motion-3d.js?v=20261023-animated-shell-v1"></script>
 </body></html>

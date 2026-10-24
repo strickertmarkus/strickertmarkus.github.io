@@ -1,0 +1,54 @@
+{
+  "groups": {
+    "Bröst": {
+      "image": "chest.webp",
+      "origin": "50% 65%",
+      "zoom": 1.08
+    },
+    "Axlar": {
+      "image": "shoulders.webp",
+      "origin": "50% 55%",
+      "zoom": 1.08
+    },
+    "Rygg": {
+      "image": "back.webp",
+      "origin": "50% 55%",
+      "zoom": 1.08
+    },
+    "Biceps": {
+      "image": "biceps.webp",
+      "origin": "50% 55%",
+      "zoom": 1.08
+    },
+    "Triceps": {
+      "image": "triceps.webp",
+      "origin": "55% 55%",
+      "zoom": 1.08
+    },
+    "Mage": {
+      "image": "abs.webp",
+      "origin": "50% 60%",
+      "zoom": 1.08
+    },
+    "Framsida lår": {
+      "image": "quads.webp",
+      "origin": "50% 50%",
+      "zoom": 1.06
+    },
+    "Säte": {
+      "image": "glutes.webp",
+      "origin": "50% 55%",
+      "zoom": 1.06
+    },
+    "Baksida lår": {
+      "image": "hamstrings.webp",
+      "origin": "50% 50%",
+      "zoom": 1.06
+    },
+    "Vader": {
+      "image": "calves.webp",
+      "origin": "50% 50%",
+      "zoom": 1.06
+    }
+  }
+}

@@ -5,7 +5,9 @@ on:
     paths:
       - 'budget/pulse-exercise-guide.html'
       - 'budget/pulse-muscle-atlas-stills.js'
-      - 'budget/assets/atlas-stills-v1/**'
+      - 'budget/pulse-living-anatomy.css'
+      - 'budget/pulse-living-anatomy.js'
+      - 'budget/assets/atlas-art-v1/**'
       - 'scripts/verify-atlas-stills.cjs'
       - '.github/workflows/muscle-atlas-visual-verify.yml'
   workflow_dispatch:
@@ -27,3 +29,4 @@ jobs:
         with:
           name: atlas-stills-mobile-screenshots
           path: test-results/atlas-stills-ui/
+
