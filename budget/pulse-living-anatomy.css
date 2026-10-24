@@ -7,7 +7,7 @@ body.living-guide-active:not(.pulse-studio-open) .explore-nav{display:none!impor
 body.living-guide-active:not(.pulse-studio-open) #guide-page{max-width:100%;padding:0}
 #living-dock[hidden],#discover-home[hidden]{display:none!important}
 .living-home{max-width:1040px;margin:0 auto;padding:23px 20px 40px;position:relative;isolation:isolate;}
-.living-home::before{content:"";position:absolute;inset:-1px -10vw 23%;pointer-events:none;z-index:-1;
+.living-home::before{content:"";position:absolute;inset:-1px 0 23%;pointer-events:none;z-index:-1;
 background:radial-gradient(ellipse 43% 35% at 50% 39%,#dd6d8915,transparent 74%),
 radial-gradient(ellipse 47% 43% at 52% 50%,#29415a22,transparent 78%);}
 .living-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#e8a1b8;letter-spacing:.22em;font-size:9px;font-weight:680;margin:9px 0 9px;}

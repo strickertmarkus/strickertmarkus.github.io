@@ -46,10 +46,10 @@ jobs:
             assert.equal(await page.locator('#atlas-archive').count(),0,'Legacy collapse should be gone');
             await page.locator('.living-muscle-chip[data-atlas-muscle="Axlar"]').click();
             assert.equal(await page.locator('#atlas-selected-name').innerText(),'Axlar');
-            assert.equal(await page.locator('.living-hotspot[data-atlas-muscle="Axlar"]').getAttribute('aria-pressed'),'true');
-            await page.locator('#atlas-back').click();
-            assert.equal(await page.locator('#atlas-back').getAttribute('aria-pressed'),'true');
-            await page.locator('#atlas-front').click();
+            assert.equal(await page.locator('.living-muscle-chip[data-atlas-muscle="Axlar"]').getAttribute('aria-pressed'),'true');
+            await page.locator('#atlas-overview').click();
+            assert.equal(await page.locator('#atlas-overview').getAttribute('aria-pressed'),'true');
+            await page.locator('#atlas-closeup').click();
             await page.locator('#atlas-show-exercises').click();
             assert.equal(await page.locator('#studio-shell').isVisible(),true);
             assert.equal(await page.locator('#discover-home').isVisible(),false);
@@ -104,3 +104,4 @@ jobs:
         with:
           name: pulse-exercise-3d-mobile-screenshots
           path: test-results/exercise-3d/
+
