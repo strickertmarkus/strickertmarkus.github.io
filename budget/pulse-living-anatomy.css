@@ -86,8 +86,8 @@ body.pulse-studio-open #living-dock{display:none}
  .living-topline{margin:3px 10px 10px;font-size:8px}
  .living-intro{padding:9px 8px 0}
  .living-intro h1{font-size:clamp(33px,8.9vw,46px);line-height:1.05}
- .living-intro p{font-size:11px;max-width:310px;margin-top:9px}
- .living-home .atlas-visual{margin:15px auto 0!important;}
+ .living-intro p{display:none}
+ .living-home .atlas-visual{max-width:340px;margin:12px auto 0!important;}
  .living-home .atlas-view-controls{bottom:10px}
  .living-home .atlas-view-controls button{padding:7px 12px}
   .living-home .living-category-nav{gap:10px;margin-top:10px;padding:7px 3px}

@@ -23,10 +23,14 @@ function camera(entering = false) {
   const scale = zoomed ? info.zoom : 1;
   current.style.transform = `scale(${scale})`;
   target.dataset.camera = zoomed ? 'closeup' : 'overview';
-  if (!reducedMotion.matches) current.animate([
-    { transform: entering ? 'scale(1)' : previous, opacity: entering ? 0 : 1 },
-    { transform: `scale(${scale})`, opacity: 1 }
-  ], {duration: entering ? 1300 : 650, easing: 'cubic-bezier(.22,.61,.36,1)'});
+  if (!reducedMotion.matches) {
+    const frames = entering ? [
+      { transform: 'scale(1)', opacity: 0, offset: 0 },
+      { transform: `scale(${1 + (scale - 1) * .7})`, opacity: 1, offset: .3 },
+      { transform: `scale(${scale})`, opacity: 1, offset: 1 }
+    ] : [{ transform: previous }, { transform: `scale(${scale})` }];
+    current.animate(frames, {duration: entering ? 1300 : 650, easing: 'cubic-bezier(.22,.61,.36,1)'});
+  }
 }
 function fail() {
   clearTimeout(window.__pulseAtlasFallbackTimeout);
@@ -63,9 +67,10 @@ async function showSelection() {
     target.hidden = false;
     status.textContent = '';
     camera(true);
-    const animation = current.getAnimations()[0];
-    if (animation) animation.finished.then(()=>previous?.remove(),()=>previous?.remove());
-    else previous?.remove();
+    // WebKit can suspend offscreen animations: retire the old layer independently
+    // after the short crossfade, while the new image continues its gentle zoom.
+    if (reducedMotion.matches) previous?.remove();
+    else setTimeout(()=>previous?.remove(),600);
   } catch (error) {
     if (run !== generation) return;
     target.setAttribute('aria-busy','false');
