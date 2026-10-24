@@ -66,6 +66,8 @@ jobs:
             await page.screenshot({path:'test-results/exercise-3d/studio-full-mobile.png',fullPage:true});
             await page.locator('#studio-stage').screenshot({path:'test-results/exercise-3d/studio-2d-mobile.png'});
             await page.locator('#studio-stage').scrollIntoViewIfNeeded();
+            // The first chest exercise now uses the silver pilot; check legacy motion on the next exercise.
+            if(await page.locator('#detail-name').innerText()==='Bröstpress i maskin')await page.locator('#studio-next').click();
             const initial=await page.locator('#studio-stage').evaluate(e=>!e.classList.contains('exercise-3d-ready'));
             assert.ok(initial,'original technique animation is default');
             await page.locator('#toggle-exercise-3d').click();
@@ -104,4 +106,5 @@ jobs:
         with:
           name: pulse-exercise-3d-mobile-screenshots
           path: test-results/exercise-3d/
+
 
