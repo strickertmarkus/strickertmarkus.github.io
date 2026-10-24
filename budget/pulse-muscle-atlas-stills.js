@@ -66,7 +66,8 @@ async function showSelection() {
     visual.classList.add('atlas-stills-ready');
     target.hidden = false;
     status.textContent = '';
-    camera(true);
+    // The first image is visible immediately, even before WebKit starts its animation clock.
+    camera(Boolean(previous));
     // WebKit can suspend offscreen animations: retire the old layer independently
     // after the short crossfade, while the new image continues its gentle zoom.
     if (reducedMotion.matches) previous?.remove();

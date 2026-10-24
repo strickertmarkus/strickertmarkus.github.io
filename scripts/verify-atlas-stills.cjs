@@ -30,6 +30,7 @@ const assert=require('node:assert/strict');
   return g;
  };
  await settled('Bröst'); await page.waitForTimeout(1400);
+ assert.ok(await atlas.locator('img').last().evaluate(img=>Number(getComputedStyle(img).opacity)>=.99),'initial image must be fully visible');
  await page.screenshot({path:dir+'/page-mobile.png',fullPage:true});
  const cta=await page.locator('#atlas-show-exercises').boundingBox();
  const dock=await page.locator('#living-dock').boundingBox();
