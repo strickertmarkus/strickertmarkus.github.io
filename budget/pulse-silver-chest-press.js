@@ -156,8 +156,8 @@ async function initialize(){
     float upperChest = 1.465 - 0.018 * u;
     float chest = smoothstep(0.006, 0.026, p.x)
       * (1.0 - smoothstep(0.215, 0.265, p.x))
-      * smoothstep(lowerChest, lowerChest + 0.035, p.y)
-      * (1.0 - smoothstep(upperChest - 0.025, upperChest + 0.012, p.y))
+      * smoothstep(lowerChest - 0.008, lowerChest + 0.065, p.y)
+      * (1.0 - smoothstep(upperChest - 0.050, upperChest + 0.018, p.y))
       * smoothstep(0.045, 0.105, p.z);
     // Front deltoid and back of the upper arm, defined in the unposed mesh.
     float shoulderShape = length((p.xy - vec2(0.255, 1.425)) / vec2(0.12, 0.14));
@@ -172,7 +172,7 @@ async function initialize(){
       * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
       * backAndOuterArm;
     float secondary = max(shoulder * 0.76, triceps * 0.80);
-    float muscleMask = max(chest * 0.90, secondary) * (1.0 - clothingMask);
+    float muscleMask = max(chest * 0.76, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 48.0, chest);
     float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
@@ -180,6 +180,9 @@ async function initialize(){
     float warmth = smoothstep(1.27, 1.46, p.y);
     float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
     float tissueWarmth = max(warmth * 0.55 + belly * 0.45, secondary * (0.60 + 0.25 * sin(armT * 3.14159)));
+    // Give the pectorals the same softly shaded tissue response as the shoulders.
+    float chestWarmth = 0.76 * (0.60 + 0.25 * sin(u * 3.14159));
+    tissueWarmth = mix(tissueWarmth, chestWarmth, chest);
     vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
     muscleColor *= 0.80 + 0.26 * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
@@ -187,13 +190,13 @@ async function initialize(){
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
-    float tissueAlpha = 0.56 + 0.16 * belly + 0.12 * rim;
+    float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
 
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-translucent-muscles-v4';
+  mat.customProgramCacheKey=()=> 'silver-soft-pectoral-v6';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
