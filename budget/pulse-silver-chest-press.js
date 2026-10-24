@@ -146,24 +146,46 @@ async function initialize(){
     '#include <common>\nvarying vec3 vAnatomyPosition;');
    shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', `
     #include <color_fragment>
-    float muscleMask = smoothstep(0.08, 0.50, vColor.r - vColor.g);
     float clothingMask = 1.0 - smoothstep(0.18, 0.65, max(vColor.r, max(vColor.g, vColor.b)));
     float facing = abs(dot(normalize(vNormal), normalize(vViewPosition)));
     float rim = pow(1.0 - facing, 1.8);
-    vec2 musclePoint = vec2(abs(vAnatomyPosition.x), vAnatomyPosition.y);
-    float fan = atan(musclePoint.y - 1.43, 0.245 - musclePoint.x);
-    float fibrePhase = fan * 40.0 + sin(musclePoint.x * 55.0) * 0.3;
-    float fibreDetail = 1.0 - smoothstep(0.1, 1.2, fwidth(fibrePhase));
+    vec3 p = vec3(abs(vAnatomyPosition.x), vAnatomyPosition.yz);
+    // Broad pectoral fan: sternum to upper-arm insertion, with a rising lower edge.
+    float u = clamp(p.x / 0.245, 0.0, 1.0);
+    float lowerChest = 1.265 + 0.105 * u * u;
+    float upperChest = 1.465 - 0.018 * u;
+    float chest = smoothstep(0.006, 0.026, p.x)
+      * (1.0 - smoothstep(0.215, 0.265, p.x))
+      * smoothstep(lowerChest, lowerChest + 0.035, p.y)
+      * (1.0 - smoothstep(upperChest - 0.025, upperChest + 0.012, p.y))
+      * smoothstep(0.045, 0.105, p.z);
+    // Front deltoid and back of the upper arm, defined in the unposed mesh.
+    float shoulderShape = length((p - vec3(0.245, 1.43, 0.045)) / vec3(0.105, 0.115, 0.10));
+    float shoulder = (1.0 - smoothstep(0.65, 1.12, shoulderShape)) * smoothstep(-0.01, 0.065, p.z);
+    vec3 armStart = vec3(0.225, 1.43, 0.0);
+    vec3 armAxis = vec3(0.155, -0.29, 0.0);
+    float armT = clamp(dot(p - armStart, armAxis) / dot(armAxis, armAxis), 0.0, 1.0);
+    float armDistance = length(p - armStart - armT * armAxis);
+    float triceps = (1.0 - smoothstep(0.055, 0.095, armDistance))
+      * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
+      * (1.0 - smoothstep(-0.025, 0.025, p.z));
+    float secondary = max(shoulder * 0.43, triceps * 0.38);
+    float muscleMask = max(chest * 0.90, secondary) * (1.0 - clothingMask);
+    float fan = atan(p.y - 1.43, 0.265 - p.x);
+    float fibrePhase = mix(armT * 65.0, fan * 42.0, chest);
+    float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
     float fibres = sin(fibrePhase) * fibreDetail;
-    float warmth = smoothstep(1.30, 1.43, musclePoint.y);
-    vec3 muscleColor = mix(vec3(0.30, 0.022, 0.018), vec3(0.75, 0.13, 0.085), warmth);
-    muscleColor *= 0.85 + 0.24 * fibres;
-    diffuseColor.rgb = mix(diffuseColor.rgb, muscleColor, muscleMask);
-    diffuseColor.a = mix(0.46 + 0.39 * rim, 0.94, muscleMask);
+    float warmth = smoothstep(1.27, 1.46, p.y);
+    vec3 muscleColor = mix(vec3(0.32, 0.035, 0.025), vec3(0.78, 0.18, 0.12), warmth);
+    muscleColor *= 0.86 + 0.20 * fibres;
+    // Ignore the old small baked pectoral patches; retain only the shorts colour.
+    vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
+    diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
+    diffuseColor.a = mix(0.68 + 0.23 * rim, 0.93, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-frosted-muscle-fibres-v1';
+  mat.customProgramCacheKey=()=> 'silver-pearl-anatomical-muscles-v3';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
