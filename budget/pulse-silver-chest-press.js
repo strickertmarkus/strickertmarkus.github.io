@@ -160,32 +160,38 @@ async function initialize(){
       * (1.0 - smoothstep(upperChest - 0.025, upperChest + 0.012, p.y))
       * smoothstep(0.045, 0.105, p.z);
     // Front deltoid and back of the upper arm, defined in the unposed mesh.
-    float shoulderShape = length((p - vec3(0.245, 1.43, 0.045)) / vec3(0.105, 0.115, 0.10));
-    float shoulder = (1.0 - smoothstep(0.65, 1.12, shoulderShape)) * smoothstep(-0.01, 0.065, p.z);
+    float shoulderShape = length((p.xy - vec2(0.255, 1.425)) / vec2(0.12, 0.14));
+    float shoulder = (1.0 - smoothstep(0.72, 1.15, shoulderShape)) * smoothstep(-0.055, 0.025, p.z);
     vec3 armStart = vec3(0.225, 1.43, 0.0);
     vec3 armAxis = vec3(0.155, -0.29, 0.0);
     float armT = clamp(dot(p - armStart, armAxis) / dot(armAxis, armAxis), 0.0, 1.0);
     float armDistance = length(p - armStart - armT * armAxis);
-    float triceps = (1.0 - smoothstep(0.055, 0.095, armDistance))
+    float lateralArm = p.x - (armStart.x + armT * armAxis.x);
+    float backAndOuterArm = max(1.0 - smoothstep(-0.035, 0.025, p.z), smoothstep(0.015, 0.065, lateralArm));
+    float triceps = (1.0 - smoothstep(0.105, 0.145, armDistance))
       * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
-      * (1.0 - smoothstep(-0.025, 0.025, p.z));
-    float secondary = max(shoulder * 0.43, triceps * 0.38);
+      * backAndOuterArm;
+    float secondary = max(shoulder * 0.76, triceps * 0.68);
     float muscleMask = max(chest * 0.90, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
-    float fibrePhase = mix(armT * 65.0, fan * 42.0, chest);
+    float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 48.0, chest);
     float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
     float fibres = sin(fibrePhase) * fibreDetail;
     float warmth = smoothstep(1.27, 1.46, p.y);
-    vec3 muscleColor = mix(vec3(0.32, 0.035, 0.025), vec3(0.78, 0.18, 0.12), warmth);
-    muscleColor *= 0.86 + 0.20 * fibres;
+    float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
+    vec3 muscleColor = mix(vec3(0.20, 0.018, 0.012), vec3(0.95, 0.28, 0.14), warmth * 0.55 + belly * 0.45);
+    muscleColor *= 0.80 + 0.26 * fibres;
+    float silk = pow(max(0.0, fibres), 8.0) * 0.22;
+    muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
-    diffuseColor.a = mix(0.68 + 0.23 * rim, 0.93, muscleMask);
+    float tissueAlpha = 0.56 + 0.16 * belly + 0.12 * rim;
+    diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-pearl-anatomical-muscles-v3';
+  mat.customProgramCacheKey=()=> 'silver-translucent-muscles-v4';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
