@@ -197,27 +197,28 @@ async function initialize(){
     float triceps = (1.0 - smoothstep(0.105, 0.145, armDistance))
       * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
       * backAndOuterArm;
-    float secondary = max(shoulder * 0.76, triceps * 0.80);
+    float secondary = max(shoulder, triceps) * 0.94;
     float muscleMask = max(chest * 0.99, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
     float armPhase = armT * 52.0 + p.z * 55.0;
     float chestPhase = fan * 60.0 + 0.55 * sin(fan * 7.0 + u * 3.0);
     // Filter each field before mixing: mask gradients must not erase the fibres.
-    float armFibres = sin(armPhase) * (1.0 - smoothstep(0.3, 1.6, fwidth(armPhase)));
+    float armFibres = sin(armPhase) * (1.0 - smoothstep(1.5, 3.1, fwidth(armPhase)));
     float chestFibres = sin(chestPhase) * (1.0 - smoothstep(1.5, 3.1, fwidth(chestPhase)));
     float fibres = mix(armFibres, chestFibres, chest);
     float filament = pow(max(0.0, chestFibres), 4.0);
-    float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
     // One red tissue palette for primary and secondary muscles. Shape and light,
     // rather than an even white wash, provide the sense of volume.
     vec3 tissueShadow = vec3(0.16, 0.002, 0.006);
     vec3 tissueRed = vec3(0.70, 0.012, 0.018);
     vec3 tissueFibre = vec3(1.0, 0.24, 0.13);
     float armFilament = pow(max(0.0, armFibres), 4.0);
-    float armVolume = 0.35 + 0.25 * sin(armT * 3.14159);
+    float secondaryVolume = max(shoulder * exp(-2.0 * shoulderShape * shoulderShape),
+      triceps * pow(sin(armT * 3.14159), 2.0));
+    float armVolume = 0.22 + 0.48 * secondaryVolume + 0.08 * armFibres;
     vec3 muscleColor = mix(tissueShadow, tissueRed, armVolume);
-    muscleColor = mix(muscleColor, tissueFibre, armFilament * 0.16);
+    muscleColor = mix(muscleColor, tissueFibre, armFilament * 0.20);
     float chestVolume = exp(-pow((p.x - 0.115) / 0.115, 2.0)
       - pow((p.y - 1.385) / 0.090, 2.0));
     float chestLight = clamp(0.15 + 0.65 * chestVolume
@@ -237,7 +238,9 @@ async function initialize(){
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
-    float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
+    // Secondary muscles share the chest's tissue density; hierarchy comes from light.
+    float tissueAlpha = clamp(0.76 + 0.08 * secondaryVolume
+      + 0.04 * armFilament + 0.04 * rim, 0.0, 0.88);
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     // Density varies across bundles and gently increases as the muscle contracts.
     float chestAlpha = clamp(0.74 + 0.10 * chestVolume + 0.04 * filament
@@ -254,14 +257,16 @@ async function initialize(){
       + vec3(1.0, 0.42, 0.20) * chestSpot * 0.95
       + tissueFibre * filament * 0.12);
     totalEmissiveRadiance += secondary * (1.0 - chest)
-      * (tissueRed * reflection * 0.06 + tissueFibre * armFilament * 0.035);
+      * (tissueRed * secondaryVolume * 0.12
+      + vec3(1.0, 0.42, 0.20) * secondaryVolume * reflection * 0.26
+      + tissueFibre * armFilament * 0.08);
    `);
    shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
     '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.30, muscleMask);');
    shader.fragmentShader=shader.fragmentShader.replace('#include <metalnessmap_fragment>',
     '#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, 0.04, muscleMask);');
   };
-  mat.customProgramCacheKey=()=> 'silver-sculpted-tissue-v15';
+  mat.customProgramCacheKey=()=> 'silver-unified-tissue-v16';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
