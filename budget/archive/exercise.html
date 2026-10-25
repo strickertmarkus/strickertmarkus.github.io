@@ -2443,7 +2443,8 @@ function startWorkoutSessionForDate(iso){
     }).catch(function(error){
       if(token!==window.__embeddedSessionStartToken)return;
       window.__embeddedSessionStarting=false;
-      openDayWorkoutBuilder(dayLabelFromISO(iso),iso);
+      if(window.PulseFamilyPlanner)window.PulseFamilyPlanner.open({mode:'day',date:iso});
+      else openDayWorkoutBuilder(dayLabelFromISO(iso),iso);
       window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{error:'Kunde inte ladda Pulse Flow. Försök starta passet igen.'}}));
     });
   }
