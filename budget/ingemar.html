@@ -1292,7 +1292,7 @@ var state=load(),selected=dayISO(new Date()),builderCardDraftRef=null,builderExp
 function persist(){state.prs=window.IngemarRecords.collect(state.history,state.manualPrs||{});if(!window.IngemarAccount.save(state)){toast('Kunde inte spara – vänta på anslutningen.');return false;}return true;}
 var undoPending=null;
 function placeToast(){
- var host=Array.from(document.querySelectorAll('dialog[open]')).pop()||document.body;
+ var host=Array.from(document.querySelectorAll('dialog[open]')).pop()||(quickTimer&&!$('quick-time-screen').hidden?$('quick-time-screen'):document.body);
  if($('toast').parentNode!==host)host.appendChild($('toast'));
 }
 function toast(message){
@@ -2477,6 +2477,7 @@ function closeQuickTimer(){
  $('quick-time-screen').hidden=true;
  delete document.body.dataset.quickTimeOpen;
  delete document.body.dataset.modeOpen;
+ if($('toast').parentNode===$('quick-time-screen'))placeToast();
 }
 function startQuickTimer(w){
  if(familySessionOpen||quickTimer||activeZen)return;
