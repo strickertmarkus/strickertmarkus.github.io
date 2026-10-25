@@ -179,8 +179,8 @@ async function initialize(){
     float upperChest = 1.485 - 0.030 * u;
     float chest = smoothstep(0.002, 0.026, p.x)
       * (1.0 - smoothstep(0.205, 0.280, p.x))
-      * smoothstep(lowerChest - 0.016, lowerChest + 0.060, p.y)
-      * (1.0 - smoothstep(upperChest - 0.065, upperChest + 0.018, p.y))
+      * smoothstep(lowerChest - 0.016, lowerChest + 0.045, p.y)
+      * (1.0 - smoothstep(upperChest - 0.045, upperChest + 0.018, p.y))
       * smoothstep(0.015, 0.070, p.z);
     // Front deltoid and back of the upper arm, defined in the unposed mesh.
     float shoulderShape = length((p.xy - vec2(0.255, 1.425)) / vec2(0.12, 0.14));
@@ -198,25 +198,27 @@ async function initialize(){
     float muscleMask = max(chest * 0.94, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
-    float fibrePhase = mix(armT * 52.0 + p.z * 55.0,
-      fan * 42.0 + 0.55 * sin(fan * 7.0 + u * 3.0), chest);
-    float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
-    float fibres = sin(fibrePhase) * fibreDetail;
-    float filament = pow(max(0.0, fibres), 5.0);
+    float armPhase = armT * 52.0 + p.z * 55.0;
+    float chestPhase = fan * 28.0 + 0.55 * sin(fan * 7.0 + u * 3.0);
+    // Filter each field before mixing: mask gradients must not erase the fibres.
+    float armFibres = sin(armPhase) * (1.0 - smoothstep(0.3, 1.6, fwidth(armPhase)));
+    float chestFibres = sin(chestPhase) * (1.0 - smoothstep(1.2, 3.0, fwidth(chestPhase)));
+    float fibres = mix(armFibres, chestFibres, chest);
+    float filament = pow(max(0.0, chestFibres), 2.5);
     float warmth = smoothstep(1.27, 1.46, p.y);
     float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
     float tissueWarmth = max(warmth * 0.55 + belly * 0.45, secondary * (0.60 + 0.25 * sin(armT * 3.14159)));
     vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
     muscleColor *= 0.80 + 0.26 * fibres;
-    muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), filament * 0.22);
+    muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), pow(max(0.0, armFibres), 5.0) * 0.22);
     // Ruby tissue beneath a pearly surface: darker valleys, luminous fibre ridges.
     float chestLight = clamp(0.20 + 0.48 * belly + 0.14 * warmth
       + 0.12 * fibres + 0.05 * uPressContraction, 0.0, 1.0);
-    vec3 chestColor = mix(vec3(0.22, 0.006, 0.023), vec3(0.90, 0.085, 0.10), chestLight);
-    chestColor = mix(chestColor, vec3(1.0, 0.68, 0.63), filament * 0.48);
+    vec3 chestColor = mix(vec3(0.22, 0.003, 0.012), vec3(0.90, 0.035, 0.06), chestLight);
+    chestColor = mix(chestColor, vec3(1.0, 0.68, 0.63), filament * 0.55);
     float glassEdge = 4.0 * chest * (1.0 - chest);
     chestColor = mix(chestColor, vec3(0.90, 0.92, 0.98),
-      clamp(0.17 * glassEdge + 0.30 * rim, 0.0, 0.42));
+      clamp(0.09 * glassEdge + 0.20 * rim, 0.0, 0.30));
     muscleColor = mix(muscleColor, chestColor, smoothstep(0.0, 0.55, chest));
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
@@ -224,7 +226,7 @@ async function initialize(){
     float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     // Density varies across bundles and gently increases as the muscle contracts.
-    float chestAlpha = clamp(0.62 + 0.15 * belly + 0.08 * filament
+    float chestAlpha = clamp(0.69 + 0.13 * belly + 0.06 * filament
       + 0.06 * uPressContraction + 0.08 * rim, 0.0, 0.90);
     diffuseColor.a = mix(diffuseColor.a, chestAlpha, chest);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
@@ -234,12 +236,12 @@ async function initialize(){
     #include <emissivemap_fragment>
     // A red inner glow and pale filaments, without a flat emissive red patch.
     totalEmissiveRadiance += chest * (
-      vec3(0.48, 0.012, 0.028) * (0.18 + 0.20 * belly + 0.06 * uPressContraction)
-      + vec3(0.85, 0.36, 0.31) * filament * 0.25);
+      vec3(0.55, 0.012, 0.028) * (0.22 + 0.22 * belly + 0.06 * uPressContraction)
+      + vec3(0.85, 0.36, 0.31) * filament * 0.40);
     totalEmissiveRadiance += vec3(0.55, 0.64, 0.80) * glassEdge * 0.055;
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-glass-pectoral-v12';
+  mat.customProgramCacheKey=()=> 'silver-glass-fibres-v13';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
