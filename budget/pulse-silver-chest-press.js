@@ -194,7 +194,7 @@ async function initialize(){
     float secondary = max(shoulder * 0.76, triceps * 0.80);
     float muscleMask = max(chest * 0.94, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
-    float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 48.0, chest);
+    float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 36.0, chest);
     float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
     float fibres = sin(fibrePhase) * fibreDetail;
     float warmth = smoothstep(1.27, 1.46, p.y);
@@ -204,10 +204,10 @@ async function initialize(){
     float chestWarmth = 0.72 + 0.20 * sin(u * 3.14159);
     tissueWarmth = mix(tissueWarmth, chestWarmth, chest);
     vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
-    muscleColor *= 0.80 + (0.26 + 0.08 * chest) * fibres;
+    muscleColor *= 0.80 + (0.26 + 0.24 * chest) * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
     muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
-    muscleColor *= mix(vec3(1.0), vec3(1.0, 0.12, 0.22), chest);
+    muscleColor *= mix(vec3(1.0), vec3(0.62, 0.075, 0.15), chest);
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
@@ -220,11 +220,11 @@ async function initialize(){
    shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>', `
     #include <emissivemap_fragment>
     // Restrained self-illumination keeps the primary muscle clear in shadow.
-    totalEmissiveRadiance += vec3(0.90, 0.018, 0.022)
-      * chest * (0.50 + 0.32 * belly + 0.12 * max(0.0, fibres));
+    totalEmissiveRadiance += vec3(0.60, 0.010, 0.016)
+      * chest * (0.30 + 0.20 * belly + 0.18 * max(0.0, fibres));
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-contracting-pectoral-v10';
+  mat.customProgramCacheKey=()=> 'silver-striated-pectoral-v11';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
