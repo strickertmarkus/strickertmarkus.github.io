@@ -192,12 +192,14 @@ async function initialize(){
     vec3 armAxis = vec3(0.155, -0.29, 0.0);
     float armT = clamp(dot(p - armStart, armAxis) / dot(armAxis, armAxis), 0.0, 1.0);
     float armDistance = length(p - armStart - armT * armAxis);
-    float lateralArm = p.x - (armStart.x + armT * armAxis.x);
-    float backAndOuterArm = max(1.0 - smoothstep(-0.035, 0.025, p.z), smoothstep(-0.015, 0.045, lateralArm));
+    // End the deltoid at its cap; do not carry its front highlight down the biceps.
+    shoulder *= 1.0 - smoothstep(0.20, 0.37, armT);
+    // Posterior half only. The former outer-arm union also painted the front.
+    float posteriorArm = 1.0 - smoothstep(-0.045, 0.0, p.z);
     float triceps = (1.0 - smoothstep(0.105, 0.145, armDistance))
-      * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
-      * backAndOuterArm;
-    float secondary = max(shoulder, triceps) * 0.94;
+      * smoothstep(0.22, 0.36, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
+      * posteriorArm;
+    float secondary = max(shoulder, triceps) * 0.85;
     float muscleMask = max(chest * 0.99, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
@@ -238,9 +240,9 @@ async function initialize(){
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
-    // Secondary muscles share the chest's tissue density; hierarchy comes from light.
-    float tissueAlpha = clamp(0.76 + 0.08 * secondaryVolume
-      + 0.04 * armFilament + 0.04 * rim, 0.0, 0.88);
+    // A middle density keeps secondary tissue present but quieter than the chest.
+    float tissueAlpha = clamp(0.66 + 0.08 * secondaryVolume
+      + 0.03 * armFilament + 0.05 * rim, 0.0, 0.81);
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
     // Density varies across bundles and gently increases as the muscle contracts.
     float chestAlpha = clamp(0.74 + 0.10 * chestVolume + 0.04 * filament
@@ -257,16 +259,16 @@ async function initialize(){
       + vec3(1.0, 0.42, 0.20) * chestSpot * 0.95
       + tissueFibre * filament * 0.12);
     totalEmissiveRadiance += secondary * (1.0 - chest)
-      * (tissueRed * secondaryVolume * 0.12
-      + vec3(1.0, 0.42, 0.20) * secondaryVolume * reflection * 0.26
-      + tissueFibre * armFilament * 0.08);
+      * (tissueRed * secondaryVolume * 0.075
+      + vec3(1.0, 0.42, 0.20) * secondaryVolume * reflection * 0.13
+      + tissueFibre * armFilament * 0.05);
    `);
    shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
     '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.30, muscleMask);');
    shader.fragmentShader=shader.fragmentShader.replace('#include <metalnessmap_fragment>',
     '#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, 0.04, muscleMask);');
   };
-  mat.customProgramCacheKey=()=> 'silver-unified-tissue-v16';
+  mat.customProgramCacheKey=()=> 'silver-posterior-triceps-v17';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
