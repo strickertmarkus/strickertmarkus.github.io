@@ -1,5 +1,5 @@
 /* Ingemar: standalone timed workouts */
-#quick-workout-choice,#quick-log-choice,#quick-free-pass{width:min(440px,calc(100vw - 24px));overflow:hidden}
+#quick-workout-choice,#quick-log-choice,#quick-select-pass,#quick-free-pass{width:min(440px,calc(100vw - 24px));overflow:hidden}
 .quick-choice-body{display:grid;gap:9px;padding:17px}
 .quick-choice-sub{margin:0 0 6px;color:#ada7b5;font-size:12px;line-height:1.5}
 .quick-choice-card{width:100%;min-height:75px;display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff23;border-radius:13px;background:#ffffff07;color:#f6eaf1;text-align:left}
@@ -39,3 +39,10 @@
 #quick-time-finish .primary{background:var(--qt);color:#0b1019}
 #quick-time-screen[hidden],#quick-time-finish[hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){.quick-time-arc{transition:none}}
+
+#quick-select-options{display:grid;gap:7px;max-height:min(53dvh,480px);overflow-y:auto;overscroll-behavior:contain}
+#quick-select-pass .quick-choice-body{max-height:min(75dvh,650px);overflow:hidden}
+#quick-select-pass .quick-choice-card{flex-shrink:0}
+#quick-select-pass .quick-choice-card strong{overflow-wrap:anywhere}
+#quick-select-pass .quick-choice-card.time{margin-top:2px}
+@media(max-height:600px){#quick-time-screen{padding-top:calc(env(safe-area-inset-top) + 10px);padding-bottom:calc(env(safe-area-inset-bottom) + 12px)}#quick-time-name{margin:6px 0 12px}#quick-time-screen .quick-time-dial{width:min(54vw,220px)}}
