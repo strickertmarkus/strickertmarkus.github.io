@@ -2423,10 +2423,61 @@ function openQuickPassSelect(){
  });
  $('quick-select-options').innerHTML=html||'<p class="quick-choice-sub">Inga sparade pass. Tidta ett eget pass nedan.</p>';SurfaceMotion.showDialog($('quick-select-pass'));
 }
-function quickTimeSeconds(){return quickTimer?Math.max(0,(quickTimer.ms+(quickTimer.running?performance.now()-quickTimer.last:0))/1000):0;}
+// Pulse Flow's 260-degree arc geometry, with each complete lap = 20 minutes.
+var QUICK_TIMER_LAP_SECONDS=20*60;
+function quickArcPoint(ratio){
+ ratio=Math.max(0,Math.min(1,Number(ratio)||0));
+ var angle=(140+260*ratio)*Math.PI/180;
+ return {x:50+42*Math.cos(angle),y:50+42*Math.sin(angle)};
+}
+function quickArcPath(ratio){
+ ratio=Math.max(0,Math.min(1,Number(ratio)||0));
+ if(ratio<=0)return '';
+ var from=quickArcPoint(0),to=quickArcPoint(ratio);
+ return 'M'+from.x.toFixed(3)+' '+from.y.toFixed(3)+' A42 42 0 '+(260*ratio>180?1:0)+' 1 '+to.x.toFixed(3)+' '+to.y.toFixed(3);
+}
+function quickTimeSeconds(){return quickTimer?Math.max(0,(quickTimer.ms+(quickTimer.running?Date.now()-quickTimer.last:0))/1000):0;}
 function formatQuickTime(v){var s=Math.floor(Math.max(0,v)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return(h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
-function renderQuickTimer(){if(!quickTimer)return;var sec=quickTimeSeconds();$('quick-time-value').textContent=formatQuickTime(sec);$('quick-time-arc').style.strokeDashoffset=String(100-(sec%60)/60*100);$('quick-time-status').textContent=quickTimer.finishing?'KLAR ATT SPARA':quickTimer.running?'TIDTAGNING PÅGÅR':'PAUSAD';$('quick-time-pause').textContent=quickTimer.running?'Pausa':'Fortsätt';$('quick-time-controls').hidden=!!quickTimer.finishing;$('quick-time-finish').hidden=!quickTimer.finishing;}
-function closeQuickTimer(){clearInterval(quickTimerInterval);quickTimerInterval=0;quickTimer=null;$('quick-time-screen').hidden=true;delete document.body.dataset.modeOpen;}
+function paintQuickTimeArc(seconds){
+ var full=Math.max(0,Math.floor(seconds)),completed=Math.floor(full/QUICK_TIMER_LAP_SECONDS);
+ var endOfLap=full>0&&full%QUICK_TIMER_LAP_SECONDS===0;
+ var lap=endOfLap?Math.max(1,completed):completed+1;
+ var progress=endOfLap?1:(full%QUICK_TIMER_LAP_SECONDS)/QUICK_TIMER_LAP_SECONDS;
+ var point=quickArcPoint(progress),marker=$('quick-time-marker');
+ $('quick-time-arc').setAttribute('d',quickArcPath(progress));
+ marker.setAttribute('cx',point.x.toFixed(3));marker.setAttribute('cy',point.y.toFixed(3));
+ marker.style.opacity=progress>0?'1':'0';
+ $('quick-time-cycle').textContent='20 MIN / VARV · VARV '+lap;
+}
+function renderQuickTimer(){
+ if(!quickTimer)return;
+ var seconds=quickTimeSeconds(),full=Math.floor(seconds);
+ if(quickTimer.renderedSecond!==full){
+  $('quick-time-value').textContent=formatQuickTime(seconds);
+  paintQuickTimeArc(seconds);
+  quickTimer.renderedSecond=full;
+ }
+ $('quick-time-status').textContent=quickTimer.finishing?'KLAR ATT SPARA':quickTimer.running?'TIDTAGNING PÅGÅR':'PAUSAD';
+ $('quick-time-pause').textContent=quickTimer.running?'Pausa':'Fortsätt';
+ $('quick-time-controls').hidden=!!quickTimer.finishing;
+ $('quick-time-finish').hidden=!quickTimer.finishing;
+}
+function scheduleQuickTimerPaint(){
+ clearInterval(quickTimerInterval);quickTimerInterval=0;
+ // Only one small SVG changes, once per second. No canvas, RAF or workout iframe.
+ if(quickTimer&&quickTimer.running&&!document.hidden)quickTimerInterval=setInterval(renderQuickTimer,1000);
+}
+document.addEventListener('visibilitychange',function(){
+ if(!quickTimer)return;
+ if(!document.hidden)renderQuickTimer();
+ scheduleQuickTimerPaint();
+});
+function closeQuickTimer(){
+ clearInterval(quickTimerInterval);quickTimerInterval=0;quickTimer=null;
+ $('quick-time-screen').hidden=true;
+ delete document.body.dataset.quickTimeOpen;
+ delete document.body.dataset.modeOpen;
+}
 function startQuickTimer(w){
  if(familySessionOpen||quickTimer||activeZen)return;
  if(!window.IngemarAccount.canEdit){toast('Vänta på anslutningen innan du startar.');return;}
