@@ -198,12 +198,12 @@
     .cal-event-preview-title.is-holiday { box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--preview-color) 20%,transparent),0 0 7px color-mix(in srgb,var(--preview-color) 13%,transparent); }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
     /* Extra event details stay compact on desktop and readable on phones. */
-    .cal-event-extra-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .form-row.cal-event-extra-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .cal-event-extra-row .form-group { min-width:0; }
     .event-extra, #upcoming-list .upcoming-event-extra { color:var(--text-sec);font-size:10px;line-height:1.45;margin-top:3px;overflow-wrap:anywhere; }
     .home-day-popover-item-extra { white-space:normal;overflow-wrap:anywhere; }
     @media(max-width:520px) {
-      .cal-event-extra-row { grid-template-columns:minmax(0,1fr);gap:0; }
+      .form-row.cal-event-extra-row { grid-template-columns:minmax(0,1fr);gap:0; }
     }
     @media(max-width:768px) {
       /* Keep event days at the same base height as every other day. */
