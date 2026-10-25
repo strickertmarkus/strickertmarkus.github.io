@@ -19,7 +19,10 @@ function message(s){if(typeof window.showToast==='function')window.showToast(s);
 function confirmDiscard(){return !dirty||confirm('Lämna ändringarna utan att spara?');}
 function setDraft(d){draft=clone(d||blank());draft.exercises=Array.isArray(draft.exercises)?draft.exercises:[];expanded.clear();dirty=false;}
 function loadTemplate(id){var t=templates().find(function(x){return String(x.id)===String(id);});templateId=t?t.id:'';setDraft(t||blank());}
-function loadDay(isoDay){day=isoDay;var d=planned()[day];dayTemplateId=d&&d.templateId||'';dayCreating=!!d;setDraft(d||blank());if(d&&!draft.name&&draft.exercises.length)draft.name=d.type||'';}
+function loadDay(isoDay){day=isoDay;var d=planned()[day];dayTemplateId=d&&d.templateId||'';dayCreating=!!d;
+ var fallback=blank();
+ if(!d){var w=window.getPlanForWeek(week(day)),type=w&&w[window.dayKeyFromISO(day)];if(type&&!/^(vila|vilodag)$/i.test(type))fallback.type=type;}
+ setDraft(d||fallback);if(d&&!draft.name&&draft.exercises.length)draft.name=d.type||'';}
 function ensure(){
  if(modal)return;
  modal=document.createElement('div');modal.id='pulse-family-builder';modal.className='modal-overlay pulse-editor';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
@@ -44,10 +47,17 @@ function cleaned(){
 function saveTemplate(silent){
  if(!String(draft.name||'').trim()){if(!silent)message('Namnge mallpasset först.');return false;}
  var list=templates(),index=list.findIndex(function(t){return String(t.id)===String(templateId);});
- var id=templateId||Date.now();
+ var id=templateId||Date.now(),previous=index>=0?list[index]:null;
  var entry={id:id,name:String(draft.name).trim(),type:draft.type||'Helkropp',exercises:cleaned()};
- if(index<0)list.push(entry);else list[index]=Object.assign({},list[index],entry);
+ if(index<0)list.push(entry);else list[index]=Object.assign({},previous,entry);
  window.saveTemplates(list);templateId=id;dirty=false;
+ // Only rename day plans that still have the linked template's old name.
+ // Customized day names and exercise selections are never overwritten.
+ if(previous&&previous.name!==entry.name){
+  var days=planned(),touched=false;
+  Object.keys(days).forEach(function(d){var p=days[d];if(p&&String(p.templateId)===String(id)&&p.name===previous.name){p.name=entry.name;touched=true;}});
+  if(touched)window.savePlannedSessions(days);
+ }
  if(!silent)message('Mallpass sparat.');
  return true;
 }
