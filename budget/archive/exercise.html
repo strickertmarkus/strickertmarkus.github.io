@@ -554,7 +554,7 @@ if(!window.__FIELD_EMBEDDED__){
 </style>
 <script defer src="training-overlay.js?v=20260927-pulse-robust-2"></script>
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261020-cardio-editor-v2">
-<link rel="stylesheet" href="training-pulse-family-builder-v1.css?v=20261025-family-builder-1">
+<link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261025-classic-builder-1">
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -954,19 +954,38 @@ if(!window.__FIELD_EMBEDDED__){
         <input type="date" id="day-workout-date" onchange="onDayWorkoutDateChange()">
       </div>
     </div>
-    <div class="form-group">
-      <label>Passnamn / typ</label>
-      <input type="text" id="day-workout-type" list="type-suggestions" placeholder="Ex: Ben + Axlar">
+    <div class="form-group classic-template-group">
+      <label for="day-workout-template-select">Välj mallpass</label>
+      <div class="classic-template-actions">
+        <select id="day-workout-template-select" onchange="pulseClassicApplyTemplate(this.value)" aria-label="Välj ett sparat mallpass"></select>
+        <button class="btn-sm" type="button" onclick="pulseClassicNewTemplate()">＋ Ny mall</button>
+        <button class="btn-sm" type="button" id="day-workout-edit-template" onclick="pulseClassicEditTemplate()" disabled>Redigera</button>
+      </div>
+      <div class="classic-inline-template-name" id="day-workout-inline-template" hidden>
+        <input type="text" id="day-workout-new-template-name" maxlength="70" autocomplete="off" placeholder="Namn på nya mallen" aria-label="Namn på nya mallen">
+        <button type="button" class="btn-sm" onclick="pulseClassicConfirmSaveAsTemplate()">Spara mall</button>
+      </div>
+    </div>
+    <div class="form-row classic-pass-fields">
+      <div class="form-group">
+        <label for="day-workout-name">Passnamn</label>
+        <input type="text" id="day-workout-name" maxlength="70" autocomplete="off" placeholder="T.ex. Ryggfokus">
+      </div>
+      <div class="form-group">
+        <label for="day-workout-type">Träningsform</label>
+        <input type="text" id="day-workout-type" list="type-suggestions" placeholder="T.ex. Rygg + Biceps">
+      </div>
     </div>
     <div class="form-group">
       <label>Övningar</label>
       <div class="ex-list" id="day-workout-ex-list"></div>
       <button class="btn-sm" style="margin-top:8px" type="button" onclick="addDayWorkoutExRow()">+ Lägg till övning</button>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer classic-builder-footer">
       <button class="btn-ghost" onclick="pulsePlanCancelBuilderV3()">Tillbaka</button>
-      <button class="btn-sm" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
-      <button class="btn-primary" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
+      <button class="btn-sm classic-save-as-template" type="button" onclick="pulseClassicSaveAsTemplate()">Spara som mall</button>
+      <button class="btn-sm classic-start-pass" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
+      <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
   </div>
 </div>
@@ -1355,8 +1374,7 @@ function pulsePlanOpenBuilderV3(index){
   // dragged sessions retain their exercise lists and are not replaced by empty plans.
   savePlan();
   pulsePlanBuilderReturnV3={week:week,index:index,scroll:scroll};
-  if(window.PulseFamilyPlanner)window.PulseFamilyPlanner.open({mode:'day',date:date});
-  else openDayWorkoutBuilder(DAYS[index],date);
+  openDayWorkoutBuilder(DAYS[index],date);
 }
 function pulsePlanReturnFromBuilderV3(){
   var previous=pulsePlanBuilderReturnV3;
@@ -2353,6 +2371,8 @@ function loadDayWorkoutBuilder(iso){
   if(title) title.textContent='Passupplägg · '+label+' '+fmtDate(iso);
   var typeEl=byId('day-workout-type','day-workout-type');
   if(typeEl) typeEl.value=p.type||'Övrigt';
+  var nameEl=byId('day-workout-name');
+  if(nameEl)nameEl.value=p.name||p.type||'';
   var list=byId('day-workout-ex-list','day-workout-ex-list','day-workout-ex-list');
   if(list){
     list.innerHTML='';
@@ -2364,6 +2384,7 @@ function loadDayWorkoutBuilder(iso){
   var dateEl=byId('day-workout-date');
   if(dateEl) dateEl.value=iso;
   fillWeekLabel(mondayISOOf(iso),'day-workout-week-label','day-workout-week-sub');
+  if(window.PulseClassicTemplates)window.PulseClassicTemplates.syncDay(iso,p);
 }
 function openDayWorkoutBuilder(label,iso){
   closeModal('day-modal');
@@ -2402,7 +2423,15 @@ function persistDayWorkoutPlan(opts){
   if(dateInput&&dateInput.value) date=dateInput.value;
   modal.dataset.date=date;
   var byDate=getPlannedSessions();
-  byDate[date]={type:type,exercises:ex};
+  var nameInput=document.getElementById('day-workout-name');
+  var name=String(nameInput&&nameInput.value||'').trim().slice(0,70)||type;
+  var chosen=document.getElementById('day-workout-template-select');
+  var templateId=chosen&&chosen.value||'';
+  var previous=byDate[date]||{};
+  var record=Object.assign({},previous,{type:type,name:name,exercises:ex});
+  if(templateId)record.templateId=templateId;
+  else delete record.templateId;
+  byDate[date]=record;
   savePlannedSessions(byDate);
   var mondayISO=mondayISOOf(date);
   var key=dayKeyFromISO(date);
@@ -2443,8 +2472,7 @@ function startWorkoutSessionForDate(iso){
     }).catch(function(error){
       if(token!==window.__embeddedSessionStartToken)return;
       window.__embeddedSessionStarting=false;
-      if(window.PulseFamilyPlanner)window.PulseFamilyPlanner.open({mode:'day',date:iso});
-      else openDayWorkoutBuilder(dayLabelFromISO(iso),iso);
+      openDayWorkoutBuilder(dayLabelFromISO(iso),iso);
       window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{error:'Kunde inte ladda Pulse Flow. Försök starta passet igen.'}}));
     });
   }
@@ -3441,6 +3469,6 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
-<script src="training-pulse-family-builder-v1.js?v=20261025-family-builder-1"></script>
+<script src="training-pulse-classic-templates-v1.js?v=20261025-classic-builder-1"></script>
 </body>
 </html>
