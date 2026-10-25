@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 if(new URLSearchParams(location.search).get('embedded')!=='1')return;
-var modal,mode='template',day='',templateId='',dayTemplateId='',draft=null,dirty=false,expanded=new Set();
+var modal,mode='template',day='',templateId='',dayTemplateId='',draft=null,dirty=false,dayCreating=false,expanded=new Set();
 var TYPES=['Bröst + Triceps','Rygg + Biceps','Ben + Axlar','Helkropp','Kondition','Överkropp','Underkropp','Stretching / Rörlighet','Övrigt'];
 var NAMES=['Bänkpress','Hantelpress','Bröstpress maskin','Armhävningar','Dips','Triceps pushdown','Latsdrag','Chins','Sittande rodd','Marklyft','Bicepscurl','Hammercurl','Knäböj','Benpress','Utfall','Hip thrust','Axelpress','Sidolyft','Plankan','Löpning','Cykling','Roddmaskin','Intervaller','Promenad'];
 function $(s){return modal.querySelector(s);}
@@ -19,7 +19,7 @@ function message(s){if(typeof window.showToast==='function')window.showToast(s);
 function confirmDiscard(){return !dirty||confirm('Lämna ändringarna utan att spara?');}
 function setDraft(d){draft=clone(d||blank());draft.exercises=Array.isArray(draft.exercises)?draft.exercises:[];expanded.clear();dirty=false;}
 function loadTemplate(id){var t=templates().find(function(x){return String(x.id)===String(id);});templateId=t?t.id:'';setDraft(t||blank());}
-function loadDay(isoDay){day=isoDay;var d=planned()[day];dayTemplateId=d&&d.templateId||'';setDraft(d||blank());if(d&&!draft.name&&draft.exercises.length)draft.name=d.type||'';}
+function loadDay(isoDay){day=isoDay;var d=planned()[day];dayTemplateId=d&&d.templateId||'';dayCreating=!!d;setDraft(d||blank());if(d&&!draft.name&&draft.exercises.length)draft.name=d.type||'';}
 function ensure(){
  if(modal)return;
  modal=document.createElement('div');modal.id='pulse-family-builder';modal.className='modal-overlay pulse-editor';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
@@ -52,6 +52,7 @@ function saveTemplate(silent){
  return true;
 }
 function saveDay(silent){
+ if(!dayCreating&&!draft.name&&!draft.exercises.length){message('Välj en mall eller skapa ett nytt dagspass.');return false;}
  var entry={name:String(draft.name||draft.type||'Träning').trim(),type:draft.type||'Helkropp',exercises:cleaned()};
  if(dayTemplateId)entry.templateId=dayTemplateId;
  var all=planned();all[day]=entry;window.savePlannedSessions(all);
@@ -84,7 +85,7 @@ function render(){
  var html='<div class="pf-tabs"><button type="button" data-act="mode-template" aria-pressed="'+t+'">Mallpass</button><button type="button" data-act="mode-day" aria-pressed="'+(!t)+'">Dagens pass</button></div>';
  if(!t)html+='<div class="pf-overline">Planerad dag</div><div class="pf-day-nav"><button type="button" class="pf-icon" data-act="prev">‹</button><input type="date" data-select="date" value="'+h(day)+'" aria-label="Välj dag"><button type="button" class="pf-icon" data-act="next">›</button></div>';
  html+='<div class="pf-field"><div class="pf-overline">'+(t?'Välj mallpass':'Välj mallpass för dagen')+'</div><div class="pf-inline"><select data-select="'+(t?'template':'day-template')+'">'+templateOptions()+'</select><button type="button" class="pf-btn" data-act="'+(t?'new-template':'new-day')+'">＋ '+(t?'Ny mall':'Nytt pass')+'</button></div></div>';
- if(!t&&!draft.name&&!draft.exercises.length)html+='<div class="pf-intro"><strong>Ingen träning planerad</strong><p>Välj ett mallpass eller skapa ett nytt dagspass. Inga övningar fylls i automatiskt.</p></div>';
+ if(!t&&!dayCreating&&!draft.name&&!draft.exercises.length)html+='<div class="pf-intro"><strong>Ingen träning planerad</strong><p>Välj ett mallpass eller skapa ett nytt dagspass. Inga övningar fylls i automatiskt.</p></div>';
  else{
  html+='<div class="pf-field"><div class="pf-overline">'+(t?'Mallnamn (sparas när du lämnar fältet)':'Passnamn')+'</div><input class="pf-name" data-edit="name" maxlength="70" value="'+h(draft.name||'')+'" placeholder="Namnge passet"></div>';
  html+='<div class="pf-field"><div class="pf-overline">Träningsform</div><select data-edit="type">'+TYPES.concat(draft.type&&!TYPES.includes(draft.type)?[draft.type]:[]).map(function(v){return '<option value="'+h(v)+'"'+(v===draft.type?' selected':'')+'>'+h(v)+'</option>';}).join('')+'</select></div>';
@@ -114,7 +115,7 @@ function changed(e){
  }else if(a==='day-template'){
   if(!confirmDiscard()){x.value=String(dayTemplateId||'');return;}
   var t=templates().find(function(item){return String(item.id)===x.value;});
-  if(t){dayTemplateId=t.id;setDraft({name:t.name,type:t.type||'Helkropp',exercises:t.exercises||[]});dirty=true;}
+  if(t){dayTemplateId=t.id;dayCreating=true;setDraft({name:t.name,type:t.type||'Helkropp',exercises:t.exercises||[]});dirty=true;}
   else loadDay(day);
   render();
  }
@@ -123,7 +124,7 @@ function clicked(e){
  var el=e.target.closest('[data-act]');if(!el)return;var a=el.dataset.act,i=Number(el.dataset.index||0);
  if(a==='close'){close();return;}
  if(a==='mode-template'||a==='mode-day'){var m=a==='mode-template'?'template':'day';if(m===mode)return;if(!confirmDiscard())return;mode=m;if(m==='day')loadDay(day);else loadTemplate('');render();return;}
- if(a==='new-template'||a==='new-day'){if(!confirmDiscard())return;if(a==='new-template'){mode='template';loadTemplate('');}else{mode='day';dayTemplateId='';setDraft(blank());}render();var nm=$('[data-edit="name"]');if(nm)nm.focus();return;}
+ if(a==='new-template'||a==='new-day'){if(!confirmDiscard())return;if(a==='new-template'){mode='template';loadTemplate('');}else{mode='day';dayTemplateId='';dayCreating=true;setDraft(blank());dirty=true;}render();var nm=$('[data-edit="name"]');if(nm)nm.focus();return;}
  if(a==='prev'||a==='next'){if(!confirmDiscard())return;loadDay(shift(day,a==='prev'?-1:1));render();return;}
  if(a==='expand'){expanded.has(i)?expanded.delete(i):expanded.add(i);render();return;}
  if(a==='kind'){if(draft.exercises[i]){draft.exercises[i].kind=el.dataset.kind;expanded.add(i);dirty=true;render();}return;}
