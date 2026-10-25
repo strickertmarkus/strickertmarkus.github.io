@@ -230,7 +230,7 @@ function selectTool(win,tool,button,date){
    var tpl=win.getTemplates().find(function(t){return String(t.id)===String(button.dataset.templateId);});
    if(!tpl){notice('Mallpasset finns inte längre.');return false;}
    var byDate=win.getPlannedSessions();
-   byDate[iso]={type:tpl.type||tpl.name||'Träning',exercises:JSON.parse(JSON.stringify(tpl.exercises||[]))};
+   byDate[iso]={type:tpl.type||tpl.name||'Träning',name:tpl.name||tpl.type||'Träning',templateId:tpl.id,exercises:JSON.parse(JSON.stringify(tpl.exercises||[]))};
    win.savePlannedSessions(byDate);win.startWorkoutSessionForDate(iso);ensurePulseFlow(win);requestAnimationFrame(function(){try{ensurePulseFlow(win);}catch(_){}});break;
   case 'goals':
    var main=win.document.getElementById('pulse-goals');
