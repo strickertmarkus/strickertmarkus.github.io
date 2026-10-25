@@ -1213,17 +1213,22 @@ function pulsePlanExpandedHtmlV2(entry,i){
   var suggestedHtml=suggested.map(function(ex){
     return '<button type="button" class="pulse-plan-chip-v2" data-pulse-add-ex-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(ex.name)+'">+ '+escHtml(ex.name)+'</button>';
   }).join('');
-  var templates=getTemplates().filter(function(t){return t&&Array.isArray(t.exercises)&&t.exercises.length;}).slice(0,12);
-  var templatesHtml=templates.length?'<div class="pulse-plan-template-chips-v2">'+templates.map(function(t){return '<button type="button" data-pulse-day-template-v2="'+i+'" data-pulse-template-id-v2="'+escHtml(String(t.id))+'">'+escHtml(t.name||t.type||'Mallpass')+'</button>';}).join('')+'</div>':'';
+  var templates=getTemplates().filter(function(t){return t&&Array.isArray(t.exercises)&&t.exercises.length;});
+  var templatesHtml=templates.length?
+    '<div class="pulse-plan-day-template-select-v4"><select data-pulse-template-select-v4="'+i+'" aria-label="Välj mallpass för '+DAYS[i]+'"><option value="">Välj sparat mallpass</option>'+
+    templates.map(function(t){return '<option value="'+escHtml(String(t.id))+'">'+escHtml(t.name||t.type||'Mallpass')+'</option>';}).join('')+
+    '</select><button type="button" data-pulse-apply-template-v4="'+i+'">Använd mall</button></div>':
+    '<p class="pulse-plan-empty-v2">Inga mallpass ännu. Skapa dem under Bygg pass.</p>';
   return '<div class="pulse-plan-editor-v2">'+
     '<div class="pulse-plan-editor-head-v2"><b>PASS</b><span>Välj era vanliga träningsgrupper</span></div>'+
     '<div class="pulse-plan-chip-list-v2 pulse-plan-types-v3" role="group" aria-label="Välj träningsgrupp">'+typeButtons+'</div>'+
     '<label class="pulse-plan-custom-v2"><span>Passnamn · tryck för att ändra</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Träningspass för '+DAYS[i]+'"></label>'+
+    '<div class="pulse-plan-editor-head-v2"><b>MALLPASS</b><span>Hämta sparat upplägg</span></div>'+templatesHtml+
     (kind==='rest'?'':('<div class="pulse-plan-editor-head-v2"><b>ÖVNINGAR</b><span>'+exercises.length+(exercises.length===1?' vald':' valda')+'</span></div>'+
       (chosen||'<p class="pulse-plan-empty-v2">Inga övningar valda ännu.</p>')+
       (suggestedHtml?'<div class="pulse-plan-chip-list-v2 pulse-plan-exercise-choices-v2">'+suggestedHtml+'</div>':'')+
       '<div class="pulse-plan-add-row-v2"><input type="text" data-pulse-new-ex-v2="'+i+'" placeholder="Ny övning…" aria-label="Ny övning" autocomplete="off"><button type="button" data-pulse-create-ex-v2="'+i+'">+ Lägg till</button></div>'+
-      (templatesHtml?'<div class="pulse-plan-editor-head-v2"><b>MALLPASS</b><span>Hämta sparat upplägg</span></div>'+templatesHtml:'')))+
+      ''))+
     '<div class="pulse-plan-editor-foot-v2">'+
       '<button type="button" data-pulse-open-builder-v2="'+i+'">Set, vikter och detaljer ↗</button>'+
       '<button type="button" data-pulse-copy-v2="'+i+'">'+(pulsePlanCopyV2===i?'Avbryt kopiering':'Kopiera pass')+'</button>'+
@@ -1236,7 +1241,7 @@ function pulsePlanRenderV2(){
   var draft=pulsePlanWeekDraftV2(week),previousScroll=box.scrollTop;
   box.innerHTML='';
   DAYS.forEach(function(day,i){
-    var date=shiftISODate(week,i),entry=draft[i],type=entry.type||'Vila',exercises=pulsePlanExerciseListV2(entry);
+    var date=shiftISODate(week,i),entry=draft[i],type=entry.type||'Vila',exercises=pulsePlanExerciseListV2(entry),sessionName=entry.session&&entry.session.name||type;
     var expanded=pulsePlanExpandedV2===i,rest=pulsePlanKindV2(type)==='rest',article=document.createElement('article');
     article.className='pulse-plan-day-v2'+(expanded?' is-expanded':'');
     article.dataset.index=i;article.dataset.color=pulsePlanColorV2(type);
@@ -1244,7 +1249,7 @@ function pulsePlanRenderV2(){
       '<button type="button" class="pulse-plan-open-v2" data-pulse-open-builder-v2="'+i+'" aria-label="Öppna passbyggaren för '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
        '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?'Vila':pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
-       '<strong>'+escHtml(type)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
+       '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">↗</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
       '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
@@ -1283,7 +1288,7 @@ function pulsePlanApplyTemplateV2(index,id){
   if(!template)return;
   var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];
   entry.type=template.type||entry.type;
-  entry.session={type:entry.type,exercises:pulsePlanCloneV2(template.exercises||[])};
+  entry.session={type:entry.type,name:template.name||entry.type,templateId:template.id,exercises:pulsePlanCloneV2(template.exercises||[])};
   pulsePlanRenderV2();
 }
 function pulsePlanCopyV2To(index){
@@ -1350,7 +1355,8 @@ function pulsePlanOpenBuilderV3(index){
   // dragged sessions retain their exercise lists and are not replaced by empty plans.
   savePlan();
   pulsePlanBuilderReturnV3={week:week,index:index,scroll:scroll};
-  openDayWorkoutBuilder(DAYS[index],date);
+  if(window.PulseFamilyPlanner)window.PulseFamilyPlanner.open({mode:'day',date:date});
+  else openDayWorkoutBuilder(DAYS[index],date);
 }
 function pulsePlanReturnFromBuilderV3(){
   var previous=pulsePlanBuilderReturnV3;
@@ -1387,6 +1393,7 @@ function pulsePlanInstallV2(){
     else if(d.pulseRemoveExV2!=null){var parts=d.pulseRemoveExV2.split(':').map(Number),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[parts[0]];if(entry&&entry.session&&entry.session.exercises){entry.session.exercises.splice(parts[1],1);pulsePlanRenderV2();}}
     else if(d.pulseCreateExV2!=null){i=Number(d.pulseCreateExV2);var input=box.querySelector('[data-pulse-new-ex-v2="'+i+'"]');if(input)pulsePlanAddExerciseV2(i,input.value);}
     else if(d.pulseDayTemplateV2!=null){pulsePlanApplyTemplateV2(Number(d.pulseDayTemplateV2),d.pulseTemplateIdV2);}
+    else if(d.pulseApplyTemplateV4!=null){i=Number(d.pulseApplyTemplateV4);var sel=box.querySelector('[data-pulse-template-select-v4="'+i+'"]');if(sel&&sel.value)pulsePlanApplyTemplateV2(i,sel.value);else showToast('Välj ett mallpass.');}
     else if(d.pulseCopyV2!=null){i=Number(d.pulseCopyV2);pulsePlanCopyV2=pulsePlanCopyV2===i?-1:i;pulsePlanRenderV2();}
     else if(d.pulseCopyToV2!=null){pulsePlanCopyV2To(Number(d.pulseCopyToV2));}
     else if(d.pulseRestV2!=null){pulsePlanSetTypeV2(Number(d.pulseRestV2),'Vila');}
