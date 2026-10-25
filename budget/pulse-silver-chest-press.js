@@ -187,6 +187,7 @@ async function initialize(){
     muscleColor *= 0.80 + (0.26 + 0.08 * chest) * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
     muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
+    muscleColor *= mix(vec3(1.0), vec3(1.0, 0.35, 0.45), chest);
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
@@ -199,11 +200,11 @@ async function initialize(){
    shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>', `
     #include <emissivemap_fragment>
     // Restrained self-illumination keeps the primary muscle clear in shadow.
-    totalEmissiveRadiance += vec3(0.90, 0.22, 0.085)
+    totalEmissiveRadiance += vec3(0.90, 0.055, 0.040)
       * chest * (0.50 + 0.32 * belly + 0.12 * max(0.0, fibres));
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-primary-pectoral-glow-v8';
+  mat.customProgramCacheKey=()=> 'silver-primary-pectoral-red-v9';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
