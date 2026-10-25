@@ -1,11 +1,15 @@
 /** Original rigged mannequin + chest-press apparatus. One renderer, driven by the guide clock. */
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {createEquipment} from './pulse-silver-equipment.js?v=19';
+import {applyMotion,frameCamera} from './pulse-silver-rig.js?v=19';
+import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=19';
 const host=document.getElementById('exercise-silver-3d'),stage=document.getElementById('studio-stage');
 const api={ready:false,loading:false,failed:false,update:()=>false};
 window.PulseSilverPress=api;
 const v=p=>new THREE.Vector3(...p),Y=new THREE.Vector3(0,1,0);
-const pressContraction={value:0};
+const pressContraction={value:0},muscleUniform={value:new Float32Array(10)},pilotUniform={value:1};
+let pilotObjects=[],equipment,ortho,lastMuscles='';
 const tissueLight={value:new THREE.Vector3()};
 const tissueLightWorld=new THREE.Vector3(-2,4,3).normalize();
 const materials={
@@ -87,6 +91,8 @@ function elbow(shoulder,wrist,sign){
  return shoulder.clone().addScaledVector(axis,along).addScaledVector(pole,Math.sqrt(Math.max(0,upper*upper-along*along)));
 }
 function pose(t){
+ for(const bone of bones)bone.scale.setScalar(1);
+ for(const shoe of shoes)shoe.quaternion.identity();
  pressContraction.value=t;
  body.morphTargetInfluences[0]=1-t;body.morphTargetInfluences[1]=t;
  const angle=THREE.MathUtils.degToRad(-10+60*t),hip=v([0,.69,0]),shoulder=v([0,1.21,0]);
@@ -157,126 +163,22 @@ async function initialize(){
   });
   geo.morphAttributes.position=shapes.map(s=>s.positions);
   geo.morphAttributes.normal=shapes.map(s=>s.normals);
-  const mat=materials.skin.clone();mat.vertexColors=true;
-  // A translucent centre and a denser silhouette keep the moving body readable.
-  // Rest-space fibres stay attached to the pectorals throughout the animation.
-  mat.transparent=true;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
-  mat.onBeforeCompile=shader=>{
-   shader.uniforms.uPressContraction=pressContraction;
-   shader.uniforms.uTissueLight=tissueLight;
-   shader.vertexShader=shader.vertexShader.replace('#include <common>',
-    '#include <common>\nvarying vec3 vAnatomyPosition;');
-   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
-    '#include <begin_vertex>\nvAnatomyPosition = position;');
-   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
-    '#include <common>\nvarying vec3 vAnatomyPosition;\nuniform float uPressContraction;\nuniform vec3 uTissueLight;');
-   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', `
-    #include <color_fragment>
-    float clothingMask = 1.0 - smoothstep(0.18, 0.65, max(vColor.r, max(vColor.g, vColor.b)));
-    float facing = abs(dot(normalize(vNormal), normalize(vViewPosition)));
-    float rim = pow(1.0 - facing, 1.8);
-    vec3 p = vec3(abs(vAnatomyPosition.x), vAnatomyPosition.yz);
-    // Broad pectoral fan: sternum to upper-arm insertion, with a rising lower edge.
-    float u = clamp(p.x / 0.245, 0.0, 1.0);
-    float lowerChest = 1.252 + 0.060 * u * u;
-    float upperChest = 1.505 - 0.025 * u;
-    float chest = smoothstep(0.001, 0.013, p.x)
-      * (1.0 - smoothstep(0.235, 0.285, p.x))
-      * smoothstep(lowerChest - 0.016, lowerChest + 0.025, p.y)
-      * (1.0 - smoothstep(upperChest - 0.025, upperChest + 0.012, p.y))
-      * smoothstep(0.005, 0.055, p.z);
-    // Front deltoid and back of the upper arm, defined in the unposed mesh.
-    float shoulderShape = length((p.xy - vec2(0.255, 1.425)) / vec2(0.12, 0.14));
-    float shoulder = (1.0 - smoothstep(0.72, 1.15, shoulderShape)) * smoothstep(-0.055, 0.025, p.z);
-    vec3 armStart = vec3(0.225, 1.43, 0.0);
-    vec3 armAxis = vec3(0.155, -0.29, 0.0);
-    float armT = clamp(dot(p - armStart, armAxis) / dot(armAxis, armAxis), 0.0, 1.0);
-    float armDistance = length(p - armStart - armT * armAxis);
-    // End the deltoid at its cap; do not carry its front highlight down the biceps.
-    shoulder *= 1.0 - smoothstep(0.20, 0.37, armT);
-    // Posterior half only. The former outer-arm union also painted the front.
-    float posteriorArm = 1.0 - smoothstep(-0.045, 0.0, p.z);
-    float triceps = (1.0 - smoothstep(0.105, 0.145, armDistance))
-      * smoothstep(0.22, 0.36, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
-      * posteriorArm;
-    float secondary = max(shoulder, triceps) * 0.85;
-    float muscleMask = max(chest * 0.99, secondary) * (1.0 - clothingMask);
-    float fan = atan(p.y - 1.43, 0.265 - p.x);
-    // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
-    float armPhase = armT * 52.0 + p.z * 55.0;
-    float chestPhase = fan * 60.0 + 0.55 * sin(fan * 7.0 + u * 3.0);
-    // Filter each field before mixing: mask gradients must not erase the fibres.
-    float armFibres = sin(armPhase) * (1.0 - smoothstep(1.5, 3.1, fwidth(armPhase)));
-    float chestFibres = sin(chestPhase) * (1.0 - smoothstep(1.5, 3.1, fwidth(chestPhase)));
-    float fibres = mix(armFibres, chestFibres, chest);
-    float filament = pow(max(0.0, chestFibres), 4.0);
-    // One red tissue palette for primary and secondary muscles. Shape and light,
-    // rather than an even white wash, provide the sense of volume.
-    vec3 tissueShadow = vec3(0.16, 0.002, 0.006);
-    vec3 tissueRed = vec3(0.70, 0.012, 0.018);
-    vec3 tissueFibre = vec3(1.0, 0.24, 0.13);
-    float armFilament = pow(max(0.0, armFibres), 4.0);
-    float secondaryVolume = max(shoulder * exp(-2.0 * shoulderShape * shoulderShape),
-      triceps * pow(sin(armT * 3.14159), 2.0));
-    float armVolume = 0.22 + 0.48 * secondaryVolume + 0.08 * armFibres;
-    vec3 muscleColor = mix(tissueShadow, tissueRed, armVolume);
-    muscleColor = mix(muscleColor, tissueFibre, armFilament * 0.20);
-    float chestVolume = exp(-pow((p.x - 0.115) / 0.115, 2.0)
-      - pow((p.y - 1.385) / 0.090, 2.0));
-    float chestLight = clamp(0.15 + 0.65 * chestVolume
-      + 0.10 * fibres + 0.04 * uPressContraction, 0.0, 1.0);
-    vec3 chestColor = mix(tissueShadow, tissueRed, chestLight);
-    chestColor = mix(chestColor, tissueFibre, filament * 0.24);
-    // A localized reflection follows the skinned normals, view and key light.
-    vec3 halfLight = normalize(uTissueLight + normalize(vViewPosition));
-    float reflection = pow(max(0.0, dot(normalize(vNormal), halfLight)), 18.0);
-    float lightFocus = exp(-pow((p.x - 0.10) / 0.065, 2.0)
-      - pow((p.y - 1.405) / 0.050, 2.0));
-    float chestSpot = lightFocus * (0.20 + 0.80 * reflection);
-    float glassEdge = 4.0 * chest * (1.0 - chest);
-    chestColor = mix(chestColor, vec3(0.90, 0.92, 0.98),
-      clamp(0.025 * glassEdge + 0.08 * rim, 0.0, 0.12));
-    muscleColor = mix(muscleColor, chestColor, smoothstep(0.0, 0.55, chest));
-    // Ignore the old small baked pectoral patches; retain only the shorts colour.
-    vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
-    diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
-    // A middle density keeps secondary tissue present but quieter than the chest.
-    float tissueAlpha = clamp(0.66 + 0.08 * secondaryVolume
-      + 0.03 * armFilament + 0.05 * rim, 0.0, 0.81);
-    diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
-    // Density varies across bundles and gently increases as the muscle contracts.
-    float chestAlpha = clamp(0.74 + 0.10 * chestVolume + 0.04 * filament
-      + 0.03 * uPressContraction + 0.04 * rim, 0.0, 0.90);
-    diffuseColor.a = mix(diffuseColor.a, chestAlpha, chest);
-    diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
-
-   `);
-   shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>', `
-    #include <emissivemap_fragment>
-    // Keep the valleys dark. Concentrate glow on the upper muscle belly.
-    totalEmissiveRadiance += chest * (
-      vec3(0.65, 0.008, 0.012) * chestVolume * 0.18
-      + vec3(1.0, 0.42, 0.20) * chestSpot * 0.95
-      + tissueFibre * filament * 0.12);
-    totalEmissiveRadiance += secondary * (1.0 - chest)
-      * (tissueRed * secondaryVolume * 0.075
-      + vec3(1.0, 0.42, 0.20) * secondaryVolume * reflection * 0.13
-      + tissueFibre * armFilament * 0.05);
-   `);
-   shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
-    '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.30, muscleMask);');
-   shader.fragmentShader=shader.fragmentShader.replace('#include <metalnessmap_fragment>',
-    '#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, 0.04, muscleMask);');
-  };
-  mat.customProgramCacheKey=()=> 'silver-posterior-triceps-v17';
+  const mat=createTissueMaterial(materials.skin,{pressContraction,tissueLight,muscleUniform,pilotUniform});
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
-  buildMachine();buildHands();
+  const existing=new Set(scene.children);buildMachine();pilotObjects=scene.children.filter(o=>!existing.has(o));buildHands();
+  equipment=createEquipment(scene);ortho=new THREE.OrthographicCamera(-1,1,1,-1,.01,40);
   host.replaceChildren(renderer.domElement);renderer.domElement.style.cssText='display:block;width:100%;height:100%';
   renderer.domElement.setAttribute('aria-hidden','true');
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();api.ready=false;api.failed=true;stage.classList.remove('silver-press-ready','exercise-3d-ready');});
   api.ready=true;api.loading=false;api.model={vertices:meta.vertices,triangles:meta.triangles};
+  api.inspect=()=>{
+   body.updateMatrixWorld(true);body.skeleton.update();
+   const box=new THREE.Box3(),point=new THREE.Vector3();
+   for(let i=0;i<geo.attributes.position.count;i+=7){body.getVertexPosition(i,point);box.expandByPoint(point);}
+   return {min:box.min.toArray(),max:box.max.toArray(),muscles:Array.from(muscleUniform.value),performance:api.performance};
+  };
   if(frameLatest)api.update(frameLatest);
  }catch(error){
   console.warn('Silver press unavailable; keeping original exercise illustration',error);
@@ -292,13 +194,28 @@ api.update=frame=>{
  if(w<20||h<20)return false;
  const size=w+':'+h;
  if(size!==lastSize){lastSize=size;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
- pose(frame.t);
- // Both views retain the entire apparatus and both hands, without changing zoom during a rep.
- const alternate=frame.viewIndex===1;
- camera.position.set(alternate?-1.95:1.9,1.5,alternate?2.65:2.75);camera.lookAt(-.08,.83,.12);
- camera.updateMatrixWorld();
- tissueLight.value.copy(tissueLightWorld).transformDirection(camera.matrixWorldInverse);
- renderer.render(scene,camera);
+ const pilot=!frame.motion;
+ pilotUniform.value=pilot?1:0;
+ for(const obj of pilotObjects)obj.visible=pilot;
+ equipment.group.visible=!pilot;
+ const muscles=frame.muscles||['Bröst','Triceps','Axlar'],muscleKey=muscles.join('|');
+ if(lastMuscles!==muscleKey){lastMuscles=muscleKey;muscleUniform.value.fill(0);muscles.forEach((name,i)=>{const n=muscleNames.indexOf(name);if(n>=0)muscleUniform.value[n]=i===0?2:1;});}
+ let activeCamera=camera;
+ if(pilot){
+  pose(frame.t);
+  const alternate=frame.viewIndex===1;
+  camera.position.set(alternate?-1.95:1.9,1.5,alternate?2.65:2.75);camera.lookAt(-.08,.83,.12);
+ }else{
+  pressContraction.value=frame.t;
+  api.pose=applyMotion({motion:frame.motion,rest,bones,body,hands,shoes,t:frame.t,chestActive:muscles.includes('Bröst')});
+  api.equipment=equipment.update(frame.motion.shapes);
+  frameCamera(ortho,frame.view,frame.bounds,w/h);activeCamera=ortho;
+ }
+ activeCamera.updateMatrixWorld();
+ tissueLight.value.copy(tissueLightWorld).transformDirection(activeCamera.matrixWorldInverse);
+ renderer.render(scene,activeCamera);
+ api.performance={calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,programs:renderer.info.programs.length,canvases:host.querySelectorAll('canvas').length};
  stage.classList.add('exercise-3d-ready','silver-press-ready');
  return true;
 };
+

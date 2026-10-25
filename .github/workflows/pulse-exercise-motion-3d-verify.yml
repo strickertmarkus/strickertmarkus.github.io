@@ -66,17 +66,15 @@ jobs:
             await page.screenshot({path:'test-results/exercise-3d/studio-full-mobile.png',fullPage:true});
             await page.locator('#studio-stage').screenshot({path:'test-results/exercise-3d/studio-2d-mobile.png'});
             await page.locator('#studio-stage').scrollIntoViewIfNeeded();
-            // The first chest exercise now uses the silver pilot; check legacy motion on the next exercise.
-            if(await page.locator('#detail-name').innerText()==='Bröstpress i maskin')await page.locator('#studio-next').click();
-            const initial=await page.locator('#studio-stage').evaluate(e=>!e.classList.contains('exercise-3d-ready'));
-            assert.ok(initial,'original technique animation is default');
+            await page.waitForFunction(()=>window.PulseSilverPress?.ready===true,null,{timeout:35000});
+            assert.ok(await page.locator('#studio-stage').evaluate(e=>e.classList.contains('silver-press-ready')),'silver figure is default');
             await page.locator('#toggle-exercise-3d').click();
-            await page.waitForFunction(()=>window.PulseExercise3D?.ready===true,null,{timeout:65000});
-            await page.waitForFunction(()=>document.querySelector('#studio-stage')?.classList.contains('exercise-3d-ready'),null,{timeout:8000});
+            assert.equal(await page.locator('#studio-stage').evaluate(e=>e.classList.contains('silver-press-ready')),false);
+            await page.locator('#toggle-exercise-3d').click();
             const details=await page.evaluate(()=>({
-              ready:window.PulseExercise3D?.ready,
+              ready:window.PulseSilverPress?.ready,
               visual:document.querySelector('#studio-stage')?.classList.contains('exercise-3d-ready'),
-              canvas:document.querySelectorAll('#exercise-3d canvas').length,
+              canvas:document.querySelectorAll('#exercise-silver-3d canvas').length,
               selected:document.getElementById('detail-name')?.textContent,
               stageWidth:document.getElementById('studio-stage')?.clientWidth,
               scrollWidth:document.documentElement.scrollWidth,
@@ -106,5 +104,6 @@ jobs:
         with:
           name: pulse-exercise-3d-mobile-screenshots
           path: test-results/exercise-3d/
+
 
 

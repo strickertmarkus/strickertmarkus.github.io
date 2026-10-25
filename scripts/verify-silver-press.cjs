@@ -36,7 +36,7 @@ const dir='test-results/silver-press';fs.mkdirSync(dir,{recursive:true});
  assert.ok(await page.locator('#exercise-figure').isVisible());
  await page.locator('#toggle-exercise-3d').click();
  await page.locator('#studio-next').click();
- assert.equal(await page.locator('#studio-stage').evaluate(e=>e.classList.contains('silver-press-ready')),false);
+ assert.equal(await page.locator('#studio-stage').evaluate(e=>e.classList.contains('silver-press-ready')),true);
  await page.locator('#studio-prev').click();
  for(const width of [320,1280]){
   await page.setViewportSize({width,height:900});
@@ -55,5 +55,6 @@ const dir='test-results/silver-press';fs.mkdirSync(dir,{recursive:true});
  assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  if(!webkit3D)assert.ok(await mobile.locator('#exercise-figure').isVisible());
  await safari.close();
- fs.writeFileSync(dir+'/verification.json',JSON.stringify({errors,webkit3D,poses,checks:['default chest preview','three phases','constant arm lengths','grip alignment','view toggle','SVG fallback','other exercises unchanged','320/390/1280']},null,2));
+ fs.writeFileSync(dir+'/verification.json',JSON.stringify({errors,webkit3D,poses,checks:['default chest preview','three phases','constant arm lengths','grip alignment','view toggle','SVG fallback','shared renderer on next exercise','320/390/1280']},null,2));
 })().catch(e=>{console.error(e);process.exit(1)});
+

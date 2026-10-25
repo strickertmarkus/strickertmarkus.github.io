@@ -727,11 +727,11 @@ function limbJoint(root,end,l1,l2,pole){
  const along=(l1*l1-l2*l2+d*d)/(2*d),height=Math.sqrt(Math.max(0,l1*l1-along*along));
  return A(A(root,M(direction,along)),M(U(bend),height));
 }
-function makeScene(index,t,cycle=0){
+function makeScene(index,t,cycle=0,equipmentOnly=false){
  const cfg=guideScenes[index],kind=cfg.kind,shapes=[],anchors=[];
  let drawingPerson=false;
  const primitive=(type,points,style={})=>shapes.push({type,points,person:drawingPerson,...style});
- const rod=(a,b,r=.025,color=palette.metal)=>{const steps=Math.max(1,Math.ceil(V.len(S(b,a))/.12));for(let i=0;i<steps;i++)primitive('rod',[V.lerp(a,b,i/steps),V.lerp(a,b,(i+1)/steps)],{r,color});};
+ const rod=(a,b,r=.025,color=palette.metal)=>{const steps=equipmentOnly?1:Math.max(1,Math.ceil(V.len(S(b,a))/.12));for(let i=0;i<steps;i++)primitive('rod',[V.lerp(a,b,i/steps),V.lerp(a,b,(i+1)/steps)],{r,color});};
  const ball=(p,r,color)=>primitive('ball',[p],{r,color});
  const poly=(points,color,stroke)=>primitive('poly',points,{color,stroke});
  const box=(c,size,color=palette.pad)=>{
@@ -1020,6 +1020,8 @@ function makeScene(index,t,cycle=0){
  const shoulders=[shoulder(-1),shoulder(1)],hips=[A(hip,[-.12,0,0]),A(hip,[.12,0,0])];
  if(!elbows)elbows=hands.map((h,i)=>limbJoint(shoulders[i],h,.30,.28,elbowPoles[i]));
  if(!knees)knees=feet.map((f,i)=>limbJoint(hips[i],f,.44,.43,kneePoles[i]));
+ const motionData={shapes,joints:{hip,shoulders,hips,elbows,hands,knees,feet},anchors,cfg,axis,frontNormal,soles};
+ if(equipmentOnly)return motionData;
  drawingPerson=true;
  const muscles=exercises[index].muscles,has=s=>muscles.includes(s);
  const muscleStrip=(a,b,r,offset)=>rod(A(V.lerp(a,b,.22),offset),A(V.lerp(a,b,.78),offset),r,palette.muscle);
@@ -1053,7 +1055,7 @@ function makeScene(index,t,cycle=0){
  const pts=shapes.flatMap(s=>s.points),xs=pts.map(p=>p[0]),zs=pts.map(p=>p[2]);
  const xmin=Math.max(-1.3,Math.min(...xs)-.16),xmax=Math.min(1.3,Math.max(...xs)+.16),zmin=Math.max(-1.4,Math.min(...zs)-.16),zmax=Math.min(1.6,Math.max(...zs)+.16);
  shapes.unshift({type:'poly',ground:true,points:[[xmin,-.025,zmin],[xmax,-.025,zmin],[xmax,-.025,zmax],[xmin,-.025,zmax]],color:'#101f2c',stroke:'#253e50'});
- return {shapes,joints:{hip,shoulders,hips,elbows,hands,knees,feet},anchors,cfg};
+ return motionData;
 }
 function cameraPoint(p,view){
  const c=Math.cos(rad(view.yaw)),s=Math.sin(rad(view.yaw)),cp=Math.cos(rad(view.pitch)),sp=Math.sin(rad(view.pitch));
@@ -1087,33 +1089,23 @@ function renderScene(index,t,cycle=0,viewIndex=0,equipmentOnly=false,prepared){
  }
  return svg+'</g>';
 }
-let preferExercise3D=false,preferSilverPress=true;
+let preferSilverPress=true;
 function draw(t,cycle=phase){
- const cfg=guideScenes[active],motion=makeScene(active,t,cycle);
- const silver=studioOpen&&cfg.kind==='chestMachine'&&preferSilverPress;
- if(!silver)$('studio-stage').classList.remove('silver-press-ready');
+ const cfg=guideScenes[active],silver=studioOpen&&preferSilverPress;
+ let rendered=false;
  if(silver){
-  const rendered=window.PulseSilverPress?.update({t,viewIndex:cameraIndex})===true;
-  $('exercise-figure').innerHTML=rendered?'':renderScene(active,t,cycle,cameraIndex,false,motion);
-  $('studio-stage').classList.toggle('exercise-3d-ready',rendered);
-  $('studio-stage').classList.toggle('silver-press-ready',rendered);
- }else{
-  const avatar=studioOpen&&preferExercise3D?window.PulseExercise3D:null;
-  if(!avatar){$('studio-stage').classList.remove('exercise-3d-ready');$('exercise-figure').removeAttribute('aria-hidden');}
-  const prefer3D=avatar?.ready===true;
-  $('exercise-figure').innerHTML=renderScene(active,t,cycle,cameraIndex,prefer3D,motion);
-  if(avatar){
-   const rendered=avatar.update({motion,index:active,view:cfg.views[cameraIndex],bounds:sceneFrame(active,cameraIndex),muscles:exercises[active].muscles});
-   if(prefer3D&&!rendered){
-    $('exercise-figure').innerHTML=renderScene(active,t,cycle,cameraIndex,false,motion);
-    $('studio-stage').classList.remove('exercise-3d-ready');
-   }
-  }
+  const motion=cfg.kind==='chestMachine'?null:makeScene(active,t,cycle,true);
+  rendered=window.PulseSilverPress?.update({t,cycle,index:active,kind:cfg.kind,
+   viewIndex:cameraIndex,view:cfg.views[cameraIndex],bounds:sceneFrame(active,cameraIndex),
+   motion,muscles:exercises[active].muscles})===true;
  }
- const figureSelected=cfg.kind==='chestMachine'?preferSilverPress:preferExercise3D;
- $('toggle-exercise-3d').setAttribute('aria-pressed',String(figureSelected));
- $('toggle-exercise-3d').textContent=figureSelected?'Enkel figur':cfg.kind==='chestMachine'?'Silverfigur':'3D-test';
- $('toggle-exercise-3d').title=cfg.kind==='chestMachine'?'Växla mellan silverfigur och enkel teknikillustration':'Experimentell animerad 3D-modell';
+ $('exercise-figure').innerHTML=rendered?'':renderScene(active,t,cycle,cameraIndex);
+ $('studio-stage').classList.toggle('exercise-3d-ready',rendered);
+ $('studio-stage').classList.toggle('silver-press-ready',rendered);
+ $('exercise-figure').setAttribute('aria-hidden',String(rendered));
+ $('toggle-exercise-3d').setAttribute('aria-pressed',String(preferSilverPress));
+ $('toggle-exercise-3d').textContent=preferSilverPress?'Enkel figur':'Silverfigur';
+ $('toggle-exercise-3d').title='Växla mellan silverfigur och enkel teknikillustration';
  $('studio-stage').setAttribute('role','img');
  $('studio-stage').setAttribute('aria-label',exercises[active].name+'. '+cfg.stance+'. Muskler i korall.');
  document.querySelector('.stage-label').textContent=cfg.stance;
@@ -1217,8 +1209,7 @@ $('search').addEventListener('input',renderList);
 $('exercise-list').addEventListener('click',ev=>{const b=ev.target.closest('[data-id]');if(b)select(Number(b.dataset.id),true)});
 $('view-toggle').addEventListener('click',()=>{cameraIndex=1-cameraIndex;$('view-toggle').setAttribute('aria-pressed',String(!!cameraIndex));$('view-toggle').textContent=cameraIndex?'Återställ vy ↻':'Byt vy ↻';draw((1-Math.cos(phase*TAU))/2,phase);});
 $('toggle-exercise-3d').addEventListener('click',()=>{
- if(guideScenes[active].kind==='chestMachine')preferSilverPress=!preferSilverPress;
- else preferExercise3D=!preferExercise3D;
+ preferSilverPress=!preferSilverPress;
  $('studio-stage').classList.remove('exercise-3d-ready');
  $('exercise-figure').removeAttribute('aria-hidden');
  draw((1-Math.cos(phase*TAU))/2,phase);
@@ -1344,6 +1335,7 @@ renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('paus
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 <script src="pulse-living-anatomy.js?v=20261024-art-v3" defer></script>
 <script type="module" src="pulse-muscle-atlas-stills.js?v=20261024-art-v3"></script>
-<script type="module" src="pulse-silver-chest-press.js?v=20261025-posterior-triceps-v17"></script>
-<script type="module" src="pulse-exercise-motion-3d.js?v=20261023-animated-shell-v1"></script>
+<script type="module" src="pulse-silver-chest-press.js?v=20261025-all-exercises-v19"></script>
+
 </body></html>
+

@@ -1,18 +1,19 @@
 name: Silver chest press visual verification
 on:
   push:
-    branches: [main, codex/silver-chest-press]
+    branches: [main, codex/silver-chest-press, codex/silver-all-exercises]
     paths:
-      - 'budget/pulse-silver-chest-press.js'
+      - 'budget/pulse-silver-*.js'
       - 'budget/pulse-exercise-guide.html'
       - 'budget/assets/silver-mannequin-v1/**'
       - 'scripts/verify-silver-press.cjs'
+      - 'scripts/verify-silver-library.cjs'
       - '.github/workflows/silver-press-verify.yml'
   workflow_dispatch:
 jobs:
   silver-press:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,8 +23,10 @@ jobs:
       - run: npx playwright install --with-deps webkit
       - run: python3 -m http.server 4173 >/tmp/silver-server.log 2>&1 &
       - run: node scripts/verify-silver-press.cjs
+      - run: node scripts/verify-silver-library.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: silver-press-screenshots
           path: test-results/silver-press/
+
