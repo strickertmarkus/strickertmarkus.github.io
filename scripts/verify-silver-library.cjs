@@ -20,6 +20,26 @@ async function render(page,i,t,cycle,viewIndex=0){
  await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
  await page.locator('#atlas-show-exercises').click();await page.waitForFunction(()=>window.PulseSilverPress?.ready,null,{timeout:35000});
  await page.evaluate(()=>{paused=true;});
+ // Sweep continuous cycles without rendering: detect sudden arm/wrist flips at reversals.
+ const rotationCheck=await page.evaluate(async()=>{
+  const THREE=await import('three'),{applyMotion}=await import('./pulse-silver-rig.js?v=21');
+  const {rest}=await(await fetch('./assets/silver-mannequin-v1/body.json')).json();
+  const bones=rest.map(()=>new THREE.Bone()),hands=[new THREE.Object3D(),new THREE.Object3D()],shoes=[new THREE.Object3D(),new THREE.Object3D()];
+  const body={morphTargetInfluences:[0,0]},results=[];
+  for(let i=1;i<guideScenes.length;i++){
+   let previous=null,maxJump=0;
+   for(let step=0;step<=360;step++){
+    const cycle=step/360,t=(1-Math.cos(cycle*Math.PI*2))/2;
+    const pose=applyMotion({motion:makeScene(i,t,cycle,true),rest,bones,body,hands,shoes,t,chestActive:false});
+    if(previous)pose.rotations.forEach((q,k)=>{const dot=Math.min(1,Math.abs(q.reduce((sum,v,j)=>sum+v*previous[k][j],0)));maxJump=Math.max(maxJump,2*Math.acos(dot)*180/Math.PI);});
+    previous=pose.rotations;
+   }
+   results.push({i,kind:guideScenes[i].kind,maxJump});
+  }
+  return results;
+ });
+ fs.writeFileSync(`${dir}/arm-continuity.json`,JSON.stringify(rotationCheck,null,2));
+ for(const r of rotationCheck)assert.ok(r.maxJump<10,`${r.kind}: sudden arm/wrist rotation ${r.maxJump.toFixed(1)} degrees`);
  const catalogue=await page.evaluate(()=>exercises.map((e,i)=>({name:e.name,kind:guideScenes[i].kind,muscles:e.muscles})));
  assert.equal(catalogue.length,54);
  const results=[];
@@ -63,7 +83,8 @@ async function render(page,i,t,cycle,viewIndex=0){
  await mobile.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');await mobile.locator('#atlas-show-exercises').click();
  await mobile.waitForFunction(()=>window.PulseSilverPress?.ready||window.PulseSilverPress?.failed);
  assert.ok(await mobile.evaluate(()=>window.PulseSilverPress.ready),'WebKit 3D available');
- for(const i of [0,5,17,23,27,35,50,51]){await render(mobile,i,.5,.25);await mobile.locator('#studio-stage').screenshot({path:`${dir}/webkit-${i}.png`});}
+ for(const i of [0,3,4,5,17,23,27,35,50,51]){await render(mobile,i,.5,.25);await mobile.locator('#studio-stage').screenshot({path:`${dir}/webkit-${i}.png`});}
+ for(const i of [3,4,16])for(const [phase,t] of [['start',0],['end',1]]){await render(mobile,i,t,t*.5);await mobile.locator('#studio-stage').screenshot({path:`${dir}/cable-${i}-${phase}.png`});}
  assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await safari.close();assert.deepEqual(errors,[]);
  fs.writeFileSync(`${dir}/verification.json`,JSON.stringify({results,memory:after.performance,requests:requests.filter(u=>/body\.(json|bin)|\.glb/.test(u)),errors},null,2));

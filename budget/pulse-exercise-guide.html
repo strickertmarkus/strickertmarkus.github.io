@@ -803,7 +803,8 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
    elbowPoles=[[-.8,1.5,.1],[.8,1.5,.1]];tower(1.12,1.9);const split=[0,1.51,.63-.37*t];pulley([0,1.51,1.12]);cable([0,1.51,1.12],split);hands.forEach(h=>{cable(split,h);ball(h,.024,palette.pad);});
   }else{
    const open=reverse?t:1-t,angle=rad(10+77*open),x=.10+.47*Math.sin(angle),z=.48*Math.cos(angle);
-   hands=[[-x,sy-.045,z],[x,sy-.045,z]];elbowPoles=[[-.9,sy-.07,.25],[.9,sy-.07,.25]];
+   hands=[[-x,sy-.045,z],[x,sy-.045,z]];// Keep the elbow bend target below the entire hand arc; a target on the arc flips sides.
+   elbowPoles=[[-.9,sy-.50,.05],[.9,sy-.50,.05]];
    if(standing){for(const sign of [-1,1]){tower(-.27,1.85,sign*.89);pulley([sign*.89,sy,-.27]);cable([sign*.89,sy,-.27],hands[sign<0?0:1]);}}
    else{for(const sign of [-1,1])rod([sign*.65,.05,-.15],[sign*.65,1.65,-.15],.03);armBars([[-.65,1.65,-.15],[.65,1.65,-.15]]);}
   }
@@ -1335,7 +1336,7 @@ renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('paus
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 <script src="pulse-living-anatomy.js?v=20261024-art-v3" defer></script>
 <script type="module" src="pulse-muscle-atlas-stills.js?v=20261024-art-v3"></script>
-<script type="module" src="pulse-silver-chest-press.js?v=20261025-all-exercises-v19"></script>
+<script type="module" src="pulse-silver-chest-press.js?v=20261025-arm-rotation-shorts-v21"></script>
 
 </body></html>
 

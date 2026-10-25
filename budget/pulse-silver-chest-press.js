@@ -1,9 +1,9 @@
 /** Original rigged mannequin + chest-press apparatus. One renderer, driven by the guide clock. */
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-import {createEquipment} from './pulse-silver-equipment.js?v=19';
-import {applyMotion,frameCamera} from './pulse-silver-rig.js?v=19';
-import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=19';
+import {createEquipment} from './pulse-silver-equipment.js?v=21';
+import {applyMotion,frameCamera} from './pulse-silver-rig.js?v=21';
+import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=21';
 const host=document.getElementById('exercise-silver-3d'),stage=document.getElementById('studio-stage');
 const api={ready:false,loading:false,failed:false,update:()=>false};
 window.PulseSilverPress=api;

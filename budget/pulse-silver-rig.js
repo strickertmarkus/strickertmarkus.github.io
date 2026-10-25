@@ -12,7 +12,10 @@ export function applyMotion({motion,rest,bones,body,hands,shoes,t,chestActive}){
  segments.push([hip.clone().addScaledVector(up,-.08),hip.clone().addScaledVector(up,.08)]);
  for(let i=0;i<bones.length;i++){
   const from=v(rest[i][1]).sub(v(rest[i][0])),[a,b]=segments[i],to=b.clone().sub(a),length=from.length();
-  const base=i===1?new THREE.Quaternion().setFromUnitVectors(Y,headUp):torso;
+  // The elbow bends relative to its upper arm. Independent world-space swings
+  // become ambiguous near 180 degrees and can flip the forearm inside out.
+  const base=i===3||i===5?bones[i-1].quaternion:
+   i===1?new THREE.Quaternion().setFromUnitVectors(Y,headUp):torso;
   const rotated=from.clone().applyQuaternion(base).normalize();
   bones[i].position.copy(a);bones[i].quaternion.setFromUnitVectors(rotated,to.clone().normalize()).multiply(base);
   // Uniform scaling keeps each weighted joint endpoint aligned with its equipment target.
@@ -21,13 +24,15 @@ export function applyMotion({motion,rest,bones,body,hands,shoes,t,chestActive}){
  body.morphTargetInfluences[0]=chestActive?1-t:0;body.morphTargetInfluences[1]=chestActive?t:0;
  for(let k=0;k<2;k++){
   const i=order[k],hand=hands[k],shoe=shoes[k];
-  const forearm=v(j.hands[i]).sub(v(j.elbows[i])).normalize();
-  hand.quaternion.setFromUnitVectors(Y,forearm).multiply(new THREE.Quaternion().setFromAxisAngle(Y,Math.PI/2));
+  const forearmBone=3+k*2,restAxis=v(rest[forearmBone][1]).sub(v(rest[forearmBone][0])).normalize();
+  hand.quaternion.copy(bones[forearmBone].quaternion)
+   .multiply(new THREE.Quaternion().setFromUnitVectors(Y,restAxis))
+   .multiply(new THREE.Quaternion().setFromAxisAngle(Y,Math.PI/2));
   hand.position.fromArray(j.hands[i]);
   const soles=v(motion.soles).normalize();shoe.quaternion.setFromUnitVectors(Z,soles);
   shoe.position.fromArray(j.feet[i]).add(v([0,-.073,0]).applyQuaternion(shoe.quaternion));
  }
- return {t,wrists:order.map(i=>j.hands[i]),elbows:order.map(i=>j.elbows[i]),shoulders:order.map(i=>j.shoulders[i]),grips:hands.map(h=>h.position.toArray()),kind:motion.cfg.kind};
+ return {t,rotations:[...bones.slice(2,6),...hands].map(b=>b.quaternion.toArray()),wrists:order.map(i=>j.hands[i]),elbows:order.map(i=>j.elbows[i]),shoulders:order.map(i=>j.shoulders[i]),grips:hands.map(h=>h.position.toArray()),kind:motion.cfg.kind};
 }
 export function frameCamera(camera,view,bounds,aspect){
  const yaw=view.yaw*Math.PI/180,pitch=view.pitch*Math.PI/180,c=Math.cos(yaw),s=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);

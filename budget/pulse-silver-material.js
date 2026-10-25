@@ -22,6 +22,9 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
     float facing = abs(dot(normalize(vNormal), normalize(vViewPosition)));
     float rim = pow(1.0 - facing, 1.8);
     vec3 p = vec3(abs(vAnatomyPosition.x), vAnatomyPosition.yz);
+    float shortsExtension=smoothstep(0.755,0.765,p.y)*(1.0-smoothstep(1.005,1.015,p.y))
+      *(1.0-smoothstep(0.23,0.26,p.x));
+    clothingMask=max(clothingMask,shortsExtension);
     // Broad pectoral fan: sternum to upper-arm insertion, with a rising lower edge.
     float u = clamp(p.x / 0.245, 0.0, 1.0);
     float lowerChest = 1.252 + 0.060 * u * u;
@@ -84,7 +87,7 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
       clamp(0.025 * glassEdge + 0.08 * rim, 0.0, 0.12));
     muscleColor = mix(muscleColor, chestColor, smoothstep(0.0, 0.55, chest));
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
-    vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
+    vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
     // A middle density keeps secondary tissue present but quieter than the chest.
     float tissueAlpha = clamp(0.66 + 0.08 * secondaryVolume
@@ -115,7 +118,7 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
        *smoothstep(0.15,0.22,p.y)*(1.0-smoothstep(0.44,0.51,p.y))*backFace;
      float masks[10];
      masks[0]=chest;masks[1]=back;masks[2]=deltoid;masks[3]=biceps;masks[4]=triceps;
-     masks[5]=absMask;masks[6]=glutes;masks[7]=thigh*frontFace;masks[8]=thigh*backFace;masks[9]=calf;
+     masks[5]=absMask;masks[6]=glutes;masks[7]=thigh*frontFace*(1.0-clothingMask);masks[8]=thigh*backFace*(1.0-clothingMask);masks[9]=calf;
      float region=0.0,primary=0.0,phaseValue=0.0,volume=0.0;
      for(int i=0;i<10;i++){
       float strength=masks[i]*min(uMuscles[i],1.0);
