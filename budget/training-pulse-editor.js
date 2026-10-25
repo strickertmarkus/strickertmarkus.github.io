@@ -48,6 +48,9 @@ function requestClose(){
   win.stopSessionMode(false);
  }
  if(win){
+  // Closing the entire workspace discards the nested week-builder return path.
+  // Otherwise an old week might reopen when the builder is used again.
+  win.pulsePlanBuilderReturnV3=null;
   win.__embeddedSessionStartToken=(win.__embeddedSessionStartToken||0)+1;
   win.__embeddedSessionStarting=false;
   var preview=win.document.getElementById('exercise-plan-preview-v7');
