@@ -5,6 +5,7 @@ const host=document.getElementById('exercise-silver-3d'),stage=document.getEleme
 const api={ready:false,loading:false,failed:false,update:()=>false};
 window.PulseSilverPress=api;
 const v=p=>new THREE.Vector3(...p),Y=new THREE.Vector3(0,1,0);
+const pressContraction={value:0};
 const materials={
  frame:new THREE.MeshStandardMaterial({color:0x344555,metalness:.72,roughness:.32}),
  trim:new THREE.MeshStandardMaterial({color:0x718393,metalness:.8,roughness:.25}),
@@ -84,6 +85,7 @@ function elbow(shoulder,wrist,sign){
  return shoulder.clone().addScaledVector(axis,along).addScaledVector(pole,Math.sqrt(Math.max(0,upper*upper-along*along)));
 }
 function pose(t){
+ pressContraction.value=t;
  body.morphTargetInfluences[0]=1-t;body.morphTargetInfluences[1]=t;
  const angle=THREE.MathUtils.degToRad(-10+60*t),hip=v([0,.69,0]),shoulder=v([0,1.21,0]);
  const segments=[[hip,shoulder],[shoulder,v([0,1.51,0])]];
@@ -158,12 +160,13 @@ async function initialize(){
   // Rest-space fibres stay attached to the pectorals throughout the animation.
   mat.transparent=true;mat.opacity=.64;mat.roughness=.38;mat.metalness=.16;
   mat.onBeforeCompile=shader=>{
+   shader.uniforms.uPressContraction=pressContraction;
    shader.vertexShader=shader.vertexShader.replace('#include <common>',
     '#include <common>\nvarying vec3 vAnatomyPosition;');
    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
     '#include <begin_vertex>\nvAnatomyPosition = position;');
    shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
-    '#include <common>\nvarying vec3 vAnatomyPosition;');
+    '#include <common>\nvarying vec3 vAnatomyPosition;\nuniform float uPressContraction;');
    shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', `
     #include <color_fragment>
     float clothingMask = 1.0 - smoothstep(0.18, 0.65, max(vColor.r, max(vColor.g, vColor.b)));
@@ -174,10 +177,10 @@ async function initialize(){
     float u = clamp(p.x / 0.245, 0.0, 1.0);
     float lowerChest = 1.252 + 0.060 * u * u;
     float upperChest = 1.485 - 0.030 * u;
-    float chest = smoothstep(0.002, 0.014, p.x)
-      * (1.0 - smoothstep(0.230, 0.275, p.x))
-      * smoothstep(lowerChest - 0.008, lowerChest + 0.035, p.y)
-      * (1.0 - smoothstep(upperChest - 0.032, upperChest + 0.012, p.y))
+    float chest = smoothstep(0.002, 0.026, p.x)
+      * (1.0 - smoothstep(0.205, 0.280, p.x))
+      * smoothstep(lowerChest - 0.016, lowerChest + 0.060, p.y)
+      * (1.0 - smoothstep(upperChest - 0.065, upperChest + 0.018, p.y))
       * smoothstep(0.015, 0.070, p.z);
     // Front deltoid and back of the upper arm, defined in the unposed mesh.
     float shoulderShape = length((p.xy - vec2(0.255, 1.425)) / vec2(0.12, 0.14));
@@ -194,37 +197,49 @@ async function initialize(){
     float secondary = max(shoulder * 0.76, triceps * 0.80);
     float muscleMask = max(chest * 0.94, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
-    float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 36.0, chest);
+    // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
+    float fibrePhase = mix(armT * 52.0 + p.z * 55.0,
+      fan * 42.0 + 0.55 * sin(fan * 7.0 + u * 3.0), chest);
     float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
     float fibres = sin(fibrePhase) * fibreDetail;
+    float filament = pow(max(0.0, fibres), 5.0);
     float warmth = smoothstep(1.27, 1.46, p.y);
     float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
     float tissueWarmth = max(warmth * 0.55 + belly * 0.45, secondary * (0.60 + 0.25 * sin(armT * 3.14159)));
-    // Brighter primary muscle, with a soft gradient along the pectoral fan.
-    float chestWarmth = 0.72 + 0.20 * sin(u * 3.14159);
-    tissueWarmth = mix(tissueWarmth, chestWarmth, chest);
     vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
-    muscleColor *= 0.80 + (0.26 + 0.24 * chest) * fibres;
-    float silk = pow(max(0.0, fibres), 8.0) * 0.22;
-    muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
-    muscleColor *= mix(vec3(1.0), vec3(0.62, 0.075, 0.15), chest);
+    muscleColor *= 0.80 + 0.26 * fibres;
+    muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), filament * 0.22);
+    // Ruby tissue beneath a pearly surface: darker valleys, luminous fibre ridges.
+    float chestLight = clamp(0.20 + 0.48 * belly + 0.14 * warmth
+      + 0.12 * fibres + 0.05 * uPressContraction, 0.0, 1.0);
+    vec3 chestColor = mix(vec3(0.22, 0.006, 0.023), vec3(0.90, 0.085, 0.10), chestLight);
+    chestColor = mix(chestColor, vec3(1.0, 0.68, 0.63), filament * 0.48);
+    float glassEdge = 4.0 * chest * (1.0 - chest);
+    chestColor = mix(chestColor, vec3(0.90, 0.92, 0.98),
+      clamp(0.17 * glassEdge + 0.30 * rim, 0.0, 0.42));
+    muscleColor = mix(muscleColor, chestColor, smoothstep(0.0, 0.55, chest));
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
     float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
-    diffuseColor.a = mix(diffuseColor.a, 0.96 + 0.02 * rim, chest);
+    // Density varies across bundles and gently increases as the muscle contracts.
+    float chestAlpha = clamp(0.62 + 0.15 * belly + 0.08 * filament
+      + 0.06 * uPressContraction + 0.08 * rim, 0.0, 0.90);
+    diffuseColor.a = mix(diffuseColor.a, chestAlpha, chest);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
 
    `);
    shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>', `
     #include <emissivemap_fragment>
-    // Restrained self-illumination keeps the primary muscle clear in shadow.
-    totalEmissiveRadiance += vec3(0.60, 0.010, 0.016)
-      * chest * (0.30 + 0.20 * belly + 0.18 * max(0.0, fibres));
+    // A red inner glow and pale filaments, without a flat emissive red patch.
+    totalEmissiveRadiance += chest * (
+      vec3(0.48, 0.012, 0.028) * (0.18 + 0.20 * belly + 0.06 * uPressContraction)
+      + vec3(0.85, 0.36, 0.31) * filament * 0.25);
+    totalEmissiveRadiance += vec3(0.55, 0.64, 0.80) * glassEdge * 0.055;
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-striated-pectoral-v11';
+  mat.customProgramCacheKey=()=> 'silver-glass-pectoral-v12';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
