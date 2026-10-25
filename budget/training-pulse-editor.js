@@ -134,7 +134,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261025-family-builder-1');
+  url.searchParams.set('v','20261025-classic-builder-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -196,13 +196,10 @@ function selectTool(win,tool,button,date){
  win.viewedMondayISO=monday(iso);
  if(tool!=='editTemplate')win.fieldEmbeddedTemplateId=null;
  switch(tool){
-  case 'build':case 'editDay':
-   if(win.PulseFamilyPlanner)win.PulseFamilyPlanner.open({mode:tool==='build'?'template':'day',date:iso});
-   else win.openDayWorkoutBuilder(dayName(iso),iso);
-   break;
+  case 'build':case 'editDay':win.openDayWorkoutBuilder(dayName(iso),iso);break;
   case 'start':
    var planned=win.getPlannedSessions()[iso];
-   if(!planned||!(planned.exercises||[]).length){activeTool='build';$('field-workspace-title').textContent='Bygg pass';if(win.PulseFamilyPlanner)win.PulseFamilyPlanner.open({mode:'day',date:iso});else win.openDayWorkoutBuilder(dayName(iso),iso);}
+   if(!planned||!(planned.exercises||[]).length){activeTool='build';$('field-workspace-title').textContent='Bygg pass';win.openDayWorkoutBuilder(dayName(iso),iso);}
    else {
     win.startWorkoutSessionForDate(iso);
     ensurePulseFlow(win);
@@ -219,11 +216,11 @@ function selectTool(win,tool,button,date){
    var name=button.dataset.recordName,prs=win.getPRs(),value=Number(prs[name]||button.dataset.recordValue||0);
    win.openEditPR(name,value);break;
   case 'createTemplate':
-   if(win.PulseFamilyPlanner)win.PulseFamilyPlanner.open({mode:'template',date:iso});
+   if(win.PulseClassicTemplates)win.PulseClassicTemplates.openTemplate(null,iso);
    else openTemplateEditor(win,null);
    break;
   case 'editTemplate':
-   if(win.PulseFamilyPlanner)win.PulseFamilyPlanner.open({mode:'template',date:iso,templateId:button.dataset.templateId});
+   if(win.PulseClassicTemplates)win.PulseClassicTemplates.openTemplate(button.dataset.templateId,iso);
    else openTemplateEditor(win,button.dataset.templateId);
    break;
   case 'startTemplate':
