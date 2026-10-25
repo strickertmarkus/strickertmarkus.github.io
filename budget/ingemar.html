@@ -1448,7 +1448,11 @@ function render(){
   return {label:'v'+isoWeekNumber(first),value:state.history.filter(function(h){return h.date>=first&&h.date<last;}).length};
  });
  $('bars').innerHTML=glowBarsMarkup(trainingBars,'training');selectGlowBar($('bars').querySelector('[data-bar-index="'+(trainingBars.length-1)+'"]'));
- $('history').innerHTML=state.history.slice().sort(historyNewestFirst).map(function(h){return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa alla set för '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+h.exercises.length+' övningar · Tryck för setdetaljer</small></div><span class="metric">'+h.minutes+' min<br>'+h.exercises.reduce(function(n,e){return n+e.sets.filter(function(s){return s.done&&!s.skipped;}).length;},0)+' set ↗</span></button>';}).join('')||'<p class="hint">Inga pass ännu.</p>';
+ $('history').innerHTML=state.history.slice().sort(historyNewestFirst).map(function(h){
+  var only=h.timeOnly&&!(h.exercises||[]).length,sec=Number(h.elapsedSeconds)||Number(h.minutes||0)*60;
+  var completed=(h.exercises||[]).reduce(function(n,e){return n+(e.sets||[]).filter(function(s){return s.done&&!s.skipped;}).length;},0);
+  return '<button type="button" class="history-row history-button" data-history="'+clean(h.id)+'" aria-label="Visa passet '+clean(h.name||h.type)+'"><div><strong>'+clean(h.name||h.type)+'</strong><small>'+pretty(h.date)+' · '+(only?'Endast tid':(h.exercises||[]).length+' övningar · Tryck för setdetaljer')+'</small></div><span class="metric">'+(only?formatQuickTime(sec):h.minutes+' min')+'<br>'+(only?'Tidlogg':completed+' set')+' ↗</span></button>';
+ }).join('')||'<p class="hint">Inga pass ännu.</p>';
  renderPushPullAnalytics();
 }
 function switchView(next){
@@ -2642,8 +2646,8 @@ function openHistory(id){
  var workout=state.history.find(function(h){return String(h.id)===String(id);});
  if(!workout)return;
  $('history-detail-title').textContent=workout.name||workout.type;
- $('history-detail-sub').textContent=pretty(workout.date)+' · '+workout.minutes+' min · '+workout.type;
- $('history-detail-body').innerHTML=workout.exercises.map(function(e){
+ $('history-detail-sub').textContent=pretty(workout.date)+' · '+(workout.timeOnly?formatQuickTime(Number(workout.elapsedSeconds)||workout.minutes*60):workout.minutes+' min')+' · '+workout.type;
+ $('history-detail-body').innerHTML=workout.timeOnly&&!workout.exercises.length?'<p class="hint">Endast tid registrerad. Inga set eller repetitioner har loggats.</p>':workout.exercises.map(function(e){
   var timed=e.mode==='min';
   return '<article class="exercise-card"><div class="exercise-head"><h3>'+clean(e.name)+'</h3><span class="hint">'+e.sets.length+' set'+(!timed&&state.prs[window.IngemarRecords.key(e.name)]?' · PR '+state.prs[window.IngemarRecords.key(e.name)].weight+' kg':'')+'</span></div><div class="set-header"><span>SET</span><span>'+(timed?'TID (MIN)':'VIKT (KG)')+'</span><span>'+(timed?'MÅL':'REPS')+'</span><span></span></div>'+
    e.sets.map(function(set,j){return '<div class="set-row"><span class="set-number">'+pad(j+1)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(timed?set.minutes:set.weight)+'</span><span class="hint" style="font-size:16px;color:#ffe0e9;text-align:center">'+(set.reps||'–')+'</span><span style="color:'+(set.done&&!set.skipped?'#acffcb':'#ad8794')+'" aria-label="'+(set.done&&!set.skipped?'Klart':'Inte genomfört')+'">'+(set.done&&!set.skipped?'✓':'–')+'</span></div>';}).join('')+'</article>';
@@ -2754,7 +2758,7 @@ function renderHistoryEditor(){
     '<input type="checkbox" data-log-done="'+i+':'+j+'" '+(set.done&&!set.skipped?'checked':'')+' aria-label="Set '+(j+1)+' genomfört">'+
     '<button type="button" class="mini" data-log-remove-set="'+i+':'+j+'" aria-label="Ta bort set '+(j+1)+'">×</button></div>';}).join('')+
    '<button type="button" class="mini log-editor-add-set" data-log-add-set="'+i+'">＋ Lägg till set</button></div></article>';
- }).join('')||'<p class="log-editor-empty">Lägg till minst en övning.</p>';
+ }).join('')||'<p class="log-editor-empty">'+(w.timeOnly?'Endast tid loggad. Lägg till övningar om du vill.':'Lägg till minst en övning.')+'</p>';
 }
 function openHistoryEditor(id){
  if(!window.IngemarAccount.canEdit){toast('Vänta tills Firebase är anslutet.');return;}
@@ -2803,7 +2807,8 @@ function mutateHistoryEditor(action,button){
  var list=historyEditDraft.exercises;
  if(action==='add-exercise'){
   if(list.length>=16){toast('Högst 16 övningar per pass.');return;}
-  var added=logEditorExercise(historyEditDraft.type==='Kondition'?'min':'kg');list.push(added);historyExpandedCardIds.clear();historyExpandedCardIds.add(String(added.id));
+  if(historyEditDraft.timeOnly)delete historyEditDraft.timeOnly;
+   var added=logEditorExercise(historyEditDraft.type==='Kondition'?'min':'kg');list.push(added);historyExpandedCardIds.clear();historyExpandedCardIds.add(String(added.id));
  }else if(action==='add-set'){
   var ex=list[Number(button.dataset.logAddSet)];
   if(!ex||ex.sets.length>=20){toast('Högst 20 set per övning.');return;}
@@ -2827,7 +2832,7 @@ function saveHistoryEditor(){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(w.date)||dayISO(dayFrom(w.date))!==w.date){toast('Välj ett giltigt datum.');return;}
  if(!String(w.name||'').trim()||w.name.length>70){toast('Ange ett passnamn (högst 70 tecken).');return;}
  if(!Number.isInteger(w.minutes)||w.minutes<1||w.minutes>1440){toast('Ange passtid mellan 1 och 1440 minuter.');return;}
- if(!w.exercises.length||w.exercises.length>16){toast('Passet måste ha 1–16 övningar.');return;}
+ if((!w.exercises.length&&!w.timeOnly)||w.exercises.length>16){toast('Ange övningar eller behåll passet som tidlogg.');return;}
  for(var ex of w.exercises){
   ex.name=String(ex.name||'').trim();
   if(!ex.name||ex.name.length>90||!ex.sets.length||ex.sets.length>20){toast('Ange övningsnamn och minst ett set per övning.');return;}
@@ -3720,7 +3725,7 @@ $('history-editor').addEventListener('close',function(){historyEditDraft=null;hi
 $('zen-editor').addEventListener('cancel',function(event){event.preventDefault();closeZenEditor();zenEditDraft=null;});
 $('zen-complete').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-complete'));});
 $('zen-day-dialog').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('zen-day-dialog'));});
-window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen||historyEditorDirty()){event.preventDefault();event.returnValue='';}});
+window.addEventListener('beforeunload',function(event){if(familySessionOpen||activeZen||quickTimer||historyEditorDirty()){event.preventDefault();event.returnValue='';}});
 installChartPointHandlers('pp-volume-chart');installChartPointHandlers('pp-exercise-chart');
 var ppResizeFrame=0,ppLastChartWidth=0;
 window.addEventListener('resize',function(){
