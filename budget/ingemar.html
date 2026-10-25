@@ -2414,6 +2414,13 @@ function openQuickPassSelect(){
  var p=plan(selected),templates=builderTemplates().filter(function(t){return t.exercises&&t.exercises.length;});
  var html=p&&p.exercises&&p.exercises.length?'<button type="button" class="quick-choice-card" data-quick-select-plan="1"><span>↗</span><span><strong>'+clean(p.name||p.type)+'</strong><small>Planerat · '+clean(p.type)+'</small></span></button>':'';
  templates.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name),'sv');}).forEach(function(t){html+='<button type="button" class="quick-choice-card" data-quick-select-template="'+clean(t.id)+'"><span>◷</span><span><strong>'+clean(t.name)+'</strong><small>Mallpass · '+clean(t.type)+'</small></span></button>';});
+ var seen=new Set(templates.map(function(t){return String(t.name||'').trim().toLowerCase()+'|'+t.type;}));
+ Object.keys(state.plans||{}).filter(function(date){return date!==selected;}).sort().reverse().forEach(function(date){
+  if(seen.size>50)return;var item=state.plans[date];
+  if(!item||!Array.isArray(item.exercises)||!item.exercises.length)return;
+  var key=String(item.name||'').trim().toLowerCase()+'|'+item.type;if(seen.has(key))return;seen.add(key);
+  html+='<button type="button" class="quick-choice-card" data-quick-select-saved="'+clean(date)+'"><span>↗</span><span><strong>'+clean(item.name||item.type)+'</strong><small>Sparat pass · '+clean(item.type)+'</small></span></button>';
+ });
  $('quick-select-options').innerHTML=html||'<p class="quick-choice-sub">Inga sparade pass. Tidta ett eget pass nedan.</p>';SurfaceMotion.showDialog($('quick-select-pass'));
 }
 function quickTimeSeconds(){return quickTimer?Math.max(0,(quickTimer.ms+(quickTimer.running?performance.now()-quickTimer.last:0))/1000):0;}
@@ -3423,6 +3430,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.logMove!=null){mutateHistoryEditor('move',b);return;}
  if(b.dataset.deleteDayPlan){deleteCalendarDayPlan(b.dataset.deleteDayPlan);return;}
  if(b.dataset.quickSelectPlan!=null){var qp=plan(selected);if(!qp){toast('Passet saknas.');return;}SurfaceMotion.closeDialog($('quick-select-pass'));startQuickTimer(qp);return;}
+  if(b.dataset.quickSelectSaved!=null){var saved=plan(b.dataset.quickSelectSaved);if(!saved){toast('Passet saknas.');return;}SurfaceMotion.closeDialog($('quick-select-pass'));startQuickTimer(saved);return;}
   if(b.dataset.quickSelectTemplate!=null){var qt=builderTemplates().find(function(t){return String(t.id)===String(b.dataset.quickSelectTemplate);});if(!qt){toast('Mallpasset saknas.');return;}SurfaceMotion.closeDialog($('quick-select-pass'));startQuickTimer(qt);return;}
   if(b.dataset.startTemplateId!=null){
   var selectedTemplate=builderTemplates().find(function(t){return String(t.id)===String(b.dataset.startTemplateId);});
