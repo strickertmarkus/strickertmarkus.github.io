@@ -940,7 +940,7 @@ if(!window.__FIELD_EMBEDDED__){
   <div class="modal" style="max-width:620px">
     <button class="modal-close" onclick="pulsePlanCancelBuilderV3()">✕</button>
     <h2 id="day-workout-title">Passupplägg</h2>
-    <div class="form-group">
+    <div class="form-group classic-day-calendar">
       <label>Datum och vecka</label>
       <div class="week-nav">
         <button type="button" class="week-nav-btn" onclick="shiftDayWorkoutWeek(-1)">‹</button>
@@ -966,6 +966,7 @@ if(!window.__FIELD_EMBEDDED__){
         <button type="button" class="btn-sm" onclick="pulseClassicConfirmSaveAsTemplate()">Spara mall</button>
       </div>
     </div>
+    <button type="button" id="day-workout-back-day" class="classic-back-to-day" onclick="pulseClassicBackToDay()" hidden>← Tillbaka till dagspass</button>
     <div class="form-row classic-pass-fields">
       <div class="form-group">
         <label for="day-workout-name">Passnamn</label>
