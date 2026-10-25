@@ -197,10 +197,14 @@
     .cal-event-preview-title { display:block;min-width:0;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;border-left:2px solid var(--preview-color);border-radius:3px;background:color-mix(in srgb,var(--preview-color) 12%,transparent);color:var(--preview-color);font-size:10px;font-weight:700;line-height:13px;height:15px;padding:1px 3px 1px 4px; }
     .cal-event-preview-title.is-holiday { box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--preview-color) 20%,transparent),0 0 7px color-mix(in srgb,var(--preview-color) 13%,transparent); }
     .cal-event-preview-more { color:#B8C2CF;font-size:9px;font-weight:800;line-height:10px;min-height:10px;padding-left:2px; }
-    .cal-short-title-field { margin-top:-3px; }
-    .cal-short-title-field .cal-short-title-optional { color:var(--text-sec);font-weight:400;text-transform:none;letter-spacing:0; }
-    .cal-short-title-field small { display:block;margin-top:5px;font-size:10px;line-height:1.4;color:var(--text-sec); }
-    .cal-short-title-field input { max-width:100%; }
+    /* Extra event details stay compact on desktop and readable on phones. */
+    .cal-event-extra-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .cal-event-extra-row .form-group { min-width:0; }
+    .event-extra, #upcoming-list .upcoming-event-extra { color:var(--text-sec);font-size:10px;line-height:1.45;margin-top:3px;overflow-wrap:anywhere; }
+    .home-day-popover-item-extra { white-space:normal;overflow-wrap:anywhere; }
+    @media(max-width:520px) {
+      .cal-event-extra-row { grid-template-columns:minmax(0,1fr);gap:0; }
+    }
     @media(max-width:768px) {
       /* Keep event days at the same base height as every other day. */
       .cal-cell.has-events { min-height:56px; }
@@ -1225,10 +1229,6 @@
       <label>Titel</label>
       <input type="text" id="ev-title" placeholder="Vad händer?">
     </div>
-    <div class="form-group cal-short-title-field">
-      <label for="ev-short-title">Kort kalendertext <span class="cal-short-title-optional">(valfri)</span></label>
-      <input type="text" id="ev-short-title" maxlength="18" autocomplete="off" placeholder="T.ex. Tandl., BVC, Fotboll">
-    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Datum</label>
@@ -1237,6 +1237,16 @@
       <div class="form-group">
         <label>Tid (valfri)</label>
         <input type="text" id="ev-time" lang="sv-SE" data-picker="time" placeholder="TT:MM">
+      </div>
+    </div>
+    <div class="form-row cal-event-extra-row">
+      <div class="form-group">
+        <label for="ev-location">Plats (valfri)</label>
+        <input type="text" id="ev-location" autocomplete="off" placeholder="T.ex. Simhallen">
+      </div>
+      <div class="form-group">
+        <label for="ev-other-people">Fler personer (valfritt)</label>
+        <input type="text" id="ev-other-people" autocomplete="off" placeholder="T.ex. Anna, Erik">
       </div>
     </div>
     <div id="event-end-toggle-v2" class="event-end-toggle-v2">
@@ -1572,6 +1582,13 @@ function selectDay(dateISO) {
   renderMonth();
 }
 
+function getEventAdditionalMeta(ev) {
+  var details = [];
+  if (ev && ev.location) details.push('Plats: ' + String(ev.location).trim());
+  if (ev && ev.otherPeople) details.push('Med: ' + String(ev.otherPeople).trim());
+  return details.join(' · ');
+}
+
 function renderDayEvents(dateISO) {
   var events = expandRepeating(getEvents(), currentDate.getFullYear(), currentDate.getMonth());
   var dayEvs = events.filter(function(ev){ return ev.date===dateISO && isEventVisible(ev); });
@@ -1584,7 +1601,8 @@ function renderDayEvents(dateISO) {
   dayEvs.forEach(function(ev){
     var col = getMemberColor(ev.member);
     var timeLabel = formatEventTimeRange(ev);
-    html += '<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+escHtml(ev.title)+'</div><div class="event-meta">'+escHtml(MEMBER_LABELS[ev.member]||'')+(timeLabel?' · '+timeLabel:'')+'</div></div></div>';
+    var extraMeta = getEventAdditionalMeta(ev);
+    html += '<div class="event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-bar" style="background:'+col+'"></div><div class="event-info"><div class="event-title">'+escHtml(ev.title)+'</div><div class="event-meta">'+escHtml(MEMBER_LABELS[ev.member]||'')+(timeLabel?' · '+timeLabel:'')+'</div>'+(extraMeta?'<div class="event-extra">'+escHtml(extraMeta)+'</div>':'')+'</div></div>';
   });
   list.innerHTML=html;
 }
@@ -1607,7 +1625,8 @@ function renderUpcoming() {
     var p=ev.date.split('-');
     var dateStr=p[2]+'/'+p[1];
     var timeLabel = formatEventTimeRange(ev);
-    html+='<div class="event-item upcoming-event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-info"><div class="event-title">'+escHtml(ev.title)+'</div><div class="upcoming-event-details" style="--member-color:'+col+'"><span class="upcoming-member-dot" aria-hidden="true"></span><span>'+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</span><span class="upcoming-event-when">· '+dateStr+(timeLabel?' · '+timeLabel:'')+'</span></div></div></div>';
+    var extraMeta = getEventAdditionalMeta(ev);
+    html+='<div class="event-item upcoming-event-item" onclick="editEvent(\''+ev.id+'\')"><div class="event-info"><div class="event-title">'+escHtml(ev.title)+'</div><div class="upcoming-event-details" style="--member-color:'+col+'"><span class="upcoming-member-dot" aria-hidden="true"></span><span>'+escHtml(MEMBER_LABELS[ev.member]||'Familjen')+'</span><span class="upcoming-event-when">· '+dateStr+(timeLabel?' · '+timeLabel:'')+'</span></div>'+(extraMeta?'<div class="upcoming-event-extra">'+escHtml(extraMeta)+'</div>':'')+'</div></div>';
   });
   if (list) list.innerHTML=html;
 }
@@ -1811,7 +1830,8 @@ function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
       var color = getMemberColor(ev.member);
       var memberTxt = ev.member && ev.member !== 'family' ? (ev.member.charAt(0).toUpperCase() + ev.member.slice(1)) : 'Familj';
       var meta = memberTxt + (ev.time ? ' · ' + ev.time : '');
-      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml(ev.title || 'Händelse') + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div></div></div>';
+      var extraMeta = getEventAdditionalMeta(ev);
+      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml(ev.title || 'Händelse') + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div>' + (extraMeta ? '<div class="home-day-popover-item-meta home-day-popover-item-extra">' + escHtml(extraMeta) + '</div>' : '') + '</div></div>';
     }).join('');
   }
 
@@ -1891,7 +1911,8 @@ function openEventModal(dateOverride) {
   document.getElementById('edit-event-id').value='';
   document.getElementById('modal-title-text').textContent='Ny händelse';
   document.getElementById('ev-title').value='';
-  document.getElementById('ev-short-title').value='';
+  document.getElementById('ev-location').value='';
+  document.getElementById('ev-other-people').value='';
   document.getElementById('ev-date').value = dateOverride || selectedDate || todayISO();
   document.getElementById('ev-time').value='';
   document.getElementById('ev-end-date').value='';
@@ -1914,7 +1935,8 @@ function editEvent(id) {
   document.getElementById('edit-event-id').value = id;
   document.getElementById('modal-title-text').textContent = 'Redigera händelse';
   document.getElementById('ev-title').value = ev.title;
-  document.getElementById('ev-short-title').value = ev.shortTitle || '';
+  document.getElementById('ev-location').value = ev.location || '';
+  document.getElementById('ev-other-people').value = ev.otherPeople || '';
   document.getElementById('ev-date').value = ev.date;
   document.getElementById('ev-time').value = ev.time||'';
   document.getElementById('ev-end-date').value = ev.endDate||'';
@@ -1973,7 +1995,9 @@ function saveEvent() {
     id: editId || String(Date.now()),
     date: startDate,
     title: title,
-    shortTitle: document.getElementById('ev-short-title').value.trim().slice(0,18),
+    shortTitle: '',
+    location: document.getElementById('ev-location').value.trim(),
+    otherPeople: document.getElementById('ev-other-people').value.trim(),
     time: startTime,
     endDate: endDate,
     endTime: endTime,
