@@ -2482,13 +2482,31 @@ function startQuickTimer(w){
  if(familySessionOpen||quickTimer||activeZen)return;
  if(!window.IngemarAccount.canEdit){toast('Vänta på anslutningen innan du startar.');return;}
  var type=TYPES.includes(w.type)?w.type:'Push';
- quickTimer={name:String(w.name||type).trim().slice(0,70),type:type,date:dayISO(new Date()),ms:0,last:performance.now(),running:true,finishing:false};
- $('quick-time-screen').dataset.tone=type;$('quick-time-name').textContent=quickTimer.name;$('quick-time-type').textContent=type;$('quick-time-screen').hidden=false;document.body.dataset.modeOpen='true';
- renderQuickTimer();quickTimerInterval=setInterval(renderQuickTimer,250);
+ quickTimer={name:String(w.name||type).trim().slice(0,70),type:type,date:dayISO(new Date()),ms:0,last:Date.now(),running:true,finishing:false,renderedSecond:-1};
+ $('quick-time-screen').dataset.tone=type;
+ $('quick-time-name').textContent=quickTimer.name;$('quick-time-type').textContent=type;
+ $('quick-time-track').setAttribute('d',quickArcPath(1));
+ $('quick-time-arc').setAttribute('d','');
+ $('quick-time-screen').hidden=false;
+ document.body.dataset.modeOpen='true';document.body.dataset.quickTimeOpen='true';
+ renderQuickTimer();scheduleQuickTimerPaint();
 }
-function pauseQuickTimer(){if(!quickTimer||quickTimer.finishing)return;if(quickTimer.running){quickTimer.ms+=performance.now()-quickTimer.last;quickTimer.running=false;}else{quickTimer.last=performance.now();quickTimer.running=true;}renderQuickTimer();}
-function finishQuickTimer(){if(!quickTimer)return;if(quickTimer.running){quickTimer.ms+=performance.now()-quickTimer.last;quickTimer.running=false;}quickTimer.finishing=true;renderQuickTimer();}
-function resumeQuickTimer(){if(!quickTimer)return;quickTimer.finishing=false;quickTimer.running=true;quickTimer.last=performance.now();renderQuickTimer();}
+function pauseQuickTimer(){
+ if(!quickTimer||quickTimer.finishing)return;
+ if(quickTimer.running){quickTimer.ms+=Date.now()-quickTimer.last;quickTimer.running=false;}
+ else{quickTimer.last=Date.now();quickTimer.running=true;}
+ renderQuickTimer();scheduleQuickTimerPaint();
+}
+function finishQuickTimer(){
+ if(!quickTimer)return;
+ if(quickTimer.running){quickTimer.ms+=Date.now()-quickTimer.last;quickTimer.running=false;}
+ quickTimer.finishing=true;renderQuickTimer();scheduleQuickTimerPaint();
+}
+function resumeQuickTimer(){
+ if(!quickTimer)return;
+ quickTimer.finishing=false;quickTimer.running=true;quickTimer.last=Date.now();
+ renderQuickTimer();scheduleQuickTimerPaint();
+}
 function saveQuickTimer(){
  if(!quickTimer)return;var seconds=Math.floor(quickTimeSeconds());
  if(seconds<1){toast('Passet måste pågå minst en sekund.');return;}
