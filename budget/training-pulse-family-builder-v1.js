@@ -32,7 +32,9 @@ function open(opt){
  if(mode==='day')loadDay(day);else loadTemplate(opt.templateId||'');
  render();modal.classList.add('show');
 }
-function close(){if(!confirmDiscard())return;modal.classList.remove('show');dirty=false;}
+function close(){if(!confirmDiscard())return;modal.classList.remove('show');dirty=false;
+ if(window.pulsePlanBuilderReturnV3&&typeof window.pulsePlanReturnFromBuilderV3==='function')window.pulsePlanReturnFromBuilderV3();
+}
 function cleaned(){
  return draft.exercises.filter(function(e){return String(e.name||'').trim();}).map(function(e){
  var name=String(e.name).trim().slice(0,100);
@@ -128,11 +130,14 @@ function clicked(e){
  if(a==='remove'){draft.exercises.splice(i,1);expanded=new Set([...expanded].filter(function(j){return j!==i;}).map(function(j){return j>i?j-1:j;}));dirty=true;render();return;}
  if(a==='add'){var index=draft.exercises.length;draft.exercises.push({kind:'strength',name:'',sets:'',weight:'',reps:''});expanded.add(index);dirty=true;render();var name=$('[data-edit="ex:'+index+':name"]');if(name)name.focus();return;}
  if(a==='save'){if(mode==='template'?saveTemplate(false):saveDay(false))render();return;}
- if(a==='start'){if(!cleaned().length){message('Lägg till minst en övning.');return;}saveDay(false);modal.classList.remove('show');window.startWorkoutSessionForDate(day);return;}
+ if(a==='start'){if(!cleaned().length){message('Lägg till minst en övning.');return;}saveDay(false);window.pulsePlanBuilderReturnV3=null;modal.classList.remove('show');window.startWorkoutSessionForDate(day);return;}
  if(a==='delete-template'){var t=templates().find(function(x){return String(x.id)===String(templateId);});if(t&&confirm('Ta bort mallpasset "'+t.name+'"?')){window.saveTemplates(templates().filter(function(x){return String(x.id)!==String(templateId);}));loadTemplate('');render();message('Mallpass borttaget.');}return;}
  if(a==='clear-day'){if(!confirm('Ta bort passet för '+day+'?'))return;var all=planned();delete all[day];window.savePlannedSessions(all);var w=week(day),p=Object.assign({},window.getPlanForWeek(w));p[window.dayKeyFromISO(day)]='Vila';window.setPlanForWeek(w,p);loadDay(day);render();window.renderWeekGrid();return;}
  if(a==='copy-template'){var name=prompt('Namn på mallpasset:',draft.name||'Mitt mallpass');if(name&&name.trim()){var all=templates();all.push({id:Date.now(),name:name.trim(),type:draft.type,exercises:cleaned()});window.saveTemplates(all);message('Mallpass sparat.');}return;}
- if(a==='week'){if(!confirmDiscard())return;modal.classList.remove('show');dirty=false;window.viewedMondayISO=week(day);window.openPlanModal();}
+ if(a==='week'){if(!confirmDiscard())return;modal.classList.remove('show');dirty=false;
+  if(window.pulsePlanBuilderReturnV3&&typeof window.pulsePlanReturnFromBuilderV3==='function')window.pulsePlanReturnFromBuilderV3();
+  else{window.viewedMondayISO=week(day);window.openPlanModal();}
+ }
 }
 window.PulseFamilyPlanner={open:open,close:close,version:'1.0'};
 })();
