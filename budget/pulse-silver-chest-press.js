@@ -84,6 +84,7 @@ function elbow(shoulder,wrist,sign){
  return shoulder.clone().addScaledVector(axis,along).addScaledVector(pole,Math.sqrt(Math.max(0,upper*upper-along*along)));
 }
 function pose(t){
+ body.morphTargetInfluences[0]=1-t;body.morphTargetInfluences[1]=t;
  const angle=THREE.MathUtils.degToRad(-10+60*t),hip=v([0,.69,0]),shoulder=v([0,1.21,0]);
  const segments=[[hip,shoulder],[shoulder,v([0,1.51,0])]];
  const wrists=[],elbows=[],shoulders=[];
@@ -133,6 +134,25 @@ async function initialize(){
    if(name==='index')geo.setIndex(attribute);else geo.setAttribute(name,attribute);
   }
   geo.computeVertexNormals();
+  // Two smooth pectoral shapes blend with the existing press clock.
+  // Normals are morphed too, so the light follows the changing muscle volume.
+  const restPositions=geo.getAttribute('position');
+  const shapes=[0,1].map(contraction=>{
+   const positions=restPositions.clone();
+   const smooth=(a,b,x)=>{const t=THREE.MathUtils.clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+   for(let i=0;i<positions.count;i++){
+    const x=restPositions.getX(i),y=restPositions.getY(i),z=restPositions.getZ(i);
+    const mask=Math.exp(-Math.pow((Math.abs(x)-.115)/.115,4)-Math.pow((y-1.365)/.105,4))
+      *smooth(.025,.095,z)*smooth(.004,.025,Math.abs(x));
+    positions.setXYZ(i,x+Math.sign(x)*(.009-.019*contraction)*mask,
+      y+.004*contraction*mask,z+(-.006+.025*contraction)*mask);
+   }
+   const shape=new THREE.BufferGeometry();shape.setIndex(geo.index);shape.setAttribute('position',positions);
+   shape.computeVertexNormals();const normals=shape.getAttribute('normal').clone();shape.dispose();
+   return {positions,normals};
+  });
+  geo.morphAttributes.position=shapes.map(s=>s.positions);
+  geo.morphAttributes.normal=shapes.map(s=>s.normals);
   const mat=materials.skin.clone();mat.vertexColors=true;
   // A translucent centre and a denser silhouette keep the moving body readable.
   // Rest-space fibres stay attached to the pectorals throughout the animation.
@@ -187,24 +207,24 @@ async function initialize(){
     muscleColor *= 0.80 + (0.26 + 0.08 * chest) * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
     muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
-    muscleColor *= mix(vec3(1.0), vec3(1.0, 0.35, 0.45), chest);
+    muscleColor *= mix(vec3(1.0), vec3(1.0, 0.12, 0.22), chest);
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
     vec3 pearl = mix(vec3(0.86, 0.90, 0.95), diffuseColor.rgb, clothingMask);
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
     float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
-    diffuseColor.a = mix(diffuseColor.a, 0.84 + 0.07 * rim, chest);
+    diffuseColor.a = mix(diffuseColor.a, 0.96 + 0.02 * rim, chest);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
 
    `);
    shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>', `
     #include <emissivemap_fragment>
     // Restrained self-illumination keeps the primary muscle clear in shadow.
-    totalEmissiveRadiance += vec3(0.90, 0.055, 0.040)
+    totalEmissiveRadiance += vec3(0.90, 0.018, 0.022)
       * chest * (0.50 + 0.32 * belly + 0.12 * max(0.0, fibres));
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-primary-pectoral-red-v9';
+  mat.customProgramCacheKey=()=> 'silver-contracting-pectoral-v10';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
