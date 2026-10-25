@@ -199,12 +199,12 @@ async function initialize(){
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     // Fixed rest-space fibres stretch with the mesh, never slide over the skin.
     float armPhase = armT * 52.0 + p.z * 55.0;
-    float chestPhase = fan * 28.0 + 0.55 * sin(fan * 7.0 + u * 3.0);
+    float chestPhase = fan * 60.0 + 0.55 * sin(fan * 7.0 + u * 3.0);
     // Filter each field before mixing: mask gradients must not erase the fibres.
     float armFibres = sin(armPhase) * (1.0 - smoothstep(0.3, 1.6, fwidth(armPhase)));
-    float chestFibres = sin(chestPhase) * (1.0 - smoothstep(1.2, 3.0, fwidth(chestPhase)));
+    float chestFibres = sin(chestPhase) * (1.0 - smoothstep(1.5, 3.1, fwidth(chestPhase)));
     float fibres = mix(armFibres, chestFibres, chest);
-    float filament = pow(max(0.0, chestFibres), 2.5);
+    float filament = pow(max(0.0, chestFibres), 4.0);
     float warmth = smoothstep(1.27, 1.46, p.y);
     float belly = exp(-pow((p.y - 1.365) / 0.065, 2.0)) * (1.0 - u * 0.45);
     float tissueWarmth = max(warmth * 0.55 + belly * 0.45, secondary * (0.60 + 0.25 * sin(armT * 3.14159)));
@@ -215,7 +215,7 @@ async function initialize(){
     float chestLight = clamp(0.20 + 0.48 * belly + 0.14 * warmth
       + 0.12 * fibres + 0.05 * uPressContraction, 0.0, 1.0);
     vec3 chestColor = mix(vec3(0.22, 0.003, 0.012), vec3(0.90, 0.035, 0.06), chestLight);
-    chestColor = mix(chestColor, vec3(1.0, 0.68, 0.63), filament * 0.55);
+    chestColor = mix(chestColor, vec3(1.0, 0.48, 0.40), filament * 0.24);
     float glassEdge = 4.0 * chest * (1.0 - chest);
     chestColor = mix(chestColor, vec3(0.90, 0.92, 0.98),
       clamp(0.09 * glassEdge + 0.20 * rim, 0.0, 0.30));
@@ -237,11 +237,11 @@ async function initialize(){
     // A red inner glow and pale filaments, without a flat emissive red patch.
     totalEmissiveRadiance += chest * (
       vec3(0.55, 0.012, 0.028) * (0.22 + 0.22 * belly + 0.06 * uPressContraction)
-      + vec3(0.85, 0.36, 0.31) * filament * 0.40);
+      + vec3(0.85, 0.28, 0.22) * filament * 0.16);
     totalEmissiveRadiance += vec3(0.55, 0.64, 0.80) * glassEdge * 0.055;
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-glass-fibres-v13';
+  mat.customProgramCacheKey=()=> 'silver-glass-fibres-v14';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
