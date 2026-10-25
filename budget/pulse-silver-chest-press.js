@@ -172,7 +172,7 @@ async function initialize(){
       * smoothstep(0.10, 0.27, armT) * (1.0 - smoothstep(0.78, 0.96, armT))
       * backAndOuterArm;
     float secondary = max(shoulder * 0.76, triceps * 0.80);
-    float muscleMask = max(chest * 0.88, secondary) * (1.0 - clothingMask);
+    float muscleMask = max(chest * 0.94, secondary) * (1.0 - clothingMask);
     float fan = atan(p.y - 1.43, 0.265 - p.x);
     float fibrePhase = mix(armT * 52.0 + p.z * 55.0, fan * 48.0, chest);
     float fibreDetail = 1.0 - smoothstep(0.3, 1.6, fwidth(fibrePhase));
@@ -184,7 +184,7 @@ async function initialize(){
     float chestWarmth = 0.72 + 0.20 * sin(u * 3.14159);
     tissueWarmth = mix(tissueWarmth, chestWarmth, chest);
     vec3 muscleColor = mix(vec3(0.38, 0.025, 0.018), vec3(1.0, 0.22, 0.12), tissueWarmth);
-    muscleColor *= 0.80 + 0.26 * fibres;
+    muscleColor *= 0.80 + (0.26 + 0.08 * chest) * fibres;
     float silk = pow(max(0.0, fibres), 8.0) * 0.22;
     muscleColor = mix(muscleColor, vec3(1.0, 0.70, 0.48), silk);
     // Ignore the old small baked pectoral patches; retain only the shorts colour.
@@ -192,7 +192,7 @@ async function initialize(){
     diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);
     float tissueAlpha = 0.56 + 0.16 * belly * (1.0 - chest * 0.65) + 0.12 * rim;
     diffuseColor.a = mix(0.68 + 0.23 * rim, tissueAlpha, muscleMask);
-    diffuseColor.a = mix(diffuseColor.a, 0.74 + 0.10 * rim, chest);
+    diffuseColor.a = mix(diffuseColor.a, 0.84 + 0.07 * rim, chest);
     diffuseColor.a = mix(diffuseColor.a, 1.0, clothingMask);
 
    `);
@@ -200,10 +200,10 @@ async function initialize(){
     #include <emissivemap_fragment>
     // Restrained self-illumination keeps the primary muscle clear in shadow.
     totalEmissiveRadiance += vec3(0.90, 0.22, 0.085)
-      * chest * (0.32 + 0.20 * belly + 0.07 * max(0.0, fibres));
+      * chest * (0.50 + 0.32 * belly + 0.12 * max(0.0, fibres));
    `);
   };
-  mat.customProgramCacheKey=()=> 'silver-primary-pectoral-glow-v7';
+  mat.customProgramCacheKey=()=> 'silver-primary-pectoral-glow-v8';
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
