@@ -3417,15 +3417,17 @@ document.addEventListener('click',function(event){
  if(b.dataset.logRemoveEx!=null){mutateHistoryEditor('remove-ex',b);return;}
  if(b.dataset.logMove!=null){mutateHistoryEditor('move',b);return;}
  if(b.dataset.deleteDayPlan){deleteCalendarDayPlan(b.dataset.deleteDayPlan);return;}
- if(b.dataset.startTemplateId!=null){
+ if(b.dataset.quickSelectPlan!=null){var qp=plan(selected);if(!qp){toast('Passet saknas.');return;}SurfaceMotion.closeDialog($('quick-select-pass'));startQuickTimer(qp);return;}
+  if(b.dataset.quickSelectTemplate!=null){var qt=builderTemplates().find(function(t){return String(t.id)===String(b.dataset.quickSelectTemplate);});if(!qt){toast('Mallpasset saknas.');return;}SurfaceMotion.closeDialog($('quick-select-pass'));startQuickTimer(qt);return;}
+  if(b.dataset.startTemplateId!=null){
   var selectedTemplate=builderTemplates().find(function(t){return String(t.id)===String(b.dataset.startTemplateId);});
-  if(selectedTemplate&&Array.isArray(selectedTemplate.exercises)&&selectedTemplate.exercises.length)start(selectedTemplate);
+  if(selectedTemplate&&Array.isArray(selectedTemplate.exercises)&&selectedTemplate.exercises.length)chooseWorkoutMethod(selectedTemplate);
   else{toast('Mallpasset finns inte längre.');renderHeroPassMenu();}
   return;
  }
  if(b.dataset.startSavedDate!=null){
   var selectedPlan=plan(b.dataset.startSavedDate);
-  if(selectedPlan&&Array.isArray(selectedPlan.exercises)&&selectedPlan.exercises.length)start(selectedPlan);
+  if(selectedPlan&&Array.isArray(selectedPlan.exercises)&&selectedPlan.exercises.length)chooseWorkoutMethod(selectedPlan);
   else{toast('Passet finns inte längre.');renderHeroPassMenu();}
   return;
  }
@@ -3507,9 +3509,9 @@ document.addEventListener('click',function(event){
    case 'delete-week-template':deleteWeekTemplate();break;
    case 'build':openBuilder();break;
     case 'edit-selected-day':openBuilder(null,true);break;
-   case 'start':start();break;
+   case 'start':chooseWorkoutMethod();break;
    case 'pick-other-pass':toggleHeroPassMenu();break;
-   case 'start-planned':start();break;
+   case 'start-planned':chooseWorkoutMethod();break;
    case 'new-start-pass':closeHeroPassMenu();openBuilder(null,true,true);break;
    case 'close-builder':closeBuilder();break;
    case 'apply-template':applyBuilderTemplate();break;
@@ -3537,7 +3539,22 @@ document.addEventListener('click',function(event){
    case 'preview-save':confirmPlanPreview(false);break;
    case 'preview-start':confirmPlanPreview(true);break;
    case 'close-history':SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';break;
-   case 'new-history':openHistoryEditor('');break;
+   case 'new-history':openQuickLogChoice();break;
+    case 'quick-close-choice':closeQuickChoice();break;
+    case 'quick-close-log':SurfaceMotion.closeDialog($('quick-log-choice'));break;
+    case 'quick-close-select':SurfaceMotion.closeDialog($('quick-select-pass'));break;
+    case 'quick-start-mode':if(pendingQuickWorkout){var chosen=deep(pendingQuickWorkout);closeQuickChoice();start(chosen);}break;
+    case 'quick-start-time':if(pendingQuickWorkout){var chosen=deep(pendingQuickWorkout);closeQuickChoice();startQuickTimer(chosen);}break;
+    case 'quick-log-past':SurfaceMotion.closeDialog($('quick-log-choice'));openHistoryEditor('');break;
+    case 'quick-log-timer':SurfaceMotion.closeDialog($('quick-log-choice'));openQuickPassSelect();break;
+    case 'quick-free-open':SurfaceMotion.closeDialog($('quick-select-pass'));$('quick-free-name').value='';$('quick-free-type').value=TYPES.includes(nextType())?nextType():'Push';SurfaceMotion.showDialog($('quick-free-pass'));break;
+    case 'quick-close-free':SurfaceMotion.closeDialog($('quick-free-pass'));break;
+    case 'quick-free-start':var n=$('quick-free-name').value.trim();if(!n){toast('Ange ett passnamn.');$('quick-free-name').focus();break;}var t=$('quick-free-type').value;SurfaceMotion.closeDialog($('quick-free-pass'));startQuickTimer({name:n,type:t});break;
+    case 'quick-time-pause':pauseQuickTimer();break;
+    case 'quick-time-end':finishQuickTimer();break;
+    case 'quick-time-resume':resumeQuickTimer();break;
+    case 'quick-time-save':saveQuickTimer();break;
+    case 'quick-time-discard':discardQuickTimer();break;
    case 'new-record':openRecordEditor('');break;
    case 'cancel-record':closeRecordEditor();break;
    case 'save-record':saveRecordEditor();break;
