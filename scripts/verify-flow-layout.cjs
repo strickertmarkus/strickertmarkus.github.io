@@ -18,16 +18,25 @@ assert.ok(await page.locator('.catalog').isVisible());
 await page.locator('#living-dock [data-page="programs"]').click();
 await page.locator('[data-program]').first().click();
 const title=await page.locator('#program-title').innerText();
-await page.waitForFunction(()=>[...document.querySelectorAll('[data-preview]')].every(c=>c.dataset.drawn));
+await page.waitForFunction(()=>[...document.querySelectorAll('.pose-image img')].every(img=>img.complete&&img.naturalWidth>0));
+assert.equal(await page.locator('#program-detail canvas').count(),0,'timeline has no WebGL canvases');
+assert.equal(await page.locator('.timeline-pose').count(),await page.locator('.program-timeline li').count()*2,'each exercise has start and end poses');
+for(const row of await page.locator('.program-timeline li').all()){const image=await row.locator('.timeline-preview').boundingBox(),copy=await row.locator('.timeline-copy').boundingBox();assert.ok(image.x+image.width<=copy.x,'pose and prescription do not overlap');}
+assert.match(await page.locator('.timeline-copy small').first().innerText(),/Förslag:/);
 await page.screenshot({path:dir+'/program-390.png',fullPage:true});
-await page.emulateMedia({reducedMotion:'no-preference'});const before=await page.locator('[data-preview]').first().evaluate(c=>c.toDataURL());await page.waitForTimeout(700);const after=await page.locator('[data-preview]').first().evaluate(c=>c.toDataURL());assert.notEqual(before,after,'preview animates');await page.emulateMedia({reducedMotion:'reduce'});
+const before=await page.locator('.pose-image img').evaluateAll(images=>images.map(i=>i.currentSrc));await page.waitForTimeout(700);assert.deepEqual(await page.locator('.pose-image img').evaluateAll(images=>images.map(i=>i.currentSrc)),before,'poses remain static');
 await page.locator('#program-detail [data-technique]').nth(1).click();assert.ok(await page.locator('#studio-shell').isVisible());
 await page.locator('#studio-back').click();await page.waitForFunction(()=>!document.querySelector('#programs-page').hidden);
 assert.equal(await page.locator('#program-title').innerText(),title);assert.ok(await page.locator('#program-detail').isVisible());
 await page.locator('#close-program').click();await page.waitForFunction(()=>document.querySelector('#program-detail').hidden);
 await page.locator('#living-dock [data-page="guide"]').click();
-await page.locator('#studio-filter-toggle').click();assert.ok(await page.locator('#studio-filters').isVisible());
-await page.goBack();await page.waitForFunction(()=>document.querySelector('#studio-filters').hidden);
+assert.ok(await page.locator('.catalog').isVisible());assert.ok(await page.locator('#studio-filters').isVisible());
+assert.equal(await page.locator('#living-dock button').count(),3,'one merged explorer tab');
+await page.locator('#clear-exercise-filters').click();await page.locator('#inspiration-toggle').click();assert.equal(await page.locator('#exercise-list [data-id]').count(),8);
+await page.locator('#exercise-list [data-add-choice]').first().click();await page.locator('#living-pass-btn').click();assert.equal(await page.locator('#selection-items li').count(),1);
+await page.locator('#living-dock [data-page="guide"]').click();await page.locator('#clear-exercise-filters').click();assert.equal(await page.locator('#exercise-list [data-id]').count(),54);
+await page.locator('#studio-filter-toggle').click();assert.ok(await page.locator('#studio-filters').isHidden());
+await page.goBack();await page.waitForFunction(()=>!document.querySelector('#studio-filters').hidden);
 for(const width of [320,1280]){await page.setViewportSize({width,height:900});await page.screenshot({path:dir+'/exercise-'+width+'.png'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
 assert.deepEqual(errors,[]);
 // Isolate the local entry layout from the production sign-in redirect.
