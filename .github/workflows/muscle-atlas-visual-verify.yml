@@ -1,14 +1,15 @@
-name: Still atlas mobile visual verification
+name: Pulse Flow layout verification
 on:
   push:
-    branches: [main]
+    branches: [main, codex/silver-all-exercises]
     paths:
       - 'budget/pulse-exercise-guide.html'
-      - 'budget/pulse-muscle-atlas-stills.js'
+      - 'budget/pulse-flow-layout.css'
+      - 'budget/pulse-explore-entry.css'
       - 'budget/pulse-living-anatomy.css'
       - 'budget/pulse-living-anatomy.js'
       - 'budget/assets/atlas-art-v1/**'
-      - 'scripts/verify-atlas-stills.cjs'
+      - 'scripts/verify-flow-layout.cjs'
       - '.github/workflows/muscle-atlas-visual-verify.yml'
   workflow_dispatch:
 jobs:
@@ -23,10 +24,10 @@ jobs:
       - run: npm install --no-save playwright
       - run: npx playwright install --with-deps webkit
       - run: python3 -m http.server 4173 >/tmp/atlas-server.log 2>&1 &
-      - run: node scripts/verify-atlas-stills.cjs
+      - run: node scripts/verify-flow-layout.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: atlas-stills-mobile-screenshots
-          path: test-results/atlas-stills-ui/
+          name: flow-layout-screenshots
+          path: test-results/flow-layout/
 

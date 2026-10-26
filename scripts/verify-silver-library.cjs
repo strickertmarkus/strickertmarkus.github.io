@@ -18,7 +18,7 @@ async function render(page,i,t,cycle,viewIndex=0){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&/Shader|VALIDATE|GL_INVALID/.test(m.text()))errors.push(m.text());});
  const requests=[];page.on('request',r=>requests.push(r.url()));
  await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
- await page.locator('#atlas-show-exercises').click();await page.waitForFunction(()=>window.PulseSilverPress?.ready,null,{timeout:35000});
+ await page.waitForFunction(()=>window.PulseSilverPress?.ready,null,{timeout:35000});
  await page.evaluate(()=>{paused=true;});
  // Sweep continuous cycles without rendering: detect sudden arm/wrist flips at reversals.
  const rotationCheck=await page.evaluate(async()=>{
@@ -80,7 +80,7 @@ async function render(page,i,t,cycle,viewIndex=0){
  assert.deepEqual(errors,[]);await browser.close();
  const safari=await webkit.launch();const mobile=await safari.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
  mobile.on('pageerror',e=>errors.push(e.message));
- await mobile.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');await mobile.locator('#atlas-show-exercises').click();
+ await mobile.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
  await mobile.waitForFunction(()=>window.PulseSilverPress?.ready||window.PulseSilverPress?.failed);
  assert.ok(await mobile.evaluate(()=>window.PulseSilverPress.ready),'WebKit 3D available');
  for(const i of [0,3,4,5,17,23,27,35,50,51]){await render(mobile,i,.5,.25);await mobile.locator('#studio-stage').screenshot({path:`${dir}/webkit-${i}.png`});}

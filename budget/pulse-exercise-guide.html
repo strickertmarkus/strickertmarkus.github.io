@@ -382,6 +382,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
+<link rel="stylesheet" href="pulse-flow-layout.css?v=1">
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
@@ -394,7 +395,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 <section id="atlas-home" class="atlas-home" aria-labelledby="atlas-title">
 <div class="atlas-shell">
 <div class="atlas-content" hidden>
-<div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Vad vill du träna?</h2>
+<div class="eyebrow">01 / MUSKELATLAS</div><h2 id="atlas-title">Hitta din nästa övning</h2>
 <p>Välj en muskelgrupp och utforska övningarna.</p>
 </div>
 <div class="atlas-visual">
@@ -497,17 +498,12 @@ body:has(.studio-technique[open]){overflow:hidden}
   <div class="discover-under"><span><span class="discover-swipe-icon">↔</span> Svep för nästa rörelse</span><button type="button" id="discover-add">+ Lägg till i mitt pass</button></div>
 </div>
 </section>
-<nav id="living-dock" class="living-dock" aria-label="Pulse Flow huvudnavigation">
- <button type="button" data-page="guide" aria-label="Utforska"><span class="living-dock-icon">⌂</span><span>Utforska</span></button>
- <button type="button" data-page="suggestions" aria-label="Övningar"><span class="living-dock-icon">✧</span><span>Övningar</span></button>
- <button type="button" data-page="programs" aria-label="Program"><span class="living-dock-icon">▥</span><span>Program</span></button>
- <button type="button" id="living-pass-btn" aria-label="Mitt pass"><span class="living-dock-icon">▤</span><span>Mitt pass <small id="living-pass-count">0</small></span></button>
-</nav>
+
 <div id="studio-shell" class="studio-shell" hidden>
-<div class="studio-top"><button type="button" class="studio-back" id="studio-back"><span aria-hidden="true">←</span> Upptäck</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span><button id="studio-filter-toggle" type="button" aria-expanded="false" aria-controls="studio-filters">Filter <span>⌄</span></button></div></div>
+<div class="studio-top"><button type="button" class="studio-back" id="studio-back"><span aria-hidden="true">←</span> Tillbaka</button><div class="studio-top-meta"><span id="studio-route">Alla övningar</span><span id="studio-index" role="status" aria-live="polite">1 / 54</span><button id="studio-filter-toggle" type="button" aria-expanded="false" aria-controls="studio-filters">Filter <span>⌄</span></button></div></div>
 <div class="studio-filters filters" id="studio-filters" hidden><input id="search" class="search" type="search" placeholder="Sök bland övningar" aria-label="Sök övning"><div id="group-filters" class="filter-row" aria-label="Filtrera muskelgrupp"></div><div id="equipment-filters" class="filter-row equipment" aria-label="Filtrera utrustning"></div></div>
-<div class="layout studio-layout">
-<section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2 id="detail-name"></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div>
+<div class="studio-muscles" aria-label="Välj muskelgrupp"><button type="button" data-studio-muscle="Bröst" aria-pressed="false"><img src="assets/atlas-art-v1/chest.webp" alt="" width="54" height="54"><span>Bröst</span></button><button type="button" data-studio-muscle="Axlar" aria-pressed="false"><img src="assets/atlas-art-v1/shoulders.webp" alt="" width="54" height="54"><span>Axlar</span></button><button type="button" data-studio-muscle="Rygg" aria-pressed="false"><img src="assets/atlas-art-v1/back.webp" alt="" width="54" height="54"><span>Rygg</span></button><button type="button" data-studio-muscle="Biceps" aria-pressed="false"><img src="assets/atlas-art-v1/biceps.webp" alt="" width="54" height="54"><span>Biceps</span></button><button type="button" data-studio-muscle="Triceps" aria-pressed="false"><img src="assets/atlas-art-v1/triceps.webp" alt="" width="54" height="54"><span>Triceps</span></button><button type="button" data-studio-muscle="Mage" aria-pressed="false"><img src="assets/atlas-art-v1/abs.webp" alt="" width="54" height="54"><span>Mage</span></button><button type="button" data-studio-muscle="Framsida lår" aria-pressed="false"><img src="assets/atlas-art-v1/quads.webp" alt="" width="54" height="54"><span>Framsida lår</span></button><button type="button" data-studio-muscle="Säte" aria-pressed="false"><img src="assets/atlas-art-v1/glutes.webp" alt="" width="54" height="54"><span>Säte</span></button><button type="button" data-studio-muscle="Baksida lår" aria-pressed="false"><img src="assets/atlas-art-v1/hamstrings.webp" alt="" width="54" height="54"><span>Baksida lår</span></button><button type="button" data-studio-muscle="Vader" aria-pressed="false"><img src="assets/atlas-art-v1/calves.webp" alt="" width="54" height="54"><span>Vader</span></button></div><div class="layout studio-layout">
+<section class="detail" id="detail" aria-live="polite"><div class="detail-head"><div><div class="eyebrow" id="detail-equip"></div><h2><button type="button" id="exercise-picker" aria-label="Visa övningslistan"><span id="detail-name"></span><span aria-hidden="true">⌄</span></button></h2><p id="detail-sub"></p></div><span id="detail-kind" class="kind-tag"></span></div>
 <div class="stage" id="studio-stage"><div class="stage-label">RÖRELSE · ¾-VY</div><svg id="exercise-figure" viewBox="0 0 420 340" role="img" aria-label="Animerad teknikillustration"></svg><div id="exercise-3d" class="exercise-3d" aria-hidden="true"></div><div id="exercise-silver-3d" class="exercise-silver-3d" aria-hidden="true"></div></div>
 <div class="studio-stepper"><button type="button" id="studio-prev" aria-label="Föregående övning">←</button><span>Svep för att utforska övningar</span><button type="button" id="studio-next" aria-label="Nästa övning">→</button></div>
 <div class="stage-bottom"><small>Muskler i korall</small><div class="stage-controls"><button id="toggle-exercise-3d" type="button" aria-pressed="false" title="Experimentell animerad 3D-modell">3D-test</button><button id="view-toggle" type="button" aria-pressed="false">Byt vy ↻</button><button id="pause" type="button" aria-pressed="false">Pausa Ⅱ</button></div></div>
@@ -521,14 +517,20 @@ body:has(.studio-technique[open]){overflow:hidden}
 <div id="technique-scrim" class="technique-scrim" hidden></div>
 </section>
 <section id="suggestions-page" hidden aria-labelledby="suggestions-title">
- <div class="section-intro"><div><h2 id="suggestions-title">Vad vill du träna?</h2><p>Välj muskelgrupp och utrustning. Lägg till de övningar du vill ha med i ditt pass.</p></div></div>
+ <div class="section-intro"><div><h2 id="suggestions-title">Hitta din nästa övning</h2><p>Välj muskelgrupp och utrustning. Lägg till de övningar du vill ha med i ditt pass.</p></div></div>
  <form class="suggestion-filters" id="suggestion-filters"><label>Muskelgrupp<select id="suggest-muscle"><option value="">Alla muskler</option></select></label><label>Utrustning<select id="suggest-equipment"><option value="">All utrustning</option></select></label><button type="reset" class="explore-quiet">Rensa filter</button></form>
  <div class="inspiration-switch"><button type="button" class="explore-quiet" id="inspiration-toggle" aria-pressed="false">✦ Prova något nytt</button><span>Åtta övningar för ny inspiration</span></div><div class="results-head"><p id="suggestion-count" role="status"></p><button type="button" id="more-suggestions" class="explore-quiet">Andra förslag ↻</button></div><div id="suggestion-cards" class="suggestion-grid"></div>
 </section>
-<section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Ett upplägg att utgå från</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
+<section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Hitta ditt nästa pass</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
 <section id="selection" class="selection" aria-labelledby="selection-title"><div class="selection-top"><div><div class="eyebrow">DITT URVAL</div><h2 id="selection-title">Mitt pass <span id="selection-count">0</span></h2></div><button type="button" class="explore-quiet" id="clear-selection" hidden>Rensa urval</button></div><p id="selection-empty">Välj övningar i guiden eller bland förslagen. De samlas här.</p><ul id="selection-items"></ul><div id="selection-actions" hidden><p>Du kan kopiera förslaget och använda det när du bygger ditt pass.</p><button type="button" class="explore-primary" id="open-selection">Kopiera passförslag ↗</button></div></section>
 <p id="explore-status" class="explore-status" role="status" aria-live="polite"></p>
-<details class="guide-about"><summary>Om träningsguiden</summary><p>Övningar och urval är separata från din sparade träningslogg. Illustrationerna är förenklade teknikguider. Anpassa belastning och rörelseomfång efter din förmåga.</p></details></main>
+<details class="guide-about"><summary>Om träningsguiden</summary><p>Övningar och urval är separata från din sparade träningslogg. Illustrationerna är förenklade teknikguider. Anpassa belastning och rörelseomfång efter din förmåga.</p></details><nav id="living-dock" class="living-dock" aria-label="Pulse Flow huvudnavigation">
+ <button type="button" data-page="guide" aria-label="Utforska"><span class="living-dock-icon">⌂</span><span>Utforska</span></button>
+ <button type="button" data-page="suggestions" aria-label="Övningar"><span class="living-dock-icon">✧</span><span>Övningar</span></button>
+ <button type="button" data-page="programs" aria-label="Program"><span class="living-dock-icon">▥</span><span>Program</span></button>
+ <button type="button" id="living-pass-btn" aria-label="Mitt pass"><span class="living-dock-icon">▤</span><span>Mitt pass <small id="living-pass-count">0</small></span></button>
+</nav>
+</main>
 <script>
 (function(){
  const profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
@@ -624,8 +626,8 @@ function updateStudioNavigation(items=filtered()){
 function toggleStudio(open){
  studioOpen=open;
  document.body.classList.toggle('pulse-studio-open',open);
- $('discover-home').hidden=open;
- $('living-dock').hidden=open;
+ $('discover-home').hidden=true;
+ $('living-dock').hidden=false;
  $('studio-shell').hidden=!open;
  if(!open){$('studio-technique').open=false;$('technique-scrim').hidden=true;}
  renderAtlas();
@@ -639,12 +641,10 @@ function openStudio(muscle='Alla',preferredId=null,resetEquipment=false){
  phase=0;cameraIndex=0;
  $('view-toggle').textContent='Byt vy ↻';$('view-toggle').setAttribute('aria-pressed','false');
  toggleStudio(true);renderFilters();renderDetail();renderList();
+ document.querySelectorAll('[data-studio-muscle]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.studioMuscle===group)));
  $('studio-shell').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
-function closeStudio(){
- if(muscleGroups.includes(group))atlasSelected=group;
- toggleStudio(false);renderDiscovery();$('discover-home').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
-}
+function closeStudio(){goBack();}
 function stepStudio(direction){
  const items=filtered();if(items.length<2)return;
  const index=Math.max(0,items.findIndex(e=>e.id===active));
@@ -1126,7 +1126,7 @@ function animate(now){
  requestAnimationFrame(animate);
 }
 
-function select(id,scroll){active=id;phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();renderList();if(scroll&&matchMedia('(max-width:740px)').matches)$('detail').scrollIntoView({behavior:'smooth',block:'start'});}
+function select(id,scroll){active=id;try{localStorage.setItem('pulse-last-exercise',String(id));}catch(e){}phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();renderList();if(scroll&&matchMedia('(max-width:740px)').matches)$('detail').scrollIntoView({behavior:'smooth',block:'start'});}
 
 document.addEventListener('pulse:atlas-select',event=>{
  const muscle=event.detail?.muscle;
@@ -1147,10 +1147,7 @@ $('discover-muscles').addEventListener('click',event=>{
 $('discover-equipment').addEventListener('change',event=>{
  discoverEquipment=event.target.value;discoverPhase=0;renderDiscovery();
 });
-$('living-pass-btn').addEventListener('click',()=>{
- if(studioOpen)closeStudio();
- $('selection').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
-});
+$('living-pass-btn').addEventListener('click',()=>route(()=>showPage('selection',false)));
 $('discover-prev').addEventListener('click',()=>moveDiscovery(-1));
 $('discover-next').addEventListener('click',()=>moveDiscovery(1));
 $('discover-open').addEventListener('click',openDiscovered);
@@ -1173,8 +1170,8 @@ $('atlas-figure').addEventListener('keydown',event=>{
 });
 $('studio-back').addEventListener('click',closeStudio);
 $('studio-filter-toggle').addEventListener('click',()=>{
- const f=$('studio-filters');f.hidden=!f.hidden;
- $('studio-filter-toggle').setAttribute('aria-expanded',String(!f.hidden));
+ if(!$('studio-filters').hidden){goBack();return;}
+ route(()=>{$('studio-filters').hidden=false;$('studio-filter-toggle').setAttribute('aria-expanded','true');});
 });
 $('studio-technique').addEventListener('toggle',()=>{
  $('technique-scrim').hidden=!$('studio-technique').open;
@@ -1207,7 +1204,7 @@ $('studio-stage').addEventListener('touchcancel',()=>{studioTouchStart=null;},{p
 $('group-filters').addEventListener('click',ev=>{const b=ev.target.closest('[data-group]');if(!b)return;group=b.dataset.group;renderFilters();renderList();});
 $('equipment-filters').addEventListener('click',ev=>{const b=ev.target.closest('[data-equip]');if(!b)return;equip=b.dataset.equip;renderFilters();renderList();});
 $('search').addEventListener('input',renderList);
-$('exercise-list').addEventListener('click',ev=>{const b=ev.target.closest('[data-id]');if(b)select(Number(b.dataset.id),true)});
+$('exercise-list').addEventListener('click',ev=>{const b=ev.target.closest('[data-id]');if(b)route(()=>{setList(false);select(Number(b.dataset.id),false);window.scrollTo(0,0);});});
 $('view-toggle').addEventListener('click',()=>{cameraIndex=1-cameraIndex;$('view-toggle').setAttribute('aria-pressed',String(!!cameraIndex));$('view-toggle').textContent=cameraIndex?'Återställ vy ↻':'Byt vy ↻';draw((1-Math.cos(phase*TAU))/2,phase);});
 $('toggle-exercise-3d').addEventListener('click',()=>{
  preferSilverPress=!preferSilverPress;
@@ -1246,17 +1243,19 @@ function toggleChoice(id){
  saveSelection();renderSelection();
 }
 function showPage(value,remember=true){
- page=['guide','suggestions','programs'].includes(value)?value:'guide';
+ setList(false);
+ page=['guide','suggestions','programs','selection'].includes(value)?value:'guide';
  document.body.classList.toggle('living-guide-active',page==='guide');
  if(page!=='guide'&&studioOpen)toggleStudio(false);
  for(const name of ['guide','suggestions','programs'])$(name+'-page').hidden=name!==page;
  document.querySelectorAll('[data-page]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.page===page)));
- $('living-dock').hidden=studioOpen;
+ $('living-dock').hidden=false;
 
- if(remember)history.replaceState(null,'','#'+page);
+ $('selection').hidden=page!=='selection';
+ if(page==='guide'&&!studioOpen)openStudio(group,active,false);
  if(page==='suggestions')renderSuggestions();if(page==='programs')renderPrograms();
 }
-function showTechnique(id){showPage('guide');openStudio('Alla',id,true);}
+function showTechnique(id){route(()=>{setList(false);showPage('guide',false);openStudio('Alla',id,true);});}
 function suggestionMatches(){return exercises.filter(e=>(!inspirationOnly||Object.hasOwn(explorer.inspiration,e.id))&&(!$('suggest-muscle').value||e.muscles.includes($('suggest-muscle').value))&&(!$('suggest-equipment').value||e.equipment===$('suggest-equipment').value));}
 function renderSuggestions(){
  const matches=suggestionMatches(),kinds=[...new Set(matches.map(e=>e.group))],buckets=kinds.map(g=>matches.filter(e=>e.group===g)),items=[];
@@ -1276,7 +1275,7 @@ function renderPrograms(){
 function showProgram(id){
  const p=explorer.programs.find(program=>program.id===id);if(!p)return;chosenProgram=p.id;
  $('program-detail').hidden=false;
- $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><ol>${p.ids.map((id,i)=>`<li><span>${String(i+1).padStart(2,'0')}</span><div><strong>${safe(exercises[id].name)}</strong><small>${safe(explorer.prescription(id,p).label)}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}">Se teknik ↗</button></li>`).join('')}</ol><footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">Kopiera programförslag ↗</button></footer>`;
+ $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div><ol class="program-timeline">${p.ids.map((id,i)=>`<li><span>${String(i+1).padStart(2,'0')}</span><div><strong>${safe(exercises[id].name)}</strong><small>${safe(explorer.prescription(id,p).label)}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}">Se teknik ↗</button></li>`).join('')}</ol><footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">Kopiera programförslag ↗</button></footer>`;
  $('program-cards').hidden=true;$('program-controls').hidden=true;
  $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
 }
@@ -1304,6 +1303,24 @@ function transfer(request){
   navigator.clipboard.writeText(text).then(()=>announce('Passförslaget är kopierat. Använd det i din passbyggare.'),fallback);
  }else fallback();
 }
+let routeDepth=0,listOpen=false;
+function setList(open){listOpen=open;document.body.classList.toggle('exercise-list-open',open);}
+function routeState(){return {pulse:true,depth:routeDepth,page,active,group,equip,query:$('search').value,chosenProgram,listOpen,filters:!$('studio-filters').hidden,scroll:scrollY};}
+function route(action){history.replaceState(routeState(),'');action();routeDepth++;history.pushState(routeState(),'','#'+page);}
+function goBack(){if(routeDepth>0){history.back();return;}route(()=>setList(true));}
+window.addEventListener('popstate',event=>{
+ const state=event.state;if(!state?.pulse)return;
+ routeDepth=state.depth;group=state.group;equip=state.equip;active=state.active;
+ showPage(state.page,false);
+ if(state.page==='guide'){openStudio(group,active,false);$('search').value=state.query;renderList();}
+ if(state.page==='programs'){if(state.chosenProgram)showProgram(state.chosenProgram);else closeProgram();}
+ setList(state.listOpen);$('studio-filters').hidden=!state.filters;
+ $('studio-filter-toggle').setAttribute('aria-expanded',String(state.filters));
+ requestAnimationFrame(()=>window.scrollTo({top:state.scroll,behavior:'instant'}));
+});
+$('exercise-picker').addEventListener('click',()=>route(()=>setList(true)));
+document.querySelectorAll('[data-studio-muscle]').forEach(b=>b.addEventListener('click',()=>route(()=>{setList(false);openStudio(b.dataset.studioMuscle,null,true);})));
+try{const saved=Number(localStorage.getItem('pulse-last-exercise'));if(exercises[saved])active=saved;}catch(e){}
 for(const muscle of [...new Set(exercises.flatMap(e=>e.muscles))].sort((a,b)=>a.localeCompare(b,'sv'))){const option=document.createElement('option');option.textContent=muscle;$('suggest-muscle').appendChild(option);}
 for(const value of equipment.slice(1)){const option=document.createElement('option');option.textContent=value;$('suggest-equipment').appendChild(option);}
 $('inspiration-toggle').addEventListener('click',()=>{inspirationOnly=!inspirationOnly;$('inspiration-toggle').setAttribute('aria-pressed',String(inspirationOnly));suggestionOffset=0;renderSuggestions();});
@@ -1317,25 +1334,27 @@ $('clear-selection').addEventListener('click',()=>{selection=[];saveSelection();
 $('open-selection').addEventListener('click',()=>transfer({version:1,ids:selection}));
 document.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
- if(b.dataset.page)showPage(b.dataset.page);
+ if(b.dataset.page)route(()=>{showPage(b.dataset.page,false);window.scrollTo(0,0);});
  if(b.dataset.technique!=null)showTechnique(Number(b.dataset.technique));
  if(b.dataset.addChoice!=null)toggleChoice(Number(b.dataset.addChoice));
  if(b.dataset.removeChoice!=null)toggleChoice(Number(b.dataset.removeChoice));
  if(b.dataset.programFilter){programFilter=b.dataset.programFilter;closeProgram();renderPrograms();}
- if(b.dataset.program)showProgram(b.dataset.program);
+ if(b.dataset.program)route(()=>showProgram(b.dataset.program));
  if(b.id==='reset-program-filters'){programFilter='Alla';$('program-time').value='';closeProgram();renderPrograms();}
- if(b.id==='close-program')closeProgram();
+ if(b.id==='close-program')goBack();
  if(b.id==='open-program'&&chosenProgram)transfer({version:1,programId:chosenProgram});
 });
 window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorage.getItem(explorer.selectionKey)||'[]');selection=explorer.workout({version:1,ids:saved})?saved:[];renderSelection();}catch(error){}});
-window.addEventListener('hashchange',()=>showPage(location.hash.slice(1),false));
-renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
 
+renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
+ history.replaceState(routeState(),'', '#'+page);
+
+window.addEventListener('load',()=>{if(studioOpen)draw((1-Math.cos(phase*Math.PI*2))/2,phase);});
 renderFilters();renderList();renderDetail();renderDiscovery();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
-<script src="pulse-living-anatomy.js?v=20261024-art-v3" defer></script>
-<script type="module" src="pulse-muscle-atlas-stills.js?v=20261024-art-v3"></script>
+
+
 <script type="module" src="pulse-silver-chest-press.js?v=20261025-arm-rotation-shorts-v21"></script>
 
 </body></html>

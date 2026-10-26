@@ -7,7 +7,7 @@ const dir='test-results/silver-press';fs.mkdirSync(dir,{recursive:true});
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
- await page.locator('#atlas-show-exercises').click();
+ 
  await page.waitForFunction(()=>window.PulseSilverPress?.ready,{timeout:30000});
  const canvas=page.locator('#exercise-silver-3d canvas');
  await canvas.waitFor({state:'visible'});
@@ -48,7 +48,7 @@ const dir='test-results/silver-press';fs.mkdirSync(dir,{recursive:true});
  const safari=await webkit.launch();
  const mobile=await safari.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
  await mobile.goto('http://127.0.0.1:4173/budget/pulse-exercise-guide.html');
- await mobile.locator('#atlas-show-exercises').click();
+ 
  await mobile.waitForFunction(()=>window.PulseSilverPress?.ready||window.PulseSilverPress?.failed);
  const webkit3D=await mobile.evaluate(()=>window.PulseSilverPress.ready);
  await mobile.locator('#studio-stage').screenshot({path:dir+'/webkit-390.png'});
