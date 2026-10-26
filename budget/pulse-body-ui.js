@@ -1,5 +1,5 @@
 /* Body-menu preview for the exercise explorer, enabled with ?ui=kropp.
-   A turntable figure replaces the muscle carousel (Utforska) and the filter
+   A turntable of the exercise mannequin replaces the muscle carousel (Utforska) and the filter
    chips and time select (Program): drag to turn it, tap a glowing muscle to
    choose it. Programs become cover cards. Every choice goes through the
    page's own controls or PulseGuideUI, so behaviour keeps one source of truth
@@ -10,24 +10,24 @@
   if (params.get('ui') !== 'kropp') return;
   document.documentElement.classList.add('ui-kropp');
 
-  var ATLAS = 'assets/atlas-stills-v1/';
+  var ATLAS = 'assets/silver-body-v1/';
   var POSES = [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,21,22,23,25,26,30,34,35,43,44,45,52];
   var STANCE = { front: 0, back: 6 };
-  /* Hotspots on the frontal (view-0) and dorsal (view-6) stills, in % of the
-     720×900 frame; `turn` is the angle and still that shows the muscle lit,
-     and `at` where its label sits on that still. */
+  /* The exercise mannequin rendered standing, in 12 angles plus one lit still
+     per group at its stance (see assets/silver-body-v1). Points are in % of the
+     720×900 frame, at the centre of each lit muscle. */
   var MUSCLES = [
-    { name: 'Axlar', side: 'front', x: 39.5, y: 26, turn: 2, img: 'shoulders-front', at: [57.5, 26.7] },
-    { name: 'Bröst', side: 'front', x: 44.5, y: 29, turn: 1, img: 'chest-front', at: [44.9, 29.1] },
-    { name: 'Biceps', side: 'front', x: 36, y: 35.5, turn: 1, img: 'biceps-front', at: [38.6, 35.6] },
-    { name: 'Mage', side: 'front', x: 50, y: 41, turn: 0, img: 'abs-front', at: [49.7, 42.1] },
-    { name: 'Framsida lår', side: 'front', x: 44, y: 61, turn: 1, img: 'quads-front', at: [43.6, 64.1] },
-    { name: 'Rygg', side: 'back', x: 54, y: 32, turn: 6, img: 'back-back', at: [49.8, 33.1] },
-    { name: 'Triceps', side: 'back', x: 63.5, y: 35, turn: 8, img: 'triceps-back', at: [49.6, 34.9] },
-    { name: 'Säte', side: 'back', x: 45, y: 51, turn: 7, img: 'glutes-back', at: [49.9, 52.1] },
-    { name: 'Baksida lår', side: 'back', x: 56, y: 64, turn: 7, img: 'hamstrings-back', at: [48.8, 65.5] },
-    { name: 'Vader', side: 'back', x: 44, y: 79, turn: 7, img: 'calves-back', at: [47.9, 80.6] }
-  ];
+    { name: 'Axlar', side: 'front', x: 62.8, y: 28.5, img: 'shoulders' },
+    { name: 'Bröst', side: 'front', x: 43.2, y: 30.6, img: 'chest' },
+    { name: 'Biceps', side: 'front', x: 33.2, y: 35.7, img: 'biceps' },
+    { name: 'Mage', side: 'front', x: 49.9, y: 40.3, img: 'abs' },
+    { name: 'Framsida lår', side: 'front', x: 43, y: 60.9, img: 'quads' },
+    { name: 'Rygg', side: 'back', x: 49.8, y: 34, img: 'back' },
+    { name: 'Triceps', side: 'back', x: 33.2, y: 35.6, img: 'triceps' },
+    { name: 'Säte', side: 'back', x: 51.2, y: 49.7, img: 'glutes' },
+    { name: 'Baksida lår', side: 'back', x: 56.9, y: 60.7, img: 'hamstrings' },
+    { name: 'Vader', side: 'back', x: 42.8, y: 74.9, img: 'calves' }
+  ].map(function (m) { m.turn = STANCE[m.side]; m.at = [m.x, m.y]; return m; });
   var $ = function (id) { return document.getElementById(id); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var views = [];

@@ -1,0 +1,85 @@
+{
+ "version": 1,
+ "width": 720,
+ "height": 900,
+ "views": [
+  "view-0.webp",
+  "view-1.webp",
+  "view-2.webp",
+  "view-3.webp",
+  "view-4.webp",
+  "view-5.webp",
+  "view-6.webp",
+  "view-7.webp",
+  "view-8.webp",
+  "view-9.webp",
+  "view-10.webp",
+  "view-11.webp"
+ ],
+ "stance": {
+  "front": 0,
+  "back": 6
+ },
+ "groups": {
+  "Axlar": {
+   "side": "front",
+   "x": 37.2,
+   "y": 28.5,
+   "image": "shoulders.webp"
+  },
+  "Bröst": {
+   "side": "front",
+   "x": 43.2,
+   "y": 30.6,
+   "image": "chest.webp"
+  },
+  "Biceps": {
+   "side": "front",
+   "x": 33.2,
+   "y": 35.7,
+   "image": "biceps.webp"
+  },
+  "Mage": {
+   "side": "front",
+   "x": 49.9,
+   "y": 40.3,
+   "image": "abs.webp"
+  },
+  "Framsida lår": {
+   "side": "front",
+   "x": 43.0,
+   "y": 60.9,
+   "image": "quads.webp"
+  },
+  "Rygg": {
+   "side": "back",
+   "x": 49.8,
+   "y": 34.0,
+   "image": "back.webp"
+  },
+  "Triceps": {
+   "side": "back",
+   "x": 33.2,
+   "y": 35.6,
+   "image": "triceps.webp"
+  },
+  "Säte": {
+   "side": "back",
+   "x": 51.2,
+   "y": 49.7,
+   "image": "glutes.webp"
+  },
+  "Baksida lår": {
+   "side": "back",
+   "x": 43.1,
+   "y": 60.7,
+   "image": "hamstrings.webp"
+  },
+  "Vader": {
+   "side": "back",
+   "x": 42.8,
+   "y": 74.9,
+   "image": "calves.webp"
+  }
+ }
+}
