@@ -190,7 +190,7 @@ api.update=frame=>{
  frameLatest=frame;
  if(!api.ready){if(!api.failed&&!api.loading)initialize();return false;}
  if(!host.contains(renderer.domElement))host.replaceChildren(renderer.domElement);
- const w=Math.round(stage.clientWidth),h=Math.round(stage.clientHeight);
+ const w=frame.previewWidth||Math.round(stage.clientWidth),h=frame.previewHeight||Math.round(stage.clientHeight);
  if(w<20||h<20)return false;
  const size=w+':'+h;
  if(size!==lastSize){lastSize=size;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -216,6 +216,14 @@ api.update=frame=>{
  renderer.render(scene,activeCamera);
  api.performance={calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,programs:renderer.info.programs.length,canvases:host.querySelectorAll('canvas').length};
  stage.classList.add('exercise-3d-ready','silver-press-ready');
+ const status=document.getElementById('model-status');if(status)status.hidden=true;
  return true;
 };
 
+
+// Copy small visible previews from the same renderer; never create per-row WebGL contexts.
+api.preview=(frame,canvas)=>{
+ if(!api.update({...frame,previewWidth:canvas.width,previewHeight:canvas.height}))return false;
+ canvas.getContext('2d').drawImage(renderer.domElement,0,0,canvas.width,canvas.height);
+ return true;
+};
