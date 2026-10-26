@@ -1,0 +1,269 @@
+/* Stories preview for the exercise explorer, enabled with ?ui=stories.
+   Each exercise is a full-screen story around the live animated figure:
+   swipe up/down for the next/previous exercise, sideways for the next muscle
+   group, tap to pause, double tap to choose. Programs play as story
+   playlists. The page's own stage, selection and transfer are reused through
+   PulseGuideUI, so the default UI is untouched when the flag is off. */
+(function () {
+  'use strict';
+  var params = new URLSearchParams(location.search);
+  if ((params.get('ui') || '').split(',').indexOf('stories') < 0) return;
+  document.documentElement.classList.add('ui-stories');
+
+  var POSES = [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,21,22,23,25,26,30,34,35,43,44,45,52];
+  var GROUPS = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader'];
+  var STORY_MS = 9000;
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, html) { var n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; }
+  function pose(id, end) { return POSES.indexOf(Number(id)) >= 0 ? 'assets/exercise-poses-v1/' + String(id).padStart(2, '0') + (end ? '-end' : '-start') + '.webp' : ''; }
+  function splitDose(label) {
+    var m = String(label || '').match(/(\d+)\s*×\s*([\d–]+)\s*(.*)$/);
+    if (!m) return { big: String(label || ''), unit: '' };
+    return m[1] === '1' && /min/.test(m[3]) ? { big: m[2], unit: m[3] } : { big: m[1] + '×' + m[2], unit: m[3] };
+  }
+  var ICON = {
+    add: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    added: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></svg>',
+    turn: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>',
+    pass: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
+    play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+    close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+  };
+
+  function init() {
+    var ui = window.PulseGuideUI, explore = window.PulseExplore;
+    if (!ui || !explore) return;
+    var all = explore.exercises;
+    // The figure animates only while the explorer's own exercise view is open.
+    if ($('guide-page').hidden || document.body.classList.contains('exercise-list-open')) $('living-dock').querySelector('[data-page="guide"]').click();
+
+    var root = el('div', 'st-root'); root.setAttribute('role', 'region'); root.setAttribute('aria-label', 'Övningar som stories');
+    var stageHost = el('div', 'st-stage');
+    var poster = el('img', 'st-poster'); poster.alt = ''; poster.setAttribute('aria-hidden', 'true');
+    stageHost.appendChild(poster);
+    stageHost.appendChild($('studio-stage'));
+    var touch = el('div', 'st-touch'); touch.setAttribute('aria-hidden', 'true');
+    var top = el('div', 'st-top');
+    var bars = el('div', 'st-bars');
+    var tabs = el('div', 'st-tabs');
+    var close = el('a', 'st-close', ICON.close); close.href = $('explore-back').getAttribute('href'); close.setAttribute('aria-label', 'Till träningen');
+    top.appendChild(bars); top.appendChild(el('div', 'st-toprow')); top.lastChild.appendChild(close); top.lastChild.appendChild(tabs);
+    var info = el('div', 'st-info');
+    var rail = el('div', 'st-rail');
+    var pauseMark = el('div', 'st-pause', '<span></span><span></span>'); pauseMark.setAttribute('aria-hidden', 'true');
+    var burst = el('div', 'st-burst'); burst.setAttribute('aria-hidden', 'true');
+    var end = el('div', 'st-end'); end.hidden = true;
+    [stageHost, touch, pauseMark, burst, top, info, rail, end].forEach(function (n) { root.appendChild(n); });
+    document.body.appendChild(root);
+
+    function railButton(key, label, onClick) {
+      var b = el('button', 'st-rail-btn', '<span class="st-ico">' + ICON[key] + '</span><small>' + label + '</small>');
+      b.type = 'button'; b.setAttribute('aria-label', label);
+      b.addEventListener('click', function (event) { event.stopPropagation(); onClick(); });
+      rail.appendChild(b); return b;
+    }
+    var addBtn = railButton('add', 'Välj', function () { choose(); });
+    railButton('info', 'Teknik', function () { openSheet('technique'); });
+    railButton('turn', 'Vinkel', function () { ui.view(); });
+    var passBtn = railButton('pass', 'Mitt pass', function () { openSheet('pass'); });
+    railButton('play', 'Program', function () { openSheet('programs'); });
+
+    /* ---- Playlists: a muscle group, or a programme ---- */
+    var state = { group: 'Alla', program: null, list: [], index: 0, started: 0, elapsed: 0 };
+    function listFor(group) { return all.filter(function (e) { return group === 'Alla' || e.muscles.indexOf(group) >= 0; }).map(function (e) { return e.id; }); }
+    function renderTabs() {
+      tabs.innerHTML = (state.program
+        ? '<button type="button" class="st-tab is-on st-program-tab" data-exit-program>▶ ' + state.program.name + ' <span aria-hidden="true">×</span></button>'
+        : GROUPS.map(function (g) { return '<button type="button" class="st-tab' + (g === state.group ? ' is-on' : '') + '" data-group="' + g + '">' + (g === 'Alla' ? 'För dig' : g) + '</button>'; }).join(''));
+      var on = tabs.querySelector('.is-on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
+    tabs.addEventListener('click', function (event) {
+      var b = event.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-exit-program')) { playGroup(state.group); return; }
+      playGroup(b.dataset.group);
+    });
+    function playGroup(group) { state.group = group; state.program = null; state.list = listFor(group); go(0); renderTabs(); }
+    function playProgram(program) { state.program = program; state.list = program.ids.slice(); go(0); renderTabs(); }
+
+    function renderBars() {
+      var n = state.list.length;
+      if (n <= 16) bars.innerHTML = state.list.map(function (_, i) { return '<span class="' + (i < state.index ? 'is-done' : i === state.index ? 'is-now' : '') + '"><i></i></span>'; }).join('');
+      else bars.innerHTML = '<span class="st-bar-long is-now"><i></i></span><em>' + String(state.index + 1).padStart(2, '0') + ' / ' + n + '</em>';
+      bars.style.setProperty('--story-ms', STORY_MS + 'ms');
+    }
+    function renderInfo() {
+      var id = state.list[state.index], e = all[id];
+      var dose = splitDose(explore.prescription(id, state.program || undefined).label);
+      info.innerHTML = '<span class="st-eyebrow">' + e.equipment + ' · ' + e.muscles[0] + '</span><h2>' + e.name + '</h2>' +
+        '<div class="st-dose"><strong>' + dose.big + '</strong><span>' + dose.unit + '</span></div>' +
+        '<div class="st-muscles">' + e.muscles.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>';
+      var src = pose(id, false);
+      poster.hidden = !src; if (src) poster.src = src;
+      syncChosen();
+    }
+    function syncChosen() {
+      var id = state.list[state.index], on = ui.selection().indexOf(id) >= 0;
+      addBtn.classList.toggle('is-on', on);
+      addBtn.querySelector('.st-ico').innerHTML = on ? ICON.added : ICON.add;
+      addBtn.querySelector('small').textContent = on ? 'Vald' : 'Välj';
+      var n = ui.selection().length;
+      passBtn.querySelector('small').textContent = n ? 'Mitt pass · ' + n : 'Mitt pass';
+    }
+    function go(index) {
+      end.hidden = true;
+      state.index = Math.max(0, Math.min(state.list.length - 1, index));
+      state.elapsed = 0; state.started = performance.now();
+      ui.select(state.list[state.index]);
+      renderBars(); renderInfo();
+      root.classList.remove('is-next'); void root.offsetWidth; root.classList.add('is-next');
+      if (!sheetOpen) ui.setPaused(false);
+      sync();
+    }
+    function next() {
+      if (state.index < state.list.length - 1) go(state.index + 1);
+      else if (state.program) showEnd();
+      else go(0);
+    }
+    function prev() { go(state.index - 1); }
+    function stepGroup(dir) {
+      if (state.program) return;
+      var i = GROUPS.indexOf(state.group);
+      playGroup(GROUPS[(i + dir + GROUPS.length) % GROUPS.length]);
+    }
+    function showEnd() {
+      ui.setPaused(true); sync();
+      var p = state.program;
+      end.innerHTML = '<span class="st-eyebrow">Programmet är slut</span><h2>' + p.name + '</h2><p>' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</p>' +
+        '<button type="button" class="st-cta" data-copy>Kopiera till passbyggaren ↗</button><button type="button" class="st-ghost" data-again>Spela igen</button>';
+      end.hidden = false;
+    }
+    end.addEventListener('click', function (event) {
+      if (event.target.closest('[data-copy]')) ui.copyProgram(state.program.id);
+      if (event.target.closest('[data-again]')) go(0);
+    });
+
+    /* Auto-advance follows the page's pause state, so a paused figure also
+       stops its story timer. */
+    var timer = 0;
+    function sync() {
+      var paused = ui.paused() || sheetOpen || !end.hidden;
+      root.classList.toggle('is-paused', ui.paused() && end.hidden);
+      clearTimeout(timer);
+      var now = performance.now();
+      if (paused) { if (state.started) { state.elapsed += now - state.started; state.started = 0; } }
+      else {
+        if (!state.started) state.started = now;
+        timer = setTimeout(next, Math.max(0, STORY_MS - state.elapsed));
+      }
+      bars.style.setProperty('--story-delay', -state.elapsed + 'ms');
+      bars.classList.toggle('is-paused', paused);
+      // Restart the running bar from the elapsed time so it matches the timer.
+      var fill = bars.querySelector('.is-now i'); if (fill) fill.replaceWith(fill.cloneNode());
+    }
+    new MutationObserver(sync).observe($('pause'), { attributes: true, attributeFilter: ['aria-pressed'] });
+    new MutationObserver(function () { syncChosen(); renderPassSheet(); }).observe($('living-pass-count'), { childList: true, characterData: true, subtree: true });
+
+    function choose() {
+      var id = state.list[state.index], had = ui.selection().indexOf(id) >= 0;
+      ui.toggle(id);
+      burst.className = 'st-burst'; void burst.offsetWidth;
+      burst.className = 'st-burst ' + (had ? 'is-removed' : 'is-added');
+      burst.textContent = had ? 'Borttagen' : '+ Mitt pass';
+    }
+
+    /* ---- Gestures ---- */
+    var start = null, tapTimer = 0, lastTap = 0;
+    touch.addEventListener('pointerdown', function (event) { start = { x: event.clientX, y: event.clientY, t: Date.now() }; touch.setPointerCapture(event.pointerId); });
+    touch.addEventListener('pointerup', function (event) {
+      if (!start) return;
+      var dx = event.clientX - start.x, dy = event.clientY - start.y, s = start; start = null;
+      if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.2) { hideHint(); (dy < 0 ? next : prev)(); return; }
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) { hideHint(); stepGroup(dx < 0 ? 1 : -1); return; }
+      if (Math.abs(dx) > 12 || Math.abs(dy) > 12 || Date.now() - s.t > 450) return;
+      var now = Date.now();
+      if (now - lastTap < 300) { clearTimeout(tapTimer); lastTap = 0; hideHint(); choose(); return; }
+      lastTap = now;
+      tapTimer = setTimeout(function () { lastTap = 0; hideHint(); ui.setPaused(!ui.paused()); }, 300);
+    });
+    touch.addEventListener('pointercancel', function () { start = null; });
+    document.addEventListener('keydown', function (event) {
+      if (sheetOpen) { if (event.key === 'Escape') closeSheet(); return; }
+      if (event.key === 'ArrowDown') next(); else if (event.key === 'ArrowUp') prev();
+      else if (event.key === 'ArrowRight') stepGroup(1); else if (event.key === 'ArrowLeft') stepGroup(-1);
+      else if (event.key === ' ') { event.preventDefault(); ui.setPaused(!ui.paused()); }
+    });
+
+    var hint = null, seen = false;
+    try { seen = localStorage.getItem('pulse-stories-hint-v1') === '1'; } catch (_) {}
+    if (!seen || params.get('hint') === '1') {
+      hint = el('div', 'st-hint', '<span><b>↑ ↓</b>övning</span><span><b>← →</b>muskel</span><span><b>Tryck</b>paus</span><span><b>Dubbeltryck</b>välj</span>');
+      hint.setAttribute('role', 'note'); root.appendChild(hint); setTimeout(hideHint, 6500);
+    }
+    function hideHint() {
+      if (!hint) return; var h = hint; hint = null; h.classList.add('is-gone'); setTimeout(function () { h.remove(); }, 400);
+      try { localStorage.setItem('pulse-stories-hint-v1', '1'); } catch (_) {}
+    }
+
+    /* ---- Sheets: technique, Mitt pass, programmes ---- */
+    var scrim = el('div', 'st-scrim'); scrim.hidden = true;
+    var sheet = el('div', 'st-sheet'); sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true');
+    root.appendChild(scrim); root.appendChild(sheet);
+    var sheetOpen = false, sheetKind = '';
+    function renderPassSheet() {
+      if (sheetKind !== 'pass') return;
+      var ids = ui.selection();
+      sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Ditt urval</span><h3>Mitt pass <em>' + ids.length + '</em></h3>' +
+        (ids.length ? '<ul class="st-pass">' + ids.map(function (id) {
+          var d = splitDose(explore.prescription(id).label);
+          return '<li><img src="' + (pose(id, true) || 'assets/atlas-art-v1/chest.webp') + '" alt=""><span><b>' + all[id].name + '</b><small>' + d.big + ' ' + d.unit + '</small></span><button type="button" data-remove="' + id + '" aria-label="Ta bort ' + all[id].name + '">×</button></li>';
+        }).join('') + '</ul><button type="button" class="st-cta" data-copy-pass>Kopiera passförslag ↗</button>'
+          : '<p class="st-muted">Dubbeltryck på en övning för att lägga till den.</p>');
+    }
+    function openSheet(kind) {
+      sheetKind = kind; sheetOpen = true;
+      if (kind === 'technique') {
+        sheet.setAttribute('aria-label', 'Teknik');
+        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Teknik</span><h3>' + all[state.list[state.index]].name + '</h3><ol class="st-steps">' + $('steps').innerHTML + '</ol><div class="st-tip">' + $('tip').innerHTML + '</div>';
+      } else if (kind === 'pass') {
+        sheet.setAttribute('aria-label', 'Mitt pass'); renderPassSheet();
+      } else {
+        sheet.setAttribute('aria-label', 'Program');
+        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Spela ett program</span><h3>Program</h3><div class="st-programs">' + explore.programs.map(function (p) {
+          var stills = p.ids.filter(function (id) { return POSES.indexOf(id) >= 0; }).slice(0, 3);
+          return '<button type="button" class="st-program" data-program="' + p.id + '"><span class="st-program-art">' + stills.map(function (id, i) { return '<img src="' + pose(id, true) + '" alt="" data-i="' + i + '">'; }).join('') +
+            '</span><span class="st-program-copy"><b>' + p.name + '</b><small>' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</small></span><span class="st-program-play">' + ICON.play + '</span></button>';
+        }).join('') + '</div>';
+      }
+      scrim.hidden = false; sheet.hidden = false;
+      requestAnimationFrame(function () { root.classList.add('sheet-open'); });
+      sheet.tabIndex = -1; sheet.focus({ preventScroll: true });
+      sync();
+    }
+    function closeSheet() {
+      sheetOpen = false; sheetKind = ''; root.classList.remove('sheet-open');
+      setTimeout(function () { if (!sheetOpen) { scrim.hidden = true; sheet.hidden = true; } }, 280);
+      sync();
+    }
+    scrim.addEventListener('click', closeSheet);
+    sheet.addEventListener('click', function (event) {
+      var t = event.target;
+      if (t.closest('.st-grip')) { closeSheet(); return; }
+      var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
+      if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
+      var program = t.closest('[data-program]');
+      if (program) { var p = explore.programs.find(function (x) { return x.id === program.dataset.program; }); closeSheet(); playProgram(p); }
+    });
+    var sheetY = null;
+    sheet.addEventListener('pointerdown', function (event) { if (event.target.closest('.st-grip')) sheetY = event.clientY; });
+    sheet.addEventListener('pointerup', function (event) { if (sheetY != null && event.clientY - sheetY > 50) closeSheet(); sheetY = null; });
+
+    var startGroup = GROUPS.indexOf(params.get('grupp')) >= 0 ? params.get('grupp') : 'Alla';
+    state.group = startGroup; state.list = listFor(startGroup);
+    var startIndex = Math.max(0, state.list.indexOf(ui.active()));
+    renderTabs(); go(startIndex);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  else init();
+})();

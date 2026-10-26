@@ -367,7 +367,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261026-stories-1"><script src="pulse-stories-ui.js?v=20261026-stories-1"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261026-map-1"><script src="pulse-map-ui.js?v=20261026-map-1"></script>
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
@@ -1045,8 +1045,17 @@ document.addEventListener('click',event=>{
 });
 window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorage.getItem(explorer.selectionKey)||'[]');selection=explorer.workout({version:1,ids:saved})?saved:[];renderSelection();}catch(error){}});
 
-/* Read surface for the optional body-menu preview (pulse-body-ui.js). */
+/* Surface for the optional preview layouts (pulse-body-ui.js, pulse-stories-ui.js, pulse-map-ui.js). */
 window.PulseGuideUI={
+ active:()=>active,
+ select:id=>{if(exercises[id]&&id!==active)select(id,false);},
+ paused:()=>paused,
+ setPaused:value=>{if(!!value!==paused)$('pause').click();},
+ view:()=>$('view-toggle').click(),
+ selection:()=>selection.slice(),
+ toggle:id=>toggleChoice(id),
+ copySelection:()=>transfer({version:1,ids:selection}),
+ copyProgram:id=>transfer({version:1,programId:id}),
  muscle:()=>group,
  openMuscle:name=>route(()=>{const browsing=listOpen;openStudio(name,null,true);setList(browsing);}),
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,

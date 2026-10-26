@@ -1,0 +1,113 @@
+/* Gym-map preview (?ui=karta). Scoped to html.ui-karta; see pulse-map-ui.js. */
+html.ui-karta,html.ui-karta body{overflow:hidden;background:#07090e}
+html.ui-karta header,html.ui-karta main,html.ui-karta #living-dock,html.ui-karta .guide-about,html.ui-karta #explore-status{display:none!important}
+
+.gm-root{position:fixed;inset:0;z-index:70;overflow:hidden;color:#f6ece9;--gm-accent:#ff5a48;--gm-soft:#ffd2ca;--gm-muted:#c9a19c;
+  background:radial-gradient(ellipse 90% 60% at 50% 45%,#1a1013 0%,#0a0c12 60%,#06080c 100%)}
+.gm-viewport{position:absolute;inset:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.gm-world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.gm-world.is-easing{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+
+/* Floor slab, grid and areas. */
+.gm-floor{position:absolute;left:0;top:0;overflow:visible}
+.gm-slab{fill:url(#gm-glow);stroke:#ff6a5a26;stroke-width:1}
+.gm-slab-side{fill:#0c0e14;stroke:#ff6a5a1a}
+.gm-grid line{stroke:#ffffff0d;stroke-width:1}
+.gm-area{fill:#ff5a4806;stroke:#ff6a5a33;stroke-width:1;stroke-dasharray:4 5}
+.gm-area-label{position:absolute;transform:translate(-50%,-50%) rotate(26.57deg) skewX(-26.57deg);transform-origin:center;
+  color:#ff8a78a6;font-size:9px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
+
+/* Stations: a glowing pedestal with the exercise figure standing on it. */
+.gm-st{position:absolute;width:76px;height:96px;margin:-84px 0 0 -38px;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;transition:opacity .3s,filter .3s}
+.gm-pad{position:absolute;left:50%;bottom:4px;width:46px;height:46px;margin-left:-23px;transform:scaleY(.5) rotate(45deg);border-radius:6px;
+  background:linear-gradient(135deg,#2a1c20,#14151d);box-shadow:0 0 0 1px #ff6a5a3d,0 0 16px #ff3b2b40}
+.gm-st img{position:absolute;left:50%;bottom:16px;width:96px;margin-left:-48px;clip-path:inset(11% 0 9% 0);pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 55%,transparent 100%);
+  filter:drop-shadow(0 6px 6px #000c)}
+.gm-ghost{position:absolute;left:50%;bottom:22px;width:16px;height:38px;margin-left:-8px;border-radius:8px 8px 4px 4px;background:linear-gradient(#cfd6de,#7c8794);opacity:.65}
+.gm-ghost::before{content:'';position:absolute;left:3px;top:-12px;width:10px;height:10px;border-radius:50%;background:#cfd6de}
+.gm-name{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;width:max-content;max-width:110px;color:#d9c9c6;font-size:9px;line-height:1.25;text-align:center}
+.gm-name em{font-style:normal;color:var(--gm-soft);margin-left:3px}
+.gm-st.is-zone .gm-pad{width:60px;height:60px;margin-left:-30px;bottom:0}
+.gm-st.is-zone .gm-name{font-size:10px;font-weight:650;color:var(--gm-soft)}
+.gm-st.is-chosen .gm-pad{box-shadow:0 0 0 1.5px #ff8a78,0 0 22px #ff3b2b99}
+.gm-st.is-open .gm-pad{background:linear-gradient(135deg,#5a211c,#2a1216);box-shadow:0 0 0 2px #ffd2ca,0 0 28px #ff3b2b}
+.gm-st:focus-visible{outline:2px solid #ffb9ad;outline-offset:2px;border-radius:12px}
+.gm-num{position:absolute;left:50%;top:-6px;transform:translateX(-50%);min-width:22px;height:22px;padding:0 6px;border-radius:11px;display:none;place-items:center;
+  background:var(--gm-accent);color:#fff;font-size:11px;font-weight:700;box-shadow:0 0 12px #ff3b2b}
+.gm-root.has-route .gm-st.on-route .gm-num{display:grid}
+.gm-root.has-route .gm-st.off-route{opacity:.22;filter:grayscale(.7)}
+.gm-route-glow{fill:none;stroke:#ff3b2b55;stroke-width:9;stroke-linejoin:round;stroke-linecap:round;filter:blur(4px)}
+.gm-route-line{fill:none;stroke:var(--gm-accent);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:gmDraw 1.2s cubic-bezier(.4,0,.2,1) forwards}
+.gm-route circle{fill:#ffd2ca;stroke:var(--gm-accent);stroke-width:2}
+@keyframes gmDraw{to{stroke-dashoffset:0}}
+
+/* Header, route row, mode switch and pass button float over the map. */
+.gm-head{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;justify-content:space-between;align-items:flex-start;padding:calc(16px + env(safe-area-inset-top)) 20px 30px;
+  background:linear-gradient(#07090ef2,#07090e00);pointer-events:none}
+.gm-head>*{pointer-events:auto}
+.gm-eyebrow{display:block;color:#ff8a78;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.gm-head h1{margin:4px 0 0;font-size:30px;letter-spacing:-.04em;font-weight:600;line-height:1}
+.gm-sub{margin:6px 0 0;color:var(--gm-muted);font-size:12px}
+.gm-close{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:#f6ece9;background:#ffffff10}
+.gm-close svg,.gm-pass svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.gm-modes{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));z-index:4;transform:translateX(-50%);display:flex;padding:4px;border-radius:999px;
+  background:#11131bf0;box-shadow:0 0 0 1px #ff6a5a2a,0 10px 30px #000a;transition:opacity .25s,transform .25s}
+.gm-modes button{border:0;background:none;color:var(--gm-muted);font:inherit;font-size:13px;font-weight:650;padding:10px 18px;border-radius:999px;cursor:pointer}
+.gm-modes button[aria-pressed="true"]{background:#ff5a4826;color:var(--gm-soft);box-shadow:inset 0 0 0 1px #ff6a5a66}
+.gm-routes{position:absolute;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom));z-index:4;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:6px 16px;
+  opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s,transform .25s}
+.gm-routes::-webkit-scrollbar{display:none}
+.gm-root.mode-routes .gm-routes{opacity:1;pointer-events:auto;transform:none}
+.gm-route-card{flex:0 0 auto;max-width:200px;padding:11px 14px;border:0;border-radius:16px;background:#151720f2;color:inherit;font:inherit;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px #ffffff12}
+.gm-route-card b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-route-card small{color:var(--gm-muted);font-size:11px}
+.gm-route-card[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--gm-accent),0 0 18px #ff3b2b40}
+.gm-pass{position:absolute;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:4;display:grid;place-items:center;width:46px;height:46px;border:0;border-radius:50%;
+  background:#ff5a4826;color:var(--gm-soft);box-shadow:inset 0 0 0 1px #ff6a5a66;cursor:pointer}
+.gm-pass[hidden]{display:none}
+.gm-pass em{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--gm-accent);color:#fff;font-style:normal;font-size:10px;font-weight:700;display:grid;place-items:center}
+.gm-modes button:focus-visible,.gm-route-card:focus-visible,.gm-pass:focus-visible,.gm-close:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+
+/* Station sheet with the live animated figure. */
+.gm-sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;height:min(58svh,580px);display:flex;flex-direction:column;border-radius:26px 26px 0 0;
+  background:linear-gradient(#141016,#0d0f15 40%);box-shadow:0 -1px 0 #ff6a5a36,0 -24px 60px #000c;transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.8,.2,1);
+  padding-bottom:env(safe-area-inset-bottom)}
+.gm-root.sheet-open .gm-sheet{transform:none}
+.gm-root.sheet-open .gm-modes,.gm-root.sheet-open .gm-routes,.gm-root.sheet-open .gm-pass{opacity:0;pointer-events:none;transform:translate(-50%,12px)}
+.gm-root.sheet-open .gm-routes,.gm-root.sheet-open .gm-pass{transform:translateY(12px)}
+.gm-grip{flex:0 0 22px;position:relative;cursor:pointer;touch-action:none}
+.gm-grip::after{content:'';position:absolute;left:50%;top:9px;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:#ffffff2e}
+.gm-sheet-head{display:flex;justify-content:space-between;align-items:center;padding:0 18px}
+.gm-sheet-close{width:36px;height:36px;border:0;border-radius:50%;background:#ffffff10;color:#e6cfca;font-size:20px;cursor:pointer}
+.gm-stage{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+.gm-root #studio-stage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;max-width:none!important;border:0!important;border-radius:0!important;
+  background:radial-gradient(ellipse 60% 40% at 50% 80%,#3a1714 0%,transparent 70%)!important;aspect-ratio:auto!important;min-height:0!important}
+.gm-root #studio-stage .stage-label,.gm-root #stage-technique{display:none!important}
+/* The exercise's start still stands in until the live figure has rendered. */
+.gm-poster{position:absolute;left:50%;top:-4%;width:min(118%,560px);transform:translateX(-50%);pointer-events:none;clip-path:inset(11% 0 9% 0);
+  -webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%)}
+.gm-stage:has(#studio-stage.silver-press-ready) .gm-poster,.gm-stage:has(#studio-stage.silver-press-ready) #model-status{display:none}
+.gm-stage:has(.gm-poster:not([hidden])) #model-status{display:none}
+.gm-root #model-status{font-size:12px}
+.gm-sheet-body{position:relative;z-index:1;flex:0 0 auto;padding:4px 18px 16px}
+.gm-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.gm-title h2{margin:0;font-size:26px;line-height:1.05;letter-spacing:-.035em}
+.gm-dose{display:flex;align-items:baseline;gap:7px;margin-top:6px}
+.gm-dose strong{font-size:34px;font-weight:200;letter-spacing:-.04em;line-height:1;color:var(--gm-soft)}
+.gm-dose span{font-size:12px;color:var(--gm-muted)}
+.gm-add{flex:0 0 52px;height:52px;border:0;border-radius:50%;background:#ff5a4826;color:var(--gm-soft);font-size:26px;line-height:1;cursor:pointer;box-shadow:inset 0 0 0 1px #ff6a5a66}
+.gm-add.is-on{background:var(--gm-accent);color:#fff;box-shadow:0 0 20px #ff3b2b88}
+.gm-picks{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:0 18px}
+.gm-picks::-webkit-scrollbar{display:none}
+.gm-picks button{flex:0 0 auto;border:0;border-radius:999px;padding:9px 13px;background:#ffffff0d;color:#d9c9c6;font:inherit;font-size:12px;cursor:pointer}
+.gm-picks button[aria-pressed="true"]{background:#ff5a4826;color:var(--gm-soft);box-shadow:inset 0 0 0 1px #ff6a5a66}
+.gm-steps{display:flex;align-items:center;gap:10px;margin-top:12px}
+.gm-steps span{flex:1;height:14px}.gm-steps svg{width:100%;height:100%;overflow:visible}
+.gm-steps path{fill:none;stroke:var(--gm-accent);stroke-width:1.4;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px #ff3b2b)}
+.gm-steps button{width:44px;height:44px;border:0;border-radius:50%;background:#ffffff10;color:var(--gm-soft);font-size:22px;cursor:pointer}
+.gm-steps button:disabled{opacity:.3;cursor:default}
+.gm-cta{width:100%;margin-top:12px;padding:13px;border:1px solid #fa554876;border-radius:999px;background:linear-gradient(110deg,#e0373640,#d5292920);color:var(--gm-soft);font:inherit;font-weight:650;cursor:pointer}
+
+@media(min-width:700px){.gm-sheet{left:50%;right:auto;width:460px;margin-left:-230px}}
+@media(prefers-reduced-motion:reduce){.gm-world.is-easing,.gm-sheet,.gm-modes,.gm-routes{transition:none}.gm-route-line{animation:none;stroke-dashoffset:0}}
