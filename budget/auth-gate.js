@@ -62,7 +62,7 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFinanceNavigation, {once:true});
 
-  var exerciseAssetsVersion = '20261026-energy-loop-1';
+  var exerciseAssetsVersion = '20261026-energy-loop-2';
   var calendarAssetsVersion = '20261020-surfaces-1';
   var shoppingAssetsVersion = '20261020-surfaces-1';
 

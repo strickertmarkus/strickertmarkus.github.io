@@ -211,13 +211,13 @@
     scheduleSync();
   }
 
-  function restorePretimerLabel(pre) {
-    if (!pre) return;
-    var label = pre.querySelector('.session-pre-label');
-    if (!label || !label.dataset.pfPassStartOriginalV120) return;
-    label.textContent = label.dataset.pfPassStartOriginalV120;
-    delete label.dataset.pfPassStartOriginalV120;
-  }
+  /* The pretimer label text is owned by the Pulse Flow motion layer; this
+     layer only reports whether the visible pretimer is the one that starts
+     the pass, so the two never write competing text. */
+  window.__exercisePassPretimerActive = function () {
+    var pre = document.getElementById('session-pre-timer');
+    return !!(pre && pre.classList.contains('show') && (passPretimerArmUntil > Date.now() || passPretimerSeen));
+  };
 
   function syncFirstPretimer() {
     var state = getState();
@@ -226,22 +226,17 @@
 
     var visible = pre.classList.contains('show');
     var armed = passPretimerArmUntil > Date.now();
-    var active = visible && armed;
+    // Once the pass-start pretimer has been shown it keeps that identity until
+    // it hides, even if the arm window ends a moment before the countdown does.
+    var active = visible && (armed || passPretimerSeen);
 
-    pre.classList.remove('pulse-flow-pass-start-v119');
+    if (pre.classList.contains('pulse-flow-pass-start-v119')) pre.classList.remove('pulse-flow-pass-start-v119');
     pre.classList.toggle('pulse-flow-pass-start-v120',active);
 
-    var label = pre.querySelector('.session-pre-label');
-    if (active && label) {
+    if (active) {
       passPretimerSeen = true;
-      if (!label.dataset.pfPassStartOriginalV120) {
-        label.dataset.pfPassStartOriginalV120 = String(label.textContent || 'Startar Set').trim() || 'Startar Set';
-      }
-      if (label.textContent !== 'Startar Pass') label.textContent = 'Startar Pass';
       return;
     }
-
-    restorePretimerLabel(pre);
 
     if ((passPretimerSeen && !visible) || !armed || (!visible && state && state.setRunning)) {
       passPretimerArmUntil = 0;

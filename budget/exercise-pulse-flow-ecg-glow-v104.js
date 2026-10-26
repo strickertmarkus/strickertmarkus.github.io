@@ -328,7 +328,7 @@
   function loadSessionHelpers() {
     if (!document.querySelector('script[data-exercise-session-flow-v118]')) {
       var flow = document.createElement('script');
-      flow.src = 'exercise-session-flow-v112.js?v=20261026-energy-loop-1';
+      flow.src = 'exercise-session-flow-v112.js?v=20261026-energy-loop-2';
       flow.async = false;
       flow.setAttribute('data-exercise-session-flow-v118','true');
       document.head.appendChild(flow);
@@ -344,7 +344,7 @@
 
     if (!document.querySelector('script[data-exercise-session-theme-rest-v120]')) {
       var restTheme = document.createElement('script');
-      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20261026-energy-loop-1';
+      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20261026-energy-loop-2';
       restTheme.async = false;
       restTheme.setAttribute('data-exercise-session-theme-rest-v120','true');
       document.head.appendChild(restTheme);
