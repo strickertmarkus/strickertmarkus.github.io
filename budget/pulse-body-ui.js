@@ -1,17 +1,17 @@
-/* Body-menu preview for the exercise explorer, enabled with ?ui=kropp.
-   A turntable of the exercise mannequin replaces the muscle carousel (Utforska) and the filter
-   chips and time select (Program): drag to turn it, tap a glowing muscle to
-   choose it. Programs become cover cards. Every choice goes through the
-   page's own controls or PulseGuideUI, so behaviour keeps one source of truth
-   and the default UI is untouched when the flag is off. */
+/* Body-menu preview for the exercise explorer, enabled with ?ui=kropp (can be
+   combined with the flags in pulse-preview-ui.js, e.g. ?ui=kropp,omslag).
+   A turntable of the exercise mannequin replaces the muscle carousel on
+   Utforska and the muscle chips on Program: drag to turn it, tap a glowing
+   muscle to choose it. Every choice goes through the page's own controls or
+   PulseGuideUI, so behaviour keeps one source of truth and the default UI is
+   untouched when the flag is off. */
 (function () {
   'use strict';
   var params = new URLSearchParams(location.search);
-  if (params.get('ui') !== 'kropp') return;
+  if ((params.get('ui') || '').split(',').indexOf('kropp') < 0) return;
   document.documentElement.classList.add('ui-kropp');
 
   var ATLAS = 'assets/silver-body-v1/';
-  var POSES = [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,21,22,23,25,26,30,34,35,43,44,45,52];
   var STANCE = { front: 0, back: 6 };
   /* The exercise mannequin rendered standing, in 12 angles plus one lit still
      per group at its stance (see assets/silver-body-v1). Points are in % of the
@@ -170,9 +170,8 @@
     carousel.parentNode.insertBefore(explore.root, carousel);
     explore.choose(ui.muscle(), true);
 
-    /* ---- Program: body filter, time ring and cover cards ---- */
-    var controls = $('program-controls');
-    var deck = el('div', 'kb-program-head');
+    /* ---- Program: the body filters programs by muscle group ---- */
+    var head = el('div', 'kb-program-head');
     var programs = Body({
       label: 'Filtrera program på muskelgrupp',
       count: function (name) { return ui.programCount(name); },
@@ -180,55 +179,14 @@
       onChoose: function (name) {
         var button = document.querySelector('[data-program-filter="' + name + '"]');
         if (button) button.click();
-        syncRing();
       }
     });
     programs.root.classList.add('kb-programs');
-    var side = el('div', 'kb-side');
-    var ring = el('button', 'kb-ring');
-    ring.type = 'button';
-    var count = el('p', 'kb-count');
-    side.appendChild(ring); side.appendChild(count);
-    deck.appendChild(programs.root); deck.appendChild(side);
-    controls.parentNode.insertBefore(deck, controls);
-    var TIMES = ['', '20', '30', '45', '60'];
-    function syncRing() {
-      var value = $('program-time').value, max = 60, frac = value ? Number(value) / max : 1, len = 2 * Math.PI * 44;
-      ring.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="kb-ring-track" cx="50" cy="50" r="44"></circle>' +
-        '<circle class="kb-ring-fill" cx="50" cy="50" r="44" stroke-dasharray="' + (len * frac).toFixed(1) + ' ' + len.toFixed(1) + '"></circle>' +
-        [20, 30, 45, 60].map(function (t) { var a = (t / max) * 2 * Math.PI - Math.PI / 2; return '<circle class="kb-tick' + (value && Number(value) >= t ? ' on' : '') + '" cx="' + (50 + 44 * Math.cos(a)).toFixed(1) + '" cy="' + (50 + 44 * Math.sin(a)).toFixed(1) + '" r="2.4"></circle>'; }).join('') +
-        '</svg><span class="kb-ring-copy"><small>Tid</small><strong>' + (value ? '≤' + value : 'Alla') + '</strong><small>' + (value ? 'min' : 'längder') + '</small></span>';
-      ring.setAttribute('aria-label', 'Tid: ' + (value ? 'upp till ' + value + ' minuter' : 'alla längder') + '. Tryck för att ändra');
-      var n = ui.programCount(ui.programFilter());
-      count.innerHTML = '<strong>' + n + '</strong> program' + (ui.programFilter() !== 'Alla' ? '<br><span>för ' + ui.programFilter().toLowerCase() + '</span>' : '');
-      programs.sync();
-    }
-    ring.addEventListener('click', function () {
-      var select = $('program-time'), next = TIMES[(TIMES.indexOf(select.value) + 1) % TIMES.length];
-      select.value = next;
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-      syncRing();
-    });
+    head.appendChild(programs.root);
+    $('program-controls').parentNode.insertBefore(head, $('program-controls'));
     programs.choose(ui.programFilter(), true);
-    syncRing();
-
-    function decorateCards() {
-      [].forEach.call($('program-cards').querySelectorAll('.program-card'), function (card) {
-        if (card.querySelector('.kb-cover')) return;
-        var button = card.querySelector('[data-program]'), program = button && ui.program(button.dataset.program);
-        if (!program) return;
-        var stills = program.ids.filter(function (id) { return POSES.indexOf(id) >= 0; }).slice(0, 3);
-        var cover = el('div', 'kb-cover kb-cover-' + stills.length,
-          stills.map(function (id, i) { return '<img src="assets/exercise-poses-v1/' + String(id).padStart(2, '0') + '-end.webp" alt="" loading="lazy" style="--i:' + i + '">'; }).join('') +
-          '<svg class="kb-cover-line" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5 H34 L38 3.2 L42 7.4 L47 .8 L52 9.2 L56 4.2 H100"></path></svg>');
-        cover.setAttribute('aria-hidden', 'true');
-        card.insertBefore(cover, card.firstChild);
-        card.tabIndex = -1;
-        card.addEventListener('click', function (event) { if (!event.target.closest('button')) button.click(); });
-      });
-    }
-    new MutationObserver(function () { decorateCards(); syncRing(); }).observe($('program-cards'), { childList: true });
-    decorateCards();
+    // Counts per muscle follow the time filter, which re-renders the cards.
+    new MutationObserver(function () { programs.sync(); }).observe($('program-cards'), { childList: true });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

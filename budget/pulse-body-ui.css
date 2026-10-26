@@ -1,8 +1,6 @@
 /* Body-menu preview (?ui=kropp). Scoped to html.ui-kropp; see pulse-body-ui.js. */
 html.ui-kropp .studio-muscles,
-html.ui-kropp #program-filters,
-html.ui-kropp .program-time-row,
-html.ui-kropp .section-intro p{display:none!important}
+html.ui-kropp #program-filters{display:none!important}
 html.ui-kropp body:not(.exercise-list-open) .studio-top{display:none!important}
 
 /* ---- Turntable figure ---- */
@@ -44,7 +42,7 @@ html.ui-kropp .kb-caption small{display:block;margin-top:6px;color:#c9a19c;font-
 html.ui-kropp .kb-flip{position:absolute;right:14px;bottom:14px;z-index:3;display:grid;place-items:center;width:44px;height:44px;padding:9px;border-radius:50%;
   border:1px solid #ff6a5a3a;background:#ff6a5a0d;color:#ffc7bd;cursor:pointer;transition:opacity .3s}
 html.ui-kropp .kb-flip svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-html.ui-kropp .kb-flip:focus-visible,html.ui-kropp .kb-ring:focus-visible,html.ui-kropp .kb-change:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+html.ui-kropp .kb-flip:focus-visible,html.ui-kropp .kb-change:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
 html.ui-kropp .kb-change{display:none}
 
 /* Utforska: after a choice the body folds into a slim band above the stage. */
@@ -58,50 +56,17 @@ html.ui-kropp .kb-explore.is-compact .kb-change{display:flex;align-items:center;
 html.ui-kropp .kb-explore.is-compact .kb-change::after{content:'';display:inline-block;width:7px;height:7px;margin-left:8px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:rotate(45deg) translateY(-2px)}
 html.ui-kropp .kb-explore.is-compact::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,#ff6a5a40,transparent)}
 
-/* ---- Program: figure and time ring side by side ---- */
-html.ui-kropp #programs-page .section-intro h2{font-size:28px;margin-bottom:0}
+/* ---- Program: the figure filters by muscle; with ?ui=omslag the time ring sits beside it ---- */
 html.ui-kropp .kb-program-head{position:relative;margin:0 calc(50% - 50vw);width:100vw;height:min(40svh,330px)}
 @media(min-width:601px){html.ui-kropp .kb-program-head{margin:4px 0 0;width:100%}}
-html.ui-kropp .kb-programs{position:absolute;inset:0;margin:0;width:62%;height:100%}
-html.ui-kropp .kb-programs .kb-figure{left:54%;top:4px;height:calc(100% - 4px)}
+html.ui-kropp .kb-programs{position:absolute;inset:0;margin:0;width:100%;height:100%}
+html.ui-kropp.ui-omslag .kb-programs{width:62%}
+html.ui-kropp.ui-omslag .kb-programs .kb-figure{left:54%}
+html.ui-kropp .kb-programs .kb-figure{top:4px;height:calc(100% - 4px)}
 html.ui-kropp .kb-programs .kb-flip{right:auto;left:16px}
-html.ui-kropp .kb-side{position:absolute;right:16px;top:50%;transform:translateY(-58%);width:34%;display:grid;justify-items:center;gap:14px}
-html.ui-kropp .kb-ring{position:relative;width:min(132px,100%);aspect-ratio:1;padding:0;border:0;background:none;color:#ffe2dc;cursor:pointer}
-html.ui-kropp .kb-ring svg{width:100%;height:100%;transform:rotate(0deg);overflow:visible}
-html.ui-kropp .kb-ring-track{fill:none;stroke:#ffffff14;stroke-width:3}
-html.ui-kropp .kb-ring-fill{fill:none;stroke:#ff5a48;stroke-width:3;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;
-  filter:drop-shadow(0 0 4px #ff3b2b) drop-shadow(0 0 10px #ff3b2b88);transition:stroke-dasharray .45s cubic-bezier(.2,.8,.2,1)}
-html.ui-kropp .kb-tick{fill:#3a3036}html.ui-kropp .kb-tick.on{fill:#ffd2ca}
-html.ui-kropp .kb-ring-copy{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-html.ui-kropp .kb-ring-copy small{color:#c9a19c;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-html.ui-kropp .kb-ring-copy strong{font-size:30px;font-weight:200;letter-spacing:-.04em;line-height:1.05;margin:2px 0}
-html.ui-kropp .kb-count{margin:0;text-align:center;color:#c9a19c;font-size:12px;line-height:1.4}
-html.ui-kropp .kb-count strong{color:#ffe2dc;font-size:15px;font-weight:650}
-html.ui-kropp .kb-count span{color:#ff8a78}
 
 /* Program covers in a snapping row. */
-html.ui-kropp #program-cards{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
-  margin:10px calc(50% - 50vw) 0;padding:6px 20px 18px;scroll-padding-left:20px}
-html.ui-kropp #program-cards::-webkit-scrollbar{display:none}
-@media(min-width:601px){html.ui-kropp #program-cards{margin:10px 0 0;padding-left:0;padding-right:0}}
-html.ui-kropp #program-cards .program-card{position:relative;flex:0 0 min(72vw,290px);aspect-ratio:3/3.7;display:flex!important;flex-direction:column;justify-content:flex-end;
-  scroll-snap-align:start;padding:18px!important;border:0!important;border-radius:26px!important;overflow:hidden;cursor:pointer;
-  background:radial-gradient(ellipse 80% 45% at 50% 38%,#2b1517,#0f1118 70%)!important;box-shadow:inset 0 0 0 1px #ff6a5a1f}
-html.ui-kropp #program-cards .program-card>*:not(.kb-cover){position:relative;z-index:2;grid-column:auto!important}
-html.ui-kropp #program-cards .program-card .eyebrow{color:#ff8a78;font-size:10px;letter-spacing:.16em}
-html.ui-kropp #program-cards .program-card h3{font-size:25px!important;line-height:1.05;letter-spacing:-.035em;margin:6px 0 8px!important}
-html.ui-kropp #program-cards .program-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0 0 10px;font-size:12px;color:#b8b0b4}
-html.ui-kropp #program-cards .program-card .program-meta{color:#ffd2ca;font-size:12px}
-html.ui-kropp #program-cards .program-card>button{position:absolute!important;inset:0;width:100%!important;opacity:0;z-index:3!important}
-html.ui-kropp .kb-cover{position:absolute;inset:0 0 34%;z-index:1;pointer-events:none}
-html.ui-kropp .kb-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,#0f1118)}
-html.ui-kropp .kb-cover img{position:absolute;top:8%;width:78%;left:11%;clip-path:inset(11% 0 9% 0);
-  -webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 52%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 52%,transparent 100%)}
-html.ui-kropp .kb-cover-2 img{width:66%}html.ui-kropp .kb-cover-2 img[style*="--i:0"]{left:-6%}html.ui-kropp .kb-cover-2 img[style*="--i:1"]{left:40%}
-html.ui-kropp .kb-cover-3 img{width:58%;top:12%}html.ui-kropp .kb-cover-3 img[style*="--i:0"]{left:-14%;top:16%;opacity:.7}
-html.ui-kropp .kb-cover-3 img[style*="--i:1"]{left:21%;top:4%;z-index:1}html.ui-kropp .kb-cover-3 img[style*="--i:2"]{left:56%;top:16%;opacity:.7}
-html.ui-kropp .kb-cover-line{position:absolute;left:0;right:0;bottom:30%;width:100%;height:16px;z-index:2;overflow:visible}
-html.ui-kropp .kb-cover-line path{fill:none;stroke:#ff5a48;stroke-width:1.4;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px #ff3b2b)}
-html.ui-kropp #program-cards .empty-result{flex:1 0 100%}
 
-@media(prefers-reduced-motion:reduce){html.ui-kropp .kb-body,html.ui-kropp .kb-figure,html.ui-kropp .kb-caption,html.ui-kropp .kb-ring-fill{transition:none}}
+@media(min-width:601px){html.ui-kropp #program-cards{margin:10px 0 0;padding-left:0;padding-right:0}}
+
+@media(prefers-reduced-motion:reduce){html.ui-kropp .kb-body,html.ui-kropp .kb-figure,html.ui-kropp .kb-caption{transition:none}}
