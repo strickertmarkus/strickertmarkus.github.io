@@ -94,7 +94,7 @@ html[data-field-embedded] body #day-workout-modal .ex-row input{
   font-size:13px!important;
   padding:6px 5px!important;
 }
-html[data-field-embedded] body #day-workout-modal .ex-row input.ex-name{
+html[data-field-embedded] body #day-workout-modal .ex-row input.dw-name{
   padding:6px 8px!important;
   font-size:13px!important;
 }
@@ -142,7 +142,7 @@ html[data-field-embedded] body #day-workout-modal .classic-builder-footer button
    grid-template-columns:repeat(3,minmax(0,1fr)) 27px!important;
    gap:5px!important;
  }
- html[data-field-embedded] body #day-workout-modal .ex-row input.ex-name{
+ html[data-field-embedded] body #day-workout-modal .ex-row input.dw-name{
    grid-column:1/-1!important;
    width:100%!important;
    height:37px!important;
