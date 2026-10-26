@@ -34,7 +34,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var url=new URL('archive/exercise.html',location.href);
     url.searchParams.set('overview','compact');
     url.searchParams.set('compactHost','1');
-    url.searchParams.set('v','20260927-pulse-robust-2');
+    url.searchParams.set('v','20261026-energy-loop-1');
     if(profile==='maja')url.searchParams.set('user','maja');
     return url.href;
   }

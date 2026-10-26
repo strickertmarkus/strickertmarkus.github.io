@@ -155,23 +155,83 @@
   }
 
   function clearCanvas(canvas) {
-    if (!canvas || !canvas.width || !canvas.height) return;
+    if (!canvas) return;
+    canvas.__glowKey = '';
+    if (!canvas.width || !canvas.height) return;
     var ctx = canvas.getContext('2d');
     if (ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
   }
 
-  function samplePath(path,canvasRect,scale,steps) {
-    if (!path || typeof path.getTotalLength !== 'function' || typeof path.getPointAtLength !== 'function') return null;
-    var len = 0;
+  /* Evenly spaced points along the path in its own SVG units. The sweep and
+     arc paths written by the Pulse Flow motion layer are always a polyline
+     (M/L) or a single circular arc (M/A), so both are resolved analytically;
+     anything else falls back to the browser's path measurement. The result
+     matches getPointAtLength() without its per-call cost on every frame. */
+  var NUM = '(-?\\d*\\.?\\d+(?:e[-+]?\\d+)?)';
+  var ARC_RE = new RegExp('^\\s*M\\s*'+NUM+'[\\s,]+'+NUM+'\\s*A\\s*'+NUM+'[\\s,]+'+NUM+'[\\s,]+'+NUM+'[\\s,]+([01])[\\s,]*([01])[\\s,]+'+NUM+'[\\s,]+'+NUM+'\\s*$','i');
+
+  function polylinePoints(d,steps) {
+    if (/[^MLml\d\s,.eE+-]/.test(d) || !/^\s*M/.test(d)) return null;
+    var nums = d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi);
+    if (!nums || nums.length < 4 || nums.length % 2) return null;
+    var src = [], cum = [0];
+    for (var i=0;i<nums.length;i+=2) src.push({x:+nums[i],y:+nums[i+1]});
+    for (var j=1;j<src.length;j++) cum.push(cum[j-1]+Math.hypot(src[j].x-src[j-1].x,src[j].y-src[j-1].y));
+    var len = cum[cum.length-1];
+    if (!(len > 0)) return null;
+    var out = [], seg = 1;
+    for (var k=0;k<=steps;k++) {
+      var at = len*k/steps;
+      while (seg < src.length-1 && cum[seg] < at) seg++;
+      var a = src[seg-1], b = src[seg], span = cum[seg]-cum[seg-1], t = span > 0 ? (at-cum[seg-1])/span : 0;
+      out.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+    }
+    return out;
+  }
+
+  function arcPoints(d,steps) {
+    var m = ARC_RE.exec(d);
+    if (!m) return null;
+    var x1=+m[1],y1=+m[2],r=+m[3],rot=+m[5],large=m[6]==='1',sweep=m[7]==='1',x2=+m[8],y2=+m[9];
+    if (r !== +m[4] || rot !== 0 || !(r > 0)) return null;
+    var mx=(x1-x2)/2,my=(y1-y2)/2,q=mx*mx+my*my;
+    if (!(q > 0)) return null;
+    if (q > r*r) r = Math.sqrt(q);
+    var f = Math.sqrt(Math.max(0,(r*r-q)/q))*(large===sweep?-1:1);
+    var cx=f*my+(x1+x2)/2,cy=-f*mx+(y1+y2)/2;
+    var a1=Math.atan2(y1-cy,x1-cx),a2=Math.atan2(y2-cy,x2-cx),delta=a2-a1;
+    if (sweep && delta < 0) delta += Math.PI*2;
+    if (!sweep && delta > 0) delta -= Math.PI*2;
+    var out = [];
+    for (var k=0;k<=steps;k++) {
+      var a = a1+delta*k/steps;
+      out.push({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)});
+    }
+    return out;
+  }
+
+  function measuredPoints(path,steps) {
+    if (typeof path.getTotalLength !== 'function' || typeof path.getPointAtLength !== 'function') return null;
+    var len = 0, out = [];
     try { len = path.getTotalLength(); } catch (_) { return null; }
     if (!(len > 0)) return null;
+    for (var k=0;k<=steps;k++) {
+      try { out.push(path.getPointAtLength(len*k/steps)); } catch (_) { return null; }
+    }
+    return out;
+  }
+
+  function samplePath(path,canvasRect,scale,steps) {
+    if (!path) return null;
     steps = Math.max(4,steps || 24);
-    var pts = [], totalPx = 0, prev = null;
+    var d = path.getAttribute('d') || '';
+    var local = polylinePoints(d,steps) || arcPoints(d,steps) || measuredPoints(path,steps);
+    if (!local) return null;
     var matrix = path.getScreenCTM();
     if (!matrix) return null;
-    for (var i=0;i<=steps;i++) {
-      var p = null;
-      try { p = path.getPointAtLength(len * i / steps); } catch (_) { return null; }
+    var pts = [], totalPx = 0, prev = null;
+    for (var i=0;i<local.length;i++) {
+      var p = local[i];
       var q = {x:(matrix.a*p.x+matrix.c*p.y+matrix.e-canvasRect.left)*scale,
                y:(matrix.b*p.x+matrix.d*p.y+matrix.f-canvasRect.top)*scale};
       if (prev) totalPx += Math.hypot(q.x-prev.x,q.y-prev.y);
@@ -218,57 +278,81 @@
     neonPass(ctx,points,rgb,1.75,7,.96);
   }
 
+  /* A canvas keeps its pixels, so it is only repainted when something that
+     shapes the glow changed: the path data, where the path sits relative to
+     the canvas, the canvas size or the colour. */
+  function glowKey(paths,rect,rgb) {
+    var key = rect.left.toFixed(2)+','+rect.top.toFixed(2)+','+rect.width.toFixed(2)+','+rect.height.toFixed(2)+'|'+rgb.join(',');
+    paths.forEach(function (path) {
+      var m = path.getScreenCTM();
+      key += '|'+(path.getAttribute('d') || '')+(m ? '@'+[m.a,m.b,m.c,m.d,m.e,m.f].map(function (n) { return n.toFixed(3); }).join(',') : '');
+    });
+    return key;
+  }
+
   function paintMini(signal,rgb) {
-    if (!signal) return;
+    if (!signal) return false;
     var svg = signal.querySelector(':scope > svg');
-    if (!svg) return;
+    if (!svg) return false;
 
     var canvas = ensureCanvas(signal,'pf-canvas-mini-v130');
-    if (!canvas.getClientRects().length) return;
+    if (!canvas.getClientRects().length) return false;
     var size = sizeCanvas(canvas);
-    if (!size) return;
+    if (!size) return false;
+    var paths = ['.pf-ecg-sweep-a-v80','.pf-ecg-sweep-b-v80'].map(function (selector) {
+      return svg.querySelector(selector);
+    }).filter(function (path) { return path && path.getAttribute('d'); });
+    var key = glowKey(paths,size.rect,rgb);
+    if (canvas.__glowKey === key) return true;
+    canvas.__glowKey = key;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ['.pf-ecg-sweep-a-v80','.pf-ecg-sweep-b-v80'].forEach(function (selector) {
-      var path = svg.querySelector(selector);
-      if (!path || !path.getAttribute('d')) return;
+    paths.forEach(function (path) {
       var sampled = samplePath(path,size.rect,DPR,28);
       if (sampled) drawToggleStrengthHalo(ctx,sampled.points,rgb,true);
     });
+    return true;
   }
 
   function paintMiniEcgs() {
+    var active = false;
     document.querySelectorAll('#session-countdown-ring .pf-ecg-v80').forEach(function (signal) {
-      paintMini(signal,parseRgb(signal.closest('#session-countdown-ring') || signal,'--pf-rgb',[239,68,68]));
+      if (paintMini(signal,parseRgb(signal.closest('#session-countdown-ring') || signal,'--pf-rgb',[239,68,68]))) active = true;
     });
     document.querySelectorAll('#session-between-overlay-v2 .pf-ecg-v80').forEach(function (signal) {
-      paintMini(signal,parseRgb(signal.closest('#session-between-overlay-v2') || signal,'--pf-between-rgb',[34,211,238]));
+      if (paintMini(signal,parseRgb(signal.closest('#session-between-overlay-v2') || signal,'--pf-between-rgb',[34,211,238]))) active = true;
     });
+    return active;
   }
 
   function paintArc(ring,varName,fallback) {
-    if (!ring || !ring.getClientRects().length) return;
+    if (!ring || !ring.getClientRects().length) return false;
     var svg = ring.querySelector(':scope > .pf-arc-svg-v80');
     var path = svg && svg.querySelector('.pf-arc-progress-v80');
-    if (!svg || !path || !path.getAttribute('d')) return;
+    if (!svg || !path || !path.getAttribute('d')) return false;
 
     var canvas = ensureCanvas(ring,'pf-canvas-arc-v130');
-    if (!canvas.getClientRects().length) return;
+    if (!canvas.getClientRects().length) return false;
     var size = sizeCanvas(canvas);
-    if (!size) return;
+    if (!size) return false;
+    var rgb = parseRgb(ring,varName,fallback);
+    var key = glowKey([path],size.rect,rgb);
+    if (canvas.__glowKey === key) return true;
+    canvas.__glowKey = key;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     var sampled = samplePath(path,size.rect,DPR,88);
-    if (!sampled) return;
-    drawToggleStrengthHalo(ctx,sampled.points,parseRgb(ring,varName,fallback),false);
+    if (sampled) drawToggleStrengthHalo(ctx,sampled.points,rgb,false);
+    return true;
   }
 
   function paintArcs() {
-    paintArc(document.getElementById('session-countdown-ring'),'--pf-rgb',[239,68,68]);
+    var active = paintArc(document.getElementById('session-countdown-ring'),'--pf-rgb',[239,68,68]);
     var overlay = document.getElementById('session-between-overlay-v2');
-    paintArc(overlay && overlay.querySelector('.bs-ring'),'--pf-between-rgb',[34,211,238]);
+    if (paintArc(overlay && overlay.querySelector('.bs-ring'),'--pf-between-rgb',[34,211,238])) active = true;
+    return active;
   }
 
   function clearAll() {
@@ -281,8 +365,20 @@
     });
   }
 
-  function frame() {
+  /* The glow follows its SVG source at up to 30 fps (every second frame at
+     60 Hz, every fourth at 120 Hz). While no glow target is on screen the
+     loop only checks back every IDLE_MS instead of waking on every frame. */
+  var FRAME_MS = 31;
+  var IDLE_MS = 100;
+  var lastPaint = -Infinity;
+
+  function scheduleIdle() {
+    slowTimer = setTimeout(function(){slowTimer=0;frame(performance.now());},IDLE_MS);
+  }
+
+  function frame(now) {
     rafId = 0;
+    now = typeof now === 'number' ? now : performance.now();
     if (document.documentElement.classList.contains('cardio-focus-dragging')) {
       clearAll();
       rafId = requestAnimationFrame(frame);
@@ -292,9 +388,15 @@
       clearAll();
       return;
     }
-    paintMiniEcgs();
-    paintArcs();
-    if (window.__exerciseEnergySaving) slowTimer = setTimeout(function(){slowTimer=0;frame();},1000);
+    if (!window.__exerciseEnergySaving && now - lastPaint < FRAME_MS) {
+      rafId = requestAnimationFrame(frame);
+      return;
+    }
+    lastPaint = now;
+    var active = paintMiniEcgs();
+    if (paintArcs()) active = true;
+    if (window.__exerciseEnergySaving) slowTimer = setTimeout(function(){slowTimer=0;frame(performance.now());},1000);
+    else if (!active) scheduleIdle();
     else rafId = requestAnimationFrame(frame);
   }
 

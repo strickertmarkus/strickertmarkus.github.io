@@ -38,9 +38,10 @@
         });
         top.insertBefore(button,top.lastElementChild);
       }
-      button.setAttribute('aria-pressed',String(energySaving));
-      button.setAttribute('aria-label',energySaving?'Stäng av energisparläge':'Aktivera energisparläge');
-      button.title=energySaving?'Energisparläge på':'Energisparläge av';
+      var pressed=String(energySaving),label=energySaving?'Stäng av energisparläge':'Aktivera energisparläge',title=energySaving?'Energisparläge på':'Energisparläge av';
+      if(button.getAttribute('aria-pressed')!==pressed)button.setAttribute('aria-pressed',pressed);
+      if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
+      if(button.title!==title)button.title=title;
       perfRoot.classList.toggle('exercise-energy-saving',energySaving&&perfSessionActive());
     }
 

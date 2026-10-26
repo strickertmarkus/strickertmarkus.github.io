@@ -39,14 +39,19 @@
       stack=stack.filter(function(el){return visible.includes(el);});
       visible.forEach(function(el){if(!stack.includes(el)){stack.push(el);returnFocus.set(el,document.activeElement);}});
       var top=stack[stack.length-1]||null;
-      inertNodes.forEach(function(value,el){el.inert=value;});inertNodes.clear();
+      // Only touch what changes: rewriting inert/ARIA with the same values
+      // still queues mutations, which wakes every overlay observer again.
+      var nextInert=new Set();
+      if(top)Array.from(document.body.children).forEach(function(el){
+        if(el===top||el.contains(top)||el.id==='toast'||el.classList.contains('exercise-name-picker-v1')||/^(SCRIPT|STYLE|LINK)$/.test(el.tagName))return;
+        nextInert.add(el);
+      });
+      inertNodes.forEach(function(value,el){if(!nextInert.has(el)){if(el.inert!==value)el.inert=value;inertNodes.delete(el);}});
+      nextInert.forEach(function(el){if(!inertNodes.has(el)){inertNodes.set(el,el.inert);}if(!el.inert)el.inert=true;});
       if(top){
         acquire('editor');
-        Array.from(document.body.children).forEach(function(el){
-          if(el===top||el.contains(top)||el.id==='toast'||el.classList.contains('exercise-name-picker-v1')||/^(SCRIPT|STYLE|LINK)$/.test(el.tagName))return;
-          inertNodes.set(el,el.inert);el.inert=true;
-        });
-        top.setAttribute('role','dialog');top.setAttribute('aria-modal','true');
+        if(top.getAttribute('role')!=='dialog')top.setAttribute('role','dialog');
+        if(top.getAttribute('aria-modal')!=='true')top.setAttribute('aria-modal','true');
         if(!top.hasAttribute('aria-label'))top.setAttribute('aria-label',(top.querySelector('h2,.plan-preview-title-v7,.session-title')||{}).textContent||'Passverktyg');
       }else release('editor');
       if(top!==lastTop){

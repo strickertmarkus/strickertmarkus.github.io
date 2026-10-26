@@ -844,13 +844,13 @@
       lastCardioToken = '';
       collapsedCardioToken = '';
       var idleRing = document.getElementById('session-countdown-ring');
-      if (idleRing) idleRing.classList.remove('is-overtime');
-      if (desktopToggle) desktopToggle.hidden = true;
+      if (idleRing && idleRing.classList.contains('is-overtime')) idleRing.classList.remove('is-overtime');
+      if (desktopToggle && !desktopToggle.hidden) desktopToggle.hidden = true;
       setFocus(false);
       return;
     }
 
-    if (desktopToggle) { desktopToggle.hidden = false; ensureDesktopToggle(); }
+    if (desktopToggle) { if (desktopToggle.hidden) desktopToggle.hidden = false; ensureDesktopToggle(); }
 
     var token = cardioToken(state,exercise);
     if (token !== lastCardioToken) {

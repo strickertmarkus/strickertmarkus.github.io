@@ -159,7 +159,7 @@
     }
 
     var nextKind = betweenSets ? nextPendingKind(state) : null;
-    modal.classList.remove('pulse-flow-between-set-strength-v117','pulse-flow-between-set-cardio-v117');
+    if (modal.classList.contains('pulse-flow-between-set-strength-v117') || modal.classList.contains('pulse-flow-between-set-cardio-v117')) modal.classList.remove('pulse-flow-between-set-strength-v117','pulse-flow-between-set-cardio-v117');
     modal.classList.toggle('pulse-flow-between-set-strength-v118',betweenSets && nextKind !== 'cardio');
     modal.classList.toggle('pulse-flow-between-set-cardio-v118',betweenSets && nextKind === 'cardio');
   }

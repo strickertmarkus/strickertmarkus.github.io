@@ -288,7 +288,7 @@
         liveKind=segments[targetIndex].getAttribute('data-pf-kind-v98')||currentExerciseKind(state);
       }
 
-      if(liveKind) segments[targetIndex].setAttribute('data-pf-kind-v98',liveKind);
+      if(liveKind && segments[targetIndex].getAttribute('data-pf-kind-v98')!==liveKind) segments[targetIndex].setAttribute('data-pf-kind-v98',liveKind);
     }
 
     segments.forEach(function(seg,index){

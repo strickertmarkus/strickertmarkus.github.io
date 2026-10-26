@@ -268,7 +268,7 @@
     if (!modal) return runtime;
     modal.classList.toggle('pulse-flow-active-v58',runtime.active);
     modal.classList.toggle('pulse-flow-starting-v58',runtime.starting);
-    if (progress) progress.setAttribute('data-pf-set-state',runtime.name);
+    if (progress && progress.getAttribute('data-pf-set-state') !== runtime.name) progress.setAttribute('data-pf-set-state',runtime.name);
     return runtime;
   }
 

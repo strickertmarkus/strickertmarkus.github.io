@@ -195,8 +195,8 @@
     if (oldToggle) oldToggle.remove();
     var modal = document.getElementById('session-modal');
     var rest = document.getElementById('session-between-overlay-v2');
-    if (modal) modal.classList.remove('pulse-flow-green-cyan-v114');
-    if (rest) rest.classList.remove('pulse-flow-green-cyan-v114');
+    if (modal && modal.classList.contains('pulse-flow-green-cyan-v114')) modal.classList.remove('pulse-flow-green-cyan-v114');
+    if (rest && rest.classList.contains('pulse-flow-green-cyan-v114')) rest.classList.remove('pulse-flow-green-cyan-v114');
   }
 
   function syncProgressExerciseBoundaries() {
