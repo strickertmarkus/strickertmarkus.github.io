@@ -33,14 +33,10 @@
         align-items:center !important;
         gap:7px !important;
       }
+      /* No Passläge/date heading in the session: the top bar holds only its
+         controls. Kept in the DOM for the dialog label and subtitle updates. */
       #session-modal.show .session-top > div:first-child {
-        min-width:0 !important;
-      }
-      #session-modal.show .session-title,
-      #session-modal.show #session-subtitle {
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-        white-space:nowrap !important;
+        display:none !important;
       }
       #session-modal.show .session-view-toggle,
       #session-modal.show .session-top > .session-cta {
@@ -298,7 +294,6 @@
           padding-left:12px !important;
           padding-right:12px !important;
         }
-        #session-modal.show .session-top > div:first-child { grid-column:1 / -1!important; }
         #session-modal.show .session-top .session-view-toggle {
           min-height:36px !important;
           padding:7px 8px !important;
@@ -352,9 +347,6 @@
       @media(max-width:360px) {
         #session-modal.show .session-top {
           grid-template-columns:1fr repeat(3,auto) !important;
-        }
-        #session-modal.show .session-top > div:first-child {
-          grid-column:1 / -1 !important;
         }
         #session-pre-timer-ring {
           width:146px !important;

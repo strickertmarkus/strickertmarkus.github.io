@@ -46,10 +46,6 @@
         position:relative !important;
         z-index:20 !important;
       }
-      #session-modal.show .session-top > div:first-child {
-        min-width:0 !important;
-        flex:1 1 auto !important;
-      }
       #session-modal.show .session-grid {
         flex:1 1 auto !important;
         min-height:0 !important;
