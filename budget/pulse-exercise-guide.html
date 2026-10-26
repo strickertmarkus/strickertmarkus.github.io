@@ -367,7 +367,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-2"><script src="pulse-body-ui.js?v=20261026-kropp-2"></script><link rel="stylesheet" href="pulse-preview-ui.css?v=20261026-preview-1"><script src="pulse-preview-ui.js?v=20261026-preview-1"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script>
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
@@ -974,17 +974,14 @@ function showProgram(id){
  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
  $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
 }
-function estimateMinutes(id,program){
+function exerciseEstimate(id,program){
  const dose=explorer.prescription(id,program);
- if(dose.mode==='min'){const total=dose.sets>1?Math.ceil(dose.sets*dose.minutes+(dose.sets-1)):dose.minutes;return {min:total,max:total,rest:dose.sets>1};}
+ if(dose.mode==='min')return dose.sets>1?'Tidsestimat: ca '+Math.ceil(dose.sets*dose.minutes+(dose.sets-1))+' min inkl. vila':'Tidsestimat: ca '+dose.minutes+' min';
  const perSide=dose.label.includes('/ sida')?2:1;
  const range=dose.range.split('–').map(Number);
  const estimate=reps=>Math.max(1,Math.ceil((dose.sets*reps*3*perSide+(dose.sets-1)*90)/60));
- return {min:estimate(range[0]),max:estimate(range[1]||range[0]),rest:true};
-}
-function exerciseEstimate(id,program){
- const t=estimateMinutes(id,program);
- return 'Tidsestimat: ca '+t.min+(t.max>t.min?'–'+t.max:'')+' min'+(t.rest?' inkl. vila':'');
+ const min=estimate(range[0]),max=estimate(range[1]||range[0]);
+ return 'Tidsestimat: ca '+min+(max>min?'–'+max:'')+' min inkl. vila';
 }
 function closeProgram(){$('programs-title').closest('.section-intro').hidden=false;chosenProgram=null;$('program-detail').hidden=true;$('program-cards').hidden=false;$('program-controls').hidden=false;}
 function transfer(request){
@@ -1048,22 +1045,14 @@ document.addEventListener('click',event=>{
 });
 window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorage.getItem(explorer.selectionKey)||'[]');selection=explorer.workout({version:1,ids:saved})?saved:[];renderSelection();}catch(error){}});
 
-/* Surface for the optional preview UIs (pulse-body-ui.js, pulse-preview-ui.js). */
+/* Read surface for the optional body-menu preview (pulse-body-ui.js). */
 window.PulseGuideUI={
- selection:()=>selection.slice(),
- setSelection(ids){if(!explorer.workout({version:1,ids}))return;selection=ids.slice();saveSelection();renderSelection();},
- toggle:id=>toggleChoice(id),
- active:()=>active,
- prescription:(id,program)=>explorer.prescription(id,program),
- minutes:id=>estimateMinutes(id),
- muscleImage:id=>'assets/atlas-art-v1/'+muscleImage[exercises[id].muscles[0]]+'.webp',
  muscle:()=>group,
  openMuscle:name=>route(()=>{const browsing=listOpen;openStudio(name,null,true);setList(browsing);}),
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,
  programFilter:()=>programFilter,
  program:id=>explorer.programs.find(p=>p.id===id),
- programCount:(name,time)=>explorer.matchingPrograms('Alla',time==null?$('program-time').value:time).filter(p=>name==='Alla'||p.ids.some(id=>exercises[id].muscles.includes(name))).length,
- exercise:id=>exercises[id]
+ programCount:(name,time)=>explorer.matchingPrograms('Alla',time==null?$('program-time').value:time).filter(p=>name==='Alla'||p.ids.some(id=>exercises[id].muscles.includes(name))).length
 };
 renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
  history.replaceState(routeState(),'', '#'+page);
