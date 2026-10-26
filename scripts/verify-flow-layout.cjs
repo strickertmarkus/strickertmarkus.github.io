@@ -31,13 +31,30 @@ assert.equal(await page.locator('#program-title').innerText(),title);assert.ok(a
 await page.locator('#close-program').click();await page.waitForFunction(()=>document.querySelector('#program-detail').hidden);
 await page.locator('#living-dock [data-page="guide"]').click();
 assert.ok(await page.locator('.catalog').isVisible());assert.ok(await page.locator('#studio-filters').isVisible());
-assert.equal(await page.locator('#living-dock button').count(),3,'one merged explorer tab');
+assert.equal(await page.locator('#living-dock button').count(),4,'merged explorer and separate muscle map');
 await page.locator('#clear-exercise-filters').click();await page.locator('#inspiration-toggle').click();assert.equal(await page.locator('#exercise-list [data-id]').count(),8);
 await page.locator('#exercise-list [data-add-choice]').first().click();await page.locator('#living-pass-btn').click();assert.equal(await page.locator('#selection-items li').count(),1);
 await page.locator('#living-dock [data-page="guide"]').click();await page.locator('#clear-exercise-filters').click();assert.equal(await page.locator('#exercise-list [data-id]').count(),54);
 await page.locator('#studio-filter-toggle').click();assert.ok(await page.locator('#studio-filters').isHidden());
 await page.goBack();await page.waitForFunction(()=>!document.querySelector('#studio-filters').hidden);
 for(const width of [320,1280]){await page.setViewportSize({width,height:900});await page.screenshot({path:dir+'/exercise-'+width+'.png'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+await page.setViewportSize({width:390,height:844});
+await page.locator('#living-dock [data-page="muscle-map"]').click();
+await page.waitForFunction(()=>{const i=document.querySelector('.muscle-map-figure img');return i.complete&&i.naturalWidth>0});
+assert.ok(await page.locator('#studio-shell').isHidden());
+assert.equal(await page.locator('#muscle-map-page canvas').count(),0);
+const artwork=await page.locator('.muscle-map-figure').boundingBox(),overlay=await page.locator('#muscle-map-regions').boundingBox();
+assert.deepEqual(overlay,artwork,'hit areas match image bounds');
+assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+await page.screenshot({path:dir+'/muscle-map-front-390.png',fullPage:true});
+await page.locator('[data-map-side="back"]').click();
+await page.locator('#muscle-map-regions [data-map-muscle="Säte"]').focus();await page.keyboard.press('Enter');
+assert.equal(await page.locator('#muscle-map-name').innerText(),'Säte');
+await page.locator('#muscle-map-open').click();assert.ok(await page.locator('.catalog').isVisible());
+assert.equal(await page.locator('#studio-route').innerText(),'Säte');
+await page.goBack();await page.waitForFunction(()=>!document.querySelector('#muscle-map-page').hidden);
+assert.equal(await page.locator('#muscle-map-name').innerText(),'Säte');
+await page.screenshot({path:dir+'/muscle-map-back-390.png',fullPage:true});
 assert.deepEqual(errors,[]);
 // Isolate the local entry layout from the production sign-in redirect.
 await page.route('**/auth-gate.js*',route=>route.fulfill({contentType:'application/javascript',body:''}));

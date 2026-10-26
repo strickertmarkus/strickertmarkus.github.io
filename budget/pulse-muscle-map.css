@@ -1,0 +1,46 @@
+/* Static artwork and hit areas share one coordinate system at every size. */
+body.muscle-map-active main{padding-top:8px}
+#muscle-map-page{max-width:940px;margin:0 auto;padding:24px 18px 100px;color:#edf0f5}
+#muscle-map-page[hidden]{display:none}
+.muscle-map-heading{text-align:center;margin:0 0 18px}
+.muscle-map-heading h2{font-size:clamp(25px,4vw,36px);letter-spacing:-.035em;margin:7px 0}
+.muscle-map-heading p,.muscle-map-hint{color:#9ca7b6;font-size:13px;margin:0}
+.muscle-map-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(240px,1fr);align-items:center;gap:36px}
+.muscle-map-visual{min-width:0}
+.muscle-map-sides{display:flex;width:max-content;margin:0 auto 6px;padding:4px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}
+.muscle-map-sides button{border:0;border-radius:24px;padding:11px 22px;background:transparent;color:#a7b1c0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:42px}
+.muscle-map-sides button[aria-pressed=true]{background:#ff655720;color:#ffbaae;box-shadow:inset 0 0 0 1px #ff655744}
+.muscle-map-figure{position:relative;aspect-ratio:2/3;overflow:hidden;width:100%;max-width:400px;margin:auto;isolation:isolate}
+.muscle-map-figure img{position:absolute;display:block;max-width:none;width:200%;height:100%;left:0;top:0;object-fit:fill;pointer-events:none;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.muscle-map-figure[data-side=back] img{left:-100%}
+#muscle-map-regions{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.muscle-map-region{cursor:pointer;outline:none;fill:transparent;stroke:transparent;stroke-width:3;transition:fill .15s,stroke .15s}
+.muscle-map-region:hover,.muscle-map-region:focus-visible{fill:#ff806340;stroke:#ffd2b6}
+.muscle-map-region[aria-pressed=true]{fill:#ff704336;stroke:#ffb095;filter:drop-shadow(0 0 8px #ff654b88)}
+.muscle-map-region:focus-visible{stroke:#fff;stroke-width:6}
+.muscle-map-options{min-width:0}
+.muscle-map-hint{margin-bottom:12px}
+#muscle-map-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#muscle-map-choices button{min-height:44px;padding:10px 8px;border:1px solid #ffffff18;border-radius:12px;background:#121923;color:#c1cad6;cursor:pointer;font-family:inherit;font-size:13px}
+#muscle-map-choices button[aria-pressed=true]{background:#ff655718;border-color:#ff65577a;color:#ffbdaf}
+.muscle-map-result{margin-top:22px;padding:20px;border:1px solid #ff655732;border-radius:20px;background:linear-gradient(135deg,#ff655710,#121923)}
+.muscle-map-result h3{margin:7px 0;font-size:25px;letter-spacing:-.025em}
+.muscle-map-result p{color:#a9b4c2;font-size:13px;margin:0}
+#muscle-map-open{width:100%;min-height:46px;display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:12px 16px;border:0;border-radius:12px;background:#ff7463;color:#20100e;font:700 14px system-ui;cursor:pointer}
+#muscle-map-page button:focus-visible{outline:2px solid #ffb6a6;outline-offset:3px}
+@media(max-width:640px){
+ #muscle-map-page{padding:8px 12px 100px}
+ .muscle-map-heading{margin-bottom:12px}
+ .muscle-map-heading>.eyebrow{display:none}
+ .muscle-map-layout{grid-template-columns:minmax(0,1fr);gap:0}
+ .muscle-map-figure{width:min(100%,300px,calc(42svh * 2 / 3))}
+ .muscle-map-hint{font-size:11px;text-align:center;margin:0 0 8px}
+ #muscle-map-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ #muscle-map-choices button{font-size:12px;padding:8px 4px}
+ .muscle-map-result{margin-top:12px;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+ .muscle-map-result h3{font-size:20px;margin:4px 0}
+ .muscle-map-result .eyebrow{display:none}
+ .muscle-map-result p{font-size:11px}
+ #muscle-map-open{width:auto;min-width:134px;margin:0;font-size:12px;gap:12px;padding:12px}
+}
+@media(prefers-reduced-motion:reduce){.muscle-map-region{transition:none}}

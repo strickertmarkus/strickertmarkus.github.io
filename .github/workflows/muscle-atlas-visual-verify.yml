@@ -10,6 +10,8 @@ on:
       - 'budget/pulse-living-anatomy.js'
       - 'budget/assets/atlas-art-v1/**'
       - 'scripts/verify-flow-layout.cjs'
+      - 'budget/pulse-muscle-map.*'
+      - 'budget/assets/muscle-map-v1/**'
       - '.github/workflows/muscle-atlas-visual-verify.yml'
   workflow_dispatch:
 jobs:
