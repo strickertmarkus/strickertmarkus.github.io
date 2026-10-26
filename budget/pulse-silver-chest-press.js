@@ -219,11 +219,3 @@ api.update=frame=>{
  const status=document.getElementById('model-status');if(status)status.hidden=true;
  return true;
 };
-
-
-// Copy small visible previews from the same renderer; never create per-row WebGL contexts.
-api.preview=(frame,canvas)=>{
- if(!api.update({...frame,previewWidth:canvas.width,previewHeight:canvas.height}))return false;
- canvas.getContext('2d').drawImage(renderer.domElement,0,0,canvas.width,canvas.height);
- return true;
-};
