@@ -60,9 +60,9 @@
     if (button.dataset.timerToggleMarkupV55 !== 'true') {
       button.dataset.timerToggleMarkupV55 = 'true';
       button.innerHTML =
-        '<span aria-hidden="true" style="font-size:13px;line-height:1">◷</span>' +
-        '<span>5 s</span>' +
-        '<span class="session-timer-track-v48" aria-hidden="true"><span class="session-timer-knob-v48"></span></span>';
+        '<span class="session-timer-icon-v48" aria-hidden="true">' +
+          '<svg viewBox="0 0 24 24"><path d="M9 2h6M12 6v2M18.4 7.6l1.4-1.4"></path><circle cx="12" cy="14" r="7"></circle><path d="M12 14l3-2"></path></svg>' +
+        '</span>';
     }
     button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     button.setAttribute('aria-label', '5 sekunders starttimer ' + (enabled ? 'på' : 'av'));

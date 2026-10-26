@@ -180,14 +180,6 @@
           color:var(--pf-soft)!important;
           box-shadow:inset 0 0 0 1px rgba(var(--pf-rgb),.14),0 0 13px rgba(var(--pf-rgb),.22),0 0 31px rgba(var(--pf-rgb),.15)!important;
         }
-        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48{
-          background:rgba(var(--pf-rgb),.33)!important;
-          box-shadow:inset 0 0 0 1px rgba(var(--pf-rgb),.39),0 0 12px rgba(var(--pf-rgb),.24)!important;
-        }
-        html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48{
-          background:var(--pf-soft)!important;
-          box-shadow:0 0 7px rgba(var(--pf-rgb),.96),0 0 16px rgba(var(--pf-rgb),.50),0 0 27px rgba(var(--pf-rgb),.22)!important;
-        }
 
         @media(prefers-reduced-motion:reduce){
           html.exercise-concept-pulse-home-v1 body #session-modal.pulse-flow-v58.show:not(.session-overview-mode) .hype-progress-segment.${LIVE}>.pf-progress-dot-v80{animation:none!important}

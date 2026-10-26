@@ -356,7 +356,6 @@
         #session-modal.show .session-top > div:first-child {
           grid-column:1 / -1 !important;
         }
-        #session-modal.show .session-pretimer-toggle-v2 { justify-self:start !important; }
         #session-pre-timer-ring {
           width:146px !important;
           height:146px !important;

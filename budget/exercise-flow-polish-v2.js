@@ -285,54 +285,29 @@
         background:var(--flow-accent);
         box-shadow:0 0 5px rgba(var(--flow-accent-soft-rgb),.75),0 0 13px rgba(var(--flow-accent-rgb),.55);
       }
+      /* Symbol-only round toggle, matching the energy-saving button beside it. */
       .session-pretimer-toggle-v2 {
-        min-height:38px;
-        padding:6px 8px;
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        gap:6px;
-        font-size:10px;
-        font-weight:850;
-        white-space:nowrap;
+        display:grid;
+        place-items:center;
+        justify-self:end;
+        width:40px;
+        height:40px;
+        min-width:40px;
+        padding:8px;
+        border-radius:50%;
         transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .12s ease;
       }
       .session-pretimer-toggle-v2:active { transform:scale(.97); }
-      .session-pretimer-toggle-v2 .session-timer-icon-v48 {
-        display:grid;
-        place-items:center;
-        width:16px;
-        height:16px;
-        flex:0 0 16px;
-      }
+      .session-pretimer-toggle-v2 .session-timer-icon-v48 { display:grid; place-items:center; }
       .session-pretimer-toggle-v2 .session-timer-icon-v48 svg {
         display:block;
-        width:16px;
-        height:16px;
+        width:23px;
+        height:23px;
         fill:none;
         stroke:currentColor;
-        stroke-width:1.9;
+        stroke-width:1.6;
         stroke-linecap:round;
         stroke-linejoin:round;
-      }
-      .session-pretimer-toggle-v2 .session-timer-track-v48 {
-        width:27px;
-        height:16px;
-        padding:2px;
-        flex:0 0 27px;
-        border-radius:999px;
-        background:rgba(100,116,139,.34);
-        box-shadow:inset 0 0 0 1px rgba(148,163,184,.20);
-        transition:background .18s ease,box-shadow .18s ease;
-      }
-      .session-pretimer-toggle-v2 .session-timer-knob-v48 {
-        display:block;
-        width:12px;
-        height:12px;
-        border-radius:50%;
-        background:#64748B;
-        transform:translateX(0);
-        transition:transform .2s cubic-bezier(.2,.8,.2,1),background .18s ease,box-shadow .18s ease;
       }
       .session-pretimer-toggle-v2[aria-pressed="true"] {
         border-color:rgba(var(--flow-accent-rgb),.48);
@@ -340,28 +315,11 @@
         color:var(--flow-accent-soft);
         box-shadow:0 0 20px rgba(var(--flow-accent-rgb),.12),inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.04);
       }
-      .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
-        background:rgba(var(--flow-accent-rgb),.30);
-        box-shadow:inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.28),0 0 10px rgba(var(--flow-accent-rgb),.18);
-      }
-      .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
-        transform:translateX(11px);
-        background:var(--flow-accent-pale);
-        box-shadow:0 0 8px rgba(var(--flow-accent-soft-rgb),.75);
-      }
       #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] {
         border-color:rgba(255,154,61,.46);
         background:rgba(255,122,26,.12);
         color:#FDBA74;
         box-shadow:0 0 20px rgba(249,115,22,.13),inset 0 0 0 1px rgba(253,186,116,.04);
-      }
-      #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
-        background:rgba(249,115,22,.30);
-        box-shadow:inset 0 0 0 1px rgba(253,186,116,.28),0 0 10px rgba(249,115,22,.20);
-      }
-      #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
-        background:#FED7AA;
-        box-shadow:0 0 8px rgba(253,186,116,.72);
       }
 
       html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] {
@@ -369,14 +327,6 @@
         background:rgba(var(--flow-accent-rgb),.14);
         color:var(--flow-accent-soft);
         box-shadow:0 0 20px rgba(var(--flow-accent-rgb),.12),inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.04);
-      }
-      html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-track-v48 {
-        background:rgba(var(--flow-accent-rgb),.30);
-        box-shadow:inset 0 0 0 1px rgba(var(--flow-accent-soft-rgb),.28),0 0 10px rgba(var(--flow-accent-rgb),.18);
-      }
-      html[data-field-embedded] #session-modal.hype-mode .session-pretimer-toggle-v2[aria-pressed="true"] .session-timer-knob-v48 {
-        background:var(--flow-accent-pale);
-        box-shadow:0 0 8px rgba(var(--flow-accent-soft-rgb),.75);
       }
 
       /* Weekly toolbar: date + Redigera + Mallpass in the row where Denna vecka was. */
@@ -400,11 +350,6 @@
         }
         .bs-rest-overview-row { font-size:9px; padding:4px 0; }
         .pretimer-builder-v2 { padding:9px 10px; }
-        .session-pretimer-toggle-v2 {
-          min-height:36px;
-          padding:6px 7px;
-          font-size:9px;
-        }
         .week-toolbar {
           flex-wrap:nowrap !important;
           gap:6px !important;
@@ -519,9 +464,7 @@
       button.innerHTML =
         '<span class="session-timer-icon-v48" aria-hidden="true">' +
           '<svg viewBox="0 0 24 24"><path d="M9 2h6M12 6v2M18.4 7.6l1.4-1.4"></path><circle cx="12" cy="14" r="7"></circle><path d="M12 14l3-2"></path></svg>' +
-        '</span>' +
-        '<span class="session-timer-label-v48">5 s</span>' +
-        '<span class="session-timer-track-v48" aria-hidden="true"><span class="session-timer-knob-v48"></span></span>';
+        '</span>';
     }
     button.setAttribute('aria-pressed',enabled ? 'true' : 'false');
     button.setAttribute('aria-label','5 sekunders starttimer ' + (enabled ? 'på' : 'av'));
