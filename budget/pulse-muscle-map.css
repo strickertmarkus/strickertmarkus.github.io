@@ -1,46 +1,54 @@
-/* Static artwork and hit areas share one coordinate system at every size. */
+/* Static artwork, hit areas and leader lines scale together. */
 body.muscle-map-active main{padding-top:8px}
-#muscle-map-page{max-width:940px;margin:0 auto;padding:24px 18px 100px;color:#edf0f5}
+#muscle-map-page{max-width:860px;margin:0 auto;padding:18px 0 80px;color:#edf0f5}
 #muscle-map-page[hidden]{display:none}
-.muscle-map-heading{text-align:center;margin:0 0 18px}
-.muscle-map-heading h2{font-size:clamp(25px,4vw,36px);letter-spacing:-.035em;margin:7px 0}
-.muscle-map-heading p,.muscle-map-hint{color:#9ca7b6;font-size:13px;margin:0}
-.muscle-map-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(240px,1fr);align-items:center;gap:36px}
+.muscle-map-heading{text-align:center;margin:0 0 14px}
+.muscle-map-heading h2{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;margin:7px 0}
+.muscle-map-heading p{color:#9ca7b6;font-size:12px;margin:0}
+.muscle-map-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,1fr);align-items:center;gap:24px}
 .muscle-map-visual{min-width:0}
-.muscle-map-sides{display:flex;width:max-content;margin:0 auto 6px;padding:4px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}
-.muscle-map-sides button{border:0;border-radius:24px;padding:11px 22px;background:transparent;color:#a7b1c0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:42px}
-.muscle-map-sides button[aria-pressed=true]{background:#ff655720;color:#ffbaae;box-shadow:inset 0 0 0 1px #ff655744}
-.muscle-map-figure{position:relative;aspect-ratio:2/3;overflow:hidden;width:100%;max-width:400px;margin:auto;isolation:isolate}
-.muscle-map-figure img{position:absolute;display:block;max-width:none;width:200%;height:100%;left:0;top:0;object-fit:fill;pointer-events:none;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
-.muscle-map-figure[data-side=back] img{left:-100%}
-#muscle-map-regions{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.muscle-map-region{cursor:pointer;outline:none;fill:transparent;stroke:transparent;stroke-width:3;transition:fill .15s,stroke .15s}
-.muscle-map-region:hover,.muscle-map-region:focus-visible{fill:#ff806340;stroke:#ffd2b6}
-.muscle-map-region[aria-pressed=true]{fill:#ff704336;stroke:#ffb095;filter:drop-shadow(0 0 8px #ff654b88)}
-.muscle-map-region:focus-visible{stroke:#fff;stroke-width:6}
+.muscle-map-sides{display:flex;width:max-content;margin:0 auto 4px;padding:3px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}
+.muscle-map-sides button{border:0;border-radius:24px;padding:10px 21px;background:transparent;color:#a7b1c0;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;min-height:42px}
+.muscle-map-sides button[aria-pressed=true]{background:#ff302018;color:#ffb3a8;box-shadow:inset 0 0 0 1px #ff493d44}
+.muscle-map-figure{position:relative;aspect-ratio:2/3;overflow:hidden;width:100%;max-width:500px;margin:auto;isolation:isolate}
+.muscle-map-figure img{position:absolute;display:block;max-width:none;width:200%;height:100%;left:-5.66298%;top:0;object-fit:fill;pointer-events:none;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.muscle-map-figure[data-side=back] img{left:-94.33702%}
+#muscle-map-regions{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:2}
+.muscle-map-figure::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#090d13,transparent 17%,transparent 83%,#090d13),linear-gradient(0deg,#090d13,transparent 9%,transparent 96%,#090d13)}
+.muscle-map-region{cursor:pointer;outline:none;fill:transparent;stroke:transparent;stroke-width:2;transition:fill .18s,stroke .18s,filter .18s}
+.muscle-map-region .muscle-map-hit{fill:transparent;stroke:none}
+.muscle-map-region:hover{fill:#ff241c30;stroke:#ff4b40}
+.muscle-map-region[aria-pressed=true]{fill:#ff1b155f;stroke:#ff3829;filter:drop-shadow(0 0 7px #ff1800) drop-shadow(0 0 18px #ff1400a8)}
+.muscle-map-region:focus-visible{stroke:#ffb4a5;stroke-width:2.5}
+.muscle-map-leader{pointer-events:none;fill:#ff483c;stroke:#f7473b;stroke-width:1.8;opacity:.56;filter:drop-shadow(0 0 4px #ff3020)}
+.muscle-map-leader path{fill:none}
+.muscle-map-leader.is-selected{opacity:1;stroke:#ff6253;stroke-width:2.6;filter:drop-shadow(0 0 5px #ff2818) drop-shadow(0 0 10px #ff2818)}
+#muscle-map-labels{position:absolute;inset:0;pointer-events:none;z-index:3}
+.muscle-map-label{position:absolute;transform:translateY(-50%);display:flex;align-items:center;justify-content:space-between;gap:3px;width:23%;min-height:44px;padding:6px 3px;border:0;border-radius:0;background:transparent;text-shadow:0 1px 6px #000;font-family:inherit;font-size:12px;color:#c8b5b3;cursor:pointer;text-align:left;pointer-events:auto;text-wrap:balance}
+.muscle-map-label.left{left:0}.muscle-map-label.right{right:0}
+.muscle-map-label.is-selected{color:#ffb8af;text-shadow:0 0 10px #ff3020a0}
+.muscle-map-label>span:last-child{font-size:13px;color:#ff6a5a}
 .muscle-map-options{min-width:0}
-.muscle-map-hint{margin-bottom:12px}
-#muscle-map-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#muscle-map-choices button{min-height:44px;padding:10px 8px;border:1px solid #ffffff18;border-radius:12px;background:#121923;color:#c1cad6;cursor:pointer;font-family:inherit;font-size:13px}
-#muscle-map-choices button[aria-pressed=true]{background:#ff655718;border-color:#ff65577a;color:#ffbdaf}
-.muscle-map-result{margin-top:22px;padding:20px;border:1px solid #ff655732;border-radius:20px;background:linear-gradient(135deg,#ff655710,#121923)}
-.muscle-map-result h3{margin:7px 0;font-size:25px;letter-spacing:-.025em}
-.muscle-map-result p{color:#a9b4c2;font-size:13px;margin:0}
-#muscle-map-open{width:100%;min-height:46px;display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:12px 16px;border:0;border-radius:12px;background:#ff7463;color:#20100e;font:700 14px system-ui;cursor:pointer}
-#muscle-map-page button:focus-visible{outline:2px solid #ffb6a6;outline-offset:3px}
+.muscle-map-result{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid #ff473833}
+.muscle-map-result h3{margin:6px 0;font-size:23px;letter-spacing:-.025em}
+.muscle-map-result p{color:#a9b4c2;font-size:12px;margin:0}
+#muscle-map-open{min-height:44px;flex-shrink:0;display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid #ff4a3b44;border-radius:12px;background:#ff302010;color:#ffb4a9;font:600 11px system-ui;cursor:pointer}
+#muscle-map-exercises{display:grid;gap:0}
+#muscle-map-exercises button{border:0;border-bottom:1px solid #ffffff10;background:transparent;color:#cbd0da;text-align:left;padding:14px 0;min-height:44px;font-family:inherit;font-size:12px;cursor:pointer}
+#muscle-map-exercises button:hover{color:#ffb5aa}
+#muscle-map-page button:focus-visible{outline:2px solid #ffb6a6;outline-offset:2px}
 @media(max-width:640px){
- #muscle-map-page{padding:8px 12px 100px}
+ body.muscle-map-active main{padding-left:14px;padding-right:14px}
+ #muscle-map-page{padding:6px 0 80px}
  .muscle-map-heading{margin-bottom:12px}
  .muscle-map-heading>.eyebrow{display:none}
  .muscle-map-layout{grid-template-columns:minmax(0,1fr);gap:0}
- .muscle-map-figure{width:min(100%,300px,calc(42svh * 2 / 3))}
- .muscle-map-hint{font-size:11px;text-align:center;margin:0 0 8px}
- #muscle-map-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
- #muscle-map-choices button{font-size:12px;padding:8px 4px}
- .muscle-map-result{margin-top:12px;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
- .muscle-map-result h3{font-size:20px;margin:4px 0}
+ .muscle-map-figure{width:100%;max-width:410px}
+ .muscle-map-label{font-size:11px}
+ .muscle-map-options{margin-top:-14px;padding:0 8px}
+ .muscle-map-result{padding:12px 0}
+ .muscle-map-result h3{font-size:20px;margin:0 0 5px}
  .muscle-map-result .eyebrow{display:none}
  .muscle-map-result p{font-size:11px}
- #muscle-map-open{width:auto;min-width:134px;margin:0;font-size:12px;gap:12px;padding:12px}
 }
 @media(prefers-reduced-motion:reduce){.muscle-map-region{transition:none}}

@@ -368,7 +368,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
 <link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261026-stories-1"><script src="pulse-stories-ui.js?v=20261026-stories-1"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261026-map-1"><script src="pulse-map-ui.js?v=20261026-map-1"></script>
-<link rel="stylesheet" href="pulse-muscle-map.css?v=20261026-1">
+<link rel="stylesheet" href="pulse-muscle-map.css?v=20261027-2">
 </head>
 <body>
 <header><div class="top"><div class="brand">PULSE<span>FLOW</span><small id="explore-profile-name">MARKUS TRÄNING</small></div><a class="back" id="explore-back" href="exercise.html">← Till träningen</a></div></header>
@@ -392,13 +392,13 @@ body:has(.studio-technique[open]){overflow:hidden}
 <div id="technique-scrim" class="technique-scrim" hidden></div>
 </section>
 <section id="muscle-map-page" hidden aria-labelledby="muscle-map-title">
- <div class="muscle-map-heading"><span class="eyebrow">Utforska kroppen</span><h2 id="muscle-map-title">Var vill du träna?</h2><p>Tryck på en muskel och hitta dina övningar.</p></div>
+ <div class="muscle-map-heading"><span class="eyebrow">Utforska kroppen</span><h2 id="muscle-map-title">Var vill du träna?</h2><p>Tryck på kroppen. Följ linjen till dina övningar.</p></div>
  <div class="muscle-map-layout">
   <div class="muscle-map-visual">
    <div class="muscle-map-sides" role="group" aria-label="Visa kroppen"><button type="button" data-map-side="front" aria-pressed="true">Framsida</button><button type="button" data-map-side="back" aria-pressed="false">Baksida</button></div>
-   <div class="muscle-map-figure" data-side="front"><img src="assets/muscle-map-v1/body-front-back.webp" width="1448" height="1086" alt="Silverfärgad helkroppsfigur med markerade muskler, sedd framifrån" decoding="async"><svg id="muscle-map-regions" viewBox="0 0 724 1086" aria-label="Tryckbara muskelgrupper"></svg></div>
+   <div class="muscle-map-figure" data-side="front"><img src="assets/muscle-map-v1/body-front-back-defined.webp" width="1448" height="1086" alt="Silverfärgad helkroppsfigur med markerade muskler, sedd framifrån" decoding="async"><svg id="muscle-map-regions" viewBox="0 0 724 1086" aria-label="Tryckbara muskelgrupper"></svg><div id="muscle-map-labels" aria-label="Öppna en muskelgrupp i övningsguiden"></div></div>
   </div>
-  <div class="muscle-map-options"><p class="muscle-map-hint">Välj på kroppen eller nedan</p><div id="muscle-map-choices" role="group" aria-label="Muskelgrupper"></div><div class="muscle-map-result"><div aria-live="polite" aria-atomic="true"><span class="eyebrow">Ditt fokus</span><h3 id="muscle-map-name">Bröst</h3><p id="muscle-map-count"></p></div><button type="button" id="muscle-map-open">Visa övningar <span aria-hidden="true">↗</span></button></div></div>
+  <div class="muscle-map-options"><div class="muscle-map-result"><div aria-live="polite" aria-atomic="true"><span class="eyebrow">Ditt fokus</span><h3 id="muscle-map-name">Bröst</h3><p id="muscle-map-count"></p></div><button type="button" id="muscle-map-open">Alla övningar <span aria-hidden="true">↗</span></button></div><div id="muscle-map-exercises" aria-label="Övningsalternativ"></div></div>
  </div>
 </section>
 <section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Hitta ditt nästa pass</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
@@ -1070,6 +1070,7 @@ window.PulseGuideUI={
  copySelection:()=>transfer({version:1,ids:selection}),
  copyProgram:id=>transfer({version:1,programId:id}),
  muscle:()=>group,
+ openMuscleExercise:(name,id=null)=>route(()=>{showPage('guide');openStudio(name,id,true);setList(false);window.scrollTo(0,0);}),
  browseMuscle:name=>route(()=>{showPage('guide');openStudio(name,null,true);setList(true);window.scrollTo(0,0);}),
  openMuscle:name=>route(()=>{const browsing=listOpen;openStudio(name,null,true);setList(browsing);}),
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,
@@ -1083,7 +1084,7 @@ renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',fals
 window.addEventListener('load',()=>{if(studioOpen)draw((1-Math.cos(phase*Math.PI*2))/2,phase);});
 renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='Spela ▶';$('pause').setAttribute('aria-pressed','true')}requestAnimationFrame(animate);
 </script>
-<script src="pulse-muscle-map.js?v=20261026-1"></script>
+<script src="pulse-muscle-map.js?v=20261027-2"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 
 

@@ -54,7 +54,17 @@ await page.locator('#muscle-map-open').click();assert.ok(await page.locator('.ca
 assert.equal(await page.locator('#studio-route').innerText(),'Säte');
 await page.goBack();await page.waitForFunction(()=>!document.querySelector('#muscle-map-page').hidden);
 assert.equal(await page.locator('#muscle-map-name').innerText(),'Säte');
-await page.screenshot({path:dir+'/muscle-map-back-390.png',fullPage:true});
+assert.equal(await page.locator('.muscle-map-label').count(),6);
+await page.locator('[data-map-guide="Säte"]').click();
+assert.ok(await page.locator('#studio-stage').isVisible());
+assert.ok(await page.locator('.catalog').isHidden());
+assert.equal(await page.locator('#studio-route').innerText(),'Säte');
+await page.goBack();await page.waitForFunction(()=>!document.querySelector('#muscle-map-page').hidden);
+await page.locator('[data-map-side="front"]').click();
+await page.locator('#muscle-map-regions [data-map-muscle="Mage"]').focus();await page.keyboard.press('Enter');
+assert.equal(await page.locator('#muscle-map-regions [data-map-muscle="Mage"] path:not(.muscle-map-hit)').count(),4,'central abs and both obliques are selectable');
+assert.equal(await page.locator('#muscle-map-exercises button').count(),3);
+await page.screenshot({path:dir+'/muscle-map-abdominal-glow-390.png',fullPage:true});
 assert.deepEqual(errors,[]);
 // Isolate the local entry layout from the production sign-in redirect.
 await page.route('**/auth-gate.js*',route=>route.fulfill({contentType:'application/javascript',body:''}));
