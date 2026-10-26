@@ -29,13 +29,13 @@ body.pulse-studio-open #living-dock,body:not(.living-guide-active) #living-dock{
 .exercise-dose{color:var(--accent-text)!important}
 .exercise-list-open .exercise-option strong{font-size:15px}
 .exercise-list-open .exercise-option small{font-size:11px;line-height:1.5}
-.program-detail .program-timeline{--pose-width:220px;list-style:none;margin:20px 0 24px;padding:0}
+.program-detail .program-timeline{--pose-width:280px;list-style:none;margin:20px 0 24px;padding:0}
 .program-detail .program-timeline li{position:relative;display:grid;grid-template-columns:var(--pose-width) minmax(0,1fr) auto;align-items:center;gap:18px;border:0;padding:0 0 28px;min-height:170px}
 .program-timeline li:not(:last-child)::after{content:'';position:absolute;left:calc(var(--pose-width)/2 - 1px);top:50%;bottom:-50%;width:2px;background:#f25947;box-shadow:0 0 7px #ff352b,0 0 18px #ef40396d;z-index:0}
-.program-timeline .timeline-preview{position:relative;z-index:1;grid-column:1;width:100%;padding:0;border:1px solid #ee76662e;border-radius:15px;background:#0e1218;overflow:visible;color:#a7afb9}
-.timeline-poses{display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(ellipse at 50% 70%,#49271f44,transparent 75%)}
-.timeline-pose{display:flex;flex-direction:column;min-width:0;align-items:center;padding-bottom:8px;font-size:9px;letter-spacing:.02em}
-.timeline-pose+ .timeline-pose{border-left:1px solid #ffffff0b}
+.program-timeline .timeline-preview{position:relative;z-index:1;grid-column:1;width:100%;padding:0;border:0;border-radius:0;background:#090d13;box-shadow:none;overflow:visible;color:#a7afb9}
+.program-timeline .timeline-preview:focus-visible{outline:2px solid var(--accent-text);outline-offset:4px}
+.timeline-poses{display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;border-radius:0;background:none}
+.timeline-pose{display:flex;flex-direction:column;min-width:0;align-items:center;padding:0}
 .pose-image{display:block;width:100%;aspect-ratio:1;overflow:hidden}.pose-image img{display:block;width:125%;max-width:none;height:auto;margin:-10% -12.5% 0;clip-path:inset(10% 0 4%);filter:drop-shadow(0 0 8px #ff443322)}
 .timeline-preview::before,.timeline-preview::after{content:'';position:absolute;left:calc(50% - 3px);width:6px;height:6px;border-radius:50%;background:#ff8d75;box-shadow:0 0 10px #ff4433;z-index:2}
 .timeline-preview::before{top:-3px}.timeline-preview::after{bottom:-3px}
@@ -43,13 +43,13 @@ body.pulse-studio-open #living-dock,body:not(.living-guide-active) #living-dock{
 .timeline-copy{min-width:0}.timeline-copy strong{line-height:1.4}.program-detail .timeline-copy small{font-size:11px;color:#b6b8bf;line-height:1.5;margin-top:6px}.program-detail .timeline-copy small:first-of-type{color:var(--accent-text)}
 
 @media(max-width:600px){
- .program-detail .program-timeline{--pose-width:144px}
+ .program-detail .program-timeline{--pose-width:180px}
  .program-detail .program-timeline li{grid-template-columns:var(--pose-width) minmax(0,1fr);gap:8px 12px;padding-bottom:28px;min-height:155px}
  .program-timeline .timeline-preview{grid-row:1/3;align-self:center}
  .program-timeline li>button:last-child:not(.timeline-preview){grid-column:2;justify-self:start;min-height:34px;padding:5px 0;margin-top:-8px}
  .timeline-copy{align-self:end}.program-detail .timeline-copy strong{font-size:14px}
 }
-@media(max-width:360px){.program-detail .program-timeline{--pose-width:122px}.program-detail .program-timeline li{gap:6px 10px}.program-detail .timeline-copy strong{font-size:12px}.program-detail .timeline-copy small{font-size:10px}}
+@media(max-width:360px){.program-detail .program-timeline{--pose-width:150px}.program-detail .program-timeline li{gap:6px 10px}.program-detail .timeline-copy strong{font-size:12px}.program-detail .timeline-copy small{font-size:10px}}
 
 .exercise-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;border-bottom:1px solid #ffffff10}
 .exercise-list-open .exercise-entry .exercise-option{border:0;padding:17px 0;min-width:0;flex-basis:auto}
