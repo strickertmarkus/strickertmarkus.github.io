@@ -8,6 +8,8 @@
 'use strict';
 var root=document.documentElement;
 if(!root.classList.contains('pbu-v1'))return;
+/* B (?ui=kompakt): numbers always editable on the row, suggestions as chips. */
+var COMPACT=root.classList.contains('pbu-b');
 
 var MUSCLE_IMAGE={'Bröst':'chest','Axlar':'shoulders','Rygg':'back','Biceps':'biceps','Triceps':'triceps','Mage':'abs','Framsida lår':'quads','Säte':'glutes','Baksida lår':'hamstrings','Vader':'calves'};
 var LEGS=['Framsida lår','Baksida lår','Säte','Vader'];
@@ -99,6 +101,13 @@ function paintRow(row){
   thumb.dataset.src=src;
   thumb.innerHTML=src?'<img alt="" src="'+src+'" loading="lazy" decoding="async">':'<i class="pbu-plus" aria-hidden="true"></i>';
  }
+ if(COMPACT){
+  var quick=row.querySelector('.pbu-quick');
+  if(quick&&quick.dataset.kind!==rowKind(row))renderQuick(row);
+  var g=row.querySelector('[data-pbu-guide-row]'),ge=guideByName(name);
+  if(g){g.hidden=!ge;if(ge)g.dataset.pbuGuide=String(ge.id);}
+  syncBetween(row);
+ }
 }
 function enhanceRow(row){
  if(!row||row.dataset.pbu==='1'||!row.querySelector('.ex-row'))return;
@@ -111,12 +120,39 @@ function enhanceRow(row){
   +'<div class="pbu-seg" role="group" aria-label="Typ av övning"><button type="button" data-pbu-kind="strength">Styrka</button><button type="button" data-pbu-kind="cardio">Kondition</button></div>'
   +'<div class="pbu-steps"></div>';
  var actions=document.createElement('div');actions.className='pbu-actions';
- actions.innerHTML='<button type="button" class="pbu-link" data-pbu-change>Byt övning</button>'
+ actions.innerHTML=(COMPACT?'<button type="button" class="pbu-link" data-pbu-guide-row hidden>Visa i guiden</button>':'')
+  +'<button type="button" class="pbu-link" data-pbu-change>Byt övning</button>'
   +'<button type="button" class="pbu-link is-danger" data-pbu-delete>Ta bort</button>';
  row.insertBefore(head,row.firstChild);
  row.insertBefore(thumb,row.firstChild);
+ if(COMPACT){
+  var quick=document.createElement('div');quick.className='pbu-quick';
+  head.insertAdjacentElement('afterend',quick);
+  var clock=document.createElement('button');clock.type='button';clock.className='pbu-between-btn';
+  clock.setAttribute('aria-label','Mellan set');clock.setAttribute('aria-pressed','false');
+  clock.innerHTML='<i class="pbu-clock" aria-hidden="true"></i>';
+  row.appendChild(clock);
+ }
  row.appendChild(panel);row.appendChild(actions);
+ if(COMPACT)renderQuick(row);
  paintRow(row);
+}
+/* B: small always-visible number fields on the row. */
+function renderQuick(row){
+ var box=row.querySelector('.pbu-quick');if(!box)return;
+ var kind=rowKind(row),specs=SPECS[kind];
+ box.dataset.kind=kind;
+ box.innerHTML=specs.map(function(s,i){
+  var sep=kind==='strength'&&s.n===2?'<span class="pbu-q-x" aria-hidden="true">×</span>':'';
+  return sep+'<label class="pbu-q"><input data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1?'decimal':'numeric')+'" value="'+esc(field(row,s.n).value)+'" placeholder="'+(kind==='strength'?['sets','reps','vikt'][i]:['km','min'][i])+'" aria-label="'+s.label+'" autocomplete="off">'+(s.unit?'<span>'+s.unit+'</span>':'')+'</label>';
+ }).join('');
+}
+function syncBetween(row){
+ var btn=row.querySelector('.pbu-between-btn');if(!btn)return;
+ var sw=row.querySelector('[data-per-set-toggle-v7]');
+ var on=!!sw&&sw.getAttribute('aria-pressed')==='true';
+ btn.classList.toggle('is-on',on);
+ btn.setAttribute('aria-pressed',row.classList.contains('pbu-between-open')?'true':'false');
 }
 function enhanceAll(){document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(enhanceRow);}
 
@@ -195,6 +231,7 @@ function renderOptions(row,query){
  var own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&match(e.name);});
  // Searching reaches the whole guide, not only the pass's muscle groups.
  if(q&&api())api().exercises.forEach(function(e){if(!gk[key(e.name)]&&match(e.name)&&!own.some(function(o){return key(o.name)===key(e.name);})){guide.push(e);gk[key(e.name)]=1;}});
+ if(COMPACT){box.innerHTML=chipsHtml(row,ctx,guide,own,query,q,used);return;}
  var html='';
  if(guide.length){
   html+='<div class="pbu-group">'+(q?'Övningsguiden':'Förslag · '+esc(ctx.label))+'</div>';
@@ -221,12 +258,29 @@ function renderOptions(row,query){
  else if(!guide.length&&!q&&!ctx.cardio)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden.</p>'+html;
  box.innerHTML=html;
 }
+function chipsHtml(row,ctx,guide,own,query,q,used){
+ var chip=function(name,kind,gid,cls){return '<button type="button" class="pbu-chip'+(cls||'')+'" data-pbu-pick="'+esc(name)+'" data-pbu-kind-pick="'+kind+'"'+(gid!=null?' data-pbu-guide-id="'+gid+'"':'')+'>'+esc(name)+'</button>';};
+ var html='';
+ if(guide.length){
+  html+='<div class="pbu-group">'+(q?'Övningsguiden':'Förslag · '+esc(ctx.label))+'</div><div class="pbu-chips">'
+   +guide.slice(0,q?12:10).map(function(e){return chip(e.name,e.group==='Kondition'?'cardio':'strength',e.id,used[key(e.name)]?' is-used':'');}).join('')+'</div>';
+ }
+ if(own.length){
+  html+='<div class="pbu-group">Dina övningar</div><div class="pbu-chips">'+own.slice(0,q?own.length:8).map(function(e){return chip(e.name,e.kind,null,' is-own');}).join('')+'</div>';
+ }
+ var typed=String(query||'').trim();
+ if(typed&&!guide.concat(own).some(function(e){return key(e.name)===key(typed);}))html+='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'">Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</button>';
+ if(!guide.length&&!q&&!ctx.cardio)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden.</p>'+html;
+ return html;
+}
 function choose(row,name,kind,guideId){
  if(!name)return;
  setKind(row,kind||rowKind(row));
  write(nameInput(row),name);
  if(guideId!=null&&guideId!=='')fillFromGuide(row,Number(guideId));
- hidePicker(row);renderSteps(row);syncActions(row);paintRow(row);
+ hidePicker(row);renderSteps(row);syncActions(row);
+ if(COMPACT){renderQuick(row);closeRow(row);}
+ paintRow(row);
 }
 /* A guide choice fills empty fields with the guide's standard prescription. */
 function fillFromGuide(row,id){
@@ -330,14 +384,25 @@ function init(){
  if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
  ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){el.addEventListener('change',function(){paintTop(modal);});el.addEventListener('input',function(){paintTop(modal);});}});
  /* Opening another day or template rebuilds the rows; start collapsed. */
- new MutationObserver(function(){if(!modal.classList.contains('show')){modal.classList.remove('pbu-settings-open');}else paintTop(modal);}).observe(modal,{attributes:true,attributeFilter:['class']});
+ // Only write the class when it actually changes: classList.remove() on an
+ // absent token still rewrites the attribute and would re-trigger this observer.
+ new MutationObserver(function(){
+  if(modal.classList.contains('show')){paintTop(modal);return;}
+  if(modal.classList.contains('pbu-settings-open')){
+   modal.classList.remove('pbu-settings-open');
+   var bar=modal.querySelector('.pbu-settings-toggle');if(bar)bar.setAttribute('aria-expanded','false');
+  }
+ }).observe(modal,{attributes:true,attributeFilter:['class']});
 
  list.addEventListener('click',function(e){
   var t=e.target,row=t.closest('.pbu-row');if(!row)return;
   if(t.closest('.pbu-head')||t.closest('.pbu-thumb')){
-   if(row.classList.contains('pbu-open')&&(nameInput(row)||{}).value)closeRow(row);else openRow(row);
+   if(row.classList.contains('pbu-open'))closeRow(row);else openRow(row);
    return;
   }
+  if(t.closest('.pbu-between-btn')){row.classList.toggle('pbu-between-open');syncBetween(row);return;}
+  if(t.closest('[data-per-set-toggle-v7]')){setTimeout(function(){syncBetween(row);},0);}
+  var gr=t.closest('[data-pbu-guide-row]');if(gr){openGuide(Number(gr.dataset.pbuGuide),row);return;}
   var step=t.closest('[data-pbu-step]');
   if(step){
    var spec=SPECS[rowKind(row)].filter(function(s){return s.n===Number(step.dataset.pbuN);})[0];
@@ -347,7 +412,7 @@ function init(){
    paintRow(row);return;
   }
   var kind=t.closest('[data-pbu-kind]');
-  if(kind){setKind(row,kind.dataset.pbuKind);renderSteps(row);syncActions(row);paintRow(row);if(!row.querySelector('.pbu-pick').hidden)renderOptions(row,(row.querySelector('[data-pbu-search]')||{}).value||'');return;}
+  if(kind){setKind(row,kind.dataset.pbuKind);renderSteps(row);if(COMPACT)renderQuick(row);syncActions(row);paintRow(row);if(!row.querySelector('.pbu-pick').hidden)renderOptions(row,(row.querySelector('[data-pbu-search]')||{}).value||'');return;}
   if(t.closest('[data-pbu-change]')){if(row.classList.contains('pbu-picking'))hidePicker(row);else{showPicker(row);}return;}
   if(t.closest('[data-pbu-delete]')){var del=row.querySelector('.ex-del');if(del)del.click();return;}
   var info=t.closest('[data-pbu-guide]');
