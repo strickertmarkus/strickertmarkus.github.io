@@ -35,6 +35,7 @@
     pass: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+    fwd: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
     close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
   };
 
@@ -69,7 +70,13 @@
     var pauseMark = el('div', 'st-pause', '<span></span><span></span>'); pauseMark.setAttribute('aria-hidden', 'true');
     var burst = el('div', 'st-burst'); burst.setAttribute('aria-hidden', 'true');
     var end = el('div', 'st-end'); end.hidden = true;
-    [stageHost, art, touch, pauseMark, burst, top, info, rail, end].concat(GYM ? [heroCopy] : []).forEach(function (n) { root.appendChild(n); });
+    // Gym mode: quiet chevrons on the stage edges replace the swipe hint.
+    var navPrev = el('button', 'st-nav is-prev', ICON.back), navNext = el('button', 'st-nav is-next', ICON.fwd);
+    navPrev.type = navNext.type = 'button';
+    navPrev.setAttribute('aria-label', 'Föregående övning'); navNext.setAttribute('aria-label', 'Nästa övning');
+    navPrev.addEventListener('click', function (event) { event.stopPropagation(); prev(); });
+    navNext.addEventListener('click', function (event) { event.stopPropagation(); next(); });
+    [stageHost, art, touch, pauseMark, burst, top, info, rail, end].concat(GYM ? [heroCopy, navPrev, navNext] : []).forEach(function (n) { root.appendChild(n); });
     document.body.appendChild(root);
 
     function railButton(key, label, onClick) {
@@ -79,6 +86,7 @@
       rail.appendChild(b); return b;
     }
     var addBtn = railButton('add', 'Välj', function () { choose(); });
+    addBtn.classList.add('is-primary');
     railButton('info', 'Teknik', function () { openSheet('technique'); });
     railButton('turn', 'Vinkel', function () { ui.view(); });
     var passBtn = railButton('pass', 'Mitt pass', function () { openSheet('pass'); });
@@ -134,13 +142,15 @@
       addBtn.querySelector('small').textContent = on ? 'Vald' : 'Välj';
       var n = ui.selection().length;
       passBtn.querySelector('small').textContent = n ? 'Mitt pass · ' + n : 'Mitt pass';
+      passBtn.dataset.count = n || '';
     }
     function go(index) {
       end.hidden = true;
       state.index = Math.max(0, Math.min(state.list.length - 1, index));
       state.elapsed = 0; state.started = performance.now();
       ui.select(state.list[state.index]);
-      renderBars(); renderInfo(); if (GYM) renderTabs();
+      renderBars(); renderInfo();
+      if (GYM) { renderTabs(); navPrev.hidden = state.index === 0; navNext.hidden = state.index === state.list.length - 1 && !state.program; }
       root.classList.remove('is-next'); void root.offsetWidth; root.classList.add('is-next');
       if (!sheetOpen) ui.setPaused(false);
       sync();
