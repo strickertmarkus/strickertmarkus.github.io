@@ -106,7 +106,7 @@ function enhanceRow(row){
  row.dataset.pbu='1';row.classList.add('pbu-row');
  var thumb=document.createElement('span');thumb.className='pbu-thumb';thumb.setAttribute('aria-hidden','true');
  var head=document.createElement('button');head.type='button';head.className='pbu-head';head.setAttribute('aria-expanded','false');
- head.innerHTML='<span class="pbu-title"></span><span class="pbu-sum"></span>';
+ head.innerHTML='<span class="pbu-title"></span><span class="pbu-sum"></span><span class="pbu-between-note" hidden></span>';
  var panel=document.createElement('div');panel.className='pbu-panel';
  panel.innerHTML='<div class="pbu-pick" hidden></div>'
   +'<div class="pbu-seg" role="group" aria-label="Typ av övning"><button type="button" data-pbu-kind="strength">Styrka</button><button type="button" data-pbu-kind="cardio">Kondition</button></div>'
@@ -122,14 +122,48 @@ function enhanceRow(row){
  clock.innerHTML='<i class="pbu-clock" aria-hidden="true"></i>';
  row.appendChild(clock);
  row.appendChild(panel);row.appendChild(actions);
+ new MutationObserver(function(){syncBetween(row);}).observe(row,{attributes:true,attributeFilter:['data-between-sets-v7']});
  paintRow(row);
+}
+function betweenConfig(row){
+ try{var c=JSON.parse(row.dataset.betweenSetsV7||'{}');}catch(_){c={};}
+ return {enabled:!!c.enabled,type:c.type==='custom'?'custom':'rest',seconds:Number(c.seconds)||(c.type==='custom'?30:60),name:String(c.name||'').trim()};
+}
+/* Between sets in the builder's own look: Vila/Övning as a segmented choice,
+   the time as a stepper like sets and reps. The original select and inputs
+   stay the source of truth (exercise-builder-between-preview-v7.js). */
+function enhanceBetween(row){
+ var panel=row.querySelector('.per-set-v7');if(!panel||panel.dataset.pbu==='1')return;
+ var fields=panel.querySelector('.per-set-fields-v7'),select=panel.querySelector('[data-per-set-type-v7]'),seconds=panel.querySelector('[data-per-set-seconds-v7]');
+ if(!fields||!select||!seconds)return;
+ panel.dataset.pbu='1';
+ var seg=document.createElement('div');seg.className='pbu-seg pbu-between-seg';seg.setAttribute('role','group');seg.setAttribute('aria-label','Mellan set');
+ seg.innerHTML='<button type="button" data-pbu-between-type="rest">Vila</button><button type="button" data-pbu-between-type="custom">Övning</button>';
+ var step=document.createElement('div');step.className='pbu-step pbu-between-time';
+ step.innerHTML='<span class="pbu-step-label">Tid <small>s</small></span><div class="pbu-step-ctrl"><button type="button" data-pbu-between-step="-1" aria-label="Kortare"><i class="pbu-minus"></i></button><button type="button" data-pbu-between-step="1" aria-label="Längre"><i class="pbu-plus"></i></button></div>';
+ var ctrl=step.querySelector('.pbu-step-ctrl');ctrl.insertBefore(seconds,ctrl.lastChild);seconds.classList.add('pbu-step-value');
+ fields.insertBefore(seg,fields.firstChild);fields.insertBefore(step,select.nextSibling);
+ var name=panel.querySelector('[data-per-set-name-v7]');
+ if(name){var wrap=document.createElement('div');wrap.className='pbu-step pbu-between-name';wrap.innerHTML='<span class="pbu-step-label">Övning</span>';fields.insertBefore(wrap,name);wrap.appendChild(name);}
+ // The wrapper follows the field's visibility, which the between-sets script sets.
+ if(name)new MutationObserver(function(){name.parentNode.hidden=name.hidden;}).observe(name,{attributes:true,attributeFilter:['hidden']});
+ if(name)name.parentNode.hidden=name.hidden;
 }
 function syncBetween(row){
  var btn=row.querySelector('.pbu-between-btn');if(!btn)return;
- var sw=row.querySelector('[data-per-set-toggle-v7]');
- var on=!!sw&&sw.getAttribute('aria-pressed')==='true';
- btn.classList.toggle('is-on',on);
+ enhanceBetween(row);
+ var cfg=betweenConfig(row),on=cfg.enabled&&rowKind(row)!=='cardio';
+ // Red for an exercise between sets, cyan for rest.
+ btn.classList.toggle('is-on',on&&cfg.type==='custom');
+ btn.classList.toggle('is-rest',on&&cfg.type==='rest');
  btn.setAttribute('aria-pressed',row.classList.contains('pbu-between-open')?'true':'false');
+ var note=row.querySelector('.pbu-between-note');
+ if(note){
+  var text=on?(cfg.type==='rest'?'Vila ':(cfg.name||'Övning')+' · ')+cfg.seconds+' s mellan set':'';
+  note.hidden=!on;note.classList.toggle('is-rest',cfg.type==='rest');
+  if(note.textContent!==text)note.textContent=text;
+ }
+ row.querySelectorAll('[data-pbu-between-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.pbuBetweenType===cfg.type));});
 }
 function enhanceAll(){document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(enhanceRow);}
 
@@ -401,6 +435,18 @@ function init(){
   }
   if(t.closest('.pbu-between-btn')){row.classList.toggle('pbu-between-open');syncBetween(row);return;}
   if(t.closest('[data-per-set-toggle-v7]')){setTimeout(function(){syncBetween(row);},0);}
+  var betweenType=t.closest('[data-pbu-between-type]');
+  if(betweenType){
+   var select=row.querySelector('[data-per-set-type-v7]');
+   if(select&&select.value!==betweenType.dataset.pbuBetweenType){select.value=betweenType.dataset.pbuBetweenType;select.dispatchEvent(new Event('change',{bubbles:true}));}
+   syncBetween(row);return;
+  }
+  var betweenStep=t.closest('[data-pbu-between-step]');
+  if(betweenStep){
+   var secs=row.querySelector('[data-per-set-seconds-v7]');
+   if(secs){secs.value=Math.max(5,(Number(secs.value)||60)+Number(betweenStep.dataset.pbuBetweenStep)*15);secs.dispatchEvent(new Event('input',{bubbles:true}));}
+   syncBetween(row);return;
+  }
   var step=t.closest('[data-pbu-step]');
   if(step){
    var spec=SPECS[rowKind(row)].filter(function(s){return s.n===Number(step.dataset.pbuN);})[0];

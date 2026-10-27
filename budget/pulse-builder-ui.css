@@ -216,6 +216,8 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-step-value{
 .pbu-v1 .pbu-row>.pbu-between-btn{position:absolute;top:16px;right:34px}
 .pbu-v1 .pbu-between-btn{display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:var(--pbu-dim);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pbu-v1 .pbu-between-btn.is-on{color:var(--pbu-accent)}
+.pbu-v1 .pbu-between-btn.is-rest{color:#7fe3ef}
+.pbu-v1 .pbu-between-btn.is-rest .pbu-clock{box-shadow:0 0 12px -2px #7fe3ef99}
 .pbu-v1 .pbu-between-btn[aria-pressed="true"]{background:#ffffff0a}
 .pbu-v1 .pbu-clock{position:relative;display:block;width:15px;height:15px;border:1.6px solid currentColor;border-radius:50%}
 .pbu-v1 .pbu-clock::before,.pbu-v1 .pbu-clock::after{content:"";position:absolute;left:50%;bottom:50%;width:1.6px;background:currentColor;border-radius:2px;transform-origin:50% 100%}
@@ -225,15 +227,36 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-step-value{
 .pbu-v1 .pbu-row.pbu-empty .pbu-between-btn{visibility:hidden}
 html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row:not(.pbu-between-open) .per-set-v7{display:none!important}
 
-/* Between sets: one quiet line, fields wrap below without moving the row. */
-html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-toggle-wrap-v7{gap:10px!important;margin:0!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-label-v7{color:var(--pbu-muted)!important;font:600 12px Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7:not([hidden]){display:grid!important;grid-template-columns:minmax(0,1fr) 84px!important;gap:8px!important;margin-top:10px!important;width:100%!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 .per-set-name-v7{grid-column:1/-1!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 :is(select,input){
-  height:40px!important;min-height:40px!important;border-radius:999px!important;padding:0 14px!important;
-  background:#ffffff07!important;border:1px solid var(--pbu-line-strong)!important;font-size:16px!important;
+/* Between sets, in the builder's own look: a heading with the same switch as
+   the 5 s timer, Vila/Övning as a segmented choice, the time as a stepper.
+   Uses the open row's full width like the steppers above it. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7{
+  order:3;display:block!important;margin:16px 0 0 -62px!important;padding:14px 0 0!important;border:0!important;border-top:1px solid var(--pbu-line)!important;background:none!important;
 }
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-toggle-wrap-v7{display:flex!important;align-items:center;justify-content:space-between;gap:10px!important;margin:0!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-label-v7{color:var(--pbu-dim)!important;font:700 9.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7 .between-switch-v7{
+  width:46px!important;height:26px!important;padding:3px!important;border-radius:999px!important;border:1px solid #ff806f40!important;background:#ff806f12!important;box-shadow:none!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7 .between-switch-v7::after{width:18px!important;height:18px!important;background:#64748b!important;box-shadow:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7 .between-switch-v7[aria-pressed="true"]{background:#ff806f2b!important;border-color:#ff806fad!important;box-shadow:0 0 12px #ff6a5a57,0 0 24px #ff6a5a29!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7 .between-switch-v7[aria-pressed="true"]::after{transform:translateX(20px)!important;background:var(--pbu-accent)!important;box-shadow:0 0 5px #ffd4ccbf,0 0 13px #ff6a5a8c!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7:not([hidden]){display:grid!important;grid-template-columns:132px minmax(0,1fr)!important;align-items:end;gap:12px 8px!important;margin-top:12px!important;width:100%!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 [data-per-set-type-v7]{display:none!important}
+.pbu-v1 .pbu-between-seg{grid-column:1/-1;justify-self:start;margin-top:0}
+.pbu-v1 .pbu-between-seg button[data-pbu-between-type="rest"][aria-pressed="true"]{background:#7fe3ef26;color:#c9f6fb;box-shadow:inset 0 0 0 1px #7fe3ef55}
+.pbu-v1 .pbu-between-seg button[data-pbu-between-type="custom"][aria-pressed="true"]{background:#ff4a3a3d;color:#ffd7cf;box-shadow:inset 0 0 0 1px #ff6a5a66}
+.pbu-v1 .pbu-between-name[hidden]{display:none}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 .pbu-step-value{height:30px!important;padding:0!important;border:0!important;background:none!important;font:600 21px/1 Inter,system-ui,sans-serif!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 .per-set-name-v7{
+  display:block;width:100%!important;height:50px!important;min-height:50px!important;padding:0 16px!important;box-sizing:border-box;border:0!important;border-radius:16px!important;
+  background:#ffffff07!important;box-shadow:inset 0 0 0 1px #ffffff12!important;color:#fff!important;-webkit-text-fill-color:#fff;font:600 16px Inter,system-ui,sans-serif!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 .per-set-name-v7:focus{outline:none!important;border:0!important;box-shadow:inset 0 0 0 1px #ff806f66,0 0 24px -10px #ff6a5a!important}
+/* The row's summary names what happens between sets, in the clock's colour. */
+.pbu-v1 .pbu-between-note{font:500 12px/1.3 Inter,system-ui,sans-serif;color:var(--pbu-accent)}
+.pbu-v1 .pbu-between-note.is-rest{color:#7fe3ef}
+.pbu-v1 .pbu-between-note[hidden]{display:none}
 
 /* ---------- Expanded: inline exercise choice ---------- */
 .pbu-v1 .pbu-pick{margin-top:10px}
