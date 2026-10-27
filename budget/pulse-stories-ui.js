@@ -341,7 +341,7 @@
     var onLeave = null;
     /* How the explorer's figure is presented inside the scene: framed on the
        body alone so every exercise shows the person at the same size. */
-    var preview = { figureOnly: function (kind) { return WIDE.indexOf(kind) < 0; }, pilotDistance: 1.25, tempo: tempo, activation: activation, view: view };
+    var preview = { fill: 0.76, figureOnly: function (kind) { return WIDE.indexOf(kind) < 0; }, pilotDistance: 1.25, tempo: tempo, activation: activation, view: view };
     // Fly movements read best straight on: both arms sweep symmetrically
     // (the reverse fly from behind, where its muscles are).
     var SQUARE = { pecDeck: { yaw: -10, pitch: 16 }, cableFly: { yaw: -10, pitch: 16 }, reverseDeck: { yaw: 170, pitch: 18 } };

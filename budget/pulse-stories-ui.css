@@ -122,9 +122,10 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-hero h1{margin:5px 0 0;font-size:32px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
 .st-root.is-gym .st-stage{background:radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
-.st-root.is-gym #studio-stage{top:calc(var(--gy-hero) - 30px)!important;height:calc(100svh - var(--gy-hero) + 30px - 196px - env(safe-area-inset-bottom))!important}
+/* The figure leads: its stage runs from under the wall down behind the exercise copy. */
+.st-root.is-gym #studio-stage{top:calc(var(--gy-hero) - 40px)!important;height:calc(100svh - var(--gy-hero) + 40px - 120px - env(safe-area-inset-bottom))!important}
 .st-root.is-gym .st-poster{top:calc(var(--gy-hero) - 50px);width:min(112%,600px)}
-.st-root.is-gym .st-touch{inset:var(--gy-hero) 0 196px 0}
+.st-root.is-gym .st-touch{inset:var(--gy-hero) 0 170px 0}
 .st-root.is-gym .st-top{background:none;padding-bottom:0}
 .st-root.is-gym .st-bars,.st-root.is-gym .st-title b{display:none}
 .st-root.is-gym .st-toprow{margin-top:0}
@@ -153,7 +154,7 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-root.is-gym .st-rail-btn[aria-label="Program"]{order:5}
 .st-root.is-gym .st-rail-btn[data-count]:not([data-count=""])::after{content:attr(data-count);position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:var(--st-accent);color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center}
 .st-nav{display:none}
-.st-root.is-gym .st-nav{display:grid;place-items:center;position:absolute;z-index:4;top:calc(var(--gy-hero) + (100svh - var(--gy-hero) - 280px) / 2);width:40px;height:56px;padding:0;border:0;background:none;color:#f6ece9;opacity:.5;cursor:pointer}
+.st-root.is-gym .st-nav{display:grid;place-items:center;position:absolute;z-index:4;top:calc(var(--gy-hero) + (100svh - var(--gy-hero) - 240px) / 2);width:40px;height:56px;padding:0;border:0;background:none;color:#f6ece9;opacity:.5;cursor:pointer}
 .st-root.is-gym .st-nav[hidden]{display:none}
 .st-root.is-gym .st-nav:hover,.st-root.is-gym .st-nav:focus-visible{opacity:.95}
 .st-root.is-gym .st-nav.is-prev{left:2px}.st-root.is-gym .st-nav.is-next{right:2px}

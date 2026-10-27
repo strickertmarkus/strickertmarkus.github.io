@@ -367,7 +367,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-16"><script src="pulse-stories-ui.js?v=20261027-scene-16"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-8"><script src="pulse-map-ui.js?v=20261027-gym-8"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-17"><script src="pulse-stories-ui.js?v=20261027-scene-18"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-8"><script src="pulse-map-ui.js?v=20261027-gym-8"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261027-tissue-4">
 </head>
 <body>
@@ -861,7 +861,13 @@ function sceneFrame(index,viewIndex,figureOnly=false,viewOverride=null){
   for(const s of [...(figureOnly?[]:makeScene(index,t,phase,true).shapes),...Object.values(makeScene(index,t,phase,true).joints).flatMap(p=>typeof p[0]==='number'?[{points:[p],r:.22}]:p.map(q=>({points:[q],r:.22})))])for(const p of s.points){const q=cameraPoint(p,view),r=s.r||0;bounds.push([q[0]-r,q[1]-r],[q[0]+r,q[1]+r]);}
  }
  const minX=Math.min(...bounds.map(p=>p[0])),maxX=Math.max(...bounds.map(p=>p[0])),minY=Math.min(...bounds.map(p=>p[1])),maxY=Math.max(...bounds.map(p=>p[1]));
- const scale=Math.min(368/(maxX-minX),272/(maxY-minY)),frame={scale,x:210-(minX+maxX)*scale/2,y:178-(minY+maxY)*scale/2};frameCache.set(key,frame);return frame;
+ const scale=Math.min(368/(maxX-minX),272/(maxY-minY)),frame={scale,x:210-(minX+maxX)*scale/2,y:178-(minY+maxY)*scale/2,w:maxX-minX,h:maxY-minY,mx:(minX+maxX)/2,my:(minY+maxY)/2};frameCache.set(key,frame);return frame;
+}
+// Optional preview framing: fit the frame to the stage's real shape (a tall stage gives a standing figure its full height).
+function fillFrame(frame,fill){
+ if(!fill)return frame;const el=$('studio-stage'),a=el.clientWidth/Math.max(1,el.clientHeight);
+ const H=a<420/340?420/a:340,W=a<420/340?420:340*a,scale=Math.min(W*fill/frame.w,H*fill/frame.h);
+ return {scale,x:210-frame.mx*scale,y:170-frame.my*scale};
 }
 function draw(t,cycle=phase){
  if(!studioOpen||listOpen||document.visibilityState!=='visible')return;
@@ -872,7 +878,7 @@ function draw(t,cycle=phase){
  if(silver){
   const motion=cfg.kind==='chestMachine'?null:makeScene(active,t,cycle,true);
   rendered=window.PulseSilverPress?.update({t,cycle,index:active,kind:cfg.kind,
-   viewIndex:cameraIndex,view,bounds:sceneFrame(active,cameraIndex,typeof preview?.figureOnly==='function'?!!preview.figureOnly(cfg.kind):!!preview?.figureOnly,view),
+   viewIndex:cameraIndex,view,bounds:fillFrame(sceneFrame(active,cameraIndex,typeof preview?.figureOnly==='function'?!!preview.figureOnly(cfg.kind):!!preview?.figureOnly,view),preview?.fill),
    activation:preview?.activation?preview.activation(t,cfg.kind):1,pilotDistance:preview?.pilotDistance||1,
    motion,muscles:exercises[active].muscles})===true;
  }
