@@ -332,10 +332,10 @@
         '<span class="st-eyebrow">' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</span><h3>' + p.name + '</h3>' +
         '<ol class="st-path">' + p.ids.map(function (id, i) {
           var d = splitDose(explore.prescription(id, p).label), a = pose(id, false), b = pose(id, true);
-          return '<li class="st-stop' + (i % 2 ? ' is-right' : '') + '" style="--i:' + i + '"><button type="button" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '">' +
-            '<span class="st-stop-pad"><span class="st-stop-tile"></span>' + (a ? '<img class="is-a" src="' + a + '" alt="" loading="lazy"><img class="is-b" src="' + b + '" alt="" loading="lazy">' : '') +
-            '<span class="st-stop-num">' + (i + 1) + '</span></span>' +
-            '<span class="st-stop-copy"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></span></button></li>';
+          return '<li class="st-stop' + (i % 2 ? ' is-right' : '') + '" style="--i:' + i + '">' +
+            '<button type="button" class="st-stop-pad" data-zoom="' + i + '" aria-label="Visa ' + all[id].name + ' animerad"><span class="st-stop-tile"></span>' + (a ? '<img class="is-a" src="' + a + '" alt="" loading="lazy"><img class="is-b" src="' + b + '" alt="" loading="lazy">' : '') +
+            '<span class="st-stop-num">' + (i + 1) + '</span></button>' +
+            '<button type="button" class="st-stop-copy" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></button></li>';
         }).join('') + '</ol>' +
         '<button type="button" class="st-cta st-start" data-start-at="0">' + ICON.play + '<span>Starta programmet</span></button>';
       sheet.scrollTop = 0;
@@ -362,7 +362,46 @@
       var old = list.querySelector('.st-road'); if (old) old.remove();
       list.insertAdjacentHTML('afterbegin', svg);
     }
+    /* Tapping a figure on the road lifts it out as the live animated figure:
+       the explorer's stage moves into a full-screen view for that exercise and
+       goes back to the scene when the view closes. */
+    var zoom = el('div', 'st-zoom'); zoom.hidden = true; zoom.setAttribute('role', 'dialog'); zoom.setAttribute('aria-modal', 'true');
+    root.appendChild(zoom);
+    var zoomed = null;
+    function openZoom(p, i, from) {
+      var id = p.ids[i], e = all[id], d = splitDose(explore.prescription(id, p).label);
+      zoomed = { p: p, i: i };
+      zoom.setAttribute('aria-label', e.name);
+      zoom.innerHTML = '<div class="st-zoom-stage"></div>' +
+        '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Stäng">' + ICON.close + '</button>' +
+        '<div class="st-zoom-copy"><span class="st-eyebrow">Steg ' + (i + 1) + ' av ' + p.ids.length + ' · ' + e.muscles[0] + '</span><h2>' + e.name + '</h2><div class="st-dose"><strong>' + d.big + '</strong><span>' + d.unit + '</span></div>' +
+        '<button type="button" class="st-cta st-start" data-start-at="' + i + '">' + ICON.play + '<span>Starta här</span></button></div>';
+      zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
+      ui.select(id); ui.setPaused(false);
+      zoom.hidden = false;
+      var r = from.getBoundingClientRect();
+      if (zoom.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var sx = r.width / innerWidth, cx = r.left + r.width / 2 - innerWidth / 2, cy = r.top + r.height / 2 - innerHeight / 2;
+        zoom.animate([{ transform: 'translate(' + cx + 'px,' + cy + 'px) scale(' + Math.max(sx, .2) + ')', opacity: 0, borderRadius: '40px' }, { transform: 'none', opacity: 1, borderRadius: '0' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      }
+    }
+    function closeZoom(keep) {
+      if (!zoomed) return;
+      stageHost.appendChild($('studio-stage'));
+      zoom.hidden = true; zoom.innerHTML = '';
+      // Back on the road the scene shows its own exercise again.
+      if (!keep) ui.select(state.list[state.index]);
+      zoomed = null;
+    }
+    zoom.addEventListener('click', function (event) {
+      var t = event.target;
+      if (t.closest('[data-zoom-close]')) { closeZoom(); return; }
+      var startAt = t.closest('[data-start-at]');
+      if (startAt) { var chosen = zoomed.p, at = Number(startAt.dataset.startAt); closeZoom(true); closeSheet(); playProgram(chosen, at); }
+    });
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && zoomed) closeZoom(); });
     function closeSheet() {
+      closeZoom();
       viewing = null; sheet.classList.remove('is-program');
       sheetOpen = false; sheetKind = ''; root.classList.remove('sheet-open');
       setTimeout(function () { if (!sheetOpen) { scrim.hidden = true; sheet.hidden = true; } }, 280);
@@ -376,6 +415,8 @@
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       var program = t.closest('[data-program]');
       if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      var zoomAt = t.closest('[data-zoom]');
+      if (zoomAt && viewing) { openZoom(viewing, Number(zoomAt.dataset.zoom), zoomAt); return; }
       var startAt = t.closest('[data-start-at]');
       if (startAt && viewing) { var chosen = viewing; closeSheet(); playProgram(chosen, Number(startAt.dataset.startAt)); return; }
       if (program) {
