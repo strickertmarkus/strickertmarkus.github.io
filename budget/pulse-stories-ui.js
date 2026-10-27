@@ -337,7 +337,7 @@
             '<span class="st-stop-num">' + (i + 1) + '</span></button>' +
             '<button type="button" class="st-stop-copy" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></button></li>';
         }).join('') + '</ol>' +
-        '<button type="button" class="st-cta st-start" data-start-at="0">' + ICON.play + '<span>Starta programmet</span></button>';
+        '<button type="button" class="st-cta st-start" data-train>' + ICON.play + '<span>Träna programmet</span></button>';
       sheet.scrollTop = 0;
       requestAnimationFrame(function () { drawPath(sheet.querySelector('.st-path')); });
     }
@@ -375,7 +375,7 @@
       zoom.innerHTML = '<div class="st-zoom-stage"></div>' +
         '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Stäng">' + ICON.close + '</button>' +
         '<div class="st-zoom-copy"><span class="st-eyebrow">Steg ' + (i + 1) + ' av ' + p.ids.length + ' · ' + e.muscles[0] + '</span><h2>' + e.name + '</h2><div class="st-dose"><strong>' + d.big + '</strong><span>' + d.unit + '</span></div>' +
-        '<button type="button" class="st-cta st-start" data-start-at="' + i + '">' + ICON.play + '<span>Starta här</span></button></div>';
+        '<button type="button" class="st-cta st-start" data-start-at="' + i + '">' + ICON.play + '<span>Spela upp härifrån</span></button></div>';
       zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
       ui.select(id); ui.setPaused(false);
       zoom.hidden = false;
@@ -400,6 +400,17 @@
       if (startAt) { var chosen = zoomed.p, at = Number(startAt.dataset.startAt); closeZoom(true); closeSheet(); playProgram(chosen, at); }
     });
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && zoomed) closeZoom(); });
+    /* Training a programme: hand it to the training page, where the ordinary
+       pass builder opens for today with these exercises (see
+       pulse-explore-handoff.js) and starts training mode from there. */
+    function train(p) {
+      try { sessionStorage.setItem(explore.transferKey, JSON.stringify({ version: 1, programId: p.id })); }
+      catch (e) { ui.copyProgram(p.id); return; }
+      var url = new URL($('explore-back').getAttribute('href'), location.href);
+      url.searchParams.set('explore', '1');
+      if (new URLSearchParams(location.search).get('user') === 'maja') url.searchParams.set('user', 'maja');
+      location.href = url.href;
+    }
     function closeSheet() {
       closeZoom();
       viewing = null; sheet.classList.remove('is-program');
@@ -415,6 +426,7 @@
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       var program = t.closest('[data-program]');
       if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      if (t.closest('[data-train]') && viewing) { train(viewing); return; }
       var zoomAt = t.closest('[data-zoom]');
       if (zoomAt && viewing) { openZoom(viewing, Number(zoomAt.dataset.zoom), zoomAt); return; }
       var startAt = t.closest('[data-start-at]');
