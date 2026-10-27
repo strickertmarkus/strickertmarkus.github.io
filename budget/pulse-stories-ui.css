@@ -105,16 +105,34 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 @media(min-width:700px){.st-root{max-width:460px;margin:0 auto;box-shadow:0 0 0 100vmax #020306}}
 @media(prefers-reduced-motion:reduce){.st-root.is-next .st-stage,.st-burst{animation:none}.st-sheet,.st-scrim{transition:none}}
 
-/* Gym mode (?ui=gym): one muscle's exercises, opened from the muscle map. */
-.st-root.is-gym .st-bars.is-static span.is-now i{width:100%;animation:none}
+/* Gym mode (?ui=gym): the muscle's artwork stays as a wall at the top and the
+   live figure animates below it; actions sit in one row along the bottom. */
+.st-root.is-gym{--gy-hero:min(31svh,280px)}
+.st-root.is-gym .st-flash{z-index:1;height:var(--gy-hero);opacity:1;
+  -webkit-mask-image:linear-gradient(#000 50%,transparent);mask-image:linear-gradient(#000 50%,transparent)}
+.st-root.is-gym.is-entering .st-flash{animation:stHeroIn .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes stHeroIn{from{transform:scale(1.25);filter:brightness(1.4)}to{transform:none;filter:none}}
+.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 92px);z-index:4;pointer-events:none}
+.st-hero h1{margin:5px 0 0;font-size:36px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000}
+.st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
+.st-root.is-gym .st-stage{background:radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
+.st-root.is-gym #studio-stage{top:calc(var(--gy-hero) - 30px)!important;height:calc(100svh - var(--gy-hero) + 30px - 196px - env(safe-area-inset-bottom))!important}
+.st-root.is-gym .st-poster{top:calc(var(--gy-hero) - 50px);width:min(112%,600px)}
+.st-root.is-gym .st-touch{inset:var(--gy-hero) 0 196px 0}
+.st-root.is-gym .st-top{background:none;padding-bottom:0}
+.st-root.is-gym .st-bars,.st-root.is-gym .st-title b{display:none}
+.st-root.is-gym .st-toprow{margin-top:0}
 .st-title{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;padding:6px 0}
 .st-title b{font-size:17px;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.st-title small{color:var(--st-muted);font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.st-title small{margin-left:auto;padding:4px 10px;border-radius:999px;background:#05070b99;color:#ffe1db;font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
 .st-root.is-gym .st-program-tab{display:grid;place-items:center;width:36px;height:36px;padding:0;border-radius:50%;background:#ffffff14;color:#f6ece9}
 .st-root.is-gym .st-program-tab::after{display:none}
 .st-root.is-gym .st-program-tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-/* The muscle's artwork fills the screen as the scene opens, then gives way to the figure. */
-.st-flash{position:absolute;inset:0;z-index:8;width:100%;height:100%;object-fit:cover;object-position:50% 40%;opacity:0;pointer-events:none}
-.st-root.is-entering .st-flash{animation:stFlash 1.15s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes stFlash{0%{opacity:1;transform:scale(1.12)}45%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
-@media(prefers-reduced-motion:reduce){.st-root.is-entering .st-flash{animation:none}}
+.st-root.is-gym .st-info{right:0;bottom:calc(84px + env(safe-area-inset-bottom));padding:60px 20px 6px}
+.st-root.is-gym .st-info h2{font-size:28px}
+.st-root.is-gym .st-dose strong{font-size:36px}
+.st-root.is-gym .st-rail{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;gap:0}
+.st-root.is-gym .st-rail-btn{width:auto;flex:1}
+.st-root.is-gym .st-ico{width:44px;height:44px}
+.st-root.is-gym .st-pause,.st-root.is-gym .st-burst,.st-root.is-gym .st-hint{top:calc(var(--gy-hero) + 30%)}
+@media(prefers-reduced-motion:reduce){.st-root.is-gym.is-entering .st-flash{animation:none}}

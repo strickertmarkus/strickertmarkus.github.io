@@ -1,8 +1,8 @@
 /* Body-to-scene preview for the exercise explorer, enabled with ?ui=gym.
    The explorer's own muscle map (pulse-muscle-map.js) is the body: tapping a
-   muscle zooms into it and opens the full-screen exercise scene for that
-   muscle (PulseGymScene in pulse-stories-ui.js); its back gesture returns to
-   the body. The muscle map's own exercise links open the same scene. The
+   muscle zooms into it and opens the exercise scene for that muscle, with the
+   muscle's artwork as a wall above the live animated figure (PulseGymScene in
+   pulse-stories-ui.js); its back gesture returns to the body. The muscle map's own exercise links open the same scene. The
    default UI is untouched without the flag. */
 (function () {
   'use strict';

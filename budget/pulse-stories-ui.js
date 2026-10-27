@@ -2,9 +2,9 @@
    previews of the exercise explorer:
    ?ui=stories  Auto-advancing stories with muscle tabs: swipe up/down for
                 the next/previous exercise, sideways for the next muscle.
-   ?ui=gym      Opened from the muscle map (pulse-map-ui.js) for one muscle:
-                swipe sideways between its exercises, up for technique, down
-                to return to the body.
+   ?ui=gym      Opened from the muscle map (pulse-map-ui.js) for one muscle,
+                its artwork above the figure: swipe sideways between its
+                exercises, up for technique, down to return to the body.
    Both: tap to pause, double tap to choose, programmes play as playlists.
    The page's own stage, selection and transfer are reused through
    PulseGuideUI, so the default UI is untouched without a flag. */
@@ -48,7 +48,9 @@
 
     var root = el('div', 'st-root' + (GYM ? ' is-gym' : '')); root.setAttribute('role', 'region'); root.setAttribute('aria-label', GYM ? 'Övningar för vald muskel' : 'Övningar som stories');
     if (GYM) root.hidden = true;
+    // Gym mode: the muscle's artwork, kept as the wall above the figure.
     var flash = el('img', 'st-flash'); flash.alt = ''; flash.setAttribute('aria-hidden', 'true');
+    var heroCopy = el('div', 'st-hero');
     var stageHost = el('div', 'st-stage');
     var poster = el('img', 'st-poster'); poster.alt = ''; poster.setAttribute('aria-hidden', 'true');
     stageHost.appendChild(poster);
@@ -66,7 +68,7 @@
     var pauseMark = el('div', 'st-pause', '<span></span><span></span>'); pauseMark.setAttribute('aria-hidden', 'true');
     var burst = el('div', 'st-burst'); burst.setAttribute('aria-hidden', 'true');
     var end = el('div', 'st-end'); end.hidden = true;
-    [stageHost, touch, pauseMark, burst, top, info, rail, end, flash].forEach(function (n) { root.appendChild(n); });
+    [stageHost, flash, touch, pauseMark, burst, top, info, rail, end].concat(GYM ? [heroCopy] : []).forEach(function (n) { root.appendChild(n); });
     document.body.appendChild(root);
 
     function railButton(key, label, onClick) {
@@ -88,6 +90,10 @@
       if (GYM) {
         tabs.innerHTML = '<div class="st-title"><b>' + (state.program ? state.program.name : state.group) + '</b><small>' + String(state.index + 1).padStart(2, '0') + ' / ' + state.list.length + '</small></div>' +
           (state.program ? '<button type="button" class="st-tab st-program-tab is-on" data-exit-program aria-label="Avsluta programmet">' + ICON.close + '</button>' : '');
+        var count = listFor(state.group).length;
+        heroCopy.innerHTML = state.program
+          ? '<span class="st-eyebrow">Program · ' + state.group + '</span><h1>' + state.program.name + '</h1><p>' + state.program.ids.length + ' övningar · ' + explore.durationLabel(state.program) + '</p>'
+          : '<span class="st-eyebrow">Muskelgrupp</span><h1>' + state.group + '</h1><p>' + count + (count === 1 ? ' övning' : ' övningar') + ' · svep för att bläddra</p>';
         return;
       }
       tabs.innerHTML = (state.program
