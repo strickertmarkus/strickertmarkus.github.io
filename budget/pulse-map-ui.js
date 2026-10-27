@@ -26,11 +26,16 @@
     map.appendChild(exit);
 
     var figure = map.querySelector('.muscle-map-figure');
+    // Where each artwork centres its muscle (the same origins the explorer uses).
+    var focus = {};
+    fetch('assets/atlas-art-v1/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+      Object.keys(m.groups || {}).forEach(function (k) { focus[k] = m.groups[k].origin; });
+    }).catch(function () {});
     function open(name, id) {
       // The page's own route opens the exercise view, which drives the figure.
       openExercise(name, id);
       document.documentElement.classList.add('gm-scene-open');
-      scene.enter(name, id, ART[name] ? 'assets/atlas-art-v1/' + ART[name] + '.webp' : '');
+      scene.enter(name, id, ART[name] ? { src: 'assets/atlas-art-v1/' + ART[name] + '.webp', focus: focus[name] } : null);
       setTimeout(function () { figure.classList.remove('gm-zooming'); figure.style.transformOrigin = ''; }, 500);
     }
     var openExercise = ui.openMuscleExercise;

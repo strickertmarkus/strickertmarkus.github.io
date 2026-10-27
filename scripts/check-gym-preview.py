@@ -62,7 +62,7 @@ with sync_playwright() as pw:
     for ms, name in [(150, '02-tap'), (250, '03-zoom'), (250, '04-handoff'), (500, '05-settle')]:
         p.wait_for_timeout(ms); shot(p, name)
     figure_ready(p); shot(p, '06-scene')
-    hero = p.evaluate("()=>{const h=document.querySelector('.st-root.is-gym .st-hero-art,.st-root.is-gym .st-flash');if(!h)return null;const r=h.getBoundingClientRect();return {w:r.width,vw:innerWidth}}")
+    hero = p.evaluate("()=>{const h=document.querySelector('.st-root.is-gym .st-art');if(!h)return null;const r=h.getBoundingClientRect();return {w:r.width,vw:innerWidth}}")
     check('hero spans the viewport', hero and abs(hero['w'] - hero['vw']) < 2, json.dumps(hero))
     names = []
     box = p.locator('.st-touch').bounding_box(); cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2

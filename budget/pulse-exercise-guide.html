@@ -367,7 +367,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-3"><script src="pulse-stories-ui.js?v=20261027-scene-2"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-3"><script src="pulse-map-ui.js?v=20261027-gym-4"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-4"><script src="pulse-stories-ui.js?v=20261027-scene-4"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-3"><script src="pulse-map-ui.js?v=20261027-gym-5"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261027-tissue-4">
 </head>
 <body>
@@ -1067,7 +1067,7 @@ window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorag
 /* Surface for the optional preview layouts (pulse-body-ui.js, pulse-stories-ui.js, pulse-map-ui.js). */
 window.PulseGuideUI={
  active:()=>active,
- select:id=>{if(exercises[id]&&id!==active)select(id,false);},
+ select:id=>{if(!exercises[id]||id===active)return;if(!filtered().some(e=>e.id===id)){group='Alla';equip='All utrustning';inspirationOnly=false;$('search').value='';}select(id,false);},
  paused:()=>paused,
  setPaused:value=>{if(!!value!==paused)$('pause').click();},
  view:()=>$('view-toggle').click(),

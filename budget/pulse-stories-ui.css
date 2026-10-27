@@ -108,16 +108,18 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 /* Gym mode (?ui=gym): the muscle's artwork stays as a wall at the top and the
    live figure animates below it; actions sit in one row along the bottom. */
 .st-root.is-gym{--gy-hero:min(31svh,280px)}
-.st-root.is-gym .st-flash{z-index:1;height:var(--gy-hero);opacity:1;
-  -webkit-mask-image:linear-gradient(#000 50%,transparent);mask-image:linear-gradient(#000 50%,transparent)}
+.st-art{display:none}
+.st-root.is-gym .st-art{display:block;position:absolute;left:0;right:0;top:0;z-index:1;height:var(--gy-hero);background:#090d13 no-repeat center/cover;
+  -webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
 /* Same hand-off as the zoom on the body: the scene fades in while the
    artwork settles from a close crop into its place as the wall. */
 .st-root.is-gym.is-entering{animation:stSceneIn .4s ease-out}
-.st-root.is-gym.is-entering .st-flash{animation:stHeroIn 1.2s cubic-bezier(.2,.8,.2,1)}
+.st-root.is-gym.is-entering .st-art{animation:stHeroIn 1.2s cubic-bezier(.2,.8,.2,1)}
 @keyframes stSceneIn{from{opacity:0}to{opacity:1}}
 @keyframes stHeroIn{from{transform:scale(1.18)}to{transform:none}}
-.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 92px);z-index:4;pointer-events:none}
-.st-hero h1{margin:5px 0 0;font-size:36px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000}
+/* The title sits top-left, over the head and shoulders, so the muscle at the artwork's focus stays clear. */
+.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 74px);z-index:4;pointer-events:none}
+.st-hero h1{margin:5px 0 0;font-size:32px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
 .st-root.is-gym .st-stage{background:radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
 .st-root.is-gym #studio-stage{top:calc(var(--gy-hero) - 30px)!important;height:calc(100svh - var(--gy-hero) + 30px - 196px - env(safe-area-inset-bottom))!important}
@@ -139,4 +141,4 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-root.is-gym .st-rail-btn{width:auto;flex:1}
 .st-root.is-gym .st-ico{width:44px;height:44px}
 .st-root.is-gym .st-pause,.st-root.is-gym .st-burst,.st-root.is-gym .st-hint{top:calc(var(--gy-hero) + 30%)}
-@media(prefers-reduced-motion:reduce){.st-root.is-gym.is-entering,.st-root.is-gym.is-entering .st-flash{animation:none}}
+@media(prefers-reduced-motion:reduce){.st-root.is-gym.is-entering,.st-root.is-gym.is-entering .st-art{animation:none}}

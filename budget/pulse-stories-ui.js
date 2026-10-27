@@ -48,8 +48,9 @@
 
     var root = el('div', 'st-root' + (GYM ? ' is-gym' : '')); root.setAttribute('role', 'region'); root.setAttribute('aria-label', GYM ? 'Övningar för vald muskel' : 'Övningar som stories');
     if (GYM) root.hidden = true;
-    // Gym mode: the muscle's artwork, kept as the wall above the figure.
-    var flash = el('img', 'st-flash'); flash.alt = ''; flash.setAttribute('aria-hidden', 'true');
+    // Gym mode: the muscle's artwork as the wall above the figure. A background
+    // image (not <img>) so every browser covers the full width the same way.
+    var art = el('div', 'st-art'); art.setAttribute('aria-hidden', 'true');
     var heroCopy = el('div', 'st-hero');
     var stageHost = el('div', 'st-stage');
     var poster = el('img', 'st-poster'); poster.alt = ''; poster.setAttribute('aria-hidden', 'true');
@@ -68,7 +69,7 @@
     var pauseMark = el('div', 'st-pause', '<span></span><span></span>'); pauseMark.setAttribute('aria-hidden', 'true');
     var burst = el('div', 'st-burst'); burst.setAttribute('aria-hidden', 'true');
     var end = el('div', 'st-end'); end.hidden = true;
-    [stageHost, flash, touch, pauseMark, burst, top, info, rail, end].concat(GYM ? [heroCopy] : []).forEach(function (n) { root.appendChild(n); });
+    [stageHost, art, touch, pauseMark, burst, top, info, rail, end].concat(GYM ? [heroCopy] : []).forEach(function (n) { root.appendChild(n); });
     document.body.appendChild(root);
 
     function railButton(key, label, onClick) {
@@ -93,7 +94,7 @@
         var count = listFor(state.group).length;
         heroCopy.innerHTML = state.program
           ? '<span class="st-eyebrow">Program · ' + state.group + '</span><h1>' + state.program.name + '</h1><p>' + state.program.ids.length + ' övningar · ' + explore.durationLabel(state.program) + '</p>'
-          : '<span class="st-eyebrow">Muskelgrupp</span><h1>' + state.group + '</h1><p>' + count + (count === 1 ? ' övning' : ' övningar') + ' · svep för att bläddra</p>';
+          : '<span class="st-eyebrow">Muskelgrupp</span><h1>' + state.group + '</h1><p>' + count + (count === 1 ? ' övning' : ' övningar') + '</p>';
         return;
       }
       tabs.innerHTML = (state.program
@@ -304,14 +305,19 @@
 
     /* Gym mode: opened for one muscle by the muscle map, closed back to it. */
     var onLeave = null;
-    function enter(group, id, art) {
+    function enter(group, id, wall) {
       state.group = group; state.program = null; state.list = listFor(group);
       root.hidden = false;
       root.classList.remove('is-entering');
-      if (art) {
-        flash.src = art;
-        var play = function () { void root.offsetWidth; root.classList.add('is-entering'); };
-        if (flash.decode) flash.decode().then(play, play); else play();
+      if (wall && wall.src) {
+        var image = new Image();
+        var play = function () {
+          art.style.backgroundImage = 'url("' + wall.src + '")';
+          art.style.backgroundPosition = wall.focus || '50% 50%';
+          void root.offsetWidth; root.classList.add('is-entering');
+        };
+        image.src = wall.src;
+        if (image.decode) image.decode().then(play, play); else image.onload = play;
       }
       go(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
       close.focus({ preventScroll: true });
