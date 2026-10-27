@@ -317,7 +317,30 @@
     var onLeave = null;
     /* How the explorer's figure is presented inside the scene: framed on the
        body alone so every exercise shows the person at the same size. */
-    var preview = { figureOnly: true, pilotDistance: 1.25 };
+    var preview = { figureOnly: true, pilotDistance: 1.25, tempo: tempo, activation: activation };
+    /* Training tempo for strength moves over the explorer's 4.4 s cycle:
+       ~1 s lift, a short squeeze, ~2 s controlled lowering, a breath at the
+       bottom. Cardio and slow core moves keep their even rhythm. Each lift
+       pulses the dose so the reps read as reps. */
+    var LOOP = ['treadmill', 'bike', 'elliptical', 'stepper', 'farmerCarry', 'deadBug', 'birdDog'];
+    var lastPhase = 0;
+    function ease(x) { return x * x * (3 - 2 * x); }
+    function tempo(phase, kind) {
+      if (LOOP.indexOf(kind) >= 0) return (1 - Math.cos(phase * Math.PI * 2)) / 2;
+      if (lastPhase < 0.23 && phase >= 0.23) pulseRep();
+      lastPhase = phase;
+      if (phase < 0.23) return ease(phase / 0.23);
+      if (phase < 0.32) return 1;
+      if (phase < 0.77) return 1 - ease((phase - 0.32) / 0.45);
+      return 0;
+    }
+    // The working muscle glows with the effort: dim at rest, brightest at the squeeze.
+    function activation(t, kind) { return LOOP.indexOf(kind) >= 0 ? 1 : 0.3 + 1.0 * t; }
+    function pulseRep() {
+      var dose = info.querySelector('.st-dose strong');
+      if (!dose) return;
+      dose.classList.remove('is-rep'); void dose.offsetWidth; dose.classList.add('is-rep');
+    }
     function enter(group, id, wall) {
       window.PulseGuidePreview = preview;
       state.group = group; state.program = null; state.list = listFor(group);
