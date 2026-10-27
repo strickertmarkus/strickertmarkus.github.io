@@ -1,14 +1,10 @@
-/* Body-to-scene preview for the exercise explorer, enabled with ?ui=gym.
-   The explorer's own muscle map (pulse-muscle-map.js) is the body: tapping a
-   muscle zooms into it and opens the exercise scene for that muscle, with the
-   muscle's artwork as a wall above the live animated figure (PulseGymScene in
-   pulse-stories-ui.js); its back gesture returns to the body. The muscle map's own exercise links open the same scene. The
-   default UI is untouched without the flag. */
+/* The exercise explorer's body: the muscle map (pulse-muscle-map.js) is the
+   way in. Tapping a muscle zooms into it and opens the exercise scene for that
+   muscle (PulseGymScene in pulse-gym-scene.js), its artwork growing out of the
+   tapped muscle; the scene's back gesture returns to the body. The muscle
+   map's own exercise links open the same scene. */
 (function () {
   'use strict';
-  var params = new URLSearchParams(location.search);
-  if ((params.get('ui') || '').split(',').indexOf('gym') < 0) return;
-  document.documentElement.classList.add('ui-gym');
 
   var ART = { 'Bröst': 'chest', 'Axlar': 'shoulders', 'Rygg': 'back', 'Biceps': 'biceps', 'Triceps': 'triceps', 'Mage': 'abs', 'Framsida lår': 'quads', 'Säte': 'glutes', 'Baksida lår': 'hamstrings', 'Vader': 'calves' };
   var $ = function (id) { return document.getElementById(id); };

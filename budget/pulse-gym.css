@@ -1,0 +1,14 @@
+/* The explorer's body (pulse-gym.js): the muscle map fills the page and zooms
+   into the tapped muscle; the scene is styled in pulse-gym-scene.css. */
+header,#living-dock,.guide-about,#explore-status{display:none!important}
+body{background:#090d13}
+/* While the scene is open the exercise view behind it stays out of sight,
+   so its fade-in reveals only the dark backdrop. */
+html.gm-scene-open main{visibility:hidden}
+#muscle-map-page{position:relative;padding-top:calc(14px + env(safe-area-inset-top))}
+.gm-exit{position:absolute;right:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff12;color:#f6ece9}
+.gm-exit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.gm-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+.muscle-map-figure{transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s cubic-bezier(.3,0,.6,1)}
+.muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
+@media(prefers-reduced-motion:reduce){.muscle-map-figure{transition:none}}

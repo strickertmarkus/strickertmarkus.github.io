@@ -24,7 +24,7 @@
   front:{Axlar:[290,220,'left',21],Bröst:[463,255,'right',27],Biceps:[278,325,'left',35],Mage:[458,379,'right',42],'Framsida lår':[335,566,'left',58],Vader:[490,790,'right',76]},
   back:{Axlar:[211,220,'left',21],Rygg:[367,288,'right',29],Triceps:[191,319,'left',36],Säte:[368,480,'right',47],'Baksida lår':[254,589,'left',59],Vader:[399,787,'right',77]}
  };
- // Shared with the gym preview (pulse-map-ui.js): the artwork shows the sheet
+ // Shared with the body (pulse-gym.js): the artwork shows the sheet
  // from sheetX on each side, and region coordinates are per 724-wide half.
  window.PulseMuscleMap={image:'assets/muscle-map-v1/body-front-back-defined.webp',size:[724,1086],sheetX:{front:41,back:683},regions};
  const root=document.getElementById('muscle-map-page');

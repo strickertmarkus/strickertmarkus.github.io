@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Visual check for the exercise explorer and its ?ui=gym preview.
+"""Visual check for the exercise explorer (body → scene → programmes).
 
 Renders the live 3D figure with software WebGL (Chromium + SwiftShader) and a
 local three.js r165 checkout, because CI-style sandboxes often cannot reach the
 CDN. Writes screenshots and a JSON report; exit code 1 on page errors or
 failed assertions.
 
-  python3 scripts/check-gym-preview.py --three /path/to/three.js-r165 --out /tmp/gym-check
+  python3 scripts/check-exercise-explorer.py --three /path/to/three.js-r165 --out /tmp/explorer-check
 
 Get three.js once with:
   git clone --depth 1 --branch r165 --filter=blob:none --sparse https://github.com/mrdoob/three.js DIR
@@ -49,20 +49,18 @@ def check(name, ok, detail=''):
 with sync_playwright() as pw:
     b = pw.chromium.launch(args=['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'])
 
-    # Default explorer: no preview hook, unchanged presentation.
-    p = page(b); p.goto(URL); figure_ready(p); shot(p, '00-default')
-    check('default has no preview hook', p.evaluate("()=>!window.PulseGuidePreview"))
-    p.close()
-
-    # Gym preview: body, transition, scene, swipes, programmes, back.
-    p = page(b); p.goto(URL + '?ui=gym&hint=0')
-    p.evaluate("()=>{try{localStorage.setItem('pulse-gym-hint-v1','1')}catch(e){}}"); p.wait_for_timeout(1500)
+    # Body, transition, scene, swipes, programmes, back. Maja's page is the same explorer.
+    p = page(b); p.goto(URL + '?user=maja'); p.wait_for_timeout(1200)
+    check('maja opens on the body', p.evaluate("()=>!document.getElementById('muscle-map-page').hidden"))
+    p.goto(URL)
+    p.evaluate("()=>{try{localStorage.setItem('pulse-gym-hint-v1','1')}catch(e){}}"); p.reload(); p.wait_for_timeout(1500)
     shot(p, '01-body')
+    check('no horizontal overflow on the body', p.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"))
     p.locator('[data-map-muscle="Bröst"] path').first.click()
     for ms, name in [(150, '02-tap'), (250, '03-zoom'), (250, '04-handoff'), (500, '05-settle')]:
         p.wait_for_timeout(ms); shot(p, name)
     figure_ready(p); shot(p, '06-scene')
-    hero = p.evaluate("()=>{const h=document.querySelector('.st-root.is-gym .st-art');if(!h)return null;const r=h.getBoundingClientRect();return {w:r.width,vw:innerWidth}}")
+    hero = p.evaluate("()=>{const h=document.querySelector('.st-root .st-art');if(!h)return null;const r=h.getBoundingClientRect();return {w:r.width,vw:innerWidth}}")
     check('hero spans the viewport', hero and abs(hero['w'] - hero['vw']) < 2, json.dumps(hero))
     names = []
     box = p.locator('.st-touch').bounding_box(); cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
@@ -71,7 +69,7 @@ with sync_playwright() as pw:
         figure_ready(p); shot(p, '07-swipe-%d' % (i + 1))
         names.append(p.evaluate("()=>PulseExplore.exercises[PulseGuideUI.active()].name"))
     check('swipes change exercise', len(set(names)) == 2, ', '.join(names))
-    p.locator('.st-rail-btn[aria-label="Program"], .st-rail-btn:has-text("Program")').first.click(); p.wait_for_timeout(600); shot(p, '08-programs')
+    p.locator('.st-rail-btn[data-action="play"]').click(); p.wait_for_timeout(600); shot(p, '08-programs')
     p.locator('.st-program').first.click(); p.wait_for_timeout(1800); shot(p, '08b-program-view')
     check('programme view shows route and timeline', p.evaluate("()=>document.querySelector('.st-path .st-road path')&&document.querySelectorAll('.st-path .st-stop').length>1"))
     p.locator('.st-stop-copy[data-start-at="0"]').click(); p.wait_for_timeout(900); shot(p, '09-program-playing')

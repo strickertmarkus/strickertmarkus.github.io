@@ -1,0 +1,183 @@
+/* The exercise scene (pulse-gym-scene.js): the muscle's artwork as a wall at
+   the top, the live figure below it, actions in one row along the bottom. */
+.st-root{position:fixed;inset:0;z-index:70;overflow:hidden;color:#f6ece9;background:#05070b;font-family:inherit;
+  --st-accent:#ff5a48;--st-soft:#ffd2ca;--st-muted:#c9a19c;--gy-hero:min(25svh,220px)}
+.st-root.is-preparing{background:transparent}
+.st-root.is-preparing>*{opacity:0}
+.st-root.is-entering{animation:stSceneIn .4s ease-out}
+.st-root.is-entering .st-art{animation:stHeroIn 1.2s cubic-bezier(.2,.8,.2,1)}
+@keyframes stSceneIn{from{opacity:0}}
+@keyframes stHeroIn{from{transform:scale(1.18)}}
+
+/* Wall and title. */
+.st-art{position:absolute;left:0;right:0;top:0;z-index:1;height:var(--gy-hero);background:#090d13 no-repeat center/cover;
+  -webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 64px);z-index:4;pointer-events:none}
+.st-hero h1{margin:5px 0 0;font-size:32px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
+.st-top{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top)) 12px 0}
+.st-close{flex:0 0 36px;height:36px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:none;color:#f6ece9;cursor:pointer}
+.st-close svg,.st-ico svg,.st-program-exit svg,.st-nav svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.st-close svg{width:22px;height:22px;stroke-width:1.7}
+.st-title{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.st-title small{padding:4px 10px;border-radius:999px;background:#05070b99;color:#ffe1db;font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.st-program-exit{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:#ffffff14;color:#f6ece9;cursor:pointer}
+.st-program-exit svg{width:18px;height:18px;stroke-width:1.8}
+
+/* The figure leads: its stage runs from under the wall down behind the exercise copy. */
+.st-stage{position:absolute;inset:0;background:radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
+.st-root #studio-stage{position:absolute!important;left:0!important;right:0!important;top:calc(var(--gy-hero) - 40px)!important;bottom:auto!important;width:100%!important;
+  height:calc(100svh - var(--gy-hero) + 40px - 120px - env(safe-area-inset-bottom))!important;margin:0!important;max-width:none!important;
+  border:0!important;border-radius:0!important;background:none!important;aspect-ratio:auto!important;min-height:0!important;
+  transition:opacity .17s ease-in,transform .17s ease-in}
+.st-root #studio-stage .stage-label,.st-root #stage-technique,.st-root #model-status{display:none!important}
+.st-poster{position:absolute;left:50%;top:calc(var(--gy-hero) - 50px);width:min(112%,600px);transform:translateX(-50%);pointer-events:none;
+  clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%)}
+.st-stage:has(#studio-stage.silver-press-ready) .st-poster{display:none}
+.st-touch{position:absolute;inset:var(--gy-hero) 0 170px 0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.st-nav{position:absolute;z-index:4;top:calc(var(--gy-hero) + (100svh - var(--gy-hero) - 240px) / 2);display:grid;place-items:center;width:40px;height:56px;padding:0;border:0;background:none;color:#f6ece9;opacity:.5;cursor:pointer}
+.st-nav[hidden]{display:none}
+.st-nav:hover,.st-nav:focus-visible{opacity:.95}
+.st-nav.is-prev{left:2px}.st-nav.is-next{right:2px}
+.st-nav svg{width:24px;height:24px;stroke-width:1.6}
+
+/* Exercise copy. */
+.st-info{position:absolute;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;padding:60px 20px 6px;
+  background:linear-gradient(to top,#05070b 25%,#05070bb3 60%,transparent);pointer-events:none;transition:opacity .17s ease-in,transform .17s ease-in}
+.st-eyebrow{display:block;color:#ff8a78;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.st-info h2{margin:6px 0 0;font-size:28px;line-height:1.02;letter-spacing:-.04em;font-weight:600}
+.st-dose{display:flex;align-items:baseline;gap:8px;margin-top:10px}
+.st-dose strong{display:inline-block;transform-origin:left 80%;font-size:26px;font-weight:300;letter-spacing:-.045em;line-height:1;color:var(--st-soft);text-shadow:0 0 22px #ff5a4a55}
+.st-dose strong.is-rep{animation:stRep .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes stRep{30%{transform:scale(1.06);color:#fff;text-shadow:0 0 22px #ff6a5a99}}
+.st-dose span{font-size:12px;color:var(--st-muted)}
+.st-muscles{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font-size:12px;color:#d9aaa4}
+.st-muscles span::before{content:'';display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--st-accent);box-shadow:0 0 8px var(--st-accent)}
+
+/* Changing exercise. */
+.st-root.is-swap-out #studio-stage{opacity:0;transform:translateX(-7%) scale(.97)}
+.st-root.is-swap-out.is-back #studio-stage{transform:translateX(7%) scale(.97)}
+.st-root.is-swap-out .st-info{opacity:0;transform:translateY(6px)}
+.st-root.is-swap-in #studio-stage{animation:stSwapIn .42s cubic-bezier(.2,.8,.2,1)}
+.st-root.is-swap-in.is-back #studio-stage{animation-name:stSwapInBack}
+.st-root.is-swap-in .st-info{animation:stInfoIn .42s .06s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes stSwapIn{from{opacity:0;transform:translateX(7%) scale(.97)}}
+@keyframes stSwapInBack{from{opacity:0;transform:translateX(-7%) scale(.97)}}
+@keyframes stInfoIn{from{opacity:0;transform:translateY(6px)}}
+
+/* Action row: Välj as the primary pill, the rest as round icons. */
+.st-rail{position:absolute;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5;display:flex;align-items:center;gap:8px}
+.st-rail-btn{position:relative;flex:0 0 auto;display:grid;padding:0;border:0;background:none;color:#f6ece9;font:inherit;cursor:pointer}
+.st-rail-btn small{display:none}
+.st-ico{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffffff0d;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.st-ico svg{width:20px;height:20px;stroke-width:1.7}
+.st-rail-btn[data-action="add"]{flex:1 1 auto;margin:0 4px}
+.st-rail-btn[data-action="add"] .st-ico{display:none}
+.st-rail-btn[data-action="add"] small{display:block;height:48px;line-height:48px;border-radius:24px;background:var(--st-accent);color:#fff;font-size:15px;font-weight:600;letter-spacing:-.01em;text-align:center;box-shadow:0 8px 26px #ff4a3a55}
+.st-rail-btn[data-action="add"].is-on small{background:#ffffff14;color:#ffd7cf;box-shadow:inset 0 0 0 1px #ff8a7a66}
+.st-rail-btn[data-count]:not([data-count=""])::after{content:attr(data-count);position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:var(--st-accent);color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center}
+.st-rail-btn:focus-visible .st-ico,.st-rail-btn:focus-visible small,.st-close:focus-visible,.st-program-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+
+/* Pause, choose, hint and end states. */
+.st-pause{position:absolute;left:50%;top:calc(var(--gy-hero) + 30%);z-index:4;display:flex;gap:10px;transform:translate(-50%,-50%) scale(.85);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.st-pause span{width:8px;height:38px;border-radius:4px;background:var(--st-soft);box-shadow:0 0 16px #ff5a4a88}
+.st-root.is-paused .st-pause{opacity:.92;transform:translate(-50%,-50%) scale(1)}
+.st-root.is-paused #exercise-silver-3d,.st-root.is-paused .st-poster{filter:saturate(.6) brightness(.75)}
+.st-burst{position:absolute;left:50%;top:calc(var(--gy-hero) + 30%);z-index:6;transform:translate(-50%,-50%);padding:11px 20px;border-radius:999px;color:#fff1ee;font-size:14px;font-weight:650;opacity:0;pointer-events:none;white-space:nowrap}
+.st-burst.is-added{background:#e5392f;box-shadow:0 0 34px #ff4a3a99;animation:stBurst .9s cubic-bezier(.2,.8,.2,1)}
+.st-burst.is-removed{background:#2a2d36;animation:stBurst .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes stBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}30%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%)}}
+.st-hint{position:absolute;left:50%;top:calc(var(--gy-hero) + 30%);z-index:6;transform:translate(-50%,-50%);display:flex;gap:16px;padding:12px 18px;border-radius:18px;background:#0b0e15d9;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--st-muted);font-size:10px;white-space:nowrap;transition:opacity .35s;pointer-events:none}
+.st-hint b{display:block;color:var(--st-soft);font-size:12px;margin-bottom:3px}
+.st-hint span{text-align:center}
+.st-hint.is-gone{opacity:0}
+.st-end{position:absolute;inset:0;z-index:7;display:grid;place-content:center;justify-items:center;gap:12px;padding:30px;text-align:center;background:#05070bd9;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.st-end h2{margin:0;font-size:30px;letter-spacing:-.035em}
+.st-end p{margin:0;color:var(--st-muted)}
+.st-end .st-start{position:static}
+.st-cta{margin-top:8px;padding:14px 22px;border:1px solid #fa554876;border-radius:999px;background:linear-gradient(110deg,#e0373640,#d5292920);color:#ffd2ca;font:inherit;font-weight:650;cursor:pointer}
+.st-start{position:sticky;bottom:0;z-index:3;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-color:transparent;background:var(--st-accent);color:#fff;box-shadow:0 8px 26px #ff4a3a55}
+.st-start svg{width:16px;height:16px;fill:currentColor;stroke:none}
+/* On the road the button floats over a soft fade, so the stop behind it never ends in a hard cut. */
+.st-sheet.is-program>.st-start{box-shadow:0 8px 26px #ff4a3a55,0 0 28px 22px #0f1118}
+.st-ghost{border:0;background:none;color:var(--st-muted);font:inherit;padding:10px;cursor:pointer}
+
+/* Sheets: technique, Mitt pass, programmes. */
+.st-scrim{position:absolute;inset:0;z-index:8;background:#020409a6;opacity:0;transition:opacity .26s}
+.st-sheet{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:78%;overflow:auto;overscroll-behavior:contain;padding:0 18px calc(20px + env(safe-area-inset-bottom));
+  border-radius:24px 24px 0 0;background:#0f1118;box-shadow:0 -1px 0 #ff6a5a30,0 -20px 50px #000a;transform:translateY(104%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.st-root.sheet-open .st-scrim{opacity:1}
+.st-root.sheet-open .st-sheet{transform:none}
+.st-grip{position:sticky;top:0;height:30px;margin:0 -18px 2px;background:#0f1118;cursor:pointer}
+.st-grip::after{content:'';position:absolute;left:50%;top:12px;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:#ffffff2e}
+.st-sheet h3{margin:6px 0 14px;font-size:24px;letter-spacing:-.03em}
+.st-sheet h3 em{font-style:normal;font-size:13px;color:var(--st-soft);margin-left:8px}
+.st-steps{margin:0;padding-left:20px;color:#e6dcd9;font-size:14px;line-height:1.6}
+.st-steps li{margin-bottom:8px}
+.st-tip{margin-top:12px;color:var(--st-muted);font-size:13px;line-height:1.55}
+.st-muted{color:var(--st-muted);font-size:13px}
+.st-pass{list-style:none;margin:0 0 6px;padding:0}
+.st-pass li{display:flex;align-items:center;gap:12px;padding:8px 0}
+.st-pass img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#1a1b24}
+.st-pass span{flex:1;min-width:0}.st-pass b{display:block;font-size:14px}.st-pass small{color:#ffb9ad;font-size:12px}
+.st-pass button{width:40px;height:40px;border:0;border-radius:50%;background:none;color:#8f929d;font-size:20px;cursor:pointer}
+.st-programs{display:grid;gap:10px}
+.st-program{display:flex;align-items:center;gap:14px;padding:8px;border:0;border-radius:18px;background:#161822;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.st-program-art{position:relative;flex:0 0 76px;height:76px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#2b1517,#0f1118)}
+.st-program-art img{position:absolute;top:2%;width:110%;left:-5%;clip-path:inset(11% 0 9% 0)}
+.st-program-copy{flex:1;min-width:0}.st-program-copy b{display:block;font-size:15px}.st-program-copy small{color:var(--st-muted);font-size:12px}
+.st-program-play{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ff5a4826;color:var(--st-soft)}
+.st-program-play svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Programme view: full screen, the exercises as stops on a glowing road. */
+.st-sheet.is-program{top:0;max-height:none;overflow-x:hidden;touch-action:pan-y;border-radius:0;padding-top:calc(18px + env(safe-area-inset-top))}
+.st-sheet-back{display:inline-flex;align-items:center;gap:4px;margin:0 0 6px -6px;padding:6px 8px;border:0;border-radius:14px;background:none;color:var(--st-soft);font:inherit;font-size:13px;cursor:pointer}
+.st-sheet-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.st-path{position:relative;overflow:hidden;list-style:none;margin:6px 0 28px;padding:8px 0 0}
+/* A faint floor under the road gives it depth. */
+.st-path::before{content:'';position:absolute;left:-30%;right:-30%;top:0;bottom:0;z-index:0;background:repeating-linear-gradient(90deg,#ff6a5a10 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,#ff6a5a0c 0 1px,transparent 1px 44px);transform:perspective(520px) rotateX(38deg);transform-origin:50% 0;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);pointer-events:none}
+.st-road{position:absolute;left:0;top:0;z-index:0;overflow:visible;pointer-events:none}
+.st-road path{fill:none;stroke-linecap:round}
+.st-road-bed{stroke:#0b0d13;stroke-width:16}
+.st-road-edge{stroke:#ff6a5a22;stroke-width:18;stroke-dasharray:2 9}
+.st-road-glow{stroke:#ff3b2b66;stroke-width:8;filter:blur(6px)}
+.st-road-line{stroke:url(#st-road-fade);stroke-width:2;stroke-dasharray:100;stroke-dashoffset:100;animation:stRoadDraw 1.6s .15s cubic-bezier(.4,0,.2,1) forwards}
+.st-road-spark{stroke:#fff;stroke-width:3;stroke-dasharray:3 97;stroke-dashoffset:100;opacity:0;animation:stRoadSpark 4.8s 1.8s linear infinite}
+.st-road-spark.is-halo{stroke:#ff8a7866;stroke-width:10}
+@keyframes stRoadDraw{to{stroke-dashoffset:0}}
+@keyframes stRoadSpark{0%{stroke-dashoffset:100;opacity:0}6%{opacity:1}94%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.st-stop{position:relative;z-index:1;display:flex;align-items:center;gap:6px;height:146px}
+.st-stop.is-right{flex-direction:row-reverse;text-align:right}
+.st-stop>button{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:inherit;cursor:pointer}
+.st-stop-pad{position:relative;flex:0 0 52%;height:100%;opacity:0;animation:stStopIn .6s calc(.25s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
+.st-stop-tile{position:absolute;left:50%;bottom:14px;width:74px;height:74px;margin-left:-37px;transform:scaleY(.5) rotate(45deg);border-radius:9px;background:linear-gradient(135deg,#5a211c,#21101a);box-shadow:0 0 0 1.5px #ff8a78,0 0 26px #ff3b2b99}
+.st-stop-pad img{position:absolute;left:50%;bottom:24px;width:164px;margin-left:-82px;transition:transform .25s;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%)}
+/* Each figure moves between its start and end pose. */
+.st-stop-pad img.is-b{animation:stPose 2.8s calc(var(--i) * .35s) ease-in-out infinite}
+@keyframes stPose{0%,30%{opacity:0}50%,80%{opacity:1}100%{opacity:0}}
+.st-stop-pad:active img{transform:scale(.96)}
+.st-stop-num{position:absolute;left:calc(50% - 74px);bottom:22px;z-index:1;min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;display:grid;place-items:center;background:var(--st-accent);color:#fff;font-size:12px;font-weight:700;box-shadow:0 4px 14px #ff3b2b77}
+.st-stop.is-right .st-stop-num{left:auto;right:calc(50% - 74px)}
+.st-stop-copy{flex:1;min-width:0;align-self:center;opacity:0;animation:stStopIn .6s calc(.35s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
+.st-stop-copy b{display:block;margin:3px 0 4px;font-size:16px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.st-stop-copy>span{color:var(--st-soft);font-size:13px}
+.st-stop-pad:focus-visible,.st-stop-copy:focus-visible{outline:2px solid #ffb9ad;outline-offset:2px;border-radius:14px}
+@keyframes stStopIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* A road figure lifted out as the live animated figure. */
+.st-zoom{position:absolute;inset:0;z-index:20;background:radial-gradient(ellipse 80% 50% at 50% 48%,#2a1215 0%,#0b0c12 60%,#05070b 100%);transform-origin:50% 50%}
+.st-zoom-stage{position:absolute;left:0;right:0;top:calc(40px + env(safe-area-inset-top));bottom:calc(200px + env(safe-area-inset-bottom))}
+.st-root .st-zoom #studio-stage{inset:0!important;top:0!important;height:100%!important}
+.st-zoom-close{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));z-index:2;display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:#ffffff14;color:#f6ece9;cursor:pointer}
+.st-zoom-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.st-zoom-copy{position:absolute;left:20px;right:20px;bottom:calc(20px + env(safe-area-inset-bottom))}
+.st-zoom-copy h2{margin:6px 0 4px;font-size:26px;letter-spacing:-.03em}
+.st-zoom-copy .st-start{position:static;margin-top:14px}
+
+@media(min-width:700px){.st-root{max-width:460px;margin:0 auto;box-shadow:0 0 0 100vmax #020306}}
+@media(prefers-reduced-motion:reduce){
+  .st-root.is-entering,.st-root.is-entering .st-art,.st-burst,.st-dose strong.is-rep{animation:none}
+  .st-sheet,.st-scrim{transition:none}
+  .st-road-line{animation:none;stroke-dashoffset:0}.st-road-spark{display:none}
+  .st-stop-pad,.st-stop-copy{animation:none;opacity:1}.st-stop-pad img.is-b{animation:none;opacity:1}
+}
