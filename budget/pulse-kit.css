@@ -1,0 +1,45 @@
+/* Pulse kit: the shared look of the training pages (home, pass tools,
+   exercise explorer). One colour meaning everywhere: red is strength, cyan is
+   cardio and rest between sets, grey is a rest day. Components here are the
+   ones every page uses the same way; page CSS refers to these tokens. */
+:root{
+  --pk-red:#ff5a48;            /* strength */
+  --pk-red-soft:#ff806f;
+  --pk-red-glow:#ff6a5a;
+  --pk-pale:#ffd4cc;
+  --pk-cyan:#7fe3ef;           /* cardio, rest between sets */
+  --pk-cyan-pale:#c9f6fb;
+  --pk-rest:#697681;           /* rest day */
+  --pk-text:#f2eded;
+  --pk-muted:#a5a0ae;
+  --pk-dim:#77727f;
+  --pk-tile:#ffffff07;
+  --pk-ring:#ffffff12;
+  --pk-line:#ffffff14;
+  --pk-ui:Inter,system-ui,sans-serif;
+  --pk-section-gap:72px;
+}
+
+/* Drawn icons (stroke, no glyphs). */
+.pk-icon{display:inline-block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+
+/* Round muscle artwork, as in the pass builder and the explorer's lists. */
+.pk-thumb{position:relative;display:block;flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#2b1517,#0f1118);box-shadow:0 0 0 1px #ffffff10,0 8px 22px -10px #ff6a5a66}
+.pk-thumb img{width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
+.pk-thumb.is-cardio{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#123038,#0c1318);color:var(--pk-cyan);box-shadow:0 0 0 1px #7fe3ef33,0 8px 22px -10px #7fe3ef66}
+.pk-thumb-icon{width:55%;height:55%;stroke-width:1.8;filter:drop-shadow(0 0 4px #7fe3ef88)}
+
+/* Round close/back button: the same everywhere. */
+.pk-close{display:grid;place-items:center;flex:none;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pk-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pk-close:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+
+/* A faint starfield for full-screen surfaces, echoing the home page sky. */
+.pk-sky{background:
+  radial-gradient(circle at 18% 22%,#ffe7dc40 0 .7px,transparent 1.5px),
+  radial-gradient(circle at 74% 14%,#ff9a9140 0 .75px,transparent 1.6px),
+  radial-gradient(circle at 42% 62%,#ffe7dc30 0 .6px,transparent 1.4px),
+  radial-gradient(circle at 86% 48%,#ffd2bd38 0 .7px,transparent 1.5px),
+  radial-gradient(circle at 12% 80%,#ff9a9130 0 .6px,transparent 1.4px),
+  radial-gradient(ellipse 60% 40% at 82% 8%,#a83e5f1f,transparent 70%),
+  radial-gradient(ellipse 50% 35% at 10% 30%,#6f294814,transparent 70%)}

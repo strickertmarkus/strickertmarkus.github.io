@@ -19,7 +19,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261023-explore-clone-v1">
+  <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-2">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261027-kit-3">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261027-passbyggare-1">
@@ -31,13 +32,13 @@
   <script defer src="auth-config.js?v=20261026-energy-loop-4"></script>
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
   <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
-  <script defer src="training-pulse-field.js?v=20261026-energy-loop-4"></script>
+  <script defer src="training-pulse-field.js?v=20261027-kit-2"></script>
   <script defer src="training-pulse-editor.js?v=20261027-passbyggare-2"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
-<link rel="stylesheet" href="pulse-explore-entry.css?v=2">
+<link rel="stylesheet" href="pulse-explore-entry.css?v=3">
 </head>
 <body>
   <div class="field-canvas" aria-hidden="true">
@@ -83,7 +84,7 @@
       <a id="menu-build" href="#field-templates" data-field-action="build">Bygg pass</a>
       <a id="menu-log" href="#training-log" data-field-action="log">Logga ett pass</a>
       <a id="menu-records" href="#records" data-field-action="records">Hantera rekord</a>
-      <a id="menu-explore-training" href="pulse-exercise-guide.html"><span aria-hidden="true">✦</span> Utforska träning</a>
+      <a id="menu-explore-training" href="pulse-exercise-guide.html"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg> Utforska träning</a>
       <div class="field-profile-control" role="group" aria-label="Välj träningsprofil">
         <span>Träningsprofil</span>
         <div class="field-profile-options">
@@ -98,15 +99,15 @@
   </header>
 
   <nav class="kind-switch" aria-label="Välj träningsområde">
-    <a class="is-active" href="exercise.html" aria-current="page"><span aria-hidden="true">⌁</span>Träning</a>
-    <a id="stretch-link" href="zen.html?wellness=stretch"><span aria-hidden="true">✧</span>Stretch</a>
-    <a id="meditation-link" href="zen.html?wellness=meditation"><span aria-hidden="true">≈</span>Meditation</a>
+    <a class="is-active" href="exercise.html" aria-current="page"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Träning</a>
+    <a id="stretch-link" href="zen.html?wellness=stretch"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg>Stretch</a>
+    <a id="meditation-link" href="zen.html?wellness=meditation"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9c3-2 6 2 9 0s6-2 9 0M3 15c3-2 6 2 9 0s6-2 9 0"/></svg>Meditation</a>
   </nav>
 
   <main>
     <section class="field-hero" aria-labelledby="field-title">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="spark-symbol" aria-hidden="true">✦</span> PULSE / FIELD</p>
+        <p class="eyebrow"><span class="spark-symbol"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg></span> PULSE / FIELD</p>
         <h1 id="field-title">Träning</h1>
         <p class="hero-script">styrka i rörelse.</p>
         <p class="hero-description">Ett levande fält av pass, puls och utveckling.</p>
@@ -115,10 +116,10 @@
       <div class="field-start-area">
         <a class="start-orbit" id="next-session-link" href="#field-templates" data-field-action="start" aria-describedby="next-session-meta">
           <span class="start-label">Starta pass</span>
-          <span class="start-field-symbol" aria-hidden="true">✦</span>
+          <span class="start-field-symbol"><svg class="pk-icon start-field-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg></span>
           <strong id="next-session-title">Välj dagens rörelse</strong>
           <span class="start-orbit-meta" id="next-session-meta">Nästa pass · Bygg eller välj ett upplägg</span>
-          <span class="start-orbit-arrow" aria-hidden="true">↗</span>
+          <span class="start-orbit-arrow"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
         </a>
       </div>
 
@@ -147,7 +148,7 @@
           <strong>Utforska övningar</strong>
           <small>Övningar & program</small>
         </span>
-        <img class="field-explore-figure" src="assets/atlas-art-v1/chest.webp" alt="" width="52" height="60">
+        <span class="field-explore-pad" aria-hidden="true"><span class="field-explore-tile"></span><img class="field-explore-figure" src="assets/exercise-poses-v1/00-end.webp" alt=""></span>
       </a>
     </section>
 
@@ -173,12 +174,12 @@
     <section class="field-section week-section" id="week-field" aria-labelledby="week-title">
       <div class="section-head">
         <div><p class="eyebrow">PLANERA RYTMEN</p><h2 id="week-title">Veckofält</h2></div>
-        <a class="quiet-action" id="edit-week-link" href="#week-field" data-field-action="week">Redigera veckoplan <span>↗</span></a>
+        <a class="quiet-action" id="edit-week-link" href="#week-field" data-field-action="week">Redigera veckoplan <svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
       </div>
       <div class="week-navigator" data-week-navigator>
-        <button type="button" data-week-shift="-1" aria-label="Föregående vecka">‹</button>
+        <button type="button" data-week-shift="-1" aria-label="Föregående vecka"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
         <div><strong data-week-label>Vecka</strong><span data-week-range></span></div>
-        <button type="button" data-week-shift="1" aria-label="Nästa vecka">›</button>
+        <button type="button" data-week-shift="1" aria-label="Nästa vecka"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
       <div class="week-field-shell">
         <svg class="week-orbit-art" viewBox="0 0 880 200" preserveAspectRatio="none" aria-hidden="true">
@@ -209,9 +210,9 @@
       </div>
       <div class="activity-week-nav" id="activity-week-nav" hidden>
         <div class="week-navigator" data-week-navigator>
-          <button type="button" data-week-shift="-1" aria-label="Föregående vecka">‹</button>
+          <button type="button" data-week-shift="-1" aria-label="Föregående vecka"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
           <div><strong data-week-label>Vecka</strong><span data-week-range></span></div>
-          <button type="button" data-week-shift="1" aria-label="Nästa vecka">›</button>
+          <button type="button" data-week-shift="1" aria-label="Nästa vecka"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
       <div class="activity-summary">
@@ -286,7 +287,7 @@
     <section class="field-section log-section" id="training-log" aria-labelledby="log-title">
       <div class="section-head">
         <div><p class="eyebrow">PASS FÖR PASS</p><h2 id="log-title">Träningslogg</h2></div>
-        <a class="quiet-action" id="log-action-link" href="#training-log" data-field-action="log">Logga eller redigera <span>↗</span></a>
+        <a class="quiet-action" id="log-action-link" href="#training-log" data-field-action="log">Logga eller redigera <svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
       </div>
       <p class="section-lead">En lugn tidslinje. Öppna bara det pass du vill läsa.</p>
       <div class="log-timeline" id="log-timeline"></div>
@@ -295,10 +296,10 @@
     <section class="field-section records-section" id="records" aria-labelledby="records-title">
       <div class="section-head">
         <div><p class="eyebrow">STARKASTE SIGNALERNA</p><h2 id="records-title">Personliga rekord</h2></div>
-        <div class="record-actions"><span class="record-count" id="record-count">0 rekord</span><button class="record-customize" id="record-customize" type="button" aria-expanded="false" aria-controls="record-picker">Anpassa <span aria-hidden="true">✎</span></button></div>
+        <div class="record-actions"><span class="record-count" id="record-count">0 rekord</span><button class="record-customize" id="record-customize" type="button" aria-expanded="false" aria-controls="record-picker">Anpassa <svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg></button></div>
       </div>
       <div class="record-picker" id="record-picker" hidden>
-        <div class="record-picker-head"><strong>Välj dina tre signaler</strong><button type="button" id="record-picker-close" aria-label="Stäng val av rekord">Stäng ×</button></div>
+        <div class="record-picker-head"><strong>Välj dina tre rekord</strong><button type="button" class="pk-close" id="record-picker-close" aria-label="Stäng val av rekord"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
         <div class="record-picker-fields" id="record-picker-fields"></div>
         <p>Valen sparas på den här enheten för din träningsprofil.</p>
       </div>

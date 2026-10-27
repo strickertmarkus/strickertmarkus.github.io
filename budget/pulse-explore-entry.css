@@ -1,2 +1,13 @@
-.field-explore-section{margin:18px 0 24px!important}.field-explore-section .field-explore-entry{display:flex;align-items:center;gap:16px;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;padding:6px 2px!important}.field-explore-figure{width:52px;height:60px;object-fit:cover;border-radius:50%;mask-image:radial-gradient(ellipse,#000 40%,transparent 73%)}.field-explore-entry .field-explore-copy strong{font-size:17px;font-weight:500}.field-explore-entry .field-explore-copy small{font-size:11px;opacity:.65}.field-explore-arrow{margin-left:auto;color:#d294aa}
-.field-explore-entry .field-explore-copy{padding-left:22px}.field-explore-entry .field-explore-figure{margin-left:auto;flex:0 0 66px;width:66px;height:74px}.field-explore-entry .field-explore-copy strong{font-size:18px}
+/* The way into the exercise explorer: a figure on the same glowing pad as the
+   stops on its programme road. */
+.field-explore-section{position:relative;z-index:3;margin:12px 0 18px}
+.field-explore-entry{display:flex;align-items:center;gap:14px;min-height:96px;padding:0 4px 0 2px;color:var(--pk-text);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.field-explore-copy{display:grid;gap:3px;flex:1;min-width:0;padding-left:20px}
+.field-explore-copy strong{color:var(--pk-text);font:600 18px/1.3 var(--pk-ui);letter-spacing:-.02em}
+.field-explore-copy small{color:var(--pk-muted);font:400 12px/1.5 var(--pk-ui)}
+.field-explore-pad{position:relative;flex:0 0 112px;height:100px}
+.field-explore-tile{position:absolute;left:50%;bottom:8px;width:58px;height:58px;margin-left:-29px;transform:scaleY(.5) rotate(45deg);border-radius:8px;background:linear-gradient(135deg,#5a211c,#21101a);box-shadow:0 0 0 1.5px #ff8a78,0 0 26px #ff3b2b99;transition:box-shadow .25s ease}
+.field-explore-figure{position:absolute;left:50%;bottom:16px;width:118px;margin-left:-59px;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);transition:transform .3s ease}
+.field-explore-entry:hover .field-explore-tile,.field-explore-entry:focus-visible .field-explore-tile{box-shadow:0 0 0 1.5px #ffb4a6,0 0 34px #ff3b2bcc}
+.field-explore-entry:active .field-explore-figure{transform:scale(.96)}
+@media(prefers-reduced-motion:reduce){.field-explore-figure,.field-explore-tile{transition:none}}

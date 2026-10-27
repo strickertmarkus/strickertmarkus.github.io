@@ -316,7 +316,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var displayName=String(plan&&plan.name || type).trim()||String(type);
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
       var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':'strength';
-      var signalColor=signalKind==='rest'?'rest':signalKind==='cardio'?'orange':/bröst|triceps/.test(lowerType)?'coral':/rygg|biceps/.test(lowerType)?'cyan':/ben|underkropp/.test(lowerType)?'gold':/axlar|mage/.test(lowerType)?'violet':/rörlighet|stretch/.test(lowerType)?'mint':['coral','cyan','gold','violet','mint'][Array.from(lowerType).reduce(function(n,ch){return n+ch.charCodeAt(0);},0)%5];
+      // One colour meaning across the training pages: red strength, cyan cardio, grey rest.
+      var signalColor=signalKind==='rest'?'rest':signalKind==='cardio'?'cyan':'red';
       var classes=['week-day'];
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
@@ -478,7 +479,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
   }
   function groupVolumeColor(index) {
-    return ['#ff657a','#67d4e4','#ffd2bd','#65d7a5','#a78bfa','#f6c977','#ff9a91','#8ab4f8'][index%8];
+    // Every group here is strength, so the lines share the strength reds in distinct tones.
+    return ['#ff5a48','#ffd4cc','#ff9b6a','#d8435e','#ffb4a6','#c96a50','#ff7f9a','#f2a48f'][index%8];
   }
   function groupVolumeChart(series) {
     var chart=byId('volume-chart');
@@ -791,7 +793,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(value)+'</text>';});
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0)){groups.cardio.push([]);groups.strength.push([]);return;}
-      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#7fe3ef':'#ff5a48';
       groups[entry.kind][groups[entry.kind].length-1].push([px,py]);
       if(entry.min>0&&entry.max>=entry.min){
         var y1=y(entry.max),y2=y(entry.min);
@@ -799,7 +801,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y1+'" x2="'+(px+cap)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y2+'" x2="'+(px+cap)+'" y2="'+y2+'" stroke="'+color+'"/>';
       }
     });
-    [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config){
+    [['cardio','#7fe3ef'],['strength','#ff5a48']].forEach(function(config){
       groups[config[0]].forEach(function(points){
         if(points.length>1)svg+=glowingLine(seriesPath(points),config[1],'');
       });
@@ -807,7 +809,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var previouslyLabelled=[],heartLabels='',heartMarkers='',heartHits='';
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0))return;
-      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#7fe3ef':'#ff5a48';
       // Always render a visible marker for every saved heart-rate measurement.
       // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
       heartMarkers+=glowingPoint(px,py,4,color,'heart-point');
@@ -1005,6 +1007,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var key=String(type||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE')+'|'+(kind==='cardio'?'cardio':'strength')+'|'+encodeURIComponent(String(name||'').replace(/\s+/g,' ').trim().toLocaleLowerCase('sv-SE'));
     return !!(data.hiddenExerciseNames&&data.hiddenExerciseNames[key]);
   }
+  /* Shared look (pulse-kit.css): drawn icons and the round muscle artwork
+     the pass builder and the exercise explorer use. */
+  var PK_ICON={
+    chevron:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+    down:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
+    clock:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    pencil:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg>'
+  };
+  var PK_ART=[[/triceps|dips/,'triceps'],[/biceps|curl/,'biceps'],[/bröst|press|fly|armhäv|push/,'chest'],[/rygg|rodd|lats|pull/,'back'],[/axl|axel|shoulder/,'shoulders'],[/mage|core|plank/,'abs'],[/säte|höft|glute/,'glutes'],[/baksida|lårcurl|marklyft/,'hamstrings'],[/vad/,'calves'],[/ben|knä|utfall|squat|lår|underkropp|helkropp/,'quads']];
+  var PK_CARDIO='<svg class="pk-icon pk-thumb-icon" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>';
+  function pkThumb(text,kind) {
+    if(kind==='cardio')return '<span class="pk-thumb is-cardio" aria-hidden="true">'+PK_CARDIO+'</span>';
+    var lower=String(text||'').toLocaleLowerCase('sv-SE'),slug='';
+    for(var i=0;i<PK_ART.length&&!slug;i++)if(PK_ART[i][0].test(lower))slug=PK_ART[i][1];
+    return '<span class="pk-thumb" aria-hidden="true"><img src="assets/atlas-art-v1/'+(slug||'chest')+'.webp" alt="" loading="lazy" decoding="async"></span>';
+  }
+
   function renderLog() {
     var allWorkouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
@@ -1027,15 +1046,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
         var seconds=exerciseSeconds(workout,exercise,exerciseIndex),normalized=normalizeExercise(exercise);
         var retired=isHistoricExerciseName(normalized.name,normalized.kind,workoutType(workout));
-        return '<button type="button" class="exercise-row" data-field-action="edit-exercise" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera '+escapeHtml(normalized.name)+(retired?' (äldre övningsnamn)':'')+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name'+(retired?' is-retired-exercise':'')+'"'+(retired?' title="Äldre övningsnamn – borttaget från listan"':'')+'>'+escapeHtml(normalized.name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time"><span aria-hidden="true">◷</span>'+formatDuration(seconds)+'</time>':'')+'</span></button>';
+        return '<button type="button" class="exercise-row" data-field-action="edit-exercise" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera '+escapeHtml(normalized.name)+(retired?' (äldre övningsnamn)':'')+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name'+(retired?' is-retired-exercise':'')+'"'+(retired?' title="Äldre övningsnamn – borttaget från listan"':'')+'>'+escapeHtml(normalized.name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+PK_ICON.clock+formatDuration(seconds)+'</time>':'')+'</span></button>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time><span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">⌄</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+(kind==='cardio'?' is-cardio':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time>'+pkThumb(workoutType(workout),kind)+'<span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">'+PK_ICON.chevron+'</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
     if(allWorkouts.length>workouts.length){
       var more=allWorkouts.length-workouts.length;
-      timeline.insertAdjacentHTML('beforeend','<button class="log-more-button" type="button" data-log-more aria-label="Visa fler sparade träningspass">Visa äldre pass <span>'+more+' kvar</span><span aria-hidden="true">↓</span></button>');
+      timeline.insertAdjacentHTML('beforeend','<button class="log-more-button" type="button" data-log-more aria-label="Visa fler sparade träningspass">Visa äldre pass <span>'+more+' kvar</span>'+PK_ICON.down+'</button>');
     }
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
@@ -1094,16 +1113,17 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     records.forEach(function(record){byKey[record.name.toLocaleLowerCase('sv-SE')]=record;});
     byId('record-podium').innerHTML=keys.map(function(key,index){
       var record=byKey[key];
-      return '<article class="record-feature"><div class="record-feature-top"><span class="rank">SIGNAL '+String(index+1).padStart(2,'0')+'</span><button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för signal '+(index+1)+'">✎</button></div>'+
-        '<h3>'+escapeHtml(record.name)+'</h3><strong>'+formatKg(record.value)+'</strong><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></article>';
+      // The three chosen records lead as glowing rows, in the builder's row style.
+      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></div><strong>'+formatKg(record.value)+'</strong>'+
+        '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.pencil+'</button></article>';
     }).join('');
     byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
-      return '<label class="record-picker-field"><span>Signal '+String(slot+1).padStart(2,'0')+'</span><select data-featured-select="'+slot+'" aria-label="Välj rekord för signal '+(slot+1)+'">'+
+      return '<label class="record-picker-field"><span>Plats '+String(slot+1).padStart(2,'0')+'</span><select data-featured-select="'+slot+'" aria-label="Välj rekord för plats '+(slot+1)+'">'+
         records.map(function(record){var key=record.name.toLocaleLowerCase('sv-SE');return '<option value="'+escapeHtml(key)+'"'+(keys[slot]===key?' selected':'')+'>'+escapeHtml(record.name)+'</option>';}).join('')+
       '</select></label>';
     }).join('');
     var groups={};records.forEach(function(record){(groups[record.category]||(groups[record.category]=[])).push(record);});
-    byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){var rows=groups[category].map(function(record){return '<button type="button" class="record-row" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera rekord '+escapeHtml(record.name)+'"><span>'+escapeHtml(record.name)+(record.gain?'<small>+'+formatNumber(record.gain,1)+' kg utveckling</small>':'')+'</span><strong>'+formatKg(record.value)+'</strong></button>';}).join('');return '<details class="record-group"'+(index===0?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>＋</i></summary><div class="record-list">'+rows+'</div></details>';}).join('');
+    byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){var rows=groups[category].map(function(record){return '<button type="button" class="record-row" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera rekord '+escapeHtml(record.name)+'">'+pkThumb(record.name,'strength')+'<span>'+escapeHtml(record.name)+(record.gain?'<small>+'+formatNumber(record.gain,1)+' kg utveckling</small>':'')+'</span><strong>'+formatKg(record.value)+'</strong></button>';}).join('');return '<details class="record-group"'+(index===0?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>'+PK_ICON.chevron+'</i></summary><div class="record-list">'+rows+'</div></details>';}).join('');
   }
 
   var renderPending=false;
