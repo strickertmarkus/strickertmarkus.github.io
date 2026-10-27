@@ -136,6 +136,8 @@ function enhanceRow(row){
  row.appendChild(panel);row.appendChild(actions);
  if(COMPACT)renderQuick(row);
  paintRow(row);
+ // B shows the suggestion chips under an empty row straight away.
+ if(COMPACT&&!(nameInput(row)||{}).value)setTimeout(function(){if(document.body.contains(row)&&!(nameInput(row)||{}).value)openRow(row,{scroll:false});},0);
 }
 /* B: small always-visible number fields on the row. */
 function renderQuick(row){
