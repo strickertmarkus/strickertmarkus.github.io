@@ -94,7 +94,12 @@
 
     /* ---- Playlists: a muscle group, or a programme ---- */
     var state = { group: 'Alla', program: null, list: [], index: 0, started: 0, elapsed: 0 };
-    function listFor(group) { return all.filter(function (e) { return group === 'Alla' || e.muscles.indexOf(group) >= 0; }).map(function (e) { return e.id; }); }
+    function listFor(group) {
+      var list = all.filter(function (e) { return group === 'Alla' || e.muscles.indexOf(group) >= 0; });
+      // Gym mode: exercises that mainly train the muscle come before those that only assist.
+      if (GYM && group !== 'Alla') list = list.slice().sort(function (a, b) { return a.muscles.indexOf(group) - b.muscles.indexOf(group); });
+      return list.map(function (e) { return e.id; });
+    }
     function renderTabs() {
       if (GYM) {
         tabs.innerHTML = '<div class="st-title"><b>' + (state.program ? state.program.name : state.group) + '</b><small>' + String(state.index + 1).padStart(2, '0') + ' / ' + state.list.length + '</small></div>' +
@@ -368,13 +373,15 @@
       window.PulseGuidePreview = preview;
       state.group = group; state.program = null; state.list = listFor(group);
       root.hidden = false;
-      root.classList.remove('is-entering');
+      root.classList.remove('is-entering', 'is-flip');
       if (wall && wall.src) {
         var image = new Image();
         var play = function () {
           art.style.backgroundImage = 'url("' + wall.src + '")';
           art.style.backgroundPosition = wall.focus || '50% 50%';
-          void root.offsetWidth; root.classList.add('is-entering');
+          void root.offsetWidth;
+          if (wall.from && art.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) grow(wall.from);
+          else root.classList.add('is-entering');
         };
         image.src = wall.src;
         if (image.decode) image.decode().then(play, play); else image.onload = play;
@@ -382,6 +389,29 @@
       go(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
       close.focus({ preventScroll: true });
       setTimeout(showHint, 900);
+    }
+    /* The artwork is born from the tapped muscle: it starts as a glowing tile
+       where the muscle sat on the body and opens out into the wall; then the
+       figure rises from below and the text follows. */
+    function grow(from) {
+      var box = art.getBoundingClientRect();
+      var size = Math.max(from.width / box.width, from.height / box.height, 0.12);
+      var dx = from.left + from.width / 2 - (box.left + box.width / 2), dy = from.top + from.height / 2 - (box.top + box.height / 2);
+      var curve = 'cubic-bezier(.2,.8,.2,1)';
+      root.classList.add('is-flip');
+      art.animate([
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + size + ')', borderRadius: '50%', filter: 'brightness(1.8) saturate(1.4) drop-shadow(0 0 30px #ff4a3a)', opacity: 0.6 },
+        { borderRadius: '28px', filter: 'brightness(1.3) saturate(1.2) drop-shadow(0 0 18px #ff4a3a88)', opacity: 1, offset: 0.55 },
+        { transform: 'none', borderRadius: '0', filter: 'none', opacity: 1 }
+      ], { duration: 720, easing: curve });
+      var rise = function (node, delay, y) {
+        if (node) node.animate([{ opacity: 0, translate: '0 ' + y + 'px' }, { opacity: 1, translate: '0 0' }], { duration: 520, delay: delay, easing: curve, fill: 'backwards' });
+      };
+      stageHost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
+      rise(document.getElementById('studio-stage'), 260, 60);
+      rise(heroCopy, 420, 10); rise(top, 480, -8); rise(info, 540, 12); rise(rail, 620, 16);
+      rise(root.querySelector('.st-poster'), 260, 60); rise(navPrev, 620, 0); rise(navNext, 620, 0);
+      setTimeout(function () { root.classList.remove('is-flip'); }, 1200);
     }
     function leave(silent) {
       if (root.hidden) return;

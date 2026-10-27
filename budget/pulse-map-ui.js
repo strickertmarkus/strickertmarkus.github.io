@@ -31,11 +31,13 @@
     fetch('assets/atlas-art-v1/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
       Object.keys(m.groups || {}).forEach(function (k) { focus[k] = m.groups[k].origin; });
     }).catch(function () {});
+    var from = null;
     function open(name, id) {
       // The page's own route opens the exercise view, which drives the figure.
       openExercise(name, id);
       document.documentElement.classList.add('gm-scene-open');
-      scene.enter(name, id, ART[name] ? { src: 'assets/atlas-art-v1/' + ART[name] + '.webp', focus: focus[name] } : null);
+      scene.enter(name, id, ART[name] ? { src: 'assets/atlas-art-v1/' + ART[name] + '.webp', focus: focus[name], from: from } : null);
+      from = null;
       setTimeout(function () { figure.classList.remove('gm-zooming'); figure.style.transformOrigin = ''; }, 500);
     }
     var openExercise = ui.openMuscleExercise;
@@ -50,8 +52,11 @@
       figure.style.transformOrigin = ((box.x + dx + box.width / 2) / 724 * 100) + '% ' + ((box.y + box.height / 2) / 1086 * 100) + '%';
       figure.classList.add('gm-zooming');
       var name = region.dataset.mapMuscle;
+      // Where the muscle will be on screen at the hand-off, partway into the zoom.
+      var r = region.getBoundingClientRect(), grow = 2;
+      from = { left: r.left + r.width / 2 - r.width * grow / 2, top: r.top + r.height / 2 - r.height * grow / 2, width: r.width * grow, height: r.height * grow };
       if (ART[name]) new Image().src = 'assets/atlas-art-v1/' + ART[name] + '.webp';
-      setTimeout(function () { ui.openMuscleExercise(name); }, 380);
+      setTimeout(function () { ui.openMuscleExercise(name); }, 240);
     });
     scene.onLeave(function () { document.documentElement.classList.remove('gm-scene-open'); showBody(); });
     // Browser back from the exercise view returns to the body as well.
